@@ -4,11 +4,11 @@
 
 #include <sys/types.h>
 
-#include <dvrlib/toolkit/Macro.h>
-#include <dvrlib/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/MetaProgramming.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */
@@ -45,7 +45,7 @@ namespace dvrlib
 		{ };
 	}
 
-#define TYPELIST(...)	dvrlib::Detail::TypeListCreator<void ( __VA_ARGS__ ) >
+#define TYPELIST(...)	stingray::Detail::TypeListCreator<void ( __VA_ARGS__ ) >
 
 #define DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(Size_, PrevSize_, TypesTypenames_, Tail_) \
 	template < TypesTypenames_ > \

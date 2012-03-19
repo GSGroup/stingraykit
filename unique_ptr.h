@@ -1,11 +1,11 @@
 #ifndef __GS_DVRLIB_TOOLKIT_UNIQUE_PTR_H__
 #define	__GS_DVRLIB_TOOLKIT_UNIQUE_PTR_H__
 
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/safe_bool.h>
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/safe_bool.h>
+#include <stingray/toolkit/toolkit.h>
 
-namespace dvrlib 
+namespace stingray 
 {
 
 template<typename T>

@@ -3,15 +3,15 @@
 
 #include <vector>
 
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/iterator_base.h>
-#include <dvrlib/toolkit/toolkit.h>
-#include <dvrlib/toolkit/shared_ptr.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/iterator_base.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 #define DETAIL_BYTEDATA_INDEX_CHECK(...) TOOLKIT_INDEX_CHECK(__VA_ARGS__)
 
 
-namespace dvrlib
+namespace stingray
 {
 	template < typename T >
 	class ByteDataIterator : public iterator_base<ByteDataIterator<T>, T, std::random_access_iterator_tag>

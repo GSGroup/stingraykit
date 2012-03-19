@@ -1,14 +1,14 @@
-#include <dvrlib/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/ITaskExecutor.h>
 
 #if defined(PLATFORM_OSPLUS)
-#	include <dvrlib/platform/osplus/threads/OS21TaskExecutor.h>
+#	include <stingray/platform/osplus/threads/OS21TaskExecutor.h>
 #else
-#	include <dvrlib/toolkit/ThreadTaskExecutor.h>
+#	include <stingray/toolkit/ThreadTaskExecutor.h>
 #endif
-#include <dvrlib/log/Logger.h>
+#include <stingray/log/Logger.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	ITaskExecutorPtr ITaskExecutor::Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler) 

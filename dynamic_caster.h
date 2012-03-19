@@ -2,13 +2,13 @@
 #define __GS_DVRLIB_TOOLKIT_DYNAMIC_CASTER_H__
 
 
-#include <dvrlib/toolkit/MetaProgramming.h>
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/Dummy.h>
+#include <stingray/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/Dummy.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 
@@ -126,7 +126,7 @@ namespace dvrlib
 				TargetType target = Caster<SourceType, TargetType>::Do(_source);
 
 				if ((!AllowNullSource || _source) && !target)
-					throw dvrlib::Detail::MakeException(InvalidCastException(typeid(SourceType).name(), typeid(TargetType).name()), _file, _line, _functionName);
+					throw stingray::Detail::MakeException(InvalidCastException(typeid(SourceType).name(), typeid(TargetType).name()), _file, _line, _functionName);
 
 				return target;
 			}
@@ -144,8 +144,8 @@ namespace dvrlib
 	}
 
 
-#define TOOLKIT_CHECKED_DYNAMIC_CASTER(Expr_) dvrlib::Detail::checked_dynamic_caster(Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
-#define TOOLKIT_NULLABLE_CHECKED_DYNAMIC_CASTER(Expr_) dvrlib::Detail::nullable_checked_dynamic_caster(Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
+#define TOOLKIT_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::checked_dynamic_caster(Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
+#define TOOLKIT_NULLABLE_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::nullable_checked_dynamic_caster(Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
 
 
 }

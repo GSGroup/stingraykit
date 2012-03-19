@@ -2,17 +2,17 @@
 #define __GS_DVRLIB_TOOLKIT_IENUMERATOR_H__
 
 
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/toolkit/function.h>
-#include <dvrlib/toolkit/dynamic_caster.h>
-#include <dvrlib/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/dynamic_caster.h>
+#include <stingray/toolkit/MetaProgramming.h>
 
 
 #define TOOLKIT_DECLARE_ENUMERATOR(ClassName) \
-		typedef dvrlib::IEnumerator<ClassName>				ClassName##Enumerator; \
+		typedef stingray::IEnumerator<ClassName>				ClassName##Enumerator; \
 		TOOLKIT_DECLARE_PTR(ClassName##Enumerator)
 
-namespace dvrlib
+namespace stingray
 {
 
 
@@ -304,11 +304,11 @@ namespace dvrlib
 #define IN ,
 #define FOR_EACH__IMPL(ItemDecl, ...) \
 		for (bool __broken__ = false; !__broken__; __broken__ = true) \
-			for (dvrlib::shared_ptr< \
-					dvrlib::IEnumerator< \
-						dvrlib::Detail::GetItemTypeFromItemDecl<void(*)(ItemDecl)>::ValueT \
+			for (stingray::shared_ptr< \
+					stingray::IEnumerator< \
+						stingray::Detail::GetItemTypeFromItemDecl<void(*)(ItemDecl)>::ValueT \
 					>  \
-				 > en = dvrlib::GetEnumeratorCaster(__VA_ARGS__); \
+				 > en = stingray::GetEnumeratorCaster(__VA_ARGS__); \
 				 en && en->Valid() && !__broken__; \
 				 en->Next()) \
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \

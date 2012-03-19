@@ -3,10 +3,10 @@
 
 #include <string>
 #ifdef HAVE_BACKTRACE
-#	include <dvrlib/platform/posix/threads/Backtrace.h>
+#	include <stingray/platform/posix/threads/Backtrace.h>
 #endif
 
-namespace dvrlib
+namespace stingray
 {
 #ifdef HAVE_BACKTRACE
 		typedef posix::Backtrace Backtrace;

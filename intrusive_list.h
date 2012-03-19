@@ -1,11 +1,11 @@
 #ifndef __GS_DVRLIB_TOOLKIT_INTRUSIVE_LIST_H__
 #define __GS_DVRLIB_TOOLKIT_INTRUSIVE_LIST_H__
 
-#include <dvrlib/toolkit/toolkit.h>
-#include <dvrlib/toolkit/exception.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/exception.h>
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 

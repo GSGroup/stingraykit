@@ -5,12 +5,12 @@
 #include <queue>
 #include <list>
 
-#include <dvrlib/toolkit/Final.h>
-#include <dvrlib/toolkit/ITaskExecutor.h>
-#include <dvrlib/threads/Thread.h>
+#include <stingray/toolkit/Final.h>
+#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/threads/Thread.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	

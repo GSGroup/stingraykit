@@ -2,14 +2,14 @@
 #define __GS_DVRLIB_TOOLKIT_ICOMPARER_H__
 
 
-#include <dvrlib/toolkit/shared_ptr.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 
 #define TOOLKIT_DECLARE_COMPARER(ClassName) \
-		typedef dvrlib::IComparer<ClassName>				ClassName##Comparer; \
+		typedef stingray::IComparer<ClassName>				ClassName##Comparer; \
 		TOOLKIT_DECLARE_PTR(ClassName##Comparer);
 
-namespace dvrlib
+namespace stingray
 {
 
 

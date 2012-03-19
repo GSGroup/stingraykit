@@ -4,11 +4,11 @@
 
 #include <climits>
 
-#include <dvrlib/toolkit/Singleton.h>
+#include <stingray/toolkit/Singleton.h>
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 

@@ -2,10 +2,10 @@
 #define	__GS_DVRLIB_TOOLKIT_INTEGERBUILDER_H__
 
 
-#include <dvrlib/toolkit/Types.h>
+#include <stingray/toolkit/Types.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 

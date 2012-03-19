@@ -2,16 +2,16 @@
 #define __GS_DVRLIB_TOOLKIT_BITSGETTER_H__
 
 
-#include <dvrlib/log/Logger.h>
-#include <dvrlib/toolkit/ByteData.h>
-#include <dvrlib/toolkit/toolkit.h>
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/Dummy.h>
+#include <stingray/log/Logger.h>
+#include <stingray/toolkit/ByteData.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/Dummy.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 	
 	namespace Detail

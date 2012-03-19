@@ -2,10 +2,10 @@
 #define __GS_DVRLIB_TOOLKIT_TYPES_H__
 
 
-#include <dvrlib/toolkit/TypeList.h>
+#include <stingray/toolkit/TypeList.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */

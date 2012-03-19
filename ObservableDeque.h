@@ -3,10 +3,10 @@
 
 #include <deque>
 
-#include <dvrlib/toolkit/iterator_base.h>
-#include <dvrlib/toolkit/signals.h>
+#include <stingray/toolkit/iterator_base.h>
+#include <stingray/toolkit/signals.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 template<typename T>

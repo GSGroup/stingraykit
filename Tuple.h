@@ -3,11 +3,11 @@
 
 
 //FORCE_INLINE
-#include <dvrlib/toolkit/toolkit.h>
-#include <dvrlib/toolkit/TypeList.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/TypeList.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */

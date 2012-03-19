@@ -1,10 +1,10 @@
 #ifndef GS_DVRLIB_TOOLKIT_THREADLESS_SIGNALS_H__
 #define GS_DVRLIB_TOOLKIT_THREADLESS_SIGNALS_H__
 
-#include <dvrlib/toolkit/signals.h>
-#include <dvrlib/toolkit/light_shared_ptr.h>
+#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/light_shared_ptr.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 	namespace Detail

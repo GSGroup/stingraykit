@@ -2,7 +2,7 @@
 #define __GS_DVRLIB_TOOLKIT_DUMMY_H__
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */

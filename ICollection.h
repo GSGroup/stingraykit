@@ -2,14 +2,14 @@
 #define __GS_DVRLIB_TOOLKIT_ICOLLECTION_H__
 
 
-#include <dvrlib/toolkit/IEnumerable.h>
+#include <stingray/toolkit/IEnumerable.h>
 
 #define TOOLKIT_DECLARE_COLLECTION(ClassName) \
-		typedef dvrlib::ICollection<ClassName>				ClassName##Collection; \
+		typedef stingray::ICollection<ClassName>				ClassName##Collection; \
 		TOOLKIT_DECLARE_PTR(ClassName##Collection); \
 		TOOLKIT_DECLARE_ENUMERABLE(ClassName)
 
-namespace dvrlib
+namespace stingray
 {
 
 	

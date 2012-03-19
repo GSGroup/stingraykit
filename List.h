@@ -5,12 +5,12 @@
 #include <list>
 #include <algorithm>
 
-#include <dvrlib/toolkit/EnumeratorFromStlContainer.h>
-#include <dvrlib/toolkit/StlEnumeratorAdapter.h>
-#include <dvrlib/toolkit/IList.h>
+#include <stingray/toolkit/EnumeratorFromStlContainer.h>
+#include <stingray/toolkit/StlEnumeratorAdapter.h>
+#include <stingray/toolkit/IList.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	template < typename T >

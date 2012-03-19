@@ -2,10 +2,10 @@
 #define __GS_DVRLIB_TOOLKIT_DEPENDSON_H__
 
 
-#include <dvrlib/toolkit/ServiceProvider.h>
+#include <stingray/toolkit/ServiceProvider.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	namespace Detail

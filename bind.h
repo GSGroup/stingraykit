@@ -2,17 +2,17 @@
 #define __GS_DVRLIB_TOOLKIT_BIND_H__
 
 
-#include <dvrlib/toolkit/function.h>
-#include <dvrlib/toolkit/FunctorInvoker.h>
-#include <dvrlib/toolkit/Macro.h>
-#include <dvrlib/toolkit/MetaProgramming.h>
-#include <dvrlib/toolkit/reference.h>
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/toolkit/Tuple.h>
-#include <dvrlib/toolkit/TypeList.h>
+#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/FunctorInvoker.h>
+#include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/reference.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/Tuple.h>
+#include <stingray/toolkit/TypeList.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */

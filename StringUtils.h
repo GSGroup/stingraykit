@@ -3,15 +3,15 @@
 
 #include <sstream>
 
-#include <dvrlib/toolkit/Dummy.h>
-#include <dvrlib/toolkit/Types.h>
-#include <dvrlib/toolkit/IStringRepresentable.h>
-#include <dvrlib/toolkit/NestedTypeCheck.h>
+#include <stingray/toolkit/Dummy.h>
+#include <stingray/toolkit/Types.h>
+#include <stingray/toolkit/IStringRepresentable.h>
+#include <stingray/toolkit/NestedTypeCheck.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 	template < typename T>

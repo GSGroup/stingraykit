@@ -1,9 +1,9 @@
 #ifndef __GS_DVRLIB_TOOLKIT_LAZYPROPERTY_H__
 #define	__GS_DVRLIB_TOOLKIT_LAZYPROPERTY_H__
 
-#include <dvrlib/toolkit/shared_ptr.h>
+#include <stingray/toolkit/shared_ptr.h>
 
-namespace dvrlib {
+namespace stingray {
 
 #define TOOLKIT_LAZY_PROPERTY(PropertyType, PropertyName) \
 	public: \

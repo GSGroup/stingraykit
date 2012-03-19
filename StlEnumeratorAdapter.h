@@ -2,13 +2,13 @@
 #define __GS_DVRLIB_TOOLKIT_STLENUMERATORADAPTER_H__
 
 
-#include <dvrlib/toolkit/IEnumerator.h>
-#include <dvrlib/toolkit/shared_ptr.h>
+#include <stingray/toolkit/IEnumerator.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 	

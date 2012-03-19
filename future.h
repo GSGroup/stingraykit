@@ -1,14 +1,14 @@
 #ifndef __GS_DVRLIB_TOOLKIT_FUTURE_H__
 #define	__GS_DVRLIB_TOOLKIT_FUTURE_H__
 
-#include <dvrlib/threads/ConditionVariable.h>
-#include <dvrlib/threads/Thread.h>
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/toolkit/unique_ptr.h>
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/threads/ConditionVariable.h>
+#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/unique_ptr.h>
+#include <stingray/toolkit/toolkit.h>
 
-namespace dvrlib {
+namespace stingray {
 
 struct future_status
 {

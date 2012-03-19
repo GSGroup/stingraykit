@@ -2,10 +2,10 @@
 #define __GS_DVRLIB_TOOLKIT_LAZY_H__
 
 
-#include <dvrlib/toolkit/function.h>
+#include <stingray/toolkit/function.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	template < typename T >

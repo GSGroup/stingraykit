@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include <dvrlib/toolkit/shared_ptr.h>
+#include <stingray/toolkit/shared_ptr.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 	struct IBinaryData

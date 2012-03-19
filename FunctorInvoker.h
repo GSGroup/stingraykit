@@ -2,13 +2,13 @@
 #define __GS_DVRLIB_TOOLKIT_FUNCTORINVOKER_H__
 
 
-#include <dvrlib/toolkit/function_info.h>
-#include <dvrlib/toolkit/exception.h>
+#include <stingray/toolkit/function_info.h>
+#include <stingray/toolkit/exception.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 	template < typename T >

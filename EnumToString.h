@@ -9,10 +9,10 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <dvrlib/toolkit/iterator_base.h>
-#include <dvrlib/toolkit/Types.h>
+#include <stingray/toolkit/iterator_base.h>
+#include <stingray/toolkit/Types.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 	namespace Detail

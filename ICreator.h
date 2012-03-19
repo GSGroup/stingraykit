@@ -2,15 +2,15 @@
 #define __GS_DVRLIB_TOOLKIT_ICREATOR_H__
 
 
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/toolkit/TypeList.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/TypeList.h>
 
 
 #define TOOLKIT_DECLARE_CREATOR(ClassName) \
-		typedef dvrlib::ICreator<ClassName>				ClassName##Creator; \
+		typedef stingray::ICreator<ClassName>				ClassName##Creator; \
 		TOOLKIT_DECLARE_PTR(ClassName##Creator)
 
-namespace dvrlib
+namespace stingray
 {
 	
 	template < typename T >

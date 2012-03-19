@@ -2,12 +2,12 @@
 #define __GS_DVRLIB_TOOLKIT_REFERENCE_H__
 
 
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/toolkit.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 

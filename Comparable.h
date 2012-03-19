@@ -2,9 +2,9 @@
 #define	COMPARABLE_H
 
 #include <typeinfo>
-#include <dvrlib/toolkit/shared_ptr.h>
+#include <stingray/toolkit/shared_ptr.h>
 
-namespace dvrlib
+namespace stingray
 {
 	struct IComparable;
 	TOOLKIT_DECLARE_PTR(IComparable);

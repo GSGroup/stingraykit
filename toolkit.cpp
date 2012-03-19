@@ -1,7 +1,7 @@
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/toolkit.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	NullPtrType null;

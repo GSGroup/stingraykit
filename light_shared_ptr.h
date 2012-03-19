@@ -5,22 +5,22 @@
 #include <sys/types.h>
 #include <stdexcept>
 
-#include <dvrlib/toolkit/Atomic.h>
-#include <dvrlib/toolkit/Macro.h>
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/ref_count.h>
-#include <dvrlib/toolkit/safe_bool.h>
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/Atomic.h>
+#include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/ref_count.h>
+#include <stingray/toolkit/safe_bool.h>
+#include <stingray/toolkit/toolkit.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 	
 #define TOOLKIT_DECLARE_LIGHT_PTR(ClassName) \
-		typedef dvrlib::light_shared_ptr<ClassName>				ClassName##LightPtr; \
-		typedef dvrlib::light_shared_ptr<const ClassName>		ClassName##LightConstPtr; \
-		typedef dvrlib::light_weak_ptr<ClassName>				ClassName##LightWeakPtr; \
-		typedef dvrlib::light_weak_ptr<const ClassName>			ClassName##LightConstWeakPtr
+		typedef stingray::light_shared_ptr<ClassName>				ClassName##LightPtr; \
+		typedef stingray::light_shared_ptr<const ClassName>		ClassName##LightConstPtr; \
+		typedef stingray::light_weak_ptr<ClassName>				ClassName##LightWeakPtr; \
+		typedef stingray::light_weak_ptr<const ClassName>			ClassName##LightConstWeakPtr
 
 
 	template < typename T >
@@ -187,7 +187,7 @@ namespace dvrlib
 
 		template < typename T >
 		light_shared_ptr<T> RequireNotNull(const light_shared_ptr<T>& ptr, const char* expr, const char* file, size_t line, const char* func)
-		{ if (!ptr) throw dvrlib::Detail::MakeException(NullPointerException(expr), file, line, func); else return ptr; }
+		{ if (!ptr) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return ptr; }
 
 
 		template < typename T >

@@ -3,13 +3,13 @@
 
 #include <iterator>
 
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/toolkit/IEnumerator.h>
-#include <dvrlib/toolkit/IEnumerable.h>
-#include <dvrlib/toolkit/function.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/IEnumerator.h>
+#include <stingray/toolkit/IEnumerable.h>
+#include <stingray/toolkit/function.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */

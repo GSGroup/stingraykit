@@ -1,7 +1,7 @@
 #ifndef __GS_DVRLIB_TOOLKIT_MAPPER_H__
 #define	__GS_DVRLIB_TOOLKIT_MAPPER_H__
 
-namespace dvrlib {
+namespace stingray {
 
 
 namespace Detail
@@ -104,22 +104,22 @@ struct BaseValueMapper
 {
 	typedef SrcT SrcType;
 	typedef DstT DstType;
-	typedef dvrlib::Detail::Mappings<SrcType> Src; // Short names are used for sake of mapping list readability: TypeList_2<Src::Value<123>, Dst::Range<1, 2, 3> >
-	typedef dvrlib::Detail::Mappings<DstType> Dst;
+	typedef stingray::Detail::Mappings<SrcType> Src; // Short names are used for sake of mapping list readability: TypeList_2<Src::Value<123>, Dst::Range<1, 2, 3> >
+	typedef stingray::Detail::Mappings<DstType> Dst;
 
 	static DstType Map(SrcType val)
 	{
 		typedef typename Derived::MappingsList MappingsList;
 		typedef typename Derived::DefaultMapping DefaultMapping;
 
-		return dvrlib::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::Map(val);
+		return stingray::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::Map(val);
 	}
 	static SrcType Unmap(DstType val)
 	{
 		typedef typename Derived::MappingsList MappingsList;
 		typedef typename Derived::DefaultMapping DefaultMapping;
 
-		return dvrlib::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::Unmap(val);
+		return stingray::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::Unmap(val);
 	}
 };
 

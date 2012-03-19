@@ -1,11 +1,11 @@
 #ifndef __GS_DVRLIB_TOOLKIT_MEMBERLISTCOMPARER_H__
 #define __GS_DVRLIB_TOOLKIT_MEMBERLISTCOMPARER_H__
 
-#include <dvrlib/toolkit/Tuple.h>
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/toolkit/MemberToValueComparer.h>
+#include <stingray/toolkit/Tuple.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/MemberToValueComparer.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 	template<typename MemberPointerT, typename ComparerT>

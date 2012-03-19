@@ -2,11 +2,11 @@
 #define __GS_DVRLIB_TOOLKIT_MAKEPROPERTYCOMPARER_H__
 
 
-#include <dvrlib/toolkit/IComparer.h>
-#include <dvrlib/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/IComparer.h>
+#include <stingray/toolkit/MetaProgramming.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */

@@ -2,10 +2,10 @@
 #define __GS_DVRLIB_TOOLKIT_ITERATORS_H__
 
 
-#include <dvrlib/toolkit/iterator_base.h>
+#include <stingray/toolkit/iterator_base.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	template<typename BidirectionalIteratorT>

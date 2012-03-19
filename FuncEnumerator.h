@@ -2,11 +2,11 @@
 #define __GS_DVRLIB_TOOLKIT_FUNCENUMERATOR_H__
 
 
-#include <dvrlib/toolkit/IEnumerator.h>
-#include <dvrlib/toolkit/function.h>
+#include <stingray/toolkit/IEnumerator.h>
+#include <stingray/toolkit/function.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 	
 

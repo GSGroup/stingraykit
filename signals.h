@@ -1,16 +1,16 @@
 #ifndef GS_DVRLIB_TOOLKIT_SIGNALS_H__
 #define GS_DVRLIB_TOOLKIT_SIGNALS_H__
 
-#include <dvrlib/toolkit/signal_connection.h>
-#include <dvrlib/toolkit/function.h>
-#include <dvrlib/toolkit/slot.h>
-#include <dvrlib/toolkit/intrusive_list.h>
-#include <dvrlib/threads/Thread.h>
-#include <dvrlib/log/Logger.h>
+#include <stingray/toolkit/signal_connection.h>
+#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/slot.h>
+#include <stingray/toolkit/intrusive_list.h>
+#include <stingray/threads/Thread.h>
+#include <stingray/log/Logger.h>
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 	struct default_exception_handler
 	{
@@ -270,12 +270,12 @@ namespace dvrlib
 		};
 
 		explicit FORCE_INLINE signal(const NullPtrType&,
-									 const ExceptionHandlerFunc& exceptionHandler = &dvrlib::Detail::DefaultSignalExceptionHandler)
+									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler)
 			: base(exceptionHandler, &base::DefaultSendCurrentState)
 		{ }
 
 		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState,
-									 const ExceptionHandlerFunc& exceptionHandler = &dvrlib::Detail::DefaultSignalExceptionHandler)
+									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler)
 			: base(exceptionHandler, sendCurrentState)
 		{}
 
@@ -320,12 +320,12 @@ namespace dvrlib
 		}; \
 		\
 		explicit FORCE_INLINE signal(const NullPtrType&, \
-									 const ExceptionHandlerFunc& exceptionHandler = &dvrlib::Detail::DefaultSignalExceptionHandler) \
+									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler) \
 			: base(exceptionHandler, &base::DefaultSendCurrentState) \
 		{ } \
 		\
 		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState, \
-									 const ExceptionHandlerFunc& exceptionHandler = &dvrlib::Detail::DefaultSignalExceptionHandler) \
+									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler) \
 			: base(exceptionHandler, sendCurrentState) \
 		{ } \
 		\

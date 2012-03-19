@@ -5,10 +5,10 @@
 #include <set>
 #include <map>
 #include <vector>
-#include <dvrlib/toolkit/NestedTypeCheck.h>
+#include <stingray/toolkit/NestedTypeCheck.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 

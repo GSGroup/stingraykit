@@ -2,14 +2,14 @@
 #define __GS_DVRLIB_TOOLKIT_IENUMERABLE_H__
 
 
-#include <dvrlib/toolkit/IEnumerator.h>
+#include <stingray/toolkit/IEnumerator.h>
 
 #define TOOLKIT_DECLARE_ENUMERABLE(ClassName) \
-		typedef dvrlib::IEnumerable<ClassName>				ClassName##Enumerable; \
+		typedef stingray::IEnumerable<ClassName>				ClassName##Enumerable; \
 		TOOLKIT_DECLARE_PTR(ClassName##Enumerable); \
 		TOOLKIT_DECLARE_ENUMERATOR(ClassName)
 
-namespace dvrlib
+namespace stingray
 {
 
 	

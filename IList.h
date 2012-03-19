@@ -2,15 +2,15 @@
 #define __GS_DVRLIB_TOOLKIT_ILIST_H__
 
 
-#include <dvrlib/toolkit/ICollection.h>
+#include <stingray/toolkit/ICollection.h>
 
 
 #define TOOLKIT_DECLARE_LIST(ClassName) \
-		typedef dvrlib::IList<ClassName>				ClassName##List; \
+		typedef stingray::IList<ClassName>				ClassName##List; \
 		TOOLKIT_DECLARE_PTR(ClassName##List); \
 		TOOLKIT_DECLARE_COLLECTION(ClassName)
 
-namespace dvrlib
+namespace stingray
 {
 
 	

@@ -1,9 +1,9 @@
 #ifndef __GS_DVRLIB_TOOLKIT_NUMERICRANGE_H__
 #define	__GS_DVRLIB_TOOLKIT_NUMERICRANGE_H__
 
-#include <dvrlib/toolkit/exception.h>
+#include <stingray/toolkit/exception.h>
 
-namespace dvrlib {
+namespace stingray {
 
 template<typename T>
 class NumericRange

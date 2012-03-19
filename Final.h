@@ -2,13 +2,13 @@
 #define __GS_DVRLIB_TOOLKIT_FINAL_H__
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	// Usage: 
 	// class A : TOOLKIT_FINAL(A) { };
 
-#define TOOLKIT_FINAL(ClassName_) private virtual dvrlib::Final<ClassName_>
+#define TOOLKIT_FINAL(ClassName_) private virtual stingray::Final<ClassName_>
 
 	template < typename >
 	class Final

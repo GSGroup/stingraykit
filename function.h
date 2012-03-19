@@ -2,14 +2,14 @@
 #define __GS_DVRLIB_TOOLKIT_FUNCTION_H__
 
 
-#include <dvrlib/toolkit/function_info.h>
-#include <dvrlib/toolkit/FunctorInvoker.h>
-#include <dvrlib/toolkit/self_counter.h>
-#include <dvrlib/toolkit/Tuple.h>
+#include <stingray/toolkit/function_info.h>
+#include <stingray/toolkit/FunctorInvoker.h>
+#include <stingray/toolkit/self_counter.h>
+#include <stingray/toolkit/Tuple.h>
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 	template < typename Signature >

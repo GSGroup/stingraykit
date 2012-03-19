@@ -2,13 +2,13 @@
 #define __GS_DVRLIB_TOOLKIT_FUNCTION_INFO_H__
 
 
-#include <dvrlib/toolkit/Macro.h>
-#include <dvrlib/toolkit/toolkit.h>
-#include <dvrlib/toolkit/TypeList.h>
+#include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/TypeList.h>
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 	struct FunctionType

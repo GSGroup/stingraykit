@@ -2,10 +2,10 @@
 #define __GS_DVRLIB_TOOLKIT_NESTEDTYPECHECK_H__
 
 
-#include <dvrlib/toolkit/TypeList.h>
+#include <stingray/toolkit/TypeList.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	namespace Detail
@@ -39,7 +39,7 @@ namespace dvrlib
 			If	< \
 					IsClass<T>::Value, \
 					Detail::HasNestedType_##NestedType_##_Impl<T>, \
-					dvrlib::Detail::DoesNotHaveAnyNestedTypes \
+					stingray::Detail::DoesNotHaveAnyNestedTypes \
 				>::ValueT::Value; \
 	}
 
@@ -68,7 +68,7 @@ namespace dvrlib
 			If	< \
 					IsClass<T>::Value, \
 					Detail::HasMethod_##Method_##_Impl<T>, \
-					dvrlib::Detail::DoesNotHaveAnyNestedTypes \
+					stingray::Detail::DoesNotHaveAnyNestedTypes \
 				>::ValueT::Value; \
 	}
 

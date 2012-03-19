@@ -3,12 +3,12 @@
 
 #include <list>
 #include <algorithm>
-#include <dvrlib/toolkit/self_counter.h>
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/threads/Thread.h>
-#include <dvrlib/log/Logger.h>
+#include <stingray/toolkit/self_counter.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/threads/Thread.h>
+#include <stingray/log/Logger.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 	namespace Detail

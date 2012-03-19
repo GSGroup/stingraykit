@@ -1,7 +1,7 @@
 #ifndef __TOOLKIT_RATIONAL_H__
 #define	__TOOLKIT_RATIONAL_H__
 
-namespace dvrlib
+namespace stingray
 {
 	struct Rational
 	{

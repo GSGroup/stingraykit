@@ -5,22 +5,22 @@
 #include <sys/types.h>
 #include <stdexcept>
 
-#include <dvrlib/toolkit/Atomic.h>
-#include <dvrlib/toolkit/Macro.h>
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/ref_count.h>
-#include <dvrlib/toolkit/safe_bool.h>
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/Atomic.h>
+#include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/ref_count.h>
+#include <stingray/toolkit/safe_bool.h>
+#include <stingray/toolkit/toolkit.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 
 #define TOOLKIT_DECLARE_PTR(ClassName) \
-		typedef dvrlib::shared_ptr<ClassName>			ClassName##Ptr; \
-		typedef dvrlib::shared_ptr<const ClassName>		ClassName##ConstPtr; \
-		typedef dvrlib::weak_ptr<ClassName>				ClassName##WeakPtr; \
-		typedef dvrlib::weak_ptr<const ClassName>		ClassName##ConstWeakPtr
+		typedef stingray::shared_ptr<ClassName>			ClassName##Ptr; \
+		typedef stingray::shared_ptr<const ClassName>		ClassName##ConstPtr; \
+		typedef stingray::weak_ptr<ClassName>				ClassName##WeakPtr; \
+		typedef stingray::weak_ptr<const ClassName>		ClassName##ConstWeakPtr
 
 
 	template < typename T >

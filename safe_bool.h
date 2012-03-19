@@ -1,9 +1,9 @@
 #ifndef __TOOLKIT_SAFE_BOOL_H__
 #define __TOOLKIT_SAFE_BOOL_H__
 
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/toolkit.h>
 
-namespace dvrlib 
+namespace stingray 
 {
 
 class safe_bool_base

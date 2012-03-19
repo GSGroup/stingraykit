@@ -2,14 +2,14 @@
 #define __GS_DVRLIB_TOOLKIT_SCOPEEXIT_H__
 
 
-#include <dvrlib/toolkit/toolkit.h>
-#include <dvrlib/toolkit/function.h>
-#include <dvrlib/toolkit/Macro.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/Macro.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 	class ScopeExitInvoker

@@ -2,10 +2,10 @@
 #define __GS_DVRLIB_TOOLKIT_SORTORDER_H__
 
 
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/toolkit.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 

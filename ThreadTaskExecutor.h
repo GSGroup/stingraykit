@@ -4,13 +4,13 @@
 #include <queue>
 #include <list>
 
-#include <dvrlib/threads/ConditionVariable.h>
-#include <dvrlib/threads/Thread.h>
-#include <dvrlib/toolkit/Final.h>
-#include <dvrlib/toolkit/ITaskExecutor.h>
+#include <stingray/threads/ConditionVariable.h>
+#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/Final.h>
+#include <stingray/toolkit/ITaskExecutor.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	

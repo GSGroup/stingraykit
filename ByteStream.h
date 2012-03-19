@@ -3,10 +3,10 @@
 
 #include <vector>
 
-#include <dvrlib/toolkit/toolkit.h>
-#include <dvrlib/toolkit/exception.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/exception.h>
 
-namespace dvrlib
+namespace stingray
 {
 	
 	namespace Detail

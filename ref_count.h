@@ -3,13 +3,13 @@
 
 
 #include <assert.h>
-#include <dvrlib/toolkit/Atomic.h>
-#include <dvrlib/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/Atomic.h>
+#include <stingray/toolkit/MetaProgramming.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 #ifdef HAVE_SYNC_EAA

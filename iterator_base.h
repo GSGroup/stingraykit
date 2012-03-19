@@ -4,7 +4,7 @@
 #include <iterator>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/**

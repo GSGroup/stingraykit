@@ -1,10 +1,10 @@
 #if !HAVE_TASK_EXECUTOR
 
-#include <dvrlib/toolkit/ThreadTaskExecutor.h>
-#include <dvrlib/toolkit/bind.h>
+#include <stingray/toolkit/ThreadTaskExecutor.h>
+#include <stingray/toolkit/bind.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 

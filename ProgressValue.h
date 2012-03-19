@@ -2,10 +2,10 @@
 #define __GS_DVRLIB_TOOLKIT_PROGRESSVALUE_H__
 
 
-#include <dvrlib/toolkit/StringUtils.h>
+#include <stingray/toolkit/StringUtils.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 

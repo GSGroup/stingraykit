@@ -2,12 +2,12 @@
 #define __GS_DVRLIB_TOOLKIT_ENABLE_SHARED_FROM_THIS_H__
 
 
-#include <dvrlib/toolkit/shared_ptr.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 

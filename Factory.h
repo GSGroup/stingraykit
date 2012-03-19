@@ -4,14 +4,14 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/Singleton.h>
-#include <dvrlib/toolkit/Macro.h>
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/Singleton.h>
+#include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/toolkit.h>
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 	struct FactoryObjectCreator {
 		virtual const char *Name() const = 0;
@@ -87,14 +87,14 @@ namespace dvrlib
 
 }
 
-#include <dvrlib/log/Logger.h>
+#include <stingray/log/Logger.h>
 /*! \endcond */
 
 #define TOOLKIT_REGISTER_CLASS(type) \
-	friend class dvrlib::Detail::Factory; \
-	friend class dvrlib::Detail::ClassRegistrar<type>; \
+	friend class stingray::Detail::Factory; \
+	friend class stingray::Detail::ClassRegistrar<type>; \
 	virtual const FactoryObjectCreator &GetFactoryObjectCreator() const { return GetStaticFactoryObjectCreator(); } \
-	static const FactoryObjectCreator& GetStaticFactoryObjectCreator() { static dvrlib::Detail::ClassRegistrar<type> instance(#type); return instance; }
+	static const FactoryObjectCreator& GetStaticFactoryObjectCreator() { static stingray::Detail::ClassRegistrar<type> instance(#type); return instance; }
 
 #define TOOLKIT_REGISTER_CLASS_EXPLICIT(type) type::GetStaticFactoryObjectCreator();
 

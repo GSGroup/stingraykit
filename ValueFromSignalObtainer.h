@@ -2,11 +2,11 @@
 #define __GS_DVRLIB_TOOLKIT_VALUEFROMSIGNALOBTAINER_H__
 
 
-#include <dvrlib/toolkit/shared_ptr.h>
-#include <dvrlib/toolkit/unique_ptr.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/unique_ptr.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 

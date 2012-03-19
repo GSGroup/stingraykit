@@ -5,13 +5,13 @@
 #include <stdexcept>
 #include <iostream>
 
-#include <dvrlib/toolkit/MetaProgramming.h>
-#include <dvrlib/toolkit/Types.h>
-#include <dvrlib/toolkit/NestedTypeCheck.h>
-#include <dvrlib/toolkit/EnumToString.h>
-#include <dvrlib/toolkit/Dummy.h>
+#include <stingray/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/Types.h>
+#include <stingray/toolkit/NestedTypeCheck.h>
+#include <stingray/toolkit/EnumToString.h>
+#include <stingray/toolkit/Dummy.h>
 
-namespace dvrlib
+namespace stingray
 {
 	struct FactoryObjectCreator;
 	class OutputArchive;
@@ -55,23 +55,23 @@ namespace dvrlib
 		template < typename MyType > \
 		FORCE_INLINE static void InitEnumToStringMap(const MyType* dummy) \
 		{ \
-			if (!dvrlib::Detail::GetEnumToStringMap(dummy).Initialized()) \
+			if (!stingray::Detail::GetEnumToStringMap(dummy).Initialized()) \
 			{ \
-				dvrlib::Detail::EnumValueHolder __VA_ARGS__; \
-				dvrlib::Detail::EnumValueHolder values[] = { __VA_ARGS__ }; \
-				dvrlib::Detail::GetEnumToStringMap(dummy).Init(values, values + sizeof(values) / sizeof(values[0]), #__VA_ARGS__); \
+				stingray::Detail::EnumValueHolder __VA_ARGS__; \
+				stingray::Detail::EnumValueHolder values[] = { __VA_ARGS__ }; \
+				stingray::Detail::GetEnumToStringMap(dummy).Init(values, values + sizeof(values) / sizeof(values[0]), #__VA_ARGS__); \
 			} \
 		} \
 	public: \
-		std::string ToString() const { InitEnumToStringMap(this); return dvrlib::Detail::GetEnumToStringMap(this).EnumToString(_enumVal); } \
-		static Enum FromString(const std::string& str) { InitEnumToStringMap(GetMyTypeDummyPtr()); return dvrlib::Detail::GetEnumToStringMap(GetMyTypeDummyPtr()).EnumFromString(str); }
+		std::string ToString() const { InitEnumToStringMap(this); return stingray::Detail::GetEnumToStringMap(this).EnumToString(_enumVal); } \
+		static Enum FromString(const std::string& str) { InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::GetEnumToStringMap(GetMyTypeDummyPtr()).EnumFromString(str); }
 
 #define TOOLKIT_DECLARE_ENUM_CLASS(ClassName) \
 	public: \
-		typedef dvrlib::Detail::EnumIterator<ClassName> const_iterator; \
-		static const_iterator begin()	{ InitEnumToStringMap(GetMyTypeDummyPtr()); return dvrlib::Detail::EnumIteratorCreator<ClassName>::begin(); } \
-		static const_iterator end()		{ InitEnumToStringMap(GetMyTypeDummyPtr()); return dvrlib::Detail::EnumIteratorCreator<ClassName>::end(); } \
-		ClassName() { InitEnumToStringMap(this); const std::vector<Enum>& v = dvrlib::Detail::GetEnumToStringMap(this).GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : v.front(); } \
+		typedef stingray::Detail::EnumIterator<ClassName> const_iterator; \
+		static const_iterator begin()	{ InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
+		static const_iterator end()		{ InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
+		ClassName() { InitEnumToStringMap(this); const std::vector<Enum>& v = stingray::Detail::GetEnumToStringMap(this).GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : v.front(); } \
 		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
 		ClassName::Enum val() const { return _enumVal; } \
@@ -113,7 +113,7 @@ namespace dvrlib
 #	define FORCE_INLINE inline
 #endif
 
-namespace dvrlib
+namespace stingray
 {
 	
 	template < typename >

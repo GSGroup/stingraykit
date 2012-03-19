@@ -1,14 +1,14 @@
 #ifndef STINGRAY_SELF_COUNTER_H__
 #define STINGRAY_SELF_COUNTER_H__
 
-#include <dvrlib/toolkit/Atomic.h>
-#include <dvrlib/toolkit/safe_bool.h>
+#include <stingray/toolkit/Atomic.h>
+#include <stingray/toolkit/safe_bool.h>
 
-#include <dvrlib/toolkit/exception.h>
+#include <stingray/toolkit/exception.h>
 
 #define TOOLKIT_DECLARE_SELF_COUNT_PTR(type) typedef self_count_ptr< type > type##SelfCountPtr;
 
-namespace dvrlib
+namespace stingray
 {
 
 	template<typename T>

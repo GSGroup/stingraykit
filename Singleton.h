@@ -2,11 +2,11 @@
 #define __GS_DVRLIB_TOOLKIT_SINGLETON_H__
 
 
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/toolkit.h>
 
 
 #define TOOLKIT_SINGLETON(ClassName) \
-		friend class dvrlib::Singleton<ClassName>; \
+		friend class stingray::Singleton<ClassName>; \
 		TOOLKIT_NONCOPYABLE(ClassName)
 
 #define TOOLKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(ClassName) \
@@ -15,7 +15,7 @@
 		ClassName() { }
 		
 
-namespace dvrlib
+namespace stingray
 {
 
 	/** @brief Simple Singleton implementation, NOT THREAD-SAFE!!! */

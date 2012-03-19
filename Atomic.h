@@ -6,11 +6,11 @@
 #elif HAVE_SYNC_EAA
 #	include <bits/atomicity.h>
 #endif
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/toolkit.h>
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 	struct Atomic

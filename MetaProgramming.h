@@ -2,10 +2,10 @@
 #define __GS_DVRLIB_TOOLKIT_METAPROGRAMMING_H__
 
 
-#include <dvrlib/toolkit/Macro.h>
+#include <stingray/toolkit/Macro.h>
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */

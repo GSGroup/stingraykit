@@ -12,22 +12,22 @@
 #endif
 
 #ifdef USE_BACKTRACE_FOR_EXCEPTIONS
-#	include <dvrlib/toolkit/Backtrace.h>
+#	include <stingray/toolkit/Backtrace.h>
 #endif
 
-#include <dvrlib/toolkit/MetaProgramming.h>
-#include <dvrlib/toolkit/StringUtils.h>
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/toolkit.h>
 
 #define TOOLKIT_DECLARE_SIMPLE_EXCEPTION(ExceptionClass, Message) \
-	struct ExceptionClass : public dvrlib::Exception \
+	struct ExceptionClass : public stingray::Exception \
 	{ \
-		ExceptionClass() : dvrlib::Exception(Message) { } \
+		ExceptionClass() : stingray::Exception(Message) { } \
 		virtual ~ExceptionClass() throw() { } \
 	}
 
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */
@@ -82,7 +82,7 @@ namespace dvrlib
 	};
 
 
-#define TOOLKIT_REQUIRE_NOT_NULL(Expr_) dvrlib::Detail::RequireNotNull(Expr_, #Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
+#define TOOLKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
 
 
 	namespace Detail
@@ -172,12 +172,12 @@ namespace dvrlib
 		/*
 		template < typename T >
 		T& RequireNotNull(T& obj, const char* expr, const char* file, size_t line, const char* func)
-		{ if (!TestNull(obj)) throw dvrlib::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
+		{ if (!TestNull(obj)) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
 		*/
 
 		template < typename T >
 		const T& RequireNotNull(const T& obj, const char* expr, const char* file, size_t line, const char* func, int dummy = 42)
-		{ if (!TestNull(obj)) throw dvrlib::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
+		{ if (!TestNull(obj)) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
 	}
 
 #ifdef PLATFORM_POSIX
@@ -217,7 +217,7 @@ namespace dvrlib
 #endif
 
 
-#define TOOLKIT_THROW(ExceptionObj) throw ::dvrlib::Detail::MakeException(ExceptionObj, __FILE__, __LINE__, TOOLKIT_FUNCTION)
+#define TOOLKIT_THROW(ExceptionObj) throw ::stingray::Detail::MakeException(ExceptionObj, __FILE__, __LINE__, TOOLKIT_FUNCTION)
 
 
 	template < typename ExceptionType >

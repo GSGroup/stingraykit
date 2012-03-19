@@ -1,8 +1,8 @@
 #ifndef STINGRAY_TOOLKIT_FATAL_H__
 #define STINGRAY_TOOLKIT_FATAL_H__
 
-#include <dvrlib/log/Logger.h>
-#include <dvrlib/toolkit/toolkit.h>
+#include <stingray/log/Logger.h>
+#include <stingray/toolkit/toolkit.h>
 
 #define TOOLKIT_FATAL(message) \
 	do { \

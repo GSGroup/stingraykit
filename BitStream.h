@@ -1,10 +1,10 @@
 #ifndef STINGRAY_TOOLKIT_BIT_STREAM_H__
 #define STINGRAY_TOOLKIT_BIT_STREAM_H__
 
-#include <dvrlib/toolkit/toolkit.h>
-#include <dvrlib/toolkit/BitsGetter.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/BitsGetter.h>
 
-namespace dvrlib
+namespace stingray
 {
 
 	namespace Detail

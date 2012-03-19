@@ -1,9 +1,9 @@
-#include <dvrlib/toolkit/Factory.h>
-#include <dvrlib/log/Logger.h>
+#include <stingray/toolkit/Factory.h>
+#include <stingray/log/Logger.h>
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib { namespace Detail 
+namespace stingray { namespace Detail 
 {
 	void Factory::Dump()
 	{

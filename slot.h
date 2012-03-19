@@ -2,15 +2,15 @@
 #define __GS_DVRLIB_TOOLKIT_SLOT_H__
 
 
-#include <dvrlib/toolkit/Macro.h>
-#include <dvrlib/toolkit/function.h>
-#include <dvrlib/toolkit/ITaskExecutor.h>
-#include <dvrlib/toolkit/bind.h>
+#include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/bind.h>
 
 
 /*! \cond GS_INTERNAL */
 
-namespace dvrlib
+namespace stingray
 {
 
 

@@ -4,18 +4,18 @@
 #include <list>
 #include <typeinfo>
 
-#include <dvrlib/toolkit/exception.h>
-#include <dvrlib/toolkit/ICreator.h>
-#include <dvrlib/toolkit/ServiceTraits.h>
-#include <dvrlib/toolkit/signals.h>
-#include <dvrlib/toolkit/MetaProgramming.h>
-#include <dvrlib/threads/Thread.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/ICreator.h>
+#include <stingray/toolkit/ServiceTraits.h>
+#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/MetaProgramming.h>
+#include <stingray/threads/Thread.h>
 
 
 #define TOOLKIT_SERVICE_NOT_SUPPORTED(ServiceInterface_) \
 		template < > \
 		ServiceProvider<ServiceInterface_>::IServiceCreatorPtr	\
-			ServiceProvider<ServiceInterface_>::s_serviceCreator(new dvrlib::NotSupportedServiceCreator<ServiceInterface_>)
+			ServiceProvider<ServiceInterface_>::s_serviceCreator(new stingray::NotSupportedServiceCreator<ServiceInterface_>)
 
 #define TOOLKIT_DEFINE_SERVICE_CREATOR(Service_, ...) \
 		namespace { CompileTimeAssert<GetTypeListLength<Service_::ServiceInterfaces>::Value == 1> PLEASE_USE_DEFINE_SERVICE_CREATOR_EX_IF_YOU_IMPLEMENT_MORE_THAN_ONE_INTERFACE; } \
@@ -29,9 +29,9 @@
 #define TOOLKIT_DEFINE_SERVICE_CREATOR_EX(Service_, ServiceInterface_, ...) \
 		template < > \
 		ServiceProvider<ServiceInterface_>::IServiceCreatorPtr	\
-			ServiceProvider<ServiceInterface_>::s_serviceCreator(new ServiceCreator<Service_, ServiceInterface_>(dvrlib::shared_ptr<ICreator<ServiceInterface_> >(__VA_ARGS__)))
+			ServiceProvider<ServiceInterface_>::s_serviceCreator(new ServiceCreator<Service_, ServiceInterface_>(stingray::shared_ptr<ICreator<ServiceInterface_> >(__VA_ARGS__)))
 
-namespace dvrlib
+namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */
