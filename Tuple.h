@@ -67,7 +67,7 @@ namespace stingray
 
 		FORCE_INLINE Tuple(const Tuple& other) : _val(other._val), _tail(other._tail) { }
 
-		FORCE_INLINE Tuple(typename GetParamPassingType<ValueType>::ValueT p1) : _val(p1) { }
+		FORCE_INLINE Tuple(typename GetParamPassingType<ValueType>::ValueT p1) : _val(p1), _tail() { }
 
 #define TY typename
 #define P_(N) typename GetParamPassingType<typename TryGetTypeListItem<TypeList, N - 1>::ValueT>::ValueT p##N
