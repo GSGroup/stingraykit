@@ -13,12 +13,12 @@
 
 namespace stingray
 {
-	struct FactoryObjectCreator;
+	struct IFactoryObjectCreator;
 	class OutputArchive;
 	class InputArchive;
 	struct IFactoryObject
 	{
-		virtual const FactoryObjectCreator& GetFactoryObjectCreator() const = 0;
+		virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const = 0;
 		virtual ~IFactoryObject() {}
 	};
 }

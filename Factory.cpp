@@ -12,6 +12,12 @@ namespace stingray { namespace Detail
 		{
 			Logger::Stream(LogLevel::Info) << i->first;
 		}
+
+		Logger::Stream(LogLevel::Info) << "Registered " << _registrarsByTypeId.size() << " type ids:";
+		for(RegistrarMap::const_iterator i = _registrarsByTypeId.begin(); i != _registrarsByTypeId.end(); ++i)
+		{
+			Logger::Stream(LogLevel::Info) << i->first;
+		}
 	}
 
 }}
