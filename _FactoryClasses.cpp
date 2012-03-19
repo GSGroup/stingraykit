@@ -4,6 +4,15 @@
 #include <stingray/app/zapper/User.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/parentalcontrol/AgeRating.h>
+#ifdef PLATFORM_EMU
+#	include <stingray/platform/emu/scanner/Channel.h>
+#endif
+#ifdef PLATFORM_EMU
+#	include <stingray/platform/emu/scanner/Channel.h>
+#endif
+#ifdef PLATFORM_EMU
+#	include <stingray/platform/emu/scanner/Channel.h>
+#endif
 #include <stingray/scanner/DefaultDVBTBandInfo.h>
 #include <stingray/scanner/DefaultMpegService.h>
 #include <stingray/scanner/DefaultMpegService.h>
@@ -18,15 +27,6 @@
 #include <stingray/scanner/DefaultScanParams.h>
 #include <stingray/storage/FileSystemStorage.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
-#ifdef PLATFORM_TEST
-#	include <stingray/test/Channel.h>
-#endif
-#ifdef PLATFORM_TEST
-#	include <stingray/test/Channel.h>
-#endif
-#ifdef PLATFORM_TEST
-#	include <stingray/test/Channel.h>
-#endif
 #include <stingray/tuners/DefaultDVBTTransport.h>
 #include <stingray/tuners/dvbs/Transport.h>
 
@@ -43,6 +43,15 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
+#ifdef PLATFORM_EMU
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::RadioChannel);
+#endif
+#ifdef PLATFORM_EMU
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::StreamDescriptor);
+#endif
+#ifdef PLATFORM_EMU
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::TVChannel);
+#endif
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBTBandInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegRadioChannel);
@@ -57,15 +66,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
-#ifdef PLATFORM_TEST
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(test::RadioChannel);
-#endif
-#ifdef PLATFORM_TEST
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(test::StreamDescriptor);
-#endif
-#ifdef PLATFORM_TEST
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(test::TVChannel);
-#endif
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBTTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(dvbs::Transport);
 #endif
