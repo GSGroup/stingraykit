@@ -56,21 +56,21 @@ namespace stingray
 		typedef T ValueType;
 
 		explicit FORCE_INLINE shared_ptr(T* rawPtr)
-			: _rawPtr(rawPtr)
+			: _rawPtr(rawPtr), _refCount()
 		{
 			if (rawPtr != 0)
 				init_enable_shared_from_this(rawPtr);
 		}
 
-		shared_ptr()
+		FORCE_INLINE shared_ptr()
 			: _rawPtr(), _refCount(null)
 		{ }
 
-		shared_ptr(const NullPtrType&)
+		FORCE_INLINE shared_ptr(const NullPtrType&)
 			: _rawPtr(), _refCount(null)
 		{ }
 
-		weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
+		FORCE_INLINE weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
 
 		template < typename U >
 		FORCE_INLINE shared_ptr(const shared_ptr<U>& other)
@@ -128,7 +128,7 @@ namespace stingray
 		FORCE_INLINE void init_enable_shared_from_this(const enable_shared_from_this<U>* esft) const
 		{ esft->init(*this); }
 
-		inline void init_enable_shared_from_this(...) const
+		FORCE_INLINE void init_enable_shared_from_this(...) const
 		{ }
 
 
