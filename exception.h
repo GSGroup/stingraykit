@@ -183,7 +183,8 @@ namespace stingray
 #ifdef PLATFORM_POSIX
 	struct SystemException : public std::runtime_error
 	{
-		static std::string GetSystemError() throw() { return strerror(errno); }
+		static std::string GetSystemError() throw()			{ return strerror(errno); }
+		static std::string GetSystemError(int err) throw()	{ return strerror(err); }
 		SystemException(const std::string &message) throw(): std::runtime_error(message + ": errno = " + ErrnoToStr(errno) + " (" + GetSystemError() + ")") {}
 		SystemException(const std::string &message, int err) throw(): std::runtime_error(message + ": errno = " + ErrnoToStr(err) + " (" + strerror(err) + ")") {}
 
