@@ -53,6 +53,7 @@ namespace stingray
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(PromiseAlreadySatisfied, "Promise value have already been set!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(FutureAlreadyRetrieved, "Future have already been retrieved!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(CrcErrorException, "CRC mismatch!");
+	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(TimeoutException, "Timed out!");
 
 #define TOOLKIT_CHECK(Condition, ExceptionObj) \
 		do { if (!(Condition)) TOOLKIT_THROW(ExceptionObj); } while(false)

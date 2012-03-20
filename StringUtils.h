@@ -1,7 +1,8 @@
-#ifndef __GS_DVRLIB_TOOLKIT_STRINGUTILS_H__
-#define __GS_DVRLIB_TOOLKIT_STRINGUTILS_H__
+#ifndef __GS_STINGRAY_TOOLKIT_STRINGUTILS_H__
+#define __GS_STINGRAY_TOOLKIT_STRINGUTILS_H__
 
 #include <sstream>
+#include <vector>
 
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/Types.h>
@@ -105,6 +106,12 @@ namespace stingray
 
 	inline bool EndsWith(const std::string& str, const std::string& suffix)
 	{ return str.length() >= suffix.length() && ExtractSuffix(str, suffix.length()) == suffix; }
+
+	inline void Split(const std::string& str, const std::string& delim, std::vector<std::string>& result)
+	{
+		for (size_t i = 0, j = str.find(delim, i); j != std::string::npos; i = j + delim.length(), j = str.find(delim, i))
+			result.push_back(str.substr(i, j - i));
+	}
 
 
 	template <typename CharType >
