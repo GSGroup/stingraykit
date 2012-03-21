@@ -42,13 +42,13 @@ namespace stingray
 
 		size_t Read(size_t offset, void* data, size_t count) const
 		{
-			TOOLKIT_INDEX_CHECK(offset < _length);
+			TOOLKIT_INDEX_CHECK(offset <= _length);
 			return _buffer->Read(_offset + offset, data, std::min(_length - offset, count));
 		}
 
 		size_t Write(size_t offset, void* data, size_t count)
 		{
-			TOOLKIT_INDEX_CHECK(offset < _length);
+			TOOLKIT_INDEX_CHECK(offset <= _length);
 			return _buffer->Write(_offset + offset, data, std::min(_length - offset, count));
 		}
 
