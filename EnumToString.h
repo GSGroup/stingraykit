@@ -180,7 +180,7 @@ namespace stingray
 			{
 				bool Initialized;
 
-				InstanceCreator() : Initialized(false) { Instance(); }
+				InstanceCreator() : Initialized(false) { EnumClassT::InitEnumToStringMap((EnumClassT*)0); }
 			};
 			static InstanceCreator s_instanceCreator;
 

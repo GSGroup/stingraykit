@@ -67,6 +67,7 @@ namespace stingray
 		static Enum FromString(const std::string& str) { InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::GetEnumToStringMap(GetMyTypeDummyPtr()).EnumFromString(str); }
 
 #define TOOLKIT_DECLARE_ENUM_CLASS(ClassName) \
+		friend class stingray::Detail::EnumToStringMap<ClassName>; \
 	public: \
 		typedef stingray::Detail::EnumIterator<ClassName> const_iterator; \
 		static const_iterator begin()	{ InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
