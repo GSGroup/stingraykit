@@ -109,8 +109,13 @@ namespace stingray
 
 	inline void Split(const std::string& str, const std::string& delim, std::vector<std::string>& result)
 	{
-		for (size_t i = 0, j = str.find(delim, i); j != std::string::npos; i = j + delim.length(), j = str.find(delim, i))
+		size_t i = 0, j;
+		while ((j = str.find(delim, i)) != std::string::npos)
+		{
 			result.push_back(str.substr(i, j - i));
+			i = j + delim.length();
+		}
+		result.push_back(str.substr(i));
 	}
 
 
