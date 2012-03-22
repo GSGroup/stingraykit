@@ -2,6 +2,7 @@
 #define __GS_STINGRAY_TOOLKIT_PROGRESSREPORTER_H__
 
 
+#include <stingray/log/Logger.h>
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/ProgressValue.h>
 
