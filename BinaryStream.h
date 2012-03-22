@@ -29,7 +29,7 @@ namespace stingray
 		PodType Read()
 		{
 			u8 buffer[sizeof(PodType)];
-			TOOLKIT_CHECK(_buffer.Read(_offset, buffer, sizeof(PodType)) != sizeof(PodType), EndOfStreamException());
+			TOOLKIT_CHECK(_buffer.Read(_offset, buffer, sizeof(PodType)) == sizeof(PodType), EndOfStreamException());
 			_offset += sizeof(PodType);
 			return BitsGetter(ByteData(buffer, sizeof(PodType))).Get<PodType>();
 		}
