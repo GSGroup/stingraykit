@@ -19,7 +19,7 @@ namespace stingray
 		{ }
 
 		size_t InPercents() const
-		{ return 100.0 * Current / Total; }
+		{ return 100 * Current / Total; }
 
 		std::string ToString() const
 		{ return StringBuilder() % InPercents() % "%"; }
