@@ -12,31 +12,6 @@ namespace stingray
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(EndOfStreamException, "End of stream reached!");
 
 
-	namespace Detail
-	{
-		template < typename PodType >
-		class BinaryStreamReadProxy
-		{
-		private:
-			BinaryData*		_buffer;
-			size_t			_offset;
-
-		public:
-			BinaryStreamReadProxy(BinaryData* buffer, size_t offset)
-				: _buffer(buffer), _offset(offset)
-			{ }
-
-			template < typename T >
-			operator T() const
-			{
-				u8 buffer[sizeof(PodType)];
-				TOOLKIT_CHECK(_buffer->Read(_offset, buffer, sizeof(PodType)) != sizeof(PodType), EndOfStreamException());
-				return BitsGetter(ByteData(buffer, sizeof(PodType))).Get<PodType>();
-			}
-		};
-	}
-
-
 	class BinaryStream
 	{
 	private:
@@ -51,11 +26,12 @@ namespace stingray
 		BinaryStream(const BinaryStream& other, size_t offset, size_t size) : _buffer(other._buffer, offset, size), _offset(0) { }
 
 		template < typename PodType >
-		Detail::BinaryStreamReadProxy<PodType> Read()
+		PodType Read()
 		{
-			size_t offset = _offset;
+			u8 buffer[sizeof(PodType)];
+			TOOLKIT_CHECK(_buffer.Read(_offset, buffer, sizeof(PodType)) == sizeof(PodType), EndOfStreamException());
 			_offset += sizeof(PodType);
-			return Detail::BinaryStreamReadProxy<PodType>(&_buffer, offset);
+			return BitsGetter(ByteData(buffer, sizeof(PodType))).Get<PodType>();
 		}
 
 		std::string ReadStringUntil(char delimiter)
