@@ -23,7 +23,7 @@ namespace stingray
 	};
 }
 
-#if (__GNUC__ >= 3) && defined(DEBUG)
+#if (__GNUC__ >= 3) && !defined(PRODUCTION_BUILD)
 #	define TOOLKIT_FUNCTION __PRETTY_FUNCTION__
 #else
 #	define TOOLKIT_FUNCTION __func__
@@ -116,7 +116,7 @@ namespace stingray
 
 namespace stingray
 {
-	
+
 	template < typename >
 	struct ToPointerType;
 
@@ -167,10 +167,10 @@ namespace stingray
 
 	template < typename DestType, typename SrcType >
 	bool FORCE_INLINE InstanceOf(const SrcType& obj)
-	{ 
+	{
 		CompileTimeAssert<!Is1ParamTemplate<shared_ptr, DestType>::Value>		ERROR__dest_type_must_not_be_a_shared_ptr;
 		(void)ERROR__dest_type_must_not_be_a_shared_ptr;
-		return InstanceOfTester<SrcType>::template Test<DestType>(obj); 
+		return InstanceOfTester<SrcType>::template Test<DestType>(obj);
 	}
 
 
