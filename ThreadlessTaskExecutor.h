@@ -37,7 +37,6 @@ namespace stingray
 		{
 			MutexLock l(_syncRoot);
 			_queue.push(std::make_pair(task, GetAliveTokenValue(token)));
-			_condVar.Broadcast();
 		}
 
 		virtual void AddTask(const TaskType& task)
