@@ -16,14 +16,16 @@ namespace stingray
 	
 	class ThreadlessTaskExecutor : TOOLKIT_FINAL(ThreadlessTaskExecutor), public virtual ITaskExecutor
 	{
-		typedef function<void()>							TaskType;
-		typedef function<void(const std::exception&)>		ExceptionHandlerType;
-		typedef std::queue<TaskType, std::list<TaskType> >	QueueType;
+		typedef function<void()>										TaskType;
+		typedef function<void(const std::exception&)>					ExceptionHandlerType;
+		typedef std::pair<TaskType, task_alive_token::ValueWeakPtr>		TaskPair;
+		typedef std::queue<TaskPair, std::list<TaskPair> >				QueueType;
 
 	private:
 		Mutex					_syncRoot;
 		QueueType				_queue;
 		ExceptionHandlerType	_exceptionHandler;
+		task_alive_token		_token;
 		
 
 	public:
@@ -31,11 +33,15 @@ namespace stingray
 			: _exceptionHandler(exceptionHandler)
 		{ }
 
-		virtual void AddTask(const TaskType& task)
+		virtual void AddTask(const TaskType& task, const task_alive_token& token)
 		{
 			MutexLock l(_syncRoot);
-			_queue.push(task);
+			_queue.push(std::make_pair(task, GetAliveTokenValue(token)));
+			_condVar.Broadcast();
 		}
+
+		virtual void AddTask(const TaskType& task)
+		{ AddTask(task, _token); }
 
 		virtual void Pause(bool pause) { TOOLKIT_THROW(NotSupportedException()); }
 
@@ -44,13 +50,13 @@ namespace stingray
 			MutexLock l(_syncRoot);
 			while (!_queue.empty())
 			{
-				TaskType top = _queue.front();
+				TaskPair top = _queue.front();
 				_queue.pop();
 				try
 				{
 					MutexUnlock ul(l);
 					//Tracer tracer("ThreadlessTaskExecutor::ExecuteTasks: executing pending task"); //fixme: dependency to log/
-					top();
+					InvokeTask(top.first, top.second);
 					Thread::InterruptionPoint();
 				}
 				catch(const std::exception& ex)

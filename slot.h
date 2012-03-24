@@ -25,10 +25,9 @@ namespace stingray
 			typedef function<Signature>								FunctionType;
 
 		protected:
-
-		protected:
 			ITaskExecutorWeakPtr	_executor;
 			FunctionType			_func;
+			task_alive_token		_token;
 
 		protected:
 			FORCE_INLINE slot_base(const ITaskExecutorPtr& executor, const FunctionType& func) 
@@ -38,11 +37,18 @@ namespace stingray
 					TOOLKIT_THROW(NullPointerException());
 			}
 
+			FORCE_INLINE slot_base(const ITaskExecutorPtr& executor, const FunctionType& func, const task_alive_token& token) 
+				: _executor(executor), _func(func), _token(token)
+			{ 
+				if (executor == NULL)
+					TOOLKIT_THROW(NullPointerException());
+			}
+
 			void DoAddTask(const function<void()>& func) const
 			{ 
 				ITaskExecutorPtr executor_l = this->_executor.lock();
 				if (executor_l != NULL)
-					executor_l->AddTask(func); 
+					executor_l->AddTask(func, _token); 
 			}
 
 			FORCE_INLINE ~slot_base() { }
@@ -63,6 +69,10 @@ namespace stingray
 			: base(executor, func)
 		{ }
 
+		FORCE_INLINE slot(const ITaskExecutorPtr& executor, const function<void()>& func, const task_alive_token& token)
+			: base(executor, func, token)
+		{ }
+
 		FORCE_INLINE void operator ()() const { base::DoAddTask(_func); }
 	};		
 
@@ -79,6 +89,10 @@ namespace stingray
 	public: \
 		slot(const ITaskExecutorPtr& executor, const function<void(Types_)>& func) \
 			: base(executor, func) \
+		{ } \
+		\
+		slot(const ITaskExecutorPtr& executor, const function<void(Types_)>& func, const task_alive_token& token) \
+			: base(executor, func, token) \
 		{ } \
 		\
 		void operator ()(Decl_) const \
