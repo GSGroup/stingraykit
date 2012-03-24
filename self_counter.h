@@ -6,7 +6,7 @@
 
 #include <stingray/toolkit/exception.h>
 
-#define TOOLKIT_DECLARE_SELF_COUNT_PTR(type) typedef self_count_ptr< type > type##SelfCountPtr;
+#define TOOLKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
 
 namespace stingray
 {
