@@ -19,6 +19,7 @@ namespace stingray
 		size_t		_offset;
 
 	public:
+		explicit BinaryStream(const IBinaryBufferPtr& buffer) : _buffer(TOOLKIT_REQUIRE_NOT_NULL(buffer)), _offset(0) { }
 		explicit BinaryStream(const BinaryData& buffer) : _buffer(buffer), _offset(0) { }
 		BinaryStream(const BinaryData& buffer, size_t offset) : _buffer(buffer, offset), _offset(0) { }
 		BinaryStream(const BinaryData& buffer, size_t offset, size_t size) : _buffer(buffer, offset, size), _offset(0) { }
