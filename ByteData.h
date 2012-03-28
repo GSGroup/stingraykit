@@ -32,7 +32,7 @@ namespace stingray
 
 	public:
 		explicit ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
-			: _ptr(ptr) 
+			: _ptr(ptr)
 			, _begin(begin), _end(end)
 		{ (void)begin; (void)end; ITERATOR_CHECK_BOUNDS; }
 
@@ -198,7 +198,7 @@ namespace stingray
 
 		BasicByteData(const BasicByteData& data, size_t offset)
 			: _data(data._data + offset), _size(data._size - offset)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset < data._size); }
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset <= data._size); }
 
 		BasicByteData(const BasicByteData& data, size_t offset, size_t size)
 			: _data(data._data + offset), _size(size)
