@@ -219,6 +219,7 @@ namespace stingray
 					OnServiceCreated();
 				}
 			}
+			TOOLKIT_CHECK(!IsDestroyed(), "Service " + s_serviceCreator->GetServiceTypeName() + " already destroyed!");
 
 			return *GetInstancePtr();
 		}
