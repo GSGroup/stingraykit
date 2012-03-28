@@ -208,6 +208,11 @@ namespace stingray
 		TOOLKIT_DECLARE_ENUM_CLASS(CollectionOp);
 	};
 
+	struct DebuggingHelper
+	{
+		static void BreakpointHere();
+	};
+
 
 }
 

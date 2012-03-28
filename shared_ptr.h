@@ -135,7 +135,10 @@ namespace stingray
 		FORCE_INLINE void check_ptr() const
 		{
 			if (!_rawPtr)
+			{
+				DebuggingHelper::BreakpointHere();
 				TOOLKIT_THROW(NullPointerException());
+			}
 		}
 	};
 
