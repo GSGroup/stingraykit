@@ -33,11 +33,6 @@ namespace stingray
 		virtual size_t GetLength() const { return _data.size(); }
 	};
 
-
-	template < typename ByteDataType >
-	inline BinaryData MakeBinaryData(const ByteDataType& data)
-	{ return BinaryData(make_shared< MemoryBinaryBuffer<ByteDataType> >(data)); }
-
 }
 
 
