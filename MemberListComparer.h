@@ -33,6 +33,21 @@ namespace stingray
 		{ return l ? l->Compare(r) : (r ? -1 : 0); }
 	};
 
+	struct DereferencerComparer
+	{
+		template < typename PtrType >
+		int operator () (const PtrType& l, const PtrType& r) const
+		{
+			TOOLKIT_REQUIRE_NOT_NULL(l);
+			TOOLKIT_REQUIRE_NOT_NULL(r);
+			if (*l < *r)
+				return -1;
+			if (*r < *l)
+				return 1;
+			return 0;
+		}
+	};
+
 	template<typename MemberPointerT, typename ComparerT>
 	CustomMemberComparerWrapper<MemberPointerT, ComparerT> CustomMemberComparer(MemberPointerT pointer, ComparerT comparer)
 	{ return CustomMemberComparerWrapper<MemberPointerT, ComparerT>(pointer, comparer); }
@@ -77,11 +92,9 @@ namespace stingray
 			: _memberPointerList(memberPointerList)
 		{}
 
-		template <typename ClassType>
-		int operator ()(const ClassType &lhs, const ClassType &rhs) const
-		{
-			return Compare(DereferencingManager::Process(lhs), DereferencingManager::Process(rhs), _memberPointerList);
-		}
+		template <typename ClassType1, typename ClassType2>
+		int operator ()(const ClassType1 &lhs, const ClassType2 &rhs) const
+		{ return Compare(DereferencingManager::Process(lhs), DereferencingManager::Process(rhs), _memberPointerList); }
 	};
 
 	template < >
@@ -105,8 +118,8 @@ namespace stingray
 		IntToBoolComparerAdapter(const IntComparer& comparer, const Adapter<int> &adapter = Adapter<int>())
 			: _comparer(comparer), _adapter(adapter)
 		{}
-		template <typename ClassType>
-		bool operator ()(const ClassType &lhs, const ClassType &rhs) const
+		template <typename ClassType1, typename ClassType2>
+		int operator ()(const ClassType1 &lhs, const ClassType2 &rhs) const
 		{
 			return _adapter(_comparer(lhs, rhs), 0);
 		}
