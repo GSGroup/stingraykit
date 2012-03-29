@@ -33,6 +33,21 @@ namespace stingray
 		{ return l ? l->Compare(r) : (r ? -1 : 0); }
 	};
 
+	struct DereferencerComparer
+	{
+		template < typename PtrType >
+		int operator () (const PtrType& l, const PtrType& r) const
+		{
+			TOOLKIT_REQUIRE_NOT_NULL(l);
+			TOOLKIT_REQUIRE_NOT_NULL(r);
+			if (*l < *r)
+				return -1;
+			if (*r < *l)
+				return 1;
+			return 0;
+		}
+	};
+
 	template<typename MemberPointerT, typename ComparerT>
 	CustomMemberComparerWrapper<MemberPointerT, ComparerT> CustomMemberComparer(MemberPointerT pointer, ComparerT comparer)
 	{ return CustomMemberComparerWrapper<MemberPointerT, ComparerT>(pointer, comparer); }
