@@ -257,7 +257,7 @@ namespace stingray
 	template < typename ServiceInterface >
 	Mutex ServiceProvider<ServiceInterface>::s_mutex;
 	template < typename ServiceInterface >
-	volatile bool ServiceProvider<ServiceInterface>::s_destroyedFlag;
+	volatile bool ServiceProvider<ServiceInterface>::s_destroyedFlag(false);
 
 
 
