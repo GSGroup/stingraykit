@@ -3,6 +3,7 @@
 
 
 #include <stingray/toolkit/ServiceProvider.h>
+#include <stingray/toolkit/Singleton.h>
 
 
 namespace stingray
@@ -10,11 +11,20 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename Dependency >
-		struct InitDependency
+		template < typename Dependency, bool IsSingleton_ = IsSingleton<Dependency>::Value >
+		struct InitDependencyImpl
 		{
 			static void Call() { ServiceProvider<Dependency>::Get(); }
 		};
+
+		template < typename Dependency >
+		struct InitDependencyImpl<Dependency, true>
+		{
+			static void Call() { Singleton<Dependency>::ConstInstance(); }
+		};
+
+		template < typename Dependency >
+		struct InitDependency : public InitDependencyImpl<Dependency> { };
 	}
 
 	/*! \cond GS_INTERNAL */

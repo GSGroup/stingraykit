@@ -33,6 +33,16 @@ namespace stingray
 		{ return const_cast<const T&>(Instance()); }
 	};
 	
+
+	template < typename T >
+	struct IsSingleton
+	{
+		template < typename U >
+		static YesType Test(const Singleton<U>*);
+		static NoType Test(...);
+		static const bool Value = sizeof(Test((T*)0)) == sizeof(YesType);
+	};
+
 }
 
 
