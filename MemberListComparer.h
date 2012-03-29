@@ -77,11 +77,9 @@ namespace stingray
 			: _memberPointerList(memberPointerList)
 		{}
 
-		template <typename ClassType>
-		int operator ()(const ClassType &lhs, const ClassType &rhs) const
-		{
-			return Compare(DereferencingManager::Process(lhs), DereferencingManager::Process(rhs), _memberPointerList);
-		}
+		template <typename ClassType1, typename ClassType2>
+		int operator ()(const ClassType1 &lhs, const ClassType2 &rhs) const
+		{ return Compare(DereferencingManager::Process(lhs), DereferencingManager::Process(rhs), _memberPointerList); }
 	};
 
 	template < >
@@ -105,8 +103,8 @@ namespace stingray
 		IntToBoolComparerAdapter(const IntComparer& comparer, const Adapter<int> &adapter = Adapter<int>())
 			: _comparer(comparer), _adapter(adapter)
 		{}
-		template <typename ClassType>
-		bool operator ()(const ClassType &lhs, const ClassType &rhs) const
+		template <typename ClassType1, typename ClassType2>
+		int operator ()(const ClassType1 &lhs, const ClassType2 &rhs) const
 		{
 			return _adapter(_comparer(lhs, rhs), 0);
 		}
