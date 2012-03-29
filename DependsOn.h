@@ -9,18 +9,41 @@
 namespace stingray
 {
 
+	template < typename DependencyInitInvoker_ >
+	struct CustomDependency
+	{
+		typedef DependencyInitInvoker_		DependencyInitInvoker;
+	};
+
 	namespace Detail
 	{
-		template < typename Dependency, bool IsSingleton_ = IsSingleton<Dependency>::Value >
+		template < typename T >
+		struct IsCustomDependency
+		{
+			template < typename U >
+			static YesType Test(const CustomDependency<U>*);
+			static NoType Test(...);
+			static const bool Value = sizeof(Test((T*)0)) == sizeof(YesType);
+		};
+
+		template < typename Dependency,
+			bool IsSingleton_ = IsSingleton<Dependency>::Value, 
+			bool IsCustomDependecy_ = IsCustomDependency<Dependency>::Value >
 		struct InitDependencyImpl
 		{
 			static void Call() { ServiceProvider<Dependency>::Get(); }
 		};
 
 		template < typename Dependency >
-		struct InitDependencyImpl<Dependency, true>
+		struct InitDependencyImpl<Dependency, true, false>
 		{
 			static void Call() { Singleton<Dependency>::ConstInstance(); }
+		};
+
+		template < typename Dependency >
+		struct InitDependencyImpl<Dependency, false, true>
+		{
+			static void Call() { Dependency::DependencyInitInvoker::Invoke(); }
 		};
 
 		template < typename Dependency >
