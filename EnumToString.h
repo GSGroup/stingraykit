@@ -180,9 +180,13 @@ namespace stingray
 			{
 				bool Initialized;
 
-				InstanceCreator() : Initialized(false) { EnumClassT::InitEnumToStringMap((EnumClassT*)0); }
+				InstanceCreator() : Initialized(false) { EnumToStringMap::CallInitEnumToStringMap(); }
 			};
 			static InstanceCreator s_instanceCreator;
+
+			static void CallInitEnumToStringMap()
+			{ EnumClassT::InitEnumToStringMap((EnumClassT*)0); }
+
 
 			EnumToStringMap() { }
 			EnumToStringMap(const EnumToStringMap&);
@@ -242,7 +246,7 @@ namespace stingray
 		private:
 			typedef typename EnumClassT::Enum							NativeEnum;
 			typedef typename std::vector<NativeEnum>::const_iterator	Wrapped;
-			template <typename T> friend struct EnumIteratorCreator;
+			friend struct EnumIteratorCreator<EnumClassT>;
 		private:
 			Wrapped				_wrapped;
 			mutable EnumClassT	_value;
