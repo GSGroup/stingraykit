@@ -98,6 +98,14 @@ namespace stingray
 		FORCE_INLINE bool operator == (const ClassName& other) const \
 		{ return !(other != (*this)); }
 
+#define TOOLKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(TemplateArgs, ClassName) \
+		TemplateArgs FORCE_INLINE bool operator <  (const ClassName& lhs, const ClassName& rhs) { return lhs <  rhs; } \
+		TemplateArgs FORCE_INLINE bool operator >  (const ClassName& lhs, const ClassName& rhs) { return lhs >  rhs; } \
+		TemplateArgs FORCE_INLINE bool operator <= (const ClassName& lhs, const ClassName& rhs) { return lhs <= rhs; } \
+		TemplateArgs FORCE_INLINE bool operator >= (const ClassName& lhs, const ClassName& rhs) { return lhs >= rhs; } \
+		TemplateArgs FORCE_INLINE bool operator != (const ClassName& lhs, const ClassName& rhs) { return lhs != rhs; } \
+		TemplateArgs FORCE_INLINE bool operator == (const ClassName& lhs, const ClassName& rhs) { return lhs == rhs; }
+
 #define TOOLKIT_TRANSPARENT_DECORATOR_CTORS(DecoratorType_, BaseType_) \
 		DecoratorType_() { } \
 		template < typename T1 > DecoratorType_(const T1& p1) : BaseType_(p1) { }\
