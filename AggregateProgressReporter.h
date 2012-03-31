@@ -24,7 +24,7 @@ namespace stingray
 		{ TOOLKIT_INDEX_CHECK(_actionIndex < _actionCount); }
 
 		void operator()(const ProgressValue& actionProgress) const
-		{ _progressReporter(ProgressValue((_actionIndex * 100 + actionProgress.InPercents()) / _actionCount, 100)); }
+		{ _progressReporter(ProgressValue(_actionCount != 0 ? (_actionIndex * 100 + actionProgress.InPercents()) / _actionCount : 0, 100)); }
 	};
 
 }
