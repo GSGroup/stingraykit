@@ -46,6 +46,8 @@ namespace stingray
 		std::string ReadNullTerminatedString()
 		{ return ReadStringUntil('\0'); }
 
+		size_t GetLength() const { return _buffer.GetLength(); } 
+
 		void Seek(size_t offset)
 		{
 			TOOLKIT_INDEX_CHECK(offset <= _buffer.GetLength());
