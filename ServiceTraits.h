@@ -17,6 +17,14 @@ namespace stingray
 		typedef typename ToTypeList<Dependencies_>::ValueT		Dependencies;
 	};
 
+	template < typename ServiceBase_, typename Dependencies_ >
+	struct DerivedService : public ServiceBase_
+	{
+		typedef typename ServiceBase_::ServiceInterfaces					ServiceInterfaces;
+		typedef typename TypeListMerge<typename ServiceBase_::Dependencies, 
+			typename ToTypeList<Dependencies_>::ValueT>::ValueT				Dependencies;
+	};
+
 	/*! \endcond */
 
 }
