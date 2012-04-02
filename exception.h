@@ -6,17 +6,12 @@
 #include <typeinfo>
 #include <string>
 
-#ifdef PLATFORM_POSIX
-#	include <errno.h>
-#	include <string.h>
-#endif
 
 #ifdef USE_BACKTRACE_FOR_EXCEPTIONS
 #	include <stingray/toolkit/Backtrace.h>
 #endif
 
 #include <stingray/toolkit/MetaProgramming.h>
-#include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/toolkit.h>
 
 #define TOOLKIT_DECLARE_SIMPLE_EXCEPTION(ExceptionClass, Message) \
@@ -181,46 +176,10 @@ namespace stingray
 		{ if (!TestNull(obj)) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
 	}
 
-#ifdef PLATFORM_POSIX
-	struct SystemException : public std::runtime_error
-	{
-		static std::string GetSystemError() throw()			{ return strerror(errno); }
-		static std::string GetSystemError(int err) throw()	{ return strerror(err); }
-		SystemException(const std::string &message) throw(): std::runtime_error(message + ": errno = " + ErrnoToStr(errno) + " (" + GetSystemError() + ")") {}
-		SystemException(const std::string &message, int err) throw(): std::runtime_error(message + ": errno = " + ErrnoToStr(err) + " (" + strerror(err) + ")") {}
-
-	private:
-#define ERRNO_STR(val) case val: return #val
-		std::string ErrnoToStr(int e)
-		{
-			switch (e)
-			{
-			ERRNO_STR(EACCES);
-			ERRNO_STR(EBUSY);
-			ERRNO_STR(EFAULT);
-			ERRNO_STR(EINVAL);
-			ERRNO_STR(ELOOP);
-			ERRNO_STR(EMFILE);
-			ERRNO_STR(ENAMETOOLONG);
-			ERRNO_STR(ENODEV);
-			ERRNO_STR(ENOENT);
-			ERRNO_STR(ENOMEM);
-			ERRNO_STR(ENOTBLK);
-			ERRNO_STR(ENOTDIR);
-			ERRNO_STR(ENXIO);
-			ERRNO_STR(EPERM);
-			default:
-				return ToString(e);
-			};
-		}
-	};
-#else
-	typedef std::runtime_error SystemException;
-#endif
-
 
 #define TOOLKIT_THROW(ExceptionObj) throw ::stingray::Detail::MakeException(ExceptionObj, __FILE__, __LINE__, TOOLKIT_FUNCTION)
 
+	void _append_extended_diagnostics(std::stringstream& result, const Detail::IToolkitException& tkit_ex);
 
 	template < typename ExceptionType >
 	inline std::string diagnostic_information(const ExceptionType& ex)
@@ -228,24 +187,17 @@ namespace stingray
 		const Detail::IToolkitException* tkit_ex = dynamic_cast<const Detail::IToolkitException*>(&ex);
 		const std::exception* std_ex = dynamic_cast<const std::exception*>(&ex);
 		const std::type_info& ex_ti = typeid(ex);
-		std::string result;
+		std::stringstream result;
 
 		if (std_ex)
-			result = "std::exception: " + std::string(ex_ti.name()) + "\n" + std_ex->what();
+			result << "std::exception: " << ex_ti.name() << "\n" << std_ex->what();
 		else
-			result = "Unknown exception: " + std::string(ex_ti.name());
+			result << "Unknown exception: " << ex_ti.name();
 
 		if (tkit_ex)
-		{
-			std::string backtrace = tkit_ex->GetBacktrace();
-			result +=
-				std::string("\n  in function '") + tkit_ex->GetFunctionName() + "'" +
-				"\n  in file '" + tkit_ex->GetFilename() + "' at line " + ToString(tkit_ex->GetLine());
-			if (!backtrace.empty())
-				result += "\n" + backtrace;
-		}
+			_append_extended_diagnostics(result, *tkit_ex);
 
-		return result;
+		return result.str();
 	}
 
 	/*! \endcond */
