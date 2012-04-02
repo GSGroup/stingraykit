@@ -208,11 +208,12 @@ namespace stingray
 		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
 		{
 			MutexLock l(_handlers->second);
-			FuncType slot_f(slot<Signature>(executor, handler));
+			task_alive_token t;
+			FuncType slot_f(slot<Signature>(executor, handler, t));
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_f, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
 			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(slot_f)));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end())));
+			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), t)));
 		}
 
 		signal_connection connect(const FuncType& handler) const

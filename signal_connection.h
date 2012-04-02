@@ -3,10 +3,12 @@
 
 #include <list>
 #include <algorithm>
+#include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/self_counter.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/threads/Thread.h>
 #include <stingray/log/Logger.h>
+
 
 namespace stingray
 {
@@ -69,17 +71,23 @@ namespace stingray
 		class ThreadedConnection : public ISignalConnection
 		{
 		public:
-			typedef std::pair<Handlers, Mutex>	HandlersType;
-			typedef shared_ptr<HandlersType>	HandlersPtr;
-			typedef weak_ptr<HandlersType>		HandlersWeakPtr;
+			typedef std::pair<Handlers, Mutex>		HandlersType;
+			typedef shared_ptr<HandlersType>		HandlersPtr;
+			typedef weak_ptr<HandlersType>			HandlersWeakPtr;
+			typedef	shared_ptr<task_alive_token>	TokenPtr;
 			typedef typename ISignalConnection::VTable	VTable;
 
 		private:
-			HandlersWeakPtr									_handlers;
-			typedef typename Handlers::iterator				IteratorType;
-			IteratorType									_it;
+			HandlersWeakPtr							_handlers;
+			typedef typename Handlers::iterator		IteratorType;
+			IteratorType							_it;
+			TokenPtr								_token;
 
 		public:
+			FORCE_INLINE ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it, const task_alive_token& token)
+				: _handlers(handlers), _it(it), _token(new task_alive_token(token))
+			{ _getVTable = &GetVTable; }
+
 			FORCE_INLINE ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it)
 				: _handlers(handlers), _it(it)
 			{ _getVTable = &GetVTable; }
@@ -97,6 +105,7 @@ namespace stingray
 			{
 				_handlers.~HandlersWeakPtr();
 				_it.~IteratorType();
+				_token.~TokenPtr();
 			}
 
 			void Disconnect()
