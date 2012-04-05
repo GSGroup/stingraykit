@@ -93,11 +93,12 @@ namespace Detail
 		void on_promise_destroyed()
 		{
 			MutexLock l(_mutex);
-			if(_value)
+			if (_value)
 				return;
 			_promiseDestroyed = true;
 			_condition.Broadcast();
 		}
+
 	private:
 		void do_wait()
 		{
@@ -108,10 +109,10 @@ namespace Detail
 
 		future_status do_timed_wait(const TimeDuration& duration)
 		{
-			if(_value || _promiseDestroyed)
+			if (_value || _promiseDestroyed)
 				return future_status::ready;
 			_condition.TimedWait(_mutex, duration);
-			if(_value || _promiseDestroyed)
+			if (_value || _promiseDestroyed)
 				return future_status::ready;
 			return future_status::timeout;
 		}
