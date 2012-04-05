@@ -4,20 +4,38 @@
 
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/unique_ptr.h>
+#include <stingray/toolkit/CollectionBuilder.h>
 
 
 namespace stingray
 {
 
 
+	template < typename CollectionType >
+	class ValuesFromSignalCollector : public function_info<void(const typename CollectionType::value_type&)>
+	{
+		typedef CollectionBuilder<CollectionType>	Builder;
+		typedef typename CollectionType::value_type	ValueType;
+		typedef shared_ptr<Builder>					BuilderPtr;
+
+	private:
+		BuilderPtr	_val;
+
+	public:
+		ValuesFromSignalCollector() : _val(new Builder) { }
+		
+		void operator() (const ValueType& val) const { (*_val) % val; }
+		const CollectionType& GetValues() const { return *_val; }
+	};
+
 	template < typename T >
-	class ValueFromSignalObtainer
+	class ValueFromSignalObtainer : public function_info<void(const T&)>
 	{
 		typedef unique_ptr<T>		TPtr;
 		typedef shared_ptr<TPtr>	TPtrPtr;
 
 	private:
-		mutable TPtrPtr	_val;
+		TPtrPtr	_val;
 
 	public:
 		ValueFromSignalObtainer() : _val(new TPtr) { }
