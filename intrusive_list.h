@@ -3,6 +3,7 @@
 
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/unique_ptr.h>
 /*! \cond GS_INTERNAL */
 
 namespace stingray
@@ -17,18 +18,47 @@ namespace stingray
 	class intrusive_list_node
 	{
 		template <typename U, typename A> friend class intrusive_list;
-	public:
-		intrusive_list_node*	_next;
-		intrusive_list_node*	_prev;
+
+		intrusive_list_node		*_prev, *_next;
 
 	protected:
-		intrusive_list_node() 
-			: _next(NULL), _prev(NULL)
+		inline void unlink()
+		{
+			_next->_prev = _prev;
+			_prev->_next = _next;
+			_prev = _next = this;
+		}
+
+		inline bool unlinked() const { return _next == this; }
+
+		inline void insert_before(intrusive_list_node *node)
+		{
+			_prev = node->_prev;
+			_next = node;
+
+			_next->_prev = _prev->_next = this;
+		}
+
+		inline void insert_after(intrusive_list_node *node)
+		{
+			_prev = node;
+			_next = node->_next;
+
+			_next->_prev = _prev->_next = this;
+		}
+
+		void swap(intrusive_list_node& other)
+		{
+			std::swap(_prev, other._prev);
+			std::swap(_next, other._next);
+		}
+
+		inline intrusive_list_node()
+			: _prev(this), _next(this)
 		{ }
 
 		~intrusive_list_node() { }
 	};
-
 
 	template < typename T >
 	class intrusive_list_node_wrapper : public intrusive_list_node<intrusive_list_node_wrapper<T> >
@@ -50,25 +80,34 @@ namespace stingray
 	class intrusive_list
 	{
 	public:
-		typedef T			value_type;
-		typedef Allocator_	allocator_type;
+		typedef intrusive_list_node<T>	node_type;
+
+		typedef T						value_type;
+		typedef node_type*				pointer_type;
+		typedef const node_type*		const_pointer_type;
+		typedef node_type&				reference_type;
+		typedef const node_type&		const_reference_type;
+
+		typedef Allocator_				allocator_type;
 
 	public:
 		class iterator //: iterator_base<iterator, value_type, std::bidirectional_iterator_tag> TODO: Reimplement this iterator using iterator_base
 		{
 		public:
-			typedef T	value_type;
+			typedef T						value_type;
 
 		private:
-			intrusive_list_node<T>*		_current;
+			pointer_type					_current;
 
 		public:
-			iterator(intrusive_list_node<T>* current)
+			iterator(pointer_type current)
 				: _current(current)
 			{ }
 
-			bool operator == (const iterator& other) const { return _current == other._current; }
-			bool operator != (const iterator& other) const { return !(*this == other); }
+			bool operator == (const iterator& other) const	{ return _current == other._current; }
+			bool operator != (const iterator& other) const	{ return !(*this == other); }
+			pointer_type get()								{ return _current; }
+			const_pointer_type get() const					{ return _current; }
 
 			T& operator * () const	{ return static_cast<T&>(*_current); }
 			T* operator -> () const	{ return static_cast<T*>(_current); }
@@ -80,10 +119,8 @@ namespace stingray
 		typedef iterator const_iterator;
 
 	private:
-		mutable intrusive_list_node<T>	_tail;
-		intrusive_list_node<T>*		_head;
-		size_t						_size;
-		allocator_type				_alloc;
+		mutable intrusive_list_node<T>	_root;
+		allocator_type					_alloc;
 
 		T * create_node(const T& value)
 		{
@@ -99,13 +136,21 @@ namespace stingray
 			_alloc.deallocate(t, 1);
 		}
 
+		inline void fix_root(const intrusive_list &other)
+		{
+			if (_root._next == &other._root)
+				_root._prev = _root._next = &_root;
+			else
+				_root._next->_prev = _root._prev->_next = &_root;
+		}
+
 	public:
 		explicit intrusive_list(const allocator_type &alloc = allocator_type())
-			: _tail(), _head(&_tail), _size(0), _alloc(alloc)
+			: _root(), _alloc(alloc)
 		{ }
 
 		intrusive_list(const intrusive_list& other)
-			: _tail(), _head(&_tail), _size(0), _alloc(other._alloc)
+			: _root(), _alloc(other._alloc)
 		{
 			for (const_iterator it = other.begin(); it != other.end(); ++it)
 				push_back(*it);
@@ -113,18 +158,20 @@ namespace stingray
 
 		~intrusive_list()
 		{
-			intrusive_list_node<T>* n = _head;
-			while (n != &_tail)
+			pointer_type p(_root._next);
+			while (p != &_root)
 			{
-				intrusive_list_node<T>* tmp = n;
-				n = tmp->_next;
+				pointer_type tmp(p);
+				p = tmp->_next;
 				destroy_node(tmp);
 			}
 		}
 
-
 		intrusive_list& operator = (const intrusive_list& other)
 		{
+			if (this == &other)
+				return *this;
+
 			intrusive_list tmp(other);
 			swap(tmp);
 
@@ -134,73 +181,35 @@ namespace stingray
 
 		void swap(intrusive_list& other) 
 		{
-			std::swap(_head, other._head);
-
-			if (_tail._prev)
-				_tail._prev->_next = &other._tail;
-			else
-				other._head = &other._tail;
-
-			if (other._tail._prev)
-				other._tail._prev->_next = &_tail;
-			else
-				_head = &_tail;
-
-			std::swap(_tail._prev, other._tail._prev);
-			std::swap(_size, other._size);
+			_root.swap(other._root);
+			fix_root(other);
+			other.fix_root(*this);
+			std::swap(_alloc, other._alloc);
 		}
 
-		iterator begin()		{ return iterator(_head); }
-		iterator end()			{ return iterator(&_tail); }
+		iterator begin()		{ return iterator(_root._next); }
+		iterator end()			{ return iterator(&_root); }
 
 		// Sorry. =)
-		iterator begin() const	{ return iterator(_head); }
-		iterator end() const	{ return iterator(&_tail); }
+		iterator begin() const	{ return iterator(_root._next); }
+		iterator end() const	{ return iterator(&_root); }
 
-		bool empty() const		{ return _head == &_tail; }
-		size_t size() const		{ return _size; }
+		inline bool empty() const	{ return _root.unlinked(); }
 	
 		void push_back(const T& value)
 		{
-			if (empty())
-			{
-				_head = create_node(value);
-				_head->_next = &_tail;
-				_tail._prev = _head;
-			}
-			else
-			{
-				intrusive_list_node<T>* tmp = _tail._prev;
-				tmp->_next = _tail._prev = create_node(value);
-				tmp->_next->_prev = tmp;
-				_tail._prev->_next = &_tail;
-			}
-			++_size;
+			pointer_type p = create_node(value);
+			p->insert_before(&_root);
 		}
-
 
 		void erase(const iterator& it)
 		{
 			if (it == end())
-				TOOLKIT_THROW(std::runtime_error("fail. =)"));
+				TOOLKIT_THROW("destroying iterator pointing to the end");
 
-			intrusive_list_node<T>* n = it->_next;
-			intrusive_list_node<T>* p = it->_prev;
-
-			if (p == NULL) // it ~ _head
-			{
-				destroy_node(_head);
-				n->_prev = NULL;
-				_head = n;
-			}
-			else
-			{
-				destroy_node(p->_next);
-				p->_next = n;
-				n->_prev = p;
-			}
-			
-			--_size;
+			pointer_type p = const_cast<pointer_type>(it.get());
+			p->unlink();
+			destroy_node(p);
 		}
 	};
 
