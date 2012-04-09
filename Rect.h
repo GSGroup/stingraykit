@@ -22,6 +22,8 @@ namespace stingray
 		Rect Move(Position d) const { return Rect(X1 + d.X, Y1 + d.Y, X2 + d.X, Y2 + d.Y); }
 		Rect Move(int dx, int dy) const { return Rect(X1 + dx, Y1 + dy, X2 + dx, Y2 + dy); }
 		Position GetTopLeft() const { return Position(X1, Y1); }
+		Rect Intersect(const Rect& other) const
+		{ return Rect(std::max(X1, other.X1), std::max(Y1, other.Y1), std::min(X2, other.X2), std::min(Y2, other.Y2)); }
 	};
 
 }
