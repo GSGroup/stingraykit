@@ -49,7 +49,7 @@ namespace stingray
 		typedef BasicUnsafeByteData<const u8>	UnsafeConstByteData;
 
 
-		template < typename ByteDataType_, size_t OffsetBits, size_t SizeBits, bool UseMasks = ((OffsetBits | SizeBits) & 7) != 0>
+		template < typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks = ((OffsetBits | SizeBits) & 7) != 0>
 		class BitsGetterProxy
 		{
 			typedef ByteDataType_	ByteDataType;
@@ -106,8 +106,8 @@ namespace stingray
 		};
 		
 
-		template < typename ByteDataType_, size_t OffsetBits, size_t SizeBits >
-		class BitsGetterProxy<ByteDataType_, OffsetBits, SizeBits, false>
+		template < typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits >
+		class BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, false>
 		{
 			typedef ByteDataType_	ByteDataType;
 
@@ -132,17 +132,20 @@ namespace stingray
 				typedef typename ShiftableType<T>::ValueT	ShiftableT;
 
 				ShiftableT result = ShiftableT();
-				size_t src_offset = OffsetBits / 8;
-				for(size_t i = 0; i < SizeBits / 8; ++i) 
-					result = (result << 8) | _buf[src_offset++];
+
+				const size_t offset = OffsetBits / 8;
+				const size_t count = SizeBits / 8;
+				for(size_t i = 0; i < count; ++i)
+					result = (result << 8) | _buf[offset + BigEndian? i : count - i - 1];
+
 				return static_cast<typename BitsGetterResultType<T>::ValueT>(result);
 			}
 
 		};
 
 #define DETAIL_TOOLKIT_DECL_BGP_OPERATOR(Op_) \
-		template < typename T, typename ByteDataType_, size_t OffsetBits, size_t SizeBits, bool UseMasks > T operator Op_ (BitsGetterProxy<ByteDataType_, OffsetBits, SizeBits, UseMasks> bgp, T val) { return static_cast<T>(bgp) Op_ val; } \
-		template < typename T, typename ByteDataType_, size_t OffsetBits, size_t SizeBits, bool UseMasks > T operator Op_ (T val, BitsGetterProxy<ByteDataType_, OffsetBits, SizeBits, UseMasks> bgp) { return val Op_ static_cast<T>(bgp); }
+		template < typename T, typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks > T operator Op_ (BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, UseMasks> bgp, T val) { return static_cast<T>(bgp) Op_ val; } \
+		template < typename T, typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks > T operator Op_ (T val, BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, UseMasks> bgp) { return val Op_ static_cast<T>(bgp); }
 
 	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(+)
 	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(-)
@@ -161,7 +164,7 @@ namespace stingray
 		struct ByteDataResizer<ByteDataType_, false>
 		{ static void RequireSize(ByteDataType_&, size_t) { } };
 
-		template < typename ByteDataType_, size_t OffsetBits, size_t SizeBits, bool UseMasks = ((OffsetBits | SizeBits) & 7) != 0 >
+		template < typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks = ((OffsetBits | SizeBits) & 7) != 0 >
 		class BitsSetterImpl
 		{
 			typedef ByteDataType_	ByteDataType;
@@ -220,8 +223,8 @@ namespace stingray
 			}
 		};
 
-		template < typename ByteDataType_, size_t OffsetBits, size_t SizeBits >
-		class BitsSetterImpl<ByteDataType_, OffsetBits, SizeBits, false>
+		template < typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits >
+		class BitsSetterImpl<ByteDataType_, BigEndian, OffsetBits, SizeBits, false>
 		{
 			typedef ByteDataType_	ByteDataType;
 
@@ -245,12 +248,14 @@ namespace stingray
 				typedef typename ShiftableType<T>::ValueT			ShiftableT;
 				typedef typename BitsGetterResultType<T>::ValueT	ResType;
 
-				ShiftableT shiftable_val = static_cast<ShiftableT>(static_cast<ResType>(val));
-				size_t src_offset = OffsetBits / 8;
-				for(int i = SizeBits / 8 - 1; i >= 0; --i) 
+				ShiftableT shiftable = static_cast<ShiftableT>(static_cast<ResType>(val));
+
+				const size_t offset = OffsetBits / 8;
+				const size_t count = SizeBits / 8;
+				for(int i = count - 1; i >= 0; --i)
 				{
-					_buf[src_offset + i] = static_cast<u8>(shiftable_val);
-					shiftable_val >>= 8;
+					_buf[offset + BigEndian? i : count - i - 1] = static_cast<u8>(shiftable);
+					shiftable >>= 8;
 				}
 			}
 		};
@@ -258,7 +263,7 @@ namespace stingray
 	}
 	
 
-	template < typename ByteDataType_ >
+	template < typename ByteDataType_, bool BigEndian = true >
 	class BasicBitsGetter
 	{
 		typedef ByteDataType_		ByteDataType;
@@ -272,19 +277,19 @@ namespace stingray
 		BasicBitsGetter(const ByteDataType &buf, size_t bytesOffset, size_t size) : _buf(buf, bytesOffset, size) { }
 
 		template < size_t OffsetBits, size_t SizeBits >
-		Detail::BitsGetterProxy<ByteDataType, OffsetBits, SizeBits> Get() const 
-		{ return Detail::BitsGetterProxy<ByteDataType, OffsetBits, SizeBits>(_buf); }
+		Detail::BitsGetterProxy<ByteDataType, BigEndian,  OffsetBits, SizeBits> Get() const
+		{ return Detail::BitsGetterProxy<ByteDataType, BigEndian,  OffsetBits, SizeBits>(_buf); }
 
 		template < size_t OffsetBits, typename PodType >
-		Detail::BitsGetterProxy<ByteDataType, OffsetBits, 8 * sizeof(PodType)> Get(const Dummy& dummy = Dummy()) const
+		Detail::BitsGetterProxy<ByteDataType, BigEndian, OffsetBits, 8 * sizeof(PodType)> Get(const Dummy& dummy = Dummy()) const
 		{ return Get<OffsetBits, 8 * sizeof(PodType)>(); }
 
 		template < typename PodType >
-		Detail::BitsGetterProxy<ByteDataType, 0, 8 * sizeof(PodType)> Get(const Dummy& dummy = Dummy(), const Dummy& dummy2 = Dummy()) const
+		Detail::BitsGetterProxy<ByteDataType, BigEndian, 0, 8 * sizeof(PodType)> Get(const Dummy& dummy = Dummy(), const Dummy& dummy2 = Dummy()) const
 		{ return Get<0, 8 * sizeof(PodType)>(); }
 	};
 
-	template < typename ByteDataType_ >
+	template < typename ByteDataType_ , bool BigEndian = true >
 	class BasicBitsSetter
 	{
 		typedef ByteDataType_		ByteDataType;
@@ -301,7 +306,7 @@ namespace stingray
 
 		template < size_t OffsetBits, size_t SizeBits, typename T >
 		void Set(T val) const 
-		{ Detail::BitsSetterImpl<ByteDataType, OffsetBits, SizeBits>(_buf).Set(val); }
+		{ Detail::BitsSetterImpl<ByteDataType, BigEndian, OffsetBits, SizeBits>(_buf).Set(val); }
 
 	private:
 		static const ByteDataType& BufResizer(ByteDataType& buf, size_t minSize)
@@ -316,6 +321,11 @@ namespace stingray
 	typedef BasicBitsSetter<Detail::UnsafeByteData>			UnsafeBitsSetter;
 	typedef BasicBitsGetter<ConstByteData>					BitsGetter;
 	typedef BasicBitsSetter<ByteData>						BitsSetter;
+
+	typedef BasicBitsGetter<Detail::UnsafeConstByteData, false>		UnsafeLittleEndianBitsGetter;
+	typedef BasicBitsSetter<Detail::UnsafeByteData, false>			UnsafeLittleEndianBitsSetter;
+	typedef BasicBitsGetter<ConstByteData, false>					LittleEndianBitsGetter;
+	typedef BasicBitsSetter<ByteData, false>						LittleEndianBitsSetter;
 
 }
 
