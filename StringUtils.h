@@ -7,7 +7,6 @@
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/IStringRepresentable.h>
-#include <stingray/toolkit/NestedTypeCheck.h>
 
 
 /*! \cond GS_INTERNAL */
@@ -24,8 +23,8 @@ namespace stingray
 		{
 			char c = str[i];
 			if (c >= '0' && c <= '9')
-				c -= '0'; 
-			else 
+				c -= '0';
+			else
 			{
 				c &= ~ 0x20;
 				if (c >= 'A' && c <= 'F')
@@ -37,7 +36,7 @@ namespace stingray
 		}
 		return r;
 	}
-	
+
 	template < typename CharType, typename T >
 	std::basic_string<CharType> ToString(const T& val, Dummy dummy = Dummy())
 	{
@@ -63,7 +62,7 @@ namespace stingray
 		if (!s.eof())
 			throw std::runtime_error("FromString: Could not parse value!"); // =(
 
-		return val; 
+		return val;
 	}
 
 	template < typename T >
@@ -74,9 +73,9 @@ namespace stingray
 
 
 	template < typename CharType >
-	void ReplaceAll(std::basic_string<CharType>& str, 
-					const std::basic_string<CharType>& replaceSeq, 
-					const std::basic_string<CharType>& replaceTo, 
+	void ReplaceAll(std::basic_string<CharType>& str,
+					const std::basic_string<CharType>& replaceSeq,
+					const std::basic_string<CharType>& replaceTo,
 					Dummy dummy = Dummy())
 	{
 		typedef std::basic_string<CharType>	StrType;
@@ -84,7 +83,7 @@ namespace stingray
 		typename StrType::size_type i = str.find(replaceSeq);
 		while (i != StrType::npos)
 		{
-			str.replace(i, replaceSeq.size(), replaceTo);			
+			str.replace(i, replaceSeq.size(), replaceTo);
 			i = str.find(replaceSeq, i + replaceTo.size());
 		}
 	}
@@ -158,9 +157,6 @@ namespace stingray
 
 	typedef BasicStringReader<char>		StringReader;
 	typedef BasicStringReader<wchar_t>	WideStringReader;
-
-
-	TOOLKIT_DECLARE_METHOD_CHECK(ToString);
 
 
 	namespace Detail
