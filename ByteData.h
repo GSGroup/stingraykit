@@ -188,7 +188,12 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		BasicByteData(const BasicByteArray<U> & array)
+		BasicByteData(BasicByteArray<U>& array)
+			: _data(array.data()), _size(array.size())
+		{ }
+
+		template < typename U >
+		BasicByteData(const BasicByteArray<U>& array)
 			: _data(array.data()), _size(array.size())
 		{ }
 
