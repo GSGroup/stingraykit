@@ -136,7 +136,7 @@ namespace stingray
 				const size_t offset = OffsetBits / 8;
 				const size_t count = SizeBits / 8;
 				for(size_t i = 0; i < count; ++i)
-					result = (result << 8) | _buf[offset + BigEndian? i : (count - i - 1)];
+					result = (result << 8) | _buf[offset + (BigEndian? i : count - i - 1)];
 
 				return static_cast<typename BitsGetterResultType<T>::ValueT>(result);
 			}
@@ -254,7 +254,7 @@ namespace stingray
 				const size_t count = SizeBits / 8;
 				for(int i = count - 1; i >= 0; --i)
 				{
-					_buf[offset + BigEndian? i : (count - i - 1)] = static_cast<u8>(shiftable);
+					_buf[offset + (BigEndian? i : count - i - 1)] = static_cast<u8>(shiftable);
 					shiftable >>= 8;
 				}
 			}
