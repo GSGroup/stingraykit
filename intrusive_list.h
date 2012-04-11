@@ -112,8 +112,8 @@ namespace stingray
 			T& operator * () const	{ return static_cast<T&>(*_current); }
 			T* operator -> () const	{ return static_cast<T*>(_current); }
 
-			const iterator& operator ++() { _current = _current->_next;  return *this; }
-			const iterator& operator --() { _current = _current->_prev;  return *this; }
+			const iterator& operator ++() { _current = get_next(_current);  return *this; }
+			const iterator& operator --() { _current = get_prev(_current);  return *this; }
 		};
 		//fixme: add const_iterators here!
 		typedef iterator const_iterator;
@@ -121,6 +121,9 @@ namespace stingray
 	private:
 		mutable intrusive_list_node<T>	_root;
 		allocator_type					_alloc;
+
+		static node_type* get_next(const node_type* n) { return n->_next; }
+		static node_type* get_prev(const node_type* n) { return n->_prev; }
 
 		T * create_node(const T& value)
 		{
