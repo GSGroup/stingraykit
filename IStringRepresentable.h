@@ -3,9 +3,13 @@
 
 #include <string>
 
+#include <stingray/toolkit/NestedTypeCheck.h>
+
 namespace stingray
 {
 
+
+	TOOLKIT_DECLARE_METHOD_CHECK(ToString);
 
 	struct IStringRepresentable
 	{
