@@ -88,6 +88,9 @@ namespace stingray
 		}
 	}
 
+	inline void ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
+	{ ReplaceAll<char>(str, replaceSeq, replaceTo); }
+
 	inline std::string ExtractPrefix(const std::string& str, size_t prefixLength)
 	{ return str.substr(0, std::min(str.length(), prefixLength)); }
 
@@ -96,9 +99,6 @@ namespace stingray
 		const size_t length = std::min(str.length(), suffixLength);
 		return str.substr(str.length() - length, length);
 	}
-
-	inline void ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
-	{ ReplaceAll<char>(str, replaceSeq, replaceTo); }
 
 	inline bool BeginsWith(const std::string& str, const std::string& prefix)
 	{ return str.length() >= prefix.length() && ExtractPrefix(str, prefix.length()) == prefix; }
@@ -125,47 +125,6 @@ namespace stingray
 
 	inline std::string Strip(const std::string& str, char ch = ' ')
 	{ return LeftStrip(RightStrip(str, ch), ch); }
-
-
-	template <typename CharType >
-	class BasicStringReader
-	{
-		typedef std::basic_istringstream<CharType>	StreamType;
-		typedef std::basic_string<CharType>			StringType;
-
-	private:
-		StreamType	_stream;
-
-	public:
-		explicit BasicStringReader(const StringType& str)
-			: _stream(str)
-		{ }
-
-		template<typename T>
-		T Read()
-		{
-			T result = T();
-
-			_stream >> result;
-			if (_stream.fail())
-				throw std::runtime_error("couldn't read value!");
-
-			return result;
-		}
-
-		StringType ReadStringUntil(char delimeter)
-		{
-			StringType result;
-
-			if (std::getline(_stream, result, delimeter).fail())
-				throw std::runtime_error("couldn't read value!");
-
-			return result;
-		}
-	};
-
-	typedef BasicStringReader<char>		StringReader;
-	typedef BasicStringReader<wchar_t>	WideStringReader;
 
 
 	namespace Detail
