@@ -117,6 +117,15 @@ namespace stingray
 		result.push_back(str.substr(i));
 	}
 
+	inline std::string RightStrip(const std::string& str, char ch = ' ')
+	{ return str.substr(0, str.find_last_not_of(ch)); }
+
+	inline std::string LeftStrip(const std::string& str, char ch = ' ')
+	{ return str.substr(0, str.find_first_not_of(ch)); }
+
+	inline std::string Strip(const std::string& str, char ch = ' ')
+	{ return LeftStrip(RightStrip(str, ch), ch); }
+
 
 	template <typename CharType >
 	class BasicStringReader
