@@ -2,18 +2,12 @@
 #define __GS_STINGRAY_TOOLKIT_IBYTESTREAM_H__
 
 
-#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/SeekMode.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 
 namespace stingray
 {
-
-	struct SeekMode
-	{
-		TOOLKIT_ENUM_VALUES(Begin, End, Current);
-		TOOLKIT_DECLARE_ENUM_CLASS(SeekMode);
-	};
 
 	struct IByteStream
 	{

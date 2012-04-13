@@ -200,6 +200,9 @@ namespace stingray
 		}
 	}
 
+	inline void ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
+	{ ReplaceAll<char>(str, replaceSeq, replaceTo); }
+
 	inline std::string ExtractPrefix(const std::string& str, size_t prefixLength)
 	{ return str.substr(0, std::min(str.length(), prefixLength)); }
 
@@ -208,9 +211,6 @@ namespace stingray
 		const size_t length = std::min(str.length(), suffixLength);
 		return str.substr(str.length() - length, length);
 	}
-
-	inline void ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
-	{ ReplaceAll<char>(str, replaceSeq, replaceTo); }
 
 	inline bool BeginsWith(const std::string& str, const std::string& prefix)
 	{ return str.length() >= prefix.length() && ExtractPrefix(str, prefix.length()) == prefix; }
@@ -229,46 +229,20 @@ namespace stingray
 		result.push_back(str.substr(i));
 	}
 
-
-	template <typename CharType >
-	class BasicStringReader
+	inline std::string RightStrip(const std::string& str, char ch = ' ')
 	{
-		typedef std::basic_istringstream<CharType>	StreamType;
-		typedef std::basic_string<CharType>			StringType;
+		const size_t pos = str.find_last_not_of(ch);
+		return pos == std::string::npos? str : str.substr(0, pos + 1);
+	}
 
-	private:
-		StreamType	_stream;
+	inline std::string LeftStrip(const std::string& str, char ch = ' ')
+	{
+		const size_t pos = str.find_first_not_of(ch);
+		return pos == std::string::npos? str : str.substr(pos);
+	}
 
-	public:
-		explicit BasicStringReader(const StringType& str)
-			: _stream(str)
-		{ }
-
-		template<typename T>
-		T Read()
-		{
-			T result = T();
-
-			_stream >> result;
-			if (_stream.fail())
-				throw std::runtime_error("couldn't read value!");
-
-			return result;
-		}
-
-		StringType ReadStringUntil(char delimeter)
-		{
-			StringType result;
-
-			if (std::getline(_stream, result, delimeter).fail())
-				throw std::runtime_error("couldn't read value!");
-
-			return result;
-		}
-	};
-
-	typedef BasicStringReader<char>		StringReader;
-	typedef BasicStringReader<wchar_t>	WideStringReader;
+	inline std::string Strip(const std::string& str, char ch = ' ')
+	{ return LeftStrip(RightStrip(str, ch), ch); }
 
 
 	template< typename CharType >
