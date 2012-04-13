@@ -22,7 +22,7 @@ namespace stingray
 			if (!other)
 				return 1;
 
-			const std::type_info &my_type = typeid(T);
+			const std::type_info &my_type = typeid(*this);
 			const std::type_info &other_type = typeid(*other);
 
 			if (my_type == other_type)
