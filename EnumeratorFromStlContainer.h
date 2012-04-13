@@ -68,7 +68,7 @@ namespace stingray
 		typedef typename ContainerType::const_iterator	IteratorType;
 		return make_shared<IteratorsRangeEnumerator<IteratorType, ContainerLifeAssuranceType> >(container.begin(), container.end(), lifeAssurance);
 	}
-	
+
 
 	template < typename IteratorType >
 	shared_ptr< typename Detail::EnumeratorTypeFromIteratorType<IteratorType>::ValueT >
@@ -122,7 +122,7 @@ namespace stingray
 				: _begin(begin), _end(end), _lifeAssurance(lifeAssurance)
 			{ }
 
-			virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator()
+			virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 			{ return EnumeratorFromStlIterators(_begin, _end, _lifeAssurance); }
 		};
 
@@ -143,7 +143,7 @@ namespace stingray
 		typedef typename ContainerType::const_iterator	IteratorType;
 		return make_shared<Detail::StlIteratorsEnumerable<IteratorType, ContainerLifeAssuranceType> >(container.begin(), container.end(), lifeAssurance);
 	}
-	
+
 
 }
 
