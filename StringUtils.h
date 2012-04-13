@@ -126,7 +126,7 @@ namespace stingray
 	inline std::string LeftStrip(const std::string& str, char ch = ' ')
 	{
 		const size_t pos = str.find_first_not_of(ch);
-		return pos == std::string::npos? str : str.substr(0, pos + 1);
+		return pos == std::string::npos? str : str.substr(pos);
 	}
 
 	inline std::string Strip(const std::string& str, char ch = ' ')
