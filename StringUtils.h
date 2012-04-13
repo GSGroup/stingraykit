@@ -5,8 +5,12 @@
 #include <vector>
 
 #include <stingray/toolkit/Dummy.h>
-#include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/IStringRepresentable.h>
+#include <stingray/toolkit/NestedTypeCheck.h>
+#include <stingray/toolkit/Types.h>
+#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/Tuple.h>
+#include <stingray/toolkit/IEnumerable.h>
 
 
 /*! \cond GS_INTERNAL */
@@ -65,9 +69,117 @@ namespace stingray
 		return val;
 	}
 
+	TOOLKIT_DECLARE_METHOD_CHECK(begin);
+	TOOLKIT_DECLARE_METHOD_CHECK(end);
+	TOOLKIT_DECLARE_METHOD_CHECK(ToString);
+
+	namespace Detail
+	{
+		template< typename ObjectType, bool HasBeginEnd = HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value>
+		struct TypeToStringSerializer;
+
+		template< typename ObjectType>
+		struct TypeToStringSerializer<ObjectType, true>
+		{
+			static std::string ToStringImpl(const ObjectType& object)
+			{
+				typename ObjectType::const_iterator it = object.begin(), iend = object.end();
+				std::string result = "[";
+				if (it != iend)
+					result += ToString(*it++);
+				while (it != iend)
+					result += ", " + ToString(*it++);
+				result += "]";
+				return result;
+			}
+		};
+
+		template<typename T>
+		struct TypeToStringSerializer<IEnumerable<T>, false>
+		{
+			static std::string ToStringImpl(const IEnumerable<T>& enumerable)
+			{
+				shared_ptr<IEnumerator<T> > e = TOOLKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
+				std::string result = "[";
+				if (e->Valid())
+				{
+					result += ToString(e->Get());
+					e->Next();
+				}
+				while (e->Valid())
+				{
+					result += ", " + ToString(e->Get());
+					e->Next();
+				}
+				result += "]";
+				return result;
+			}
+		};
+
+		template< typename ObjectType>
+		struct TypeToStringSerializer<ObjectType, false>
+		{
+			static std::string ToStringImpl(const ObjectType& val)
+			{
+				std::ostringstream s;
+				s << val;
+				return s.str();
+			}
+		};
+
+		template<>
+		struct TypeToStringSerializer<u8, false>
+		{
+			static std::string ToStringImpl(u8 val)
+			{
+				std::ostringstream s;
+				s << (int)val;
+				return s.str();
+			}
+		};
+
+		template<>
+		struct TypeToStringSerializer<std::string, true>
+		{
+			static std::string ToStringImpl(const std::string& str)
+			{ return str; }
+		};
+
+		template<>
+		struct TypeToStringSerializer<const char*, false>
+		{
+			static std::string ToStringImpl(const char* str)
+			{ return str; }
+		};
+
+		template<typename T>
+		struct TypeToStringSerializer<shared_ptr<T>, false>
+		{
+			static std::string ToStringImpl(const shared_ptr<T>& ptr)
+			{ return ptr ? ToString(*ptr) : "null"; }
+		};
+
+		template< typename ObjectType, bool HasToStringMethod = HasMethod_ToString<ObjectType>::Value >
+		struct ToStringHelper;
+
+		template< typename ObjectType >
+		struct ToStringHelper<ObjectType, true>
+		{
+			static std::string ToString(const ObjectType& object)
+			{ return object.ToString(); }
+		};
+
+		template< typename ObjectType >
+		struct ToStringHelper<ObjectType, false>
+		{
+			static std::string ToString(const ObjectType& object)
+			{ return TypeToStringSerializer<ObjectType>::ToStringImpl(object); }
+		};
+	}
+
 	template < typename T >
 	std::string ToString(const T& val)
-	{ return ToString<char, T>(val); }
+	{ return Detail::ToStringHelper<T>::ToString(val); }
 
 	/////////////////////////////////////////////////////////////////
 
@@ -159,29 +271,6 @@ namespace stingray
 	typedef BasicStringReader<wchar_t>	WideStringReader;
 
 
-	namespace Detail
-	{
-
-		template< typename StreamType, typename ObjectType, bool HasToStringMethod = HasMethod_ToString<ObjectType>::Value >
-		struct TypeSerializer;
-
-		template< typename StreamType, typename ObjectType >
-		struct TypeSerializer<StreamType, ObjectType, true>
-		{
-			static void Serialize(StreamType& stream, const ObjectType& object)
-			{ stream << object.ToString(); }
-		};
-
-		template< typename StreamType, typename ObjectType >
-		struct TypeSerializer<StreamType, ObjectType, false>
-		{
-			static void Serialize(StreamType& stream, const ObjectType& object)
-			{ stream << object; }
-		};
-
-	}
-
-
 	template< typename CharType >
 	class BasicStringBuilder
 	{
@@ -195,7 +284,7 @@ namespace stingray
 		template<typename ObjectType>
 		BasicStringBuilder& operator % (const ObjectType& object)
 		{
-			Detail::TypeSerializer<StreamType, ObjectType>::Serialize(_stream, object);
+			_stream << ToString(object);
 			return *this;
 		}
 
