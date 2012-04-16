@@ -12,7 +12,7 @@
 namespace stingray
 {
 
-	
+
 	template < typename T >
 	struct IEnumerable
 	{
@@ -20,7 +20,7 @@ namespace stingray
 
 		virtual ~IEnumerable() { }
 
-		virtual shared_ptr<IEnumerator<T> > GetEnumerator() = 0;
+		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const = 0;
 	};
 
 
