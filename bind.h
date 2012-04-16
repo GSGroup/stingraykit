@@ -284,7 +284,7 @@ namespace stingray
 		struct Binder;
 
 		template < typename RetType_, typename AllParameters, typename FunctorType >
-		struct Binder<RetType_, AllParameters, FunctorType, 0> : private BinderBase<RetType_, AllParameters, FunctorType>
+		struct Binder<RetType_, AllParameters, FunctorType, 0> : private BinderBase<RetType_, AllParameters, FunctorType>, public function_info<RetType_, typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT>
 		{
 			typedef BinderBase<RetType_, AllParameters, FunctorType>	base;
 			typedef typename base::RetType								RetType;
@@ -304,7 +304,7 @@ namespace stingray
 
 #define DETAIL_TOOLKIT_DECLARE_BINDER(N, CallParamsDecl_, CallParamsUsage_) \
 		template < typename RetType_, typename AllParameters, typename FunctorType > \
-		struct Binder<RetType_, AllParameters, FunctorType, N> : private BinderBase<RetType_, AllParameters, FunctorType> \
+		struct Binder<RetType_, AllParameters, FunctorType, N> : private BinderBase<RetType_, AllParameters, FunctorType>, public function_info<RetType_, typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT> \
 		{ \
 			typedef BinderBase<RetType_, AllParameters, FunctorType>					base; \
 			typedef typename base::RetType												RetType; \

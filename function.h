@@ -130,11 +130,13 @@ namespace stingray
 
 
 	template < typename Signature >
-	class function_base
+	class function_base : public function_info<Signature>
 	{
-	protected:
+	public:
 		typedef typename function_info<Signature>::RetType		RetType;
 		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+
+	protected:
 		typedef Detail::IInvokable<Signature>					InvokableType;
 
 		self_count_ptr<InvokableType>	_invokable;
