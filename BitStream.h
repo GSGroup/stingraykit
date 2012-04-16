@@ -19,7 +19,7 @@ namespace stingray
 		struct GetIteratorValueType<IteratorType, true>
 		{ typedef typename IteratorType::container_type::value_type	ValueT; };
 
-		template < typename ByteDataType_, int Size >
+		template < typename ByteDataType_, bool BigEndian, int Size >
 		class BasicBitStreamReadProxy
 		{
 		private:
@@ -34,7 +34,7 @@ namespace stingray
 			template < typename T >
 			operator T() const
 			{
-				BasicBitsGetter<ByteDataType_> bits(*_buf, _offset >> 3);
+				BasicBitsGetter<ByteDataType_, BigEndian> bits(*_buf, _offset >> 3);
 				switch (_offset & 7)
 				{
 				case 0:		return bits.template Get<0, Size>();
@@ -51,8 +51,8 @@ namespace stingray
 		};
 
 #define DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(Op_) \
-			template < typename T, typename ByteDataType_, int Size > T operator Op_ (const BasicBitStreamReadProxy<ByteDataType_, Size>& bsrp, T val) { return static_cast<T>(bsrp) Op_ val; } \
-			template < typename T, typename ByteDataType_, int Size > T operator Op_ (T val, const BasicBitStreamReadProxy<ByteDataType_, Size>& bsrp) { return val Op_ static_cast<T>(bsrp); }
+			template < typename T, typename ByteDataType_, bool BigEndian, int Size > T operator Op_ (const BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>& bsrp, T val) { return static_cast<T>(bsrp) Op_ val; } \
+			template < typename T, typename ByteDataType_, bool BigEndian, int Size > T operator Op_ (T val, const BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>& bsrp) { return val Op_ static_cast<T>(bsrp); }
 
 		DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(+)
 		DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(-)
@@ -62,7 +62,7 @@ namespace stingray
 #undef DETAIL_TOOLKIT_DECL_BSRP_OPERATOR
 	}
 
-	template<typename ByteDataType_>
+	template < typename ByteDataType_, bool BigEndian = true >
 	class BasicBitStream
 	{
 		typedef ByteDataType_ 	ByteDataType;
@@ -101,11 +101,11 @@ namespace stingray
 		inline size_t GetRemainingBitsCount() const		{ return (_buf.size() << 3) - _offset; }
 
 		template<int Size>
-		Detail::BasicBitStreamReadProxy<ByteDataType_, Size> Read()
+		Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size> Read()
 		{
 			size_t offset = _offset;
 			_offset += Size;
-			return Detail::BasicBitStreamReadProxy<ByteDataType_, Size>(&_buf, offset);
+			return Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>(&_buf, offset);
 		}
 
 		std::string ReadStringTerminatedBy(char terminator) 
@@ -164,7 +164,7 @@ namespace stingray
 		template < int Size, typename T >
 		void DoWrite(T value, size_t offset)
 		{
-			BasicBitsSetter<ByteDataType> bits(_buf, offset >> 3);
+			BasicBitsSetter<ByteDataType, BigEndian> bits(_buf, offset >> 3);
 			switch(offset & 7)
 			{
 				case 0:		bits.template Set<0, Size>(value); break;
@@ -182,12 +182,18 @@ namespace stingray
 
 	typedef BasicBitStream<Detail::UnsafeConstByteData>			UnsafeConstBitStream;
 	typedef BasicBitStream<Detail::UnsafeByteData>				UnsafeBitStream;
+	typedef BasicBitStream<Detail::UnsafeConstByteData, false>	UnsafeConstLittleEndianBitStream;
+	typedef BasicBitStream<Detail::UnsafeByteData, false>		UnsafeLittleEndianBitStream;
 
 	typedef BasicBitStream<ConstByteData>			ConstBitStream;
 	typedef BasicBitStream<ByteData>				BitStream;
+	typedef BasicBitStream<ConstByteData, false>	ConstLittleEndianBitStream;
+	typedef BasicBitStream<ByteData, false>			LittleEndianBitStream;
 
-	typedef BasicBitStream<ConstByteArray>		ConstSeisedBitStream;
-	typedef BasicBitStream<ByteArray>			SeisedBitStream;
+	typedef BasicBitStream<ConstByteArray>			ConstSeisedBitStream;
+	typedef BasicBitStream<ByteArray>				SeisedBitStream;
+	typedef BasicBitStream<ConstByteArray, false>	ConstSeisedLittleEndianBitStream;
+	typedef BasicBitStream<ByteArray, false>		SeisedLittleEndianBitStream;
 
 }
 
