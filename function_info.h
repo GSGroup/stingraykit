@@ -29,85 +29,149 @@ namespace stingray
 
 #define TY typename
 	
-	template < typename F >
+	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_info;
-	template < typename F >
+	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_type;
 
 /////////////////////////////////////
 /// for raw functions and methods ///
 /////////////////////////////////////
 
-	template < typename R > struct function_type<R()>
+	template < typename R > struct function_type<R(), NullType>
 	{ static const FunctionType::Enum Type = FunctionType::RawFunction; };
-	template < typename R > struct function_type<R(*)()>
+	template < typename R > struct function_type<R(*)(), NullType>
 	{ static const FunctionType::Enum Type = FunctionType::RawFunctionPtr; };
-	template < typename C, typename R > struct function_type<R (C::*)()>
+	template < typename C, typename R > struct function_type<R (C::*)(), NullType>
 	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
-	template < typename C, typename R > struct function_type<R (C::*)() const>
+	template < typename C, typename R > struct function_type<R (C::*)() const, NullType>
 	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
 	template < typename R >
-	struct function_info<R()> : public function_type<R()>
+	struct function_info<R(), NullType> : public function_type<R()>
 	{
 		typedef R			RetType;
 		typedef TypeList_0	ParamTypes;
 	};
 	template < typename R >
-	struct function_info<R(*)()> : public function_type<R(*)()>
+	struct function_info<R(*)(), NullType> : public function_type<R(*)()>
 	{
 		typedef R			RetType;
 		typedef TypeList_0	ParamTypes;
 	};
 	template < typename C, typename R >
-	struct function_info<R (C::*)()> : public function_type<R (C::*)()>
+	struct function_info<R (C::*)(), NullType> : public function_type<R (C::*)()>, public std::unary_function<C*, R>
 	{
 		typedef R				RetType;
 		typedef TypeList_1<C*>	ParamTypes;
 	};
 	template < typename C, typename R >
-	struct function_info<R (C::*)() const> : public function_type<R (C::*)() const>
+	struct function_info<R (C::*)() const, NullType> : public function_type<R (C::*)() const>, public std::unary_function<const C*, R>
 	{
 		typedef R						RetType;
 		typedef TypeList_1<const C*>	ParamTypes;
 	};
 
 
+	template < typename R, typename T1 > struct function_type<R(T1), NullType>
+	{ static const FunctionType::Enum Type = FunctionType::RawFunction; };
+	template < typename R, typename T1 > struct function_type<R(*)(T1), NullType>
+	{ static const FunctionType::Enum Type = FunctionType::RawFunctionPtr; };
+	template < typename C, typename R, typename T1 > struct function_type<R (C::*)(T1), NullType>
+	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
+	template < typename C, typename R, typename T1 > struct function_type<R (C::*)(T1) const, NullType>
+	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
+	template < typename R, typename T1 >
+	struct function_info<R(T1), NullType> : function_type<R(T1)>, public std::unary_function<T1, R>
+	{
+		typedef R						RetType;
+		typedef TYPELIST(T1)			ParamTypes;
+	};
+	template < typename R, typename T1 >
+	struct function_info<R(*)(T1), NullType> : function_type<R(*)(T1)>, public std::unary_function<T1, R>
+	{
+		typedef R						RetType;
+		typedef TYPELIST(T1)			ParamTypes;
+	};
+	template < typename C, typename R, typename T1 >
+	struct function_info<R (C::*)(T1), NullType> : function_type<R (C::*)(T1)>, public std::binary_function<C*, T1, R>
+	{
+		typedef R						RetType;
+		typedef TYPELIST(C*, T1)		ParamTypes;
+	};
+	template < typename C, typename R, typename T1 >
+	struct function_info<R (C::*)(T1) const, NullType>  : function_type<R (C::*)(T1) const>, public std::binary_function<const C*, T1, R>
+	{
+		typedef R						RetType;
+		typedef TYPELIST(const C*, T1)	ParamTypes;
+	};
+
+	template < typename R, typename T1, typename T2 > struct function_type<R(T1, T2), NullType>
+	{ static const FunctionType::Enum Type = FunctionType::RawFunction; };
+	template < typename R, typename T1, typename T2 > struct function_type<R(*)(T1, T2), NullType>
+	{ static const FunctionType::Enum Type = FunctionType::RawFunctionPtr; };
+	template < typename C, typename R, typename T1, typename T2 > struct function_type<R (C::*)(T1, T2), NullType>
+	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
+	template < typename C, typename R, typename T1, typename T2 > struct function_type<R (C::*)(T1, T2) const, NullType>
+	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
+	template < typename R, typename T1, typename T2 >
+	struct function_info<R(T1, T2), NullType> : function_type<R(T1, T2)>, public std::binary_function<T1, T2, R>
+	{
+		typedef R								RetType;
+		typedef TYPELIST(T1, T2)			ParamTypes;
+	};
+	template < typename R, typename T1, typename T2 >
+	struct function_info<R(*)(T1, T2), NullType> : function_type<R(*)(T1, T2)>, public std::binary_function<T1, T2, R>
+	{
+		typedef R								RetType;
+		typedef TYPELIST(T1, T2)			ParamTypes;
+	};
+	template < typename C, typename R, typename T1, typename T2 >
+	struct function_info<R (C::*)(T1, T2), NullType> : function_type<R (C::*)(T1, T2)>
+	{
+		typedef R								RetType;
+		typedef TYPELIST(C*, T1, T2)		ParamTypes;
+	};
+	template < typename C, typename R, typename T1, typename T2 >
+	struct function_info<R (C::*)(T1, T2) const, NullType>  : function_type<R (C::*)(T1, T2) const>
+	{
+		typedef R								RetType;
+		typedef TYPELIST(const C*, T1, T2)	ParamTypes;
+	};
+
 #define DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(ParamTypenames_, ParamTypes_) \
-	template < typename R, ParamTypenames_ > struct function_type<R(ParamTypes_)> \
+	template < typename R, ParamTypenames_ > struct function_type<R(ParamTypes_), NullType> \
 	{ static const FunctionType::Enum Type = FunctionType::RawFunction; }; \
-	template < typename R, ParamTypenames_ > struct function_type<R(*)(ParamTypes_)> \
+	template < typename R, ParamTypenames_ > struct function_type<R(*)(ParamTypes_), NullType> \
 	{ static const FunctionType::Enum Type = FunctionType::RawFunctionPtr; }; \
-	template < typename C, typename R, ParamTypenames_ > struct function_type<R (C::*)(ParamTypes_)> \
+	template < typename C, typename R, ParamTypenames_ > struct function_type<R (C::*)(ParamTypes_), NullType> \
 	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; }; \
-	template < typename C, typename R, ParamTypenames_ > struct function_type<R (C::*)(ParamTypes_) const> \
+	template < typename C, typename R, ParamTypenames_ > struct function_type<R (C::*)(ParamTypes_) const, NullType> \
 	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; }; \
 	template < typename R, ParamTypenames_ > \
-	struct function_info<R(ParamTypes_)> : function_type<R(ParamTypes_)> \
+	struct function_info<R(ParamTypes_), NullType> : function_type<R(ParamTypes_)> \
 	{ \
 		typedef R								RetType; \
 		typedef TYPELIST(ParamTypes_)			ParamTypes; \
 	}; \
 	template < typename R, ParamTypenames_ > \
-	struct function_info<R(*)(ParamTypes_)> : function_type<R(*)(ParamTypes_)> \
+	struct function_info<R(*)(ParamTypes_), NullType> : function_type<R(*)(ParamTypes_)> \
 	{ \
 		typedef R								RetType; \
 		typedef TYPELIST(ParamTypes_)			ParamTypes; \
 	}; \
 	template < typename C, typename R, ParamTypenames_ > \
-	struct function_info<R (C::*)(ParamTypes_)> : function_type<R (C::*)(ParamTypes_)> \
+	struct function_info<R (C::*)(ParamTypes_), NullType> : function_type<R (C::*)(ParamTypes_)> \
 	{ \
 		typedef R								RetType; \
 		typedef TYPELIST(C*, ParamTypes_)		ParamTypes; \
 	}; \
 	template < typename C, typename R, ParamTypenames_ > \
-	struct function_info<R (C::*)(ParamTypes_) const>  : function_type<R (C::*)(ParamTypes_) const> \
+	struct function_info<R (C::*)(ParamTypes_) const, NullType>  : function_type<R (C::*)(ParamTypes_) const> \
 	{ \
 		typedef R								RetType; \
 		typedef TYPELIST(const C*, ParamTypes_)	ParamTypes; \
 	}
 
-	DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1), MK_PARAM(T1));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2));
 	DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3));
 	DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4));
 	DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5));
@@ -128,12 +192,12 @@ namespace stingray
 	class function;
 
 	template < typename Signature >
-	struct function_type<function<Signature> >
+	struct function_type<function<Signature>, NullType >
 	{ static const FunctionType::Enum Type = FunctionType::GSFunction; };
 
 
 	template < typename Signature >
-	struct function_info<function<Signature> > : public function_type<function<Signature> >
+	struct function_info<function<Signature>, NullType > : public function_type<function<Signature> >
 	{ 
 		typedef typename function_info<Signature>::RetType		RetType;
 		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
@@ -173,12 +237,24 @@ namespace stingray
 				);
 		};
 
+		template < typename RetType_, typename ParamTypes_, size_t ParamsCount = GetTypeListLength<ParamTypes_>::Value >
+		struct StdSomethingnaryFunctionMixin
+		{ };
+
+		template < typename RetType_, typename ParamTypes_ >
+		struct StdSomethingnaryFunctionMixin<RetType_, ParamTypes_, 1> : public std::unary_function<typename GetTypeListItem<ParamTypes_, 0>::ValueT, RetType_>
+		{ };
+
+		template < typename RetType_, typename ParamTypes_ >
+		struct StdSomethingnaryFunctionMixin<RetType_, ParamTypes_, 2> : public std::binary_function<typename GetTypeListItem<ParamTypes_, 0>::ValueT, typename GetTypeListItem<ParamTypes_, 1>::ValueT, RetType_>
+		{ };
+
 		template < typename F, int StlFunctorNumArguments = GetStlFunctorNumArguments<F>::Value >
 		struct std_function_type
 		{ static const FunctionType::Enum Type = FunctionType::Other; };
 
 		template < typename F, int StlFunctorNumArguments = GetStlFunctorNumArguments<F>::Value >
-		struct std_function_info : public std_function_type<F>
+		struct std_function_info : public std_function_type<F>, public StdSomethingnaryFunctionMixin<typename F::RetType, typename F::ParamTypes >
 		{
 			typedef typename F::RetType		RetType;
 			typedef typename F::ParamTypes	ParamTypes;
@@ -188,7 +264,7 @@ namespace stingray
 		{ static const FunctionType::Enum Type = FunctionType::StdFunction; };
 
 		template < typename F >
-		struct std_function_info<F, 1> : public std_function_type<F>
+		struct std_function_info<F, 1> : public std_function_type<F>, public std::unary_function<typename F::argument_type, typename F::result_type>
 		{
 			typedef typename F::result_type						RetType;
 			typedef TYPELIST(typename F::argument_type)			ParamTypes;
@@ -198,7 +274,7 @@ namespace stingray
 		{ static const FunctionType::Enum Type = FunctionType::StdFunction; };
 
 		template < typename F >
-		struct std_function_info<F, 2> : public std_function_type<F>
+		struct std_function_info<F, 2> : public std_function_type<F>, public std::binary_function<typename F::first_argument_type, typename F::second_argument_type, typename F::result_type>
 		{
 			typedef typename F::result_type						RetType;
 			typedef TYPELIST(typename F::first_argument_type, 
@@ -207,12 +283,23 @@ namespace stingray
 	}
 
 	template < typename F >
-	struct function_type : public Detail::std_function_type<F>
+	struct function_type<F, NullType> : public Detail::std_function_type<F>
 	{ };
 
 	template < typename F >
-	struct function_info : public Detail::std_function_info<F>
+	struct function_info<F, NullType> : public Detail::std_function_info<F>
 	{ };
+
+	template < typename RetType_, typename ParamTypes_ >
+	struct function_type
+	{ static const FunctionType::Enum Type = FunctionType::Other; };
+
+	template < typename RetType_, typename ParamTypes_ >
+	struct function_info : public function_type<RetType_, ParamTypes_>, public Detail::StdSomethingnaryFunctionMixin<RetType_, ParamTypes_>
+	{
+		typedef RetType_		RetType;
+		typedef ParamTypes_		ParamTypes;
+	};
 
 
 #undef TY
