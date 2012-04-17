@@ -9,7 +9,7 @@
 namespace stingray
 {
 
-	class AggregateProgressReporter
+	class AggregateProgressReporter : public function_info<void(const ProgressValue&)>
 	{
 		typedef function<void(const ProgressValue&)> ProgressReporterFunc;
 
