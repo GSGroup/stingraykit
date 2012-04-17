@@ -30,7 +30,6 @@
 #include <stingray/streams/RecordStreamMetaInfo.h>
 #include <stingray/tuners/DefaultDVBTTransport.h>
 #include <stingray/tuners/dvbs/Antenna.h>
-#include <stingray/tuners/dvbs/LNBConf.h>
 #include <stingray/tuners/dvbs/Satellite.h>
 #include <stingray/tuners/dvbs/Transport.h>
 
@@ -73,7 +72,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBTTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(dvbs::Antenna);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(dvbs::LNBConf);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(dvbs::Satellite);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(dvbs::Transport);
 #endif
