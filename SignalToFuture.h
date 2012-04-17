@@ -1,0 +1,39 @@
+#ifndef __GS_STINGRAY_TOOLKIT_SIGNALWAITER_H__
+#define __GS_STINGRAY_TOOLKIT_SIGNALWAITER_H__
+
+#include <stingray/toolkit/signals.h>
+
+namespace stingray {
+
+
+	template<typename ParamType>
+	struct SignalToFutureWrapper
+	{
+		signal_connection_holder		_connection;
+		promise<ParamType>				_promise;
+		shared_future<ParamType>		_future;
+
+		template<typename SignalSignature>
+		explicit SignalToFutureWrapper(const signal<SignalSignature>& s)
+		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this, _1)); }
+
+		~SignalToFutureWrapper()
+		{ _connection.disconnect(); }
+
+		shared_future<ParamType> GetFuture()
+		{
+			if(!_future.valid())
+				_future = _promise.get_future().share();
+			return _future;
+		}
+
+		void operator()(const ParamType& p)
+		{ _promise.set_value(p); }
+	};
+
+
+}
+
+
+#endif
+
