@@ -2,14 +2,14 @@
 #define __GS_STINGRAY_TOOLKIT_ASYNCACTION_H__
 
 
-#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/IAsyncAction.h>
 #include <stingray/toolkit/optional.h>
 
 
 namespace stingray
 {
 
-	class AsyncAction
+	class AsyncAction : public virtual IAsyncAction
 	{
 		TOOLKIT_NONCOPYABLE(AsyncAction);
 
@@ -32,10 +32,9 @@ namespace stingray
 	private:
 		void ThreadFunc();
 
-		void OnSuccessPopulator(const function<void ()>& slot);
-		void OnFailurePopulator(const function<void ()>& slot);
+		virtual void OnSuccessPopulator(const function<void ()>& slot);
+		virtual void OnFailurePopulator(const function<void ()>& slot);
 	};
-	TOOLKIT_DECLARE_PTR(AsyncAction);
 
 }
 
