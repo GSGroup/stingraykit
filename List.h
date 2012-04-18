@@ -41,7 +41,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerator<T> > GetEnumerator()
 		{ return EnumeratorFromStlContainer(_items); }
 
-		virtual size_t GetCount() const
+		virtual size_t GetSize() const
 		{ return _items.size(); }
 
 		virtual void Add(ConstTRef obj)
