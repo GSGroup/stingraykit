@@ -5,6 +5,7 @@
 
 #include <stingray/toolkit/iterator_base.h>
 #include <stingray/toolkit/signals.h>
+#include <stingray/settings/Serialization.h>
 
 namespace stingray
 {
@@ -52,8 +53,9 @@ namespace stingray
 		ContainerType _container;
 
 	public:
-		typedef ObservableIterator<T, ContainerType> iterator;
-		typedef ObservableIterator<T, ContainerType> const_iterator;
+		typedef typename ContainerType::value_type		value_type;
+		typedef ObservableIterator<T, ContainerType>	iterator;
+		typedef ObservableIterator<T, ContainerType>	const_iterator;
 
 		ObservableDeque()	{}
 		~ObservableDeque()	{ signal_locker l(CollectionChanged); erase(begin(), end()); }
@@ -122,6 +124,9 @@ namespace stingray
 				CollectionChanged(CollectionOp::ItemRemoved, index, local_copy[n]);
 			return result;
 		}
+
+		void Serialize(ObjectOStream & ar) const	{ ar.Serialize(_container); }
+		void Deserialize(ObjectIStream & ar)		{ ar.Deserialize(_container); }
 
 		void clear() { erase(begin(), end()); }
 
