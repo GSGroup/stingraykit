@@ -26,9 +26,6 @@ namespace stingray
 		AsyncAction(const std::string& actionName, const ActionType& action, const ExceptionHandlerType& exceptionHandler = &LogException);
 		~AsyncAction();
 
-		signal<void ()> OnSuccess;
-		signal<void ()>	OnFailure;
-
 	private:
 		void ThreadFunc();
 
