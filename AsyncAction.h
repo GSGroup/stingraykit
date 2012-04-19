@@ -3,7 +3,6 @@
 
 
 #include <stingray/toolkit/IAsyncAction.h>
-#include <stingray/toolkit/optional.h>
 
 
 namespace stingray
@@ -19,7 +18,8 @@ namespace stingray
 	private:
 		ActionType				_action;
 		ExceptionHandlerType	_exceptionHandler;
-		optional<bool>			_result;
+		bool					_success;
+		bool					_failure;
 		ThreadPtr				_worker;
 
 	public:

@@ -5,7 +5,7 @@ namespace stingray
 {
 
 	AsyncAction::AsyncAction(const std::string& actionName, const ActionType& action, const ExceptionHandlerType& exceptionHandler)
-		: _action(action), _exceptionHandler(exceptionHandler)
+		: _action(action), _exceptionHandler(exceptionHandler), _success(false), _failure(false)
 	{ _worker.reset(new Thread(actionName + "Executor", bind(&AsyncAction::ThreadFunc, this))); }
 
 
@@ -22,16 +22,16 @@ namespace stingray
 		{
 			_action();
 
-			signal_locker l1(OnSuccess), l2(OnFailure);
-			_result.reset(true);
+			signal_locker l(OnSuccess);
+			_success = true;
 			OnSuccess();
 		}
 		catch (const std::exception& ex)
 		{
 			_exceptionHandler(ex);
 
-			signal_locker l1(OnSuccess), l2(OnFailure);
-			_result.reset(false);
+			signal_locker l(OnFailure);
+			_failure = true;
 			OnFailure();
 		}
 	}
@@ -39,14 +39,14 @@ namespace stingray
 
 	void AsyncAction::OnSuccessPopulator(const function<void ()>& slot)
 	{
-		if (_result && _result.get())
+		if (_success)
 			slot();
 	}
 
 
 	void AsyncAction::OnFailurePopulator(const function<void ()>& slot)
 	{
-		if (_result && !_result.get())
+		if (_failure)
 			slot();
 	}
 

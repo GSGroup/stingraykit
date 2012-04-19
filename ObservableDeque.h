@@ -52,8 +52,9 @@ namespace stingray
 		ContainerType _container;
 
 	public:
-		typedef ObservableIterator<T, ContainerType> iterator;
-		typedef ObservableIterator<T, ContainerType> const_iterator;
+		typedef typename ContainerType::value_type		value_type;
+		typedef ObservableIterator<T, ContainerType>	iterator;
+		typedef ObservableIterator<T, ContainerType>	const_iterator;
 
 		ObservableDeque()	{}
 		~ObservableDeque()	{ signal_locker l(CollectionChanged); erase(begin(), end()); }
