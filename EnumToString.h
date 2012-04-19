@@ -116,7 +116,7 @@ namespace stingray
 							throw std::runtime_error("Cannot parse enum class value: '" + str + "'!");
 						while (!s.eof())
 						{
-							char c;
+							char c = 0;
 							s >> c;
 							if (!s.eof() && !IsWhitespace(c))
 								throw std::runtime_error("Cannot parse enum class value: '" + str + "'!");
