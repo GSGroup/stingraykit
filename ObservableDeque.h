@@ -5,7 +5,6 @@
 
 #include <stingray/toolkit/iterator_base.h>
 #include <stingray/toolkit/signals.h>
-#include <stingray/settings/Serialization.h>
 
 namespace stingray
 {
@@ -125,8 +124,11 @@ namespace stingray
 			return result;
 		}
 
-		void Serialize(ObjectOStream & ar) const	{ ar.Serialize(_container); }
-		void Deserialize(ObjectIStream & ar)		{ ar.Deserialize(_container); }
+		template<typename Archive>
+		void Serialize(Archive & ar) const	{ ar.Serialize(_container); }
+
+		template<typename Archive>
+		void Deserialize(Archive & ar)		{ ar.Deserialize(_container); }
 
 		void clear() { erase(begin(), end()); }
 

@@ -14,8 +14,6 @@
 namespace stingray
 {
 	struct IFactoryObjectCreator;
-	class OutputArchive;
-	class InputArchive;
 	struct IFactoryObject
 	{
 		virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const = 0;
