@@ -69,12 +69,12 @@ namespace stingray
 		return val;
 	}
 
-	TOOLKIT_DECLARE_METHOD_CHECK(begin);
-	TOOLKIT_DECLARE_METHOD_CHECK(end);
-	TOOLKIT_DECLARE_METHOD_CHECK(ToString);
-
 	namespace Detail
 	{
+		TOOLKIT_DECLARE_METHOD_CHECK(begin);
+		TOOLKIT_DECLARE_METHOD_CHECK(end);
+		TOOLKIT_DECLARE_METHOD_CHECK(ToString);
+
 		template< typename ObjectType, bool HasBeginEnd = HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value>
 		struct TypeToStringSerializer;
 
