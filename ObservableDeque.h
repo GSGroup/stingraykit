@@ -124,12 +124,6 @@ namespace stingray
 			return result;
 		}
 
-		template<typename Archive>
-		void Serialize(Archive & ar) const	{ ar.Serialize(_container); }
-
-		template<typename Archive>
-		void Deserialize(Archive & ar)		{ ar.Deserialize(_container); }
-
 		void clear() { erase(begin(), end()); }
 
 		signal<void(CollectionOp, size_t, const T&)>	CollectionChanged;
