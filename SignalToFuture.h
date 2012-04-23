@@ -1,6 +1,7 @@
 #ifndef __GS_STINGRAY_TOOLKIT_SIGNALWAITER_H__
 #define __GS_STINGRAY_TOOLKIT_SIGNALWAITER_H__
 
+#include <stingray/toolkit/future.h>
 #include <stingray/toolkit/signals.h>
 
 namespace stingray {
