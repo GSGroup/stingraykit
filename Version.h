@@ -27,6 +27,9 @@ namespace stingray
 		bool operator < (const Version& other) const
 		{ return CompareMemberList<std::less>(&Version::_major, &Version::_minor, &Version::_build)(*this, other); }
 
+		bool IsUnspecified() const
+		{ return _major == 0 && _minor == 0 && _build == 0; }
+
 		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Version);
 	};
 
