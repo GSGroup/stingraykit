@@ -25,6 +25,7 @@
 #include <stingray/scanner/DefaultMpegStreamDescriptor.h>
 #include <stingray/scanner/DefaultMpegStreamDescriptor.h>
 #include <stingray/scanner/DefaultScanParams.h>
+#include <stingray/scanner/DefaultScanResult.h>
 #include <stingray/scanner/DefaultServiceNetworkInfo.h>
 #include <stingray/scanner/LcnListMetaInfo.h>
 #include <stingray/scanner/OtherTransportInfoEntry.h>
@@ -69,6 +70,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegVideoStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanParams);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanResult);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultServiceNetworkInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LcnListMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(OtherTransportInfoEntry);
