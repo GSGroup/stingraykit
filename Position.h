@@ -2,6 +2,8 @@
 #define __GS_STINGRAY_TOOLKIT_POSITION_H__
 
 
+#include <stingray/toolkit/StringUtils.h>
+
 
 namespace stingray
 {
@@ -12,6 +14,8 @@ namespace stingray
 
 		Position() : X(0), Y(0) { }
 		Position(int x, int y) : X(x), Y(y) { }
+
+		std::string ToString() const { return StringBuilder() % "(" % X % ", " % Y % ")"; }
 	};
 
 }
