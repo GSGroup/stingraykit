@@ -13,7 +13,7 @@
 
 namespace stingray
 {
-	
+
 	namespace Detail
 	{
 		template < typename T >
@@ -70,12 +70,12 @@ namespace stingray
 			{
 				CompileTimeAssert<!SameType<T, BitsGetterProxy>::Value >	ERROR__old_gcc_bug;
 				(void)ERROR__old_gcc_bug;
-				CompileTimeAssert<SizeBits <= 32>();
-				
+				CompileTimeAssert<SizeBits <= 64>();
+
 				// In case of negative SizeBits or OffsetBits TOOLKIT_INDEX_CHECK can pass due to overflow
 				CompileTimeAssert<SizeBits + OffsetBits >= SizeBits>();
 				CompileTimeAssert<SizeBits + OffsetBits >= OffsetBits>();
-				
+
 				TOOLKIT_INDEX_CHECK((OffsetBits + SizeBits + 7) / 8 <= _buf.size());
 
 				typedef typename ShiftableType<T>::ValueT	ShiftableT;
@@ -104,7 +104,7 @@ namespace stingray
 				return static_cast<typename BitsGetterResultType<T>::ValueT>(result);
 			}
 		};
-		
+
 
 		template < typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits >
 		class BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, false>
@@ -261,7 +261,7 @@ namespace stingray
 		};
 
 	}
-	
+
 
 	template < typename ByteDataType_, bool BigEndian = true >
 	class BasicBitsGetter
@@ -305,7 +305,7 @@ namespace stingray
 		BasicBitsSetter(ByteDataType &buf, size_t bytesOffset, size_t size) : _buf(BufResizer(buf, bytesOffset), bytesOffset, size) { }
 
 		template < size_t OffsetBits, size_t SizeBits, typename T >
-		void Set(T val) const 
+		void Set(T val) const
 		{ Detail::BitsSetterImpl<ByteDataType, BigEndian, OffsetBits, SizeBits>(_buf).Set(val); }
 
 	private:
