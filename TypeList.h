@@ -12,7 +12,7 @@ namespace stingray
 {
 
 	/*! \cond GS_INTERNAL */
-	
+
 	struct TypeListEndNode
 	{ };
 
@@ -37,10 +37,10 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename Signature > 
+		template < typename Signature >
 		struct TypeListCreator;
 
-		template < TY T1 > 
+		template < TY T1 >
 		struct TypeListCreator<void(T1)> : public TypeList_1<T1>
 		{ };
 	}
@@ -76,6 +76,16 @@ namespace stingray
 	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(18, 17, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18))
 	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(19, 18, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19))
 	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(20, 19, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(21, 20, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(22, 21, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(23, 22, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22, TY T23), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(24, 23, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22, TY T23, TY T24), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(25, 24, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22, TY T23, TY T24, TY T25), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(26, 25, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22, TY T23, TY T24, TY T25, TY T26), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(27, 26, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22, TY T23, TY T24, TY T25, TY T26, TY T27), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(28, 27, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22, TY T23, TY T24, TY T25, TY T26, TY T27, TY T28), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(29, 28, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22, TY T23, TY T24, TY T25, TY T26, TY T27, TY T28, TY T29), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29))
+	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(30, 29, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20, TY T21, TY T22, TY T23, TY T24, TY T25, TY T26, TY T27, TY T28, TY T29, TY T30), MK_PARAM(T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30))
 
 /*
 	template < TY T1, TY T2 >
@@ -109,7 +119,7 @@ namespace stingray
 
 	//////////////////////////////////////////////////////////////////////
 
-	
+
 	template < typename FirstTypeList, typename SecondTypeList >
 	struct TypeListMerge
 	{ typedef TypeListNode<typename FirstTypeList::ValueT, typename TypeListMerge<typename FirstTypeList::Next, SecondTypeList>::ValueT> ValueT; };
@@ -160,12 +170,12 @@ namespace stingray
 	{ CompileTimeAssert<sizeof(TypeList) < 0>	ERROR_invalid_index; };
 
 	template < typename TypeList, typename T >
-	struct IndexOfTypeListItem 
-	{ 
+	struct IndexOfTypeListItem
+	{
 	private:
-		static const int NextResult = IndexOfTypeListItem<typename TypeList::Next, T>::Value; 
+		static const int NextResult = IndexOfTypeListItem<typename TypeList::Next, T>::Value;
 	public:
-		static const int Value = (NextResult == -1) ? -1 : (NextResult + 1); 
+		static const int Value = (NextResult == -1) ? -1 : (NextResult + 1);
 	};
 
 	template < typename TypeList, typename T >
@@ -191,11 +201,11 @@ namespace stingray
 	struct EvaluateTypeListItem<TypeListEndNode, Predicate>
 	{ static const bool Value = false; };
 
-	template 
-		< 
-			typename TypeList, 
-			template <typename> class Predicate, 
-			bool CurrentIsOK = EvaluateTypeListItem<TypeList, Predicate>::Value 
+	template
+		<
+			typename TypeList,
+			template <typename> class Predicate,
+			bool CurrentIsOK = EvaluateTypeListItem<TypeList, Predicate>::Value
 		>
 	struct TypeListCopyIf;
 
@@ -209,7 +219,7 @@ namespace stingray
 	template < typename TypeList, template <typename> class Predicate >
 	struct TypeListCopyIf<TypeList, Predicate, true>
 	{ typedef TypeListNode<typename TypeList::ValueT, typename TypeListCopyIf<typename TypeList::Next, Predicate>::ValueT> ValueT; };
-	
+
 	template < typename TypeList, template <typename> class Predicate >
 	struct TypeListCopyIf<TypeList, Predicate, false>
 	{ typedef typename TypeListCopyIf<typename TypeList::Next, Predicate>::ValueT ValueT; };
@@ -229,8 +239,8 @@ namespace stingray
 	struct ForEachInTypeList
 	{
 		static void Do()
-		{ 
-			FunctorClass<typename TypeList::ValueT>::Call(); 
+		{
+			FunctorClass<typename TypeList::ValueT>::Call();
 			ForEachInTypeList<typename TypeList::Next, FunctorClass>::Do();
 		}
 
@@ -261,7 +271,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		
+
 		template < typename T, bool IsTypeList >
 		struct ToTypeListImpl { typedef T	ValueT; };
 
