@@ -258,11 +258,14 @@ namespace stingray
 		template<typename ObjectType>
 		BasicStringBuilder& operator % (const ObjectType& object)
 		{
-			_stream << ToString(object);
+			_stream << stingray::ToString(object);
 			return *this;
 		}
 
 		operator StringType() const
+		{ return _stream.str(); }
+
+		std::string ToString() const
 		{ return _stream.str(); }
 	};
 
