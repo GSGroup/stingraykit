@@ -126,7 +126,6 @@ namespace stingray
 
 		ListenerPtr SetState(const StateType& state)
 		{
-			Logger::Warning() << "SetState(" << state << ")";
 			MutexLock l(_mutex);
 			_lastListener.reset(new Listener);
 			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListener.weak()));
@@ -137,7 +136,6 @@ namespace stingray
 		void DoReachState(const StateType& state, const ListenerWeakPtr& listenerWeak)
 		{
 			ListenerPtr listener = listenerWeak.lock();
-			Logger::Warning() << "DoReachState(" << state << ", " << Hex(listener.get(), 8) << ")";
 			if (!listener)
 				return;
 			_reachStateFunc(state);
