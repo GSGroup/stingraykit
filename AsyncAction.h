@@ -67,6 +67,9 @@ namespace stingray
 			return _lastListener;
 		}
 
+		void ResetState()
+		{ _lastListener.reset(); }
+
 	private:
 		void DoReachState(const StateType& state, const ListenerWeakPtr& listenerWeak)
 		{
