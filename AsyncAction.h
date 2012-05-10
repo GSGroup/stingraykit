@@ -68,7 +68,10 @@ namespace stingray
 		}
 
 		void ResetState()
-		{ _lastListener.reset(); }
+		{
+			MutexLock l(_mutex);
+			_lastListener.reset();
+		}
 
 	private:
 		void DoReachState(const StateType& state, const ListenerWeakPtr& listenerWeak)
