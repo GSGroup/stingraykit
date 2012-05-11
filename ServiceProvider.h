@@ -109,6 +109,13 @@ namespace stingray
 		{ }
 	};
 
+	struct ServiceCreationFailedException : public Detail::ServiceReferencesInfoException
+	{
+		ServiceCreationFailedException(const std::string& serviceName)
+			:	Detail::ServiceReferencesInfoException("Service '" + serviceName + "' could not be created!", serviceName)
+		{ }
+	};
+
 
 	template < typename ServiceInterface >
 	struct NotSupportedServiceCreator : public virtual IServiceCreator<ServiceInterface>
@@ -179,12 +186,16 @@ namespace stingray
 		{
 			static volatile bool started_creating = false;
 			volatile bool& created = GetCreatedFlag();
+			static volatile bool creation_failed = false;
 
 			if (!created)
 			{
 				MutexLock l(s_mutex);
 				if (!created)
 				{
+					if (creation_failed)
+						throw ServiceCreationFailedException(s_serviceCreator->GetServiceTypeName());
+
 					if (started_creating)
 						TOOLKIT_THROW(CyclicServiceDependencyException(s_serviceCreator->GetServiceTypeName()));
 
@@ -194,12 +205,14 @@ namespace stingray
 					{ s_serviceCreator->InitDependencies(); }
 					catch (Detail::ServiceReferencesInfoException& ex)
 					{
+						creation_failed = true;
 						started_creating = false;
 						ex.AppendDependencyName(s_serviceCreator->GetServiceTypeName());
 						throw;
 					}
 					catch (...)
 					{
+						creation_failed = true;
 						started_creating = false;
 						throw;
 					}
@@ -211,6 +224,7 @@ namespace stingray
 					}
 					catch (...)
 					{
+						creation_failed = true;
 						started_creating = false;
 						throw;
 					}
