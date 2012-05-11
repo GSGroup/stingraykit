@@ -48,6 +48,9 @@ namespace stingray {
 		optional()
 		{}
 
+		optional(const NullPtrType&)
+		{}
+
 		optional(const ParamType& value) : _value(new StoredType(Helper::ToStored(value)))
 		{}
 
