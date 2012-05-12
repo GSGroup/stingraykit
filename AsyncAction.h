@@ -53,6 +53,7 @@ namespace stingray
 		ReachStateFunc		_reachStateFunc;
 		ListenerPtr			_lastListener;
 		Mutex				_mutex;
+		task_alive_token	_token;
 
 	public:
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc)
@@ -63,7 +64,7 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 			_lastListener.reset(new Listener);
-			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListener.weak()));
+			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListener.weak()), _token);
 			return _lastListener;
 		}
 
