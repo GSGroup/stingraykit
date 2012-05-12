@@ -42,8 +42,8 @@ namespace stingray
 	DETAIL_TOOLKIT_DECLARE_INT_TYPE(int,		32);
 	DETAIL_TOOLKIT_DECLARE_INT_TYPE(long long,	64);
 
-	typedef TYPELIST(unsigned, size_t, int, off_t, u8, s8, u16, s16, u32, s32, u64, s64, float, double, bool) NotClassTypes;
-	typedef TYPELIST(unsigned, size_t, int, off_t, u8, s8, u16, s16, u32, s32, u64, s64) IntTypes;
+	typedef TYPELIST(unsigned, unsigned long, size_t, int, off_t, u8, s8, u16, s16, u32, s32, u64, s64, float, double, bool) NotClassTypes;
+	typedef TYPELIST(unsigned, unsigned long, size_t, int, off_t, u8, s8, u16, s16, u32, s32, u64, s64) IntTypes;
 	typedef TYPELIST(u8, s8, u16, s16, u32, s32, u64, s64) FixedWidthIntTypes;
 
 	template < typename T >
