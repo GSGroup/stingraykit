@@ -49,9 +49,12 @@ namespace stingray
 		TOOLKIT_DECLARE_PTR(Listener);
 
 	private:
+		struct ListenerRef { ListenerPtr Ptr; };
+		TOOLKIT_DECLARE_PTR(ListenerRef);
+
 		ITaskExecutorPtr	_worker;
 		ReachStateFunc		_reachStateFunc;
-		ListenerPtr			_lastListener;
+		ListenerRefPtr		_lastListenerRef;
 		Mutex				_mutex;
 		task_alive_token	_token;
 
@@ -63,25 +66,21 @@ namespace stingray
 		ListenerPtr SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
-			_lastListener.reset(new Listener);
-			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListener.weak()), _token);
-			return _lastListener;
-		}
-
-		void ResetState()
-		{
-			MutexLock l(_mutex);
-			_lastListener.reset();
+			_lastListenerRef.reset(new ListenerRef);
+			_lastListenerRef->Ptr.reset(new Listener);
+			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListenerRef.weak()), _token);
+			return _lastListenerRef->Ptr;
 		}
 
 	private:
-		void DoReachState(const StateType& state, const ListenerWeakPtr& listenerWeak)
+		void DoReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
 		{
-			ListenerPtr listener = listenerWeak.lock();
-			if (!listener)
+			ListenerRefPtr listener_ref = listenerRefWeak.lock();
+			if (!listener_ref)
 				return;
 			ResultType res = _reachStateFunc(state);
-			listener->SetResult(res);
+			listener_ref->Ptr->SetResult(res);
+			listener_ref->Ptr.reset();
 		}
 	};
 
@@ -121,9 +120,12 @@ namespace stingray
 		TOOLKIT_DECLARE_PTR(Listener);
 
 	private:
+		struct ListenerRef { ListenerPtr Ptr; };
+		TOOLKIT_DECLARE_PTR(ListenerRef);
+
 		ITaskExecutorPtr	_worker;
 		ReachStateFunc		_reachStateFunc;
-		ListenerPtr			_lastListener;
+		ListenerRefPtr		_lastListenerRef;
 		Mutex				_mutex;
 
 	public:
@@ -134,19 +136,21 @@ namespace stingray
 		ListenerPtr SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
-			_lastListener.reset(new Listener);
-			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListener.weak()));
-			return _lastListener;
+			_lastListenerRef.reset(new ListenerRef);
+			_lastListenerRef->Ptr.reset(new Listener);
+			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListenerRef.weak()));
+			return _lastListenerRef->Ptr;
 		}
 
 	private:
-		void DoReachState(const StateType& state, const ListenerWeakPtr& listenerWeak)
+		void DoReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
 		{
-			ListenerPtr listener = listenerWeak.lock();
-			if (!listener)
+			ListenerRefPtr listener_ref = listenerRefWeak.lock();
+			if (!listener_ref)
 				return;
 			_reachStateFunc(state);
-			listener->SetResult();
+			listener_ref->Ptr->SetResult();
+			listener_ref->Ptr.reset();
 		}
 	};
 
