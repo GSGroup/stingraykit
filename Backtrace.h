@@ -9,9 +9,12 @@
 namespace stingray
 {
 #ifdef HAVE_BACKTRACE
-		typedef posix::Backtrace Backtrace;
+	typedef posix::Backtrace Backtrace;
 #else
-#	error "no backtrace configured"
+	struct Backtrace
+	{
+		inline std::string Get() const { return std::string(); }
+	};
 #endif
 
 }
