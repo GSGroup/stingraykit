@@ -1,6 +1,7 @@
 #ifndef __GS_DVRLIB_TOOLKIT_BITSGETTER_H__
 #define __GS_DVRLIB_TOOLKIT_BITSGETTER_H__
 
+#include <limits>
 
 #include <stingray/log/Logger.h>
 #include <stingray/toolkit/ByteData.h>
