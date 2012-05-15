@@ -9,7 +9,6 @@ namespace stingray
 class safe_bool_base
 {
 protected:
-	typedef void (safe_bool_base::*bool_type)() const;
 	void this_type_does_not_support_comparisons() const {}
 	
 	FORCE_INLINE safe_bool_base() {}
@@ -21,6 +20,7 @@ protected:
 
 
 template <typename T = void> class safe_bool : private safe_bool_base {
+	typedef void (safe_bool::*bool_type)() const;
 public:
 	FORCE_INLINE operator bool_type() const
 	{
