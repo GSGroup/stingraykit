@@ -6,7 +6,6 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include <iostream>
 #include <stdexcept>
 
 #include <stingray/toolkit/iterator_base.h>

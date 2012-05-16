@@ -3,7 +3,6 @@
 
 
 #include <stdexcept>
-#include <iostream>
 
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/Types.h>

@@ -1,6 +1,8 @@
 #ifndef STINGRAY_TOOLKIT_BIT_STREAM_H__
 #define STINGRAY_TOOLKIT_BIT_STREAM_H__
 
+#include <iterator>
+
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/BitsGetter.h>
 
@@ -13,9 +15,9 @@ namespace stingray
 
 		template < typename IteratorType, bool HasContainer = HasNestedType_container_type<IteratorType>::Value >
 		struct GetIteratorValueType
-		{ typedef typename IteratorType::value_type	ValueT; };
+		{ typedef typename std::iterator_traits<IteratorType>::value_type ValueT; };
 
-		template < typename IteratorType > 
+		template < typename IteratorType >
 		struct GetIteratorValueType<IteratorType, true>
 		{ typedef typename IteratorType::container_type::value_type	ValueT; };
 
@@ -108,7 +110,7 @@ namespace stingray
 			return Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>(&_buf, offset);
 		}
 
-		std::string ReadStringTerminatedBy(char terminator) 
+		std::string ReadStringTerminatedBy(char terminator)
 		{
 			std::string result;
 			char c = Read<8>();
@@ -120,7 +122,7 @@ namespace stingray
 			return result;
 		}
 
-		std::string ReadZString() 
+		std::string ReadZString()
 		{ return ReadStringTerminatedBy('\0'); }
 
 		template < int ElementSize, typename OutputIterator >
@@ -159,7 +161,7 @@ namespace stingray
 
 		inline size_t GetBitPosition() const { return _offset; }
 		inline ByteDataType	GetData() const { return _buf; }
-	
+
 	private:
 		template < int Size, typename T >
 		void DoWrite(T value, size_t offset)
