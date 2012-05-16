@@ -1,7 +1,6 @@
 #ifndef __GS_DVRLIB_TOOLKIT_ENUMTOSTRING_H__
 #define __GS_DVRLIB_TOOLKIT_ENUMTOSTRING_H__
 
-
 #include <map>
 #include <vector>
 #include <string>
@@ -242,16 +241,18 @@ namespace stingray
 		public:
 			typedef typename base::difference_type		difference_type;
 			typedef	typename base::reference			reference;
+			typedef	typename base::pointer				pointer;
 		private:
 			typedef typename EnumClassT::Enum							NativeEnum;
 			typedef typename std::vector<NativeEnum>::const_iterator	Wrapped;
 			friend struct EnumIteratorCreator<EnumClassT>;
 		private:
 			Wrapped				_wrapped;
-			mutable EnumClassT	_value;
 			EnumIterator(const Wrapped& wrapped) : _wrapped(wrapped) { }
 		public:
-			reference dereference() const { _value = *_wrapped; return _value; }
+			reference dereference() const {
+				return *reinterpret_cast<pointer>(&*_wrapped);
+			}
 			void increment() { ++_wrapped; }
 			void decrement() { --_wrapped; }
 			void advance(const difference_type& diff) { std::advance(_wrapped, diff); }
