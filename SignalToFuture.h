@@ -33,6 +33,32 @@ namespace stingray {
 	};
 
 
+	template<>
+	struct SignalToFutureWrapper<void>
+	{
+		signal_connection_holder	_connection;
+		promise<void>				_promise;
+		shared_future<void>			_future;
+
+		template<typename SignalSignature>
+		explicit SignalToFutureWrapper(const signal<SignalSignature>& s)
+		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this)); }
+
+		~SignalToFutureWrapper()
+		{ _connection.disconnect(); }
+
+		shared_future<void> GetFuture()
+		{
+			if(!_future.valid())
+				_future = _promise.get_future().share();
+			return _future;
+		}
+
+		void operator()()
+		{ _promise.set_value(); }
+	};
+
+
 }
 
 
