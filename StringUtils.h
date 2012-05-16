@@ -41,22 +41,6 @@ namespace stingray
 		return r;
 	}
 
-	template < typename CharType, typename T >
-	std::basic_string<CharType> ToString(const T& val, Dummy dummy = Dummy())
-	{
-		std::basic_stringstream<CharType> s;
-		s << val;
-		return s.str();
-	}
-
-	template < typename CharType >
-	std::basic_string<CharType> ToString(u8 val, Dummy dummy = Dummy())
-	{
-		std::basic_stringstream<CharType> s;
-		s << (int)val;
-		return s.str();
-	}
-
 	template < typename T >
 	T FromString(const std::string& str) // TODO: reimplement
 	{
