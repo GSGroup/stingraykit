@@ -142,13 +142,13 @@ namespace stingray
 		const_iterator begin() const
 		{
 			const T* data = this->data();
-			return iterator(data, data, data + size());
+			return const_iterator(data, data, data + size());
 		}
 
 		const_iterator end() const
 		{
 			const T* data = this->data();
-			return iterator(data + size(), data, data + size());
+			return const_iterator(data + size(), data, data + size());
 		}
 
 		T* data() { return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
