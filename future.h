@@ -118,6 +118,77 @@ namespace Detail
 		}
 
 	};
+
+	template<>
+	class future_impl<void>
+	{
+	public:
+		typedef void SetType;
+
+	private:
+		Mutex				_mutex;
+		ConditionVariable	_condition;
+		bool				_value,
+							_promiseDestroyed;
+
+	public:
+		future_impl() : _value(false), _promiseDestroyed(false) {}
+		~future_impl() {}
+
+		bool is_ready() const		{ MutexLock l(_mutex); return _value || _promiseDestroyed; }
+		bool has_exception() const	{ MutexLock l(_mutex); return _promiseDestroyed; }
+		bool has_value() const		{ MutexLock l(_mutex); return _value; }
+		void wait()					{ MutexLock l(_mutex); do_wait(); }
+
+		future_status wait_for(const TimeDuration& duration)
+		{ MutexLock l(_mutex); return do_timed_wait(duration); }
+
+		future_status wait_until(const Time& absTime)
+		{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now()); }
+
+		void get()
+		{
+			MutexLock l(_mutex);
+			do_wait();
+			TOOLKIT_CHECK(!_promiseDestroyed, BrokenPromise());
+		}
+
+		void set_value()
+		{
+			MutexLock l(_mutex);
+			TOOLKIT_CHECK(!_value, PromiseAlreadySatisfied());
+			_value = true;
+			_condition.Broadcast();
+		}
+
+		void on_promise_destroyed()
+		{
+			MutexLock l(_mutex);
+			if (_value)
+				return;
+			_promiseDestroyed = true;
+			_condition.Broadcast();
+		}
+
+	private:
+		void do_wait()
+		{
+			if(_value || _promiseDestroyed)
+				return;
+			_condition.Wait(_mutex);
+		}
+
+		future_status do_timed_wait(const TimeDuration& duration)
+		{
+			if (_value || _promiseDestroyed)
+				return future_status::ready;
+			_condition.TimedWait(_mutex, duration);
+			if (_value || _promiseDestroyed)
+				return future_status::ready;
+			return future_status::timeout;
+		}
+
+	};
 }
 
 template<typename ResultType>
@@ -219,6 +290,28 @@ public:
 	void set_value(SetType result) { _futureImpl->set_value(result); }
 	//void set_exception(exception_ptr p); // TODO: Implement
 };
+
+template<>
+class promise<void>
+{
+	TOOLKIT_NONCOPYABLE(promise);
+private:
+	typedef void ResultType;
+	typedef Detail::future_impl<ResultType>	FutureImplType;
+	shared_ptr<FutureImplType> _futureImpl;
+	bool _futureRetrieved;
+public:
+	promise() : _futureImpl(new FutureImplType), _futureRetrieved(false) {}
+	~promise() { _futureImpl->on_promise_destroyed(); }
+
+	void swap(promise& other) { _futureImpl.swap(other._futureImpl); }
+
+	future<ResultType> get_future() { TOOLKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+
+	void set_value() { _futureImpl->set_value(); }
+	//void set_exception(exception_ptr p); // TODO: Implement
+};
+
 
 }
 
