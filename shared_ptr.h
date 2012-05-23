@@ -190,6 +190,9 @@ namespace stingray
 			return shared_ptr<T>(_rawPtr, _refCount);
 		}
 
+		FORCE_INLINE void reset()
+		{ _rawPtr = 0; _refCount = null; }
+
 		FORCE_INLINE size_t get_ref_count() const
 		{ return _rawPtr? _refCount.get(): 0; }
 
