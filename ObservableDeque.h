@@ -56,7 +56,7 @@ namespace stingray
 		typedef ObservableIterator<T, ContainerType>	iterator;
 		typedef ObservableIterator<T, ContainerType>	const_iterator;
 
-		ObservableDeque()	{}
+		ObservableDeque(): CollectionChanged(bind(&ObservableDeque::send_state, this, _1)) {}
 		~ObservableDeque()	{ signal_locker l(CollectionChanged); erase(begin(), end()); }
 
 		iterator begin() const	{ return iterator(const_cast<ContainerType&>(_container).begin()); }
@@ -127,6 +127,15 @@ namespace stingray
 		void clear() { erase(begin(), end()); }
 
 		signal<void(CollectionOp, size_t, const T&)>	CollectionChanged;
+
+	private:
+		void send_state(const function<void (CollectionOp, size_t, const T&)> &slot)
+		{
+			for(size_t i = 0; i < size(); ++i)
+				slot(CollectionOp::ItemAdded, i, _container[i]);
+		}
+
+
 	};
 
 }

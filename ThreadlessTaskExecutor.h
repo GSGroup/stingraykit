@@ -36,7 +36,7 @@ namespace stingray
 		virtual void AddTask(const TaskType& task, const task_alive_token& token)
 		{
 			MutexLock l(_syncRoot);
-			_queue.push(std::make_pair(task, GetAliveTokenValue(token)));
+			_queue.push(std::make_pair(task, token.get_value()));
 		}
 
 		virtual void AddTask(const TaskType& task)

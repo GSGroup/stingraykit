@@ -28,7 +28,7 @@ namespace stingray
 		void ThreadTaskExecutor::AddTask(const function<void()>& task, const task_alive_token& token)
 		{
 			MutexLock l(_syncRoot);
-			_queue.push(std::make_pair(task, GetAliveTokenValue(token)));
+			_queue.push(std::make_pair(task, token.get_value()));
 			_condVar.Broadcast();
 		}
 
