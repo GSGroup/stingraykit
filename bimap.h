@@ -17,11 +17,18 @@ public: \
 	typedef typename T##_collection_type::value_type		T##_value_type; \
 	typedef typename T##_collection_type::iterator			T##_iterator; \
 	typedef typename T##_collection_type::const_iterator	T##_const_iterator; \
+	typedef typename T##_collection_type::reverse_iterator			T##_reverse_iterator; \
+	typedef typename T##_collection_type::const_reverse_iterator	T##_const_reverse_iterator; \
 \
 	inline T##_iterator T##_begin()				{ return _##T.begin(); } \
 	inline T##_iterator T##_end()				{ return _##T.end(); } \
 	inline T##_const_iterator T##_begin() const	{ return _##T.begin(); } \
 	inline T##_const_iterator T##_end()	const	{ return _##T.end(); } \
+\
+	inline T##_reverse_iterator T##_rbegin()				{ return _##T.rbegin(); } \
+	inline T##_reverse_iterator T##_rend()					{ return _##T.rend(); } \
+	inline T##_const_reverse_iterator T##_rbegin() const	{ return _##T.rbegin(); } \
+	inline T##_const_reverse_iterator T##_rend()	const	{ return _##T.rend(); } \
 \
 	T##_iterator T##_find(const T##_key_type &key)				{ return _##T.find(key); } \
 	T##_const_iterator T##_find(const T##_key_type &key) const	{ return _##T.find(key); } \
