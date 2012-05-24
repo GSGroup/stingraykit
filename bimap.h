@@ -64,6 +64,7 @@ public: \
 		BIMAP_DECLARE_TYPES(left, right);
 		BIMAP_DECLARE_TYPES(right, left);
 
+		inline bool empty() const { return _left.empty(); }
 		inline void clear() { _left.clear(); _right.clear(); }
 	};
 
