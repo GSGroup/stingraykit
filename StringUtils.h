@@ -169,7 +169,7 @@ namespace stingray
 
 
 	template < typename CharType >
-	void ReplaceAll(std::basic_string<CharType>& str,
+	std::basic_string<CharType>& ReplaceAll(std::basic_string<CharType>& str,
 					const std::basic_string<CharType>& replaceSeq,
 					const std::basic_string<CharType>& replaceTo,
 					Dummy dummy = Dummy())
@@ -182,10 +182,11 @@ namespace stingray
 			str.replace(i, replaceSeq.size(), replaceTo);
 			i = str.find(replaceSeq, i + replaceTo.size());
 		}
+		return str;
 	}
 
-	inline void ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
-	{ ReplaceAll<char>(str, replaceSeq, replaceTo); }
+	inline std::string& ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
+	{ return ReplaceAll<char>(str, replaceSeq, replaceTo); }
 
 	inline std::string ExtractPrefix(const std::string& str, size_t prefixLength)
 	{ return str.substr(0, std::min(str.length(), prefixLength)); }
