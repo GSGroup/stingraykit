@@ -15,9 +15,9 @@ public: \
 	typedef typename T##_collection_type::key_type			T##_key_type; \
 	typedef typename T##_collection_type::mapped_type		T##_mapped_type; \
 	typedef typename T##_collection_type::value_type		T##_value_type; \
-	typedef typename T##_collection_type::iterator			T##_iterator; \
+	typedef typename T##_collection_type::const_iterator	T##_iterator; \
 	typedef typename T##_collection_type::const_iterator	T##_const_iterator; \
-	typedef typename T##_collection_type::reverse_iterator			T##_reverse_iterator; \
+	typedef typename T##_collection_type::const_reverse_iterator	T##_reverse_iterator; \
 	typedef typename T##_collection_type::const_reverse_iterator	T##_const_reverse_iterator; \
 \
 	inline T##_iterator T##_begin()				{ return _##T.begin(); } \
@@ -63,6 +63,8 @@ public: \
 	{
 		BIMAP_DECLARE_TYPES(left, right);
 		BIMAP_DECLARE_TYPES(right, left);
+
+		inline void clear() { _left.clear(); _right.clear(); }
 	};
 
 #undef BIMAP_DECLARE_TYPES
