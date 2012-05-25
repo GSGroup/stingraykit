@@ -19,12 +19,13 @@ namespace stingray
 		struct Node
 		{
 			PointType	Point;
+			Node*		Parent;
 			Node*		Left;
 			Node*		Right;
 			Intervals	Intervals;
 
-			Node(const PointType& point)
-				: Point(point)
+			Node(const PointType& point, Node* parent)
+				: Point(point), Parent(parent)
 			{ }
 		};
 
@@ -107,8 +108,9 @@ namespace stingray
 							while (_node && prev == _node->Left);
 						}
 					} while (_node && _node->Intervals.empty());
-					if (_node) // TODO: fix begin!
-						_intervalsIt = --_node->Intervals.end();
+					if (!_node)
+						throw std::runtime_error("Invalid iterator!");
+					_intervalsIt = --_node->Intervals.end();
 				}
 			}
 		}
@@ -147,15 +149,14 @@ namespace stingray
 
 		size_t size() const			{ return _size; }
 
-		void insert(const T& val)	{ InsertValue(_root, val); }
+		void insert(const T& val)	{ InsertValue(_root, NULL, val); }
 
 		void erase(const iterator& it)
 		{
 			if (!it._node)
 				throw std::runtime_error("Invalid iterator!");
 			it._node->Intervals.erase(it._intervalsIt); // the iterator is invalidated
-			if (it._node->Intervals.empty())
-				; // TODO: ...
+			RemoveNodes(it._node);
 		}
 
 	private:
@@ -171,20 +172,32 @@ namespace stingray
 		static bool Intersects(const T& val, const PointType& point)
 		{ return !IntervalIsAtLeft(val, point) && !IntervalIsAtRight(val, point); }
 
-		void InsertValue(Node*& where, const T& val)
+		void RemoveNodes(Node* where)
+		{
+			if (!where || where->Left || where->Right || !where->Intervals.empty())
+				return;
+
+			Node* parent = where->Parent;
+			if (where == _root)
+				_root = NULL;
+			delete where;
+			RemoveNodes(parent);
+		}
+
+		static void InsertValue(Node*& where, Node* parent, const T& val)
 		{
 			if (!where)
-				where = new Node((val.GetLeft() + val.GetRight()) / 2);
+				where = new Node((val.GetLeft() + val.GetRight()) / 2, parent);
 
 			if (Intersects(val, where->Point))
 				where->Intervals.push_back(val);
 			else if (IntervalIsAtLeft(val, where->Point))
-				InsertNode(where->Left, val);
+				InsertNode(where->Left, where, val);
 			else if (IntervalIsAtRight(val, where->Point))
-				InsertNode(where->Right, val);
+				InsertNode(where->Right, where, val);
 		}
 
-		void DeleteNode(const Node* node)
+		static void DeleteNode(const Node* node)
 		{
 			if (!node)
 				return;
