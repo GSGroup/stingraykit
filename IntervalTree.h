@@ -8,13 +8,27 @@
 namespace stingray
 {
 
-	template < typename T >
+	namespace Detail
+	{
+		template < typename T >
+		struct DefaultIntervalPointsGetter
+		{
+			typedef typename T::PointType	PointType;
+
+			static PointType GetLeft(const T& val)	{ return val.GetLeft(); }
+			static PointType GetRight(const T& val)	{ return val.GetRight(); }
+		};
+	}
+
+#if 0
+
+	template < typename T, typename IntervalPointsGetter = Detail::DefaultIntervalPointsGetter<T> >
 	class IntervalTree // TODO: Implement balancing
 	{
 	private:
-		typedef typename T::PointType		PointType;
-		typedef std::list<T>				Intervals;
-		typedef Intervals::iterator			IntervalsIterator;
+		typedef typename IntervalPointsGetter::PointType	PointType;
+		typedef std::list<T>								Intervals;
+		typedef Intervals::iterator							IntervalsIterator;
 
 		struct Node
 		{
@@ -159,15 +173,32 @@ namespace stingray
 			RemoveNodes(it._node);
 		}
 
+		void clear()
+		{
+			TOOLKIT_THROW(NotImplementedException);
+		}
+
+		template < typename OutputIter >
+		void get_intersecting(const PointType& p, OutputIter it) const
+		{
+			TOOLKIT_THROW(NotImplementedException);
+		}
+
+		template < typename OutputIter >
+		void get_intersecting(const T& val, OutputIter it) const
+		{
+			TOOLKIT_THROW(NotImplementedException);
+		}
+
 	private:
 		IntervalTree(const IntervalTree&);
 		void operator = (const IntervalTree&);
 
 		static bool IntervalIsAtLeft(const t& val, const PointType& point)
-		{ return val.GetRight() <= point; }
+		{ return IntervalPointsGetter::GetRight(val) <= point; }
 
 		static bool IntervalIsAtRight(const t& val, const PointType& point)
-		{ return val.GetLeft() > point; }
+		{ return IntervalPointsGetter::GetLeft(val) > point; }
 
 		static bool Intersects(const T& val, const PointType& point)
 		{ return !IntervalIsAtLeft(val, point) && !IntervalIsAtRight(val, point); }
@@ -187,7 +218,7 @@ namespace stingray
 		static void InsertValue(Node*& where, Node* parent, const T& val)
 		{
 			if (!where)
-				where = new Node((val.GetLeft() + val.GetRight()) / 2, parent);
+				where = new Node((IntervalPointsGetter::GetLeft(val) + IntervalPointsGetter::GetRight(val)) / 2, parent);
 
 			if (Intersects(val, where->Point))
 				where->Intervals.push_back(val);
@@ -204,6 +235,49 @@ namespace stingray
 			DeleteNode(node->Left);
 			DeleteNode(node->Right);
 			delete node;
+		}
+	};
+
+#endif
+
+	template < typename T, typename IntervalPointsGetter = Detail::DefaultIntervalPointsGetter<T> >
+	class IntervalTree // TODO: remove this stupid stub after developing a normal implementation
+	{
+		typedef std::list<T>								Collection;
+		typedef typename IntervalPointsGetter::PointType	PointType;
+
+		Collection		_collection;
+
+	public:
+		typedef typename Collection::iterator		iterator;
+		typedef typename Collection::const_iterator	const_iterator;
+
+		iterator begin()				{ return _collection.begin(); }
+		const_iterator begin() const	{ return _collection.begin(); }
+		iterator end()					{ return _collection.end(); }
+		const_iterator end() const		{ return _collection.end(); }
+
+		size_t size() const				{ return _collection.size(); }
+		void insert(const T& val)		{ _collection.push_back(val); }
+		void erase(const iterator& it)	{ _collection.erase(it); }
+		void clear()					{ _collection.clear(); }
+
+		template < typename OutputIter >
+		void get_intersecting(const PointType& p, OutputIter it) const
+		{
+			for (const_iterator i = begin(); i != end(); ++i)
+				if (IntervalPointsGetter::GetLeft(*i) < p && p < IntervalPointsGetter::GetRight(*i))
+					*it++ = *i;
+		}
+
+		template < typename OutputIter >
+		void get_intersecting(const T& val, OutputIter it) const
+		{
+			PointType l = IntervalPointsGetter::GetLeft(val);
+			PointType r = IntervalPointsGetter::GetRight(val);
+			for (const_iterator i = begin(); i != end(); ++i)
+				if (!(IntervalPointsGetter::GetLeft(*i) >= r || IntervalPointsGetter::GetRight(*i) <= l))
+					*it++ = *i;
 		}
 	};
 
