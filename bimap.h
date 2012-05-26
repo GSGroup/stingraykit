@@ -15,9 +15,9 @@ public: \
 	typedef typename T##_collection_type::key_type			T##_key_type; \
 	typedef typename T##_collection_type::mapped_type		T##_mapped_type; \
 	typedef typename T##_collection_type::value_type		T##_value_type; \
-	typedef typename T##_collection_type::const_iterator	T##_iterator; \
+	typedef typename T##_collection_type::iterator			T##_iterator; \
 	typedef typename T##_collection_type::const_iterator	T##_const_iterator; \
-	typedef typename T##_collection_type::const_reverse_iterator	T##_reverse_iterator; \
+	typedef typename T##_collection_type::reverse_iterator	T##_reverse_iterator; \
 	typedef typename T##_collection_type::const_reverse_iterator	T##_const_reverse_iterator; \
 \
 	inline T##_iterator T##_begin()				{ return _##T.begin(); } \
@@ -48,7 +48,7 @@ public: \
 		if (i != _##T.end()) \
 		{ \
 			_##T.erase(i); \
-			_##O.erase(i.second); \
+			_##O.erase(i->second); \
 		} \
 	} \
 \
@@ -64,7 +64,9 @@ public: \
 		BIMAP_DECLARE_TYPES(left, right);
 		BIMAP_DECLARE_TYPES(right, left);
 
-		inline void clear() { _left.clear(); _right.clear(); }
+		inline bool empty() const	{ return _left.empty(); }
+		inline size_t size() const	{ return _left.size(); }
+		inline void clear()			{ _left.clear(); _right.clear(); }
 	};
 
 #undef BIMAP_DECLARE_TYPES

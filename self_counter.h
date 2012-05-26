@@ -37,7 +37,7 @@ namespace stingray
 	public:
 		typedef T ValueType;
 
-		explicit FORCE_INLINE self_count_ptr(T* rawPtr = 0)
+		FORCE_INLINE self_count_ptr(T* rawPtr = 0)
 			: _rawPtr(rawPtr) { }
 
 		self_count_ptr(const NullPtrType&)
