@@ -131,6 +131,7 @@ namespace stingray
 
 		typedef basic_iterator<T>		iterator;
 		typedef basic_iterator<const T>	const_iterator;
+		typedef T						value_type;
 
 	private:
 		Node*		_root;
@@ -249,6 +250,7 @@ namespace stingray
 		Collection		_collection;
 
 	public:
+		typedef typename Collection::value_type		value_type;
 		typedef typename Collection::iterator		iterator;
 		typedef typename Collection::const_iterator	const_iterator;
 
