@@ -240,6 +240,9 @@ namespace stingray
 		StreamType	_stream;
 
 	public:
+		BasicStringBuilder()
+		{ _stream << std::boolalpha; }
+
 		template<typename ObjectType>
 		BasicStringBuilder& operator % (const ObjectType& object)
 		{
