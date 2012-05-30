@@ -58,13 +58,17 @@ namespace stingray
 	{
 		typedef ScopedHolder<NativeType> Impl;
 		TOOLKIT_DECLARE_PTR(Impl);
-		typedef typename Impl::CleanupFuncType CleanupFuncType;
+		typedef function<void(const NativeType&)>		CleanupFuncType;
 
 	private:
 		ImplPtr	_impl;
 
 	public:
 		SharedHolder()
+		{}
+
+		SharedHolder(const CleanupFuncType& cleanupFunc)
+			: _impl(make_shared<Impl>(cleanupFunc))
 		{}
 
 		SharedHolder(const NativeType& handle, const CleanupFuncType& cleanupFunc)
@@ -75,6 +79,9 @@ namespace stingray
 		{}
 
 		NativeType Get() const { return _impl->Get(); }
+
+		void Reset(const NativeType& handle)
+		{ _impl->Reset(handle); }
 	};
 
 
