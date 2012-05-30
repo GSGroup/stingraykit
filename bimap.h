@@ -47,8 +47,9 @@ public: \
 	{ \
 		if (i != _##T.end()) \
 		{ \
+			O##_key_type o = i->second; \
 			_##T.erase(i); \
-			_##O.erase(i->second); \
+			_##O.erase(o); \
 		} \
 	} \
 \
