@@ -24,6 +24,8 @@ namespace stingray
 			EnumValueHolder& operator = (s32 val) { Val = val; return *this; }
 		};
 
+		void EnumToStringMap_throw(const std::string& msg);
+
 		template < typename EnumClassT >
 		class EnumToStringMap
 		{
@@ -60,7 +62,7 @@ namespace stingray
 			static std::string EnumToString(NativeEnum val)
 			{
 				if (!Initialized())
-					throw std::runtime_error("EnumToStringMap instance not initialized!");
+					EnumToStringMap_throw("EnumToStringMap instance not initialized!");
 
 				const EnumToStrMap& m = Instance()._enumToStr;
 				typename EnumToStrMap::const_iterator it = m.find(val);
@@ -98,7 +100,7 @@ namespace stingray
 			static NativeEnum EnumFromString(const std::string& str)
 			{
 				if (!Initialized())
-					throw std::runtime_error("EnumToStringMap instance not initialized!");
+					EnumToStringMap_throw("EnumToStringMap instance not initialized!");
 
 				{
 					std::string::const_iterator s_it = str.begin();
@@ -111,13 +113,13 @@ namespace stingray
 						unsigned val;
 						s >> val;
 						if (s.fail())
-							throw std::runtime_error("Cannot parse enum class value: '" + str + "'!");
+							EnumToStringMap_throw("Cannot parse enum class value: '" + str + "'!");
 						while (!s.eof())
 						{
 							char c = 0;
 							s >> c;
 							if (!s.eof() && !IsWhitespace(c))
-								throw std::runtime_error("Cannot parse enum class value: '" + str + "'!");
+								EnumToStringMap_throw("Cannot parse enum class value: '" + str + "'!");
 						}
 						return (NativeEnum)val;
 					}
@@ -144,7 +146,7 @@ namespace stingray
 					{
 						it = m.find(bit_val);
 						if (it == m.end())
-							throw std::runtime_error("Cannot parse enum class value: '" + str + "'!");
+							EnumToStringMap_throw("Cannot parse enum class value: '" + str + "'!");
 
 						bit_val.clear();
 						result |= (s32)it->second;
@@ -155,7 +157,7 @@ namespace stingray
 				}
 
 				if (!has_nonwhitespace_chars)
-					throw std::runtime_error("Cannot parse enum class value: '" + str + "'!");
+					EnumToStringMap_throw("Cannot parse enum class value: '" + str + "'!");
 
 				return (NativeEnum)result;
 			}
@@ -215,7 +217,7 @@ namespace stingray
 				}
 
 				if (v_it != values.end())
-					throw std::runtime_error("Internal error in EnumToStringMap!");
+					EnumToStringMap_throw("Internal error in EnumToStringMap!");
 
 				Initialized() = true;
 			}

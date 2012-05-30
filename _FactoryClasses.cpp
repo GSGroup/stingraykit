@@ -1,6 +1,13 @@
 #include <stingray/toolkit/Factory.h>
 
 #include <stingray/app/ApplicationContextPublic.h>
+#include <stingray/app/Scheduler.h>
+#include <stingray/app/Scheduler.h>
+#include <stingray/app/Scheduler.h>
+#include <stingray/app/Scheduler.h>
+#include <stingray/app/Scheduler.h>
+#include <stingray/app/Scheduler.h>
+#include <stingray/app/Scheduler.h>
 #include <stingray/app/zapper/User.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/parentalcontrol/AgeRating.h>
@@ -46,6 +53,13 @@ namespace stingray { namespace Detail
 		/*nothing*/
 #else
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::Alarm);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ContinuousScheduledEvent);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::DeferredStandby);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::InfiniteScheduledEvent);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledEvent);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledRecord);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledViewing);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
