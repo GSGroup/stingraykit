@@ -45,6 +45,36 @@ namespace stingray
 	};
 
 
+	namespace Detail
+	{
+#if !defined(PRODUCTION_BUILD)
+		template<typename T>
+		struct ByteDataIteratorSelector
+		{
+			typedef ByteDataIterator<T>			iterator;
+			typedef ByteDataIterator<const T>	const_iterator;
+
+			static FORCE_INLINE iterator CreateIterator(T* ptr, T* begin, T* end)
+			{ return iterator(ptr, begin, end); }
+			static FORCE_INLINE const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
+			{ return const_iterator(ptr, begin, end); }
+		};
+#else
+		template<typename T>
+		struct ByteDataIteratorSelector
+		{
+			typedef T*			iterator;
+			typedef const T*	const_iterator;
+
+			static FORCE_INLINE iterator CreateIterator(T* ptr, T* begin, T* end)
+			{ (void)begin; (void)end; return iterator(ptr); }
+			static FORCE_INLINE const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
+			{ (void)begin; (void)end; return const_iterator(ptr); }
+		};
+#endif
+	}
+
+
 	template < typename T >
 	class BasicByteArray
 	{
@@ -69,8 +99,8 @@ namespace stingray
 		size_t					_sizeLimit;
 
 	public:
-		typedef ByteDataIterator<T>			iterator;
-		typedef ByteDataIterator<const T>	const_iterator;
+		typedef typename Detail::ByteDataIteratorSelector<T>::iterator			iterator;
+		typedef typename Detail::ByteDataIteratorSelector<T>::const_iterator	const_iterator;
 
 		BasicByteArray()
 			: _data(new CollectionType()), _offset(0), _sizeLimit(NoSizeLimit)
@@ -130,25 +160,25 @@ namespace stingray
 		iterator begin()
 		{
 			T* data = this->data();
-			return iterator(data, data, data + size());
+			return Detail::ByteDataIteratorSelector<T>::CreateIterator(data, data, data + size());
 		}
 
 		iterator end()
 		{
 			T* data = this->data();
-			return iterator(data + size(), data, data + size());
+			return Detail::ByteDataIteratorSelector<T>::CreateIterator(data + size(), data, data + size());
 		}
 
 		const_iterator begin() const
 		{
 			const T* data = this->data();
-			return const_iterator(data, data, data + size());
+			return Detail::ByteDataIteratorSelector<T>::CreateConstIterator(data, data, data + size());
 		}
 
 		const_iterator end() const
 		{
 			const T* data = this->data();
-			return const_iterator(data + size(), data, data + size());
+			return Detail::ByteDataIteratorSelector<T>::CreateConstIterator(data + size(), data, data + size());
 		}
 
 		T* data() { return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
@@ -169,8 +199,8 @@ namespace stingray
 		size_t	_size;
 
 	public:
-		typedef ByteDataIterator<T>			iterator;
-		typedef ByteDataIterator<const T>	const_iterator;
+		typedef typename Detail::ByteDataIteratorSelector<T>::iterator			iterator;
+		typedef typename Detail::ByteDataIteratorSelector<T>::const_iterator	const_iterator;
 
 		template < typename U >
 		BasicByteData(const BasicByteData<U>& data)
@@ -222,10 +252,10 @@ namespace stingray
 		{ return _size == 0; }
 
 		iterator begin() const
-		{ return iterator(_data, _data, _data + _size); }
+		{ return Detail::ByteDataIteratorSelector<T>::CreateIterator(_data, _data, _data + _size); }
 
 		iterator end() const
-		{ return iterator(_data + _size, _data, _data + _size); }
+		{ return Detail::ByteDataIteratorSelector<T>::CreateIterator(_data + _size, _data, _data + _size); }
 	};
 
 
