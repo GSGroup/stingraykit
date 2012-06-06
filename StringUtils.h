@@ -188,6 +188,15 @@ namespace stingray
 	inline std::string& ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
 	{ return ReplaceAll<char>(str, replaceSeq, replaceTo); }
 
+	inline std::string Filter(const std::string& str, const std::string& characters)
+	{
+		std::string result;
+		for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+			if (characters.find(*it) == std::string::npos)
+				result.push_back(*it);
+		return result;
+	}
+
 	inline std::string ExtractPrefix(const std::string& str, size_t prefixLength)
 	{ return str.substr(0, std::min(str.length(), prefixLength)); }
 
