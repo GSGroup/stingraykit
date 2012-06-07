@@ -216,6 +216,7 @@ namespace stingray
 	struct DebuggingHelper
 	{
 		static void BreakpointHere();
+		static void TerminateWithMessage(const std::string& str);
 	};
 
 

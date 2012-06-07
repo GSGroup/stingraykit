@@ -28,6 +28,11 @@ namespace stingray
 		TRACER;
 	}
 
+	void DebuggingHelper::TerminateWithMessage(const std::string& str)
+	{
+		Logger::Error() << "Terminate was requested: " << str;
+		std::terminate();
+	}
 
 }
 
