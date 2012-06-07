@@ -97,7 +97,7 @@ namespace stingray
 
 		FORCE_INLINE bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
 		FORCE_INLINE bool operator != (T* ptr) const						{ return !(*this == ptr); }
-		FORCE_INLINE bool operator == (const shared_ptr<T>& other) const	{ return other == _rawPtr; }
+		FORCE_INLINE bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
 		FORCE_INLINE bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
 		FORCE_INLINE bool boolean_test() const { return _rawPtr != 0; }
 
