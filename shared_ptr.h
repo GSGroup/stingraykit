@@ -123,6 +123,11 @@ namespace stingray
 		FORCE_INLINE T* operator -> () const	{ check_ptr(); return _rawPtr; }
 		FORCE_INLINE T& operator * () const	{ check_ptr(); return *_rawPtr; }
 
+		template<typename U> bool owner_before(shared_ptr<U> const& other) const
+		{ return get() < other.get(); }
+		template<typename U> bool owner_before(weak_ptr<U> const& other) const
+		{ return get() < other._rawPtr; }
+
 	private:
 		template < typename U >
 		FORCE_INLINE void init_enable_shared_from_this(const enable_shared_from_this<U>* esft) const
@@ -149,6 +154,7 @@ namespace stingray
 		template < typename U, typename V >
 		friend weak_ptr<U> dynamic_pointer_cast(const weak_ptr<V>&);
 		template <typename U> friend class weak_ptr;
+		template <typename U> friend class shared_ptr;
 
 	private:
 		T*					_rawPtr;
@@ -207,6 +213,11 @@ namespace stingray
 		{ return _rawPtr? _refCount.get(): 0; }
 
 		FORCE_INLINE bool expired() const	{ return !_rawPtr || _refCount.get() == 0; }
+
+		template<typename U> bool owner_before(shared_ptr<U> const& other) const
+		{ return _rawPtr < other.get(); }
+		template<typename U> bool owner_before(weak_ptr<U> const& other) const
+		{ return _rawPtr < other._rawPtr; }
 	};
 
 
@@ -324,6 +335,27 @@ namespace stingray
 #undef TY
 #undef DETAIL_TOOLKIT_DECLARE_MAKE_SHARED
 	/*! \endcond */
+
+
+	template<typename T>
+	struct owner_less;
+
+	template<typename T>
+	struct owner_less<weak_ptr<T> > : public std::binary_function<weak_ptr<T>, weak_ptr<T>, bool>
+	{
+		bool operator()(const weak_ptr<T>& t1, const weak_ptr<T>& t2) const		{ return t1.owner_before(t2); }
+		bool operator()(const weak_ptr<T>& t1, const shared_ptr<T>& t2) const	{ return t1.owner_before(t2); }
+		bool operator()(const shared_ptr<T>& t1, const weak_ptr<T>& t2) const	{ return t1.owner_before(t2); }
+	};
+
+	template<typename T>
+	struct owner_less<shared_ptr<T> > : public std::binary_function<shared_ptr<T>, shared_ptr<T>, bool>
+	{
+		bool operator()(const shared_ptr<T>& t1, const shared_ptr<T>& t2) const	{ return t1.owner_before(t2); }
+		bool operator()(const weak_ptr<T>& t1, const shared_ptr<T>& t2) const	{ return t1.owner_before(t2); }
+		bool operator()(const shared_ptr<T>& t1, const weak_ptr<T>& t2) const	{ return t1.owner_before(t2); }
+	};
+
 
 }
 
