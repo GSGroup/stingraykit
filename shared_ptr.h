@@ -151,8 +151,8 @@ namespace stingray
 		template <typename U> friend class weak_ptr;
 
 	private:
-		T*			_rawPtr;
-		ref_count	_refCount;
+		T*					_rawPtr;
+		mutable ref_count	_refCount;
 
 	private:
 		FORCE_INLINE weak_ptr(T* rawPtr, const ref_count& refCount)
@@ -184,10 +184,20 @@ namespace stingray
 
 		FORCE_INLINE shared_ptr<T> lock() const
 		{
-			if (expired())
+			if (!_rawPtr)
 				return shared_ptr<T>();
 
-			return shared_ptr<T>(_rawPtr, _refCount);
+			if (_refCount.add_ref() == 1)
+			{
+				if (_refCount.release() != 0)
+					DebuggingHelper::TerminateWithMessage("weak_ptr::lock race occured!");
+				return shared_ptr<T>();
+			}
+
+			shared_ptr<T> result(_rawPtr, _refCount);
+			_refCount.release();
+
+			return result;
 		}
 
 		FORCE_INLINE void reset()
