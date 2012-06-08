@@ -21,22 +21,6 @@ namespace stingray
 
 	private:
 		static void DefaultExceptionHandler(const std::exception& ex);
-
-	protected:
-		static void InvokeTask(const function<void()>& task, const task_alive_token::ValueWeakPtr& tokenVal)
-		{
-			shared_ptr<Mutex> m;
-			{
-				task_alive_token::ValuePtr v = tokenVal.lock();
-				if (!v)
-					return;
-				m = v->Sync;
-			}
-
-			MutexLock tl(*m);
-			if (tokenVal.lock())
-				task();
-		}
 	};
 	TOOLKIT_DECLARE_PTR(ITaskExecutor);
 

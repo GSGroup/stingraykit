@@ -36,6 +36,8 @@ namespace stingray
 	};
 
 
+	void InvokeTask(const function<void ()>& task, const task_alive_token::ValueWeakPtr& tokenValue);
+
 }
 
 
