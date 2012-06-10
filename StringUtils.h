@@ -5,12 +5,13 @@
 #include <vector>
 
 #include <stingray/toolkit/Dummy.h>
+#include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/IStringRepresentable.h>
 #include <stingray/toolkit/NestedTypeCheck.h>
-#include <stingray/toolkit/Types.h>
-#include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/Tuple.h>
-#include <stingray/toolkit/IEnumerable.h>
+#include <stingray/toolkit/Types.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 
 /*! \cond GS_INTERNAL */
@@ -59,11 +60,33 @@ namespace stingray
 		TOOLKIT_DECLARE_METHOD_CHECK(end);
 		TOOLKIT_DECLARE_METHOD_CHECK(ToString);
 
-		template< typename ObjectType, bool HasBeginEnd = HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value>
+		struct TypeToStringObjectType
+		{
+			TOOLKIT_ENUM_VALUES(HasBeginEnd, HasToString, Enumerable, IsException, Other);
+			TOOLKIT_DECLARE_ENUM_CLASS(TypeToStringObjectType);
+		};
+
+		template
+			<
+				typename ObjectType,
+				TypeToStringObjectType::Enum ObjType = 
+					HasMethod_ToString<ObjectType>::Value ? 
+						TypeToStringObjectType::HasToString :
+						(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ? 
+							TypeToStringObjectType::HasBeginEnd :
+							(IsEnumerable<ObjectType>::Value ? 
+								TypeToStringObjectType::Enumerable :
+								(Inherits<ObjectType, std::exception>::Value ?
+									TypeToStringObjectType::IsException :
+									TypeToStringObjectType::Other
+								)
+							)
+						) 
+			>
 		struct TypeToStringSerializer;
 
 		template< typename ObjectType>
-		struct TypeToStringSerializer<ObjectType, true>
+		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasBeginEnd>
 		{
 			static std::string ToStringImpl(const ObjectType& object)
 			{
@@ -78,9 +101,10 @@ namespace stingray
 			}
 		};
 
-		template<typename T>
-		struct TypeToStringSerializer<IEnumerable<T>, false>
+		template<typename ObjectType>
+		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Enumerable>
 		{
+			template <typename T>
 			static std::string ToStringImpl(const IEnumerable<T>& enumerable)
 			{
 				shared_ptr<IEnumerator<T> > e = TOOLKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
@@ -101,7 +125,7 @@ namespace stingray
 		};
 
 		template< typename ObjectType>
-		struct TypeToStringSerializer<ObjectType, false>
+		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Other>
 		{
 			static std::string ToStringImpl(const ObjectType& val)
 			{
@@ -112,7 +136,7 @@ namespace stingray
 		};
 
 		template<>
-		struct TypeToStringSerializer<u8, false>
+		struct TypeToStringSerializer<u8, TypeToStringObjectType::Other>
 		{
 			static std::string ToStringImpl(u8 val)
 			{
@@ -123,47 +147,45 @@ namespace stingray
 		};
 
 		template<>
-		struct TypeToStringSerializer<std::string, true>
+		struct TypeToStringSerializer<std::string, TypeToStringObjectType::HasBeginEnd>
 		{
 			static std::string ToStringImpl(const std::string& str)
 			{ return str; }
 		};
 
 		template<>
-		struct TypeToStringSerializer<const char*, false>
+		struct TypeToStringSerializer<const char*, TypeToStringObjectType::Other>
 		{
 			static std::string ToStringImpl(const char* str)
 			{ return str; }
 		};
 
 		template<typename T>
-		struct TypeToStringSerializer<shared_ptr<T>, false>
+		struct TypeToStringSerializer<shared_ptr<T>, TypeToStringObjectType::Other>
 		{
 			static std::string ToStringImpl(const shared_ptr<T>& ptr)
 			{ return ptr ? ToString(*ptr) : "null"; }
 		};
 
-		template< typename ObjectType, bool HasToStringMethod = HasMethod_ToString<ObjectType>::Value >
-		struct ToStringHelper;
-
-		template< typename ObjectType >
-		struct ToStringHelper<ObjectType, true>
+		template<typename ObjectType>
+		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::IsException>
 		{
-			static std::string ToString(const ObjectType& object)
+			static std::string ToStringImpl(const ObjectType& object)
+			{ return diagnostic_information(object); }
+		};
+
+		template<typename ObjectType>
+		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasToString>
+		{
+			static std::string ToStringImpl(const ObjectType& object)
 			{ return object.ToString(); }
 		};
 
-		template< typename ObjectType >
-		struct ToStringHelper<ObjectType, false>
-		{
-			static std::string ToString(const ObjectType& object)
-			{ return TypeToStringSerializer<ObjectType>::ToStringImpl(object); }
-		};
 	}
 
 	template < typename T >
 	std::string ToString(const T& val)
-	{ return Detail::ToStringHelper<T>::ToString(val); }
+	{ return Detail::TypeToStringSerializer<T>::ToStringImpl(val); }
 
 	/////////////////////////////////////////////////////////////////
 
