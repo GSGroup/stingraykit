@@ -8,6 +8,7 @@
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/ref_count.h>
 #include <stingray/toolkit/safe_bool.h>
 #include <stingray/toolkit/toolkit.h>
@@ -196,7 +197,7 @@ namespace stingray
 			if (_refCount.add_ref() == 1)
 			{
 				if (_refCount.release() != 0)
-					DebuggingHelper::TerminateWithMessage("weak_ptr::lock race occured!");
+					TOOLKIT_FATAL("weak_ptr::lock race occured!");
 				return shared_ptr<T>();
 			}
 

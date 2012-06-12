@@ -4,9 +4,10 @@
 #include <vector>
 
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/iterator_base.h>
-#include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/toolkit.h>
 
 #define DETAIL_BYTEDATA_INDEX_CHECK(...) TOOLKIT_INDEX_CHECK(__VA_ARGS__)
 
@@ -27,8 +28,8 @@ namespace stingray
 		pointer _ptr;
 		pointer _begin, _end;
 
-#define	ITERATOR_CHECK_BOUNDS			do { if (_ptr < _begin || _ptr > _end) TOOLKIT_THROW(IndexOutOfRangeException()); } while (false)
-#define ITERATOR_CHECK_BOUNDS_STRICT	do { if (_ptr < _begin || _ptr >= _end) TOOLKIT_THROW(IndexOutOfRangeException()); } while (false)
+#define	ITERATOR_CHECK_BOUNDS			do { if (_ptr < _begin || _ptr > _end) TOOLKIT_FATAL("Iterator is out of bounds!"); } while (false)
+#define ITERATOR_CHECK_BOUNDS_STRICT	do { if (_ptr < _begin || _ptr >= _end) TOOLKIT_FATAL("Iterator is out of bounds!"); } while (false)
 
 	public:
 		explicit ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
