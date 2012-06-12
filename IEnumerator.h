@@ -30,6 +30,19 @@ namespace stingray
 
 
 	template < typename T >
+	struct IsEnumerator
+	{
+	private:
+		template < typename U >
+		static YesType GetIsEnumerator(const IEnumerator<U>*);
+		static NoType GetIsEnumerator(...);
+
+	public:
+		static const bool Value = sizeof(GetIsEnumerator((const T*)0)) == sizeof(YesType);
+	};
+
+
+	template < typename T >
 	struct EmptyEnumerator : public virtual IEnumerator<T>
 	{
 		virtual bool Valid() const	{ return false; }
@@ -263,20 +276,7 @@ namespace stingray
 		};
 
 
-		template < typename T >
-		struct GetIsEnumerator
-		{
-		private:
-			template < typename U >
-			static YesType IsEnumerator(const IEnumerator<U>*);
-			static NoType IsEnumerator(...);
-
-		public:
-			static const bool Value = sizeof(IsEnumerator((const T*)0)) == sizeof(YesType);
-		};
-
-
-		template < typename T, bool IsEnumerator = GetIsEnumerator<T>::Value >
+		template < typename T, bool IsEnumerator_ = IsEnumerator<T>::Value >
 		struct EnumeratorGetter
 		{
 			typedef EnumeratorCaster<typename T::ItemType, T>	EnumeratorPtrType;

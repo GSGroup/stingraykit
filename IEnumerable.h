@@ -25,6 +25,19 @@ namespace stingray
 
 
 	template < typename T >
+	struct IsEnumerable
+	{
+	private:
+		template < typename U >
+		static YesType GetIsEnumerable(const IEnumerable<U>*);
+		static NoType GetIsEnumerable(...);
+
+	public:
+		static const bool Value = sizeof(GetIsEnumerable((const T*)0)) == sizeof(YesType);
+	};
+
+
+	template < typename T >
 	struct EmptyEnumerable : public virtual IEnumerable<T>
 	{
 		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
