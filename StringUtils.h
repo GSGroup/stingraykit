@@ -1,6 +1,9 @@
 #ifndef __GS_STINGRAY_TOOLKIT_STRINGUTILS_H__
 #define __GS_STINGRAY_TOOLKIT_STRINGUTILS_H__
 
+
+#include <algorithm>
+#include <iterator>
 #include <sstream>
 #include <vector>
 
@@ -259,6 +262,20 @@ namespace stingray
 
 	inline std::string Strip(const std::string& str, char ch = ' ')
 	{ return LeftStrip(RightStrip(str, ch), ch); }
+
+	template< typename Transformer >
+	std::string Transform(const std::string& str, Transformer transformer)
+	{
+		std::string result;
+		std::transform(str.begin(), str.end(), std::back_inserter(result), transformer);
+		return result;
+	}
+
+	inline std::string ToLower(const std::string& str)
+	{ return Transform(str, tolower); }
+
+	inline std::string ToUpper(const std::string& str)
+	{ return Transform(str, toupper); }
 
 
 	template< typename CharType >
