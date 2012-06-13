@@ -273,6 +273,14 @@ namespace stingray
 		}
 
 		template < typename OutputIter >
+		void get_intersecting(const PointType& l, const PointType& r, OutputIter it) const
+		{
+			for (const_iterator i = begin(); i != end(); ++i)
+				if (!(IntervalPointsGetter::GetLeft(*i) >= r || IntervalPointsGetter::GetRight(*i) <= l))
+					*it++ = *i;
+		}
+
+		template < typename OutputIter >
 		void get_intersecting(const T& val, OutputIter it) const
 		{
 			PointType l = IntervalPointsGetter::GetLeft(val);
