@@ -294,6 +294,14 @@ namespace stingray
 			{ return EnumeratorPtrType(obj, null); }
 		};
 
+		template < typename ItemDeclFunc >
+		struct ItemEnumeratorPtr : public shared_ptr<IEnumerator<typename stingray::Detail::GetItemTypeFromItemDecl<ItemDeclFunc>::ValueT> >
+		{
+			typedef shared_ptr<IEnumerator<typename stingray::Detail::GetItemTypeFromItemDecl<ItemDeclFunc>::ValueT> >	base;
+
+			ItemEnumeratorPtr(const base& ptr) : base(ptr) { }
+		};
+
 	}
 
 	template < typename T >
@@ -304,11 +312,7 @@ namespace stingray
 #define IN ,
 #define FOR_EACH__IMPL(ItemDecl, ...) \
 		for (bool __broken__ = false; !__broken__; __broken__ = true) \
-			for (stingray::shared_ptr< \
-					stingray::IEnumerator< \
-						stingray::Detail::GetItemTypeFromItemDecl<void(*)(ItemDecl)>::ValueT \
-					>  \
-				 > en = stingray::GetEnumeratorCaster(__VA_ARGS__); \
+			for (stingray::Detail::ItemEnumeratorPtr<void(*)(ItemDecl)> en(stingray::GetEnumeratorCaster(__VA_ARGS__)); \
 				 en && en->Valid() && !__broken__; \
 				 en->Next()) \
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \
