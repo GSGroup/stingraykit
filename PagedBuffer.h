@@ -5,6 +5,7 @@
 
 #include <stingray/toolkit/IByteStream.h>
 #include <stingray/toolkit/ScopeExit.h>
+#include <stingray/toolkit/ByteData.h>
 
 namespace stingray
 {
