@@ -50,12 +50,15 @@ namespace stingray
 
 		void Push(const ConstByteData& data)
 		{
-			size_t new_end_offset, page_idx = 0, page_write_size, page_offset;
 			{
 				MutexLock l(_mutex);
 				TOOLKIT_CHECK(!_pushing, "Previous push has not finished yet!");
 				_pushing = true;
+			}
+			ScopeExitInvoker sei(bind(&PagedBuffer::PushingFinished, this));
 
+			size_t new_end_offset, page_idx = 0, page_write_size, page_offset;
+			{
 				page_write_size = std::min(_endOffset, data.size());
 				page_offset = _endOffset == 0 ? 0 : _pageSize - _endOffset;
 
@@ -64,7 +67,7 @@ namespace stingray
 
 				new_end_offset = _endOffset - data.size();
 			}
-			ScopeExitInvoker sei(bind(&PagedBuffer::PushingFinished, this, new_end_offset));
+			ScopeExitInvoker sei2(bind(&PagedBuffer::SetEndOffset, this, new_end_offset));
 
 			size_t data_offset = 0;
 
@@ -115,11 +118,16 @@ namespace stingray
 		virtual void GCPage(PagePtr page) {}
 
 	private:
-		void PushingFinished(size_t newEndOffset)
+		void PushingFinished()
+		{
+			MutexLock l(_mutex);
+			_pushing = false;
+		}
+
+		void SetEndOffset(size_t newEndOffset)
 		{
 			MutexLock l(_mutex);
 			_endOffset = newEndOffset;
-			_pushing = false;
 		}
 
 		void PoppingFinished(size_t newStartOffset)
