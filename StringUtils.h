@@ -3,9 +3,9 @@
 
 
 #include <algorithm>
-#include <iterator>
 #include <sstream>
-#include <vector>
+#include <string>
+#include <algorithm>
 
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/IEnumerable.h>
@@ -42,6 +42,29 @@ namespace stingray
 			}
 			r |= c << ((n - i - 1) * 4);
 		}
+		return r;
+	}
+
+	template<typename T>
+	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
+	{
+		std::string r;
+		r.reserve(std::max(sizeof(value) * 2, add0xPrefix? width + 2: width));
+
+		do
+		{
+			char c = value & 0x0f;
+			r.insert(0, 1, (char)(c > 9? c + (capital? 'A': 'a') - 10: c + '0'));
+			value >>= 4;
+		}
+		while(value != 0);
+
+		if (r.size() < width)
+			r.insert(0, std::string(width - r.size(), '0'));
+
+		if (add0xPrefix)
+			r.insert(0, "0x");
+
 		return r;
 	}
 
@@ -237,7 +260,8 @@ namespace stingray
 	inline bool EndsWith(const std::string& str, const std::string& suffix)
 	{ return str.length() >= suffix.length() && ExtractSuffix(str, suffix.length()) == suffix; }
 
-	inline void Split(const std::string& str, const std::string& delim, std::vector<std::string>& result)
+	template<typename ContainerType>
+	inline void Split(const std::string& str, const std::string& delim, ContainerType& result)
 	{
 		size_t i = 0, j;
 		while ((j = str.find(delim, i)) != std::string::npos)
