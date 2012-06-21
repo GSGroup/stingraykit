@@ -154,7 +154,8 @@ namespace stingray
 				MutexLock l(_mutex);
 				p = _pages.at(_pages.size() - pageIdxFromEnd - 1);
 			}
-			p->Write(offsetInPage, &data[0], data.size());
+			if (p->Write(offsetInPage, &data[0], data.size()) != data.size())
+				TOOLKIT_THROW("Page write failed!");
 		}
 
 		void ReadFromPage(size_t pageIdxFromStart, size_t offsetInPage, ByteData data) const
@@ -167,7 +168,8 @@ namespace stingray
 				MutexLock l(_mutex);
 				p = _pages.at(pageIdxFromStart);
 			}
-			p->Read(offsetInPage, &data[0], data.size());
+			if (p->Read(offsetInPage, &data[0], data.size()) != data.size())
+				TOOLKIT_THROW("Page read failed!");
 		}
 	};
 
