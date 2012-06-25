@@ -125,9 +125,9 @@ namespace stingray
 		FORCE_INLINE T& operator * () const	{ check_ptr(); return *_rawPtr; }
 
 		template<typename U> bool owner_before(shared_ptr<U> const& other) const
-		{ return get() < other.get(); }
+		{ return _refCount.get_ptr() < other._refCount.get_ptr(); }
 		template<typename U> bool owner_before(weak_ptr<U> const& other) const
-		{ return get() < other._rawPtr; }
+		{ return _refCount.get_ptr() < other._refCount.get_ptr(); }
 
 	private:
 		template < typename U >
@@ -216,9 +216,9 @@ namespace stingray
 		FORCE_INLINE bool expired() const	{ return !_rawPtr || _refCount.get() == 0; }
 
 		template<typename U> bool owner_before(shared_ptr<U> const& other) const
-		{ return _rawPtr < other.get(); }
+		{ return _refCount.get_ptr() < other._refCount.get_ptr(); }
 		template<typename U> bool owner_before(weak_ptr<U> const& other) const
-		{ return _rawPtr < other._rawPtr; }
+		{ return _refCount.get_ptr() < other._refCount.get_ptr(); }
 	};
 
 

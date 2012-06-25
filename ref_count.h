@@ -94,6 +94,9 @@ namespace stingray
 			std::swap(_value, other._value);
 		}
 
+		const Data* get_ptr() const
+		{ return _value; }
+
 	private:
 		FORCE_INLINE atomic_int_type add_ref_self()
 		{
