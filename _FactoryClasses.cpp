@@ -37,7 +37,7 @@
 #include <stingray/scanner/DefaultServiceNetworkInfo.h>
 #include <stingray/scanner/LcnListMetaInfo.h>
 #include <stingray/scanner/OtherTransportInfoEntry.h>
-#include <stingray/storage/FileSystemStorage.h>
+#include <stingray/records/FileSystemRecord.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
 #include <stingray/tuners/DefaultDVBTTransport.h>
 #include <stingray/tuners/dvbs/Antenna.h>
