@@ -20,6 +20,7 @@
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
 #endif
+#include <stingray/records/FileSystemRecord.h>
 #include <stingray/scanner/DefaultDVBTBandInfo.h>
 #include <stingray/scanner/DefaultMpegService.h>
 #include <stingray/scanner/DefaultMpegService.h>
@@ -37,7 +38,7 @@
 #include <stingray/scanner/DefaultServiceNetworkInfo.h>
 #include <stingray/scanner/LcnListMetaInfo.h>
 #include <stingray/scanner/OtherTransportInfoEntry.h>
-#include <stingray/records/FileSystemRecord.h>
+#include <stingray/storage/FatFileSystemProber.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
 #include <stingray/tuners/DefaultDVBTTransport.h>
 #include <stingray/tuners/dvbs/Antenna.h>
@@ -73,6 +74,7 @@ namespace stingray { namespace Detail
 #ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::TVChannel);
 #endif
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBTBandInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegRadioChannel);
@@ -90,7 +92,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultServiceNetworkInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LcnListMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(OtherTransportInfoEntry);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(FatFileSystemIdentity);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBTTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(dvbs::Antenna);
