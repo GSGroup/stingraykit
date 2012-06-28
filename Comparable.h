@@ -34,7 +34,7 @@ namespace stingray
 		virtual int Compare(const shared_ptr<T> &other) const = 0;
 	};
 
-	template<typename T>
+	template<typename T = IComparable>
 	struct ComparableLess
 	{
 		bool operator()(const shared_ptr<T>& arg1, const shared_ptr<T>& arg2) const
@@ -46,7 +46,7 @@ namespace stingray
 		}
 	};
 
-	template<typename T>
+	template<typename T = IComparable>
 	struct ComparableEquals : std::binary_function<const shared_ptr<T>&, const shared_ptr<T>&, bool>
 	{
 		bool operator()(const shared_ptr<T>& lhs, const shared_ptr<T>& rhs) const
