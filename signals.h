@@ -174,14 +174,14 @@ namespace stingray
 
 		void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p, const ExceptionHandlerFunc& exceptionHandler) const
 		{
-			std::vector<FuncTypeWrapper> local_copy;
+			std::vector<FuncTypeWithDeathControl> local_copy;
 			{
 				MutexLock l(_handlers->second);
 				local_copy.reserve(_handlers->first.size());
-				local_copy.assign(_handlers->first.begin(), _handlers->first.end());
+				std::copy(_handlers->first.begin(), _handlers->first.end(), std::back_inserter(local_copy));
 			}
 
-			for (typename std::vector<FuncTypeWrapper>::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
+			for (typename std::vector<FuncTypeWithDeathControl>::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
 			{
 				FuncTypeWithDeathControl& func = (*it);
 				MutexLock l(func.GetMutex());

@@ -94,11 +94,11 @@ namespace stingray
 			if (!_handlers)
 				return;
 
-			std::vector<FuncTypeWrapper> handlers;
+			std::vector<FuncType> handlers;
 			handlers.reserve(_handlers->size());
-			handlers.assign(_handlers->begin(), _handlers->end());
+			std::copy(_handlers->begin(), _handlers->end(), std::back_inserter(handlers));
 
-			typename std::vector<FuncTypeWrapper>::iterator it = handlers.begin();
+			typename std::vector<FuncType>::iterator it = handlers.begin();
 			for (; it != handlers.end(); ++it)
 			{
 				const FuncType& func = (*it);
