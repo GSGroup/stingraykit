@@ -4,6 +4,7 @@
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/unique_ptr.h>
+#include <stingray/toolkit/iterator_base.h>
 /*! \cond GS_INTERNAL */
 
 namespace stingray
@@ -91,10 +92,14 @@ namespace stingray
 		typedef Allocator_				allocator_type;
 
 	public:
-		class iterator //: iterator_base<iterator, value_type, std::bidirectional_iterator_tag> TODO: Reimplement this iterator using iterator_base
+		class iterator : public iterator_base<iterator, value_type, std::bidirectional_iterator_tag> // TODO: Reimplement this iterator using iterator_base
 		{
+			typedef iterator_base<iterator, value_type, std::bidirectional_iterator_tag>	base;
+
 		public:
-			typedef T						value_type;
+			typedef typename base::pointer													pointer;
+			typedef typename base::reference												reference;
+			typedef typename base::difference_type											difference_type;
 
 		private:
 			pointer_type					_current;
@@ -104,16 +109,13 @@ namespace stingray
 				: _current(current)
 			{ }
 
-			bool operator == (const iterator& other) const	{ return _current == other._current; }
-			bool operator != (const iterator& other) const	{ return !(*this == other); }
-			pointer_type get()								{ return _current; }
-			const_pointer_type get() const					{ return _current; }
+			reference dereference() const										{ return static_cast<reference>(*_current); }
+			bool equal(const iterator &other) const								{ return _current == other._current; }
+			void increment()													{ _current = get_next(_current); }
+			void decrement()													{ _current = get_prev(_current); }
 
-			T& operator * () const	{ return static_cast<T&>(*_current); }
-			T* operator -> () const	{ return static_cast<T*>(_current); }
-
-			const iterator& operator ++() { _current = get_next(_current);  return *this; }
-			const iterator& operator --() { _current = get_prev(_current);  return *this; }
+			pointer_type get()													{ return _current; }
+			const_pointer_type get() const										{ return _current; }
 		};
 		//fixme: add const_iterators here!
 		typedef iterator const_iterator;
@@ -213,6 +215,14 @@ namespace stingray
 			pointer_type p = const_cast<pointer_type>(it.get());
 			p->unlink();
 			destroy_node(p);
+		}
+
+		size_t size() const
+		{
+			size_t n = 0;
+			for(const_iterator i = begin(); i != end(); ++i)
+				++n;
+			return n;
 		}
 	};
 
