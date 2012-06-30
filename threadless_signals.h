@@ -3,6 +3,7 @@
 
 #include <stingray/toolkit/signals.h>
 #include <stingray/toolkit/light_shared_ptr.h>
+#include <vector>
 
 namespace stingray
 {
@@ -14,8 +15,8 @@ namespace stingray
 		class ThreadlessConnection : public ISignalConnection
 		{
 		public:
-			typedef Handlers					HandlersType;
-			typedef light_shared_ptr<HandlersType>	HandlersPtr;
+			typedef Handlers							HandlersType;
+			typedef light_shared_ptr<HandlersType>		HandlersPtr;
 			typedef light_weak_ptr<HandlersType>		HandlersWeakPtr;
 			typedef typename ISignalConnection::VTable	VTable;
 
@@ -59,11 +60,11 @@ namespace stingray
 	{
 		TOOLKIT_NONCOPYABLE(threadless_signal_base);
 
-		typedef function<Signature>								FuncType;
+		typedef function<Signature>									FuncType;
 
 	public:
-		typedef typename function_info<Signature>::RetType		RetType;
-		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+		typedef typename function_info<Signature>::RetType			RetType;
+		typedef typename function_info<Signature>::ParamTypes		ParamTypes;
 
 	protected:
 		typedef typename ExceptionHandler::ExceptionHandlerFunc		ExceptionHandlerFunc;
@@ -93,8 +94,11 @@ namespace stingray
 			if (!_handlers)
 				return;
 
-			Handlers handlers = *_handlers.get();
-			typename Handlers::const_iterator it = handlers.begin();
+			std::vector<FuncTypeWrapper> handlers;
+			handlers.reserve(_handlers->size());
+			handlers.assign(_handlers->begin(), _handlers->end());
+
+			typename std::vector<FuncTypeWrapper>::iterator it = handlers.begin();
 			for (; it != handlers.end(); ++it)
 			{
 				const FuncType& func = (*it);
