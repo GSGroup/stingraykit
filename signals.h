@@ -1,6 +1,7 @@
 #ifndef GS_DVRLIB_TOOLKIT_SIGNALS_H__
 #define GS_DVRLIB_TOOLKIT_SIGNALS_H__
 
+#include <vector>
 #include <stingray/toolkit/signal_connection.h>
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/slot.h>
@@ -173,13 +174,14 @@ namespace stingray
 
 		void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p, const ExceptionHandlerFunc& exceptionHandler) const
 		{
-			Handlers local_copy;
+			std::vector<FuncTypeWrapper> local_copy;
 			{
 				MutexLock l(_handlers->second);
-				local_copy = _handlers->first;
+				local_copy.reserve(_handlers->first.size());
+				local_copy.assign(_handlers->first.begin(), _handlers->first.end());
 			}
-			typename Handlers::iterator it = local_copy.begin();
-			for (; it != local_copy.end(); ++it)
+
+			for (typename std::vector<FuncTypeWrapper>::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
 			{
 				FuncTypeWithDeathControl& func = (*it);
 				MutexLock l(func.GetMutex());
