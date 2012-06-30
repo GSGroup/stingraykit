@@ -1,7 +1,7 @@
 #ifndef __GS_DVRLIB_TOOLKIT_SIGNAL_CONNECTION_H__
 #define __GS_DVRLIB_TOOLKIT_SIGNAL_CONNECTION_H__
 
-#include <list>
+#include <vector>
 #include <algorithm>
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/self_counter.h>
@@ -174,7 +174,7 @@ namespace stingray
 
 	class signal_connection_autorelease_pool
 	{
-		typedef std::list<signal_connection> signal_connection_list;
+		typedef std::vector<signal_connection> signal_connection_list;
 		signal_connection_list _connections;
 		TOOLKIT_NONCOPYABLE(signal_connection_autorelease_pool);
 
