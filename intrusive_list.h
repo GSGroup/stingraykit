@@ -218,12 +218,7 @@ namespace stingray
 		}
 
 		size_t size() const
-		{
-			size_t n = 0;
-			for(const_iterator i = begin(); i != end(); ++i)
-				++n;
-			return n;
-		}
+		{ return std::distance(begin(), end()); }
 	};
 
 
