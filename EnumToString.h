@@ -26,14 +26,28 @@ namespace stingray
 
 		void EnumToStringMap_throw(const std::string& msg);
 
+		struct EnumToStringMapImpl
+		{
+			typedef std::map<int, std::string>			EnumToStrMap;
+			typedef std::map<std::string, int>			StrToEnumMap;
+			typedef std::vector<int>					EnumValuesVec;
+
+			static std::string EnumToString(const EnumToStrMap& map, int val);
+			static int EnumFromString(const StrToEnumMap& map, const std::string& str);
+			static void Init(const EnumValuesVec& values, EnumToStrMap& enumToStr, StrToEnumMap& strToEnum, const std::string& str);
+
+			static bool IsWhitespace(char c)
+			{ return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
+		};
+
 		template < typename EnumClassT >
 		class EnumToStringMap
 		{
 		private:
 			typedef typename EnumClassT::Enum			NativeEnum;
-			typedef std::map<NativeEnum, std::string>	EnumToStrMap;
-			typedef std::map<std::string, NativeEnum>	StrToEnumMap;
-			typedef std::vector<NativeEnum>				EnumValuesVec;
+			typedef std::map<int, std::string>			EnumToStrMap;
+			typedef std::map<std::string, int>			StrToEnumMap;
+			typedef std::vector<int>					EnumValuesVec;
 
 			EnumToStrMap	_enumToStr;
 			StrToEnumMap	_strToEnum;
@@ -47,13 +61,13 @@ namespace stingray
 				if (!Initialized())
 				{
 					EnumValuesVec values;
-					s32 cur_value = 0;
+					int cur_value = 0;
 					for (; valuesBegin != valuesEnd; ++valuesBegin, ++cur_value)
 					{
 						if (valuesBegin->Val != Detail::EnumValueHolder::Uninitialized)
 							cur_value = valuesBegin->Val;
 
-						values.push_back((NativeEnum)cur_value);
+						values.push_back(cur_value);
 					}
 					Instance().Init(values, str);
 				}
@@ -65,36 +79,7 @@ namespace stingray
 					EnumToStringMap_throw("EnumToStringMap instance not initialized!");
 
 				const EnumToStrMap& m = Instance()._enumToStr;
-				typename EnumToStrMap::const_iterator it = m.find(val);
-				if (it != m.end())
-					return it->second;
-
-				s32 flagged_val = 0;
-				std::string result;
-				for (typename EnumToStrMap::const_iterator it = m.begin(); it != m.end(); ++it)
-				{
-					if (((s32)it->first & val) != 0 &&
-						((s32)it->first & ~val) == 0 &&
-						((s32)it->first & ~flagged_val) != 0)
-					{
-						flagged_val |= (s32)it->first;
-						if (!result.empty())
-							result += "|";
-						result += it->second;
-					}
-
-					if (flagged_val == val)
-						break;
-				}
-
-				if (flagged_val != val)
-				{
-					std::stringstream s;
-					s << (unsigned)val;
-					return s.str();
-				}
-
-				return result;
+				return EnumToStringMapImpl::EnumToString(m, (int)val);
 			}
 
 			static NativeEnum EnumFromString(const std::string& str)
@@ -102,64 +87,8 @@ namespace stingray
 				if (!Initialized())
 					EnumToStringMap_throw("EnumToStringMap instance not initialized!");
 
-				{
-					std::string::const_iterator s_it = str.begin();
-					while (s_it != str.end() && IsWhitespace(*s_it))
-						++s_it;
-
-					if (s_it != str.end() && *s_it >= '0' && *s_it <= '9')
-					{
-						std::stringstream s(str);
-						unsigned val;
-						s >> val;
-						if (s.fail())
-							EnumToStringMap_throw("Cannot parse enum class value: '" + str + "'!");
-						while (!s.eof())
-						{
-							char c = 0;
-							s >> c;
-							if (!s.eof() && !IsWhitespace(c))
-								EnumToStringMap_throw("Cannot parse enum class value: '" + str + "'!");
-						}
-						return (NativeEnum)val;
-					}
-				}
-
 				const StrToEnumMap& m = Instance()._strToEnum;
-				typename StrToEnumMap::const_iterator it = m.find(str);
-				if (it != m.end())
-					return it->second;
-
-				bool has_nonwhitespace_chars = false;
-				s32 result = 0;
-				std::string bit_val;
-				for (std::string::const_iterator s_it = str.begin(); s_it != str.end(); ++s_it)
-				{
-					for (; s_it != str.end() && IsWhitespace(*s_it); ++s_it);
-					if (s_it != str.end())
-						has_nonwhitespace_chars = true;
-					for (; s_it != str.end() && !IsWhitespace(*s_it) && *s_it != '|'; ++s_it)
-						bit_val += *s_it;
-					for (; s_it != str.end() && IsWhitespace(*s_it); ++s_it);
-
-					if (!bit_val.empty())
-					{
-						it = m.find(bit_val);
-						if (it == m.end())
-							EnumToStringMap_throw("Cannot parse enum class value: '" + str + "'!");
-
-						bit_val.clear();
-						result |= (s32)it->second;
-					}
-
-					if (s_it == str.end())
-						break;
-				}
-
-				if (!has_nonwhitespace_chars)
-					EnumToStringMap_throw("Cannot parse enum class value: '" + str + "'!");
-
-				return (NativeEnum)result;
+				return (NativeEnum)EnumToStringMapImpl::EnumFromString(m, str);
 			}
 
 			static bool& Initialized()
@@ -195,35 +124,10 @@ namespace stingray
 			void Init(const EnumValuesVec& values, const std::string& str)
 			{
 				_values = values;
-				std::string current_name;
-				std::string::const_iterator s_it = str.begin();
-				typename std::vector<NativeEnum>::const_iterator v_it = values.begin();
-				for (; v_it != values.end(); ++v_it)
-				{
-					if (s_it == str.end())
-						break;
-
-					for (; s_it != str.end() && IsWhitespace(*s_it); ++s_it);
-					for (; s_it != str.end() && !IsWhitespace(*s_it) && *s_it != ','; ++s_it)
-						current_name += *s_it;
-					for (; s_it != str.end() && *s_it != ','; ++s_it);
-
-					if (s_it != str.end())
-						++s_it; // ','
-
-					_enumToStr.insert(typename EnumToStrMap::value_type(*v_it, current_name));
-					_strToEnum.insert(typename StrToEnumMap::value_type(current_name, *v_it));
-					current_name.clear();
-				}
-
-				if (v_it != values.end())
-					EnumToStringMap_throw("Internal error in EnumToStringMap!");
+				EnumToStringMapImpl::Init(values, _enumToStr, _strToEnum, str);
 
 				Initialized() = true;
 			}
-
-			static bool IsWhitespace(char c)
-			{ return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
 		};
 
 		template < typename EnumClassT >
@@ -246,7 +150,7 @@ namespace stingray
 			typedef	typename base::pointer				pointer;
 		private:
 			typedef typename EnumClassT::Enum							NativeEnum;
-			typedef typename std::vector<NativeEnum>::const_iterator	Wrapped;
+			typedef typename std::vector<int>::const_iterator			Wrapped;
 			friend struct EnumIteratorCreator<EnumClassT>;
 		private:
 			Wrapped				_wrapped;
@@ -255,11 +159,11 @@ namespace stingray
 			reference dereference() const {
 				return *reinterpret_cast<pointer>(&*_wrapped);
 			}
-			void increment() { ++_wrapped; }
-			void decrement() { --_wrapped; }
-			void advance(const difference_type& diff) { std::advance(_wrapped, diff); }
-			difference_type distance_to(const EnumIterator &other) const { return std::distance(_wrapped, other._wrapped); }
-			bool equal(const EnumIterator& other) const { return _wrapped == other._wrapped; }
+			void increment()												{ ++_wrapped; }
+			void decrement()												{ --_wrapped; }
+			void advance(const difference_type& diff)						{ std::advance(_wrapped, diff); }
+			difference_type distance_to(const EnumIterator &other) const	{ return std::distance(_wrapped, other._wrapped); }
+			bool equal(const EnumIterator& other) const						{ return _wrapped == other._wrapped; }
 		};
 
 		template < typename EnumClassT >

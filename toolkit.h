@@ -69,7 +69,7 @@ namespace stingray
 		typedef stingray::Detail::EnumIterator<ClassName> const_iterator; \
 		static const_iterator begin()	{ InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
 		static const_iterator end()		{ InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
-		ClassName() { InitEnumToStringMap(this); const std::vector<Enum>& v = stingray::Detail::GetEnumToStringMap(this).GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : v.front(); } \
+		ClassName() { InitEnumToStringMap(this); const std::vector<int>& v = stingray::Detail::GetEnumToStringMap(this).GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : (Enum)v.front(); } \
 		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
 		ClassName::Enum val() const { return _enumVal; } \
