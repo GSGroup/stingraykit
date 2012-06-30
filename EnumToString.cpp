@@ -9,13 +9,13 @@ namespace stingray
 
 		std::string EnumToStringMapImpl::EnumToString(const EnumToStrMap& m, int val)
 		{
-			typename EnumToStrMap::const_iterator it = m.find(val);
+			EnumToStrMap::const_iterator it = m.find(val);
 			if (it != m.end())
 				return it->second;
 
 			s32 flagged_val = 0;
 			std::string result;
-			for (typename EnumToStrMap::const_iterator it = m.begin(); it != m.end(); ++it)
+			for (EnumToStrMap::const_iterator it = m.begin(); it != m.end(); ++it)
 			{
 				if (((s32)it->first & val) != 0 &&
 					((s32)it->first & ~val) == 0 &&
@@ -106,7 +106,7 @@ namespace stingray
 		{
 			std::string current_name;
 			std::string::const_iterator s_it = str.begin();
-			typename EnumValuesVec::const_iterator v_it = values.begin();
+			EnumValuesVec::const_iterator v_it = values.begin();
 			for (; v_it != values.end(); ++v_it)
 			{
 				if (s_it == str.end())
@@ -120,8 +120,8 @@ namespace stingray
 				if (s_it != str.end())
 					++s_it; // ','
 
-				enumToStr.insert(typename EnumToStrMap::value_type(*v_it, current_name));
-				strToEnum.insert(typename StrToEnumMap::value_type(current_name, *v_it));
+				enumToStr.insert(EnumToStrMap::value_type(*v_it, current_name));
+				strToEnum.insert(StrToEnumMap::value_type(current_name, *v_it));
 				current_name.clear();
 			}
 
