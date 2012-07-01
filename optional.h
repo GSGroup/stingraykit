@@ -77,6 +77,7 @@ namespace stingray {
 				_value.reset(new StoredType(*other._value));
 			else
 				_value.reset();
+			return *this;
 		}
 
 		template<class U>
