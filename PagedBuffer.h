@@ -41,12 +41,10 @@ namespace stingray
 			_endOffset(0),
 			_pushing(false),
 			_popping(false)
-		{
-		}
+		{ }
 
 		virtual ~PagedBuffer()
-		{
-		}
+		{ }
 
 		void Push(const ConstByteData& data)
 		{
