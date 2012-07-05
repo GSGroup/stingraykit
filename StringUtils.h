@@ -1,7 +1,6 @@
 #ifndef __GS_STINGRAY_TOOLKIT_STRINGUTILS_H__
 #define __GS_STINGRAY_TOOLKIT_STRINGUTILS_H__
 
-
 #include <algorithm>
 #include <sstream>
 #include <string>
@@ -14,6 +13,7 @@
 #include <stingray/toolkit/Tuple.h>
 #include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 
@@ -191,6 +191,13 @@ namespace stingray
 		{
 			static std::string ToStringImpl(const shared_ptr<T>& ptr)
 			{ return ptr ? ToString(*ptr) : "null"; }
+		};
+
+		template<typename T>
+		struct TypeToStringSerializer<optional<T>, TypeToStringObjectType::Other>
+		{
+			static std::string ToStringImpl(const optional<T>& opt)
+			{ return opt ? ToString(opt.get()) : "null"; }
 		};
 
 		template<typename ObjectType>
