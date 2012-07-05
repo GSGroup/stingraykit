@@ -95,19 +95,19 @@ namespace stingray
 		template
 			<
 				typename ObjectType,
-				TypeToStringObjectType::Enum ObjType = 
-					HasMethod_ToString<ObjectType>::Value ? 
+				TypeToStringObjectType::Enum ObjType =
+					HasMethod_ToString<ObjectType>::Value ?
 						TypeToStringObjectType::HasToString :
-						(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ? 
+						(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ?
 							TypeToStringObjectType::HasBeginEnd :
-							(IsEnumerable<ObjectType>::Value ? 
+							(IsEnumerable<ObjectType>::Value ?
 								TypeToStringObjectType::Enumerable :
 								(Inherits<ObjectType, std::exception>::Value ?
 									TypeToStringObjectType::IsException :
 									TypeToStringObjectType::Other
 								)
 							)
-						) 
+						)
 			>
 		struct TypeToStringSerializer;
 
@@ -235,6 +235,14 @@ namespace stingray
 
 	inline std::string& ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
 	{ return ReplaceAll<char>(str, replaceSeq, replaceTo); }
+
+	inline std::string& ReplaceAll(std::string& str, char from, char to)
+	{
+		for(std::string::iterator it = str.begin(); it != str.end(); ++it)
+			if (*it == from)
+				*it = to;
+		return str;
+	}
 
 	inline std::string Filter(const std::string& str, const std::string& characters)
 	{
