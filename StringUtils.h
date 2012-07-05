@@ -331,7 +331,14 @@ namespace stingray
 		{ _stream << std::boolalpha; }
 
 		template<typename ObjectType>
-		BasicStringBuilder& operator % (const ObjectType& object)
+		typename EnableIf<!IsIntType<ObjectType>::Value, BasicStringBuilder&>::ValueT operator % (const ObjectType& object)
+		{
+			_stream << stingray::ToString(object);
+			return *this;
+		}
+
+		template<typename T>
+		typename EnableIf<IsIntType<T>::Value, BasicStringBuilder&>::ValueT operator % (T object)
 		{
 			_stream << stingray::ToString(object);
 			return *this;
