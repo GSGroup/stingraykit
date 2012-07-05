@@ -17,6 +17,9 @@ namespace stingray
 		mutable shared_ptr<FuncType>	_func;
 
 	public:
+		once()
+		{ }
+
 		template < typename Callable >
 		once(const Callable& func)
 			: _func(new FuncType(func))
