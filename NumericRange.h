@@ -5,17 +5,20 @@
 
 namespace stingray {
 
-	template<typename T>
+	template<typename DerivedT, typename T>
 	class NumericRange
 	{
 	public:
 		typedef T ValueT;
+
 	private:
 		T _start, _end;
-	public:
+
+	protected:
 		NumericRange(T start, T end) : _start(start), _end(end)
 		{ TOOLKIT_CHECK(start <= end, ArgumentException("Start is greater than end")); }
 
+	public:
 		T GetStart() const		{ return _start; }
 		void SetStart(T value)	{ _start = value; }
 		T GetEnd() const		{ return _end; }
@@ -25,20 +28,20 @@ namespace stingray {
 		bool ContainsStrict(T t) const	{ return _start < t && t < _end; }
 
 		bool IsEmpty() const			{ return _start == _end; }
-		static NumericRange<T> CreateEmpty()
+		static DerivedT CreateEmpty()
 		{
 			T t = T();
-			return NumericRange(t, t);
+			return DerivedT(t, t);
 		}
 
-		bool IsIntersecting(const NumericRange<T>& other) const
+		bool IsIntersecting(const DerivedT& other) const
 		{
 			if (IsEmpty() || other.IsEmpty())
 				return false;
 			return (_start < other._start && other._start < _end) || (_start < other._end && other._end < _end);
 		}
 
-		NumericRange<T> Intersect(const NumericRange<T>& other) const
+		DerivedT Intersect(const DerivedT& other) const
 		{
 			if (IsEmpty())
 				return other;
@@ -48,18 +51,18 @@ namespace stingray {
 			T end = std::min(_end, other._end);
 			if (start >= end)
 				return CreateEmpty();
-			return NumericRange(start, end);
+			return DerivedT(start, end);
 		}
 
-		NumericRange<T> Union(const NumericRange<T>& other) const
+		DerivedT Union(const DerivedT& other) const
 		{
 			if (IsEmpty())
 				return other;
 			if (other.IsEmpty())
-				return *this;
+				return *static_cast<const DerivedT*>(this);
 			T start = std::min(_start, other._start);
 			T end = std::max(_end, other._end);
-			return NumericRange(start, end);
+			return DerivedT(start, end);
 		}
 
 		std::string ToString() const
@@ -67,8 +70,8 @@ namespace stingray {
 			return "[" + _start.ToString() + " - " + _end.ToString()  + "]";
 		}
 
-		bool operator== (const NumericRange& rhs)	{ return _start == rhs._start && _end == rhs._end; }
-		bool operator!= (const NumericRange& rhs)	{ return !(*this == rhs); }
+		bool operator== (const DerivedT& rhs)	{ return _start == rhs._start && _end == rhs._end; }
+		bool operator!= (const DerivedT& rhs)	{ return !(*this == rhs); }
 	};
 
 
