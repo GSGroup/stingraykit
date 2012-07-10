@@ -66,6 +66,9 @@ public:
 	{
 		return "[" + _start.ToString() + " - " + _end.ToString()  + "]";
 	}
+
+	bool operator== (const NumericRange& rhs)	{ return _start == rhs._start && _end == rhs._end; }
+	bool operator!= (const NumericRange& rhs)	{ return !(*this == rhs); }
 };
 
 
