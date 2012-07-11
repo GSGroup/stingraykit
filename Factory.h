@@ -2,13 +2,14 @@
 #define DVRLIB_TOOLKIT_FACTORY_H
 
 #include <map>
-#include <memory>
 #include <string>
-#include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/Singleton.h>
-#include <stingray/toolkit/Macro.h>
-#include <stingray/toolkit/toolkit.h>
+
 #include <stingray/threads/Thread.h>
+#include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/Singleton.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/unique_ptr.h>
 
 /*! \cond GS_INTERNAL */
 
@@ -35,32 +36,17 @@ namespace stingray {
 			virtual IFactoryObject *Create() const	{ return new ClassType; }
 		};
 
-		class Factory : public Singleton<Factory> {
+		class Factory : public Singleton<Factory>
+		{
 			TOOLKIT_SINGLETON(Factory);
 
-			Factory() {}
-
-			void Clean()
-			{
-				MutexLock l(_registrarLock);
-				for (RegistrarMap::iterator i = _registrars.begin(); i != _registrars.end(); ++i)
-					delete i->second;
-			}
-
 		public:
-
 			~Factory() { DVRLIB_TRY_DO_NO_LOGGER("Factory::Clean failed", Clean()); }
 
 			template<typename Type>
 			Type *Create(const std::string &name)
 			{
-				MutexLock l(_registrarLock);
-				RegistrarMap::const_iterator i = _registrars.find(name);
-				if (i == _registrars.end())
-					TOOLKIT_THROW(std::runtime_error("class " + name + " was not registered"));
-				const IFactoryObjectCreator& creator = *i->second;
-				const std::type_info & type_id = typeid (Type);
-				std::auto_ptr<IFactoryObject> factory_obj(creator.Create());
+				unique_ptr<IFactoryObject> factory_obj(Create(name));
 				Type *object = dynamic_cast<Type *> (factory_obj.get());
 				if (!object)
 					TOOLKIT_THROW(std::runtime_error("Cannot cast " + name + " " + typeid (Type).name()));
@@ -69,31 +55,15 @@ namespace stingray {
 			}
 
 			template<typename Type>
-			const IFactoryObjectCreator& GetCreator() {
-				std::string name(typeid (Type).name());
-				MutexLock l(_registrarLock);
-				RegistrarMap::const_iterator i = _registrarsByTypeId.find(name);
-				if (i == _registrarsByTypeId.end())
-					TOOLKIT_THROW(std::runtime_error("class with typeid " + name + " was not registered, check _FactoryClasses.cpp"));
-				return *i->second;
-			}
+			const IFactoryObjectCreator& GetCreator()
+			{ return GetCreator(typeid (Type).name()); }
 
 			template<typename ClassType>
-			void Register(const std::string &name, const std::string &type) {
-				MutexLock l(_registrarLock);
-				{
-					RegistrarMap::const_iterator i = _registrars.find(name);
-					if (i != _registrars.end())
-						TOOLKIT_THROW(std::runtime_error("class " + name + " was already registered"));
-				}
-				{
-					RegistrarMap::const_iterator i = _registrarsByTypeId.find(type);
-					if (i != _registrarsByTypeId.end())
-						TOOLKIT_THROW(std::runtime_error("typeid " + name + " was already registered"));
-				}
-				IFactoryObjectCreator *creator = new SimpleFactoryObjectCreator<ClassType>(name);
-				_registrars.insert(RegistrarMap::value_type(name, creator));
-				_registrarsByTypeId.insert(RegistrarMap::value_type(type, creator));
+			void Register(const std::string &name, const std::string &type)
+			{
+				unique_ptr<IFactoryObjectCreator> creator(new SimpleFactoryObjectCreator<ClassType>(name));
+				Register(name, type, creator.get());
+				creator.release();
 			}
 
 			void Dump();
@@ -103,6 +73,13 @@ namespace stingray {
 			typedef std::map<const std::string, IFactoryObjectCreator *> RegistrarMap;
 			RegistrarMap	_registrars, _registrarsByTypeId;
 			Mutex			_registrarLock;
+
+		private:
+			Factory() {}
+			IFactoryObject* Create(const std::string& name);
+			const IFactoryObjectCreator& GetCreator(const std::string &name);
+			void Register(const std::string &name, const std::string &type, IFactoryObjectCreator *creator);
+			void Clean();
 		};
 
 	} //Detail
@@ -124,7 +101,6 @@ namespace stingray {
 
 }
 
-#include <stingray/log/Logger.h>
 /*! \endcond */
 
 #define TOOLKIT_REGISTER_CLASS(type) \
