@@ -53,7 +53,8 @@ namespace stingray
 	typedef uint16_t	u16;
 	typedef int32_t		s32;
 	typedef uint32_t	u32;
-	typedef int64_t		s64;
+	typedef long long	s64; // to avoid type conflicts with existing 123LL-like constants and "%lld" format specs
+	TOOLKIT_ASSERT_SIZE_OF(s64, 8); // de bene esse
 	typedef uint64_t	u64;
 	template <> struct IntType<8, true> { typedef s8 ValueT; };
 	template <> struct IntType<8, false> { typedef u8 ValueT; };
