@@ -20,7 +20,11 @@
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
 #endif
+#ifdef PLATFORM_EMU
+#	include <stingray/platform/emu/scanner/Channel.h>
+#endif
 #include <stingray/records/FileSystemRecord.h>
+#include <stingray/scanner/DVBServiceId.h>
 #include <stingray/scanner/DefaultDVBTBandInfo.h>
 #include <stingray/scanner/DefaultMpegService.h>
 #include <stingray/scanner/DefaultMpegService.h>
@@ -66,6 +70,9 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
 #ifdef PLATFORM_EMU
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::EmuServiceId);
+#endif
+#ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::RadioChannel);
 #endif
 #ifdef PLATFORM_EMU
@@ -75,6 +82,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::TVChannel);
 #endif
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBServiceId);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBTBandInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegRadioChannel);
