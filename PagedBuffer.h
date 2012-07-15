@@ -84,10 +84,11 @@ namespace stingray
 			size_t new_start_offset, page_idx = 0, page_read_size, page_offset;
 			{
 				MutexLock l(_mutex);
+				TOOLKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
+
 				TOOLKIT_CHECK(!_popping, "Previous pop has not finished yet!");
 				_popping = true;
 
-				TOOLKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
 				new_start_offset = _startOffset + data.size();
 				page_offset = _startOffset;
 				page_read_size = std::min(_pageSize - _startOffset, data.size());
@@ -103,6 +104,16 @@ namespace stingray
 				page_read_size = std::min(_pageSize, data.size() - data_offset);
 				ReadFromPage(page_idx, 0, ByteData(data, data_offset, page_read_size));
 			}
+		}
+
+		void Skip(u64 size)
+		{
+			MutexLock l(_mutex);
+
+			TOOLKIT_CHECK(size <= GetSize(), IndexOutOfRangeException());
+			TOOLKIT_CHECK(!_popping, "Previous pop has not finished yet!");
+
+			PoppingFinished(_startOffset + size);
 		}
 
 		size_t GetSize() const
