@@ -110,6 +110,14 @@ namespace stingray
 			return Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>(&_buf, offset);
 		}
 
+		std::string ReadString(size_t length)
+		{
+			std::string result;
+			for (size_t i = 0; i < length; ++i)
+				result.push_back(Read<8>());
+			return result;
+		}
+
 		std::string ReadStringTerminatedBy(char terminator)
 		{
 			std::string result;
