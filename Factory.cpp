@@ -8,16 +8,16 @@ namespace stingray { namespace Detail
 
 	void Factory::Dump()
 	{
-		Logger::Stream(LogLevel::Info) << "Registered " << _registrars.size() << " classes:";
+		Logger::Info() << "Registered " << _registrars.size() << " classes:";
 		for(RegistrarMap::const_iterator i = _registrars.begin(); i != _registrars.end(); ++i)
 		{
-			Logger::Stream(LogLevel::Info) << i->first;
+			Logger::Info() << i->first;
 		}
 
-		Logger::Stream(LogLevel::Info) << "Registered " << _registrarsByTypeId.size() << " type ids:";
+		Logger::Info() << "Registered " << _registrarsByTypeId.size() << " type ids:";
 		for(RegistrarMap::const_iterator i = _registrarsByTypeId.begin(); i != _registrarsByTypeId.end(); ++i)
 		{
-			Logger::Stream(LogLevel::Info) << i->first;
+			Logger::Info() << i->first;
 		}
 	}
 
