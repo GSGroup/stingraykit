@@ -182,8 +182,8 @@ namespace stingray
 			return Detail::ByteDataIteratorSelector<T>::CreateConstIterator(data + size(), data, data + size());
 		}
 
-		T* data() { return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
-		const T* data() const { return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
+		inline T* data()				{ return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
+		inline const T* data() const	{ return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
 
 		template<typename ObjectOStream>
 		void Serialize(ObjectOStream & ar) const	{ ar.Serialize("o", _offset); ar.Serialize("d", *_data);}
@@ -245,6 +245,9 @@ namespace stingray
 			DETAIL_BYTEDATA_INDEX_CHECK(index < _size);
 			return _data[index];
 		}
+
+		inline T* data()				{ return _data; }
+		inline const T* data() const	{ return _data; }
 
 		FORCE_INLINE size_t size() const
 		{ return _size; }
