@@ -20,9 +20,9 @@ namespace stingray
 	template < typename ServiceBase_, typename Dependencies_ >
 	struct DerivedService : public ServiceBase_
 	{
-		typedef typename ServiceBase_::ServiceInterfaces					ServiceInterfaces;
-		typedef typename TypeListMerge<typename ServiceBase_::Dependencies, 
-			typename ToTypeList<Dependencies_>::ValueT>::ValueT				Dependencies;
+		typedef typename ServiceBase_::ServiceInterfaces									ServiceInterfaces;
+		typedef typename TypeListMerge<TypeList_2<typename ServiceBase_::Dependencies,
+			typename ToTypeList<Dependencies_>::ValueT> >::ValueT							Dependencies;
 	};
 
 	/*! \endcond */
