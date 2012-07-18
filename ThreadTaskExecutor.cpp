@@ -25,15 +25,15 @@ namespace stingray
 		}
 
 
-		void ThreadTaskExecutor::AddTask(const TaskType& task, const task_alive_token& token)
+		void ThreadTaskExecutor::AddTask(const TaskType& task, const FutureExecutionToken& token)
 		{
 			MutexLock l(_syncRoot);
-			_queue.push(std::make_pair(task, token.get_value()));
+			_queue.push(std::make_pair(task, token));
 			_condVar.Broadcast();
 		}
 
 		void ThreadTaskExecutor::AddTask(const TaskType& task)
-		{ AddTask(task, _token); }
+		{ AddTask(task, null); }
 
 
 		void ThreadTaskExecutor::Pause(bool pause)
@@ -60,7 +60,9 @@ namespace stingray
 					try
 					{
 						MutexUnlock ul(l);
-						InvokeTask(top.first, top.second);
+						ExecutionTokenPtr token = top.second.Execute();
+						if (token)
+							top.first();
 						Thread::InterruptionPoint();
 					}
 					catch(const std::exception& ex)

@@ -27,31 +27,24 @@ namespace stingray
 		protected:
 			ITaskExecutorWeakPtr	_executor;
 			FunctionType			_func;
-			task_alive_token		_token;
+			TaskLifeToken			_token;
 
 		protected:
-			FORCE_INLINE slot_base(const ITaskExecutorPtr& executor, const FunctionType& func) 
-				: _executor(executor), _func(func)
-			{ 
-				if (executor == NULL)
-					TOOLKIT_THROW(NullPointerException());
-			}
-
-			FORCE_INLINE slot_base(const ITaskExecutorPtr& executor, const FunctionType& func, const task_alive_token& token) 
-				: _executor(executor), _func(func), _token(token)
-			{ 
-				if (executor == NULL)
-					TOOLKIT_THROW(NullPointerException());
-			}
+			FORCE_INLINE slot_base(const ITaskExecutorPtr& executor, const FunctionType& func)
+				: _executor(TOOLKIT_REQUIRE_NOT_NULL(executor)), _func(func)
+			{ }
 
 			void DoAddTask(const function<void()>& func) const
-			{ 
+			{
 				ITaskExecutorPtr executor_l = this->_executor.lock();
-				if (executor_l != NULL)
-					executor_l->AddTask(func, _token); 
+				if (executor_l)
+					executor_l->AddTask(func, _token.GetExecutionToken());
 			}
 
 			FORCE_INLINE ~slot_base() { }
+
+		public:
+			TaskLifeToken GetToken() const { return _token; }
 		};
 	}
 
@@ -69,12 +62,8 @@ namespace stingray
 			: base(executor, func)
 		{ }
 
-		FORCE_INLINE slot(const ITaskExecutorPtr& executor, const function<void()>& func, const task_alive_token& token)
-			: base(executor, func, token)
-		{ }
-
 		FORCE_INLINE void operator ()() const { base::DoAddTask(_func); }
-	};		
+	};
 
 
 #define TY typename
@@ -89,10 +78,6 @@ namespace stingray
 	public: \
 		slot(const ITaskExecutorPtr& executor, const function<void(Types_)>& func) \
 			: base(executor, func) \
-		{ } \
-		\
-		slot(const ITaskExecutorPtr& executor, const function<void(Types_)>& func, const task_alive_token& token) \
-			: base(executor, func, token) \
 		{ } \
 		\
 		void operator ()(Decl_) const \

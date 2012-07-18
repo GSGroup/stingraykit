@@ -56,19 +56,22 @@ namespace stingray
 		ReachStateFunc		_reachStateFunc;
 		ListenerRefPtr		_lastListenerRef;
 		Mutex				_mutex;
-		task_alive_token	_token;
+		TaskLifeToken		_token;
 
 	public:
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc)
 			: _worker(worker), _reachStateFunc(reachStateFunc)
 		{ }
 
+		~AsyncAction()
+		{ _token.Release(); }
+
 		ListenerPtr SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
 			_lastListenerRef.reset(new ListenerRef);
 			_lastListenerRef->Ptr.reset(new Listener);
-			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListenerRef.weak()), _token);
+			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListenerRef.weak()), _token.GetExecutionToken());
 			return _lastListenerRef->Ptr;
 		}
 
@@ -127,19 +130,22 @@ namespace stingray
 		ReachStateFunc		_reachStateFunc;
 		ListenerRefPtr		_lastListenerRef;
 		Mutex				_mutex;
-		task_alive_token	_token;
+		TaskLifeToken		_token;
 
 	public:
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc)
 			: _worker(worker), _reachStateFunc(reachStateFunc)
 		{ }
 
+		~AsyncAction()
+		{ _token.Release(); }
+
 		ListenerPtr SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
 			_lastListenerRef.reset(new ListenerRef);
 			_lastListenerRef->Ptr.reset(new Listener);
-			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListenerRef.weak()), _token);
+			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListenerRef.weak()), _token.GetExecutionToken());
 			return _lastListenerRef->Ptr;
 		}
 

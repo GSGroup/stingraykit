@@ -36,58 +36,39 @@ namespace stingray
 		inline void DefaultSignalExceptionHandler(const std::exception& ex)
 		{ Logger::Error() << "Uncaught  exception in signal handler: " << diagnostic_information(ex); }
 
-		struct DeathController : public self_counter<DeathController>
-		{
-		private:
-			Mutex	_mutex;
-			bool	_dead;
-		public:
-			DeathController()
-				: _dead(false)
-			{ }
-			Mutex& GetMutex() { return _mutex; }
-			bool IsAlive() const { return !_dead; }
-			void Kill()	{ _dead = true; }
-		};
-		TOOLKIT_DECLARE_SELF_COUNT_PTR(DeathController);
-
 		template<typename FuncType>
 		struct FuncTypeWithDeathControl
 		{
 		private:
 			FuncType					_func;
-			DeathControllerSelfCountPtr	_deletionController;
+			TaskLifeToken				_token;
+
 		public:
 			FuncTypeWithDeathControl(const FuncType& func)
-				: _func(func), _deletionController(new DeathController)
+				: _func(func)
+			{ }
+			FuncTypeWithDeathControl(const FuncType& func, const TaskLifeToken& token)
+				: _func(func), _token(token)
 			{ }
 			const FuncType& Func() 	{ return _func; }
-			Mutex& GetMutex() 		{ return _deletionController->GetMutex(); }
-			bool IsAlive() const	{ return _deletionController->IsAlive(); }
-			void Kill()				{ _deletionController->Kill(); }
+			TaskLifeToken& Token()	{ return _token; }
 		};
 
 		template<typename Handlers, typename FuncType>
 		class ThreadedConnection : public ISignalConnection
 		{
 		public:
-			typedef std::pair<Handlers, Mutex>		HandlersType;
-			typedef shared_ptr<HandlersType>		HandlersPtr;
-			typedef weak_ptr<HandlersType>			HandlersWeakPtr;
-			typedef	shared_ptr<task_alive_token>	TokenPtr;
+			typedef std::pair<Handlers, Mutex>			HandlersType;
+			typedef shared_ptr<HandlersType>			HandlersPtr;
+			typedef weak_ptr<HandlersType>				HandlersWeakPtr;
 			typedef typename ISignalConnection::VTable	VTable;
 
 		private:
 			HandlersWeakPtr							_handlers;
 			typedef typename Handlers::iterator		IteratorType;
 			IteratorType							_it;
-			TokenPtr								_token;
 
 		public:
-			FORCE_INLINE ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it, const task_alive_token& token)
-				: _handlers(handlers), _it(it), _token(new task_alive_token(token))
-			{ _getVTable = &GetVTable; }
-
 			FORCE_INLINE ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it)
 				: _handlers(handlers), _it(it)
 			{ _getVTable = &GetVTable; }
@@ -105,7 +86,6 @@ namespace stingray
 			{
 				_handlers.~HandlersWeakPtr();
 				_it.~IteratorType();
-				_token.~TokenPtr();
 			}
 
 			void Disconnect()
@@ -119,15 +99,12 @@ namespace stingray
 					MutexLock l(handlers_l->second);
 					handlers_l->first.erase(_it);
 				}
-				{
-					MutexLock l(copy.GetMutex());
-					copy.Kill();
-				}
+				copy.Token().Release();
 			}
 		};
 
 	} //namespace Detail
-	
+
 	class signal_connection
 	{
 	private:

@@ -184,11 +184,10 @@ namespace stingray
 			for (typename std::vector<FuncTypeWithDeathControl>::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
 			{
 				FuncTypeWithDeathControl& func = (*it);
-				MutexLock l(func.GetMutex());
-				if (func.IsAlive())
-				{
+				ExecutionTokenPtr token = func.Token().GetExecutionToken().Execute();
+
+				if (token)
 					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(static_cast<const function<Signature>&>(func.Func()), p); );
-				}
 			}
 		}
 
@@ -210,12 +209,11 @@ namespace stingray
 		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
 		{
 			MutexLock l(_handlers->second);
-			task_alive_token t;
-			FuncType slot_f(slot<Signature>(executor, handler, t));
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_f, this->GetExceptionHandler());
+			slot<Signature> slot_func(executor, handler);
+			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_func, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(slot_f)));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), t)));
+			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(slot_func, slot_func.GetToken())));
+			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end())));
 		}
 
 		signal_connection connect(const FuncType& handler) const

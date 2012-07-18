@@ -13,12 +13,12 @@
 namespace stingray
 {
 
-	
+
 	class ThreadTaskExecutor : TOOLKIT_FINAL(ThreadTaskExecutor), public virtual ITaskExecutor
 	{
 		typedef function<void()>										TaskType;
 		typedef function<void(const std::exception&)>					ExceptionHandlerType;
-		typedef std::pair<TaskType, task_alive_token::ValueWeakPtr>		TaskPair;
+		typedef std::pair<TaskType, FutureExecutionToken>				TaskPair;
 		typedef std::queue<TaskPair, std::list<TaskPair> >				QueueType;
 
 	private:
@@ -29,15 +29,13 @@ namespace stingray
 		ConditionVariable		_condVar;
 		QueueType				_queue;
 		ExceptionHandlerType	_exceptionHandler;
-		task_alive_token		_token;
-		
 
 	public:
 		explicit ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler);
 		~ThreadTaskExecutor();
 
 		virtual void AddTask(const TaskType& task);
-		virtual void AddTask(const function<void()>& task, const task_alive_token& token);
+		virtual void AddTask(const TaskType& task, const FutureExecutionToken& token);
 		virtual void Pause(bool pause);
 
 	private:
