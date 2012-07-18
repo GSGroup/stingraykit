@@ -18,8 +18,8 @@ namespace stingray
 		{
 			virtual ~IPage() { }
 
-			virtual size_t Read(size_t offset, void* data, size_t count) = 0;
-			virtual size_t Write(size_t offset, const void* data, size_t count) = 0;
+			virtual size_t Read(u64 offset, void* data, size_t count) = 0;
+			virtual size_t Write(u64 offset, const void* data, size_t count) = 0;
 		};
 		typedef IPage Page;
 		TOOLKIT_DECLARE_PTR(Page);
@@ -28,14 +28,14 @@ namespace stingray
 		typedef std::deque<PagePtr> PagesContainer;
 
 	private:
-		size_t			_pageSize;
+		u64				_pageSize;
 		PagesContainer	_pages;
-		size_t			_startOffset, _endOffset;
+		u64				_startOffset, _endOffset;
 		Mutex			_mutex;
 		bool			_pushing, _usingStart;
 
 	public:
-		PagedBuffer(size_t pageSize) :
+		PagedBuffer(u64 pageSize) :
 			_pageSize(pageSize),
 			_startOffset(0),
 			_endOffset(0),
@@ -55,9 +55,9 @@ namespace stingray
 			}
 			ScopeExitInvoker sei(bind(&PagedBuffer::PushingFinished, this));
 
-			size_t new_end_offset, page_idx = 0, page_write_size, page_offset;
+			u64 new_end_offset, page_idx = 0, page_write_size, page_offset;
 			{
-				page_write_size = std::min(_endOffset, data.size());
+				page_write_size = std::min(_endOffset, (u64)data.size());
 				page_offset = _endOffset == 0 ? 0 : _pageSize - _endOffset;
 
 				for (; data.size() > _endOffset; _endOffset += _pageSize, ++page_idx)
@@ -67,21 +67,18 @@ namespace stingray
 			}
 			ScopeExitInvoker sei2(bind(&PagedBuffer::SetEndOffset, this, new_end_offset));
 
-			size_t data_offset = 0;
+			WriteToPage(page_idx--, page_offset, ConstByteData(data, 0, page_write_size));
 
-			WriteToPage(page_idx--, page_offset, ConstByteData(data, data_offset, page_write_size));
-			data_offset += page_write_size;
-
-			for (; data_offset < data.size(); data_offset += page_write_size, --page_idx)
+			for (u64 data_offset = page_write_size; data_offset < data.size(); data_offset += page_write_size, --page_idx)
 			{
-				page_write_size = std::min(_pageSize, data.size() - data_offset);
+				page_write_size = std::min(_pageSize, (u64)data.size() - data_offset);
 				WriteToPage(page_idx, 0, ConstByteData(data, data_offset, page_write_size));
 			}
 		}
 
 		void Get(const ByteData& data)
 		{
-			size_t page_idx = 0, page_read_size, page_offset;
+			u64 page_idx = 0, page_read_size, page_offset;
 			{
 				MutexLock l(_mutex);
 				TOOLKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
@@ -90,11 +87,11 @@ namespace stingray
 				_usingStart = true;
 
 				page_offset = _startOffset;
-				page_read_size = std::min(_pageSize - _startOffset, data.size());
+				page_read_size = std::min(_pageSize - _startOffset, (u64)data.size());
 			}
 			ScopeExitInvoker sei(bind(&PagedBuffer::ReleaseStart, this));
 
-			size_t data_offset = 0;
+			u64 data_offset = 0;
 			ReadFromPage(page_idx++, page_offset, ByteData(data, data_offset, page_read_size));
 			data_offset += page_read_size;
 
@@ -115,14 +112,14 @@ namespace stingray
 			SetStartOffset(_startOffset + size);
 		}
 
-		size_t GetSize() const
+		u64 GetSize() const
 		{
 			MutexLock l(_mutex);
 			return _pageSize * _pages.size() - _startOffset - _endOffset;
 		}
 
 	protected:
-		virtual PagePtr CreatePage(size_t size) = 0;
+		virtual PagePtr CreatePage(u64 size) = 0;
 		virtual void GCPage(PagePtr page) {}
 
 	private:
@@ -132,7 +129,7 @@ namespace stingray
 			_pushing = false;
 		}
 
-		void SetEndOffset(size_t newEndOffset)
+		void SetEndOffset(u64 newEndOffset)
 		{
 			MutexLock l(_mutex);
 			_endOffset = newEndOffset;
@@ -144,7 +141,7 @@ namespace stingray
 			_usingStart = false;
 		}
 
-		void SetStartOffset(size_t newStartOffset)
+		void SetStartOffset(u64 newStartOffset)
 		{
 			MutexLock l(_mutex);
 			_startOffset = newStartOffset;
@@ -156,7 +153,7 @@ namespace stingray
 			}
 		}
 
-		void WriteToPage(size_t pageIdxFromEnd, size_t offsetInPage, ConstByteData data)
+		void WriteToPage(u64 pageIdxFromEnd, u64 offsetInPage, ConstByteData data)
 		{
 			if (data.empty())
 				return;
@@ -170,7 +167,7 @@ namespace stingray
 				TOOLKIT_THROW("Page write failed!");
 		}
 
-		void ReadFromPage(size_t pageIdxFromStart, size_t offsetInPage, ByteData data) const
+		void ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, ByteData data) const
 		{
 			if (data.empty())
 				return;
