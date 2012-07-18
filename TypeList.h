@@ -120,14 +120,24 @@ namespace stingray
 	//////////////////////////////////////////////////////////////////////
 
 
-	template < typename FirstTypeList, typename SecondTypeList >
+	namespace Detail
+	{
+		template < typename FirstTypeList, typename SecondTypeList >
+		struct ListMerge
+		{ typedef TypeListNode<typename FirstTypeList::ValueT, typename ListMerge<typename FirstTypeList::Next, SecondTypeList>::ValueT> ValueT; };
+
+		template < typename SecondTypeList >
+		struct ListMerge<TypeListEndNode, SecondTypeList>
+		{ typedef SecondTypeList ValueT; };
+	}
+
+	template < typename TypeListOfTypeLists, typename ResultTypeList = TypeListEndNode >
 	struct TypeListMerge
-	{ typedef TypeListNode<typename FirstTypeList::ValueT, typename TypeListMerge<typename FirstTypeList::Next, SecondTypeList>::ValueT> ValueT; };
+	{ typedef typename TypeListMerge<typename TypeListOfTypeLists::Next, typename Detail::ListMerge<ResultTypeList, typename TypeListOfTypeLists::ValueT>::ValueT>::ValueT ValueT; };
 
-	template < typename SecondTypeList >
-	struct TypeListMerge<TypeListEndNode, SecondTypeList>
-	{ typedef SecondTypeList ValueT; };
-
+	template < typename ResultTypeList >
+	struct TypeListMerge<TypeListEndNode, ResultTypeList>
+	{ typedef ResultTypeList ValueT; };
 
 	template < typename TypeList >
 	struct GetTypeListLength
