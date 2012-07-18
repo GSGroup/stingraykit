@@ -32,7 +32,7 @@ namespace stingray
 		PagesContainer	_pages;
 		size_t			_startOffset, _endOffset;
 		Mutex			_mutex;
-		bool			_pushing, _popping;
+		bool			_pushing, _usingStart;
 
 	public:
 		PagedBuffer(size_t pageSize) :
@@ -40,7 +40,7 @@ namespace stingray
 			_startOffset(0),
 			_endOffset(0),
 			_pushing(false),
-			_popping(false)
+			_usingStart(false)
 		{ }
 
 		virtual ~PagedBuffer()
@@ -79,21 +79,20 @@ namespace stingray
 			}
 		}
 
-		void Pop(const ByteData& data)
+		void Get(const ByteData& data)
 		{
-			size_t new_start_offset, page_idx = 0, page_read_size, page_offset;
+			size_t page_idx = 0, page_read_size, page_offset;
 			{
 				MutexLock l(_mutex);
 				TOOLKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
 
-				TOOLKIT_CHECK(!_popping, "Previous pop has not finished yet!");
-				_popping = true;
+				TOOLKIT_CHECK(!_usingStart, "End is being used!");
+				_usingStart = true;
 
-				new_start_offset = _startOffset + data.size();
 				page_offset = _startOffset;
 				page_read_size = std::min(_pageSize - _startOffset, data.size());
 			}
-			ScopeExitInvoker sei(bind(&PagedBuffer::PoppingFinished, this, new_start_offset));
+			ScopeExitInvoker sei(bind(&PagedBuffer::ReleaseStart, this));
 
 			size_t data_offset = 0;
 			ReadFromPage(page_idx++, page_offset, ByteData(data, data_offset, page_read_size));
@@ -106,14 +105,14 @@ namespace stingray
 			}
 		}
 
-		void Skip(u64 size)
+		void Pop(u64 size)
 		{
 			MutexLock l(_mutex);
 
 			TOOLKIT_CHECK(size <= GetSize(), IndexOutOfRangeException());
-			TOOLKIT_CHECK(!_popping, "Previous pop has not finished yet!");
+			TOOLKIT_CHECK(!_usingStart, "End is being used!");
 
-			PoppingFinished(_startOffset + size);
+			SetStartOffset(_startOffset + size);
 		}
 
 		size_t GetSize() const
@@ -139,7 +138,13 @@ namespace stingray
 			_endOffset = newEndOffset;
 		}
 
-		void PoppingFinished(size_t newStartOffset)
+		void ReleaseStart()
+		{
+			MutexLock l(_mutex);
+			_usingStart = false;
+		}
+
+		void SetStartOffset(size_t newStartOffset)
 		{
 			MutexLock l(_mutex);
 			_startOffset = newStartOffset;
@@ -149,8 +154,6 @@ namespace stingray
 				GCPage(_pages.front());
 				_pages.pop_front();
 			}
-
-			_popping = false;
 		}
 
 		void WriteToPage(size_t pageIdxFromEnd, size_t offsetInPage, ConstByteData data)
