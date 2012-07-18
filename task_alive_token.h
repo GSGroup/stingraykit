@@ -36,6 +36,8 @@ namespace stingray
 		Detail::TaskLifeTokenImplPtr	_impl;
 
 	public:
+		ExecutionToken(const NullPtrType&) // always allows func execution
+		{}
 		ExecutionToken(const Detail::TaskLifeTokenImplPtr& impl) : _impl(impl)
 		{
 			if (_impl)
