@@ -25,6 +25,14 @@ namespace stingray
 			typename ToTypeList<Dependencies_>::ValueT> >::ValueT							Dependencies;
 	};
 
+	template < typename Service >
+	struct GetServiceInterfaces
+	{ typedef typename Service::ServiceInterfaces ValueT; };
+
+	template < typename Service >
+	struct GetServiceDependencies
+	{ typedef typename Service::Dependencies ValueT; };
+
 	/*! \endcond */
 
 }
