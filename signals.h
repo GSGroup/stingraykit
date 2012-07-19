@@ -187,7 +187,7 @@ namespace stingray
 				ExecutionTokenPtr token = func.Token().GetExecutionToken().Execute();
 
 				if (token)
-					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(static_cast<const function<Signature>&>(func.Func()), p); );
+					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(func.Func(), p); );
 			}
 		}
 
