@@ -67,7 +67,7 @@ namespace stingray
 
 		ExecutionTokenPtr Execute()
 		{
-			if (_impl) // empty FutureExecutionToken always allows executing func
+			if (!_impl) // empty FutureExecutionToken always allows executing func
 				return make_shared<ExecutionToken>(null);
 
 			ExecutionTokenPtr result = make_shared<ExecutionToken>(_impl);
