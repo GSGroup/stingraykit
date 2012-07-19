@@ -54,14 +54,18 @@ namespace stingray {
 				s_logger.Warning() << "Stream is paused!" << Backtrace().Get();
 				return 0;
 			}
-			s64 time_since_last = _timeSinceLastIndex.ElapsedMilliseconds();
-			_timeSinceLastIndex.Restart();
 
 			if (!_firstIndex)
 			{
 				_firstIndex = _lastIndex = milliseconds;
+				_timeSinceLastIndex.Restart();
 				return 0;
 			}
+
+			s64 time_since_last = _timeSinceLastIndex.ElapsedMilliseconds();
+			if (time_since_last == 0)
+				return _lastIndex.get();
+			_timeSinceLastIndex.Restart();
 
 			bool discontinuity = false;
 			if (milliseconds < _lastIndex.get())
