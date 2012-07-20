@@ -155,6 +155,77 @@ namespace stingray
 		}
 	};
 
+	template <>
+	class AsyncAction<void, void>
+	{
+		typedef	function<void()>		ReachStateFunc;
+
+	public:
+		class Listener
+		{
+			friend class AsyncAction<void, void>;
+
+		private:
+			bool		_done;
+
+		public:
+			signal<void()>		Done;
+
+		private:
+			Listener()
+				: _done(false), Done(bind(&Listener::DonePopulator, this, _1))
+			{ }
+
+			void SetResult()
+			{
+				signal_locker l(Done);
+				_done = true;
+			}
+
+			void DonePopulator(const function<void()>& slot)
+			{
+				if (_done)
+					slot();
+			}
+		};
+		TOOLKIT_DECLARE_PTR(Listener);
+
+	private:
+		struct ListenerRef { ListenerPtr Ptr; };
+		TOOLKIT_DECLARE_PTR(ListenerRef);
+
+		ITaskExecutorPtr	_worker;
+		ReachStateFunc		_reachStateFunc;
+		ListenerRefPtr		_lastListenerRef;
+		Mutex				_mutex;
+		task_alive_token	_token;
+
+	public:
+		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc)
+			: _worker(worker), _reachStateFunc(reachStateFunc)
+		{ }
+
+		ListenerPtr SetState()
+		{
+			MutexLock l(_mutex);
+			_lastListenerRef.reset(new ListenerRef);
+			_lastListenerRef->Ptr.reset(new Listener);
+			_worker->AddTask(bind(&AsyncAction::DoReachState, this, _lastListenerRef.weak()), _token);
+			return _lastListenerRef->Ptr;
+		}
+
+	private:
+		void DoReachState(const ListenerRefWeakPtr& listenerRefWeak)
+		{
+			ListenerRefPtr listener_ref = listenerRefWeak.lock();
+			if (!listener_ref)
+				return;
+			_reachStateFunc();
+			listener_ref->Ptr->SetResult();
+			listener_ref->Ptr.reset();
+		}
+	};
+
 
 }
 
