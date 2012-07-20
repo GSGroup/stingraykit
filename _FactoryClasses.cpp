@@ -40,7 +40,7 @@
 #include <stingray/scanner/DefaultScanParams.h>
 #include <stingray/scanner/DefaultScanResult.h>
 #include <stingray/scanner/DefaultServiceNetworkInfo.h>
-#include <stingray/scanner/LcnListMetaInfo.h>
+#include <stingray/scanner/LcnList.h>
 #include <stingray/scanner/OtherTransportInfoEntry.h>
 #include <stingray/storage/FatFileSystemProber.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
@@ -98,7 +98,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanResult);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultServiceNetworkInfo);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(LcnListMetaInfo);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(LcnList);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(OtherTransportInfoEntry);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FatFileSystemIdentity);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
