@@ -210,9 +210,10 @@ namespace stingray
 		{
 			MutexLock l(_handlers->second);
 			slot<Signature> slot_func(executor, handler);
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_func, this->GetExceptionHandler());
+			function<Signature> slot_function(slot_func);
+			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(slot_func, slot_func.GetToken())));
+			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(slot_function, slot_func.GetToken())));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end())));
 		}
 
