@@ -11,7 +11,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		struct TaskLifeTokenImpl
+		struct TaskLifeTokenImpl : public self_counter<TaskLifeTokenImpl>
 		{
 		private:
 			Mutex	_sync;
@@ -24,7 +24,7 @@ namespace stingray
 			bool IsAlive() const	{ return _alive; }
 			void Kill()				{ _alive = false; }
 		};
-		TOOLKIT_DECLARE_PTR(TaskLifeTokenImpl);
+		TOOLKIT_DECLARE_SELF_COUNT_PTR(TaskLifeTokenImpl);
 	};
 
 
@@ -33,12 +33,12 @@ namespace stingray
 		TOOLKIT_NONCOPYABLE(ExecutionToken);
 
 	private:
-		Detail::TaskLifeTokenImplPtr	_impl;
+		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
 
 	public:
 		ExecutionToken(const NullPtrType&) // always allows func execution
 		{}
-		ExecutionToken(const Detail::TaskLifeTokenImplPtr& impl) : _impl(impl)
+		ExecutionToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
 		{
 			if (_impl)
 				_impl->GetMutex().Lock();
@@ -55,14 +55,14 @@ namespace stingray
 	struct FutureExecutionToken
 	{
 	private:
-		typedef Detail::TaskLifeTokenImplPtr ImplPtr;
+		typedef Detail::TaskLifeTokenImplSelfCountPtr ImplPtr;
 		ImplPtr _impl;
 
 	public:
 		FutureExecutionToken(const NullPtrType&) // always allows func execution
 		{}
 
-		FutureExecutionToken(const Detail::TaskLifeTokenImplPtr& impl) : _impl(impl)
+		FutureExecutionToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
 		{}
 
 		ExecutionTokenPtr Execute()
@@ -81,7 +81,7 @@ namespace stingray
 	class TaskLifeToken
 	{
 	private:
-		Detail::TaskLifeTokenImplPtr _impl;
+		Detail::TaskLifeTokenImplSelfCountPtr _impl;
 
 	public:
 		TaskLifeToken() : _impl(new Detail::TaskLifeTokenImpl)
