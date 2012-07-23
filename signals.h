@@ -213,8 +213,8 @@ namespace stingray
 			function<Signature> slot_function(slot_func);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(slot_function, slot_func.GetToken())));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end())));
+			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(slot_function)));
+			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), slot_func.GetToken())));
 		}
 
 		signal_connection connect(const FuncType& handler) const
@@ -222,8 +222,9 @@ namespace stingray
 			MutexLock l(_handlers->second);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(handler)));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end())));
+			FuncTypeWithDeathControl ftdc(handler);
+			_handlers->first.push_back(FuncTypeWrapper(ftdc));
+			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), ftdc.Token())));
 		}
 
 #undef WRAP_EXCEPTION_HANDLING

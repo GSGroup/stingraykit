@@ -67,10 +67,11 @@ namespace stingray
 			HandlersWeakPtr							_handlers;
 			typedef typename Handlers::iterator		IteratorType;
 			IteratorType							_it;
+			TaskLifeToken							_token;
 
 		public:
-			FORCE_INLINE ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it)
-				: _handlers(handlers), _it(it)
+			FORCE_INLINE ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it, const TaskLifeToken& token)
+				: _handlers(handlers), _it(it), _token(token)
 			{ _getVTable = &GetVTable; }
 
 			static VTable GetVTable()
@@ -93,13 +94,11 @@ namespace stingray
 				HandlersPtr handlers_l = _handlers.lock();
 				if (!handlers_l)
 					return;
-				FuncTypeWithDeathControl<FuncType>& func_ref(*_it);
-				FuncTypeWithDeathControl<FuncType> copy(func_ref);
 				{
 					MutexLock l(handlers_l->second);
 					handlers_l->first.erase(_it);
 				}
-				copy.Token().Release();
+				_token.Release();
 			}
 		};
 
