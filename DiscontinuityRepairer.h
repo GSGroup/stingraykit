@@ -4,6 +4,7 @@
 #include <stingray/log/Logger.h>
 #include <stingray/timer/ElapsedTime.h>
 #include <stingray/timer/Time.h>
+#include <stingray/toolkit/Backtrace.h>
 #include <stingray/toolkit/optional.h>
 
 namespace stingray {
