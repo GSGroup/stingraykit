@@ -4,12 +4,13 @@
 #include <list>
 #include <typeinfo>
 
-#include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/ICreator.h>
-#include <stingray/toolkit/ServiceTraits.h>
-#include <stingray/toolkit/signals.h>
-#include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/threads/Thread.h>
+#include <stingray/toolkit/ICreator.h>
+#include <stingray/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/ServiceTraits.h>
+#include <stingray/toolkit/SystemProfiler.h>
+#include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/signals.h>
 
 
 #define TOOLKIT_SERVICE_NOT_SUPPORTED(ServiceInterface_) \
@@ -219,7 +220,11 @@ namespace stingray
 
 					try
 					{
-						shared_ptr<ServiceInterface> inst = s_serviceCreator->Create();
+						shared_ptr<ServiceInterface> inst;
+						{
+							SystemProfiler sp("[ServiceProvider] Creating " + s_serviceCreator->GetServiceTypeName() + " service", 30, 100);
+							inst = s_serviceCreator->Create();
+						}
 						GetInstancePtr() = inst;
 					}
 					catch (...)
