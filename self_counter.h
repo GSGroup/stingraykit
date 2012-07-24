@@ -45,11 +45,14 @@ namespace stingray
 		inline int value() const		{ return _value; }
 	};
 
+	struct static_cast_tag
+	{};
 
 	template < typename T >
 	class self_count_ptr : public safe_bool<self_count_ptr<T> >
 	{
 	private:
+		template<typename U> friend class self_count_ptr;
 		T*				_rawPtr;
 
 	public:
@@ -65,6 +68,11 @@ namespace stingray
 
 		FORCE_INLINE self_count_ptr(const self_count_ptr<T>& other)
 			: _rawPtr(other._rawPtr)
+		{ if (_rawPtr) _rawPtr->add_ref(); }
+
+		template<typename U>
+		FORCE_INLINE self_count_ptr(const self_count_ptr<U>& other, static_cast_tag)
+			: _rawPtr(static_cast<T*>(other._rawPtr))
 		{ if (_rawPtr) _rawPtr->add_ref(); }
 
 		FORCE_INLINE ~self_count_ptr()
