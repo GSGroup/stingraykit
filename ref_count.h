@@ -12,12 +12,6 @@
 namespace stingray
 {
 
-#ifdef HAVE_SYNC_EAA
-		typedef _Atomic_word	atomic_int_type;
-#else
-		typedef int				atomic_int_type;
-#endif
-
 
 	template < typename UserDataType >
 	class basic_ref_count_data

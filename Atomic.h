@@ -38,6 +38,13 @@ namespace stingray
 #endif
 	};
 
+#ifdef HAVE_SYNC_EAA
+	typedef _Atomic_word	atomic_int_type;
+#else
+	typedef int				atomic_int_type;
+#endif
+
+
 }
 
 /*! \endcond */
