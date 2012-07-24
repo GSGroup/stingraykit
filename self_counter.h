@@ -9,6 +9,14 @@
 
 namespace stingray
 {
+	namespace Detail
+	{
+		struct SelfCounterHelper
+		{
+			static void CheckAddRef(int count);
+			static void CheckReleaseRef(int count);
+		};
+	}
 
 	template<typename T>
 	class self_counter
@@ -25,12 +33,14 @@ namespace stingray
 		inline void add_ref()
 		{
 			atomic_int_type count = Atomic::Inc(_value);
+			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckAddRef(count));
 		}
 		inline void release_ref()
 		{
 			atomic_int_type count = Atomic::Dec(_value);
 			if (count == 0)
 				delete static_cast<const T*>(this);
+			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckReleaseRef(count));
 		}
 		inline int value() const		{ return _value; }
 	};
