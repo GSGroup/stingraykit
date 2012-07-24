@@ -59,10 +59,11 @@ namespace stingray
 			_impl = impl;
 			_impl->GetMutex().Lock();
 			_allow = _impl->IsAlive();
-			if (_allow)
-				return;
-			_impl->GetMutex().Unlock();
-			_impl.reset();
+			if (!_allow)
+			{
+				_impl->GetMutex().Unlock();
+				_impl.reset();
+			}
 		}
 	};
 
@@ -80,7 +81,7 @@ namespace stingray
 		FutureExecutionToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
 		{}
 
-		ExecutionToken& Execute(ExecutionToken& token) { token.SetImpl(null); return token; }
+		ExecutionToken& Execute(ExecutionToken& token) { token.SetImpl(_impl); return token; }
 	};
 
 
