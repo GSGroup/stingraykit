@@ -25,7 +25,6 @@ namespace stingray
 
 	void DebuggingHelper::BreakpointHere()
 	{
-		TRACER;
 	}
 
 	void DebuggingHelper::TerminateWithMessage(const std::string& str)
