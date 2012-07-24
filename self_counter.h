@@ -13,7 +13,7 @@ namespace stingray
 	template<typename T>
 	class self_counter
 	{
-		mutable int _value;
+		atomic_int_type _value;
 
 	protected:
 		~self_counter() {}
@@ -22,8 +22,16 @@ namespace stingray
 		self_counter() : _value(1)
 		{}
 
-		inline void add_ref() const		{ Atomic::Inc(_value); }
-		inline void release_ref() const	{ if (Atomic::Dec(_value) == 0) delete static_cast<const T*>(this); }
+		inline void add_ref()
+		{
+			atomic_int_type count = Atomic::Inc(_value);
+		}
+		inline void release_ref()
+		{
+			atomic_int_type count = Atomic::Dec(_value);
+			if (count == 0)
+				delete static_cast<const T*>(this);
+		}
 		inline int value() const		{ return _value; }
 	};
 
