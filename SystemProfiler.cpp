@@ -1,0 +1,53 @@
+#include <stingray/toolkit/SystemProfiler.h>
+
+#include <stingray/log/Logger.h>
+#ifdef PLATFORM_POSIX
+#	include <stingray/platform/posix/toolkit/SystemException.h>
+#endif
+#include <time.h>
+
+
+namespace stingray
+{
+
+#ifdef PLATFORM_POSIX
+	class SystemProfiler::Impl
+	{
+	public:
+		s64 GetMicroseconds() const
+		{
+			struct timespec ts = {};
+			if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
+				throw SystemException("clock_gettime");
+			return (s64)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+		}
+	};
+
+#else
+
+	class SystemProfiler::Impl
+	{
+	public:
+		s64 GetMicroseconds() const { return 0; }
+	};
+
+#endif
+
+
+	SystemProfiler::SystemProfiler(const std::string& message, s64 thresholdMs, s64 criticalMs)
+		: _impl(new Impl()), _message(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
+	{ _start = _impl->GetMicroseconds(); }
+
+	SystemProfiler::~SystemProfiler()
+	{
+		s64 elapsed_ms = (_impl->GetMicroseconds() - _start) / 1000;
+
+		if (elapsed_ms < _thresholdMs)
+			return;
+
+		Logger::StreamAccessProxy sac = (_criticalMs > _thresholdMs && elapsed_ms > _criticalMs) ? Logger::Warning() : Logger::Info();
+
+		sac << _message << ": " << elapsed_ms << " ms";
+	}
+
+}
