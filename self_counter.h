@@ -3,7 +3,6 @@
 
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/safe_bool.h>
-
 #include <stingray/toolkit/exception.h>
 
 #define TOOLKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
@@ -20,7 +19,8 @@ namespace stingray
 		~self_counter() {}
 
 	public:
-		self_counter(): _value(1) {}
+		self_counter() : _value(1)
+		{}
 
 		inline void add_ref() const		{ Atomic::Inc(_value); }
 		inline void release_ref() const	{ if (Atomic::Dec(_value) == 0) delete static_cast<const T*>(this); }
@@ -38,11 +38,12 @@ namespace stingray
 		typedef T ValueType;
 
 		FORCE_INLINE self_count_ptr(T* rawPtr = 0)
-			: _rawPtr(rawPtr) { }
+			: _rawPtr(rawPtr)
+		{}
 
 		self_count_ptr(const NullPtrType&)
 			: _rawPtr()
-		{ }
+		{}
 
 		FORCE_INLINE self_count_ptr(const self_count_ptr<T>& other)
 			: _rawPtr(other._rawPtr)
@@ -53,7 +54,6 @@ namespace stingray
 			if (_rawPtr)
 				_rawPtr->release_ref();
 		}
-
 
 		FORCE_INLINE self_count_ptr<T>& operator = (const self_count_ptr<T>& other)
 		{
@@ -66,7 +66,7 @@ namespace stingray
 		FORCE_INLINE bool operator != (T* ptr) const							{ return !(*this == ptr); }
 		FORCE_INLINE bool operator == (const self_count_ptr<T>& other) const	{ return other == _rawPtr; }
 		FORCE_INLINE bool operator != (const self_count_ptr<T>& other) const	{ return !(*this == other); }
-		FORCE_INLINE bool boolean_test() const { return _rawPtr != 0; }
+		FORCE_INLINE bool boolean_test() const									{ return _rawPtr != 0; }
 
 		FORCE_INLINE void reset(T* ptr = 0)
 		{
@@ -82,7 +82,6 @@ namespace stingray
 		FORCE_INLINE bool unique() const		{ return _rawPtr? _rawPtr->value() == 1: true; }
 
 	private:
-
 		FORCE_INLINE void check_ptr() const
 		{
 			if (!_rawPtr)
