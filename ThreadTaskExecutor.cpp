@@ -60,8 +60,8 @@ namespace stingray
 					try
 					{
 						MutexUnlock ul(l);
-						ExecutionTokenPtr token = top.second.Execute();
-						if (token)
+						ExecutionToken token;
+						if (top.second.Execute(token))
 							top.first();
 						Thread::InterruptionPoint();
 					}

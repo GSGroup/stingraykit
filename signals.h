@@ -184,9 +184,9 @@ namespace stingray
 			for (typename std::vector<FuncTypeWithDeathControl>::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
 			{
 				FuncTypeWithDeathControl& func = (*it);
-				ExecutionTokenPtr token = func.Token().GetExecutionToken().Execute();
 
-				if (token)
+				ExecutionToken token;
+				if (func.Token().Execute(token))
 					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(func.Func(), p); );
 			}
 		}
@@ -222,9 +222,9 @@ namespace stingray
 			MutexLock l(_handlers->second);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			FuncTypeWithDeathControl ftdc(handler);
-			_handlers->first.push_back(FuncTypeWrapper(ftdc));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), ftdc.Token())));
+			TaskLifeToken token;
+			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(handler, token.GetExecutionToken())));
+			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), token)));
 		}
 
 #undef WRAP_EXCEPTION_HANDLING

@@ -41,17 +41,14 @@ namespace stingray
 		{
 		private:
 			FuncType					_func;
-			TaskLifeToken				_token;
+			FutureExecutionToken		_token;
 
 		public:
-			FuncTypeWithDeathControl(const FuncType& func)
-				: _func(func)
-			{ }
-			FuncTypeWithDeathControl(const FuncType& func, const TaskLifeToken& token)
+			FuncTypeWithDeathControl(const FuncType& func, const FutureExecutionToken& token = null)
 				: _func(func), _token(token)
 			{ }
 			const FuncType& Func() 	{ return _func; }
-			TaskLifeToken& Token()	{ return _token; }
+			FutureExecutionToken& Token()	{ return _token; }
 		};
 
 		template<typename Handlers, typename FuncType>

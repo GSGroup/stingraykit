@@ -28,28 +28,43 @@ namespace stingray
 	};
 
 
-	struct ExecutionToken
+	struct FutureExecutionToken;
+	struct ExecutionToken : public safe_bool<ExecutionToken>
 	{
 		TOOLKIT_NONCOPYABLE(ExecutionToken);
 
 	private:
+		bool									_allow;
 		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
 
 	public:
-		ExecutionToken(const NullPtrType&) // always allows func execution
+		ExecutionToken() : _allow(false)
 		{}
-		ExecutionToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
-		{
-			if (_impl)
-				_impl->GetMutex().Lock();
-		}
 		~ExecutionToken()
 		{
 			if (_impl)
 				_impl->GetMutex().Unlock();
 		}
+		bool boolean_test() const	{ return _allow; }
+
+	private:
+		friend struct FutureExecutionToken;
+		void SetImpl(const Detail::TaskLifeTokenImplSelfCountPtr& impl)
+		{
+			if (!impl)
+			{
+				_allow = true;
+				return;
+			}
+			_impl = impl;
+			_impl->GetMutex().Lock();
+			_allow = _impl->IsAlive();
+			if (_allow)
+				return;
+			_impl->GetMutex().Unlock();
+			_impl.reset();
+		}
 	};
-	TOOLKIT_DECLARE_PTR(ExecutionToken);
 
 
 	struct FutureExecutionToken
@@ -65,16 +80,7 @@ namespace stingray
 		FutureExecutionToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
 		{}
 
-		ExecutionTokenPtr Execute()
-		{
-			if (!_impl) // empty FutureExecutionToken always allows executing func
-				return make_shared<ExecutionToken>(null);
-
-			ExecutionTokenPtr result = make_shared<ExecutionToken>(_impl);
-			if (!_impl->IsAlive())
-				return null;
-			return result;
-		}
+		ExecutionToken& Execute(ExecutionToken& token) { token.SetImpl(null); return token; }
 	};
 
 

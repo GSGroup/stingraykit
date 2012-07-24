@@ -53,8 +53,8 @@ namespace stingray
 				{
 					MutexUnlock ul(l);
 					//Tracer tracer("ThreadlessTaskExecutor::ExecuteTasks: executing pending task"); //fixme: dependency to log/
-					ExecutionTokenPtr token = top.second.Execute();
-					if (token)
+					ExecutionToken token;
+					if (top.second.Execute(token))
 						top.first();
 					Thread::InterruptionPoint();
 				}
