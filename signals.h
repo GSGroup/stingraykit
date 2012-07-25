@@ -138,16 +138,16 @@ namespace stingray
 
 	protected:
 		typedef SendCurrentState_<Signature>							SendCurrentStateBase;
-		typedef typename SendCurrentStateBase::SendCurrentStateFunc	SendCurrentStateFunc;
-		typedef typename ExceptionHandler::ExceptionHandlerFunc		ExceptionHandlerFunc;
+		typedef typename SendCurrentStateBase::SendCurrentStateFunc		SendCurrentStateFunc;
+		typedef typename ExceptionHandler::ExceptionHandlerFunc			ExceptionHandlerFunc;
 
 	private:
-		typedef Detail::FuncTypeWithDeathControl<FuncType>			FuncTypeWithDeathControl;
+		typedef Detail::FuncTypeWithDeathControl						FuncTypeWithDeathControl;
 
 		typedef intrusive_list_node_wrapper<FuncTypeWithDeathControl>	FuncTypeWrapper;
 		typedef intrusive_list<FuncTypeWrapper>							Handlers;
 
-		typedef Detail::ThreadedConnection<Handlers, FuncType>	Connection;
+		typedef Detail::ThreadedConnection<Handlers>			Connection;
 		typedef typename Connection::HandlersType				HandlersType;
 
 		shared_ptr<HandlersType>								_handlers;
@@ -187,7 +187,7 @@ namespace stingray
 
 				ExecutionToken token;
 				if (func.Token().Execute(token))
-					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(func.Func(), p); );
+					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(func.Func().ToFunction<Signature>(), p); );
 			}
 		}
 
@@ -213,7 +213,7 @@ namespace stingray
 			function<Signature> slot_function(slot_func);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(slot_function)));
+			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(slot_function))));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), slot_func.GetToken())));
 		}
 
@@ -223,7 +223,7 @@ namespace stingray
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
 			TaskLifeToken token;
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(handler, token.GetExecutionToken())));
+			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(handler), token.GetExecutionToken())));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), token)));
 		}
 

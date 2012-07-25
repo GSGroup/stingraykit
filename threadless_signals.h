@@ -11,22 +11,22 @@ namespace stingray
 	namespace Detail
 	{
 
-		template<typename Handlers, typename FuncType>
 		class ThreadlessConnection : public ISignalConnection
 		{
 		public:
-			typedef Handlers							HandlersType;
-			typedef light_shared_ptr<HandlersType>		HandlersPtr;
-			typedef light_weak_ptr<HandlersType>		HandlersWeakPtr;
-			typedef typename ISignalConnection::VTable	VTable;
+			typedef intrusive_list_node_wrapper<function_storage>	FuncTypeWrapper;
+			typedef intrusive_list<FuncTypeWrapper>					Handlers;
+			typedef light_shared_ptr<Handlers>						HandlersPtr;
+			typedef light_weak_ptr<Handlers>						HandlersWeakPtr;
+			typedef ISignalConnection::VTable						VTable;
+			typedef Handlers::iterator								IteratorType;
 
 		private:
 			HandlersWeakPtr									_handlers;
-			typedef typename Handlers::iterator				IteratorType;
 			IteratorType									_it;
 
 		public:
-			FORCE_INLINE ThreadlessConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it)
+			FORCE_INLINE ThreadlessConnection(const HandlersWeakPtr& handlers, IteratorType it)
 				: _handlers(handlers), _it(it)
 			{ _getVTable = &GetVTable; }
 
@@ -72,12 +72,11 @@ namespace stingray
 		typedef typename SendCurrentStateBase::SendCurrentStateFunc	SendCurrentStateFunc;
 
 	private:
-		typedef intrusive_list_node_wrapper<FuncType>				FuncTypeWrapper;
+		typedef intrusive_list_node_wrapper<function_storage>		FuncTypeWrapper;
 		typedef intrusive_list<FuncTypeWrapper>						Handlers;
-		typedef Detail::ThreadlessConnection<Handlers, FuncType>	Connection;
-		typedef typename Connection::HandlersType					HandlersType;
+		typedef Detail::ThreadlessConnection						Connection;
 
-		mutable light_shared_ptr<HandlersType>							_handlers;
+		mutable light_shared_ptr<Handlers>							_handlers;
 
 	protected:
 		FORCE_INLINE threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState)
@@ -94,16 +93,15 @@ namespace stingray
 			if (!_handlers)
 				return;
 
-			std::vector<FuncType> handlers;
+			std::vector<function_storage> handlers;
 			handlers.reserve(_handlers->size());
 			std::copy(_handlers->begin(), _handlers->end(), std::back_inserter(handlers));
 
-			typename std::vector<FuncType>::iterator it = handlers.begin();
+			typename std::vector<function_storage>::iterator it = handlers.begin();
 			for (; it != handlers.end(); ++it)
 			{
-				const FuncType& func = (*it);
 				try
-				{ FunctorInvoker::Invoke(static_cast<const function<Signature>&>(func), p); }
+				{ FunctorInvoker::Invoke(it->ToFunction<Signature>(), p); }
 				catch (const std::exception& ex)
 				{ exceptionHandler(ex); }
 			}
@@ -124,7 +122,7 @@ namespace stingray
 			this->DoSendCurrentState(wrapped_slot);
 			if (!_handlers)
 				_handlers.reset(new Handlers);
-			_handlers->push_back(FuncTypeWrapper(slot_f));
+			_handlers->push_back(FuncTypeWrapper(function_storage(slot_f)));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end())));
 		}
 
@@ -134,7 +132,7 @@ namespace stingray
 			this->DoSendCurrentState(wrapped_slot);
 			if (!_handlers)
 				_handlers.reset(new Handlers);
-			_handlers->push_back(FuncTypeWrapper(handler));
+			_handlers->push_back(FuncTypeWrapper(function_storage(handler)));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end())));
 		}
 	};

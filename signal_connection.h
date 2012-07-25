@@ -36,22 +36,21 @@ namespace stingray
 		inline void DefaultSignalExceptionHandler(const std::exception& ex)
 		{ Logger::Error() << "Uncaught  exception in signal handler: " << diagnostic_information(ex); }
 
-		template<typename FuncType>
 		struct FuncTypeWithDeathControl
 		{
 		private:
-			FuncType					_func;
-			FutureExecutionToken		_token;
+			function_storage		_func;
+			FutureExecutionToken	_token;
 
 		public:
-			FuncTypeWithDeathControl(const FuncType& func, const FutureExecutionToken& token = null)
+			FuncTypeWithDeathControl(const function_storage& func, const FutureExecutionToken& token = null)
 				: _func(func), _token(token)
 			{ }
-			const FuncType& Func() 	{ return _func; }
+			const function_storage& Func() 	{ return _func; }
 			FutureExecutionToken& Token()	{ return _token; }
 		};
 
-		template<typename Handlers, typename FuncType>
+		template<typename Handlers>
 		class ThreadedConnection : public ISignalConnection
 		{
 		public:
