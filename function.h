@@ -1,7 +1,6 @@
 #ifndef __GS_DVRLIB_TOOLKIT_FUNCTION_H__
 #define __GS_DVRLIB_TOOLKIT_FUNCTION_H__
 
-
 #include <stingray/toolkit/function_info.h>
 #include <stingray/toolkit/FunctorInvoker.h>
 #include <stingray/toolkit/self_counter.h>
@@ -48,32 +47,39 @@ namespace stingray
 			};
 		};
 
-		template < typename Signature_ >
-		struct IInvokable : public self_counter<IInvokable<Signature_> >
+		struct IInvokableBase : public self_counter<IInvokableBase>
 		{
+			struct VTable
+			{
+				typedef void DtorFunc(IInvokableBase *self);
+
+				DtorFunc	*Dtor;
+				void		*Invoke;
+
+				VTable(DtorFunc *dtor, void *invoke) : Dtor(dtor), Invoke(invoke) { }
+			};
+			typedef VTable GetVTableFunc();
+			GetVTableFunc	*_getVTable;
+
+			inline IInvokableBase(GetVTableFunc* func) : _getVTable(func) {}
+			inline ~IInvokableBase() { _getVTable().Dtor(this); }
+		};
+
+		template < typename Signature_ >
+		struct IInvokable : public IInvokableBase
+		{
+			typedef IInvokableBase									base;
 			typedef Signature_										Signature;
 			typedef typename function_info<Signature>::RetType		RetType;
 			typedef typename function_info<Signature>::ParamTypes	ParamTypes;
 
-			struct VTable
-			{
-				typedef RetType InvokeFunc(IInvokable *self, const Tuple<ParamTypes>& p);
-				typedef void DtorFunc(IInvokable *self);
+			typedef RetType InvokeFunc(IInvokable *self, const Tuple<ParamTypes>& p);
 
-				InvokeFunc		*Invoke;
-				DtorFunc		*Dtor;
-
-				VTable(InvokeFunc *invoke, DtorFunc *dtor) : Invoke(invoke), Dtor(dtor) { }
-			};
-
-			typedef VTable GetVTableFunc();
-			GetVTableFunc	*_getVTable;
-
-			inline IInvokable(): _getVTable(0) {}
-			inline ~IInvokable() { _getVTable().Dtor(this); }
+			inline IInvokable(GetVTableFunc* func) : base(func) {}
 		};
 
 
+		// TODO: replace specialization with SFINAE?
 		template < typename Signature, typename FunctorType, bool HasReturnType = !SameType<typename function_info<Signature>::RetType, void>::Value >
 		class Invokable : public IInvokable<Signature>
 		{
@@ -82,21 +88,24 @@ namespace stingray
 			typedef IInvokable<Signature>		BaseType;
 			typedef typename BaseType::VTable	VTable;
 
+		public:
+			typedef typename BaseType::InvokeFunc InvokeFunc;
+
 		private:
 			FunctorType	_func;
 
 		public:
 			FORCE_INLINE Invokable(const FunctorType& func)
-				: _func(func)
-			{ BaseType::_getVTable = &GetVTable; }
+				: BaseType(&GetVTable), _func(func)
+			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&Invoke, &Dtor); }
+			{ return VTable(&Dtor, (void*)&Invoke); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
 			{ return FunctorInvoker::Invoke<typename FunctorTypeTransformer<Signature, FunctorType>::ValueT>(static_cast<Invokable *>(self)->_func, p); }
 
-			static inline void Dtor(BaseType *self)
+			static inline void Dtor(IInvokableBase *self)
 			{ static_cast<Invokable *>(self)->_func.~FunctorType(); }
 		};
 
@@ -108,21 +117,24 @@ namespace stingray
 			typedef IInvokable<Signature>		BaseType;
 			typedef typename BaseType::VTable	VTable;
 
+		public:
+			typedef typename BaseType::InvokeFunc InvokeFunc;
+
 		private:
 			FunctorType	_func;
 
 		public:
 			FORCE_INLINE Invokable(const FunctorType& func)
-				: _func(func)
-			{ BaseType::_getVTable = &GetVTable; }
+				: BaseType(&GetVTable), _func(func)
+			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&Invoke, &Dtor); }
+			{ return VTable(&Dtor, (void*)&Invoke); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
 			{ FunctorInvoker::Invoke<typename FunctorTypeTransformer<Signature, FunctorType>::ValueT>(static_cast<Invokable *>(self)->_func, p); }
 
-			static inline void Dtor(BaseType *self)
+			static inline void Dtor(IInvokableBase *self)
 			{ static_cast<Invokable *>(self)->_func.~FunctorType(); }
 		};
 
@@ -138,6 +150,7 @@ namespace stingray
 
 	protected:
 		typedef Detail::IInvokable<Signature>					InvokableType;
+		typedef typename InvokableType::InvokeFunc				InvokeFunc;
 
 		self_count_ptr<InvokableType>	_invokable;
 
@@ -149,16 +162,20 @@ namespace stingray
 		{ }
 
 		FORCE_INLINE RetType Invoke(const Tuple<ParamTypes>& p) const
-		{ return _invokable->_getVTable().Invoke(_invokable.get(), p); }
+		{
+			InvokeFunc *func = (InvokeFunc*)_invokable->_getVTable().Invoke;
+			return func(_invokable.get(), p);
+		}
 	};
 
-	
 	template < typename RetType, typename ParamTypes, size_t ParamCount = GetTypeListLength<ParamTypes>::Value >
 	struct FunctionConstructor;
 
 	template < typename R >
 	class function<R()> : public function_base<R()>
 	{
+		typedef function_base<R()> BaseType;
+
 	public:
 		template < typename FunctorType >
 		FORCE_INLINE function(const FunctorType& func)
@@ -183,6 +200,7 @@ namespace stingray
 	template < typename R, ParamTypenames_ > \
 	class function<R(ParamTypes_)> : public function_base<R(ParamTypes_)> \
 	{ \
+		typedef function_base<R(ParamTypes_)> BaseType; \
 	public: \
 		template < typename FunctorType > \
 		function(const FunctorType& func) \
