@@ -140,6 +140,7 @@ namespace stingray
 
 	}
 
+	class function_storage;
 
 	template < typename Signature >
 	class function_base : public function_info<Signature>
@@ -166,6 +167,11 @@ namespace stingray
 			InvokeFunc *func = (InvokeFunc*)_invokable->_getVTable().Invoke;
 			return func(_invokable.get(), p);
 		}
+
+	private:
+		friend class function_storage;
+		explicit function_base(const self_count_ptr<InvokableType>& ptr) : _invokable(ptr)
+		{}
 	};
 
 	template < typename RetType, typename ParamTypes, size_t ParamCount = GetTypeListLength<ParamTypes>::Value >
@@ -183,10 +189,15 @@ namespace stingray
 		{ }
 
 		FORCE_INLINE R operator ()() const
-		{ 
+		{
 			Tuple<TypeList_0> p;
 			return this->Invoke(p);
 		}
+
+	private:
+		friend class function_storage;
+		explicit function(const BaseType& base) : BaseType(base)
+		{}
 	};
 
 	template < typename RetType, typename ParamTypes >
@@ -212,6 +223,10 @@ namespace stingray
 			Tuple<TYPELIST(ParamTypes_)> p(ParamUsage_); \
 			return this->Invoke(p); \
 		} \
+	private: \
+		friend class function_storage; \
+		explicit function(const BaseType& base) : BaseType(base) \
+		{} \
 	}; \
 	template < typename RetType, typename ParamTypes > \
 	struct FunctionConstructor<RetType, ParamTypes, ParamsCount_ > \
@@ -231,7 +246,27 @@ namespace stingray
 	DETAIL_TOOLKIT_DECLARE_FUNCTION(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8), PT(9), PT(10)));
 
 #undef TY
-	
+
+	class function_storage
+	{
+	private:
+		self_count_ptr<Detail::IInvokableBase>	_invokable;
+
+	public:
+		template<typename Signature>
+		explicit function_storage(const function<Signature> &func) : _invokable(func._invokable, static_cast_tag())
+		{ }
+
+		template<typename Signature>
+		function<Signature> ToFunction() const
+		{
+			typedef typename function_base<Signature>::InvokableType TargetInvokable;
+			self_count_ptr<TargetInvokable> ptr(_invokable, static_cast_tag());
+			return function<Signature>(function_base<Signature>(ptr));
+		}
+	};
+
+
 }
 
 /*! \endcond */
