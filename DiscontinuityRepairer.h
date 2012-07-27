@@ -82,7 +82,9 @@ namespace stingray {
 				}
 			}
 
-			if (discontinuity && !_allowDiscontinuity)
+			if (discontinuity && _allowDiscontinuity)
+				s_logger.Info() << "Skipping allowed discontinuity";
+			else if (discontinuity)
 			{
 				s64 gap = _lastIndex.get() + time_since_last - milliseconds;
 				if (discontinuityValue != 0)
