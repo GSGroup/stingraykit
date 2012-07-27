@@ -3,6 +3,7 @@
 
 
 #include <stingray/threads/Thread.h>
+#include <stingray/timer/Timer.h>
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/signals.h>
@@ -52,15 +53,20 @@ namespace stingray
 		struct ListenerRef { ListenerPtr Ptr; };
 		TOOLKIT_DECLARE_PTR(ListenerRef);
 
-		ITaskExecutorPtr	_worker;
-		ReachStateFunc		_reachStateFunc;
-		ListenerRefPtr		_lastListenerRef;
-		Mutex				_mutex;
-		TaskLifeToken		_token;
+		ITaskExecutorPtr				_worker;
+		ReachStateFunc					_reachStateFunc;
+		ExecutionDeferrerWithTimerPtr	_deferrer;
+		ListenerRefPtr					_lastListenerRef;
+		Mutex		  			 	 	_mutex;
+		TaskLifeToken 			  		_token;
 
 	public:
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc)
 			: _worker(worker), _reachStateFunc(reachStateFunc)
+		{ }
+
+		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc, size_t deferTimeoutMs)
+			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", deferTimeoutMs))
 		{ }
 
 		~AsyncAction()
@@ -69,13 +75,22 @@ namespace stingray
 		ListenerPtr SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
+
 			_lastListenerRef.reset(new ListenerRef);
 			_lastListenerRef->Ptr.reset(new Listener);
-			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListenerRef.weak()), _token.GetExecutionToken());
+
+			if (!_deferrer)
+				ScheduleReachState(state, _lastListenerRef.weak());
+			else
+				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastListenerRef.weak()));
+
 			return _lastListenerRef->Ptr;
 		}
 
 	private:
+		void ScheduleReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
+		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, state, listenerRefWeak), _token.GetExecutionToken()); }
+
 		void DoReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
 		{
 			ListenerRefPtr listener_ref = listenerRefWeak.lock();
@@ -126,15 +141,20 @@ namespace stingray
 		struct ListenerRef { ListenerPtr Ptr; };
 		TOOLKIT_DECLARE_PTR(ListenerRef);
 
-		ITaskExecutorPtr	_worker;
-		ReachStateFunc		_reachStateFunc;
-		ListenerRefPtr		_lastListenerRef;
-		Mutex				_mutex;
-		TaskLifeToken		_token;
+		ITaskExecutorPtr				_worker;
+		ReachStateFunc					_reachStateFunc;
+		ExecutionDeferrerWithTimerPtr	_deferrer;
+		ListenerRefPtr					_lastListenerRef;
+		Mutex							_mutex;
+		TaskLifeToken					_token;
 
 	public:
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc)
 			: _worker(worker), _reachStateFunc(reachStateFunc)
+		{ }
+
+		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc, size_t deferTimeoutMs)
+			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", deferTimeoutMs))
 		{ }
 
 		~AsyncAction()
@@ -145,11 +165,19 @@ namespace stingray
 			MutexLock l(_mutex);
 			_lastListenerRef.reset(new ListenerRef);
 			_lastListenerRef->Ptr.reset(new Listener);
-			_worker->AddTask(bind(&AsyncAction::DoReachState, this, state, _lastListenerRef.weak()), _token.GetExecutionToken());
+
+			if (!_deferrer)
+				ScheduleReachState(state, _lastListenerRef.weak());
+			else
+				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastListenerRef.weak()));
+
 			return _lastListenerRef->Ptr;
 		}
 
 	private:
+		void ScheduleReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
+		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, state, listenerRefWeak), _token.GetExecutionToken()); }
+
 		void DoReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
 		{
 			ListenerRefPtr listener_ref = listenerRefWeak.lock();
@@ -200,16 +228,22 @@ namespace stingray
 		struct ListenerRef { ListenerPtr Ptr; };
 		TOOLKIT_DECLARE_PTR(ListenerRef);
 
-		ITaskExecutorPtr	_worker;
-		ReachStateFunc		_reachStateFunc;
-		ListenerRefPtr		_lastListenerRef;
-		Mutex				_mutex;
-		TaskLifeToken		_token;
+		ITaskExecutorPtr				_worker;
+		ReachStateFunc					_reachStateFunc;
+		ExecutionDeferrerWithTimerPtr	_deferrer;
+		ListenerRefPtr					_lastListenerRef;
+		Mutex							_mutex;
+		TaskLifeToken					_token;
 
 	public:
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc)
 			: _worker(worker), _reachStateFunc(reachStateFunc)
 		{ }
+
+		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc, size_t deferTimeoutMs)
+			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", deferTimeoutMs))
+		{ }
+
 		~AsyncAction()
 		{ _token.Release(); }
 
@@ -218,11 +252,19 @@ namespace stingray
 			MutexLock l(_mutex);
 			_lastListenerRef.reset(new ListenerRef);
 			_lastListenerRef->Ptr.reset(new Listener);
-			_worker->AddTask(bind(&AsyncAction::DoReachState, this, _lastListenerRef.weak()), _token.GetExecutionToken());
+
+			if (!_deferrer)
+				ScheduleReachState(_lastListenerRef.weak());
+			else
+				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, _lastListenerRef.weak()));
+
 			return _lastListenerRef->Ptr;
 		}
 
 	private:
+		void ScheduleReachState(const ListenerRefWeakPtr& listenerRefWeak)
+		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, listenerRefWeak), _token.GetExecutionToken()); }
+
 		void DoReachState(const ListenerRefWeakPtr& listenerRefWeak)
 		{
 			ListenerRefPtr listener_ref = listenerRefWeak.lock();
