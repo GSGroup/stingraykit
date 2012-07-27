@@ -30,8 +30,6 @@ namespace stingray {
 			if (paused == _paused)
 				return;
 
-			s_logger.Warning() << "Pausing: " << Backtrace().Get();
-
 			if (paused)
 			{
 				_timeSinceLastIndex.Restart();
