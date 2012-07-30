@@ -173,7 +173,15 @@ namespace stingray
 
 		template < typename T >
 		const T& RequireNotNull(const T& obj, const char* expr, const char* file, size_t line, const char* func, int dummy = 42)
-		{ if (!TestNull(obj)) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
+		{
+			if (!TestNull(obj))
+			{
+				DebuggingHelper::BreakpointHere();
+				throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func);
+			}
+			else
+				return obj;
+		}
 	}
 
 
