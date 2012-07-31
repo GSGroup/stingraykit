@@ -163,24 +163,22 @@ namespace stingray
 		{ static bool Test(const T& val)		{ return val; } };
 
 		template < typename T >
-		bool TestNull(const T& val) { return NullTester<T>::Test(val); }
+		bool IsNotNull(const T& val) { return NullTester<T>::Test(val); }
 
 		/*
 		template < typename T >
 		T& RequireNotNull(T& obj, const char* expr, const char* file, size_t line, const char* func)
-		{ if (!TestNull(obj)) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
+		{ if (!IsNotNull(obj)) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
 		*/
 
 		template < typename T >
 		const T& RequireNotNull(const T& obj, const char* expr, const char* file, size_t line, const char* func, int dummy = 42)
 		{
-			if (!TestNull(obj))
-			{
-				DebuggingHelper::BreakpointHere();
-				throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func);
-			}
-			else
+			if (IsNotNull(obj))
 				return obj;
+
+			DebuggingHelper::BreakpointHere();
+			throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func);
 		}
 	}
 
