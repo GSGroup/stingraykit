@@ -59,8 +59,8 @@ namespace stingray
 		ObservableDeque(): CollectionChanged(bind(&ObservableDeque::send_state, this, _1)) {}
 		~ObservableDeque()	{ signal_locker l(CollectionChanged); erase(begin(), end()); }
 
-		iterator begin() const	{ return iterator(const_cast<ContainerType&>(_container).begin()); }
-		iterator end() const	{ return iterator(const_cast<ContainerType&>(_container).end()); }
+		iterator begin() const				{ return iterator(const_cast<ContainerType&>(_container).begin()); }
+		iterator end() const				{ return iterator(const_cast<ContainerType&>(_container).end()); }
 
 		size_t size() const					{ return _container.size(); }
 		bool empty() const					{ return _container.empty(); }
