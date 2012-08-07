@@ -60,8 +60,9 @@ namespace stingray
 			typedef typename ISignalConnection::VTable	VTable;
 
 		private:
-			HandlersWeakPtr							_handlers;
 			typedef typename Handlers::iterator		IteratorType;
+
+			HandlersWeakPtr							_handlers;
 			IteratorType							_it;
 			TaskLifeToken							_token;
 
@@ -81,8 +82,9 @@ namespace stingray
 
 			void Dtor()
 			{
-				_handlers.~HandlersWeakPtr();
+				_token.~TaskLifeToken();
 				_it.~IteratorType();
+				_handlers.~HandlersWeakPtr();
 			}
 
 			void Disconnect()
