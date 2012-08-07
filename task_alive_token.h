@@ -3,6 +3,7 @@
 
 
 #include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/Final.h>
 #include <stingray/threads/Thread.h>
 
 
@@ -85,7 +86,7 @@ namespace stingray
 	};
 
 
-	class TaskLifeToken
+	class TaskLifeToken : TOOLKIT_FINAL(TaskLifeToken)
 	{
 	private:
 		Detail::TaskLifeTokenImplSelfCountPtr _impl;
