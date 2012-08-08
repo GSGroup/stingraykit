@@ -5,6 +5,7 @@
 #include <climits>
 
 #include <stingray/toolkit/Singleton.h>
+#include <stingray/toolkit/exception.h>
 
 /*! \cond GS_INTERNAL */
 
