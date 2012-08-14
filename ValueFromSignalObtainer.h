@@ -25,6 +25,7 @@ namespace stingray
 		ValuesFromSignalCollector() : _val(new Builder) { }
 		
 		void operator() (const ValueType& val) const { (*_val) % val; }
+		void operator() (CollectionOp op, const ValueType& val) const { TOOLKIT_CHECK(op == CollectionOp::ItemAdded, "Invalid CollectionOp!"); (*_val) % val; }
 		const CollectionType& GetValues() const { return *_val; }
 	};
 
