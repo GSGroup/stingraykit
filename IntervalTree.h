@@ -268,7 +268,7 @@ namespace stingray
 		void get_intersecting(const PointType& p, OutputIter it) const
 		{
 			for (const_iterator i = begin(); i != end(); ++i)
-				if (IntervalPointsGetter::GetLeft(*i) < p && p < IntervalPointsGetter::GetRight(*i))
+				if (IntervalPointsGetter::GetLeft(*i) <= p && p < IntervalPointsGetter::GetRight(*i))
 					*it++ = *i;
 		}
 
@@ -283,26 +283,6 @@ namespace stingray
 		template < typename OutputIter >
 		void get_intersecting(const T& val, OutputIter it) const
 		{ get_intersecting(IntervalPointsGetter::GetLeft(val), IntervalPointsGetter::GetRight(val)); }
-
-		template < typename OutputIter >
-		void get_intersecting_nonstrict(const PointType& p, OutputIter it) const
-		{
-			for (const_iterator i = begin(); i != end(); ++i)
-				if (IntervalPointsGetter::GetLeft(*i) <= p && p <= IntervalPointsGetter::GetRight(*i))
-					*it++ = *i;
-		}
-
-		template < typename OutputIter >
-		void get_intersecting_nonstrict(const PointType& l, const PointType& r, OutputIter it) const
-		{
-			for (const_iterator i = begin(); i != end(); ++i)
-				if (!(IntervalPointsGetter::GetLeft(*i) > r || IntervalPointsGetter::GetRight(*i) < l))
-					*it++ = *i;
-		}
-
-		template < typename OutputIter >
-		void get_intersecting_nonstrict(const T& val, OutputIter it) const
-		{ get_intersecting_nonstrict(IntervalPointsGetter::GetLeft(val), IntervalPointsGetter::GetRight(val)); }
 	};
 
 }
