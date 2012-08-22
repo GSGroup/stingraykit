@@ -1,12 +1,25 @@
-#ifndef __GS_DVRLIB_TOOLKIT_HOLDER_H__
-#define __GS_DVRLIB_TOOLKIT_HOLDER_H__
+#ifndef STINGRAY_TOOLKIT_HOLDER_H
+#define STINGRAY_TOOLKIT_HOLDER_H
 
 
 #include <stingray/toolkit/bind.h>
 #include <stingray/toolkit/shared_ptr.h>
 
+
 namespace stingray
 {
+
+#define TOOLKIT_DECLARE_SCOPED_HOLDER(ResourceType_, NamePrefix_) \
+	typedef ScopedHolder<ResourceType_> NamePrefix_##ScopedHolder; \
+	typedef shared_ptr<NamePrefix_##ScopedHolder> NamePrefix_##ScopedHolderPtr
+
+#define TOOLKIT_DECLARE_SHARED_HOLDER(ResourceType_, NamePrefix_) \
+	typedef SharedHolder<ResourceType_> NamePrefix_##SharedHolder; \
+	typedef shared_ptr<NamePrefix_##SharedHolder> NamePrefix_##SharedHolderPtr
+
+#define TOOLKIT_DECLARE_HOLDER(ResourceType_, NamePrefix_) \
+	TOOLKIT_DECLARE_SCOPED_HOLDER(ResourceType_, NamePrefix_); \
+	TOOLKIT_DECLARE_SHARED_HOLDER(ResourceType_, NamePrefix_)
 
 
 	template < typename NativeType >
@@ -83,7 +96,6 @@ namespace stingray
 		void Reset(const NativeType& handle)
 		{ _impl->Reset(handle); }
 	};
-
 
 }
 
