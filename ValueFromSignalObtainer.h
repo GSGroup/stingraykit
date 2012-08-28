@@ -26,6 +26,8 @@ namespace stingray
 		
 		void operator() (const ValueType& val) const { (*_val) % val; }
 		void operator() (CollectionOp op, const ValueType& val) const { TOOLKIT_CHECK(op == CollectionOp::ItemAdded, "Invalid CollectionOp!"); (*_val) % val; }
+
+		const CollectionType* operator -> () const	{ return &GetValues(); }
 		const CollectionType& GetValues() const { return *_val; }
 	};
 
@@ -46,6 +48,8 @@ namespace stingray
 			TOOLKIT_CHECK(!*_val, "Value already set!");
 			_val->reset(new T(val));
 		}
+
+		const T* operator -> () const	{ return *GetValue(); }
 
 		const T& GetValue() const
 		{
