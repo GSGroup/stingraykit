@@ -86,10 +86,14 @@ namespace stingray
 		ClassName::Enum _enumVal
 
 #define TOOLKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
+		inline ClassName_& operator |= (ClassName_& l, ClassName_::Enum r) \
+		{ return l = ClassName_((ClassName_::Enum)((int)l | (int)r)); } \
+		inline ClassName_& operator &= (ClassName_& l, ClassName_::Enum r) \
+		{ return l = ClassName_((ClassName_::Enum)((int)l & (int)r)); } \
 		inline ClassName_::Enum operator | (ClassName_::Enum l, ClassName_::Enum r) \
-		{ return ClassName_(ClassName_::Enum(((int)l | (int)r))); } \
+		{ ClassName_ result(l); return result |= r; } \
 		inline ClassName_::Enum operator & (ClassName_::Enum l, ClassName_::Enum r) \
-		{ return ClassName_(ClassName_::Enum(((int)l & (int)r))); }
+		{ ClassName_ result(l); return result &= r; }
 
 #define TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
 		FORCE_INLINE bool operator > (const ClassName& other) const \
