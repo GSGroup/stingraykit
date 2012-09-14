@@ -2,7 +2,7 @@
 
 #include <stingray/log/Logger.h>
 #ifdef PLATFORM_POSIX
-#	include <stingray/platform/posix/toolkit/SystemException.h>
+#	include <stingray/toolkit/SystemException.h>
 #endif
 #include <time.h>
 
