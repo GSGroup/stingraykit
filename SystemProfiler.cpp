@@ -1,10 +1,9 @@
 #include <stingray/toolkit/SystemProfiler.h>
 
-#include <stingray/log/Logger.h>
-#ifdef PLATFORM_POSIX
-#	include <stingray/toolkit/SystemException.h>
-#endif
 #include <time.h>
+
+#include <stingray/log/Logger.h>
+#include <stingray/toolkit/SystemException.h>
 
 
 namespace stingray
