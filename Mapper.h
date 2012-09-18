@@ -124,6 +124,14 @@ namespace stingray {
 	};
 
 
+	template <typename SrcT, typename DstT>
+	struct IdentityMapper
+	{
+		typedef SrcT SrcType;
+		typedef DstT DstType;
+		static DstType Map(SrcType val)		{ return val; }
+		static SrcType Unmap(DstType val)	{ return val; }
+	};
 
 }
 
