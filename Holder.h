@@ -49,6 +49,12 @@ namespace stingray
 		NativeType Get() const	{ Check();					return _handle; }
 		NativeType Release()	{ Check(); _valid = false;	return _handle; }
 
+		void Reset()
+		{
+			Cleanup();
+			_valid = false;
+		}
+
 		void Reset(const NativeType& handle)
 		{
 			Cleanup();
