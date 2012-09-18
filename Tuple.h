@@ -86,13 +86,18 @@ namespace stingray
 		DETAIL_TOOLKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10))
 
 
-		FORCE_INLINE typename GetParamPassingType<ValueType>::ValueT GetHead() const { return _val; }
+		FORCE_INLINE typename GetParamPassingType<const ValueType>::ValueT GetHead() const { return _val; }
+		FORCE_INLINE ValueType& GetHead() { return _val; }
 		FORCE_INLINE void SetHead(typename GetConstReferenceType<ValueType>::ValueT val) { _val = val; }
 		FORCE_INLINE const Tail& GetTail() const { return _tail; }
 		FORCE_INLINE Tail& GetTail() { return _tail; }
 
 		template < size_t Index >
 		FORCE_INLINE typename GetParamPassingType<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT Get() const
+		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
+
+		template < size_t Index >
+		FORCE_INLINE typename GetTypeListItem<TypeList, Index>::ValueT& Get()
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
 
 		template < size_t Index >
@@ -128,6 +133,10 @@ namespace stingray
 			Get(const Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
+			static FORCE_INLINE typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT&
+			Get(Tuple_& tuple)
+			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
+
 			static FORCE_INLINE void Set(Tuple_& tuple, typename GetConstReferenceType<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT val)
 			{ TupleItemGetter<typename Tuple_::Tail, Index - 1>::Set(tuple.GetTail(), val); }
 		};
@@ -137,6 +146,10 @@ namespace stingray
 		{
 			static FORCE_INLINE typename GetParamPassingType<typename Tuple_::ValueType>::ValueT
 			Get(const Tuple_& tuple)
+			{ return tuple.GetHead(); }
+
+			static FORCE_INLINE typename Tuple_::ValueType&
+			Get(Tuple_& tuple)
 			{ return tuple.GetHead(); }
 
 			static FORCE_INLINE void Set(Tuple_& tuple, typename GetConstReferenceType<typename Tuple_::ValueType>::ValueT val)
