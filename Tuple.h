@@ -87,7 +87,7 @@ namespace stingray
 
 
 		FORCE_INLINE typename GetParamPassingType<const ValueType>::ValueT GetHead() const { return _val; }
-		FORCE_INLINE ValueType& GetHead() { return _val; }
+		FORCE_INLINE typename Dereference<ValueType>::ValueT& GetHead() { return _val; }
 		FORCE_INLINE void SetHead(typename GetConstReferenceType<ValueType>::ValueT val) { _val = val; }
 		FORCE_INLINE const Tail& GetTail() const { return _tail; }
 		FORCE_INLINE Tail& GetTail() { return _tail; }
@@ -133,7 +133,7 @@ namespace stingray
 			Get(const Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
-			static FORCE_INLINE typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT&
+			static FORCE_INLINE typename Dereference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT&
 			Get(Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
@@ -148,7 +148,7 @@ namespace stingray
 			Get(const Tuple_& tuple)
 			{ return tuple.GetHead(); }
 
-			static FORCE_INLINE typename Tuple_::ValueType&
+			static FORCE_INLINE typename Dereference<typename Tuple_::ValueType>::ValueT&
 			Get(Tuple_& tuple)
 			{ return tuple.GetHead(); }
 
