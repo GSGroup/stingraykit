@@ -71,7 +71,7 @@ namespace stingray {
 				return _lastIndex.get();
 			_timeSinceLastIndex.Restart();
 
-			s64 gap = CalculateGap(_lastIndex.get() - milliseconds, time_since_last, discontinuityValue);
+			s64 gap = CalculateGap((s64)milliseconds - _lastIndex.get(), time_since_last, discontinuityValue);
 
 			if (gap != 0 && !_allowDiscontinuity)
 				_firstIndex = _firstIndex.get() - gap;
@@ -101,7 +101,7 @@ namespace stingray {
 				return 0;
 			_timeSinceLastIndex.Restart();
 
-			s64 gap = CalculateGap(milliseconds - _lastIndex.get(), time_since_last);
+			s64 gap = CalculateGap((s64)milliseconds - _lastIndex.get(), time_since_last);
 
 			if (gap != 0 && !_allowDiscontinuity)
 				_lastIndex = _lastIndex.get() - gap;
@@ -113,7 +113,7 @@ namespace stingray {
 		}
 
 	private:
-		static s64 CalculateGap(u64 stampDifference, u64 timeDifference, u64 hintDifference = 0)
+		static s64 CalculateGap(s64 stampDifference, u64 timeDifference, u64 hintDifference = 0)
 		{
 			if (stampDifference > 0)
 			{
