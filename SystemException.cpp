@@ -20,6 +20,9 @@ namespace stingray
 		return msg? msg: "Unknown error";
 	}
 
+	std::string SystemException::GetSystemError() throw()
+	{ return GetSystemError(errno); }
+
 #define ERRNO_STR(val) case val: return #val
 	std::string SystemException::ErrnoToStr(int e)
 	{
