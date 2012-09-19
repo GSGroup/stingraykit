@@ -179,11 +179,11 @@ namespace stingray
 	struct TryGetTypeListItem<TypeList, -1>
 	{ CompileTimeAssert<sizeof(TypeList) < 0>	ERROR_invalid_index; };
 
-	template < typename TypeList, typename T >
+	template < typename TypeList, typename T, size_t Index_ = 0>
 	struct IndexOfTypeListItem
 	{
 	private:
-		static const int NextResult = IndexOfTypeListItem<typename TypeList::Next, T>::Value;
+		static const int NextResult = IndexOfTypeListItem<typename TypeList::Next, T, Index_>::Value;
 	public:
 		static const int Value = (NextResult == -1) ? -1 : (NextResult + 1);
 	};
@@ -194,11 +194,20 @@ namespace stingray
 		static const int Value = IndexOfTypeListItem<TypeList, T>::Value != -1;
 	};
 
-	template < typename T >
-	struct IndexOfTypeListItem<TypeListEndNode, T> { static const int Value = -1; };
+	template < typename T, size_t Index_ >
+	struct IndexOfTypeListItem<TypeListEndNode, T, Index_> { static const int Value = -1; };
+
+	template < typename TypeList, size_t Index_ >
+	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, Index_>
+	{
+	private:
+		static const int NextResult = IndexOfTypeListItem<typename TypeList::Next, typename TypeList::ValueT, Index_ - 1>::Value;
+	public:
+		static const int Value = (NextResult == -1) ? -1 : (NextResult + 1);
+	};
 
 	template < typename TypeList >
-	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT> { static const int Value = 0; };
+	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, 0> { static const int Value = 0; };
 
 	// TODO: Add invalid index error to GetTypeListItem
 
