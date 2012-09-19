@@ -12,7 +12,8 @@ namespace stingray
 		SystemException(const std::string &message) throw();
 		SystemException(const std::string &message, int err) throw();
 
-		static std::string GetSystemError(int err) throw();
+		static std::string GetErrorMessage(int err) throw();
+		static std::string GetErrorMessage() throw();
 
 	private:
 		std::string ErrnoToStr(int e);
