@@ -3,6 +3,7 @@
 
 
 //FORCE_INLINE
+#include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/TypeList.h>
 
@@ -99,6 +100,22 @@ namespace stingray
 		template < size_t Index >
 		FORCE_INLINE typename GetTypeListItem<TypeList, Index>::ValueT& Get()
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
+
+		template < typename Type_ >
+		FORCE_INLINE typename GetParamPassingType<Type_>::ValueT Get(Dummy dummy = Dummy()) const
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(*this); }
+
+		template < typename Type_ >
+		FORCE_INLINE Type_& Get(Dummy dummy = Dummy())
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(*this); }
+
+		template < typename Type_, size_t Index >
+		FORCE_INLINE typename GetParamPassingType<Type_>::ValueT Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) const
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(*this); }
+
+		template < typename Type_, size_t Index >
+		FORCE_INLINE Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy())
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(*this); }
 
 		template < size_t Index >
 		FORCE_INLINE void Set(typename GetConstReferenceType<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT val)
