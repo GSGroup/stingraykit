@@ -21,7 +21,7 @@ namespace stingray {
 			};
 
 			template<T Preferred, T Other>
-			struct MultiValue
+			struct BiValue
 			{
 				static bool Fits(T val)
 				{
@@ -31,6 +31,19 @@ namespace stingray {
 				static T GetValue() { return Preferred; }
 			};
 
+			template<T Preferred, T Other1, T Other2>
+			struct TriValue
+			{
+				static bool Fits(T val)	{ return val == Preferred || val == Other1 || val == Other2; }
+				static T GetValue()		{ return Preferred; }
+			};
+
+			template<T Preferred, T Other1, T Other2, T Other3>
+			struct QuadValue
+			{
+				static bool Fits(T val)	{ return val == Preferred || val == Other1 || val == Other2 || val == Other3; }
+				static T GetValue()		{ return Preferred; }
+			};
 
 			template<T Value_>
 			struct Value
