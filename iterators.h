@@ -70,6 +70,31 @@ namespace stingray
 	MapValuesIterator<MapIterator> values_iterator(const MapIterator& srcIter)
 	{ return MapValuesIterator<MapIterator>(srcIter); }
 
+
+	template < typename Map >
+	class MapUpdateIterator : public iterator_base<MapUpdateIterator<Map>, typename Map::value_type, std::output_iterator_tag, typename Map::difference_type, typename Map::pointer, MapUpdateIterator<Map>&>
+	{
+	private:
+		Map*	_map;
+
+	public:
+		explicit MapUpdateIterator(Map& map) : _map(&map) { }
+
+		MapUpdateIterator& dereference()	{ return *this; }
+		void increment()					{ }
+
+		MapUpdateIterator& operator= (const typename Map::const_reference value)
+		{
+			(*_map)[value.first] = value.second;
+			return *this;
+		}
+	};
+
+
+	template < typename Map >
+	MapUpdateIterator<Map> update_iterator(Map& map)
+	{ return MapUpdateIterator<Map>(map); }
+
 }
 
 
