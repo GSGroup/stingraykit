@@ -46,11 +46,18 @@ namespace stingray
 		typedef	typename base::reference			reference;
 
 		// Forward iterator requirements
-		reference operator*() const
+		const reference operator*() const
 		{ return GetDerived().dereference(); }
 
-		pointer operator->() const
+		reference operator*()
+		{ return GetDerived().dereference(); }
+
+		pointer operator->()
 		{ return &(GetDerived().dereference()); }
+
+		const pointer operator->() const
+		{ return &(GetDerived().dereference()); }
+
 
 		Derived_t& operator++()
 		{
