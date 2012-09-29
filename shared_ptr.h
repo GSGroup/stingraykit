@@ -25,6 +25,32 @@ namespace stingray
 
 
 	template < typename T >
+	struct shared_ptr_traits
+	{
+		static const bool trace_ref_counts = false;
+		//static const char* trace_class_name;
+	};
+
+
+	namespace Detail
+	{
+		template < typename T, bool DoTrace = shared_ptr_traits<T>::trace_ref_counts >
+		struct SharedPtrRefCounter
+		{
+			static atomic_int_type DoAddRef(ref_count& rc, const void* ptrVal) { return rc.add_ref(); }
+			static atomic_int_type DoRelease(ref_count& rc, const void* ptrVal) { return rc.release(); }
+		};
+
+		template < typename T >
+		struct SharedPtrRefCounter<T, true>
+		{
+			static atomic_int_type DoAddRef(ref_count& rc, const void* ptrVal) { return rc.add_ref(shared_ptr_traits<T>::trace_class_name, ptrVal); }
+			static atomic_int_type DoRelease(ref_count& rc, const void* ptrVal) { return rc.release(shared_ptr_traits<T>::trace_class_name, ptrVal); }
+		};
+	}
+
+
+	template < typename T >
 	class enable_shared_from_this;
 
 	template < typename T >
@@ -51,7 +77,7 @@ namespace stingray
 	private:
 		FORCE_INLINE shared_ptr(T* rawPtr, const ref_count& refCount)
 			: _rawPtr(rawPtr), _refCount(refCount)
-		{ if (_rawPtr) _refCount.add_ref(); }
+		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr); }
 
 	public:
 		typedef T ValueType;
@@ -76,15 +102,15 @@ namespace stingray
 		template < typename U >
 		FORCE_INLINE shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _refCount(other._refCount)
-		{ if (_rawPtr) _refCount.add_ref(); } // Do not init enable_shared_from_this in copy ctor
+		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr); } // Do not init enable_shared_from_this in copy ctor
 
 		FORCE_INLINE shared_ptr(const shared_ptr<T>& other)
 			: _rawPtr(other._rawPtr), _refCount(other._refCount)
-		{ if (_rawPtr) _refCount.add_ref(); } // Do not init enable_shared_from_this in copy ctor
+		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr); } // Do not init enable_shared_from_this in copy ctor
 
 		FORCE_INLINE ~shared_ptr()
 		{
-			if (_rawPtr && _refCount.release() == 0)
+			if (_rawPtr && Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr) == 0)
 				delete _rawPtr;
 		}
 
@@ -194,15 +220,15 @@ namespace stingray
 			if (!_rawPtr)
 				return shared_ptr<T>();
 
-			if (_refCount.add_ref() == 1)
+			if (Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr) == 1)
 			{
-				if (_refCount.release() != 0)
+				if (Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr) != 0)
 					TOOLKIT_FATAL("weak_ptr::lock race occured!");
 				return shared_ptr<T>();
 			}
 
 			shared_ptr<T> result(_rawPtr, _refCount);
-			_refCount.release();
+			Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr);
 
 			return result;
 		}
