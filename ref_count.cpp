@@ -1,6 +1,7 @@
 #include <stingray/toolkit/ref_count.h>
 
 #include <stingray/log/Logger.h>
+#include <stingray/toolkit/Backtrace.h>
 
 
 namespace stingray
