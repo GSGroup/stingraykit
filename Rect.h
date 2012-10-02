@@ -8,6 +8,24 @@
 namespace stingray
 {
 
+	struct Size
+	{
+		int Width, Height;
+		inline Size(): Width(), Height() {}
+		inline Size(int w, int h): Width(w), Height(h) {}
+
+		inline Size operator + (const Size& other) const	{ return Size(Width + other.Width, Height + other.Height); }
+		inline Size operator - (const Size& other) const	{ return Size(Width - other.Width, Height - other.Height); }
+		inline Size& operator += (const Size& other)		{ Width += other.Width; Height += other.Height; return *this; }
+		inline Size& operator -= (const Size& other)		{ Width -= other.Width; Height -= other.Height; return *this; }
+		inline Size operator * (int k)						{ return Size(Width * k, Height * k); }
+		inline Size operator / (int k)						{ return Size(Width / k, Height / k); }
+		inline bool Valid() const							{ return Width > 0 && Height > 0; }
+
+		inline bool operator==(const Size &other) const	{ return Width == other.Width && Height == other.Height; }
+		inline bool operator!=(const Size &other) const { return !((*this) == other); }
+	};
+
 	struct Rect
 	{
 		int X1, Y1, X2, Y2;
