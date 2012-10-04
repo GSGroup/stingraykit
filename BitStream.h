@@ -110,6 +110,10 @@ namespace stingray
 			return Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>(&_buf, offset);
 		}
 
+		template < int Size >
+		Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size> Peek()
+		{ return Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>(&_buf, _offset); }
+
 		std::string ReadString(size_t length)
 		{
 			std::string result;
