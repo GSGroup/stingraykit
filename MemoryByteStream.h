@@ -44,7 +44,7 @@ namespace stingray
 			}
 			if (new_ofs < 0)
 				TOOLKIT_THROW(IndexOutOfRangeException());
-			if (new_ofs >= (int)_data.size())
+			if (new_ofs > (int)_data.size())
 				TOOLKIT_THROW(NotImplementedException());
 			_ofs = new_ofs;
 		}
