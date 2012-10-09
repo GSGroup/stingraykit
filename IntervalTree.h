@@ -275,9 +275,20 @@ namespace stingray
 		template < typename OutputIter >
 		void get_intersecting(const PointType& l, const PointType& r, OutputIter it) const
 		{
-			for (const_iterator i = begin(); i != end(); ++i)
-				if (!(IntervalPointsGetter::GetLeft(*i) >= r || IntervalPointsGetter::GetRight(*i) <= l))
-					*it++ = *i;
+			for (const_iterator i = begin(); i != end(); ++i) {
+			// Boundary conditions for noncontinious events must be not strict
+			// Yes, this conditions can be written in a single line, but it will be very difficult to read
+				if (r == l && IntervalPointsGetter::GetLeft(*i) == IntervalPointsGetter::GetRight(*i) && l == IntervalPointsGetter::GetLeft(*i))
+						*it++ = *i;
+				else if (IntervalPointsGetter::GetLeft(*i) == IntervalPointsGetter::GetRight(*i) &&
+					!(IntervalPointsGetter::GetLeft(*i) >= r || IntervalPointsGetter::GetRight(*i) < l))
+						*it++ = *i;
+				else if (r == l &&
+					!(IntervalPointsGetter::GetLeft(*i) > r || IntervalPointsGetter::GetRight(*i) <= l))
+						*it++ = *i;
+				else if (!(IntervalPointsGetter::GetLeft(*i) >= r || IntervalPointsGetter::GetRight(*i) <= l))
+						*it++ = *i;
+			}
 		}
 
 		template < typename OutputIter >
