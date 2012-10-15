@@ -262,6 +262,18 @@ namespace stingray
 	{ typedef T	ValueT; };
 
 
+	template < typename WeakPtrT >
+	struct GetWeakPtrParam;
+
+	template < typename T >
+	struct GetWeakPtrParam<weak_ptr<T> >
+	{ typedef T	ValueT; };
+
+	template < typename T >
+	struct GetWeakPtrParam<const weak_ptr<T> >
+	{ typedef T	ValueT; };
+
+
 	template < typename T >
 	struct ToSharedPtr
 	{ typedef shared_ptr<T>	ValueT; };
