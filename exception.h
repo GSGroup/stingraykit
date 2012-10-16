@@ -137,7 +137,7 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename BaseException >
-		inline ExceptionWrapper<BaseException> MakeException(const BaseException& ex, const char* filename, size_t line, const char* functionName)
+		inline typename EnableIf<Inherits<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, const char* filename, size_t line, const char* functionName)
 		{
 			CompileTimeAssert<Inherits<BaseException, std::exception>::Value > ERROR_invalid_exception;
 			(void)ERROR_invalid_exception;
