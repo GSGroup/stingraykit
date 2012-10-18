@@ -18,8 +18,8 @@ namespace stingray
 		Final(const Final&) { }
 		~Final() { }
 
-	private:
-		Final& operator = (const Final&);
+	protected:
+		Final& operator = (const Final&) { return *this; }
 	};
 
 }
