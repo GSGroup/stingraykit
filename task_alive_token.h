@@ -104,6 +104,12 @@ namespace stingray
 			_impl->Kill();
 		}
 
+		TaskLifeToken& Reset()
+		{
+			Release();
+			return (*this = TaskLifeToken());
+		}
+
 		FutureExecutionToken GetExecutionToken() const
 		{ return FutureExecutionToken(_impl); }
 	};
