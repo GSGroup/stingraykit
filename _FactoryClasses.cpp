@@ -59,7 +59,7 @@ namespace stingray { namespace Detail
 #ifdef BUILD_SHARED_LIB
 		/*nothing*/
 #else
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::Detail::AppChannel);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::Alarm);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ContinuousScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::DeferredStandby);
