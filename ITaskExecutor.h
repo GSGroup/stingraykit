@@ -19,7 +19,7 @@ namespace stingray
 
 		static shared_ptr<ITaskExecutor> Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler = &ITaskExecutor::DefaultExceptionHandler);
 
-	private:
+	protected:
 		static void DefaultExceptionHandler(const std::exception& ex);
 	};
 	TOOLKIT_DECLARE_PTR(ITaskExecutor);
