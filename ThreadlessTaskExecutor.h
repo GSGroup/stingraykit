@@ -27,7 +27,7 @@ namespace stingray
 		ExceptionHandlerType	_exceptionHandler;
 
 	public:
-		explicit ThreadlessTaskExecutor(const ExceptionHandlerType& exceptionHandler)
+		explicit ThreadlessTaskExecutor(const ExceptionHandlerType& exceptionHandler = &ITaskExecutor::DefaultExceptionHandler)
 			: _exceptionHandler(exceptionHandler)
 		{ }
 
