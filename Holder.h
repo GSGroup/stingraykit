@@ -99,6 +99,9 @@ namespace stingray
 
 		NativeType Get() const { return _impl->Get(); }
 
+		void Reset()
+		{ _impl->Reset(); }
+
 		void Reset(const NativeType& handle)
 		{ _impl->Reset(handle); }
 	};
