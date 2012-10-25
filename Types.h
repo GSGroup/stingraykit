@@ -37,7 +37,7 @@ namespace stingray
 	template <> struct IntType<BitsCount_, false> { typedef u##BitsCount_ ValueT; }
 #endif
 	
-	template < size_t BitsCount, bool Unsigned = false >
+	template < size_t BitsCount, bool Signed = false >
 	struct IntType;
 
 #if 0 // to avoid 'unsigned < 0' comparison warnings
