@@ -87,18 +87,18 @@ namespace stingray
 			{ _bitStream->DoWrite<Size, T>(val, _offset); }
 		};
 
-		class WriteWatcher
+		class Watcher
 		{
 		private:
 			BasicBitStream*	_stream;
 			size_t			_offset;
 
 		public:
-			WriteWatcher(BasicBitStream& stream)
+			Watcher(BasicBitStream& stream)
 				: _stream(&stream), _offset(stream._offset)
 			{ }
 
-			size_t GetWrittenBitsCount() const
+			size_t GetOffsetDelta() const
 			{ return _stream->_offset - _offset; }
 		};
 
