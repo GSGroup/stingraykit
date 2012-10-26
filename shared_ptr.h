@@ -28,8 +28,16 @@ namespace stingray
 	struct shared_ptr_traits
 	{
 		static const bool trace_ref_counts = false;
-		//static const char* trace_class_name;
+		//static const char* get_trace_class_name();
 	};
+
+
+#define TOOLKIT_TRACE_SHARED_PTRS(ClassName_) \
+		template < > struct shared_ptr_traits<ClassName_> \
+		{ \
+			static const bool trace_ref_counts = true; \
+			static const char* get_trace_class_name() { return #ClassName_; }\
+		}
 
 
 	namespace Detail
@@ -44,8 +52,8 @@ namespace stingray
 		template < typename T >
 		struct SharedPtrRefCounter<T, true>
 		{
-			static atomic_int_type DoAddRef(ref_count& rc, const void* ptrVal) { return rc.add_ref(shared_ptr_traits<T>::trace_class_name, ptrVal); }
-			static atomic_int_type DoRelease(ref_count& rc, const void* ptrVal) { return rc.release(shared_ptr_traits<T>::trace_class_name, ptrVal); }
+			static atomic_int_type DoAddRef(ref_count& rc, const void* ptrVal) { return rc.add_ref(shared_ptr_traits<T>::get_trace_class_name(), ptrVal); }
+			static atomic_int_type DoRelease(ref_count& rc, const void* ptrVal) { return rc.release(shared_ptr_traits<T>::get_trace_class_name(), ptrVal); }
 		};
 	}
 

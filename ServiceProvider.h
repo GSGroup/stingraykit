@@ -57,25 +57,18 @@ namespace stingray
 		class ServiceReferencesInfoException : public std::runtime_error
 		{
 		private:
-			bool						_firstService;
 			shared_ptr<std::string>		_message;
 
 		public:
-			ServiceReferencesInfoException(const std::string& message, const std::string& dependencyName)
+			ServiceReferencesInfoException(const std::string& message)
 				:	std::runtime_error(message),
-					_firstService(true),
 					_message(new std::string(message))
-			{ AppendDependencyName(dependencyName); }
+			{ }
 
 			virtual ~ServiceReferencesInfoException() throw() { }
 
 			void AppendDependencyName(const std::string& dependencyName)
-			{
-				(*_message) += std::string(_firstService ? "" : " referenced from") + "\n" + dependencyName;
-
-				if (_firstService)
-					_firstService = false;
-			}
+			{ (*_message) += "\n  referenced from " + dependencyName; }
 
 			virtual const char* what() const throw()
 			{ return _message->c_str(); } // TODO: this may cause problems!
@@ -99,21 +92,21 @@ namespace stingray
 	struct NotSupportedServiceException : public Detail::ServiceReferencesInfoException
 	{
 		NotSupportedServiceException(const std::string& serviceName)
-			:	Detail::ServiceReferencesInfoException("The service '" + serviceName + "'is not supported on this platform!", serviceName)
+			:	Detail::ServiceReferencesInfoException("The service '" + serviceName + "'is not supported on this platform!")
 		{ }
 	};
 
 	struct CyclicServiceDependencyException : public Detail::ServiceReferencesInfoException
 	{
 		CyclicServiceDependencyException(const std::string& dependencyName)
-			:	Detail::ServiceReferencesInfoException("Cyclic service dependency!", dependencyName)
+			:	Detail::ServiceReferencesInfoException("Cyclic service dependency: " + dependencyName + " depends on itself!")
 		{ }
 	};
 
 	struct ServiceCreationFailedException : public Detail::ServiceReferencesInfoException
 	{
 		ServiceCreationFailedException(const std::string& serviceName)
-			:	Detail::ServiceReferencesInfoException("Service '" + serviceName + "' could not be created!", serviceName)
+			:	Detail::ServiceReferencesInfoException("Service '" + serviceName + "' could not be created!")
 		{ }
 	};
 
@@ -125,7 +118,7 @@ namespace stingray
 		{ }
 
 		virtual shared_ptr<ServiceInterface> Create() const
-		{ TOOLKIT_THROW(NotSupportedServiceException(GetServiceTypeName())); }
+		{ throw NotSupportedServiceException(GetServiceTypeName()); }
 
 		virtual std::string GetServiceTypeName() const
 		{ return typeid(ServiceInterface).name(); }
@@ -198,7 +191,7 @@ namespace stingray
 						throw ServiceCreationFailedException(s_serviceCreator->GetServiceTypeName());
 
 					if (started_creating)
-						TOOLKIT_THROW(CyclicServiceDependencyException(s_serviceCreator->GetServiceTypeName()));
+						throw CyclicServiceDependencyException(s_serviceCreator->GetServiceTypeName());
 
 					started_creating = true;
 
