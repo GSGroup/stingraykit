@@ -204,7 +204,7 @@ namespace stingray
 		typedef typename Detail::ByteDataIteratorSelector<T>::const_iterator	const_iterator;
 
 		template < typename U >
-		BasicByteData(const BasicByteData<U>& data)
+		BasicByteData(BasicByteData<U> data)
 			: _data(data.size() == 0 ? NULL : &data[0]), _size(data.size())
 		{ }
 
@@ -232,11 +232,11 @@ namespace stingray
 			: _data(data), _size(size)
 		{ }
 
-		BasicByteData(const BasicByteData& data, size_t offset)
+		BasicByteData(BasicByteData data, size_t offset)
 			: _data(data._data + offset), _size(data._size - offset)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset <= data._size); }
 
-		BasicByteData(const BasicByteData& data, size_t offset, size_t size)
+		BasicByteData(BasicByteData data, size_t offset, size_t size)
 			: _data(data._data + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size <= data._size); }
 
