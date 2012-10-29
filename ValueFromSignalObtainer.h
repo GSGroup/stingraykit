@@ -1,6 +1,8 @@
-#ifndef __GS_DVRLIB_TOOLKIT_VALUEFROMSIGNALOBTAINER_H__
-#define __GS_DVRLIB_TOOLKIT_VALUEFROMSIGNALOBTAINER_H__
+#ifndef STINGRAY_TOOLKIT_VALUEFROMSIGNALOBTAINER_H
+#define STINGRAY_TOOLKIT_VALUEFROMSIGNALOBTAINER_H
 
+
+#include <vector>
 
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/unique_ptr.h>
@@ -30,6 +32,12 @@ namespace stingray
 		const CollectionType* operator -> () const	{ return &GetValues(); }
 		const CollectionType& GetValues() const { return *_val; }
 	};
+
+
+	template < typename T >
+	class VectorFromSignalCollector : public ValuesFromSignalCollector< std::vector<T> >
+	{ };
+
 
 	template < typename T >
 	class ValueFromSignalObtainer : public function_info<void(const T&)>
