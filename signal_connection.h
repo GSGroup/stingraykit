@@ -94,6 +94,9 @@ namespace stingray
 					return;
 				{
 					MutexLock l(handlers_l->second);
+					if (!_handlers.lock()) // if we've already reset handlers - skip disconnecting
+						return;
+					_handlers.reset(); // reset handlers to make Disconnect reenterable
 					handlers_l->first.erase(_it);
 				}
 				_token.Release();
