@@ -1,9 +1,11 @@
-#ifndef __GS_DVRLIB_TOOLKIT_SIGNAL_CONNECTION_H__
-#define __GS_DVRLIB_TOOLKIT_SIGNAL_CONNECTION_H__
+#ifndef STINGRAY_TOOLKIT_SIGNAL_CONNECTION_H
+#define STINGRAY_TOOLKIT_SIGNAL_CONNECTION_H
 
 #include <vector>
 #include <algorithm>
+
 #include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/iterators.h>
 #include <stingray/toolkit/self_counter.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/threads/Thread.h>
@@ -129,11 +131,14 @@ namespace stingray
 
 	class signal_connection_holder
 	{
+		TOOLKIT_NONCOPYABLE(signal_connection_holder);
+
+	private:
 		signal_connection _connection;
+
 	public:
 		FORCE_INLINE signal_connection_holder() {}
 		FORCE_INLINE signal_connection_holder(const signal_connection& connection) : _connection(connection) {}
-		FORCE_INLINE signal_connection_holder(const signal_connection_holder &) : _connection() {}
 		FORCE_INLINE ~signal_connection_holder() { _connection.disconnect(); }
 		FORCE_INLINE bool connected() const { return _connection.connected(); }
 		FORCE_INLINE void disconnect() { _connection.disconnect(); }
@@ -164,6 +169,58 @@ namespace stingray
 		void release()
 		{
 			std::for_each(_connections.begin(), _connections.end(),
+				std::mem_fun_ref(&signal_connection::disconnect));
+			_connections.clear();
+		}
+	};
+
+	template < typename Key, typename Compare = std::less<Key> >
+	class signal_connection_map
+	{
+		TOOLKIT_NONCOPYABLE(signal_connection_map);
+
+		typedef std::multimap<Key, signal_connection, Compare> ConnectionMap;
+
+		class BracketsOperatorProxy
+		{
+		private:
+			Key					_key;
+			ConnectionMap*		_connections;
+
+		public:
+			BracketsOperatorProxy(const Key& key, ConnectionMap& connections)
+				: _key(key), _connections(&connections)
+			{ }
+
+			BracketsOperatorProxy& operator+= (const signal_connection& connection)
+			{
+				_connections->insert(std::make_pair(_key, connection));
+				return *this;
+			}
+		};
+
+	private:
+		ConnectionMap	_connections;
+
+	public:
+		signal_connection_map() { }
+		~signal_connection_map()
+		{ release_all(); }
+
+		BracketsOperatorProxy operator[] (const Key& key) { return BracketsOperatorProxy(key, _connections); }
+
+		void release(const Key& key)
+		{
+			typename ConnectionMap::iterator lower = _connections.lower_bound(key);
+			typename ConnectionMap::iterator upper = _connections.upper_bound(key);
+			std::for_each(values_iterator(lower), values_iterator(upper),
+				std::mem_fun_ref(&signal_connection::disconnect));
+			_connections.erase(lower, upper);
+		}
+
+		void release_all()
+		{
+			std::for_each(values_iterator(_connections.begin()), values_iterator(_connections.end()),
 				std::mem_fun_ref(&signal_connection::disconnect));
 			_connections.clear();
 		}
