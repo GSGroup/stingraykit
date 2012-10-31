@@ -39,9 +39,9 @@ namespace stingray
 
 		reference dereference() const										{ ITERATOR_CHECK_BOUNDS_STRICT; return *_ptr; }
 		bool equal(const ByteDataIterator &other) const						{ return _ptr == other._ptr; }
-		void increment()													{ ++_ptr; ITERATOR_CHECK_BOUNDS; }
-		void decrement()													{ --_ptr; ITERATOR_CHECK_BOUNDS; }
-		void advance(difference_type n)										{ _ptr += n; ITERATOR_CHECK_BOUNDS; }
+		void increment()													{ ++_ptr; }
+		void decrement()													{ --_ptr; }
+		void advance(difference_type n)										{ _ptr += n; }
 		difference_type distance_to(const ByteDataIterator &other) const	{ return other._ptr - _ptr; }
 	};
 
@@ -136,6 +136,8 @@ namespace stingray
 
 		inline size_t GetOffset() const { return _offset; }
 		inline CollectionTypePtr GetData() const { return _data; }
+
+		inline bool CheckIterator(const const_iterator& it) const	{ return it - begin() >= 0 && end() - it > 0; }
 
 		void RequireSize(size_t size)
 		{
@@ -238,6 +240,8 @@ namespace stingray
 		BasicByteData(BasicByteData data, size_t offset, size_t size)
 			: _data(data._data + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size <= data._size); }
+
+		inline bool CheckIterator(const const_iterator& it) const	{ return std::distance(it, end()) > 0; }
 
 		FORCE_INLINE T& operator[](size_t index) const
 		{
