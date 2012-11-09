@@ -75,7 +75,7 @@ namespace stingray
 		T val = T();
 		s >> val;
 		if (!s.eof())
-			throw std::runtime_error("FromString: Could not parse value!"); // =(
+			TOOLKIT_THROW(ArgumentException("str", str));
 
 		return val;
 	}
