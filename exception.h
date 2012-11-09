@@ -63,6 +63,7 @@ namespace stingray
 	{
 		ArgumentException() : std::runtime_error("Invalid argument!") { }
 		ArgumentException(const std::string& argName) : std::runtime_error("Invalid argument: " + argName) { }
+		ArgumentException(const std::string& argName, const std::string& argValue) : std::runtime_error("Invalid argument: " + argName + " value: " + argValue) { }
 	};
 
 	struct NullPointerException : public std::runtime_error
