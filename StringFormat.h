@@ -35,16 +35,22 @@ namespace stingray {
 
 		TOOLKIT_CHECK((substrings.size() % 2) == 1, "Format mismatch: no corresponding %");
 		std::string result;
-		for(size_t i = 0; i != substrings.size(); ++i)
+		for (size_t i = 0; i != substrings.size(); ++i)
 			if (i % 2)
 			{
 				if (substrings[i].empty())
 					result += "%";
 				else
 				{
-					size_t index = FromString<size_t>(substrings[i]);
+					size_t pos = substrings[i].find('$');
+					size_t index = FromString<size_t>(substrings[i].substr(0, pos));
 					TOOLKIT_CHECK(index > 0, "Format mismatch: parameters indices starts from 1!");
-					result += Detail::TupleToStringHelper<TupleParams>::ItemToString(params, index - 1);
+					size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(substrings[i].substr(pos + 1));
+					std::string item_str = Detail::TupleToStringHelper<TupleParams>::ItemToString(params, index - 1);
+					if (item_str.size() < width)
+						result += std::string(width - item_str.size(), '0') + item_str;
+					else
+						result += item_str;
 				}
 			}
 			else
