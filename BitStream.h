@@ -102,6 +102,21 @@ namespace stingray
 			{ return _stream->_offset - _offset; }
 		};
 
+		class PositionRollback
+		{
+		private:
+			BasicBitStream*	_stream;
+			size_t			_offset;
+
+		public:
+			PositionRollback(BasicBitStream& stream)
+				: _stream(&stream), _offset(stream._offset)
+			{ }
+
+			~PositionRollback()
+			{ _stream->Seek(_offset); }
+		};
+
 	private:
 		ByteDataType			_buf;
 		size_t					_offset;
