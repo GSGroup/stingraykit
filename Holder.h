@@ -9,15 +9,6 @@
 namespace stingray
 {
 
-#define TOOLKIT_DECLARE_SCOPED_HOLDER(Resource_, Name_) \
-	typedef ScopedHolder<Resource_> Name_; \
-	typedef shared_ptr<Name_> Name_##Ptr
-
-#define TOOLKIT_DECLARE_SHARED_HOLDER(Resource_, Name_) \
-	typedef SharedHolder<Resource_> Name_; \
-	typedef shared_ptr<Name_> Name_##Ptr
-
-
 	template < typename NativeType >
 	class ScopedHolder
 	{
