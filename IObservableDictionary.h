@@ -70,8 +70,9 @@ namespace stingray
 		virtual void Set(const KeyType& key, const ValueType& value)
 		{
 			signal_locker l(ObservableInterface::OnChanged);
+			bool update = ContainsKey(key);
 			Wrapped_::Set(key, value);
-			ObservableInterface::OnChanged(CollectionOp::ItemAdded, key, value);
+			ObservableInterface::OnChanged(update ? CollectionOp::ItemUpdated : CollectionOp::ItemAdded, key, value);
 		}
 
 		virtual void Remove(const KeyType& key)
