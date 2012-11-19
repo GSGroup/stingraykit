@@ -88,12 +88,21 @@ namespace stingray
 		FORCE_INLINE atomic_int_type get() const	{ assert(_value); return _value->Value; }
 		FORCE_INLINE atomic_int_type add_ref()	{ assert(_value); return Atomic::Inc(_value->Value); }
 		FORCE_INLINE atomic_int_type release()	{ assert(_value); return Atomic::Dec(_value->Value); }
+		FORCE_INLINE bool release_if_unique()	{ assert(_value); return Atomic::CompareAndExchange(_value->Value, 1, 0) == 1; }
 
 		atomic_int_type add_ref(const char* className, const void* ptrVal)
 		{ atomic_int_type res = add_ref(); Detail::DoLogAddRef(className, res, ptrVal); return res; }
 
 		atomic_int_type release(const char* className, const void* ptrVal)
 		{ atomic_int_type res = release(); Detail::DoLogRelease(className, res, ptrVal); return res; }
+
+		bool release_if_unique(const char* className, const void* ptrVal)
+		{
+			bool res = release_if_unique();
+			if (res)
+				Detail::DoLogRelease(className, 0, ptrVal);
+			return res;
+		}
 
 		FORCE_INLINE void swap(basic_ref_count& other)
 		{

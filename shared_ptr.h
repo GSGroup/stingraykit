@@ -105,8 +105,6 @@ namespace stingray
 			: _rawPtr(), _refCount(null)
 		{ }
 
-		FORCE_INLINE weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
-
 		template < typename U >
 		FORCE_INLINE shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _refCount(other._refCount)
@@ -135,6 +133,22 @@ namespace stingray
 		FORCE_INLINE bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
 		FORCE_INLINE bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
 		FORCE_INLINE bool boolean_test() const { return _rawPtr != 0; }
+
+		FORCE_INLINE weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
+
+		FORCE_INLINE bool release_if_unique()
+		{
+			if (!_rawPtr)
+				return true;
+
+			if (!_refCount.release_if_unique())
+				return false;
+
+			delete _rawPtr;
+			_rawPtr = NULL;
+
+			return true;
+		}
 
 		FORCE_INLINE bool unique() const
 		{ return !_rawPtr || _refCount.get() == 1; }
