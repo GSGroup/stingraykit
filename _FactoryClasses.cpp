@@ -1,6 +1,5 @@
 #include <stingray/toolkit/Factory.h>
 
-#include <stingray/app/ApplicationContextPublic.h>
 #include <stingray/app/Scheduler.h>
 #include <stingray/app/Scheduler.h>
 #include <stingray/app/Scheduler.h>
@@ -8,6 +7,10 @@
 #include <stingray/app/Scheduler.h>
 #include <stingray/app/Scheduler.h>
 #include <stingray/app/Scheduler.h>
+#include <stingray/app/application_context/AppChannel.h>
+#include <stingray/app/application_context/ChannelList.h>
+#include <stingray/app/application_context/ChannelList.h>
+#include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
 #include <stingray/hdmi/IHDMI.h>
 #include <stingray/mpeg/Stream.h>
@@ -59,7 +62,6 @@ namespace stingray { namespace Detail
 #ifdef BUILD_SHARED_LIB
 		/*nothing*/
 #else
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::Alarm);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ContinuousScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::DeferredStandby);
@@ -67,6 +69,10 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledViewing);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelList);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelListAutoRemover);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AutoFilter);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
