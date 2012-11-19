@@ -19,7 +19,7 @@ namespace stingray
 		struct IObjectHolder
 		{
 			virtual ~IObjectHolder() { }
-			virtual bool CanBeRemoved() const = 0;
+			virtual bool TryRemove() = 0;
 		};
 		TOOLKIT_DECLARE_PTR(IObjectHolder);
 
@@ -28,7 +28,7 @@ namespace stingray
 		{
 			shared_ptr<T>	Val;
 			ObjectHolder(const shared_ptr<T>& val) : Val(val) { }
-			virtual bool CanBeRemoved() const { return Val.unique(); }
+			virtual bool TryRemove() { return Val.release_if_unique(); }
 		};
 
 		typedef std::list<IObjectHolderPtr>		ObjectHolders;
@@ -45,7 +45,10 @@ namespace stingray
 		{ MutexLock l(_mutex); _objects.push_back(make_shared<ObjectHolder<T> >(obj)); }
 
 		void CollectGarbage()
-		{ MutexLock l(_mutex); _objects.erase(std::remove_if(_objects.begin(), _objects.end(), bind(&IObjectHolder::CanBeRemoved, _1)), _objects.end()); }
+		{
+			MutexLock l(_mutex);
+			_objects.erase(std::remove_if(_objects.begin(), _objects.end(), bind(&IObjectHolder::TryRemove, _1)), _objects.end());
+		}
 	};
 
 
