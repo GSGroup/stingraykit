@@ -4,6 +4,7 @@
 
 #include <map>
 #include <vector>
+#include <algorithm>
 
 #include <stingray/toolkit/EnumeratorFromStlContainer.h>
 #include <stingray/toolkit/IDictionary.h>
@@ -60,6 +61,16 @@ namespace stingray
 			for (typename MapType::const_iterator it = _map.begin(); it != _map.end(); ++it)
 				result->push_back(PairType(it->first, it->second));
 			return EnumeratorFromStlContainer(*result, result);
+		}
+
+		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		{
+			shared_ptr<std::vector<PairType> > result(new std::vector<PairType>);
+			result->reserve(_map.size());
+			for (typename MapType::const_iterator it = _map.begin(); it != _map.end(); ++it)
+				result->push_back(PairType(it->first, it->second));
+			std::reverse(result->begin(), result->end());
+			return EnumerableFromStlContainer(*result, result);
 		}
 	};
 
