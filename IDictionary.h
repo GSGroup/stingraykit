@@ -27,8 +27,9 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	struct IDictionary : public IEnumerable<KeyValuePair<KeyType_, ValueType_> >
 	{
-		typedef KeyType_	KeyType;
-		typedef ValueType_	ValueType;
+		typedef KeyType_							KeyType;
+		typedef ValueType_							ValueType;
+		typedef KeyValuePair<KeyType, ValueType>	PairType;
 
 		virtual ~IDictionary() { }
 
