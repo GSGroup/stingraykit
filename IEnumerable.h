@@ -23,6 +23,14 @@ namespace stingray
 		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const = 0;
 	};
 
+	template < typename T >
+	struct IReversableEnumerable
+	{
+		virtual ~IReversableEnumerable() { }
+
+		virtual shared_ptr<IEnumerable<T> > Reverse() const = 0;
+	};
+
 
 	template < typename T >
 	struct IsEnumerable
