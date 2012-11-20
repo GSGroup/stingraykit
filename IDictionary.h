@@ -38,14 +38,20 @@ namespace stingray
 
 		virtual ~IDictionary() { }
 
-		virtual int GetCount() const = 0;
-
 		virtual ValueType Get(const KeyType& key) const = 0;
 		virtual void Set(const KeyType& key, const ValueType& value) = 0;
 
 		virtual void Remove(const KeyType& key) = 0;
 
 		virtual bool ContainsKey(const KeyType& key) const = 0;
+
+		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+		{
+			if (!ContainsKey(key))
+				return false;
+			outValue = Get(key);
+			return true;
+		}
 	};
 
 }
