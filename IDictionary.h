@@ -8,7 +8,12 @@
 namespace stingray
 {
 
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(KeyNotFoundException, "Key not found!");
+	struct KeyNotFoundException : public stingray::Exception
+	{
+		KeyNotFoundException() : stingray::Exception("Key not found!") { }
+		KeyNotFoundException(const std::string& keyStr) : stingray::Exception("Key '" + keyStr + "' not found!") { }
+		virtual ~KeyNotFoundException() throw() { }
+	};
 
 	template < typename KeyType_, typename ValueType_ >
 	struct KeyValuePair
