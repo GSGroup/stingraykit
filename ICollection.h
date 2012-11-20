@@ -18,7 +18,7 @@ namespace stingray
 	{
 		virtual ~ICollection() { }
 
-		virtual size_t GetSize() const = 0;
+		virtual int GetCount() const = 0;
 	};
 
 
