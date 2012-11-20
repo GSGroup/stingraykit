@@ -89,6 +89,12 @@ namespace stingray
 			signal_locker l(ObservableInterface::OnChanged);
 			return Wrapped_::ContainsKey(key);
 		}
+
+		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::TryGet(key, outValue);
+		}
 	};
 
 }
