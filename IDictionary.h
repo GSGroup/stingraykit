@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_IDICTIONARY_H
 
 
+#include <stingray/toolkit/ICollection.h>
 #include <stingray/toolkit/IEnumerable.h>
 
 
@@ -30,7 +31,9 @@ namespace stingray
 	};
 
 	template < typename KeyType_, typename ValueType_ >
-	struct IDictionary : public IEnumerable<KeyValuePair<KeyType_, ValueType_> >
+	struct IDictionary
+		:	public virtual ICollection<KeyValuePair<KeyType_, ValueType_> >, 
+			public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_> >
 	{
 		typedef KeyType_							KeyType;
 		typedef ValueType_							ValueType;
