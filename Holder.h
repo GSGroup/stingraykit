@@ -13,7 +13,7 @@ namespace stingray
 	class ScopedHolder
 	{
 		TOOLKIT_NONCOPYABLE(ScopedHolder);
-		typedef function<void(const NativeType&)>		CleanupFuncType;
+		typedef function<void(NativeType)>		CleanupFuncType;
 
 	private:
 		NativeType		_handle;
@@ -25,7 +25,7 @@ namespace stingray
 			: _cleanupFunc(cleanupFunc), _valid(false)
 		{}
 
-		ScopedHolder(const NativeType& handle, const CleanupFuncType& cleanupFunc)
+		ScopedHolder(NativeType handle, const CleanupFuncType& cleanupFunc)
 			: _handle(handle), _cleanupFunc(cleanupFunc), _valid(true)
 		{}
 
@@ -36,13 +36,13 @@ namespace stingray
 		NativeType Get() const	{ Check();					return _handle; }
 		NativeType Release()	{ Check(); _valid = false;	return _handle; }
 
-		void Reset()
+		void Clear()
 		{
 			Cleanup();
 			_valid = false;
 		}
 
-		void Reset(const NativeType& handle)
+		void Set(NativeType handle)
 		{
 			Cleanup();
 			_handle = handle;
@@ -64,7 +64,7 @@ namespace stingray
 	{
 		typedef ScopedHolder<NativeType> Impl;
 		TOOLKIT_DECLARE_PTR(Impl);
-		typedef function<void(const NativeType&)>		CleanupFuncType;
+		typedef function<void(NativeType)>		CleanupFuncType;
 
 	private:
 		ImplPtr	_impl;
@@ -77,7 +77,7 @@ namespace stingray
 			: _impl(make_shared<Impl>(cleanupFunc))
 		{}
 
-		SharedHolder(const NativeType& handle, const CleanupFuncType& cleanupFunc)
+		SharedHolder(NativeType handle, const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared<Impl>(handle, cleanupFunc))
 		{}
 
@@ -88,11 +88,11 @@ namespace stingray
 
 		NativeType Get() const	{ return _impl->Get(); }
 
-		void Reset()
-		{ _impl->Reset(); }
+		void Clear()
+		{ _impl->Clear(); }
 
-		void Reset(const NativeType& handle)
-		{ _impl->Reset(handle); }
+		void Set(NativeType handle)
+		{ _impl->Set(handle); }
 	};
 
 }
