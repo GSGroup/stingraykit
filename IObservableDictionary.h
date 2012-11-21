@@ -95,6 +95,12 @@ namespace stingray
 			signal_locker l(ObservableInterface::OnChanged);
 			return Wrapped_::TryGet(key, outValue);
 		}
+
+		virtual void Clear()
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			Wrapped_::Clear();
+		}
 	};
 
 }

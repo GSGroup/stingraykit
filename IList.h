@@ -25,6 +25,12 @@ namespace stingray
 		virtual void Add(ConstTRef obj) = 0;
 		virtual ValueType Get(size_t index) const = 0;
 		virtual void Remove(ConstTRef obj) = 0;
+
+		virtual void Clear()
+		{
+			while (this->GetCount() != 0)
+				Remove(Get(0));
+		}
 	};
 
 

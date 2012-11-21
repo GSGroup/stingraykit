@@ -19,6 +19,7 @@ namespace stingray
 		virtual ~ICollection() { }
 
 		virtual int GetCount() const = 0;
+		virtual void Clear() = 0;
 	};
 
 

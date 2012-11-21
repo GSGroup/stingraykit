@@ -55,6 +55,12 @@ namespace stingray
 			outValue = Get(key);
 			return true;
 		}
+
+		virtual void Clear()
+		{
+			while (this->GetCount() != 0)
+				Remove(this->GetEnumerator()->Get().Key);
+		}
 	};
 
 }
