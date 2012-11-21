@@ -54,6 +54,7 @@ namespace stingray
 	{
 		typedef typename Wrapped_::KeyType						KeyType;
 		typedef typename Wrapped_::ValueType					ValueType;
+		typedef typename Wrapped_::PairType						PairType;
 		typedef IObservableDictionary<KeyType, ValueType>		ObservableInterface;
 
 		virtual int GetCount() const
@@ -100,6 +101,18 @@ namespace stingray
 		{
 			signal_locker l(ObservableInterface::OnChanged);
 			Wrapped_::Clear();
+		}
+
+		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::GetEnumerator();
+		}
+
+		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::Reverse();
 		}
 	};
 
