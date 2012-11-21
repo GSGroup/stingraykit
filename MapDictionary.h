@@ -16,7 +16,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		TOOLKIT_DECLARE_METHOD_CHECK(ToString);
+		//TOOLKIT_DECLARE_METHOD_CHECK(ToString);
 
 		template
 		<
@@ -49,7 +49,7 @@ namespace stingray
 		virtual ValueType Get(const KeyType& key) const
 		{
 			typename MapType::const_iterator it = _map.find(key);
-			TOOLKIT_CHECK(it != _map.end(), KeyNotFoundExceptionFactory<KeyType>::Create(key));
+			TOOLKIT_CHECK(it != _map.end(), Detail::KeyNotFoundExceptionFactory<KeyType>::Create(key));
 			return it->second;
 		}
 
@@ -65,7 +65,7 @@ namespace stingray
 		virtual void Remove(const KeyType& key)
 		{
 			typename MapType::iterator it = _map.find(key);
-			TOOLKIT_CHECK(it != _map.end(), KeyNotFoundExceptionFactory<KeyType>::Create(key));
+			TOOLKIT_CHECK(it != _map.end(), Detail::KeyNotFoundExceptionFactory<KeyType>::Create(key));
 			_map.erase(it);
 		}
 
