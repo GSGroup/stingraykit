@@ -160,7 +160,7 @@ namespace stingray
 		}
 
 		static bool NoSkip(ConstSrcTypeRef) { return false; }
-		static DestType DefaultCast(ConstSrcTypeRef src) { return src; }
+		static DestType DefaultCast(ConstSrcTypeRef src) { return DestType(src); }
 	};
 
 	template<typename SrcType, typename CasterType>
