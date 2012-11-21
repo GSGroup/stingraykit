@@ -84,7 +84,9 @@ namespace stingray
 		~SharedHolder()
 		{}
 
-		NativeType Get() const { return _impl->Get(); }
+		bool Valid() const		{ return _impl && _impl->Valid(); }
+
+		NativeType Get() const	{ return _impl->Get(); }
 
 		void Reset()
 		{ _impl->Reset(); }
