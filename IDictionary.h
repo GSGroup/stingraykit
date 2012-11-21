@@ -2,6 +2,8 @@
 #define STINGRAY_TOOLKIT_IDICTIONARY_H
 
 
+#include <utility>
+
 #include <stingray/toolkit/ICollection.h>
 #include <stingray/toolkit/IEnumerable.h>
 
@@ -27,6 +29,10 @@ namespace stingray
 
 		KeyValuePair(const KeyType& key, const ValueType& value)
 			: Key(key), Value(value)
+		{ }
+
+		KeyValuePair(const std::pair<KeyType, ValueType>& pair)
+			: Key(pair.first), Value(pair.second)
 		{ }
 	};
 
