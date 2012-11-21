@@ -9,6 +9,7 @@
 namespace stingray
 {
 
+
 	template < typename NativeType >
 	class ScopedHolder
 	{
@@ -32,7 +33,6 @@ namespace stingray
 		~ScopedHolder()			{ Cleanup(); }
 
 		bool Valid() const		{ return _valid; }
-
 		NativeType Get() const	{ Check();					return _handle; }
 		NativeType Release()	{ Check(); _valid = false;	return _handle; }
 
@@ -58,6 +58,32 @@ namespace stingray
 		}
 	};
 
+
+	template <>
+	class ScopedHolder<void>
+	{
+		TOOLKIT_NONCOPYABLE(ScopedHolder);
+		typedef function<void()>	CleanupFuncType;
+
+	private:
+		CleanupFuncType	_cleanupFunc;
+		bool			_valid;
+
+	public:
+		ScopedHolder(const CleanupFuncType& cleanupFunc)
+			: _cleanupFunc(cleanupFunc), _valid(false)
+		{}
+
+		~ScopedHolder()			{ Cleanup(); }
+
+		bool Valid() const		{ return _valid; }
+		void Clear()			{ Cleanup(); _valid = false; }
+		void Set()				{ Cleanup(); _valid = true; }
+
+	private:
+		void Check() const		{ TOOLKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
+		void Cleanup() const	{ if (_valid) _cleanupFunc(); }
+	};
 
 	template < typename NativeType >
 	class SharedHolder
