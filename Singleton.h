@@ -2,10 +2,13 @@
 #define __GS_DVRLIB_TOOLKIT_SINGLETON_H__
 
 
+#include <stingray/threads/call_once.h>
+#include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>
 
 
 #define TOOLKIT_SINGLETON(ClassName) \
+		friend class stingray::shared_ptr<ClassName>; \
 		friend class stingray::Singleton<ClassName>; \
 		TOOLKIT_NONCOPYABLE(ClassName)
 
@@ -13,26 +16,43 @@
 		TOOLKIT_SINGLETON(ClassName); \
 	private: \
 		ClassName() { }
-		
+
 
 namespace stingray
 {
 
-	/** @brief Simple Singleton implementation, NOT THREAD-SAFE!!! */
 	template < typename T >
 	class Singleton
 	{
-	public:
-		static T& Instance() 
+		static void InitInstance()
 		{
-			static T inst;
+			shared_ptr<T>& ptr = GetInstancePtr();
+			ptr.reset(new T);
+		}
+
+		static shared_ptr<T>& GetInstancePtr()
+		{
+			static shared_ptr<T> inst;
 			return inst;
+		}
+
+		static TOOLKIT_DECLARE_ONCE_FLAG(s_initFlag);
+
+	public:
+		static T& Instance()
+		{
+			call_once(s_initFlag, &Singleton::InitInstance);
+			return *GetInstancePtr();
 		}
 
 		static const T& ConstInstance()
 		{ return const_cast<const T&>(Instance()); }
 	};
-	
+
+
+	template< typename T >
+	TOOLKIT_DEFINE_ONCE_FLAG(Singleton<T>::s_initFlag);
+
 
 	template < typename T >
 	struct IsSingleton
