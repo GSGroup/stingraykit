@@ -83,7 +83,7 @@ namespace stingray
 			shared_ptr<T> _ptr;
 		public:
 			service_holder_ptr(volatile bool& destroyedFlag) : _destroyedFlag(destroyedFlag) { _destroyedFlag =  false; }
-			~service_holder_ptr() { ServiceProvider<T>::OnServiceDestroyed(); _destroyedFlag = true; }
+			~service_holder_ptr() { TRACER; ServiceProvider<T>::OnServiceDestroyed(); _destroyedFlag = true; }
 			shared_ptr<T>& GetPtr() { return _ptr; }
 		};
 	}
