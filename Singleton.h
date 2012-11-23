@@ -8,8 +8,8 @@
 
 
 #define TOOLKIT_SINGLETON(ClassName) \
-		friend class stingray::shared_ptr<ClassName>; \
-		friend class stingray::Singleton<ClassName>; \
+		friend class ::stingray::Detail::SingletonInstanceHolder<ClassName>; \
+		friend class ::stingray::Singleton<ClassName>; \
 		TOOLKIT_NONCOPYABLE(ClassName)
 
 #define TOOLKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(ClassName) \
@@ -21,18 +21,38 @@
 namespace stingray
 {
 
+	namespace Detail
+	{
+		template<typename T>
+		class SingletonInstanceHolder
+		{
+			TOOLKIT_NONCOPYABLE(SingletonInstanceHolder);
+
+		private:
+			T _instance;
+
+		public:
+			SingletonInstanceHolder()	{ }
+			~SingletonInstanceHolder()	{ TRACER; }
+			T& Get()					{ return _instance; }
+		};
+	}
+
 	template < typename T >
 	class Singleton
 	{
+		typedef Detail::SingletonInstanceHolder<T> InstanceHolderType;
+		TOOLKIT_DECLARE_PTR(InstanceHolderType);
+
 		static void InitInstance()
 		{
-			shared_ptr<T> ptr(new T);
+			InstanceHolderTypePtr ptr(new InstanceHolderType());
 			GetInstancePtr() = ptr;
 		}
 
-		static shared_ptr<T>& GetInstancePtr()
+		static InstanceHolderTypePtr& GetInstancePtr()
 		{
-			static shared_ptr<T> inst;
+			static InstanceHolderTypePtr inst;
 			return inst;
 		}
 
@@ -42,7 +62,7 @@ namespace stingray
 		static T& Instance()
 		{
 			call_once(s_initFlag, &Singleton::InitInstance);
-			return *GetInstancePtr();
+			return GetInstancePtr()->Get();
 		}
 
 		static const T& ConstInstance()
