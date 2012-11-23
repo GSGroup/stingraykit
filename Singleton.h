@@ -26,8 +26,8 @@ namespace stingray
 	{
 		static void InitInstance()
 		{
-			shared_ptr<T>& ptr = GetInstancePtr();
-			ptr.reset(new T);
+			shared_ptr<T> ptr(new T);
+			GetInstancePtr() = ptr;
 		}
 
 		static shared_ptr<T>& GetInstancePtr()
