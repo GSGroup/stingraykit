@@ -41,7 +41,8 @@ namespace stingray { namespace Detail
 	}
 
 
-	const IFactoryObjectCreator& Factory::GetCreator(const std::string& name) {
+	const IFactoryObjectCreator& Factory::GetCreator(const std::string& name)
+	{
 		MutexLock l(_registrarLock);
 		RegistrarMap::const_iterator i = _registrarsByTypeId.find(name);
 		if (i == _registrarsByTypeId.end())
@@ -52,6 +53,7 @@ namespace stingray { namespace Detail
 
 	void Factory::Register(const std::string &name, const std::string &type, IFactoryObjectCreator *creator)
 	{
+		Logger::Debug() << "Registered " << name << " as " << type;
 		MutexLock l(_registrarLock);
 		{
 			RegistrarMap::const_iterator i = _registrars.find(name);
