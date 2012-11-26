@@ -2,37 +2,77 @@
 #define __GS_DVRLIB_TOOLKIT_SINGLETON_H__
 
 
+#include <stingray/threads/call_once.h>
+#include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>
 
 
 #define TOOLKIT_SINGLETON(ClassName) \
-		friend class stingray::Singleton<ClassName>; \
+		friend class ::stingray::Detail::SingletonInstanceHolder<ClassName>; \
+		friend class ::stingray::Singleton<ClassName>; \
 		TOOLKIT_NONCOPYABLE(ClassName)
 
 #define TOOLKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(ClassName) \
 		TOOLKIT_SINGLETON(ClassName); \
 	private: \
 		ClassName() { }
-		
+
 
 namespace stingray
 {
 
-	/** @brief Simple Singleton implementation, NOT THREAD-SAFE!!! */
+	namespace Detail
+	{
+		template<typename T>
+		class SingletonInstanceHolder
+		{
+			TOOLKIT_NONCOPYABLE(SingletonInstanceHolder);
+
+		private:
+			T _instance;
+
+		public:
+			SingletonInstanceHolder()	{ }
+			~SingletonInstanceHolder()	{ TRACER; }
+			T& Get()					{ return _instance; }
+		};
+	}
+
 	template < typename T >
 	class Singleton
 	{
-	public:
-		static T& Instance() 
+		typedef Detail::SingletonInstanceHolder<T> InstanceHolderType;
+		TOOLKIT_DECLARE_PTR(InstanceHolderType);
+
+		static void InitInstance()
 		{
-			static T inst;
+			InstanceHolderTypePtr ptr(new InstanceHolderType());
+			GetInstancePtr() = ptr;
+		}
+
+		static InstanceHolderTypePtr& GetInstancePtr()
+		{
+			static InstanceHolderTypePtr inst;
 			return inst;
+		}
+
+		static TOOLKIT_DECLARE_ONCE_FLAG(s_initFlag);
+
+	public:
+		static T& Instance()
+		{
+			call_once(s_initFlag, &Singleton::InitInstance);
+			return GetInstancePtr()->Get();
 		}
 
 		static const T& ConstInstance()
 		{ return const_cast<const T&>(Instance()); }
 	};
-	
+
+
+	template< typename T >
+	TOOLKIT_DEFINE_ONCE_FLAG(Singleton<T>::s_initFlag);
+
 
 	template < typename T >
 	struct IsSingleton

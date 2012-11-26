@@ -1,14 +1,7 @@
 #include <stingray/toolkit/Factory.h>
 
 #include <stingray/app/Scheduler.h>
-#include <stingray/app/Scheduler.h>
-#include <stingray/app/Scheduler.h>
-#include <stingray/app/Scheduler.h>
-#include <stingray/app/Scheduler.h>
-#include <stingray/app/Scheduler.h>
-#include <stingray/app/Scheduler.h>
 #include <stingray/app/application_context/AppChannel.h>
-#include <stingray/app/application_context/ChannelList.h>
 #include <stingray/app/application_context/ChannelList.h>
 #include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
@@ -18,28 +11,10 @@
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
 #endif
-#ifdef PLATFORM_EMU
-#	include <stingray/platform/emu/scanner/Channel.h>
-#endif
-#ifdef PLATFORM_EMU
-#	include <stingray/platform/emu/scanner/Channel.h>
-#endif
-#ifdef PLATFORM_EMU
-#	include <stingray/platform/emu/scanner/Channel.h>
-#endif
 #include <stingray/records/FileSystemRecord.h>
 #include <stingray/scanner/DVBServiceId.h>
 #include <stingray/scanner/DefaultDVBTBandInfo.h>
 #include <stingray/scanner/DefaultMpegService.h>
-#include <stingray/scanner/DefaultMpegService.h>
-#include <stingray/scanner/DefaultMpegService.h>
-#include <stingray/scanner/DefaultMpegService.h>
-#include <stingray/scanner/DefaultMpegStreamDescriptor.h>
-#include <stingray/scanner/DefaultMpegStreamDescriptor.h>
-#include <stingray/scanner/DefaultMpegStreamDescriptor.h>
-#include <stingray/scanner/DefaultMpegStreamDescriptor.h>
-#include <stingray/scanner/DefaultMpegStreamDescriptor.h>
-#include <stingray/scanner/DefaultMpegStreamDescriptor.h>
 #include <stingray/scanner/DefaultMpegStreamDescriptor.h>
 #include <stingray/scanner/DefaultScanParams.h>
 #include <stingray/scanner/DefaultScanResult.h>

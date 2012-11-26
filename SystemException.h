@@ -7,6 +7,7 @@
 namespace stingray
 {
 
+
 	struct SystemException : public std::runtime_error
 	{
 		SystemException(const std::string &message) throw();
@@ -18,6 +19,8 @@ namespace stingray
 	private:
 		std::string ErrnoToStr(int e);
 	};
+
+
 }
 
 #endif

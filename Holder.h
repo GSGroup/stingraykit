@@ -9,11 +9,12 @@
 namespace stingray
 {
 
+
 	template < typename NativeType >
 	class ScopedHolder
 	{
 		TOOLKIT_NONCOPYABLE(ScopedHolder);
-		typedef function<void(const NativeType&)>		CleanupFuncType;
+		typedef function<void(NativeType)>		CleanupFuncType;
 
 	private:
 		NativeType		_handle;
@@ -25,24 +26,23 @@ namespace stingray
 			: _cleanupFunc(cleanupFunc), _valid(false)
 		{}
 
-		ScopedHolder(const NativeType& handle, const CleanupFuncType& cleanupFunc)
+		ScopedHolder(NativeType handle, const CleanupFuncType& cleanupFunc)
 			: _handle(handle), _cleanupFunc(cleanupFunc), _valid(true)
 		{}
 
 		~ScopedHolder()			{ Cleanup(); }
 
 		bool Valid() const		{ return _valid; }
-
 		NativeType Get() const	{ Check();					return _handle; }
 		NativeType Release()	{ Check(); _valid = false;	return _handle; }
 
-		void Reset()
+		void Clear()
 		{
 			Cleanup();
 			_valid = false;
 		}
 
-		void Reset(const NativeType& handle)
+		void Set(NativeType handle)
 		{
 			Cleanup();
 			_handle = handle;
@@ -59,12 +59,38 @@ namespace stingray
 	};
 
 
+	template <>
+	class ScopedHolder<void>
+	{
+		TOOLKIT_NONCOPYABLE(ScopedHolder);
+		typedef function<void()>	CleanupFuncType;
+
+	private:
+		CleanupFuncType	_cleanupFunc;
+		bool			_valid;
+
+	public:
+		ScopedHolder(const CleanupFuncType& cleanupFunc)
+			: _cleanupFunc(cleanupFunc), _valid(false)
+		{}
+
+		~ScopedHolder()			{ Cleanup(); }
+
+		bool Valid() const		{ return _valid; }
+		void Clear()			{ Cleanup(); _valid = false; }
+		void Set()				{ Cleanup(); _valid = true; }
+
+	private:
+		void Check() const		{ TOOLKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
+		void Cleanup() const	{ if (_valid) _cleanupFunc(); }
+	};
+
 	template < typename NativeType >
 	class SharedHolder
 	{
 		typedef ScopedHolder<NativeType> Impl;
 		TOOLKIT_DECLARE_PTR(Impl);
-		typedef function<void(const NativeType&)>		CleanupFuncType;
+		typedef function<void(NativeType)>		CleanupFuncType;
 
 	private:
 		ImplPtr	_impl;
@@ -77,20 +103,22 @@ namespace stingray
 			: _impl(make_shared<Impl>(cleanupFunc))
 		{}
 
-		SharedHolder(const NativeType& handle, const CleanupFuncType& cleanupFunc)
+		SharedHolder(NativeType handle, const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared<Impl>(handle, cleanupFunc))
 		{}
 
 		~SharedHolder()
 		{}
 
-		NativeType Get() const { return _impl->Get(); }
+		bool Valid() const		{ return _impl && _impl->Valid(); }
 
-		void Reset()
-		{ _impl->Reset(); }
+		NativeType Get() const	{ return _impl->Get(); }
 
-		void Reset(const NativeType& handle)
-		{ _impl->Reset(handle); }
+		void Clear()
+		{ _impl->Clear(); }
+
+		void Set(NativeType handle)
+		{ _impl->Set(handle); }
 	};
 
 }

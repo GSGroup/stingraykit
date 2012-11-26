@@ -213,6 +213,19 @@ namespace stingray
 			operator void*() const { return _rawPtr; }
 		};
 
+		template< >
+		struct ToPointerCallProxy<const void>
+		{
+		private:
+			const void* _rawPtr;
+
+		public:
+			ToPointerCallProxy(const void* ptr)
+				: _rawPtr(ptr)
+			{}
+			operator const void*() const { return _rawPtr; }
+		};
+
 		template<typename T>
 		struct BindCallParamTraits<T*>
 		{
