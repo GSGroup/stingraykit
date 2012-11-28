@@ -97,6 +97,12 @@ namespace stingray
 			return Wrapped_::TryGet(key, outValue);
 		}
 
+		virtual bool TryRemove(const KeyType& key)
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::TryRemove(key);
+		}
+
 		virtual void Clear()
 		{
 			signal_locker l(ObservableInterface::OnChanged);

@@ -62,6 +62,14 @@ namespace stingray
 			return true;
 		}
 
+		virtual bool TryRemove(const KeyType& key)
+		{
+			if (!ContainsKey(key))
+				return false;
+			Remove(key);
+			return true;
+		}
+
 		virtual void Clear()
 		{
 			while (this->GetCount() != 0)
