@@ -15,16 +15,41 @@ namespace stingray
 
 	
 	template < typename T >
-	struct IList : public virtual ICollection<T>
+	struct IList : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
 	{
 		typedef T											ValueType;
-		typedef typename GetConstReferenceType<T>::ValueT	ConstTRef;
 
 		virtual ~IList() { }
 		
-		virtual void Add(ConstTRef obj) = 0;
-		virtual ValueType Get(size_t index) const = 0;
-		virtual void Remove(ConstTRef obj) = 0;
+		virtual void Add(const ValueType& value) = 0;
+		virtual ValueType Get(int index) const = 0;
+		virtual void Set(int index, const ValueType& value) = 0;
+		virtual int IndexOf(const ValueType& value) const = 0;
+		virtual void Insert(int index, const ValueType& value) = 0;
+		virtual void RemoveAt(int index) = 0;
+
+		virtual void Remove(const ValueType& value)
+		{
+			int index = IndexOf(value);
+			if (index != -1)
+				RemoveAt(index);
+		}
+
+		virtual bool Contains(const ValueType& value) const
+		{
+			return IndexOf(value) != -1;
+		}
+
+		virtual bool TryGet(int index, ValueType& value) const
+		{
+			if (index >= 0 && index < this->GetCount())
+			{
+				value = Get(index);
+				return true;
+			}
+
+			return false;
+		}
 
 		virtual void Clear()
 		{
