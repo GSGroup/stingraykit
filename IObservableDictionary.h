@@ -3,28 +3,13 @@
 
 
 #include <stingray/toolkit/IDictionary.h>
+#include <stingray/toolkit/ObservableCollectionLocker.h>
 #include <stingray/toolkit/signals.h>
 #include <stingray/toolkit/toolkit.h>
 
 
 namespace stingray
 {
-
-	class ObservableCollectionLocker
-	{
-		TOOLKIT_NONCOPYABLE(ObservableCollectionLocker);
-
-	private:
-		signal_locker _locker;
-
-	public:
-		template < typename CollectionType >
-		ObservableCollectionLocker(const CollectionType& collection)
-			: _locker(collection.OnChanged)
-		{ }
-	};
-	TOOLKIT_DECLARE_PTR(ObservableCollectionLocker);
-
 
 	template < typename KeyType_, typename ValueType_ >
 	struct IObservableDictionary : public virtual IDictionary<KeyType_, ValueType_>
