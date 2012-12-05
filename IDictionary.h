@@ -6,6 +6,7 @@
 
 #include <stingray/toolkit/ICollection.h>
 #include <stingray/toolkit/IEnumerable.h>
+#include <stingray/toolkit/StringUtils.h>
 
 
 namespace stingray
@@ -17,6 +18,18 @@ namespace stingray
 		KeyNotFoundException(const std::string& keyStr) : stingray::Exception("Key '" + keyStr + "' not found!") { }
 		virtual ~KeyNotFoundException() throw() { }
 	};
+
+	namespace Detail
+	{
+		template < typename KeyType, bool StringRepresentable = IsStringRepresentable<KeyType>::Value >
+		struct KeyNotFoundExceptionFactory
+		{ static KeyNotFoundException Create(const KeyType& key) { return KeyNotFoundException(ToString(key)); } };
+
+		template < typename KeyType >
+		struct KeyNotFoundExceptionFactory<KeyType, false>
+		{ static KeyNotFoundException Create(const KeyType& key) { return KeyNotFoundException(); } };
+	}
+
 
 	template < typename KeyType_, typename ValueType_ >
 	struct KeyValuePair
