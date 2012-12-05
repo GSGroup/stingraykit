@@ -127,6 +127,26 @@ namespace stingray
 			}
 		};
 
+		template< typename KeyType, typename ValueType >
+		struct TypeToStringSerializer<std::map<KeyType, ValueType>, TypeToStringObjectType::HasBeginEnd>
+		{
+			typedef std::map<KeyType, ValueType>	MapType;
+			static std::string ToStringImpl(const MapType& object)
+			{
+				typename MapType::const_iterator it = object.begin(), iend = object.end();
+				std::string result = "{ ";
+				if (it != iend)
+				{
+					result += ToString(it->first) + ": " + ToString(it->second);
+					++it;
+				}
+				for (; it != iend; ++it)
+					result += ", " + ToString(it->first) + ": " + ToString(it->second);
+				result += " }";
+				return result;
+			}
+		};
+
 		template<typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Enumerable>
 		{
@@ -198,6 +218,13 @@ namespace stingray
 		{
 			static std::string ToStringImpl(const optional<T>& opt)
 			{ return opt ? ToString(opt.get()) : "null"; }
+		};
+
+		template<typename U, typename V>
+		struct TypeToStringSerializer<std::pair<U, V>, TypeToStringObjectType::Other>
+		{
+			static std::string ToStringImpl(const std::pair<U, V>& p)
+			{ return "[ " + ToString(p.first) + ", " + ToString(p.second) + " ]"; }
 		};
 
 		template<typename ObjectType>
