@@ -88,7 +88,7 @@ namespace stingray
 
 		struct TypeToStringObjectType
 		{
-			TOOLKIT_ENUM_VALUES(HasBeginEnd, HasToString, Enumerable, IsException, Other);
+			TOOLKIT_ENUM_VALUES(HasBeginEnd, HasToString, Enumerable, IsException, Other, ProxyObjToStdStream);
 			TOOLKIT_DECLARE_ENUM_CLASS(TypeToStringObjectType);
 		};
 
@@ -104,11 +104,23 @@ namespace stingray
 								TypeToStringObjectType::Enumerable :
 								(Inherits<ObjectType, std::exception>::Value ?
 									TypeToStringObjectType::IsException :
-									TypeToStringObjectType::Other
+									(
+										SameType<u8, ObjectType>::Value 
+											|| SameType<const char*, ObjectType>::Value 
+											|| Is1ParamTemplate<shared_ptr, ObjectType>::Value
+											|| Is1ParamTemplate<optional, ObjectType>::Value 
+											|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
+										TypeToStringObjectType::Other :
+										TypeToStringObjectType::ProxyObjToStdStream
+									)
 								)
 							)
 						)
 			>
+		struct TypeToStringObjectTypeGetter
+		{ static const TypeToStringObjectType::Enum Value = ObjType; };
+
+		template < typename ObjectType, TypeToStringObjectType::Enum ObjType = TypeToStringObjectTypeGetter<ObjectType>::Value >
 		struct TypeToStringSerializer;
 
 		template< typename ObjectType>
@@ -171,7 +183,7 @@ namespace stingray
 		};
 
 		template< typename ObjectType>
-		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Other>
+		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::ProxyObjToStdStream>
 		{
 			static std::string ToStringImpl(const ObjectType& val)
 			{
@@ -246,6 +258,16 @@ namespace stingray
 	template < typename T >
 	std::string ToString(const T& val)
 	{ return Detail::TypeToStringSerializer<T>::ToStringImpl(val); }
+
+
+	template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
+	struct IsStringRepresentable
+	{ static const bool Value = true; };
+
+	template < typename T >
+	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::ProxyObjToStdStream >
+	{ static const bool Value = TypeListContains<BuiltinTypes, T>::Value; }; // TODO: Is this enough?
+
 
 	/////////////////////////////////////////////////////////////////
 
