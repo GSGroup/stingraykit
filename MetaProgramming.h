@@ -49,6 +49,11 @@ namespace stingray
 	template < template <typename> class Template, typename T > 
 	struct Is1ParamTemplate<Template, Template<T> > { static const bool Value = true; };
 
+	template < template <typename, typename> class Template, typename U >
+	struct Is2ParamTemplate { static const bool Value = false; };
+	template < template <typename, typename> class Template, typename T, typename U >
+	struct Is2ParamTemplate<Template, Template<T, U> > { static const bool Value = true; };
+
 	template < typename T, typename U>
 	struct CanCast
 	{
