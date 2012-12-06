@@ -11,7 +11,7 @@
 namespace stingray
 {
 
-	ITaskExecutorPtr ITaskExecutor::Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler) 
+	ITaskExecutorPtr ITaskExecutor::Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler)
 #if defined(PLATFORM_OSPLUS)
 	{ return make_shared<osplus::TaskExecutor>(name, exceptionHandler); }
 #else
@@ -20,6 +20,6 @@ namespace stingray
 
 
 	void ITaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ Logger::Error() << "Uncaught exception in ITaskExecutor: " << diagnostic_information(ex); }
+	{ Logger::Error() << "Uncaught exception in ITaskExecutor: " << ex; }
 
 }
