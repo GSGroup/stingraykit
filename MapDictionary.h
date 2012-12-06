@@ -8,28 +8,10 @@
 
 #include <stingray/toolkit/EnumeratorFromStlContainer.h>
 #include <stingray/toolkit/IDictionary.h>
-#include <stingray/toolkit/StringUtils.h>
 
 
 namespace stingray
 {
-
-	namespace Detail
-	{
-		//TOOLKIT_DECLARE_METHOD_CHECK(ToString);
-
-		template
-		<
-			typename KeyType,
-			bool HasToString = SameType<std::string, KeyType>::Value || HasMethod_ToString<KeyType>::Value
-		>
-		struct KeyNotFoundExceptionFactory
-		{ static KeyNotFoundException Create(const KeyType& key) { return KeyNotFoundException(StringBuilder() % key); } };
-
-		template < typename KeyType >
-		struct KeyNotFoundExceptionFactory<KeyType, false>
-		{ static KeyNotFoundException Create(const KeyType& key) { return KeyNotFoundException(); } };
-	}
 
 	template < typename KeyType_, typename ValueType_ >
 	class MapDictionary : public virtual IDictionary<KeyType_, ValueType_>
