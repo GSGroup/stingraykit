@@ -123,6 +123,8 @@ namespace stingray
 	{
 		template<typename ValueType> friend const ValueType * any_cast(const any * operand);
 		template<typename ValueType> friend ValueType * any_cast(any * operand);
+		template<typename T> friend const T& any_cast(const any& operand);
+		template<typename T> friend T& any_cast(any& operand);
 
 		typedef Detail::any::AnyType		Type;
 		typedef Detail::any::IObjectHolder	IObjectHolder;
@@ -167,10 +169,10 @@ namespace stingray
 		}
 
 		template < typename T >
-		T* Get() { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::Get(_type, _data); }
+		T* Get() { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::template Get<T>(_type, _data); }
 
 		template < typename T >
-		const T* Get() const { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::Get(_type, _data); }
+		const T* Get() const { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::template Get<T>(_type, _data); }
 
 		void Copy(Type type, DataType data);
 		void Destroy();
