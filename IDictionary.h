@@ -7,17 +7,11 @@
 #include <stingray/toolkit/ICollection.h>
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/exception.h>
 
 
 namespace stingray
 {
-
-	struct KeyNotFoundException : public stingray::Exception
-	{
-		KeyNotFoundException() : stingray::Exception("Key not found!") { }
-		KeyNotFoundException(const std::string& keyStr) : stingray::Exception("Key '" + keyStr + "' not found!") { }
-		virtual ~KeyNotFoundException() throw() { }
-	};
 
 	namespace Detail
 	{

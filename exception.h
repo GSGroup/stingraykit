@@ -72,10 +72,24 @@ namespace stingray
 		NullPointerException(const std::string& expr) : std::runtime_error("Accessing null pointer: " + expr) { }
 	};
 
-	struct InvalidCastException : public std::runtime_error
+	struct InvalidCastException : public std::bad_cast
 	{
-		InvalidCastException() : std::runtime_error("Invalid cast!") { }
-		InvalidCastException(const std::string& source, const std::string& target) : std::runtime_error("Invalid cast from " + source + " to " + target) { }
+	private:
+		std::string _message;
+
+	public:
+		InvalidCastException() : _message("Invalid cast!") { }
+		InvalidCastException(const std::string& source, const std::string& target) : _message("Invalid cast from " + source + " to " + target) { }
+		virtual ~InvalidCastException() throw() { }
+
+		virtual const char* what() const throw() { return _message.c_str(); }
+	};
+
+	struct KeyNotFoundException : public stingray::Exception
+	{
+		KeyNotFoundException() : stingray::Exception("Key not found!") { }
+		KeyNotFoundException(const std::string& keyStr) : stingray::Exception("Key '" + keyStr + "' not found!") { }
+		virtual ~KeyNotFoundException() throw() { }
 	};
 
 
