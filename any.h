@@ -99,22 +99,22 @@ namespace stingray
 		template < > struct AnyValAccessor<AnyType::EnumVal_> \
 		{ \
 			template < typename T > static void Set(DataType& data, const T& val) { Set_; } \
-			template < typename T > static const T& Get(AnyType type, const DataType& data) { TOOLKIT_CHECK(type == CppTypeToAnyUnionType<T>::Value, "Invalid 'any' type!"); Get_; } \
-			template < typename T > static T& Get(AnyType type, DataType& data) { TOOLKIT_CHECK(type == CppTypeToAnyUnionType<T>::Value, "Invalid 'any' type!"); Get_; } \
+			template < typename T > static const T* Get(AnyType type, const DataType& data) { if (type != CppTypeToAnyUnionType<T>::Value) return NULL; Get_; } \
+			template < typename T > static T* Get(AnyType type, DataType& data) { if (type != CppTypeToAnyUnionType<T>::Value) return NULL; Get_; } \
 		}
 
-		ANY_VAL_ACCESSOR( Empty, 	/*empty*/,								TOOLKIT_THROW("'any' is empty!") );
-		ANY_VAL_ACCESSOR( Int,		data.Int	= val,						return data.Int );
-		ANY_VAL_ACCESSOR( U8,		data.U8		= val,						return data.U8 );
-		ANY_VAL_ACCESSOR( S8,		data.S8		= val,						return data.S8 );
-		ANY_VAL_ACCESSOR( U16,		data.U16	= val,						return data.U16 );
-		ANY_VAL_ACCESSOR( S16,		data.S16	= val,						return data.S16 );
-		ANY_VAL_ACCESSOR( U32,		data.U32	= val,						return data.U32 );
-		ANY_VAL_ACCESSOR( S32,		data.S32	= val,						return data.S32 );
-		ANY_VAL_ACCESSOR( Float,	data.Float	= val,						return data.Float );
-		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return data.Double );
-		ANY_VAL_ACCESSOR( String,	data.String	= new std::string(val),		return *data.String );
-		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),	ObjectHolder<T>* obj_holder = dynamic_cast<ObjectHolder<T>*>(data.Object); if (obj_holder) return obj_holder->Object; TOOLKIT_THROW("Invalid 'any' type!") );
+		ANY_VAL_ACCESSOR( Empty, 	/*empty*/,								return NULL; );
+		ANY_VAL_ACCESSOR( Int,		data.Int	= val,						return &data.Int );
+		ANY_VAL_ACCESSOR( U8,		data.U8		= val,						return &data.U8 );
+		ANY_VAL_ACCESSOR( S8,		data.S8		= val,						return &data.S8 );
+		ANY_VAL_ACCESSOR( U16,		data.U16	= val,						return &data.U16 );
+		ANY_VAL_ACCESSOR( S16,		data.S16	= val,						return &data.S16 );
+		ANY_VAL_ACCESSOR( U32,		data.U32	= val,						return &data.U32 );
+		ANY_VAL_ACCESSOR( S32,		data.S32	= val,						return &data.S32 );
+		ANY_VAL_ACCESSOR( Float,	data.Float	= val,						return &data.Float );
+		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return &data.Double );
+		ANY_VAL_ACCESSOR( String,	data.String	= new std::string(val),		return data.String );
+		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),	ObjectHolder<T>* obj_holder = dynamic_cast<ObjectHolder<T>*>(data.Object); if (obj_holder) return &obj_holder->Object; return NULL; );
 #undef ANY_VAL_ACCESSOR
 
 	}}
@@ -123,6 +123,8 @@ namespace stingray
 	{
 		template<typename ValueType> friend const ValueType * any_cast(const any * operand);
 		template<typename ValueType> friend ValueType * any_cast(any * operand);
+		template<typename T> friend const T& any_cast(const any& operand);
+		template<typename T> friend T& any_cast(any& operand);
 
 		typedef Detail::any::AnyType		Type;
 		typedef Detail::any::IObjectHolder	IObjectHolder;
@@ -167,30 +169,52 @@ namespace stingray
 		}
 
 		template < typename T >
-		T& Get() { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::Get(_type, _data); }
+		T* Get() { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::template Get<T>(_type, _data); }
 
 		template < typename T >
-		const T& Get() const { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::Get(_type, _data); }
+		const T* Get() const { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::template Get<T>(_type, _data); }
 
 		void Copy(Type type, DataType data);
 		void Destroy();
 	};
 
+
+	class bad_any_cast : public std::bad_cast
+	{
+	private:
+		std::string		_message;
+	public:
+		bad_any_cast() : _message("Bad 'any' cast!") { }
+		virtual ~bad_any_cast() throw() { }
+
+		virtual const char* what() const throw() { return _message.c_str(); }
+	};
+
 	template < typename ValueType >
 	const ValueType * any_cast(const any * operand)
-	{ return &TOOLKIT_REQUIRE_NOT_NULL(operand)->template Get<ValueType>(); }
+	{ return operand ? operand->template Get<ValueType>() : NULL; }
 
 	template < typename ValueType >
 	ValueType * any_cast(any * operand)
-	{ return &TOOLKIT_REQUIRE_NOT_NULL(operand)->template Get<ValueType>(); }
+	{ return operand ? operand->template Get<ValueType>() : NULL; }
 
 	template < typename T >
-	T any_cast(any & operand)
-	{ return any_cast<T>(&operand); }
+	T& any_cast(any & operand)
+	{
+		T* ptr = operand.template Get<T>();
+		if (!ptr)
+			TOOLKIT_THROW(bad_any_cast());
+		return *ptr;
+	}
 
 	template < typename T >
-	T any_cast(const any & operand)
-	{ return any_cast<T>(&operand); }
+	const T& any_cast(const any & operand)
+	{
+		const T* ptr = operand.template Get<T>();
+		if (!ptr)
+			TOOLKIT_THROW(bad_any_cast());
+		return *ptr;
+	}
 
 
 }

@@ -73,12 +73,12 @@ namespace stingray
 		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
 		ClassName::Enum val() const { return _enumVal; } \
-		template<typename T> inline bool operator==(const T& other) const { \
+		template<typename T> inline bool operator==(T other) const { \
 			CompileTimeAssert<SameType<ClassName, T>::Value> ERROR_invalid_enum_used; \
 			return _enumVal == other._enumVal; \
 		} \
 		inline bool operator==(ClassName::Enum value) const { return _enumVal == value; } \
-		template<typename T> inline bool operator!=(const T& other) const { \
+		template<typename T> inline bool operator!=(T other) const { \
 			return !(*this == other); \
 		} \
 	private: \
