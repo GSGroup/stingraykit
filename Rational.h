@@ -1,5 +1,5 @@
-#ifndef __TOOLKIT_RATIONAL_H__
-#define	__TOOLKIT_RATIONAL_H__
+#ifndef STINGRAY_TOOLKIT_RATIONAL_H
+#define STINGRAY_TOOLKIT_RATIONAL_H
 
 namespace stingray
 {

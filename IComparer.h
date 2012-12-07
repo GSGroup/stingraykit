@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_ICOMPARER_H__
-#define __GS_DVRLIB_TOOLKIT_ICOMPARER_H__
+#ifndef STINGRAY_TOOLKIT_ICOMPARER_H
+#define STINGRAY_TOOLKIT_ICOMPARER_H
 
 
 #include <stingray/toolkit/shared_ptr.h>

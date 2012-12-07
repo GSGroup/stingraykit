@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_DEPENDSON_H__
-#define __GS_DVRLIB_TOOLKIT_DEPENDSON_H__
+#ifndef STINGRAY_TOOLKIT_DEPENDSON_H
+#define STINGRAY_TOOLKIT_DEPENDSON_H
 
 
 #include <stingray/toolkit/ServiceProvider.h>

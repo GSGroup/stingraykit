@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_IENUMERABLE_H__
-#define __GS_DVRLIB_TOOLKIT_IENUMERABLE_H__
+#ifndef STINGRAY_TOOLKIT_IENUMERABLE_H
+#define STINGRAY_TOOLKIT_IENUMERABLE_H
 
 
 #include <stingray/toolkit/IEnumerator.h>

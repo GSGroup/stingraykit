@@ -1,5 +1,5 @@
-#ifndef __GS_STINGRAY_TOOLKIT_UUID_H__
-#define __GS_STINGRAY_TOOLKIT_UUID_H__
+#ifndef STINGRAY_TOOLKIT_UUID_H
+#define STINGRAY_TOOLKIT_UUID_H
 
 #include <stingray/settings/ISerializable.h>
 #include <stingray/toolkit/array.h>

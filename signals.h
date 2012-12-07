@@ -1,5 +1,5 @@
-#ifndef GS_DVRLIB_TOOLKIT_SIGNALS_H__
-#define GS_DVRLIB_TOOLKIT_SIGNALS_H__
+#ifndef STINGRAY_TOOLKIT_SIGNALS_H
+#define STINGRAY_TOOLKIT_SIGNALS_H
 
 #include <vector>
 #include <stingray/toolkit/signal_connection.h>

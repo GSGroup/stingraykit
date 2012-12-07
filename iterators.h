@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_ITERATORS_H__
-#define __GS_DVRLIB_TOOLKIT_ITERATORS_H__
+#ifndef STINGRAY_TOOLKIT_ITERATORS_H
+#define STINGRAY_TOOLKIT_ITERATORS_H
 
 
 #include <stingray/toolkit/iterator_base.h>

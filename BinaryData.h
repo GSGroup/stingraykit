@@ -1,5 +1,5 @@
-#ifndef __GS_STINGRAY_TOOLKIT_BINARYDATA_H__
-#define __GS_STINGRAY_TOOLKIT_BINARYDATA_H__
+#ifndef STINGRAY_TOOLKIT_BINARYDATA_H
+#define STINGRAY_TOOLKIT_BINARYDATA_H
 
 
 #include <stingray/toolkit/IBinaryBuffer.h>

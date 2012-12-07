@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_REFERENCE_H__
-#define __GS_DVRLIB_TOOLKIT_REFERENCE_H__
+#ifndef STINGRAY_TOOLKIT_REFERENCE_H
+#define STINGRAY_TOOLKIT_REFERENCE_H
 
 
 #include <stingray/toolkit/toolkit.h>

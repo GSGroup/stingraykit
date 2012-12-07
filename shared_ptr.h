@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_SHARED_PTR_H__
-#define __GS_DVRLIB_TOOLKIT_SHARED_PTR_H__
+#ifndef STINGRAY_TOOLKIT_SHARED_PTR_H
+#define STINGRAY_TOOLKIT_SHARED_PTR_H
 
 
 #include <sys/types.h>

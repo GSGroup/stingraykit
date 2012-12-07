@@ -1,5 +1,5 @@
-#ifndef GS_DVRLIB_TOOLKIT_THREADLESS_SIGNALS_H__
-#define GS_DVRLIB_TOOLKIT_THREADLESS_SIGNALS_H__
+#ifndef STINGRAY_TOOLKIT_THREADLESS_SIGNALS_H
+#define STINGRAY_TOOLKIT_THREADLESS_SIGNALS_H
 
 #include <stingray/toolkit/signals.h>
 #include <stingray/toolkit/light_shared_ptr.h>

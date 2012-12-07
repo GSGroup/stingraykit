@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_FUTURE_H__
-#define	__GS_DVRLIB_TOOLKIT_FUTURE_H__
+#ifndef STINGRAY_TOOLKIT_FUTURE_H
+#define STINGRAY_TOOLKIT_FUTURE_H
 
 #include <stingray/threads/ConditionVariable.h>
 #include <stingray/threads/Thread.h>

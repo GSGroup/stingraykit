@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_NUMERICRANGE_H__
-#define	__GS_DVRLIB_TOOLKIT_NUMERICRANGE_H__
+#ifndef STINGRAY_TOOLKIT_NUMERICRANGE_H
+#define STINGRAY_TOOLKIT_NUMERICRANGE_H
 
 #include <stingray/toolkit/exception.h>
 

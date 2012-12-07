@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_UNIQUE_PTR_H__
-#define	__GS_DVRLIB_TOOLKIT_UNIQUE_PTR_H__
+#ifndef STINGRAY_TOOLKIT_UNIQUE_PTR_H
+#define STINGRAY_TOOLKIT_UNIQUE_PTR_H
 
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/safe_bool.h>

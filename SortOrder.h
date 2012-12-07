@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_SORTORDER_H__
-#define __GS_DVRLIB_TOOLKIT_SORTORDER_H__
+#ifndef STINGRAY_TOOLKIT_SORTORDER_H
+#define STINGRAY_TOOLKIT_SORTORDER_H
 
 
 #include <stingray/toolkit/toolkit.h>

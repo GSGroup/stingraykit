@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_MEMBERLISTCOMPARER_H__
-#define __GS_DVRLIB_TOOLKIT_MEMBERLISTCOMPARER_H__
+#ifndef STINGRAY_TOOLKIT_MEMBERLISTCOMPARER_H
+#define STINGRAY_TOOLKIT_MEMBERLISTCOMPARER_H
 
 #include <stingray/toolkit/Tuple.h>
 #include <stingray/toolkit/shared_ptr.h>

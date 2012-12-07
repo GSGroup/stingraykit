@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_MAPPER_H__
-#define	__GS_DVRLIB_TOOLKIT_MAPPER_H__
+#ifndef STINGRAY_TOOLKIT_MAPPER_H
+#define STINGRAY_TOOLKIT_MAPPER_H
 
 namespace stingray {
 

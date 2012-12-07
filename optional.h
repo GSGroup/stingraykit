@@ -1,5 +1,5 @@
-#ifndef __GS_STINGRAY_TOOLKIT_OPTIONAL_H__
-#define __GS_STINGRAY_TOOLKIT_OPTIONAL_H__
+#ifndef STINGRAY_TOOLKIT_OPTIONAL_H
+#define STINGRAY_TOOLKIT_OPTIONAL_H
 
 #include <stingray/toolkit/safe_bool.h>
 #include <stingray/toolkit/unique_ptr.h>

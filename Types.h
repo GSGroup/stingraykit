@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_TYPES_H__
-#define __GS_DVRLIB_TOOLKIT_TYPES_H__
+#ifndef STINGRAY_TOOLKIT_TYPES_H
+#define STINGRAY_TOOLKIT_TYPES_H
 
 
 #include <stingray/toolkit/TypeList.h>

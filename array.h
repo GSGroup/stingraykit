@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_ARRAY_H__
-#define STINGRAY_TOOLKIT_ARRAY_H__
+#ifndef STINGRAY_TOOLKIT_ARRAY_H
+#define STINGRAY_TOOLKIT_ARRAY_H
 
 #include <stddef.h>
 #include <algorithm>

@@ -1,5 +1,5 @@
-#ifndef __GS_STINGRAY_TOOLKIT_VERSION_H__
-#define __GS_STINGRAY_TOOLKIT_VERSION_H__
+#ifndef STINGRAY_TOOLKIT_VERSION_H
+#define STINGRAY_TOOLKIT_VERSION_H
 
 
 #include <stingray/toolkit/StringUtils.h>

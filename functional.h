@@ -1,5 +1,5 @@
-#ifndef __GS_STINGRAY_TOOLKIT_FUNCTIONAL_H__
-#define __GS_STINGRAY_TOOLKIT_FUNCTIONAL_H__
+#ifndef STINGRAY_TOOLKIT_FUNCTIONAL_H
+#define STINGRAY_TOOLKIT_FUNCTIONAL_H
 
 
 #include <stingray/toolkit/function.h>

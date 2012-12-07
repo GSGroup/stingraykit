@@ -1,5 +1,5 @@
-#ifndef __GS_STINGRAY_TOOLKIT_SIGNALWAITER_H__
-#define __GS_STINGRAY_TOOLKIT_SIGNALWAITER_H__
+#ifndef STINGRAY_TOOLKIT_SIGNALTOFUTURE_H
+#define STINGRAY_TOOLKIT_SIGNALTOFUTURE_H
 
 #include <stingray/toolkit/future.h>
 #include <stingray/toolkit/signals.h>

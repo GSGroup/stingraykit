@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_ATOMIC_H__
-#define __GS_DVRLIB_TOOLKIT_ATOMIC_H__
+#ifndef STINGRAY_TOOLKIT_ATOMIC_H
+#define STINGRAY_TOOLKIT_ATOMIC_H
 
 #if HAVE_ATOMIC_H
 #	include <atomic.h>

@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_FINAL_H__
-#define __GS_DVRLIB_TOOLKIT_FINAL_H__
+#ifndef STINGRAY_TOOLKIT_FINAL_H
+#define STINGRAY_TOOLKIT_FINAL_H
 
 
 namespace stingray

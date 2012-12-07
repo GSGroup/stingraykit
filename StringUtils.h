@@ -1,5 +1,5 @@
-#ifndef __GS_STINGRAY_TOOLKIT_STRINGUTILS_H__
-#define __GS_STINGRAY_TOOLKIT_STRINGUTILS_H__
+#ifndef STINGRAY_TOOLKIT_STRINGUTILS_H
+#define STINGRAY_TOOLKIT_STRINGUTILS_H
 
 #include <algorithm>
 #include <sstream>

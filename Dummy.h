@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_DUMMY_H__
-#define __GS_DVRLIB_TOOLKIT_DUMMY_H__
+#ifndef STINGRAY_TOOLKIT_DUMMY_H
+#define STINGRAY_TOOLKIT_DUMMY_H
 
 
 namespace stingray

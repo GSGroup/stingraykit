@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_FUNCTION_H__
-#define __GS_DVRLIB_TOOLKIT_FUNCTION_H__
+#ifndef STINGRAY_TOOLKIT_FUNCTION_H
+#define STINGRAY_TOOLKIT_FUNCTION_H
 
 #include <stingray/toolkit/function_info.h>
 #include <stingray/toolkit/FunctorInvoker.h>

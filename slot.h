@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_SLOT_H__
-#define __GS_DVRLIB_TOOLKIT_SLOT_H__
+#ifndef STINGRAY_TOOLKIT_SLOT_H
+#define STINGRAY_TOOLKIT_SLOT_H
 
 
 #include <stingray/toolkit/Macro.h>

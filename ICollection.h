@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_ICOLLECTION_H__
-#define __GS_DVRLIB_TOOLKIT_ICOLLECTION_H__
+#ifndef STINGRAY_TOOLKIT_ICOLLECTION_H
+#define STINGRAY_TOOLKIT_ICOLLECTION_H
 
 
 #include <stingray/toolkit/IEnumerable.h>

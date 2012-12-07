@@ -1,5 +1,5 @@
-#ifndef __GS_STINGRAY_TOOLKIT_INTERVALTREE_H__
-#define __GS_STINGRAY_TOOLKIT_INTERVALTREE_H__
+#ifndef STINGRAY_TOOLKIT_INTERVALTREE_H
+#define STINGRAY_TOOLKIT_INTERVALTREE_H
 
 
 #include <stingray/toolkit/iterator_base.h>

@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_IENUMERATOR_H__
-#define __GS_DVRLIB_TOOLKIT_IENUMERATOR_H__
+#ifndef STINGRAY_TOOLKIT_IENUMERATOR_H
+#define STINGRAY_TOOLKIT_IENUMERATOR_H
 
 
 #include <stingray/toolkit/shared_ptr.h>

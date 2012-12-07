@@ -1,5 +1,5 @@
-#ifndef DVRLIB_TOOLKIT_FACTORY_H
-#define DVRLIB_TOOLKIT_FACTORY_H
+#ifndef STINGRAY_TOOLKIT_FACTORY_H
+#define STINGRAY_TOOLKIT_FACTORY_H
 
 #include <map>
 #include <string>

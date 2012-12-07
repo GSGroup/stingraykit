@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_REF_COUNT_H__
-#define __GS_DVRLIB_TOOLKIT_REF_COUNT_H__
+#ifndef STINGRAY_TOOLKIT_REF_COUNT_H
+#define STINGRAY_TOOLKIT_REF_COUNT_H
 
 
 #include <assert.h>

@@ -1,5 +1,5 @@
-#ifndef COMPARABLE_H
-#define	COMPARABLE_H
+#ifndef STINGRAY_TOOLKIT_COMPARABLE_H
+#define STINGRAY_TOOLKIT_COMPARABLE_H
 
 #include <typeinfo>
 #include <stingray/toolkit/shared_ptr.h>

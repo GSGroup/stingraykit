@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_INTRUSIVE_LIST_H__
-#define __GS_DVRLIB_TOOLKIT_INTRUSIVE_LIST_H__
+#ifndef STINGRAY_TOOLKIT_INTRUSIVE_LIST_H
+#define STINGRAY_TOOLKIT_INTRUSIVE_LIST_H
 
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/exception.h>

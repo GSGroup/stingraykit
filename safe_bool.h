@@ -1,5 +1,5 @@
-#ifndef __TOOLKIT_SAFE_BOOL_H__
-#define __TOOLKIT_SAFE_BOOL_H__
+#ifndef STINGRAY_TOOLKIT_SAFE_BOOL_H
+#define STINGRAY_TOOLKIT_SAFE_BOOL_H
 
 #include <stingray/toolkit/toolkit.h>
 

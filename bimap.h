@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_DOUBLE_MAP_H__
-#define STINGRAY_TOOLKIT_DOUBLE_MAP_H__
+#ifndef STINGRAY_TOOLKIT_BIMAP_H
+#define STINGRAY_TOOLKIT_BIMAP_H
 
 #include <stdexcept>
 

@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_SINGLETON_H__
-#define __GS_DVRLIB_TOOLKIT_SINGLETON_H__
+#ifndef STINGRAY_TOOLKIT_SINGLETON_H
+#define STINGRAY_TOOLKIT_SINGLETON_H
 
 
 #include <stingray/threads/call_once.h>

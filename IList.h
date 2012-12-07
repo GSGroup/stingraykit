@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_ILIST_H__
-#define __GS_DVRLIB_TOOLKIT_ILIST_H__
+#ifndef STINGRAY_TOOLKIT_ILIST_H
+#define STINGRAY_TOOLKIT_ILIST_H
 
 
 #include <stingray/toolkit/ICollection.h>

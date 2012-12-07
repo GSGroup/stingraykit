@@ -1,5 +1,5 @@
-#ifndef __GS_DVRLIB_TOOLKIT_IRUNNABLE_H__
-#define __GS_DVRLIB_TOOLKIT_IRUNNABLE_H__
+#ifndef STINGRAY_TOOLKIT_IRUNNABLE_H
+#define STINGRAY_TOOLKIT_IRUNNABLE_H
 
 
 #include <stingray/toolkit/shared_ptr.h>
