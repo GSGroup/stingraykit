@@ -1,5 +1,7 @@
 #include <stingray/toolkit/Factory.h>
 
+#include <stingray/toolkit/any.h>
+
 #include <stingray/app/Scheduler.h>
 #include <stingray/app/application_context/AppChannel.h>
 #include <stingray/app/application_context/ChannelList.h>
@@ -45,6 +47,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledViewing);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(::stingray::Detail::any::ObjectHolder<stingray::app::AppChannelPtr>);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelList);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelListAutoRemover);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AutoFilter);

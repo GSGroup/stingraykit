@@ -4,8 +4,12 @@
 
 #include <typeinfo>
 
+#include <stingray/settings/IsSerializable.h>
+#include <stingray/settings/Serialization.h>
+#include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/toolkit.h>
 
 
 namespace stingray
@@ -34,31 +38,88 @@ namespace stingray
 			TOOLKIT_DECLARE_ENUM_CLASS(AnyType);
 		};
 
-		struct IObjectHolder
+
+		struct IObjectHolder : public virtual ISerializable, public virtual IFactoryObject
 		{
 			virtual ~IObjectHolder() { }
 
 			virtual IObjectHolder* Clone() const = 0;
 			virtual std::string ToString() const = 0;
+			virtual bool IsSerializable() const = 0;
 		};
 
-		template < typename T, bool StringRepresentable = IsStringRepresentable<T>::Value >
-		struct ObjectHolder : public virtual IObjectHolder
+
+		template < typename T, bool IsStringRepresentable_ = IsStringRepresentable<T>::Value >
+		struct ObjectToString
+		{ static std::string ToString(const T& obj) { return "<not a string-representable type>"; } };
+
+		template < typename T >
+		struct ObjectToString<T, true>
+		{ static std::string ToString(const T& obj) { return stingray::ToString(obj); } };
+
+
+		TOOLKIT_DECLARE_METHOD_CHECK(GetStaticFactoryObjectCreator);
+
+
+		template < typename T >
+		struct ObjectHolder;
+
+		template
+		<
+			typename T,
+			bool IsSerializable_ = IsSerializable<T>::Value && HasMethod_GetStaticFactoryObjectCreator<ObjectHolder<T> >::Value
+		>
+		struct ObjectSerializer
 		{
-			T	Object;
-			ObjectHolder(const T& object) : Object(object) { }
-			virtual IObjectHolder* Clone() const { return new ObjectHolder<T>(Object); }
-			virtual std::string ToString() const { return "<not a string-representable type>"; }
+			static void Serialize(ObjectOStream & ar, const T& obj) { TOOLKIT_THROW(NotSupportedException()); }
+			static void Deserialize(ObjectIStream & ar, T& obj) { TOOLKIT_THROW(NotSupportedException()); }
+			static bool IsSerializable() { return false; }
 		};
 
 		template < typename T >
-		struct ObjectHolder<T, true> : public virtual IObjectHolder
+		struct ObjectSerializer<T, true>
+		{
+			static void Serialize(ObjectOStream & ar, const T& obj)	{ ar.Serialize("obj", obj); }
+			static void Deserialize(ObjectIStream & ar, T& obj)		{ ar.Deserialize("obj", obj); }
+			static bool IsSerializable() { return true; }
+		};
+
+
+		template < typename T >
+		struct ObjectHolderBase : public virtual IObjectHolder
 		{
 			T	Object;
-			ObjectHolder(const T& object) : Object(object) { }
-			virtual IObjectHolder* Clone() const { return new ObjectHolder<T>(Object); }
-			virtual std::string ToString() const { return stingray::ToString(Object); }
+
+			ObjectHolderBase() : Object()						{ }
+			ObjectHolderBase(const T& object) : Object(object)	{ }
+
+			virtual IObjectHolder* Clone() const				{ return new ObjectHolder<T>(Object); }
+			virtual std::string ToString() const				{ return ObjectToString<T>::ToString(Object); }
+			virtual void Serialize(ObjectOStream & ar) const	{ ObjectSerializer<T>::Serialize(ar, Object); }
+			virtual void Deserialize(ObjectIStream & ar)		{ ObjectSerializer<T>::Deserialize(ar, Object); }
+			virtual bool IsSerializable() const					{ return ObjectSerializer<T>::IsSerializable(); }
 		};
+
+		template < typename T >
+		struct ObjectHolder : public ObjectHolderBase<T>
+		{
+			ObjectHolder(const T& object) : ObjectHolderBase<T>(object) { }
+
+			virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const { TOOLKIT_THROW(NotImplementedException()); }
+		};
+
+#define TOOLKIT_DECLARE_SERIALIZABLE_ANY_OBJECTHOLDER(...) \
+		namespace stingray { \
+		namespace Detail { \
+		namespace any { \
+			template < > \
+			struct ObjectHolder<__VA_ARGS__> : public ObjectHolderBase<__VA_ARGS__> \
+			{ \
+				ObjectHolder() { } \
+				ObjectHolder(const __VA_ARGS__& object) : ObjectHolderBase<__VA_ARGS__>(object) { } \
+				TOOLKIT_REGISTER_CLASS(ObjectHolder<__VA_ARGS__>); \
+			}; \
+		}}}
 
 		union DataType
 		{
@@ -136,10 +197,10 @@ namespace stingray
 
 	public:
 		any() : _type(Type::Empty) { }
-		any(const any &other) { Copy(other._type, other._data); }
+		any(const any &other) : _type(Type::Empty) { Copy(other._type, other._data); }
 
 		template < typename T >
-		any(const T & val) { Init<T>(val); }
+		any(const T & val) : _type(Type::Empty) { Init<T>(val); }
 
 		~any() { Destroy(); }
 
@@ -158,7 +219,12 @@ namespace stingray
 		bool empty() const { return _type == Type::Empty; }
 		//const std::type_info & type() const;
 
+		bool IsSerializable() const;
+
 		std::string ToString() const;
+
+		void Serialize(ObjectOStream & ar) const;
+		void Deserialize(ObjectIStream & ar);
 
 	private:
 		template < typename T >
