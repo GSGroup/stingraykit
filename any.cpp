@@ -11,6 +11,7 @@ namespace stingray
 		{
 		case Type::Empty:
 		case Type::Int:
+		case Type::Bool:
 		case Type::U8:
 		case Type::S8:
 		case Type::U16:
@@ -57,6 +58,7 @@ namespace stingray
 		{
 		case Type::Empty:	return "<empty>";
 		case Type::Int:		return stingray::ToString(_data.Int);
+		case Type::Bool:	return stingray::ToString(_data.Bool);
 		case Type::U8:		return stingray::ToString(_data.U8);
 		case Type::S8:		return stingray::ToString(_data.S8);
 		case Type::U16:		return stingray::ToString(_data.U16);
@@ -80,6 +82,7 @@ namespace stingray
 		{
 		case Type::Empty:	return;
 		case Type::Int:		ar.Serialize("val", _data.Int);			break;
+		case Type::Bool:	ar.Serialize("val", _data.Bool);			break;
 		case Type::U8:		ar.Serialize("val", _data.U8);			break;
 		case Type::S8:		ar.Serialize("val", _data.S8);			break;
 		case Type::U16:		ar.Serialize("val", _data.U16);			break;
@@ -113,6 +116,7 @@ namespace stingray
 		{
 		case Type::Empty:	break;
 		case Type::Int:		ar.Deserialize("val", _data.Int);		break;
+		case Type::Bool:	ar.Deserialize("val", _data.Bool);		break;
 		case Type::U8:		ar.Deserialize("val", _data.U8);		break;
 		case Type::S8:		ar.Deserialize("val", _data.S8);		break;
 		case Type::U16:		ar.Deserialize("val", _data.U16);		break;

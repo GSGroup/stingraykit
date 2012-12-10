@@ -24,6 +24,7 @@ namespace stingray
 			(
 				Empty,
 				Int,
+				Bool,
 				U8,
 				S8,
 				U16,
@@ -124,6 +125,7 @@ namespace stingray
 		union DataType
 		{
 			int				Int;
+			bool			Bool;
 			u8				U8;
 			s8				S8;
 			u16				U16;
@@ -142,6 +144,7 @@ namespace stingray
 
 #define CPPTYPE_TO_ANYUNIONTYPE(Type_, EnumVal_) template < > struct CppTypeToAnyUnionType<Type_> { static const AnyType::Enum Value = AnyType::EnumVal_; }
 		//CPPTYPE_TO_ANYUNIONTYPE( int,			Int );
+		CPPTYPE_TO_ANYUNIONTYPE( bool,			Bool );
 		CPPTYPE_TO_ANYUNIONTYPE( u8,			U8 );
 		CPPTYPE_TO_ANYUNIONTYPE( s8,			S8 );
 		CPPTYPE_TO_ANYUNIONTYPE( u16,			U16 );
@@ -166,6 +169,7 @@ namespace stingray
 
 		ANY_VAL_ACCESSOR( Empty, 	/*empty*/,								return NULL; );
 		ANY_VAL_ACCESSOR( Int,		data.Int	= val,						return &data.Int );
+		ANY_VAL_ACCESSOR( Bool,		data.Bool	= val,						return &data.Bool );
 		ANY_VAL_ACCESSOR( U8,		data.U8		= val,						return &data.U8 );
 		ANY_VAL_ACCESSOR( S8,		data.S8		= val,						return &data.S8 );
 		ANY_VAL_ACCESSOR( U16,		data.U16	= val,						return &data.U16 );
