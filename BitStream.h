@@ -100,6 +100,9 @@ namespace stingray
 
 			size_t GetOffsetDelta() const
 			{ return _stream->_offset - _offset; }
+
+			ByteDataType GetDataDelta() const
+			{ return ByteDataType(_stream->_buf, _offset / 8, (_stream->_offset - _offset) / 8); }
 		};
 
 		class Rollback
