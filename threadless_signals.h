@@ -3,6 +3,7 @@
 
 #include <stingray/toolkit/signals.h>
 #include <stingray/toolkit/light_shared_ptr.h>
+#include <stingray/toolkit/task_alive_token.h>
 #include <vector>
 
 namespace stingray
@@ -14,20 +15,21 @@ namespace stingray
 		class ThreadlessConnection : public ISignalConnection
 		{
 		public:
-			typedef intrusive_list_node_wrapper<function_storage>	FuncTypeWrapper;
-			typedef intrusive_list<FuncTypeWrapper>					Handlers;
-			typedef light_shared_ptr<Handlers>						HandlersPtr;
-			typedef light_weak_ptr<Handlers>						HandlersWeakPtr;
-			typedef ISignalConnection::VTable						VTable;
-			typedef Handlers::iterator								IteratorType;
+			typedef intrusive_list_node_wrapper<FuncTypeWithDeathControl>	FuncTypeWrapper;
+			typedef intrusive_list<FuncTypeWrapper>							Handlers;
+			typedef light_shared_ptr<Handlers>								HandlersPtr;
+			typedef light_weak_ptr<Handlers>								HandlersWeakPtr;
+			typedef ISignalConnection::VTable								VTable;
+			typedef Handlers::iterator										IteratorType;
 
 		private:
 			HandlersWeakPtr									_handlers;
 			IteratorType									_it;
+			TaskLifeToken									_token;
 
 		public:
-			FORCE_INLINE ThreadlessConnection(const HandlersWeakPtr& handlers, IteratorType it)
-				: _handlers(handlers), _it(it)
+			FORCE_INLINE ThreadlessConnection(const HandlersWeakPtr& handlers, IteratorType it, const TaskLifeToken& token)
+				: _handlers(handlers), _it(it), _token(token)
 			{ _getVTable = &GetVTable; }
 
 			static VTable GetVTable()
@@ -41,6 +43,7 @@ namespace stingray
 
 			void Dtor()
 			{
+				_token.~TaskLifeToken();
 				_handlers.~HandlersWeakPtr();
 				_it.~IteratorType();
 			}
@@ -50,6 +53,7 @@ namespace stingray
 				HandlersPtr handlers_l = _handlers.lock();
 				if (handlers_l)
 					handlers_l->erase(_it);
+				_token.Release();
 			}
 		};
 
@@ -72,11 +76,12 @@ namespace stingray
 		typedef typename SendCurrentStateBase::SendCurrentStateFunc	SendCurrentStateFunc;
 
 	private:
-		typedef intrusive_list_node_wrapper<function_storage>		FuncTypeWrapper;
-		typedef intrusive_list<FuncTypeWrapper>						Handlers;
-		typedef Detail::ThreadlessConnection						Connection;
+		typedef Detail::FuncTypeWithDeathControl						FuncTypeWithDeathControl;
+		typedef intrusive_list_node_wrapper<FuncTypeWithDeathControl>	FuncTypeWrapper;
+		typedef intrusive_list<FuncTypeWrapper>							Handlers;
+		typedef Detail::ThreadlessConnection							Connection;
 
-		mutable light_shared_ptr<Handlers>							_handlers;
+		mutable light_shared_ptr<Handlers>								_handlers;
 
 	protected:
 		FORCE_INLINE threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState)
@@ -93,15 +98,20 @@ namespace stingray
 			if (!_handlers)
 				return;
 
-			std::vector<function_storage> handlers;
+			std::vector<FuncTypeWithDeathControl> handlers;
 			handlers.reserve(_handlers->size());
 			std::copy(_handlers->begin(), _handlers->end(), std::back_inserter(handlers));
 
-			typename std::vector<function_storage>::iterator it = handlers.begin();
+			typename std::vector<FuncTypeWithDeathControl>::iterator it = handlers.begin();
 			for (; it != handlers.end(); ++it)
 			{
 				try
-				{ FunctorInvoker::Invoke(it->ToFunction<Signature>(), p); }
+				{
+					FuncTypeWithDeathControl& func = (*it);
+					ExecutionToken token;
+					if (func.Token().Execute(token))
+						FunctorInvoker::Invoke(func.Func().ToFunction<Signature>(), p);
+				}
 				catch (const std::exception& ex)
 				{ exceptionHandler(ex); }
 			}
@@ -117,13 +127,14 @@ namespace stingray
 
 		inline signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
 		{
-			FuncType slot_f(slot<Signature>(executor, handler));
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_f, this->GetExceptionHandler());
+			slot<Signature> slot_func(executor, handler);
+			function<Signature> slot_function(slot_func);
+			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
 			this->DoSendCurrentState(wrapped_slot);
 			if (!_handlers)
 				_handlers.reset(new Handlers);
-			_handlers->push_back(FuncTypeWrapper(function_storage(slot_f)));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end())));
+			_handlers->push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(slot_function))));
+			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end(), slot_func.GetToken())));
 		}
 
 		inline signal_connection connect(const FuncType& handler) const
@@ -132,8 +143,9 @@ namespace stingray
 			this->DoSendCurrentState(wrapped_slot);
 			if (!_handlers)
 				_handlers.reset(new Handlers);
-			_handlers->push_back(FuncTypeWrapper(function_storage(handler)));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end())));
+			TaskLifeToken token;
+			_handlers->push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(handler), token.GetExecutionToken())));
+			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end(), token)));
 		}
 	};
 
