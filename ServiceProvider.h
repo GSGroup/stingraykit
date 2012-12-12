@@ -8,6 +8,7 @@
 #include <stingray/toolkit/ICreator.h>
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/ServiceTraits.h>
+#include <stingray/toolkit/Singleton.h>
 #include <stingray/toolkit/SystemProfiler.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/signals.h>
@@ -134,6 +135,22 @@ namespace stingray
 		{ return typeid(ServiceInterface).name(); }
 	};
 
+	namespace Detail
+	{
+		template < typename Dependency, bool IsSingleton = IsSingleton<Dependency>::Value >
+		struct ServiceDependencyInitializer
+		{
+			static void Call()
+			{ ServiceProvider<Dependency>::Get(); }
+		};
+
+		template < typename Dependency >
+		struct ServiceDependencyInitializer<Dependency, true>
+		{
+			static void Call()
+			{ Dependency::ConstInstance(); }
+		};
+	}
 
 	template < typename T, typename ServiceInterface = typename T::ServiceInterface>
 	class ServiceCreator : public virtual IServiceCreator<ServiceInterface>
@@ -161,7 +178,7 @@ namespace stingray
 		struct InitDependency
 		{
 			static void Call()
-			{ ServiceProvider<Dependency>::Get(); }
+			{ Detail::ServiceDependencyInitializer<Dependency>::Call(); }
 		};
 	};
 
