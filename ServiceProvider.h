@@ -78,12 +78,22 @@ namespace stingray
 		struct service_holder_ptr
 		{
 			TOOLKIT_NONCOPYABLE(service_holder_ptr);
+
 		private:
 			volatile bool& _destroyedFlag;
 			shared_ptr<T> _ptr;
+
 		public:
-			service_holder_ptr(volatile bool& destroyedFlag) : _destroyedFlag(destroyedFlag) { _destroyedFlag =  false; }
-			~service_holder_ptr() { TRACER; ServiceProvider<T>::OnServiceDestroyed(); _destroyedFlag = true; }
+			service_holder_ptr(volatile bool& destroyedFlag) : _destroyedFlag(destroyedFlag)
+			{ _destroyedFlag =  false; }
+			~service_holder_ptr()
+			{
+				TRACER;
+				ServiceProvider<T>::OnServiceDestroyed();
+				_destroyedFlag = true;
+				_ptr.reset();
+			}
+
 			shared_ptr<T>& GetPtr() { return _ptr; }
 		};
 	}
