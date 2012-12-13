@@ -11,7 +11,7 @@ namespace stingray
 		std::runtime_error(message + ": errno = " + ErrnoToStr(errno) + " (" + GetErrorMessage(errno) + ")") {}
 
 	SystemException::SystemException(const std::string &message, int err) throw():
-		std::runtime_error(message + ": errno = " + ErrnoToStr(err) + " (" + strerror(err) + ")") {}
+		std::runtime_error(message + ": errno = " + ErrnoToStr(err) + " (" + GetErrorMessage(err) + ")") {}
 
 	std::string SystemException::GetErrorMessage(int err) throw()
 	{
