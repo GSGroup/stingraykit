@@ -32,9 +32,33 @@ namespace stingray
 	};
 
 
+	namespace Detail
+	{
+		template < typename T, typename Base, bool IsSerializable_ = Inherits<T, ISerializable>::Value >
+		struct ObservableSerializableDictionary : public Base
+		{
+			virtual void Serialize(ObjectOStream & ar) const
+			{
+				ObservableCollectionLockerPtr l(static_cast<const T*>(this)->Lock());
+				Base::Serialize(ar);
+			}
+
+			virtual void Deserialize(ObjectIStream & ar)
+			{
+				ObservableCollectionLockerPtr l(static_cast<const T*>(this)->Lock());
+				Base::Deserialize(ar);
+			}
+		};
+
+		template < typename T, typename Base >
+		struct ObservableSerializableDictionary<T, Base, false> : public Base
+		{ };
+	}
+
+
 	template < typename Wrapped_ >
 	struct ObservableDictionaryWrapper
-		:	public Wrapped_,
+		:	public Detail::ObservableSerializableDictionary<ObservableDictionaryWrapper<Wrapped_>, Wrapped_>,
 			public virtual IObservableDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
 		typedef typename Wrapped_::KeyType						KeyType;

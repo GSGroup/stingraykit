@@ -31,9 +31,33 @@ namespace stingray
 	};
 
 
+	namespace Detail
+	{
+		template < typename T, typename Base, bool IsSerializable_ = Inherits<T, ISerializable>::Value >
+		struct ObservableSerializableList : public Base
+		{
+			virtual void Serialize(ObjectOStream & ar) const
+			{
+				ObservableCollectionLockerPtr l(static_cast<const T*>(this)->Lock());
+				Base::Serialize(ar);
+			}
+
+			virtual void Deserialize(ObjectIStream & ar)
+			{
+				ObservableCollectionLockerPtr l(static_cast<const T*>(this)->Lock());
+				Base::Deserialize(ar);
+			}
+		};
+
+		template < typename T, typename Base >
+		struct ObservableSerializableList<T, Base, false> : public Base
+		{ };
+	}
+
+
 	template < typename Wrapped_ >
 	struct ObservableListWrapper
-		:	public Wrapped_,
+		:	public Detail::ObservableSerializableList<ObservableListWrapper<Wrapped_>, Wrapped_>,
 			public virtual IObservableList<typename Wrapped_::ValueType>
 	{
 		typedef typename Wrapped_::ValueType	ValueType;
