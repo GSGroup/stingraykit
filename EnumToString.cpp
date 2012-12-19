@@ -128,6 +128,27 @@ namespace stingray
 			if (v_it != values.end())
 				EnumToStringMap_throw("Internal error in EnumToStringMap!");
 		}
+
+
+		void EnumToStringMapBase::DoInit(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const char* str, bool& initialized)
+		{
+			if (!initialized)
+			{
+				EnumValuesVec _values;
+				int cur_value = 0;
+				for (; valuesBegin != valuesEnd; ++valuesBegin, ++cur_value)
+				{
+					if (valuesBegin->Val != Detail::EnumValueHolder::Uninitialized)
+						cur_value = valuesBegin->Val;
+
+					_values.push_back(cur_value);
+				}
+
+				EnumToStringMapImpl::Init(_values, _enumToStr, _strToEnum, str);
+
+				initialized = true;
+			}
+		}
 	}
 
 }

@@ -40,11 +40,10 @@ namespace stingray
 			{ return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
 		};
 
-		template < typename EnumClassT >
-		class EnumToStringMap
+
+		class EnumToStringMapBase
 		{
 		private:
-			typedef typename EnumClassT::Enum			NativeEnum;
 			typedef std::map<int, std::string>			EnumToStrMap;
 			typedef std::map<std::string, int>			StrToEnumMap;
 			typedef std::vector<int>					EnumValuesVec;
@@ -56,30 +55,27 @@ namespace stingray
 		public:
 			const EnumValuesVec& GetEnumValues() const { return _values; }
 
-			void Init(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const char* str)
-			{
-				if (!Initialized())
-				{
-					EnumValuesVec values;
-					int cur_value = 0;
-					for (; valuesBegin != valuesEnd; ++valuesBegin, ++cur_value)
-					{
-						if (valuesBegin->Val != Detail::EnumValueHolder::Uninitialized)
-							cur_value = valuesBegin->Val;
+			void DoInit(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const char* str, bool& initialized);
 
-						values.push_back(cur_value);
-					}
-					Instance().Init(values, str);
-				}
-			}
+			std::string DoEnumToString(int val)
+			{ return EnumToStringMapImpl::EnumToString(_enumToStr, (int)val); }
+			int DoEnumFromString(const std::string& str)
+			{ return EnumToStringMapImpl::EnumFromString(_strToEnum, str); }
+		};
 
+
+		template < typename EnumClassT >
+		class EnumToStringMap : public EnumToStringMapBase
+		{
+			typedef typename EnumClassT::Enum NativeEnum;
+
+		public:
 			static std::string EnumToString(NativeEnum val)
 			{
 				if (!Initialized())
 					EnumToStringMap_throw("EnumToStringMap instance not initialized!");
 
-				const EnumToStrMap& m = Instance()._enumToStr;
-				return EnumToStringMapImpl::EnumToString(m, (int)val);
+				return Instance().DoEnumToString((int)val);
 			}
 
 			static NativeEnum EnumFromString(const std::string& str)
@@ -87,22 +83,20 @@ namespace stingray
 				if (!Initialized())
 					EnumToStringMap_throw("EnumToStringMap instance not initialized!");
 
-				const StrToEnumMap& m = Instance()._strToEnum;
-				return (NativeEnum)EnumToStringMapImpl::EnumFromString(m, str);
+				return (NativeEnum)Instance().DoEnumFromString(str);
 			}
 
 			static bool& Initialized()
-			{
-				//static bool val = false;
-				//return val;
-				return s_instanceCreator.Initialized;
-			}
+			{ return s_instanceCreator.Initialized; }
 
 			static EnumToStringMap& Instance()
 			{
 				static EnumToStringMap inst;
 				return inst;
 			}
+
+			void Init(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const char* str)
+			{ DoInit(valuesBegin, valuesEnd, str, Initialized()); }
 
 		private:
 			struct InstanceCreator
@@ -120,14 +114,6 @@ namespace stingray
 			EnumToStringMap() { }
 			EnumToStringMap(const EnumToStringMap&);
 			EnumToStringMap& operator = (const EnumToStringMap&);
-
-			void Init(const EnumValuesVec& values, const std::string& str)
-			{
-				_values = values;
-				EnumToStringMapImpl::Init(values, _enumToStr, _strToEnum, str);
-
-				Initialized() = true;
-			}
 		};
 
 		template < typename EnumClassT >
