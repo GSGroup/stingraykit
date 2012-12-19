@@ -134,7 +134,6 @@ namespace stingray
 		{
 			if (!initialized)
 			{
-				EnumValuesVec _values;
 				int cur_value = 0;
 				for (; valuesBegin != valuesEnd; ++valuesBegin, ++cur_value)
 				{
