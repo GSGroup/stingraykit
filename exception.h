@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <string>
+#include <sstream>
 
 
 #ifdef USE_BACKTRACE_FOR_EXCEPTIONS

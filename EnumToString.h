@@ -4,8 +4,6 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <sstream>
-#include <stdexcept>
 
 #include <stingray/toolkit/iterator_base.h>
 #include <stingray/toolkit/Types.h>
