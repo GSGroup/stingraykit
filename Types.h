@@ -54,6 +54,9 @@ namespace stingray
 	struct IsFixedWidthIntType
 	{ static const bool Value = TypeListContains<FixedWidthIntTypes, T>::Value; };
 
+	template < typename T >
+	struct IsBuiltinType
+	{ static const bool Value = TypeListContains<BuiltinTypes, T>::Value; };
 	/*! \endcond */
 
 }
