@@ -59,17 +59,17 @@ namespace stingray
 #define TOOLKIT_NOT_IMPLEMENTED() \
 		TOOLKIT_THROW(NotImplementedException())
 
-	struct ArgumentException : public std::runtime_error
+	struct ArgumentException : public Exception
 	{
-		ArgumentException() : std::runtime_error("Invalid argument!") { }
-		ArgumentException(const std::string& argName) : std::runtime_error("Invalid argument: " + argName) { }
-		ArgumentException(const std::string& argName, const std::string& argValue) : std::runtime_error("Invalid argument: " + argName + " value: " + argValue) { }
+		ArgumentException() : Exception("Invalid argument!") { }
+		ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
+		ArgumentException(const std::string& argName, const std::string& argValue) : Exception("Invalid argument: " + argName + " value: " + argValue) { }
 	};
 
-	struct NullPointerException : public std::runtime_error
+	struct NullPointerException : public Exception
 	{
-		NullPointerException() : std::runtime_error("Accessing null pointer!") { }
-		NullPointerException(const std::string& expr) : std::runtime_error("Accessing null pointer: " + expr) { }
+		NullPointerException() : Exception("Accessing null pointer!") { }
+		NullPointerException(const std::string& expr) : Exception("Accessing null pointer: " + expr) { }
 	};
 
 	struct InvalidCastException : public std::bad_cast
@@ -85,10 +85,10 @@ namespace stingray
 		virtual const char* what() const throw() { return _message.c_str(); }
 	};
 
-	struct KeyNotFoundException : public stingray::Exception
+	struct KeyNotFoundException : public Exception
 	{
-		KeyNotFoundException() : stingray::Exception("Key not found!") { }
-		KeyNotFoundException(const std::string& keyStr) : stingray::Exception("Key '" + keyStr + "' not found!") { }
+		KeyNotFoundException() : Exception("Key not found!") { }
+		KeyNotFoundException(const std::string& keyStr) : Exception("Key '" + keyStr + "' not found!") { }
 		virtual ~KeyNotFoundException() throw() { }
 	};
 
