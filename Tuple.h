@@ -13,6 +13,14 @@ namespace stingray
 
 	/*! \cond GS_INTERNAL */
 
+	template < typename T >
+	struct GetParamPassingType
+	{
+		typedef typename Dereference<typename Deconst<T>::ValueT>::ValueT RawType;
+		typedef typename If<IsBuiltinType<T>::Value || IsPointer<T>::Value, RawType, const RawType&>::ValueT ConstPassingType;
+		typedef typename If<IsNonConstReference<T>::Value, RawType&, ConstPassingType>::ValueT ValueT;
+	};
+
 	namespace Detail
 	{
 		template < typename Tuple_, size_t Index >

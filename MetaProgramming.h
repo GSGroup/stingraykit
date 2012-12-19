@@ -12,17 +12,17 @@ namespace stingray
 
 	class NullType;
 
-	template < bool Expression > class CompileTimeAssert; 
+	template < bool Expression > class CompileTimeAssert;
 	template < > class CompileTimeAssert<true> { };
 
-	
+
 	struct YesType { char dummy; };
 	struct NoType { YesType dummy[2]; };
 
 	namespace
 	{ CompileTimeAssert< sizeof(YesType) != sizeof(NoType) >	ERROR__yes_and_no_types_do_not_work; }
 
-	
+
 	template < bool Cond_, class T > struct EnableIf;
 	template < class T> struct EnableIf<true, T> { typedef T	ValueT; };
 
@@ -44,9 +44,9 @@ namespace stingray
 	template < typename T, typename U > struct SameType { static const bool Value = false; };
 	template < typename T > struct SameType<T, T> { static const bool Value = true; };
 
-	template < template <typename> class Template, typename U > 
+	template < template <typename> class Template, typename U >
 	struct Is1ParamTemplate { static const bool Value = false; };
-	template < template <typename> class Template, typename T > 
+	template < template <typename> class Template, typename T >
 	struct Is1ParamTemplate<Template, Template<T> > { static const bool Value = true; };
 
 	template < template <typename, typename> class Template, typename U >
@@ -104,13 +104,13 @@ namespace stingray
 	struct IsClass<T, typename ToVoid<int T::*>::ValueT >
 	{ static const bool Value = true; };
 
-	template < bool Expression, typename IfType, typename ElseType > 
+	template < bool Expression, typename IfType, typename ElseType >
 	struct If;
 
-	template < typename IfType, typename ElseType > 
+	template < typename IfType, typename ElseType >
 	struct If<true, IfType, ElseType> { typedef IfType ValueT; };
-	
-	template < typename IfType, typename ElseType > 
+
+	template < typename IfType, typename ElseType >
 	struct If<false, IfType, ElseType> { typedef ElseType ValueT; };
 
 
@@ -159,20 +159,13 @@ namespace stingray
 	template<typename T>
 	struct Deconst<const T> { typedef T ValueT; };
 
-	template < typename T >
-	struct GetParamPassingType
-	{
-		typedef typename Dereference<typename Deconst<T>::ValueT>::ValueT RawType;
-		typedef typename If<IsNonConstReference<T>::Value, RawType&, const RawType&>::ValueT ValueT;
-	};
-	
 #define TY typename
 	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
 	struct For
 	{
 		static void Do()
-		{ 
-			FunctorClass<Start>::Call(); 
+		{
+			FunctorClass<Start>::Call();
 			For<Count - 1, FunctorClass, Start + 1>::Do();
 		}
 
