@@ -41,14 +41,18 @@ namespace stingray
 	template < typename ServiceInterface >
 	class ServiceProvider;
 
-	template < typename I >
-	struct IServiceCreator
+	struct IServiceInfo
 	{
-		virtual ~IServiceCreator() { }
+		virtual ~IServiceInfo() { }
 
 		virtual void InitDependencies() const = 0;
-		virtual shared_ptr<I> Create() const = 0;
 		virtual std::string GetServiceTypeName() const = 0;
+	};
+
+	template < typename I >
+	struct IServiceCreator : public IServiceInfo
+	{
+		virtual shared_ptr<I> Create() const = 0;
 	};
 
 
@@ -183,18 +187,114 @@ namespace stingray
 	};
 
 
+	class ServiceProviderBase
+	{
+	protected:
+		typedef shared_ptr<IServiceInfo>		IServiceInfoPtr;
+
+		typedef IServiceInfoPtr (*GetServiceInfoFunc)();
+		typedef const Mutex& (*GetMutexFunc)();
+		typedef void (*CreateServiceFunc)();
+		typedef bool (*IsDestroyedFunc)();
+
+	public:
+		static void Get(GetServiceInfoFunc		getServiceInfo,
+						GetMutexFunc			getMutex,
+						CreateServiceFunc		createService,
+						IsDestroyedFunc			isDestroyed,
+						const signal<void()>&	onServiceCreated,
+						volatile bool&			startedCreating,
+						volatile bool&			created,
+						volatile bool&			creationFailed)
+		{
+			if (!created)
+			{
+				MutexLock l(getMutex());
+				if (!created)
+				{
+					if (creationFailed)
+						throw ServiceCreationFailedException(getServiceInfo()->GetServiceTypeName());
+
+					if (startedCreating)
+						throw CyclicServiceDependencyException(getServiceInfo()->GetServiceTypeName());
+
+					startedCreating = true;
+
+					try
+					{ getServiceInfo()->InitDependencies(); }
+					catch (Detail::ServiceReferencesInfoException& ex)
+					{
+						creationFailed = true;
+						startedCreating = false;
+						ex.AppendDependencyName(getServiceInfo()->GetServiceTypeName());
+						throw;
+					}
+					catch (...)
+					{
+						creationFailed = true;
+						startedCreating = false;
+						throw;
+					}
+
+					try
+					{ createService(); }
+					catch (...)
+					{
+						creationFailed = true;
+						startedCreating = false;
+						throw;
+					}
+
+					created = true;
+					onServiceCreated();
+				}
+			}
+			TOOLKIT_CHECK(!isDestroyed(), "Service " + getServiceInfo()->GetServiceTypeName() + " already destroyed!");
+		}
+	};
+
+
+	namespace Detail
+	{
+		struct ServiceProviderStaticStuff
+		{
+			Mutex				_mutex;
+			volatile bool 		_destroyedFlag;
+			signal<void()>		OnServiceCreated;
+			signal<void()>		OnServiceDestroyed;
+
+			ServiceProviderStaticStuff(void (*onServiceCreatedPopulator)(const function<void()>&), void (*onServiceDestroyedPopulator)(const function<void()>&))
+				: _destroyedFlag(false), OnServiceCreated(onServiceCreatedPopulator), OnServiceDestroyed(onServiceDestroyedPopulator)
+			{ }
+		};
+	}
+
+
 	template < typename ServiceInterface >
-	class ServiceProvider
+	class ServiceProvider : protected ServiceProviderBase
 	{
 		typedef shared_ptr<IServiceCreator<ServiceInterface> >		IServiceCreatorPtr;
 
 	private:
-		static IServiceCreatorPtr	s_serviceCreator;
-		static Mutex				s_mutex;
+		static IServiceCreatorPtr					s_serviceCreator;
+		static Detail::ServiceProviderStaticStuff	s_staticStuff;
+
+
+		static IServiceInfoPtr DoGetServiceInfo()			{ return s_serviceCreator; }
+		static const Mutex& DoGetMutex()					{ return s_staticStuff._mutex; }
+		static void DoCreateService()
+		{
+			shared_ptr<ServiceInterface> inst;
+			{
+				SystemProfiler sp("[ServiceProvider] Creating " + s_serviceCreator->GetServiceTypeName() + " service", 30, 100);
+				inst = s_serviceCreator->Create();
+			}
+			GetInstancePtr() = inst;
+		}
 
 	public:
-		static signal<void()>		OnServiceCreated;
-		static signal<void()>		OnServiceDestroyed;
+		static signal<void()>&		OnServiceCreated;
+		static signal<void()>&		OnServiceDestroyed;
 
 	public:
 		static void SetCreator(const IServiceCreatorPtr& serviceCreator)
@@ -209,56 +309,8 @@ namespace stingray
 			volatile bool& created = GetCreatedFlag();
 			static volatile bool creation_failed = false;
 
-			if (!created)
-			{
-				MutexLock l(s_mutex);
-				if (!created)
-				{
-					if (creation_failed)
-						throw ServiceCreationFailedException(s_serviceCreator->GetServiceTypeName());
-
-					if (started_creating)
-						throw CyclicServiceDependencyException(s_serviceCreator->GetServiceTypeName());
-
-					started_creating = true;
-
-					try
-					{ s_serviceCreator->InitDependencies(); }
-					catch (Detail::ServiceReferencesInfoException& ex)
-					{
-						creation_failed = true;
-						started_creating = false;
-						ex.AppendDependencyName(s_serviceCreator->GetServiceTypeName());
-						throw;
-					}
-					catch (...)
-					{
-						creation_failed = true;
-						started_creating = false;
-						throw;
-					}
-
-					try
-					{
-						shared_ptr<ServiceInterface> inst;
-						{
-							SystemProfiler sp("[ServiceProvider] Creating " + s_serviceCreator->GetServiceTypeName() + " service", 30, 100);
-							inst = s_serviceCreator->Create();
-						}
-						GetInstancePtr() = inst;
-					}
-					catch (...)
-					{
-						creation_failed = true;
-						started_creating = false;
-						throw;
-					}
-
-					created = true;
-					OnServiceCreated();
-				}
-			}
-			TOOLKIT_CHECK(!IsDestroyed(), "Service " + s_serviceCreator->GetServiceTypeName() + " already destroyed!");
+			ServiceProviderBase::Get(&ServiceProvider::DoGetServiceInfo, &ServiceProvider::DoGetMutex, &ServiceProvider::DoCreateService, &ServiceProvider::IsDestroyed,
+				OnServiceCreated, started_creating, created, creation_failed);
 
 			return *GetInstancePtr();
 		}
@@ -270,35 +322,21 @@ namespace stingray
 		static void OnServiceDestroyedPopulator(const function<void()>& slot)
 		{ if (IsDestroyed()) slot(); }
 
-		static volatile bool& GetCreatedFlag()
-		{
-			static volatile bool flag = false;
-			return flag;
-		};
-		static bool IsCreated()
-		{ return GetCreatedFlag(); }
-		static bool IsDestroyed() // if service wasn't is created, returns undefined value
-		{ return s_destroyedFlag; }
+		static volatile bool& GetCreatedFlag()	{ static volatile bool flag = false; return flag; }
+		static bool IsCreated()					{ return GetCreatedFlag(); }
+		static bool IsDestroyed()				{ return s_staticStuff._destroyedFlag; } // if service wasn't is created, returns undefined value
 
-
-		static volatile bool s_destroyedFlag;
 
 		static shared_ptr<ServiceInterface>& GetInstancePtr()
 		{
-			static Detail::service_holder_ptr<ServiceInterface> inst(s_destroyedFlag);
+			static Detail::service_holder_ptr<ServiceInterface> inst(s_staticStuff._destroyedFlag);
 			return inst.GetPtr();
 		}
 	};
 
-	template < typename T > signal<void()> ServiceProvider<T>::OnServiceCreated(&ServiceProvider<T>::OnServiceCreatedPopulator);
-	template < typename T > signal<void()> ServiceProvider<T>::OnServiceDestroyed(&ServiceProvider<T>::OnServiceDestroyedPopulator);
-
-	template < typename ServiceInterface >
-	Mutex ServiceProvider<ServiceInterface>::s_mutex;
-	template < typename ServiceInterface >
-	volatile bool ServiceProvider<ServiceInterface>::s_destroyedFlag(false);
-
-
+	template < typename T > Detail::ServiceProviderStaticStuff ServiceProvider<T>::s_staticStuff(&ServiceProvider<T>::OnServiceCreatedPopulator, &ServiceProvider<T>::OnServiceDestroyedPopulator);
+	template < typename T > signal<void()>& ServiceProvider<T>::OnServiceCreated(ServiceProvider<T>::s_staticStuff.OnServiceCreated);
+	template < typename T > signal<void()>& ServiceProvider<T>::OnServiceDestroyed(ServiceProvider<T>::s_staticStuff.OnServiceDestroyed);
 
 	/*! \endcond */
 
