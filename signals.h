@@ -124,17 +124,49 @@ namespace stingray
 	 }
 
 
+	class threaded_signal_base_base
+	{
+	protected:
+		typedef Detail::FuncTypeWithDeathControl						FuncTypeWithDeathControl;
+		typedef intrusive_list_node_wrapper<FuncTypeWithDeathControl>	FuncTypeWrapper;
+		typedef intrusive_list<FuncTypeWrapper>							Handlers;
+		typedef Detail::ThreadedConnection<Handlers>					Connection;
+		typedef Connection::HandlersType								HandlersType;
+
+		shared_ptr<HandlersType>										_handlers;
+
+		FORCE_INLINE threaded_signal_base_base()
+			: _handlers(new std::pair<Handlers, Mutex>)
+		{ }
+
+		~threaded_signal_base_base()
+		{ }
+
+		void CopyHandlersToLocal(std::vector<FuncTypeWithDeathControl>& localCopy) const
+		{
+			MutexLock l(_handlers->second);
+			localCopy.reserve(_handlers->first.size());
+			std::copy(_handlers->first.begin(), _handlers->first.end(), std::back_inserter(localCopy));
+		}
+
+		signal_connection AddFunc(const function_storage& funcStorage, const FutureExecutionToken& futureExecutionToken, const TaskLifeToken& taskLifeToken) const
+		{
+			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(funcStorage, futureExecutionToken)));
+			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), taskLifeToken)));
+		}
+	};
+
 	template < typename Signature, typename ExceptionHandler, template <typename> class SendCurrentState_ >
-	class threaded_signal_base : private ExceptionHandler, private SendCurrentState_<Signature>
+	class threaded_signal_base : private threaded_signal_base_base, private ExceptionHandler, private SendCurrentState_<Signature>
 	{
 		TOOLKIT_NONCOPYABLE(threaded_signal_base);
 
 		friend class signal_locker;
-		typedef function<Signature>									FuncType;
+		typedef function<Signature>										FuncType;
 
 	public:
-		typedef typename function_info<Signature>::RetType			RetType;
-		typedef typename function_info<Signature>::ParamTypes		ParamTypes;
+		typedef typename function_info<Signature>::RetType				RetType;
+		typedef typename function_info<Signature>::ParamTypes			ParamTypes;
 
 	protected:
 		typedef SendCurrentState_<Signature>							SendCurrentStateBase;
@@ -142,19 +174,11 @@ namespace stingray
 		typedef typename ExceptionHandler::ExceptionHandlerFunc			ExceptionHandlerFunc;
 
 	private:
-		typedef Detail::FuncTypeWithDeathControl						FuncTypeWithDeathControl;
-
-		typedef intrusive_list_node_wrapper<FuncTypeWithDeathControl>	FuncTypeWrapper;
-		typedef intrusive_list<FuncTypeWrapper>							Handlers;
-
-		typedef Detail::ThreadedConnection<Handlers>			Connection;
-		typedef typename Connection::HandlersType				HandlersType;
-
-		shared_ptr<HandlersType>								_handlers;
+		typedef threaded_signal_base_base::FuncTypeWithDeathControl		FuncTypeWithDeathControl;
 
 	protected:
 		FORCE_INLINE threaded_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState)
-			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _handlers(new std::pair<Handlers, Mutex>)
+			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState)
 		{ }
 
 		FORCE_INLINE ~threaded_signal_base() { }
@@ -175,11 +199,7 @@ namespace stingray
 		void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p, const ExceptionHandlerFunc& exceptionHandler) const
 		{
 			std::vector<FuncTypeWithDeathControl> local_copy;
-			{
-				MutexLock l(_handlers->second);
-				local_copy.reserve(_handlers->first.size());
-				std::copy(_handlers->first.begin(), _handlers->first.end(), std::back_inserter(local_copy));
-			}
+			this->CopyHandlersToLocal(local_copy);
 
 			for (typename std::vector<FuncTypeWithDeathControl>::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
 			{
@@ -197,7 +217,7 @@ namespace stingray
 	public:
 		inline void SendCurrentState(const FuncType& connectingSlot) const
 		{
-			MutexLock l(_handlers->second);
+			MutexLock l(this->_handlers->second);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value > wrapped_slot(connectingSlot, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING( this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
 		}
@@ -208,29 +228,27 @@ namespace stingray
 
 		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
 		{
-			MutexLock l(_handlers->second);
+			MutexLock l(this->_handlers->second);
 			slot<Signature> slot_func(executor, handler);
 			function<Signature> slot_function(slot_func);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(slot_function))));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), slot_func.GetToken())));
+			return this->AddFunc(function_storage(slot_function), null, slot_func.GetToken());
 		}
 
 		signal_connection connect(const FuncType& handler) const
 		{
-			MutexLock l(_handlers->second);
+			MutexLock l(this->_handlers->second);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
 			TaskLifeToken token;
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(handler), token.GetExecutionToken())));
-			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), token)));
+			return this->AddFunc(function_storage(handler), token.GetExecutionToken(), token);
 		}
 
 #undef WRAP_EXCEPTION_HANDLING
 
 	private:
-		const Mutex& GetSyncRoot() const { return _handlers->second; }
+		const Mutex& GetSyncRoot() const { return this->_handlers->second; }
 	};
 
 	struct threaded_signal_strategy {};
