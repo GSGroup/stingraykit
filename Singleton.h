@@ -4,7 +4,7 @@
 
 #include <stingray/log/Logger.h>
 #include <stingray/threads/call_once.h>
-#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/unique_ptr.h>
 #include <stingray/toolkit/toolkit.h>
 
 
@@ -42,13 +42,13 @@ namespace stingray
 	template < typename T >
 	class Singleton
 	{
-		typedef Detail::SingletonInstanceHolder<T> InstanceHolderType;
-		TOOLKIT_DECLARE_PTR(InstanceHolderType);
+		typedef Detail::SingletonInstanceHolder<T>	InstanceHolderType;
+		typedef unique_ptr<InstanceHolderType>		InstanceHolderTypePtr;
 
 		static void InitInstance()
 		{
 			InstanceHolderTypePtr ptr(new InstanceHolderType());
-			GetInstancePtr() = ptr;
+			ptr.swap(GetInstancePtr());
 		}
 
 		static InstanceHolderTypePtr& GetInstancePtr()
