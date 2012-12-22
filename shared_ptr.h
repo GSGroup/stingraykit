@@ -93,8 +93,7 @@ namespace stingray
 		explicit FORCE_INLINE shared_ptr(T* rawPtr)
 			: _rawPtr(rawPtr), _refCount()
 		{
-			if (rawPtr != 0)
-				init_enable_shared_from_this(rawPtr);
+			init_enable_shared_from_this(rawPtr);
 		}
 
 		FORCE_INLINE shared_ptr()
@@ -180,7 +179,7 @@ namespace stingray
 	private:
 		template < typename U >
 		FORCE_INLINE void init_enable_shared_from_this(const enable_shared_from_this<U>* esft) const
-		{ esft->init(*this); }
+		{ if (esft) esft->init(*this); }
 
 		FORCE_INLINE void init_enable_shared_from_this(...) const
 		{ }
