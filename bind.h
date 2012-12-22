@@ -181,23 +181,19 @@ namespace stingray
 		struct ToPointerCallProxy
 		{
 		private:
-			shared_ptr<T>	_ptr;
 			T*				_rawPtr;
+
 		public:
 			ToPointerCallProxy(T* ptr)
-				: _ptr(), _rawPtr(ptr)
+				: _rawPtr(ptr)
 			{}
 			ToPointerCallProxy(T& ref)
-				: _ptr(), _rawPtr(&ref)
+				: _rawPtr(&ref)
 			{}
 			template < typename U >
 			ToPointerCallProxy(const shared_ptr<U>& ptr)
-				: _ptr(), _rawPtr(ptr.get())
+				: _rawPtr(ptr.get())
 			{}
-			template < typename U >
-			ToPointerCallProxy(const weak_ptr<U>& ptr)
-				: _ptr(ptr.lock())
-			{ _rawPtr = _ptr.get(); }
 			operator T*() const { return _rawPtr; }
 		};
 
