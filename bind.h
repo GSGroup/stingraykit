@@ -115,11 +115,11 @@ namespace stingray
 
 		template < typename OriginalParamType, typename BinderParams >
 		struct GetParamType
-		{ typedef OriginalParamType	ValueT; };
+		{ typedef typename GetParamPassingType<OriginalParamType>::ValueT ValueT; };
 
 		template < size_t Index, typename BinderParams >
 		struct GetParamType<BindPlaceholder<Index>, BinderParams>
-		{ typedef typename GetTypeListItem<BinderParams, Index>::ValueT	ValueT; };
+		{ typedef typename GetParamPassingType<typename GetTypeListItem<BinderParams, Index>::ValueT>::ValueT	ValueT; };
 
 
 		template
