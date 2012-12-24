@@ -46,30 +46,25 @@ namespace stingray
 		ClassName& operator= (const ClassName&)
 
 #define TOOLKIT_ENUM_VALUES(...) \
-	public:\
-		enum Enum { __VA_ARGS__ }; \
 	private: \
-		template < typename MyType > \
-		FORCE_INLINE static void InitEnumToStringMap(const MyType* dummy) \
+		FORCE_INLINE static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
 		{ \
-			if (!stingray::Detail::GetEnumToStringMap(dummy).Initialized()) \
-			{ \
-				stingray::Detail::EnumValueHolder __VA_ARGS__; \
-				stingray::Detail::EnumValueHolder values[] = { __VA_ARGS__ }; \
-				stingray::Detail::GetEnumToStringMap(dummy).Init(values, values + sizeof(values) / sizeof(values[0]), #__VA_ARGS__); \
-			} \
+			stingray::Detail::EnumValueHolder __VA_ARGS__; \
+			stingray::Detail::EnumValueHolder values[] = { __VA_ARGS__ }; \
+			map.DoInit(values, values + sizeof(values) / sizeof(values[0]), #__VA_ARGS__); \
 		} \
 	public: \
-		std::string ToString() const { InitEnumToStringMap(this); return stingray::Detail::GetEnumToStringMap(this).EnumToString(_enumVal); } \
-		static Enum FromString(const std::string& str) { InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::GetEnumToStringMap(GetMyTypeDummyPtr()).EnumFromString(str); }
+		enum Enum { __VA_ARGS__ }
 
 #define TOOLKIT_DECLARE_ENUM_CLASS(ClassName) \
-		friend class stingray::Detail::EnumToStringMap<ClassName>; \
+		friend class stingray::Detail::EnumToStringMapInstance<ClassName>; \
 	public: \
+		std::string ToString() const					{ return stingray::Detail::EnumToStringMap<ClassName>::EnumToString(_enumVal); } \
+		static Enum FromString(const std::string& str)	{ return stingray::Detail::EnumToStringMap<ClassName>::EnumFromString(str); } \
 		typedef stingray::Detail::EnumIterator<ClassName> const_iterator; \
-		static const_iterator begin()	{ InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
-		static const_iterator end()		{ InitEnumToStringMap(GetMyTypeDummyPtr()); return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
-		ClassName() { InitEnumToStringMap(this); const std::vector<int>& v = stingray::Detail::GetEnumToStringMap(this).GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : (Enum)v.front(); } \
+		static const_iterator begin()					{ return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
+		static const_iterator end()						{ return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
+		ClassName() { const std::vector<int>& v = stingray::Detail::EnumToStringMap<ClassName>::GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : (Enum)v.front(); } \
 		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
 		ClassName::Enum val() const { return _enumVal; } \
@@ -82,7 +77,6 @@ namespace stingray
 			return !(*this == other); \
 		} \
 	private: \
-		FORCE_INLINE static const ClassName* GetMyTypeDummyPtr() { return NULL; } \
 		ClassName::Enum _enumVal
 
 #define TOOLKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
