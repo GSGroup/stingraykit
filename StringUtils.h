@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
-#include <algorithm>
 
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/IEnumerable.h>
