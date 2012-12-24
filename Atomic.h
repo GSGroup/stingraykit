@@ -89,6 +89,18 @@ namespace stingray
 	};
 
 
+	struct Spinlock
+	{
+	private:
+		atomic_int_type &_lock;
+
+	public:
+		Spinlock(atomic_int_type& lock) : _lock(lock)
+		{ while(!Atomic::TryLock(_lock)); }
+		~Spinlock()
+		{ Atomic::Unlock(_lock); }
+	};
+
 
 }
 
