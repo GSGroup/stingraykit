@@ -1,6 +1,8 @@
 #ifndef STINGRAY_TOOLKIT_ATOMIC_H
 #define STINGRAY_TOOLKIT_ATOMIC_H
 
+#include <cassert>
+
 #if HAVE_ATOMIC_H
 #	include <atomic.h>
 #endif
@@ -75,6 +77,15 @@ namespace stingray
 #else
 #	error "No CompareAndExchange"
 #endif
+
+		static inline bool TryLock(atomic_int_type& atomic)
+		{ return (CompareAndExchange(atomic, 0, 1) == 0); }
+
+		static inline void Unlock(atomic_int_type& atomic)
+		{
+			bool success = CompareAndExchange(atomic, 1, 0) == 1;
+			assert(success);
+		}
 	};
 
 
