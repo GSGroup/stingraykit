@@ -1,8 +1,9 @@
 #ifndef STINGRAY_TOOLKIT_SIGNAL_CONNECTION_H
 #define STINGRAY_TOOLKIT_SIGNAL_CONNECTION_H
 
-#include <vector>
 #include <algorithm>
+#include <map>
+#include <vector>
 
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/iterators.h>
