@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_PHOENIXSINGLETON_H
 
 #include <stdlib.h>
+#include <stingray/toolkit/Atomic.h>
 
 namespace stingray
 {
@@ -15,29 +16,36 @@ namespace stingray
 	public:
 		static T& Instance()
 		{
-			static ThisT meyers;
-			if (ThisT::_destroyed)
+			ThisT* instance = Atomic::Load(ThisT::s_instance);
+			if (!instance)
 			{
-				new(&meyers) ThisT;
+				Spinlock l(s_lock);
+				instance = Atomic::Load(ThisT::s_instance);
+				if (instance)
+					return *instance;
+				instance = new ThisT();
+				Atomic::Store(s_instance, instance);
 				atexit(ThisT::do_atexit);
 			}
-			return meyers;
+			return *instance;
 		}
 
 	private:
-		static bool _destroyed;
-
-		PhoenixSingleton()	{ _destroyed = false; }
-		~PhoenixSingleton()	{ _destroyed = true; }
+		static atomic_int_type	s_lock;
+		static ThisT*			s_instance;
 
 		static void do_atexit()
 		{
-			if (_destroyed)
-				return;
-			static_cast<ThisT&>(Instance()).~PhoenixSingleton();
+			Spinlock l(s_lock);
+			ThisT* instance = Atomic::Load(s_instance);
+			assert(instance);
+			delete instance;
+			Atomic::Store(s_instance, (ThisT*)0);
 		}
 	};
-	template <typename T, typename C> bool PhoenixSingleton<T, C>::_destroyed = false;
+
+	template <typename T, typename C> atomic_int_type PhoenixSingleton<T, C>::s_lock = 0;
+	template <typename T, typename C> PhoenixSingleton<T, C>* PhoenixSingleton<T, C>::s_instance = 0;
 
 
 }
