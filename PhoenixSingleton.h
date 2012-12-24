@@ -8,44 +8,44 @@ namespace stingray
 {
 
 
-	template < typename T, typename ContextType = T >
-	class PhoenixSingleton : public T
+	template <typename T>
+	class PhoenixSingleton
 	{
-		typedef PhoenixSingleton<T, ContextType> ThisT;
+		typedef T InstanceType;
 
 	public:
 		static T& Instance()
 		{
-			ThisT* instance = Atomic::Load(ThisT::s_instance);
+			InstanceType* instance = Atomic::Load(s_instance);
 			if (!instance)
 			{
 				Spinlock l(s_lock);
-				instance = Atomic::Load(ThisT::s_instance);
+				instance = Atomic::Load(s_instance);
 				if (instance)
 					return *instance;
-				instance = new ThisT();
+				instance = new InstanceType();
 				Atomic::Store(s_instance, instance);
-				atexit(ThisT::do_atexit);
+				atexit(do_atexit);
 			}
 			return *instance;
 		}
 
 	private:
 		static atomic_int_type	s_lock;
-		static ThisT*			s_instance;
+		static InstanceType*	s_instance;
 
 		static void do_atexit()
 		{
 			Spinlock l(s_lock);
-			ThisT* instance = Atomic::Load(s_instance);
+			InstanceType* instance = Atomic::Load(s_instance);
 			assert(instance);
 			delete instance;
-			Atomic::Store(s_instance, (ThisT*)0);
+			Atomic::Store(s_instance, (InstanceType*)0);
 		}
 	};
 
-	template <typename T, typename C> atomic_int_type PhoenixSingleton<T, C>::s_lock = 0;
-	template <typename T, typename C> PhoenixSingleton<T, C>* PhoenixSingleton<T, C>::s_instance = 0;
+	template <typename T> atomic_int_type PhoenixSingleton<T>::s_lock = 0;
+	template <typename T> T* PhoenixSingleton<T>::s_instance = 0;
 
 
 }

@@ -51,7 +51,7 @@ namespace stingray
 
 
 		template < typename EnumClassT >
-		class EnumToStringMapInstance : public EnumToStringMapBase
+		class EnumToStringMapInstance : public EnumToStringMapBase, public PhoenixSingleton<EnumToStringMapInstance<EnumClassT> >
 		{
 		public:
 			EnumToStringMapInstance()
@@ -63,7 +63,7 @@ namespace stingray
 		class EnumToStringMap
 		{
 			typedef typename EnumClassT::Enum NativeEnum;
-			typedef PhoenixSingleton<EnumToStringMapInstance<EnumClassT> > PhoenixType;
+			typedef EnumToStringMapInstance<EnumClassT> PhoenixType;
 			typedef EnumToStringMapBase::EnumValuesVec EnumValuesVec;
 
 		public:
