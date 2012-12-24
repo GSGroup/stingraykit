@@ -10,7 +10,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename T, bool StoreByValue = IsBuiltinType<T>::Value || IsPointer<T>::Value || Is1ParamTemplate<shared_ptr, T>::Value, bool IsRef = IsReference<T>::Value>
+		template<typename T, bool StoreByValue = IsBuiltinType<T>::Value || IsEnumClass<T>::Value || IsPointer<T>::Value || Is1ParamTemplate<shared_ptr, T>::Value, bool IsRef = IsReference<T>::Value>
 		struct OptionalImpl
 		{
 		public:
