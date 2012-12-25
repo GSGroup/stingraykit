@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/toolkit.h>
 
 
 /*! \cond GS_INTERNAL */

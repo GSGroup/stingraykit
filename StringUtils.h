@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
-#include <algorithm>
 
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/IEnumerable.h>
@@ -18,6 +17,10 @@
 
 
 /*! \cond GS_INTERNAL */
+namespace std
+{
+	template < class Key, class T, class Compare, class Allocator > class map;
+}
 
 namespace stingray
 {
@@ -105,10 +108,10 @@ namespace stingray
 								(Inherits<ObjectType, std::exception>::Value ?
 									TypeToStringObjectType::IsException :
 									(
-										SameType<u8, ObjectType>::Value 
-											|| SameType<const char*, ObjectType>::Value 
+										SameType<u8, ObjectType>::Value
+											|| SameType<const char*, ObjectType>::Value
 											|| Is1ParamTemplate<shared_ptr, ObjectType>::Value
-											|| Is1ParamTemplate<optional, ObjectType>::Value 
+											|| Is1ParamTemplate<optional, ObjectType>::Value
 											|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
 										TypeToStringObjectType::Other :
 										TypeToStringObjectType::ProxyObjToStdStream
@@ -139,10 +142,10 @@ namespace stingray
 			}
 		};
 
-		template< typename KeyType, typename ValueType >
-		struct TypeToStringSerializer<std::map<KeyType, ValueType>, TypeToStringObjectType::HasBeginEnd>
+		template< typename KeyType, typename ValueType, typename CompareType, typename AllocatorType >
+		struct TypeToStringSerializer<std::map<KeyType, ValueType, CompareType, AllocatorType>, TypeToStringObjectType::HasBeginEnd>
 		{
-			typedef std::map<KeyType, ValueType>	MapType;
+			typedef std::map<KeyType, ValueType, CompareType, AllocatorType>	MapType;
 			static std::string ToStringImpl(const MapType& object)
 			{
 				typename MapType::const_iterator it = object.begin(), iend = object.end();
