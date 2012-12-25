@@ -55,7 +55,7 @@ namespace stingray
 		virtual ValueType Get(const KeyType& key) const
 		{
 			typename MapType::const_iterator it = _map->find(key);
-			TOOLKIT_CHECK(it != _map->end(), Detail::KeyNotFoundExceptionFactory<KeyType>::Create(key));
+			TOOLKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
@@ -73,7 +73,7 @@ namespace stingray
 		{
 			CopyOnWrite();
 			typename MapType::iterator it = _map->find(key);
-			TOOLKIT_CHECK(it != _map->end(), Detail::KeyNotFoundExceptionFactory<KeyType>::Create(key));
+			TOOLKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
 			_map->erase(it);
 		}
 
