@@ -143,15 +143,24 @@ namespace stingray
 	struct GetConstReferenceType<const T&>
 	{ typedef const T&	ValueT; };
 
+	template < typename T >
+	struct GetPointedType;
 
-	/*! \endcond */
+	template < typename T >
+	struct GetPointedType<T *>
+	{ typedef T ValueT; };
 
-	template<typename T>
+	template < typename T >
 	struct Dereference { typedef T	ValueT; };
 
-	template<typename T>
+	template < typename T >
 	struct Dereference<T&> { typedef T	ValueT; };
 
+	template < typename T >
+	struct Depointer { typedef T	ValueT; };
+
+	template < typename T >
+	struct Depointer<T*> { typedef T	ValueT; };
 
 	template<typename T>
 	struct Deconst { typedef T ValueT; };
@@ -230,6 +239,8 @@ namespace stingray
 
 
 #undef TY
+
+	/*! \endcond */
 
 }
 
