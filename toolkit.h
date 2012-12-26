@@ -155,6 +155,8 @@ namespace stingray
 
 	extern NullPtrType null;
 
+	template<typename T> T implicit_cast(T param) { return param; }
+
 	/*! \cond GS_INTERNAL */
 
 	template < typename >
