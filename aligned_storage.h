@@ -83,6 +83,19 @@ namespace stingray
 	};
 
 
+	template<typename T>
+	struct StorageFor
+	{
+		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type _value;
+	};
+
+	template<typename T>
+	T& GetRefFromStorage(StorageFor<T>& storage)				{ return reinterpret_cast<T&>(storage._value); }
+
+	template<typename T>
+	const T& GetRefFromStorage(const StorageFor<T>& storage)	{ return reinterpret_cast<const T&>(storage._value); }
+
+
 }
 
 
