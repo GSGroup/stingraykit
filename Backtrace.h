@@ -2,14 +2,18 @@
 #define STINGRAY_TOOLKIT_BACKTRACE_H
 
 #include <string>
-#ifdef HAVE_BACKTRACE
+#if defined(HAVE_BACKTRACE)
 #	include <stingray/platform/posix/threads/Backtrace.h>
+#elif defined(USE_GCC_BACKTRACE)
+#	include <stingray/platform/gcc/Backtrace.h>
 #endif
 
 namespace stingray
 {
-#ifdef HAVE_BACKTRACE
+#if defined(HAVE_BACKTRACE)
 	typedef posix::Backtrace Backtrace;
+#elif defined(USE_GCC_BACKTRACE)
+	typedef gcc::Backtrace Backtrace;
 #else
 	struct Backtrace
 	{
