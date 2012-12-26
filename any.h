@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_ANY_H
 
 
+#include <iostream>
 #include <typeinfo>
 
 #include <stingray/settings/IsSerializable.h>
@@ -168,6 +169,7 @@ namespace stingray
 			template < typename T > static T* Get(AnyType type, DataType& data) { if (type != CppTypeToAnyUnionType<T>::Value) return NULL; Get_; } \
 		}
 
+		/*				  Type		Set										Get					*/
 		ANY_VAL_ACCESSOR( Empty, 	/*empty*/,								return NULL; );
 		ANY_VAL_ACCESSOR( Int,		data.Int	= val,						return &data.Int );
 		ANY_VAL_ACCESSOR( Bool,		data.Bool	= val,						return &data.Bool );
@@ -179,7 +181,7 @@ namespace stingray
 		ANY_VAL_ACCESSOR( S32,		data.S32	= val,						return &data.S32 );
 		ANY_VAL_ACCESSOR( Float,	data.Float	= val,						return &data.Float );
 		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return &data.Double );
-		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val),					return data.String );
+		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val); std::cout << data.String.Ref(),					return &data.String.Ref() );
 		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),	ObjectHolder<T>* obj_holder = dynamic_cast<ObjectHolder<T>*>(data.Object); if (obj_holder) return &obj_holder->Object; return NULL; );
 #undef ANY_VAL_ACCESSOR
 
@@ -245,7 +247,7 @@ namespace stingray
 		template < typename T >
 		const T* Get() const { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::template Get<T>(_type, _data); }
 
-		void Copy(Type type, DataType data);
+		void Copy(Type type, const DataType& data);
 		void Destroy();
 	};
 

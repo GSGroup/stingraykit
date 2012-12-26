@@ -4,10 +4,9 @@
 namespace stingray
 {
 
-	void any::Copy(Type type, DataType data)
+	void any::Copy(Type type, const DataType& data)
 	{
-		_type = type;
-		switch (_type)
+		switch (type)
 		{
 		case Type::Empty:
 		case Type::Int:
@@ -31,7 +30,7 @@ namespace stingray
 		default:
 			TOOLKIT_THROW(ArgumentException("type", type.ToString()));
 		}
-
+		_type = type;
 	}
 
 
