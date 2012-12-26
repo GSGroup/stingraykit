@@ -42,6 +42,7 @@ namespace stingray
 
 		namespace AlignedTypes
 		{
+			struct a1	{ u8 s; };
 			struct a2	{ u16 s; };
 			struct a4	{ u32 s; };
 			struct a8	{ u64 s; };
@@ -49,19 +50,19 @@ namespace stingray
 		}
 
 		template <std::size_t N> struct type_with_alignment;
-		template<> class type_with_alignment<1>  { public: typedef char type; };
-		template<> class type_with_alignment<2>  { public: typedef AlignedTypes::a2 type; };
-		template<> class type_with_alignment<4>  { public: typedef AlignedTypes::a4 type; };
-		template<> class type_with_alignment<8>  { public: typedef AlignedTypes::a8 type; };
-		template<> class type_with_alignment<16> { public: typedef AlignedTypes::a16 type; };
+		template<> struct type_with_alignment<1>  { typedef AlignedTypes::a1 type; };
+		template<> struct type_with_alignment<2>  { typedef AlignedTypes::a2 type; };
+		template<> struct type_with_alignment<4>  { typedef AlignedTypes::a4 type; };
+		template<> struct type_with_alignment<8>  { typedef AlignedTypes::a8 type; };
+		template<> struct type_with_alignment<16> { typedef AlignedTypes::a16 type; };
 
 		template<size_t Len, size_t Align>
 		struct AlignedStorageImpl
 		{
 			union data_t
 			{
-				char						_buf[Len];
-				type_with_alignment<Align>	_align;
+				char										_buf[Len];
+				typename type_with_alignment<Align>::type	_align;
 			} _data;
 		};
 	}
@@ -87,13 +88,25 @@ namespace stingray
 	struct StorageFor
 	{
 		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type _value;
+
+		void Ctor() { new(&Ref()) T(); }
+
+		template < typename P1 >
+		void Ctor(const P1& p1) { new(&Ref()) T(p1); }
+
+		template < typename P1, typename P2 >
+		void Ctor(const P1& p1, const P2& p2) { new(&Ref()) T(p1, p2); }
+
+		template < typename P1, typename P2, typename P3 >
+		void Ctor(const P1& p1, const P2& p2, const P3& p3) { new(&Ref()) T(p1, p2, p3); }
+
+		void Dtor()
+		{ Ref().~T(); }
+
+		T& Ref()				{ return reinterpret_cast<T&>(_value); }
+		const T& Ref() const	{ return reinterpret_cast<const T&>(_value); }
 	};
 
-	template<typename T>
-	T& GetRefFromStorage(StorageFor<T>& storage)				{ return reinterpret_cast<T&>(storage._value); }
-
-	template<typename T>
-	const T& GetRefFromStorage(const StorageFor<T>& storage)	{ return reinterpret_cast<const T&>(storage._value); }
 
 
 }
