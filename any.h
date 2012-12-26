@@ -8,6 +8,7 @@
 #include <stingray/settings/Serialization.h>
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/aligned_storage.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/toolkit.h>
 
@@ -124,18 +125,18 @@ namespace stingray
 
 		union DataType
 		{
-			int				Int;
-			bool			Bool;
-			u8				U8;
-			s8				S8;
-			u16				U16;
-			s16				S16;
-			u32				U32;
-			s32				S32;
-			float			Float;
-			double			Double;
-			std::string*	String;
-			IObjectHolder*	Object;
+			int						Int;
+			bool					Bool;
+			u8						U8;
+			s8						S8;
+			u16						U16;
+			s16						S16;
+			u32						U32;
+			s32						S32;
+			float					Float;
+			double					Double;
+			StorageFor<std::string>	String;
+			IObjectHolder*			Object;
 		};
 
 		template < typename T >
@@ -178,7 +179,7 @@ namespace stingray
 		ANY_VAL_ACCESSOR( S32,		data.S32	= val,						return &data.S32 );
 		ANY_VAL_ACCESSOR( Float,	data.Float	= val,						return &data.Float );
 		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return &data.Double );
-		ANY_VAL_ACCESSOR( String,	data.String	= new std::string(val),		return data.String );
+		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val),					return data.String );
 		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),	ObjectHolder<T>* obj_holder = dynamic_cast<ObjectHolder<T>*>(data.Object); if (obj_holder) return &obj_holder->Object; return NULL; );
 #undef ANY_VAL_ACCESSOR
 

@@ -23,7 +23,7 @@ namespace stingray
 			_data = data;
 			break;
 		case Type::String:
-			_data.String = new std::string(*data.String);
+			_data.String.Ctor(data.String.Ref());
 			break;
 		case Type::Object:
 			_data.Object = data.Object->Clone();
@@ -39,7 +39,7 @@ namespace stingray
 	{
 		switch (_type)
 		{
-		case Type::String:	delete _data.String;	break;
+		case Type::String:	_data.String.Dtor();	break;
 		case Type::Object:	delete _data.Object;	break;
 		default:			break;
 		}
@@ -67,7 +67,7 @@ namespace stingray
 		case Type::S32:		return stingray::ToString(_data.S32);
 		case Type::Float:	return stingray::ToString(_data.Float);
 		case Type::Double:	return stingray::ToString(_data.Double);
-		case Type::String:	return *_data.String;
+		case Type::String:	return _data.String.Ref();
 		case Type::Object:	return _data.Object->ToString();
 		default:			TOOLKIT_THROW("Unknown type: " + _type.ToString());
 		}
@@ -81,17 +81,17 @@ namespace stingray
 		switch (_type)
 		{
 		case Type::Empty:	return;
-		case Type::Int:		ar.Serialize("val", _data.Int);			break;
+		case Type::Int:		ar.Serialize("val", _data.Int);				break;
 		case Type::Bool:	ar.Serialize("val", _data.Bool);			break;
-		case Type::U8:		ar.Serialize("val", _data.U8);			break;
-		case Type::S8:		ar.Serialize("val", _data.S8);			break;
-		case Type::U16:		ar.Serialize("val", _data.U16);			break;
-		case Type::S16:		ar.Serialize("val", _data.S16);			break;
-		case Type::U32:		ar.Serialize("val", _data.U32);			break;
-		case Type::S32:		ar.Serialize("val", _data.S32);			break;
-		case Type::Float:	ar.Serialize("val", _data.Float);		break;
-		case Type::Double:	ar.Serialize("val", _data.Double);		break;
-		case Type::String:	ar.Serialize("val", *_data.String);		break;
+		case Type::U8:		ar.Serialize("val", _data.U8);				break;
+		case Type::S8:		ar.Serialize("val", _data.S8);				break;
+		case Type::U16:		ar.Serialize("val", _data.U16);				break;
+		case Type::S16:		ar.Serialize("val", _data.S16);				break;
+		case Type::U32:		ar.Serialize("val", _data.U32);				break;
+		case Type::S32:		ar.Serialize("val", _data.S32);				break;
+		case Type::Float:	ar.Serialize("val", _data.Float);			break;
+		case Type::Double:	ar.Serialize("val", _data.Double);			break;
+		case Type::String:	ar.Serialize("val", _data.String.Ref());	break;
 		case Type::Object:
 			{
 				TOOLKIT_CHECK(_data.Object->IsSerializable(), "'any' object is not a serializable one!");
