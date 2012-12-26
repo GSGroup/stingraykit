@@ -61,8 +61,8 @@ namespace stingray
 		{
 			union data_t
 			{
-				char						_buf[Len];
-				type_with_alignment<Align>	_align;
+				char										_buf[Len];
+				typename type_with_alignment<Align>::type	_align;
 			} _data;
 		};
 	}
