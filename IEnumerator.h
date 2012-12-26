@@ -302,6 +302,9 @@ namespace stingray
 			ItemEnumeratorPtr(const base& ptr) : base(ptr) { }
 		};
 
+
+		inline bool ForEach_ItemFilter(bool dummy, bool val) { return val; }
+		inline bool ForEach_ItemFilter(bool dummy) { return true; }
 	}
 
 	template < typename T >
@@ -310,15 +313,21 @@ namespace stingray
 
 
 #define IN ,
-#define FOR_EACH__IMPL(ItemDecl, ...) \
+#define WHERE ,
+#define FOR_EACH__IMPL(ItemDecl_, SomethingToEnumerate_, ...) \
 		for (bool __broken__ = false; !__broken__; __broken__ = true) \
-			for (stingray::Detail::ItemEnumeratorPtr<void(*)(ItemDecl)> en(stingray::GetEnumeratorCaster(__VA_ARGS__)); \
+			for (::stingray::Detail::ItemEnumeratorPtr<void(*)(ItemDecl_)> en(::stingray::GetEnumeratorCaster(SomethingToEnumerate_)); \
 				 en && en->Valid() && !__broken__; \
 				 en->Next()) \
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \
-					 for (ItemDecl = en->Get(); __dummy_bool__ && (__broken__ = true); __dummy_bool__ = false, __broken__ = false)
+					 for (ItemDecl_ = en->Get(); (__dummy_bool__ && ((__dummy_bool__ = false) == false) && ::stingray::Detail::ForEach_ItemFilter(true, ##__VA_ARGS__) && (__broken__ = true)); __broken__ = false)
 
 #define FOR_EACH(Parameters) FOR_EACH__IMPL(Parameters)
+
+// --- Usage:
+// FOR_EACH(ISomeObjectPtr obj IN something->GetObjectCollection())
+// --- or
+// FOR_EACH(ISomeObjectPtr obj IN something->GetObjectCollection() WHERE obj->GetProperty() != 1)
 
 	/*! \endcond */
 
