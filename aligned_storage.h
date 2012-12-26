@@ -87,13 +87,25 @@ namespace stingray
 	struct StorageFor
 	{
 		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type _value;
+
+		void Ctor() { new(&Ref()) T(); }
+
+		template < typename P1 >
+		void Ctor(const P1& p1) { new(&Ref()) T(p1); }
+
+		template < typename P1, typename P2 >
+		void Ctor(const P1& p1, const P2& p2) { new(&Ref()) T(p1, p2); }
+
+		template < typename P1, typename P2, typename P3 >
+		void Ctor(const P1& p1, const P2& p2, const P3& p3) { new(&Ref()) T(p1, p2, p3); }
+
+		void Dtor()
+		{ Ref().~T(); }
+
+		T& Ref()				{ return reinterpret_cast<T&>(_value); }
+		const T& Ref() const	{ return reinterpret_cast<const T&>(_value); }
 	};
 
-	template<typename T>
-	T& GetRefFromStorage(StorageFor<T>& storage)				{ return reinterpret_cast<T&>(storage._value); }
-
-	template<typename T>
-	const T& GetRefFromStorage(const StorageFor<T>& storage)	{ return reinterpret_cast<const T&>(storage._value); }
 
 
 }
