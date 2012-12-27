@@ -5,7 +5,6 @@
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/task_alive_token.h>
-#include <stingray/threads/Thread.h>
 
 
 namespace stingray

@@ -5,7 +5,6 @@
 #include <string>
 
 #include <stingray/threads/Thread.h>
-#include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/Singleton.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/toolkit.h>

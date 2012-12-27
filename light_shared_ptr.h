@@ -5,7 +5,6 @@
 #include <sys/types.h>
 #include <stdexcept>
 
-#include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/ref_count.h>

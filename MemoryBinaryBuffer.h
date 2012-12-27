@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_MEMORYBINARYBUFFER_H
 
 
-#include <stingray/toolkit/BinaryData.h>
+#include <stingray/toolkit/IBinaryBuffer.h>
 
 
 namespace stingray

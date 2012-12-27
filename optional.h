@@ -3,7 +3,6 @@
 
 #include <stingray/toolkit/aligned_storage.h>
 #include <stingray/toolkit/safe_bool.h>
-#include <stingray/toolkit/unique_ptr.h>
 
 namespace stingray
 {

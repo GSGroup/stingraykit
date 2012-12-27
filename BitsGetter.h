@@ -3,7 +3,6 @@
 
 #include <limits>
 
-#include <stingray/log/Logger.h>
 #include <stingray/toolkit/ByteData.h>
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/exception.h>

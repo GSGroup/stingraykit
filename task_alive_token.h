@@ -2,9 +2,9 @@
 #define STINGRAY_TOOLKIT_TASK_ALIVE_TOKEN_H
 
 
-#include <stingray/toolkit/shared_ptr.h>
-#include <stingray/toolkit/Final.h>
 #include <stingray/threads/Thread.h>
+#include <stingray/toolkit/Final.h>
+#include <stingray/toolkit/self_counter.h>
 
 
 namespace stingray

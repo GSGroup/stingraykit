@@ -8,8 +8,6 @@
 #include <stingray/toolkit/ICollection.h>
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/KeyNotFoundExceptionCreator.h>
-#include <stingray/toolkit/StringUtils.h>
-#include <stingray/toolkit/exception.h>
 
 
 namespace stingray

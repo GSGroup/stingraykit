@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 
-#include <stingray/threads/call_once.h>
 #include <stingray/toolkit/PhoenixSingleton.h>
 #include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/iterator_base.h>

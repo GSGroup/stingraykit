@@ -5,12 +5,12 @@
 #include <map>
 #include <vector>
 
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/log/Logger.h>
+#include <stingray/threads/Thread.h>
 #include <stingray/toolkit/iterators.h>
 #include <stingray/toolkit/self_counter.h>
 #include <stingray/toolkit/shared_ptr.h>
-#include <stingray/threads/Thread.h>
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/task_alive_token.h>
 
 
 namespace stingray

@@ -1,9 +1,8 @@
 #ifndef STINGRAY_TOOLKIT_INTRUSIVE_LIST_H
 #define STINGRAY_TOOLKIT_INTRUSIVE_LIST_H
 
-#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/unique_ptr.h>
 #include <stingray/toolkit/iterator_base.h>
 /*! \cond GS_INTERNAL */
 

@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_ITERATORS_H
 
 
+#include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/iterator_base.h>
 
 

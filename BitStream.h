@@ -3,7 +3,7 @@
 
 #include <iterator>
 
-#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/BitsGetter.h>
 
 namespace stingray

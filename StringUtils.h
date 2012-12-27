@@ -7,9 +7,7 @@
 
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/IEnumerable.h>
-#include <stingray/toolkit/IStringRepresentable.h>
 #include <stingray/toolkit/NestedTypeCheck.h>
-#include <stingray/toolkit/Tuple.h>
 #include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/optional.h>
