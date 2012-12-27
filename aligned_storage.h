@@ -117,29 +117,57 @@ namespace stingray
 	};
 
 
+// useful on gcc-4.4
+#ifdef STINGRAY_USE_STRICT_ALIASING_STORAGE_FOR_WORKAROUND
 	template<typename T>
 	struct StorageFor
 	{
-		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type _value;
+		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type	_value;
+		T*																	_ptr;
 
-		void Ctor() { new(&Ref()) T(); }
+		void Ctor()											{ _ptr = new(&_value) T(); }
 
 		template < typename P1 >
-		void Ctor(const P1& p1) { new(&Ref()) T(p1); }
+		void Ctor(const P1& p1)								{ _ptr = new(&_value) T(p1); }
 
 		template < typename P1, typename P2 >
-		void Ctor(const P1& p1, const P2& p2) { new(&Ref()) T(p1, p2); }
+		void Ctor(const P1& p1, const P2& p2)				{ _ptr = new(&_value) T(p1, p2); }
 
 		template < typename P1, typename P2, typename P3 >
-		void Ctor(const P1& p1, const P2& p2, const P3& p3) { new(&Ref()) T(p1, p2, p3); }
+		void Ctor(const P1& p1, const P2& p2, const P3& p3) { _ptr = new(&_value) T(p1, p2, p3); }
 
 		void Dtor()
 		{ Ref().~T(); }
 
-		T& Ref()				{ return reinterpret_cast<T&>(_value); }
-		const T& Ref() const	{ return reinterpret_cast<const T&>(_value); }
+		T& Ref()				{ return *_ptr; }
+		const T& Ref() const	{ return *_ptr; }
 	};
 
+#else
+
+	template<typename T>
+	struct StorageFor
+	{
+		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type	_value;
+
+		void Ctor()											{ T* ptr = new(&_value) T(); assert(ptr == &Ref()); }
+
+		template < typename P1 >
+		void Ctor(const P1& p1)								{ T* ptr = new(&_value) T(p1); assert(ptr == &Ref()); }
+
+		template < typename P1, typename P2 >
+		void Ctor(const P1& p1, const P2& p2)				{ T* ptr = new(&_value) T(p1, p2); assert(ptr == &Ref()); }
+
+		template < typename P1, typename P2, typename P3 >
+		void Ctor(const P1& p1, const P2& p2, const P3& p3)	{ T* ptr = new(&_value) T(p1, p2, p3); assert(ptr == &Ref()); }
+
+		void Dtor()
+		{ Ref().~T(); }
+
+		T& Ref()				{ return *static_cast<T*>(static_cast<void*>(&_value)); }
+		const T& Ref() const	{ return *static_cast<const T*>(static_cast<const void*>(&_value)); }
+	};
+#endif
 
 
 }
