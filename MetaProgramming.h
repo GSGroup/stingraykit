@@ -168,6 +168,15 @@ namespace stingray
 	template<typename T>
 	struct Deconst<const T> { typedef T ValueT; };
 
+
+	template<typename T_, T_ Value_>
+	struct integer_constant
+	{
+		typedef T_ ValueT;
+		static const ValueT Value = Value_;
+	};
+
+
 #define TY typename
 	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
 	struct For
