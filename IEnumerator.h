@@ -322,7 +322,7 @@ namespace stingray
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \
 					 for (ItemDecl_ = en->Get(); (__dummy_bool__ && ((__dummy_bool__ = false) == false) && ::stingray::Detail::ForEach_ItemFilter(true, ##__VA_ARGS__) && (__broken__ = true)); __broken__ = false)
 
-#define FOR_EACH(Parameters) FOR_EACH__IMPL(Parameters)
+#define FOR_EACH(...) FOR_EACH__IMPL(__VA_ARGS__)
 
 // --- Usage:
 // FOR_EACH(ISomeObjectPtr obj IN something->GetObjectCollection())
