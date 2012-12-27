@@ -119,7 +119,7 @@ namespace stingray
 
 // useful on gcc-4.4
 #ifdef STINGRAY_USE_STRICT_ALIASING_STORAGE_FOR_WORKAROUND
-	template<typename T>
+	template<typename T, bool IsPod = IsBuiltinType<T>::Value || IsPointer<T>::Value>
 	struct StorageFor
 	{
 		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type	_value;
@@ -143,6 +143,18 @@ namespace stingray
 		const T& Ref() const	{ return *_ptr; }
 	};
 
+	template<typename T>
+	struct StorageFor<T, true>
+	{
+		T	_value;
+
+		void Ctor()		{ _value = T(); }
+		void Ctor(T t)	{ _value = t; }
+		void Dtor()		{ }
+
+		T& Ref()				{ return _value; }
+		const T& Ref() const	{ return _value; }
+	};
 #else
 
 	template<typename T>
