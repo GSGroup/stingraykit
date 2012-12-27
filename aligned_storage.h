@@ -30,6 +30,7 @@ namespace stingray
 			};
 		}
 
+
 		namespace SimpleAlignmentMeasurer
 		{
 			template <typename T>
@@ -40,29 +41,61 @@ namespace stingray
 			};
 		}
 
+
 		namespace AlignedTypes
 		{
-			struct a1	{ u8 s; };
+#if defined(__GNUC__)
+			struct __attribute__((__aligned__(2))) a2 {};
+			struct __attribute__((__aligned__(4))) a4 {};
+			struct __attribute__((__aligned__(8))) a8 {};
+			struct __attribute__((__aligned__(16))) a16 {};
+			struct __attribute__((__aligned__(32))) a32 {};
+
+			template <std::size_t N> struct type_with_alignment;
+			template<> struct type_with_alignment<1>  { typedef char type; };
+			template<> struct type_with_alignment<2>  { typedef AlignedTypes::a2 type; };
+			template<> struct type_with_alignment<4>  { typedef AlignedTypes::a4 type; };
+			template<> struct type_with_alignment<8>  { typedef AlignedTypes::a8 type; };
+			template<> struct type_with_alignment<16> { typedef AlignedTypes::a16 type; };
+			template<> struct type_with_alignment<32> { typedef AlignedTypes::a32 type; };
+
+			typedef TypeList_6<
+				integer_constant<size_t, 1>,
+				integer_constant<size_t, 2>,
+				integer_constant<size_t, 4>,
+				integer_constant<size_t, 8>,
+				integer_constant<size_t, 16>,
+				integer_constant<size_t, 32> > SupportedAligners;
+
+#else
 			struct a2	{ u16 s; };
 			struct a4	{ u32 s; };
-			struct a8	{ u64 s; };
+			struct a8	{ double s; };
 			struct a16	{ long double s; };
-		}
 
-		template <std::size_t N> struct type_with_alignment;
-		template<> struct type_with_alignment<1>  { typedef AlignedTypes::a1 type; };
-		template<> struct type_with_alignment<2>  { typedef AlignedTypes::a2 type; };
-		template<> struct type_with_alignment<4>  { typedef AlignedTypes::a4 type; };
-		template<> struct type_with_alignment<8>  { typedef AlignedTypes::a8 type; };
-		template<> struct type_with_alignment<16> { typedef AlignedTypes::a16 type; };
+			template <std::size_t N> struct type_with_alignment;
+			template<> struct type_with_alignment<1>	{ typedef char type; };
+			template<> struct type_with_alignment<2>	{ typedef a2 type; };
+			template<> struct type_with_alignment<4>	{ typedef a4 type; };
+			template<> struct type_with_alignment<8>	{ typedef a8 type; };
+			template<> struct type_with_alignment<16>	{ typedef a16 type; };
+
+			typedef TypeList_5<
+				integer_constant<size_t, 1>,
+				integer_constant<size_t, 2>,
+				integer_constant<size_t, 4>,
+				integer_constant<size_t, 8>,
+				integer_constant<size_t, 16> > SupportedAligners;
+#endif
+		}
 
 		template<size_t Len, size_t Align>
 		struct AlignedStorageImpl
 		{
 			union data_t
 			{
-				char										_buf[Len];
-				typename type_with_alignment<Align>::type	_align;
+				char													_buf[Len];
+				typename AlignedTypes::type_with_alignment<Align>::type	_align;
 			} _data;
 		};
 	}
