@@ -25,6 +25,9 @@
 		ServiceProvider<Service_::ServiceInterfaces::ValueT>::IServiceCreatorPtr	\
 			ServiceProvider<Service_::ServiceInterfaces::ValueT>::s_serviceCreator(new ServiceCreator<Service_, Service_::ServiceInterfaces::ValueT>(shared_ptr<ICreator<Service_::ServiceInterfaces::ValueT> >(__VA_ARGS__)))
 
+#define TOOLKIT_GET_SERVICE_CREATOR(Service_) \
+		ServiceProvider<Service_::ServiceInterfaces::ValueT>::GetCreator()
+
 #define TOOLKIT_SET_SERVICE_CREATOR(Service_, ...) \
 		ServiceProvider<Service_::ServiceInterfaces::ValueT>::SetCreator(make_shared<ServiceCreator<Service_, Service_::ServiceInterfaces::ValueT> >(shared_ptr<ICreator<Service_::ServiceInterfaces::ValueT> >(__VA_ARGS__)))
 
@@ -273,6 +276,7 @@ namespace stingray
 	template < typename ServiceInterface >
 	class ServiceProvider : protected ServiceProviderBase
 	{
+	public:
 		typedef shared_ptr<IServiceCreator<ServiceInterface> >		IServiceCreatorPtr;
 
 	private:
