@@ -297,6 +297,9 @@ namespace stingray
 		static signal<void()>&		OnServiceDestroyed;
 
 	public:
+		static IServiceCreatorPtr GetCreator()
+		{ return s_serviceCreator; }
+
 		static void SetCreator(const IServiceCreatorPtr& serviceCreator)
 		{ s_serviceCreator = serviceCreator; }
 
