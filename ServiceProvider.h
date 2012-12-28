@@ -16,25 +16,25 @@
 
 #define TOOLKIT_SERVICE_NOT_SUPPORTED(ServiceInterface_) \
 		template < > \
-		ServiceProvider<ServiceInterface_>::IServiceCreatorPtr	\
-			ServiceProvider<ServiceInterface_>::s_serviceCreator(new stingray::NotSupportedServiceCreator<ServiceInterface_>)
+		stingray::ServiceProvider<ServiceInterface_>::IServiceCreatorPtr	\
+			stingray::ServiceProvider<ServiceInterface_>::s_serviceCreator(new stingray::NotSupportedServiceCreator<ServiceInterface_>)
 
 #define TOOLKIT_DEFINE_SERVICE_CREATOR(Service_, ...) \
-		namespace { CompileTimeAssert<GetTypeListLength<Service_::ServiceInterfaces>::Value == 1> PLEASE_USE_DEFINE_SERVICE_CREATOR_EX_IF_YOU_IMPLEMENT_MORE_THAN_ONE_INTERFACE; } \
+		namespace { stingray::CompileTimeAssert<stingray::GetTypeListLength<Service_::ServiceInterfaces>::Value == 1> PLEASE_USE_DEFINE_SERVICE_CREATOR_EX_IF_YOU_IMPLEMENT_MORE_THAN_ONE_INTERFACE; } \
 		template < > \
-		ServiceProvider<Service_::ServiceInterfaces::ValueT>::IServiceCreatorPtr	\
-			ServiceProvider<Service_::ServiceInterfaces::ValueT>::s_serviceCreator(new ServiceCreator<Service_, Service_::ServiceInterfaces::ValueT>(shared_ptr<ICreator<Service_::ServiceInterfaces::ValueT> >(__VA_ARGS__)))
+		stingray::ServiceProvider<Service_::ServiceInterfaces::ValueT>::IServiceCreatorPtr	\
+			stingray::ServiceProvider<Service_::ServiceInterfaces::ValueT>::s_serviceCreator(new stingray::ServiceCreator<Service_, Service_::ServiceInterfaces::ValueT>(stingray::shared_ptr<stingray::ICreator<Service_::ServiceInterfaces::ValueT> >(__VA_ARGS__)))
 
-#define TOOLKIT_GET_SERVICE_CREATOR(Service_) \
-		ServiceProvider<Service_::ServiceInterfaces::ValueT>::GetCreator()
+#define TOOLKIT_GET_SERVICE_CREATOR(ServiceInterface_) \
+		stingray::ServiceProvider<ServiceInterface_>::GetCreator()
 
 #define TOOLKIT_SET_SERVICE_CREATOR(Service_, ...) \
-		ServiceProvider<Service_::ServiceInterfaces::ValueT>::SetCreator(make_shared<ServiceCreator<Service_, Service_::ServiceInterfaces::ValueT> >(shared_ptr<ICreator<Service_::ServiceInterfaces::ValueT> >(__VA_ARGS__)))
+		stingray::ServiceProvider<Service_::ServiceInterfaces::ValueT>::SetCreator(stingray::make_shared<stingray::ServiceCreator<Service_, Service_::ServiceInterfaces::ValueT> >(stingray::shared_ptr<stingray::ICreator<Service_::ServiceInterfaces::ValueT> >(__VA_ARGS__)))
 
 #define TOOLKIT_DEFINE_SERVICE_CREATOR_EX(Service_, ServiceInterface_, ...) \
 		template < > \
-		ServiceProvider<ServiceInterface_>::IServiceCreatorPtr	\
-			ServiceProvider<ServiceInterface_>::s_serviceCreator(new ServiceCreator<Service_, ServiceInterface_>(stingray::shared_ptr<ICreator<ServiceInterface_> >(__VA_ARGS__)))
+		stingray::ServiceProvider<ServiceInterface_>::IServiceCreatorPtr	\
+			stingray::ServiceProvider<ServiceInterface_>::s_serviceCreator(new stingray::ServiceCreator<Service_, ServiceInterface_>(stingray::shared_ptr<stingray::ICreator<ServiceInterface_> >(__VA_ARGS__)))
 
 namespace stingray
 {
