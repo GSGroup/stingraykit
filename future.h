@@ -7,6 +7,7 @@
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/unique_ptr.h>
 #include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/exception_ptr.h>
 
 namespace stingray
 {
@@ -59,13 +60,14 @@ namespace stingray
 			Mutex				_mutex;
 			ConditionVariable	_condition;
 			ValuePtr			_value;
-			bool				_promiseDestroyed;
+			exception_ptr		_exception;
+
 		public:
-			future_impl() : _promiseDestroyed(false) {}
+			future_impl() {}
 			~future_impl() {}
 
-			bool is_ready() const		{ MutexLock l(_mutex); return _value || _promiseDestroyed; }
-			bool has_exception() const	{ MutexLock l(_mutex); return _promiseDestroyed; }
+			bool is_ready() const		{ MutexLock l(_mutex); return _value || _exception; }
+			bool has_exception() const	{ MutexLock l(_mutex); return _exception; }
 			bool has_value() const		{ MutexLock l(_mutex); return _value; }
 			void wait()					{ MutexLock l(_mutex); do_wait(); }
 
@@ -79,7 +81,8 @@ namespace stingray
 			{
 				MutexLock l(_mutex);
 				do_wait();
-				TOOLKIT_CHECK(!_promiseDestroyed, BrokenPromise());
+				if (_exception)
+					rethrow_exception(_exception);
 				return *_value;
 			}
 
@@ -91,29 +94,29 @@ namespace stingray
 				_condition.Broadcast();
 			}
 
-			void on_promise_destroyed()
+			void set_exception(exception_ptr ex)
 			{
 				MutexLock l(_mutex);
 				if (_value)
 					return;
-				_promiseDestroyed = true;
+				_exception = ex;
 				_condition.Broadcast();
 			}
 
 		private:
 			void do_wait()
 			{
-				if(_value || _promiseDestroyed)
+				if(_value || _exception)
 					return;
 				_condition.Wait(_mutex);
 			}
 
 			future_status do_timed_wait(const TimeDuration& duration)
 			{
-				if (_value || _promiseDestroyed)
+				if (_value || _exception)
 					return future_status::ready;
 				_condition.TimedWait(_mutex, duration);
-				if (_value || _promiseDestroyed)
+				if (_value || _exception)
 					return future_status::ready;
 				return future_status::timeout;
 			}
@@ -129,15 +132,15 @@ namespace stingray
 		private:
 			Mutex				_mutex;
 			ConditionVariable	_condition;
-			bool				_value,
-								_promiseDestroyed;
+			bool				_value;
+			exception_ptr		_exception;
 
 		public:
-			future_impl() : _value(false), _promiseDestroyed(false) {}
+			future_impl() : _value(false) {}
 			~future_impl() {}
 
-			bool is_ready() const		{ MutexLock l(_mutex); return _value || _promiseDestroyed; }
-			bool has_exception() const	{ MutexLock l(_mutex); return _promiseDestroyed; }
+			bool is_ready() const		{ MutexLock l(_mutex); return _value || _exception; }
+			bool has_exception() const	{ MutexLock l(_mutex); return _exception; }
 			bool has_value() const		{ MutexLock l(_mutex); return _value; }
 			void wait()					{ MutexLock l(_mutex); do_wait(); }
 
@@ -151,7 +154,8 @@ namespace stingray
 			{
 				MutexLock l(_mutex);
 				do_wait();
-				TOOLKIT_CHECK(!_promiseDestroyed, BrokenPromise());
+				if (_exception)
+					rethrow_exception(_exception);
 			}
 
 			void set_value()
@@ -162,29 +166,29 @@ namespace stingray
 				_condition.Broadcast();
 			}
 
-			void on_promise_destroyed()
+			void set_exception(exception_ptr ex)
 			{
 				MutexLock l(_mutex);
 				if (_value)
 					return;
-				_promiseDestroyed = true;
+				_exception = ex;
 				_condition.Broadcast();
 			}
 
 		private:
 			void do_wait()
 			{
-				if(_value || _promiseDestroyed)
+				if(_value || _exception)
 					return;
 				_condition.Wait(_mutex);
 			}
 
 			future_status do_timed_wait(const TimeDuration& duration)
 			{
-				if (_value || _promiseDestroyed)
+				if (_value || _exception)
 					return future_status::ready;
 				_condition.TimedWait(_mutex, duration);
-				if (_value || _promiseDestroyed)
+				if (_value || _exception)
 					return future_status::ready;
 				return future_status::timeout;
 			}
@@ -285,15 +289,24 @@ namespace stingray
 		bool						_futureRetrieved;
 
 	public:
-		promise() : _futureImpl(new FutureImplType), _futureRetrieved(false) {}
-		~promise() { _futureImpl->on_promise_destroyed(); }
 
-		void swap(promise& other) { _futureImpl.swap(other._futureImpl); }
+		promise() : _futureImpl(new FutureImplType), _futureRetrieved(false)
+		{}
 
-		future<ResultType> get_future() { TOOLKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+		~promise()
+		{ _futureImpl->set_exception(make_exception_ptr(BrokenPromise())); }
 
-		void set_value(SetType result) { _futureImpl->set_value(result); }
-		//void set_exception(exception_ptr p); // TODO: Implement
+		void swap(promise& other)
+		{ _futureImpl.swap(other._futureImpl); }
+
+		future<ResultType> get_future()
+		{ TOOLKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+
+		void set_value(SetType result)
+		{ _futureImpl->set_value(result); }
+
+		void set_exception(exception_ptr ex)
+		{ _futureImpl->set_exception(ex); }
 	};
 
 	template<>
@@ -309,15 +322,25 @@ namespace stingray
 		bool						_futureRetrieved;
 
 	public:
-		promise() : _futureImpl(new FutureImplType), _futureRetrieved(false) {}
-		~promise() { _futureImpl->on_promise_destroyed(); }
 
-		void swap(promise& other) { _futureImpl.swap(other._futureImpl); }
+		promise() : _futureImpl(new FutureImplType), _futureRetrieved(false)
+		{}
 
-		future<ResultType> get_future() { TOOLKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+		~promise()
+		{ _futureImpl->set_exception(make_exception_ptr(BrokenPromise())); }
 
-		void set_value() { _futureImpl->set_value(); }
-		//void set_exception(exception_ptr p); // TODO: Implement
+		void swap(promise& other)
+		{ _futureImpl.swap(other._futureImpl); }
+
+		future<ResultType> get_future()
+		{ TOOLKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+
+		void set_value()
+		{ _futureImpl->set_value(); }
+
+		void set_exception(exception_ptr ex)
+		{ _futureImpl->set_exception(ex); }
+
 	};
 
 
