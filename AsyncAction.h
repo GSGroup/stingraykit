@@ -7,6 +7,7 @@
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/future.h>
 
 
 namespace stingray
@@ -19,44 +20,17 @@ namespace stingray
 		typedef	function<ResultType(StateType)>		ReachStateFunc;
 
 	public:
-		class Listener
-		{
-			friend class AsyncAction<StateType, ResultType>;
-
-		private:
-			shared_ptr<ResultType>		_result;
-
-		public:
-			signal<void(const ResultType&)>		Done;
-
-		private:
-			Listener()
-				: Done(bind(&Listener::DonePopulator, this, _1))
-			{ }
-
-			void SetResult(const ResultType& result)
-			{
-				signal_locker l(Done);
-				_result.reset(new ResultType(result));
-				Done(*_result);
-			}
-
-			void DonePopulator(const function<void(const ResultType&)>& slot)
-			{
-				if (_result)
-					slot(*_result);
-			}
-		};
-		TOOLKIT_DECLARE_PTR(Listener);
+		typedef promise<ResultType> Promise;
+		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
-		struct ListenerRef { ListenerPtr Ptr; };
-		TOOLKIT_DECLARE_PTR(ListenerRef);
+		struct PromiseRef { PromisePtr Ptr; };
+		TOOLKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
 		ReachStateFunc					_reachStateFunc;
 		ExecutionDeferrerWithTimerPtr	_deferrer;
-		ListenerRefPtr					_lastListenerRef;
+		PromiseRefPtr					_lastPromiseRef;
 		Mutex		  			 	 	_mutex;
 		TaskLifeToken 			  		_token;
 
@@ -72,33 +46,38 @@ namespace stingray
 		~AsyncAction()
 		{ _token.Release(); }
 
-		ListenerPtr SetState(const StateType& state)
+		PromisePtr SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
 
-			_lastListenerRef.reset(new ListenerRef);
-			_lastListenerRef->Ptr.reset(new Listener);
+			_lastPromiseRef.reset(new PromiseRef);
+			_lastPromiseRef->Ptr.reset(new Promise);
 
 			if (!_deferrer)
-				ScheduleReachState(state, _lastListenerRef.weak());
+				ScheduleReachState(state, _lastPromiseRef.weak());
 			else
-				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastListenerRef.weak()));
+				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastPromiseRef.weak()));
 
-			return _lastListenerRef->Ptr;
+			return _lastPromiseRef->Ptr;
 		}
 
 	private:
-		void ScheduleReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
+		void ScheduleReachState(const StateType& state, const PromiseRefWeakPtr& listenerRefWeak)
 		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, state, listenerRefWeak), _token.GetExecutionToken()); }
 
-		void DoReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
+		void DoReachState(const StateType& state, const PromiseRefWeakPtr& listenerRefWeak)
 		{
-			ListenerRefPtr listener_ref = listenerRefWeak.lock();
+			PromiseRefPtr listener_ref = listenerRefWeak.lock();
 			if (!listener_ref)
 				return;
-			ResultType res = _reachStateFunc(state);
-			listener_ref->Ptr->SetResult(res);
-			listener_ref->Ptr.reset();
+			try
+			{
+				ResultType res = _reachStateFunc(state);
+				listener_ref->Ptr->set_value(res);
+				listener_ref->Ptr.reset();
+			}
+			catch(const std::exception &ex)
+			{ listener_ref->Ptr->set_exception(make_exception_ptr(ex)); }
 		}
 	};
 
@@ -108,43 +87,17 @@ namespace stingray
 		typedef	function<void(StateType)>		ReachStateFunc;
 
 	public:
-		class Listener
-		{
-			friend class AsyncAction<StateType, void>;
-
-		private:
-			bool		_done;
-
-		public:
-			signal<void()>		Done;
-
-		private:
-			Listener()
-				: _done(false), Done(bind(&Listener::DonePopulator, this, _1))
-			{ }
-
-			void SetResult()
-			{
-				signal_locker l(Done);
-				_done = true;
-			}
-
-			void DonePopulator(const function<void()>& slot)
-			{
-				if (_done)
-					slot();
-			}
-		};
-		TOOLKIT_DECLARE_PTR(Listener);
+		typedef promise<void> Promise;
+		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
-		struct ListenerRef { ListenerPtr Ptr; };
-		TOOLKIT_DECLARE_PTR(ListenerRef);
+		struct PromiseRef { PromisePtr Ptr; };
+		TOOLKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
 		ReachStateFunc					_reachStateFunc;
 		ExecutionDeferrerWithTimerPtr	_deferrer;
-		ListenerRefPtr					_lastListenerRef;
+		PromiseRefPtr					_lastPromiseRef;
 		Mutex							_mutex;
 		TaskLifeToken					_token;
 
@@ -160,32 +113,38 @@ namespace stingray
 		~AsyncAction()
 		{ _token.Release(); }
 
-		ListenerPtr SetState(const StateType& state)
+		PromisePtr SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
-			_lastListenerRef.reset(new ListenerRef);
-			_lastListenerRef->Ptr.reset(new Listener);
+			_lastPromiseRef.reset(new PromiseRef);
+			_lastPromiseRef->Ptr.reset(new Promise);
 
 			if (!_deferrer)
-				ScheduleReachState(state, _lastListenerRef.weak());
+				ScheduleReachState(state, _lastPromiseRef.weak());
 			else
-				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastListenerRef.weak()));
+				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastPromiseRef.weak()));
 
-			return _lastListenerRef->Ptr;
+			return _lastPromiseRef->Ptr;
 		}
 
 	private:
-		void ScheduleReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
+		void ScheduleReachState(const StateType& state, const PromiseRefWeakPtr& listenerRefWeak)
 		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, state, listenerRefWeak), _token.GetExecutionToken()); }
 
-		void DoReachState(const StateType& state, const ListenerRefWeakPtr& listenerRefWeak)
+		void DoReachState(const StateType& state, const PromiseRefWeakPtr& listenerRefWeak)
 		{
-			ListenerRefPtr listener_ref = listenerRefWeak.lock();
+			PromiseRefPtr listener_ref = listenerRefWeak.lock();
 			if (!listener_ref)
 				return;
-			_reachStateFunc(state);
-			listener_ref->Ptr->SetResult();
-			listener_ref->Ptr.reset();
+			try
+			{
+				_reachStateFunc(state);
+				listener_ref->Ptr->set_value();
+				listener_ref->Ptr.reset();
+			}
+			catch(const std::exception &ex)
+			{ listener_ref->Ptr->set_exception(make_exception_ptr(ex)); }
+
 		}
 	};
 
@@ -195,43 +154,17 @@ namespace stingray
 		typedef	function<void()>		ReachStateFunc;
 
 	public:
-		class Listener
-		{
-			friend class AsyncAction<void, void>;
-
-		private:
-			bool		_done;
-
-		public:
-			signal<void()>		Done;
-
-		private:
-			Listener()
-				: _done(false), Done(bind(&Listener::DonePopulator, this, _1))
-			{ }
-
-			void SetResult()
-			{
-				signal_locker l(Done);
-				_done = true;
-			}
-
-			void DonePopulator(const function<void()>& slot)
-			{
-				if (_done)
-					slot();
-			}
-		};
-		TOOLKIT_DECLARE_PTR(Listener);
+		typedef promise<void> Promise;
+		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
-		struct ListenerRef { ListenerPtr Ptr; };
-		TOOLKIT_DECLARE_PTR(ListenerRef);
+		struct PromiseRef { PromisePtr Ptr; };
+		TOOLKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
 		ReachStateFunc					_reachStateFunc;
 		ExecutionDeferrerWithTimerPtr	_deferrer;
-		ListenerRefPtr					_lastListenerRef;
+		PromiseRefPtr					_lastPromiseRef;
 		Mutex							_mutex;
 		TaskLifeToken					_token;
 
@@ -247,32 +180,39 @@ namespace stingray
 		~AsyncAction()
 		{ _token.Release(); }
 
-		ListenerPtr SetState()
+		PromisePtr SetState()
 		{
 			MutexLock l(_mutex);
-			_lastListenerRef.reset(new ListenerRef);
-			_lastListenerRef->Ptr.reset(new Listener);
+			_lastPromiseRef.reset(new PromiseRef);
+			_lastPromiseRef->Ptr.reset(new Promise);
 
 			if (!_deferrer)
-				ScheduleReachState(_lastListenerRef.weak());
+				ScheduleReachState(_lastPromiseRef.weak());
 			else
-				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, _lastListenerRef.weak()));
+				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, _lastPromiseRef.weak()));
 
-			return _lastListenerRef->Ptr;
+			return _lastPromiseRef->Ptr;
 		}
 
 	private:
-		void ScheduleReachState(const ListenerRefWeakPtr& listenerRefWeak)
+		void ScheduleReachState(const PromiseRefWeakPtr& listenerRefWeak)
 		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, listenerRefWeak), _token.GetExecutionToken()); }
 
-		void DoReachState(const ListenerRefWeakPtr& listenerRefWeak)
+		void DoReachState(const PromiseRefWeakPtr& listenerRefWeak)
 		{
-			ListenerRefPtr listener_ref = listenerRefWeak.lock();
+			PromiseRefPtr listener_ref = listenerRefWeak.lock();
 			if (!listener_ref)
 				return;
-			_reachStateFunc();
-			listener_ref->Ptr->SetResult();
-			listener_ref->Ptr.reset();
+
+			try
+			{
+				_reachStateFunc();
+				listener_ref->Ptr->set_value();
+				listener_ref->Ptr.reset();
+			}
+			catch(const std::exception &ex)
+			{ listener_ref->Ptr->set_exception(make_exception_ptr(ex)); }
+
 		}
 	};
 
