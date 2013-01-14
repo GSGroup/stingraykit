@@ -81,6 +81,9 @@ namespace stingray
 		return val;
 	}
 
+	template < typename T >
+	std::string ToString(const T& val);
+
 	namespace Detail
 	{
 		TOOLKIT_DECLARE_METHOD_CHECK(begin);
