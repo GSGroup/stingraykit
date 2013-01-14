@@ -18,7 +18,7 @@ namespace stingray
 			: Current(current), Total(total)
 		{ }
 
-		size_t InPercents() const
+		int InPercents() const
 		{ return Total != 0 ? 100 * Current / Total : 0; }
 
 		std::string ToString() const
