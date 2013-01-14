@@ -11,8 +11,8 @@ namespace stingray
 
 	struct ProgressValue
 	{
-		int		Current;
-		int		Total;
+		s64		Current;
+		s64		Total;
 
 		ProgressValue(int current, int total)
 			: Current(current), Total(total)
