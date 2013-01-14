@@ -1,7 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_EXCEPTION_PTR_H
 #define STINGRAY_TOOLKIT_EXCEPTION_PTR_H
 
-#include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/light_shared_ptr.h>
 #include <stingray/toolkit/exception.h>
 
 #include <exception>
@@ -20,7 +20,7 @@ namespace stingray
 		virtual const char* what() const throw() { return _what.c_str(); }
 	};
 
-	typedef shared_ptr<rethrown_exception> exception_ptr;
+	typedef light_shared_ptr<rethrown_exception> exception_ptr;
 
 	inline exception_ptr make_exception_ptr(const std::exception &ex)
 	{ return exception_ptr(new rethrown_exception(ex)); }
