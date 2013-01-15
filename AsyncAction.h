@@ -25,7 +25,7 @@ namespace stingray
 		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
-		struct PromiseRef { PromisePtr Ptr; };
+		struct PromiseRef { PromisePtr Ptr; PromiseRef(): Ptr(new Promise) {} };
 		TOOLKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
@@ -52,7 +52,6 @@ namespace stingray
 			MutexLock l(_mutex);
 
 			_lastPromiseRef.reset(new PromiseRef);
-			_lastPromiseRef->Ptr.reset(new Promise);
 
 			if (!_deferrer)
 				ScheduleReachState(state, _lastPromiseRef.weak());
@@ -93,7 +92,7 @@ namespace stingray
 		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
-		struct PromiseRef { PromisePtr Ptr; };
+		struct PromiseRef { PromisePtr Ptr; PromiseRef(): Ptr(new Promise) {} };
 		TOOLKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
@@ -119,7 +118,6 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 			_lastPromiseRef.reset(new PromiseRef);
-			_lastPromiseRef->Ptr.reset(new Promise);
 
 			if (!_deferrer)
 				ScheduleReachState(state, _lastPromiseRef.weak());
@@ -161,7 +159,7 @@ namespace stingray
 		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
-		struct PromiseRef { PromisePtr Ptr; };
+		struct PromiseRef { PromisePtr Ptr; PromiseRef(): Ptr(new Promise) {} };
 		TOOLKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
@@ -187,7 +185,6 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 			_lastPromiseRef.reset(new PromiseRef);
-			_lastPromiseRef->Ptr.reset(new Promise);
 
 			if (!_deferrer)
 				ScheduleReachState(_lastPromiseRef.weak());
