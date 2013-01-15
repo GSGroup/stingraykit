@@ -41,8 +41,10 @@ namespace stingray
 			void Cleanup()
 			{
 				if (_initialized)
+				{
 					_value.Dtor();
-				_initialized = false;
+					_initialized = false;
+				}
 			}
 		};
 
