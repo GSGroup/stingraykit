@@ -21,6 +21,7 @@ namespace stingray
 
 	public:
 		typedef promise<ResultType> Promise;
+		typedef future<ResultType>	Future;
 		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
@@ -46,7 +47,7 @@ namespace stingray
 		~AsyncAction()
 		{ _token.Release(); }
 
-		PromisePtr SetState(const StateType& state)
+		Future SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
 
@@ -58,7 +59,7 @@ namespace stingray
 			else
 				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastPromiseRef.weak()));
 
-			return _lastPromiseRef->Ptr;
+			return _lastPromiseRef->Ptr->get_future();
 		}
 
 	private:
@@ -87,7 +88,8 @@ namespace stingray
 		typedef	function<void(StateType)>		ReachStateFunc;
 
 	public:
-		typedef promise<void> Promise;
+		typedef promise<void>	Promise;
+		typedef future<void>	Future;
 		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
@@ -113,7 +115,7 @@ namespace stingray
 		~AsyncAction()
 		{ _token.Release(); }
 
-		PromisePtr SetState(const StateType& state)
+		Future SetState(const StateType& state)
 		{
 			MutexLock l(_mutex);
 			_lastPromiseRef.reset(new PromiseRef);
@@ -124,7 +126,7 @@ namespace stingray
 			else
 				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastPromiseRef.weak()));
 
-			return _lastPromiseRef->Ptr;
+			return _lastPromiseRef->Ptr->get_future();
 		}
 
 	private:
@@ -154,7 +156,8 @@ namespace stingray
 		typedef	function<void()>		ReachStateFunc;
 
 	public:
-		typedef promise<void> Promise;
+		typedef promise<void>	Promise;
+		typedef future<void>	Future;
 		TOOLKIT_DECLARE_PTR(Promise);
 
 	private:
@@ -180,7 +183,7 @@ namespace stingray
 		~AsyncAction()
 		{ _token.Release(); }
 
-		PromisePtr SetState()
+		Future SetState()
 		{
 			MutexLock l(_mutex);
 			_lastPromiseRef.reset(new PromiseRef);
@@ -191,7 +194,7 @@ namespace stingray
 			else
 				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, _lastPromiseRef.weak()));
 
-			return _lastPromiseRef->Ptr;
+			return _lastPromiseRef->Ptr->get_future();
 		}
 
 	private:
