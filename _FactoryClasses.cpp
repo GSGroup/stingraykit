@@ -23,7 +23,6 @@
 #include <stingray/scanner/DefaultServiceNetworkInfo.h>
 #include <stingray/scanner/LcnList.h>
 #include <stingray/scanner/OtherTransportInfoEntry.h>
-#include <stingray/storage/FatFileSystemProber.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
 #include <stingray/tuners/dvbs/Antenna.h>
 #include <stingray/tuners/dvbs/DefaultDVBSTransport.h>
@@ -86,7 +85,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultServiceNetworkInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LcnList);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(OtherTransportInfoEntry);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(FatFileSystemIdentity);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Antenna);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBSTransport);
