@@ -21,7 +21,7 @@ namespace stingray
 		};
 	}
 
-	ByteArray Compress(const ConstByteData &src, int level, bool gzHeader)
+	ByteArray ZipStream::Compress(const ConstByteData &src, int level, bool gzHeader)
 	{
 		z_stream z = {};
 		ScopeExitInvoker sei(bind(&deflateEnd, &z));
@@ -67,7 +67,7 @@ namespace stingray
 		return ByteArray(dst.begin(), dst.end());
 	}
 
-	ByteArray Decompress(const ConstByteData &src, bool gzHeader)
+	ByteArray ZipStream::Decompress(const ConstByteData &src, bool gzHeader)
 	{
 		z_stream z = {};
 		ScopeExitInvoker sei(bind(&inflateEnd, &z));
