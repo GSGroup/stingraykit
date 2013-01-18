@@ -8,6 +8,7 @@ namespace stingray
 	class ZipStream
 	{
 	public:
+		static bool CheckGzipHeader(const ConstByteData &src);
 		static ByteArray Compress(const ConstByteData &src, int level, bool gzHeader);
 		static ByteArray Decompress(const ConstByteData &src, bool gzHeader);
 	};

@@ -21,6 +21,11 @@ namespace stingray
 		};
 	}
 
+	bool ZipStream::CheckGzipHeader(const ConstByteData &src)
+	{
+		return src.size() >= 4 && src[0] == 0x1f && src[1] == 0x8b;
+	}
+
 	ByteArray ZipStream::Compress(const ConstByteData &src, int level, bool gzHeader)
 	{
 		z_stream z = {};
