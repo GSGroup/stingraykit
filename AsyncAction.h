@@ -52,13 +52,14 @@ namespace stingray
 			MutexLock l(_mutex);
 
 			_lastPromiseRef.reset(new PromiseRef);
+			PromisePtr promise(_lastPromiseRef->Ptr);
 
 			if (!_deferrer)
 				ScheduleReachState(state, _lastPromiseRef.weak());
 			else
 				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastPromiseRef.weak()));
 
-			return _lastPromiseRef->Ptr->get_future();
+			return promise->get_future();
 		}
 
 	private:
@@ -118,13 +119,14 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 			_lastPromiseRef.reset(new PromiseRef);
+			PromisePtr promise(_lastPromiseRef->Ptr);
 
 			if (!_deferrer)
 				ScheduleReachState(state, _lastPromiseRef.weak());
 			else
 				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, state, _lastPromiseRef.weak()));
 
-			return _lastPromiseRef->Ptr->get_future();
+			return promise->get_future();
 		}
 
 	private:
@@ -185,13 +187,14 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 			_lastPromiseRef.reset(new PromiseRef);
+			PromisePtr promise(_lastPromiseRef->Ptr);
 
 			if (!_deferrer)
 				ScheduleReachState(_lastPromiseRef.weak());
 			else
 				_deferrer->Defer(bind(&AsyncAction::ScheduleReachState, this, _lastPromiseRef.weak()));
 
-			return _lastPromiseRef->Ptr->get_future();
+			return promise->get_future();
 		}
 
 	private:
