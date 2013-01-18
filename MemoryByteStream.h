@@ -10,14 +10,15 @@ namespace stingray
 {
 
 
+	template<typename ContainerType>
 	class MemoryByteStream : public virtual IByteStream
 	{
 	private:
-		ConstByteData	_data;
+		ContainerType	_data;
 		size_t			_ofs;
 
 	public:
-		MemoryByteStream(const ConstByteData& data)
+		MemoryByteStream(const ContainerType& data)
 			: _data(data), _ofs(0)
 		{ }
 
