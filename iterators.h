@@ -33,7 +33,7 @@ namespace stingray
 	template < typename MapIterator >
 	class MapKeysIterator : public iterator_base<MapKeysIterator<MapIterator>, typename Detail::GetMapKeysIteratorPointedType<MapIterator>::ValueT, std::bidirectional_iterator_tag>
 	{
-		typedef iterator_base<MapKeysIterator<MapIterator>, typename Detail::GetMapKeysIteratorPointedType<MapIterator>::ValueT, std::bidirectional_iterator_tag>	base;
+		typedef iterator_base<MapKeysIterator<MapIterator>, typename Detail::GetMapKeysIteratorPointedType<MapIterator>::ValueT, std::bidirectional_iterator_tag>	BaseType;
 
 	private:
 		MapIterator		_wrapped;
@@ -41,27 +41,32 @@ namespace stingray
 	public:
 		MapKeysIterator(const MapIterator& wrapped) : _wrapped(wrapped) { }
 
-		typename base::reference dereference() const	{ return _wrapped->first; }
-		bool equal(const MapKeysIterator& other) const	{ return _wrapped == other._wrapped; }
-		void increment()								{ ++_wrapped; }
-		void decrement()								{ --_wrapped; }
+		typename BaseType::reference dereference() const	{ return _wrapped->first; }
+		bool equal(const MapKeysIterator& other) const		{ return _wrapped == other._wrapped; }
+		void increment()									{ ++_wrapped; }
+		void decrement()									{ --_wrapped; }
+
+		MapIterator base() const							{ return _wrapped; }
 	};
 
 	template < typename MapIterator >
 	class MapValuesIterator : public iterator_base<MapValuesIterator<MapIterator>, typename Detail::GetMapValuesIteratorPointedType<MapIterator>::ValueT, std::bidirectional_iterator_tag>
 	{
-		typedef iterator_base<MapValuesIterator<MapIterator>, typename Detail::GetMapValuesIteratorPointedType<MapIterator>::ValueT, std::bidirectional_iterator_tag>	base;
+		typedef iterator_base<MapValuesIterator<MapIterator>, typename Detail::GetMapValuesIteratorPointedType<MapIterator>::ValueT, std::bidirectional_iterator_tag>	BaseType;
 
 	private:
 		MapIterator		_wrapped;
 
 	public:
 		MapValuesIterator(const MapIterator& wrapped) : _wrapped(wrapped) { }
+		MapValuesIterator& operator =(const MapIterator& w)	{ _wrapped = w; return *this; }
 
-		typename base::reference dereference() const		{ return _wrapped->second; }
+		typename BaseType::reference dereference() const	{ return _wrapped->second; }
 		bool equal(const MapValuesIterator& other) const	{ return _wrapped == other._wrapped; }
 		void increment()									{ ++_wrapped; }
 		void decrement()									{ --_wrapped; }
+
+		MapIterator base() const							{ return _wrapped; }
 	};
 
 
