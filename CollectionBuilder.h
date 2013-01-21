@@ -74,14 +74,34 @@ namespace stingray
 	};
 
 
-	template < typename T >
-	class VectorBuilder : public CollectionBuilder<std::vector<T> > { };
+#define DETAIL_CREATE_BUILDER(BuilderName, ...) \
+	class BuilderName : public CollectionBuilder<__VA_ARGS__> \
+	{ \
+		typedef CollectionBuilder<__VA_ARGS__> base; \
+		typedef typename base::ArgType ArgType; \
+	public: \
+		BuilderName() {} \
+		BuilderName(ArgType a1) : base(a1) { } \
+		BuilderName(ArgType a1, ArgType a2) : base(a1, a2) { } \
+		BuilderName(ArgType a1, ArgType a2, ArgType a3) : base(a1, a2, a3) { } \
+		BuilderName(ArgType a1, ArgType a2, ArgType a3, ArgType a4) : base(a1, a2, a3, a4) { } \
+		BuilderName(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5) : base(a1, a2, a3, a4, a5) { } \
+		BuilderName(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6) : base(a1, a2, a3, a4, a5, a6) { } \
+		BuilderName(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6, ArgType a7) : base(a1, a2, a3, a4, a5, a6, a7) { } \
+		BuilderName(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6, ArgType a7, ArgType a8) : base(a1, a2, a3, a4, a5, a6, a7, a8) { } \
+		BuilderName(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6, ArgType a7, ArgType a8, ArgType a9) : base(a1, a2, a3, a4, a5, a6, a7, a8, a9) { } \
+		BuilderName(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6, ArgType a7, ArgType a8, ArgType a9, ArgType a10) : base(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) { } \
+	}
 
 	template < typename T >
-	class SetBuilder : public CollectionBuilder<std::set<T> > { };
+	DETAIL_CREATE_BUILDER(VectorBuilder, std::vector<T>);
+
+	template < typename T >
+	DETAIL_CREATE_BUILDER(SetBuilder, std::set<T>);
 
 	template < typename K, typename V >
-	class MapBuilder : public CollectionBuilder<std::map<K, V> > { };
+	DETAIL_CREATE_BUILDER(MapBuilder, std::map<K, V>);
+#undef DETAIL_CREATE_BUILDER
 
 
 }
