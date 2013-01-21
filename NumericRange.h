@@ -74,6 +74,14 @@ namespace stingray {
 		bool operator!= (const DerivedT& rhs)	{ return !(*this == rhs); }
 	};
 
+	template< typename T >
+	struct SimpleNumericRange : public NumericRange<SimpleNumericRange<T>, T>
+	{
+		typedef NumericRange<SimpleNumericRange<T>, T> base;
+		SimpleNumericRange(T start, T end) : base(start, end)
+		{}
+	};
+
 
 }
 
