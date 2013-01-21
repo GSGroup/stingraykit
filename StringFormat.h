@@ -44,7 +44,7 @@ namespace stingray {
 				{
 					size_t pos = substrings[i].find('$');
 					size_t index = FromString<size_t>(substrings[i].substr(0, pos));
-					TOOLKIT_CHECK(index > 0, "Format mismatch: parameters indices starts from 1!");
+					TOOLKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
 					size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(substrings[i].substr(pos + 1));
 					std::string item_str = Detail::TupleToStringHelper<TupleParams>::ItemToString(params, index - 1);
 					if (item_str.size() < width)
