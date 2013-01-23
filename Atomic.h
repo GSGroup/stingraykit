@@ -9,6 +9,8 @@
 
 #if HAVE_SYNC_EAA
 #	include <bits/atomicity.h>
+#elif HAVE_SYNC_EAA_EXT
+#	include <ext/atomicity.h>
 #endif
 
 /*! \cond GS_INTERNAL */
@@ -16,7 +18,7 @@
 namespace stingray
 {
 
-#ifdef HAVE_SYNC_EAA
+#if HAVE_SYNC_EAA || HAVE_SYNC_EAA_EXT
 	typedef _Atomic_word	atomic_int_type;
 #else
 	typedef int				atomic_int_type;
