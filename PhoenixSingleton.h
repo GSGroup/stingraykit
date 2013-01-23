@@ -1,7 +1,9 @@
 #ifndef STINGRAY_TOOLKIT_PHOENIXSINGLETON_H
 #define STINGRAY_TOOLKIT_PHOENIXSINGLETON_H
 
+#include <stdint.h>
 #include <stdlib.h>
+
 #include <stingray/toolkit/Atomic.h>
 
 namespace stingray
