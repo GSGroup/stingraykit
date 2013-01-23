@@ -51,7 +51,9 @@ namespace stingray
 
 		template < typename T >
 		static inline T Load(T& ptr) { return __gnu_cxx::__exchange_and_add(&ptr, 0); }
-		// TODO: Implement Store
+
+		template < typename T >
+		static inline void Store(T& ptr, T val) { ptr = val; __gnu_cxx::__exchange_and_add(&ptr, 0); }
 #elif HAVE_ATOMIC_H
 		template < typename T >
 		static inline T Inc(T& ptr) { return atomic_increment_val(&ptr); }
