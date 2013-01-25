@@ -144,6 +144,17 @@ namespace stingray
 		return make_shared<Detail::StlIteratorsEnumerable<IteratorType, ContainerLifeAssuranceType> >(container.begin(), container.end(), lifeAssurance);
 	}
 
+	template < typename IteratorType >
+	shared_ptr< typename Detail::EnumerableTypeFromIteratorType<IteratorType>::ValueT >
+		EnumerableFromStlIterators(const IteratorType& begin, const IteratorType& end)
+	{ return make_shared<Detail::StlIteratorsEnumerable<IteratorType> >(begin, end); }
+
+	template < typename IteratorType, typename ContainerLifeAssuranceType >
+	shared_ptr< typename Detail::EnumerableTypeFromIteratorType<IteratorType>::ValueT >
+		EnumerableFromStlIterators(const IteratorType& begin, const IteratorType& end, shared_ptr<ContainerLifeAssuranceType> lifeAssurance)
+	{ return make_shared<Detail::StlIteratorsEnumerable<IteratorType, ContainerLifeAssuranceType> >(begin, end, lifeAssurance); }
+
+
 
 }
 
