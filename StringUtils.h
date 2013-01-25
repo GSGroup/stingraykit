@@ -363,6 +363,8 @@ namespace stingray
 		return result;
 	}
 
+	std::string Utf8ToLower(const std::string& str);
+
 	inline std::string ToLower(const std::string& str)
 	{ return Transform(str, tolower); }
 
