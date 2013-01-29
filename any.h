@@ -181,7 +181,7 @@ namespace stingray
 		ANY_VAL_ACCESSOR( S32,		data.S32	= val,						return &data.S32 );
 		ANY_VAL_ACCESSOR( Float,	data.Float	= val,						return &data.Float );
 		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return &data.Double );
-		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val); std::cout << data.String.Ref(),					return &data.String.Ref() );
+		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val),					return &data.String.Ref() );
 		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),	ObjectHolder<T>* obj_holder = dynamic_cast<ObjectHolder<T>*>(data.Object); if (obj_holder) return &obj_holder->Object; return NULL; );
 #undef ANY_VAL_ACCESSOR
 

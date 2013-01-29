@@ -157,7 +157,7 @@ namespace stingray
 			}
 
 			if (v_it != _values.end())
-				TOOLKIT_THROW("Internal error in EnumToStringMap!");
+				TOOLKIT_THROW("Internal error in EnumToStringMap, enum values: \"" + str + "\"");
 		}
 
 		EnumToStringMapBase::EnumToStringMapBase() : _impl(new Impl())
