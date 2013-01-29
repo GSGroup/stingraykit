@@ -22,6 +22,7 @@
 #include <stingray/scanner/DefaultScanResult.h>
 #include <stingray/scanner/LcnList.h>
 #include <stingray/scanner/OtherTransportInfoEntry.h>
+#include <stingray/scanner/TricolorGeographicRegion.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
 #include <stingray/tuners/dvbs/Antenna.h>
 #include <stingray/tuners/dvbs/DefaultDVBSTransport.h>
@@ -84,6 +85,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(GenreChannelList);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LcnList);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(OtherTransportInfoEntry);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Antenna);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBSTransport);
