@@ -27,7 +27,7 @@ namespace stingray
 		{
 			typedef KeyValuePair<KeyType_, ValueType_>	PairType;
 			FOR_EACH(PairType p IN this->GetEnumerator())
-				slot(CollectionOp::ItemAdded, p.Key, p.Value);
+				slot(CollectionOp::Added, p.Key, p.Value);
 		}
 	};
 
@@ -89,7 +89,7 @@ namespace stingray
 			signal_locker l(ObservableInterface::OnChanged);
 			bool update = ContainsKey(key);
 			Wrapped_::Set(key, value);
-			ObservableInterface::OnChanged(update ? CollectionOp::ItemUpdated : CollectionOp::ItemAdded, key, value);
+			ObservableInterface::OnChanged(update ? CollectionOp::Updated : CollectionOp::Added, key, value);
 		}
 
 		virtual void Remove(const KeyType& key)
@@ -97,7 +97,7 @@ namespace stingray
 			signal_locker l(ObservableInterface::OnChanged);
 			ValueType value = Get(key);
 			Wrapped_::Remove(key);
-			ObservableInterface::OnChanged(CollectionOp::ItemRemoved, key, value);
+			ObservableInterface::OnChanged(CollectionOp::Removed, key, value);
 		}
 
 		virtual bool ContainsKey(const KeyType& key) const

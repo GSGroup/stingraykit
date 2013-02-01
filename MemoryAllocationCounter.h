@@ -30,9 +30,9 @@ namespace stingray {
 		template<typename T>
 		void Process(const T& item, CollectionOp event)
 		{
-			if (event == CollectionOp::ItemAdded)
+			if (event == CollectionOp::Added)
 				Add(item);
-			if (event == CollectionOp::ItemRemoved)
+			if (event == CollectionOp::Removed)
 				Remove(item);
 		}
 		size_t GetAllocatedMemory() const					{ return _allocatedMemory; }

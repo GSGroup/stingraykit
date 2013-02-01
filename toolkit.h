@@ -215,9 +215,9 @@ namespace stingray
 	{
 		TOOLKIT_ENUM_VALUES
 		(
-			ItemAdded,
-			ItemRemoved,
-			ItemUpdated
+			Added,
+			Removed,
+			Updated
 		);
 		TOOLKIT_DECLARE_ENUM_CLASS(CollectionOp);
 	};

@@ -69,15 +69,15 @@ namespace stingray
 		const T& front() const		{ TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!")); return _container.front(); }
 		const T& back() const		{ TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!")); return _container.back(); }
 
-		void push_back(const T &t)	{ _container.push_back(t);	CollectionChanged(CollectionOp::ItemAdded, _container.size() - 1, t); }
-		void push_front(const T &t)	{ _container.push_front(t);	CollectionChanged(CollectionOp::ItemAdded, 0, t); }
+		void push_back(const T &t)	{ _container.push_back(t);	CollectionChanged(CollectionOp::Added, _container.size() - 1, t); }
+		void push_front(const T &t)	{ _container.push_front(t);	CollectionChanged(CollectionOp::Added, 0, t); }
 
 		void pop_back()
 		{
 			TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!"));
 			T item(back());
 			_container.pop_back();
-			CollectionChanged(CollectionOp::ItemRemoved, _container.size(), item);
+			CollectionChanged(CollectionOp::Removed, _container.size(), item);
 		}
 
 		void pop_front()
@@ -85,14 +85,14 @@ namespace stingray
 			TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!"));
 			T item(front());
 			_container.pop_front();
-			CollectionChanged(CollectionOp::ItemRemoved, 0, item);
+			CollectionChanged(CollectionOp::Removed, 0, item);
 		}
 
 		iterator insert(iterator position, const T &t)
 		{
 			size_t index = begin().distance_to(position);
 			iterator result(_container.insert(position._iter, t));
-			CollectionChanged(CollectionOp::ItemAdded, index, t);
+			CollectionChanged(CollectionOp::Added, index, t);
 			return result;
 		}
 
@@ -102,7 +102,7 @@ namespace stingray
 			size_t index = begin().distance_to(position);
 			_container.insert(position._iter, first, last);
 			for (; first != last; ++first, ++index)
-				CollectionChanged(CollectionOp::ItemAdded, index, *first);
+				CollectionChanged(CollectionOp::Added, index, *first);
 		}
 
 		iterator erase(iterator position)
@@ -110,7 +110,7 @@ namespace stingray
 			T item(*position);
 			size_t index = begin().distance_to(position);
 			iterator result(_container.erase(position._iter));
-			CollectionChanged(CollectionOp::ItemRemoved, index, item);
+			CollectionChanged(CollectionOp::Removed, index, item);
 			return result;
 		}
 
@@ -120,7 +120,7 @@ namespace stingray
 			std::vector<T> local_copy(first, last);
 			iterator result(_container.erase(first._iter, last._iter));
 			for (size_t n = 0; n < local_copy.size(); ++n, ++index)
-				CollectionChanged(CollectionOp::ItemRemoved, index, local_copy[n]);
+				CollectionChanged(CollectionOp::Removed, index, local_copy[n]);
 			return result;
 		}
 
@@ -132,7 +132,7 @@ namespace stingray
 		void send_state(const function<void (CollectionOp, size_t, const T&)> &slot)
 		{
 			for(size_t i = 0; i < size(); ++i)
-				slot(CollectionOp::ItemAdded, i, _container[i]);
+				slot(CollectionOp::Added, i, _container[i]);
 		}
 
 

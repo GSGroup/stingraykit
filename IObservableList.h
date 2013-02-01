@@ -26,7 +26,7 @@ namespace stingray
 		{
 			int i = 0;
 			FOR_EACH(ValueType_ v IN this->GetEnumerator())
-				slot(CollectionOp::ItemAdded, i++, v);
+				slot(CollectionOp::Added, i++, v);
 		}
 	};
 
@@ -73,7 +73,7 @@ namespace stingray
 		{
 			signal_locker l(ObservableInterface::OnChanged);
 			Wrapped_::Add(value);
-			ObservableInterface::OnChanged(CollectionOp::ItemAdded, Wrapped_::GetCount() - 1, value);
+			ObservableInterface::OnChanged(CollectionOp::Added, Wrapped_::GetCount() - 1, value);
 		}
 
 		virtual ValueType Get(int index) const
@@ -86,7 +86,7 @@ namespace stingray
 		{
 			signal_locker l(ObservableInterface::OnChanged);
 			Wrapped_::Set(index, value);
-			ObservableInterface::OnChanged(CollectionOp::ItemUpdated, index, value);
+			ObservableInterface::OnChanged(CollectionOp::Updated, index, value);
 		}
 
 		virtual int IndexOf(const ValueType& obj) const
@@ -99,7 +99,7 @@ namespace stingray
 		{
 			signal_locker l(ObservableInterface::OnChanged);
 			Wrapped_::Insert(index, value);
-			ObservableInterface::OnChanged(CollectionOp::ItemAdded, index, value);
+			ObservableInterface::OnChanged(CollectionOp::Added, index, value);
 		}
 
 		virtual void RemoveAt(int index)
@@ -107,7 +107,7 @@ namespace stingray
 			signal_locker l(ObservableInterface::OnChanged);
 			ValueType value = Get(index);
 			Wrapped_::RemoveAt(index);
-			ObservableInterface::OnChanged(CollectionOp::ItemRemoved, index, value);
+			ObservableInterface::OnChanged(CollectionOp::Removed, index, value);
 		}
 
 		virtual void Remove(const ValueType& value)
