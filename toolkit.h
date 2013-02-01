@@ -203,9 +203,9 @@ namespace stingray
 	template<typename InputIterator, typename OutputIterator, typename Pred>
 	OutputIterator copy_if(InputIterator first, InputIterator last, OutputIterator result, Pred pred)
 	{
-		while (first != last)
+		for (; first != last; ++first)
 			if (pred(*first))
-				*result++ = *first++;
+				*result++ = *first;
 		return result;
 	}
 
