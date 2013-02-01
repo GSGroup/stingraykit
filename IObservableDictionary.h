@@ -72,6 +72,12 @@ namespace stingray
 			return Wrapped_::GetCount();
 		}
 
+		virtual bool IsEmpty() const
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::IsEmpty();
+		}
+
 		virtual ValueType Get(const KeyType& key) const
 		{
 			signal_locker l(ObservableInterface::OnChanged);

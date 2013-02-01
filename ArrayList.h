@@ -112,6 +112,9 @@ namespace stingray
 		virtual int GetCount() const
 		{ return _items->size(); }
 
+		virtual bool IsEmpty() const
+		{ return _items->empty(); }
+
 		virtual void Add(const ValueType& value)
 		{ _items->push_back(value); }
 

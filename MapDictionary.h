@@ -51,6 +51,7 @@ namespace stingray
 		{ }
 
 		virtual int GetCount() const { return _map->size(); }
+		virtual bool IsEmpty() const { return _map->empty(); }
 
 		virtual ValueType Get(const KeyType& key) const
 		{
