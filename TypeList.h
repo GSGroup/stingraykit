@@ -159,6 +159,14 @@ namespace stingray
 	struct GetTypeListItem<TypeList, -1>
 	{ CompileTimeAssert<sizeof(TypeList) < 0>	ERROR_invalid_index; };
 
+	template < typename TypeList, typename Val >
+	struct TypeListAppend
+	{ typedef TypeListNode<typename TypeList::ValueT, typename TypeListAppend<typename TypeList::Next, Val>::ValueT>	ValueT; };
+
+	template < typename Val >
+	struct TypeListAppend<TypeListEndNode, Val>
+	{ typedef TypeListNode<Val, TypeListEndNode>	ValueT; };
+
 	template < typename TypeList, size_t N >
 	struct TryGetTypeListItem
 	{ typedef typename TryGetTypeListItem<typename TypeList::Next, N - 1>::ValueT	ValueT; };
