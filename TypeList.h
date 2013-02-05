@@ -261,6 +261,15 @@ namespace stingray
 	{ typedef TypeListEndNode ValueT; };
 
 
+	template < typename TypeList >
+	struct TypeListReverse
+	{ typedef typename TypeListAppend<typename TypeListReverse<typename TypeList::Next>::ValueT, typename TypeList::ValueT>::ValueT ValueT;};
+
+	template < >
+	struct TypeListReverse<TypeListEndNode>
+	{ typedef TypeListEndNode ValueT; };
+
+
 
 	template < typename TypeList, template <typename> class FunctorClass >
 	struct ForEachInTypeList
