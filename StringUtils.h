@@ -313,6 +313,13 @@ namespace stingray
 		return result;
 	}
 
+	inline std::string Remove(const std::string& str, char ch = ' ')
+	{
+		std::string result(str);
+		result.erase(std::remove(result.begin(), result.end(), ch), result.end());
+		return result;
+	}
+
 	inline std::string ExtractPrefix(const std::string& str, size_t prefixLength)
 	{ return str.substr(0, std::min(str.length(), prefixLength)); }
 
