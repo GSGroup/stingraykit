@@ -60,6 +60,17 @@ namespace stingray
 #define TOOLKIT_NOT_IMPLEMENTED() \
 		TOOLKIT_THROW(NotImplementedException())
 
+	struct LogicException : public std::logic_error
+	{
+		LogicException() : std::logic_error("You're doing something wrong!")
+		{ DebuggingHelper::BreakpointHere(); }
+
+		LogicException(const std::string& message) : std::logic_error(message)
+		{ DebuggingHelper::BreakpointHere(); }
+
+		virtual ~LogicException() throw() { }
+	};
+
 	struct ArgumentException : public Exception
 	{
 		ArgumentException() : Exception("Invalid argument!") { }
