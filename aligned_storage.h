@@ -148,6 +148,8 @@ namespace stingray
 	{
 		T	_value;
 
+		StorageFor() : _value() { }
+
 		void Ctor()		{ _value = T(); }
 		void Ctor(T t)	{ _value = t; }
 		void Dtor()		{ }
