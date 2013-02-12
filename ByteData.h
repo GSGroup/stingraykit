@@ -103,6 +103,9 @@ namespace stingray
 		typedef typename Detail::ByteDataIteratorSelector<T>::iterator			iterator;
 		typedef typename Detail::ByteDataIteratorSelector<T>::const_iterator	const_iterator;
 
+		typedef std::reverse_iterator<iterator>									reverse_iterator;
+		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
+
 		BasicByteArray()
 			: _data(new CollectionType()), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
@@ -183,6 +186,18 @@ namespace stingray
 			const T* data = this->data();
 			return Detail::ByteDataIteratorSelector<T>::CreateConstIterator(data + size(), data, data + size());
 		}
+
+		reverse_iterator rbegin()
+		{ return reverse_iterator(end()); }
+
+		reverse_iterator rend()
+		{ return reverse_iterator(begin()); }
+
+		const_reverse_iterator rbegin() const
+		{ return const_reverse_iterator(end()); }
+
+		const_reverse_iterator rend() const
+		{ return const_reverse_iterator(begin()); }
 
 		inline T* data() const						{ return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
 
