@@ -2,9 +2,9 @@
 
 #include <stingray/toolkit/any.h>
 
-#include <stingray/app/Scheduler.h>
 #include <stingray/app/application_context/AppChannel.h>
 #include <stingray/app/application_context/ChannelList.h>
+#include <stingray/app/scheduler/ScheduledEvents.h>
 #include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
 #include <stingray/hdmi/IHDMI.h>
@@ -38,17 +38,18 @@ namespace stingray { namespace Detail
 #ifdef BUILD_SHARED_LIB
 		/*nothing*/
 #else
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(::stingray::Detail::any::ObjectHolder<stingray::app::AppChannelPtr>);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelList);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelListAutoRemover);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::Alarm);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::CinemaHallScheduledViewing);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ContinuousScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::DeferredStandby);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::InfiniteScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledViewing);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(::stingray::Detail::any::ObjectHolder<stingray::app::AppChannelPtr>);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelList);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelListAutoRemover);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AutoFilter);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
