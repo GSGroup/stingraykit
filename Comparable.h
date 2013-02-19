@@ -55,6 +55,33 @@ namespace stingray
 		}
 	};
 
+
+	struct IComparableNew
+	{
+		virtual ~IComparableNew() {}
+		virtual int Compare(const IComparableNew &other) const = 0;
+	};
+
+
+	template<typename T>
+	struct ComparableNew : public virtual IComparableNew
+	{
+		virtual int Compare(const IComparableNew &other) const
+		{
+			const std::type_info &my_type = typeid(*this);
+			const std::type_info &other_type = typeid(other);
+
+			if (my_type != other_type)
+				return my_type.before(other_type) ? -1 : 1;
+
+			return this->DoCompare(dynamic_cast<const T&>(other));
+		}
+
+	protected:
+		virtual int DoCompare(const T &other) const = 0;
+	};
+
+
 }
 
 #endif
