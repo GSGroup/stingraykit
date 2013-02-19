@@ -123,15 +123,15 @@ namespace stingray
 
 
 	template <typename IntComparer, template<typename> class Adapter>
-	struct IntToBoolComparerAdapter
+	struct CmpAdapter
 	{
 	private:
 		IntComparer _comparer;
 		Adapter<int> _adapter;
 	public:
-		IntToBoolComparerAdapter(): _comparer(), _adapter()
+		CmpAdapter(): _comparer(), _adapter()
 		{}
-		IntToBoolComparerAdapter(const IntComparer& comparer, const Adapter<int> &adapter = Adapter<int>())
+		CmpAdapter(const IntComparer& comparer, const Adapter<int> &adapter = Adapter<int>())
 			: _comparer(comparer), _adapter(adapter)
 		{}
 		template <typename ClassType1, typename ClassType2>
@@ -148,8 +148,8 @@ namespace stingray
 	MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > CompareMemberListNonAdapted(ParamsDecl_) \
 	{ return MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
 	template <template<typename> class Adapter, TypesDecl_> \
-	IntToBoolComparerAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, Adapter> CompareMemberList(ParamsDecl_, const Adapter<int> &adapter = Adapter<int>()) \
-	{ return IntToBoolComparerAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, Adapter>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), adapter); }
+	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, Adapter> CompareMemberList(ParamsDecl_, const Adapter<int> &adapter = Adapter<int>()) \
+	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, Adapter>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), adapter); }
 
 
 	DETAIL_TOOLKIT_DECLARE_MAKEMEMBERLISTCOMPARER(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
@@ -187,7 +187,7 @@ namespace stingray
 		typedef MemberToValueComparer<MemberPointerType, Comparer<MemberType> >		UnaryT;
 		typedef MemberExtractorComparer<MemberPointerType, Comparer<MemberType>	>	BinaryToValueT;
 		typedef MemberListComparer<Tuple<TypeList_1<MemberPointerType> > >			BinaryNonAdaptedT;
-		typedef IntToBoolComparerAdapter<BinaryNonAdaptedT, Comparer>				BinaryT;
+		typedef CmpAdapter<BinaryNonAdaptedT, Comparer>								BinaryT;
 
 		static UnaryT Unary(const MemberType& value = MemberType())	{ return CompareMemberToValue<Comparer>(MemberPointer, value); }
 		static BinaryToValueT BinaryToValue()						{ return CompareMember<Comparer>(MemberPointer); }
