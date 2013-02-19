@@ -2,6 +2,8 @@
 #define STINGRAY_TOOLKIT_COMPARABLE_H
 
 #include <typeinfo>
+
+#include <stingray/toolkit/comparers.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 namespace stingray
@@ -79,6 +81,36 @@ namespace stingray
 
 	protected:
 		virtual int DoCompare(const T &other) const = 0;
+	};
+
+
+	struct ComparableNewCmp
+	{
+		int operator()(const shared_ptr<IComparableNew>& l, const shared_ptr<IComparableNew>& r) const	{ return Compare(l, r); }
+		int operator()(const IComparableNew& l, const IComparableNew& r) const							{ return Compare(l, r); }
+
+		int Compare(const shared_ptr<IComparableNew>& l, const shared_ptr<IComparableNew>& r) const		{ return (l && r) ? Compare(*l, *r) : StandardOperatorsComparer()(l.get(), r.get()); }
+		int Compare(const IComparableNew& l, const IComparableNew& r) const								{ return l.Compare(r); }
+	};
+
+
+	struct ComparableNewLess
+	{
+		bool operator()(const shared_ptr<IComparableNew>& l, const shared_ptr<IComparableNew>& r) const	{ return Compare(l, r); }
+		bool operator()(const IComparableNew& l, const IComparableNew& r) const							{ return Compare(l, r); }
+
+		bool Compare(const shared_ptr<IComparableNew>& l, const shared_ptr<IComparableNew>& r) const	{ return (l && r) ? Compare(*l, *r) : (l.get() < r.get()); }
+		bool Compare(const IComparableNew& l, const IComparableNew& r) const							{ return l.Compare(r) < 0; }
+	};
+
+
+	struct ComparableNewEquals
+	{
+		bool operator()(const shared_ptr<IComparableNew>& l, const shared_ptr<IComparableNew>& r) const	{ return Compare(l, r); }
+		bool operator()(const IComparableNew& l, const IComparableNew& r) const							{ return Compare(l, r); }
+
+		bool Compare(const shared_ptr<IComparableNew>& l, const shared_ptr<IComparableNew>& r) const	{ return (l && r) ? Compare(*l, *r) : (l.get() == r.get()); }
+		bool Compare(const IComparableNew& l, const IComparableNew& r) const							{ return l.Compare(r) == 0; }
 	};
 
 
