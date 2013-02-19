@@ -62,6 +62,25 @@ namespace stingray
 	};
 
 
+	template<typename ItemComparer>
+	struct CollectionComparer
+	{
+		template < typename T >
+		int operator () (const T& lhs, const T& rhs) const
+		{
+			int size_result = StandardOperatorsComparer()(lhs.size(), rhs.size());
+			if (size_result != 0)
+				return size_result;
+
+			typedef typename T::const_iterator TCI;
+			std::pair<TCI, TCI> msmtch = std::mismatch(lhs.begin(), lhs.end(), rhs.begin(), ItemComparer());
+			if (msmtch.first == lhs.end())
+				return 0;
+			return ItemComparer()(*msmtch.first, *msmtch.second);
+		}
+	};
+
+
 }
 
 
