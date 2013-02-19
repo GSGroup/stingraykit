@@ -23,6 +23,45 @@ namespace stingray
 		{ return !_less(l, r) && !_less(r, l); }
 	};
 
+
+	struct CompareMethodComparer
+	{
+		template < typename PtrType >
+		int operator () (const PtrType& l, const PtrType& r) const
+		{ return l ? l->Compare(r) : (r ? -1 : 0); }
+	};
+
+
+	struct StandardOperatorsComparer
+	{
+		template < typename T >
+		int operator () (const T& lhs, const T& rhs) const
+		{
+			if (lhs < rhs)
+				return -1;
+			if (rhs < lhs)
+				return 1;
+			return 0;
+		}
+	};
+
+
+	struct DereferencerComparer
+	{
+		template < typename PtrType >
+		int operator () (const PtrType& l, const PtrType& r) const
+		{
+			TOOLKIT_REQUIRE_NOT_NULL(l);
+			TOOLKIT_REQUIRE_NOT_NULL(r);
+			if (*l < *r)
+				return -1;
+			if (*r < *l)
+				return 1;
+			return 0;
+		}
+	};
+
+
 }
 
 
