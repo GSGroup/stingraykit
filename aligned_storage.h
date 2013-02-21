@@ -1,7 +1,11 @@
 #ifndef STINGRAY_TOOLKIT_ALIGNED_STORAGE_H
 #define STINGRAY_TOOLKIT_ALIGNED_STORAGE_H
 
+
+#include <cassert>
+
 #include <stingray/toolkit/Types.h>
+
 
 namespace stingray
 {
