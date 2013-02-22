@@ -72,17 +72,32 @@ namespace stingray {
 				return !result; // need to negate since ForIf continues untill gets "false" and we need to stop when found fitting mapping
 			}
 
+			template<int N, bool IsMapBack>
+			static bool DetailDoHasMapping(typename If<IsMapBack, DstT, SrcT>::ValueT from, bool& res)
+			{
+				typedef typename GetTypeListItem<List, N * 2 + (IsMapBack ? 1 : 0)>::ValueT	MappingFrom;
+				typedef typename GetTypeListItem<List, N * 2 + (IsMapBack ? 0 : 1)>::ValueT	MappingTo;
+				bool result = MappingFrom::Fits(from);
+				if (result)
+					res = !SameType<MappingTo, typename Mappings<typename If<IsMapBack, SrcT, DstT>::ValueT>::Fail>::Value;
+				return !result; // need to negate since ForIf continues untill gets "false" and we need to stop when found fitting mapping
+			}
+
 			template<int N>
 			struct MapFunctor
-			{
-				static bool Call(SrcT from, DstT& to) { return DetailDoMap<N, false>(from, to); }
-			};
+			{ static bool Call(SrcT from, DstT& to) { return DetailDoMap<N, false>(from, to); } };
 
 			template<int N>
 			struct UnmapFunctor
-			{
-				static bool Call(DstT from, SrcT& to) { return DetailDoMap<N, true>(from, to); }
-			};
+			{ static bool Call(DstT from, SrcT& to) { return DetailDoMap<N, true>(from, to); } };
+
+			template<int N>
+			struct HasMappingFunctor
+			{ static bool Call(SrcT from, bool& res) { return DetailDoHasMapping<N, false>(from, res); } };
+
+			template<int N>
+			struct HasBackMappingFunctor
+			{ static bool Call(DstT from, bool& res) { return DetailDoHasMapping<N, true>(from, res); } };
 
 			static DstT Map(SrcT val)
 			{
@@ -94,6 +109,7 @@ namespace stingray {
 					return DefaultValue::GetValue();
 				return result;
 			}
+
 			static SrcT Unmap(DstT val)
 			{
 				DetailCheckSizes();
@@ -104,6 +120,29 @@ namespace stingray {
 					return DefaultValue::GetValue();
 				return result;
 			}
+
+			static bool HasMapping(SrcT val)
+			{
+				DetailCheckSizes();
+				typedef typename GetTypeListItem<Default, 1>::ValueT DefaultValue;
+
+				bool result = false;
+				if (ForIf<GetTypeListLength<List>::Value / 2, HasMappingFunctor>::Do(val, ref(result)))
+					result = !SameType<Default, typename Mappings<SrcT>::Fail>::Value;
+				return result;
+			}
+
+			static bool HasBackMapping(DstT val)
+			{
+				DetailCheckSizes();
+				typedef typename GetTypeListItem<Default, 0>::ValueT DefaultValue;
+
+				bool result;
+				if (ForIf<GetTypeListLength<List>::Value / 2, HasBackMappingFunctor>::Do(val, ref(result)))
+					result = !SameType<Default, typename Mappings<DstT>::Fail>::Value;
+				return result;
+			}
+
 			static void DetailCheckSizes()
 			{
 				CompileTimeAssert<GetTypeListLength<List>::Value % 2 == 0> ERROR_wrong_mappings_count;
@@ -127,12 +166,29 @@ namespace stingray {
 
 			return stingray::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::Map(val);
 		}
+
 		static SrcType Unmap(DstType val)
 		{
 			typedef typename Derived::MappingsList MappingsList;
 			typedef typename Derived::DefaultMapping DefaultMapping;
 
 			return stingray::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::Unmap(val);
+		}
+
+		static bool HasMapping(SrcType val)
+		{
+			typedef typename Derived::MappingsList MappingsList;
+			typedef typename Derived::DefaultMapping DefaultMapping;
+
+			return stingray::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::HasMapping(val);
+		}
+
+		static bool HasBackMapping(DstType val)
+		{
+			typedef typename Derived::MappingsList MappingsList;
+			typedef typename Derived::DefaultMapping DefaultMapping;
+
+			return stingray::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::HasBackMapping(val);
 		}
 	};
 
