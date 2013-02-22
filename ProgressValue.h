@@ -23,6 +23,9 @@ namespace stingray
 
 		std::string ToString() const
 		{ return StringBuilder() % InPercents() % "%"; }
+
+		bool operator == (const ProgressValue& other) const { return Current == other.Current && Total == other.Total; }
+		bool operator != (const ProgressValue& other) const { return !(*this == other); }
 	};
 
 
