@@ -5,6 +5,7 @@
 #include <stingray/toolkit/IList.h>
 #include <stingray/toolkit/signals.h>
 #include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/ObservableCollectionLocker.h>
 
 
 namespace stingray
