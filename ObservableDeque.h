@@ -65,6 +65,12 @@ namespace stingray
 		size_t size() const					{ return _container.size(); }
 		bool empty() const					{ return _container.empty(); }
 		const T& operator[](size_t n) const	{ return _container[n]; }
+		void replace(size_t idx, const T &t)
+		{
+			TOOLKIT_CHECK(idx < size(), "replace: invalid index");
+			_container[idx] = t;
+			CollectionChanged(CollectionOp::Updated, idx, t);
+		}
 
 		const T& front() const		{ TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!")); return _container.front(); }
 		const T& back() const		{ TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!")); return _container.back(); }
