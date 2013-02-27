@@ -208,6 +208,26 @@ namespace stingray
 	shared_ptr<IEnumerator<EnumeratedT> > JoinEnumerators(const shared_ptr<IEnumerator<EnumeratedT> >& first, const shared_ptr<IEnumerator<EnumeratedT> >& second)
 	{ return make_shared<Detail::JoiningEnumerator<EnumeratedT> >(first, second); }
 
+	template<typename EnumeratedT>
+	class EnumeratorJoiner
+	{
+		typedef shared_ptr<IEnumerator<EnumeratedT> >	EnumeratorPtr;
+
+	private:
+		EnumeratorPtr	_result;
+
+	public:
+		operator EnumeratorPtr () const { return _result; }
+		EnumeratorJoiner& operator % (const EnumeratorPtr& e)
+		{
+			if (_result)
+				_result = JoinEnumerators(_result, e);
+			else
+				_result = e;
+			return *this;
+		}
+	};
+
 	namespace Detail
 	{
 		template < typename Signature >
