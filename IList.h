@@ -18,25 +18,25 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename T, typename ValueType_, bool IsSerializable_ = IsSerializable<ValueType_>::Value >
-		struct SerializableList : public virtual ISerializable
+		struct SerializableList
 		{
 			virtual ~SerializableList() { }
 
-			virtual void Serialize(ObjectOStream & ar) const
+			virtual void SerializeAsValue(ObjectOStream & ar) const
 			{
 				const T* inst = static_cast<const T*>(this);
 				std::vector<ValueType_> v;
 				v.reserve(inst->GetCount());
 				FOR_EACH(ValueType_ val IN inst->GetEnumerator())
 					v.push_back(val);
-				ar.Serialize("data", v);
+				ar.Serialize(v);
 			}
 
-			virtual void Deserialize(ObjectIStream & ar)
+			virtual void DeserializeAsValue(ObjectIStream & ar)
 			{
 				T* inst = static_cast<T*>(this);
 				std::vector<ValueType_> v;
-				ar.Deserialize("data", v);
+				ar.Deserialize(v);
 				inst->Clear();
 				for (typename std::vector<ValueType_>::const_iterator it = v.begin(); it != v.end(); ++it)
 					inst->Add(*it);
