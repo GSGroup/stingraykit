@@ -4,9 +4,10 @@
 
 #include <vector>
 
+#include <stingray/toolkit/CollectionBuilder.h>
+#include <stingray/toolkit/function_info.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/unique_ptr.h>
-#include <stingray/toolkit/CollectionBuilder.h>
 
 
 namespace stingray
