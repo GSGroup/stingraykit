@@ -53,6 +53,18 @@ namespace stingray
 		virtual int GetCount() const { return _map->size(); }
 		virtual bool IsEmpty() const { return _map->empty(); }
 
+		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+		{
+			typename MapType::const_iterator it = _map->find(key);
+			if (it != _map->end())
+			{
+				outValue = it->second;
+				return true;
+			}
+			else
+				return false;
+		}
+
 		virtual ValueType Get(const KeyType& key) const
 		{
 			typename MapType::const_iterator it = _map->find(key);
