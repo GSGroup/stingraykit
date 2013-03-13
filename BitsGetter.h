@@ -41,7 +41,7 @@ namespace stingray
 			BasicUnsafeByteData(T* data, size_t ofs = 0) : _data(data + ofs) { }
 			BasicUnsafeByteData(const BasicUnsafeByteData& data, size_t ofs) : _data(data._data + ofs) { }
 
-			T operator [] (size_t i) const	{ return _data[i]; }
+			T& operator [] (size_t i) const	{ return _data[i]; }
 			size_t size() const				{ return std::numeric_limits<size_t>::max(); }
 		};
 
