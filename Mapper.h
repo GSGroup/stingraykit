@@ -161,6 +161,7 @@ namespace stingray {
 
 		static DstType Map(SrcType val)
 		{
+			Check();
 			typedef typename Derived::MappingsList MappingsList;
 			typedef typename Derived::DefaultMapping DefaultMapping;
 
@@ -169,6 +170,7 @@ namespace stingray {
 
 		static SrcType Unmap(DstType val)
 		{
+			Check();
 			typedef typename Derived::MappingsList MappingsList;
 			typedef typename Derived::DefaultMapping DefaultMapping;
 
@@ -177,6 +179,7 @@ namespace stingray {
 
 		static bool HasMapping(SrcType val)
 		{
+			Check();
 			typedef typename Derived::MappingsList MappingsList;
 			typedef typename Derived::DefaultMapping DefaultMapping;
 
@@ -185,10 +188,17 @@ namespace stingray {
 
 		static bool HasBackMapping(DstType val)
 		{
+			Check();
 			typedef typename Derived::MappingsList MappingsList;
 			typedef typename Derived::DefaultMapping DefaultMapping;
 
 			return stingray::Detail::Mapper<SrcType, DstType, MappingsList, DefaultMapping>::HasBackMapping(val);
+		}
+	private:
+		static void Check()
+		{
+			typedef BaseValueMapper<Derived, SrcT, DstT> ThisT;
+			typedef CompileTimeAssert<Inherits<Derived, ThisT>::Value> ERR_DerivedDoesntInherit_BaseValueMapper;
 		}
 	};
 
