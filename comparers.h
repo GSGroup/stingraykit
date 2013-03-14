@@ -28,7 +28,7 @@ namespace stingray
 	{
 		template < typename PtrType >
 		int operator () (const PtrType& l, const PtrType& r) const
-		{ return l ? l->Compare(r) : (r ? -1 : 0); }
+		{ return l ? (r? l->Compare(*r): 1) : (r ? -1 : 0); }
 	};
 
 
