@@ -137,7 +137,7 @@ namespace stingray {
 				DetailCheckSizes();
 				typedef typename GetTypeListItem<Default, 0>::ValueT DefaultValue;
 
-				bool result;
+				bool result = false;
 				if (ForIf<GetTypeListLength<List>::Value / 2, HasBackMappingFunctor>::Do(val, ref(result)))
 					result = !SameType<Default, typename Mappings<DstT>::Fail>::Value;
 				return result;
