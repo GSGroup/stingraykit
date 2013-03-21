@@ -45,15 +45,17 @@ namespace stingray
 		template < typename T, bool DoTrace = shared_ptr_traits<T>::trace_ref_counts >
 		struct SharedPtrRefCounter
 		{
-			static atomic_int_type DoAddRef(ref_count& rc, const void* ptrVal) { return rc.add_ref(); }
-			static atomic_int_type DoRelease(ref_count& rc, const void* ptrVal) { return rc.release(); }
+			static void DoLogAddRef(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { }
+			static atomic_int_type DoAddRef(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.add_ref(); }
+			static atomic_int_type DoRelease(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.release(); }
 		};
 
 		template < typename T >
 		struct SharedPtrRefCounter<T, true>
 		{
-			static atomic_int_type DoAddRef(ref_count& rc, const void* ptrVal) { return rc.add_ref(shared_ptr_traits<T>::get_trace_class_name(), ptrVal); }
-			static atomic_int_type DoRelease(ref_count& rc, const void* ptrVal) { return rc.release(shared_ptr_traits<T>::get_trace_class_name(), ptrVal); }
+			static void DoLogAddRef(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { rc.log_add_ref(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
+			static atomic_int_type DoAddRef(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.add_ref(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
+			static atomic_int_type DoRelease(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.release(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
 		};
 	}
 
@@ -85,7 +87,7 @@ namespace stingray
 	private:
 		FORCE_INLINE shared_ptr(T* rawPtr, const ref_count& refCount)
 			: _rawPtr(rawPtr), _refCount(refCount)
-		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr); }
+		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); }
 
 	public:
 		typedef T ValueType;
@@ -93,6 +95,8 @@ namespace stingray
 		explicit FORCE_INLINE shared_ptr(T* rawPtr)
 			: _rawPtr(rawPtr), _refCount()
 		{
+			if (_rawPtr)
+				Detail::SharedPtrRefCounter<T>::DoLogAddRef(_refCount, _rawPtr, this);
 			init_enable_shared_from_this(rawPtr);
 		}
 
@@ -107,15 +111,15 @@ namespace stingray
 		template < typename U >
 		FORCE_INLINE shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _refCount(other._refCount)
-		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr); } // Do not init enable_shared_from_this in copy ctor
+		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); } // Do not init enable_shared_from_this in copy ctor
 
 		FORCE_INLINE shared_ptr(const shared_ptr<T>& other)
 			: _rawPtr(other._rawPtr), _refCount(other._refCount)
-		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr); } // Do not init enable_shared_from_this in copy ctor
+		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); } // Do not init enable_shared_from_this in copy ctor
 
 		FORCE_INLINE ~shared_ptr()
 		{
-			if (_rawPtr && Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr) == 0)
+			if (_rawPtr && Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr, this) == 0)
 				delete _rawPtr;
 		}
 
@@ -124,6 +128,14 @@ namespace stingray
 		{
 			shared_ptr<T> tmp(other);
 			swap(tmp);
+
+			// Uncomment this for tracing shared_ptrs
+			//if (other == *this)
+				//return *this;
+
+			//this->~shared_ptr();
+			//new(this) shared_ptr(other);
+
 			return *this;
 		}
 
@@ -159,6 +171,10 @@ namespace stingray
 		{
 			shared_ptr<T> tmp(ptr);
 			swap(tmp);
+
+			// Uncomment this for tracing shared_ptrs
+			//this->~shared_ptr();
+			//new(this) shared_ptr(ptr);
 		}
 
 		FORCE_INLINE void swap(shared_ptr<T>& other)
@@ -241,15 +257,15 @@ namespace stingray
 			if (!_rawPtr)
 				return shared_ptr<T>();
 
-			if (Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr) == 1)
+			if (Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this) == 1)
 			{
-				if (Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr) != 0)
+				if (Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr, this) != 0)
 					TOOLKIT_FATAL("weak_ptr::lock race occured!");
 				return shared_ptr<T>();
 			}
 
 			shared_ptr<T> result(_rawPtr, _refCount);
-			Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr);
+			Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr, this);
 
 			return result;
 		}

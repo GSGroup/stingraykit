@@ -15,8 +15,8 @@ namespace stingray
 
 	namespace Detail
 	{
-		void DoLogAddRef(const char* className, atomic_int_type refs, const void* ptrVal);
-		void DoLogRelease(const char* className, atomic_int_type refs, const void* ptrVal);
+		void DoLogAddRef(const char* className, atomic_int_type refs, const void* objPtrVal, const void* sharedPtrPtrVal);
+		void DoLogRelease(const char* className, atomic_int_type refs, const void* objPtrVal, const void* sharedPtrPtrVal);
 	}
 
 
@@ -91,17 +91,20 @@ namespace stingray
 		FORCE_INLINE atomic_int_type release()	{ assert(_value); return Atomic::Dec(_value->Value); }
 		FORCE_INLINE bool release_if_unique()	{ assert(_value); return Atomic::CompareAndExchange(_value->Value, 1, 0) == 1; }
 
-		atomic_int_type add_ref(const char* className, const void* ptrVal)
-		{ atomic_int_type res = add_ref(); Detail::DoLogAddRef(className, res, ptrVal); return res; }
+		void log_add_ref(const char* className, const void* objPtrVal, const void* sharedPtrPtrVal)
+		{ atomic_int_type res = get(); Detail::DoLogAddRef(className, res, objPtrVal, sharedPtrPtrVal); }
 
-		atomic_int_type release(const char* className, const void* ptrVal)
-		{ atomic_int_type res = release(); Detail::DoLogRelease(className, res, ptrVal); return res; }
+		atomic_int_type add_ref(const char* className, const void* objPtrVal, const void* sharedPtrPtrVal)
+		{ atomic_int_type res = add_ref(); Detail::DoLogAddRef(className, res, objPtrVal, sharedPtrPtrVal); return res; }
 
-		bool release_if_unique(const char* className, const void* ptrVal)
+		atomic_int_type release(const char* className, const void* objPtrVal, const void* sharedPtrPtrVal)
+		{ atomic_int_type res = release(); Detail::DoLogRelease(className, res, objPtrVal, sharedPtrPtrVal); return res; }
+
+		bool release_if_unique(const char* className, const void* objPtrVal, const void* sharedPtrPtrVal)
 		{
 			bool res = release_if_unique();
 			if (res)
-				Detail::DoLogRelease(className, 0, ptrVal);
+				Detail::DoLogRelease(className, 0, objPtrVal, sharedPtrPtrVal);
 			return res;
 		}
 
