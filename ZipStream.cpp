@@ -20,6 +20,7 @@ namespace stingray
 			ZlibException(const z_stream& z, const std::string &method, int ret): Exception(StringBuilder() % "zlib " % method % " failed: " % z.msg % " with code = " % ret ) {}
 		};
 	}
+	TOOLKIT_DEFINE_NAMED_LOGGER(ZipStream);
 
 	bool ZipStream::CheckGzipHeader(const ConstByteData &src)
 	{
@@ -28,6 +29,7 @@ namespace stingray
 
 	ByteArray ZipStream::Compress(const ConstByteData &src, int level, bool gzHeader)
 	{
+		TRACER;
 		z_stream z = {};
 		ScopeExitInvoker sei(bind(&deflateEnd, &z));
 
@@ -74,6 +76,7 @@ namespace stingray
 
 	ByteArray ZipStream::Decompress(const ConstByteData &src, bool gzHeader)
 	{
+		TRACER;
 		z_stream z = {};
 		ScopeExitInvoker sei(bind(&inflateEnd, &z));
 
