@@ -31,6 +31,8 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 
+			//LogState("Before Add(" + ToString(val) + ")");
+
 			if (!_lastIndices.empty())
 			{
 				int li = *_lastIndices.rbegin();
@@ -48,11 +50,15 @@ namespace stingray
 			_lastIndices.erase(std::remove_if(_lastIndices.begin(), _lastIndices.end(), bind(std::less<size_t>(), _1, 0)), _lastIndices.end());
 
 			AddLastIndex(_history.size() - 1);
+
+			//LogState("After Add(" + ToString(val) + ")");
 		}
 
 		bool ToggleLast(T& outVal) // TODO: replace with more generic accessors
 		{
 			MutexLock l(_mutex);
+
+			//LogState("Before ToggleLast");
 
 			if (_lastIndices.size() < 2)
 				return false;
@@ -63,6 +69,10 @@ namespace stingray
 
 			AddLastIndex(prev);
 			outVal = _history[prev];
+			//Logger::Info() << "[BasicHistory] " << "outVal: " << outVal;
+
+			//LogState("After ToggleLast");
+
 			return true;
 		}
 
@@ -73,6 +83,9 @@ namespace stingray
 			while (_lastIndices.size() > _lastHistoryIndicesCount)
 				_lastIndices.pop_front();
 		}
+
+		void LogState(const std::string& msg) const
+		{ Logger::Info() << "[BasicHistory] " << msg << ": { history: " << _history << ", lastIndices: " << _lastIndices << " }"; }
 	};
 	
 }
