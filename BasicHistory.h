@@ -20,6 +20,7 @@ namespace stingray
 		LastHistoryIndices			_lastIndices;
 		size_t						_maxHistorySize;
 		size_t						_lastHistoryIndicesCount;
+		Mutex						_mutex;
 
 	public:
 		BasicHistory(size_t maxHistorySize, size_t lastHistoryIndicesCount = 2)
@@ -28,6 +29,8 @@ namespace stingray
 
 		void Add(const T& val)
 		{
+			MutexLock l(_mutex);
+
 			if (!_lastIndices.empty())
 			{
 				int li = *_lastIndices.rbegin();
@@ -49,6 +52,8 @@ namespace stingray
 
 		bool ToggleLast(T& outVal) // TODO: replace with more generic accessors
 		{
+			MutexLock l(_mutex);
+
 			if (_lastIndices.size() < 2)
 				return false;
 
