@@ -40,12 +40,12 @@ namespace stingray
 		if ((ret = deflateInit2(&z, level, Z_DEFLATED, gzHeader? 0x1f: 0x0f, 8, Z_DEFAULT_STRATEGY)) != Z_OK)
 			TOOLKIT_THROW(ZlibException(z, "DeflateInit", ret));
 
-		std::vector<u8> dst(BufferSize);
+		ByteArray dst(BufferSize);
 
 		while(true)
 		{
 			z.avail_out = dst.size() - z.total_out;
-			z.next_out = (Bytef*)&dst[z.total_out];
+			z.next_out = static_cast<Bytef*>(dst.data() + z.total_out);
 
 			ret = deflate(&z, Z_FINISH);
 
@@ -56,7 +56,7 @@ namespace stingray
 			{
 				if (z.avail_out == 0)
 				{
-					dst.resize(dst.size() + BufferSize);
+					dst.RequireSize(dst.size() + BufferSize);
 					continue;
 				}
 				else if (z.avail_in == 0)
@@ -70,8 +70,7 @@ namespace stingray
 		if ((ret = deflateEnd(&z)) != Z_OK)
 			TOOLKIT_THROW(ZlibException(z, "deflateEnd", ret));
 
-		dst.resize(z.total_out);
-		return ByteArray(dst.begin(), dst.end());
+		return ByteArray(dst, 0, z.total_out);
 	}
 
 	ByteArray ZipStream::Decompress(const ConstByteData &src, bool gzHeader)
@@ -87,13 +86,12 @@ namespace stingray
 		if ((ret = inflateInit2(&z, gzHeader? 0x1f: 0x0f)) != Z_OK)
 			TOOLKIT_THROW(ZlibException(z, "inflateInit", ret));
 
-		std::vector<u8> dst;
-		dst.resize(BufferSize);
+		ByteArray dst(BufferSize);
 
 		while(z.avail_in != 0)
 		{
 			z.avail_out = dst.size() - z.total_out;
-			z.next_out = (Bytef*)&dst[z.total_out];
+			z.next_out = static_cast<Bytef *>(dst.data() + z.total_out);
 
 			ret = inflate(&z, Z_FINISH);
 
@@ -104,7 +102,7 @@ namespace stingray
 			{
 				if (z.avail_out == 0)
 				{
-					dst.resize(dst.size() + BufferSize);
+					dst.RequireSize(dst.size() + BufferSize);
 					continue;
 				}
 				else if (z.avail_in == 0)
@@ -118,8 +116,7 @@ namespace stingray
 		if ((ret = inflateEnd(&z)) != Z_OK)
 			TOOLKIT_THROW(ZlibException(z, "inflateEnd", ret));
 
-		dst.resize(z.total_out);
-		return ByteArray(dst.begin(), dst.end());
+		return ByteArray(dst, 0, z.total_out);
 	}
 
 }
