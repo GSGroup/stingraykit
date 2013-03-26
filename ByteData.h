@@ -75,6 +75,9 @@ namespace stingray
 #endif
 	}
 
+	template < typename T >
+	class BasicByteData;
+
 
 	template < typename T >
 	class BasicByteArray
@@ -202,7 +205,13 @@ namespace stingray
 		inline T* data() const						{ return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
 
 		template<typename ObjectOStream>
-		void Serialize(ObjectOStream & ar) const	{ ar.Serialize("o", _offset); ar.Serialize("d", *_data);}
+		void Serialize(ObjectOStream & ar) const
+		{
+			//why would we store whole array anyway?
+			//ar.Serialize("o", _offset); ar.Serialize("d", *_data);
+			BasicByteData<const T> data_proxy(data() + _offset, size());
+			ar.Serialize("d", data_proxy);
+		}
 
 		template<typename ObjectIStream>
 		void Deserialize(ObjectIStream & ar)		{ BasicByteArray data; ar.Deserialize("o", _offset, 0); ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data)); *this = data; }
