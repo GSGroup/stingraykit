@@ -214,7 +214,7 @@ namespace stingray
 		}
 
 		template<typename ObjectIStream>
-		void Deserialize(ObjectIStream & ar)		{ BasicByteArray data; ar.Deserialize("o", _offset, 0); ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data)); *this = data; }
+		void Deserialize(ObjectIStream & ar)		{ BasicByteArray data; ar.Deserialize("o", data._offset, 0); ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data)); *this = data; }
 	};
 
 	template < typename T >
