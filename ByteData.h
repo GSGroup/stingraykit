@@ -209,7 +209,7 @@ namespace stingray
 		{
 			//why would we store whole array anyway?
 			//ar.Serialize("o", _offset); ar.Serialize("d", *_data);
-			BasicByteData<const T> data_proxy(data(), size());
+			std::vector<u8> data_proxy(data(), data() + size());//fixme: later
 			ar.Serialize("d", data_proxy);
 		}
 
