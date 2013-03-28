@@ -72,8 +72,8 @@ namespace stingray
 	template < typename T >
 	T FromString(const std::string& str)
 	{
-		if (str.empty())
-			TOOLKIT_THROW(ArgumentException("str", "<empty-string>"));
+		if (str.empty()) //old from string behaved this way.
+			return 0;
 
 		T value = (T)0;
 		bool negative = false;
