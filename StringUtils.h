@@ -73,7 +73,7 @@ namespace stingray
 	T FromString(const std::string& str)
 	{
 		if (str.empty())
-			TOOLKIT_THROW(ArgumentException("str"));
+			TOOLKIT_THROW(ArgumentException("str", "<empty-string>"));
 
 		T value = (T)0;
 		bool negative = false;
@@ -90,7 +90,7 @@ namespace stingray
 			if (c >= '0' && c <= '9')
 				value = value * 10 + (c - '0');
 			else
-				TOOLKIT_THROW(ArgumentException("str"));
+				TOOLKIT_THROW(ArgumentException("str", str));
 		}
 
 		return negative? (T)0 - value: value; //Dima told me to shut compiler up. Sorry.
