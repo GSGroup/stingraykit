@@ -1,6 +1,7 @@
 #include <stingray/toolkit/EnumToString.h>
 
 #include <map>
+#include <sstream>
 
 #include <stingray/toolkit/exception.h>
 
@@ -54,7 +55,7 @@ namespace stingray
 
 			if (flagged_val != val)
 			{
-				std::stringstream s;
+				string_ostream s;
 				s << (unsigned)val;
 				return s.str();
 			}

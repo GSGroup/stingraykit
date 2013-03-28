@@ -2,7 +2,6 @@
 #define STINGRAY_TOOLKIT_STRINGUTILS_H
 
 #include <algorithm>
-#include <sstream>
 #include <string>
 
 #include <stingray/toolkit/Dummy.h>
@@ -12,6 +11,7 @@
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/string_stream.h>
 
 
 /*! \cond GS_INTERNAL */
@@ -70,15 +70,30 @@ namespace stingray
 	}
 
 	template < typename T >
-	T FromString(const std::string& str) // TODO: reimplement
+	T FromString(const std::string& str)
 	{
-		std::stringstream s(str);
-		T val = T();
-		s >> val;
-		if (!s.eof())
-			TOOLKIT_THROW(ArgumentException("str", str));
+		if (str.empty())
+			TOOLKIT_THROW(ArgumentException("str"));
 
-		return val;
+		T value = (T)0;
+		bool negative = false;
+
+		size_t i = 0;
+		negative = str[0] == '-';
+		if (str[0] == '+' || negative)
+		{
+			++i; //skip first + or -
+		}
+		for(; i < str.size(); ++i)
+		{
+			char c = str[i];
+			if (c >= '0' && c <= '9')
+				value = value * 10 + (c - '0');
+			else
+				TOOLKIT_THROW(ArgumentException("str"));
+		}
+
+		return negative? (T)0 - value: value; //Dima told me to shut compiler up. Sorry.
 	}
 
 	template < typename T >
@@ -191,7 +206,7 @@ namespace stingray
 		{
 			static std::string ToStringImpl(const ObjectType& val)
 			{
-				std::ostringstream s;
+				string_ostream s;
 				s << val;
 				return s.str();
 			}
@@ -202,7 +217,7 @@ namespace stingray
 		{
 			static std::string ToStringImpl(u8 val)
 			{
-				std::ostringstream s;
+				string_ostream s;
 				s << (int)val;
 				return s.str();
 			}
@@ -388,7 +403,7 @@ namespace stingray
 	template< typename CharType >
 	class BasicStringBuilder
 	{
-		typedef std::basic_ostringstream<CharType>	StreamType;
+		typedef basic_string_ostream<CharType>		StreamType;
 		typedef std::basic_string<CharType>			StringType;
 
 	private:
@@ -396,7 +411,7 @@ namespace stingray
 
 	public:
 		BasicStringBuilder()
-		{ _stream << std::boolalpha; }
+		{ }
 
 		template<typename ObjectType>
 		typename EnableIf<!IsIntType<ObjectType>::Value, BasicStringBuilder&>::ValueT operator % (const ObjectType& object)

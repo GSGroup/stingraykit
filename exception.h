@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <string>
-#include <sstream>
+#include <stingray/toolkit/string_stream.h>
 
 
 #ifdef USE_BACKTRACE_FOR_EXCEPTIONS
@@ -212,7 +212,7 @@ namespace stingray
 
 #define TOOLKIT_THROW(ExceptionObj) throw ::stingray::Detail::MakeException(ExceptionObj, __FILE__, __LINE__, TOOLKIT_FUNCTION)
 
-	void _append_extended_diagnostics(std::stringstream& result, const Detail::IToolkitException& tkit_ex);
+	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 
 	template < typename ExceptionType >
 	inline std::string diagnostic_information(const ExceptionType& ex)
@@ -220,7 +220,7 @@ namespace stingray
 		const Detail::IToolkitException* tkit_ex = dynamic_cast<const Detail::IToolkitException*>(&ex);
 		const std::exception* std_ex = dynamic_cast<const std::exception*>(&ex);
 		const std::type_info& ex_ti = typeid(ex);
-		std::stringstream result;
+		string_ostream result;
 
 		if (std_ex)
 			result << "std::exception: " << ex_ti.name() << "\n" << std_ex->what();
