@@ -30,8 +30,8 @@ namespace stingray {
 	template<typename TupleParams>
 	static std::string StringFormat(const std::string& format, const Tuple<TupleParams>& params)
 	{
-		std::vector<std::string> substrings;
-		Split(format, "%", substrings);
+		std::vector<StringRef> substrings;
+		SplitRefs(format, "%", substrings);
 
 		TOOLKIT_CHECK((substrings.size() % 2) == 1, "Format mismatch: no corresponding %");
 		string_ostream result;
@@ -54,7 +54,7 @@ namespace stingray {
 				}
 			}
 			else
-				result << substrings[i];
+				result << substrings[i].str();
 
 		return result.str();
 	}

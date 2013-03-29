@@ -362,6 +362,57 @@ namespace stingray
 		result.push_back(str.substr(i));
 	}
 
+	class StringRef
+	{
+	public:
+		typedef std::string::size_type	size_type;
+		static const size_type npos = std::string::npos;
+
+	private:
+		const std::string *				_owner;
+		std::string::size_type			_begin, _end;
+
+	public:
+		inline StringRef(const std::string &owner, size_t begin = 0, size_t end = npos) : _owner(&owner), _begin(begin), _end(end != npos? end: owner.size()) { }
+
+		inline bool empty() const		{ return _begin >= _end; }
+		inline size_type size() const	{ return _end >= _begin? _end - _begin: 0; }
+
+		inline size_type find(const char c, size_type pos = 0) const
+		{
+			size_type p = _owner->find(c, pos + _begin);
+			return (p >= _end)? npos: p - _begin;
+		}
+
+		inline size_type find(const std::string &str, size_type pos = 0) const
+		{
+			size_type p = _owner->find(str, pos + _begin);
+			return (p >= _end)? npos: p - _begin;
+		}
+
+		inline std::string substr(size_type pos = 0, size_type n = npos) const
+		{
+			if (pos >= size())
+				return std::string();
+			 //_end - _begin - pos >= 0 now
+			return _owner->substr(_begin + pos, std::min(size() - pos, n));
+		}
+
+		inline std::string str() const { return substr(); }
+	};
+
+	template<typename ContainerType>
+	inline void SplitRefs(const std::string& str, const std::string& delim, ContainerType& result)
+	{
+		size_t i = 0, j;
+		while ((j = str.find(delim, i)) != std::string::npos)
+		{
+			result.push_back(StringRef(str, i, j));
+			i = j + delim.length();
+		}
+		result.push_back(StringRef(str, i));
+	}
+
 	inline std::string RightStrip(const std::string& str, char ch = ' ')
 	{
 		const size_t pos = str.find_last_not_of(ch);
