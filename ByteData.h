@@ -215,6 +215,8 @@ namespace stingray
 
 		template<typename ObjectIStream>
 		void Deserialize(ObjectIStream & ar)		{ BasicByteArray data; ar.Deserialize("o", data._offset, 0); ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data)); *this = data; }
+
+		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); }
 	};
 
 	template < typename T >
@@ -296,6 +298,8 @@ namespace stingray
 
 		reverse_iterator rend() const
 		{ return reverse_iterator(begin()); }
+
+		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); } //made compatible with array for template classes
 	};
 
 
