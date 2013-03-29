@@ -146,6 +146,17 @@ namespace stingray
 		_buf.insert(_buf.end(), buf, buf + r);
 	}
 
+	template<>
+	template<>
+	void basic_string_ostream<char>::Insert(const void * value)
+	{
+		char buf[32];
+		int r = snprintf(buf, sizeof(buf), "%p", value);
+		if (r == -1)
+			TOOLKIT_THROW("snprintf failed");
+		_buf.insert(_buf.end(), buf, buf + r);
+	}
+
 	extern template void string_ostream::Insert(bool);
 	extern template void string_ostream::Insert(unsigned char);
 	extern template void string_ostream::Insert(short);
@@ -157,5 +168,6 @@ namespace stingray
 	extern template void string_ostream::Insert(float);
 	extern template void string_ostream::Insert(double);
 	extern template void string_ostream::Insert(long double);
+	extern template void string_ostream::Insert(const void *);
 
 }

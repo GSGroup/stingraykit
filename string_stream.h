@@ -70,6 +70,9 @@ namespace stingray
 		basic_string_ostream& operator << (const char *value)
 		{ Insert(value); return *this; }
 
+		basic_string_ostream& operator << (const void *value)
+		{ Insert(value); return *this; }
+
 
 		void write(const char_type *data, size_t size)
 		{ _buf.insert(_buf.end(), data, data +size); }
