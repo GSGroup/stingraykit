@@ -34,12 +34,12 @@ namespace stingray {
 		Split(format, "%", substrings);
 
 		TOOLKIT_CHECK((substrings.size() % 2) == 1, "Format mismatch: no corresponding %");
-		std::string result;
+		string_ostream result;
 		for (size_t i = 0; i != substrings.size(); ++i)
 			if (i % 2)
 			{
 				if (substrings[i].empty())
-					result += "%";
+					result << "%";
 				else
 				{
 					size_t pos = substrings[i].find('$');
@@ -48,15 +48,15 @@ namespace stingray {
 					size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(substrings[i].substr(pos + 1));
 					std::string item_str = Detail::TupleToStringHelper<TupleParams>::ItemToString(params, index - 1);
 					if (item_str.size() < width)
-						result += std::string(width - item_str.size(), '0') + item_str;
+						result << std::string(width - item_str.size(), '0') + item_str;
 					else
-						result += item_str;
+						result << item_str;
 				}
 			}
 			else
-				result += substrings[i];
+				result << substrings[i];
 
-		return result;
+		return result.str();
 	}
 
 #define TY typename
