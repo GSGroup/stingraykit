@@ -156,7 +156,8 @@ namespace stingray
 
 		FORCE_INLINE T& operator[](size_t index) const
 		{
-			DETAIL_BYTEDATA_INDEX_CHECK(index < size());
+			if (index >= size())
+				TOOLKIT_THROW(IndexOutOfRangeException(index, size()));
 			return (*_data)[index + _offset];
 		}
 
@@ -249,14 +250,34 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		BasicByteData(BasicByteArray<U>& array)
+		explicit BasicByteData(BasicByteArray<U>& array) //disallow storing anonymous copies without explicit intention to do so
 			: _data(array.data()), _size(array.size())
 		{ }
 
 		template < typename U >
-		BasicByteData(const BasicByteArray<U>& array)
+		explicit BasicByteData(const BasicByteArray<U>& array) //disallow storing anonymous copies without explicit intention to do so
 			: _data(array.data()), _size(array.size())
 		{ }
+
+		template < typename U >
+		BasicByteData(BasicByteArray<U>& array, size_t offset)
+			: _data(array.data() + offset), _size(array.size() - offset)
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset <= array.size()); }
+
+		template < typename U >
+		BasicByteData(const BasicByteArray<U>& array, size_t offset)
+			: _data(array.data() + offset), _size(array.size() - offset)
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset <= array.size()); }
+
+		template < typename U >
+		BasicByteData(BasicByteArray<U>& array, size_t offset, size_t size)
+			: _data(array.data() + offset), _size(size)
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size <= array.size()); }
+
+		template < typename U >
+		BasicByteData(const BasicByteArray<U>& array, size_t offset, size_t size)
+			: _data(array.data() + offset), _size(size)
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size <= array.size()); }
 
 		BasicByteData(T* data, size_t size)
 			: _data(data), _size(size)
@@ -274,7 +295,8 @@ namespace stingray
 
 		FORCE_INLINE T& operator[](size_t index) const
 		{
-			DETAIL_BYTEDATA_INDEX_CHECK(index < _size);
+			if (index >= _size)
+				TOOLKIT_THROW(IndexOutOfRangeException(index, _size));
 			return _data[index];
 		}
 
