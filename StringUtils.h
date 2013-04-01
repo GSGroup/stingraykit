@@ -47,26 +47,35 @@ namespace stingray
 	}
 
 	template<typename T>
+	void ToHex(string_ostream &r, T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
+	{
+		if (add0xPrefix)
+			r << "0x";
+
+		static const size_t max_width = sizeof(T) * 2;
+		size_t start;
+		if (width > max_width)
+		{
+			for(size_t i = max_width; i < width; ++i)
+				r << "0";
+			start = 0;
+		}
+		else
+			start = max_width - width;
+
+		bool seen_non_zero = false;
+		for(size_t i = 0; i < max_width; ++i)
+		{
+			char c = (value >> ((max_width - i - 1) * 4)) & 0x0f;
+			seen_non_zero |= c;
+			if (seen_non_zero || i >= start || i == max_width - 1)
+				r << ((char)(c > 9? c + (capital? 'A': 'a') - 10: c + '0'));
+		}
+	}
+	template<typename T>
 	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
 	{
-		std::string r;
-		r.reserve((add0xPrefix? 2: 0) + std::max(sizeof(value) * 2, width));
-
-		do
-		{
-			char c = value & 0x0f;
-			r.insert(0, 1, (char)(c > 9? c + (capital? 'A': 'a') - 10: c + '0'));
-			value >>= 4;
-		}
-		while(value != 0);
-
-		if (r.size() < width)
-			r.insert(0, std::string(width - r.size(), '0'));
-
-		if (add0xPrefix)
-			r.insert(0, "0x");
-
-		return r;
+		string_ostream result; ToHex(result, value, width, capital, add0xPrefix); return result.str();
 	}
 
 	template < typename T >
