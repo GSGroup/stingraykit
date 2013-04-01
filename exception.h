@@ -226,12 +226,11 @@ namespace stingray
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 
 	template < typename ExceptionType >
-	inline std::string diagnostic_information(const ExceptionType& ex)
+	inline void diagnostic_information(string_ostream & result, const ExceptionType& ex)
 	{
 		const Detail::IToolkitException* tkit_ex = dynamic_cast<const Detail::IToolkitException*>(&ex);
 		const std::exception* std_ex = dynamic_cast<const std::exception*>(&ex);
 		const std::type_info& ex_ti = typeid(ex);
-		string_ostream result;
 
 		if (std_ex)
 			result << "std::exception: " << ex_ti.name() << "\n" << std_ex->what();
@@ -241,6 +240,12 @@ namespace stingray
 		if (tkit_ex)
 			_append_extended_diagnostics(result, *tkit_ex);
 
+	}
+	template < typename ExceptionType >
+	inline std::string diagnostic_information(const ExceptionType& ex)
+	{
+		string_ostream result;
+		diagnostic_information(result, ex);
 		return result.str();
 	}
 

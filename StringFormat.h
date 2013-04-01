@@ -11,18 +11,30 @@ namespace stingray {
 		struct TupleToStringHelper
 		{
 		public:
-			static std::string ItemToString(const Tuple<TupleParams>& tuple, size_t index)
+			static void ItemToString(string_ostream & result, const Tuple<TupleParams>& tuple, size_t index, size_t width)
 			{
 				if (index == 0)
-					return ToString(tuple.GetHead());
-				return TupleToStringHelper<typename TupleParams::Next>::ItemToString(tuple.GetTail(), index - 1);
+				{
+					if (width != 0)
+					{
+						std::string item_str = ToString(tuple.GetHead());
+						if (item_str.size() < width)
+							result << std::string(width - item_str.size(), '0') << item_str;
+						else
+							result << item_str;
+					}
+					else
+						ToString(result, tuple.GetHead()); //quick no width variant
+				}
+				else
+					TupleToStringHelper<typename TupleParams::Next>::ItemToString(result, tuple.GetTail(), index - 1, width);
 			}
 		};
 
 		template<>
 		struct TupleToStringHelper<TypeListEndNode>
 		{
-			static std::string ItemToString(const Tuple<TypeListEndNode>& tuple, size_t index)
+			static void ItemToString(string_ostream &, const Tuple<TypeListEndNode>& tuple, size_t index, size_t width)
 			{ TOOLKIT_THROW("Tuple item index mismatch!"); }
 		};
 	}
@@ -46,11 +58,7 @@ namespace stingray {
 					size_t index = FromString<size_t>(substrings[i].substr(0, pos));
 					TOOLKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
 					size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(substrings[i].substr(pos + 1));
-					std::string item_str = Detail::TupleToStringHelper<TupleParams>::ItemToString(params, index - 1);
-					if (item_str.size() < width)
-						result << std::string(width - item_str.size(), '0') << item_str;
-					else
-						result << item_str;
+					Detail::TupleToStringHelper<TupleParams>::ItemToString(result, params, index - 1, width);
 				}
 			}
 			else

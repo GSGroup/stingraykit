@@ -97,7 +97,7 @@ namespace stingray
 	}
 
 	template < typename T >
-	std::string ToString(const T& val);
+	void ToString(string_ostream & result, const T& val);
 
 	namespace Detail
 	{
@@ -145,16 +145,18 @@ namespace stingray
 		template< typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasBeginEnd>
 		{
-			static std::string ToStringImpl(const ObjectType& object)
+			static void ToStringImpl(string_ostream & result, const ObjectType& object)
 			{
 				typename ObjectType::const_iterator it = object.begin(), iend = object.end();
-				std::string result = "[";
+				result << "[";
 				if (it != iend)
-					result += ToString(*it++);
+					ToString(result, *it++);
 				while (it != iend)
-					result += ", " + ToString(*it++);
-				result += "]";
-				return result;
+				{
+					result << ", ";
+					ToString(result, *it++);
+				}
+				result << "]";
 			}
 		};
 
@@ -162,19 +164,25 @@ namespace stingray
 		struct TypeToStringSerializer<std::map<KeyType, ValueType, CompareType, AllocatorType>, TypeToStringObjectType::HasBeginEnd>
 		{
 			typedef std::map<KeyType, ValueType, CompareType, AllocatorType>	MapType;
-			static std::string ToStringImpl(const MapType& object)
+			static void ToStringImpl(string_ostream & result, const MapType& object)
 			{
 				typename MapType::const_iterator it = object.begin(), iend = object.end();
-				std::string result = "{ ";
+				result << "{ ";
 				if (it != iend)
 				{
-					result += ToString(it->first) + ": " + ToString(it->second);
+					ToString(result, it->first);
+					result << ": ";
+					ToString(result, it->second);
 					++it;
 				}
 				for (; it != iend; ++it)
-					result += ", " + ToString(it->first) + ": " + ToString(it->second);
-				result += " }";
-				return result;
+				{
+					result << ", ";
+					ToString(result, it->first);
+					result << ": ";
+					ToString(result, it->second);
+				}
+				result << " }";
 			}
 		};
 
@@ -182,101 +190,115 @@ namespace stingray
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Enumerable>
 		{
 			template <typename T>
-			static std::string ToStringImpl(const IEnumerable<T>& enumerable)
+			static void ToStringImpl(string_ostream & result, const IEnumerable<T>& enumerable)
 			{
 				shared_ptr<IEnumerator<T> > e = TOOLKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
-				std::string result = "[";
+				result << "[";
 				if (e->Valid())
 				{
-					result += ToString(e->Get());
+					ToString(result, e->Get());
 					e->Next();
 				}
 				while (e->Valid())
 				{
-					result += ", " + ToString(e->Get());
+					result << ", ";
+					ToString(result, e->Get());
 					e->Next();
 				}
-				result += "]";
-				return result;
+				result << "]";
 			}
 		};
 
 		template< typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::ProxyObjToStdStream>
 		{
-			static std::string ToStringImpl(const ObjectType& val)
+			static void ToStringImpl(string_ostream & result, const ObjectType& val)
 			{
-				string_ostream s;
-				s << val;
-				return s.str();
+				result << val;
 			}
 		};
 
 		template<>
 		struct TypeToStringSerializer<u8, TypeToStringObjectType::Other>
 		{
-			static std::string ToStringImpl(u8 val)
-			{
-				string_ostream s;
-				s << (int)val;
-				return s.str();
-			}
+			static void ToStringImpl(string_ostream & result, u8 val)
+			{ result << (u16)val; }
 		};
 
 		template<>
 		struct TypeToStringSerializer<std::string, TypeToStringObjectType::HasBeginEnd>
 		{
-			static std::string ToStringImpl(const std::string& str)
-			{ return str; }
+			static void ToStringImpl(string_ostream & result, const std::string& str)
+			{ result << str; }
 		};
 
 		template<>
 		struct TypeToStringSerializer<const char*, TypeToStringObjectType::Other>
 		{
-			static std::string ToStringImpl(const char* str)
-			{ return str; }
+			static void ToStringImpl(string_ostream & result, const char* str)
+			{ result << str; }
 		};
 
 		template<typename T>
 		struct TypeToStringSerializer<shared_ptr<T>, TypeToStringObjectType::Other>
 		{
-			static std::string ToStringImpl(const shared_ptr<T>& ptr)
-			{ return ptr ? ToString(*ptr) : "null"; }
+			static void ToStringImpl(string_ostream & result, const shared_ptr<T>& ptr)
+			{
+				if (ptr)
+					ToString(result, *ptr);
+				else
+					result << "null"; 
+			}
 		};
 
 		template<typename T>
 		struct TypeToStringSerializer<optional<T>, TypeToStringObjectType::Other>
 		{
-			static std::string ToStringImpl(const optional<T>& opt)
-			{ return opt ? ToString(opt.get()) : "null"; }
+			static void ToStringImpl(string_ostream & result, const optional<T>& opt)
+			{
+				if (opt)
+					ToString(result, opt.get());
+				else
+					result << "null";
+			}
 		};
 
 		template<typename U, typename V>
 		struct TypeToStringSerializer<std::pair<U, V>, TypeToStringObjectType::Other>
 		{
-			static std::string ToStringImpl(const std::pair<U, V>& p)
-			{ return "[ " + ToString(p.first) + ", " + ToString(p.second) + " ]"; }
+			static void ToStringImpl(string_ostream & result, const std::pair<U, V>& p)
+			{
+				result << "[ ";
+				ToString(result, p.first);
+				result << ", ";
+				ToString(result, p.second);
+				result << " ]";
+			}
 		};
 
 		template<typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::IsException>
 		{
-			static std::string ToStringImpl(const ObjectType& object)
-			{ return diagnostic_information(object); }
+			static void ToStringImpl(string_ostream & result, const ObjectType& object)
+			{ return diagnostic_information(result, object); }
 		};
 
 		template<typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasToString>
 		{
-			static std::string ToStringImpl(const ObjectType& object)
-			{ return object.ToString(); }
+			static void ToStringImpl(string_ostream & result, const ObjectType& object)
+			{ result << object.ToString(); }
 		};
 
 	}
 
 	template < typename T >
+	void ToString(string_ostream & result, const T& val)
+	{ Detail::TypeToStringSerializer<T>::ToStringImpl(result, val); }
+
+	template < typename T >
 	std::string ToString(const T& val)
-	{ return Detail::TypeToStringSerializer<T>::ToStringImpl(val); }
+	{ string_ostream result; ToString(result, val); return result.str(); }
 
 
 	template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
