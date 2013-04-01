@@ -50,7 +50,7 @@ namespace stingray
 	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
 	{
 		std::string r;
-		r.reserve(std::max(sizeof(value) * 2, add0xPrefix? width + 2: width));
+		r.reserve((add0xPrefix? 2: 0) + std::max(sizeof(value) * 2, width));
 
 		do
 		{
