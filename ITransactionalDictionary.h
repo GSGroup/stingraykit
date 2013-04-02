@@ -164,12 +164,17 @@ namespace stingray
 			shared_ptr<IEnumerator<PairType> > copy = _copy->GetEnumerator();
 			while (old->Valid() || copy->Valid())
 			{
-				if (!old->Valid() || old->Get().Key > copy->Get().Key)
+				if (!copy->Valid())
+				{
+					diff->push_back(MakeDiffEntry(old->Get(), CollectionOp::Removed));
+					old->Next();
+				}
+				else if (!old->Valid() || old->Get().Key > copy->Get().Key)
 				{
 					diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Added));
 					copy->Next();
 				}
-				else if (!copy->Valid() || old->Get().Key < copy->Get().Key)
+				else if (old->Get().Key < copy->Get().Key)
 				{
 					diff->push_back(MakeDiffEntry(old->Get(), CollectionOp::Removed));
 					old->Next();
