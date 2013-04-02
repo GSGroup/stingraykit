@@ -2,10 +2,10 @@
 #define STINGRAY_TOOLKIT_IENUMERATOR_H
 
 
-#include <stingray/toolkit/shared_ptr.h>
-#include <stingray/toolkit/function.h>
-#include <stingray/toolkit/dynamic_caster.h>
 #include <stingray/toolkit/MetaProgramming.h>
+#include <stingray/toolkit/dynamic_caster.h>
+#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 
 #define TOOLKIT_DECLARE_ENUMERATOR(ClassName) \
@@ -163,6 +163,7 @@ namespace stingray
 		static DestType DefaultCast(ConstSrcTypeRef src) { return DestType(src); }
 	};
 
+
 	template<typename SrcType, typename CasterType>
 	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<IEnumerator<SrcType> >& src, const CasterType& caster)
 	{ return make_shared<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster); }
@@ -170,6 +171,7 @@ namespace stingray
 	template<typename SrcType, typename CasterType, typename SkipperType>
 	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<IEnumerator<SrcType> >& src, const CasterType& caster, const SkipperType& skipper)
 	{ return make_shared<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster, skipper); }
+
 
 	/*! \cond GS_INTERNAL */
 
@@ -238,7 +240,7 @@ namespace stingray
 		{ typedef T	ValueT; };
 
 
-		template < typename SrcType, typename CollectionType >
+		template < typename SrcType, typename LifeAssurance >
 		class EnumeratorCaster
 		{
 			typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
@@ -250,11 +252,11 @@ namespace stingray
 				typedef EnumeratorWrapper<SrcType, SrcType>	base;
 
 			private:
-				shared_ptr<CollectionType>	_collection;
+				shared_ptr<LifeAssurance>	_assurance;
 
 			public:
-				Proxy(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<CollectionType>& collection)
-					: base(srcEnumerator), _collection(collection)
+				Proxy(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<LifeAssurance>& assurance)
+					: base(srcEnumerator), _assurance(assurance)
 				{ }
 			};
 
@@ -263,11 +265,11 @@ namespace stingray
 			{
 				typedef EnumeratorWrapper<SrcType, DestType>	base;
 			private:
-				shared_ptr<CollectionType>	_collection;
+				shared_ptr<LifeAssurance>	_assurance;
 
 			public:
-				CastProxy(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<CollectionType>& collection)
-					: base(srcEnumerator, &CastProxy::Cast, &CastProxy::Skip), _collection(collection)
+				CastProxy(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<LifeAssurance>& assurance)
+					: base(srcEnumerator, &CastProxy::Cast, &CastProxy::Skip), _assurance(assurance)
 				{ }
 
 			private:
@@ -280,19 +282,19 @@ namespace stingray
 
 		private:
 			SrcEnumeratorPtr			_srcEnumerator;
-			shared_ptr<CollectionType>	_collection; // In order to control the lifetime of the collection if necessary
+			shared_ptr<LifeAssurance>	_assurance; // In order to control the lifetime of the assurance if necessary
 
 		public:
-			EnumeratorCaster(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<CollectionType>& collection)
-				: _srcEnumerator(srcEnumerator), _collection(collection)
+			EnumeratorCaster(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<LifeAssurance>& assurance)
+				: _srcEnumerator(srcEnumerator), _assurance(assurance)
 			{ }
 
 			operator SrcEnumeratorPtr() const
-			{ return make_shared<Proxy>(_srcEnumerator, _collection); }
+			{ return make_shared<Proxy>(_srcEnumerator, _assurance); }
 
 			template < typename DestType >
 			operator shared_ptr<IEnumerator<DestType> > () const
-			{ return make_shared<CastProxy<DestType> >(_srcEnumerator, _collection); }
+			{ return make_shared<CastProxy<DestType> >(_srcEnumerator, _assurance); }
 		};
 
 
