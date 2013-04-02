@@ -104,52 +104,58 @@ namespace stingray
 
 	private:
 		WrappedPtr						&_wrapped;
-		WrappedPtr						_copy;
+		mutable WrappedPtr				_copy;
 		const OnChangedSignalType		&_onChanged;
 
 	public:
 		DictionaryTransactionImpl(WrappedPtr &wrapped, const OnChangedSignalType& onChanged) :
 			_wrapped(wrapped), _onChanged(onChanged)
+		{ }
+
+		virtual ~DictionaryTransactionImpl()
 		{
-			signal_locker l(_onChanged);
-			_copy.reset(new Wrapped_(*_wrapped));
+			if (_copy)
+				Logger::Warning() << "Reverting DictionaryTransactionImpl!";
 		}
 
 		virtual int GetCount() const
-		{ return _copy->GetCount(); }
+		{ return GetCopy()->GetCount(); }
 
 		virtual bool IsEmpty() const
-		{ return _copy->IsEmpty(); }
+		{ return GetCopy()->IsEmpty(); }
 
 		virtual bool ContainsKey(const KeyType& key) const
-		{ return _copy->ContainsKey(key); }
+		{ return GetCopy()->ContainsKey(key); }
 
 		virtual ValueType Get(const KeyType& key) const
-		{ return _copy->Get(key); }
+		{ return GetCopy()->Get(key); }
 
 		virtual void Set(const KeyType& key, const ValueType& value)
-		{ _copy->Set(key, value); }
+		{ GetCopy()->Set(key, value); }
 
 		virtual void Remove(const KeyType& key)
-		{ _copy->Remove(key); }
+		{ GetCopy()->Remove(key); }
 
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-		{ return _copy->TryGet(key, outValue); }
+		{ return GetCopy()->TryGet(key, outValue); }
 
 		virtual bool TryRemove(const KeyType& key)
-		{ return _copy->TryRemove(key); }
+		{ return GetCopy()->TryRemove(key); }
 
 		virtual void Clear()
-		{ _copy->Clear(); }
+		{ GetCopy()->Clear(); }
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-		{ return _copy->GetEnumerator(); }
+		{ return GetCopy()->GetEnumerator(); }
 
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-		{ return _copy->Reverse(); }
+		{ return GetCopy()->Reverse(); }
 
 		virtual void Commit()
 		{
+			if (!_copy)
+				return;
+
 			typedef std::vector<DiffEntryType> OutDiffContainer;
 			shared_ptr<OutDiffContainer> diff(new OutDiffContainer());
 
@@ -182,7 +188,18 @@ namespace stingray
 			}
 			_onChanged(EnumerableFromStlContainer(*diff, diff));
 			_wrapped = _copy;
-			_copy.reset(new Wrapped_(*_wrapped));
+			_copy.reset();
+		}
+
+	private:
+		WrappedPtr GetCopy() const
+		{
+			if (!_copy)
+			{
+				signal_locker l(_onChanged);
+				_copy.reset(new Wrapped_(*_wrapped));
+			}
+			return _copy;
 		}
 	};
 
