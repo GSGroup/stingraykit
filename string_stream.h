@@ -10,12 +10,17 @@ namespace stingray
 	template<typename CharType>
 	class basic_string_ostream
 	{
-		typedef CharType			char_type;
+	public:
+		typedef	CharType			value_type;
+		typedef const value_type	const_reference;
+		typedef const value_type *	const_pointer;
+		typedef value_type			reference;
+		typedef value_type *		pointer;
 
-		std::deque<char_type>		_buf;
+	private:
+		std::deque<value_type>		_buf;
 
 	public:
-
 		std::string str() const
 		{ return std::string(_buf.begin(), _buf.end()); }
 
@@ -74,19 +79,21 @@ namespace stingray
 		{ Insert(value); return *this; }
 
 
-		void write(const char_type *data, size_t size)
+		inline void write(const_pointer data, size_t size)
 		{ _buf.insert(_buf.end(), data, data +size); }
+
+		inline void push_back(value_type c) { Insert(c); }
 
 	private:
 		basic_string_ostream& operator<<(std::ios_base& (*__pf) (std::ios_base&));
 
-		void Insert(CharType value)
+		void Insert(value_type value)
 		{ _buf.push_back(value); }
 
 		void Insert(const char *value)
 		{ while(*value) _buf.push_back(*value++); }
 
-		void Insert(const std::basic_string<CharType>& value)
+		void Insert(const std::basic_string<value_type>& value)
 		{ _buf.insert(_buf.end(), value.begin(), value.end()); }
 
 		template<typename T>
