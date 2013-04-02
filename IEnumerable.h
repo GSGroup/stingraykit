@@ -104,6 +104,49 @@ namespace stingray
 	{ return OneItemEnumerableProxy<T>(item); }
 
 
+	template < typename SrcType, typename DestType >
+	class EnumerableWrapper : public virtual IEnumerable<DestType>
+	{
+		typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
+		typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
+		typedef function< bool(ConstSrcTypeRef) >					SkipPredicateType;
+		typedef function< DestType (ConstSrcTypeRef) >				CastPredicateType;
+
+	private:
+		SrcEnumerablePtr			_srcEnumerable;
+		CastPredicateType			_castPredicate;
+		SkipPredicateType			_skipPredicate;
+
+	public:
+		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable)
+			: _srcEnumerable(srcEnumerable), _castPredicate(&EnumerableWrapper::DefaultCast), _skipPredicate(&EnumerableWrapper::NoSkip)
+		{}
+
+		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const CastPredicateType& castPredicate)
+			: _srcEnumerable(srcEnumerable), _castPredicate(castPredicate), _skipPredicate(&EnumerableWrapper::NoSkip)
+		{}
+
+		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const CastPredicateType& castPredicate, const SkipPredicateType& skipPredicate)
+			: _srcEnumerable(srcEnumerable), _castPredicate(castPredicate), _skipPredicate(skipPredicate)
+		{}
+
+		virtual shared_ptr<IEnumerator<DestType> > GetEnumerator() const
+		{ return WrapEnumerator(_srcEnumerable->GetEnumerator(), _castPredicate, _skipPredicate); }
+
+	private:
+		static bool NoSkip(ConstSrcTypeRef) { return false; }
+		static DestType DefaultCast(ConstSrcTypeRef src) { return DestType(src); }
+	};
+
+	template<typename SrcEnumerableType, typename CasterType>
+	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster)
+	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
+
+	template<typename SrcEnumerableType, typename CasterType, typename SkipperType>
+	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster, const SkipperType& skipper)
+	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, skipper); }
+
+
 }
 
 
