@@ -12,7 +12,7 @@
 namespace stingray
 {
 
-	
+
 	template < typename T >
 	struct ICollection : public virtual IEnumerable<T>
 	{
@@ -20,7 +20,6 @@ namespace stingray
 
 		virtual int GetCount() const = 0;
 		virtual bool IsEmpty() const = 0;
-		virtual void Clear() = 0;
 	};
 
 
