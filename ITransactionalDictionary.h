@@ -174,7 +174,7 @@ namespace stingray
 					diff->push_back(MakeDiffEntry(old->Get(), CollectionOp::Removed));
 					old->Next();
 				}
-				else if (old->Get().Key == copy->Get().Key)
+				else // old->Get().Key == copy->Get().Key
 				{
 					if (old->Get().Value != copy->Get().Value)
 					{
