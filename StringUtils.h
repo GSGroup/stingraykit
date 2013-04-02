@@ -462,9 +462,9 @@ namespace stingray
 	template< typename Transformer >
 	std::string Transform(const std::string& str, Transformer transformer)
 	{
-		std::string result;
+		string_ostream result;
 		std::transform(str.begin(), str.end(), std::back_inserter(result), transformer);
-		return result;
+		return result.str();
 	}
 
 	std::string Utf8ToLower(const std::string& str);
