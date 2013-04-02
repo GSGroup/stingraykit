@@ -176,12 +176,13 @@ namespace stingray
 				}
 				else if (old->Get().Key == copy->Get().Key)
 				{
-					if (old->Get().Value == copy->Get().Value)
-						continue;
-					// TODO: fix Updated handling
-					//diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Updated));
-					diff->push_back(MakeDiffEntry(old->Get(), CollectionOp::Removed));
-					diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Added));
+					if (old->Get().Value != copy->Get().Value)
+					{
+						// TODO: fix Updated handling
+						//diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Updated));
+						diff->push_back(MakeDiffEntry(old->Get(), CollectionOp::Removed));
+						diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Added));
+					}
 					old->Next();
 					copy->Next();
 				}
