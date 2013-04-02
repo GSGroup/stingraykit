@@ -1,11 +1,11 @@
 #ifndef STINGRAY_TOOLKIT_SIGNALS_H
 #define STINGRAY_TOOLKIT_SIGNALS_H
 
-#include <vector>
 #include <stingray/toolkit/signal_connection.h>
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/slot.h>
 #include <stingray/toolkit/intrusive_list.h>
+#include <stingray/toolkit/inplace_vector.h>
 #include <stingray/threads/Thread.h>
 #include <stingray/log/Logger.h>
 
@@ -142,10 +142,10 @@ namespace stingray
 		~threaded_signal_base_base()
 		{ }
 
-		void CopyHandlersToLocal(std::vector<FuncTypeWithDeathControl>& localCopy) const
+		template<typename ContainerType>
+		void CopyHandlersToLocal(ContainerType & localCopy) const
 		{
 			MutexLock l(_handlers->second);
-			localCopy.reserve(_handlers->first.size());
 			std::copy(_handlers->first.begin(), _handlers->first.end(), std::back_inserter(localCopy));
 		}
 
@@ -198,10 +198,11 @@ namespace stingray
 
 		void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p, const ExceptionHandlerFunc& exceptionHandler) const
 		{
-			std::vector<FuncTypeWithDeathControl> local_copy;
+			typedef inplace_vector<FuncTypeWithDeathControl, 16> local_copy_type;
+			local_copy_type local_copy;
 			this->CopyHandlersToLocal(local_copy);
 
-			for (typename std::vector<FuncTypeWithDeathControl>::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
+			for (typename local_copy_type::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
 			{
 				FuncTypeWithDeathControl& func = (*it);
 

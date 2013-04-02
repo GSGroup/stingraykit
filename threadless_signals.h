@@ -4,7 +4,7 @@
 #include <stingray/toolkit/signals.h>
 #include <stingray/toolkit/light_shared_ptr.h>
 #include <stingray/toolkit/task_alive_token.h>
-#include <vector>
+#include <stingray/toolkit/inplace_vector.h>
 
 namespace stingray
 {
@@ -98,12 +98,11 @@ namespace stingray
 			if (!_handlers)
 				return;
 
-			std::vector<FuncTypeWithDeathControl> handlers;
-			handlers.reserve(_handlers->size());
-			std::copy(_handlers->begin(), _handlers->end(), std::back_inserter(handlers));
+			typedef inplace_vector<FuncTypeWithDeathControl, 16> local_copy_type;
+			local_copy_type local_copy;
+			std::copy(_handlers->begin(), _handlers->end(), std::back_inserter(local_copy));
 
-			typename std::vector<FuncTypeWithDeathControl>::iterator it = handlers.begin();
-			for (; it != handlers.end(); ++it)
+			for (typename local_copy_type::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
 			{
 				try
 				{
