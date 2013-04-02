@@ -67,21 +67,17 @@ namespace stingray
 	}
 
 	template < typename KeyType_, typename ValueType_ >
-	struct IDictionary
-		:	public virtual ICollection<KeyValuePair<KeyType_, ValueType_> >, 
-			public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_> >, 
-			public Detail::SerializableDictionary<IDictionary<KeyType_, ValueType_>, KeyType_, ValueType_ >
+	struct IReadonlyDictionary :
+		public virtual ICollection<KeyValuePair<KeyType_, ValueType_> >,
+		public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_> >
 	{
 		typedef KeyType_							KeyType;
 		typedef ValueType_							ValueType;
 		typedef KeyValuePair<KeyType, ValueType>	PairType;
 
-		virtual ~IDictionary() { }
+		virtual ~IReadonlyDictionary() { }
 
 		virtual ValueType Get(const KeyType& key) const = 0;
-		virtual void Set(const KeyType& key, const ValueType& value) = 0;
-
-		virtual void Remove(const KeyType& key) = 0;
 
 		virtual bool ContainsKey(const KeyType& key) const = 0;
 
@@ -92,6 +88,22 @@ namespace stingray
 			outValue = Get(key);
 			return true;
 		}
+	};
+
+	template < typename KeyType_, typename ValueType_ >
+	struct IDictionary :
+		public virtual IReadonlyDictionary<KeyType_, ValueType_>,
+		public Detail::SerializableDictionary<IDictionary<KeyType_, ValueType_>, KeyType_, ValueType_ >
+	{
+		typedef KeyType_							KeyType;
+		typedef ValueType_							ValueType;
+		typedef KeyValuePair<KeyType, ValueType>	PairType;
+
+		virtual ~IDictionary() { }
+
+		virtual void Set(const KeyType& key, const ValueType& value) = 0;
+
+		virtual void Remove(const KeyType& key) = 0;
 
 		virtual bool TryRemove(const KeyType& key)
 		{
