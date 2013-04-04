@@ -138,13 +138,56 @@ namespace stingray
 		static DestType DefaultCast(ConstSrcTypeRef src) { return DestType(src); }
 	};
 
+
 	template<typename SrcEnumerableType, typename CasterType>
 	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster)
 	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
 
+
 	template<typename SrcEnumerableType, typename CasterType, typename SkipperType>
 	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster, const SkipperType& skipper)
 	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, skipper); }
+
+
+	namespace Detail
+	{
+		template <typename SrcType>
+		class EnumerableCaster
+		{
+			typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
+
+			template < typename DestType >
+			class CastProxy : public EnumerableWrapper<SrcType, DestType>
+			{
+				typedef EnumerableWrapper<SrcType, DestType>				base;
+				typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
+
+			public:
+				CastProxy(const SrcEnumerablePtr& srcEnumerable) : base(srcEnumerable, &CastProxy::Cast, &CastProxy::Skip)
+				{ }
+
+			private:
+				static DestType Cast(ConstSrcTypeRef src)	{ return dynamic_caster(src); }
+				static bool Skip(ConstSrcTypeRef src)		{ return !InstanceOf<typename GetSharedPtrParam<DestType>::ValueT>(src); }
+			};
+
+		private:
+			SrcEnumerablePtr			_srcEnumerable;
+
+		public:
+			EnumerableCaster(const SrcEnumerablePtr& srcEnumerable) : _srcEnumerable(srcEnumerable)
+			{ }
+
+			template < typename DestType >
+			operator shared_ptr<IEnumerable<DestType> > () const
+			{ return make_shared<CastProxy<DestType> >(_srcEnumerable); }
+		};
+	}
+
+
+	template < typename T >
+	typename Detail::EnumerableCaster<typename T::ItemType> GetEnumerableCaster(const shared_ptr<T>& enumerable)
+	{ return Detail::EnumerableCaster<typename T::ItemType>(enumerable); }
 
 
 }
