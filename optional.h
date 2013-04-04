@@ -131,7 +131,8 @@ namespace stingray
 		ParamType operator*()						{ return get(); }
 
 		void reset()								{ _impl.reset(); }
-		void reset(ConstParamType value)				{ _impl.reset(value); }
+		void reset(const NullPtrType&)				{ _impl.reset(); }
+		void reset(ConstParamType value)			{ _impl.reset(value); }
 		void set(ConstParamType value)				{ _impl.reset(value); }
 
 		bool is_initialized() const					{ return _impl.is_initialized(); }
