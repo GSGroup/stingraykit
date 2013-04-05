@@ -2,7 +2,6 @@
 #define STINGRAY_SCANNER_TRANSLATEDSTRING_H
 
 #include <stingray/locale/LangCode.h>
-#include <stingray/locale/LocaleString.h>
 #include <stingray/settings/ISerializable.h>
 
 
@@ -23,10 +22,10 @@ namespace stingray
 
 		TranslatedString& operator =(const TranslatedString& other);
 
-		void AddTranslation(LangCode lang, const LocaleString& str);
+		void AddTranslation(LangCode lang, const std::string& str);
 
 		bool HasTranslation(LangCode lang) const;
-		LocaleString GetTranslation(LangCode lang) const;
+		std::string GetTranslation(LangCode lang) const;
 
 		void Serialize(ObjectOStream &ar) const;
 		void Deserialize(ObjectIStream &ar);

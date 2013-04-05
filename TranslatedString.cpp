@@ -10,7 +10,7 @@ namespace stingray
 
 	struct TranslatedString::Impl
 	{
-		typedef std::map<LangCode, LocaleString> Container;
+		typedef std::map<LangCode, std::string> Container;
 		Container Translations;
 	};
 
@@ -34,7 +34,7 @@ namespace stingray
 	}
 
 
-	void TranslatedString::AddTranslation(LangCode lang, const LocaleString& str)
+	void TranslatedString::AddTranslation(LangCode lang, const std::string& str)
 	{
 		_impl->Translations[lang] = str;
 	}
@@ -48,7 +48,7 @@ namespace stingray
 	}
 
 
-	LocaleString TranslatedString::GetTranslation(LangCode lang) const
+	std::string TranslatedString::GetTranslation(LangCode lang) const
 	{
 		Impl::Container::const_iterator it = _impl->Translations.find(lang);
 		if (it != _impl->Translations.end())
@@ -61,6 +61,7 @@ namespace stingray
 		}
 		TOOLKIT_THROW("No such translation!");
 	}
+
 
 	void TranslatedString::Serialize(ObjectOStream & ar) const
 	{ ar.Serialize("translations", _impl->Translations); }
