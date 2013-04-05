@@ -46,9 +46,14 @@ namespace stingray
 		mutable HolderWeakPtr	_mapEnumeratorHolder;
 
 	public:
-		MapDictionary()
-			: _map(new MapType)
+		MapDictionary() : _map(new MapType)
 		{ }
+
+		MapDictionary(const MapDictionary& other) : _map(new MapType(*other._map))
+		{ }
+
+		MapDictionary& operator =(const MapDictionary& other)
+		{ _map.reset(new MapType(*other->_map)); return *this; }
 
 		virtual int GetCount() const { return _map->size(); }
 		virtual bool IsEmpty() const { return _map->empty(); }
