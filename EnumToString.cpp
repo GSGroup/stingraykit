@@ -145,7 +145,7 @@ namespace stingray
 					break;
 
 				for (; s_it != str.end() && IsWhitespace(*s_it); ++s_it);
-				for (; s_it != str.end() && !IsWhitespace(*s_it) && *s_it != ','; ++s_it)
+				for (; s_it != str.end() && !IsWhitespace(*s_it) && *s_it != ',' && *s_it != '='; ++s_it)
 					current_name += *s_it;
 				for (; s_it != str.end() && *s_it != ','; ++s_it);
 
