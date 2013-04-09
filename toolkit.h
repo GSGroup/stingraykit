@@ -229,6 +229,8 @@ namespace stingray
 	};
 
 
+	std::string Demangle(const std::string& s);
+
 }
 
 
