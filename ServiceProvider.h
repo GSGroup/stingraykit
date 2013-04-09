@@ -110,7 +110,7 @@ namespace stingray
 	struct NotSupportedServiceException : public Detail::ServiceReferencesInfoException
 	{
 		NotSupportedServiceException(const std::string& serviceName)
-			:	Detail::ServiceReferencesInfoException("The service '" + serviceName + "'is not supported on this platform!")
+			:	Detail::ServiceReferencesInfoException("The service '" + serviceName + "' is not supported on this platform!")
 		{ }
 	};
 
