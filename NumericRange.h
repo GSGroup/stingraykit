@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_NUMERICRANGE_H
 
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/StringUtils.h>
 
 namespace stingray {
 
@@ -16,7 +17,7 @@ namespace stingray {
 
 	protected:
 		NumericRange(T start, T end) : _start(start), _end(end)
-		{ TOOLKIT_CHECK(start <= end, ArgumentException("Start is greater than end")); }
+		{ TOOLKIT_CHECK(start <= end, ArgumentException("Start is greater than end " + ToString())); }
 
 	public:
 		T GetStart() const		{ return _start; }
@@ -67,7 +68,7 @@ namespace stingray {
 
 		std::string ToString() const
 		{
-			return "[" + _start.ToString() + " - " + _end.ToString()  + "]";
+			return StringBuilder() % "["  % _start % " - " % _end  % "]";
 		}
 
 		bool operator== (const DerivedT& rhs)	{ return _start == rhs._start && _end == rhs._end; }

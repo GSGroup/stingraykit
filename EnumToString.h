@@ -22,7 +22,8 @@ namespace stingray
 			EnumValueHolder(s32 val) : Val(val) { }
 			EnumValueHolder& operator = (s32 val) { Val = val; return *this; }
 		};
-
+		EnumValueHolder operator + (EnumValueHolder const &left, EnumValueHolder const &right) { return EnumValueHolder(left.Val + right.Val); }
+		EnumValueHolder operator - (EnumValueHolder const &left, EnumValueHolder const &right) { return EnumValueHolder(left.Val - right.Val); }
 
 		class EnumToStringMapBase
 		{

@@ -155,18 +155,18 @@ namespace stingray
 		}
 	};
 
-	class signal_connection_autorelease_pool
+	class signal_connection_pool
 	{
 		typedef std::vector<signal_connection> signal_connection_list;
 		signal_connection_list _connections;
-		TOOLKIT_NONCOPYABLE(signal_connection_autorelease_pool);
+		TOOLKIT_NONCOPYABLE(signal_connection_pool);
 
 	public:
-		signal_connection_autorelease_pool()			{}
-		inline ~signal_connection_autorelease_pool()	{ release(); }
+		signal_connection_pool()			{}
+		inline ~signal_connection_pool()	{ release(); }
 
 		inline void add(const signal_connection & conn) { _connections.push_back(conn); }
-		inline signal_connection_autorelease_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
+		inline signal_connection_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
 
 		inline bool empty() const { return _connections.empty(); }
 
