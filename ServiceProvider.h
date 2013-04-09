@@ -139,7 +139,7 @@ namespace stingray
 		{ throw NotSupportedServiceException(GetServiceTypeName()); }
 
 		virtual std::string GetServiceTypeName() const
-		{ return typeid(ServiceInterface).name(); }
+		{ return Demangle(typeid(ServiceInterface).name()); }
 	};
 
 	namespace Detail
@@ -178,7 +178,7 @@ namespace stingray
 		virtual shared_ptr<ServiceInterface> Create() const { return _creator->Create(); }
 
 		virtual std::string GetServiceTypeName() const
-		{ return typeid(T).name(); }
+		{ return Demangle(typeid(T).name()); }
 
 	private:
 		template < typename Dependency >

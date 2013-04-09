@@ -126,7 +126,7 @@ namespace stingray
 				TargetType target = Caster<SourceType, TargetType>::Do(_source);
 
 				if ((!AllowNullSource || _source) && !target)
-					throw stingray::Detail::MakeException(InvalidCastException(typeid(SourceType).name(), typeid(TargetType).name()), _file, _line, _functionName);
+					throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(SourceType).name()), Demangle(typeid(TargetType).name())), _file, _line, _functionName);
 
 				return target;
 			}

@@ -70,7 +70,7 @@ namespace stingray {
 				unique_ptr<IFactoryObject> factory_obj(Create(name));
 				Type *object = dynamic_cast<Type *> (factory_obj.get());
 				if (!object)
-					TOOLKIT_THROW(std::runtime_error("Cannot cast " + name + " " + typeid (Type).name()));
+					TOOLKIT_THROW(std::runtime_error("Cannot cast " + Demangle(name) + " " + Demangle(typeid(Type).name())));
 				factory_obj.release();
 				return object;
 			}

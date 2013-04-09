@@ -233,9 +233,9 @@ namespace stingray
 		const std::type_info& ex_ti = typeid(ex);
 
 		if (std_ex)
-			result << "std::exception: " << ex_ti.name() << "\n" << std_ex->what();
+			result << Demangle(ex_ti.name()) << "\n" << std_ex->what();
 		else
-			result << "Unknown exception: " << ex_ti.name();
+			result << "Unknown exception: " << Demangle(ex_ti.name());
 
 		if (tkit_ex)
 			_append_extended_diagnostics(result, *tkit_ex);
