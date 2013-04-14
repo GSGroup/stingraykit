@@ -107,7 +107,7 @@ namespace stingray
 
 		virtual bool TryRemove(const KeyType& key)
 		{
-			if (!ContainsKey(key))
+			if (!this->ContainsKey(key))
 				return false;
 			Remove(key);
 			return true;
