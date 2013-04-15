@@ -172,7 +172,7 @@ namespace stingray
 
 		void release()
 		{
-			std::for_each(_connections.begin(), _connections.end(),
+			std::for_each(_connections.rbegin(), _connections.rend(),
 				std::mem_fun_ref(&signal_connection::disconnect));
 			_connections.clear();
 		}
