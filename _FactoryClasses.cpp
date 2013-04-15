@@ -19,8 +19,6 @@
 #include <stingray/scanner/DefaultMpegService.h>
 #include <stingray/scanner/DefaultMpegStreamDescriptor.h>
 #include <stingray/scanner/DefaultScanParams.h>
-#include <stingray/scanner/LcnList.h>
-#include <stingray/scanner/OtherTransportInfoEntry.h>
 #include <stingray/scanner/TricolorGeographicRegion.h>
 #include <stingray/scanner/TricolorScanParams.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
@@ -80,10 +78,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegVideoStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanParams);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(GenreChannelList);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(LcnList);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorRegionsList);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(OtherTransportInfoEntry);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
