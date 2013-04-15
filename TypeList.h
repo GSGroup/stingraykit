@@ -290,6 +290,7 @@ namespace stingray
 
 		DETAIL_TOOLKIT_DECLARE_FOREACHINTYPELIST_DO(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(const T1& p1), MK_PARAM(p1));
 		DETAIL_TOOLKIT_DECLARE_FOREACHINTYPELIST_DO(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(const T1& p1, const T2& p2), MK_PARAM(p1, p2));
+		DETAIL_TOOLKIT_DECLARE_FOREACHINTYPELIST_DO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(const T1& p1, const T2& p2, const T3& p3), MK_PARAM(p1, p2, p3));
 
 #undef DETAIL_TOOLKIT_DECLARE_FOREACHINTYPELIST_DO
 	};
@@ -301,6 +302,7 @@ namespace stingray
 
 		template <TY T1> static void Do(const T1&) { }
 		template <TY T1, TY T2> static void Do(const T1&, const T2&) { }
+		template <TY T1, TY T2, TY T3> static void Do(const T1&, const T2&, const T3&) { }
 	};
 
 
