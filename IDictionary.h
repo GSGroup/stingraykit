@@ -5,6 +5,7 @@
 #include <utility>
 
 #include <stingray/settings/IsSerializable.h>
+#include <stingray/settings/Serialization.h>
 #include <stingray/toolkit/ICollection.h>
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/KeyNotFoundExceptionCreator.h>
