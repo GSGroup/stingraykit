@@ -46,7 +46,7 @@ namespace stingray { namespace Detail
 		MutexLock l(_registrarLock);
 		RegistrarMap::const_iterator i = _registrarsByTypeId.find(name);
 		if (i == _registrarsByTypeId.end())
-			TOOLKIT_THROW(std::runtime_error("class with typeid " + name + " was not registered, check _FactoryClasses.cpp"));
+			TOOLKIT_THROW(std::runtime_error("class with typeid " + Demangle(name) + " was not registered, check _FactoryClasses.cpp"));
 		return *i->second;
 	}
 
@@ -63,7 +63,7 @@ namespace stingray { namespace Detail
 		{
 			RegistrarMap::const_iterator i = _registrarsByTypeId.find(type);
 			if (i != _registrarsByTypeId.end())
-				TOOLKIT_THROW(std::runtime_error("typeid " + name + " was already registered"));
+				TOOLKIT_THROW(std::runtime_error("typeid " + Demangle(name) + " was already registered"));
 		}
 		_registrars.insert(RegistrarMap::value_type(name, creator));
 		_registrarsByTypeId.insert(RegistrarMap::value_type(type, creator));

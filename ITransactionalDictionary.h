@@ -192,7 +192,8 @@ namespace stingray
 					copy->Next();
 				}
 			}
-			_onChanged(EnumerableFromStlContainer(*diff, diff));
+			if (diff->size())
+				_onChanged(EnumerableFromStlContainer(*diff, diff));
 			_wrapped = _copy;
 			_copy.reset();
 		}

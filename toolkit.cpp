@@ -3,10 +3,16 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifdef __GNUC__
+#	include <cxxabi.h>
+#endif
+
 #include <stingray/log/Logger.h>
 #include <stingray/toolkit/Backtrace.h>
+#include <stingray/toolkit/ScopeExit.h>
 #include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/array.h>
+#include <stingray/toolkit/bind.h>
 
 namespace stingray
 {
@@ -34,6 +40,19 @@ namespace stingray
 		std::terminate();
 	}
 
+#ifndef __GNUC__
+	std::string Demangle(const std::string& s)
+	{ return s; }
+#else
+	std::string Demangle(const std::string& s)
+	{
+		int status = 0;
+		char * result = abi::__cxa_demangle(s.c_str(), 0, 0, &status);
+		ScopeExitInvoker sei(bind(&free, result));
+		return (status != 0) ? s : std::string(result);
+	}
+#endif
+
 }
 
 #ifdef _STLP_DEBUG_MESSAGE
@@ -54,5 +73,3 @@ namespace stingray
 		va_end(args);
 	}
 #endif
-
-

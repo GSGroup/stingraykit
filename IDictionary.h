@@ -5,6 +5,7 @@
 #include <utility>
 
 #include <stingray/settings/IsSerializable.h>
+#include <stingray/settings/Serialization.h>
 #include <stingray/toolkit/ICollection.h>
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/KeyNotFoundExceptionCreator.h>
@@ -107,7 +108,7 @@ namespace stingray
 
 		virtual bool TryRemove(const KeyType& key)
 		{
-			if (!ContainsKey(key))
+			if (!this->ContainsKey(key))
 				return false;
 			Remove(key);
 			return true;
