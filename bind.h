@@ -29,6 +29,11 @@ namespace stingray
 		BindPlaceholder<2>	_3;
 		BindPlaceholder<3>	_4;
 		BindPlaceholder<4>	_5;
+		BindPlaceholder<5>	_6;
+		BindPlaceholder<6>	_7;
+		BindPlaceholder<7>	_8;
+		BindPlaceholder<8>	_9;
+		BindPlaceholder<9>	_10;
 	}
 
 	namespace Detail
