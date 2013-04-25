@@ -31,6 +31,13 @@ namespace stingray
 		void Deserialize(ObjectIStream &ar);
 
 		std::string ToString() const;
+
+		std::string SelectTranslation(LangCode l0) const;
+		std::string SelectTranslation(LangCode l0, LangCode l1) const;
+		std::string SelectTranslation(LangCode l0, LangCode l1, LangCode l2) const;
+
+	private:
+		std::string DoSelectTranslation(const std::vector<LangCode>& langCodes) const;
 	};
 
 

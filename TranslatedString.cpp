@@ -3,6 +3,7 @@
 #include <map>
 
 #include <stingray/settings/Serialization.h>
+#include <stingray/toolkit/CollectionBuilder.h>
 
 namespace stingray
 {
@@ -60,6 +61,27 @@ namespace stingray
 			return _impl->Translations.begin()->second;
 		}
 		TOOLKIT_THROW("No such translation!");
+	}
+
+
+	std::string TranslatedString::SelectTranslation(LangCode l0) const
+	{ return DoSelectTranslation(VectorBuilder<LangCode>(l0, LangCode::Any)); }
+
+
+	std::string TranslatedString::SelectTranslation(LangCode l0, LangCode l1) const
+	{ return DoSelectTranslation(VectorBuilder<LangCode>(l0, l1, LangCode::Any)); }
+
+
+	std::string TranslatedString::SelectTranslation(LangCode l0, LangCode l1, LangCode l2) const
+	{ return DoSelectTranslation(VectorBuilder<LangCode>(l0, l1, l2, LangCode::Any)); }
+
+
+	std::string TranslatedString::DoSelectTranslation(const std::vector<LangCode>& langCodes) const
+	{
+		for (std::vector<LangCode>::const_iterator it = langCodes.begin(); it != langCodes.end(); ++it)
+			if (HasTranslation(*it))
+				return GetTranslation(*it);
+		return "";
 	}
 
 
