@@ -82,6 +82,13 @@ namespace stingray
 #	error "No CompareAndExchange"
 #endif
 
+#if HAVE_SYNC_AAF
+		static inline bool TryLock(atomic_int_type& atomic)
+		{ return __sync_lock_test_and_set(&atomic, 1) == 0; }
+
+		static inline void Unlock(atomic_int_type& atomic)
+		{ __sync_lock_release(&atomic); }
+#elif
 		static inline bool TryLock(atomic_int_type& atomic)
 		{ return (CompareAndExchange(atomic, 0, 1) == 0); }
 
@@ -90,6 +97,7 @@ namespace stingray
 			bool success = CompareAndExchange(atomic, 1, 0) == 1;
 			assert(success);
 		}
+#endif
 	};
 
 
