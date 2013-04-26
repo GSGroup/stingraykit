@@ -234,7 +234,7 @@ namespace stingray
 			function<Signature> slot_function(slot_func);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			return this->AddFunc(function_storage(slot_function), slot_func.GetToken().GetExecutionToken(), slot_func.GetToken());
+			return this->AddFunc(function_storage(slot_function), null, slot_func.GetToken()); // Using real execution token instead of null may cause deadlocks!!!
 		}
 
 		signal_connection connect(const FuncType& handler) const
