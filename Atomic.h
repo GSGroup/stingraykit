@@ -88,7 +88,7 @@ namespace stingray
 
 		static inline void Unlock(atomic_int_type& atomic)
 		{ __sync_lock_release(&atomic); }
-#elif
+#else
 		static inline bool TryLock(atomic_int_type& atomic)
 		{ return (CompareAndExchange(atomic, 0, 1) == 0); }
 
