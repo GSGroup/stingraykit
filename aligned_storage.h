@@ -3,6 +3,7 @@
 
 
 #include <cassert>
+#include <stddef.h>
 
 #include <stingray/toolkit/Types.h>
 
@@ -55,7 +56,7 @@ namespace stingray
 			struct __attribute__((__aligned__(16))) a16 {};
 			struct __attribute__((__aligned__(32))) a32 {};
 
-			template <std::size_t N> struct type_with_alignment;
+			template <size_t N> struct type_with_alignment;
 			template<> struct type_with_alignment<1>  { typedef char type; };
 			template<> struct type_with_alignment<2>  { typedef AlignedTypes::a2 type; };
 			template<> struct type_with_alignment<4>  { typedef AlignedTypes::a4 type; };
@@ -77,7 +78,7 @@ namespace stingray
 			struct a8	{ double s; };
 			struct a16	{ long double s; };
 
-			template <std::size_t N> struct type_with_alignment;
+			template <size_t N> struct type_with_alignment;
 			template<> struct type_with_alignment<1>	{ typedef char type; };
 			template<> struct type_with_alignment<2>	{ typedef a2 type; };
 			template<> struct type_with_alignment<4>	{ typedef a4 type; };
