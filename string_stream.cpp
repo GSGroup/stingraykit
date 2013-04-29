@@ -22,7 +22,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%u", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -33,7 +33,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%hu", (unsigned short)value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -44,7 +44,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%d", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -55,7 +55,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%hu", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -66,7 +66,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%hd", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -77,7 +77,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%lu", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -88,7 +88,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%ld", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -99,7 +99,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%llu", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -110,7 +110,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%lld", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -121,7 +121,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%Lg", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -132,7 +132,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%g", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -143,7 +143,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%g", (double)value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	template<>
@@ -154,7 +154,7 @@ namespace stingray
 		int r = snprintf(buf, sizeof(buf), "%p", value);
 		if (r == -1)
 			TOOLKIT_THROW("snprintf failed");
-		_buf.insert(_buf.end(), buf, buf + r);
+		write(buf, r);
 	}
 
 	extern template void string_ostream::Insert(bool);

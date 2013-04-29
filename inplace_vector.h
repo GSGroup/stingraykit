@@ -26,17 +26,18 @@ namespace stingray
 		array<StorageFor<T>, InplaceCapacity>	_staticStorage;
 		std::vector<T>							_dynamicStorage;
 
-		template<typename ValueType>
-		struct base_iterator
+		template<typename OwnerType, typename ValueType>
+		class base_iterator
 		{
+			typedef OwnerType							owner_type;
+
+		public:
 			typedef	ValueType							value_type;
 			typedef ptrdiff_t							difference_type;
 			typedef std::random_access_iterator_tag		iterator_category;
 			typedef value_type *						pointer;
 			typedef value_type &						reference;
 
-		private:
-			typedef inplace_vector						owner_type;
 
 			owner_type &								_owner;
 			size_t										_pos;
@@ -76,14 +77,21 @@ namespace stingray
 			{ return _owner.at(_pos + d); }
 
 			inline reference operator * () const	{ return _owner.at(_pos); }
-			inline pointer operator -> () const	{ return &_owner.at(_pos); }
+			inline pointer operator -> () const		{ return &_owner.at(_pos); }
 		};
 
 	public:
-		typedef base_iterator<T>			iterator;
-		typedef base_iterator<const T>		const_iterator;
+		typedef base_iterator<inplace_vector, value_type>				iterator;
+		typedef base_iterator<const inplace_vector, const value_type>	const_iterator;
 
 		inline inplace_vector(): _staticStorageSize(0) {}
+
+		void clear()
+		{
+			_dynamicStorage.clear();
+			for(size_t i = 0; i < _staticStorageSize; ++i) _staticStorage[i].Dtor();
+		}
+
 		inline ~inplace_vector()
 		{
 			for(size_t i = 0; i < _staticStorageSize; ++i) _staticStorage[i].Dtor();
@@ -111,15 +119,27 @@ namespace stingray
 				_dynamicStorage.push_back(value);
 		}
 
+		template<typename assign_iterator_type>
+		void assign(assign_iterator_type begin, assign_iterator_type end)
+		{
+			reserve(std::distance(begin, end));
+			std::copy(begin, end, std::back_inserter(*this));
+		}
+
 		inline size_t size() const { return _staticStorageSize + _dynamicStorage.size(); }
+		void reserve(size_t capacity)
+		{
+			if (capacity > InplaceCapacity)
+				_dynamicStorage.resize(capacity - InplaceCapacity);
+		}
 
 		inline const_iterator begin() const
-		{ return iterator(*this, 0); }
+		{ return const_iterator(*this, 0); }
 		inline iterator begin()
 		{ return iterator(*this, 0); }
 
 		inline const_iterator end() const
-		{ return iterator(*this, size()); }
+		{ return const_iterator(*this, size()); }
 		inline iterator end()
 		{ return iterator(*this, size()); }
 
