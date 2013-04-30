@@ -1,7 +1,7 @@
 #ifndef STINGRAY_TOOLKIT__STRING_STREAM_H
 #define STINGRAY_TOOLKIT__STRING_STREAM_H
 
-#include <deque>
+#include <stingray/toolkit/inplace_vector.h>
 #include <string>
 
 namespace stingray
@@ -18,7 +18,7 @@ namespace stingray
 		typedef value_type *		pointer;
 
 	private:
-		std::deque<value_type>		_buf;
+		inplace_vector<value_type, 256>		_buf;
 
 	public:
 		inline bool empty() const { return _buf.empty(); }
@@ -82,7 +82,10 @@ namespace stingray
 
 
 		inline void write(const_pointer data, size_t size)
-		{ _buf.insert(_buf.end(), data, data +size); }
+		{
+			_buf.reserve(_buf.size() + size);
+			std::copy(data, data + size, std::back_inserter(_buf));
+		}
 
 		inline void push_back(value_type c) { Insert(c); }
 
@@ -96,7 +99,10 @@ namespace stingray
 		{ while(*value) _buf.push_back(*value++); }
 
 		void Insert(const std::basic_string<value_type>& value)
-		{ _buf.insert(_buf.end(), value.begin(), value.end()); }
+		{
+			_buf.reserve(_buf.size() + value.size());
+			std::copy(value.begin(), value.end(), std::back_inserter(_buf));
+		}
 
 		template<typename T>
 		void Insert(T value);
