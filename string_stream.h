@@ -21,6 +21,8 @@ namespace stingray
 		std::deque<value_type>		_buf;
 
 	public:
+		inline bool empty() const { return _buf.empty(); }
+
 		std::string str() const
 		{ return std::string(_buf.begin(), _buf.end()); }
 

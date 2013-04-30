@@ -18,7 +18,7 @@ namespace stingray
 	{
 		typedef function<void()>							TaskType;
 		typedef function<void(const std::exception&)>		ExceptionHandlerType;
-		typedef std::pair<TaskType, FutureExecutionToken>	TaskPair;
+		typedef std::pair<TaskType, FutureExecutionTester>	TaskPair;
 		typedef std::queue<TaskPair, std::list<TaskPair> >	QueueType;
 
 	private:
@@ -31,10 +31,10 @@ namespace stingray
 			: _exceptionHandler(exceptionHandler)
 		{ }
 
-		virtual void AddTask(const TaskType& task, const FutureExecutionToken& token)
+		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester)
 		{
 			MutexLock l(_syncRoot);
-			_queue.push(std::make_pair(task, token));
+			_queue.push(std::make_pair(task, tester));
 		}
 
 		virtual void AddTask(const TaskType& task)
@@ -53,8 +53,8 @@ namespace stingray
 				{
 					MutexUnlock ul(l);
 					//Tracer tracer("ThreadlessTaskExecutor::ExecuteTasks: executing pending task"); //fixme: dependency to log/
-					ExecutionToken token;
-					if (top.second.Execute(token))
+					LocalExecutionGuard guard;
+					if (top.second.Execute(guard))
 						top.first();
 					Thread::InterruptionPoint();
 				}

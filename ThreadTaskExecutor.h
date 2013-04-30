@@ -18,7 +18,7 @@ namespace stingray
 	{
 		typedef function<void()>										TaskType;
 		typedef function<void(const std::exception&)>					ExceptionHandlerType;
-		typedef std::pair<TaskType, FutureExecutionToken>				TaskPair;
+		typedef std::pair<TaskType, FutureExecutionTester>				TaskPair;
 		typedef std::queue<TaskPair, std::list<TaskPair> >				QueueType;
 
 	private:
@@ -35,7 +35,7 @@ namespace stingray
 		~ThreadTaskExecutor();
 
 		virtual void AddTask(const TaskType& task);
-		virtual void AddTask(const TaskType& task, const FutureExecutionToken& token);
+		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester);
 		virtual void Pause(bool pause);
 
 	private:
