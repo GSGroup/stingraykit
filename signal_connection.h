@@ -43,14 +43,14 @@ namespace stingray
 		{
 		private:
 			function_storage		_func;
-			FutureExecutionToken	_token;
+			FutureExecutionTester	_tester;
 
 		public:
-			FuncTypeWithDeathControl(const function_storage& func, const FutureExecutionToken& token = null)
-				: _func(func), _token(token)
+			FuncTypeWithDeathControl(const function_storage& func, const FutureExecutionTester& tester = null)
+				: _func(func), _tester(tester)
 			{ }
 			const function_storage& Func() 	{ return _func; }
-			FutureExecutionToken& Token()	{ return _token; }
+			FutureExecutionTester& Tester()	{ return _tester; }
 		};
 
 		template<typename Handlers>
@@ -93,14 +93,14 @@ namespace stingray
 			void Disconnect()
 			{
 				HandlersPtr handlers_l = _handlers.lock();
-				if (!handlers_l)
-					return;
+				if (handlers_l)
 				{
 					MutexLock l(handlers_l->second);
-					if (!_handlers.lock()) // if we've already reset handlers - skip disconnecting
-						return;
-					_handlers.reset(); // reset handlers to make Disconnect reenterable
-					handlers_l->first.erase(_it);
+					if (_handlers.lock()) // if we've already reset handlers - skip disconnecting
+					{
+						_handlers.reset(); // reset handlers to make Disconnect reenterable
+						handlers_l->first.erase(_it);
+					}
 				}
 				_token.Release();
 			}

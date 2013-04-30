@@ -13,7 +13,7 @@ namespace stingray
 	struct ITaskExecutor
 	{
 		virtual void AddTask(const function<void()>& task) = 0;
-		virtual void AddTask(const function<void()>& task, const FutureExecutionToken& token) = 0;
+		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester) = 0;
 		virtual ~ITaskExecutor() {}
 
 		static shared_ptr<ITaskExecutor> Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler = &ITaskExecutor::DefaultExceptionHandler);

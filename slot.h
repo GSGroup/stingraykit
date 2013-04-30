@@ -38,7 +38,7 @@ namespace stingray
 			{
 				ITaskExecutorPtr executor_l = this->_executor.lock();
 				if (executor_l)
-					executor_l->AddTask(func, _token.GetExecutionToken());
+					executor_l->AddTask(func, _token.GetExecutionTester());
 			}
 
 			FORCE_INLINE ~slot_base() { }

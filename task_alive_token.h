@@ -29,19 +29,19 @@ namespace stingray
 	};
 
 
-	struct FutureExecutionToken;
-	struct ExecutionToken : public safe_bool<ExecutionToken>
+	struct FutureExecutionTester;
+	struct LocalExecutionGuard : public safe_bool<LocalExecutionGuard>
 	{
-		TOOLKIT_NONCOPYABLE(ExecutionToken);
+		TOOLKIT_NONCOPYABLE(LocalExecutionGuard);
 
 	private:
 		bool									_allow;
 		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
 
 	public:
-		ExecutionToken() : _allow(false)
+		LocalExecutionGuard() : _allow(false)
 		{}
-		~ExecutionToken()
+		~LocalExecutionGuard()
 		{
 			if (_impl)
 				_impl->GetMutex().Unlock();
@@ -49,7 +49,7 @@ namespace stingray
 		bool boolean_test() const	{ return _allow; }
 
 	private:
-		friend struct FutureExecutionToken;
+		friend struct FutureExecutionTester;
 		void SetImpl(const Detail::TaskLifeTokenImplSelfCountPtr& impl)
 		{
 			if (!impl)
@@ -69,20 +69,20 @@ namespace stingray
 	};
 
 
-	struct FutureExecutionToken
+	struct FutureExecutionTester
 	{
 	private:
 		typedef Detail::TaskLifeTokenImplSelfCountPtr ImplPtr;
 		ImplPtr _impl;
 
 	public:
-		FutureExecutionToken(const NullPtrType&) // always allows func execution
+		FutureExecutionTester(const NullPtrType&) // always allows func execution
 		{}
 
-		FutureExecutionToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
+		FutureExecutionTester(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
 		{}
 
-		ExecutionToken& Execute(ExecutionToken& token) { token.SetImpl(_impl); return token; }
+		LocalExecutionGuard& Execute(LocalExecutionGuard& token) { token.SetImpl(_impl); return token; }
 	};
 
 
@@ -110,8 +110,8 @@ namespace stingray
 			return (*this = TaskLifeToken());
 		}
 
-		FutureExecutionToken GetExecutionToken() const
-		{ return FutureExecutionToken(_impl); }
+		FutureExecutionTester GetExecutionTester() const
+		{ return FutureExecutionTester(_impl); }
 	};
 
 

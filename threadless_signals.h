@@ -107,8 +107,8 @@ namespace stingray
 				try
 				{
 					FuncTypeWithDeathControl& func = (*it);
-					ExecutionToken token;
-					if (func.Token().Execute(token))
+					LocalExecutionGuard guard;
+					if (func.Tester().Execute(guard))
 						FunctorInvoker::Invoke(func.Func().ToFunction<Signature>(), p);
 				}
 				catch (const std::exception& ex)
@@ -143,7 +143,7 @@ namespace stingray
 			if (!_handlers)
 				_handlers.reset(new Handlers);
 			TaskLifeToken token;
-			_handlers->push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(handler), token.GetExecutionToken())));
+			_handlers->push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(handler), token.GetExecutionTester())));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end(), token)));
 		}
 	};
