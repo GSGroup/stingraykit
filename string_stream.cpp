@@ -13,161 +13,33 @@ namespace stingray
 		else
 			write("false", 5);
 	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(unsigned value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%u", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(u8 value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%hu", (unsigned short)value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(int value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%d", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(unsigned short value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%hu", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(short value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%hd", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(unsigned long value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%lu", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(long value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%ld", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(unsigned long long value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%llu", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(long long value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%lld", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(long double value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%Lg", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(double value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%g", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(float value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%g", (double)value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
-	template<>
-	template<>
-	void basic_string_ostream<char>::Insert(const void * value)
-	{
-		char buf[32];
-		int r = snprintf(buf, sizeof(buf), "%p", value);
-		if (r == -1)
-			TOOLKIT_THROW("snprintf failed");
-		write(buf, r);
-	}
-
 	extern template void string_ostream::Insert(bool);
-	extern template void string_ostream::Insert(unsigned char);
-	extern template void string_ostream::Insert(short);
-	extern template void string_ostream::Insert(unsigned short);
-	extern template void string_ostream::Insert(long);
-	extern template void string_ostream::Insert(unsigned long);
-	extern template void string_ostream::Insert(long long);
-	extern template void string_ostream::Insert(unsigned long long);
-	extern template void string_ostream::Insert(float);
-	extern template void string_ostream::Insert(double);
-	extern template void string_ostream::Insert(long double);
-	extern template void string_ostream::Insert(const void *);
+
+#define DECLARE_INSERT(VALUE_TYPE, VALUE_FORMAT, VALUE_FORMAT_TYPE) \
+	template<> \
+	template<> \
+	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
+	{ \
+		char buf[32]; \
+		int r = snprintf(buf, sizeof(buf), VALUE_FORMAT, static_cast<VALUE_FORMAT_TYPE>(value)); \
+		if (r == -1) \
+			TOOLKIT_THROW("snprintf failed"); \
+		write(buf, r); \
+	} \
+	extern template void string_ostream::Insert(VALUE_TYPE)
+
+	DECLARE_INSERT(unsigned,			"%u",	unsigned);
+	DECLARE_INSERT(u8,					"%hu",	unsigned short);
+	DECLARE_INSERT(int,					"%d",	int);
+	DECLARE_INSERT(unsigned short,		"%hu",	unsigned short);
+	DECLARE_INSERT(short,				"%hd",	short);
+	DECLARE_INSERT(unsigned long,		"%lu",	unsigned long);
+	DECLARE_INSERT(long,				"%ld",	long);
+	DECLARE_INSERT(unsigned long long,	"%llu",	unsigned long long);
+	DECLARE_INSERT(long long,			"%lld",	long long);
+	DECLARE_INSERT(long double,			"%Lg",	long double);
+	DECLARE_INSERT(double,				"%g",	double);
+	DECLARE_INSERT(float,				"%g",	double);
+	DECLARE_INSERT(const void *,		"%p",	const void *);
 
 }
