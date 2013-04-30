@@ -33,7 +33,7 @@ namespace stingray
 			PtrParamType get_ptr()				{ return &_value.Ref(); }
 
 			void reset()						{ Cleanup(); }
-			void reset(ConstParamType value)		{ Cleanup(); _value.Ctor(value); _initialized = true; }
+			void set(ConstParamType value)		{ Cleanup(); _value.Ctor(value); _initialized = true; }
 
 			bool is_initialized() const			{ return _initialized; }
 
@@ -68,7 +68,7 @@ namespace stingray
 			ConstPtrParamType get_ptr() const	{ return _value; }
 
 			void reset()						{ _value = null; _initialized = false; }
-			void reset(ConstParamType value)		{ _value = &value; _initialized = true; }
+			void set(ConstParamType value)		{ _value = &value; _initialized = true; }
 
 			bool is_initialized() const			{ return _initialized; }
 		};
@@ -109,13 +109,13 @@ namespace stingray
 	public:
 		optional()									{ reset(); }
 		optional(const NullPtrType&)				{ reset(); }
-		optional(ConstParamType value)				{ reset(value); }
+		optional(ConstParamType value)				{ set(value); }
 		optional(const optional& other)				{ assign(other); }
 
 		~optional()									{ reset(); }
 
-		optional& operator=(const NullPtrType&)		{ reset();		return *this; }
-		optional& operator=(ConstParamType value)	{ reset(value);	return *this; }
+		optional& operator=(const NullPtrType&)		{ reset();			return *this; }
+		optional& operator=(ConstParamType value)	{ set(value);		return *this; }
 		optional& operator=(const optional& other)	{ assign(other);	return *this; }
 
 		ConstParamType get() const					{ CheckInitialized(); return _impl.get(); }
@@ -131,9 +131,7 @@ namespace stingray
 		ParamType operator*()						{ return get(); }
 
 		void reset()								{ _impl.reset(); }
-		void reset(const NullPtrType&)				{ _impl.reset(); }
-		void reset(ConstParamType value)			{ _impl.reset(value); }
-		void set(ConstParamType value)				{ _impl.reset(value); }
+		void set(ConstParamType value)				{ _impl.set(value); }
 
 		bool is_initialized() const					{ return _impl.is_initialized(); }
 		bool boolean_test() const					{ return is_initialized(); }
@@ -147,7 +145,7 @@ namespace stingray
 		void assign(const optional& other)
 		{
 			if (other.is_initialized())
-				reset(other.get());
+				set(other.get());
 			else
 				reset();
 		}
