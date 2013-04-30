@@ -90,6 +90,7 @@ namespace stingray
 		{
 			_dynamicStorage.clear();
 			for(size_t i = 0; i < _staticStorageSize; ++i) _staticStorage[i].Dtor();
+			_staticStorageSize = 0;
 		}
 
 		inline ~inplace_vector()
@@ -122,11 +123,13 @@ namespace stingray
 		template<typename assign_iterator_type>
 		void assign(assign_iterator_type begin, assign_iterator_type end)
 		{
+			clear();
 			reserve(std::distance(begin, end));
 			std::copy(begin, end, std::back_inserter(*this));
 		}
 
 		inline size_t size() const { return _staticStorageSize + _dynamicStorage.size(); }
+
 		void reserve(size_t capacity)
 		{
 			if (capacity > InplaceCapacity)
