@@ -149,9 +149,9 @@ namespace stingray
 			std::copy(_handlers->first.begin(), _handlers->first.end(), std::back_inserter(localCopy));
 		}
 
-		signal_connection AddFunc(const function_storage& funcStorage, const FutureExecutionToken& futureExecutionToken, const TaskLifeToken& taskLifeToken) const
+		signal_connection AddFunc(const function_storage& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken) const
 		{
-			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(funcStorage, futureExecutionToken)));
+			_handlers->first.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(funcStorage, futureExecutionTester)));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->first.end(), taskLifeToken)));
 		}
 	};
@@ -206,8 +206,8 @@ namespace stingray
 			{
 				FuncTypeWithDeathControl& func = (*it);
 
-				ExecutionToken token;
-				if (func.Token().Execute(token))
+				LocalExecutionGuard guard;
+				if (func.Tester().Execute(guard))
 					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(func.Func().ToFunction<Signature>(), p); );
 			}
 		}
@@ -243,7 +243,7 @@ namespace stingray
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
 			TaskLifeToken token;
-			return this->AddFunc(function_storage(handler), token.GetExecutionToken(), token);
+			return this->AddFunc(function_storage(handler), token.GetExecutionTester(), token);
 		}
 
 #undef WRAP_EXCEPTION_HANDLING

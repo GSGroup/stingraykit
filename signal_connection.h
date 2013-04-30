@@ -43,14 +43,14 @@ namespace stingray
 		{
 		private:
 			function_storage		_func;
-			FutureExecutionToken	_token;
+			FutureExecutionTester	_tester;
 
 		public:
-			FuncTypeWithDeathControl(const function_storage& func, const FutureExecutionToken& token = null)
-				: _func(func), _token(token)
+			FuncTypeWithDeathControl(const function_storage& func, const FutureExecutionTester& tester = null)
+				: _func(func), _tester(tester)
 			{ }
 			const function_storage& Func() 	{ return _func; }
-			FutureExecutionToken& Token()	{ return _token; }
+			FutureExecutionTester& Tester()	{ return _tester; }
 		};
 
 		template<typename Handlers>

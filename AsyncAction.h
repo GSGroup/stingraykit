@@ -64,7 +64,7 @@ namespace stingray
 
 	private:
 		void ScheduleReachState(const StateType& state, const PromiseRefWeakPtr& listenerRefWeak)
-		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, state, listenerRefWeak), _token.GetExecutionToken()); }
+		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, state, listenerRefWeak), _token.GetExecutionTester()); }
 
 		void DoReachState(const StateType& state, const PromiseRefWeakPtr& listenerRefWeak)
 		{
@@ -131,7 +131,7 @@ namespace stingray
 
 	private:
 		void ScheduleReachState(const StateType& state, const PromiseRefWeakPtr& listenerRefWeak)
-		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, state, listenerRefWeak), _token.GetExecutionToken()); }
+		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, state, listenerRefWeak), _token.GetExecutionTester()); }
 
 		void DoReachState(const StateType& state, const PromiseRefWeakPtr& listenerRefWeak)
 		{
@@ -199,7 +199,7 @@ namespace stingray
 
 	private:
 		void ScheduleReachState(const PromiseRefWeakPtr& listenerRefWeak)
-		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, listenerRefWeak), _token.GetExecutionToken()); }
+		{ _worker->AddTask(bind(&AsyncAction::DoReachState, this, listenerRefWeak), _token.GetExecutionTester()); }
 
 		void DoReachState(const PromiseRefWeakPtr& listenerRefWeak)
 		{
