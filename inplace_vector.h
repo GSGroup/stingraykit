@@ -131,6 +131,8 @@ namespace stingray
 		{
 			if (capacity > InplaceCapacity)
 				_dynamicStorage.reserve(capacity - InplaceCapacity);
+			else
+				_dynamicStorage.reserve(0);
 		}
 
 		inline const_iterator begin() const
