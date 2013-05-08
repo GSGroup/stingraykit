@@ -72,11 +72,12 @@ namespace stingray
 				(void)ERROR__old_gcc_bug;
 				CompileTimeAssert<SizeBits <= 64>();
 
-				// In case of negative SizeBits or OffsetBits TOOLKIT_INDEX_CHECK can pass due to overflow
+				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
 				CompileTimeAssert<SizeBits + OffsetBits >= SizeBits>();
 				CompileTimeAssert<SizeBits + OffsetBits >= OffsetBits>();
 
-				TOOLKIT_INDEX_CHECK((OffsetBits + SizeBits + 7) / 8 <= _buf.size());
+				const size_t BytesRequirement = (OffsetBits + SizeBits + 7) / 8;
+				TOOLKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT	ShiftableT;
 
@@ -123,11 +124,12 @@ namespace stingray
 				CompileTimeAssert<!SameType<T, BitsGetterProxy>::Value >	ERROR__old_gcc_bug;
 				(void)ERROR__old_gcc_bug;
 
-				// In case of negative SizeBits or OffsetBits TOOLKIT_INDEX_CHECK can pass due to overflow
+				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
 				CompileTimeAssert<SizeBits + OffsetBits >= SizeBits>();
 				CompileTimeAssert<SizeBits + OffsetBits >= OffsetBits>();
 
-				TOOLKIT_INDEX_CHECK((OffsetBits + SizeBits + 7) / 8 <= _buf.size());
+				const size_t BytesRequirement = (OffsetBits + SizeBits + 7) / 8;
+				TOOLKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT	ShiftableT;
 
@@ -187,13 +189,13 @@ namespace stingray
 			template < typename T >
 			inline void Set (T val) const
 			{
-				// In case of negative SizeBits or OffsetBits TOOLKIT_INDEX_CHECK can pass due to overflow
+				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
 				CompileTimeAssert<SizeBits + OffsetBits >= SizeBits>();
 				CompileTimeAssert<SizeBits + OffsetBits >= OffsetBits>();
 
 				size_t required_size = (OffsetBits + SizeBits + 7) / 8;
 				ByteDataResizer<ByteDataType>::RequireSize(_buf, required_size);
-				TOOLKIT_INDEX_CHECK(required_size <= _buf.size());
+				TOOLKIT_CHECK(required_size <= _buf.size(), IndexOutOfRangeException(required_size, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT	ShiftableT;
 				typedef typename BitsGetterResultType<T>::ValueT	ResType;
@@ -241,13 +243,13 @@ namespace stingray
 			template < typename T >
 			FORCE_INLINE void Set (T val) const
 			{
-				// In case of negative SizeBits or OffsetBits TOOLKIT_INDEX_CHECK can pass due to overflow
+				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
 				CompileTimeAssert<SizeBits + OffsetBits >= SizeBits>();
 				CompileTimeAssert<SizeBits + OffsetBits >= OffsetBits>();
 
 				size_t required_size = (OffsetBits + SizeBits + 7) / 8;
 				ByteDataResizer<ByteDataType>::RequireSize(_buf, required_size);
-				TOOLKIT_INDEX_CHECK(required_size <= _buf.size());
+				TOOLKIT_CHECK(required_size <= _buf.size(), IndexOutOfRangeException(required_size, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT			ShiftableT;
 				typedef typename BitsGetterResultType<T>::ValueT	ResType;
