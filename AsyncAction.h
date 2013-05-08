@@ -78,7 +78,10 @@ namespace stingray
 				listener_ref->Ptr.reset();
 			}
 			catch(const std::exception &ex)
-			{ listener_ref->Ptr->set_exception(make_exception_ptr(ex)); }
+			{
+				Logger::Error() << "Exception in AsyncAction: " << ex;
+				listener_ref->Ptr->set_exception(make_exception_ptr(ex));
+			}
 		}
 	};
 
@@ -145,8 +148,10 @@ namespace stingray
 				listener_ref->Ptr.reset();
 			}
 			catch(const std::exception &ex)
-			{ listener_ref->Ptr->set_exception(make_exception_ptr(ex)); }
-
+			{
+				Logger::Error() << "Exception in AsyncAction: " << ex;
+				listener_ref->Ptr->set_exception(make_exception_ptr(ex));
+			}
 		}
 	};
 
@@ -214,8 +219,10 @@ namespace stingray
 				listener_ref->Ptr.reset();
 			}
 			catch(const std::exception &ex)
-			{ listener_ref->Ptr->set_exception(make_exception_ptr(ex)); }
-
+			{
+				Logger::Error() << "Exception in AsyncAction: " << ex;
+				listener_ref->Ptr->set_exception(make_exception_ptr(ex));
+			}
 		}
 	};
 
