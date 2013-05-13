@@ -1,7 +1,12 @@
 #ifndef STINGRAY_TOOLKIT__STRING_STREAM_H
 #define STINGRAY_TOOLKIT__STRING_STREAM_H
 
-#include <stingray/toolkit/inplace_vector.h>
+#define STRING_STREAM_USES_INPLACE_VECTOR 0
+#if STRING_STREAM_USES_INPLACE_VECTOR
+#	include <stingray/toolkit/inplace_vector.h>
+#else
+#	include <vector>
+#endif
 #include <string>
 
 namespace stingray
@@ -18,7 +23,11 @@ namespace stingray
 		typedef value_type *		pointer;
 
 	private:
-		inplace_vector<value_type, 256>		_buf;
+#if STRING_STREAM_USES_INPLACE_VECTOR
+		inplace_vector<value_type, 128>		_buf;
+#else
+		std::vector<value_type>				_buf;
+#endif
 
 	public:
 		inline bool empty() const { return _buf.empty(); }
