@@ -40,13 +40,12 @@ namespace stingray {
 	}
 
 	template<typename TupleParams>
-	static std::string StringFormat(const std::string& format, const Tuple<TupleParams>& params)
+	static std::string StringFormat(string_ostream & result, const std::string & format, const Tuple<TupleParams> & params)
 	{
 		std::vector<StringRef> substrings;
 		SplitRefs(format, "%", substrings);
 
 		TOOLKIT_CHECK((substrings.size() % 2) == 1, "Format mismatch: no corresponding %");
-		string_ostream result;
 		for (size_t i = 0; i != substrings.size(); ++i)
 			if (i % 2)
 			{
@@ -72,10 +71,18 @@ namespace stingray {
 
 #define DETAIL_TOOLKIT_DECLARE_STRINGFORMAT(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 	template < TypesDecl_ > \
-	static std::string StringFormat(const std::string& format, ParamsDecl_) \
+	static void StringFormat(string_ostream & ss, const std::string& format, ParamsDecl_) \
 	{ \
 		typedef typename TypeListTransform<TypeList_##N_<TypesUsage_>, GetConstReferenceType>::ValueT TupleParams; \
-		return StringFormat(format, Tuple<TupleParams>(ParamsUsage_)); \
+		StringFormat(ss, format, Tuple<TupleParams>(ParamsUsage_)); \
+	} \
+	template < TypesDecl_ > \
+	static std::string StringFormat(const std::string& format, ParamsDecl_) \
+	{ \
+		string_ostream ss; \
+		typedef typename TypeListTransform<TypeList_##N_<TypesUsage_>, GetConstReferenceType>::ValueT TupleParams; \
+		StringFormat(ss, format, Tuple<TupleParams>(ParamsUsage_)); \
+		return ss.str(); \
 	}
 
 	DETAIL_TOOLKIT_DECLARE_STRINGFORMAT(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
