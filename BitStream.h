@@ -147,12 +147,23 @@ namespace stingray
 		Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size> Peek()
 		{ return Detail::BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>(&_buf, _offset); }
 
-		std::string ReadString(size_t length)
+		template < size_t LengthPrefixSize >
+		std::string ReadLengthPrefixedString()
 		{
 			std::string result;
+
+			const size_t length = Read<LengthPrefixSize>();
 			for (size_t i = 0; i < length; ++i)
 				result.push_back(Read<8>());
+
 			return result;
+		}
+
+		template < size_t LengthPrefixSize >
+		void WriteLengthPrefixedString(const std::string& str)
+		{
+			Write<LengthPrefixSize>(str.length());
+			WriteArray<8>(str.begin(), str.end());
 		}
 
 		std::string ReadStringTerminatedBy(char terminator)
