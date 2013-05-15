@@ -369,7 +369,7 @@ namespace stingray
 	}
 
 #define TY typename
-#define P_(N) typename GetConstReferenceType<T##N>::ValueT p##N
+#define P_(N) typename GetParamPassingType<T##N>::ValueT p##N
 
 	DETAIL_TOOLKIT_DECLARE_SIGNAL(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
 	DETAIL_TOOLKIT_DECLARE_SIGNAL(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2));
