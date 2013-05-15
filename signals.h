@@ -88,17 +88,17 @@ namespace stingray
 			}
 		};
 
-#define TY typename
-#define DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(ParamsNum_, ParamsTypes_, ParamsDecl_, ParamsUsage_) \
+#define P_(N) typename GetParamPassingType<typename GetTypeListItem<ParamTypes, N - 1>::ValueT>::ValueT p##N
+#define DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(ParamsNum_, ParamsDecl_, ParamsUsage_) \
 		template<typename Signature, typename ExceptionHandlerFunc> \
 		struct ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, ParamsNum_> : public function_info<Signature> \
 		{ \
-			typedef function<Signature>					FuncType; \
+			typedef function<Signature>								FuncType; \
+			typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
 			const FuncType& _func; \
 			const ExceptionHandlerFunc& _exFunc; \
 			ExceptionHandlerWrapper(const FuncType& func, const ExceptionHandlerFunc& exFunc) : _func(func), _exFunc(exFunc) \
 			{} \
-			template<ParamsTypes_> \
 			void operator() (ParamsDecl_) const \
 			{ \
 				try \
@@ -108,19 +108,19 @@ namespace stingray
 			} \
 		};
 
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(1, MK_PARAM(TY T1), MK_PARAM(T1 p1), MK_PARAM(p1))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6), MK_PARAM(p1, p2, p3, p4, p5, p6))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
-		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(1, MK_PARAM(P_(1)), MK_PARAM(p1))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(2, MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(3, MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(4, MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(5, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(6, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(7, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(8, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(9, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
+		DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(10,MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
 
 #undef DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER
-#undef TY
+#undef P_
 	 }
 
 
