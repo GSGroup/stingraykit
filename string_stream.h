@@ -36,7 +36,7 @@ namespace stingray
 			//reserving data in InplaceCapacity bytes chunks
 			size_t cap = _buf.capacity();
 			if (cap < size)
-				_buf.reserve(cap + InplaceCapacity);
+				_buf.reserve(cap + (size + InplaceCapacity - 1) / InplaceCapacity * InplaceCapacity);
 		}
 
 	public:
