@@ -1,13 +1,14 @@
 #ifndef STINGRAY_TOOLKIT_BYTEDATA_H
 #define STINGRAY_TOOLKIT_BYTEDATA_H
 
-#include <vector>
-
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/iterator_base.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>
+
+#include <vector>
+#include <algorithm>
 
 #define DETAIL_BYTEDATA_INDEX_CHECK(...) TOOLKIT_INDEX_CHECK(__VA_ARGS__)
 
@@ -116,6 +117,10 @@ namespace stingray
 		explicit BasicByteArray(size_t size)
 			: _data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
+
+		BasicByteArray(const T* data, size_t size)
+			: _data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
+		{ std::copy(data, data + size, _data->begin()); }
 
 		template < typename InputIterator >
 		BasicByteArray(InputIterator first, InputIterator last)
