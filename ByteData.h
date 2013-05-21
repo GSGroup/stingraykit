@@ -172,6 +172,10 @@ namespace stingray
 		FORCE_INLINE bool empty() const
 		{ return ((int)(_data->size()) - (int)_offset) <= 0; }
 
+		template <typename U>
+		void swap(BasicByteArray<U>& other)
+		{ _data.swap(other._data); }
+
 		iterator begin()
 		{
 			T* data = this->data();
