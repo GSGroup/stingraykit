@@ -174,7 +174,11 @@ namespace stingray
 
 		template <typename U>
 		void swap(BasicByteArray<U>& other)
-		{ _data.swap(other._data); }
+		{
+			_data.swap(other._data);
+			std::swap(_offset, other._offset);
+			std::swap(_sizeLimit, other._sizeLimit);
+		}
 
 		iterator begin()
 		{
