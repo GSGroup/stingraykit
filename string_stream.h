@@ -23,11 +23,21 @@ namespace stingray
 		typedef value_type *		pointer;
 
 	private:
+		static const unsigned InplaceCapacity = 256;
+
 #if STRING_STREAM_USES_INPLACE_VECTOR
-		inplace_vector<value_type, 128>		_buf;
+		inplace_vector<value_type, InplaceCapacity>	_buf;
 #else
-		std::vector<value_type>				_buf;
+		std::vector<value_type>						_buf;
 #endif
+
+		inline void reserve(size_t size)
+		{
+			//reserving data in InplaceCapacity bytes chunks
+			size_t cap = _buf.capacity();
+			if (_buf.size() + size > cap)
+				_buf.reserve(cap + (size + InplaceCapacity - 1) / InplaceCapacity * InplaceCapacity);
+		}
 
 	public:
 		inline bool empty() const { return _buf.empty(); }
@@ -92,7 +102,7 @@ namespace stingray
 
 		inline void write(const_pointer data, size_t size)
 		{
-			_buf.reserve(_buf.size() + size);
+			reserve(size);
 			std::copy(data, data + size, std::back_inserter(_buf));
 		}
 
@@ -109,7 +119,7 @@ namespace stingray
 
 		void Insert(const std::basic_string<value_type>& value)
 		{
-			_buf.reserve(_buf.size() + value.size());
+			reserve(value.size());
 			std::copy(value.begin(), value.end(), std::back_inserter(_buf));
 		}
 

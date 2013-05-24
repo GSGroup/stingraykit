@@ -1,13 +1,14 @@
 #ifndef STINGRAY_TOOLKIT_BYTEDATA_H
 #define STINGRAY_TOOLKIT_BYTEDATA_H
 
-#include <vector>
-
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/iterator_base.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>
+
+#include <vector>
+#include <algorithm>
 
 #define DETAIL_BYTEDATA_INDEX_CHECK(Arg1, Arg2) TOOLKIT_CHECK((Arg1) <= (Arg2), IndexOutOfRangeException(Arg1, Arg2))
 
@@ -117,6 +118,10 @@ namespace stingray
 			: _data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
+		BasicByteArray(const T* data, size_t size)
+			: _data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
+		{ std::copy(data, data + size, _data->begin()); }
+
 		template < typename InputIterator >
 		BasicByteArray(InputIterator first, InputIterator last)
 			: _data(new CollectionType(first, last)), _offset(0), _sizeLimit(NoSizeLimit)
@@ -166,6 +171,14 @@ namespace stingray
 
 		FORCE_INLINE bool empty() const
 		{ return ((int)(_data->size()) - (int)_offset) <= 0; }
+
+		template <typename U>
+		void swap(BasicByteArray<U>& other)
+		{
+			_data.swap(other._data);
+			std::swap(_offset, other._offset);
+			std::swap(_sizeLimit, other._sizeLimit);
+		}
 
 		iterator begin()
 		{
