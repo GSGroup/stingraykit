@@ -2,6 +2,8 @@
 #define STINGRAY_TOOLKIT_TYPES_H
 
 
+#include <stdint.h>
+
 #include <stingray/toolkit/TypeList.h>
 
 
