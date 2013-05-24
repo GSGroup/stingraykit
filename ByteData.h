@@ -10,7 +10,7 @@
 #include <vector>
 #include <algorithm>
 
-#define DETAIL_BYTEDATA_INDEX_CHECK(...) TOOLKIT_INDEX_CHECK(__VA_ARGS__)
+#define DETAIL_BYTEDATA_INDEX_CHECK(Arg1, Arg2) TOOLKIT_CHECK((Arg1) <= (Arg2), IndexOutOfRangeException(Arg1, Arg2))
 
 
 namespace stingray
@@ -275,22 +275,22 @@ namespace stingray
 		template < typename U >
 		BasicByteData(BasicByteArray<U>& array, size_t offset)
 			: _data(array.data() + offset), _size(array.size() - offset)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset <= array.size()); }
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, array.size()); }
 
 		template < typename U >
 		BasicByteData(const BasicByteArray<U>& array, size_t offset)
 			: _data(array.data() + offset), _size(array.size() - offset)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset <= array.size()); }
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, array.size()); }
 
 		template < typename U >
 		BasicByteData(BasicByteArray<U>& array, size_t offset, size_t size)
 			: _data(array.data() + offset), _size(size)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size <= array.size()); }
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size, array.size()); }
 
 		template < typename U >
 		BasicByteData(const BasicByteArray<U>& array, size_t offset, size_t size)
 			: _data(array.data() + offset), _size(size)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size <= array.size()); }
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size, array.size()); }
 
 		BasicByteData(T* data, size_t size)
 			: _data(data), _size(size)
@@ -298,11 +298,11 @@ namespace stingray
 
 		BasicByteData(BasicByteData data, size_t offset)
 			: _data(data._data + offset), _size(data._size - offset)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset <= data._size); }
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, data._size); }
 
 		BasicByteData(BasicByteData data, size_t offset, size_t size)
 			: _data(data._data + offset), _size(size)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size <= data._size); }
+		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size, data._size); }
 
 		inline bool CheckIterator(const const_iterator& it) const	{ return std::distance(it, end()) > 0; }
 
