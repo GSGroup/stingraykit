@@ -1,7 +1,12 @@
 #ifndef STINGRAY_TOOLKIT_MAPPER_H
 #define STINGRAY_TOOLKIT_MAPPER_H
 
-namespace stingray {
+
+#include <stingray/toolkit/reference.h>
+
+
+namespace stingray
+{
 
 
 	namespace Detail
