@@ -119,15 +119,15 @@ namespace stingray
 	{ typedef T ValueT; };
 
 
-	template < typename T1, typename T2>
+	template < typename Derived, typename Base>
 	class Inherits
 	{
 	private:
-		static YesType TestInheritance(const T2*);
+		static YesType TestInheritance(const Base*);
 		static NoType TestInheritance(...);
 
 	public:
-		static const bool Value = ( sizeof(TestInheritance((const T1*)0)) == sizeof(YesType) );
+		static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) );
 	};
 
 

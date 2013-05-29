@@ -352,10 +352,27 @@ namespace stingray
 	FORCE_INLINE Detail::WeakPtrToPointerProxy<T> to_pointer(const weak_ptr<T>& ptr) { return ptr; }
 
 
+	namespace Detail
+	{
+		template < typename DestType, typename SrcType, bool UseImplicit = Inherits<SrcType, DestType>::Value >
+		struct DynamicCastHelper
+		{
+			static DestType* Do(SrcType* src)
+			{ return dynamic_cast<DestType*>(src); }
+		};
+
+		template < typename DestType, typename SrcType >
+		struct DynamicCastHelper<DestType, SrcType, true>
+		{
+			static DestType* Do(SrcType* src)
+			{ return src; }
+		};
+	}
+
 	template < typename DestType, typename SrcType >
 	FORCE_INLINE shared_ptr<DestType> dynamic_pointer_cast(const shared_ptr<SrcType>& src)
 	{
-		DestType* rawDest = dynamic_cast<DestType*>(src.get());
+		DestType* rawDest = Detail::DynamicCastHelper<DestType, SrcType>::Do(src.get());
 		if (rawDest == NULL)
 			return shared_ptr<DestType>();
 
@@ -365,7 +382,7 @@ namespace stingray
 	template < typename DestType, typename SrcType >
 	FORCE_INLINE weak_ptr<DestType> dynamic_pointer_cast(const weak_ptr<SrcType>& src)
 	{
-		DestType* rawDest = dynamic_cast<DestType*>(src._rawPtr);
+		DestType* rawDest = Detail::DynamicCastHelper<DestType, SrcType>::Do(src._rawPtr);
 		if (rawDest == NULL)
 			return weak_ptr<DestType>();
 

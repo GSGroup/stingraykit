@@ -22,14 +22,10 @@ namespace stingray
 		DynamicCaster(T* ptr, const Dummy&) : _ptr(ptr) { }
 		DynamicCaster(T& ref, const Dummy&, const Dummy&) : _ptr(&ref) { }
 
-		//operator const DynamicPointerCaster& () const { return *this } // workaround for an old GCC bug
-
 		template < typename U > operator U* () const
-		{
-			return dynamic_cast<U*>(_ptr);
-		}
+		{ return Detail::DynamicCastHelper<U, T>::Do(_ptr); }
 
-		operator const DynamicCaster&() const { return *this; }
+		operator const DynamicCaster&() const { return *this; } // workaround for an old GCC bug
 
 		template < typename U > operator U& () const
 		{
@@ -37,7 +33,7 @@ namespace stingray
 			CompileTimeAssert<!IsPointer<U>::Value> ERROR__wtf;
 			(void)ERROR__old_gcc_bug;
 			(void)ERROR__wtf;
-			U* result_ptr = dynamic_cast<U*>(_ptr);
+			U* result_ptr = Detail::DynamicCastHelper<U, T>::Do(_ptr);
 			if (!result_ptr)
 				TOOLKIT_THROW(std::bad_cast());
 			return *result_ptr;
@@ -54,7 +50,7 @@ namespace stingray
 	public:
 		SharedDynamicCaster(const shared_ptr<T>& ptr, const Dummy&) : _ptr(ptr) { }
 
-		//operator const DynamicPointerCaster& () const { return *this } // workaround for an old GCC bug
+		operator const SharedDynamicCaster&() const { return *this; } // workaround for an old GCC bug
 
 		template < typename U > operator shared_ptr<U> () const { return dynamic_pointer_cast<U>(_ptr); }
 		/*
