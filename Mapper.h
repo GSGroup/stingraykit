@@ -133,7 +133,7 @@ namespace stingray
 
 				bool result = false;
 				if (ForIf<GetTypeListLength<List>::Value / 2, HasMappingFunctor>::Do(val, ref(result)))
-					result = !SameType<Default, typename Mappings<SrcT>::Fail>::Value;
+					result = !SameType<DefaultValue, typename Mappings<DstT>::Fail>::Value;
 				return result;
 			}
 
@@ -144,7 +144,7 @@ namespace stingray
 
 				bool result = false;
 				if (ForIf<GetTypeListLength<List>::Value / 2, HasBackMappingFunctor>::Do(val, ref(result)))
-					result = !SameType<Default, typename Mappings<DstT>::Fail>::Value;
+					result = !SameType<DefaultValue, typename Mappings<SrcT>::Fail>::Value;
 				return result;
 			}
 
