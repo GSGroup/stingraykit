@@ -79,7 +79,6 @@ namespace stingray
 		};
 
 
-		// TODO: replace specialization with SFINAE?
 		template < typename Signature, typename FunctorType, bool HasReturnType = !SameType<typename function_info<Signature>::RetType, void>::Value >
 		class Invokable : public IInvokable<Signature>
 		{

@@ -217,8 +217,6 @@ namespace stingray
 	template < typename TypeList >
 	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, 0> { static const int Value = 0; };
 
-	// TODO: Add invalid index error to GetTypeListItem
-
 
 	template < typename TypeList, template<typename> class Predicate >
 	struct EvaluateTypeListItem

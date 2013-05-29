@@ -106,9 +106,9 @@ namespace stingray
 		FORCE_INLINE void swap(light_shared_ptr<T>& other)
 		{ _refCount.swap(other._refCount); }
 
-		FORCE_INLINE T* get() const			{ return _refCount.IsNull() ? 0 : _refCount.GetUserData(); } // TODO
+		FORCE_INLINE T* get() const				{ return _refCount.IsNull() ? 0 : _refCount.GetUserData(); }
 		FORCE_INLINE T* operator -> () const	{ check_ptr(); return get(); }
-		FORCE_INLINE T& operator * () const	{ check_ptr(); return *get(); }
+		FORCE_INLINE T& operator * () const		{ check_ptr(); return *get(); }
 
 	private:
 		FORCE_INLINE void check_ptr() const
