@@ -22,14 +22,12 @@ namespace stingray
 		DynamicCaster(T* ptr, const Dummy&) : _ptr(ptr) { }
 		DynamicCaster(T& ref, const Dummy&, const Dummy&) : _ptr(&ref) { }
 
-		//operator const DynamicPointerCaster& () const { return *this } // workaround for an old GCC bug
-
 		template < typename U > operator U* () const
 		{
 			return dynamic_cast<U*>(_ptr);
 		}
 
-		operator const DynamicCaster&() const { return *this; }
+		operator const DynamicCaster&() const { return *this; } // workaround for an old GCC bug
 
 		template < typename U > operator U& () const
 		{
@@ -54,7 +52,7 @@ namespace stingray
 	public:
 		SharedDynamicCaster(const shared_ptr<T>& ptr, const Dummy&) : _ptr(ptr) { }
 
-		//operator const DynamicPointerCaster& () const { return *this } // workaround for an old GCC bug
+		operator const SharedDynamicCaster&() const { return *this; } // workaround for an old GCC bug
 
 		template < typename U > operator shared_ptr<U> () const { return dynamic_pointer_cast<U>(_ptr); }
 		/*
