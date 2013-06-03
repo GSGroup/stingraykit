@@ -139,12 +139,10 @@ namespace stingray
 			return *this;
 		}
 
-		// THESE OPERATORS ARE COMMENTED OUT INTENTIONALLY! Use .get() or owner_less<> for comparing!
-		//FORCE_INLINE bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
-		//FORCE_INLINE bool operator != (T* ptr) const						{ return !(*this == ptr); }
-		//FORCE_INLINE bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
-		//FORCE_INLINE bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
-
+		FORCE_INLINE bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
+		FORCE_INLINE bool operator != (T* ptr) const						{ return !(*this == ptr); }
+		FORCE_INLINE bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
+		FORCE_INLINE bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
 		FORCE_INLINE bool boolean_test() const { return _rawPtr != 0; }
 
 		FORCE_INLINE weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
