@@ -99,7 +99,7 @@ namespace stingray
 			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&Dtor, (void*)&Invoke); }
+			{ return VTable(&Dtor, reinterpret_cast<void*>(&Invoke)); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
 			{ return FunctorInvoker::Invoke<typename FunctorTypeTransformer<Signature, FunctorType>::ValueT>(static_cast<Invokable *>(self)->_func, p); }
@@ -128,7 +128,7 @@ namespace stingray
 			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&Dtor, (void*)&Invoke); }
+			{ return VTable(&Dtor, reinterpret_cast<void*>(&Invoke)); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
 			{ FunctorInvoker::Invoke<typename FunctorTypeTransformer<Signature, FunctorType>::ValueT>(static_cast<Invokable *>(self)->_func, p); }
