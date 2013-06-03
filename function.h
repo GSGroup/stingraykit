@@ -163,7 +163,7 @@ namespace stingray
 
 		FORCE_INLINE RetType Invoke(const Tuple<ParamTypes>& p) const
 		{
-			InvokeFunc *func = (InvokeFunc*)_invokable->_getVTable().Invoke;
+			InvokeFunc *func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
 			return func(_invokable.get(), p);
 		}
 
