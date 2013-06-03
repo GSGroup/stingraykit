@@ -52,11 +52,13 @@ namespace stingray
 			struct VTable
 			{
 				typedef void DtorFunc(IInvokableBase *self);
+				typedef void InvokeFunc(void);
+				typedef InvokeFunc *InvokePtr;
 
 				DtorFunc	*Dtor;
-				void		*Invoke;
+				InvokePtr	Invoke;
 
-				VTable(DtorFunc *dtor, void *invoke) : Dtor(dtor), Invoke(invoke) { }
+				VTable(DtorFunc *dtor, InvokePtr invoke) : Dtor(dtor), Invoke(invoke) { }
 			};
 			typedef VTable GetVTableFunc();
 			GetVTableFunc	*_getVTable;
@@ -99,7 +101,7 @@ namespace stingray
 			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&Dtor, reinterpret_cast<void*>(&Invoke)); }
+			{ return VTable(&Dtor, reinterpret_cast<typename VTable::InvokePtr>(&Invoke)); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
 			{ return FunctorInvoker::Invoke<typename FunctorTypeTransformer<Signature, FunctorType>::ValueT>(static_cast<Invokable *>(self)->_func, p); }
@@ -128,7 +130,7 @@ namespace stingray
 			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&Dtor, reinterpret_cast<void*>(&Invoke)); }
+			{ return VTable(&Dtor, reinterpret_cast<typename VTable::InvokePtr>(&Invoke)); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
 			{ FunctorInvoker::Invoke<typename FunctorTypeTransformer<Signature, FunctorType>::ValueT>(static_cast<Invokable *>(self)->_func, p); }
