@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_COMPARERS_H
 
 
+#include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/function_info.h>
 
 
