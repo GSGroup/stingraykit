@@ -123,6 +123,7 @@ namespace stingray
 
 		private:
 			FunctorType	_func;
+			typedef typename FunctorTypeTransformer<Signature, FunctorType>::ValueT WrappedFunctorType;
 
 		public:
 			FORCE_INLINE Invokable(const FunctorType& func)
@@ -133,7 +134,7 @@ namespace stingray
 			{ return VTable(&Dtor, reinterpret_cast<typename VTable::InvokePtr>(&Invoke)); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ FunctorInvoker::Invoke<typename FunctorTypeTransformer<Signature, FunctorType>::ValueT>(static_cast<Invokable *>(self)->_func, p); }
+			{ FunctorInvoker::Invoke<WrappedFunctorType>(static_cast<Invokable *>(self)->_func, p); }
 
 			static inline void Dtor(IInvokableBase *self)
 			{ static_cast<Invokable *>(self)->_func.~FunctorType(); }
