@@ -88,35 +88,7 @@ namespace stingray
 
 			typedef IInvokable<Signature>		BaseType;
 			typedef typename BaseType::VTable	VTable;
-
-		public:
-			typedef typename BaseType::InvokeFunc InvokeFunc;
-
-		private:
-			FunctorType	_func;
-
-		public:
-			FORCE_INLINE Invokable(const FunctorType& func)
-				: BaseType(&GetVTable), _func(func)
-			{}
-
-			static inline VTable GetVTable()
-			{ return VTable(&Dtor, reinterpret_cast<typename VTable::InvokePtr>(&Invoke)); }
-
-			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ return FunctorInvoker::Invoke<typename FunctorTypeTransformer<Signature, FunctorType>::ValueT>(static_cast<Invokable *>(self)->_func, p); }
-
-			static inline void Dtor(IInvokableBase *self)
-			{ static_cast<Invokable *>(self)->_func.~FunctorType(); }
-		};
-
-		template < typename Signature, typename FunctorType >
-		class Invokable<Signature, FunctorType, false> : public IInvokable<Signature>
-		{
-			TOOLKIT_NONCOPYABLE(Invokable);
-
-			typedef IInvokable<Signature>		BaseType;
-			typedef typename BaseType::VTable	VTable;
+			typedef Invokable<Signature, FunctorType, HasReturnType> MyType;
 
 		public:
 			typedef typename BaseType::InvokeFunc InvokeFunc;
@@ -134,10 +106,41 @@ namespace stingray
 			{ return VTable(&Dtor, reinterpret_cast<typename VTable::InvokePtr>(&Invoke)); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ FunctorInvoker::Invoke<WrappedFunctorType>(static_cast<Invokable *>(self)->_func, p); }
+			{ return FunctorInvoker::Invoke<WrappedFunctorType>(static_cast<MyType *>(self)->_func, p); }
 
 			static inline void Dtor(IInvokableBase *self)
-			{ static_cast<Invokable *>(self)->_func.~FunctorType(); }
+			{ static_cast<MyType *>(self)->_func.~FunctorType(); }
+		};
+
+		template < typename Signature, typename FunctorType >
+		class Invokable<Signature, FunctorType, false> : public IInvokable<Signature>
+		{
+			TOOLKIT_NONCOPYABLE(Invokable);
+
+			typedef IInvokable<Signature>		BaseType;
+			typedef typename BaseType::VTable	VTable;
+			typedef Invokable<Signature, FunctorType, false> MyType;
+
+		public:
+			typedef typename BaseType::InvokeFunc InvokeFunc;
+
+		private:
+			FunctorType	_func;
+			typedef typename FunctorTypeTransformer<Signature, FunctorType>::ValueT WrappedFunctorType;
+
+		public:
+			FORCE_INLINE Invokable(const FunctorType& func)
+				: BaseType(&GetVTable), _func(func)
+			{}
+
+			static inline VTable GetVTable()
+			{ return VTable(&Dtor, reinterpret_cast<typename VTable::InvokePtr>(&Invoke)); }
+
+			static inline void Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
+			{ FunctorInvoker::Invoke<WrappedFunctorType>(static_cast<MyType *>(self)->_func, p); }
+
+			static inline void Dtor(IInvokableBase *self)
+			{ static_cast<MyType *>(self)->_func.~FunctorType(); }
 		};
 
 	}
