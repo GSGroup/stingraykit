@@ -53,12 +53,13 @@ namespace stingray
 			{
 				typedef void DtorFunc(IInvokableBase *self);
 				typedef void InvokeFunc(void);
-				typedef InvokeFunc *InvokePtr;
+				typedef InvokeFunc *	InvokePtr;
+				typedef DtorFunc *		DtorFuncPtr;
 
 				DtorFunc	*Dtor;
 				InvokePtr	Invoke;
 
-				VTable(DtorFunc *dtor, InvokePtr invoke) : Dtor(dtor), Invoke(invoke) { }
+				VTable(DtorFuncPtr dtor, InvokePtr invoke) : Dtor(dtor), Invoke(invoke) { }
 			};
 			typedef VTable GetVTableFunc();
 			GetVTableFunc	*_getVTable;
