@@ -22,6 +22,8 @@ namespace stingray
 	class self_counter
 	{
 		atomic_int_type _value;
+	private:
+		TOOLKIT_NONCOPYABLE(self_counter);
 
 	protected:
 		~self_counter() {}
