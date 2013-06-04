@@ -192,7 +192,6 @@ namespace stingray
 		template < int ElementSize, typename InputIterator >
 		void WriteArray(InputIterator it, size_t count)
 		{
-			typedef typename Detail::GetIteratorValueType<InputIterator>::ValueT	ValueType;
 			for (size_t i = 0; i < count; ++i)
 				Write<ElementSize>(*it++);
 		}
@@ -200,7 +199,6 @@ namespace stingray
 		template < int ElementSize, typename InputIterator >
 		void WriteArray(InputIterator begin, InputIterator end)
 		{
-			typedef typename Detail::GetIteratorValueType<InputIterator>::ValueT	ValueType;
 			for (; begin != end; ++begin)
 				Write<ElementSize>(*begin);
 		}
