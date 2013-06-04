@@ -183,7 +183,7 @@ namespace stingray
 
 		FORCE_INLINE ~threaded_signal_base() { }
 
-		FORCE_INLINE void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p) const
+		FORCE_INLINE void InvokeAll(const Tuple<ParamTypes>& p) const
 		{
 			InvokeAll(p, this->GetExceptionHandler());
 		}
@@ -196,7 +196,7 @@ namespace stingray
 			try { exceptionHandler(ex); } catch(const std::exception &exex) { Logger::Error() << "Exception inside exception handler: " << diagnostic_information(exex); } \
 		}
 
-		void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p, const ExceptionHandlerFunc& exceptionHandler) const
+		void InvokeAll(const Tuple<ParamTypes>& p, const ExceptionHandlerFunc& exceptionHandler) const
 		{
 			typedef inplace_vector<FuncTypeWithDeathControl, 16> local_copy_type;
 			local_copy_type local_copy;
