@@ -56,7 +56,7 @@ namespace stingray
 				typedef InvokeFunc *	InvokePtr;
 				typedef DtorFunc *		DtorFuncPtr;
 
-				DtorFunc	*Dtor;
+				DtorFuncPtr	Dtor;
 				InvokePtr	Invoke;
 
 				VTable(DtorFuncPtr dtor, InvokePtr invoke) : Dtor(dtor), Invoke(invoke) { }
@@ -100,14 +100,18 @@ namespace stingray
 
 		public:
 			FORCE_INLINE Invokable(const FunctorType& func)
-				: BaseType(&GetVTable), _func(func)
+				: BaseType(&MyType::GetVTable), _func(func)
 			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&Dtor, reinterpret_cast<typename VTable::InvokePtr>(&Invoke)); }
+			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke)); }
+
+		protected:
+			inline typename BaseType::RetType DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
+			{ return FunctorInvoker::Invoke<WrappedFunctorType>(_func, p); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ return FunctorInvoker::Invoke<WrappedFunctorType>(static_cast<MyType *>(self)->_func, p); }
+			{ return static_cast<MyType *>(self)->DoInvoke(p); }
 
 			static inline void Dtor(IInvokableBase *self)
 			{ static_cast<MyType *>(self)->_func.~FunctorType(); }
@@ -131,14 +135,18 @@ namespace stingray
 
 		public:
 			FORCE_INLINE Invokable(const FunctorType& func)
-				: BaseType(&GetVTable), _func(func)
+				: BaseType(&MyType::GetVTable), _func(func)
 			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&Dtor, reinterpret_cast<typename VTable::InvokePtr>(&Invoke)); }
+			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke)); }
+
+		protected:
+			inline void DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
+			{ FunctorInvoker::Invoke<WrappedFunctorType>(_func, p); }
 
 			static inline void Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ FunctorInvoker::Invoke<WrappedFunctorType>(static_cast<MyType *>(self)->_func, p); }
+			{ static_cast<MyType *>(self)->DoInvoke(p); }
 
 			static inline void Dtor(IInvokableBase *self)
 			{ static_cast<MyType *>(self)->_func.~FunctorType(); }
