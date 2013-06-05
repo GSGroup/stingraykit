@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_SOFTWAREVERSION_H
 
 
+#include <stingray/settings/ISerializable.h>
 #include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/MemberListComparer.h>
 
@@ -26,6 +27,9 @@ namespace stingray
 
 		bool operator < (const SoftwareVersion& other) const
 		{ return CompareMemberList<std::less>(&SoftwareVersion::_major, &SoftwareVersion::_minor, &SoftwareVersion::_build)(*this, other); }
+
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
 		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(SoftwareVersion);
 	};
