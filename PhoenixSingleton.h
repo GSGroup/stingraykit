@@ -18,11 +18,11 @@ namespace stingray
 	public:
 		static T& Instance()
 		{
-			InstanceType* instance = (InstanceType*)Atomic::Load(s_instance);
+			InstanceType* instance = reinterpret_cast<InstanceType*>(Atomic::Load(s_instance));
 			if (!instance)
 			{
 				Spinlock l(s_lock);
-				instance = (InstanceType*)Atomic::Load(s_instance);
+				instance = reinterpret_cast<InstanceType*>(Atomic::Load(s_instance));
 				if (instance)
 					return *instance;
 				instance = new InstanceType();
@@ -39,7 +39,7 @@ namespace stingray
 		static void do_atexit()
 		{
 			Spinlock l(s_lock);
-			InstanceType* instance = (InstanceType*)Atomic::Load(s_instance);
+			InstanceType* instance = reinterpret_cast<InstanceType*>(Atomic::Load(s_instance));
 			assert(instance);
 			delete instance;
 			Atomic::Store(s_instance, (intptr_t)0);
