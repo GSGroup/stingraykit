@@ -113,7 +113,7 @@ namespace stingray
 		FutureExecutionTester GetExecutionTester() const
 		{ return FutureExecutionTester(_impl); }
 	};
-
+	TOOLKIT_DECLARE_PTR(TaskLifeToken);
 
 	//void InvokeTask(const function<void ()>& task, const TaskLifeToken::ValueWeakPtr& tokenValue);
 
