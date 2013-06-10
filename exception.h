@@ -69,7 +69,7 @@ namespace stingray
 		TOOLKIT_CHECK((__VA_ARGS__), IndexOutOfRangeException())
 
 #define TOOLKIT_NOT_IMPLEMENTED() \
-		TOOLKIT_THROW(NotImplementedException())
+		TOOLKIT_THROW(stingray::NotImplementedException())
 
 	struct LogicException : public std::logic_error
 	{
