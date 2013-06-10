@@ -82,7 +82,7 @@ namespace stingray
 		FutureExecutionTester(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
 		{}
 
-		LocalExecutionGuard& Execute(LocalExecutionGuard& token) { token.SetImpl(_impl); return token; }
+		LocalExecutionGuard& Execute(LocalExecutionGuard& token) const { token.SetImpl(_impl); return token; }
 	};
 
 
