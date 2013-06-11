@@ -10,24 +10,24 @@ namespace stingray
 {
 
 
-	template<typename ContainerType>
+	template < typename ContainerType >
 	class MemoryByteStream : public virtual IByteStream
 	{
 	private:
 		ContainerType	_data;
-		size_t			_ofs;
+		size_t			_offset;
 
 	public:
 		MemoryByteStream(const ContainerType& data)
-			: _data(data), _ofs(0)
+			: _data(data), _offset(0)
 		{ }
 
 		virtual size_t Read(void* data, size_t count)
 		{
 			u8* dst = reinterpret_cast<u8*>(data);
-			count = std::min(count, _data.size() - _ofs);
-			std::copy(_data.begin() + _ofs, _data.begin() + _ofs + count, dst);
-			_ofs += count;
+			count = std::min(count, _data.size() - _offset);
+			std::copy(_data.begin() + _offset, _data.begin() + _offset + count, dst);
+			_offset += count;
 			return count;
 		}
 
@@ -36,7 +36,7 @@ namespace stingray
 
 		virtual void Seek(int offset, SeekMode mode = SeekMode::Begin)
 		{
-			int new_ofs = _ofs;
+			int new_ofs = _offset;
 			switch (mode)
 			{
 			case SeekMode::Begin:	new_ofs = offset; break;
@@ -47,13 +47,17 @@ namespace stingray
 				TOOLKIT_THROW(IndexOutOfRangeException());
 			if (new_ofs > (int)_data.size())
 				TOOLKIT_THROW(NotImplementedException());
-			_ofs = new_ofs;
+			_offset = new_ofs;
 		}
 
 		virtual size_t Tell() const
-		{ return _ofs; }
+		{ return _offset; }
 	};
 
+
+	template < typename ContainerType >
+	IByteStreamPtr CreateMemoryByteStream(const ContainerType& data)
+	{ return make_shared<MemoryByteStream<ContainerType> >(data); }
 
 }
 
