@@ -311,7 +311,8 @@ namespace stingray
 			FORCE_INLINE RetType operator () () const
 			{
 				typedef TypeList_0	BinderParams;
-				typename base::template RealParameters<BinderParams> rp(base::_bindedParams, Tuple<BinderParams>());
+				Tuple<BinderParams> call_params;
+				typename base::template RealParameters<BinderParams> rp(base::_bindedParams, call_params);
 				return FunctorInvoker::Invoke<FunctorType>(base::_func, rp);
 			}
 		};
@@ -331,7 +332,8 @@ namespace stingray
 			\
 			FORCE_INLINE RetType operator () (CallParamsDecl_) const  \
 			{ \
-				typename base::template RealParameters<ParamTypes> rp(base::_bindedParams, Tuple<ParamTypes>(CallParamsUsage_)); \
+				Tuple<ParamTypes> call_params(CallParamsUsage_); \
+				typename base::template RealParameters<ParamTypes> rp(base::_bindedParams, call_params); \
 				return FunctorInvoker::Invoke<FunctorType>(base::_func, rp); \
 			} \
 		}
