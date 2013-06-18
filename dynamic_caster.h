@@ -121,10 +121,13 @@ namespace stingray
 			{
 				TargetType target = Caster<SourceType, TargetType>::Do(_source);
 
-				if ((!AllowNullSource || _source) && !target)
-					throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(SourceType).name()), Demangle(typeid(TargetType).name())), _file, _line, _functionName);
+				if (target || (!_source && AllowNullSource))
+					return target;
 
-				return target;
+				if (_source)
+					throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(*to_pointer(_source)).name()), Demangle(typeid(TargetType).name())), _file, _line, _functionName);
+
+				throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(SourceType).name()), Demangle(typeid(TargetType).name())), _file, _line, _functionName);
 			}
 		};
 
