@@ -2,10 +2,11 @@
 #define STINGRAY_TOOLKIT_ASYNC_FUNCTION_H
 
 
-#include <stingray/toolkit/Macro.h>
-#include <stingray/toolkit/function.h>
 #include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/future.h>
 
 
 /*! \cond GS_INTERNAL */
@@ -16,11 +17,11 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename Signature >
+		template < typename Signature, bool HasReturnType = !SameType<typename function_info<Signature>::RetType, void>::Value >
 		class async_function_base
 		{
 		public:
-			typedef typename function_info<Signature>::RetType		RetType;
+			typedef void											RetType;
 			typedef typename function_info<Signature>::ParamTypes	ParamTypes;
 			typedef function<Signature>								FunctionType;
 
@@ -34,7 +35,7 @@ namespace stingray
 				: _executor(TOOLKIT_REQUIRE_NOT_NULL(executor)), _func(func)
 			{ }
 
-			void DoAddTask(const function<void()>& func) const
+			RetType DoAddTask(const function<void()>& func) const
 			{
 				ITaskExecutorPtr executor_l = this->_executor.lock();
 				if (executor_l)
@@ -46,23 +47,71 @@ namespace stingray
 		public:
 			TaskLifeToken GetToken() const { return _token; }
 		};
+
+
+		template < typename Signature >
+		class async_function_base<Signature, true>
+		{
+		public:
+			typedef typename function_info<Signature>::RetType		AsyncRetType;
+			typedef promise<AsyncRetType>							PromiseType;
+			TOOLKIT_DECLARE_PTR(PromiseType);
+
+			typedef future<AsyncRetType>							RetType;
+			typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+			typedef function<Signature>								FunctionType;
+
+		protected:
+			ITaskExecutorWeakPtr	_executor;
+			FunctionType			_func;
+			TaskLifeToken			_token;
+
+		protected:
+			FORCE_INLINE async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
+				: _executor(TOOLKIT_REQUIRE_NOT_NULL(executor)), _func(func)
+			{ }
+
+			RetType DoAddTask(const function<AsyncRetType()>& func) const
+			{
+				PromiseTypePtr promise(new PromiseType);
+				ITaskExecutorPtr executor_l = this->_executor.lock();
+				if (executor_l)
+					executor_l->AddTask(bind(&async_function_base::FuncWrapper, func, promise), _token.GetExecutionTester());
+				return promise->get_future();
+			}
+
+			FORCE_INLINE ~async_function_base() { }
+
+		private:
+			static void FuncWrapper(const function<AsyncRetType()>& func, const PromiseTypePtr& promise)
+			{
+				TOOLKIT_REQUIRE_NOT_NULL(promise);
+				try
+				{ promise->set_value(func()); }
+				catch (const std::exception& ex)
+				{ promise->set_exception(make_exception_ptr(ex)); }
+			}
+
+		public:
+			TaskLifeToken GetToken() const { return _token; }
+		};
 	}
 
 	template < typename Signature >
 	class async_function;
 
 
-	template < >
-	class async_function < void() > : public Detail::async_function_base<void()>
+	template < typename R >
+	class async_function < R() > : public Detail::async_function_base<R()>
 	{
-		typedef Detail::async_function_base<void()>	base;
+		typedef Detail::async_function_base<R()>	base;
 
 	public:
-		FORCE_INLINE async_function(const ITaskExecutorPtr& executor, const function<void()>& func)
+		FORCE_INLINE async_function(const ITaskExecutorPtr& executor, const function<R()>& func)
 			: base(executor, func)
 		{ }
 
-		FORCE_INLINE void operator ()() const { base::DoAddTask(_func); }
+		FORCE_INLINE typename base::RetType  operator ()() const { return base::DoAddTask(base::_func); }
 	};
 
 
@@ -70,19 +119,19 @@ namespace stingray
 #define P_(N) typename GetConstReferenceType<T##N>::ValueT p##N
 
 #define DETAIL_TOOLKIT_DECLARE_ASYNC_FUNCTION(Typenames_, Types_, Decl_, Usage_) \
-	template < Typenames_ > \
-	class async_function < void(Types_) > : public Detail::async_function_base<void(Types_)> \
+	template < typename R, Typenames_ > \
+	class async_function < R(Types_) > : public Detail::async_function_base<R(Types_)> \
 	{ \
-		typedef Detail::async_function_base<void(Types_)>	base; \
+		typedef Detail::async_function_base<R(Types_)>	base; \
 		\
 	public: \
-		async_function(const ITaskExecutorPtr& executor, const function<void(Types_)>& func) \
+		async_function(const ITaskExecutorPtr& executor, const function<R(Types_)>& func) \
 			: base(executor, func) \
 		{ } \
 		\
-		void operator ()(Decl_) const \
+		typename base::RetType operator ()(Decl_) const \
 		{ \
-			base::DoAddTask(bind(this->_func, Usage_)); \
+			return base::DoAddTask(bind(this->_func, Usage_)); \
 		} \
 	}
 
