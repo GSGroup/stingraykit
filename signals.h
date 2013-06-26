@@ -3,7 +3,7 @@
 
 #include <stingray/toolkit/signal_connection.h>
 #include <stingray/toolkit/function.h>
-#include <stingray/toolkit/slot.h>
+#include <stingray/toolkit/async_function.h>
 #include <stingray/toolkit/intrusive_list.h>
 #include <stingray/toolkit/inplace_vector.h>
 #include <stingray/threads/Thread.h>
@@ -230,7 +230,7 @@ namespace stingray
 		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
 		{
 			MutexLock l(this->_handlers->second);
-			slot<Signature> slot_func(executor, handler);
+			async_function<Signature> slot_func(executor, handler);
 			function<Signature> slot_function(slot_func);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
