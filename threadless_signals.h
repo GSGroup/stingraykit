@@ -126,7 +126,7 @@ namespace stingray
 
 		inline signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
 		{
-			slot<Signature> slot_func(executor, handler);
+			async_function<Signature> slot_func(executor, handler);
 			function<Signature> slot_function(slot_func);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
 			this->DoSendCurrentState(wrapped_slot);
