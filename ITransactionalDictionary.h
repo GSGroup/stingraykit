@@ -58,6 +58,7 @@ namespace stingray
 		TOOLKIT_DECLARE_PTR(DiffType);
 
 		virtual void Commit() = 0;
+		virtual void Revert() = 0;
 	};
 
 
