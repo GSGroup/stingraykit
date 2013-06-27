@@ -199,6 +199,9 @@ namespace stingray
 			_copy.reset();
 		}
 
+		virtual void Revert()
+		{ _copy.reset(); }
+
 	private:
 		WrappedPtr GetCopy() const
 		{
