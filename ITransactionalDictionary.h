@@ -172,10 +172,10 @@ namespace stingray
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
 		{ return GetCopy()->Reverse(); }
 
-		virtual void Commit()
+		virtual DiffTypePtr Diff() const
 		{
 			if (!_copy)
-				return;
+				return MakeEmptyEnumerable();
 
 			typedef std::vector<DiffEntryType> OutDiffContainer;
 			shared_ptr<OutDiffContainer> diff(new OutDiffContainer());
@@ -213,8 +213,16 @@ namespace stingray
 					copy->Next();
 				}
 			}
-			if (diff->size())
-				_onChanged(EnumerableFromStlContainer(*diff, diff));
+			return EnumerableFromStlContainer(*diff, diff);
+		}
+
+		virtual void Commit()
+		{
+			if (!_copy)
+				return;
+
+			signal_locker l(_onChanged);
+			_onChanged(Diff());
 			_wrapped = _copy;
 			_copy.reset();
 		}
