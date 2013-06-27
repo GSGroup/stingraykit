@@ -27,4 +27,33 @@ namespace stingray
 		return result;
 	}
 
+	void PackUtf8(std::string &dst, uint32_t ucs, uint32_t replacement)
+	{
+		if (ucs < 0x80)
+		{
+			dst += (char)ucs;
+		}
+		else if (ucs < 0x800)
+		{
+			dst += (char) ((ucs >> 6) | 0xc0);
+			dst += (char) ((ucs & 0x3f) | 0x80);
+		}
+		else if (ucs < 0x10000)
+		{
+			dst += (char)((ucs >> 12) | 0xe0);
+			dst += (char)(((ucs & 0x0fc0) >> 6) | 0x80);
+			dst += (char)((ucs & 0x003f) | 0x80);
+		}
+		else if (ucs < 0x110000) //actually 0x200000, but unicode still not reached this limit.
+		{
+			dst += (char)((ucs >> 18) | 0xf0);
+			dst += (char)(((ucs & 0x03f000) >> 12) | 0x80);
+			dst += (char)(((ucs & 0x000fc0) >> 6) | 0x80);
+			dst += (char)( (ucs & 0x00003f) | 0x80);
+		}
+		else
+			dst += replacement;
+	}
+
+
 }
