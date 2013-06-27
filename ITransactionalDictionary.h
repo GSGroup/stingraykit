@@ -57,6 +57,8 @@ namespace stingray
 		typedef IEnumerable<DiffEntryType>					DiffType;
 		TOOLKIT_DECLARE_PTR(DiffType);
 
+		virtual DiffTypePtr Diff() const = 0;
+
 		void Apply(const DiffEntryType& entry)
 		{
 			switch (entry.Op)
