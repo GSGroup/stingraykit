@@ -64,10 +64,10 @@ namespace stingray
 			switch (entry.Op)
 			{
 			case CollectionOp::Added:
-				Set(entry.Item.Key, entry.Item.Value);
+				this->Set(entry.Item.Key, entry.Item.Value);
 				break;
 			case CollectionOp::Updated:
-				Set(entry.Item.Key, entry.Item.Value);
+				this->Set(entry.Item.Key, entry.Item.Value);
 				break;
 			case CollectionOp::Removed:
 				this->Remove(entry.Item.Key); // gcc loses his mind over this line without this
