@@ -109,7 +109,7 @@ namespace stingray
 	};
 
 
-	template < typename Wrapped_>
+	template < typename Wrapped_, typename Comparer >
 	class DictionaryTransactionImpl : public virtual IDictionaryTransaction<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
 		typedef IDictionaryTransaction<typename Wrapped_::KeyType, typename Wrapped_::ValueType> base;
@@ -127,6 +127,7 @@ namespace stingray
 		WrappedPtr						&_wrapped;
 		mutable WrappedPtr				_copy;
 		const OnChangedSignalType		&_onChanged;
+		Comparer						_comparer;
 
 	public:
 		DictionaryTransactionImpl(WrappedPtr &wrapped, const OnChangedSignalType& onChanged) :
@@ -202,7 +203,7 @@ namespace stingray
 				}
 				else // old->Get().Key == copy->Get().Key
 				{
-					if (old->Get().Value != copy->Get().Value)
+					if (!_comparer(old->Get().Value, copy->Get().Value))
 					{
 						// TODO: fix Updated handling
 						//diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Updated));
@@ -243,7 +244,7 @@ namespace stingray
 	};
 
 
-	template < typename Wrapped_ >
+	template < typename Wrapped_, typename Comparer = std::equal_to<typename Wrapped_::ValueType> >
 	class TransactionalDictionaryWrapper :
 		public virtual ITransactionalDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
@@ -309,7 +310,7 @@ namespace stingray
 		{
 			signal_locker l(TransactionalInterface::OnChanged);
 			TOOLKIT_CHECK(!_transaction.lock(), "Another transaction exist!");
-			typename TransactionalInterface::TransactionTypePtr tr(new DictionaryTransactionImpl<Wrapped_>(_wrapped, TransactionalInterface::OnChanged));
+			typename TransactionalInterface::TransactionTypePtr tr(new DictionaryTransactionImpl<Wrapped_, Comparer>(_wrapped, TransactionalInterface::OnChanged));
 			_transaction = tr;
 			return tr;
 		}
