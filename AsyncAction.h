@@ -75,7 +75,10 @@ namespace stingray
 			{
 				ResultType res = _reachStateFunc(state);
 				listener_ref->Ptr->set_value(res);
-				listener_ref->Ptr.reset();
+				{
+					MutexLock l(_mutex);
+					listener_ref->Ptr.reset();
+				}
 			}
 			catch(const std::exception &ex)
 			{
@@ -145,7 +148,10 @@ namespace stingray
 			{
 				_reachStateFunc(state);
 				listener_ref->Ptr->set_value();
-				listener_ref->Ptr.reset();
+				{
+					MutexLock l(_mutex);
+					listener_ref->Ptr.reset();
+				}
 			}
 			catch(const std::exception &ex)
 			{
@@ -216,7 +222,10 @@ namespace stingray
 			{
 				_reachStateFunc();
 				listener_ref->Ptr->set_value();
-				listener_ref->Ptr.reset();
+				{
+					MutexLock l(_mutex);
+					listener_ref->Ptr.reset();
+				}
 			}
 			catch(const std::exception &ex)
 			{
