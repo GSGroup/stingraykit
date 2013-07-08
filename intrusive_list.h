@@ -199,6 +199,12 @@ namespace stingray
 		iterator end() const	{ return iterator(&_root); }
 
 		inline bool empty() const	{ return _root.unlinked(); }
+
+		void clear()
+		{
+			while (!empty())
+				erase(begin());
+		}
 	
 		void push_back(const T& value)
 		{
