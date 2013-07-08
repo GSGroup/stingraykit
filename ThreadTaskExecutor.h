@@ -22,6 +22,7 @@ namespace stingray
 		typedef std::queue<TaskPair, std::list<TaskPair> >				QueueType;
 
 	private:
+		std::string				_name;
 		volatile bool			_working;
 		volatile bool			_paused;
 		ThreadPtr				_worker;

@@ -1,5 +1,6 @@
 #if !HAVE_TASK_EXECUTOR
 
+#include <stingray/log/Logger.h>
 #include <stingray/toolkit/ThreadTaskExecutor.h>
 #include <stingray/toolkit/bind.h>
 
@@ -7,9 +8,10 @@
 namespace stingray
 {
 
+		static const size_t TaskCountLimit = 1024;
 
 		ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler)
-			: _working(true), _paused(false), _exceptionHandler(exceptionHandler)
+			: _name(name), _working(true), _paused(false), _exceptionHandler(exceptionHandler)
 		{ _worker.reset(new Thread(name, bind(&ThreadTaskExecutor::ThreadFunc, this))); }
 
 
@@ -29,6 +31,8 @@ namespace stingray
 		{
 			MutexLock l(_syncRoot);
 			_queue.push(std::make_pair(task, tester));
+			if (_queue.size() > TaskCountLimit)
+				Logger::Error() << "[ThreadTaskExecutor] Task queue size limit exceeded for executor '" << _name << "': " << _queue.size();
 			_condVar.Broadcast();
 		}
 
