@@ -96,10 +96,11 @@ namespace stingray
 				if (handlers_l)
 				{
 					MutexLock l(handlers_l->second);
-					if (_handlers.lock()) // if we've already reset handlers - skip disconnecting
+					Handlers &handlers = handlers_l->first;
+					if (_it != handlers.end())
 					{
-						_handlers.reset(); // reset handlers to make Disconnect reenterable
-						handlers_l->first.erase(_it);
+						handlers.erase(_it);
+						_it = handlers.end();
 					}
 				}
 				_token.Release();
