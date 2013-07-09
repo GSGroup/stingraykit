@@ -96,6 +96,7 @@ namespace stingray
 				if (handlers_l)
 				{
 					MutexLock l(handlers_l->second);
+					_handlers.reset();
 					Handlers &handlers = handlers_l->first;
 					if (_it != handlers.end())
 					{
