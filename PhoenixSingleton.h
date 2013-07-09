@@ -9,6 +9,10 @@
 namespace stingray
 {
 
+#define TOOLKIT_PHOENIXSINGLETON(ClassName) \
+		friend class ::stingray::PhoenixSingleton<ClassName>; \
+		TOOLKIT_NONCOPYABLE(ClassName)
+
 
 	template <typename T>
 	class PhoenixSingleton
