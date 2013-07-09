@@ -140,10 +140,7 @@ namespace stingray
 		{ }
 
 		~threaded_signal_base_base()
-		{
-			MutexLock l(_handlers->second);
-			_handlers->first.clear();
-		}
+		{ }
 
 		template<typename ContainerType>
 		void CopyHandlersToLocal(ContainerType & localCopy) const
