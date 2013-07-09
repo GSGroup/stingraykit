@@ -1,10 +1,11 @@
 #ifndef STINGRAY_TOOLKIT_FUNCTION_H
 #define STINGRAY_TOOLKIT_FUNCTION_H
 
-#include <stingray/toolkit/function_info.h>
 #include <stingray/toolkit/FunctorInvoker.h>
-#include <stingray/toolkit/self_counter.h>
 #include <stingray/toolkit/Tuple.h>
+#include <stingray/toolkit/function_info.h>
+#include <stingray/toolkit/function_name_getter.h>
+#include <stingray/toolkit/self_counter.h>
 
 /*! \cond GS_INTERNAL */
 
@@ -53,13 +54,17 @@ namespace stingray
 			{
 				typedef void DtorFunc(IInvokableBase *self);
 				typedef void InvokeFunc(void);
+				typedef std::string GetNameFunc(const IInvokableBase *self);
+
 				typedef InvokeFunc *	InvokePtr;
 				typedef DtorFunc *		DtorFuncPtr;
+				typedef GetNameFunc *	GetNameFuncPtr;
 
-				DtorFuncPtr	Dtor;
-				InvokePtr	Invoke;
+				DtorFuncPtr		Dtor;
+				InvokePtr		Invoke;
+				GetNameFuncPtr	GetName;
 
-				VTable(DtorFuncPtr dtor, InvokePtr invoke) : Dtor(dtor), Invoke(invoke) { }
+				VTable(DtorFuncPtr dtor, InvokePtr invoke, GetNameFuncPtr getName) : Dtor(dtor), Invoke(invoke), GetName(getName) { }
 			};
 			typedef VTable GetVTableFunc();
 			GetVTableFunc	*_getVTable;
@@ -104,7 +109,7 @@ namespace stingray
 			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke)); }
+			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke), &MyType::GetName); }
 
 		protected:
 			inline typename BaseType::RetType DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
@@ -115,6 +120,9 @@ namespace stingray
 
 			static inline void Dtor(IInvokableBase *self)
 			{ static_cast<MyType *>(self)->_func.~FunctorType(); }
+
+			static std::string GetName(const IInvokableBase *self)
+			{ return get_function_name(static_cast<const MyType *>(self)->_func); }
 		};
 
 		template < typename Signature, typename FunctorType >
@@ -139,7 +147,7 @@ namespace stingray
 			{}
 
 			static inline VTable GetVTable()
-			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke)); }
+			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke), &MyType::GetName); }
 
 		protected:
 			inline void DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
@@ -150,6 +158,9 @@ namespace stingray
 
 			static inline void Dtor(IInvokableBase *self)
 			{ static_cast<MyType *>(self)->_func.~FunctorType(); }
+
+			static std::string GetName(const IInvokableBase *self)
+			{ return get_function_name(static_cast<const MyType *>(self)->_func); }
 		};
 
 	}
@@ -181,6 +192,9 @@ namespace stingray
 			InvokeFunc *func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
 			return func(_invokable.get(), p);
 		}
+
+	public:
+		std::string get_name() const { return _invokable->_getVTable().GetName(_invokable.get()); }
 
 	private:
 		friend class function_storage;

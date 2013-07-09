@@ -315,6 +315,8 @@ namespace stingray
 				typename base::template RealParameters<BinderParams> rp(base::_bindedParams, call_params);
 				return FunctorInvoker::Invoke<FunctorType>(base::_func, rp);
 			}
+
+			std::string GetFuncName() const { return get_function_name(base::_func); }
 		};
 
 #define DETAIL_TOOLKIT_DECLARE_BINDER(N, CallParamsDecl_, CallParamsUsage_) \
@@ -336,6 +338,8 @@ namespace stingray
 				typename base::template RealParameters<ParamTypes> rp(base::_bindedParams, call_params); \
 				return FunctorInvoker::Invoke<FunctorType>(base::_func, rp); \
 			} \
+			\
+			std::string GetFuncName() const { return get_function_name(base::_func); } \
 		}
 
 #define P_(N) typename GetTypeListItem<CallProxiesParamTypes, N - 1>::ValueT p##N
