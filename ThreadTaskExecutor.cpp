@@ -1,8 +1,10 @@
 #if !HAVE_TASK_EXECUTOR
 
 #include <stingray/log/Logger.h>
+#include <stingray/timer/ExecutorsProfiler.h>
 #include <stingray/toolkit/ThreadTaskExecutor.h>
 #include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/function_name_getter.h>
 
 
 namespace stingray
@@ -52,6 +54,9 @@ namespace stingray
 		}
 
 
+		std::string ThreadTaskExecutor::GetProfilerMessage(const function<void()>& func)
+		{ return StringBuilder() % get_function_name(func) % " in ThreadTaskExecutor '" % _name % "'"; }
+
 		void ThreadTaskExecutor::ThreadFunc()
 		{
 			MutexLock l(_syncRoot);
@@ -66,7 +71,10 @@ namespace stingray
 						MutexUnlock ul(l);
 						LocalExecutionGuard guard;
 						if (top.second.Execute(guard))
+						{
+							AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, top.first), 1000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
 							top.first();
+						}
 						Thread::InterruptionPoint();
 					}
 					catch(const std::exception& ex)

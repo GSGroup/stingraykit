@@ -40,6 +40,7 @@ namespace stingray
 		virtual void Pause(bool pause);
 
 	private:
+		std::string GetProfilerMessage(const function<void()>& func);
 		void ThreadFunc();
 	};
 	TOOLKIT_DECLARE_PTR(ThreadTaskExecutor);
