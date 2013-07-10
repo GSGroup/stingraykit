@@ -5,6 +5,8 @@
 #include <queue>
 #include <list>
 
+#include <stingray/timer/AsyncProfiler.h>
+#include <stingray/timer/ExecutorsProfiler.h>
 #include <stingray/toolkit/Final.h>
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/threads/Thread.h>
@@ -55,13 +57,19 @@ namespace stingray
 					//Tracer tracer("ThreadlessTaskExecutor::ExecuteTasks: executing pending task"); //fixme: dependency to log/
 					LocalExecutionGuard guard;
 					if (top.second.Execute(guard))
+					{
+						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, top.first), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
 						top.first();
+					}
 					Thread::InterruptionPoint();
 				}
 				catch(const std::exception& ex)
 				{ _exceptionHandler(ex); }
 			}
 		}
+
+		std::string GetProfilerMessage(const function<void()>& func)
+		{ return StringBuilder() % get_function_name(func) % " in ThreadlessTaskExecutor '" % Thread::GetCurrentThreadName() % "'"; }
 	};
 
 	TOOLKIT_DECLARE_PTR(ThreadlessTaskExecutor);
