@@ -139,6 +139,7 @@ namespace stingray
 			if (_execTester.Execute(guard)) \
 				_func(ParamUsage_); \
 		} \
+		std::string get_name() const { return _func.get_name(); } \
 	}
 
 #define TY typename

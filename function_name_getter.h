@@ -43,6 +43,16 @@ namespace stingray
 		static std::string get(const Func_& func) { return "{ gs_function: " + func.get_name() + " }"; }
 	};
 
+	template < typename Signature >
+	class function_with_token;
+
+	template < typename Signature, typename FunctionType::Enum FuncType_ >
+	struct function_name_getter<function_with_token<Signature>, FuncType_>
+	{
+		static std::string get(const function_with_token<Signature>& func) { return "{ function_with_token: " + func.get_name() + " }"; }
+	};
+
+
 	namespace Detail
 	{
 		template
