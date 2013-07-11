@@ -17,7 +17,7 @@ namespace stingray
 		static std::string GetErrorMessage() throw();
 
 	private:
-		std::string ErrnoToStr(int e);
+		static std::string ErrnoToStr(int e);
 	};
 
 

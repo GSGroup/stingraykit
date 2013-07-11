@@ -8,16 +8,20 @@
 namespace stingray
 {
 	SystemException::SystemException(const std::string &message) throw():
-		std::runtime_error(message + ": errno = " + ErrnoToStr(errno) + " (" + GetErrorMessage(errno) + ")") {}
+		std::runtime_error(message + ": errno = " + GetErrorMessage(errno)) {}
 
 	SystemException::SystemException(const std::string &message, int err) throw():
-		std::runtime_error(message + ": errno = " + ErrnoToStr(err) + " (" + GetErrorMessage(err) + ")") {}
+		std::runtime_error(message + ": errno = " + GetErrorMessage(err)) {}
 
 	std::string SystemException::GetErrorMessage(int err) throw()
 	{
+		std::string result = ErrnoToStr(err);
 		char buf[256];
 		char *msg = strerror_r(err, buf, sizeof(buf));
-		return msg? msg: "Unknown error";
+		result += " (";
+		result += msg ? msg: "Unknown error";
+		result += ")";
+		return result;
 	}
 
 	std::string SystemException::GetErrorMessage() throw()
