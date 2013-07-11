@@ -30,9 +30,10 @@ namespace stingray
 		ConditionVariable		_condVar;
 		QueueType				_queue;
 		ExceptionHandlerType	_exceptionHandler;
+		bool					_profileCalls;
 
 	public:
-		explicit ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler);
+		explicit ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls = true);
 		~ThreadTaskExecutor();
 
 		virtual void AddTask(const TaskType& task);

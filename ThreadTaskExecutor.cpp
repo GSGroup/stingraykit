@@ -12,8 +12,8 @@ namespace stingray
 
 		static const size_t TaskCountLimit = 1024;
 
-		ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler)
-			: _name(name), _working(true), _paused(false), _exceptionHandler(exceptionHandler)
+		ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls)
+			: _name(name), _working(true), _paused(false), _exceptionHandler(exceptionHandler), _profileCalls(profileCalls)
 		{ _worker.reset(new Thread(name, bind(&ThreadTaskExecutor::ThreadFunc, this))); }
 
 
@@ -72,8 +72,13 @@ namespace stingray
 						LocalExecutionGuard guard;
 						if (top.second.Execute(guard))
 						{
-							AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, top.first), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
-							top.first();
+							if (_profileCalls)
+							{
+								AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, top.first), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
+								top.first();
+							}
+							else
+								top.first();
 						}
 						Thread::InterruptionPoint();
 					}
