@@ -223,28 +223,37 @@ namespace stingray
 
 	private:
 		ConnectionMap	_connections;
+		Mutex			_lock;
 
 	public:
 		signal_connection_map() { }
 		~signal_connection_map()
 		{ release_all(); }
 
-		BracketsOperatorProxy operator[] (const Key& key) { return BracketsOperatorProxy(key, _connections); }
+		BracketsOperatorProxy operator[] (const Key& key) { MutexLock l(_lock); return BracketsOperatorProxy(key, _connections); }
 
 		void release(const Key& key)
 		{
-			typename ConnectionMap::iterator lower = _connections.lower_bound(key);
-			typename ConnectionMap::iterator upper = _connections.upper_bound(key);
-			std::for_each(values_iterator(lower), values_iterator(upper),
-				std::mem_fun_ref(&signal_connection::disconnect));
-			_connections.erase(lower, upper);
+			std::vector<signal_connection> connections;
+			{
+				MutexLock l(_lock);
+				typename ConnectionMap::iterator lower = _connections.lower_bound(key);
+				typename ConnectionMap::iterator upper = _connections.upper_bound(key);
+				std::copy(values_iterator(lower), values_iterator(upper), std::back_inserter(connections));
+				_connections.erase(lower, upper);
+			}
+			std::for_each(connections.begin(), connections.end(), std::mem_fun_ref(&signal_connection::disconnect));
 		}
 
 		void release_all()
 		{
-			std::for_each(values_iterator(_connections.begin()), values_iterator(_connections.end()),
+			ConnectionMap connections;
+			{
+				MutexLock l(_lock);
+				_connections.swap(connections);
+			}
+			std::for_each(values_iterator(connections.begin()), values_iterator(connections.end()),
 				std::mem_fun_ref(&signal_connection::disconnect));
-			_connections.clear();
 		}
 	};
 
