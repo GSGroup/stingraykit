@@ -159,25 +159,38 @@ namespace stingray
 
 	class signal_connection_pool
 	{
+		TOOLKIT_NONCOPYABLE(signal_connection_pool);
+
 		typedef std::vector<signal_connection> signal_connection_list;
 		signal_connection_list _connections;
-		TOOLKIT_NONCOPYABLE(signal_connection_pool);
+
+		Mutex _lock;
 
 	public:
 		signal_connection_pool()			{}
 		inline ~signal_connection_pool()	{ release(); }
 
-		inline void add(const signal_connection & conn) { _connections.push_back(conn); }
-		inline signal_connection_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
+		inline void add(const signal_connection & conn)
+		{
+			MutexLock l(_lock);
+			_connections.push_back(conn);
+		}
 
-		inline bool empty() const { return _connections.empty(); }
+		inline bool empty() const
+		{
+			MutexLock l(_lock);
+			return _connections.empty();
+		}
 
 		void release()
 		{
+			MutexLock l(_lock);
 			std::for_each(_connections.rbegin(), _connections.rend(),
 				std::mem_fun_ref(&signal_connection::disconnect));
 			_connections.clear();
 		}
+
+		inline signal_connection_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
 	};
 
 	template < typename Key, typename Compare = std::less<Key> >
