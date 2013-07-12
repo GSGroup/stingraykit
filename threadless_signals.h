@@ -160,6 +160,32 @@ namespace stingray
 		explicit FORCE_INLINE signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState): base(exceptionHandler, sendCurrentState) {}
 	};
 
+	class threadless_signal_connection_pool
+	{
+		TOOLKIT_NONCOPYABLE(threadless_signal_connection_pool);
+
+		typedef std::vector<signal_connection> signal_connection_list;
+		signal_connection_list _connections;
+
+	public:
+		inline threadless_signal_connection_pool()	{ }
+		inline ~threadless_signal_connection_pool()	{ release(); }
+
+		inline void add(const signal_connection & conn)
+		{ _connections.push_back(conn); }
+
+		inline bool empty() const
+		{ return _connections.empty(); }
+
+		inline void release()
+		{
+			std::for_each(_connections.rbegin(), _connections.rend(),
+				std::mem_fun_ref(&signal_connection::disconnect));
+		}
+
+		inline threadless_signal_connection_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
+	};
+
 }
 
 #endif
