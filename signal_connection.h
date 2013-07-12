@@ -184,10 +184,13 @@ namespace stingray
 
 		void release()
 		{
-			MutexLock l(_lock);
-			std::for_each(_connections.rbegin(), _connections.rend(),
+			signal_connection_list connections;
+			{
+				MutexLock l(_lock);
+				connections.swap(_connections);
+			}
+			std::for_each(connections.rbegin(), connections.rend(),
 				std::mem_fun_ref(&signal_connection::disconnect));
-			_connections.clear();
 		}
 
 		inline signal_connection_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
