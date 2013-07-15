@@ -140,7 +140,7 @@ namespace stingray
 		{ }
 
 		~threaded_signal_base_base()
-		{ }
+		{ _handlers.reset(); }
 
 		template<typename ContainerType>
 		void CopyHandlersToLocal(ContainerType & localCopy) const
@@ -210,6 +210,7 @@ namespace stingray
 				if (func.Tester().Execute(guard))
 					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(func.Func().ToFunction<Signature>(), p); );
 			}
+			TOOLKIT_CHECK(_handlers, LogicException("Signal was destroyed while executing handlers!"));
 		}
 
 		static inline void DefaultSendCurrentState(const FuncType& /*connectingSlot*/)
