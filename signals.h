@@ -210,7 +210,8 @@ namespace stingray
 				if (func.Tester().Execute(guard))
 					WRAP_EXCEPTION_HANDLING( exceptionHandler, FunctorInvoker::Invoke(func.Func().ToFunction<Signature>(), p); );
 			}
-			TOOLKIT_CHECK(_handlers, LogicException("Signal was destroyed while executing handlers!"));
+			if (!_handlers)
+				TOOLKIT_FATAL("Signal was destroyed while executing handlers!");
 		}
 
 		static inline void DefaultSendCurrentState(const FuncType& /*connectingSlot*/)
