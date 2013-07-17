@@ -107,13 +107,11 @@ namespace stingray
 		class CheckedDynamicCaster
 		{
 			SourceType		_source;
-			const char*		_file;
-			size_t			_line;
-			const char*		_functionName;
+			ToolkitWhere	_where;
 
 		public:
-			CheckedDynamicCaster(const SourceType& source, const char* file, size_t line, const char* functionName)
-				: _source(source), _file(file), _line(line), _functionName(functionName)
+			CheckedDynamicCaster(const SourceType& source, ToolkitWhere where)
+				: _source(source), _where(where)
 			{ }
 
 			template< typename TargetType >
@@ -125,26 +123,26 @@ namespace stingray
 					return target;
 
 				if (_source)
-					throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(*to_pointer(_source)).name()), Demangle(typeid(TargetType).name())), _file, _line, _functionName);
+					throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(*to_pointer(_source)).name()), Demangle(typeid(TargetType).name())), _where);
 
-				throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(SourceType).name()), Demangle(typeid(TargetType).name())), _file, _line, _functionName);
+				throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(SourceType).name()), Demangle(typeid(TargetType).name())), _where);
 			}
 		};
 
 
 		template < typename T >
-		CheckedDynamicCaster<T> checked_dynamic_caster(const T& source, const char* file, int line, const char* functionName)
-		{ return CheckedDynamicCaster<T>(source, file, line, functionName); }
+		CheckedDynamicCaster<T> checked_dynamic_caster(const T& source, ToolkitWhere where)
+		{ return CheckedDynamicCaster<T>(source, where); }
 
 
 		template < typename T >
-		CheckedDynamicCaster<T, true> nullable_checked_dynamic_caster(const T& source, const char* file, int line, const char* functionName)
-		{ return CheckedDynamicCaster<T, true>(source, file, line, functionName); }
+		CheckedDynamicCaster<T, true> nullable_checked_dynamic_caster(const T& source, ToolkitWhere where)
+		{ return CheckedDynamicCaster<T, true>(source, where); }
 	}
 
 
-#define TOOLKIT_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::checked_dynamic_caster(Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
-#define TOOLKIT_NULLABLE_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::nullable_checked_dynamic_caster(Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
+#define TOOLKIT_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::checked_dynamic_caster(Expr_, TOOLKIT_WHERE)
+#define TOOLKIT_NULLABLE_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::nullable_checked_dynamic_caster(Expr_, TOOLKIT_WHERE)
 
 
 }

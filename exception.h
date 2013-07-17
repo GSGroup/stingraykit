@@ -116,7 +116,7 @@ namespace stingray
 	};
 
 
-#define TOOLKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, __FILE__, __LINE__, TOOLKIT_FUNCTION)
+#define TOOLKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, TOOLKIT_WHERE)
 
 
 	namespace Detail
@@ -137,23 +137,21 @@ namespace stingray
 	class BaseException : public virtual Detail::IToolkitException
 	{
 	private:
-		size_t			_line;
-		const char*		_filename;
-		const char*		_functionName;
+		ToolkitWhere	_where;
 #ifdef USE_BACKTRACE_FOR_EXCEPTIONS
 		Backtrace		_backtrace;
 #endif
 
 	public:
-		BaseException(const char* filename, size_t line, const char* functionName)
-			: _line(line), _filename(filename), _functionName(functionName)
+		BaseException(ToolkitWhere where)
+			: _where(where)
 		{}
 
 		virtual ~BaseException() throw() { }
 
-		virtual size_t GetLine() const				{ return _line; }
-		virtual const char* GetFilename() const		{ return _filename; }
-		virtual const char* GetFunctionName() const	{ return _functionName; }
+		virtual size_t GetLine() const				{ return _where.GetLine(); }
+		virtual const char* GetFilename() const		{ return _where.GetFilename(); }
+		virtual const char* GetFunctionName() const	{ return _where.GetFunctionName(); }
 #ifdef USE_BACKTRACE_FOR_EXCEPTIONS
 		virtual std::string GetBacktrace() const	{ return _backtrace.Get(); }
 #else
@@ -165,8 +163,8 @@ namespace stingray
 	class ExceptionWrapper : public BaseException, public UserBaseException
 	{
 	public:
-		ExceptionWrapper(const UserBaseException& ex, const char* filename, size_t line, const char* functionName)
-			: BaseException(filename, line, functionName), UserBaseException(ex)
+		ExceptionWrapper(const UserBaseException& ex, ToolkitWhere where)
+			: BaseException(where), UserBaseException(ex)
 		{ }
 		virtual ~ExceptionWrapper() throw() { }
 	};
@@ -175,21 +173,21 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename BaseException >
-		inline typename EnableIf<Inherits<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, const char* filename, size_t line, const char* functionName)
+		inline typename EnableIf<Inherits<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, ToolkitWhere where)
 		{
 			CompileTimeAssert<Inherits<BaseException, std::exception>::Value > ERROR_invalid_exception;
 			(void)ERROR_invalid_exception;
-			return ExceptionWrapper<BaseException>(ex, filename, line, functionName);
+			return ExceptionWrapper<BaseException>(ex, where);
 		}
 
-		inline ExceptionWrapper<Exception> MakeException(const std::string &message, const char* filename, size_t line, const char* functionName)
+		inline ExceptionWrapper<Exception> MakeException(const std::string &message, ToolkitWhere where)
 		{
-			return MakeException(Exception(message), filename, line, functionName);
+			return MakeException(Exception(message), where);
 		}
 
-		inline ExceptionWrapper<Exception> MakeException(const char *message, const char* filename, size_t line, const char* functionName)
+		inline ExceptionWrapper<Exception> MakeException(const char *message, ToolkitWhere where)
 		{
-			return MakeException(Exception(message), filename, line, functionName);
+			return MakeException(Exception(message), where);
 		}
 
 		template < typename T, bool CanCastToBool = CanCast<T, bool>::Value >
@@ -210,18 +208,18 @@ namespace stingray
 		*/
 
 		template < typename T >
-		const T& RequireNotNull(const T& obj, const char* expr, const char* file, size_t line, const char* func, int dummy = 42)
+		const T& RequireNotNull(const T& obj, const char* expr, ToolkitWhere where, int dummy = 42)
 		{
 			if (IsNotNull(obj))
 				return obj;
 
 			DebuggingHelper::BreakpointHere();
-			throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func);
+			throw stingray::Detail::MakeException(NullPointerException(expr), where);
 		}
 	}
 
 
-#define TOOLKIT_THROW(ExceptionObj) throw ::stingray::Detail::MakeException(ExceptionObj, __FILE__, __LINE__, TOOLKIT_FUNCTION)
+#define TOOLKIT_THROW(ExceptionObj) throw ::stingray::Detail::MakeException(ExceptionObj, TOOLKIT_WHERE)
 
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 
