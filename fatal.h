@@ -5,7 +5,7 @@
 
 #define TOOLKIT_FATAL(message) \
 	do { \
-		std::string msg = TOOLKIT_WHERE + std::string(": ") + std::string(message); \
+		std::string msg = TOOLKIT_WHERE.ToString() + std::string(": ") + std::string(message); \
 		DebuggingHelper::TerminateWithMessage(msg); \
 	} while(0)
 
