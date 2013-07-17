@@ -7,6 +7,7 @@
 #define GENERIC_API_CALL(ReturnType, SuccessValue, ...) \
 	do \
 	{ \
+		ExternalAPIGuards::EnterGuard __g__(#__VA_ARGS__); \
 		const ReturnType res = __VA_ARGS__; \
 		if (res != SuccessValue) \
 		{ \
@@ -19,6 +20,7 @@
 #define GENERIC_API_CALL_NO_THROW(ReturnType, SuccessValue, ...) \
 	do \
 	{ \
+		ExternalAPIGuards::EnterGuard __g__(#__VA_ARGS__); \
 		const ReturnType res = __VA_ARGS__; \
 		if (res != SuccessValue) \
 		{ \
