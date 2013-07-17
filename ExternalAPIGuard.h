@@ -37,7 +37,7 @@ namespace stingray
 		std::string Get() const
 		{
 			if (_stack.empty())
-				return "in stingray";
+				return "<external API guard stack empty>";
 
 			std::string result;
 
