@@ -37,7 +37,7 @@ namespace stingray
 		std::string Get() const
 		{
 			if (_stack.empty())
-				return "<empty>";
+				return "in stingray";
 
 			std::string result;
 
