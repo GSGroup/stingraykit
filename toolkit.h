@@ -46,7 +46,7 @@ namespace stingray
 }
 
 // God damn C++!!!11 =(
-#define TOOLKIT_WHERE ((std::string("function '") + TOOLKIT_FUNCTION + "' in file '" __FILE__ "' at line " TO_STRING(__LINE__)))
+#define TOOLKIT_WHERE (::stingray::ToolkitWhere(__FILE__, __LINE__, TOOLKIT_FUNCTION))
 
 #ifdef DEBUG
 #	define TOOLKIT_DEBUG_ONLY(...) __VA_ARGS__
