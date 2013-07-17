@@ -26,6 +26,25 @@ namespace stingray
 #	define TOOLKIT_FUNCTION __func__
 #endif
 
+namespace stingray
+{
+	struct ToolkitWhere
+	{
+		const char*	_file;
+		size_t		_line;
+		const char*	_functionName;
+
+		ToolkitWhere(const char* file, int line, const char* functionName) : _file(file), _line(line), _functionName(functionName)
+		{}
+
+		size_t GetLine() const				{ return _line; }
+		const char* GetFilename() const		{ return _file; }
+		const char* GetFunctionName() const	{ return _functionName; }
+
+		std::string ToString() const;
+	};
+}
+
 // God damn C++!!!11 =(
 #define TOOLKIT_WHERE ((std::string("function '") + TOOLKIT_FUNCTION + "' in file '" __FILE__ "' at line " TO_STRING(__LINE__)))
 

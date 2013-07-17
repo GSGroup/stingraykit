@@ -17,6 +17,11 @@
 namespace stingray
 {
 
+
+	std::string ToolkitWhere::ToString() const
+	{ return StringBuilder() % "function '" % _file % "' in file '" % _file % "' at line " % _line; }
+
+
 	NullPtrType null;
 
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex)
