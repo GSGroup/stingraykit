@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_GENERICAPICALL_H
 
 #include <stingray/log/Logger.h>
+#include <stingray/threads/Thread.h>
 #include <stingray/toolkit/exception.h>
 
 #define GENERIC_API_CALL(ReturnType, SuccessValue, ...) \
@@ -27,6 +28,24 @@
 			Logger::Error() << #__VA_ARGS__ " failed, result = " << (int)res; \
 		} \
 	} while (0)
+
+
+namespace stingray {
+namespace Detail
+{
+
+	class GenericApiCallGuard
+	{
+		ExternalAPIGuards::EnterGuard	_externalApiGuard;
+
+	public:
+		GenericApiCallGuard(const char* call) : _externalApiGuard(call) { }
+		operator bool() const { return true; }
+	};
+
+}}
+
+#define GENERIC_API_CALL_TRANSPARENT(...) (::stingray::Detail::GenericApiCallGuard(#__VA_ARGS__) ? (__VA_ARGS__) : (__VA_ARGS__))
 
 #endif
 
