@@ -69,7 +69,7 @@ namespace stingray
 		}
 
 		std::string GetProfilerMessage(const function<void()>& func)
-		{ return StringBuilder() % get_function_name(func) % " in ThreadlessTaskExecutor '" % Thread::GetCurrentThreadName() % "'"; }
+		{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
 	};
 
 	TOOLKIT_DECLARE_PTR(ThreadlessTaskExecutor);
