@@ -82,10 +82,11 @@ namespace stingray
 		typedef Detail::ThreadlessConnection							Connection;
 
 		mutable light_shared_ptr<Handlers>								_handlers;
+		ConnectionPolicy												_connectionPolicy;
 
 	protected:
-		FORCE_INLINE threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState)
-			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _handlers()
+		FORCE_INLINE threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
+			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _handlers(), _connectionPolicy(connectionPolicy)
 		{ }
 
 		FORCE_INLINE ~threadless_signal_base() { }
@@ -126,6 +127,8 @@ namespace stingray
 
 		inline signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
 		{
+			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::SyncOnly);
+
 			async_function<Signature> slot_func(executor, handler);
 			function<Signature> slot_function(slot_func);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
@@ -138,6 +141,8 @@ namespace stingray
 
 		inline signal_connection connect(const FuncType& handler) const
 		{
+			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::AsyncOnly);
+
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
 			this->DoSendCurrentState(wrapped_slot);
 			if (!_handlers)
@@ -157,7 +162,7 @@ namespace stingray
 		typedef typename base::ExceptionHandlerFunc ExceptionHandlerFunc;
 		typedef typename base::SendCurrentStateFunc SendCurrentStateFunc;
 
-		explicit FORCE_INLINE signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState): base(exceptionHandler, sendCurrentState) {}
+		explicit FORCE_INLINE signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
 	};
 
 	class threadless_signal_connection_pool
