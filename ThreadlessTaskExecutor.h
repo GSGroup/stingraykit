@@ -58,7 +58,7 @@ namespace stingray
 					LocalExecutionGuard guard;
 					if (top.second.Execute(guard))
 					{
-						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, top.first), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
+						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(top.first)), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
 						top.first();
 					}
 					Thread::InterruptionPoint();
@@ -69,7 +69,7 @@ namespace stingray
 		}
 
 		std::string GetProfilerMessage(const function<void()>& func)
-		{ return StringBuilder() % get_function_name(func) % " in ThreadlessTaskExecutor '" % Thread::GetCurrentThreadName() % "'"; }
+		{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
 	};
 
 	TOOLKIT_DECLARE_PTR(ThreadlessTaskExecutor);

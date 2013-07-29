@@ -1,6 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_SIGNALS_H
 #define STINGRAY_TOOLKIT_SIGNALS_H
 
+#include <stingray/toolkit/assert.h>
 #include <stingray/toolkit/signal_connection.h>
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/async_function.h>
@@ -156,6 +157,14 @@ namespace stingray
 		}
 	};
 
+
+	struct ConnectionPolicy
+	{
+		TOOLKIT_ENUM_VALUES(SyncOnly, AsyncOnly, Any);
+		TOOLKIT_DECLARE_ENUM_CLASS(ConnectionPolicy);
+	};
+
+
 	template < typename Signature, typename ExceptionHandler, template <typename> class SendCurrentState_ >
 	class threaded_signal_base : private threaded_signal_base_base, private ExceptionHandler, private SendCurrentState_<Signature>
 	{
@@ -176,9 +185,12 @@ namespace stingray
 	private:
 		typedef threaded_signal_base_base::FuncTypeWithDeathControl		FuncTypeWithDeathControl;
 
+	private:
+		ConnectionPolicy												_connectionPolicy;
+
 	protected:
-		FORCE_INLINE threaded_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState)
-			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState)
+		FORCE_INLINE threaded_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
+			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _connectionPolicy(connectionPolicy)
 		{ }
 
 		FORCE_INLINE ~threaded_signal_base() { }
@@ -231,6 +243,8 @@ namespace stingray
 
 		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
 		{
+			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::SyncOnly);
+
 			MutexLock l(this->_handlers->second);
 			async_function<Signature> slot_func(executor, handler);
 			function<Signature> slot_function(slot_func);
@@ -241,6 +255,8 @@ namespace stingray
 
 		signal_connection connect(const FuncType& handler) const
 		{
+			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::AsyncOnly);
+
 			MutexLock l(this->_handlers->second);
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
 			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
@@ -266,7 +282,7 @@ namespace stingray
 		typedef typename base::ExceptionHandlerFunc ExceptionHandlerFunc;
 		typedef typename base::SendCurrentStateFunc SendCurrentStateFunc;
 
-		explicit FORCE_INLINE signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState): base(exceptionHandler, sendCurrentState) {}
+		explicit FORCE_INLINE signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
 	};
 
 	template < typename Signature, typename Strategy = threaded_signal_strategy, typename ExceptionHandler = default_exception_handler, template <typename> class SendCurrentState = default_send_current_state >
@@ -294,14 +310,26 @@ namespace stingray
 		};
 
 		explicit FORCE_INLINE signal(const NullPtrType&,
-									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler)
-			: base(exceptionHandler, &base::DefaultSendCurrentState)
+									 const ExceptionHandlerFunc& exceptionHandler,
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any)
+			: base(exceptionHandler, &base::DefaultSendCurrentState, connectionPolicy)
+		{ }
+
+		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState,
+									 const NullPtrType&,
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any)
+			: base(&stingray::Detail::DefaultSignalExceptionHandler, sendCurrentState, connectionPolicy)
+		{ }
+
+		explicit FORCE_INLINE signal(ConnectionPolicy connectionPolicy)
+			: base(&stingray::Detail::DefaultSignalExceptionHandler, &base::DefaultSendCurrentState, connectionPolicy)
 		{ }
 
 		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState,
-									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler)
-			: base(exceptionHandler, sendCurrentState)
-		{}
+									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler,
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any)
+			: base(exceptionHandler, sendCurrentState, connectionPolicy)
+		{ }
 
 		FORCE_INLINE void operator () () const
 		{
@@ -344,13 +372,25 @@ namespace stingray
 		}; \
 		\
 		explicit FORCE_INLINE signal(const NullPtrType&, \
-									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler) \
-			: base(exceptionHandler, &base::DefaultSendCurrentState) \
+									 const ExceptionHandlerFunc& exceptionHandler, \
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any) \
+			: base(exceptionHandler, &base::DefaultSendCurrentState, connectionPolicy) \
+		{ } \
+		\
+		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState, \
+									 const NullPtrType&, \
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any) \
+			: base(&stingray::Detail::DefaultSignalExceptionHandler, sendCurrentState, connectionPolicy) \
+		{ } \
+		\
+		explicit FORCE_INLINE signal(ConnectionPolicy connectionPolicy) \
+			: base(&stingray::Detail::DefaultSignalExceptionHandler, &base::DefaultSendCurrentState, connectionPolicy) \
 		{ } \
 		\
 		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState, \
-									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler) \
-			: base(exceptionHandler, sendCurrentState) \
+									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler, \
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any) \
+			: base(exceptionHandler, sendCurrentState, connectionPolicy) \
 		{ } \
 		\
 		FORCE_INLINE void operator () (Decl_) const \
