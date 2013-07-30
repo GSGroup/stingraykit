@@ -73,7 +73,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegRadioChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegService);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegTVChannel);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegAudioStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegPcrStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegSubtitlesStreamDescriptor);
