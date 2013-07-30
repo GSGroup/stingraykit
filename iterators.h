@@ -179,6 +179,31 @@ namespace stingray
 	weak_locker_iterator<WrappedIterator> weak_locker_end(const WrappedIterator&)
 	{ return weak_locker_iterator<WrappedIterator>(); }
 
+
+	template<typename IteratorT>
+	struct IteratorsRange
+	{
+		typedef IteratorT iterator;
+		typedef IteratorT const_iterator;
+
+	private:
+		IteratorT _begin;
+		IteratorT _end;
+
+	public:
+		IteratorsRange(const iterator& b, const iterator& e) : _begin(b), _end(e)
+		{}
+
+		iterator begin() const	{ return _begin; }
+		iterator end() const	{ return _end; }
+	};
+
+
+	template<typename IteratorT>
+	IteratorsRange<IteratorT> MakeIteratorsRange(const IteratorT& b, const IteratorT& e)
+	{ return IteratorsRange<IteratorT>(b, e); }
+
+
 }
 
 
