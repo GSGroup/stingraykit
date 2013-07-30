@@ -22,28 +22,25 @@ namespace stingray
 	template < size_t N > struct BindPlaceholder
 	{ static const size_t Index = N; };
 
-	namespace
-	{
-		BindPlaceholder<0>	_1;
-		BindPlaceholder<1>	_2;
-		BindPlaceholder<2>	_3;
-		BindPlaceholder<3>	_4;
-		BindPlaceholder<4>	_5;
-		BindPlaceholder<5>	_6;
-		BindPlaceholder<6>	_7;
-		BindPlaceholder<7>	_8;
-		BindPlaceholder<8>	_9;
-		BindPlaceholder<9>	_10;
-	}
+	static inline BindPlaceholder<0>	_1()	{ return BindPlaceholder<0>(); }
+	static inline BindPlaceholder<1>	_2()	{ return BindPlaceholder<1>(); }
+	static inline BindPlaceholder<2>	_3()	{ return BindPlaceholder<2>(); }
+	static inline BindPlaceholder<3>	_4()	{ return BindPlaceholder<3>(); }
+	static inline BindPlaceholder<4>	_5()	{ return BindPlaceholder<4>(); }
+	static inline BindPlaceholder<5>	_6()	{ return BindPlaceholder<5>(); }
+	static inline BindPlaceholder<6>	_7()	{ return BindPlaceholder<6>(); }
+	static inline BindPlaceholder<7>	_8()	{ return BindPlaceholder<7>(); }
+	static inline BindPlaceholder<8>	_9()	{ return BindPlaceholder<8>(); }
+	static inline BindPlaceholder<9>	_10()	{ return BindPlaceholder<9>(); }
 
 	namespace Detail
 	{
 		template < size_t N > struct Chomper
 		{ static const size_t Index = N; };
 
-		template < typename T > struct IsPlaceholder { static const bool Value = false; };
-		template < size_t N > struct IsPlaceholder<BindPlaceholder<N> > { static const bool Value = true; };
-		template < size_t N > struct IsPlaceholder<Chomper<N> > { static const bool Value = true; };
+		template < typename T > struct IsPlaceholder							{ static const bool Value = false; };
+		template < size_t N > struct IsPlaceholder<BindPlaceholder<N>(*)() >	{ static const bool Value = true; };
+		template < size_t N > struct IsPlaceholder<Chomper<N> >					{ static const bool Value = true; };
 
 
 		template < typename T >
@@ -51,7 +48,7 @@ namespace stingray
 		{ static const int Value = -1; };
 
 		template < size_t N >
-		struct GetPlaceholderIndex<BindPlaceholder<N> >
+		struct GetPlaceholderIndex<BindPlaceholder<N>(*)() >
 		{ static const int Value = N; };
 
 		template < size_t N >
@@ -77,13 +74,13 @@ namespace stingray
 			AbsentParamDummy(const T&) {}
 		};
 
-		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex> >::Value != -1 >
+		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value != -1 >
 		struct BinderSingleParamTypeGetter
 		{ typedef AbsentParamDummy ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex >
 		struct BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex, true>
-		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex> >::Value >::ValueT	ValueT; };
+		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value >::ValueT	ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex = 0, size_t Count = GetBinderParamsCount<AllParameters>::Value >
 		struct BinderParamTypesGetter
@@ -123,7 +120,7 @@ namespace stingray
 		{ typedef typename GetParamPassingType<OriginalParamType>::ValueT ValueT; };
 
 		template < size_t Index, typename BinderParams >
-		struct GetParamType<BindPlaceholder<Index>, BinderParams>
+		struct GetParamType<BindPlaceholder<Index>(*)(), BinderParams>
 		{ typedef typename GetParamPassingType<typename GetTypeListItem<BinderParams, Index>::ValueT>::ValueT	ValueT; };
 
 
@@ -144,7 +141,7 @@ namespace stingray
 			Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
 			{
 				typedef typename GetTypeListItem<AllParameters, Index>::ValueT Placeholder;
-				return GetTupleItem<Placeholder::Index>(binderParams);
+				return GetTupleItem<GetPlaceholderIndex<Placeholder>::Value>(binderParams);
 			}
 		};
 
@@ -384,7 +381,7 @@ namespace stingray
 #undef TY
 
 	template<size_t N>
-	Detail::Chomper<N> not_using(const BindPlaceholder<N>&) { return Detail::Chomper<N>(); }
+	Detail::Chomper<N> not_using(BindPlaceholder<N>(*)()) { return Detail::Chomper<N>(); }
 
 	/*! \endcond */
 
