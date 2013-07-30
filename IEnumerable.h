@@ -216,6 +216,27 @@ namespace stingray
 	{ return make_shared<Detail::JoiningEnumerable<EnumeratedT> >(first, second); }
 
 
+	template<typename EnumeratedT>
+	class EnumerableJoiner
+	{
+		typedef shared_ptr<IEnumerable<EnumeratedT> >	EnumerablePtr;
+
+	private:
+		EnumerablePtr	_result;
+
+	public:
+		operator EnumerablePtr () const { return _result; }
+		EnumerableJoiner& operator % (const EnumerablePtr& e)
+		{
+			if (_result)
+				_result = JoinEnumerables(_result, e);
+			else
+				_result = e;
+			return *this;
+		}
+	};
+
+
 }
 
 
