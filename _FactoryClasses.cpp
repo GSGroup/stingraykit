@@ -8,7 +8,6 @@
 #include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
 #include <stingray/hdmi/IHDMI.h>
-#include <stingray/media/MediaStreamDescriptor.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/parentalcontrol/AgeRating.h>
 #ifdef PLATFORM_EMU
@@ -54,8 +53,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AutoFilter);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MediaAudioStreamDescriptor);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MediaVideoStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
 #ifdef PLATFORM_EMU
