@@ -204,6 +204,77 @@ namespace stingray
 	{ return IteratorsRange<IteratorT>(b, e); }
 
 
+	namespace Detail
+	{
+		template<typename WrappedIterator, typename TransformFunc, typename TransformBackFunc, typename ResultType>
+		struct TransformerIteratorProxy
+		{
+		private:
+			WrappedIterator		_wrapped;
+			TransformFunc		_transform;
+			TransformBackFunc	_transformBack;
+
+		public:
+			TransformerIteratorProxy(const WrappedIterator& wrapped, const TransformFunc& transformFunc, const TransformBackFunc& transformBack) :
+				_wrapped(wrapped), _transform(transformFunc), _transformBack(transformBack)
+			{}
+
+			operator ResultType() const				{ return _transform(*_wrapped); }
+			void operator=(const ResultType& val)	{ *_wrapped = _transformBackFunc(val); }
+		};
+
+		struct EmptyType
+		{};
+	}
+
+
+	template<typename T, typename TransformFunc, typename TransformBackFunc, typename ResultType = typename function_info<TransformFunc>::RetType>
+	struct TransformerIterator :
+		public iterator_base<
+			TransformerIterator<T, TransformFunc, TransformBackFunc, ResultType>,
+			ResultType, typename std::iterator_traits<T>::iterator_category, std::ptrdiff_t, NullType,
+			Detail::TransformerIteratorProxy<T, TransformFunc, TransformBackFunc, ResultType> >
+	{
+		typedef iterator_base<
+			TransformerIterator<T, TransformFunc, TransformBackFunc, ResultType>,
+			ResultType, typename std::iterator_traits<T>::iterator_category, std::ptrdiff_t, NullType,
+			Detail::TransformerIteratorProxy<T, TransformFunc, TransformBackFunc, ResultType> > BaseType;
+
+		typedef T WrappedIterator;
+
+	private:
+		WrappedIterator		_wrapped;
+		TransformFunc		_transform;
+		TransformBackFunc	_transformBack;
+
+	public:
+		TransformerIterator(const WrappedIterator& wrapped, const TransformFunc& transformFunc, const TransformBackFunc& transformBack) :
+			_wrapped(wrapped), _transform(transformFunc), _transformBack(transformBack)
+		{ }
+
+		typename BaseType::reference dereference() const	{ return typename BaseType::reference(_wrapped, _transform, _transformBack); }
+		bool equal(const TransformerIterator& other) const	{ return _wrapped == other._wrapped; }
+		void increment()									{ ++_wrapped; }
+		void decrement()									{ --_wrapped; }
+
+		WrappedIterator base() const						{ return _wrapped; }
+	};
+
+
+	template<typename T, typename TransformFunc>
+	TransformerIterator<T, TransformFunc, Detail::EmptyType> TransformIterator(const T& iter, const TransformFunc& transformFunc)
+	{ return TransformerIterator<T, TransformFunc, Detail::EmptyType>(iter, transformFunc, Detail::EmptyType()); }
+
+
+	template<typename T, typename TransformFunc>
+	IteratorsRange<TransformerIterator<typename T::const_iterator, TransformFunc, Detail::EmptyType> > TransformRange(const T& range, const TransformFunc& transformFunc)
+	{
+		return IteratorsRange<TransformerIterator<typename T::const_iterator, TransformFunc, Detail::EmptyType> >(
+			TransformIterator(range.begin(), transformFunc),
+			TransformIterator(range.end(), transformFunc));
+	}
+
+
 }
 
 
