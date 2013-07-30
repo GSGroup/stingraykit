@@ -11,7 +11,7 @@
 namespace stingray
 {
 
-	
+
 	template < typename T >
 	class StlEnumeratorAdapter : public std::iterator< std::forward_iterator_tag, T >
 	{
@@ -55,10 +55,20 @@ namespace stingray
 	FORCE_INLINE StlEnumeratorAdapter<T> Wrap(shared_ptr<IEnumerator<T> > enumerator)
 	{ return StlEnumeratorAdapter<T>(enumerator); }
 
+
 	template < typename T >
 	FORCE_INLINE StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerator<T> >/* enumerator*/)
 	{ return StlEnumeratorAdapter<T>(); }
 
+
+	template < typename T >
+	FORCE_INLINE StlEnumeratorAdapter<T> Wrap(shared_ptr<IEnumerable<T> > enumerable)
+	{ return StlEnumeratorAdapter<T>(enumerable->GetEnumerator()); }
+
+
+	template < typename T >
+	FORCE_INLINE StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerable<T> >/* enumerator*/)
+	{ return StlEnumeratorAdapter<T>(); }
 
 }
 
