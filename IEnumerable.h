@@ -190,6 +190,32 @@ namespace stingray
 	{ return Detail::EnumerableCaster<typename T::ItemType>(enumerable); }
 
 
+	namespace Detail
+	{
+		template<typename EnumeratedT>
+		class JoiningEnumerable : public virtual IEnumerable<EnumeratedT>
+		{
+			typedef shared_ptr<IEnumerable<EnumeratedT> > TargetEnumerablePtr;
+
+			TargetEnumerablePtr _first, _second;
+
+		public:
+			JoiningEnumerable(const TargetEnumerablePtr& first, const TargetEnumerablePtr& second) :
+				_first(TOOLKIT_REQUIRE_NOT_NULL(first)),
+				_second(TOOLKIT_REQUIRE_NOT_NULL(second))
+			{}
+
+			virtual shared_ptr<IEnumerator<EnumeratedT> > GetEnumerator() const
+			{ return JoinEnumerators(_first->GetEnumerator(), _second->GetEnumerator()); }
+		};
+	}
+
+
+	template<typename EnumeratedT>
+	shared_ptr<IEnumerable<EnumeratedT> > JoinEnumerables(const shared_ptr<IEnumerable<EnumeratedT> >& first, const shared_ptr<IEnumerable<EnumeratedT> >& second)
+	{ return make_shared<Detail::JoiningEnumerable<EnumeratedT> >(first, second); }
+
+
 }
 
 
