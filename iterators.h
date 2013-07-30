@@ -275,6 +275,35 @@ namespace stingray
 	}
 
 
+	namespace Detail
+	{
+		template<typename DstType, typename SrcType>
+		struct IteratorCaster
+		{
+			typedef DstType RetType;
+			DstType operator() (const SrcType& src) const
+			{ return TOOLKIT_CHECKED_DYNAMIC_CASTER(src); }
+		};
+	}
+
+	template<typename DstType, typename SrcType, typename SrcIterType>
+	TransformerIterator<SrcIterType, Detail::IteratorCaster<DstType, SrcType>, Detail::IteratorCaster<SrcType, DstType> > CastIterator(const SrcIterType& iter)
+	{
+		return TransformerIterator<SrcIterType, Detail::IteratorCaster<DstType, SrcType>, Detail::IteratorCaster<SrcType, DstType> >(iter, Detail::IteratorCaster<DstType, SrcType>(), Detail::IteratorCaster<SrcType, DstType>());
+	}
+
+
+	template<typename DstType, typename RangeType>
+	IteratorsRange<TransformerIterator<typename RangeType::const_iterator, Detail::IteratorCaster<DstType, typename RangeType::iterator::value_type>, Detail::IteratorCaster<typename RangeType::iterator::value_type, DstType> > > CastRange(const RangeType& range)
+	{
+		typedef typename RangeType::iterator::value_type SrcType;
+
+		return IteratorsRange<TransformerIterator<typename RangeType::const_iterator, Detail::IteratorCaster<DstType, SrcType>, Detail::IteratorCaster<SrcType, DstType> > >(
+			CastIterator<DstType, SrcType>(range.begin()),
+			CastIterator<DstType, SrcType>(range.end()));
+	}
+
+
 }
 
 
