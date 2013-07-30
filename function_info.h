@@ -15,11 +15,11 @@ namespace stingray
 	{
 		TOOLKIT_ENUM_VALUES
 		(
-			RawFunction, 
+			RawFunction,
 			RawFunctionPtr,
 			MethodPtr,
-			GSFunction, 
-			StdFunction, 
+			GSFunction,
+			StdFunction,
 			Other
 		);
 
@@ -28,7 +28,7 @@ namespace stingray
 
 
 #define TY typename
-	
+
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_info;
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
@@ -198,7 +198,7 @@ namespace stingray
 
 	template < typename Signature >
 	struct function_info<function<Signature>, NullType > : public function_type<function<Signature> >
-	{ 
+	{
 		typedef typename function_info<Signature>::RetType		RetType;
 		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
 	};
@@ -223,14 +223,14 @@ namespace stingray
 
 			template < typename R, typename T1 >
 			static _1_ Test(const std::unary_function<T1, R>*);
-			
+
 			static _wtf_ Test(...);
 			CompileTimeAssert<sizeof(_1_) != sizeof(_2_) && sizeof(_2_) != sizeof(_wtf_) && sizeof(_1_) != sizeof(_wtf_)> ERROR__type_detectors_dont_work;
 		public:
-			static const int Value = 
-				(sizeof(Test((const F*)0)) == sizeof(_1_) 
-					? 1 
-					: (sizeof(Test((const F*)0)) == sizeof(_2_) 
+			static const int Value =
+				(sizeof(Test((const F*)0)) == sizeof(_1_)
+					? 1
+					: (sizeof(Test((const F*)0)) == sizeof(_2_)
 						? 2
 						: -1
 					)
@@ -277,7 +277,7 @@ namespace stingray
 		struct std_function_info<F, 2> : public std_function_type<F>, public std::binary_function<typename F::first_argument_type, typename F::second_argument_type, typename F::result_type>
 		{
 			typedef typename F::result_type						RetType;
-			typedef TYPELIST(typename F::first_argument_type, 
+			typedef TYPELIST(typename F::first_argument_type,
 							 typename F::second_argument_type)	ParamTypes;
 		};
 	}
