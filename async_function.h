@@ -31,7 +31,7 @@ namespace stingray
 			TaskLifeToken			_token;
 
 		protected:
-			FORCE_INLINE async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
+			inline async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
 				: _executor(TOOLKIT_REQUIRE_NOT_NULL(executor)), _func(func)
 			{ }
 
@@ -42,7 +42,7 @@ namespace stingray
 					executor_l->AddTask(func, _token.GetExecutionTester());
 			}
 
-			FORCE_INLINE ~async_function_base() { }
+			inline ~async_function_base() { }
 
 		public:
 			TaskLifeToken GetToken() const { return _token; }
@@ -67,7 +67,7 @@ namespace stingray
 			TaskLifeToken			_token;
 
 		protected:
-			FORCE_INLINE async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
+			inline async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
 				: _executor(TOOLKIT_REQUIRE_NOT_NULL(executor)), _func(func)
 			{ }
 
@@ -80,7 +80,7 @@ namespace stingray
 				return promise->get_future();
 			}
 
-			FORCE_INLINE ~async_function_base() { }
+			inline ~async_function_base() { }
 
 		private:
 			static void FuncWrapper(const function<AsyncRetType()>& func, const PromiseTypePtr& promise)
@@ -107,11 +107,11 @@ namespace stingray
 		typedef Detail::async_function_base<R()>	base;
 
 	public:
-		FORCE_INLINE async_function(const ITaskExecutorPtr& executor, const function<R()>& func)
+		inline async_function(const ITaskExecutorPtr& executor, const function<R()>& func)
 			: base(executor, func)
 		{ }
 
-		FORCE_INLINE typename base::RetType  operator ()() const { return base::DoAddTask(base::_func); }
+		inline typename base::RetType  operator ()() const { return base::DoAddTask(base::_func); }
 	};
 
 

@@ -70,7 +70,7 @@ namespace stingray
 			TaskLifeToken							_token;
 
 		public:
-			FORCE_INLINE ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it, const TaskLifeToken& token)
+			inline ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it, const TaskLifeToken& token)
 				: _handlers(handlers), _it(it), _token(token)
 			{ _getVTable = &GetVTable; }
 
@@ -116,10 +116,10 @@ namespace stingray
 		Detail::ISignalConnectionSelfCountPtr	_impl;
 
 	public:
-		FORCE_INLINE signal_connection()
+		inline signal_connection()
 		{ }
 
-		FORCE_INLINE explicit signal_connection(const Detail::ISignalConnectionSelfCountPtr& impl)
+		inline explicit signal_connection(const Detail::ISignalConnectionSelfCountPtr& impl)
 			: _impl(impl)
 		{ }
 
@@ -143,13 +143,13 @@ namespace stingray
 		signal_connection _connection;
 
 	public:
-		FORCE_INLINE signal_connection_holder() {}
-		FORCE_INLINE signal_connection_holder(const signal_connection& connection) : _connection(connection) {}
-		FORCE_INLINE ~signal_connection_holder() { _connection.disconnect(); }
-		FORCE_INLINE bool connected() const { return _connection.connected(); }
-		FORCE_INLINE void disconnect() { _connection.disconnect(); }
+		inline signal_connection_holder() {}
+		inline signal_connection_holder(const signal_connection& connection) : _connection(connection) {}
+		inline ~signal_connection_holder() { _connection.disconnect(); }
+		inline bool connected() const { return _connection.connected(); }
+		inline void disconnect() { _connection.disconnect(); }
 
-		FORCE_INLINE signal_connection_holder& operator=(const signal_connection &connection)
+		inline signal_connection_holder& operator=(const signal_connection &connection)
 		{
 			_connection.disconnect();
 			_connection = connection;

@@ -268,7 +268,7 @@ namespace stingray
 				{ }
 
 				template < size_t Index >
-				FORCE_INLINE typename GetParamType<typename GetTypeListItem<RealRealParameters, Index>::ValueT, BinderParams>::ValueT
+				inline typename GetParamType<typename GetTypeListItem<RealRealParameters, Index>::ValueT, BinderParams>::ValueT
 				Get() const
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_bindedParams, _binderParams); }
 			};
@@ -308,7 +308,7 @@ namespace stingray
 				: base(func, allParams)
 			{ }
 
-			FORCE_INLINE RetType operator () () const
+			inline RetType operator () () const
 			{
 				typedef TypeList_0	BinderParams;
 				Tuple<BinderParams> call_params;
@@ -332,7 +332,7 @@ namespace stingray
 				: base(func, allParams) \
 			{ } \
 			\
-			FORCE_INLINE RetType operator () (CallParamsDecl_) const  \
+			inline RetType operator () (CallParamsDecl_) const  \
 			{ \
 				Tuple<ParamTypes> call_params(CallParamsUsage_); \
 				typename base::template RealParameters<ParamTypes> rp(base::_bindedParams, call_params); \

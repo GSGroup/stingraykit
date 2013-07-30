@@ -136,7 +136,7 @@ namespace stingray
 
 		shared_ptr<HandlersType>										_handlers;
 
-		FORCE_INLINE threaded_signal_base_base()
+		inline threaded_signal_base_base()
 			: _handlers(new std::pair<Handlers, Mutex>)
 		{ }
 
@@ -189,13 +189,13 @@ namespace stingray
 		ConnectionPolicy												_connectionPolicy;
 
 	protected:
-		FORCE_INLINE threaded_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
+		inline threaded_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
 			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _connectionPolicy(connectionPolicy)
 		{ }
 
-		FORCE_INLINE ~threaded_signal_base() { }
+		inline ~threaded_signal_base() { }
 
-		FORCE_INLINE void InvokeAll(const Tuple<ParamTypes>& p) const
+		inline void InvokeAll(const Tuple<ParamTypes>& p) const
 		{
 			InvokeAll(p, this->GetExceptionHandler());
 		}
@@ -282,7 +282,7 @@ namespace stingray
 		typedef typename base::ExceptionHandlerFunc ExceptionHandlerFunc;
 		typedef typename base::SendCurrentStateFunc SendCurrentStateFunc;
 
-		explicit FORCE_INLINE signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
+		explicit inline signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
 	};
 
 	template < typename Signature, typename Strategy = threaded_signal_strategy, typename ExceptionHandler = default_exception_handler, template <typename> class SendCurrentState = default_send_current_state >
@@ -304,40 +304,40 @@ namespace stingray
 			const signal&	_signal;
 
 		public:
-			FORCE_INLINE CopyableRef(const signal& theSignal) : _signal(theSignal) { }
-			FORCE_INLINE void operator () () const
+			inline CopyableRef(const signal& theSignal) : _signal(theSignal) { }
+			inline void operator () () const
 			{ _signal(); }
 		};
 
-		explicit FORCE_INLINE signal(const NullPtrType&,
+		explicit inline signal(const NullPtrType&,
 									 const ExceptionHandlerFunc& exceptionHandler,
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any)
 			: base(exceptionHandler, &base::DefaultSendCurrentState, connectionPolicy)
 		{ }
 
-		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState,
+		explicit inline signal(const SendCurrentStateFunc& sendCurrentState,
 									 const NullPtrType&,
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any)
 			: base(&stingray::Detail::DefaultSignalExceptionHandler, sendCurrentState, connectionPolicy)
 		{ }
 
-		explicit FORCE_INLINE signal(ConnectionPolicy connectionPolicy)
+		explicit inline signal(ConnectionPolicy connectionPolicy)
 			: base(&stingray::Detail::DefaultSignalExceptionHandler, &base::DefaultSendCurrentState, connectionPolicy)
 		{ }
 
-		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState,
+		explicit inline signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState,
 									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler,
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any)
 			: base(exceptionHandler, sendCurrentState, connectionPolicy)
 		{ }
 
-		FORCE_INLINE void operator () () const
+		inline void operator () () const
 		{
 			Tuple<TypeList_0> p;
 			this->InvokeAll(p);
 		}
 
-		FORCE_INLINE void call(const ExceptionHandlerFunc& exceptionHandler) const
+		inline void call(const ExceptionHandlerFunc& exceptionHandler) const
 		{
 			Tuple<TypeList_0> p;
 			this->InvokeAll(p, exceptionHandler);
@@ -366,40 +366,40 @@ namespace stingray
 			const signal&	_signal; \
 			\
 		public: \
-			FORCE_INLINE CopyableRef(const signal& theSignal) : _signal(theSignal) { } \
-			FORCE_INLINE void operator () (Decl_) const \
+			inline CopyableRef(const signal& theSignal) : _signal(theSignal) { } \
+			inline void operator () (Decl_) const \
 			{ _signal(Usage_); } \
 		}; \
 		\
-		explicit FORCE_INLINE signal(const NullPtrType&, \
+		explicit inline signal(const NullPtrType&, \
 									 const ExceptionHandlerFunc& exceptionHandler, \
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any) \
 			: base(exceptionHandler, &base::DefaultSendCurrentState, connectionPolicy) \
 		{ } \
 		\
-		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState, \
+		explicit inline signal(const SendCurrentStateFunc& sendCurrentState, \
 									 const NullPtrType&, \
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any) \
 			: base(&stingray::Detail::DefaultSignalExceptionHandler, sendCurrentState, connectionPolicy) \
 		{ } \
 		\
-		explicit FORCE_INLINE signal(ConnectionPolicy connectionPolicy) \
+		explicit inline signal(ConnectionPolicy connectionPolicy) \
 			: base(&stingray::Detail::DefaultSignalExceptionHandler, &base::DefaultSendCurrentState, connectionPolicy) \
 		{ } \
 		\
-		explicit FORCE_INLINE signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState, \
+		explicit inline signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState, \
 									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler, \
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any) \
 			: base(exceptionHandler, sendCurrentState, connectionPolicy) \
 		{ } \
 		\
-		FORCE_INLINE void operator () (Decl_) const \
+		inline void operator () (Decl_) const \
 		{ \
 			Tuple<TYPELIST(Types_)> p(Usage_); \
 			this->InvokeAll(p); \
 		} \
 		\
-		FORCE_INLINE void call(Decl_, const ExceptionHandlerFunc& exceptionHandler) const \
+		inline void call(Decl_, const ExceptionHandlerFunc& exceptionHandler) const \
 		{ \
 			Tuple<TYPELIST(Types_)> p(Usage_); \
 			this->InvokeAll(p, exceptionHandler); \

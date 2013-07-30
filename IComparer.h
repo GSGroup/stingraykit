@@ -35,7 +35,7 @@ namespace stingray
 		shared_ptr<IComparer<T> >	_originalComparer;
 
 	public:
-		FORCE_INLINE InverseComparer(shared_ptr<IComparer<T> > originalComparer) 
+		inline InverseComparer(shared_ptr<IComparer<T> > originalComparer)
 			: _originalComparer(originalComparer)
 		{ }
 
@@ -45,7 +45,7 @@ namespace stingray
 
 
 	template < typename T >
-	FORCE_INLINE shared_ptr<IComparer<T> > Invert(const shared_ptr<IComparer<T> >& comparer)
+	inline shared_ptr<IComparer<T> > Invert(const shared_ptr<IComparer<T> >& comparer)
 	{ return make_shared<InverseComparer<T> >(comparer); }
 
 }

@@ -27,7 +27,7 @@ public:
 };
 
 template<typename Container>
-FORCE_INLINE shared_copy_back_insert_iterator<Container> shared_copy_back_inserter(Container& container)
+inline shared_copy_back_insert_iterator<Container> shared_copy_back_inserter(Container& container)
 { return shared_copy_back_insert_iterator<Container>(container); }
 
 
@@ -92,7 +92,7 @@ private:
 		while(_currentIterator != _endIterator && !AquireAssurance())
 			++_currentIterator;
 	}
-	FORCE_INLINE void CheckBounds() const
+	inline void CheckBounds() const
 	{
 #if defined(DEBUG)
 		TOOLKIT_CHECK(_currentIterator != _endIterator, IndexOutOfRangeException());

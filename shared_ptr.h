@@ -86,14 +86,14 @@ namespace stingray
 		ref_count		_refCount;
 
 	private:
-		FORCE_INLINE shared_ptr(T* rawPtr, const ref_count& refCount)
+		inline shared_ptr(T* rawPtr, const ref_count& refCount)
 			: _rawPtr(rawPtr), _refCount(refCount)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); }
 
 	public:
 		typedef T ValueType;
 
-		explicit FORCE_INLINE shared_ptr(T* rawPtr)
+		explicit inline shared_ptr(T* rawPtr)
 			: _rawPtr(rawPtr), _refCount()
 		{
 			if (_rawPtr)
@@ -101,31 +101,31 @@ namespace stingray
 			init_enable_shared_from_this(rawPtr);
 		}
 
-		FORCE_INLINE shared_ptr()
+		inline shared_ptr()
 			: _rawPtr(), _refCount(null)
 		{ }
 
-		FORCE_INLINE shared_ptr(const NullPtrType&)
+		inline shared_ptr(const NullPtrType&)
 			: _rawPtr(), _refCount(null)
 		{ }
 
 		template < typename U >
-		FORCE_INLINE shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0)
+		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _refCount(other._refCount)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); } // Do not init enable_shared_from_this in copy ctor
 
-		FORCE_INLINE shared_ptr(const shared_ptr<T>& other)
+		inline shared_ptr(const shared_ptr<T>& other)
 			: _rawPtr(other._rawPtr), _refCount(other._refCount)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); } // Do not init enable_shared_from_this in copy ctor
 
-		FORCE_INLINE ~shared_ptr()
+		inline ~shared_ptr()
 		{
 			if (_rawPtr && Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr, this) == 0)
 				delete _rawPtr;
 		}
 
 
-		FORCE_INLINE shared_ptr<T>& operator = (const shared_ptr<T>& other)
+		inline shared_ptr<T>& operator = (const shared_ptr<T>& other)
 		{
 			shared_ptr<T> tmp(other);
 			swap(tmp);
@@ -140,15 +140,15 @@ namespace stingray
 			return *this;
 		}
 
-		FORCE_INLINE bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
-		FORCE_INLINE bool operator != (T* ptr) const						{ return !(*this == ptr); }
-		FORCE_INLINE bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
-		FORCE_INLINE bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
-		FORCE_INLINE bool boolean_test() const { return _rawPtr != 0; }
+		inline bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
+		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
+		inline bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
+		inline bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
+		inline bool boolean_test() const { return _rawPtr != 0; }
 
-		FORCE_INLINE weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
+		inline weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
 
-		FORCE_INLINE bool release_if_unique()
+		inline bool release_if_unique()
 		{
 			if (!_rawPtr)
 				return true;
@@ -162,13 +162,13 @@ namespace stingray
 			return true;
 		}
 
-		FORCE_INLINE bool unique() const
+		inline bool unique() const
 		{ return !_rawPtr || _refCount.get() == 1; }
 
-		FORCE_INLINE size_t get_ref_count() const
+		inline size_t get_ref_count() const
 		{ return _rawPtr? _refCount.get(): 0; }
 
-		FORCE_INLINE void reset(T* ptr = 0)
+		inline void reset(T* ptr = 0)
 		{
 			shared_ptr<T> tmp(ptr);
 			swap(tmp);
@@ -178,15 +178,15 @@ namespace stingray
 			//new(this) shared_ptr(ptr);
 		}
 
-		FORCE_INLINE void swap(shared_ptr<T>& other)
+		inline void swap(shared_ptr<T>& other)
 		{
 			std::swap(_rawPtr, other._rawPtr);
 			_refCount.swap(other._refCount);
 		}
 
-		FORCE_INLINE T* get() const			{ return _rawPtr; }
-		FORCE_INLINE T* operator -> () const	{ check_ptr(); return _rawPtr; }
-		FORCE_INLINE T& operator * () const	{ check_ptr(); return *_rawPtr; }
+		inline T* get() const			{ return _rawPtr; }
+		inline T* operator -> () const	{ check_ptr(); return _rawPtr; }
+		inline T& operator * () const	{ check_ptr(); return *_rawPtr; }
 
 		template<typename U> bool owner_before(shared_ptr<U> const& other) const
 		{ return _refCount.get_ptr() < other._refCount.get_ptr(); }
@@ -195,14 +195,14 @@ namespace stingray
 
 	private:
 		template < typename U >
-		FORCE_INLINE void init_enable_shared_from_this(const enable_shared_from_this<U>* esft) const
+		inline void init_enable_shared_from_this(const enable_shared_from_this<U>* esft) const
 		{ if (esft) esft->init(*this); }
 
-		FORCE_INLINE void init_enable_shared_from_this(...) const
+		inline void init_enable_shared_from_this(...) const
 		{ }
 
 
-		FORCE_INLINE void check_ptr() const
+		inline void check_ptr() const
 		{
 			if (!_rawPtr)
 			{
@@ -226,34 +226,34 @@ namespace stingray
 		mutable ref_count	_refCount;
 
 	private:
-		FORCE_INLINE weak_ptr(T* rawPtr, const ref_count& refCount)
+		inline weak_ptr(T* rawPtr, const ref_count& refCount)
 			: _rawPtr(rawPtr), _refCount(refCount)
 		{ }
 
 	public:
-		FORCE_INLINE weak_ptr()
+		inline weak_ptr()
 			: _rawPtr(), _refCount(null)
 		{ }
 
-		FORCE_INLINE weak_ptr(const shared_ptr<T>& sharedPtr)
+		inline weak_ptr(const shared_ptr<T>& sharedPtr)
 			: _rawPtr(sharedPtr._rawPtr), _refCount(sharedPtr._refCount)
 		{ }
 
-		FORCE_INLINE weak_ptr(const NullPtrType&)
+		inline weak_ptr(const NullPtrType&)
 			: _rawPtr(), _refCount(null)
 		{ }
 
 		template < typename U >
-		FORCE_INLINE weak_ptr(const shared_ptr<U>& sharedPtr)
+		inline weak_ptr(const shared_ptr<U>& sharedPtr)
 			: _rawPtr(sharedPtr._rawPtr), _refCount(sharedPtr._refCount)
 		{ }
 
 		template < typename U >
-		FORCE_INLINE weak_ptr(const weak_ptr<U>& other)
+		inline weak_ptr(const weak_ptr<U>& other)
 			: _rawPtr(other._rawPtr), _refCount(other._refCount)
 		{ }
 
-		FORCE_INLINE shared_ptr<T> lock() const
+		inline shared_ptr<T> lock() const
 		{
 			if (!_rawPtr)
 				return shared_ptr<T>();
@@ -271,13 +271,13 @@ namespace stingray
 			return result;
 		}
 
-		FORCE_INLINE void reset()
+		inline void reset()
 		{ _rawPtr = 0; _refCount = null; }
 
-		FORCE_INLINE size_t get_ref_count() const
+		inline size_t get_ref_count() const
 		{ return _rawPtr? _refCount.get(): 0; }
 
-		FORCE_INLINE bool expired() const	{ return !_rawPtr || _refCount.get() == 0; }
+		inline bool expired() const	{ return !_rawPtr || _refCount.get() == 0; }
 
 		template<typename U> bool owner_before(shared_ptr<U> const& other) const
 		{ return _refCount.get_ptr() < other._refCount.get_ptr(); }
@@ -322,7 +322,7 @@ namespace stingray
 	{ typedef T* ValueT; };
 
 	template < typename T >
-	FORCE_INLINE T* to_pointer(const shared_ptr<T>& ptr) { return ptr.get(); }
+	inline T* to_pointer(const shared_ptr<T>& ptr) { return ptr.get(); }
 
 
 	namespace Detail
@@ -348,7 +348,7 @@ namespace stingray
 	{ typedef Detail::WeakPtrToPointerProxy<T> ValueT; };
 
 	template < typename T >
-	FORCE_INLINE Detail::WeakPtrToPointerProxy<T> to_pointer(const weak_ptr<T>& ptr) { return ptr; }
+	inline Detail::WeakPtrToPointerProxy<T> to_pointer(const weak_ptr<T>& ptr) { return ptr; }
 
 
 	namespace Detail
@@ -369,7 +369,7 @@ namespace stingray
 	}
 
 	template < typename DestType, typename SrcType >
-	FORCE_INLINE shared_ptr<DestType> dynamic_pointer_cast(const shared_ptr<SrcType>& src)
+	inline shared_ptr<DestType> dynamic_pointer_cast(const shared_ptr<SrcType>& src)
 	{
 		DestType* rawDest = Detail::DynamicCastHelper<DestType, SrcType>::Do(src.get());
 		if (rawDest == NULL)
@@ -379,7 +379,7 @@ namespace stingray
 	}
 
 	template < typename DestType, typename SrcType >
-	FORCE_INLINE weak_ptr<DestType> dynamic_pointer_cast(const weak_ptr<SrcType>& src)
+	inline weak_ptr<DestType> dynamic_pointer_cast(const weak_ptr<SrcType>& src)
 	{
 		DestType* rawDest = Detail::DynamicCastHelper<DestType, SrcType>::Do(src._rawPtr);
 		if (rawDest == NULL)
@@ -393,7 +393,7 @@ namespace stingray
 	struct InstanceOfTester< shared_ptr<T> >
 	{
 		template < typename DestType >
-		static FORCE_INLINE bool Test(const shared_ptr<const T>& ptr)
+		static inline bool Test(const shared_ptr<const T>& ptr)
 		{ return (dynamic_cast<const DestType*>(ptr.get()) != 0); }
 	};
 

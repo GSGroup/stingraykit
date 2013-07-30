@@ -56,9 +56,9 @@ namespace stingray
 			typedef ByteDataIterator<T>			iterator;
 			typedef ByteDataIterator<const T>	const_iterator;
 
-			static FORCE_INLINE iterator CreateIterator(T* ptr, T* begin, T* end)
+			static inline iterator CreateIterator(T* ptr, T* begin, T* end)
 			{ return iterator(ptr, begin, end); }
-			static FORCE_INLINE const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
+			static inline const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
 			{ return const_iterator(ptr, begin, end); }
 		};
 #else
@@ -68,9 +68,9 @@ namespace stingray
 			typedef T*			iterator;
 			typedef const T*	const_iterator;
 
-			static FORCE_INLINE iterator CreateIterator(T* ptr, T* begin, T* end)
+			static inline iterator CreateIterator(T* ptr, T* begin, T* end)
 			{ (void)begin; (void)end; return iterator(ptr); }
-			static FORCE_INLINE const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
+			static inline const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
 			{ (void)begin; (void)end; return const_iterator(ptr); }
 		};
 #endif
@@ -159,17 +159,17 @@ namespace stingray
 			}
 		}
 
-		FORCE_INLINE T& operator[](size_t index) const
+		inline T& operator[](size_t index) const
 		{
 			if (index >= size())
 				TOOLKIT_THROW(IndexOutOfRangeException(index, size()));
 			return (*_data)[index + _offset];
 		}
 
-		FORCE_INLINE size_t size() const
+		inline size_t size() const
 		{ return std::min(_data->size() - _offset, _sizeLimit); }
 
-		FORCE_INLINE bool empty() const
+		inline bool empty() const
 		{ return ((int)(_data->size()) - (int)_offset) <= 0; }
 
 		template <typename U>
@@ -306,7 +306,7 @@ namespace stingray
 
 		inline bool CheckIterator(const const_iterator& it) const	{ return std::distance(it, end()) > 0; }
 
-		FORCE_INLINE T& operator[](size_t index) const
+		inline T& operator[](size_t index) const
 		{
 			if (index >= _size)
 				TOOLKIT_THROW(IndexOutOfRangeException(index, _size));
@@ -316,10 +316,10 @@ namespace stingray
 		inline T* data()				{ return _data; }
 		inline const T* data() const	{ return _data; }
 
-		FORCE_INLINE size_t size() const
+		inline size_t size() const
 		{ return _size; }
 
-		FORCE_INLINE bool empty() const
+		inline bool empty() const
 		{ return _size == 0; }
 
 		iterator begin() const

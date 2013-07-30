@@ -16,32 +16,32 @@ namespace stingray
 		T* _rawPtr;
 
 	public:
-		explicit FORCE_INLINE unique_ptr(T* rawPtr = 0) :
+		explicit inline unique_ptr(T* rawPtr = 0) :
 			_rawPtr(rawPtr)
 		{}
 
 		~unique_ptr()
 		{ delete _rawPtr; }
 
-		FORCE_INLINE bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
-		FORCE_INLINE bool operator != (T* ptr) const						{ return !(*this == ptr); }
-		FORCE_INLINE bool operator == (const unique_ptr<T>& other) const	{ return other == _rawPtr; }
-		FORCE_INLINE bool operator != (const unique_ptr<T>& other) const	{ return !(*this == other); }
-		FORCE_INLINE bool boolean_test() const								{ return _rawPtr != 0; }
-		FORCE_INLINE T* get() const											{ return _rawPtr; }
-		FORCE_INLINE T* operator -> () const								{ check_ptr(); return _rawPtr; }
-		FORCE_INLINE T& operator * () const									{ check_ptr(); return *_rawPtr; }
-		FORCE_INLINE T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }
-		FORCE_INLINE void swap(unique_ptr<T>& other)						{ std::swap(_rawPtr, other._rawPtr); }
+		inline bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
+		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
+		inline bool operator == (const unique_ptr<T>& other) const	{ return other == _rawPtr; }
+		inline bool operator != (const unique_ptr<T>& other) const	{ return !(*this == other); }
+		inline bool boolean_test() const							{ return _rawPtr != 0; }
+		inline T* get() const										{ return _rawPtr; }
+		inline T* operator -> () const								{ check_ptr(); return _rawPtr; }
+		inline T& operator * () const								{ check_ptr(); return *_rawPtr; }
+		inline T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }
+		inline void swap(unique_ptr<T>& other)						{ std::swap(_rawPtr, other._rawPtr); }
 
-		FORCE_INLINE void reset(T* ptr = 0)
+		inline void reset(T* ptr = 0)
 		{
 			delete _rawPtr;
 			_rawPtr = ptr;
 		}
 
 	private:
-		FORCE_INLINE void check_ptr() const
+		inline void check_ptr() const
 		{ TOOLKIT_CHECK(_rawPtr, NullPointerException()); }
 	};
 
