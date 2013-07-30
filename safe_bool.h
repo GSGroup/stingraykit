@@ -24,7 +24,7 @@ template <typename T = void> class safe_bool : private safe_bool_base {
 public:
 	FORCE_INLINE operator bool_type() const
 	{
-		return (static_cast<const T*>(this))->boolean_test()? &safe_bool_base::this_type_does_not_support_comparisons : 0;
+		return (static_cast<const T*>(this))->boolean_test()? &safe_bool::this_type_does_not_support_comparisons : 0;
 	}
 
 protected:

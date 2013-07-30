@@ -65,7 +65,7 @@ namespace stingray
 	public:
 		template < typename TupleLikeObject >
 		FORCE_INLINE Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
-			: _val(tupleLikeObject.Get<0>()), _tail(tag, TupleShifter<TupleLikeObject>(tupleLikeObject))
+			: _val(tupleLikeObject.template Get<0>()), _tail(tag, TupleShifter<TupleLikeObject>(tupleLikeObject))
 		{ }
 
 		template < typename TupleLikeObject >
