@@ -18,9 +18,6 @@ namespace stingray
 
 	namespace Detail
 	{
-		TOOLKIT_DECLARE_NESTED_TYPE_CHECK(RetType);
-		TOOLKIT_DECLARE_NESTED_TYPE_CHECK(ParamTypes);
-
 		template<typename FunctorType, bool B = function_type<FunctorType>::Type == FunctionType::Other>
 		struct FunctorTypeValidator
 		{ static const bool Value = HasNestedType_RetType<FunctorType>::Value && HasNestedType_ParamTypes<FunctorType>::Value; };

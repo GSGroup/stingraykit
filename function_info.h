@@ -250,15 +250,10 @@ namespace stingray
 		{ };
 
 		template < typename F, int StlFunctorNumArguments = GetStlFunctorNumArguments<F>::Value >
-		struct std_function_type
-		{ static const FunctionType::Enum Type = FunctionType::Other; };
+		struct std_function_type;
 
 		template < typename F, int StlFunctorNumArguments = GetStlFunctorNumArguments<F>::Value >
-		struct std_function_info : public std_function_type<F>, public StdSomethingnaryFunctionMixin<typename F::RetType, typename F::ParamTypes >
-		{
-			typedef typename F::RetType		RetType;
-			typedef typename F::ParamTypes	ParamTypes;
-		};
+		struct std_function_info;
 
 		template < typename F> struct std_function_type<F, 1>
 		{ static const FunctionType::Enum Type = FunctionType::StdFunction; };
@@ -279,6 +274,36 @@ namespace stingray
 			typedef typename F::result_type						RetType;
 			typedef TYPELIST(typename F::first_argument_type,
 							 typename F::second_argument_type)	ParamTypes;
+		};
+
+
+		template < typename F >
+		struct std_function_type<F, -1>
+		{ static const FunctionType::Enum Type = FunctionType::Other; };
+
+
+		TOOLKIT_DECLARE_NESTED_TYPE_CHECK(RetType);
+		TOOLKIT_DECLARE_NESTED_TYPE_CHECK(ParamTypes);
+
+		template < typename F, bool HasParamTypes = HasNestedType_ParamTypes<F>::Value >
+		struct GenericFunctionInfo
+		{
+			typedef typename F::RetType		RetType;
+			typedef typename F::ParamTypes	ParamTypes;
+		};
+
+		template < typename F >
+		struct GenericFunctionInfo<F, false>
+		{
+			typedef typename F::RetType	RetType;
+			typedef NullType			ParamTypes;
+		};
+
+		template < typename F >
+		struct std_function_info<F, -1> : public std_function_type<F>
+		{
+			typedef typename GenericFunctionInfo<F>::RetType	RetType;
+			typedef typename GenericFunctionInfo<F>::ParamTypes	ParamTypes;
 		};
 	}
 
