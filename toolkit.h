@@ -20,7 +20,7 @@ namespace stingray
 	};
 }
 
-#if (__GNUC__ >= 3) && !defined(PRODUCTION_BUILD)
+#if (__GNUC__ >= 3 || defined(__clang__)) && !defined(PRODUCTION_BUILD)
 #	define TOOLKIT_FUNCTION __PRETTY_FUNCTION__
 #else
 #	define TOOLKIT_FUNCTION __func__
