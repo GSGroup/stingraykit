@@ -23,6 +23,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const = 0;
 	};
 
+
 	template < typename T >
 	struct IReversableEnumerable
 	{
@@ -43,65 +44,6 @@ namespace stingray
 	public:
 		static const bool Value = sizeof(GetIsEnumerable((const T*)0)) == sizeof(YesType);
 	};
-
-
-	template < typename T >
-	struct EmptyEnumerable : public virtual IEnumerable<T>
-	{
-		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-		{ return make_shared<EmptyEnumerator<T> >(); }
-	};
-
-
-	class EmptyEnumerableProxy
-	{
-	public:
-		template< typename U >
-		operator shared_ptr<IEnumerable<U> >() const
-		{ return make_shared<EmptyEnumerable<U> >(); }
-	};
-
-
-	inline EmptyEnumerableProxy MakeEmptyEnumerable()
-	{ return EmptyEnumerableProxy(); }
-
-
-	template < typename T >
-	struct OneItemEnumerable : public virtual IEnumerable<T>
-	{
-	private:
-		T		_value;
-
-	public:
-		OneItemEnumerable(typename GetConstReferenceType<T>::ValueT value)
-			: _value(value)
-		{ }
-
-		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-		{ return make_shared<OneItemEnumerator<T> >(_value); }
-	};
-
-
-	template< typename T >
-	class OneItemEnumerableProxy
-	{
-	private:
-		T	_item;
-
-	public:
-		explicit OneItemEnumerableProxy(const T& item)
-			: _item(item)
-		{ }
-
-		template< typename U >
-		operator shared_ptr<IEnumerable<U> >() const
-		{ return make_shared<OneItemEnumerable<U> >(_item); }
-	};
-
-
-	template< typename T >
-	OneItemEnumerableProxy<T> MakeOneItemEnumerable(const T& item)
-	{ return OneItemEnumerableProxy<T>(item); }
 
 
 	template < typename SrcType, typename DestType >
@@ -188,53 +130,6 @@ namespace stingray
 	template < typename T >
 	typename Detail::EnumerableCaster<typename T::ItemType> GetEnumerableCaster(const shared_ptr<T>& enumerable)
 	{ return Detail::EnumerableCaster<typename T::ItemType>(enumerable); }
-
-
-	namespace Detail
-	{
-		template<typename EnumeratedT>
-		class JoiningEnumerable : public virtual IEnumerable<EnumeratedT>
-		{
-			typedef shared_ptr<IEnumerable<EnumeratedT> > TargetEnumerablePtr;
-
-			TargetEnumerablePtr _first, _second;
-
-		public:
-			JoiningEnumerable(const TargetEnumerablePtr& first, const TargetEnumerablePtr& second) :
-				_first(TOOLKIT_REQUIRE_NOT_NULL(first)),
-				_second(TOOLKIT_REQUIRE_NOT_NULL(second))
-			{}
-
-			virtual shared_ptr<IEnumerator<EnumeratedT> > GetEnumerator() const
-			{ return JoinEnumerators(_first->GetEnumerator(), _second->GetEnumerator()); }
-		};
-	}
-
-
-	template<typename EnumeratedT>
-	shared_ptr<IEnumerable<EnumeratedT> > JoinEnumerables(const shared_ptr<IEnumerable<EnumeratedT> >& first, const shared_ptr<IEnumerable<EnumeratedT> >& second)
-	{ return make_shared<Detail::JoiningEnumerable<EnumeratedT> >(first, second); }
-
-
-	template<typename EnumeratedT>
-	class EnumerableJoiner
-	{
-		typedef shared_ptr<IEnumerable<EnumeratedT> >	EnumerablePtr;
-
-	private:
-		EnumerablePtr	_result;
-
-	public:
-		operator EnumerablePtr () const { return _result; }
-		EnumerableJoiner& operator % (const EnumerablePtr& e)
-		{
-			if (_result)
-				_result = JoinEnumerables(_result, e);
-			else
-				_result = e;
-			return *this;
-		}
-	};
 
 
 }

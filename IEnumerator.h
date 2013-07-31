@@ -42,74 +42,6 @@ namespace stingray
 	};
 
 
-	template < typename T >
-	struct EmptyEnumerator : public virtual IEnumerator<T>
-	{
-		virtual bool Valid() const	{ return false; }
-		virtual T Get() const		{ TOOLKIT_THROW(NotSupportedException()); }
-		virtual void Next()			{ TOOLKIT_THROW(NotSupportedException()); }
-	};
-
-
-	class EmptyEnumeratorProxy
-	{
-	public:
-		template< typename U >
-		operator shared_ptr<IEnumerator<U> >() const
-		{ return make_shared<EmptyEnumerator<U> >(); }
-	};
-
-
-	inline EmptyEnumeratorProxy MakeEmptyEnumerator()
-	{ return EmptyEnumeratorProxy(); }
-
-
-	template < typename T >
-	struct OneItemEnumerator : public virtual IEnumerator<T>
-	{
-	private:
-		bool	_valid;
-		T		_value;
-
-	public:
-		OneItemEnumerator(typename GetConstReferenceType<T>::ValueT value)
-			: _valid(true), _value(value)
-		{ }
-
-		virtual bool Valid() const			{ return _valid; }
-		virtual void Next()					{ _valid = false; }
-
-		virtual T Get() const
-		{
-			if (!_valid)
-				TOOLKIT_THROW(std::runtime_error("Invalid enumerator!"));
-			return _value;
-		}
-	};
-
-
-	template< typename T >
-	class OneItemEnumeratorProxy
-	{
-	private:
-		T	_item;
-
-	public:
-		explicit OneItemEnumeratorProxy(const T& item)
-			: _item(item)
-		{ }
-
-		template< typename U >
-		operator shared_ptr<IEnumerator<U> >() const
-		{ return make_shared<OneItemEnumerator<U> >(_item); }
-	};
-
-
-	template< typename T >
-	OneItemEnumeratorProxy<T> MakeOneItemEnumerator(const T& item)
-	{ return OneItemEnumeratorProxy<T>(item); }
-
-
 	template < typename SrcType, typename DestType >
 	class EnumeratorWrapper : public IEnumerator<DestType>
 	{
@@ -174,61 +106,6 @@ namespace stingray
 
 
 	/*! \cond GS_INTERNAL */
-
-	namespace Detail
-	{
-		template<typename EnumeratedT>
-		class JoiningEnumerator : public virtual IEnumerator<EnumeratedT>
-		{
-			typedef shared_ptr<IEnumerator<EnumeratedT> > TargetEnumeratorPtr;
-
-			TargetEnumeratorPtr _first, _second;
-
-		public:
-			JoiningEnumerator(const TargetEnumeratorPtr& first, const TargetEnumeratorPtr& second) :
-				_first(TOOLKIT_REQUIRE_NOT_NULL(first)),
-				_second(TOOLKIT_REQUIRE_NOT_NULL(second))
-			{}
-
-			virtual bool Valid() const
-			{ return _first->Valid() || _second->Valid(); }
-
-			virtual EnumeratedT Get() const
-			{ return _first->Valid() ? _first->Get() : _second->Get(); }
-
-			virtual void Next()
-			{
-				if (_first->Valid())
-					_first->Next();
-				else
-					_second->Next();
-			}
-		};
-	}
-
-	template<typename EnumeratedT>
-	shared_ptr<IEnumerator<EnumeratedT> > JoinEnumerators(const shared_ptr<IEnumerator<EnumeratedT> >& first, const shared_ptr<IEnumerator<EnumeratedT> >& second)
-	{ return make_shared<Detail::JoiningEnumerator<EnumeratedT> >(first, second); }
-
-	template<typename EnumeratedT>
-	class EnumeratorJoiner
-	{
-		typedef shared_ptr<IEnumerator<EnumeratedT> >	EnumeratorPtr;
-
-	private:
-		EnumeratorPtr	_result;
-
-	public:
-		operator EnumeratorPtr () const { return _result; }
-		EnumeratorJoiner& operator % (const EnumeratorPtr& e)
-		{
-			if (_result)
-				_result = JoinEnumerators(_result, e);
-			else
-				_result = e;
-			return *this;
-		}
-	};
 
 	namespace Detail
 	{
