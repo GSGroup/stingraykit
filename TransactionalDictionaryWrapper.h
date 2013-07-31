@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_TRANSACTIONALDICTIONARYWRAPPER_H
 
 
+#include <stingray/toolkit/EnumerableHelpers.h>
 #include <stingray/toolkit/ITransactionalDictionary.h>
 
 namespace stingray
