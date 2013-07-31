@@ -236,6 +236,26 @@ namespace stingray
 		}
 	};
 
+
+	template< typename EnumeratorType_, typename ParamsTuple_ >
+	struct SimpleEnumerable : public IEnumerable<typename EnumeratorType_::ItemType>
+	{
+	private:
+		ParamsTuple_ _tuple;
+
+	public:
+		SimpleEnumerable(const ParamsTuple_& tuple) : _tuple(tuple)
+		{}
+
+		virtual shared_ptr<IEnumerator<typename EnumeratorType_::ItemType> > GetEnumerator() const
+		{ return FunctorInvoker::Invoke(MakeShared<EnumeratorType_, ParamsTuple_::Size>(), _tuple); }
+	};
+
+
+	template< typename EnumeratorType_, typename ParamsTuple_ >
+	shared_ptr<SimpleEnumerable<EnumeratorType_, ParamsTuple_> > MakeSimpleEnumerable(const ParamsTuple_& tuple)
+	{ return make_shared<SimpleEnumerable<EnumeratorType_, ParamsTuple_> >(tuple); }
+
 }
 
 #endif
