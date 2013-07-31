@@ -58,7 +58,7 @@ namespace stingray
 			ByteDataType _buf;
 
 			template<typename T>
-			static FORCE_INLINE T mask(unsigned len) {
+			static inline T mask(unsigned len) {
 				return len >= (8 * sizeof(T))? ~T(): ((T(1) << len) - 1);
 			}
 
@@ -119,7 +119,7 @@ namespace stingray
 			BitsGetterProxy(const ByteDataType &buf) : _buf(buf) { }
 
 			template < typename T >
-			FORCE_INLINE operator T() const
+			inline operator T() const
 			{
 				CompileTimeAssert<!SameType<T, BitsGetterProxy>::Value >	ERROR__old_gcc_bug;
 				(void)ERROR__old_gcc_bug;
@@ -179,7 +179,7 @@ namespace stingray
 			mutable ByteDataType _buf;
 
 			template<typename T>
-			static FORCE_INLINE T mask(unsigned len) {
+			static inline T mask(unsigned len) {
 				return len >= (8 * sizeof(T))? ~T(): ((T(1) << len) - 1);
 			}
 
@@ -241,7 +241,7 @@ namespace stingray
 			BitsSetterImpl(const ByteDataType &buf) : _buf(buf) { }
 
 			template < typename T >
-			FORCE_INLINE void Set (T val) const
+			inline void Set (T val) const
 			{
 				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
 				CompileTimeAssert<SizeBits + OffsetBits >= SizeBits>();

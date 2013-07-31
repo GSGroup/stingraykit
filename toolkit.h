@@ -20,7 +20,7 @@ namespace stingray
 	};
 }
 
-#if (__GNUC__ >= 3) && !defined(PRODUCTION_BUILD)
+#if (__GNUC__ >= 3 || defined(__clang__)) && !defined(PRODUCTION_BUILD)
 #	define TOOLKIT_FUNCTION __PRETTY_FUNCTION__
 #else
 #	define TOOLKIT_FUNCTION __func__
@@ -66,7 +66,7 @@ namespace stingray
 
 #define TOOLKIT_ENUM_VALUES(...) \
 	private: \
-		FORCE_INLINE static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
+		inline static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
 		{ \
 			stingray::Detail::EnumValueHolder __VA_ARGS__; \
 			stingray::Detail::EnumValueHolder values[] = { __VA_ARGS__ }; \
@@ -109,40 +109,30 @@ namespace stingray
 		{ ClassName_ result(l); return result &= r; }
 
 #define TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
-		FORCE_INLINE bool operator > (const ClassName& other) const \
+		inline bool operator > (const ClassName& other) const \
 		{ return other < (*this); } \
-		FORCE_INLINE bool operator <= (const ClassName& other) const \
+		inline bool operator <= (const ClassName& other) const \
 		{ return !(other < (*this)); } \
-		FORCE_INLINE bool operator >= (const ClassName& other) const \
+		inline bool operator >= (const ClassName& other) const \
 		{ return !((*this) < other); } \
-		FORCE_INLINE bool operator != (const ClassName& other) const \
+		inline bool operator != (const ClassName& other) const \
 		{ return (other < (*this)) || ((*this) < other); } \
-		FORCE_INLINE bool operator == (const ClassName& other) const \
+		inline bool operator == (const ClassName& other) const \
 		{ return !(other != (*this)); }
 
 #define TOOLKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(TemplateArgs, ClassName) \
-		TemplateArgs FORCE_INLINE bool operator <  (const ClassName& lhs, const ClassName& rhs) { return lhs <  rhs; } \
-		TemplateArgs FORCE_INLINE bool operator >  (const ClassName& lhs, const ClassName& rhs) { return lhs >  rhs; } \
-		TemplateArgs FORCE_INLINE bool operator <= (const ClassName& lhs, const ClassName& rhs) { return lhs <= rhs; } \
-		TemplateArgs FORCE_INLINE bool operator >= (const ClassName& lhs, const ClassName& rhs) { return lhs >= rhs; } \
-		TemplateArgs FORCE_INLINE bool operator != (const ClassName& lhs, const ClassName& rhs) { return lhs != rhs; } \
-		TemplateArgs FORCE_INLINE bool operator == (const ClassName& lhs, const ClassName& rhs) { return lhs == rhs; }
+		TemplateArgs inline bool operator <  (const ClassName& lhs, const ClassName& rhs) { return lhs <  rhs; } \
+		TemplateArgs inline bool operator >  (const ClassName& lhs, const ClassName& rhs) { return lhs >  rhs; } \
+		TemplateArgs inline bool operator <= (const ClassName& lhs, const ClassName& rhs) { return lhs <= rhs; } \
+		TemplateArgs inline bool operator >= (const ClassName& lhs, const ClassName& rhs) { return lhs >= rhs; } \
+		TemplateArgs inline bool operator != (const ClassName& lhs, const ClassName& rhs) { return lhs != rhs; } \
+		TemplateArgs inline bool operator == (const ClassName& lhs, const ClassName& rhs) { return lhs == rhs; }
 
 #define TOOLKIT_TRANSPARENT_DECORATOR_CTORS(DecoratorType_, BaseType_) \
 		DecoratorType_() { } \
 		template < typename T1 > DecoratorType_(const T1& p1) : BaseType_(p1) { }\
 		template < typename T1, typename T2 > DecoratorType_(const T1& p1, const T2& p2) : BaseType_(p1, p2) { } \
 		template < typename T1, typename T2, typename T3 > DecoratorType_(const T1& p1, const T2& p2, const T3& p3) : BaseType_(p1, p2, p3) { }
-
-#if defined __GNUC__ && !defined __GNUC_STDC_INLINE__ && !defined __GNUC_GNU_INLINE__
-#	define __GNUC_GNU_INLINE__ 1
-#endif
-
-#if __GNUC_GNU_INLINE__ && !defined(FORCE_INLINE_DISABLED)
-#	define FORCE_INLINE __attribute__((always_inline))
-#else
-#	define FORCE_INLINE inline
-#endif
 
 namespace stingray
 {
@@ -185,7 +175,7 @@ namespace stingray
 	struct InstanceOfTester
 	{
 		template < typename DestType >
-		static FORCE_INLINE bool Test(const SrcType& obj)
+		static inline bool Test(const SrcType& obj)
 		{ return (dynamic_cast<const DestType*>(&obj) != 0); }
 	};
 
@@ -193,12 +183,12 @@ namespace stingray
 	struct InstanceOfTester<T*>
 	{
 		template < typename DestType >
-		static FORCE_INLINE bool Test(const T* ptr)
+		static inline bool Test(const T* ptr)
 		{ return (dynamic_cast<const DestType*>(ptr) != 0); }
 	};
 
 	template < typename DestType, typename SrcType >
-	bool FORCE_INLINE InstanceOf(const SrcType& obj)
+	bool inline InstanceOf(const SrcType& obj)
 	{
 		CompileTimeAssert<!Is1ParamTemplate<shared_ptr, DestType>::Value>		ERROR__dest_type_must_not_be_a_shared_ptr;
 		(void)ERROR__dest_type_must_not_be_a_shared_ptr;
@@ -210,12 +200,12 @@ namespace stingray
 	struct InstanceOfPredicate
 	{
 		template < typename Something > // There is also InstanceOf for shared_ptrs somewhere in shared_ptr.h
-		FORCE_INLINE bool operator () (const Something& obj) const
+		inline bool operator () (const Something& obj) const
 		{ return InstanceOf<DestType>(obj); }
 	};
 
 	template<typename ArrayType>
-	FORCE_INLINE size_t ArraySize(const ArrayType& src) {
+	inline size_t ArraySize(const ArrayType& src) {
 		return sizeof(src) / sizeof(src[0]);
 	}
 

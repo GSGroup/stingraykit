@@ -28,7 +28,7 @@ namespace stingray
 			TaskLifeToken									_token;
 
 		public:
-			FORCE_INLINE ThreadlessConnection(const HandlersWeakPtr& handlers, IteratorType it, const TaskLifeToken& token)
+			inline ThreadlessConnection(const HandlersWeakPtr& handlers, IteratorType it, const TaskLifeToken& token)
 				: _handlers(handlers), _it(it), _token(token)
 			{ _getVTable = &GetVTable; }
 
@@ -85,13 +85,13 @@ namespace stingray
 		ConnectionPolicy												_connectionPolicy;
 
 	protected:
-		FORCE_INLINE threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
+		inline threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
 			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _handlers(), _connectionPolicy(connectionPolicy)
 		{ }
 
-		FORCE_INLINE ~threadless_signal_base() { }
+		inline ~threadless_signal_base() { }
 
-		FORCE_INLINE void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p) const
+		inline void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p) const
 		{ InvokeAll(p, this->GetExceptionHandler()); }
 
 		void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p, const ExceptionHandlerFunc& exceptionHandler) const
@@ -162,7 +162,7 @@ namespace stingray
 		typedef typename base::ExceptionHandlerFunc ExceptionHandlerFunc;
 		typedef typename base::SendCurrentStateFunc SendCurrentStateFunc;
 
-		explicit FORCE_INLINE signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
+		explicit inline signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
 	};
 
 	class threadless_signal_connection_pool

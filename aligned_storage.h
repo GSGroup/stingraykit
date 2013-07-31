@@ -49,7 +49,7 @@ namespace stingray
 
 		namespace AlignedTypes
 		{
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 			struct __attribute__((__aligned__(2))) a2 {};
 			struct __attribute__((__aligned__(4))) a4 {};
 			struct __attribute__((__aligned__(8))) a8 {};

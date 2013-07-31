@@ -18,11 +18,11 @@ namespace stingray
 		T*		_ptr;
 
 	public:
-		explicit FORCE_INLINE reference(T& obj)
+		explicit inline reference(T& obj)
 			: _ptr(&obj)
 		{ }
 
-		FORCE_INLINE operator T&() const
+		inline operator T&() const
 		{ return *_ptr; }
 	};
 
@@ -40,7 +40,7 @@ namespace stingray
 	{ typedef T* ValueT; };
 
 	template < typename T > 
-	FORCE_INLINE T* to_pointer(const reference<T>& r) { return &(T&)r; }
+	inline T* to_pointer(const reference<T>& r) { return &(T&)r; }
 
 }
 

@@ -115,7 +115,7 @@ namespace stingray
 			bool		_mapped[ArraySize];
 
 		public:
-			FORCE_INLINE EnumMapper()
+			inline EnumMapper()
 			{
 				std::fill(_mapped, _mapped + ArraySize, false);
 				EnumMapperArrayBuilder<EnumMapping, MapSource>::Build(_array, _mapped, MinValue);
@@ -137,11 +137,11 @@ namespace stingray
 
 
 	template < typename EnumMapping >
-	FORCE_INLINE typename EnumMapping::DestEnum MapEnum(typename EnumMapping::SrcEnum val)
+	inline typename EnumMapping::DestEnum MapEnum(typename EnumMapping::SrcEnum val)
 	{ return Detail::EnumMapper<EnumMapping, true>::Map(val); }
 
 	template < typename EnumMapping >
-	FORCE_INLINE typename EnumMapping::SrcEnum UnmapEnum(typename EnumMapping::DestEnum val)
+	inline typename EnumMapping::SrcEnum UnmapEnum(typename EnumMapping::DestEnum val)
 	{ return Detail::EnumMapper<EnumMapping, false>::Map(val); }
 	
 

@@ -101,7 +101,7 @@ namespace stingray
 			typedef typename FunctorTypeTransformer<Signature, FunctorType>::ValueT WrappedFunctorType;
 
 		public:
-			FORCE_INLINE Invokable(const FunctorType& func)
+			inline Invokable(const FunctorType& func)
 				: BaseType(&MyType::GetVTable), _func(func)
 			{}
 
@@ -139,7 +139,7 @@ namespace stingray
 			typedef typename FunctorTypeTransformer<Signature, FunctorType>::ValueT WrappedFunctorType;
 
 		public:
-			FORCE_INLINE Invokable(const FunctorType& func)
+			inline Invokable(const FunctorType& func)
 				: BaseType(&MyType::GetVTable), _func(func)
 			{}
 
@@ -178,13 +178,13 @@ namespace stingray
 		self_count_ptr<InvokableType>	_invokable;
 
 	protected:
-		FORCE_INLINE ~function_base() {}
+		inline ~function_base() {}
 		template < typename FunctorType >
-		FORCE_INLINE function_base(const FunctorType& func)
+		inline function_base(const FunctorType& func)
 			: _invokable(new Detail::Invokable<Signature, FunctorType>(func))
 		{ }
 
-		FORCE_INLINE RetType Invoke(const Tuple<ParamTypes>& p) const
+		inline RetType Invoke(const Tuple<ParamTypes>& p) const
 		{
 			InvokeFunc *func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
 			return func(_invokable.get(), p);
@@ -209,11 +209,11 @@ namespace stingray
 
 	public:
 		template < typename FunctorType >
-		FORCE_INLINE function(const FunctorType& func)
+		inline function(const FunctorType& func)
 			: function_base<R()>(func)
 		{ }
 
-		FORCE_INLINE R operator ()() const
+		inline R operator ()() const
 		{
 			Tuple<TypeList_0> p;
 			return this->Invoke(p);
@@ -257,7 +257,7 @@ namespace stingray
 	struct FunctionConstructor<RetType, ParamTypes, ParamsCount_ > \
 	{ typedef function<RetType(ParamsFromTypeList_)>	ValueT; }
 
-	//Please do not set inline to FORCE_INLINE above, this will cause recursive force-inlining, which is incompatible with some compilers
+	//Please do not set inline to inline above, this will cause recursive force-inlining, which is incompatible with some compilers
 
 	DETAIL_TOOLKIT_DECLARE_FUNCTION(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1), MK_PARAM(PT(1)));
 	DETAIL_TOOLKIT_DECLARE_FUNCTION(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2), MK_PARAM(PT(1), PT(2)));

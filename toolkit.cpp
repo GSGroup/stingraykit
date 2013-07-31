@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 #	include <cxxabi.h>
 #endif
 
@@ -45,7 +45,7 @@ namespace stingray
 		std::terminate();
 	}
 
-#ifndef __GNUC__
+#if !defined(__GNUC__) && !defined(__clang__)
 	std::string Demangle(const std::string& s)
 	{ return s; }
 #else

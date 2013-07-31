@@ -38,17 +38,17 @@ namespace stingray
 		RefCountT		_refCount;
 
 	private:
-		FORCE_INLINE light_shared_ptr(const RefCountT& refCount)
+		inline light_shared_ptr(const RefCountT& refCount)
 			: _refCount(refCount)
 		{ if (!_refCount.IsNull()) _refCount.add_ref(); }
 
-		static FORCE_INLINE RefCountT init_ref_count(T* rawPtr)
+		static inline RefCountT init_ref_count(T* rawPtr)
 		{ return rawPtr ? RefCountT(rawPtr) : RefCountT(null); }
 
 	public:
 		typedef T ValueType;
 		
-		explicit FORCE_INLINE light_shared_ptr(T* rawPtr) 
+		explicit inline light_shared_ptr(T* rawPtr)
 			: _refCount(init_ref_count(rawPtr))
 		{ }
 
@@ -60,11 +60,11 @@ namespace stingray
 			: _refCount(null)
 		{ }
 
-		FORCE_INLINE light_shared_ptr(const light_shared_ptr<T>& other)
+		inline light_shared_ptr(const light_shared_ptr<T>& other)
 			: _refCount(other._refCount)
 		{ if (!_refCount.IsNull()) _refCount.add_ref(); }
 
-		FORCE_INLINE ~light_shared_ptr()
+		inline ~light_shared_ptr()
 		{
 			T* raw_ptr = get();
 			if (!_refCount.IsNull() && _refCount.release() == 0)
@@ -72,46 +72,46 @@ namespace stingray
 		}
 
 
-		FORCE_INLINE light_shared_ptr<T>& operator = (const light_shared_ptr<T>& other)
+		inline light_shared_ptr<T>& operator = (const light_shared_ptr<T>& other)
 		{
 			light_shared_ptr<T> tmp(other);
 			swap(tmp);
 			return *this;
 		}
 
-		FORCE_INLINE bool operator == (T* ptr) const						{ return get() == ptr; }
-		FORCE_INLINE bool operator != (T* ptr) const						{ return !(*this == ptr); }
-		FORCE_INLINE bool operator == (const light_shared_ptr<T>& other) const	{ return other == get(); }
-		FORCE_INLINE bool operator != (const light_shared_ptr<T>& other) const	{ return !(*this == other); }
-		FORCE_INLINE bool boolean_test() const { return get() != 0; }
+		inline bool operator == (T* ptr) const						{ return get() == ptr; }
+		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
+		inline bool operator == (const light_shared_ptr<T>& other) const	{ return other == get(); }
+		inline bool operator != (const light_shared_ptr<T>& other) const	{ return !(*this == other); }
+		inline bool boolean_test() const { return get() != 0; }
 
-		FORCE_INLINE bool unique() const
+		inline bool unique() const
 		{ return !get() || _refCount.get() == 1; }
 
-		FORCE_INLINE size_t get_ref_count() const
+		inline size_t get_ref_count() const
 		{ return get()? _refCount.get(): 0; }
 
-		FORCE_INLINE void reset()
+		inline void reset()
 		{
 			light_shared_ptr<T> tmp;
 			swap(tmp);
 		}
 
-		FORCE_INLINE void reset(T* ptr)
+		inline void reset(T* ptr)
 		{
 			light_shared_ptr<T> tmp(ptr);
 			swap(tmp);
 		}
 
-		FORCE_INLINE void swap(light_shared_ptr<T>& other)
+		inline void swap(light_shared_ptr<T>& other)
 		{ _refCount.swap(other._refCount); }
 
-		FORCE_INLINE T* get() const				{ return _refCount.IsNull() ? 0 : _refCount.GetUserData(); }
-		FORCE_INLINE T* operator -> () const	{ check_ptr(); return get(); }
-		FORCE_INLINE T& operator * () const		{ check_ptr(); return *get(); }
+		inline T* get() const				{ return _refCount.IsNull() ? 0 : _refCount.GetUserData(); }
+		inline T* operator -> () const	{ check_ptr(); return get(); }
+		inline T& operator * () const		{ check_ptr(); return *get(); }
 
 	private:
-		FORCE_INLINE void check_ptr() const
+		inline void check_ptr() const
 		{ 
 			if (!get())
 				TOOLKIT_THROW(NullPointerException());
@@ -127,24 +127,24 @@ namespace stingray
 		RefCountT	_refCount;
 
 	private:
-		FORCE_INLINE light_weak_ptr(const ref_count& refCount)
+		inline light_weak_ptr(const ref_count& refCount)
 			: _refCount(refCount)
 		{ }
 
 	public:
-		FORCE_INLINE light_weak_ptr()
+		inline light_weak_ptr()
 			: _refCount(null)
 		{ }
 
-		FORCE_INLINE light_weak_ptr(const light_shared_ptr<T>& sharedPtr)
+		inline light_weak_ptr(const light_shared_ptr<T>& sharedPtr)
 			: _refCount(sharedPtr._refCount)
 		{ }
 
-		FORCE_INLINE light_weak_ptr(const NullPtrType&)
+		inline light_weak_ptr(const NullPtrType&)
 			: _refCount(null)
 		{ }
 
-		FORCE_INLINE light_shared_ptr<T> lock() const
+		inline light_shared_ptr<T> lock() const
 		{ 
 			if (expired())
 				return light_shared_ptr<T>();
@@ -152,10 +152,10 @@ namespace stingray
 			return light_shared_ptr<T>(_refCount); 
 		}
 		
-		FORCE_INLINE size_t get_ref_count() const
+		inline size_t get_ref_count() const
 		{ return !_refCount.IsNull() ? _refCount.get(): 0; }
 
-		FORCE_INLINE bool expired() const	{ return _refCount.IsNull() || _refCount.get() == 0; }
+		inline bool expired() const	{ return _refCount.IsNull() || _refCount.get() == 0; }
 	};
 
 	
@@ -178,7 +178,7 @@ namespace stingray
 
 
 	template < typename T > 
-	FORCE_INLINE T* to_pointer(const light_shared_ptr<T>& ptr) { return ptr.get(); }
+	inline T* to_pointer(const light_shared_ptr<T>& ptr) { return ptr.get(); }
 
 	
 	namespace Detail
@@ -205,11 +205,11 @@ namespace stingray
 	}
 
 	template < typename T > 
-	FORCE_INLINE Detail::WeakPtrToPointerProxy<T> to_pointer(const light_weak_ptr<T>& ptr) { return ptr; }
+	inline Detail::WeakPtrToPointerProxy<T> to_pointer(const light_weak_ptr<T>& ptr) { return ptr; }
 
 
 	template < typename DestType, typename SrcType >
-	FORCE_INLINE light_shared_ptr<DestType> dynamic_pointer_cast(const light_shared_ptr<SrcType>& src)
+	inline light_shared_ptr<DestType> dynamic_pointer_cast(const light_shared_ptr<SrcType>& src)
 	{ 
 		DestType* rawDest = dynamic_cast<DestType*>(src.get());
 		if (rawDest == NULL)
@@ -219,7 +219,7 @@ namespace stingray
 	}
 
 	template < typename DestType, typename SrcType >
-	FORCE_INLINE light_weak_ptr<DestType> dynamic_pointer_cast(const light_weak_ptr<SrcType>& src)
+	inline light_weak_ptr<DestType> dynamic_pointer_cast(const light_weak_ptr<SrcType>& src)
 	{ 
 		DestType* rawDest = dynamic_cast<DestType*>(src._rawPtr);
 		if (rawDest == NULL)
@@ -233,7 +233,7 @@ namespace stingray
 	struct InstanceOfTester< light_shared_ptr<T> >
 	{
 		template < typename DestType >
-		static FORCE_INLINE bool Test(const light_shared_ptr<const T>& ptr)
+		static inline bool Test(const light_shared_ptr<const T>& ptr)
 		{ return (dynamic_cast<const DestType*>(ptr.get()) != 0); }
 	};
 

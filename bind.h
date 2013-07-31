@@ -22,28 +22,25 @@ namespace stingray
 	template < size_t N > struct BindPlaceholder
 	{ static const size_t Index = N; };
 
-	namespace
-	{
-		BindPlaceholder<0>	_1;
-		BindPlaceholder<1>	_2;
-		BindPlaceholder<2>	_3;
-		BindPlaceholder<3>	_4;
-		BindPlaceholder<4>	_5;
-		BindPlaceholder<5>	_6;
-		BindPlaceholder<6>	_7;
-		BindPlaceholder<7>	_8;
-		BindPlaceholder<8>	_9;
-		BindPlaceholder<9>	_10;
-	}
+	static inline BindPlaceholder<0>	_1()	{ return BindPlaceholder<0>(); }
+	static inline BindPlaceholder<1>	_2()	{ return BindPlaceholder<1>(); }
+	static inline BindPlaceholder<2>	_3()	{ return BindPlaceholder<2>(); }
+	static inline BindPlaceholder<3>	_4()	{ return BindPlaceholder<3>(); }
+	static inline BindPlaceholder<4>	_5()	{ return BindPlaceholder<4>(); }
+	static inline BindPlaceholder<5>	_6()	{ return BindPlaceholder<5>(); }
+	static inline BindPlaceholder<6>	_7()	{ return BindPlaceholder<6>(); }
+	static inline BindPlaceholder<7>	_8()	{ return BindPlaceholder<7>(); }
+	static inline BindPlaceholder<8>	_9()	{ return BindPlaceholder<8>(); }
+	static inline BindPlaceholder<9>	_10()	{ return BindPlaceholder<9>(); }
 
 	namespace Detail
 	{
 		template < size_t N > struct Chomper
 		{ static const size_t Index = N; };
 
-		template < typename T > struct IsPlaceholder { static const bool Value = false; };
-		template < size_t N > struct IsPlaceholder<BindPlaceholder<N> > { static const bool Value = true; };
-		template < size_t N > struct IsPlaceholder<Chomper<N> > { static const bool Value = true; };
+		template < typename T > struct IsPlaceholder							{ static const bool Value = false; };
+		template < size_t N > struct IsPlaceholder<BindPlaceholder<N>(*)() >	{ static const bool Value = true; };
+		template < size_t N > struct IsPlaceholder<Chomper<N> >					{ static const bool Value = true; };
 
 
 		template < typename T >
@@ -51,7 +48,7 @@ namespace stingray
 		{ static const int Value = -1; };
 
 		template < size_t N >
-		struct GetPlaceholderIndex<BindPlaceholder<N> >
+		struct GetPlaceholderIndex<BindPlaceholder<N>(*)() >
 		{ static const int Value = N; };
 
 		template < size_t N >
@@ -77,13 +74,13 @@ namespace stingray
 			AbsentParamDummy(const T&) {}
 		};
 
-		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex> >::Value != -1 >
+		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value != -1 >
 		struct BinderSingleParamTypeGetter
 		{ typedef AbsentParamDummy ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex >
 		struct BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex, true>
-		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex> >::Value >::ValueT	ValueT; };
+		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value >::ValueT	ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex = 0, size_t Count = GetBinderParamsCount<AllParameters>::Value >
 		struct BinderParamTypesGetter
@@ -94,22 +91,22 @@ namespace stingray
 		{ typedef TypeListEndNode	ValueT; };
 
 		template < typename AllParameters >
-		struct BindedParamTypesGetter
+		struct BoundParamTypesGetter
 		{ typedef typename TypeListCopyIf<AllParameters, Not<IsPlaceholder>::template ValueT>::ValueT ValueT; };
 
 
 		template < typename AllParameters, typename SrcAllParameters = AllParameters >
-		struct BindedParamNumbersGetter
+		struct BoundParamNumbersGetter
 		{
 			typedef typename AllParameters::ValueT CurType;
 			static const bool IsPH = IsPlaceholder<CurType>::Value;
-			static const int Counter = BindedParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::Counter - (IsPH ? 0 : 1);
+			static const int Counter = BoundParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::Counter - (IsPH ? 0 : 1);
 			static const int Num = IsPH ? -1 : Counter;
-			typedef TypeListNode<IntToType<Num>, typename BindedParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::ValueT>	ValueT;
+			typedef TypeListNode<IntToType<Num>, typename BoundParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::ValueT>	ValueT;
 		};
 
 		template < typename SrcAllParameters >
-		struct BindedParamNumbersGetter<TypeListEndNode, SrcAllParameters>
+		struct BoundParamNumbersGetter<TypeListEndNode, SrcAllParameters>
 		{
 			typedef TypeListEndNode ValueT;
 			static const int Counter = GetTypeListLength<typename TypeListCopyIf<SrcAllParameters, Not<IsPlaceholder>::template ValueT>::ValueT>::Value;
@@ -123,7 +120,7 @@ namespace stingray
 		{ typedef typename GetParamPassingType<OriginalParamType>::ValueT ValueT; };
 
 		template < size_t Index, typename BinderParams >
-		struct GetParamType<BindPlaceholder<Index>, BinderParams>
+		struct GetParamType<BindPlaceholder<Index>(*)(), BinderParams>
 		{ typedef typename GetParamPassingType<typename GetTypeListItem<BinderParams, Index>::ValueT>::ValueT	ValueT; };
 
 
@@ -139,22 +136,22 @@ namespace stingray
 		template < typename AllParameters, typename BinderParams, size_t Index >
 		struct ParamSelector<AllParameters, BinderParams, Index, true>
 		{
-			typedef typename BindedParamTypesGetter<AllParameters>::ValueT	BindedParams;
+			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 			static typename GetParamType<typename GetTypeListItem<AllParameters, Index>::ValueT, BinderParams>::ValueT
-			Get(const Tuple<BindedParams>& BindedParams, const Tuple<BinderParams>& binderParams)
+			Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
 			{
 				typedef typename GetTypeListItem<AllParameters, Index>::ValueT Placeholder;
-				return GetTupleItem<Placeholder::Index>(binderParams);
+				return GetTupleItem<GetPlaceholderIndex<Placeholder>::Value>(binderParams);
 			}
 		};
 
 		template < typename AllParameters, typename BinderParams, size_t Index >
 		struct ParamSelector<AllParameters, BinderParams, Index, false>
 		{
-			typedef typename BindedParamTypesGetter<AllParameters>::ValueT	BindedParams;
+			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 			static typename GetParamType<typename GetTypeListItem<AllParameters, Index>::ValueT, BinderParams>::ValueT
-			Get(const Tuple<BindedParams>& bindedParams, const Tuple<BinderParams>& binderParams)
-			{ return GetTupleItem<GetTypeListItem<typename BindedParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(bindedParams); }
+			Get(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
+			{ return GetTupleItem<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(boundParams); }
 		};
 
 
@@ -162,8 +159,8 @@ namespace stingray
 		class NonPlaceholdersCutter
 		{
 		public:
-			typedef typename BindedParamTypesGetter<AllParameters>::ValueT		TypeList;
-			typedef typename BindedParamNumbersGetter<AllParameters>::ValueT	BindedParamNumbers;
+			typedef typename BoundParamTypesGetter<AllParameters>::ValueT		TypeList;
+			typedef typename BoundParamNumbersGetter<AllParameters>::ValueT	BoundParamNumbers;
 
 		private:
 			const Tuple<AllParameters>&		_allParams;
@@ -173,7 +170,7 @@ namespace stingray
 
 			template < size_t Index >
 			typename GetParamPassingType<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT Get() const
-			{ return _allParams.template Get<IndexOfTypeListItem<BindedParamNumbers, IntToType<Index> >::Value>(); }
+			{ return _allParams.template Get<IndexOfTypeListItem<BoundParamNumbers, IntToType<Index> >::Value>(); }
 		};
 
 		template<typename T>
@@ -249,7 +246,7 @@ namespace stingray
 			typedef typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT		ParamTypes;
 
 		protected:
-			typedef typename BindedParamTypesGetter<AllParameters>::ValueT	BindedParams;
+			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
 			template < typename BinderParams >
 			class RealParameters
@@ -259,32 +256,32 @@ namespace stingray
 				static const size_t Size = GetTypeListLength<RealRealParameters>::Value;
 
 			private:
-				const Tuple<BindedParams>&		_bindedParams;
+				const Tuple<BoundParams>&		_boundParams;
 				const Tuple<BinderParams>&		_binderParams;
 
 			public:
-				RealParameters(const Tuple<BindedParams>& bindedParams, const Tuple<BinderParams>& binderParams)
-					: _bindedParams(bindedParams), _binderParams(binderParams)
+				RealParameters(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
+					: _boundParams(boundParams), _binderParams(binderParams)
 				{ }
 
 				template < size_t Index >
-				FORCE_INLINE typename GetParamType<typename GetTypeListItem<RealRealParameters, Index>::ValueT, BinderParams>::ValueT
+				inline typename GetParamType<typename GetTypeListItem<RealRealParameters, Index>::ValueT, BinderParams>::ValueT
 				Get() const
-				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_bindedParams, _binderParams); }
+				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, _binderParams); }
 			};
 
 		protected:
 			FunctorType					_func;
-			Tuple<BindedParams>			_bindedParams;
+			Tuple<BoundParams>			_boundParams;
 
 		protected:
 			BinderBase(const FunctorType& func, const Tuple<AllParameters>& allParams)
-				: _func(func), _bindedParams(GetBindedParams(allParams))
+				: _func(func), _boundParams(GetBoundParams(allParams))
 			{ }
 
 		private:
-			static inline Tuple<BindedParams> GetBindedParams(const Tuple<AllParameters>& all)
-			{ return Tuple<BindedParams>::CreateFromTupleLikeObject(NonPlaceholdersCutter<AllParameters>(all)); }
+			static inline Tuple<BoundParams> GetBoundParams(const Tuple<AllParameters>& all)
+			{ return Tuple<BoundParams>::CreateFromTupleLikeObject(NonPlaceholdersCutter<AllParameters>(all)); }
 		};
 
 
@@ -308,11 +305,11 @@ namespace stingray
 				: base(func, allParams)
 			{ }
 
-			FORCE_INLINE RetType operator () () const
+			inline RetType operator () () const
 			{
 				typedef TypeList_0	BinderParams;
 				Tuple<BinderParams> call_params;
-				typename base::template RealParameters<BinderParams> rp(base::_bindedParams, call_params);
+				typename base::template RealParameters<BinderParams> rp(base::_boundParams, call_params);
 				return FunctorInvoker::Invoke<FunctorType>(base::_func, rp);
 			}
 
@@ -332,10 +329,10 @@ namespace stingray
 				: base(func, allParams) \
 			{ } \
 			\
-			FORCE_INLINE RetType operator () (CallParamsDecl_) const  \
+			inline RetType operator () (CallParamsDecl_) const  \
 			{ \
 				Tuple<ParamTypes> call_params(CallParamsUsage_); \
-				typename base::template RealParameters<ParamTypes> rp(base::_bindedParams, call_params); \
+				typename base::template RealParameters<ParamTypes> rp(base::_boundParams, call_params); \
 				return FunctorInvoker::Invoke<FunctorType>(base::_func, rp); \
 			} \
 			\
@@ -384,7 +381,7 @@ namespace stingray
 #undef TY
 
 	template<size_t N>
-	Detail::Chomper<N> not_using(const BindPlaceholder<N>&) { return Detail::Chomper<N>(); }
+	Detail::Chomper<N> not_using(BindPlaceholder<N>(*)()) { return Detail::Chomper<N>(); }
 
 	/*! \endcond */
 

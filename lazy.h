@@ -34,7 +34,7 @@ namespace stingray
 	{ typedef typename ToPointerType<T>::ValueT ValueT; };
 
 	template < typename T > 
-	FORCE_INLINE typename ToPointerType<LazyVal<T> >::ValueT to_pointer(const LazyVal<T>& lazyPtr) { return to_pointer((T)lazyPtr); }
+	inline typename ToPointerType<LazyVal<T> >::ValueT to_pointer(const LazyVal<T>& lazyPtr) { return to_pointer((T)lazyPtr); }
 
 }
 
