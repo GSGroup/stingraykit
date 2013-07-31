@@ -62,12 +62,12 @@ namespace stingray
 
 
 	template < typename T >
-	FORCE_INLINE StlEnumeratorAdapter<T> Wrap(shared_ptr<IEnumerable<T> > enumerable)
+	inline StlEnumeratorAdapter<T> Wrap(shared_ptr<IEnumerable<T> > enumerable)
 	{ return StlEnumeratorAdapter<T>(enumerable->GetEnumerator()); }
 
 
 	template < typename T >
-	FORCE_INLINE StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerable<T> >/* enumerator*/)
+	inline StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerable<T> >/* enumerator*/)
 	{ return StlEnumeratorAdapter<T>(); }
 
 }
