@@ -294,6 +294,7 @@ namespace stingray
 		typedef signal_base<void(), Strategy, ExceptionHandler, SendCurrentState> base;
 		typedef	typename base::ExceptionHandlerFunc		ExceptionHandlerFunc;
 		typedef	typename base::SendCurrentStateFunc		SendCurrentStateFunc;
+		typedef void Signature();
 
 		struct CopyableRef
 		{
@@ -354,6 +355,7 @@ namespace stingray
 	struct signal<void(Types_), Strategy, ExceptionHandler, SendCurrentState> : public signal_base<void(Types_), Strategy, ExceptionHandler, SendCurrentState> \
 	{ \
 		typedef signal_base<void(Types_), Strategy, ExceptionHandler, SendCurrentState>		base; \
+		typedef void Signature(Types_); \
 		typedef	typename base::ExceptionHandlerFunc		ExceptionHandlerFunc; \
 		typedef	typename base::SendCurrentStateFunc		SendCurrentStateFunc; \
 		\
