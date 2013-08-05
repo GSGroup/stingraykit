@@ -69,11 +69,14 @@ namespace stingray
 	public:
 		typedef typename function_info<Signature>::RetType			RetType;
 		typedef typename function_info<Signature>::ParamTypes		ParamTypes;
+		typedef Tuple<ParamTypes>									TupleParamsType;
 
 	protected:
 		typedef typename ExceptionHandler::ExceptionHandlerFunc		ExceptionHandlerFunc;
 		typedef SendCurrentState_<Signature>						SendCurrentStateBase;
 		typedef typename SendCurrentStateBase::SendCurrentStateFunc	SendCurrentStateFunc;
+		typedef typename SendCurrentStateBase::InvokeFuncType		InvokeFuncType;
+		typedef void InvokeFuncSignature(const TupleParamsType &);
 
 	private:
 		typedef Detail::FuncTypeWithDeathControl						FuncTypeWithDeathControl;
@@ -85,16 +88,16 @@ namespace stingray
 		ConnectionPolicy												_connectionPolicy;
 
 	protected:
-		inline threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
+		inline threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateBase& sendCurrentState, ConnectionPolicy connectionPolicy)
 			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _handlers(), _connectionPolicy(connectionPolicy)
 		{ }
 
 		inline ~threadless_signal_base() { }
 
-		inline void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p) const
+		inline void InvokeAll(const TupleParamsType& p) const
 		{ InvokeAll(p, this->GetExceptionHandler()); }
 
-		void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p, const ExceptionHandlerFunc& exceptionHandler) const
+		void InvokeAll(const TupleParamsType& p, const ExceptionHandlerFunc& exceptionHandler) const
 		{
 			if (!_handlers)
 				return;
@@ -110,7 +113,7 @@ namespace stingray
 					FuncTypeWithDeathControl& func = (*it);
 					LocalExecutionGuard guard;
 					if (func.Tester().Execute(guard))
-						FunctorInvoker::Invoke(func.Func().ToFunction<Signature>(), p);
+						func.Func().ToFunction<InvokeFuncSignature>()(p);
 				}
 				catch (const std::exception& ex)
 				{ exceptionHandler(ex); }
@@ -130,12 +133,11 @@ namespace stingray
 			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::SyncOnly);
 
 			async_function<Signature> slot_func(executor, handler);
-			function<Signature> slot_function(slot_func);
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
-			this->DoSendCurrentState(wrapped_slot);
+			Detail::FunctionArgumentWrapper<Signature, ExceptionHandlerFunc> wrapped_handler(function<Signature>(slot_func), this->GetExceptionHandler());
+			this->DoSendCurrentState(wrapped_handler);
 			if (!_handlers)
 				_handlers.reset(new Handlers);
-			_handlers->push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(slot_function))));
+			_handlers->push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(function<InvokeFuncSignature>(wrapped_handler)))));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end(), slot_func.GetToken())));
 		}
 
@@ -143,12 +145,12 @@ namespace stingray
 		{
 			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::AsyncOnly);
 
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
-			this->DoSendCurrentState(wrapped_slot);
+			Detail::FunctionArgumentWrapper<Signature, ExceptionHandlerFunc> wrapped_handler(handler, this->GetExceptionHandler());
+			this->DoSendCurrentState(wrapped_handler);
 			if (!_handlers)
 				_handlers.reset(new Handlers);
 			TaskLifeToken token;
-			_handlers->push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(handler), token.GetExecutionTester())));
+			_handlers->push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(function<InvokeFuncSignature>(wrapped_handler)), token.GetExecutionTester())));
 			return signal_connection(Detail::ISignalConnectionSelfCountPtr(new Connection(_handlers, --_handlers->end(), token)));
 		}
 	};
@@ -162,7 +164,7 @@ namespace stingray
 		typedef typename base::ExceptionHandlerFunc ExceptionHandlerFunc;
 		typedef typename base::SendCurrentStateFunc SendCurrentStateFunc;
 
-		explicit inline signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
+		explicit inline signal_base(const ExceptionHandlerFunc& exceptionHandler, const typename base::SendCurrentStateBase& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
 	};
 
 	class threadless_signal_connection_pool
