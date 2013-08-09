@@ -5,14 +5,21 @@
 #include <map>
 
 #include <stingray/log/Logger.h>
-#include <stingray/toolkit/BitStream.h>
 #include <stingray/toolkit/ICreator.h>
 
 
 namespace stingray
 {
 
-	template < typename Derived, typename BaseEntityType, typename EntityTagType, size_t EntityTagLength = 8 >
+	template < typename EntityTagType, size_t EntityTagLength >
+	struct GenericEntityTagReader
+	{
+		template < typename StreamType >
+		static EntityTagType Read(StreamType& stream)
+		{ return stream.template Read<EntityTagLength>(); }
+	};
+
+	template < typename Derived, typename BaseEntityType, typename EntityTagType, typename EntityTagReader = GenericEntityTagReader<EntityTagType, 8> >
 	class GenericEntityFactory
 	{
 		typedef shared_ptr<BaseEntityType> 					EntityPtr;
@@ -59,7 +66,7 @@ namespace stingray
 		{
 			typename StreamType::Rollback rollback(stream);
 
-			EntityTagType tag = stream.template Read<EntityTagLength>();
+			EntityTagType tag = EntityTagReader::Read(stream);
 			typename EntityCreatorRegistry::const_iterator it = _registry.find(tag);
 			TOOLKIT_CHECK(it != _registry.end(), "Unknown tag: " + tag.ToString());
 
