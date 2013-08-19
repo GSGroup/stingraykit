@@ -9,14 +9,17 @@ namespace stingray
 		switch (type)
 		{
 		case Type::Empty:
-		case Type::Int:
 		case Type::Bool:
-		case Type::U8:
-		case Type::S8:
-		case Type::U16:
-		case Type::S16:
-		case Type::U32:
-		case Type::S32:
+		case Type::Char:
+		case Type::UChar:
+		case Type::Short:
+		case Type::UShort:
+		case Type::Int:
+		case Type::UInt:
+		case Type::Long:
+		case Type::ULong:
+		case Type::LongLong:
+		case Type::ULongLong:
 		case Type::Float:
 		case Type::Double:
 			_data = data;
@@ -50,29 +53,35 @@ namespace stingray
 	bool any::IsSerializable() const
 	{ return _type != Type::Object || _data.Object->IsSerializable(); }
 
+#define STRING(NAME) case Type::NAME: return stingray::ToString(_data.NAME)
 
 	std::string any::ToString() const
 	{
 		switch (_type)
 		{
 		case Type::Empty:	return "<empty>";
-		case Type::Int:		return stingray::ToString(_data.Int);
-		case Type::Bool:	return stingray::ToString(_data.Bool);
-		case Type::U8:		return stingray::ToString(_data.U8);
-		case Type::S8:		return stingray::ToString(_data.S8);
-		case Type::U16:		return stingray::ToString(_data.U16);
-		case Type::S16:		return stingray::ToString(_data.S16);
-		case Type::U32:		return stingray::ToString(_data.U32);
-		case Type::S32:		return stingray::ToString(_data.S32);
-		case Type::Float:	return stingray::ToString(_data.Float);
-		case Type::Double:	return stingray::ToString(_data.Double);
+		STRING(Bool);
+		STRING(Char);
+		STRING(UChar);
+		STRING(Short);
+		STRING(UShort);
+		STRING(Int);
+		STRING(UInt);
+		STRING(Long);
+		STRING(ULong);
+		STRING(LongLong);
+		STRING(ULongLong);
+		STRING(Float);
+		STRING(Double);
 		case Type::String:	return _data.String.Ref();
 		case Type::Object:	return _data.Object->ToString();
-		default:			TOOLKIT_THROW("Unknown type: " + _type.ToString());
 		}
-		return "";
+		TOOLKIT_THROW("Unknown type: " + _type.ToString());
 	}
 
+#undef STRING
+
+#define SERIALIZE(NAME) case Type::NAME: ar.Serialize("val", _data.NAME); return
 
 	void any::Serialize(ObjectOStream & ar) const
 	{
@@ -80,17 +89,20 @@ namespace stingray
 		switch (_type)
 		{
 		case Type::Empty:	return;
-		case Type::Int:		ar.Serialize("val", _data.Int);				break;
-		case Type::Bool:	ar.Serialize("val", _data.Bool);			break;
-		case Type::U8:		ar.Serialize("val", _data.U8);				break;
-		case Type::S8:		ar.Serialize("val", _data.S8);				break;
-		case Type::U16:		ar.Serialize("val", _data.U16);				break;
-		case Type::S16:		ar.Serialize("val", _data.S16);				break;
-		case Type::U32:		ar.Serialize("val", _data.U32);				break;
-		case Type::S32:		ar.Serialize("val", _data.S32);				break;
-		case Type::Float:	ar.Serialize("val", _data.Float);			break;
-		case Type::Double:	ar.Serialize("val", _data.Double);			break;
-		case Type::String:	ar.Serialize("val", _data.String.Ref());	break;
+		SERIALIZE(Bool);
+		SERIALIZE(Char);
+		SERIALIZE(UChar);
+		SERIALIZE(Short);
+		SERIALIZE(UShort);
+		SERIALIZE(Int);
+		SERIALIZE(UInt);
+		SERIALIZE(Long);
+		SERIALIZE(ULong);
+		SERIALIZE(LongLong);
+		SERIALIZE(ULongLong);
+		SERIALIZE(Float);
+		SERIALIZE(Double);
+		case Type::String: ar.Serialize("val", _data.String.Ref()); return;
 		case Type::Object:
 			{
 				TOOLKIT_CHECK(_data.Object->IsSerializable(), "'any' object (" + Demangle(typeid(*_data.Object).name()) + ") is not a serializable one!");
@@ -99,11 +111,13 @@ namespace stingray
 				ar.Serialize(".class", classname);
 				_data.Object->Serialize(ar);
 			}
-			break;
-		default:			TOOLKIT_THROW("Unknown type: " + _type.ToString());
+			return;
 		}
+		TOOLKIT_THROW("Unknown type: " + _type.ToString());//you could see warning about unhandled type if leave it here
 	}
+#undef SERIALIZE
 
+#define DESERIALIZE(NAME) case Type::NAME: ar.Deserialize("val", _data.NAME); break
 
 	void any::Deserialize(ObjectIStream & ar)
 	{
@@ -114,16 +128,19 @@ namespace stingray
 		switch (type)
 		{
 		case Type::Empty:	break;
-		case Type::Int:		ar.Deserialize("val", _data.Int);		break;
-		case Type::Bool:	ar.Deserialize("val", _data.Bool);		break;
-		case Type::U8:		ar.Deserialize("val", _data.U8);		break;
-		case Type::S8:		ar.Deserialize("val", _data.S8);		break;
-		case Type::U16:		ar.Deserialize("val", _data.U16);		break;
-		case Type::S16:		ar.Deserialize("val", _data.S16);		break;
-		case Type::U32:		ar.Deserialize("val", _data.U32);		break;
-		case Type::S32:		ar.Deserialize("val", _data.S32);		break;
-		case Type::Float:	ar.Deserialize("val", _data.Float);		break;
-		case Type::Double:	ar.Deserialize("val", _data.Double);	break;
+		DESERIALIZE(Bool);
+		DESERIALIZE(Char);
+		DESERIALIZE(UChar);
+		DESERIALIZE(Short);
+		DESERIALIZE(UShort);
+		DESERIALIZE(Int);
+		DESERIALIZE(UInt);
+		DESERIALIZE(Long);
+		DESERIALIZE(ULong);
+		DESERIALIZE(LongLong);
+		DESERIALIZE(ULongLong);
+		DESERIALIZE(Float);
+		DESERIALIZE(Double);
 		case Type::String:
 			{
 				std::string s;
@@ -144,5 +161,6 @@ namespace stingray
 		_type = type;
 	}
 
+#undef DESERIALIZE
 
 }

@@ -25,14 +25,17 @@ namespace stingray
 			TOOLKIT_ENUM_VALUES
 			(
 				Empty,
-				Int,
 				Bool,
-				U8,
-				S8,
-				U16,
-				S16,
-				U32,
-				S32,
+				Char,
+				UChar,
+				Short,
+				UShort,
+				Int,
+				UInt,
+				Long,
+				ULong,
+				LongLong,
+				ULongLong,
 				Float,
 				Double,
 				String,
@@ -126,14 +129,17 @@ namespace stingray
 
 		union DataType
 		{
-			int						Int;
 			bool					Bool;
-			u8						U8;
-			s8						S8;
-			u16						U16;
-			s16						S16;
-			u32						U32;
-			s32						S32;
+			char					Char;
+			unsigned char			UChar;
+			short					Short;
+			unsigned short			UShort;
+			int						Int;
+			unsigned int			UInt;
+			long					Long;
+			unsigned long			ULong;
+			long long				LongLong;
+			unsigned long long		ULongLong;
 			float					Float;
 			double					Double;
 			StorageFor<std::string>	String;
@@ -145,17 +151,20 @@ namespace stingray
 		{ static const AnyType::Enum Value = AnyType::Object; };
 
 #define CPPTYPE_TO_ANYUNIONTYPE(Type_, EnumVal_) template < > struct CppTypeToAnyUnionType<Type_> { static const AnyType::Enum Value = AnyType::EnumVal_; }
-		//CPPTYPE_TO_ANYUNIONTYPE( int,			Int );
-		CPPTYPE_TO_ANYUNIONTYPE( bool,			Bool );
-		CPPTYPE_TO_ANYUNIONTYPE( u8,			U8 );
-		CPPTYPE_TO_ANYUNIONTYPE( s8,			S8 );
-		CPPTYPE_TO_ANYUNIONTYPE( u16,			U16 );
-		CPPTYPE_TO_ANYUNIONTYPE( s16,			S16 );
-		CPPTYPE_TO_ANYUNIONTYPE( u32,			U32 );
-		CPPTYPE_TO_ANYUNIONTYPE( s32,			S32 );
-		CPPTYPE_TO_ANYUNIONTYPE( float,			Float );
-		CPPTYPE_TO_ANYUNIONTYPE( double,		Double );
-		CPPTYPE_TO_ANYUNIONTYPE( std::string,	String );
+		CPPTYPE_TO_ANYUNIONTYPE( bool,					Bool );
+		CPPTYPE_TO_ANYUNIONTYPE( char,					Char );
+		CPPTYPE_TO_ANYUNIONTYPE( unsigned char,			UChar );
+		CPPTYPE_TO_ANYUNIONTYPE( short,					Short );
+		CPPTYPE_TO_ANYUNIONTYPE( unsigned short,		UShort );
+		CPPTYPE_TO_ANYUNIONTYPE( int,					Int );
+		CPPTYPE_TO_ANYUNIONTYPE( unsigned int,			UInt );
+		CPPTYPE_TO_ANYUNIONTYPE( long,					Long );
+		CPPTYPE_TO_ANYUNIONTYPE( unsigned long,			ULong );
+		CPPTYPE_TO_ANYUNIONTYPE( long long,				LongLong );
+		CPPTYPE_TO_ANYUNIONTYPE( unsigned long long,	ULongLong );
+		CPPTYPE_TO_ANYUNIONTYPE( float,					Float );
+		CPPTYPE_TO_ANYUNIONTYPE( double,				Double );
+		CPPTYPE_TO_ANYUNIONTYPE( std::string,			String );
 #undef CPPTYPE_TO_ANYUNIONTYPE
 
 		template < AnyType::Enum Type_ >
@@ -171,14 +180,17 @@ namespace stingray
 
 		/*				  Type		Set										Get					*/
 		ANY_VAL_ACCESSOR( Empty, 	/*empty*/,								return NULL; );
-		ANY_VAL_ACCESSOR( Int,		data.Int	= val,						return &data.Int );
 		ANY_VAL_ACCESSOR( Bool,		data.Bool	= val,						return &data.Bool );
-		ANY_VAL_ACCESSOR( U8,		data.U8		= val,						return &data.U8 );
-		ANY_VAL_ACCESSOR( S8,		data.S8		= val,						return &data.S8 );
-		ANY_VAL_ACCESSOR( U16,		data.U16	= val,						return &data.U16 );
-		ANY_VAL_ACCESSOR( S16,		data.S16	= val,						return &data.S16 );
-		ANY_VAL_ACCESSOR( U32,		data.U32	= val,						return &data.U32 );
-		ANY_VAL_ACCESSOR( S32,		data.S32	= val,						return &data.S32 );
+		ANY_VAL_ACCESSOR( Char,		data.Char	= val,						return &data.Char );
+		ANY_VAL_ACCESSOR( UChar,	data.UChar	= val,						return &data.UChar );
+		ANY_VAL_ACCESSOR( Short,	data.Short	= val,						return &data.Short );
+		ANY_VAL_ACCESSOR( UShort,	data.UShort	= val,						return &data.UShort );
+		ANY_VAL_ACCESSOR( Int,		data.Int	= val,						return &data.Int );
+		ANY_VAL_ACCESSOR( UInt,		data.UInt	= val,						return &data.UInt );
+		ANY_VAL_ACCESSOR( Long,		data.Long	= val,						return &data.Long );
+		ANY_VAL_ACCESSOR( ULong,	data.ULong	= val,						return &data.ULong );
+		ANY_VAL_ACCESSOR( LongLong,	data.LongLong	= val,					return &data.LongLong );
+		ANY_VAL_ACCESSOR( ULongLong,data.ULongLong	= val,					return &data.ULongLong );
 		ANY_VAL_ACCESSOR( Float,	data.Float	= val,						return &data.Float );
 		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return &data.Double );
 		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val),					return &data.String.Ref() );
