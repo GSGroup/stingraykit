@@ -77,7 +77,7 @@ namespace stingray
 
 		void Get(const ByteData& data)
 		{
-			u64 page_idx = 0, page_read_size, page_offset;
+			u64 page_idx = _startOffset / _pageSize, page_read_size, page_offset;
 			{
 				MutexLock l(_mutex);
 				TOOLKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
@@ -85,8 +85,8 @@ namespace stingray
 				TOOLKIT_CHECK(!_usingStart, "End is being used!");
 				_usingStart = true;
 
-				page_offset = _startOffset;
-				page_read_size = std::min(_pageSize - _startOffset, (u64)data.size());
+				page_offset = _startOffset % _pageSize;
+				page_read_size = std::min(_pageSize - _startOffset % _pageSize, (u64)data.size());
 			}
 			ScopeExitInvoker sei(bind(&PagedBuffer::ReleaseStart, this));
 
@@ -99,6 +99,14 @@ namespace stingray
 				page_read_size = std::min(_pageSize, data.size() - data_offset);
 				ReadFromPage(page_idx, 0, ByteData(data, data_offset, page_read_size));
 			}
+		}
+
+		void Seek(u64 offset)
+		{
+			MutexLock l(_mutex);
+			TOOLKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset, IndexOutOfRangeException());
+
+			_startOffset = offset;
 		}
 
 		void Pop(u64 size)
@@ -180,7 +188,6 @@ namespace stingray
 				TOOLKIT_THROW("Page read failed!");
 		}
 	};
-
 
 
 }
