@@ -93,7 +93,7 @@ namespace stingray
 		case Type::String:	ar.Serialize("val", _data.String.Ref());	break;
 		case Type::Object:
 			{
-				TOOLKIT_CHECK(_data.Object->IsSerializable(), "'any' object is not a serializable one!");
+				TOOLKIT_CHECK(_data.Object->IsSerializable(), "'any' object (" + Demangle(typeid(*_data.Object).name()) + ") is not a serializable one!");
 				const IFactoryObjectCreator& creator = _data.Object->GetFactoryObjectCreator();
 				std::string classname(creator.Name());
 				ar.Serialize(".class", classname);
