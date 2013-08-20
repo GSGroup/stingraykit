@@ -62,7 +62,7 @@ namespace stingray {
 
 		private:
 			Factory() {}
-			~Factory() { DVRLIB_TRY_DO_NO_LOGGER("Factory::Clean failed", Clean()); }
+			~Factory() { STINGRAY_TRY_DO_NO_LOGGER("Factory::Clean failed", Clean()); }
 
 			template<typename Type>
 			Type *Create(const std::string &name)
