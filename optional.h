@@ -150,7 +150,6 @@ namespace stingray
 				reset();
 		}
 	};
-	TOOLKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(template<typename T>, optional<T>);
 
 }
 
