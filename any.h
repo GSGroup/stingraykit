@@ -269,7 +269,7 @@ namespace stingray
 	private:
 		std::string		_message;
 	public:
-		bad_any_cast() : _message("Bad 'any' cast!") { }
+		bad_any_cast(const std::string& from, const std::string& to) : _message("Bad 'any' cast from " + from + " to " + to + "!") { }
 		virtual ~bad_any_cast() throw() { }
 
 		virtual const char* what() const throw() { return _message.c_str(); }
@@ -288,7 +288,7 @@ namespace stingray
 	{
 		T* ptr = operand.template Get<T>();
 		if (!ptr)
-			TOOLKIT_THROW(bad_any_cast());
+			TOOLKIT_THROW(bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
 		return *ptr;
 	}
 
@@ -297,7 +297,7 @@ namespace stingray
 	{
 		const T* ptr = operand.template Get<T>();
 		if (!ptr)
-			TOOLKIT_THROW(bad_any_cast());
+			TOOLKIT_THROW(bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
 		return *ptr;
 	}
 
