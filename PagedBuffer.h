@@ -77,6 +77,8 @@ namespace stingray
 
 		void Get(const ByteData& data)
 		{
+			MutexLock l(_mutex);
+
 			u64 page_idx = _startOffset / _pageSize, page_read_size, page_offset;
 			{
 				MutexLock l(_mutex);
@@ -99,6 +101,8 @@ namespace stingray
 				page_read_size = std::min(_pageSize, data.size() - data_offset);
 				ReadFromPage(page_idx, 0, ByteData(data, data_offset, page_read_size));
 			}
+
+			_startOffset += data.size();
 		}
 
 		void Seek(u64 offset)
