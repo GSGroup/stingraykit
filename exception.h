@@ -53,9 +53,6 @@ namespace stingray
 #define TOOLKIT_CHECK(Condition, ExceptionObj) \
 		do { if (!(Condition)) TOOLKIT_THROW(ExceptionObj); } while(false)
 
-#define TOOLKIT_NOT_IMPLEMENTED() \
-		TOOLKIT_THROW(stingray::NotImplementedException())
-
 	struct LogicException : public std::logic_error
 	{
 		LogicException() : std::logic_error("You're doing something wrong!")
