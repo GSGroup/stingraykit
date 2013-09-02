@@ -40,18 +40,6 @@ namespace stingray
 		virtual ~Exception() throw() { }
 	};
 
-	class IndexOutOfRangeException : public stingray::Exception
-	{
-		size_t _index, _size;
-		static std::string ErrorMessage(size_t index, size_t size) { string_ostream s; s << "Index out of range " << index << " of " << size; return s.str(); }
-
-	public:
-		IndexOutOfRangeException(size_t index = 0, size_t size = 0) : stingray::Exception(ErrorMessage(index, size)), _index(index), _size(size) { }
-		inline size_t GetIndex() const { return _index; }
-		inline size_t GetSize() const { return _size; }
-		virtual ~IndexOutOfRangeException() throw() { }
-	};
-
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(NotSupportedException, "The feature is not supported!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(FormatException, "Invalid format!");
@@ -78,8 +66,6 @@ namespace stingray
 
 		LogicException(const std::string& message) : std::logic_error(message)
 		{ DebuggingHelper::BreakpointHere(); }
-
-		virtual ~LogicException() throw() { }
 	};
 
 	struct ArgumentException : public Exception
@@ -87,6 +73,21 @@ namespace stingray
 		ArgumentException() : Exception("Invalid argument!") { }
 		ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
 		ArgumentException(const std::string& argName, const std::string& argValue) : Exception("Invalid argument: " + argName + " value: " + argValue) { }
+	};
+
+	class IndexOutOfRangeException : public stingray::Exception
+	{
+	public:
+		IndexOutOfRangeException() : stingray::Exception("Index out of range!") { }
+		IndexOutOfRangeException(size_t index, size_t size) : stingray::Exception(BuildErrorMessage(index, size)) { }
+
+	private:
+		static std::string BuildErrorMessage(size_t index, size_t size)
+		{
+			string_ostream stream;
+			stream << "Index " << index << " out of range " << size;
+			return stream.str();
+		}
 	};
 
 	struct NullPointerException : public Exception
