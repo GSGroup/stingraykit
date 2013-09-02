@@ -67,14 +67,14 @@ namespace stingray
 
 		virtual ValueType Get(int index) const
 		{
-			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException());
+			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
 			return (*_items)[index];
 		}
 
 		virtual void Set(int index, const ValueType& value)
 		{
 			CopyOnWrite();
-			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException());
+			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
 			(*_items)[index] = value;
 		}
 
@@ -87,7 +87,7 @@ namespace stingray
 		virtual void RemoveAt(int index)
 		{
 			CopyOnWrite();
-			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException());
+			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
 			_items->erase(_items->begin() + index);
 		}
 
@@ -120,7 +120,7 @@ namespace stingray
 
 		virtual void Insert(int index, const ValueType& value)
 		{
-			TOOLKIT_CHECK(index >= 0 && index <= (int)_items->size(), IndexOutOfRangeException());
+			TOOLKIT_CHECK(index >= 0 && index <= (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
 
 			typename VectorType::iterator it = _items->begin();
 			std::advance(it, index);
