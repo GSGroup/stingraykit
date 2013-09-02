@@ -53,9 +53,6 @@ namespace stingray
 #define TOOLKIT_CHECK(Condition, ExceptionObj) \
 		do { if (!(Condition)) TOOLKIT_THROW(ExceptionObj); } while(false)
 
-#define TOOLKIT_INDEX_CHECK(...) \
-		TOOLKIT_CHECK((__VA_ARGS__), IndexOutOfRangeException())
-
 #define TOOLKIT_NOT_IMPLEMENTED() \
 		TOOLKIT_THROW(stingray::NotImplementedException())
 
