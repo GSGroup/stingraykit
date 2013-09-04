@@ -45,7 +45,7 @@ namespace stingray
 	DETAIL_TOOLKIT_DECLARE_INT_TYPE(long long,	64);
 
 	typedef TYPELIST(u8, s8, u16, s16, u32, s32, u64, s64) FixedWidthIntTypes;
-	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TYPELIST(unsigned, unsigned long, size_t, int, off_t)> >::ValueT IntTypes;
+	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TYPELIST(unsigned, unsigned long, size_t, int, long, off_t)> >::ValueT IntTypes;
 	typedef TypeListMerge<TypeList_2<IntTypes, TYPELIST(float, double, bool)> >::ValueT BuiltinTypes;
 
 	template < typename T >
