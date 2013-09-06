@@ -13,20 +13,19 @@ namespace stingray
 	{
 		virtual ~IByteStream() { }
 
-		virtual size_t Read(void* data, size_t count) = 0;
-		virtual size_t Write(const void* data, size_t count) = 0;
+		virtual u64 Read(void* data, u64 count) = 0;
+		virtual u64 Write(const void* data, u64 count) = 0;
 
-		//fixme: make THIS interface methods
 		template<typename Data>
-		inline size_t ReadData(const Data &data)
+		inline u64 ReadData(const Data &data)
 		{ return Read(data.data(), data.size()); }
 
 		template<typename Data>
-		inline size_t WriteData(Data data)
+		inline u64 WriteData(Data data)
 		{ return Write(data.data(), data.size()); }
 
-		virtual void Seek(int offset, SeekMode mode = SeekMode::Begin) = 0;
-		virtual size_t Tell() const = 0;
+		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin) = 0;
+		virtual u64 Tell() const = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IByteStream);
 
