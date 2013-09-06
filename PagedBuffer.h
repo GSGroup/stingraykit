@@ -29,7 +29,7 @@ namespace stingray
 	private:
 		u64				_pageSize;
 		PagesContainer	_pages;
-		u64				_startOffset, _endOffset;
+		u64				_startOffset, _endOffset, _popOffset;
 		Mutex			_mutex;
 		bool			_pushing, _usingStart;
 
@@ -38,6 +38,7 @@ namespace stingray
 			_pageSize(pageSize),
 			_startOffset(0),
 			_endOffset(0),
+			_popOffset(0),
 			_pushing(false),
 			_usingStart(false)
 		{ }
@@ -110,17 +111,17 @@ namespace stingray
 			MutexLock l(_mutex);
 			TOOLKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset, IndexOutOfRangeException());
 
-			_startOffset = offset;
+			_startOffset = _popOffset + offset;
 		}
 
 		void Pop(u64 size)
 		{
 			MutexLock l(_mutex);
 
-			TOOLKIT_CHECK(size <= GetSize(), IndexOutOfRangeException());
+			TOOLKIT_CHECK(size <= _pageSize * _pages.size(), IndexOutOfRangeException());
 			TOOLKIT_CHECK(!_usingStart, "End is being used!");
 
-			SetStartOffset(_startOffset + size);
+			SetPopOffset(_popOffset + size);
 		}
 
 		u64 GetSize() const
@@ -152,15 +153,16 @@ namespace stingray
 			_usingStart = false;
 		}
 
-		void SetStartOffset(u64 newStartOffset)
+		void SetPopOffset(u64 newPopOffset)
 		{
 			MutexLock l(_mutex);
-			_startOffset = newStartOffset;
+			_popOffset = newPopOffset;
 
-			for (; _startOffset >= _pageSize; _startOffset -= _pageSize)
+			for (; _popOffset >= _pageSize; _popOffset -= _pageSize)
 			{
 				GCPage(_pages.front());
 				_pages.pop_front();
+				_startOffset -= _pageSize;
 			}
 		}
 
