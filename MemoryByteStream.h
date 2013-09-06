@@ -15,14 +15,14 @@ namespace stingray
 	{
 	private:
 		ContainerType	_data;
-		size_t			_offset;
+		u64				_offset;
 
 	public:
 		MemoryByteStream(const ContainerType& data)
 			: _data(data), _offset(0)
 		{ }
 
-		virtual size_t Read(void* data, size_t count)
+		virtual u64 Read(void* data, u64 count)
 		{
 			u8* dst = reinterpret_cast<u8*>(data);
 			count = std::min(count, _data.size() - _offset);
@@ -31,12 +31,12 @@ namespace stingray
 			return count;
 		}
 
-		virtual size_t Write(const void* data, size_t count)
+		virtual u64 Write(const void* data, u64 count)
 		{ TOOLKIT_THROW(NotImplementedException()); }
 
-		virtual void Seek(int offset, SeekMode mode = SeekMode::Begin)
+		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{
-			int new_ofs = _offset;
+			s64 new_ofs = _offset;
 			switch (mode)
 			{
 			case SeekMode::Begin:	new_ofs = offset; break;
@@ -50,7 +50,7 @@ namespace stingray
 			_offset = new_ofs;
 		}
 
-		virtual size_t Tell() const
+		virtual u64 Tell() const
 		{ return _offset; }
 	};
 
