@@ -476,10 +476,10 @@ namespace stingray
 	{ return Transform(str, toupper); }
 
 	inline std::string LeftJustify(const std::string& str, size_t width, char filler = ' ')
-	{ return std::string(str.length() < width? width - str.length() : 0, filler) + str; }
+	{ return str + std::string(str.length() < width? width - str.length() : 0, filler); }
 
 	inline std::string RightJustify(const std::string& str, size_t width, char filler = ' ')
-	{ return str + std::string(str.length() < width? width - str.length() : 0, filler);  }
+	{ return std::string(str.length() < width? width - str.length() : 0, filler) + str;  }
 
 
 	template< typename CharType >
