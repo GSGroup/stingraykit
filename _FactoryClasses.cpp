@@ -8,6 +8,7 @@
 #include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
 #include <stingray/hdmi/IHDMI.h>
+#include <stingray/media/MediaInfoBase.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/parentalcontrol/AgeRating.h>
 #ifdef PLATFORM_EMU
@@ -19,6 +20,7 @@
 #include <stingray/scanner/DefaultMpegService.h>
 #include <stingray/scanner/DefaultMpegStreamDescriptor.h>
 #include <stingray/scanner/DefaultScanParams.h>
+#include <stingray/scanner/DreCasGeographicRegion.h>
 #include <stingray/scanner/IServiceId.h>
 #include <stingray/scanner/TricolorGeographicRegion.h>
 #include <stingray/scanner/TricolorScanParams.h>
@@ -53,6 +55,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AutoFilter);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MediaInfoBase);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
 #ifdef PLATFORM_EMU
@@ -74,12 +77,14 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegService);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegTVChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegAudioStreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegDataCarouselStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegPcrStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegSubtitlesStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextBasedSubtitlesStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegVideoStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanParams);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DreCasGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(::stingray::Detail::any::ObjectHolder<stingray::ServiceId>);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanParams);
