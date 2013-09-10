@@ -35,7 +35,8 @@ namespace stingray
 	{
 		typedef function<Signature>								FuncType;
 		typedef function<void(const FuncType& connectingSlot)>	SendCurrentStateFunc;
-		null_send_current_state(const SendCurrentStateFunc &)		{ }
+		null_send_current_state()									{}
+		null_send_current_state(const SendCurrentStateFunc &)		{ CompileTimeAssert<false> ERROR_this_populator_will_not_work_with_null_strategy; }
 		static void DoSendCurrentState(const FuncType &func)		{ }
 	};
 
@@ -45,7 +46,11 @@ namespace stingray
 		typedef function<Signature>								FuncType;
 		typedef function<void(const FuncType& connectingSlot)>	SendCurrentStateFunc;
 		SendCurrentStateFunc									_sendCurrentState;
-		default_send_current_state(const SendCurrentStateFunc& func) : _sendCurrentState(func) {}
+
+		static inline void DefaultSendCurrentState(const FuncType& /*connectingSlot*/)
+		{ }
+
+		default_send_current_state(const SendCurrentStateFunc& func = DefaultSendCurrentState) : _sendCurrentState(func) {}
 		void DoSendCurrentState(const FuncType &func)	const		{ _sendCurrentState(func); }
 	};
 
@@ -193,6 +198,10 @@ namespace stingray
 			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _connectionPolicy(connectionPolicy)
 		{ }
 
+		inline threaded_signal_base(const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy)
+			: ExceptionHandler(exceptionHandler), _connectionPolicy(connectionPolicy)
+		{ }
+
 		inline ~threaded_signal_base() { }
 
 		inline void InvokeAll(const Tuple<ParamTypes>& p) const
@@ -225,9 +234,6 @@ namespace stingray
 			if (!_handlers)
 				TOOLKIT_FATAL("Signal was destroyed while executing handlers!");
 		}
-
-		static inline void DefaultSendCurrentState(const FuncType& /*connectingSlot*/)
-		{ }
 
 	public:
 		inline void SendCurrentState(const FuncType& connectingSlot) const
@@ -282,7 +288,8 @@ namespace stingray
 		typedef typename base::ExceptionHandlerFunc ExceptionHandlerFunc;
 		typedef typename base::SendCurrentStateFunc SendCurrentStateFunc;
 
-		explicit inline signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
+		inline signal_base(const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy): base(exceptionHandler, connectionPolicy) { }
+		inline signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
 	};
 
 	template < typename Signature, typename Strategy = threaded_signal_strategy, typename ExceptionHandler = default_exception_handler, template <typename> class SendCurrentState = default_send_current_state >
@@ -309,6 +316,7 @@ namespace stingray
 			inline void operator () () const
 			{ _signal(); }
 		};
+		explicit inline signal(): base(&stingray::Detail::DefaultSignalExceptionHandler, ConnectionPolicy::Any) {}
 
 		explicit inline signal(const NullPtrType&,
 									 const ExceptionHandlerFunc& exceptionHandler,
@@ -323,10 +331,10 @@ namespace stingray
 		{ }
 
 		explicit inline signal(ConnectionPolicy connectionPolicy)
-			: base(&stingray::Detail::DefaultSignalExceptionHandler, &base::DefaultSendCurrentState, connectionPolicy)
+			: base(&stingray::Detail::DefaultSignalExceptionHandler, connectionPolicy)
 		{ }
 
-		explicit inline signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState,
+		explicit inline signal(const SendCurrentStateFunc& sendCurrentState,
 									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler,
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any)
 			: base(exceptionHandler, sendCurrentState, connectionPolicy)
@@ -373,10 +381,11 @@ namespace stingray
 			{ _signal(Usage_); } \
 		}; \
 		\
+		explicit inline signal(): base(&stingray::Detail::DefaultSignalExceptionHandler, ConnectionPolicy::Any) {} \
 		explicit inline signal(const NullPtrType&, \
 									 const ExceptionHandlerFunc& exceptionHandler, \
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any) \
-			: base(exceptionHandler, &base::DefaultSendCurrentState, connectionPolicy) \
+			: base(exceptionHandler, connectionPolicy) \
 		{ } \
 		\
 		explicit inline signal(const SendCurrentStateFunc& sendCurrentState, \
@@ -386,10 +395,10 @@ namespace stingray
 		{ } \
 		\
 		explicit inline signal(ConnectionPolicy connectionPolicy) \
-			: base(&stingray::Detail::DefaultSignalExceptionHandler, &base::DefaultSendCurrentState, connectionPolicy) \
+			: base(&stingray::Detail::DefaultSignalExceptionHandler, connectionPolicy) \
 		{ } \
 		\
-		explicit inline signal(const SendCurrentStateFunc& sendCurrentState = &base::DefaultSendCurrentState, \
+		explicit inline signal(const SendCurrentStateFunc& sendCurrentState, \
 									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler, \
 									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any) \
 			: base(exceptionHandler, sendCurrentState, connectionPolicy) \

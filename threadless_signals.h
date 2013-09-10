@@ -85,11 +85,13 @@ namespace stingray
 		ConnectionPolicy												_connectionPolicy;
 
 	protected:
-		inline threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
-			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _handlers(), _connectionPolicy(connectionPolicy)
+		inline threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy)
+			: ExceptionHandler(exceptionHandler), _connectionPolicy(connectionPolicy)
 		{ }
 
-		inline ~threadless_signal_base() { }
+		inline threadless_signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
+			: ExceptionHandler(exceptionHandler), SendCurrentStateBase(sendCurrentState), _connectionPolicy(connectionPolicy)
+		{ }
 
 		inline void InvokeAll(const Tuple<typename function_info<Signature>::ParamTypes>& p) const
 		{ InvokeAll(p, this->GetExceptionHandler()); }
@@ -116,9 +118,6 @@ namespace stingray
 				{ exceptionHandler(ex); }
 			}
 		}
-
-		static inline void DefaultSendCurrentState(const FuncType& /*connectingSlot*/)
-		{ }
 
 	public:
 
@@ -162,7 +161,8 @@ namespace stingray
 		typedef typename base::ExceptionHandlerFunc ExceptionHandlerFunc;
 		typedef typename base::SendCurrentStateFunc SendCurrentStateFunc;
 
-		explicit inline signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
+		inline signal_base(const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy): base(exceptionHandler, connectionPolicy) { }
+		inline signal_base(const ExceptionHandlerFunc& exceptionHandler, const SendCurrentStateFunc& sendCurrentState, ConnectionPolicy connectionPolicy): base(exceptionHandler, sendCurrentState, connectionPolicy) { }
 	};
 
 	class threadless_signal_connection_pool
