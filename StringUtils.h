@@ -444,20 +444,20 @@ namespace stingray
 		result.push_back(StringRef(str, i));
 	}
 
-	inline std::string RightStrip(const std::string& str, char ch = ' ')
+	inline std::string RightStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
 	{
-		const size_t pos = str.find_last_not_of(ch);
+		const size_t pos = str.find_last_not_of(chars);
 		return pos == std::string::npos? "" : str.substr(0, pos + 1);
 	}
 
-	inline std::string LeftStrip(const std::string& str, char ch = ' ')
+	inline std::string LeftStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
 	{
-		const size_t pos = str.find_first_not_of(ch);
+		const size_t pos = str.find_first_not_of(chars);
 		return pos == std::string::npos? "" : str.substr(pos);
 	}
 
-	inline std::string Strip(const std::string& str, char ch = ' ')
-	{ return LeftStrip(RightStrip(str, ch), ch); }
+	inline std::string Strip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
+	{ return LeftStrip(RightStrip(str, chars), chars); }
 
 	template< typename Transformer >
 	std::string Transform(const std::string& str, Transformer transformer)
