@@ -46,12 +46,14 @@ namespace stingray
 		{
 			MutexLock l(_lock);
 			_queue.push_front(value);
+			_cond.Broadcast();
 		}
 
 		void PushBack(const ValueType &value)
 		{
 			MutexLock l(_lock);
-			_queue.push_front(value);
+			_queue.push_back(value);
+			_cond.Broadcast();
 		}
 
 	private:
