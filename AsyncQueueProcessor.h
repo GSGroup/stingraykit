@@ -71,7 +71,7 @@ namespace stingray
 				_queue.pop_front();
 
 				MutexUnlock ll(l);
-				_processor(value);
+				STINGRAY_TRY_DO_NO_LOGGER("exception in queue processor", _processor(value));
 			}
 		}
 	};
