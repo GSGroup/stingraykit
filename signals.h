@@ -33,10 +33,13 @@ namespace stingray
 	template<typename Signature>
 	struct null_send_current_state
 	{
+	private:
+		struct Dummy {};
+	public:
 		typedef function<Signature>								FuncType;
 		typedef function<void(const FuncType& connectingSlot)>	SendCurrentStateFunc;
 		null_send_current_state()									{}
-		null_send_current_state(const SendCurrentStateFunc &)		{ CompileTimeAssert<false> ERROR_this_populator_will_not_work_with_null_strategy; }
+		null_send_current_state(const SendCurrentStateFunc &)		{ CompileTimeAssert<SameType<Dummy, Signature>::Value> ERROR_this_populator_will_not_work_with_null_strategy; }
 		static void DoSendCurrentState(const FuncType &func)		{ }
 	};
 
