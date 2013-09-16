@@ -53,7 +53,8 @@ namespace stingray
 		static inline void DefaultSendCurrentState(const FuncType& /*connectingSlot*/)
 		{ }
 
-		default_send_current_state(const SendCurrentStateFunc& func = DefaultSendCurrentState) : _sendCurrentState(func) {}
+		default_send_current_state() : _sendCurrentState(&DefaultSendCurrentState) {}
+		default_send_current_state(const SendCurrentStateFunc& func) : _sendCurrentState(func) {}
 		void DoSendCurrentState(const FuncType &func)	const		{ _sendCurrentState(func); }
 	};
 
