@@ -66,7 +66,8 @@ namespace stingray
 	{
 		ArgumentException() : Exception("Invalid argument!") { }
 		ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
-		ArgumentException(const std::string& argName, const std::string& argValue) : Exception("Invalid argument: " + argName + " value: " + argValue) { }
+		template < typename ArgumentType >
+		ArgumentException(const std::string& argName, const ArgumentType& argValue) : Exception("Invalid argument '" + argName + "' value '" + ToString(argValue) + "'") { }
 	};
 
 	class IndexOutOfRangeException : public stingray::Exception
