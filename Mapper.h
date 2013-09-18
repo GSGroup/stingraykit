@@ -28,7 +28,7 @@ namespace stingray
 					CompileTimeAssert<Start_ < End_> ERROR_start_after_end;
 					return Start_ <= val && val < End_;
 				}
-				static Dst GetValue()	{ return Center_; }
+				static Dst GetValue(Src from)	{ return Center_; }
 			};
 
 			template<Dst Preferred, Dst Other>
@@ -39,33 +39,33 @@ namespace stingray
 					CompileTimeAssert<Preferred != Other> ERROR_same_values;
 					return val == Preferred || val == Other;
 				}
-				static Dst GetValue() { return Preferred; }
+				static Dst GetValue(Src from) { return Preferred; }
 			};
 
 			template<Dst Preferred, Dst Other1, Dst Other2>
 			struct TriValue : public MappingBase<Src, Dst>
 			{
 				static bool Fits(Dst val)		{ return val == Preferred || val == Other1 || val == Other2; }
-				static Dst GetValue()	{ return Preferred; }
+				static Dst GetValue(Src from)	{ return Preferred; }
 			};
 
 			template<Dst Preferred, Dst Other1, Dst Other2, Dst Other3>
 			struct QuadValue : public MappingBase<Src, Dst>
 			{
 				static bool Fits(Dst val)		{ return val == Preferred || val == Other1 || val == Other2 || val == Other3; }
-				static Dst GetValue()	{ return Preferred; }
+				static Dst GetValue(Src from)	{ return Preferred; }
 			};
 
 			template<Dst Value_>
 			struct Value : public MappingBase<Src, Dst>
 			{
 				static bool Fits(Dst val)		{ return val == Value_; }
-				static Dst GetValue()	{ return Value_; }
+				static Dst GetValue(Src from)	{ return Value_; }
 			};
 
 			struct Fail
 			{
-				static Dst GetValue()	{ TOOLKIT_THROW(std::runtime_error("Mapping failed!")); }
+				static Dst GetValue(Src from)	{ TOOLKIT_THROW(std::runtime_error("Mapping failed!")); }
 				static bool HasValue(Src from)	{ return false; }
 			};
 		};
@@ -80,7 +80,7 @@ namespace stingray
 				typedef typename GetTypeListItem<List, N * 2 + (IsMapBack ? 0 : 1)>::ValueT	MappingTo;
 				bool result = MappingFrom::Fits(from);
 				if (result)
-					to = MappingTo::GetValue();
+					to = MappingTo::GetValue(from);
 				return !result; // need to negate since ForIf continues untill gets "false" and we need to stop when found fitting mapping
 			}
 
@@ -118,7 +118,7 @@ namespace stingray
 
 				DstT result;
 				if (ForIf<GetTypeListLength<List>::Value / 2, MapFunctor>::Do(val, ref(result)))
-					return DefaultValue::GetValue();
+					return DefaultValue::GetValue(val);
 				return result;
 			}
 
@@ -129,7 +129,7 @@ namespace stingray
 
 				SrcT result;
 				if (ForIf<GetTypeListLength<List>::Value / 2, UnmapFunctor>::Do(val, ref(result)))
-					return DefaultValue::GetValue();
+					return DefaultValue::GetValue(val);
 				return result;
 			}
 
