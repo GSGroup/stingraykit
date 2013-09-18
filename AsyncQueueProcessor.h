@@ -20,12 +20,13 @@ namespace stingray
 		bool				_running;
 		FunctorType			_processor;
 
-		Thread				_thread;
 		ConditionVariable	_cond;
 		Mutex				_lock;
 
 		typedef std::list<ValueType> Queue;
 		Queue				_queue;
+
+		Thread				_thread;
 
 	public:
 		AsyncQueueProcessor(const std::string &name, const FunctorType &processor): _running(true), _processor(processor), _thread(name, bind(&AsyncQueueProcessor::ThreadFunc, this))
