@@ -31,6 +31,9 @@ namespace stingray
 	template < typename T >
 	class shared_ptr;
 
+	template < typename T >
+	std::string ToString(const T& val); // for ArgumentException; TODO find better workaround
+
 	class Exception : public std::runtime_error
 	{
 	public:
