@@ -18,6 +18,22 @@ namespace stingray
 			static bool HasValue(Src from)	{ return true; }
 		};
 
+		template<typename Src, typename Dst, bool IsSrcStringRepresentable = IsStringRepresentable<Src>::Value>
+		struct FailImpl
+		{
+			static Dst GetValue(Src from)
+			{ TOOLKIT_THROW(StringBuilder() % "Mapping " % Demangle(typeid(Src).name()) % " -> " % Demangle(typeid(Dst).name()) % " failed! Source value: " % ToString(from)); }
+			static bool HasValue(Src from)	{ return false; }
+		};
+
+		template<typename Src, typename Dst>
+		struct FailImpl<Src, Dst, false>
+		{
+			static Dst GetValue(Src from)
+			{ TOOLKIT_THROW(StringBuilder() % "Mapping " % Demangle(typeid(Src).name()) % " -> " % Demangle(typeid(Dst).name()) % " failed! Source value is not string representable!"); }
+			static bool HasValue(Src from)	{ return false; }
+		};
+
 		template<typename Src, typename Dst>
 		struct Mappings
 		{
@@ -64,11 +80,7 @@ namespace stingray
 				static Dst GetValue(Src from)	{ return Value_; }
 			};
 
-			struct Fail
-			{
-				static Dst GetValue(Src from)	{ TOOLKIT_THROW(StringBuilder() % "Mapping failed! Source value: " % ToString(from)); }
-				static bool HasValue(Src from)	{ return false; }
-			};
+			typedef FailImpl<Src, Dst> Fail;
 		};
 
 		template<typename SrcT, typename DstT, typename List, typename Default>
