@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_MAPPER_H
 
 
+#include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/reference.h>
 
 
@@ -65,7 +66,7 @@ namespace stingray
 
 			struct Fail
 			{
-				static Dst GetValue(Src from)	{ TOOLKIT_THROW(std::runtime_error("Mapping failed!")); }
+				static Dst GetValue(Src from)	{ TOOLKIT_THROW(StringBuilder() % "Mapping failed! Source value: " % ToString(from)); }
 				static bool HasValue(Src from)	{ return false; }
 			};
 		};
