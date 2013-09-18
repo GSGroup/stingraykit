@@ -11,55 +11,62 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename T>
+		template<typename Src, typename Dst>
+		struct MappingBase
+		{
+			static bool HasValue(Src from)	{ return true; }
+		};
+
+		template<typename Src, typename Dst>
 		struct Mappings
 		{
-			template<T Start_, T Center_, T End_>
-			struct Range
+			template<Dst Start_, Dst Center_, Dst End_>
+			struct Range : public MappingBase<Src, Dst>
 			{
-				static bool Fits(T val)
+				static bool Fits(Dst val)
 				{
 					CompileTimeAssert<Start_ < End_> ERROR_start_after_end;
 					return Start_ <= val && val < End_;
 				}
-				static T GetValue() { return Center_; }
+				static Dst GetValue()	{ return Center_; }
 			};
 
-			template<T Preferred, T Other>
-			struct BiValue
+			template<Dst Preferred, Dst Other>
+			struct BiValue : public MappingBase<Src, Dst>
 			{
-				static bool Fits(T val)
+				static bool Fits(Dst val)
 				{
 					CompileTimeAssert<Preferred != Other> ERROR_same_values;
 					return val == Preferred || val == Other;
 				}
-				static T GetValue() { return Preferred; }
+				static Dst GetValue() { return Preferred; }
 			};
 
-			template<T Preferred, T Other1, T Other2>
-			struct TriValue
+			template<Dst Preferred, Dst Other1, Dst Other2>
+			struct TriValue : public MappingBase<Src, Dst>
 			{
-				static bool Fits(T val)	{ return val == Preferred || val == Other1 || val == Other2; }
-				static T GetValue()		{ return Preferred; }
+				static bool Fits(Dst val)		{ return val == Preferred || val == Other1 || val == Other2; }
+				static Dst GetValue()	{ return Preferred; }
 			};
 
-			template<T Preferred, T Other1, T Other2, T Other3>
-			struct QuadValue
+			template<Dst Preferred, Dst Other1, Dst Other2, Dst Other3>
+			struct QuadValue : public MappingBase<Src, Dst>
 			{
-				static bool Fits(T val)	{ return val == Preferred || val == Other1 || val == Other2 || val == Other3; }
-				static T GetValue()		{ return Preferred; }
+				static bool Fits(Dst val)		{ return val == Preferred || val == Other1 || val == Other2 || val == Other3; }
+				static Dst GetValue()	{ return Preferred; }
 			};
 
-			template<T Value_>
-			struct Value
+			template<Dst Value_>
+			struct Value : public MappingBase<Src, Dst>
 			{
-				static bool Fits(T val)	{ return val == Value_; }
-				static T GetValue()		{ return Value_; }
+				static bool Fits(Dst val)		{ return val == Value_; }
+				static Dst GetValue()	{ return Value_; }
 			};
 
 			struct Fail
 			{
-				static T GetValue()		{ TOOLKIT_THROW(std::runtime_error("Mapping failed!")); }
+				static Dst GetValue()	{ TOOLKIT_THROW(std::runtime_error("Mapping failed!")); }
+				static bool HasValue(Src from)	{ return false; }
 			};
 		};
 
@@ -84,7 +91,7 @@ namespace stingray
 				typedef typename GetTypeListItem<List, N * 2 + (IsMapBack ? 0 : 1)>::ValueT	MappingTo;
 				bool result = MappingFrom::Fits(from);
 				if (result)
-					res = !SameType<MappingTo, typename Mappings<typename If<IsMapBack, SrcT, DstT>::ValueT>::Fail>::Value;
+					res = MappingTo::HasValue(from);
 				return !result; // need to negate since ForIf continues untill gets "false" and we need to stop when found fitting mapping
 			}
 
@@ -133,7 +140,7 @@ namespace stingray
 
 				bool result = false;
 				if (ForIf<GetTypeListLength<List>::Value / 2, HasMappingFunctor>::Do(val, ref(result)))
-					result = !SameType<DefaultValue, typename Mappings<DstT>::Fail>::Value;
+					result = DefaultValue::HasValue(val);
 				return result;
 			}
 
@@ -144,7 +151,7 @@ namespace stingray
 
 				bool result = false;
 				if (ForIf<GetTypeListLength<List>::Value / 2, HasBackMappingFunctor>::Do(val, ref(result)))
-					result = !SameType<DefaultValue, typename Mappings<SrcT>::Fail>::Value;
+					result = DefaultValue::HasValue(val);
 				return result;
 			}
 
@@ -161,8 +168,8 @@ namespace stingray
 	{
 		typedef SrcT SrcType;
 		typedef DstT DstType;
-		typedef stingray::Detail::Mappings<SrcType> Src; // Short names are used for sake of mapping list readability: TypeList_2<Src::Value<123>, Dst::Range<1, 2, 3> >
-		typedef stingray::Detail::Mappings<DstType> Dst;
+		typedef stingray::Detail::Mappings<DstType, SrcType> Src; // Short names are used for sake of mapping list readability: TypeList_2<Src::Value<123>, Dst::Range<1, 2, 3> >
+		typedef stingray::Detail::Mappings<SrcType, DstType> Dst;
 
 		static DstType Map(SrcType val)
 		{
