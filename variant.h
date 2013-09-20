@@ -113,7 +113,7 @@ namespace stingray
 	private:
 		std::string		_message;
 	public:
-		bad_variant_get(const std::string& to) : _message("Bad 'variant' get (" + to + " type requested)!") { }
+		bad_variant_get(const std::string& to, const std::string& from) : _message("Bad 'variant' get (" + to + " type requested, variant type is " + from + ")!") { }
 		virtual ~bad_variant_get() throw() { }
 
 		virtual const char* what() const throw() { return _message.c_str(); }
@@ -125,7 +125,7 @@ namespace stingray
 	{
 		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
 		try { return v ? any_cast<T>(&v->_data) : NULL; }
-		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()))); }
+		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v->type().name()))); }
 	}
 
 	template<typename T, typename Typelist_> 
@@ -133,7 +133,7 @@ namespace stingray
 	{
 		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
 		try { return v ? any_cast<T>(&v->_data) : NULL; }
-		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()))); }
+		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v->type().name()))); }
 	}
 
 	template<typename T, typename Typelist_> 
@@ -141,7 +141,7 @@ namespace stingray
 	{
 		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
 		try { return any_cast<T>(v._data); }
-		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()))); }
+		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v.type().name()))); }
 	}
 
 	template<typename T, typename Typelist_> 
@@ -149,7 +149,7 @@ namespace stingray
 	{
 		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
 		try { return any_cast<T>(v._data); }
-		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()))); }
+		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v.type().name()))); }
 	}
 
 }
