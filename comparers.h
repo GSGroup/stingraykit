@@ -2,8 +2,10 @@
 #define STINGRAY_TOOLKIT_COMPARERS_H
 
 
+#include <stingray/toolkit/MemberListComparer.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/function_info.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 
 namespace stingray
@@ -23,6 +25,11 @@ namespace stingray
 		bool operator () (const T& l, const U& r) const
 		{ return !_less(l, r) && !_less(r, l); }
 	};
+
+
+	template < typename T >
+	struct owner_equals : public less_to_equals<owner_less<T> >
+	{ };
 
 
 	struct CompareMethodComparer
@@ -78,7 +85,7 @@ namespace stingray
 				return size_result;
 
 			typedef typename T::const_iterator TCI;
-			std::pair<TCI, TCI> msmtch = std::mismatch(lhs.begin(), lhs.end(), rhs.begin(), ItemComparer());
+			std::pair<TCI, TCI> msmtch = std::mismatch(lhs.begin(), lhs.end(), rhs.begin(), CmpAdapter<ItemComparer, std::equal_to>());
 			if (msmtch.first == lhs.end())
 				return 0;
 			return ItemComparer()(*msmtch.first, *msmtch.second);

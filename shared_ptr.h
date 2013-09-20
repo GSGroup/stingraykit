@@ -7,7 +7,6 @@
 
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/Macro.h>
-#include <stingray/toolkit/comparers.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/ref_count.h>
@@ -469,11 +468,6 @@ namespace stingray
 		bool operator()(const weak_ptr<T>& t1, const shared_ptr<T>& t2) const	{ return t1.owner_before(t2); }
 		bool operator()(const shared_ptr<T>& t1, const weak_ptr<T>& t2) const	{ return t1.owner_before(t2); }
 	};
-
-	template < typename T >
-	struct owner_equals : public less_to_equals<owner_less<T> >
-	{ };
-
 
 }
 

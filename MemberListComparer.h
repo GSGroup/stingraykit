@@ -3,7 +3,6 @@
 
 #include <stingray/toolkit/MemberToValueComparer.h>
 #include <stingray/toolkit/Tuple.h>
-#include <stingray/toolkit/comparers.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 namespace stingray
