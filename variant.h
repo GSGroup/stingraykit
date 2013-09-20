@@ -2,6 +2,8 @@
 #define STINGRAY_TOOLKIT_VARIANT_H
 
 
+#include <typeinfo>
+
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/any.h>
 
@@ -28,6 +30,20 @@ namespace stingray
 					return true;
 
 				result = N;
+				return false; // break the loop
+			}
+		};
+
+		template < int N >
+		struct GetTypeInfoFunc
+		{
+			static bool Call(const any* data, const std::type_info*& result)
+			{
+				typedef typename GetTypeListItem<Typelist_, N>::ValueT	Type;
+				if (!any_cast<Type>(data))
+					return true;
+
+				result = &typeid(Type);
 				return false; // break the loop
 			}
 		};
@@ -78,7 +94,12 @@ namespace stingray
 		bool empty() const
 		{ return _data.empty(); }
 
-		//const std::type_info & type() const;
+		const std::type_info & type() const
+		{
+			const std::type_info* result = NULL;
+			ForIf<GetTypeListLength<Typelist_>::Value, GetTypeInfoFunc>::Do(&_data, ref(result));
+			return *TOOLKIT_REQUIRE_NOT_NULL(result);
+		}
 
 		//bool operator==(const variant &) const;
 		//template<typename U> void operator==(const U &) const;
