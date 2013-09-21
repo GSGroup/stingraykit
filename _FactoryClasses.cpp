@@ -8,6 +8,7 @@
 #include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
 #include <stingray/hdmi/IHDMI.h>
+#include <stingray/media/ImageFileMediaData.h>
 #include <stingray/media/MediaInfoBase.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/parentalcontrol/AgeRating.h>
@@ -55,6 +56,8 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AutoFilter);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaPreview);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(InMemoryImageMediaPreview);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MediaInfoBase);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
