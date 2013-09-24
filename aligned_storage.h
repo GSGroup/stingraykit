@@ -19,11 +19,11 @@ namespace stingray
 
 			template <typename T, int size_diff>
 			struct AlignmentOfHelper
-			{ static const size_t value = size_diff; };
+			{ static const size_t Value = size_diff; };
 
 			template <typename T>
 			struct AlignmentOfHelper<T, 0>
-			{ static const size_t value = alignment_of<T>::Value; };
+			{ static const size_t Value = alignment_of<T>::Value; };
 
 			template <typename T>
 			struct alignment_of
@@ -31,7 +31,7 @@ namespace stingray
 				struct Enlarged { T x; char c; };
 
 				static const size_t diff = sizeof(Enlarged) - sizeof(T);
-				static const size_t value = AlignmentOfHelper<Enlarged, diff>::value;
+				static const size_t Value = AlignmentOfHelper<Enlarged, diff>::Value;
 			};
 		}
 
@@ -42,7 +42,7 @@ namespace stingray
 			struct alignment_of
 			{
 				static const size_t size = sizeof(T);
-				static const size_t value = size ^ (size & (size - 1));
+				static const size_t Value = size ^ (size & (size - 1));
 			};
 		}
 
@@ -106,13 +106,22 @@ namespace stingray
 	}
 
 
-    template <typename T>
-    struct alignment_of
-    {
-       static const size_t simple = Detail::SimpleAlignmentMeasurer::alignment_of<T>::value;
-	   static const size_t enlarged = Detail::EnlargementAlignmentMeasurer::alignment_of<T>::value;
-	   static const size_t value = simple < enlarged ? simple : enlarged;
-    };
+	template <typename T>
+	struct alignment_of
+	{
+		static const size_t simple = Detail::SimpleAlignmentMeasurer::alignment_of<T>::Value;
+		static const size_t enlarged = Detail::EnlargementAlignmentMeasurer::alignment_of<T>::Value;
+		static const size_t Value = simple < enlarged ? simple : enlarged;
+
+		typedef integer_constant<size_t, Value> ValueT;
+	};
+
+
+	template<typename T>
+	struct SizeOf
+	{
+		typedef integer_constant<size_t, sizeof(T)> ValueT;
+	};
 
 
 	template<size_t Len, size_t Align>
@@ -127,7 +136,7 @@ namespace stingray
 	template<typename T, bool IsPod = IsBuiltinType<T>::Value || IsPointer<T>::Value>
 	struct StorageFor
 	{
-		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type	_value;
+		typename aligned_storage<sizeof(T), alignment_of<T>::Value>::type	_value;
 		T*																	_ptr;
 
 		void Ctor()											{ _ptr = new(&_value) T(); }
@@ -167,7 +176,7 @@ namespace stingray
 	template<typename T>
 	struct StorageFor
 	{
-		typename aligned_storage<sizeof(T), alignment_of<T>::value>::type	_value;
+		typename aligned_storage<sizeof(T), alignment_of<T>::Value>::type	_value;
 
 		void Ctor()											{ T* ptr = new(&_value) T(); assert(ptr == &Ref()); }
 

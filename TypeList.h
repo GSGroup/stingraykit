@@ -267,7 +267,26 @@ namespace stingray
 	struct TypeListReverse<TypeListEndNode>
 	{ typedef TypeListEndNode ValueT; };
 
+	namespace Detail
+	{
+		template<typename Val1, typename Val2>
+		struct MaxImpl
+		{
+			typedef typename If<(Val1::Value > Val2::Value), Val1, Val2>::ValueT ValueT;
+		};
+	}
 
+	template<typename TypeList, typename Tail = typename TypeList::Next>
+	struct MaxElement
+	{
+		typedef typename Detail::MaxImpl<typename TypeList::ValueT, typename MaxElement<typename TypeList::Next>::ValueT>::ValueT ValueT;
+	};
+
+	template <typename T>
+	struct MaxElement<T, TypeListEndNode>
+	{
+		typedef typename T::ValueT ValueT;
+	};
 
 	template < typename TypeList, template <typename> class FunctorClass >
 	struct ForEachInTypeList
