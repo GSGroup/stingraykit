@@ -112,6 +112,8 @@ namespace stingray
 		static const size_t simple = Detail::SimpleAlignmentMeasurer::alignment_of<T>::Value;
 		static const size_t enlarged = Detail::EnlargementAlignmentMeasurer::alignment_of<T>::Value;
 		static const size_t Value = simple < enlarged ? simple : enlarged;
+
+		typedef integer_constant<size_t, Value> ValueT;
 	};
 
 
