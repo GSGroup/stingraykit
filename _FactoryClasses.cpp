@@ -10,6 +10,7 @@
 #include <stingray/hdmi/IHDMI.h>
 #include <stingray/media/ImageFileMediaData.h>
 #include <stingray/media/MediaInfoBase.h>
+#include <stingray/media/Mp3MediaInfo.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/parentalcontrol/AgeRating.h>
 #ifdef PLATFORM_EMU
@@ -60,6 +61,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaPreview);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(InMemoryImageMediaPreview);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MediaInfoBase);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(Mp3MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
 #ifdef PLATFORM_EMU
