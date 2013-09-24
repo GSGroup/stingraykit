@@ -18,7 +18,7 @@ namespace stingray
 		template<typename T, typename SomeTypelist_> friend const T* variant_get(const variant<SomeTypelist_>* v);
 		template<typename T, typename SomeTypelist_> friend T& variant_get(variant<SomeTypelist_>& v);
 		template<typename T, typename SomeTypelist_> friend const T& variant_get(const variant<SomeTypelist_>& v);
-	
+
 		typedef typename GetTypeListItem<Typelist_, 0>::ValueT	DefaultType;
 
 		template < int N >
@@ -63,7 +63,7 @@ namespace stingray
 			: _data(val)
 		{ CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant; }
 
-		//template < typename OtherTypelist > 
+		//template < typename OtherTypelist >
 		//variant(const variant<OtherTypelist>& other);
 
 		void swap(variant& other)
@@ -75,7 +75,7 @@ namespace stingray
 			swap(tmp);
 			return *this;
 		}
-		
+
 		template<typename T>
 		variant & operator= (const T & val)
 		{
@@ -120,7 +120,7 @@ namespace stingray
 	};
 
 
-	template<typename T, typename Typelist_> 
+	template<typename T, typename Typelist_>
 	T* variant_get(variant<Typelist_>* v)
 	{
 		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
@@ -128,7 +128,7 @@ namespace stingray
 		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v->type().name()))); }
 	}
 
-	template<typename T, typename Typelist_> 
+	template<typename T, typename Typelist_>
 	const T* variant_get(const variant<Typelist_>* v)
 	{
 		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
@@ -136,7 +136,7 @@ namespace stingray
 		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v->type().name()))); }
 	}
 
-	template<typename T, typename Typelist_> 
+	template<typename T, typename Typelist_>
 	T& variant_get(variant<Typelist_>& v)
 	{
 		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
@@ -144,7 +144,7 @@ namespace stingray
 		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v.type().name()))); }
 	}
 
-	template<typename T, typename Typelist_> 
+	template<typename T, typename Typelist_>
 	const T& variant_get(const variant<Typelist_>& v)
 	{
 		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
