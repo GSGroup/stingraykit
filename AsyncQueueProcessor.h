@@ -89,9 +89,10 @@ namespace stingray
 				{
 					SetIdle(l, true);
 					_cond.Wait(_lock);
+					if (!_queue.empty())
+						SetIdle(l, false);
 					continue;
 				}
-				SetIdle(l, false);
 				ValueType value = _queue.front();
 				_queue.pop_front();
 
