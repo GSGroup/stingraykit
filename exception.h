@@ -218,7 +218,7 @@ namespace stingray
 	}
 
 
-#define TOOLKIT_THROW(ExceptionObj) throw ::stingray::Detail::MakeException(ExceptionObj, TOOLKIT_WHERE)
+#define TOOLKIT_THROW(...) throw ::stingray::Detail::MakeException(__VA_ARGS__, TOOLKIT_WHERE)
 
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 
