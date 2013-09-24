@@ -152,6 +152,8 @@ namespace stingray
 	T* to_pointer(T& val)
 	{ return &val; }
 
+	struct EmptyType
+	{ };
 
 	TOOLKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 
