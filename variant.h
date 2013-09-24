@@ -228,11 +228,11 @@ namespace stingray
 	}
 
 
-	template <typename TypeList>
+	template <typename TypeList, bool CanBeEmpty = TypeListContains<TypeList, EmptyType>::Value>
 	class variant : public Detail::VariantBase<TypeList>
 	{
 		typedef Detail::VariantBase<TypeList>	base;
-		typedef variant<TypeList>				MyType;
+		typedef variant<TypeList, CanBeEmpty>	MyType;
 		typedef typename TypeList::ValueT		DefaultType;
 
 	public:
@@ -264,6 +264,8 @@ namespace stingray
 			return *this;
 		}
 
+		bool empty() const { return false; }
+
 	private:
 		template <typename T>
 		void AssignVal(const T& val)
@@ -286,6 +288,81 @@ namespace stingray
 		};
 
 		void Assign(const MyType& other) { other.ApplyVisitor(CopyCtorVisitor(*this)); }
+	};
+
+
+	template <typename TypeList>
+	class variant<TypeList, true> : public Detail::VariantBase<TypeList>
+	{
+		typedef Detail::VariantBase<TypeList>	base;
+		typedef variant<TypeList, true>			MyType;
+		typedef EmptyType						DefaultType;
+
+	public:
+		variant()
+		{ AssignDefault(); }
+
+		template < typename T >
+		variant(const T &val)
+		{ AssignVal(val); }
+
+		variant(const variant &other)
+		{ Assign(other); }
+
+		~variant()
+		{ base::Destruct(); }
+
+		variant & operator= (const variant& other)
+		{
+			base::Destruct();
+			Assign(other);
+			return *this;
+		}
+
+		template<typename T>
+		variant & operator= (const T & val)
+		{
+			base::Destruct();
+			AssignVal(val);
+			return *this;
+		}
+
+		bool empty() const { return base::which() == IndexOfTypeListItem<TypeList, EmptyType>::Value; }
+
+	private:
+		template <typename T>
+		void AssignVal(const T& val)
+		{
+			try
+			{
+				this->_storage.template Ctor<T>(val);
+				this->_type = IndexOfTypeListItem<TypeList, T>::Value;
+			}
+			catch (const std::exception& ex)
+			{ AssignDefault(); throw; }
+		}
+
+		void AssignDefault()
+		{
+			this->_storage.template Ctor<EmptyType>();
+			this->_type = IndexOfTypeListItem<TypeList, EmptyType>::Value;
+		}
+
+		struct CopyCtorVisitor : static_visitor<>
+		{
+		private:
+			MyType& _target;
+
+		public:
+			CopyCtorVisitor(MyType& t) : _target(t)
+			{}
+
+			template<typename T>
+			void operator()(const T& t) const { _target.AssignVal(t); }
+		};
+
+		void Assign(const MyType& other)
+		{ other.ApplyVisitor(CopyCtorVisitor(*this)); }
 	};
 
 
