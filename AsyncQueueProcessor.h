@@ -4,6 +4,7 @@
 #include <stingray/threads/ConditionVariable.h>
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/function.h>
+#include <stingray/toolkit/signals.h>
 #include <list>
 
 namespace stingray
@@ -26,10 +27,17 @@ namespace stingray
 		typedef std::list<ValueType> Queue;
 		Queue				_queue;
 
-		Thread				_thread;
+		bool				_idle;
 
 	public:
-		AsyncQueueProcessor(const std::string &name, const FunctorType &processor): _running(true), _processor(processor), _thread(name, bind(&AsyncQueueProcessor::ThreadFunc, this))
+		signal<void(bool)> OnIdle;
+
+		AsyncQueueProcessor(const std::string &name, const FunctorType &processor):
+			_running(true),
+			_processor(processor),
+			_idle(true),
+			OnIdle(bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
+			_thread(name, bind(&AsyncQueueProcessor::ThreadFunc, this))
 		{ }
 
 		~AsyncQueueProcessor()
@@ -58,6 +66,20 @@ namespace stingray
 		}
 
 	private:
+		void OnIdlePopulator(const function<void (bool)> & slot)
+		{ slot(_idle); }
+
+		void SetIdle(MutexLock &lock, bool idle)
+		{
+			MutexUnlock ll(lock);
+			signal_locker l(OnIdle);
+			if (idle != _idle)
+			{
+				_idle = idle;
+				OnIdle(_idle);
+			}
+		}
+
 		void ThreadFunc()
 		{
 			MutexLock l(_lock);
@@ -65,9 +87,11 @@ namespace stingray
 			{
 				if (_queue.empty())
 				{
+					SetIdle(l, true);
 					_cond.Wait(_lock);
 					continue;
 				}
+				SetIdle(l, false);
 				ValueType value = _queue.front();
 				_queue.pop_front();
 
@@ -75,6 +99,8 @@ namespace stingray
 				STINGRAY_TRY_DO_NO_LOGGER("exception in queue processor", _processor(value));
 			}
 		}
+
+		Thread				_thread; //the last one to be initialized
 	};
 
 }
