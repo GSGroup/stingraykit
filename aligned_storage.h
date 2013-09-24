@@ -117,6 +117,13 @@ namespace stingray
 	};
 
 
+	template<typename T>
+	struct SizeOf
+	{
+		typedef integer_constant<size_t, sizeof(T)> ValueT;
+	};
+
+
 	template<size_t Len, size_t Align>
 	struct aligned_storage
 	{
