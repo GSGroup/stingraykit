@@ -222,9 +222,6 @@ namespace stingray
 			operator ResultType() const				{ return _transform(*_wrapped); }
 			void operator=(const ResultType& val)	{ *_wrapped = _transformBackFunc(val); }
 		};
-
-		struct EmptyType
-		{};
 	}
 
 
@@ -262,14 +259,14 @@ namespace stingray
 
 
 	template<typename T, typename TransformFunc>
-	TransformerIterator<T, TransformFunc, Detail::EmptyType> TransformIterator(const T& iter, const TransformFunc& transformFunc)
-	{ return TransformerIterator<T, TransformFunc, Detail::EmptyType>(iter, transformFunc, Detail::EmptyType()); }
+	TransformerIterator<T, TransformFunc, EmptyType> TransformIterator(const T& iter, const TransformFunc& transformFunc)
+	{ return TransformerIterator<T, TransformFunc, EmptyType>(iter, transformFunc, EmptyType()); }
 
 
 	template<typename T, typename TransformFunc>
-	IteratorsRange<TransformerIterator<typename T::const_iterator, TransformFunc, Detail::EmptyType> > TransformRange(const T& range, const TransformFunc& transformFunc)
+	IteratorsRange<TransformerIterator<typename T::const_iterator, TransformFunc, EmptyType> > TransformRange(const T& range, const TransformFunc& transformFunc)
 	{
-		return IteratorsRange<TransformerIterator<typename T::const_iterator, TransformFunc, Detail::EmptyType> >(
+		return IteratorsRange<TransformerIterator<typename T::const_iterator, TransformFunc, EmptyType> >(
 			TransformIterator(range.begin(), transformFunc),
 			TransformIterator(range.end(), transformFunc));
 	}
