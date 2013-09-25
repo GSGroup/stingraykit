@@ -15,7 +15,7 @@ namespace stingray
 		s64		Current;
 		s64		Total;
 
-		ProgressValue(int current, int total)
+		ProgressValue(s64 current = 0, s64 total = 0)
 			: Current(current), Total(total)
 		{ }
 

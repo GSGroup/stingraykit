@@ -39,7 +39,6 @@ namespace stingray
 			_running(true),
 			_processor(processor),
 			_idle(true),
-			_progress(0, 0),
 			OnIdle(bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
 			OnProgress(bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1)),
 			_thread(name, bind(&AsyncQueueProcessor::ThreadFunc, this))
