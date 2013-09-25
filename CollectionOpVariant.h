@@ -32,17 +32,11 @@ namespace stingray
 			Modified(const ItemType& oldValue, const ItemType& newValue) : OldValue(oldValue), NewValue(newValue) { }
 		};
 
-
-		struct Op
-		{
-			TOOLKIT_ENUM_VALUES(Added = 1, Removed, Modified); // Should be the same as indices in the typelist
-			TOOLKIT_DECLARE_ENUM_CLASS(Op);
-		};
-
 	private:
 		typedef TYPELIST(EmptyType, Added, Removed, Modified)	Types;
+		typedef variant<Types>									Variant;
 
-		variant<Types>		_data;
+		Variant		_data;
 
 	public:
 		CollectionOpVariant()
@@ -54,15 +48,23 @@ namespace stingray
 			: _data(p)
 		{ }
 
-		Op GetOp() const
+		CollectionOp GetOp() const
 		{
-			TOOLKIT_CHECK(_data.which() > 0, "Cannot access empty CollectionOpVariant!");
-			return Op(_data.which());
+			switch (_data.which())
+			{
+			case IndexOfTypeListItem<Types, Added>::Value:		return CollectionOp::Added;
+			case IndexOfTypeListItem<Types, Modified>::Value:	return CollectionOp::Added;
+			case IndexOfTypeListItem<Types, Removed>::Value:	return CollectionOp::Added;
+			default:											TOOLKIT_THROW("Cannot access empty CollectionOpVariant!");
+			}
 		}
 
 		template < typename T >
 		const T& As() const
 		{ return variant_get<T>(_data); }
+
+		const variant<Types>& GetVariant() const
+		{ return _data; }
 	};
 
 
