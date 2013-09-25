@@ -2,7 +2,8 @@
 #define STINGRAY_TOOLKIT_PROGRESSVALUE_H
 
 
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/Types.h>
+#include <string>
 
 
 namespace stingray
@@ -21,8 +22,7 @@ namespace stingray
 		int InPercents() const
 		{ return Total != 0 ? 100 * Current / Total : 0; }
 
-		std::string ToString() const
-		{ return StringBuilder() % InPercents() % "%"; }
+		std::string ToString() const;
 
 		bool operator == (const ProgressValue& other) const { return Current == other.Current && Total == other.Total; }
 		bool operator != (const ProgressValue& other) const { return !(*this == other); }
