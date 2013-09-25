@@ -382,6 +382,21 @@ namespace stingray
 	const T& variant_get(const variant<TypeList>& v)
 	{ return v.template get<T>(); }
 
+	template<typename Visitor, typename TypeList>
+	typename Visitor::RetType apply_visitor(Visitor& visitor, variant<TypeList>& v)
+	{ v.ApplyVisitor(visitor); }
+
+	template<typename Visitor, typename TypeList>
+	typename Visitor::RetType apply_visitor(const Visitor& visitor, variant<TypeList>& v)
+	{ v.ApplyVisitor(visitor); }
+
+	template<typename Visitor, typename TypeList>
+	typename Visitor::RetType apply_visitor(Visitor& visitor, const variant<TypeList>& v)
+	{ v.ApplyVisitor(visitor); }
+
+	template<typename Visitor, typename TypeList>
+	typename Visitor::RetType apply_visitor(const Visitor& visitor, const variant<TypeList>& v)
+	{ v.ApplyVisitor(visitor); }
 
 }
 
