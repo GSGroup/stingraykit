@@ -21,103 +21,6 @@
 namespace stingray
 {
 
-	template < typename Typelist_ >
-	class variant
-	{
-		template<typename T, typename SomeTypelist_> friend T* variant_get(variant<SomeTypelist_>* v);
-		template<typename T, typename SomeTypelist_> friend const T* variant_get(const variant<SomeTypelist_>* v);
-		template<typename T, typename SomeTypelist_> friend T& variant_get(variant<SomeTypelist_>& v);
-		template<typename T, typename SomeTypelist_> friend const T& variant_get(const variant<SomeTypelist_>& v);
-
-		typedef typename GetTypeListItem<Typelist_, 0>::ValueT	DefaultType;
-
-		template < int N >
-		struct WhichFunc
-		{
-			static bool Call(const any* data, int& result)
-			{
-				if (!any_cast<typename GetTypeListItem<Typelist_, N>::ValueT>(data))
-					return true;
-
-				result = N;
-				return false; // break the loop
-			}
-		};
-
-		template < int N >
-		struct GetTypeInfoFunc
-		{
-			static bool Call(const any* data, const std::type_info*& result)
-			{
-				typedef typename GetTypeListItem<Typelist_, N>::ValueT	Type;
-				if (!any_cast<Type>(data))
-					return true;
-
-				result = &typeid(Type);
-				return false; // break the loop
-			}
-		};
-
-	private:
-		any _data; // TODO: reimplement
-
-	public:
-		typedef Typelist_ typelist;
-
-		variant()
-			: _data(DefaultType())
-		{ }
-
-		template < typename T >
-		variant(const T &val)
-			: _data(val)
-		{ CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant; }
-
-		//template < typename OtherTypelist >
-		//variant(const variant<OtherTypelist>& other);
-
-		void swap(variant& other)
-		{ std::swap(_data, other._data); }
-
-		variant & operator= (const variant& other)
-		{
-			variant tmp(other);
-			swap(tmp);
-			return *this;
-		}
-
-		template<typename T>
-		variant & operator= (const T & val)
-		{
-			variant tmp(val);
-			swap(tmp);
-			return *this;
-		}
-
-		int which() const
-		{
-			int result = -1;
-			ForIf<GetTypeListLength<Typelist_>::Value, WhichFunc>::Do(&_data, ref(result));
-			return result;
-		}
-
-		bool empty() const
-		{ return _data.empty(); }
-
-		const std::type_info & type() const
-		{
-			const std::type_info* result = NULL;
-			ForIf<GetTypeListLength<Typelist_>::Value, GetTypeInfoFunc>::Do(&_data, ref(result));
-			return *TOOLKIT_REQUIRE_NOT_NULL(result);
-		}
-
-		//bool operator==(const variant &) const;
-		//template<typename U> void operator==(const U &) const;
-
-		//bool operator<(const variant &) const;
-		//template<typename U> void operator<(const U &) const;
-	};
-
 	class bad_variant_get : public std::bad_cast
 	{
 	private:
@@ -130,215 +33,246 @@ namespace stingray
 	};
 
 
-	template<typename T, typename Typelist_>
-	T* variant_get(variant<Typelist_>* v)
+	namespace Detail
 	{
-		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
-		try { return v ? any_cast<T>(&v->_data) : NULL; }
-		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v->type().name()))); }
+
+		template<typename Visitor, typename Variant, bool HasRetType = !SameType<typename Visitor::RetType, void>::Value>
+		struct VariantFunctorApplier
+		{
+			template<int Index>
+			struct ApplierHelper
+			{
+				static bool Call(const Visitor& v, Variant& t, typename Visitor::RetType& result)
+				{
+					if (t.which() != Index)
+						return true;
+					result = v.template Call<typename GetTypeListItem<typename Variant::TypeList, Index>::ValueT>(t);
+					return false; // stop ForIf
+				}
+			};
+
+			static typename Visitor::RetType Apply(const Visitor& v, Variant& var)
+			{
+				typedef typename Visitor::RetType RetType;
+				RetType result = RetType();
+				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var), ref(result)))
+					TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
+				return result;
+			}
+		};
+
+		template<typename Visitor, typename Variant>
+		struct VariantFunctorApplier<Visitor, Variant, false>
+		{
+			template<int Index>
+			struct ApplierHelper
+			{
+				static bool Call(const Visitor& v, Variant& t)
+				{
+					if (t.which() != Index)
+						return true;
+					v.template Call<typename GetTypeListItem<typename Variant::TypeList, Index>::ValueT>(t);
+					return false; // stop ForIf
+				}
+			};
+
+			static void Apply(const Visitor& v, Variant& var)
+			{
+				typedef typename Visitor::RetType RetType;
+				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var)))
+					TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
+			}
+		};
+
+
+		template <typename TypeList_>
+		struct VariantBase
+		{
+			typedef TypeList_					TypeList;
+
+		protected:
+			typedef VariantBase<TypeList>		MyType;
+			typedef MultiStorageFor<TypeList>	Storage;
+
+			int		_type;
+			Storage _storage;
+
+		public:
+			int which() const
+			{ return _type; }
+
+			const std::type_info& type() const
+			{ return *TOOLKIT_REQUIRE_NOT_NULL(ApplyVisitor(GetTypeInfoVisitor())); }
+
+			template<typename Visitor>
+			typename Visitor::RetType ApplyVisitor(Visitor& v)
+			{
+				VisitorApplier<Visitor> applier(v);
+				return ApplyFunctor(applier);
+			}
+
+			template<typename Visitor>
+			typename Visitor::RetType ApplyVisitor(const Visitor& v)
+			{
+				VisitorApplier<const Visitor> applier(v);
+				return ApplyFunctor(applier);
+			}
+
+			template<typename Visitor>
+			typename Visitor::RetType ApplyVisitor(Visitor& v) const
+			{
+				VisitorApplier<Visitor> applier(v);
+				return ApplyFunctor(applier);
+			}
+
+			template<typename Visitor>
+			typename Visitor::RetType ApplyVisitor(const Visitor& v) const
+			{
+				VisitorApplier<const Visitor> applier(v);
+				return ApplyFunctor(applier);
+			}
+
+			template<typename T>
+			T* get_ptr()
+			{
+				CheckCanContain<T>();
+				if (_type != IndexOfTypeListItem<TypeList, T>::Value)
+					return null;
+				return &GetRef<T>();
+			}
+
+			template<typename T>
+			const T* get_ptr() const
+			{
+				CheckCanContain<T>();
+				if (_type != IndexOfTypeListItem<TypeList, T>::Value)
+					return null;
+				return &GetRef<T>();
+			}
+
+			template<typename T>
+			T& get()
+			{
+				CheckContains<T>();
+				return GetRef<T>();
+			}
+
+			template<typename T>
+			const T& get() const
+			{
+				CheckContains<T>();
+				return GetRef<T>();
+			}
+
+		protected:
+			template<typename Visitor>
+			typename Visitor::RetType ApplyFunctor(const Visitor& v)
+			{ return Detail::VariantFunctorApplier<Visitor, MyType>::Apply(v, ref(*this)); }
+
+			template<typename Visitor>
+			typename Visitor::RetType ApplyFunctor(const Visitor& v) const
+			{ return Detail::VariantFunctorApplier<Visitor, const MyType>::Apply(v, *this); }
+
+			template<typename Visitor>
+			struct VisitorApplier : static_visitor<typename Visitor::RetType>
+			{
+			private:
+				Visitor& _visitor;
+
+			public:
+				VisitorApplier(Visitor& v) : _visitor(v)
+				{}
+
+				template<typename T>
+				typename Visitor::RetType Call(MyType& t) const			{ return _visitor(t.GetRef<T>()); }
+
+				template<typename T>
+				typename Visitor::RetType Call(const MyType& t) const	{ return _visitor(t.GetRef<T>()); }
+			};
+
+			struct DestructorFunctor : static_visitor<>
+			{
+				template<typename T>
+				void Call(MyType& t) const { STINGRAY_ASSURE_NOTHROW("Destructor of variant item threw an exception: ", t._storage.template Dtor<T>()); }
+			};
+
+			void Destruct() { ApplyFunctor(DestructorFunctor()); }
+
+			template<typename T>
+			T& GetRef()				{ return _storage.template Ref<T>(); }
+
+			template<typename T>
+			const T& GetRef() const	{ return _storage.template Ref<T>(); }
+
+			template<typename T>
+			void CheckCanContain()
+			{
+				CompileTimeAssert<TypeListContains<TypeList, T>::Value> ERROR__invalid_type_for_variant;
+				(void)ERROR__invalid_type_for_variant;
+			}
+
+			template<typename T>
+			void CheckContains()
+			{
+				CheckCanContain<T>();
+				if (_type != IndexOfTypeListItem<TypeList, T>::Value)
+					TOOLKIT_THROW(bad_variant_get(Demangle(typeid(T).name()), Demangle(type().name())));
+			}
+
+			struct GetTypeInfoVisitor : static_visitor<const std::type_info*>
+			{
+				template<typename T>
+				const std::type_info* operator()(const T& t) const { return &typeid(T); }
+			};
+		};
 	}
 
-	template<typename T, typename Typelist_>
-	const T* variant_get(const variant<Typelist_>* v)
+
+	template <typename TypeList, bool CanBeEmpty = TypeListContains<TypeList, EmptyType>::Value>
+	class variant : public Detail::VariantBase<TypeList>
 	{
-		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
-		try { return v ? any_cast<T>(&v->_data) : NULL; }
-		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v->type().name()))); }
-	}
-
-	template<typename T, typename Typelist_>
-	T& variant_get(variant<Typelist_>& v)
-	{
-		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
-		try { return any_cast<T>(v._data); }
-		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v.type().name()))); }
-	}
-
-	template<typename T, typename Typelist_>
-	const T& variant_get(const variant<Typelist_>& v)
-	{
-		CompileTimeAssert<TypeListContains<Typelist_, T>::Value> ERROR__invalid_type_for_variant;
-		try { return any_cast<T>(v._data); }
-		catch (const bad_any_cast&) { throw(bad_variant_get(Demangle(typeid(T).name()), Demangle(v.type().name()))); }
-	}
-
-
-	template <typename TypeList>
-	class VariantNothrowImpl
-	{
-		typedef VariantNothrowImpl<TypeList> MyType;
-
-		typedef MultiStorageFor<TypeList> Storage;
-		typedef typename TypeList::ValueT DefaultType;
-
-		int		_type;
-		Storage _storage;
+		typedef Detail::VariantBase<TypeList>	base;
+		typedef variant<TypeList, CanBeEmpty>	MyType;
+		typedef typename TypeList::ValueT		DefaultType;
 
 	public:
-		VariantNothrowImpl()
-		{
-			_storage.template Ctor<DefaultType>();
-			_type = 0;
-		}
+		variant()
+		{ AssignVal(DefaultType()); }
 
 		template < typename T >
-		VariantNothrowImpl(const T &val)
-		{ Assign(val); }
+		variant(const T &val)
+		{ AssignVal(val); }
 
-		VariantNothrowImpl(const VariantNothrowImpl &other)
+		variant(const variant &other)
 		{ Assign(other); }
 
-		//template < typename OtherTypelist >
-		//VariantNothrowImpl(const VariantNothrowImpl<OtherTypelist>& other);
+		~variant()
+		{ base::Destruct(); }
 
-		VariantNothrowImpl & operator= (const VariantNothrowImpl& other)
+		variant & operator= (const variant& other)
 		{
-			Destruct();
+			base::Destruct();
 			Assign(other);
 			return *this;
 		}
 
 		template<typename T>
-		VariantNothrowImpl & operator= (const T & val)
+		variant & operator= (const T & val)
 		{
-			Destruct();
-			Assign(val);
+			base::Destruct();
+			AssignVal(val);
 			return *this;
 		}
 
-		int which() const
-		{ return _type; }
-
-		const std::type_info& type() const
-		{ return *TOOLKIT_REQUIRE_NOT_NULL(ApplyVisitor(GetTypeInfoVisitor())); }
-
-		template<typename Visitor>
-		typename Visitor::RetType ApplyVisitor(Visitor& v)
-		{
-			VisitorApplier<Visitor> applier(v);
-			return ApplyFunctor(applier);
-		}
-
-		template<typename Visitor>
-		typename Visitor::RetType ApplyVisitor(const Visitor& v)
-		{
-			VisitorApplier<const Visitor> applier(v);
-			return ApplyFunctor(applier);
-		}
-
-		template<typename Visitor>
-		typename Visitor::RetType ApplyVisitor(Visitor& v) const
-		{
-			VisitorApplier<Visitor> applier(v);
-			return ApplyFunctor(applier);
-		}
-
-		template<typename Visitor>
-		typename Visitor::RetType ApplyVisitor(const Visitor& v) const
-		{
-			VisitorApplier<const Visitor> applier(v);
-			return ApplyFunctor(applier);
-		}
-
-		template<typename T>
-		T* get_ptr()
-		{
-			CheckCanContain<T>();
-			if (_type != IndexOfTypeListItem<TypeList, T>::Value)
-				return null;
-			return &GetRef<T>();
-		}
-
-		template<typename T>
-		const T* get_ptr() const
-		{
-			CheckCanContain<T>();
-			if (_type != IndexOfTypeListItem<TypeList, T>::Value)
-				return null;
-			return &GetRef<T>();
-		}
-
-		template<typename T>
-		T& get()
-		{
-			CheckContains<T>();
-			return GetRef<T>();
-		}
-
-		template<typename T>
-		const T& get() const
-		{
-			CheckContains<T>();
-			return GetRef<T>();
-		}
+		bool empty() const { return false; }
 
 	private:
-		template<int Index>
-		struct ApplierHelper
+		template <typename T>
+		void AssignVal(const T& val)
 		{
-			template<typename Visitor>
-			static bool Call(const Visitor& v, MyType& t, typename Visitor::RetType& result)
-			{
-				if (t._type != Index)
-					return true;
-				result = v.template Call<typename GetTypeListItem<TypeList, Index>::ValueT>(t);
-				return false; // stop ForIf
-			}
-
-			template<typename Visitor>
-			static bool Call(const Visitor& v, const MyType& t, typename Visitor::RetType& result)
-			{
-				if (t._type != Index)
-					return true;
-				result = v.template Call<typename GetTypeListItem<TypeList, Index>::ValueT>(t);
-				return false; // stop ForIf
-			}
-		};
-
-		template<typename Visitor>
-		typename Visitor::RetType ApplyFunctor(const Visitor& v)
-		{
-			typedef typename Visitor::RetType RetType;
-			RetType result = RetType();
-			if (ForIf<GetTypeListLength<TypeList>::Value, ApplierHelper>::Do(v, ref(*this), ref(result)))
-				TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % _type);
-			return result;
+			STINGRAY_ASSURE_NOTHROW("Copy-ctor of never-empty variant item threw an exception: ", this->_storage.template Ctor<T>(val));
+			this->_type = IndexOfTypeListItem<TypeList, T>::Value;
 		}
-
-		template<typename Visitor>
-		typename Visitor::RetType ApplyFunctor(const Visitor& v) const
-		{
-			typedef typename Visitor::RetType RetType;
-			RetType result = RetType();
-			if (ForIf<GetTypeListLength<TypeList>::Value, ApplierHelper>::Do(v, ref(*this), ref(result)))
-				TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % _type);
-			return result;
-		}
-
-		template<typename Visitor>
-		struct VisitorApplier : static_visitor<typename Visitor::RetType>
-		{
-		private:
-			Visitor& _visitor;
-
-		public:
-			VisitorApplier(Visitor& v) : _visitor(v)
-			{}
-
-			template<typename T>
-			typename Visitor::RetType Call(MyType& t) const			{ return _visitor(t.GetRef<T>()); }
-
-			template<typename T>
-			typename Visitor::RetType Call(const MyType& t) const	{ return _visitor(t.GetRef<T>()); }
-		};
-
-		struct DestructorFunctor : static_visitor<>
-		{
-			template<typename T>
-			void Call(MyType& t) const { STINGRAY_ASSURE_NOTHROW(t._storage.template Dtor<T>()); }
-		};
-
-		void Destruct() { ApplyFunctor(DestructorFunctor()); }
 
 		struct CopyCtorVisitor : static_visitor<>
 		{
@@ -350,61 +284,102 @@ namespace stingray
 			{}
 
 			template<typename T>
-			void operator()(const T& t) const { STINGRAY_ASSURE_NOTHROW(_target._storage.template Ctor<T>(t)); }
+			void operator()(const T& t) const { _target.AssignVal(t); }
 		};
 
 		void Assign(const MyType& other) { other.ApplyVisitor(CopyCtorVisitor(*this)); }
+	};
 
+
+	template <typename TypeList>
+	class variant<TypeList, true> : public Detail::VariantBase<TypeList>
+	{
+		typedef Detail::VariantBase<TypeList>	base;
+		typedef variant<TypeList, true>			MyType;
+		typedef EmptyType						DefaultType;
+
+	public:
+		variant()
+		{ AssignDefault(); }
+
+		template < typename T >
+		variant(const T &val)
+		{ AssignVal(val); }
+
+		variant(const variant &other)
+		{ Assign(other); }
+
+		~variant()
+		{ base::Destruct(); }
+
+		variant & operator= (const variant& other)
+		{
+			base::Destruct();
+			Assign(other);
+			return *this;
+		}
+
+		template<typename T>
+		variant & operator= (const T & val)
+		{
+			base::Destruct();
+			AssignVal(val);
+			return *this;
+		}
+
+		bool empty() const { return base::which() == IndexOfTypeListItem<TypeList, EmptyType>::Value; }
+
+	private:
 		template <typename T>
-		void Assign(const T& val)
+		void AssignVal(const T& val)
 		{
-			_storage.template Ctor<T>(val);
-			_type = IndexOfTypeListItem<TypeList, T>::Value;
+			try
+			{
+				this->_storage.template Ctor<T>(val);
+				this->_type = IndexOfTypeListItem<TypeList, T>::Value;
+			}
+			catch (const std::exception& ex)
+			{ AssignDefault(); throw; }
 		}
 
-		template<typename T>
-		T& GetRef()				{ return _storage.template Ref<T>(); }
-
-		template<typename T>
-		const T& GetRef() const	{ return _storage.template Ref<T>(); }
-
-		template<typename T>
-		void CheckCanContain()
+		void AssignDefault()
 		{
-			CompileTimeAssert<TypeListContains<TypeList, T>::Value> ERROR__invalid_type_for_variant;
-			(void)ERROR__invalid_type_for_variant;
+			this->_storage.template Ctor<EmptyType>();
+			this->_type = IndexOfTypeListItem<TypeList, EmptyType>::Value;
 		}
 
-		template<typename T>
-		void CheckContains()
+		struct CopyCtorVisitor : static_visitor<>
 		{
-			CheckCanContain<T>();
-			if (_type != IndexOfTypeListItem<TypeList, T>::Value)
-				TOOLKIT_THROW(bad_variant_get(Demangle(typeid(T).name()), Demangle(type().name())));
-		}
+		private:
+			MyType& _target;
 
-		struct GetTypeInfoVisitor : static_visitor<const std::type_info*>
-		{
+		public:
+			CopyCtorVisitor(MyType& t) : _target(t)
+			{}
+
 			template<typename T>
-			const std::type_info* operator()(const T& t) const { return &typeid(T); }
+			void operator()(const T& t) const { _target.AssignVal(t); }
 		};
+
+		void Assign(const MyType& other)
+		{ other.ApplyVisitor(CopyCtorVisitor(*this)); }
 	};
 
 
 	template<typename T, typename TypeList>
-	T* variant_get(VariantNothrowImpl<TypeList>* v)
+	T* variant_get(variant<TypeList>* v)
 	{ return v->template get_ptr<T>(); }
 
 	template<typename T, typename TypeList>
-	const T* variant_get(const VariantNothrowImpl<TypeList>* v)
+	const T* variant_get(const variant<TypeList>* v)
 	{ return v->template get_ptr<T>(); }
 
 	template<typename T, typename TypeList>
-	T& variant_get(VariantNothrowImpl<TypeList>& v)
+	T& variant_get(variant<TypeList>& v)
 	{ return v.template get<T>(); }
 
 	template<typename T, typename TypeList>
-	const T& variant_get(const VariantNothrowImpl<TypeList>& v)
+	const T& variant_get(const variant<TypeList>& v)
 	{ return v.template get<T>(); }
 
 
