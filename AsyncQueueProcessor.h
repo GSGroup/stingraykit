@@ -5,6 +5,7 @@
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/ProgressValue.h>
 #include <list>
 
 namespace stingray
@@ -28,15 +29,19 @@ namespace stingray
 		Queue				_queue;
 
 		bool				_idle;
+		ProgressValue		_progress;
 
 	public:
-		signal<void(bool)> OnIdle;
+		signal<void(bool)>				OnIdle;
+		signal<void(ProgressValue)>		OnProgress;
 
 		AsyncQueueProcessor(const std::string &name, const FunctorType &processor):
 			_running(true),
 			_processor(processor),
 			_idle(true),
+			_progress(0, 0),
 			OnIdle(bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
+			OnProgress(bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1)),
 			_thread(name, bind(&AsyncQueueProcessor::ThreadFunc, this))
 		{ }
 
@@ -53,21 +58,38 @@ namespace stingray
 
 		void PushFront(const ValueType &value)
 		{
-			MutexLock l(_lock);
-			_queue.push_front(value);
-			_cond.Broadcast();
+			{
+				MutexLock l(_lock);
+				_queue.push_front(value);
+				_cond.Broadcast();
+			}
+			{
+				signal_locker l(OnProgress);
+				++_progress.Total;
+				OnProgress(_progress);
+			}
 		}
 
 		void PushBack(const ValueType &value)
 		{
-			MutexLock l(_lock);
-			_queue.push_back(value);
-			_cond.Broadcast();
+			{
+				MutexLock l(_lock);
+				_queue.push_back(value);
+				_cond.Broadcast();
+			}
+			{
+				signal_locker l(OnProgress);
+				++_progress.Total;
+				OnProgress(_progress);
+			}
 		}
 
 	private:
 		void OnIdlePopulator(const function<void (bool)> & slot)
 		{ slot(_idle); }
+
+		void OnProgressPopulator(const function<void (ProgressValue)> & slot)
+		{ slot(_progress); }
 
 		void SetIdle(MutexLock &lock, bool idle)
 		{
@@ -98,6 +120,11 @@ namespace stingray
 
 				MutexUnlock ll(l);
 				STINGRAY_TRY_DO_NO_LOGGER("exception in queue processor", _processor(value));
+				{
+					signal_locker l(OnProgress);
+					++_progress.Current;
+					OnProgress(_progress);
+				}
 			}
 		}
 
