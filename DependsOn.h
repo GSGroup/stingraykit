@@ -52,12 +52,15 @@ namespace stingray
 
 	/*! \cond GS_INTERNAL */
 
-	template < typename Dependencies >
+	template < typename Dependencies_ >
 	class DependsOn
 	{
+	public:
+		typedef typename ToTypeList<Dependencies_>::ValueT	Dependencies;
+
 	protected:
 		DependsOn()
-		{ ForEachInTypeList<typename ToTypeList<Dependencies>::ValueT, Detail::InitDependency>::Do(); }
+		{ ForEachInTypeList<Dependencies, Detail::InitDependency>::Do(); }
 	};
 	
 
