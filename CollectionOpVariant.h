@@ -53,8 +53,8 @@ namespace stingray
 			switch (_data.which())
 			{
 			case IndexOfTypeListItem<Types, Added>::Value:		return CollectionOp::Added;
-			case IndexOfTypeListItem<Types, Modified>::Value:	return CollectionOp::Added;
-			case IndexOfTypeListItem<Types, Removed>::Value:	return CollectionOp::Added;
+			case IndexOfTypeListItem<Types, Modified>::Value:	return CollectionOp::Updated;
+			case IndexOfTypeListItem<Types, Removed>::Value:	return CollectionOp::Removed;
 			default:											TOOLKIT_THROW("Cannot access empty CollectionOpVariant!");
 			}
 		}
