@@ -205,14 +205,14 @@ namespace stingray
 			const T& GetRef() const	{ return _storage.template Ref<T>(); }
 
 			template<typename T>
-			void CheckCanContain()
+			void CheckCanContain() const
 			{
 				CompileTimeAssert<TypeListContains<TypeList, T>::Value> ERROR__invalid_type_for_variant;
 				(void)ERROR__invalid_type_for_variant;
 			}
 
 			template<typename T>
-			void CheckContains()
+			void CheckContains() const
 			{
 				CheckCanContain<T>();
 				if (_type != IndexOfTypeListItem<TypeList, T>::Value)
