@@ -144,6 +144,10 @@ namespace stingray
 	{ typedef const T&	ValueT; };
 
 	template < typename T >
+	struct GetConstPointerType
+	{ typedef const T*	ValueT; };
+
+	template < typename T >
 	struct GetPointedType;
 
 	template < typename T >
