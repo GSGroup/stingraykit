@@ -267,6 +267,16 @@ namespace stingray
 	struct TypeListReverse<TypeListEndNode>
 	{ typedef TypeListEndNode ValueT; };
 
+
+	template < unsigned Count, template <int> class GeneratorFunctor, int Start = 0 >
+	struct GenerateTypeList
+	{ typedef TypeListNode<typename GeneratorFunctor<Start>::ValueT, typename GenerateTypeList<Count - 1, GeneratorFunctor, Start + 1>::ValueT> ValueT; };
+
+	template < template <int> class GeneratorFunctor, int Start >
+	struct GenerateTypeList<0, GeneratorFunctor, Start>
+	{ typedef TypeListEndNode ValueT; };
+
+
 	namespace Detail
 	{
 		template<typename Val1, typename Val2>
