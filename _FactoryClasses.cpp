@@ -24,6 +24,7 @@
 #include <stingray/scanner/DefaultScanParams.h>
 #include <stingray/scanner/DreCasGeographicRegion.h>
 #include <stingray/scanner/IServiceId.h>
+#include <stingray/scanner/LybidScanParams.h>
 #include <stingray/scanner/TricolorGeographicRegion.h>
 #include <stingray/scanner/TricolorScanParams.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
@@ -92,6 +93,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DreCasGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(::stingray::Detail::any::ObjectHolder<stingray::ServiceId>);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
