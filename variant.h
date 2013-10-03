@@ -6,7 +6,6 @@
 
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/MultiStorageFor.h>
-#include <stingray/toolkit/any.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/static_visitor.h>
 
@@ -164,6 +163,9 @@ namespace stingray
 				return GetRef<T>();
 			}
 
+			std::string ToString() const
+			{ return ApplyVisitor(ToStringVisitor()); }
+
 		protected:
 			template<typename Visitor>
 			typename Visitor::RetType ApplyFunctor(const Visitor& v)
@@ -223,6 +225,12 @@ namespace stingray
 			{
 				template<typename T>
 				const std::type_info* operator()(const T& t) const { return &typeid(T); }
+			};
+
+			struct ToStringVisitor : static_visitor<std::string>
+			{
+				template<typename T>
+				std::string operator()(const T& t) const { return stingray::ToString(t); }
 			};
 
 			template < typename VariantType >
