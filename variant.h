@@ -224,6 +224,20 @@ namespace stingray
 				template<typename T>
 				const std::type_info* operator()(const T& t) const { return &typeid(T); }
 			};
+
+			template < typename VariantType >
+			struct LessVisitor : static_visitor<bool>
+			{
+			private:
+				const VariantType& _rhs;
+
+			public:
+				LessVisitor(const VariantType& rhs) : _rhs(rhs)
+				{}
+
+				template<typename T>
+				bool operator()(const T& t) const { return t < _rhs.get<T>(); }
+			};
 		};
 	}
 
@@ -265,6 +279,16 @@ namespace stingray
 		}
 
 		bool empty() const { return false; }
+
+		bool operator < (const variant& other) const
+		{
+			typedef typename base::template LessVisitor<MyType> VisitorType;
+			if (this->which() != other.which())
+				return this->which() < other.which();
+			return this->ApplyVisitor(VisitorType(other));
+		}
+
+		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(variant);
 
 	private:
 		template <typename T>
@@ -328,6 +352,16 @@ namespace stingray
 		}
 
 		bool empty() const { return base::which() == IndexOfTypeListItem<TypeList, EmptyType>::Value; }
+
+		bool operator < (const variant& other) const
+		{
+			typedef typename base::template LessVisitor<MyType> VisitorType;
+			if (this->which() != other.which())
+				return this->which() < other.which();
+			return this->ApplyVisitor(VisitorType(other));
+		}
+
+		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(variant);
 
 	private:
 		template <typename T>
