@@ -32,6 +32,7 @@
 #include <stingray/tuners/dvbs/DefaultDVBSTransport.h>
 #include <stingray/tuners/dvbs/Satellite.h>
 #include <stingray/tuners/dvbt/DefaultDVBTTransport.h>
+#include <stingray/update/DefaultUpdateRequirement.h>
 #include <stingray/update/system/EraseFlashPartition.h>
 #include <stingray/update/system/WriteFlashPartition.h>
 
@@ -101,6 +102,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBSTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Satellite);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBTTransport);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMinimalVersionRequirement);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(EraseFlashPartition);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(WriteFlashPartition);
 #endif
