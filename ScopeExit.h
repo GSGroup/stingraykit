@@ -7,6 +7,24 @@
 #include <stingray/toolkit/Macro.h>
 
 
+/**
+ * Example:
+ *
+ *	void func(int file)
+ *	{
+ *		size_t length = 0x1000
+ *		void* ptr = mmap(NULL, length, PROT_NONE, 0, file, 12345);
+ *
+ *		STINGRAY_SCOPE_EXIT(MK_PARAM(void*, ptr), MK_PARAM(size_t, length))
+ *			munmap(ptr, length);
+ *		STINGRAY_SCOPE_EXIT_END;
+ *
+ *		// Working with ptr...
+ *	}
+ *
+ */
+
+
 /*! \cond GS_INTERNAL */
 
 namespace stingray
