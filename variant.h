@@ -6,7 +6,10 @@
 
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/MultiStorageFor.h>
+#include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/fatal.h>
+#include <stingray/toolkit/reference.h>
 #include <stingray/toolkit/static_visitor.h>
 
 
