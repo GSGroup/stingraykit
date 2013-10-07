@@ -44,7 +44,7 @@ namespace stingray
 			template<int Index>
 			struct ApplierHelper
 			{
-				static bool Call(const Visitor& v, Variant& t, typename Visitor::RetType& result)
+				static bool Call(const Visitor& v, Variant& t, optional<typename Visitor::RetType>& result)
 				{
 					if (t.which() != Index)
 						return true;
@@ -56,10 +56,10 @@ namespace stingray
 			static typename Visitor::RetType Apply(const Visitor& v, Variant& var)
 			{
 				typedef typename Visitor::RetType RetType;
-				RetType result = RetType();
+				optional<RetType> result;
 				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var), ref(result)))
 					TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
-				return result;
+				return *result;
 			}
 		};
 
