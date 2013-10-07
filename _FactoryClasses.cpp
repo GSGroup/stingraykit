@@ -46,7 +46,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(::stingray::Detail::any::ObjectHolder<stingray::app::AppChannelPtr>);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelList);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::Alarm);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::CinemaHallScheduledViewing);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ContinuousScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::DeferredStandby);
