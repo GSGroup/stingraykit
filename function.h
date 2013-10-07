@@ -223,6 +223,8 @@ namespace stingray
 		friend class function_storage;
 		explicit function(const BaseType& base) : BaseType(base)
 		{}
+
+		//TOOLKIT_NONASSIGNABLE(function); //This will break ActionTransaction and swig, and never actually was here. Uncomment it and fix all operator= for functions
 	};
 
 	template < typename RetType, typename ParamTypes >
