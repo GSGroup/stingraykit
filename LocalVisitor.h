@@ -186,6 +186,15 @@ namespace stingray
 	};
 
 
+#define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_0() \
+		class LocalVisitorArgs##__LINE__ { \
+		protected: \
+		public: \
+			LocalVisitorArgs##__LINE__() \
+			{ } \
+		} __local_visitor_args; \
+
+
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_2(ParamType1_, ParamName1_) \
 		class LocalVisitorArgs##__LINE__ { \
 		protected: \
