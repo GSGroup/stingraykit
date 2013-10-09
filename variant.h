@@ -6,8 +6,10 @@
 
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/MultiStorageFor.h>
-#include <stingray/toolkit/any.h>
+#include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/fatal.h>
+#include <stingray/toolkit/reference.h>
 #include <stingray/toolkit/static_visitor.h>
 
 
@@ -42,7 +44,7 @@ namespace stingray
 			template<int Index>
 			struct ApplierHelper
 			{
-				static bool Call(const Visitor& v, Variant& t, typename Visitor::RetType& result)
+				static bool Call(const Visitor& v, Variant& t, optional<typename Visitor::RetType>& result)
 				{
 					if (t.which() != Index)
 						return true;
@@ -54,10 +56,10 @@ namespace stingray
 			static typename Visitor::RetType Apply(const Visitor& v, Variant& var)
 			{
 				typedef typename Visitor::RetType RetType;
-				RetType result = RetType();
+				optional<RetType> result;
 				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var), ref(result)))
 					TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
-				return result;
+				return *result;
 			}
 		};
 
@@ -164,6 +166,9 @@ namespace stingray
 				return GetRef<T>();
 			}
 
+			std::string ToString() const
+			{ return ApplyVisitor(ToStringVisitor()); }
+
 		protected:
 			template<typename Visitor>
 			typename Visitor::RetType ApplyFunctor(const Visitor& v)
@@ -224,6 +229,26 @@ namespace stingray
 				template<typename T>
 				const std::type_info* operator()(const T& t) const { return &typeid(T); }
 			};
+
+			struct ToStringVisitor : static_visitor<std::string>
+			{
+				template<typename T>
+				std::string operator()(const T& t) const { return stingray::ToString(t); }
+			};
+
+			template < typename VariantType >
+			struct LessVisitor : static_visitor<bool>
+			{
+			private:
+				const VariantType& _rhs;
+
+			public:
+				LessVisitor(const VariantType& rhs) : _rhs(rhs)
+				{}
+
+				template<typename T>
+				bool operator()(const T& t) const { return t < _rhs.get<T>(); }
+			};
 		};
 	}
 
@@ -265,6 +290,16 @@ namespace stingray
 		}
 
 		bool empty() const { return false; }
+
+		bool operator < (const variant& other) const
+		{
+			typedef typename base::template LessVisitor<MyType> VisitorType;
+			if (this->which() != other.which())
+				return this->which() < other.which();
+			return this->ApplyVisitor(VisitorType(other));
+		}
+
+		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(variant);
 
 	private:
 		template <typename T>
@@ -328,6 +363,16 @@ namespace stingray
 		}
 
 		bool empty() const { return base::which() == IndexOfTypeListItem<TypeList, EmptyType>::Value; }
+
+		bool operator < (const variant& other) const
+		{
+			typedef typename base::template LessVisitor<MyType> VisitorType;
+			if (this->which() != other.which())
+				return this->which() < other.which();
+			return this->ApplyVisitor(VisitorType(other));
+		}
+
+		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(variant);
 
 	private:
 		template <typename T>

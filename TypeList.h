@@ -250,6 +250,15 @@ namespace stingray
 	{ typedef typename TypeListCopyIf<typename TypeList::Next, Predicate>::ValueT ValueT; };
 
 
+	template < typename TypeList, template <typename, typename> class AccumulateFunc, typename InitialValue >
+	struct TypeListAccumulate
+	{ typedef typename AccumulateFunc<typename TypeList::ValueT, typename TypeListAccumulate<typename TypeList::Next, AccumulateFunc, InitialValue>::ValueT >::ValueT	ValueT; };
+
+	template < template <typename, typename> class AccumulateFunc, typename InitialValue >
+	struct TypeListAccumulate<TypeListEndNode, AccumulateFunc, InitialValue>
+	{ typedef InitialValue	ValueT; };
+
+
 	template < typename TypeList, template <typename> class TransformFunc >
 	struct TypeListTransform
 	{ typedef TypeListNode<typename TransformFunc<typename TypeList::ValueT>::ValueT, typename TypeListTransform<typename TypeList::Next, TransformFunc>::ValueT> ValueT; };
@@ -281,22 +290,16 @@ namespace stingray
 	{
 		template<typename Val1, typename Val2>
 		struct MaxImpl
-		{
-			typedef typename If<(Val1::Value > Val2::Value), Val1, Val2>::ValueT ValueT;
-		};
+		{ typedef typename If<(Val1::Value > Val2::Value), Val1, Val2>::ValueT ValueT; };
 	}
 
 	template<typename TypeList, typename Tail = typename TypeList::Next>
 	struct MaxElement
-	{
-		typedef typename Detail::MaxImpl<typename TypeList::ValueT, typename MaxElement<typename TypeList::Next>::ValueT>::ValueT ValueT;
-	};
+	{ typedef typename Detail::MaxImpl<typename TypeList::ValueT, typename MaxElement<typename TypeList::Next>::ValueT>::ValueT ValueT; };
 
 	template <typename T>
 	struct MaxElement<T, TypeListEndNode>
-	{
-		typedef typename T::ValueT ValueT;
-	};
+	{ typedef typename T::ValueT ValueT; };
 
 	template < typename TypeList, template <typename> class FunctorClass >
 	struct ForEachInTypeList

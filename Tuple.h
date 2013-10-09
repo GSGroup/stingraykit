@@ -77,6 +77,8 @@ namespace stingray
 
 		inline Tuple(typename GetParamPassingType<ValueType>::ValueT p1) : _val(p1), _tail() { }
 
+		inline Tuple(typename GetParamPassingType<ValueType>::ValueT head, const Tail& tail) : _val(head), _tail(tail) { }
+
 #define TY typename
 #define P_(N) typename GetParamPassingType<typename TryGetTypeListItem<TypeList, N - 1>::ValueT>::ValueT p##N
 
@@ -151,6 +153,33 @@ namespace stingray
 		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
 		{ return Tuple(TupleConstructorTag(), tll); }
 	};
+
+
+	namespace Detail
+	{
+		template < typename TupleLikeObject_ >
+		class TupleReverser
+		{
+		public:
+			typedef typename TupleLikeObject_::TypeList				SrcTypeList;
+			typedef typename TypeListReverse<SrcTypeList>::ValueT	TypeList;
+
+		private:
+			const TupleLikeObject_&		_src;
+
+		public:
+			TupleReverser(const TupleLikeObject_& src) : _src(src) { }
+
+			template < size_t Index >
+			typename GetParamPassingType<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT Get() const
+			{ return _src.template Get<GetTypeListLength<SrcTypeList>::Value - (Index + 1)>(); }
+		};
+	}
+
+
+	template < typename TupleLikeObject_ >
+	Tuple<typename TypeListReverse<typename TupleLikeObject_::TypeList>::ValueT> ReverseTuple(const TupleLikeObject_& src)
+	{ return Tuple<typename TypeListReverse<typename TupleLikeObject_::TypeList>::ValueT>::CreateFromTupleLikeObject(Detail::TupleReverser<TupleLikeObject_>(src)); }
 
 
 	namespace Detail

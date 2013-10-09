@@ -32,10 +32,10 @@ namespace stingray
 			Modified(const ItemType& oldValue, const ItemType& newValue) : OldValue(oldValue), NewValue(newValue) { }
 		};
 
-	private:
 		typedef TYPELIST(EmptyType, Added, Removed, Modified)	Types;
 		typedef variant<Types>									Variant;
 
+	private:
 		Variant		_data;
 
 	public:
