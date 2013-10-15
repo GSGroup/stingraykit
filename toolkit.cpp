@@ -19,7 +19,7 @@ namespace stingray
 
 
 	std::string ToolkitWhere::ToString() const
-	{ return StringBuilder() % "function '" % _file % "' in file '" % _file % "' at line " % _line; }
+	{ return StringBuilder() % "function '" % _functionName % "' in file '" % _file % "' at line " % _line; }
 
 
 	NullPtrType null;
