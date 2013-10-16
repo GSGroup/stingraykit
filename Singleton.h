@@ -55,6 +55,11 @@ namespace stingray
 			ptr.swap(GetInstancePtr());
 		}
 
+		static void AssertInstance()
+		{
+			TOOLKIT_FATAL("Singleton '" + Demangle(typeid(T).name()) + "' has not been created!");
+		}
+
 		static InstanceHolderTypePtr& GetInstancePtr()
 		{
 			static InstanceHolderTypePtr inst;
@@ -74,6 +79,9 @@ namespace stingray
 
 		static const T& ConstInstance()
 		{ return const_cast<const T&>(Instance()); }
+
+		static void AssertInstanceCreated()
+		{ call_once(s_initFlag, &Singleton::AssertInstance); }
 	};
 
 
