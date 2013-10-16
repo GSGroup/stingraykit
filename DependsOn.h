@@ -48,6 +48,26 @@ namespace stingray
 
 		template < typename Dependency >
 		struct InitDependency : public InitDependencyImpl<Dependency> { };
+
+		template < typename Dependency,
+			bool IsSingleton_ = IsSingleton<Dependency>::Value >
+		struct AssertDependencyImpl
+		{
+			static void Call()
+			{
+				if (!ServiceProvider<Dependency>::IsAlive())
+					TOOLKIT_FATAL("Service '" + Demangle(typeid(Dependency).name()) + "' has not been created!");
+			}
+		};
+
+		template < typename Dependency >
+		struct AssertDependencyImpl<Dependency, true>
+		{
+			static void Call() { Singleton<Dependency>::AssertInstanceCreated(); }
+		};
+
+		template < typename Dependency >
+		struct AssertDependency : public AssertDependencyImpl<Dependency> { };
 	}
 
 	/*! \cond GS_INTERNAL */
@@ -62,7 +82,19 @@ namespace stingray
 		DependsOn()
 		{ ForEachInTypeList<Dependencies, Detail::InitDependency>::Do(); }
 	};
-	
+
+
+	template < typename Dependencies_ >
+	class AssertDependenciesAlive
+	{
+	public:
+		typedef typename ToTypeList<Dependencies_>::ValueT	Dependencies;
+
+	protected:
+		AssertDependenciesAlive()
+		{ ForEachInTypeList<Dependencies, Detail::AssertDependency>::Do(); }
+	};
+
 
 	struct IDependent
 	{
