@@ -181,6 +181,13 @@ namespace stingray
 	};
 
 
+	template<typename ResultT, ResultT Base, unsigned int Exponent>
+	struct CompileTimeExponent { static const ResultT Value = Base * CompileTimeExponent<ResultT, Base, Exponent - 1>::Value; };
+
+	template<typename ResultT, ResultT Base>
+	struct CompileTimeExponent<ResultT, Base, 0> { static const ResultT Value = 1; };
+
+
 #define TY typename
 	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
 	struct For
