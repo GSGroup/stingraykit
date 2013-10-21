@@ -33,8 +33,18 @@ namespace stingray
 	TOOLKIT_ASSERT_SIZE_OF(s##BitsCount_,	BitsCount_ / 8) \
 	TOOLKIT_ASSERT_SIGNED(u##BitsCount_,	false) \
 	TOOLKIT_ASSERT_SIGNED(s##BitsCount_,	true) \
-	template <> struct IntType<BitsCount_, true> { typedef s##BitsCount_ ValueT; }; \
-	template <> struct IntType<BitsCount_, false> { typedef u##BitsCount_ ValueT; }
+	template <> struct IntType<BitsCount_, true> \
+	{ \
+		typedef s##BitsCount_ ValueT; \
+		static const ValueT Min = (ValueT)(-CompileTimeExponent<u##BitsCount_, 2, BitsCount_ - 1>::Value); \
+		static const ValueT Max = (ValueT)( CompileTimeExponent<u##BitsCount_, 2, BitsCount_ - 1>::Value - 1); \
+	}; \
+	template <> struct IntType<BitsCount_, false> \
+	{ \
+		typedef s##BitsCount_ ValueT; \
+		static const ValueT Min = 0; \
+		static const ValueT Max = ~(u##BitsCount_)0; \
+	};
 
 	template < size_t BitsCount, bool Signed = false >
 	struct IntType;
