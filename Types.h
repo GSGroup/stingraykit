@@ -44,10 +44,23 @@ namespace stingray
 		typedef s##BitsCount_ ValueT; \
 		static const ValueT Min = 0; \
 		static const ValueT Max = ~(u##BitsCount_)0; \
+	}; \
+	template <> struct IntTraits<u##BitsCount_> \
+	{ \
+		static const u##BitsCount_ Min = IntType<BitsCount_, false>::Min; \
+		static const u##BitsCount_ Max = IntType<BitsCount_, false>::Max; \
+	}; \
+	template <> struct IntTraits<s##BitsCount_> \
+	{ \
+		static const s##BitsCount_ Min = IntType<BitsCount_, true>::Min; \
+		static const s##BitsCount_ Max = IntType<BitsCount_, true>::Max; \
 	};
 
 	template < size_t BitsCount, bool Signed = false >
 	struct IntType;
+
+	template < typename IntType_ >
+	struct IntTraits;
 
 	DETAIL_TOOLKIT_DECLARE_INT_TYPE(char,		8);
 	DETAIL_TOOLKIT_DECLARE_INT_TYPE(short,		16);
