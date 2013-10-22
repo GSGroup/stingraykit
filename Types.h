@@ -41,7 +41,7 @@ namespace stingray
 	}; \
 	template <> struct IntType<BitsCount_, false> \
 	{ \
-		typedef s##BitsCount_ ValueT; \
+		typedef u##BitsCount_ ValueT; \
 		static const ValueT Min = 0; \
 		static const ValueT Max = ~(u##BitsCount_)0; \
 	}; \
