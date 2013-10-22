@@ -27,6 +27,7 @@
 #include <stingray/scanner/LybidScanParams.h>
 #include <stingray/scanner/TricolorGeographicRegion.h>
 #include <stingray/scanner/TricolorScanParams.h>
+#include <stingray/scanner/lybid/LybidServiceMetaInfo.h>
 #include <stingray/scanner/tricolor/TricolorServiceMetaInfo.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
 #include <stingray/tuners/dvbs/Antenna.h>
@@ -97,6 +98,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanParams);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Antenna);
