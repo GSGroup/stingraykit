@@ -5,9 +5,6 @@
 #include <string>
 #include <typeinfo>
 
-#include <stingray/toolkit/toolkit.h>
-
-
 namespace stingray
 {
 
@@ -22,10 +19,17 @@ namespace stingray
 			: _info(&typeid(obj))
 		{ }
 
-		std::string GetName() const		{ return Demangle(GetRawName()); }
+		TypeInfo(const std::type_info& stdTypeInfo)
+			: _info(&stdTypeInfo)
+		{ }
+
 		const char* GetRawName() const	{ return _info->name(); }
 
-		std::string ToString() const	{ return GetName(); }
+		std::string GetName() const;
+		std::string GetNamespaceName() const;
+		std::string GetClassName() const;
+
+		std::string ToString() const;
 	};
 
 }
