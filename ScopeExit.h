@@ -7,29 +7,50 @@
 #include <stingray/toolkit/Macro.h>
 
 
-/**
- * Example:
- *
- *	void func(int file)
- *	{
- *		size_t length = 0x1000
- *		void* ptr = mmap(NULL, length, PROT_NONE, 0, file, 12345);
- *
- *		STINGRAY_SCOPE_EXIT(MK_PARAM(void*, ptr), MK_PARAM(size_t, length))
- *			munmap(ptr, length);
- *		STINGRAY_SCOPE_EXIT_END;
- *
- *		// Working with ptr...
- *	}
- *
- */
-
-
-/*! \cond GS_INTERNAL */
-
 namespace stingray
 {
 
+	/**
+	 * @ingroup toolkit_general
+	 * @defgroup toolkit_general_scopeexit Scope exit
+	 * @{
+	 */
+
+
+	/**
+	 * @brief Start of the code that should be executed at the scope exit
+	 * @param mixed ... Each parameter is an MK_PARAM pair of the type and the name of a closure variable.
+	 * @par Example:
+	 * @code
+	 *	void func(int file)
+	 *	{
+	 *		size_t length = 0x1000
+	 *		void* ptr = mmap(NULL, length, PROT_NONE, 0, file, 12345);
+	 *
+	 *		STINGRAY_SCOPE_EXIT(MK_PARAM(void*, ptr), MK_PARAM(size_t, length))
+	 *			munmap(ptr, length);
+	 *		STINGRAY_SCOPE_EXIT_END;
+	 *
+	 *		// Working with ptr...
+	 *	}
+	 * @endcode
+	 */
+#define STINGRAY_SCOPE_EXIT(...) \
+		TOOLKIT_CAT(STINGRAY_DECLARE_SCOPE_EXIT_ARGS_, TOOLKIT_NARGS(__VA_ARGS__))(__VA_ARGS__) \
+		class TOOLKIT_CAT(__ScopeExitFunc, __LINE__) : protected TOOLKIT_CAT(__ScopeExitArgs, __LINE__) \
+		{ \
+		public: \
+			TOOLKIT_CAT(__ScopeExitFunc, __LINE__) (TOOLKIT_CAT(__ScopeExitArgs, __LINE__) args) : TOOLKIT_CAT(__ScopeExitArgs, __LINE__)(args) { } \
+			~TOOLKIT_CAT(__ScopeExitFunc, __LINE__) () {
+
+	/** @brief End of the code that should be executed at the scope exit */
+#define STINGRAY_SCOPE_EXIT_END \
+			} \
+		} __scope_exit(__scope_exit_args);
+
+
+
+	/** @brief a helper class that invokes a function in its destructor */
 	class ScopeExitInvoker
 	{
 	private:
@@ -37,6 +58,7 @@ namespace stingray
 		function<void()>	_func;
 
 	public:
+		/** @param in func Function that should be invoked from the ScopeExitInvoker destructor */
 		ScopeExitInvoker(const function<void()>& func)
 			: _func(func)
 		{ }
@@ -44,6 +66,8 @@ namespace stingray
 		~ScopeExitInvoker()
 		{ _func(); }
 	};
+
+	/** @} */
 
 #define STINGRAY_DECLARE_SCOPE_EXIT_ARGS_2(ParamType1_, ParamName1_) \
 		struct TOOLKIT_CAT(__ScopeExitArgs, __LINE__) \
@@ -160,24 +184,8 @@ namespace stingray
 			TOOLKIT_CAT(__ScopeExitArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_, ParamType8_ ParamName8_, ParamType9_ ParamName9_, ParamType10_ ParamName10_) : ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_), ParamName5_(ParamName5_), ParamName6_(ParamName6_), ParamName7_(ParamName7_), ParamName8_(ParamName8_), ParamName9_(ParamName9_), ParamName10_(ParamName10_) { } \
 		} __scope_exit_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_, ParamName6_, ParamName7_, ParamName8_, ParamName9_, ParamName10_);
 
-
-
-#define STINGRAY_SCOPE_EXIT(...) \
-		TOOLKIT_CAT(STINGRAY_DECLARE_SCOPE_EXIT_ARGS_, TOOLKIT_NARGS(__VA_ARGS__))(__VA_ARGS__) \
-		class TOOLKIT_CAT(__ScopeExitFunc, __LINE__) : protected TOOLKIT_CAT(__ScopeExitArgs, __LINE__) \
-		{ \
-		public: \
-			TOOLKIT_CAT(__ScopeExitFunc, __LINE__) (TOOLKIT_CAT(__ScopeExitArgs, __LINE__) args) : TOOLKIT_CAT(__ScopeExitArgs, __LINE__)(args) { } \
-			~TOOLKIT_CAT(__ScopeExitFunc, __LINE__) () {
-
-#define STINGRAY_SCOPE_EXIT_END \
-			} \
-		} __scope_exit(__scope_exit_args);
-
-
 }
 
-/*! \endcond */
 
 
 #endif

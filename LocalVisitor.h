@@ -6,47 +6,80 @@
 #include <stingray/toolkit/static_visitor.h>
 
 
-/**
- * Example:
- *
- *	struct OpFailed
- *	{
- *		std::string		Error;
- *	};
- *
- *	struct OpSucceeded
- *	{
- *		ByteArray	Result;
- *	};
- *
- *	typedef variant<TYPELIST(OpFailed, OpSucceeded)>		OpResult;
- *
- *	class Class
- *	{
- *		ByteArray	_data;
- *		IDialogPtr	_failDialog;
- *		...
- *
- *		void OperationHandler(const OpResult& result)
- *		{
- *			STINGRAY_LOCAL_VISITOR(std::string, OpResult, MK_PARAM(ByteArray&, _data), MK_PARAM(IDialogPtr, _failDialog))
- *				STINGRAY_LOCAL_VISITOR_CASE(OpFailed)
- *					_failDialog->SetText("The operation failed, the error is: " + value.Error);
- *					_failDialog->Show();
- *					return "failed!";
- *				STINGRAY_LOCAL_VISITOR_CASE(OpSucceeded)
- *					_data = value.Result;
- *					return "succeded!";
- *			STINGRAY_LOCAL_VISITOR_END;
- *
- *			Logger::Info() << "The operation " << apply_visitor(local_visitor.GetVisitor(), v);
- *		}
- *	};
- */
-
-
 namespace stingray
 {
+	/**
+	 * @ingroup toolkit_general_visitors
+	 * @{
+	 */
+
+	/**
+	 * @brief Start of the local visitor code
+	 * @param in RetType_ The return type of the visitor
+	 * @param in Variant_ The variant type
+	 * @param mixed ... Each parameter is an MK_PARAM pair of the type and the name of a closure variable.
+	 * @par Example:
+	 * @code
+	 *	struct OpFailed
+	 *	{
+	 *		std::string		Error;
+	 *	};
+	 *
+	 *	struct OpSucceeded
+	 *	{
+	 *		ByteArray	Result;
+	 *	};
+	 *
+	 *	typedef variant<TYPELIST(OpFailed, OpSucceeded)>		OpResult;
+	 *
+	 *	class Class
+	 *	{
+	 *		ByteArray	_data;
+	 *		IDialogPtr	_failDialog;
+	 *		...
+	 *
+	 *		void OperationHandler(const OpResult& result)
+	 *		{
+	 *			STINGRAY_LOCAL_VISITOR(std::string, OpResult, MK_PARAM(ByteArray&, _data), MK_PARAM(IDialogPtr, _failDialog))
+	 *				STINGRAY_LOCAL_VISITOR_CASE(OpFailed)
+	 *					_failDialog->SetText("The operation failed, the error is: " + value.Error);
+	 *					_failDialog->Show();
+	 *					return "failed!";
+	 *				STINGRAY_LOCAL_VISITOR_CASE(OpSucceeded)
+	 *					_data = value.Result;
+	 *					return "succeded!";
+	 *			STINGRAY_LOCAL_VISITOR_END;
+	 *
+	 *			Logger::Info() << "The operation " << apply_visitor(local_visitor.GetVisitor(), v);
+	 *		}
+	 *	};
+	 * @endcode
+	 */
+#define STINGRAY_LOCAL_VISITOR(RetType_, Variant_, ...) \
+		TOOLKIT_CAT(STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_, TOOLKIT_NARGS(__VA_ARGS__))(__VA_ARGS__) \
+		class LocalVisitor##__LINE__ : protected LocalVisitorBase<RetType_, Variant_::TypeList>, protected LocalVisitorArgs##__LINE__ \
+		{ \
+			typedef LocalVisitorBase<RetType_, Variant_::TypeList>		base; \
+		public: \
+			const base& GetVisitor() const { return *this; } \
+			LocalVisitor##__LINE__(const LocalVisitorArgs##__LINE__& args) : LocalVisitorArgs##__LINE__(args) {
+
+	/**
+	 * @brief Start of the code that should be executed if the visited variant holds an object of type Type_
+	 * @param in Type_ Type of the object in the visited variant
+	 */
+#define STINGRAY_LOCAL_VISITOR_CASE(Type_) \
+			} \
+			virtual base::RetType Visit(const Type_& value) const {
+
+	/** @brief End of the local visitor */
+#define STINGRAY_LOCAL_VISITOR_END \
+			} \
+		} local_visitor(__local_visitor_args);
+
+	/** @} */
+
+
 	template < typename RetType_, typename TypeList_, int Count_ = GetTypeListLength<TypeList_>::Value >
 	class LocalVisitorBase;
 
@@ -340,25 +373,6 @@ namespace stingray
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_), ParamName5_(ParamName5_), ParamName6_(ParamName6_), ParamName7_(ParamName7_), ParamName8_(ParamName8_), ParamName9_(ParamName9_), ParamName10_(ParamName10_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_, ParamName6_, ParamName7_, ParamName8_, ParamName9_, ParamName10_); \
-
-
-#define STINGRAY_LOCAL_VISITOR(RetType_, Variant_, ...) \
-		TOOLKIT_CAT(STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_, TOOLKIT_NARGS(__VA_ARGS__))(__VA_ARGS__) \
-		class LocalVisitor##__LINE__ : protected LocalVisitorBase<RetType_, Variant_::TypeList>, protected LocalVisitorArgs##__LINE__ \
-		{ \
-			typedef LocalVisitorBase<RetType_, Variant_::TypeList>		base; \
-		public: \
-			const base& GetVisitor() const { return *this; } \
-			LocalVisitor##__LINE__(const LocalVisitorArgs##__LINE__& args) : LocalVisitorArgs##__LINE__(args) {
-
-#define STINGRAY_LOCAL_VISITOR_CASE(Type_) \
-			} \
-			virtual base::RetType Visit(const Type_& value) const {
-
-#define STINGRAY_LOCAL_VISITOR_END \
-			} \
-		} local_visitor(__local_visitor_args);
-
 
 }
 
