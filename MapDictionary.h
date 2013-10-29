@@ -13,6 +13,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename KeyType_, typename ValueType_ >
 	class MapDictionary : public virtual IDictionary<KeyType_, ValueType_>
 	{
@@ -127,6 +132,7 @@ namespace stingray
 		}
 	};
 
+	/** @} */
 
 }
 

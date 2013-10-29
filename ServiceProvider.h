@@ -39,7 +39,6 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
 
 	template < typename ServiceInterface >
 	class ServiceProvider;
@@ -345,7 +344,6 @@ namespace stingray
 	template < typename T > signal<void()>& ServiceProvider<T>::OnServiceCreated(ServiceProvider<T>::s_staticStuff.OnServiceCreated);
 	template < typename T > signal<void()>& ServiceProvider<T>::OnServiceDestroyed(ServiceProvider<T>::s_staticStuff.OnServiceDestroyed);
 
-	/*! \endcond */
 
 }
 

@@ -5,7 +5,6 @@
 #include <stingray/toolkit/shared_ptr.h>
 
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
@@ -33,7 +32,6 @@ namespace stingray
 
 };
 
-/*! \endcond */
 
 
 #endif

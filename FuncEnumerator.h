@@ -8,7 +8,11 @@
 
 namespace stingray
 {
-	
+
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 	template < typename T >
 	class FuncEnumerator : public virtual IEnumerator<T>
@@ -29,13 +33,14 @@ namespace stingray
 		virtual bool Valid() const	{ return _valid(_index); }
 		virtual T Get() const		{ return _get(_index); }
 		virtual void Next()
-		{ 
+		{
 			if (!_valid(_index))
 				return;
 			++_index;
 		}
 	};
-	
+
+	/** @} */
 
 }
 

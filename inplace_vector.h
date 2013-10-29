@@ -8,6 +8,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template<typename T, size_t InplaceCapacity_>
 	class inplace_vector
 	{
@@ -149,6 +154,8 @@ namespace stingray
 		{ return iterator(*this, size()); }
 
 	};
+
+	/** @} */
 
 }
 

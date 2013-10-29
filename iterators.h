@@ -9,6 +9,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template<typename BidirectionalIteratorT>
 	BidirectionalIteratorT prev(BidirectionalIteratorT it, typename std::iterator_traits<BidirectionalIteratorT>::difference_type n = 1)
 	{ std::advance(it, -n);	return it; }
@@ -300,6 +305,7 @@ namespace stingray
 			CastIterator<DstType, SrcType>(range.end()));
 	}
 
+	/** @} */
 
 }
 

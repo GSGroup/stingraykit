@@ -11,7 +11,6 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
 
 	struct TypeListEndNode
 	{ };
@@ -366,7 +365,6 @@ namespace stingray
 	};
 
 #undef TY
-	/*! \endcond */
 
 }
 

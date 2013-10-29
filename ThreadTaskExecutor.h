@@ -13,6 +13,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_threads
+	 * @{
+	 */
 
 	class ThreadTaskExecutor : TOOLKIT_FINAL(ThreadTaskExecutor), public virtual ITaskExecutor
 	{
@@ -45,6 +49,8 @@ namespace stingray
 		void ThreadFunc();
 	};
 	TOOLKIT_DECLARE_PTR(ThreadTaskExecutor);
+
+	/** @} */
 
 }
 

@@ -13,6 +13,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_threads
+	 * @{
+	 */
 
 	template < typename StateType, typename ResultType >
 	class AsyncAction
@@ -235,6 +239,7 @@ namespace stingray
 		}
 	};
 
+	/** @} */
 
 }
 

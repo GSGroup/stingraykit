@@ -23,6 +23,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_general_variants
+	 * @{
+	 */
+
 	class bad_variant_get : public std::bad_cast
 	{
 	private:
@@ -442,6 +447,9 @@ namespace stingray
 	template<typename Visitor, typename TypeList>
 	typename Visitor::RetType apply_visitor(const Visitor& visitor, const variant<TypeList>& v)
 	{ return v.ApplyVisitor(visitor); }
+
+
+	/** @} */
 
 }
 

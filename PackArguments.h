@@ -6,6 +6,12 @@
 
 namespace stingray
 {
+
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
+
 	namespace Detail
 	{
 
@@ -55,6 +61,8 @@ namespace stingray
 		typedef const Tuple<typename function_info<Signature>::ParamTypes> TupleType;
 		return function<Signature>(Detail::ArgumentPacker<TupleType::Size, Signature>(func));
 	}
+
+	/** @} */
 
 }
 

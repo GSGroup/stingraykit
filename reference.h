@@ -5,7 +5,6 @@
 #include <stingray/toolkit/toolkit.h>
 
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
@@ -39,12 +38,11 @@ namespace stingray
 	struct ToPointerType<reference<T> >
 	{ typedef T* ValueT; };
 
-	template < typename T > 
+	template < typename T >
 	inline T* to_pointer(const reference<T>& r) { return &(T&)r; }
 
 }
 
-/*! \endcond */
 
 
 #endif

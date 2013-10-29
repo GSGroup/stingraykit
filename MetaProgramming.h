@@ -8,7 +8,6 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
 
 	class NullType;
 
@@ -260,7 +259,6 @@ namespace stingray
 
 #undef TY
 
-	/*! \endcond */
 
 }
 

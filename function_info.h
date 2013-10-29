@@ -6,10 +6,14 @@
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/TypeList.h>
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
+
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	struct FunctionType
 	{
@@ -329,9 +333,10 @@ namespace stingray
 
 #undef TY
 
+	/** @} */
+
 }
 
-/*! \endcond */
 
 
 #endif

@@ -14,7 +14,7 @@
 namespace stingray
 {
 
-	
+
 #define TOOLKIT_DECLARE_LIGHT_PTR(ClassName) \
 		typedef stingray::light_shared_ptr<ClassName>				ClassName##LightPtr; \
 		typedef stingray::light_shared_ptr<const ClassName>		ClassName##LightConstPtr; \
@@ -47,7 +47,7 @@ namespace stingray
 
 	public:
 		typedef T ValueType;
-		
+
 		explicit inline light_shared_ptr(T* rawPtr)
 			: _refCount(init_ref_count(rawPtr))
 		{ }
@@ -112,7 +112,7 @@ namespace stingray
 
 	private:
 		inline void check_ptr() const
-		{ 
+		{
 			if (!get())
 				TOOLKIT_THROW(NullPointerException());
 		}
@@ -145,21 +145,20 @@ namespace stingray
 		{ }
 
 		inline light_shared_ptr<T> lock() const
-		{ 
+		{
 			if (expired())
 				return light_shared_ptr<T>();
 
-			return light_shared_ptr<T>(_refCount); 
+			return light_shared_ptr<T>(_refCount);
 		}
-		
+
 		inline size_t get_ref_count() const
 		{ return !_refCount.IsNull() ? _refCount.get(): 0; }
 
 		inline bool expired() const	{ return _refCount.IsNull() || _refCount.get() == 0; }
 	};
 
-	
-	/*! \cond GS_INTERNAL *
+
 	template < typename SharedPtrT >
 	struct GetSharedPtrParam;
 
@@ -177,10 +176,10 @@ namespace stingray
 	{ typedef light_shared_ptr<T>	ValueT; };
 
 
-	template < typename T > 
+	template < typename T >
 	inline T* to_pointer(const light_shared_ptr<T>& ptr) { return ptr.get(); }
 
-	
+
 	namespace Detail
 	{
 
@@ -194,7 +193,7 @@ namespace stingray
 		{
 		private:
 			light_shared_ptr<T>	_sharedPtr;
-			
+
 		public:
 			WeakPtrToPointerProxy(const light_weak_ptr<T>& weakPtr)
 				: _sharedPtr(TOOLKIT_REQUIRE_NOT_NULL(weakPtr.lock()))
@@ -204,13 +203,13 @@ namespace stingray
 		};
 	}
 
-	template < typename T > 
+	template < typename T >
 	inline Detail::WeakPtrToPointerProxy<T> to_pointer(const light_weak_ptr<T>& ptr) { return ptr; }
 
 
 	template < typename DestType, typename SrcType >
 	inline light_shared_ptr<DestType> dynamic_pointer_cast(const light_shared_ptr<SrcType>& src)
-	{ 
+	{
 		DestType* rawDest = dynamic_cast<DestType*>(src.get());
 		if (rawDest == NULL)
 			return light_shared_ptr<DestType>();
@@ -220,7 +219,7 @@ namespace stingray
 
 	template < typename DestType, typename SrcType >
 	inline light_weak_ptr<DestType> dynamic_pointer_cast(const light_weak_ptr<SrcType>& src)
-	{ 
+	{
 		DestType* rawDest = dynamic_cast<DestType*>(src._rawPtr);
 		if (rawDest == NULL)
 			return light_weak_ptr<DestType>();
@@ -253,7 +252,7 @@ namespace stingray
 
 #define TY typename
 #define P_(N) const T##N& p##N
-	
+
 	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(1, MK_PARAM(TY T1), MK_PARAM(P_(1)), MK_PARAM(p1))
 	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(2, MK_PARAM(TY T1, TY T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2))
 	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3))
@@ -268,7 +267,6 @@ namespace stingray
 #undef P_
 #undef TY
 #undef DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED
-	*! \endcond */
 
 }
 

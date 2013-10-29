@@ -13,10 +13,14 @@
 #	include <ext/atomicity.h>
 #endif
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
+
+	/**
+	 * @addtogroup toolkit_threads
+	 * @{
+	 */
 
 #if HAVE_SYNC_EAA || HAVE_SYNC_EAA_EXT
 	typedef _Atomic_word	atomic_int_type;
@@ -113,10 +117,10 @@ namespace stingray
 		{ Atomic::Unlock(_lock); }
 	};
 
+	/** @} */
 
 }
 
-/*! \endcond */
 
 
 #endif

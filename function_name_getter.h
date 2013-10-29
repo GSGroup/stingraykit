@@ -13,7 +13,12 @@
 
 namespace stingray
 {
-	
+
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		std::string FuncPtrToString(intptr_t* ptrptr, size_t n);
@@ -82,6 +87,8 @@ namespace stingray
 	template < typename Func_ >
 	std::string get_function_name(const Func_& func)
 	{ return function_name_getter<Func_>::get(func); }
+
+	/** @} */
 
 }
 

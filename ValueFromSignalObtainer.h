@@ -13,6 +13,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	template < typename CollectionType >
 	class ValuesFromSignalCollector : public function_info<void(const typename CollectionType::value_type&)>
@@ -26,7 +30,7 @@ namespace stingray
 
 	public:
 		ValuesFromSignalCollector() : _val(new Builder) { }
-		
+
 		void operator() (const ValueType& val) const { (*_val) % val; }
 		void operator() (CollectionOp op, const ValueType& val) const { TOOLKIT_CHECK(op == CollectionOp::Added, "Invalid CollectionOp!"); (*_val) % val; }
 
@@ -51,7 +55,7 @@ namespace stingray
 
 	public:
 		ValueFromSignalObtainer() : _val(new TPtr) { }
-		
+
 		void operator() (const T& val) const
 		{
 			TOOLKIT_CHECK(!*_val, "Value already set!");
@@ -68,6 +72,8 @@ namespace stingray
 
 		bool HasValue() const { return *_val; }
 	};
+
+	/** @} */
 
 }
 

@@ -14,7 +14,6 @@
 #include <stingray/toolkit/string_stream.h>
 
 
-/*! \cond GS_INTERNAL */
 namespace std
 {
 	template < class Key, class T, class Compare, class Allocator > class map;
@@ -256,7 +255,7 @@ namespace stingray
 				if (ptr)
 					ToString(result, *ptr);
 				else
-					result << "null"; 
+					result << "null";
 			}
 		};
 
@@ -522,7 +521,6 @@ namespace stingray
 
 }
 
-/*! \endcond */
 
 
 #endif

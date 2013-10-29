@@ -7,6 +7,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename T >
 	struct EmptyEnumerator : public virtual IEnumerator<T>
 	{
@@ -255,6 +260,8 @@ namespace stingray
 	template< typename EnumeratorType_, typename ParamsTuple_ >
 	shared_ptr<SimpleEnumerable<EnumeratorType_, ParamsTuple_> > MakeSimpleEnumerable(const ParamsTuple_& tuple)
 	{ return make_shared<SimpleEnumerable<EnumeratorType_, ParamsTuple_> >(tuple); }
+
+	/** @} */
 
 }
 

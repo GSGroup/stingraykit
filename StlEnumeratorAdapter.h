@@ -6,11 +6,13 @@
 #include <stingray/toolkit/shared_ptr.h>
 
 
-/*! \cond GS_INTERNAL */
-
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 	template < typename T >
 	class StlEnumeratorAdapter : public std::iterator< std::forward_iterator_tag, T >
@@ -70,9 +72,8 @@ namespace stingray
 	inline StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerable<T> >/* enumerator*/)
 	{ return StlEnumeratorAdapter<T>(); }
 
+	/** @} */
+
 }
-
-/*! \endcond */
-
 
 #endif

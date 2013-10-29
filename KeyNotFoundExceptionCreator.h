@@ -9,6 +9,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		template < typename KeyType, bool StringRepresentable = IsStringRepresentable<KeyType>::Value >
@@ -23,6 +28,8 @@ namespace stingray
 	template < typename KeyType >
 	KeyNotFoundException CreateKeyNotFoundException(const KeyType& key)
 	{ return Detail::KeyNotFoundExceptionCreator<KeyType>::Create(key); }
+
+	/** @} */
 
 }
 

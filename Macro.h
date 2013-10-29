@@ -1,6 +1,10 @@
 #ifndef STINGRAY_TOOLKIT_MACRO_H
 #define STINGRAY_TOOLKIT_MACRO_H
 
+/**
+ * @addtogroup toolkit_macro
+ * @{
+ */
 
 #define MK_PARAM(...)	__VA_ARGS__
 
@@ -23,5 +27,6 @@
 #define ______TOOLKIT_MACRO_FOR(N, FUNC) TOOLKIT_MACRO_FOR_##N(FUNC)
 #endif
 
+/** @} */
 
 #endif

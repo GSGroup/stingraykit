@@ -10,6 +10,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_threads
+	 * @{
+	 */
+
 	class SystemProfiler
 	{
 		TOOLKIT_NONCOPYABLE(SystemProfiler);
@@ -26,6 +31,8 @@ namespace stingray
 		SystemProfiler(const std::string& message, s64 thresholdMs, s64 criticalMs = 0);
 		~SystemProfiler();
 	};
+
+	/** @} */
 
 }
 

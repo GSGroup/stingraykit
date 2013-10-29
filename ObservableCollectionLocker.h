@@ -8,6 +8,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	class ObservableCollectionLocker
 	{
 		TOOLKIT_NONCOPYABLE(ObservableCollectionLocker);
@@ -22,6 +27,8 @@ namespace stingray
 		{ }
 	};
 	TOOLKIT_DECLARE_PTR(ObservableCollectionLocker);
+
+	/** @} */
 
 }
 

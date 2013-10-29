@@ -15,7 +15,10 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 #define TY typename
 
@@ -383,7 +386,7 @@ namespace stingray
 	template<size_t N>
 	Detail::Chomper<N> not_using(BindPlaceholder<N>(*)()) { return Detail::Chomper<N>(); }
 
-	/*! \endcond */
+	/** @} */
 
 }
 

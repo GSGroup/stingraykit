@@ -6,10 +6,14 @@
 #include <stingray/toolkit/exception.h>
 
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
+
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	template < typename T >
 	struct ToPointerType<T*>
@@ -28,9 +32,9 @@ namespace stingray
 		{
 			template < typename FunctorType, typename ParametersTuple >
 			static inline typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p)
-			{ 
+			{
 				//CompileTimeAssert<ParametersTuple::Size == 0> ERROR__invalid_number_of_parameters;
-				return func(); 
+				return func();
 			}
 		};
 
@@ -68,7 +72,7 @@ namespace stingray
 		DETAIL_TOOLKIT_DECLARE_FUNCTOR_INVOKER_IMPL(10, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9)));
 
 #undef P
-		
+
 	}
 
 
@@ -79,17 +83,17 @@ namespace stingray
 		{
 			return Detail::FunctorInvokerImpl
 				<
-					ParamsTuple::Size, 
-					/*GetTypeListLength<typename function_info<FunctorType>::ParamTypes>::Value,*/ 
+					ParamsTuple::Size,
+					/*GetTypeListLength<typename function_info<FunctorType>::ParamTypes>::Value,*/
 					function_info<FunctorType>::Type == FunctionType::MethodPtr
 				>::template Invoke<FunctorType, ParamsTuple>(func, p);
 		}
 	};
 
+	/** @} */
 
 }
 
-/*! \endcond */
 
 
 #endif

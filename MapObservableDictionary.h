@@ -9,9 +9,16 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename KeyType_, typename ValueType_ >
 	class MapObservableDictionary : public ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_> >
 	{ };
+
+	/** @} */
 
 }
 

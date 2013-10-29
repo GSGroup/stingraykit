@@ -285,7 +285,6 @@ namespace stingray
 	};
 
 
-	/*! \cond GS_INTERNAL */
 
 	template < typename SharedPtrT >
 	struct GetSharedPtrParam;
@@ -447,7 +446,6 @@ namespace stingray
 #undef P_
 #undef TY
 #undef DETAIL_TOOLKIT_DECLARE_MAKE_SHARED
-	/*! \endcond */
 
 
 	template<typename T>

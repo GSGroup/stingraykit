@@ -10,7 +10,6 @@
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/unique_ptr.h>
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray {
 
@@ -110,7 +109,6 @@ namespace stingray {
 
 }
 
-/*! \endcond */
 
 #define TOOLKIT_REGISTER_CLASS(type) \
 	friend class stingray::Detail::Factory; \

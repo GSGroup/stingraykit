@@ -9,7 +9,6 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
 
 	template < typename ComparableClassType, typename MethodClassType, typename PropertyType >
 	class PropertyComparer : public virtual IComparer<ComparableClassType>
@@ -29,7 +28,7 @@ namespace stingray
 		{
 			if (left == 0)
 			{
-				if (right == 0) 
+				if (right == 0)
 					return 0;
 				return -1;
 			}
@@ -47,14 +46,13 @@ namespace stingray
 	};
 
 
-	/*! \endcond */
 
 	template < typename ClassType, typename PropertyType >
 	shared_ptr< IComparer<ClassType> > MakePropertyComparer(PropertyType (ClassType::*propertyGetter)() const)
 	{ return make_shared<PropertyComparer<ClassType, ClassType, PropertyType> >(propertyGetter); }
 
 	template < typename ComparableClassType, typename MethodClassType, typename PropertyType >
-	shared_ptr< IComparer<typename EnableIf<!SameType<ComparableClassType, MethodClassType>::Value, ComparableClassType>::ValueT> > 
+	shared_ptr< IComparer<typename EnableIf<!SameType<ComparableClassType, MethodClassType>::Value, ComparableClassType>::ValueT> >
 		MakePropertyComparer(PropertyType (MethodClassType::*propertyGetter)() const, const Dummy& dummy = Dummy())
 	{ return make_shared<PropertyComparer<ComparableClassType, MethodClassType, PropertyType> >(propertyGetter); }
 

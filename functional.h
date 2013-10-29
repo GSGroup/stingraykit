@@ -8,6 +8,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		template < typename F, size_t ParamCount = GetTypeListLength<typename function_info<F>::ParamTypes>::Value >
@@ -38,6 +43,8 @@ namespace stingray
 
 	template < typename F >
 	Detail::NotFunc<F> not_(const F& f) { return Detail::NotFunc<F>(f); }
+
+	/** @} */
 
 }
 

@@ -9,6 +9,12 @@
 namespace stingray
 {
 
+	/**
+	 * @ingroup toolkit_bits
+	 * @defgroup toolkit_bits_bitstream Bitstreams
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		TOOLKIT_DECLARE_NESTED_TYPE_CHECK(container_type);
@@ -250,6 +256,8 @@ namespace stingray
 	typedef BasicBitStream<ByteArray>				SeisedBitStream;
 	typedef BasicBitStream<ConstByteArray, false>	ConstSeisedLittleEndianBitStream;
 	typedef BasicBitStream<ByteArray, false>		SeisedLittleEndianBitStream;
+
+	/** @} */
 
 }
 

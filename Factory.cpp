@@ -1,7 +1,6 @@
 #include <stingray/toolkit/Factory.h>
 #include <stingray/log/Logger.h>
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray { namespace Detail
 {
@@ -71,4 +70,3 @@ namespace stingray { namespace Detail
 
 }}
 
-/*! \endcond */

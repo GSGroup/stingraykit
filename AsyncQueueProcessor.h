@@ -11,6 +11,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_threads
+	 * @{
+	 */
+
 	template<typename ValueType_>
 	class AsyncQueueProcessor
 	{
@@ -129,6 +134,8 @@ namespace stingray
 
 		Thread				_thread; //the last one to be initialized
 	};
+
+	/** @} */
 
 }
 

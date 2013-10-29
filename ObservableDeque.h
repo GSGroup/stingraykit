@@ -9,6 +9,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template<typename T>
 	class ObservableDeque;
 
@@ -143,6 +148,8 @@ namespace stingray
 
 
 	};
+
+	/** @} */
 
 }
 #endif

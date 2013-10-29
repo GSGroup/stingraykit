@@ -7,6 +7,10 @@
 
 namespace stingray
 {
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	template < typename T >
 	class LazyVal
@@ -15,7 +19,7 @@ namespace stingray
 
 	private:
 		Func	_func;
-		
+
 	public:
 		LazyVal(const Func& func)
 			: _func(func)
@@ -33,9 +37,10 @@ namespace stingray
 	struct ToPointerType<LazyVal<T> >
 	{ typedef typename ToPointerType<T>::ValueT ValueT; };
 
-	template < typename T > 
+	template < typename T >
 	inline typename ToPointerType<LazyVal<T> >::ValueT to_pointer(const LazyVal<T>& lazyPtr) { return to_pointer((T)lazyPtr); }
 
+	/** @} */
 }
 
 

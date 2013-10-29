@@ -172,7 +172,6 @@ namespace stingray
 
 	template<typename T> T implicit_cast(T param) { return param; }
 
-	/*! \cond GS_INTERNAL */
 
 	template < typename >
 	class shared_ptr;
@@ -224,7 +223,6 @@ namespace stingray
 		return result;
 	}
 
-	/*! \endcond */
 
 	struct CollectionOp
 	{

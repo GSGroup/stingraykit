@@ -15,6 +15,12 @@
 
 namespace stingray
 {
+	/**
+	 * @ingroup toolkit_bits
+	 * @defgroup toolkit_bits_bytedata ByteData and ByteArray
+	 * @{
+	 */
+
 	template < typename T >
 	class ByteDataIterator : public iterator_base<ByteDataIterator<T>, T, std::random_access_iterator_tag>
 	{
@@ -80,6 +86,9 @@ namespace stingray
 	class BasicByteData;
 
 
+	/**
+	 * @brief An object that retains shared ownership of an array of bytes
+	 */
 	template < typename T >
 	class BasicByteArray
 	{
@@ -233,6 +242,10 @@ namespace stingray
 		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); }
 	};
 
+
+	/**
+	 * @brief An object that holds a reference to an array of bytes but does not retain any ownership
+	 */
 	template < typename T >
 	class BasicByteData
 	{
@@ -344,6 +357,8 @@ namespace stingray
 
 	typedef BasicByteArray<const u8>		ConstByteArray;
 	typedef BasicByteArray<u8>				ByteArray;
+
+	/** @} */
 
 }
 

@@ -7,10 +7,14 @@
 #include <stingray/toolkit/function_name_getter.h>
 #include <stingray/toolkit/self_counter.h>
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
+
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	template < typename Signature >
 	class function;
@@ -294,10 +298,10 @@ namespace stingray
 		}
 	};
 
+	/** @} */
 
 }
 
-/*! \endcond */
 
 
 #endif

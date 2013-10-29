@@ -10,6 +10,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_general_variants
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		template < typename Multivisitor_, typename VariantTypes_, typename ResolvedTypes_ >
@@ -72,6 +77,8 @@ namespace stingray
 		typedef TypeList_1<const VariantType2_&>	VariantTypes;
 		return apply_visitor(Detail::MultiDispatchVisitor<const Multivisitor_, VariantTypes, TypeList_0>(multivisitor, Tuple<VariantTypes>(var2), Tuple<TypeList_0>()), var1);
 	}
+
+	/** @} */
 
 }
 

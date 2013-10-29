@@ -8,6 +8,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_bits
+	 * @{
+	 */
 
     template<typename IntegerType>
     class IntegerBuilder
@@ -42,6 +46,8 @@ namespace stingray
         U ResetMostSignificantBits(const U& field, size_t count)
         { return field & (static_cast<U>(~0) >> count); }
     };
+
+	/** @} */
 
 
 }

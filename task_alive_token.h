@@ -10,6 +10,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		struct TaskLifeTokenImpl : public self_counter<TaskLifeTokenImpl>
@@ -150,6 +155,8 @@ namespace stingray
 	DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4));
 	DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5));
 #undef TY
+
+	/** @} */
 
 }
 

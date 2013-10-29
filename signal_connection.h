@@ -16,6 +16,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		struct ISignalConnection : public self_counter<ISignalConnection>
@@ -256,6 +261,8 @@ namespace stingray
 				std::mem_fun_ref(&signal_connection::disconnect));
 		}
 	};
+
+	/** @} */
 
 }
 

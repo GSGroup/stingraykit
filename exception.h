@@ -26,7 +26,6 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
 
 	template < typename T >
 	class shared_ptr;
@@ -246,7 +245,6 @@ namespace stingray
 		return result.str();
 	}
 
-	/*! \endcond */
 
 }
 

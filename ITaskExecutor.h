@@ -10,6 +10,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_threads
+	 * @{
+	 */
+
 	struct ITaskExecutor
 	{
 		virtual void AddTask(const function<void()>& task) = 0;
@@ -22,6 +27,7 @@ namespace stingray
 	};
 	TOOLKIT_DECLARE_PTR(ITaskExecutor);
 
+	/** @} */
 
 }
 

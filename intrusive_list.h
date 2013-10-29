@@ -4,11 +4,14 @@
 #include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/iterator_base.h>
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 	template < typename T, typename Alloc = std::allocator<T> >
 	class intrusive_list;
@@ -183,7 +186,7 @@ namespace stingray
 		}
 
 
-		void swap(intrusive_list& other) 
+		void swap(intrusive_list& other)
 		{
 			_root.swap(other._root);
 			fix_root(other);
@@ -205,7 +208,7 @@ namespace stingray
 			while (!empty())
 				erase(begin());
 		}
-	
+
 		void push_back(const T& value)
 		{
 			pointer_type p = create_node(value);
@@ -226,10 +229,11 @@ namespace stingray
 		{ return std::distance(begin(), end()); }
 	};
 
+	/** @} */
+
 
 }
 
-/*! \endcond */
 
 
 #endif

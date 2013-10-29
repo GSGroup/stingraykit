@@ -11,6 +11,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename ValueType_ >
 	struct IObservableList : public virtual IList<ValueType_>
 	{
@@ -147,6 +152,8 @@ namespace stingray
 			return Wrapped_::Reverse();
 		}
 	};
+
+	/** @} */
 
 }
 

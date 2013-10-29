@@ -5,13 +5,11 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
 
 	class Dummy
 	{
 	};
 
-	/*! \endcond */
 
 }
 

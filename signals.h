@@ -10,10 +10,15 @@
 #include <stingray/threads/Thread.h>
 #include <stingray/log/Logger.h>
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
+
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
+
 	struct default_exception_handler
 	{
 		typedef function<void(const std::exception&)>	ExceptionHandlerFunc;
@@ -442,9 +447,10 @@ namespace stingray
 #undef P_
 #undef TY
 
+	/** @} */
+
 }
 
-/*! \endcond */
 
 
 #endif

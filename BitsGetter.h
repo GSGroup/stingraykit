@@ -9,10 +9,14 @@
 #include <stingray/toolkit/Dummy.h>
 
 
-/*! \cond GS_INTERNAL */
-
 namespace stingray
 {
+
+	/**
+	 * @ingroup toolkit_bits
+	 * @defgroup toolkit_bits_bitsgetter BitsGetter
+	 * @{
+	 */
 
 	namespace Detail
 	{
@@ -333,9 +337,8 @@ namespace stingray
 	typedef BasicBitsGetter<ConstByteData, false>					LittleEndianBitsGetter;
 	typedef BasicBitsSetter<ByteData, false>						LittleEndianBitsSetter;
 
+	/** @} */
 }
-
-/*! \endcond */
 
 
 #endif

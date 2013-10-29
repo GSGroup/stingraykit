@@ -13,7 +13,10 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 	namespace Detail
 	{
@@ -51,7 +54,6 @@ namespace stingray
 		virtual void Next()				{ TOOLKIT_CHECK(Valid(), "Enumerator is not valid!"); ++_current; }
 	};
 
-	/*! \endcond */
 
 
 	template < typename ContainerType >
@@ -156,6 +158,7 @@ namespace stingray
 	{ return make_shared<Detail::StlIteratorsEnumerable<IteratorType, ContainerLifeAssuranceType> >(begin, end, lifeAssurance); }
 
 
+	/** @} */
 
 }
 

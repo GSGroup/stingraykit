@@ -10,7 +10,6 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
 
 #define TOOLKIT_ASSERT_SIGNED(Type, Signed) \
 		struct Type##SignedChecker \
@@ -86,7 +85,6 @@ namespace stingray
 	template < typename T >
 	struct IsBuiltinType
 	{ static const bool Value = TypeListContains<BuiltinTypes, T>::Value; };
-	/*! \endcond */
 
 }
 

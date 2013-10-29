@@ -8,6 +8,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename Wrapped_, typename Comparer >
 	class DictionaryTransactionImpl : public virtual IDictionaryTransaction<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
@@ -215,6 +220,7 @@ namespace stingray
 		}
 	};
 
+	/** @} */
 
 }
 

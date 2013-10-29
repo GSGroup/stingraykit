@@ -12,6 +12,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_threads
+	 * @{
+	 */
+
 	struct future_status
 	{
 		TOOLKIT_ENUM_VALUES(
@@ -343,6 +348,7 @@ namespace stingray
 
 	};
 
+	/** @} */
 
 }
 

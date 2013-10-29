@@ -70,7 +70,6 @@ namespace stingray
 		struct AssertDependency : public AssertDependencyImpl<Dependency> { };
 	}
 
-	/*! \cond GS_INTERNAL */
 
 	template < typename Dependencies_ >
 	class DependsOn
@@ -138,7 +137,6 @@ namespace stingray
 		}
 	};
 
-	/*! \endcond */
 
 }
 

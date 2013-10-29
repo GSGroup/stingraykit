@@ -8,6 +8,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	class once
 	{
@@ -34,6 +38,8 @@ namespace stingray
 			}
 		}
 	};
+
+	/** @} */
 
 
 }

@@ -7,7 +7,6 @@
 #include <stingray/toolkit/Singleton.h>
 #include <stingray/toolkit/exception.h>
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
@@ -15,7 +14,7 @@ namespace stingray
 
 	template < typename SrcEnum_, typename DestEnum_ >
 	struct EnumMappingEndNode
-	{ 
+	{
 		typedef SrcEnum_		SrcEnum;
 		typedef DestEnum_		DestEnum;
 	};
@@ -143,7 +142,7 @@ namespace stingray
 	template < typename EnumMapping >
 	inline typename EnumMapping::SrcEnum UnmapEnum(typename EnumMapping::DestEnum val)
 	{ return Detail::EnumMapper<EnumMapping, false>::Map(val); }
-	
+
 
 #define VD(Num_) SrcEnum_ S##Num_, DestEnum_ D##Num_
 #define V(Num_) S##Num_, D##Num_
@@ -152,7 +151,7 @@ namespace stingray
 	template < typename SrcEnum_, typename DestEnum_, SrcEnum_ S1, DestEnum_ D1, ValuesDecl_ > \
 	class EnumMapping_##Size_ : public EnumMappingNode<SrcEnum_, DestEnum_, S1, D1, EnumMapping_##PrevSize_<SrcEnum_, DestEnum_, Values_> > { }
 
-	
+
 	template < typename SrcEnum_, typename DestEnum_, SrcEnum_ S1, DestEnum_ D1 > \
 	class EnumMapping_1 : public EnumMappingNode<SrcEnum_, DestEnum_, S1, D1, EnumMappingEndNode<SrcEnum_, DestEnum_> > { };
 
@@ -166,14 +165,13 @@ namespace stingray
 	DETAIL_TOOLKIT_DECLARE_ENUMMAPPING(8, 7, MK_PARAM(VD(2), VD(3), VD(4), VD(5), VD(6), VD(7), VD(8)), MK_PARAM(V(2), V(3), V(4), V(5), V(6), V(7), V(8)));
 	DETAIL_TOOLKIT_DECLARE_ENUMMAPPING(9, 8, MK_PARAM(VD(2), VD(3), VD(4), VD(5), VD(6), VD(7), VD(8), VD(9)), MK_PARAM(V(2), V(3), V(4), V(5), V(6), V(7), V(8), V(9)));
 	DETAIL_TOOLKIT_DECLARE_ENUMMAPPING(10, 9, MK_PARAM(VD(2), VD(3), VD(4), VD(5), VD(6), VD(7), VD(8), VD(9), VD(10)), MK_PARAM(V(2), V(3), V(4), V(5), V(6), V(7), V(8), V(9), V(10)));
-	
+
 #undef VD
 #undef V
 
 
 }
 
-/*! \endcond */
 
 
 #endif

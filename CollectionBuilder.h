@@ -11,6 +11,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 
 	namespace Detail
 	{
@@ -103,6 +108,8 @@ namespace stingray
 	DETAIL_CREATE_BUILDER(MapBuilder, std::map<K, V>);
 #undef DETAIL_CREATE_BUILDER
 
+
+	/** @} */
 
 }
 

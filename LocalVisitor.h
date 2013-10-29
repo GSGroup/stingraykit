@@ -9,7 +9,7 @@
 namespace stingray
 {
 	/**
-	 * @ingroup toolkit_general_visitors
+	 * @addtogroup toolkit_general_variants
 	 * @{
 	 */
 

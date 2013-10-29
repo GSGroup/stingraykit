@@ -15,6 +15,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		template < typename T, typename ValueType_, bool IsSerializable_ = IsSerializable<ValueType_>::Value >
@@ -49,14 +54,14 @@ namespace stingray
 			virtual ~SerializableList() { }
 		};
 	}
-	
+
 	template < typename T >
 	struct IList : public virtual ICollection<T>, public virtual IReversableEnumerable<T>, public Detail::SerializableList<IList<T>, T >
 	{
 		typedef T	ValueType;
 
 		virtual ~IList() { }
-		
+
 		virtual void Add(const ValueType& value) = 0;
 		virtual ValueType Get(int index) const = 0;
 		virtual void Set(int index, const ValueType& value) = 0;
@@ -94,6 +99,7 @@ namespace stingray
 		}
 	};
 
+	/** @} */
 
 }
 

@@ -8,7 +8,6 @@
 #include <stingray/toolkit/toolkit.h>
 
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
@@ -141,7 +140,6 @@ namespace stingray
 
 }
 
-/*! \endcond */
 
 
 #endif

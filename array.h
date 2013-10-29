@@ -7,6 +7,11 @@
 
 namespace stingray
 {
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template<typename T, size_t N>
 	class array
 	{
@@ -63,6 +68,8 @@ namespace stingray
 				throw std::range_error("array index is out of range");
 		}
 	};
+
+	/** @} */
 }
 
 #endif

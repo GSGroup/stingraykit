@@ -6,6 +6,10 @@
 
 namespace stingray {
 
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	template<typename ParamType>
 	struct SignalToFutureWrapper
@@ -58,6 +62,7 @@ namespace stingray {
 		{ _promise.set_value(); }
 	};
 
+	/** @} */
 
 }
 

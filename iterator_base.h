@@ -8,21 +8,29 @@ namespace stingray
 {
 
 	/**
-	 * Methods to implement:
-	 *	typename base::reference dereference() const;
-	 *	bool equal(const const_iterator& other) const;
-	 *
-	 * std::forward_iterator_tag
-	 *	void increment();
-	 *
-	 * std::bidirectional_iterator_tag
-	 *	void decrement();
-	 *
-	 * std::random_access_iterator_tag
-	 *	void advance(const typename base::difference_type& diff);
-	 *	typename base::difference_type distance_to(const const_iterator &other) const;
+	 * @addtogroup toolkit_collections
+	 * @{
 	 */
-	template<typename Derived_t, typename T, typename Category_t, 
+
+	/**
+	 * @brief a helper base class for iterators
+	 * @par methods to implement:
+	 * @code
+	 * typename base::reference dereference() const;
+	 * bool equal(const const_iterator& other) const;
+	 *
+	 * // std::forward_iterator_tag
+	 * void increment();
+	 *
+	 * // std::bidirectional_iterator_tag
+	 * void decrement();
+	 *
+	 * //std::random_access_iterator_tag
+	 * void advance(const typename base::difference_type& diff);
+	 * typename base::difference_type distance_to(const const_iterator &other) const;
+	 * @endcode
+	 */
+	template<typename Derived_t, typename T, typename Category_t,
 		typename Distance_t = std::ptrdiff_t, typename Pointer_t = T*, typename Reference_t = T&>
 	class iterator_base : public std::iterator<Category_t, T, Distance_t, Pointer_t, Reference_t>
 	{
@@ -136,6 +144,8 @@ namespace stingray
 		bool operator>=(const Derived_t &other) const
 		{ return !(*this < other); }
 	};
+
+	/** @} */
 }
 
 #endif

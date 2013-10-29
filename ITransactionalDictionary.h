@@ -10,6 +10,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 	namespace Detail
 	{
@@ -108,6 +112,7 @@ namespace stingray
 		{ }
 	};
 
+	/** @} */
 
 }
 

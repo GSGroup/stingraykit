@@ -11,6 +11,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename KeyType_, typename ValueType_ >
 	struct IObservableDictionary : public virtual IDictionary<KeyType_, ValueType_>
 	{
@@ -136,6 +141,8 @@ namespace stingray
 			return Wrapped_::Reverse();
 		}
 	};
+
+	/** @} */
 
 }
 

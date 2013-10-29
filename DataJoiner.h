@@ -8,6 +8,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	namespace Detail
 	{
 		template<typename Container>
@@ -202,6 +207,8 @@ namespace stingray
 			}
 		};
 	};
+
+	/** @} */
 
 }
 

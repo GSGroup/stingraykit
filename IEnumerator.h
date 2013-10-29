@@ -15,6 +15,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 	template < typename T >
 	struct IEnumerator
@@ -40,6 +44,28 @@ namespace stingray
 	public:
 		static const bool Value = sizeof(GetIsEnumerator((const T*)0)) == sizeof(YesType);
 	};
+
+
+	/**
+	 * @brief A foreach loop
+	 * @param in ... &lt;type&gt; &lt;name&gt; IN &lt;enumerable or enumerator&gt; [ WHERE &lt;some condition&gt; ]
+	 * @par Example:
+	 * @code
+	 * FOR_EACH(ISomeObjectPtr obj IN something->GetObjectCollection())
+	 * {
+	 *     ISomeOtherObjectPtr other_obj = dynamic_pointer_cast<ISomeOtherObject>(obj);
+	 *     if (!other_obj)
+	 *         continue;
+	 *     if (other_obj->GetProperty() == 1)
+	 *         continue;
+	 *     other_obj->SomeMethod();
+	 * }
+	 * // or
+	 * FOR_EACH(ISomeOtherObjectPtr other_obj IN something->GetObjectCollection() WHERE other_obj->GetProperty() != 1)
+	 *     other_obj->SomeMethod();
+	 * @endcode
+	 */
+#define FOR_EACH(...) FOR_EACH__IMPL(__VA_ARGS__)
 
 
 	template < typename SrcType, typename DestType >
@@ -104,8 +130,6 @@ namespace stingray
 	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<IEnumerator<SrcType> >& src, const CasterType& caster, const SkipperType& skipper)
 	{ return make_shared<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster, skipper); }
 
-
-	/*! \cond GS_INTERNAL */
 
 	namespace Detail
 	{
@@ -221,15 +245,7 @@ namespace stingray
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \
 					 for (ItemDecl_ = en->Get(); (__dummy_bool__ && ((__dummy_bool__ = false) == false) && ::stingray::Detail::ForEach_ItemFilter(true, ##__VA_ARGS__) && (__broken__ = true)); __broken__ = false)
 
-#define FOR_EACH(...) FOR_EACH__IMPL(__VA_ARGS__)
-
-// --- Usage:
-// FOR_EACH(ISomeObjectPtr obj IN something->GetObjectCollection())
-// --- or
-// FOR_EACH(ISomeObjectPtr obj IN something->GetObjectCollection() WHERE obj->GetProperty() != 1)
-
-	/*! \endcond */
-
+	/** @} */
 
 }
 

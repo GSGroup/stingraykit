@@ -10,7 +10,6 @@
 namespace stingray
 {
 
-	/*! \cond GS_INTERNAL */
 
 	template < typename T >
 	struct GetParamPassingType
@@ -238,7 +237,6 @@ namespace stingray
 #undef P_
 #undef TY
 
-	/*! \endcond */
 
 }
 

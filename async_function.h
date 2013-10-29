@@ -9,11 +9,14 @@
 #include <stingray/toolkit/future.h>
 
 
-/*! \cond GS_INTERNAL */
 
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	namespace Detail
 	{
@@ -151,9 +154,10 @@ namespace stingray
 #undef TY
 
 
+	/** @} */
+
 }
 
-/*! \endcond */
 
 
 #endif

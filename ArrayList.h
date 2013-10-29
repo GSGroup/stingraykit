@@ -14,6 +14,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename T >
 	class ArrayList : public virtual IList<T>
 	{
@@ -138,6 +143,7 @@ namespace stingray
 		}
 	};
 
+	/** @} */
 
 }
 

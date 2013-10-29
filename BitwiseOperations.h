@@ -13,6 +13,12 @@ namespace stingray
 {
 
 
+	/**
+	 * @ingroup toolkit_bits
+	 * @defgroup toolkit_bits_bitwiseops Bitwise operations
+	 * @{
+	 */
+
 	template < size_t Index, typename Integer >
 	bool TestBit(Integer number)
 	{
@@ -43,6 +49,8 @@ namespace stingray
 		TOOLKIT_MUST_HAVE_FIXED_WIDTH(Integer);
 		return number ^ (1 << Index);
 	}
+
+	/** @} */
 
 
 }

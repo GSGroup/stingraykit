@@ -12,6 +12,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 	template < typename T >
 	struct ICollection : public virtual IEnumerable<T>
@@ -21,6 +25,8 @@ namespace stingray
 		virtual int GetCount() const = 0;
 		virtual bool IsEmpty() const = 0;
 	};
+
+	/** @} */
 
 
 }

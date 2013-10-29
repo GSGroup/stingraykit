@@ -12,6 +12,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 	template < typename T >
 	struct IEnumerable
@@ -131,6 +135,7 @@ namespace stingray
 	typename Detail::EnumerableCaster<typename T::ItemType> GetEnumerableCaster(const shared_ptr<T>& enumerable)
 	{ return Detail::EnumerableCaster<typename T::ItemType>(enumerable); }
 
+	/** @} */
 
 }
 

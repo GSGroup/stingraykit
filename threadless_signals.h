@@ -8,6 +8,10 @@
 
 namespace stingray
 {
+	/**
+	 * @addtogroup toolkit_functions
+	 * @{
+	 */
 
 	namespace Detail
 	{
@@ -191,6 +195,7 @@ namespace stingray
 		inline threadless_signal_connection_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
 	};
 
+	/** @} */
 }
 
 #endif

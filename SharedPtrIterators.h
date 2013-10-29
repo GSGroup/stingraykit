@@ -6,6 +6,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
 
 template<typename Container>
 struct shared_copy_back_insert_iterator : public std::iterator<std::output_iterator_tag, void, void, void, void>
@@ -98,6 +102,8 @@ private:
 		TOOLKIT_CHECK(_currentIterator != _endIterator, IndexOutOfRangeException());
 #endif
 	}
+
+	/** @} */
 };
 
 }

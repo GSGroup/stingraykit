@@ -14,6 +14,11 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename KeyType_, typename ValueType_ >
 	struct KeyValuePair
 	{
@@ -120,6 +125,8 @@ namespace stingray
 				Remove(this->GetEnumerator()->Get().Key);
 		}
 	};
+
+	/** @} */
 
 }
 

@@ -9,9 +9,16 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
 	template < typename ValueType_ >
 	class ArrayObservableList : public ObservableListWrapper<ArrayList<ValueType_> >
 	{ };
+
+	/** @} */
 
 }
 
