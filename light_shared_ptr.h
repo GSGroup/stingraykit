@@ -170,12 +170,6 @@ namespace stingray
 	struct GetSharedPtrParam<const light_shared_ptr<T> >
 	{ typedef T	ValueT; };
 
-
-	template < typename T >
-	struct ToSharedPtr
-	{ typedef light_shared_ptr<T>	ValueT; };
-
-
 	template < typename T >
 	inline T* to_pointer(const light_shared_ptr<T>& ptr) { return ptr.get(); }
 
@@ -184,18 +178,13 @@ namespace stingray
 	{
 
 		template < typename T >
-		light_shared_ptr<T> RequireNotNull(const light_shared_ptr<T>& ptr, const char* expr, const char* file, size_t line, const char* func)
-		{ if (!ptr) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return ptr; }
-
-
-		template < typename T >
-		class WeakPtrToPointerProxy
+		class LightWeakPtrToPointerProxy
 		{
 		private:
 			light_shared_ptr<T>	_sharedPtr;
 
 		public:
-			WeakPtrToPointerProxy(const light_weak_ptr<T>& weakPtr)
+			LightWeakPtrToPointerProxy(const light_weak_ptr<T>& weakPtr)
 				: _sharedPtr(TOOLKIT_REQUIRE_NOT_NULL(weakPtr.lock()))
 			{}
 
@@ -204,7 +193,7 @@ namespace stingray
 	}
 
 	template < typename T >
-	inline Detail::WeakPtrToPointerProxy<T> to_pointer(const light_weak_ptr<T>& ptr) { return ptr; }
+	inline Detail::LightWeakPtrToPointerProxy<T> to_pointer(const light_weak_ptr<T>& ptr) { return ptr; }
 
 
 	template < typename DestType, typename SrcType >
@@ -238,16 +227,16 @@ namespace stingray
 
 
 	template < typename ObjType >
-	light_shared_ptr<ObjType> make_shared() { return light_shared_ptr<ObjType>(new ObjType); }
+	light_shared_ptr<ObjType> make_light_shared() { return light_shared_ptr<ObjType>(new ObjType); }
 	template < typename ObjType >
-	light_shared_ptr<ObjType> make_shared_0() { return light_shared_ptr<ObjType>(new ObjType); }
+	light_shared_ptr<ObjType> make_light_shared_0() { return light_shared_ptr<ObjType>(new ObjType); }
 
 
 #define DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
 	template < typename ObjType, Typenames_ > \
-	light_shared_ptr<ObjType> make_shared_##Size_(ParamsDecl_) { return light_shared_ptr<ObjType>(new ObjType(Params_)); } \
+	light_shared_ptr<ObjType> make_light_shared_##Size_(ParamsDecl_) { return light_shared_ptr<ObjType>(new ObjType(Params_)); } \
 	template < typename ObjType, Typenames_ > \
-	light_shared_ptr<ObjType> make_shared(ParamsDecl_) { return light_shared_ptr<ObjType>(new ObjType(Params_)); }
+	light_shared_ptr<ObjType> make_light_shared(ParamsDecl_) { return light_shared_ptr<ObjType>(new ObjType(Params_)); }
 
 
 #define TY typename
