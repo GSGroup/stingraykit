@@ -268,6 +268,15 @@ namespace stingray
 	{ typedef TypeListEndNode ValueT; };
 
 
+	template < typename TypeList, template <typename> class Predicate >
+	struct TypeListFindIf
+	{ typedef typename If<Predicate<typename TypeList::ValueT>::Value, typename TypeList::ValueT, typename TypeListFindIf<typename TypeList::Next, Predicate>::ValueT>::ValueT ValueT; };
+
+	template < template <typename> class Predicate >
+	struct TypeListFindIf<TypeListEndNode, Predicate>
+	{ typedef TypeListEndNode ValueT; };
+
+
 	template < typename TypeList >
 	struct TypeListReverse
 	{ typedef typename TypeListAppend<typename TypeListReverse<typename TypeList::Next>::ValueT, typename TypeList::ValueT>::ValueT ValueT;};
