@@ -14,6 +14,14 @@
 #include <stingray/toolkit/signals.h>
 
 
+namespace stingray
+{
+
+	/**
+	 * @addtogroup core_services
+	 * @{
+	 */
+
 #define TOOLKIT_SERVICE_NOT_SUPPORTED(ServiceInterface_) \
 		template < > \
 		stingray::ServiceProvider<ServiceInterface_>::IServiceCreatorPtr	\
@@ -35,9 +43,6 @@
 		template < > \
 		stingray::ServiceProvider<ServiceInterface_>::IServiceCreatorPtr	\
 			stingray::ServiceProvider<ServiceInterface_>::s_serviceCreator(new stingray::ServiceCreator<Service_, ServiceInterface_>(stingray::shared_ptr<stingray::ICreator<ServiceInterface_> >(__VA_ARGS__)))
-
-namespace stingray
-{
 
 
 	template < typename ServiceInterface >
@@ -344,6 +349,7 @@ namespace stingray
 	template < typename T > signal<void()>& ServiceProvider<T>::OnServiceCreated(ServiceProvider<T>::s_staticStuff.OnServiceCreated);
 	template < typename T > signal<void()>& ServiceProvider<T>::OnServiceDestroyed(ServiceProvider<T>::s_staticStuff.OnServiceDestroyed);
 
+	/** @} */
 
 }
 

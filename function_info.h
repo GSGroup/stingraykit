@@ -38,9 +38,9 @@ namespace stingray
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_type;
 
-/////////////////////////////////////
-/// for raw functions and methods ///
-/////////////////////////////////////
+///////////////////////////////////
+// for raw functions and methods //
+///////////////////////////////////
 
 	template < typename R > struct function_type<R(), NullType>
 	{ static const FunctionType::Enum Type = FunctionType::RawFunction; };
@@ -188,9 +188,9 @@ namespace stingray
 #undef DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO
 
 
-/////////////////////////////
-/// for toolkit::function ///
-/////////////////////////////
+///////////////////////////
+// for toolkit::function //
+///////////////////////////
 
 	template < typename Signature >
 	class function;
@@ -208,9 +208,9 @@ namespace stingray
 	};
 
 
-////////////////////////////////////////////////
-/// assuming that all other are stl functors ///
-////////////////////////////////////////////////
+//////////////////////////////////////////////
+// assuming that all other are stl functors //
+//////////////////////////////////////////////
 
 	namespace Detail
 	{

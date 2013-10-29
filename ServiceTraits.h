@@ -8,6 +8,10 @@
 namespace stingray
 {
 
+	/**
+	 * @addtogroup core_services
+	 * @{
+	 */
 
 	template < typename ServiceInterfaces_, typename Dependencies_ >
 	struct ServiceTraits
@@ -37,6 +41,7 @@ namespace stingray
 	struct GetServiceDependencies
 	{ typedef typename Service::Dependencies ValueT; };
 
+	/** @} */
 
 }
 
