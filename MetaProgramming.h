@@ -180,6 +180,10 @@ namespace stingray
 		static const ValueT Value = Value_;
 	};
 
+	template<typename Val1, typename Val2>
+	struct integral_constant_less
+	{ static const bool Value = Val1::Value < Val2::Value; };
+
 
 	template<typename ResultT, ResultT Base, unsigned int Exponent>
 	struct CompileTimeExponent { static const ResultT Value = Base * CompileTimeExponent<ResultT, Base, Exponent - 1>::Value; };
