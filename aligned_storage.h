@@ -65,12 +65,12 @@ namespace stingray
 			template<> struct type_with_alignment<32> { typedef AlignedTypes::a32 type; };
 
 			typedef TypeList_6<
-				integer_constant<size_t, 1>,
-				integer_constant<size_t, 2>,
-				integer_constant<size_t, 4>,
-				integer_constant<size_t, 8>,
-				integer_constant<size_t, 16>,
-				integer_constant<size_t, 32> > SupportedAligners;
+				integral_constant<size_t, 1>,
+				integral_constant<size_t, 2>,
+				integral_constant<size_t, 4>,
+				integral_constant<size_t, 8>,
+				integral_constant<size_t, 16>,
+				integral_constant<size_t, 32> > SupportedAligners;
 
 #else
 			struct a2	{ u16 s; };
@@ -86,11 +86,11 @@ namespace stingray
 			template<> struct type_with_alignment<16>	{ typedef a16 type; };
 
 			typedef TypeList_5<
-				integer_constant<size_t, 1>,
-				integer_constant<size_t, 2>,
-				integer_constant<size_t, 4>,
-				integer_constant<size_t, 8>,
-				integer_constant<size_t, 16> > SupportedAligners;
+				integral_constant<size_t, 1>,
+				integral_constant<size_t, 2>,
+				integral_constant<size_t, 4>,
+				integral_constant<size_t, 8>,
+				integral_constant<size_t, 16> > SupportedAligners;
 #endif
 		}
 
@@ -113,14 +113,14 @@ namespace stingray
 		static const size_t enlarged = Detail::EnlargementAlignmentMeasurer::alignment_of<T>::Value;
 		static const size_t Value = simple < enlarged ? simple : enlarged;
 
-		typedef integer_constant<size_t, Value> ValueT;
+		typedef integral_constant<size_t, Value> ValueT;
 	};
 
 
 	template<typename T>
 	struct SizeOf
 	{
-		typedef integer_constant<size_t, sizeof(T)> ValueT;
+		typedef integral_constant<size_t, sizeof(T)> ValueT;
 	};
 
 
