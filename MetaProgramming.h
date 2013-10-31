@@ -174,7 +174,7 @@ namespace stingray
 
 
 	template<typename T_, T_ Value_>
-	struct integer_constant
+	struct integral_constant
 	{
 		typedef T_ ValueT;
 		static const ValueT Value = Value_;
