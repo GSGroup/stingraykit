@@ -13,6 +13,25 @@
 #define TOOLKIT_NARGS_SEQ(Dummy_, _1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,_21,_22,_23,_24,_25,_26,_27,_28,_29,_30,N,...) N
 #define TOOLKIT_NARGS(...) TOOLKIT_NARGS_SEQ(Dummy_, ##__VA_ARGS__, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
+
+#define DETAIL_FIRST_ARG(_0, ...) _0
+#define DETAIL_SECOND_ARG(_0, _1, ...) _1
+
+#define DETAIL_NOT_IMPL(...) DETAIL_SECOND_ARG(__VA_ARGS__, 0, Dummy_)
+#define DETAIL_NOT_0 ~, 1
+
+#define TOOLKIT_NOT(A) DETAIL_NOT_IMPL(TOOLKIT_CAT(DETAIL_NOT_, A))
+
+
+#define DETAIL_COMPL_0 1
+#define DETAIL_COMPL_1 0
+
+#define TOOLKIT_COMPL(A) TOOLKIT_CAT(DETAIL_COMPL_, A)
+
+
+#define TOOLKIT_BOOL(A) TOOLKIT_COMPL(TOOLKIT_NOT(A))
+
+
 #if 0
 #define ______TOOLKIT_MACRO_FOR_0(FUNC)
 #define ______TOOLKIT_MACRO_FOR_1(FUNC) FUNC(1)
