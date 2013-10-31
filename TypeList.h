@@ -324,6 +324,19 @@ namespace stingray
 	{ typedef typename TypeList::ValueT ValueT; };
 
 
+	template<typename TypeList, template<typename, typename> class LessPredicate, typename Tail = typename TypeList::Next>
+	struct MinElement
+	{
+	private:
+		typedef typename MinElement<typename TypeList::Next, LessPredicate>::ValueT NextResult;
+
+	public:
+		typedef typename If<LessPredicate<typename TypeList::ValueT, NextResult>::Value, typename TypeList::ValueT, NextResult>::ValueT ValueT;
+	};
+
+	template<typename TypeList, template<typename, typename> class LessPredicate>
+	struct MinElement<TypeList, LessPredicate, TypeListEndNode>
+	{ typedef typename TypeList::ValueT ValueT; };
 
 
 	template < typename TypeList, template <typename> class FunctorClass >
