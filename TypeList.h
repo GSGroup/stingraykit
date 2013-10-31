@@ -36,25 +36,39 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename Signature >
-		struct TypeListCreator;
+#define MAX_TYPELIST_LEN 30
 
-		template < TY T1 >
-		struct TypeListCreator<void(T1)> : public TypeList_1<T1>
+#define DETAIL_TYPELIST_PARAMS_DECL(Index_, Default_) TOOLKIT_COMMA_IF(Index_) typename TOOLKIT_CAT(T, Index_) Default_
+#define DETAIL_TYPELIST_PARAMS_USAGE(Index_, Shift_) TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(T, TOOLKIT_ADD(Index_, Shift_))
+#define DETAIL_TYPELISTENDNODE(Index_, unused) TOOLKIT_COMMA_IF(Index_) TypeListEndNode
+
+		template< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_DECL, TOOLKIT_EMPTY()) >
+		struct TypeListCreatorImpl
+		{
+			typedef TypeListNode<T0, typename TypeListCreatorImpl<TOOLKIT_REPEAT(TOOLKIT_DEC(MAX_TYPELIST_LEN), DETAIL_TYPELIST_PARAMS_USAGE, 1), TypeListEndNode>::ValueT > ValueT;
+		};
+
+		template<>
+		struct TypeListCreatorImpl<TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELISTENDNODE, ~)>
+		{
+			typedef TypeListEndNode ValueT;
+		};
+
+		template< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_DECL, = TypeListEndNode) >
+		struct TypeListCreator : public TypeListCreatorImpl< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_USAGE, 0) >::ValueT
 		{ };
+
+#undef DETAIL_TYPELISTENDNODE
+#undef DETAIL_TYPELIST_PARAMS_USAGE
+#undef DETAIL_TYPELIST_PARAMS_DECL
 	}
 
-#define TYPELIST(...)	stingray::Detail::TypeListCreator<void ( __VA_ARGS__ ) >
+#define TYPELIST(...)	stingray::Detail::TypeListCreator<__VA_ARGS__>
+
 
 #define DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(Size_, PrevSize_, TypesTypenames_, Tail_) \
 	template < TypesTypenames_ > \
-	struct TypeList_##Size_ : public TypeListNode<T1, TypeList_##PrevSize_<Tail_> > { }; \
-	\
-	namespace Detail { \
-		template < TypesTypenames_ > \
-		struct TypeListCreator<void(T1, Tail_)> : public TypeList_##Size_<T1, Tail_> \
-		{ }; \
-	}
+	struct TypeList_##Size_ : public TypeListNode<T1, TypeList_##PrevSize_<Tail_> > { };
 
 	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(2, 1, MK_PARAM(TY T1, TY T2), MK_PARAM(T2))
 	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(3, 2, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T2, T3))

@@ -6,6 +6,7 @@
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/Dummy.h>
+#include <stingray/toolkit/TypeInfo.h>
 
 
 namespace stingray
@@ -122,10 +123,7 @@ namespace stingray
 				if (target || (!_source && AllowNullSource))
 					return target;
 
-				if (_source)
-					throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(*to_pointer(_source)).name()), Demangle(typeid(TargetType).name())), _where);
-
-				throw stingray::Detail::MakeException(InvalidCastException(Demangle(typeid(SourceType).name()), Demangle(typeid(TargetType).name())), _where);
+				throw stingray::Detail::MakeException(InvalidCastException(_source ? TypeInfo(*_source).GetName() : "null", TypeInfo(typeid(TargetType)).GetName()), _where);
 			}
 		};
 
