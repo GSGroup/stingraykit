@@ -11,8 +11,8 @@ namespace stingray
 	template<typename TypeList>
 	struct MultiStorageFor
 	{
-		typedef typename MaxElement<typename TypeListTransform<TypeList, SizeOf>::ValueT>::ValueT		MaxSize;
-		typedef typename MaxElement<typename TypeListTransform<TypeList, alignment_of>::ValueT>::ValueT	MaxAlignment;
+		typedef typename MaxElement<typename TypeListTransform<TypeList, SizeOf>::ValueT, integral_constant_less>::ValueT		MaxSize;
+		typedef typename MaxElement<typename TypeListTransform<TypeList, alignment_of>::ValueT, integral_constant_less>::ValueT	MaxAlignment;
 
 		typedef typename aligned_storage<MaxSize::Value, MaxAlignment::Value>::type Storage;
 
