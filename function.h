@@ -16,6 +16,8 @@ namespace stingray
 	 * @{
 	 */
 
+#ifndef DOXYGEN_PREPROCESSOR
+
 	template < typename Signature >
 	class function;
 
@@ -297,6 +299,43 @@ namespace stingray
 			return function<Signature>(function_base<Signature>(ptr));
 		}
 	};
+
+#else
+
+	/**
+	 * @brief Function object
+	 * @par Example:
+	 * @code
+	 * double f(char c, int i)
+	 * {
+	 *     return (c - 'a') * i + 0.5;
+	 * }
+	 *
+	 * int main()
+	 * {
+	 *     function<double(char, int)> func(&f);
+	 *     std::cout << func('c', 3) << std::endl; // 9.5
+	 *     return 0;
+	 * }
+	 * @endcode
+	 * @param in Signature The signature of the function object (e.g. 'bool(std::string)')
+	 */
+	template < typename Signature >
+	class function<Signature> : public function_info<Signature>
+	{
+	public:
+		/** @param in func Callable object or pointer to function that will be held inside the function object */
+		template < typename FunctorType >
+		function(const FunctorType& func);
+
+		/** @param mixed parameters The parameters that will be passed to the inner functor */
+		RetType operator ()(Parameters... parameters) const;
+
+		/** @return A string representation of the inner functor. May be used for identifying the function object. */
+		std::string get_name() const;
+	};
+
+#endif
 
 	/** @} */
 

@@ -31,10 +31,13 @@ namespace stingray
 	};
 
 
+#ifndef DOXYGEN_PREPROCESSOR
+
 #define TY typename
 
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_info;
+
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_type;
 
@@ -332,6 +335,40 @@ namespace stingray
 
 
 #undef TY
+
+#else
+
+	/**
+	 * @brief Function object parser
+	 * @par Example:
+	 * @code
+	 * typedef function_info<int(char, double, int)>	the_func_info;
+	 * if (TypeListContains<the_func_info::ParamTypes, the_func_info::RetType>::Value)
+	 *     std::cout << "The parameters list of the function contains its return type" << std::endl;
+	 * @endcode
+	 */
+	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
+	struct function_info
+	{
+		/** @brief The return type of the function */
+		typedef function_ret_type		RetType;
+		/** @brief A typelist containing function parameters' types*/
+		typedef function_param_types	ParamTypes;
+	};
+
+	/**
+	 * @brief Function object type getter
+	 * @par Example:
+	 * @code
+	 * if (function_type<int(*)(char, double, int)>::Type == FunctionType::RawFunctionPtr)
+	 *     std::cout << "The type of the function is RawFunctionPtr" << std::endl;
+	 * @endcode
+	 */
+	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
+	struct function_type
+	{ static const FunctionType::Enum Type = type_of_the_function; };
+
+#endif
 
 	/** @} */
 
