@@ -19,7 +19,7 @@ namespace stingray
 
 	/**
 	 * @brief Start of the code that should be executed at the scope exit
-	 * @param mixed ... Each parameter is an MK_PARAM pair of the type and the name of a closure variable.
+	 * @param[mixed] ... Each parameter is an MK_PARAM pair of the type and the name of a closure variable.
 	 * @par Example:
 	 * @code
 	 *	void func(int file)
@@ -58,7 +58,7 @@ namespace stingray
 		function<void()>	_func;
 
 	public:
-		/** @param in func Function that should be invoked from the ScopeExitInvoker destructor */
+		/** @param[in] func Function that should be invoked from the ScopeExitInvoker destructor */
 		ScopeExitInvoker(const function<void()>& func)
 			: _func(func)
 		{ }

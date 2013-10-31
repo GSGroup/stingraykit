@@ -48,7 +48,7 @@ namespace stingray
 
 	/**
 	 * @brief A foreach loop
-	 * @param in ... &lt;type&gt; &lt;name&gt; IN &lt;enumerable or enumerator&gt; [ WHERE &lt;some condition&gt; ]
+	 * @param[in] ... &lt;type&gt; &lt;name&gt; IN &lt;enumerable or enumerator&gt; [ WHERE &lt;some condition&gt; ]
 	 * @par Example:
 	 * @code
 	 * FOR_EACH(ISomeObjectPtr obj IN something->GetObjectCollection())

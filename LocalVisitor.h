@@ -15,9 +15,9 @@ namespace stingray
 
 	/**
 	 * @brief Start of the local visitor code
-	 * @param in RetType_ The return type of the visitor
-	 * @param in Variant_ The variant type
-	 * @param mixed ... Each parameter is an MK_PARAM pair of the type and the name of a closure variable.
+	 * @param[in] RetType_ The return type of the visitor
+	 * @param[in] Variant_ The variant type
+	 * @param[mixed] ... Each parameter is an MK_PARAM pair of the type and the name of a closure variable.
 	 * @par Example:
 	 * @code
 	 *	struct OpFailed
@@ -66,7 +66,7 @@ namespace stingray
 
 	/**
 	 * @brief Start of the code that should be executed if the visited variant holds an object of type Type_
-	 * @param in Type_ Type of the object in the visited variant
+	 * @param[in] Type_ Type of the object in the visited variant
 	 */
 #define STINGRAY_LOCAL_VISITOR_CASE(Type_) \
 			} \

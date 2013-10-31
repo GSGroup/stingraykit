@@ -318,17 +318,17 @@ namespace stingray
 	 *     return 0;
 	 * }
 	 * @endcode
-	 * @param in Signature The signature of the function object (e.g. 'bool(std::string)')
+	 * @tparam[in] Signature The signature of the function object (e.g. 'bool(std::string)')
 	 */
 	template < typename Signature >
 	class function<Signature> : public function_info<Signature>
 	{
 	public:
-		/** @param in func Callable object or pointer to function that will be held inside the function object */
+		/** @param[in] func Callable object or pointer to function that will be held inside the function object */
 		template < typename FunctorType >
 		function(const FunctorType& func);
 
-		/** @param mixed parameters The parameters that will be passed to the inner functor */
+		/** @param[in] parameters The parameters that will be passed to the inner functor */
 		RetType operator ()(Parameters... parameters) const;
 
 		/** @return A string representation of the inner functor. May be used for identifying the function object. */
