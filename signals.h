@@ -464,6 +464,100 @@ namespace stingray
 	 * @tparam Strategy				The threading strategy for the signal (threaded_signal_strategy, threadless_signal_strategy)
 	 * @tparam ExceptionHandler		The exception handling strategy for the signal (default_exception_handler, null_exception_handler)
 	 * @tparam SendCurrentState		The populator strategy for the signal (default_send_current_state, null_send_current_state)
+	 * @par Example:
+	 * @code
+	 * template < typename T >
+	 * class MyCollection
+	 * {
+	 *     typedef std::vector<T>	VectorType;
+	 * private:
+	 *     VectorType	_vector;
+	 *
+	 * public:
+	 *     signal<void(CollectionOp op, const T& item)>		OnChanged;
+	 *
+	 *     void Add(const T& item)
+	 *     {
+	 *         signal_locker l(OnChanged); // Locking the signal mutex that guards the state
+	 *         _vector.push_back(item);
+	 *         OnChanged(CollectionOp::ItemAdded, item);
+	 *     }
+	 *
+	 *     void Remove(const T& item)
+	 *     {
+	 *         signal_locker l(OnChanged); // Locking the signal mutex that guards the state
+	 *         VectorType::iterator it = std::find(_vector.begin(), _vector.end(), item);
+	 *         if (it == _vector.end())
+	 *             return;
+	 *         _vector.erase(it);
+	 *         OnChanged(CollectionOp::ItemRemoved, item);
+	 *     }
+	 *
+	 * private:
+	 *     void OnChangedPopulator(const function<void(CollectionOp op, const T& item)>& slot) const
+	 *     {
+	 *         // The signal mutex that guards the state is already locked from the outside
+	 *         // Sending all the items to the slot that has just been connected
+	 *         for (VectorType::const_iterator it = _vector.begin(); it != _vector.end(); ++it)
+	 *             slot(CollectionOp::Added, *it);
+	 *     }
+	 * };
+	 *
+	 * // ...
+	 *
+	 * template < typename T >
+	 * void CollectionLogger(CollectionOp op, const T& item)
+	 * {
+	 *     std::cout << "op: " << op.ToString() << ", item: " << item << std::endl;
+	 * }
+	 *
+	 *
+	 * void CollectionAccumulator(CollectionOp op, int item)
+	 * {
+	 *     statc int value = 0;
+	 *     switch (op)
+	 *     {
+	 *     case CollectionOp::ItemAdded:
+	 *         value += item;
+	 *         break;
+	 *     case CollectionOp::ItemRemoved:
+	 *         value -= item;
+	 *         break;
+	 *     default:
+	 *         TOOLKIT_THROW(NotImplementedException());
+	 *     }
+	 *     std::cout << "Accumulated value: " << value << std::endl;
+	 * }
+	 *
+	 * // ...
+	 *
+	 * ITaskExecutorPtr async_worker = ITaskExecutor::Create("asyncWorkerThread");
+	 * MyCollection<int> c;
+	 * std::cout << "Connecting CollectionLogger" << std::endl;
+	 * c.OnChanged.connect(&CollectionLogger);
+	 * c.Add(1);
+	 * c.Add(2);
+	 * c.Add(3);
+	 * std::cout << "Connecting CollectionAccumulator" << std::endl;
+	 * c.OnChanged.connect(async_worker, &CollectionAccumulator);
+	 * c.Add(4);
+	 * c.Add(5);
+	 *
+	 * // output:
+	 * // Connecting CollectionLogger
+	 * // op: ItemAdded, item: 1
+	 * // op: ItemAdded, item: 2
+	 * // op: ItemAdded, item: 3
+	 * // Connecting CollectionAccumulator
+	 * // Accumulated value: 1
+	 * // Accumulated value: 3
+	 * // Accumulated value: 6
+	 * // op: ItemAdded, item: 4
+	 * // Accumulated value: 10
+	 * // op: ItemAdded, item: 5
+	 * // Accumulated value: 15
+	 *
+	 * @endcode
 	 */
 	template < typename Signature, typename Strategy = threaded_signal_strategy, typename ExceptionHandler = default_exception_handler, template <typename> class SendCurrentState = default_send_current_state >
 	struct signal : public function_info<Signature>
@@ -501,7 +595,7 @@ namespace stingray
 		 * @code
 		 * void MyExceptionHandler(const std::exception& ex)
 		 * {
-		 *     std::cerr << "An exception in signal handler: " << ex.what();
+		 *     std::cerr << "An exception in signal handler: " << ex.what() << std::endl;
 		 * }
 		 * // ...
 		 * signal<void(int)> some_signal(null, &MyExceptionHandler, ConnectionPolicy::Any);
@@ -549,7 +643,7 @@ namespace stingray
 		 * @code
 		 * void MyExceptionHandler(const std::exception& ex)
 		 * {
-		 *     std::cerr << "An exception in signal handler: " << ex.what();
+		 *     std::cerr << "An exception in signal handler: " << ex.what() << std::endl;
 		 * }
 		 * void PopulatorForTheSignal(const function<void(int)>& slot)
 		 * {
@@ -573,57 +667,32 @@ namespace stingray
 		 * @brief A getter of a copyable object that may be used to construct a function object (the signal itself is not copyable).
 		 * @returns A copyable functor object that hold a reference to the signal. Be aware of possible lifetime problems!
 		 */
-		CopyableRef copyable_ref() const { return CopyableRef(*this); }
+		CopyableRef copyable_ref() const;
 
 		/**
 		 * @brief Invoke the populator for a given function
 		 * @param[in] connectingSlot The function that will be invoked from the populator
 		 */
-		inline void SendCurrentState(const FuncType& connectingSlot) const
-		{
-			MutexLock l(this->_handlers->second);
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value > wrapped_slot(connectingSlot, this->GetExceptionHandler());
-			WRAP_EXCEPTION_HANDLING( this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-		}
+		inline void SendCurrentState(const FuncType& connectingSlot) const;
 
 		/**
 		 * @brief Get the populator function
-		 * @returns The populator function wrapper (uses the signal's exception handling)
+		 * @returns The populator function wrapper (uses the signal's exception handling, and locks the signal mutex)
 		 */
-		inline function<void(const FuncType&)> GetCurrentStateSender() const
-		{ return bind(&threaded_signal_base::SendCurrentState, this, _1); }
+		inline function<void(const FuncType&)> GetCurrentStateSender() const;
 
 		/**
 		 * @brief Asynchronous connect method. Is prohibited if the signal uses ConnectionPolicy::SyncOnly
 		 * @param[in] executor The ITaskExecutor object that will be used for the handler invokation
 		 * @param[in] handler The signal handler function (slot)
 		 */
-		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
-		{
-			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::SyncOnly);
-
-			MutexLock l(this->_handlers->second);
-			async_function<Signature> slot_func(executor, handler);
-			function<Signature> slot_function(slot_func);
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
-			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			return this->AddFunc(function_storage(slot_function), null, slot_func.GetToken()); // Using real execution token instead of null may cause deadlocks!!!
-		}
+		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const;
 
 		/**
 		 * @brief Synchronous connect method. Is prohibited if the signal uses ConnectionPolicy::AsyncOnly
 		 * @param[in] handler The signal handler function (slot)
 		 */
-		signal_connection connect(const FuncType& handler) const
-		{
-			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::AsyncOnly);
-
-			MutexLock l(this->_handlers->second);
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
-			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
-			TaskLifeToken token;
-			return this->AddFunc(function_storage(handler), token.GetExecutionTester(), token);
-		}
+		signal_connection connect(const FuncType& handler) const;
 
 		TOOLKIT_NONCOPYABLE(signal);
 	}
