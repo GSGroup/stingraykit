@@ -470,10 +470,15 @@ namespace stingray
 	 * class MyCollection
 	 * {
 	 *     typedef std::vector<T>	VectorType;
+	 *
 	 * private:
 	 *     VectorType	_vector;
 	 *
 	 * public:
+	 *     MyCollection()
+	 *         : OnChanged(bind(&MyCollection::OnChangedPopulator, this, _1))
+	 *     { }
+	 *
 	 *     signal<void(CollectionOp op, const T& item)>		OnChanged;
 	 *
 	 *     void Add(const T& item)
