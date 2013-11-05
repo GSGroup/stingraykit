@@ -78,6 +78,8 @@ namespace stingray
 		{ }
 	};
 
+#ifndef DOXYGEN_PREPROCESSOR
+
 	namespace Detail
 	{
 		template<typename Signature, typename ExceptionHandlerFunc, size_t ParamsNum>
@@ -446,6 +448,187 @@ namespace stingray
 
 #undef P_
 #undef TY
+
+#else
+
+	struct ConnectionPolicy
+	{
+		TOOLKIT_ENUM_VALUES(SyncOnly, AsyncOnly, Any);
+		TOOLKIT_DECLARE_ENUM_CLASS(ConnectionPolicy);
+	};
+
+
+	/**
+	 * @brief Signal template
+	 * @tparam Signature			The signature of the signal
+	 * @tparam Strategy				The threading strategy for the signal (threaded_signal_strategy, threadless_signal_strategy)
+	 * @tparam ExceptionHandler		The exception handling strategy for the signal (default_exception_handler, null_exception_handler)
+	 * @tparam SendCurrentState		The populator strategy for the signal (default_send_current_state, null_send_current_state)
+	 */
+	template < typename Signature, typename Strategy = threaded_signal_strategy, typename ExceptionHandler = default_exception_handler, template <typename> class SendCurrentState = default_send_current_state >
+	struct signal : public function_info<Signature>
+	{
+		/**
+		 * @brief A copyable functor object that hold a reference to the signal. Be aware of possible lifetime problems!
+		 */
+		struct CopyableRef : public function_info<RetType, ParamTypes>
+		{
+		private:
+			const signal&	_signal;
+
+		public:
+			/**
+			 * @param[in] theSignal The referred signal
+			 */
+			inline CopyableRef(const signal& theSignal);
+
+			/**
+			 * @brief Signal invokation method
+			 * @param[in] parameters The parameters that will be passed to the connected slots
+			 */
+			inline void operator () (Parameters... parameters) const;
+		};
+
+		/** @brief Constructs a signal with default exception handler, no populator, and 'Any' connection policy */
+		explicit inline signal();
+
+		/**
+		 * @brief Constructs a signal with no populator, given exception handler, and given connection policy
+		 * @param[in] sendCurrentState 'null' for the populator function
+		 * @param[in] exceptionHandler The exception handler
+		 * @param[in] connectionPolicy Connection policy
+		 * @par Example:
+		 * @code
+		 * void MyExceptionHandler(const std::exception& ex)
+		 * {
+		 *     std::cerr << "An exception in signal handler: " << ex.what();
+		 * }
+		 * // ...
+		 * signal<void(int)> some_signal(null, &MyExceptionHandler, ConnectionPolicy::Any);
+		 * @endcode
+		 * */
+		explicit inline signal(const NullPtrType& sendCurrentState,
+									 const ExceptionHandlerFunc& exceptionHandler,
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any);
+
+		/**
+		 * @brief Constructs a signal with given populator, no exception handler, and given connection policy
+		 * @param[in] sendCurrentState The populator function
+		 * @param[in] exceptionHandler 'null' for the exception handler
+		 * @param[in] connectionPolicy Connection policy
+		 * @par Example:
+		 * @code
+		 * void PopulatorForTheSignal(const function<void(int)>& slot)
+		 * {
+		 *     slot(123); // The slot will receive the value of 123 when being connected to the signal
+		 * }
+		 * // ...
+		 * signal<void(int)> some_signal(&PopulatorForTheSignal, null, ConnectionPolicy::Any);
+		 * @endcode
+		 * */
+		explicit inline signal(const SendCurrentStateFunc& sendCurrentState,
+									 const NullPtrType& exceptionHandler,
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any);
+
+		/**
+		 * @brief Constructs a signal with given connection policy
+		 * @param[in] connectionPolicy Connection policy
+		 * @par Example:
+		 * @code
+		 * signal<void(int)> some_signal(ConnectionPolicy::Any);
+		 * @endcode
+		 * */
+		explicit inline signal(ConnectionPolicy connectionPolicy);
+
+		/**
+		 * @brief Constructs a signal with given populator, given exception handler, and given connection policy
+		 * @param[in] sendCurrentState The populator function
+		 * @param[in] exceptionHandler The exception handler
+		 * @param[in] connectionPolicy Connection policy
+		 * @par Example:
+		 * @code
+		 * void MyExceptionHandler(const std::exception& ex)
+		 * {
+		 *     std::cerr << "An exception in signal handler: " << ex.what();
+		 * }
+		 * void PopulatorForTheSignal(const function<void(int)>& slot)
+		 * {
+		 *     slot(123); // The slot will receive the value of 123 when being connected to the signal
+		 * }
+		 * // ...
+		 * signal<void(int)> some_signal(&PopulatorForTheSignal, &MyExceptionHandler, ConnectionPolicy::Any);
+		 * @endcode
+		 * */
+		explicit inline signal(const SendCurrentStateFunc& sendCurrentState,
+									 const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler,
+									 ConnectionPolicy connectionPolicy = ConnectionPolicy::Any);
+
+		/**
+		 * @brief Signal invokation method
+		 * @param[in] parameters The parameters that will be passed to the connected slots
+		 */
+		inline void operator () (Parameters... parameters) const;
+
+		/**
+		 * @brief A getter of a copyable object that may be used to construct a function object (the signal itself is not copyable).
+		 * @returns A copyable functor object that hold a reference to the signal. Be aware of possible lifetime problems!
+		 */
+		CopyableRef copyable_ref() const { return CopyableRef(*this); }
+
+		/**
+		 * @brief Invoke the populator for a given function
+		 * @param[in] connectingSlot The function that will be invoked from the populator
+		 */
+		inline void SendCurrentState(const FuncType& connectingSlot) const
+		{
+			MutexLock l(this->_handlers->second);
+			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value > wrapped_slot(connectingSlot, this->GetExceptionHandler());
+			WRAP_EXCEPTION_HANDLING( this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
+		}
+
+		/**
+		 * @brief Get the populator function
+		 * @returns The populator function wrapper (uses the signal's exception handling)
+		 */
+		inline function<void(const FuncType&)> GetCurrentStateSender() const
+		{ return bind(&threaded_signal_base::SendCurrentState, this, _1); }
+
+		/**
+		 * @brief Asynchronous connect method. Is prohibited if the signal uses ConnectionPolicy::SyncOnly
+		 * @param[in] executor The ITaskExecutor object that will be used for the handler invokation
+		 * @param[in] handler The signal handler function (slot)
+		 */
+		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const
+		{
+			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::SyncOnly);
+
+			MutexLock l(this->_handlers->second);
+			async_function<Signature> slot_func(executor, handler);
+			function<Signature> slot_function(slot_func);
+			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(slot_function, this->GetExceptionHandler());
+			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
+			return this->AddFunc(function_storage(slot_function), null, slot_func.GetToken()); // Using real execution token instead of null may cause deadlocks!!!
+		}
+
+		/**
+		 * @brief Synchronous connect method. Is prohibited if the signal uses ConnectionPolicy::AsyncOnly
+		 * @param[in] handler The signal handler function (slot)
+		 */
+		signal_connection connect(const FuncType& handler) const
+		{
+			TOOLKIT_ASSERT(_connectionPolicy != ConnectionPolicy::AsyncOnly);
+
+			MutexLock l(this->_handlers->second);
+			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value> wrapped_slot(handler, this->GetExceptionHandler());
+			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->DoSendCurrentState(wrapped_slot); );
+			TaskLifeToken token;
+			return this->AddFunc(function_storage(handler), token.GetExecutionTester(), token);
+		}
+
+		TOOLKIT_NONCOPYABLE(signal);
+	}
+
+#endif
 
 	/** @} */
 

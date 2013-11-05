@@ -19,7 +19,7 @@ namespace stingray
 
 	/**
 	 * @brief Start of the code that should be executed at the scope exit
-	 * @param[mixed] ... Each parameter is an MK_PARAM pair of the type and the name of a closure variable.
+	 * @param[in] ... Each parameter is an MK_PARAM pair of the type and the name of a closure variable.
 	 * @par Example:
 	 * @code
 	 *	void func(int file)
