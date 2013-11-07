@@ -318,7 +318,7 @@ namespace stingray
 	 *     return 0;
 	 * }
 	 * @endcode
-	 * @tparam[in] Signature The signature of the function object (e.g. 'bool(std::string)')
+	 * @tparam Signature The signature of the function object (e.g. 'bool(std::string)')
 	 */
 	template < typename Signature >
 	class function<Signature> : public function_info<Signature>
