@@ -44,7 +44,6 @@ namespace stingray
 
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(NotSupportedException, "The feature is not supported!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(FormatException, "Invalid format!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(DeviceBusyException, "Device is busy!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(BrokenPromise, "Promise destroyed before value is set!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(PromiseAlreadySatisfied, "Promise value have already been set!");
@@ -85,6 +84,12 @@ namespace stingray
 			stream << "Index " << index << " out of range " << size;
 			return stream.str();
 		}
+	};
+
+	struct FormatException : public Exception
+	{
+		FormatException() : Exception("Invalid format!") { }
+		FormatException(const std::string& message) : Exception(message) { }
 	};
 
 	struct NullPointerException : public Exception
