@@ -37,7 +37,7 @@ namespace stingray
 		};
 
 		template < typename Arguments >
-		bool StringParse(const std::string& string, const std::string& format, const Tuple<Arguments>& arguments)
+		bool StringParseImpl(const std::string& string, const std::string& format, const Tuple<Arguments>& arguments)
 		{
 			std::istringstream string_stream(string);
 			std::istringstream format_stream(format);
@@ -74,7 +74,7 @@ namespace stingray
 #define DETAIL_DEFINE_STRING_PARSE(N_, TypesDecl_, TypesUsage_, ArgumentsDecl_, ArgumentsUsage_) \
 	template < TypesDecl_ > \
 	bool StringParse(const std::string& string, const std::string& format, ArgumentsDecl_) \
-	{ return Detail::StringParse(string, format, Tuple<TypeList_##N_<TypesUsage_> >(ArgumentsUsage_)); }
+	{ return Detail::StringParseImpl(string, format, Tuple<TypeList_##N_<TypesUsage_> >(ArgumentsUsage_)); }
 
 #define TY typename
 
