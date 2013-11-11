@@ -85,7 +85,6 @@ namespace stingray
 
 			static void Apply(const Visitor& v, Variant& var)
 			{
-				typedef typename Visitor::RetType RetType;
 				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var)))
 					TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 			}
