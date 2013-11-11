@@ -8,10 +8,10 @@
 namespace stingray
 {
 	SystemException::SystemException(const std::string &message) throw():
-		std::runtime_error(message + ": errno = " + GetErrorMessage(errno)) {}
+		std::runtime_error(message + ": errno = " + GetErrorMessage(errno)), _error(errno) {}
 
 	SystemException::SystemException(const std::string &message, int err) throw():
-		std::runtime_error(message + ": errno = " + GetErrorMessage(err)) {}
+		std::runtime_error(message + ": errno = " + GetErrorMessage(err)), _error(err) {}
 
 	std::string SystemException::GetErrorMessage(int err) throw()
 	{
