@@ -2,8 +2,10 @@
 #define STINGRAY_TOOLKIT_DATAJOINER_H
 
 
+#include <stingray/toolkit/iterators.h>
 #include <stingray/toolkit/Tuple.h>
 #include <stingray/toolkit/variant.h>
+
 
 namespace stingray
 {

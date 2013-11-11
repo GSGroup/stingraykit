@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/Tuple.h>
 
 
 namespace stingray
