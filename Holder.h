@@ -14,7 +14,7 @@ namespace stingray
 	class ScopedHolder
 	{
 		TOOLKIT_NONCOPYABLE(ScopedHolder);
-		typedef function<void(NativeType)>		CleanupFuncType;
+		typedef function<void(NativeType&)>		CleanupFuncType;
 
 	private:
 		NativeType		_handle;
@@ -26,23 +26,20 @@ namespace stingray
 			: _cleanupFunc(cleanupFunc), _valid(false)
 		{}
 
-		ScopedHolder(NativeType handle, const CleanupFuncType& cleanupFunc)
+		ScopedHolder(const NativeType& handle, const CleanupFuncType& cleanupFunc)
 			: _handle(handle), _cleanupFunc(cleanupFunc), _valid(true)
 		{}
 
-		~ScopedHolder()			{ Cleanup(); }
+		~ScopedHolder()					{ Cleanup(); }
 
-		bool Valid() const		{ return _valid; }
-		NativeType Get() const	{ Check();					return _handle; }
-		NativeType Release()	{ Check(); _valid = false;	return _handle; }
+		bool Valid() const				{ return _valid; }
+		const NativeType& Get() const	{ Check();					return _handle; }
+		NativeType Release()			{ Check(); _valid = false;	return _handle; }
 
 		void Clear()
-		{
-			Cleanup();
-			_valid = false;
-		}
+		{ Cleanup(); }
 
-		void Set(NativeType handle)
+		void Set(const NativeType& handle)
 		{
 			Cleanup();
 			_handle = handle;
@@ -51,10 +48,11 @@ namespace stingray
 
 	private:
 		void Check() const { TOOLKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
-		void Cleanup() const
+		void Cleanup()
 		{
 			if (_valid)
 				_cleanupFunc(_handle);
+			_valid = false;
 		}
 	};
 
