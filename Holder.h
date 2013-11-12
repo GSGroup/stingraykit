@@ -37,10 +37,7 @@ namespace stingray
 		NativeType Release()			{ Check(); _valid = false;	return _handle; }
 
 		void Clear()
-		{
-			Cleanup();
-			_valid = false;
-		}
+		{ Cleanup(); }
 
 		void Set(const NativeType& handle)
 		{
@@ -51,10 +48,11 @@ namespace stingray
 
 	private:
 		void Check() const { TOOLKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
-		void Cleanup() const
+		void Cleanup()
 		{
 			if (_valid)
 				_cleanupFunc(_handle);
+			_valid = false;
 		}
 	};
 
