@@ -15,59 +15,72 @@ namespace stingray
 	{
 
 		template < typename T >
-		bool TryRead(std::istringstream& stream, T& value)
-		{ return stream >> value; }
+		bool TryRead(const std::string& string, T& value)
+		{
+			std::istringstream stream(string);
+			return stream >> value;
+		}
 
-		template < typename Arguments >
+		bool TryRead(const std::string& string, std::string& value)
+		{
+			value = string;
+			return true;
+		}
+
 		struct ArgumentReader
 		{
-			static bool TryRead(std::istringstream& stream, const Tuple<Arguments>& arguments, size_t index)
+			template < typename Arguments >
+			static bool TryRead(const std::string& string, const Tuple<Arguments>& arguments, size_t index)
 			{
 				if (index)
-					return ArgumentReader<typename Arguments::Next>::TryRead(stream, arguments.GetTail(), index - 1);
+					return ArgumentReader::TryRead(string, arguments.GetTail(), index - 1);
 				else
-					return Detail::TryRead(stream, arguments.GetHead());
+					return Detail::TryRead(string, arguments.GetHead());
 			}
-		};
 
-		template<>
-		struct ArgumentReader<TypeListEndNode>
-		{
-			static bool TryRead(std::istringstream&, const Tuple<TypeListEndNode>&, size_t)
+			static bool TryRead(const std::string&, const Tuple<TypeListEndNode>&, size_t)
 			{ TOOLKIT_THROW(IndexOutOfRangeException()); }
 		};
 
 		template < typename Arguments >
 		bool StringParseImpl(const std::string& string, const std::string& format, const Tuple<Arguments>& arguments)
 		{
-			std::istringstream string_stream(string);
-			std::istringstream format_stream(format);
+			std::string::const_iterator string_iterator = string.begin();
+			std::string::const_iterator format_iterator = format.begin();
 
-			while (format_stream)
+			while (string_iterator != string.end() && format_iterator != format.end())
 			{
-				const char string_character = string_stream.get();
-				const char format_character = format_stream.get();
-
-				if (string_character == format_character)
+				if (*string_iterator == *format_iterator)
+				{
+					++string_iterator;
+					++format_iterator;
 					continue;
+				}
 
-				if (format_character != '%')
+				if (*format_iterator != '%')
+					return false;
+
+				const std::string::const_iterator index_begin = next(format_iterator);
+
+				const std::string::const_iterator index_end = std::find(index_begin, format.end(), '%');
+				if (index_end == format.end())
 					return false;
 
 				size_t index;
-				if (!TryRead(format_stream, index))
+				if (!TryRead(std::string(index_begin, index_end), index))
 					return false;
 
-				string_stream.unget();
+				format_iterator = next(index_end);
 
-				if (!ArgumentReader<Arguments>::TryRead(string_stream, arguments, index - 1))
+				const std::string::const_iterator argument_end = format_iterator == format.end()? string.end() : std::find(next(string_iterator), string.end(), *format_iterator);
+
+				if(!ArgumentReader::TryRead(std::string(string_iterator, argument_end), arguments, index - 1))
 					return false;
 
-				if (format_stream.get() != '%')
-					return false;
+				string_iterator = argument_end;
 			}
 
-			return true;
+			return string_iterator == string.end() && format_iterator == format.end();
 		}
 
 	}
