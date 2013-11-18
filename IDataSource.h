@@ -10,8 +10,6 @@ namespace stingray
 
 		virtual size_t Process(ConstByteData data) = 0;
 		virtual void EndOfData() = 0;
-
-		virtual const CancellationToken& GetToken() = 0;
 	};
 
 
@@ -19,7 +17,7 @@ namespace stingray
 	{
 		virtual ~IDataSource() {}
 
-		virtual void Read(IDataConsumer& consumer) = 0;
+		virtual void Read(IDataConsumer& consumer, const CancellationToken& token) = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IDataSource);
 

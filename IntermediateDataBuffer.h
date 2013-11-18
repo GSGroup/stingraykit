@@ -69,9 +69,9 @@ namespace stingray
 			_worker->Join();
 		}
 
-		virtual void Read(IDataConsumer& consumer)
+		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
 		{
-			for (bool sent_data = false; consumer.GetToken(); sent_data = true)
+			for (bool sent_data = false; token; sent_data = true)
 			{
 				MutexLock l(_mutex);
 				BithreadCircularBuffer::Reader r = _buffer.Read();
@@ -86,7 +86,7 @@ namespace stingray
 					if (sent_data)
 						return;
 
-					_bufferEmpty.Wait(_mutex, consumer.GetToken());
+					_bufferEmpty.Wait(_mutex, token);
 					continue;
 				}
 
@@ -148,7 +148,7 @@ namespace stingray
 
 				{
 					MutexUnlock ul(l);
-					_source->Read(*_consumer);
+					_source->Read(*_consumer, _token);
 				}
 				_eod = _consumer->IsEndOfData();
 			}
