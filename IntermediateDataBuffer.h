@@ -9,31 +9,6 @@
 namespace stingray
 {
 
-	struct FunctorDataConsumer : public virtual IDataConsumer
-	{
-		typedef function<size_t(ConstByteData)> FunctorType;
-
-	private:
-		FunctorType					_func;
-		bool						_eod;
-		const CancellationToken&	_token;
-
-	public:
-		FunctorDataConsumer(const FunctorType& func, const CancellationToken& token) :
-			_func(func),
-			_eod(false),
-			_token(token)
-		{}
-
-		virtual size_t Process(ConstByteData data)	{ return _func(data); }
-		virtual void EndOfData()					{ _eod = true; }
-		virtual const CancellationToken& GetToken()	{ return _token; }
-
-		bool IsEndOfData() const					{ return _eod; }
-	};
-	TOOLKIT_DECLARE_PTR(FunctorDataConsumer);
-
-
 	class IntermediateDataBuffer : public virtual IDataSource
 	{
 	private:
@@ -47,8 +22,6 @@ namespace stingray
 		Mutex					_mutex;
 		bool					_eod;
 
-		FunctorDataConsumerPtr	_consumer;
-
 		WaitToken				_bufferEmpty;
 		WaitToken				_bufferFull;
 		WaitToken				_eodReached;
@@ -57,8 +30,7 @@ namespace stingray
 		IntermediateDataBuffer(const IDataSourcePtr& source, size_t size) :
 			_source(source),
 			_buffer(size),
-			_eod(false),
-			_consumer(new FunctorDataConsumer(bind(&IntermediateDataBuffer::DoPush, this, _1), _token))
+			_eod(false)
 		{
 			_worker.reset(new Thread("intermediateDataBuffer", bind(&IntermediateDataBuffer::ThreadFunc, this)));
 		}
@@ -110,11 +82,16 @@ namespace stingray
 		}
 
 	private:
-		size_t DoPush(ConstByteData data)
+		size_t DoPush(optional<ConstByteData> data)
 		{
 			while (_token)
 			{
 				MutexLock l(_mutex);
+				if (!data)
+				{
+					_eod = true;
+					return 0;
+				}
 				BithreadCircularBuffer::Writer w = _buffer.Write();
 				if (w.size() == 0)
 				{
@@ -123,10 +100,10 @@ namespace stingray
 				}
 
 				const size_t ReadSizeLimit = 0x4000;
-				size_t write_size = std::min(data.size(), w.size());
+				size_t write_size = std::min(data->size(), w.size());
 				{
 					MutexUnlock ul(l);
-					std::copy(data.begin(), data.begin() + write_size, w.begin());
+					std::copy(data->begin(), data->begin() + write_size, w.begin());
 				}
 				w.Push(write_size);
 				_bufferEmpty.Broadcast();
@@ -134,6 +111,7 @@ namespace stingray
 			}
 			return 0;
 		}
+
 
 		void ThreadFunc()
 		{
@@ -146,11 +124,8 @@ namespace stingray
 					continue;
 				}
 
-				{
-					MutexUnlock ul(l);
-					_source->Read(*_consumer, _token);
-				}
-				_eod = _consumer->IsEndOfData();
+				MutexUnlock ul(l);
+				_source->ReadToFunction(bind(&IntermediateDataBuffer::DoPush, this, _1), _token);
 			}
 		}
 	};
