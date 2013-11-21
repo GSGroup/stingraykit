@@ -16,6 +16,9 @@ namespace stingray {
 		T _start, _end;
 
 	protected:
+		NumericRange() : _start(), _end()
+		{ }
+
 		NumericRange(T start, T end) : _start(start), _end(end)
 		{ TOOLKIT_CHECK(start <= end, ArgumentException("Start is greater than end " + ToString())); }
 
@@ -79,6 +82,10 @@ namespace stingray {
 	struct SimpleNumericRange : public NumericRange<SimpleNumericRange<T>, T>
 	{
 		typedef NumericRange<SimpleNumericRange<T>, T> base;
+
+		SimpleNumericRange()
+		{}
+
 		SimpleNumericRange(T start, T end) : base(start, end)
 		{}
 	};
