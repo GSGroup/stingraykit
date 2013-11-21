@@ -253,7 +253,7 @@ namespace stingray
 		\
 		inline R operator ()(ParamDecl_) const \
 		{  \
-			Tuple<TYPELIST(ParamTypes_)> p(ParamUsage_); \
+			Tuple<typename TypeList<ParamTypes_>::type> p(ParamUsage_); \
 			return this->Invoke(p); \
 		} \
 	private: \

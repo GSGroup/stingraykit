@@ -69,13 +69,13 @@ namespace stingray
 	struct function_info<R (C::*)(), NullType> : public function_type<R (C::*)()>, public std::unary_function<C*, R>
 	{
 		typedef R				RetType;
-		typedef TypeList_1<C*>	ParamTypes;
+		typedef typename TypeList<C*>::type	ParamTypes;
 	};
 	template < typename C, typename R >
 	struct function_info<R (C::*)() const, NullType> : public function_type<R (C::*)() const>, public std::unary_function<const C*, R>
 	{
 		typedef R						RetType;
-		typedef TypeList_1<const C*>	ParamTypes;
+		typedef typename TypeList<const C*>::type	ParamTypes;
 	};
 
 
@@ -90,26 +90,26 @@ namespace stingray
 	template < typename R, typename T1 >
 	struct function_info<R(T1), NullType> : function_type<R(T1)>, public std::unary_function<T1, R>
 	{
-		typedef R						RetType;
-		typedef TYPELIST(T1)			ParamTypes;
+		typedef R				RetType;
+		typedef typename TypeList<T1>::type	ParamTypes;
 	};
 	template < typename R, typename T1 >
 	struct function_info<R(*)(T1), NullType> : function_type<R(*)(T1)>, public std::unary_function<T1, R>
 	{
-		typedef R						RetType;
-		typedef TYPELIST(T1)			ParamTypes;
+		typedef R				RetType;
+		typedef typename TypeList<T1>::type	ParamTypes;
 	};
 	template < typename C, typename R, typename T1 >
 	struct function_info<R (C::*)(T1), NullType> : function_type<R (C::*)(T1)>, public std::binary_function<C*, T1, R>
 	{
-		typedef R						RetType;
-		typedef TYPELIST(C*, T1)		ParamTypes;
+		typedef R					RetType;
+		typedef typename TypeList<C*, T1>::type	ParamTypes;
 	};
 	template < typename C, typename R, typename T1 >
 	struct function_info<R (C::*)(T1) const, NullType>  : function_type<R (C::*)(T1) const>, public std::binary_function<const C*, T1, R>
 	{
-		typedef R						RetType;
-		typedef TYPELIST(const C*, T1)	ParamTypes;
+		typedef R							RetType;
+		typedef typename TypeList<const C*, T1>::type	ParamTypes;
 	};
 
 	template < typename R, typename T1, typename T2 > struct function_type<R(T1, T2), NullType>
@@ -124,25 +124,25 @@ namespace stingray
 	struct function_info<R(T1, T2), NullType> : function_type<R(T1, T2)>, public std::binary_function<T1, T2, R>
 	{
 		typedef R								RetType;
-		typedef TYPELIST(T1, T2)			ParamTypes;
+		typedef typename TypeList<T1, T2>::type	ParamTypes;
 	};
 	template < typename R, typename T1, typename T2 >
 	struct function_info<R(*)(T1, T2), NullType> : function_type<R(*)(T1, T2)>, public std::binary_function<T1, T2, R>
 	{
 		typedef R								RetType;
-		typedef TYPELIST(T1, T2)			ParamTypes;
+		typedef typename TypeList<T1, T2>::type	ParamTypes;
 	};
 	template < typename C, typename R, typename T1, typename T2 >
 	struct function_info<R (C::*)(T1, T2), NullType> : function_type<R (C::*)(T1, T2)>
 	{
-		typedef R								RetType;
-		typedef TYPELIST(C*, T1, T2)		ParamTypes;
+		typedef R									RetType;
+		typedef typename TypeList<C*, T1, T2>::type	ParamTypes;
 	};
 	template < typename C, typename R, typename T1, typename T2 >
 	struct function_info<R (C::*)(T1, T2) const, NullType>  : function_type<R (C::*)(T1, T2) const>
 	{
-		typedef R								RetType;
-		typedef TYPELIST(const C*, T1, T2)	ParamTypes;
+		typedef R											RetType;
+		typedef typename TypeList<const C*, T1, T2>::type	ParamTypes;
 	};
 
 #define DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(ParamTypenames_, ParamTypes_) \
@@ -157,26 +157,26 @@ namespace stingray
 	template < typename R, ParamTypenames_ > \
 	struct function_info<R(ParamTypes_), NullType> : function_type<R(ParamTypes_)> \
 	{ \
-		typedef R								RetType; \
-		typedef TYPELIST(ParamTypes_)			ParamTypes; \
+		typedef R										RetType; \
+		typedef typename TypeList<ParamTypes_>::type	ParamTypes; \
 	}; \
 	template < typename R, ParamTypenames_ > \
 	struct function_info<R(*)(ParamTypes_), NullType> : function_type<R(*)(ParamTypes_)> \
 	{ \
-		typedef R								RetType; \
-		typedef TYPELIST(ParamTypes_)			ParamTypes; \
+		typedef R										RetType; \
+		typedef typename TypeList<ParamTypes_>::type	ParamTypes; \
 	}; \
 	template < typename C, typename R, ParamTypenames_ > \
 	struct function_info<R (C::*)(ParamTypes_), NullType> : function_type<R (C::*)(ParamTypes_)> \
 	{ \
-		typedef R								RetType; \
-		typedef TYPELIST(C*, ParamTypes_)		ParamTypes; \
+		typedef R											RetType; \
+		typedef typename TypeList<C*, ParamTypes_>::type	ParamTypes; \
 	}; \
 	template < typename C, typename R, ParamTypenames_ > \
 	struct function_info<R (C::*)(ParamTypes_) const, NullType>  : function_type<R (C::*)(ParamTypes_) const> \
 	{ \
-		typedef R								RetType; \
-		typedef TYPELIST(const C*, ParamTypes_)	ParamTypes; \
+		typedef R												RetType; \
+		typedef typename TypeList<const C*, ParamTypes_>::type	ParamTypes; \
 	}
 
 	DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3));
@@ -268,8 +268,8 @@ namespace stingray
 		template < typename F >
 		struct std_function_info<F, 1> : public std_function_type<F>, public std::unary_function<typename F::argument_type, typename F::result_type>
 		{
-			typedef typename F::result_type						RetType;
-			typedef TYPELIST(typename F::argument_type)			ParamTypes;
+			typedef typename F::result_type								RetType;
+			typedef typename TypeList<typename F::argument_type>::type	ParamTypes;
 		};
 
 		template < typename F> struct std_function_type<F, 2>
@@ -278,9 +278,9 @@ namespace stingray
 		template < typename F >
 		struct std_function_info<F, 2> : public std_function_type<F>, public std::binary_function<typename F::first_argument_type, typename F::second_argument_type, typename F::result_type>
 		{
-			typedef typename F::result_type						RetType;
-			typedef TYPELIST(typename F::first_argument_type,
-							 typename F::second_argument_type)	ParamTypes;
+			typedef typename F::result_type								RetType;
+			typedef typename TypeList<typename F::first_argument_type,
+							 typename F::second_argument_type>::type	ParamTypes;
 		};
 
 

@@ -417,13 +417,13 @@ namespace stingray
 		\
 		inline void operator () (Decl_) const \
 		{ \
-			Tuple<TYPELIST(Types_)> p(Usage_); \
+			Tuple< typename TypeList<Types_>::type > p(Usage_); \
 			this->InvokeAll(p); \
 		} \
 		\
 		inline void call(Decl_, const ExceptionHandlerFunc& exceptionHandler) const \
 		{ \
-			Tuple<TYPELIST(Types_)> p(Usage_); \
+			Tuple< typename TypeList<Types_>::type > p(Usage_); \
 			this->InvokeAll(p, exceptionHandler); \
 		} \
 		\

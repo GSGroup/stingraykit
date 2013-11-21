@@ -30,7 +30,7 @@ namespace stingray
 	 *		ByteArray	Result;
 	 *	};
 	 *
-	 *	typedef variant<TYPELIST(OpFailed, OpSucceeded)>		OpResult;
+	 *	typedef variant< TypeList<OpFailed, OpSucceeded> >		OpResult;
 	 *
 	 *	class Class
 	 *	{

@@ -361,11 +361,11 @@ namespace stingray
 
 #define DETAIL_TOOLKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
 	template < typename FunctorType, TemplateBindParams_ > \
-	Detail::Binder<typename function_info<FunctorType>::RetType, TYPELIST(BindParamTypes_), FunctorType > \
+	Detail::Binder<typename function_info<FunctorType>::RetType, typename TypeList<BindParamTypes_>::type, FunctorType > \
 		bind(const FunctorType& func, BindParamsDecl_) \
 	{ \
-		typedef typename function_info<FunctorType>::RetType RetType; \
-		typedef TYPELIST(BindParamTypes_)	AllParams; \
+		typedef typename function_info<FunctorType>::RetType	RetType; \
+		typedef typename TypeList<BindParamTypes_>::type		AllParams; \
 		Tuple<AllParams> all_params(BindParamsUsage_); \
 		return Detail::Binder<RetType, AllParams, FunctorType>(func, all_params); \
 	}
