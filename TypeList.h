@@ -34,14 +34,15 @@ namespace stingray
 	template < TY T1 >
 	struct TypeList_1 : public TypeListNode<T1, TypeList_0> { };
 
-	namespace Detail
-	{
+
 #define MAX_TYPELIST_LEN 30
 
 #define DETAIL_TYPELIST_PARAMS_DECL(Index_, Default_) TOOLKIT_COMMA_IF(Index_) typename TOOLKIT_CAT(T, Index_) Default_
 #define DETAIL_TYPELIST_PARAMS_USAGE(Index_, Shift_) TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(T, TOOLKIT_ADD(Index_, Shift_))
 #define DETAIL_TYPELISTENDNODE(Index_, unused) TOOLKIT_COMMA_IF(Index_) TypeListEndNode
 
+	namespace Detail
+	{
 		template< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_DECL, TOOLKIT_EMPTY()) >
 		struct TypeListCreatorImpl
 		{
@@ -53,17 +54,17 @@ namespace stingray
 		{
 			typedef TypeListEndNode ValueT;
 		};
+	}
 
-		template< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_DECL, = TypeListEndNode) >
-		struct TypeListCreator : public TypeListCreatorImpl< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_USAGE, 0) >::ValueT
-		{ };
+	template< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_DECL, = TypeListEndNode) >
+	struct TypeList : public Detail::TypeListCreatorImpl< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_USAGE, 0) >::ValueT
+	{
+		typedef typename Detail::TypeListCreatorImpl< TOOLKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_USAGE, 0) >::ValueT type;
+	};
 
 #undef DETAIL_TYPELISTENDNODE
 #undef DETAIL_TYPELIST_PARAMS_USAGE
 #undef DETAIL_TYPELIST_PARAMS_DECL
-	}
-
-#define TYPELIST(...)	stingray::Detail::TypeListCreator<__VA_ARGS__>
 
 
 #define DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(Size_, PrevSize_, TypesTypenames_, Tail_) \
