@@ -45,7 +45,7 @@ namespace stingray
 		{
 			struct ValueT : public FunctorType, public function_info<Signature>
 			{
-				ValueT(const FunctorType& baseObj)
+				explicit ValueT(const FunctorType& baseObj)
 					: FunctorType(baseObj)
 				{ }
 			};
@@ -141,8 +141,8 @@ namespace stingray
 			typedef typename BaseType::InvokeFunc InvokeFunc;
 
 		private:
-			FunctorType	_func;
 			typedef typename FunctorTypeTransformer<Signature, FunctorType>::ValueT WrappedFunctorType;
+			WrappedFunctorType	_func;
 
 		public:
 			inline Invokable(const FunctorType& func)
@@ -154,7 +154,7 @@ namespace stingray
 
 		protected:
 			inline void DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
-			{ FunctorInvoker::Invoke<WrappedFunctorType>(_func, p); }
+			{ FunctorInvoker::Invoke(_func, p); }
 
 			static inline void Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
 			{ static_cast<MyType *>(self)->DoInvoke(p); }
