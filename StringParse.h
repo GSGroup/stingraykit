@@ -22,6 +22,13 @@ namespace stingray
 			return stream >> value;
 		}
 
+		bool TryRead(const std::string& string, u8& value)
+		{
+			try { value = FromString<u8>(string); }
+			catch (const std::exception&) { return false; }
+			return true;
+		}
+
 		bool TryRead(const std::string& string, std::string& value)
 		{
 			value = string;
