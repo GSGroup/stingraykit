@@ -24,7 +24,7 @@ namespace stingray
 	{
 		std::string name = GetName();
 		size_t delim = name.find_last_of("::");
-		return delim == std::string::npos ? name : std::string(name, delim + 2);
+		return delim == std::string::npos ? name : std::string(name, delim + 1);
 	}
 
 
