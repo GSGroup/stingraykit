@@ -12,7 +12,7 @@
 
 namespace stingray
 {
-	
+
 	template < typename T >
 	struct ICreator
 	{
@@ -47,6 +47,7 @@ namespace stingray
 	DETAIL_STINGRAY_DECLARE_CONSTRUCTOR_CREATOR(2, MK_PARAM(PTD(1), PTD(2)), MK_PARAM(PT(1), PT(2)), MK_PARAM(PMD(1); PMD(2);), MK_PARAM(CPD(1), CPD(2)), MK_PARAM(CPI(1), CPI(2)), MK_PARAM(CP(1), CP(2)));
 	DETAIL_STINGRAY_DECLARE_CONSTRUCTOR_CREATOR(3, MK_PARAM(PTD(1), PTD(2), PTD(3)), MK_PARAM(PT(1), PT(2), PT(3)), MK_PARAM(PMD(1); PMD(2); PMD(3);), MK_PARAM(CPD(1), CPD(2), CPD(3)), MK_PARAM(CPI(1), CPI(2), CPI(3)), MK_PARAM(CP(1), CP(2), CP(3)));
 	DETAIL_STINGRAY_DECLARE_CONSTRUCTOR_CREATOR(4, MK_PARAM(PTD(1), PTD(2), PTD(3), PTD(4)), MK_PARAM(PT(1), PT(2), PT(3), PT(4)), MK_PARAM(PMD(1); PMD(2); PMD(3); PMD(4);), MK_PARAM(CPD(1), CPD(2), CPD(3), CPD(4)), MK_PARAM(CPI(1), CPI(2), CPI(3), CPI(4)), MK_PARAM(CP(1), CP(2), CP(3), CP(4)));
+	DETAIL_STINGRAY_DECLARE_CONSTRUCTOR_CREATOR(5, MK_PARAM(PTD(1), PTD(2), PTD(3), PTD(4), PTD(5)), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5)), MK_PARAM(PMD(1); PMD(2); PMD(3); PMD(4); PMD(5);), MK_PARAM(CPD(1), CPD(2), CPD(3), CPD(4), CPD(5)), MK_PARAM(CPI(1), CPI(2), CPI(3), CPI(4), CPI(5)), MK_PARAM(CP(1), CP(2), CP(3), CP(4), CP(5)));
 
 #undef CP
 #undef CPI
@@ -79,9 +80,9 @@ namespace stingray
 	};
 
 	template < typename InterfaceType, typename ClassType >
-	struct SingleInstanceCreator : 
+	struct SingleInstanceCreator :
 		public virtual ICreator<InterfaceType>, private SingleInstanceCreatorBase<ClassType>	{
-		virtual shared_ptr<InterfaceType> Create() const 
+		virtual shared_ptr<InterfaceType> Create() const
 		{
 			return this->GetInstance();
 		}
