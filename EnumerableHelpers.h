@@ -3,6 +3,8 @@
 
 
 #include <stingray/toolkit/IEnumerable.h>
+#include <stingray/toolkit/optional.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 namespace stingray
 {
@@ -260,6 +262,277 @@ namespace stingray
 	template< typename EnumeratorType_, typename ParamsTuple_ >
 	shared_ptr<SimpleEnumerable<EnumeratorType_, ParamsTuple_> > MakeSimpleEnumerable(const ParamsTuple_& tuple)
 	{ return make_shared<SimpleEnumerable<EnumeratorType_, ParamsTuple_> >(tuple); }
+
+
+	namespace Enumerable
+	{
+
+#ifdef DOXYGEN_PREPROCESSOR
+
+		template <typename T> T Aggregate(const EnumerableOrEnumerator<T> src, const function<T (const T&, const T&)>& aggregateFunc);
+
+		template <typename T> bool All(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+
+		template <typename T> bool Any(const EnumerableOrEnumerator<T> src);
+		template <typename T> bool Any(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+
+		template < typename T > shared_ptr<IEnumerable<T> > Concat(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second);
+
+		template < typename CastTo, typename T > EnumerableOrEnumerator<CastTo> Cast(const EnumerableOrEnumerator<IEnumerable<T> >& src);
+
+		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const T& value);
+		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const T& value, const function<bool(const T&, const T&)>& equalPredicate);
+
+		template <typename T> int Count(const EnumerableOrEnumerator<T> src);
+		template <typename T> int Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+
+		template < typename T > EnumerableOrEnumerator<T> DefaultIfEmpty(const EnumerableOrEnumerator<T>& src, const T& value = T());
+
+		template < typename T > shared_ptr<IEnumerable<T> > Empty();
+
+		template <typename T> T First(const EnumerableOrEnumerator<T> src);
+		template <typename T> T First(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+
+		template <typename T> T FirstOrDefault(const EnumerableOrEnumerator<T> src);
+		template <typename T> T FirstOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+
+		template <typename T> T Last(const EnumerableOrEnumerator<T> src);
+		template <typename T> T Last(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+
+		template <typename T> T LastOrDefault(const EnumerableOrEnumerator<T> src);
+		template <typename T> T LastOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+
+		template < typename TResult, typename T > shared_ptr<IEnumerable<TResult> > OfType(const EnumerableOrEnumerator<T>& src);
+
+		template <typename T> T Reverse(const EnumerableOrEnumerator<T> src);
+
+		template <typename T> T Single(const EnumerableOrEnumerator<T> src);
+
+		template < typename T > EnumerableOrEnumerator<T> Where(const EnumerableOrEnumerator<T>& src, const function<bool(const T&)>& predicate);
+
+#else
+
+#define DETAIL_ENUMERABLE_HELPER_METHODS(TemplateDecl_, RetType_, Name_) \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable); } \
+		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable) { return Name_(enumerable.GetEnumerator()); } \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerator<T> >& enumerator) { TOOLKIT_CHECK(enumerator, NullArgumentException("enumerator")); return Name_(*enumerator); } \
+		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator)
+
+#define DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(TemplateDecl_, RetType_, Name_, ParamsDecl_, ParamsUsage_) \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable, ParamsDecl_) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable), ParamsUsage_; } \
+		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable, ParamsDecl_) { return Name_(enumerable.GetEnumerator(), ParamsUsage_); } \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerator<T> >& enumerator, ParamsDecl_) { TOOLKIT_CHECK(enumerator, NullArgumentException("enumerator")); return Name_(*enumerator, ParamsUsage_); } \
+		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator, ParamsDecl_)
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, Aggregate, MK_PARAM(const function<T (const T&, const T&)>& aggregateFunc), MK_PARAM(aggregateFunc))
+		{
+			TOOLKIT_CHECK(enumerator->Valid(), InvalidOperationException());
+			T result = enumerator.Get();
+			enumerator.Next();
+			for (; enumerator.Valid(); enumerator.Next())
+				result = aggregateFunc(result, enumerator.Get());
+			return result;
+		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, bool, All, MK_PARAM(const function<bool(const T&)>& predicate), MK_PARAM(predicate))
+		{
+			for (; enumerator.Valid(); enumerator.Next())
+				if (!predicate(enumerator.Get()))
+					return false;
+			return true;
+		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, bool, Any)
+		{ return enumerator.Valid(); }
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, bool, Any, MK_PARAM(const function<bool(const T&)>& predicate), MK_PARAM(predicate))
+		{
+			for (; enumerator.Valid(); enumerator.Next())
+				if (predicate(enumerator.Get()))
+					return true;
+			return false;
+		}
+
+
+		template < typename T >
+		shared_ptr<IEnumerable<T> > Concat(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second)
+		{ return make_shared<Detail::JoiningEnumerable<T> >(first, second); }
+
+
+		template < typename CastTo, typename T >
+		shared_ptr<IEnumerable<CastTo> > Cast(const shared_ptr<IEnumerable<T> >& enumerable)
+		{ return make_shared<Detail::EnumerableCaster>(enumerable); }
+
+		template < typename CastTo, typename T >
+		shared_ptr<IEnumerator<CastTo> > Cast(const shared_ptr<IEnumerator<T> >& enumerator)
+		{ return make_shared<Detail::EnumeratorCaster>(enumerator, null); }
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, bool, Contains, MK_PARAM(const T& value), MK_PARAM(value))
+		{ return Contains(enumerator, value, std::equal_to<T>()); }
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, bool, Contains, MK_PARAM(const T& value, const function<bool(const T&, const T&)>& equalPredicate), MK_PARAM(value, equalPredicate))
+		{
+			for (; enumerator.Valid(); enumerator.Next())
+				if (equalPredicate(enumerator.Get(), value))
+					return true;
+			return false;
+		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, int, Count)
+		{
+			int result = 0;
+			for (; enumerator.Valid(); enumerator.Next())
+				++result;
+			return result;
+		}
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, int, Count, MK_PARAM(const function<bool(const T&)>& predicate), MK_PARAM(predicate))
+		{
+			int result = 0;
+			for (; enumerator.Valid(); enumerator.Next())
+				if (predicate(enumerator.Get()))
+					++result;
+			return result;
+		}
+
+
+		template < typename T >
+		shared_ptr<IEnumerable<T> > DefaultIfEmpty(const shared_ptr<IEnumerable<T> >& src, const T& value = T())
+		{ return Any(src) ? src : MakeOneItemEnumerable(value); }
+
+		template < typename T >
+		shared_ptr<IEnumerator<T> > DefaultIfEmpty(const shared_ptr<IEnumerator<T> >& src, const T& value = T())
+		{ return Any(src) ? src : MakeOneItemEnumerator(value); }
+
+
+		template < typename T >
+		shared_ptr<IEnumerable<T> > Empty()
+		{ return MakeEmptyEnumerable(); }
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, First)
+		{
+			TOOLKIT_CHECK(enumerator.Valid(), InvalidOperationException());
+			return enumerator.Get();
+		}
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, First, MK_PARAM(const function<bool (const T&)>& predicate), MK_PARAM(predicate))
+		{
+			while (enumerator.Valid() && !predicate(enumerator.Get()))
+				enumerator.Next();
+			TOOLKIT_CHECK(enumerator.Valid(), InvalidOperationException());
+			return enumerator.Get();
+		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, FirstOrDefault)
+		{
+			return enumerator.Valid() ? enumerator.Get() : T();
+		}
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, FirstOrDefault, MK_PARAM(const function<bool (const T&)>& predicate), MK_PARAM(predicate))
+		{
+			while (enumerator.Valid() && !predicate(enumerator.Get()))
+				enumerator.Next();
+			return enumerator->Valid() ? enumerator->Get() : T();
+		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, Last)
+		{
+			optional<T> result;
+			for (; enumerator.Valid(); enumerator.Next())
+				result = enumerator.Get();
+			TOOLKIT_CHECK(result, InvalidOperationException());
+			return *result;
+		}
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, Last, MK_PARAM(const function<bool (const T&)>& predicate), MK_PARAM(predicate))
+		{
+			optional<T> result;
+			for (; enumerator.Valid(); enumerator.Next())
+				if (predicate(enumerator.Get()))
+					result = enumerator.Get();
+			TOOLKIT_CHECK(result, InvalidOperationException());
+			return *result;
+		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, LastOrDefault)
+		{
+			optional<T> result;
+			for (; enumerator.Valid(); enumerator.Next())
+				result = enumerator.Get();
+			return result ? *result : T();
+		}
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, LastOrDefault, MK_PARAM(const function<bool (const T&)>& predicate), MK_PARAM(predicate))
+		{
+			optional<T> result;
+			for (; enumerator.Valid(); enumerator.Next())
+				if (predicate(enumerator.Get()))
+					result = enumerator.Get();
+			return result ? *result : T();
+		}
+
+
+		namespace Detail
+		{
+			template < typename TResult, typename T >
+			static TResult CastHelper(typename GetConstReferenceType<T>::ValueT src) { return dynamic_caster(src); }
+
+			template < typename TResult, typename T >
+			static bool SkipHelper(typename GetConstReferenceType<T>::ValueT src) { return !InstanceOf<typename GetSharedPtrParam<TResult>::ValueT>(src); }
+		}
+
+		template < typename TResult, typename T >
+		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<IEnumerable<T> >& enumerable)
+		{ return make_shared<EnumerableWrapper>(enumerable, &Detail::CastHelper, &Detail::SkipHelper); }
+
+		template < typename TResult, typename T >
+		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<IEnumerator<T> >& enumerator)
+		{ return make_shared<EnumeratorWrapper>(enumerator, &Detail::CastHelper, &Detail::SkipHelper); }
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, Reverse)
+		{
+			shared_ptr<std::vector<T> > result(new std::vector<T>);
+			for (; enumerator.Valid(); enumerator.Next())
+				result.push_back(enumerator.Get());
+			return EnumerableFromStlIterators(result->rbegin(), result->rend(), result);
+		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, Single)
+		{
+			TOOLKIT_CHECK(enumerator.Valid(), InvalidOperationException());
+			T result = enumerator.Get();
+			enumerator.Next();
+			TOOLKIT_CHECK(!enumerator.Valid(), InvalidOperationException());
+			return result;
+		}
+
+
+		template < typename T >
+		shared_ptr<IEnumerator<T> > Where(const shared_ptr<IEnumerator<T> >& enumerator, const function<bool(const T&)>& predicate)
+		{ return make_shared<EnumeratorWrapper>(enumerator, &implicit_cast<T>, predicate); }
+
+		template < typename T >
+		shared_ptr<IEnumerable<T> > Where(const shared_ptr<IEnumerable<T> >& enumerable, const function<bool(const T&)>& predicate)
+		{ return make_shared<EnumerableWrapper>(enumerable, &implicit_cast<T>, predicate); }
+
+
+#undef DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS
+#undef DETAIL_ENUMERABLE_HELPER_METHODS
+
+#endif
+
+	}
 
 	/** @} */
 
