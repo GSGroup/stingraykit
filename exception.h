@@ -50,6 +50,7 @@ namespace stingray
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(FutureAlreadyRetrieved, "Future have already been retrieved!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(CrcErrorException, "CRC mismatch!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(TimeoutException, "Timed out!");
+	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(InvalidOperationException, "Invalid operation!");
 
 #define TOOLKIT_CHECK(Condition, ExceptionObj) \
 		do { if (!(Condition)) TOOLKIT_THROW(ExceptionObj); } while(false)
@@ -69,6 +70,12 @@ namespace stingray
 		ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
 		template < typename ArgumentType >
 		ArgumentException(const std::string& argName, const ArgumentType& argValue) : Exception("Invalid argument '" + argName + "' value '" + ToString(argValue) + "'") { }
+	};
+
+	struct NullArgumentException : public Exception
+	{
+		NullArgumentException() : Exception("Null argument!") { }
+		NullArgumentException(const std::string& argName) : Exception("Null argument: " + argName) { }
 	};
 
 	class IndexOutOfRangeException : public stingray::Exception
