@@ -204,6 +204,8 @@ namespace stingray
 	template < typename DestType >
 	struct InstanceOfPredicate
 	{
+		typedef bool RetType;
+
 		template < typename Something > // There is also InstanceOf for shared_ptrs somewhere in shared_ptr.h
 		inline bool operator () (const Something& obj) const
 		{ return InstanceOf<DestType>(obj); }
