@@ -5,6 +5,7 @@
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/toolkit.h>
 
 namespace stingray
 {
@@ -313,19 +314,19 @@ namespace stingray
 #else
 
 #define DETAIL_ENUMERABLE_HELPER_METHODS(TemplateDecl_, RetType_, Name_) \
+		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator); \
+		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable) { return Detail_##Name_(*enumerable.GetEnumerator()); } \
 		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable); } \
-		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable) { return Name_(enumerable.GetEnumerator()); } \
-		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerator<T> >& enumerator) { TOOLKIT_CHECK(enumerator, NullArgumentException("enumerator")); return Name_(*enumerator); } \
-		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator)
+		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator)
 
 #define DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(TemplateDecl_, RetType_, Name_, ParamsDecl_, ParamsUsage_) \
+		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator, ParamsDecl_); \
+		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable, ParamsDecl_) { return Detail_##Name_(*enumerable.GetEnumerator(), ParamsUsage_); } \
 		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable, ParamsDecl_) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable), ParamsUsage_; } \
-		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable, ParamsDecl_) { return Name_(enumerable.GetEnumerator(), ParamsUsage_); } \
-		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerator<T> >& enumerator, ParamsDecl_) { TOOLKIT_CHECK(enumerator, NullArgumentException("enumerator")); return Name_(*enumerator, ParamsUsage_); } \
-		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator, ParamsDecl_)
+		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator, ParamsDecl_)
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, Aggregate, MK_PARAM(const function<T (const T&, const T&)>& aggregateFunc), MK_PARAM(aggregateFunc))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename AggregateFunc>), T, Aggregate, MK_PARAM(const AggregateFunc& aggregateFunc), MK_PARAM(aggregateFunc))
 		{
 			TOOLKIT_CHECK(enumerator->Valid(), InvalidOperationException());
 			T result = enumerator.Get();
@@ -336,7 +337,7 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, bool, All, MK_PARAM(const function<bool(const T&)>& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), bool, All, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 				if (!predicate(enumerator.Get()))
@@ -345,10 +346,10 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, bool, Any)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), bool, Any)
 		{ return enumerator.Valid(); }
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, bool, Any, MK_PARAM(const function<bool(const T&)>& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), bool, Any, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 				if (predicate(enumerator.Get()))
@@ -366,15 +367,11 @@ namespace stingray
 		shared_ptr<IEnumerable<CastTo> > Cast(const shared_ptr<IEnumerable<T> >& enumerable)
 		{ return make_shared<Detail::EnumerableCaster>(enumerable); }
 
-		template < typename CastTo, typename T >
-		shared_ptr<IEnumerator<CastTo> > Cast(const shared_ptr<IEnumerator<T> >& enumerator)
-		{ return make_shared<Detail::EnumeratorCaster>(enumerator, null); }
 
-
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, bool, Contains, MK_PARAM(const T& value), MK_PARAM(value))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), bool, Contains, MK_PARAM(const T& value), MK_PARAM(value))
 		{ return Contains(enumerator, value, std::equal_to<T>()); }
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, bool, Contains, MK_PARAM(const T& value, const function<bool(const T&, const T&)>& equalPredicate), MK_PARAM(value, equalPredicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename EqualPredicateFunc>), bool, Contains, MK_PARAM(const T& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 				if (equalPredicate(enumerator.Get(), value))
@@ -383,7 +380,7 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, int, Count)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), int, Count)
 		{
 			int result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -391,7 +388,7 @@ namespace stingray
 			return result;
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, int, Count, MK_PARAM(const function<bool(const T&)>& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), int, Count, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			int result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -405,23 +402,19 @@ namespace stingray
 		shared_ptr<IEnumerable<T> > DefaultIfEmpty(const shared_ptr<IEnumerable<T> >& src, const T& value = T())
 		{ return Any(src) ? src : MakeOneItemEnumerable(value); }
 
-		template < typename T >
-		shared_ptr<IEnumerator<T> > DefaultIfEmpty(const shared_ptr<IEnumerator<T> >& src, const T& value = T())
-		{ return Any(src) ? src : MakeOneItemEnumerator(value); }
-
 
 		template < typename T >
 		shared_ptr<IEnumerable<T> > Empty()
 		{ return MakeEmptyEnumerable(); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, First)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, First)
 		{
 			TOOLKIT_CHECK(enumerator.Valid(), InvalidOperationException());
 			return enumerator.Get();
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, First, MK_PARAM(const function<bool (const T&)>& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, First, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			while (enumerator.Valid() && !predicate(enumerator.Get()))
 				enumerator.Next();
@@ -430,12 +423,12 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, FirstOrDefault)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, FirstOrDefault)
 		{
 			return enumerator.Valid() ? enumerator.Get() : T();
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, FirstOrDefault, MK_PARAM(const function<bool (const T&)>& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, FirstOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			while (enumerator.Valid() && !predicate(enumerator.Get()))
 				enumerator.Next();
@@ -443,7 +436,7 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, Last)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Last)
 		{
 			optional<T> result;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -452,7 +445,7 @@ namespace stingray
 			return *result;
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, Last, MK_PARAM(const function<bool (const T&)>& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, Last, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			optional<T> result;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -463,7 +456,7 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, LastOrDefault)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, LastOrDefault)
 		{
 			optional<T> result;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -471,7 +464,7 @@ namespace stingray
 			return result ? *result : T();
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(template <typename T>, T, LastOrDefault, MK_PARAM(const function<bool (const T&)>& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, LastOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			optional<T> result;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -492,14 +485,10 @@ namespace stingray
 
 		template < typename TResult, typename T >
 		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<IEnumerable<T> >& enumerable)
-		{ return make_shared<EnumerableWrapper>(enumerable, &Detail::CastHelper, &Detail::SkipHelper); }
-
-		template < typename TResult, typename T >
-		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<IEnumerator<T> >& enumerator)
-		{ return make_shared<EnumeratorWrapper>(enumerator, &Detail::CastHelper, &Detail::SkipHelper); }
+		{ return make_shared<EnumerableWrapper<T, TResult> >(enumerable, &Detail::CastHelper, &Detail::SkipHelper); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, Reverse)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Reverse)
 		{
 			shared_ptr<std::vector<T> > result(new std::vector<T>);
 			for (; enumerator.Valid(); enumerator.Next())
@@ -508,7 +497,7 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(template <typename T>, T, Single)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Single)
 		{
 			TOOLKIT_CHECK(enumerator.Valid(), InvalidOperationException());
 			T result = enumerator.Get();
@@ -518,13 +507,9 @@ namespace stingray
 		}
 
 
-		template < typename T >
-		shared_ptr<IEnumerator<T> > Where(const shared_ptr<IEnumerator<T> >& enumerator, const function<bool(const T&)>& predicate)
-		{ return make_shared<EnumeratorWrapper>(enumerator, &implicit_cast<T>, predicate); }
-
-		template < typename T >
-		shared_ptr<IEnumerable<T> > Where(const shared_ptr<IEnumerable<T> >& enumerable, const function<bool(const T&)>& predicate)
-		{ return make_shared<EnumerableWrapper>(enumerable, &implicit_cast<T>, predicate); }
+		template < typename T, typename PredicateFunc >
+		shared_ptr<IEnumerable<T> > Where(const shared_ptr<IEnumerable<T> >& enumerable, const PredicateFunc& predicate)
+		{ return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate); }
 
 
 #undef DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS
