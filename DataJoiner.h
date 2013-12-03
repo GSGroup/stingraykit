@@ -103,12 +103,43 @@ namespace stingray
 			return DataJoinerIterator(c, IterType(c->template Get<ContainersCount - 1>()->end()));
 		}
 
+		template <typename VisitorType>
+		static void ApplyToIntervals(DataJoinerIterator from, DataJoinerIterator to, VisitorType& visitor)
+		{
+			TOOLKIT_CHECK(from._containers == to._containers, "Iterators are from different containers!");
+			For<ContainersCount, IntervalsFunctor<VisitorType>::template Func>::Do(from, to, ref(visitor));
+		}
+
 	private:
 		struct DereferenceVisitor : static_visitor<pointer>
 		{
 			template<typename Iter>
 			pointer operator()(const Iter& iter) const { return &(*iter.Value); }
 		};
+
+
+		template <typename VisitorType>
+		struct IntervalsFunctor
+		{
+			template<int ContainerIndex>
+			struct Func
+			{
+				static void Call(DataJoinerIterator from, DataJoinerIterator to, VisitorType& visitor)
+				{
+					typename GetTypeListItem<typename TupleType::TypeList, ContainerIndex>::ValueT container = from._containers->template Get<ContainerIndex>();
+					if (from.which() <= ContainerIndex && ContainerIndex <= to.which())
+					{
+						typedef typename GetTypeListItem<IndexedIterators, ContainerIndex>::ValueT IndexedIterType;
+						typedef typename GetTypeListItem<IteratorsList, ContainerIndex>::ValueT IterType;
+						IterType first = from.which() == ContainerIndex ? variant_get<IndexedIterType>(from._iterator).Value : container->begin();
+						IterType last = to.which() == ContainerIndex ? variant_get<IndexedIterType>(to._iterator).Value : container->end();
+						if (first != last)
+							visitor(first, last);
+					}
+				}
+			};
+		};
+
 
 		template<int ContainerIndex>
 		struct DistanceFunctor
@@ -197,6 +228,14 @@ namespace stingray
 			For<GetTypeListLength<ContainersTypeList>::Value, SizeFunctor>::Do(&_containers, ref(result));
 			return result;
 		}
+
+		template <typename VisitorType>
+		static void ApplyToIntervals(const_iterator from, const_iterator to, VisitorType& visitor)
+		{ iterator::ApplyToIntervals(from, to, visitor); }
+
+		template <typename VisitorType>
+		static void ApplyToIntervals(const_iterator from, const_iterator to, const VisitorType& visitor)
+		{ iterator::template ApplyToIntervals<const VisitorType>(from, to, visitor); }
 
 	private:
 		template<int ContainerIndex>
