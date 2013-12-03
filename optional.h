@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_OPTIONAL_H
 
 #include <stingray/toolkit/aligned_storage.h>
+#include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/safe_bool.h>
 
 namespace stingray
