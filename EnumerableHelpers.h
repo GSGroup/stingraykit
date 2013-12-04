@@ -6,6 +6,7 @@
 #include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/functional.h>
 
 namespace stingray
 {
