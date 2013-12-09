@@ -131,6 +131,20 @@ namespace stingray
 		}
 	};
 
+
+	template<typename EnumeratorType>
+	shared_ptr<IEnumerator<typename EnumeratorType::PairType::KeyType> > KeysEnumerator(const shared_ptr<EnumeratorType>& enumerator)
+	{
+		typedef typename EnumeratorType::PairType PairType;
+		return WrapEnumerator(enumerator, &PairType::GetKey);
+	}
+
+	template<typename EnumerableType>
+	shared_ptr<IEnumerable<typename EnumerableType::PairType::KeyType> > KeysEnumerable(const shared_ptr<EnumerableType>& enumerable)
+	{
+		typedef typename EnumerableType::PairType PairType;
+		return WrapEnumerable(enumerable, &PairType::GetKey);
+	}
 	/** @} */
 
 }
