@@ -35,6 +35,8 @@ namespace stingray
 		KeyValuePair(const std::pair<KeyType, ValueType>& pair)
 			: Key(pair.first), Value(pair.second)
 		{ }
+
+		std::string ToString() const	{ return StringBuilder() % Key % " -> " % Value; }
 	};
 
 	namespace Detail
