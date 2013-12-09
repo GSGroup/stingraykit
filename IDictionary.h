@@ -36,6 +36,9 @@ namespace stingray
 			: Key(pair.first), Value(pair.second)
 		{ }
 
+		KeyType GetKey() const			{ return Key; }
+		ValueType GetValue() const		{ return Value; }
+
 		std::string ToString() const	{ return StringBuilder() % Key % " -> " % Value; }
 	};
 
