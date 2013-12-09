@@ -14,7 +14,7 @@ namespace stingray
 		TOOLKIT_NONCOPYABLE(BithreadCircularBuffer);
 
 	private:
-		class Impl;
+		struct Impl;
 		TOOLKIT_DECLARE_PTR(Impl);
 
 		ImplPtr	_impl;

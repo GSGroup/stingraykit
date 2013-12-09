@@ -251,7 +251,7 @@ namespace stingray
 				{}
 
 				template<typename T>
-				bool operator()(const T& t) const { return t < _rhs.get<T>(); }
+				bool operator()(const T& t) const { return t < _rhs.template get<T>(); }
 			};
 		};
 	}

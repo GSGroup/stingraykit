@@ -44,6 +44,29 @@ namespace stingray
 	};
 
 
+	template < typename CustomLess >
+	struct CustomLessComparer
+	{
+	private:
+		CustomLess	_customLess;
+
+	public:
+		CustomLessComparer(const CustomLess& customLess = CustomLess())
+			: _customLess(customLess)
+		{ }
+
+		template < typename T >
+		int operator () (const T& lhs, const T& rhs) const
+		{
+			if (_customLess(lhs, rhs))
+				return -1;
+			if (_customLess(rhs, lhs))
+				return 1;
+			return 0;
+		}
+	};
+
+
 	struct StandardOperatorsComparer
 	{
 		template < typename T >

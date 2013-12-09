@@ -6,6 +6,7 @@
 #include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/functional.h>
 
 namespace stingray
 {
@@ -509,7 +510,7 @@ namespace stingray
 
 		template < typename T, typename PredicateFunc >
 		shared_ptr<IEnumerable<T> > Where(const shared_ptr<IEnumerable<T> >& enumerable, const PredicateFunc& predicate)
-		{ return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate); }
+		{ return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, not_(predicate)); }
 
 
 #undef DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS
