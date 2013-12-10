@@ -35,6 +35,11 @@ namespace stingray
 		KeyValuePair(const std::pair<KeyType, ValueType>& pair)
 			: Key(pair.first), Value(pair.second)
 		{ }
+
+		KeyType GetKey() const			{ return Key; }
+		ValueType GetValue() const		{ return Value; }
+
+		std::string ToString() const	{ return StringBuilder() % Key % " -> " % Value; }
 	};
 
 	namespace Detail
@@ -126,6 +131,34 @@ namespace stingray
 		}
 	};
 
+
+	template<typename EnumeratorType>
+	shared_ptr<IEnumerator<typename EnumeratorType::PairType::KeyType> > KeysEnumerator(const shared_ptr<EnumeratorType>& enumerator)
+	{
+		typedef typename EnumeratorType::PairType PairType;
+		return WrapEnumerator(enumerator, &PairType::GetKey);
+	}
+
+	template<typename EnumerableType>
+	shared_ptr<IEnumerable<typename EnumerableType::PairType::KeyType> > KeysEnumerable(const shared_ptr<EnumerableType>& enumerable)
+	{
+		typedef typename EnumerableType::PairType PairType;
+		return WrapEnumerable(enumerable, &PairType::GetKey);
+	}
+
+	template<typename EnumeratorType>
+	shared_ptr<IEnumerator<typename EnumeratorType::PairType::ValueType> > ValuesEnumerator(const shared_ptr<EnumeratorType>& enumerator)
+	{
+		typedef typename EnumeratorType::PairType PairType;
+		return WrapEnumerator(enumerator, &PairType::GetValue);
+	}
+
+	template<typename EnumerableType>
+	shared_ptr<IEnumerable<typename EnumerableType::PairType::ValueType> > ValuesEnumerable(const shared_ptr<EnumerableType>& enumerable)
+	{
+		typedef typename EnumerableType::PairType PairType;
+		return WrapEnumerable(enumerable, &PairType::GetValue);
+	}
 	/** @} */
 
 }

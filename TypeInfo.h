@@ -25,11 +25,11 @@ namespace stingray
 
 		const char* GetRawName() const	{ return _info->name(); }
 
-		std::string GetName() const {return "TypeInfo NOT IMPLEMENTED";}
-		std::string GetNamespaceName() const {return "TypeInfo NOT IMPLEMENTED";}
-		std::string GetClassName() const {return "TypeInfo NOT IMPLEMENTED";}
+		std::string GetName() const;
+		std::string GetNamespaceName() const;
+		std::string GetClassName() const;
 
-		std::string ToString() const {return "TypeInfo NOT IMPLEMENTED";}
+		std::string ToString() const;
 	};
 
 }

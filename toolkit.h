@@ -211,10 +211,8 @@ namespace stingray
 		{ return InstanceOf<DestType>(obj); }
 	};
 
-	template<typename ArrayType>
-	inline size_t ArraySize(const ArrayType& src) {
-		return sizeof(src) / sizeof(src[0]);
-	}
+	template < typename T, size_t Size >
+	inline size_t ArraySize(const T (&) [Size]) { return Size; }
 
 	template<typename InputIterator, typename OutputIterator, typename Pred>
 	OutputIterator copy_if(InputIterator first, InputIterator last, OutputIterator result, Pred pred)
