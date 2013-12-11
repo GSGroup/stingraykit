@@ -323,7 +323,7 @@ namespace stingray
 #define DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(TemplateDecl_, RetType_, Name_, ParamsDecl_, ParamsUsage_) \
 		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator, ParamsDecl_); \
 		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable, ParamsDecl_) { return Detail_##Name_(*enumerable.GetEnumerator(), ParamsUsage_); } \
-		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable, ParamsDecl_) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable), ParamsUsage_; } \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable, ParamsDecl_) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable, ParamsUsage_); } \
 		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator, ParamsDecl_)
 
 
