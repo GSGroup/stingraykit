@@ -366,7 +366,7 @@ namespace stingray
 
 		template < typename CastTo, typename T >
 		shared_ptr<IEnumerable<CastTo> > Cast(const shared_ptr<IEnumerable<T> >& enumerable)
-		{ return make_shared<Detail::EnumerableCaster>(enumerable); }
+		{ return make_shared<Detail::EnumerableCaster<T> >(enumerable); }
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), bool, Contains, MK_PARAM(const T& value), MK_PARAM(value))
