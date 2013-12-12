@@ -244,6 +244,12 @@ namespace stingray
 
 	std::string Demangle(const std::string& s);
 
+	s8 abs(s8 val)		{ return val >= 0 ? val : -val; }
+	s16 abs(s16 val)	{ return val >= 0 ? val : -val; }
+	s32 abs(s32 val)	{ return val >= 0 ? val : -val; }
+	s64 abs(s64 val)	{ return val >= 0 ? val : -val; }
+
+
 }
 
 
