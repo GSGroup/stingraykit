@@ -19,6 +19,9 @@ namespace stingray
 	public:
 		inline fixed_point(value_type value = 0) : _value(value << N) {}
 
+		template<int OtherN, typename OtherVT>
+		inline fixed_point(fixed_point<OtherN, OtherVT> o)	{ assign(o); }
+
 		inline fixed_point operator+ (fixed_point o) const	{ fixed_point res(*this); return res += o; }
 		inline fixed_point operator- (fixed_point o) const	{ fixed_point res(*this); return res -= o; }
 		inline fixed_point operator* (fixed_point o) const	{ fixed_point res(*this); return res *= o; }
@@ -35,10 +38,15 @@ namespace stingray
 		inline fixed_point operator<<(int shift) const		{ fixed_point res(*this); return res <<= shift; }
 		inline fixed_point operator>>(int shift) const		{ fixed_point res(*this); return res >>= shift; }
 
-		inline fixed_point& operator+= (fixed_point o)		{ _value += o._value; return *this; }
-		inline fixed_point& operator-= (fixed_point o)		{ _value -= o._value; return *this; }
-		inline fixed_point& operator*= (fixed_point o)		{ _value = (_value * o._value) >> N; return *this; }
-		inline fixed_point& operator/= (fixed_point o)		{ _value = (_value << N) / o._value; return *this; }
+
+		template<int OtherN, typename OtherVT>
+		inline fixed_point& operator= (fixed_point<OtherN, OtherVT> o)	{ assign(o); return *this; }
+
+		inline fixed_point& operator+= (fixed_point o)					{ _value += o._value; return *this; }
+		inline fixed_point& operator-= (fixed_point o)					{ _value -= o._value; return *this; }
+		inline fixed_point& operator*= (fixed_point o)					{ _value = (_value * o._value) >> N; return *this; }
+		inline fixed_point& operator/= (fixed_point o)					{ _value = (_value << N) / o._value; return *this; }
+
 
 		template<typename T>
 		inline typename EnableIf<IsIntType<T>::Value, fixed_point&>::ValueT operator*= (T value)
@@ -59,6 +67,18 @@ namespace stingray
 		bool operator!=(fixed_point o) const	{ return _value != o._value; }
 
 		value_type to_int() const				{ return _value >> N; }
+		value_type GetValue() const				{ return _value; }
+
+		template<int OtherN, typename OtherValueType>
+		void assign(fixed_point<OtherN, OtherValueType> other)
+		{
+			typedef typename If<(sizeof(value_type) > sizeof(OtherValueType)), value_type, OtherValueType>::ValueT BiggestType;
+
+			if (N <= OtherN)
+				_value = (BiggestType)other.GetValue() >> (OtherN - N);
+			else
+				_value = (BiggestType)other.GetValue() << (N - OtherN);
+		}
 
 		static fixed_point sqrt(value_type value)
 		{
