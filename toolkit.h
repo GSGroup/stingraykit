@@ -226,6 +226,7 @@ namespace stingray
 	template < typename T, size_t Size >
 	inline size_t ArraySize(const T (&) [Size]) { return Size; }
 
+
 	template<typename InputIterator, typename OutputIterator, typename Pred>
 	OutputIterator copy_if(InputIterator first, InputIterator last, OutputIterator result, Pred pred)
 	{
@@ -233,6 +234,19 @@ namespace stingray
 			if (pred(*first))
 				*result++ = *first;
 		return result;
+	}
+
+
+	template<class InputIterator, class UnaryPredicate>
+	bool any_of (InputIterator first, InputIterator last, UnaryPredicate pred)
+	{
+		while (first != last)
+		{
+			if (pred(*first))
+				return true;
+			++first;
+		}
+		return false;
 	}
 
 
