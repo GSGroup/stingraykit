@@ -128,6 +128,11 @@ namespace stingray
 		return MemberToValueComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> >(ptr, value);
 	}
 
+	template <typename Comparer, typename MemberPointer, typename ValueType>
+	MemberToValueComparer<MemberPointer, Comparer> CompareMemberToValue(MemberPointer ptr, ValueType value, Comparer cmp = Comparer())
+	{ return MemberToValueComparer<MemberPointer, Comparer>(ptr, value, cmp); }
+
+
 	template <template<typename> class Comparer, typename MemberPointer>
 	MemberExtractorComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> > CompareMember(MemberPointer ptr)
 	{
