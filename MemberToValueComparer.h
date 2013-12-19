@@ -1,6 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_MEMBERTOVALUECOMPARER_H
 #define STINGRAY_TOOLKIT_MEMBERTOVALUECOMPARER_H
 
+#include <stingray/toolkit/function_info.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 namespace stingray
@@ -42,7 +43,7 @@ namespace stingray
 
 
 	template<typename MemberPointerT, typename ComparerT>
-	struct CustomMemberComparerWrapper
+	struct CustomMemberComparerWrapper : public function_info<ComparerT>
 	{
 		typedef MemberExtractor<MemberPointerT> Extractor;
 	private:
@@ -54,7 +55,7 @@ namespace stingray
 		{}
 
 		template <typename ClassType>
-		int Compare(const ClassType &lhs, const ClassType &rhs) const
+		typename function_info<ComparerT>::RetType Compare(const ClassType &lhs, const ClassType &rhs) const
 		{
 			return _comparer(Extractor::GetValue(lhs, _memberPointer), Extractor::GetValue(rhs, _memberPointer));
 		}
