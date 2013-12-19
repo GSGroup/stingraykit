@@ -8,31 +8,6 @@
 namespace stingray
 {
 
-	template<typename MemberPointerT, typename ComparerT>
-	struct CustomMemberComparerWrapper
-	{
-		typedef MemberExtractor<MemberPointerT> Extractor;
-	private:
-		MemberPointerT _memberPointer;
-		ComparerT _comparer;
-	public:
-		CustomMemberComparerWrapper(MemberPointerT memberPointer, ComparerT comparer)
-			: _memberPointer(memberPointer), _comparer(comparer)
-		{}
-
-		template <typename ClassType>
-		int Compare(const ClassType &lhs, const ClassType &rhs) const
-		{
-			return _comparer(Extractor::GetValue(lhs, _memberPointer), Extractor::GetValue(rhs, _memberPointer));
-		}
-	};
-
-
-	template<typename MemberPointerT, typename ComparerT>
-	CustomMemberComparerWrapper<MemberPointerT, ComparerT> CustomMemberComparer(MemberPointerT pointer, ComparerT comparer)
-	{ return CustomMemberComparerWrapper<MemberPointerT, ComparerT>(pointer, comparer); }
-
-
 	template <typename MemberPointerTuple, typename DereferencingManager = AllowDereferencing>
 	struct MemberListComparer
 	{
