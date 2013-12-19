@@ -32,6 +32,27 @@ namespace stingray
 	{ };
 
 
+	template < typename less_comparer >
+	class less_to_cmp : public function_info<int, UnspecifiedParamTypes>
+	{
+	private:
+		less_comparer	_less;
+
+	public:
+		less_to_cmp() { }
+		less_to_cmp(const less_comparer& less) : _less(less) { }
+
+		template < typename T, typename U >
+		bool operator () (const T& l, const U& r) const
+		{ return _less(l, r) ? -1 : (_less(r, l) ? 1 : 0); }
+	};
+
+
+	template < typename T >
+	struct owner_cmp : public less_to_cmp<owner_less<T> >
+	{ };
+
+
 	struct CompareMethodComparer : public function_info<int, UnspecifiedParamTypes>
 	{
 		template < typename PtrType >
