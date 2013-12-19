@@ -32,7 +32,7 @@ namespace stingray
 	{ };
 
 
-	struct CompareMethodComparer
+	struct CompareMethodComparer : public function_info<int, UnspecifiedParamTypes>
 	{
 		template < typename PtrType >
 		typename EnableIf<(IsPointer<PtrType>::Value || Is1ParamTemplate<shared_ptr, PtrType>::Value), int>::ValueT   operator () (const PtrType& l, const PtrType& r) const
@@ -45,7 +45,7 @@ namespace stingray
 
 
 	template < typename CustomLess >
-	struct CustomLessComparer
+	struct CustomLessComparer : public function_info<int, UnspecifiedParamTypes>
 	{
 	private:
 		CustomLess	_customLess;
@@ -67,7 +67,7 @@ namespace stingray
 	};
 
 
-	struct StandardOperatorsComparer
+	struct StandardOperatorsComparer : public function_info<int, UnspecifiedParamTypes>
 	{
 		template < typename T >
 		int operator () (const T& lhs, const T& rhs) const
@@ -81,7 +81,7 @@ namespace stingray
 	};
 
 
-	struct DereferencerComparer
+	struct DereferencerComparer : public function_info<int, UnspecifiedParamTypes>
 	{
 		template < typename PtrType >
 		int operator () (const PtrType& l, const PtrType& r) const
@@ -98,7 +98,7 @@ namespace stingray
 
 
 	template<typename ItemComparer>
-	struct CollectionComparer
+	struct CollectionComparer : public function_info<ItemComparer>
 	{
 		template < typename T >
 		int operator () (const T& lhs, const T& rhs) const
