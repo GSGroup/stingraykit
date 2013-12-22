@@ -219,7 +219,7 @@ namespace stingray
 	template < typename TypeList, typename T >
 	struct TypeListContains
 	{
-		static const int Value = IndexOfTypeListItem<TypeList, T>::Value != -1;
+		static const bool Value = IndexOfTypeListItem<TypeList, T>::Value != -1;
 	};
 
 	template < typename T, size_t Index_ >
