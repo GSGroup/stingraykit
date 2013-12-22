@@ -16,6 +16,9 @@
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
 #endif
+#ifdef PLATFORM_IP
+#	include <stingray/platform/ip/tuners/TsOverIpTransport.h>
+#endif
 #include <stingray/records/FileSystemRecord.h>
 #include <stingray/scanner/DVBServiceId.h>
 #include <stingray/scanner/DefaultDVBTBandInfo.h>
@@ -78,6 +81,9 @@ namespace stingray { namespace Detail
 #endif
 #ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::TVChannel);
+#endif
+#ifdef PLATFORM_IP
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(TsOverIpTransport);
 #endif
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBServiceId);
