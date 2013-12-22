@@ -49,8 +49,9 @@ namespace stingray
 		template < typename T1, typename T2 >
 		static inline void Store(T1& ptr, T2 val)
 		{
-			ptr = val;
-			__sync_synchronize();
+			T1 oldval1 = 0, oldval2 = 0;
+			while ((oldval1 = __sync_val_compare_and_swap(&ptr, oldval1, val)) != oldval2)
+				oldval2 = oldval1;
 		}
 #elif HAVE_SYNC_EAA || HAVE_SYNC_EAA_EXT
 		template < typename T >
