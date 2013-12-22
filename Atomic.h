@@ -77,6 +77,12 @@ namespace stingray
 		template < typename T >
 		static inline T Dec(T& ptr) { return atomic_decrement_val(&ptr); }
 
+		template < typename T1, typename T2 >
+		static inline T1 Add(T1& ptr, T2 val) { return atomic_add(&ptr,  val); }
+
+		template < typename T1, typename T2 >
+		static inline T1 Sub(T1& ptr, T2 val) { return atomic_add(&ptr, -val); }
+
 		template < typename T >
 		static inline T Load(T& ptr) { return atomic_exchange_and_add(&ptr, 0); }
 
