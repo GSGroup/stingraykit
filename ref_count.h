@@ -129,7 +129,13 @@ namespace stingray
 			atomic_int_type result = Atomic::Dec(_value->SelfCount);
 			assert(result >= 0);
 			if (result == 0)
+			{
+				STINGRAY_ANNOTATE_HAPPENS_AFTER(_value);
+				STINGRAY_ANNOTATE_RELEASE(_value);
 				delete _value;
+			}
+			else
+				STINGRAY_ANNOTATE_HAPPENS_BEFORE(_value);
 			return result;
 		}
 	};
