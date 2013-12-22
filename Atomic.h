@@ -59,6 +59,12 @@ namespace stingray
 		template < typename T >
 		static inline T Dec(T& ptr) { return __gnu_cxx::__exchange_and_add(&ptr, -1) - 1; }
 
+		template < typename T1, typename T2 >
+		static inline T1 Add(T1& ptr, T2 val) { return __gnu_cxx::__exchange_and_add(&ptr,  val) + val; }
+
+		template < typename T1, typename T2 >
+		static inline T1 Sub(T1& ptr, T2 val) { return __gnu_cxx::__exchange_and_add(&ptr, -val) - val; }
+
 		template < typename T >
 		static inline T Load(T& ptr) { return __gnu_cxx::__exchange_and_add(&ptr, 0); }
 
