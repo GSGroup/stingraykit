@@ -37,6 +37,12 @@ namespace stingray
 		template < typename T >
 		static inline T Dec(T& ptr) { return __sync_sub_and_fetch(&ptr, 1); }
 
+		template < typename T1, typename T2 >
+		static inline T1 Add(T1& ptr, T2 val) { return __sync_add_and_fetch(&ptr, val); }
+
+		template < typename T1, typename T2 >
+		static inline T1 Sub(T1& ptr, T2 val) { return __sync_sub_and_fetch(&ptr, val); }
+
 		template < typename T >
 		static inline T Load(T& ptr) { return __sync_add_and_fetch(&ptr, 0); }
 
