@@ -86,7 +86,7 @@ namespace stingray
 		ClassName() { const std::vector<int>& v = stingray::Detail::EnumToStringMap<ClassName>::GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : (Enum)v.front(); } \
 		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
-		ClassName::Enum val() const { return _enumVal; } \
+		Enum val() const { return _enumVal; } \
 		template<typename T> inline bool operator<(T other) const { \
 			CompileTimeAssert<SameType<ClassName, T>::Value> ERROR_invalid_enum_used; \
 			return _enumVal < other._enumVal; \
@@ -95,12 +95,12 @@ namespace stingray
 			CompileTimeAssert<SameType<ClassName, T>::Value> ERROR_invalid_enum_used; \
 			return _enumVal == other._enumVal; \
 		} \
-		inline bool operator==(ClassName::Enum value) const { return _enumVal == value; } \
+		inline bool operator==(Enum value) const { return _enumVal == value; } \
 		template<typename T> inline bool operator!=(T other) const { \
 			return !(*this == other); \
 		} \
 	private: \
-		ClassName::Enum _enumVal
+		Enum _enumVal
 
 #define TOOLKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
 		inline ClassName_& operator |= (ClassName_& l, ClassName_::Enum r) \
