@@ -270,6 +270,8 @@ namespace stingray
 			{
 				if (Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr, this) != 0)
 					TOOLKIT_FATAL("weak_ptr::lock race occured!");
+
+				STINGRAY_ANNOTATE_HAPPENS_AFTER(_refCount.get_ptr());
 				return shared_ptr<T>();
 			}
 
