@@ -37,7 +37,7 @@ namespace stingray
 		template<typename Src, typename Dst>
 		struct Mappings
 		{
-			template<Dst Start_, Dst Center_, Dst End_>
+			template<Dst Start_, Dst End_, Dst MapBackValue_ = Start_>
 			struct Range : public MappingBase<Src, Dst>
 			{
 				static bool Fits(Dst val)
@@ -45,7 +45,7 @@ namespace stingray
 					CompileTimeAssert<Start_ < End_> ERROR_start_after_end;
 					return Start_ <= val && val < End_;
 				}
-				static Dst GetValue(Src from)	{ return Center_; }
+				static Dst GetValue(Src from)	{ return MapBackValue_; }
 			};
 
 			template<Dst Preferred, Dst Other>
