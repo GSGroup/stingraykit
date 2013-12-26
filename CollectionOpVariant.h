@@ -65,6 +65,10 @@ namespace stingray
 
 		const variant<Types>& GetVariant() const
 		{ return _data; }
+
+		static CollectionOpVariant CreateAdded(const ItemType& value)									{ return Added(value); }
+		static CollectionOpVariant CreateRemoved(const ItemType& value)									{ return Removed(value); }
+		static CollectionOpVariant CreateModified(const ItemType& oldValue, const ItemType& newValue)	{ return Modified(oldValue, newValue); }
 	};
 
 

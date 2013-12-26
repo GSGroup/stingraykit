@@ -322,9 +322,20 @@ namespace stingray
 	struct function_info<F, NullType> : public Detail::std_function_info<F>
 	{ };
 
+
 	template < typename RetType_, typename ParamTypes_ >
 	struct function_type
 	{ static const FunctionType::Enum Type = FunctionType::Other; };
+
+
+	struct UnspecifiedParamTypes;
+
+	template < typename RetType_>
+	struct function_info<RetType_, UnspecifiedParamTypes> : public function_type<RetType_, UnspecifiedParamTypes>
+	{
+		typedef RetType_		RetType;
+	};
+
 
 	template < typename RetType_, typename ParamTypes_ >
 	struct function_info : public function_type<RetType_, ParamTypes_>, public Detail::StdSomethingnaryFunctionMixin<RetType_, ParamTypes_>

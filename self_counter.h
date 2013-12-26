@@ -41,7 +41,13 @@ namespace stingray
 		{
 			atomic_int_type count = Atomic::Dec(_value);
 			if (count == 0)
+			{
+				STINGRAY_ANNOTATE_HAPPENS_AFTER(&_value);
+				STINGRAY_ANNOTATE_RELEASE(&_value);
 				delete static_cast<const T*>(this);
+			}
+			else
+				STINGRAY_ANNOTATE_HAPPENS_BEFORE(&_value);
 			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckReleaseRef(count));
 		}
 		inline int value() const		{ return _value; }

@@ -119,8 +119,17 @@ namespace stingray
 
 		inline ~shared_ptr()
 		{
-			if (_rawPtr && Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr, this) == 0)
+			if (!_rawPtr)
+				return;
+
+			if (Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr, this) == 0)
+			{
+				STINGRAY_ANNOTATE_HAPPENS_AFTER(_refCount.get_ptr());
+				STINGRAY_ANNOTATE_RELEASE(_refCount.get_ptr());
 				delete _rawPtr;
+			}
+			else
+				STINGRAY_ANNOTATE_HAPPENS_BEFORE(_refCount.get_ptr());
 		}
 
 

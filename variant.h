@@ -448,6 +448,27 @@ namespace stingray
 	{ return v.ApplyVisitor(visitor); }
 
 
+#define STINGRAY_DECLARE_FORWARD_VISITOR(MemberFunctionName_) \
+	template < typename TargetType_ > \
+	class Detail_ForwardVisitor_##MemberFunctionName_ : public static_visitor<void> \
+	{ \
+	private: \
+		TargetType_& _target; \
+	public: \
+		Detail_ForwardVisitor_##MemberFunctionName_(TargetType_& target) : _target(target) {} \
+		 \
+		template<typename T1> \
+		void operator()(const T1& t1) const { _target.MemberFunctionName_(t1); } \
+		 \
+		template<typename T1, typename T2> \
+		void operator()(const T1& t1, const T2& t2) const { _target.MemberFunctionName_(t1, t2); } \
+	}; \
+	template < typename TargetType_ > \
+	Detail_ForwardVisitor_##MemberFunctionName_<TargetType_> ForwardVisitor_##MemberFunctionName_(TargetType_& target) \
+	{ return Detail_ForwardVisitor_##MemberFunctionName_<TargetType_>(target); }
+
+
+
 	/** @} */
 
 }

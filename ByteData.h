@@ -157,6 +157,8 @@ namespace stingray
 		inline size_t GetOffset() const { return _offset; }
 		inline CollectionTypePtr GetData() const { return _data; }
 
+		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); }
+
 		inline bool CheckIterator(const const_iterator& it) const	{ return it - begin() >= 0 && end() - it > 0; }
 
 		void RequireSize(size_t size)
@@ -239,7 +241,15 @@ namespace stingray
 		template<typename ObjectIStream>
 		void Deserialize(ObjectIStream & ar)		{ BasicByteArray data; ar.Deserialize("o", data._offset, 0); ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data)); *this = data; }
 
-		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); }
+		bool operator == (const BasicByteArray& other) const
+		{ return size() == other.size() && std::equal(data(), data() + size(), other.data()); }
+
+		TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicByteArray);
+
+		bool operator < (const BasicByteArray& other) const
+		{ return std::lexicographical_compare(data(), data() + size(), other.data(), other.data() + other.size()); }
+
+		TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(BasicByteArray);
 	};
 
 
@@ -317,6 +327,8 @@ namespace stingray
 			: _data(data._data + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size, data._size); }
 
+		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); } //made compatible with array for template classes
+
 		inline bool CheckIterator(const const_iterator& it) const	{ return std::distance(it, end()) > 0; }
 
 		inline T& operator[](size_t index) const
@@ -347,7 +359,15 @@ namespace stingray
 		reverse_iterator rend() const
 		{ return reverse_iterator(begin()); }
 
-		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); } //made compatible with array for template classes
+		bool operator == (const BasicByteData& other) const
+		{ return size() == other.size() && std::equal(data(), data() + size(), other.data()); }
+
+		TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicByteData);
+
+		bool operator < (const BasicByteData& other) const
+		{ return std::lexicographical_compare(data(), data() + size(), other.data(), other.data() + other.size()); }
+
+		TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(BasicByteData);
 	};
 
 

@@ -86,7 +86,7 @@ namespace stingray
 		ClassName() { const std::vector<int>& v = stingray::Detail::EnumToStringMap<ClassName>::GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : (Enum)v.front(); } \
 		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
-		ClassName::Enum val() const { return _enumVal; } \
+		Enum val() const { return _enumVal; } \
 		template<typename T> inline bool operator<(T other) const { \
 			CompileTimeAssert<SameType<ClassName, T>::Value> ERROR_invalid_enum_used; \
 			return _enumVal < other._enumVal; \
@@ -95,12 +95,12 @@ namespace stingray
 			CompileTimeAssert<SameType<ClassName, T>::Value> ERROR_invalid_enum_used; \
 			return _enumVal == other._enumVal; \
 		} \
-		inline bool operator==(ClassName::Enum value) const { return _enumVal == value; } \
+		inline bool operator==(Enum value) const { return _enumVal == value; } \
 		template<typename T> inline bool operator!=(T other) const { \
 			return !(*this == other); \
 		} \
 	private: \
-		ClassName::Enum _enumVal
+		Enum _enumVal
 
 #define TOOLKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
 		inline ClassName_& operator |= (ClassName_& l, ClassName_::Enum r) \
@@ -123,6 +123,18 @@ namespace stingray
 		{ return (other < (*this)) || ((*this) < other); } \
 		inline bool operator == (const ClassName& other) const \
 		{ return !(other != (*this)); }
+
+#define TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(ClassName) \
+		inline bool operator != (const ClassName& other) const \
+		{ return !(*this == other); }
+
+#define TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(ClassName) \
+		inline bool operator > (const ClassName& other) const \
+		{ return other < *this; } \
+		inline bool operator <= (const ClassName& other) const \
+		{ return !(other < *this); } \
+		inline bool operator >= (const ClassName& other) const \
+		{ return !(*this < other); } \
 
 #define TOOLKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(TemplateArgs, ClassName) \
 		TemplateArgs inline bool operator <  (const ClassName& lhs, const ClassName& rhs) { return lhs <  rhs; } \
@@ -211,10 +223,9 @@ namespace stingray
 		{ return InstanceOf<DestType>(obj); }
 	};
 
-	template<typename ArrayType>
-	inline size_t ArraySize(const ArrayType& src) {
-		return sizeof(src) / sizeof(src[0]);
-	}
+	template < typename T, size_t Size >
+	inline size_t ArraySize(const T (&) [Size]) { return Size; }
+
 
 	template<typename InputIterator, typename OutputIterator, typename Pred>
 	OutputIterator copy_if(InputIterator first, InputIterator last, OutputIterator result, Pred pred)
@@ -223,6 +234,19 @@ namespace stingray
 			if (pred(*first))
 				*result++ = *first;
 		return result;
+	}
+
+
+	template<class InputIterator, class UnaryPredicate>
+	bool any_of (InputIterator first, InputIterator last, UnaryPredicate pred)
+	{
+		while (first != last)
+		{
+			if (pred(*first))
+				return true;
+			++first;
+		}
+		return false;
 	}
 
 
@@ -245,6 +269,12 @@ namespace stingray
 
 
 	std::string Demangle(const std::string& s);
+
+	s8 abs(s8 val)		{ return val >= 0 ? val : -val; }
+	s16 abs(s16 val)	{ return val >= 0 ? val : -val; }
+	s32 abs(s32 val)	{ return val >= 0 ? val : -val; }
+	s64 abs(s64 val)	{ return val >= 0 ? val : -val; }
+
 
 }
 

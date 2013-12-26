@@ -46,11 +46,13 @@ namespace stingray
 	}; \
 	template <> struct IntTraits<u##BitsCount_> \
 	{ \
+		static const size_t BitsCount = BitsCount_; \
 		static const u##BitsCount_ Min = IntType<BitsCount_, false>::Min; \
 		static const u##BitsCount_ Max = IntType<BitsCount_, false>::Max; \
 	}; \
 	template <> struct IntTraits<s##BitsCount_> \
 	{ \
+		static const size_t BitsCount = BitsCount_; \
 		static const s##BitsCount_ Min = IntType<BitsCount_, true>::Min; \
 		static const s##BitsCount_ Max = IntType<BitsCount_, true>::Max; \
 	};

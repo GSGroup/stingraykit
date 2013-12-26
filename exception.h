@@ -96,7 +96,7 @@ namespace stingray
 	struct FormatException : public Exception
 	{
 		FormatException() : Exception("Invalid format!") { }
-		FormatException(const std::string& message) : Exception(message) { }
+		FormatException(const std::string& expression) : Exception("Invalid format: " + expression) { }
 	};
 
 	struct NullPointerException : public Exception
