@@ -124,6 +124,10 @@ namespace stingray
 	{ return _impl->GetFreeSize(); }
 
 
+	size_t BithreadCircularBuffer::GetTotalSize() const
+	{ return _impl->GetStorageSize(); }
+
+
 	BithreadCircularBuffer::Reader BithreadCircularBuffer::Read()
 	{ return Reader(_impl); }
 

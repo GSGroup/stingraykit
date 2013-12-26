@@ -69,6 +69,8 @@ namespace stingray
 		size_t GetDataSize();
 		size_t GetFreeSize();
 
+		size_t GetTotalSize() const;
+
 		Reader Read();
 		Writer Write();
 	};
