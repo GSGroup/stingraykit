@@ -5,7 +5,6 @@
 
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/IEnumerator.h>
-#include <stingray/toolkit/PrivateIncludeGuard.h>
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/shared_ptr.h>
 
