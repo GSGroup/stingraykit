@@ -183,6 +183,13 @@ namespace stingray
 		inline bool empty() const
 		{ return ((int)(_data->size()) - (int)_offset) <= 0; }
 
+		template < typename InputIterator >
+		void append(InputIterator first, InputIterator last)
+		{
+			TOOLKIT_CHECK(_sizeLimit == NoSizeLimit, NotImplementedException());
+			_data->insert(_data->end(), first, last);
+		}
+
 		template <typename U>
 		void swap(BasicByteArray<U>& other)
 		{
