@@ -107,6 +107,37 @@ namespace stingray
 	template < typename T >
 	void ToString(string_ostream & result, const T& val);
 
+	template < typename T >
+	std::string lexical_cast(const T& value)
+	{ return ToString(value); }
+
+	template < typename T >
+	T lexical_cast(const std::string& str)
+	{ return FromString<T>(str); }
+
+	namespace Detail
+	{
+
+		class LexicalCasterProxy
+		{
+		private:
+			std::string		_str;
+
+		public:
+			explicit LexicalCasterProxy(const std::string& str)
+				: _str(str)
+			{ }
+
+			template < typename T >
+			operator T() const
+			{ return lexical_cast<T>(_str); }
+		};
+
+	}
+
+	Detail::LexicalCasterProxy lexical_caster(const std::string& str)
+	{ return Detail::LexicalCasterProxy(str); }
+
 	namespace Detail
 	{
 		TOOLKIT_DECLARE_METHOD_CHECK(begin);
