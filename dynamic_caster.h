@@ -30,11 +30,19 @@ namespace stingray
 
 		template < typename U > operator U& () const
 		{
-			CompileTimeAssert<!SameType<typename Deconst<U>::ValueT, DynamicCaster>::Value> ERROR__old_gcc_bug;
-			CompileTimeAssert<!IsPointer<U>::Value> ERROR__wtf;
-			(void)ERROR__old_gcc_bug;
-			(void)ERROR__wtf;
+			CompileTimeAssert<!SameType<typename Deconst<U>::ValueT, DynamicCaster>::Value> ERROR__gcc_3x_bug;
+			(void)ERROR__gcc_3x_bug;
 			U* result_ptr = Detail::DynamicCastHelper<U, T>::Do(_ptr);
+			if (!result_ptr)
+				TOOLKIT_THROW(std::bad_cast());
+			return *result_ptr;
+		}
+
+		template < typename U > operator const U& () const
+		{
+			CompileTimeAssert<!SameType<typename Deconst<U>::ValueT, DynamicCaster>::Value> ERROR__gcc_3x_bug;
+			(void)ERROR__gcc_3x_bug;
+			const U* result_ptr = Detail::DynamicCastHelper<const U, T>::Do(_ptr);
 			if (!result_ptr)
 				TOOLKIT_THROW(std::bad_cast());
 			return *result_ptr;

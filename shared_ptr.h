@@ -366,7 +366,11 @@ namespace stingray
 		struct DynamicCastHelper
 		{
 			static DestType* Do(SrcType* src)
-			{ return dynamic_cast<DestType*>(src); }
+			{
+				CompileTimeAssert<!IsPointer<DestType>::Value> ERROR__pointer_to_pointer_dynamic_cast;
+				(void)ERROR__pointer_to_pointer_dynamic_cast;
+				return dynamic_cast<DestType*>(src);
+			}
 		};
 
 		template < typename DestType, typename SrcType >
