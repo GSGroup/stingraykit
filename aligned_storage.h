@@ -97,7 +97,11 @@ namespace stingray
 		template<size_t Len, size_t Align>
 		struct AlignedStorageImpl
 		{
-			union data_t
+			union
+#if defined(__GNUC__) || defined(__clang__)
+			__attribute__((may_alias))
+#endif
+			data_t
 			{
 				char													_buf[Len];
 				typename AlignedTypes::type_with_alignment<Align>::type	_align;
