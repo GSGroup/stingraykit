@@ -24,7 +24,7 @@ namespace stingray
 
 		virtual u64 Read(void* data, u64 count)
 		{
-			u8* dst = reinterpret_cast<u8*>(data);
+			u8* dst = static_cast<u8*>(data);
 			count = std::min(count, _data.size() - _offset);
 			std::copy(_data.begin() + _offset, _data.begin() + _offset + count, dst);
 			_offset += count;
