@@ -65,6 +65,8 @@ namespace stingray
 			bool	_initialized;
 
 		public:
+			OptionalImplRef(): _value(), _initialized(false)
+			{}
 			ConstParamType get() const			{ return *_value; }
 			ConstPtrParamType get_ptr() const	{ return _value; }
 
