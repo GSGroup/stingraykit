@@ -107,36 +107,56 @@ namespace stingray
 	template < typename T >
 	void ToString(string_ostream & result, const T& val);
 
-	template < typename T >
-	std::string lexical_cast(const T& value)
-	{ return ToString(value); }
+	namespace Detail
+	{
+		template< typename To, typename From >
+		struct LexicalCast;
 
-	template < typename T >
-	T lexical_cast(const std::string& str)
-	{ return FromString<T>(str); }
+		template< typename To >
+		struct LexicalCast<To, std::string>
+		{
+			static To Do(const std::string& from)
+			{ return FromString<To>(from); }
+		};
+
+		template< typename From >
+		struct LexicalCast<std::string, From>
+		{
+			static std::string Do(const From& from)
+			{ return ToString(from); }
+		};
+	}
+
+	template < typename To, typename From >
+	To lexical_cast(const From& from)
+	{ return Detail::LexicalCast<To, From>::Do(from); }
+
 
 	namespace Detail
 	{
 
+		template < typename From >
 		class LexicalCasterProxy
 		{
 		private:
-			std::string		_str;
+			From	_from;
 
 		public:
-			explicit LexicalCasterProxy(const std::string& str)
-				: _str(str)
+			explicit LexicalCasterProxy(const From& from)
+				: _from(from)
 			{ }
 
-			template < typename T >
-			operator T() const
-			{ return lexical_cast<T>(_str); }
+			template < typename To >
+			operator To() const
+			{ return lexical_cast<To>(_from); }
 		};
 
 	}
 
-	Detail::LexicalCasterProxy lexical_caster(const std::string& str)
-	{ return Detail::LexicalCasterProxy(str); }
+	template < typename From >
+	Detail::LexicalCasterProxy<From> lexical_caster(const From& from)
+	{ return Detail::LexicalCasterProxy<From>(from); }
+
 
 	namespace Detail
 	{
