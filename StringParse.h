@@ -2,11 +2,13 @@
 #define STINGRAY_TOOLKIT_STRINGPARSE_H
 
 
+#include <deque>
 #include <sstream>
 
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/iterators.h>
 #include <stingray/toolkit/Tuple.h>
+#include <stingray/toolkit/variant.h>
 
 
 namespace stingray
@@ -19,17 +21,25 @@ namespace stingray
 		bool TryRead(const std::string& string, T& value)
 		{
 			std::istringstream stream(string);
-			return stream >> value;
+			return (stream >> value).eof();
 		}
 
-		bool TryRead(const std::string& string, u8& value)
+		inline bool TryRead(const std::string& string, u8& value)
 		{
 			try { value = FromString<u8>(string); }
 			catch (const std::exception&) { return false; }
 			return true;
 		}
 
-		bool TryRead(const std::string& string, std::string& value)
+		inline bool TryRead(const std::string& string, char& value)
+		{
+			if (string.length() != 1)
+				return false;
+			value = string[0];
+			return true;
+		}
+
+		inline bool TryRead(const std::string& string, std::string& value)
 		{
 			value = string;
 			return true;
@@ -53,42 +63,61 @@ namespace stingray
 		template < typename Arguments >
 		bool StringParseImpl(const std::string& string, const std::string& format, const Tuple<Arguments>& arguments)
 		{
-			std::string::const_iterator string_iterator = string.begin();
-			std::string::const_iterator format_iterator = format.begin();
-
-			while (string_iterator != string.end() && format_iterator != format.end())
+			std::deque<variant<TypeList<std::string, size_t> > > tokens;
+			std::string::size_type start_pos = 0, current_pos = 0;
+			do
 			{
-				if (*string_iterator == *format_iterator)
+				std::string::size_type start_marker_pos = format.find_first_of('%', current_pos);
+				if (start_marker_pos == std::string::npos)
+					break;
+				std::string::size_type end_marker_pos = format.find_first_of('%', start_marker_pos + 1);
+				if (end_marker_pos == std::string::npos)
+					return false;
+
+				current_pos = end_marker_pos + 1;
+
+				if (end_marker_pos - start_marker_pos > 1)
 				{
-					++string_iterator;
-					++format_iterator;
-					continue;
+					std::string substr(format, start_pos, start_marker_pos - start_pos);
+					try
+					{
+						size_t index = FromString<size_t>(std::string(format, start_marker_pos + 1, end_marker_pos - start_marker_pos - 1));
+						if (!substr.empty())
+							tokens.push_back(substr);
+						tokens.push_back(index);
+					}
+					catch (const std::exception& ex) { continue; }
+					start_pos = current_pos;
 				}
+			}
+			while (current_pos < format.length());
 
-				if (*format_iterator != '%')
+			if (start_pos < format.length() - 1)
+				tokens.push_back(std::string(format, start_pos));
+
+			size_t index = 0;
+			std::string::size_type current_string_pos = 0;
+			while (!tokens.empty() && current_string_pos < string.length())
+			{
+				try { index = variant_get<size_t>(tokens.front()); tokens.pop_front(); continue; }
+				catch (const bad_variant_get& ex) { };
+
+				std::string substr = variant_get<std::string>(tokens.front());
+				tokens.pop_front();
+				std::string::size_type substr_pos = string.find(substr, current_string_pos);
+				if (substr_pos == std::string::npos)
 					return false;
 
-				const std::string::const_iterator index_begin = next(format_iterator);
-
-				const std::string::const_iterator index_end = std::find(index_begin, format.end(), '%');
-				if (index_end == format.end())
-					return false;
-
-				size_t index;
-				if (!TryRead(std::string(index_begin, index_end), index))
-					return false;
-
-				format_iterator = next(index_end);
-
-				const std::string::const_iterator argument_end = format_iterator == format.end()? string.end() : std::find(next(string_iterator), string.end(), *format_iterator);
-
-				if(!ArgumentReader::TryRead(std::string(string_iterator, argument_end), arguments, index - 1))
-					return false;
-
-				string_iterator = argument_end;
+				if (index)
+				{
+					if (!(substr_pos - current_string_pos > 0 && ArgumentReader::TryRead(std::string(string, current_string_pos, substr_pos - current_string_pos), arguments, index - 1)))
+						return false;
+					index = 0;
+				}
+				current_string_pos = substr_pos + substr.length();
 			}
 
-			return string_iterator == string.end() && format_iterator == format.end();
+			return tokens.empty() && (index ? ArgumentReader::TryRead(std::string(string.begin() + current_string_pos, string.end()), arguments, index - 1) : !(current_string_pos < string.length()));
 		}
 
 	}
