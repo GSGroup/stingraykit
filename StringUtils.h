@@ -573,6 +573,21 @@ namespace stingray
 
 	class StringReader
 	{
+
+		class StreamPeeker
+		{
+		private:
+			std::istringstream&	_stream;
+
+		public:
+			explicit StreamPeeker(std::istringstream& stream)
+				: _stream(stream)
+			{ }
+
+			~StreamPeeker()
+			{ _stream.peek(); }
+		};
+
 	private:
 		std::istringstream		_stream;
 
@@ -583,6 +598,8 @@ namespace stingray
 
 		std::string ReadLine()
 		{
+			StreamPeeker peeker(_stream);
+
 			std::string result;
 
 			for (char ch; _stream.get(ch); )
@@ -594,6 +611,7 @@ namespace stingray
 				{
 					if (_stream.peek() == '\n')
 						_stream.get();
+
 					return result;
 				}
 
