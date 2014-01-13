@@ -4,6 +4,7 @@
 
 #include <stingray/toolkit/SeekMode.h>
 #include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/ICreator.h>
 
 
 namespace stingray
@@ -28,6 +29,7 @@ namespace stingray
 		virtual u64 Tell() const = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IByteStream);
+	TOOLKIT_DECLARE_CREATOR(IByteStream);
 
 }
 

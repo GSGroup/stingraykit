@@ -22,6 +22,8 @@ namespace stingray
 			: _data(data), _offset(0)
 		{ }
 
+		ContainerType GetData() const { return _data; }
+
 		virtual u64 Read(void* data, u64 count)
 		{
 			u8* dst = static_cast<u8*>(data);
