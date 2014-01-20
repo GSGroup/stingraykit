@@ -17,12 +17,33 @@ namespace stingray
 	namespace Detail
 	{
 
+		TOOLKIT_DECLARE_METHOD_CHECK(FromString);
+
+		template < typename T, bool HasFromStringMethod = HasMethod_FromString<T>::Value >
+		struct FromStringImpl
+		{
+			static bool Do(const std::string& str, T& value)
+			{
+				try { value = T::FromString(str); }
+				catch (const std::exception&) { return false; }
+				return true;
+			}
+		};
+
+		template < typename T >
+		struct FromStringImpl<T, false>
+		{
+			static bool Do(const std::string& str, T& value)
+			{
+				std::istringstream stream(str);
+				return (stream >> value).eof();
+			}
+		};
+
+
 		template < typename T >
 		bool TryRead(const std::string& string, T& value)
-		{
-			std::istringstream stream(string);
-			return (stream >> value).eof();
-		}
+		{ return FromStringImpl<T>::Do(string, value); }
 
 		inline bool TryRead(const std::string& string, u8& value)
 		{
