@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_STRINGUTILS_H
 
 #include <algorithm>
+#include <sstream>
 #include <string>
 
 #include <stingray/toolkit/Dummy.h>
@@ -107,36 +108,56 @@ namespace stingray
 	template < typename T >
 	void ToString(string_ostream & result, const T& val);
 
-	template < typename T >
-	std::string lexical_cast(const T& value)
-	{ return ToString(value); }
+	namespace Detail
+	{
+		template< typename To, typename From >
+		struct LexicalCast;
 
-	template < typename T >
-	T lexical_cast(const std::string& str)
-	{ return FromString<T>(str); }
+		template< typename To >
+		struct LexicalCast<To, std::string>
+		{
+			static To Do(const std::string& from)
+			{ return FromString<To>(from); }
+		};
+
+		template< typename From >
+		struct LexicalCast<std::string, From>
+		{
+			static std::string Do(const From& from)
+			{ return ToString(from); }
+		};
+	}
+
+	template < typename To, typename From >
+	To lexical_cast(const From& from)
+	{ return Detail::LexicalCast<To, From>::Do(from); }
+
 
 	namespace Detail
 	{
 
+		template < typename From >
 		class LexicalCasterProxy
 		{
 		private:
-			std::string		_str;
+			From	_from;
 
 		public:
-			explicit LexicalCasterProxy(const std::string& str)
-				: _str(str)
+			explicit LexicalCasterProxy(const From& from)
+				: _from(from)
 			{ }
 
-			template < typename T >
-			operator T() const
-			{ return lexical_cast<T>(_str); }
+			template < typename To >
+			operator To() const
+			{ return lexical_cast<To>(_from); }
 		};
 
 	}
 
-	Detail::LexicalCasterProxy lexical_caster(const std::string& str)
-	{ return Detail::LexicalCasterProxy(str); }
+	template < typename From >
+	Detail::LexicalCasterProxy<From> lexical_caster(const From& from)
+	{ return Detail::LexicalCasterProxy<From>(from); }
+
 
 	namespace Detail
 	{
@@ -548,6 +569,60 @@ namespace stingray
 
 	typedef BasicStringBuilder<char>	StringBuilder;
 	typedef BasicStringBuilder<wchar_t>	WideStringBuilder;
+
+
+	class StringReader
+	{
+
+		class StreamPeeker
+		{
+		private:
+			std::istringstream&	_stream;
+
+		public:
+			explicit StreamPeeker(std::istringstream& stream)
+				: _stream(stream)
+			{ }
+
+			~StreamPeeker()
+			{ _stream.peek(); }
+		};
+
+	private:
+		std::istringstream		_stream;
+
+	public:
+		StringReader(const std::string& text)
+			: _stream(text)
+		{ }
+
+		std::string ReadLine()
+		{
+			StreamPeeker peeker(_stream);
+
+			std::string result;
+
+			for (char ch; _stream.get(ch); )
+			{
+				if (ch == '\n')
+					return result;
+
+				if (ch == '\r')
+				{
+					if (_stream.peek() == '\n')
+						_stream.get();
+
+					return result;
+				}
+
+				result.push_back(ch);
+			}
+
+			return result;
+		}
+
+		bool IsEndOfString() const { return _stream.eof(); }
+	};
 
 
 }

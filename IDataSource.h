@@ -11,6 +11,7 @@ namespace stingray
 		virtual size_t Process(ConstByteData data) = 0;
 		virtual void EndOfData() = 0;
 	};
+	TOOLKIT_DECLARE_PTR(IDataConsumer);
 
 
 	template <typename FunctorType>
