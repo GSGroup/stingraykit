@@ -36,6 +36,12 @@
 #define TOOLKIT_BOOL(A) TOOLKIT_COMPL(TOOLKIT_NOT(A))
 
 
+#define DETAIL_INSERT_IF_0(Something_)
+#define DETAIL_INSERT_IF_1(Something_) Something_
+
+#define TOOLKIT_INSERT_IF(Predicate_, Something_) TOOLKIT_CAT(DETAIL_INSERT_IF_, TOOLKIT_BOOL(Predicate_))(MK_PARAM(Something_))
+
+
 #define DETAIL_COMMA_IF_0
 #define DETAIL_COMMA_IF_1 ,
 
