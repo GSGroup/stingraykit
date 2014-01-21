@@ -219,6 +219,9 @@
 #define DETAIL_REPEAT_IMPL_50(MacroName, Data) DETAIL_REPEAT_IMPL_49(MK_PARAM(MacroName), MK_PARAM(Data)) MacroName(49, Data)
 
 #define TOOLKIT_REPEAT(RepetitionsCount, MacroName, Data) TOOLKIT_CAT(DETAIL_REPEAT_IMPL_, RepetitionsCount)(MK_PARAM(MacroName), MK_PARAM(Data))
+#define TOOLKIT_REPEAT_NESTING_2(RepetitionsCount, MacroName, Data) TOOLKIT_CAT(DETAIL_REPEAT_IMPL_, RepetitionsCount)(MK_PARAM(MacroName), MK_PARAM(Data))
+#define TOOLKIT_REPEAT_NESTING_3(RepetitionsCount, MacroName, Data) TOOLKIT_CAT(DETAIL_REPEAT_IMPL_, RepetitionsCount)(MK_PARAM(MacroName), MK_PARAM(Data))
+#define TOOLKIT_REPEAT_NESTING_4(RepetitionsCount, MacroName, Data) TOOLKIT_CAT(DETAIL_REPEAT_IMPL_, RepetitionsCount)(MK_PARAM(MacroName), MK_PARAM(Data))
 
 #if 0
 #define ______TOOLKIT_MACRO_FOR_0(FUNC)

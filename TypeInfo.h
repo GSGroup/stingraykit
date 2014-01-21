@@ -5,6 +5,9 @@
 #include <string>
 #include <typeinfo>
 
+#include <stingray/toolkit/exception.h>
+
+
 namespace stingray
 {
 
@@ -22,6 +25,9 @@ namespace stingray
 		TypeInfo(const std::type_info& stdTypeInfo)
 			: _info(&stdTypeInfo)
 		{ }
+
+		bool operator == (const TypeInfo& other) const
+		{ return *TOOLKIT_REQUIRE_NOT_NULL(_info) == *TOOLKIT_REQUIRE_NOT_NULL(other._info); }
 
 		const char* GetRawName() const	{ return _info->name(); }
 
