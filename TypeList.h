@@ -35,7 +35,7 @@ namespace stingray
 	struct TypeList_1 : public TypeListNode<T1, TypeList_0> { };
 
 
-#define MAX_TYPELIST_LEN 30
+#define MAX_TYPELIST_LEN 40
 
 #define DETAIL_TYPELIST_PARAMS_DECL(Index_, Default_) TOOLKIT_COMMA_IF(Index_) typename TOOLKIT_CAT(T, Index_) Default_
 #define DETAIL_TYPELIST_PARAMS_USAGE(Index_, Shift_) TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(T, TOOLKIT_ADD(Index_, Shift_))
