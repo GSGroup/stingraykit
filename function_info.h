@@ -58,24 +58,28 @@ namespace stingray
 	{
 		typedef R			RetType;
 		typedef TypeList_0	ParamTypes;
+		typedef R FunctionObjectSignature();
 	};
 	template < typename R >
 	struct function_info<R(*)(), NullType> : public function_type<R(*)()>
 	{
 		typedef R			RetType;
 		typedef TypeList_0	ParamTypes;
+		typedef R FunctionObjectSignature();
 	};
 	template < typename C, typename R >
 	struct function_info<R (C::*)(), NullType> : public function_type<R (C::*)()>, public std::unary_function<C*, R>
 	{
 		typedef R				RetType;
 		typedef typename TypeList<C*>::type	ParamTypes;
+		typedef R FunctionObjectSignature(C*);
 	};
 	template < typename C, typename R >
 	struct function_info<R (C::*)() const, NullType> : public function_type<R (C::*)() const>, public std::unary_function<const C*, R>
 	{
 		typedef R						RetType;
 		typedef typename TypeList<const C*>::type	ParamTypes;
+		typedef R FunctionObjectSignature(const C*);
 	};
 
 
@@ -92,24 +96,28 @@ namespace stingray
 	{
 		typedef R				RetType;
 		typedef typename TypeList<T1>::type	ParamTypes;
+		typedef R FunctionObjectSignature(T1);
 	};
 	template < typename R, typename T1 >
 	struct function_info<R(*)(T1), NullType> : function_type<R(*)(T1)>, public std::unary_function<T1, R>
 	{
 		typedef R				RetType;
 		typedef typename TypeList<T1>::type	ParamTypes;
+		typedef R FunctionObjectSignature(T1);
 	};
 	template < typename C, typename R, typename T1 >
 	struct function_info<R (C::*)(T1), NullType> : function_type<R (C::*)(T1)>, public std::binary_function<C*, T1, R>
 	{
 		typedef R					RetType;
 		typedef typename TypeList<C*, T1>::type	ParamTypes;
+		typedef R FunctionObjectSignature(C*, T1);
 	};
 	template < typename C, typename R, typename T1 >
 	struct function_info<R (C::*)(T1) const, NullType>  : function_type<R (C::*)(T1) const>, public std::binary_function<const C*, T1, R>
 	{
 		typedef R							RetType;
 		typedef typename TypeList<const C*, T1>::type	ParamTypes;
+		typedef R FunctionObjectSignature(const C*, T1);
 	};
 
 	template < typename R, typename T1, typename T2 > struct function_type<R(T1, T2), NullType>
@@ -125,24 +133,28 @@ namespace stingray
 	{
 		typedef R								RetType;
 		typedef typename TypeList<T1, T2>::type	ParamTypes;
+		typedef R FunctionObjectSignature(T1, T2);
 	};
 	template < typename R, typename T1, typename T2 >
 	struct function_info<R(*)(T1, T2), NullType> : function_type<R(*)(T1, T2)>, public std::binary_function<T1, T2, R>
 	{
 		typedef R								RetType;
 		typedef typename TypeList<T1, T2>::type	ParamTypes;
+		typedef R FunctionObjectSignature(T1, T2);
 	};
 	template < typename C, typename R, typename T1, typename T2 >
 	struct function_info<R (C::*)(T1, T2), NullType> : function_type<R (C::*)(T1, T2)>
 	{
 		typedef R									RetType;
 		typedef typename TypeList<C*, T1, T2>::type	ParamTypes;
+		typedef R FunctionObjectSignature(C*, T1, T2);
 	};
 	template < typename C, typename R, typename T1, typename T2 >
 	struct function_info<R (C::*)(T1, T2) const, NullType>  : function_type<R (C::*)(T1, T2) const>
 	{
 		typedef R											RetType;
 		typedef typename TypeList<const C*, T1, T2>::type	ParamTypes;
+		typedef R FunctionObjectSignature(const C*, T1, T2);
 	};
 
 #define DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(ParamTypenames_, ParamTypes_) \
@@ -159,24 +171,28 @@ namespace stingray
 	{ \
 		typedef R										RetType; \
 		typedef typename TypeList<ParamTypes_>::type	ParamTypes; \
+		typedef R FunctionObjectSignature(ParamTypes_); \
 	}; \
 	template < typename R, ParamTypenames_ > \
 	struct function_info<R(*)(ParamTypes_), NullType> : function_type<R(*)(ParamTypes_)> \
 	{ \
 		typedef R										RetType; \
 		typedef typename TypeList<ParamTypes_>::type	ParamTypes; \
+		typedef R FunctionObjectSignature(ParamTypes_); \
 	}; \
 	template < typename C, typename R, ParamTypenames_ > \
 	struct function_info<R (C::*)(ParamTypes_), NullType> : function_type<R (C::*)(ParamTypes_)> \
 	{ \
 		typedef R											RetType; \
 		typedef typename TypeList<C*, ParamTypes_>::type	ParamTypes; \
+		typedef R FunctionObjectSignature(C*, ParamTypes_); \
 	}; \
 	template < typename C, typename R, ParamTypenames_ > \
 	struct function_info<R (C::*)(ParamTypes_) const, NullType>  : function_type<R (C::*)(ParamTypes_) const> \
 	{ \
 		typedef R												RetType; \
 		typedef typename TypeList<const C*, ParamTypes_>::type	ParamTypes; \
+		typedef R FunctionObjectSignature(const C*, ParamTypes_); \
 	}
 
 	DETAIL_TOOLKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3));
@@ -208,6 +224,7 @@ namespace stingray
 	{
 		typedef typename function_info<Signature>::RetType		RetType;
 		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+		typedef typename function_info<Signature>::FunctionObjectSignature	FunctionObjectSignature;
 	};
 
 
