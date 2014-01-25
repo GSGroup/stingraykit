@@ -2,12 +2,53 @@
 #define STINGRAY_TOOLKIT_MEMORYBYTESTREAM_H
 
 
-#include <stingray/toolkit/IByteStream.h>
 #include <stingray/toolkit/ByteData.h>
+#include <stingray/toolkit/IByteStream.h>
+#include <stingray/toolkit/MetaProgramming.h>
 
 
 namespace stingray
 {
+
+	namespace Detail
+	{
+		template < typename ContainerType >
+		struct MemoryByteStreamContainerResizer
+		{
+			static void RequireSize(ContainerType& container, u64 size)
+			{ }
+		};
+
+		template < >
+		struct MemoryByteStreamContainerResizer<ByteArray>
+		{
+			static void RequireSize(ByteArray& container, u64 size)
+			{ container.RequireSize(size); }
+		};
+
+
+		template < typename ContainerType, bool IsConstContainer = IsConst<typename ContainerType::value_type>::Value >
+		struct MemoryByteStreamWriter
+		{
+			static u64 Write(ContainerType& container, u64& offset, const void* data, u64 count)
+			{
+				const u8* src = static_cast<const u8*>(data);
+				if (container.size() - offset < count)
+					Detail::MemoryByteStreamContainerResizer<ContainerType>::RequireSize(container, offset + count);
+				count = std::min(count, container.size() - offset);
+				std::copy(src, src + count, container.begin() + offset);
+				offset += count;
+				return count;
+			}
+		};
+
+		template < typename ContainerType >
+		struct MemoryByteStreamWriter<ContainerType, true>
+		{
+			static u64 Write(ContainerType& container, u64& offset, const void* data, u64 size)
+			{ TOOLKIT_THROW("Cannot write data to a const container!"); }
+		};
+	}
 
 
 	template < typename ContainerType >
@@ -34,7 +75,7 @@ namespace stingray
 		}
 
 		virtual u64 Write(const void* data, u64 count)
-		{ TOOLKIT_THROW(NotImplementedException()); }
+		{ return Detail::MemoryByteStreamWriter<ContainerType>::Write(_data, _offset, data, count); }
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{
