@@ -113,6 +113,8 @@ namespace stingray
 		size_t					_sizeLimit;
 
 	public:
+		typedef T																value_type;
+
 		typedef typename Detail::ByteDataIteratorSelector<T>::iterator			iterator;
 		typedef typename Detail::ByteDataIteratorSelector<T>::const_iterator	const_iterator;
 
@@ -271,6 +273,8 @@ namespace stingray
 		size_t	_size;
 
 	public:
+		typedef T																value_type;
+
 		typedef typename Detail::ByteDataIteratorSelector<T>::iterator			iterator;
 		typedef typename Detail::ByteDataIteratorSelector<T>::const_iterator	const_iterator;
 
