@@ -314,9 +314,17 @@ namespace stingray
 		BasicBitsSetter(ByteDataType &buf, size_t bytesOffset) : _buf(BufResizer(buf, bytesOffset), bytesOffset) { }
 		BasicBitsSetter(ByteDataType &buf, size_t bytesOffset, size_t size) : _buf(BufResizer(buf, bytesOffset), bytesOffset, size) { }
 
-		template < size_t OffsetBits, size_t SizeBits, typename T >
-		void Set(T val) const
+		template < size_t OffsetBits, size_t SizeBits, typename PodType >
+		void Set(PodType val) const
 		{ Detail::BitsSetterImpl<ByteDataType, BigEndian, OffsetBits, SizeBits>(_buf).Set(val); }
+
+		template < size_t OffsetBits, typename PodType >
+		void Set(PodType val) const
+		{ Set<OffsetBits, 8 * sizeof(PodType)>(val); }
+
+		template < typename PodType >
+		void Set(PodType val) const
+		{ Set<0>(val); }
 
 	private:
 		static const ByteDataType& BufResizer(ByteDataType& buf, size_t minSize)
