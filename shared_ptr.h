@@ -19,8 +19,10 @@ namespace stingray
 
 #define TOOLKIT_DECLARE_PTR(ClassName) \
 		typedef stingray::shared_ptr<ClassName>			ClassName##Ptr; \
+		typedef stingray::weak_ptr<ClassName>				ClassName##WeakPtr
+
+#define TOOLKIT_DECLARE_CONST_PTR(ClassName) \
 		typedef stingray::shared_ptr<const ClassName>		ClassName##ConstPtr; \
-		typedef stingray::weak_ptr<ClassName>				ClassName##WeakPtr; \
 		typedef stingray::weak_ptr<const ClassName>		ClassName##ConstWeakPtr
 
 
