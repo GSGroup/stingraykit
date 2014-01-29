@@ -315,16 +315,18 @@ namespace stingray
 #else
 
 #define DETAIL_ENUMERABLE_HELPER_METHODS(TemplateDecl_, RetType_, Name_) \
-		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator); \
-		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable) { return Detail_##Name_(*enumerable.GetEnumerator()); } \
+		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator); \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerator<T> >& enumerator) { return Name_(*enumerator); } \
+		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable) { return Name_(*enumerable.GetEnumerator()); } \
 		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable); } \
-		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator)
+		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator)
 
 #define DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(TemplateDecl_, RetType_, Name_, ParamsDecl_, ParamsUsage_) \
-		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator, ParamsDecl_); \
-		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable, ParamsDecl_) { return Detail_##Name_(*enumerable.GetEnumerator(), ParamsUsage_); } \
+		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator, ParamsDecl_); \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerator<T> >& enumerator, ParamsDecl_) { return Name_(*enumerator, ParamsUsage_); } \
+		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable, ParamsDecl_) { return Name_(*enumerable.GetEnumerator(), ParamsUsage_); } \
 		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable, ParamsDecl_) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable, ParamsUsage_); } \
-		TemplateDecl_ RetType_ Detail_##Name_(IEnumerator<T>& enumerator, ParamsDecl_)
+		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator, ParamsDecl_)
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename AggregateFunc>), T, Aggregate, MK_PARAM(const AggregateFunc& aggregateFunc), MK_PARAM(aggregateFunc))
