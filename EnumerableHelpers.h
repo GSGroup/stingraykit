@@ -487,6 +487,10 @@ namespace stingray
 		}
 
 		template < typename TResult, typename T >
+		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<IEnumerator<T> >& enumerator)
+		{ return make_shared<EnumeratorWrapper<T, TResult> >(enumerator, &Detail::CastHelper<TResult, T>, &Detail::SkipHelper<TResult, T>); }
+
+		template < typename TResult, typename T >
 		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<IEnumerable<T> >& enumerable)
 		{ return make_shared<EnumerableWrapper<T, TResult> >(enumerable, &Detail::CastHelper<TResult, T>, &Detail::SkipHelper<TResult, T>); }
 
@@ -509,6 +513,9 @@ namespace stingray
 			return result;
 		}
 
+		template < typename T, typename PredicateFunc >
+		shared_ptr<IEnumerator<T> > Where(const shared_ptr<IEnumerator<T> >& enumerator, const PredicateFunc& predicate)
+		{ return make_shared<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, not_(predicate)); }
 
 		template < typename T, typename PredicateFunc >
 		shared_ptr<IEnumerable<T> > Where(const shared_ptr<IEnumerable<T> >& enumerable, const PredicateFunc& predicate)
