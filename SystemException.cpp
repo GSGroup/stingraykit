@@ -45,6 +45,8 @@ namespace stingray
 		ERRNO_STR(ENOTDIR);
 		ERRNO_STR(ENXIO);
 		ERRNO_STR(EPERM);
+		ERRNO_STR(EBADF);
+		ERRNO_STR(EINTR);
 		default:
 			return ToString(e);
 		};
