@@ -170,8 +170,6 @@ namespace stingray
 
 		ERRNO_STR(ERFKILL);
 
-		ERRNO_STR(EHWPOISON);
-
 		default:
 			return ToString(e);
 		};
