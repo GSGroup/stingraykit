@@ -444,6 +444,24 @@ namespace stingray
 		result.push_back(str.substr(i));
 	}
 
+	template < typename InputIterator, typename UnaryOperator >
+	std::string Join(const std::string& separator, InputIterator first, InputIterator last, UnaryOperator op)
+	{
+		std::string result;
+		while (first != last)
+		{
+			if (!result.empty())
+				result.append(separator);
+
+			result.append(op(*first++));
+		}
+		return result;
+	}
+
+	template < typename InputIterator >
+	std::string Join(const std::string& separator, InputIterator first, InputIterator last)
+	{ return Join(separator, first, last, lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
+
 	class StringRef
 	{
 	public:
