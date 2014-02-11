@@ -70,7 +70,7 @@ namespace stingray
 		}
 		if (_workers.size() < _maxThreads)
 		{
-			WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "" % _workers.size()));
+			WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "_" % _workers.size()));
 			_workers.push_back(w);
 			TOOLKIT_CHECK(tryAddTaskFunc(w.get()), "Internal TaskExecutorPool error!");
 		}
