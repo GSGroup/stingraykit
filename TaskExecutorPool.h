@@ -10,8 +10,10 @@
 namespace stingray
 {
 
-	class TaskExecutorPool : public virtual ITaskExecutor
+	class TaskExecutorPool // Should not inherit the ITaskExecutor!
 	{
+		TOOLKIT_NONCOPYABLE(TaskExecutorPool);
+
 		class WorkerWrapper
 		{
 		private:
@@ -41,12 +43,13 @@ namespace stingray
 	public:
 		TaskExecutorPool(const std::string& name, size_t maxThreads);
 
-		virtual void AddTask(const function<void()>& task);
-		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
+		void AddTask(const function<void()>& task);
+		void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
 
 	private:
 		void DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc);
 	};
+	TOOLKIT_DECLARE_PTR(TaskExecutorPool);
 
 }
 

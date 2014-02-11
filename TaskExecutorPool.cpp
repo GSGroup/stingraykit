@@ -16,6 +16,7 @@ namespace stingray
 		MutexLock l(_mutex);
 		if (_busy)
 			return false;
+		_busy = true;
 		_worker->AddTask(bind(&TaskExecutorPool::WorkerWrapper::TaskWrapper, this, task));
 		return true;
 	}
@@ -26,6 +27,7 @@ namespace stingray
 		MutexLock l(_mutex);
 		if (_busy)
 			return false;
+		_busy = true;
 		_worker->AddTask(bind(&TaskExecutorPool::WorkerWrapper::TaskWrapper, this, task), tester);
 		return true;
 	}
@@ -33,11 +35,6 @@ namespace stingray
 
 	void TaskExecutorPool::WorkerWrapper::TaskWrapper(const function<void()>& task)
 	{
-		{
-			MutexLock l(_mutex);
-			TOOLKIT_CHECK(!_busy, "Internal TaskExecutorPool error!");
-			_busy = true;
-		}
 		task();
 		{
 			MutexLock l(_mutex);
@@ -73,7 +70,7 @@ namespace stingray
 		}
 		if (_workers.size() < _maxThreads)
 		{
-			WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "_" % _workers.size()));
+			WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "" % _workers.size()));
 			_workers.push_back(w);
 			TOOLKIT_CHECK(tryAddTaskFunc(w.get()), "Internal TaskExecutorPool error!");
 		}
