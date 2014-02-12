@@ -102,7 +102,7 @@ namespace stingray
 			void set_exception(exception_ptr ex)
 			{
 				MutexLock l(_mutex);
-				if (_value)
+				if (_value || _exception)
 					return;
 				_exception = ex;
 				_condition.Broadcast();
