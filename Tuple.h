@@ -219,6 +219,11 @@ namespace stingray
 	inline typename GetParamPassingType<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT GetTupleItem(const Tuple_& tuple)
 	{ return Detail::TupleItemGetter<Tuple_, Index>::Get(tuple); }
 
+
+	Tuple<TypeList_0> MakeTuple()
+	{ return Tuple<TypeList_0>(); }
+
+
 #undef P_
 #define P_(N) const T##N & p##N
 
