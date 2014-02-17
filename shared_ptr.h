@@ -154,7 +154,9 @@ namespace stingray
 		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
 		inline bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
 		inline bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
-		inline bool boolean_test() const { return _rawPtr != 0; }
+
+		inline bool is_initialized() const { return _rawPtr != 0; }
+		inline bool boolean_test() const { return is_initialized(); }
 
 		inline weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
 
