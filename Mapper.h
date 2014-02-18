@@ -34,6 +34,12 @@ namespace stingray
 			static bool HasValue(Src from)	{ return false; }
 		};
 
+		template<typename Dst>
+		struct NoValue
+		{
+			static bool Fits(Dst val)	{ return false; }
+		};
+
 		template<typename Src, typename Dst>
 		struct Mappings
 		{
@@ -70,6 +76,13 @@ namespace stingray
 			struct QuadValue : public MappingBase<Src, Dst>
 			{
 				static bool Fits(Dst val)		{ return val == Preferred || val == Other1 || val == Other2 || val == Other3; }
+				static Dst GetValue(Src from)	{ return Preferred; }
+			};
+
+			template<Dst Preferred, typename Next = NoValue<Dst> >
+			struct MultiValue : public MappingBase<Src, Dst>
+			{
+				static bool Fits(Dst val)		{ return val == Preferred || Next::Fits(val); }
 				static Dst GetValue(Src from)	{ return Preferred; }
 			};
 
