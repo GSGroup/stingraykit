@@ -1,6 +1,9 @@
 #ifndef STINGRAY_TOOLKIT_IDATASOURCE_H
 #define STINGRAY_TOOLKIT_IDATASOURCE_H
 
+
+#include <stingray/threads/CancellationToken.h>
+
 namespace stingray
 {
 

@@ -253,17 +253,43 @@ namespace stingray
 		ParamsTuple_ _tuple;
 
 	public:
-		SimpleEnumerable(const ParamsTuple_& tuple) : _tuple(tuple)
-		{}
+		SimpleEnumerable(const ParamsTuple_& tuple)
+			: _tuple(tuple)
+		{ }
 
 		virtual shared_ptr<IEnumerator<typename EnumeratorType_::ItemType> > GetEnumerator() const
 		{ return FunctorInvoker::Invoke(MakeShared<EnumeratorType_, ParamsTuple_::Size>(), _tuple); }
 	};
 
 
-	template< typename EnumeratorType_, typename ParamsTuple_ >
-	shared_ptr<SimpleEnumerable<EnumeratorType_, ParamsTuple_> > MakeSimpleEnumerable(const ParamsTuple_& tuple)
-	{ return make_shared<SimpleEnumerable<EnumeratorType_, ParamsTuple_> >(tuple); }
+	namespace Detail
+	{
+
+		template< typename EnumeratorType_, typename ParamsTuple_ >
+		shared_ptr<SimpleEnumerable<EnumeratorType_, ParamsTuple_> > MakeSimpleEnumerableImpl(const ParamsTuple_& tuple)
+		{ return make_shared<SimpleEnumerable<EnumeratorType_, ParamsTuple_> >(tuple); }
+
+	}
+
+
+#define DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) typename TOOLKIT_CAT(T, Index_)
+#define DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(T, Index_)
+#define DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) const TOOLKIT_CAT(T, Index_)& TOOLKIT_CAT(p, Index_)
+#define DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(p, Index_)
+
+#define DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE(N_, UserArg_) \
+	template< typename EnumeratorType_ TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS, TOOLKIT_EMPTY()) > \
+	shared_ptr<SimpleEnumerable<EnumeratorType_, Tuple<TypeList_##N_ TOOLKIT_INSERT_IF(N_, <) TOOLKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES, TOOLKIT_EMPTY()) TOOLKIT_INSERT_IF(N_, >)  > > > MakeSimpleEnumerable(TOOLKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS, TOOLKIT_EMPTY())) \
+	{ return Detail::MakeSimpleEnumerableImpl<EnumeratorType_>(MakeTuple(TOOLKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS, TOOLKIT_EMPTY()))); }
+
+	TOOLKIT_REPEAT_NESTING_2(5, DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE, TOOLKIT_EMPTY())
+
+#undef DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE
+
+#undef DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS
+#undef DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS
+#undef DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES
+#undef DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS
 
 
 	namespace Enumerable
