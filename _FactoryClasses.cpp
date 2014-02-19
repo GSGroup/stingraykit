@@ -16,9 +16,6 @@
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
 #endif
-#ifdef PLATFORM_IP
-#	include <stingray/platform/ip/tuners/TsOverIpTransport.h>
-#endif
 #include <stingray/records/FileSystemRecord.h>
 #include <stingray/rpc/UrlObjectId.h>
 #include <stingray/scanner/DVBServiceId.h>
@@ -38,6 +35,7 @@
 #include <stingray/tuners/dvbs/DefaultDVBSTransport.h>
 #include <stingray/tuners/dvbs/Satellite.h>
 #include <stingray/tuners/dvbt/DVBTTransport.h>
+#include <stingray/tuners/ip/TsOverIpTransport.h>
 #include <stingray/update/DefaultUpdateRequirement.h>
 #include <stingray/update/system/CheckImageSignature.h>
 #include <stingray/update/system/EraseFlashPartition.h>
@@ -84,9 +82,6 @@ namespace stingray { namespace Detail
 #ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::TVChannel);
 #endif
-#ifdef PLATFORM_IP
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(TsOverIpTransport);
-#endif
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(rpc::UrlObjectId);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBServiceId);
@@ -114,6 +109,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBSTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Satellite);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBTTransport);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(TsOverIpTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMinimalVersionRequirement);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(CheckImageSignature);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(EraseFlashPartition);
