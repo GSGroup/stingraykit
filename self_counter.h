@@ -18,41 +18,6 @@ namespace stingray
 		};
 	}
 
-	template<typename T>
-	class self_counter
-	{
-		atomic_int_type _value;
-	private:
-		TOOLKIT_NONCOPYABLE(self_counter);
-
-	protected:
-		~self_counter() {}
-
-	public:
-		self_counter() : _value(1)
-		{}
-
-		inline void add_ref()
-		{
-			atomic_int_type count = Atomic::Inc(_value);
-			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckAddRef(count));
-		}
-		inline void release_ref()
-		{
-			atomic_int_type count = Atomic::Dec(_value);
-			if (count == 0)
-			{
-				STINGRAY_ANNOTATE_HAPPENS_AFTER(&_value);
-				STINGRAY_ANNOTATE_RELEASE(&_value);
-				delete static_cast<const T*>(this);
-			}
-			else
-				STINGRAY_ANNOTATE_HAPPENS_BEFORE(&_value);
-			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckReleaseRef(count));
-		}
-		inline int value() const		{ return _value; }
-	};
-
 	struct static_cast_tag
 	{};
 
@@ -127,6 +92,50 @@ namespace stingray
 				TOOLKIT_THROW(NullPointerException());
 		}
 	};
+
+	template<typename T>
+	class self_counter
+	{
+		atomic_int_type _value;
+	private:
+		TOOLKIT_NONCOPYABLE(self_counter);
+
+	protected:
+		~self_counter() {}
+
+	public:
+		self_counter() : _value(1)
+		{}
+
+		inline self_count_ptr<T> self_count_ptr_from_this()
+		{
+			add_ref();
+			return self_count_ptr<T>(static_cast<T*>(this));
+		}
+
+		inline void add_ref()
+		{
+			atomic_int_type count = Atomic::Inc(_value);
+			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckAddRef(count));
+		}
+
+		inline void release_ref()
+		{
+			atomic_int_type count = Atomic::Dec(_value);
+			if (count == 0)
+			{
+				STINGRAY_ANNOTATE_HAPPENS_AFTER(&_value);
+				STINGRAY_ANNOTATE_RELEASE(&_value);
+				delete static_cast<const T*>(this);
+			}
+			else
+				STINGRAY_ANNOTATE_HAPPENS_BEFORE(&_value);
+			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckReleaseRef(count));
+		}
+
+		inline int value() const		{ return _value; }
+	};
+
 }
 
 #endif
