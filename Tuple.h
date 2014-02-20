@@ -229,8 +229,8 @@ namespace stingray
 
 #define DETAIL_TOOLKIT_DECLARE_MAKETUPLE(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 	template < TypesDecl_ > \
-	Tuple<TypeList_##N_<TypesUsage_> > MakeTuple(ParamsDecl_) \
-	{ return Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_); }
+	Tuple<typename TypeList_##N_<TypesUsage_>::type> MakeTuple(ParamsDecl_) \
+	{ return Tuple<typename TypeList_##N_<TypesUsage_>::type>(ParamsUsage_); }
 
 	DETAIL_TOOLKIT_DECLARE_MAKETUPLE(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
 	DETAIL_TOOLKIT_DECLARE_MAKETUPLE(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2));
