@@ -40,80 +40,8 @@ namespace stingray
 			~ISignalConnection() { _getVTable().Dtor(this); }
 		};
 		TOOLKIT_DECLARE_SELF_COUNT_PTR(ISignalConnection);
-
-		inline void DefaultSignalExceptionHandler(const std::exception& ex)
-		{ Logger::Error() << "Uncaught  exception in signal handler: " << diagnostic_information(ex); }
-
-		struct FuncTypeWithDeathControl
-		{
-		private:
-			function_storage		_func;
-			FutureExecutionTester	_tester;
-
-		public:
-			FuncTypeWithDeathControl(const function_storage& func, const FutureExecutionTester& tester = null)
-				: _func(func), _tester(tester)
-			{ }
-			const function_storage& Func() 	{ return _func; }
-			FutureExecutionTester& Tester()	{ return _tester; }
-		};
-
-		template<typename Handlers>
-		class ThreadedConnection : public ISignalConnection
-		{
-		public:
-			typedef std::pair<Handlers, Mutex>			HandlersType;
-			typedef shared_ptr<HandlersType>			HandlersPtr;
-			typedef weak_ptr<HandlersType>				HandlersWeakPtr;
-			typedef typename ISignalConnection::VTable	VTable;
-
-		private:
-			typedef typename Handlers::iterator		IteratorType;
-
-			HandlersWeakPtr							_handlers;
-			IteratorType							_it;
-			TaskLifeToken							_token;
-
-		public:
-			inline ThreadedConnection(const HandlersWeakPtr& handlers, typename Handlers::iterator it, const TaskLifeToken& token)
-				: _handlers(handlers), _it(it), _token(token)
-			{ _getVTable = &GetVTable; }
-
-			static VTable GetVTable()
-			{ return VTable(&_Dtor, &_Disconnect); }
-
-			static void _Dtor(ISignalConnection *self)
-			{ static_cast<ThreadedConnection *>(self)->Dtor(); }
-
-			static void _Disconnect(ISignalConnection *self)
-			{ static_cast<ThreadedConnection *>(self)->Disconnect(); }
-
-			void Dtor()
-			{
-				_token.~TaskLifeToken();
-				_it.~IteratorType();
-				_handlers.~HandlersWeakPtr();
-			}
-
-			void Disconnect()
-			{
-				HandlersPtr handlers_l = _handlers.lock();
-				if (handlers_l)
-				{
-					MutexLock l(handlers_l->second);
-					_handlers.reset();
-					Handlers &handlers = handlers_l->first;
-					if (_it != handlers.end())
-					{
-						handlers.erase(_it);
-						_it = handlers.end();
-					}
-				}
-				_token.Release();
-			}
-		};
-
 	} //namespace Detail
+
 
 	class signal_connection
 	{
@@ -121,16 +49,16 @@ namespace stingray
 		Detail::ISignalConnectionSelfCountPtr	_impl;
 
 	public:
-		inline signal_connection()
+		signal_connection()
 		{ }
 
-		inline explicit signal_connection(const Detail::ISignalConnectionSelfCountPtr& impl)
+		explicit signal_connection(const Detail::ISignalConnectionSelfCountPtr& impl)
 			: _impl(impl)
 		{ }
 
-		inline bool connected() const { return _impl; }
+		bool connected() const { return _impl; }
 
-		inline void disconnect()
+		void disconnect()
 		{
 			if (!_impl)
 				return;
@@ -140,6 +68,7 @@ namespace stingray
 		}
 	};
 
+
 	class signal_connection_holder
 	{
 		TOOLKIT_NONCOPYABLE(signal_connection_holder);
@@ -148,13 +77,13 @@ namespace stingray
 		signal_connection _connection;
 
 	public:
-		inline signal_connection_holder() {}
-		inline signal_connection_holder(const signal_connection& connection) : _connection(connection) {}
-		inline ~signal_connection_holder() { _connection.disconnect(); }
-		inline bool connected() const { return _connection.connected(); }
-		inline void disconnect() { _connection.disconnect(); }
+		signal_connection_holder() {}
+		signal_connection_holder(const signal_connection& connection) : _connection(connection) {}
+		~signal_connection_holder() { _connection.disconnect(); }
+		bool connected() const { return _connection.connected(); }
+		void disconnect() { _connection.disconnect(); }
 
-		inline signal_connection_holder& operator=(const signal_connection &connection)
+		signal_connection_holder& operator=(const signal_connection &connection)
 		{
 			_connection.disconnect();
 			_connection = connection;
@@ -173,15 +102,15 @@ namespace stingray
 
 	public:
 		signal_connection_pool()			{}
-		inline ~signal_connection_pool()	{ release(); }
+		~signal_connection_pool()	{ release(); }
 
-		inline void add(const signal_connection & conn)
+		void add(const signal_connection & conn)
 		{
 			MutexLock l(_lock);
 			_connections.push_back(conn);
 		}
 
-		inline bool empty() const
+		bool empty() const
 		{
 			MutexLock l(_lock);
 			return _connections.empty();
@@ -198,7 +127,7 @@ namespace stingray
 				std::mem_fun_ref(&signal_connection::disconnect));
 		}
 
-		inline signal_connection_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
+		signal_connection_pool& operator+= (const signal_connection& conn) { add(conn); return *this; }
 	};
 
 	template < typename Key, typename Compare = std::less<Key> >
