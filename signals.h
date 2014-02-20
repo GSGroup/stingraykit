@@ -278,11 +278,16 @@ namespace stingray
 		friend class signal_locker; \
 		template < typename Signature2_ > friend class signal_connector; \
 		\
+	public: \
 		typedef void Signature(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)); \
+		\
+		typedef void											RetType; \
+		typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
+		\
+	private: \
 		typedef Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>	Impl; \
 		typedef self_count_ptr<Impl>																							ImplPtr; \
 		\
-		typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
 		typedef function<void(const std::exception&)>			ExceptionHandlerFunc; \
 		typedef function<void(const function<Signature>&)>		PopulatorFunc; \
 		\
