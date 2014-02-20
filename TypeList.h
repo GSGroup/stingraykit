@@ -13,7 +13,7 @@ namespace stingray
 
 
 	struct TypeListEndNode
-	{ };
+	{ typedef TypeListEndNode type; };
 
 
 	template < typename Value_, typename Next_ >
@@ -32,7 +32,8 @@ namespace stingray
 	typedef TypeListEndNode TypeList_0;
 
 	template < TY T1 >
-	struct TypeList_1 : public TypeListNode<T1, TypeList_0> { };
+	struct TypeList_1 : public TypeListNode<T1, TypeList_0>
+	{ typedef TypeListNode<T1, TypeList_0> type; };
 
 
 #define MAX_TYPELIST_LEN 40
@@ -66,7 +67,7 @@ namespace stingray
 	template< TOOLKIT_REPEAT(Size_, DETAIL_TYPELIST_PARAMS_DECL, TOOLKIT_EMPTY()) > \
 	struct TypeList_##Size_ : \
 		public TypeListNode<T0, TOOLKIT_CAT(TypeList_, TOOLKIT_DEC(Size_)) <TOOLKIT_REPEAT(TOOLKIT_DEC(Size_), DETAIL_TYPELIST_PARAMS_USAGE, 1)> > \
-	{ };
+	{ typedef TypeListNode<T0, TOOLKIT_CAT(TypeList_, TOOLKIT_DEC(Size_)) <TOOLKIT_REPEAT(TOOLKIT_DEC(Size_), DETAIL_TYPELIST_PARAMS_USAGE, 1)> > type; };
 
 	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(2)
 	DETAIL_DETAIL_TOOLKIT_DECLARE_TYPELIST(3)
