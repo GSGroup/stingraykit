@@ -80,7 +80,7 @@ namespace stingray
 
 
 	template < typename T , typename Allocator_ >
-	class intrusive_list
+	class intrusive_list : public Allocator_
 	{
 	public:
 		typedef intrusive_list_node<T>	node_type;
@@ -124,23 +124,24 @@ namespace stingray
 
 	private:
 		mutable intrusive_list_node<T>	_root;
-		allocator_type					_alloc;
 
-		static node_type* get_next(const node_type* n) { return n->_next; }
-		static node_type* get_prev(const node_type* n) { return n->_prev; }
+		Allocator_& get_allocator()						{ return *this; }
+
+		static node_type* get_next(const node_type* n)	{ return n->_next; }
+		static node_type* get_prev(const node_type* n)	{ return n->_prev; }
 
 		T * create_node(const T& value)
 		{
-			T * node = _alloc.allocate(1);
-			_alloc.construct(node, value);
+			T * node = get_allocator().allocate(1);
+			get_allocator().construct(node, value);
 			return node;
 		}
 
 		void destroy_node(intrusive_list_node<T> *node)
 		{
 			T *t = static_cast<T *>(node);
-			_alloc.destroy(t);
-			_alloc.deallocate(t, 1);
+			get_allocator().destroy(t);
+			get_allocator().deallocate(t, 1);
 		}
 
 		inline void fix_root(const intrusive_list &other)
@@ -153,11 +154,11 @@ namespace stingray
 
 	public:
 		explicit intrusive_list(const allocator_type &alloc = allocator_type())
-			: _root(), _alloc(alloc)
+			: Allocator_(alloc), _root()
 		{ }
 
 		intrusive_list(const intrusive_list& other)
-			: _root(), _alloc(other._alloc)
+			: Allocator_(other), _root()
 		{
 			for (const_iterator it = other.begin(); it != other.end(); ++it)
 				push_back(*it);
