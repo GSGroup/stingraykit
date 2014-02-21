@@ -50,7 +50,7 @@ namespace stingray
 		{
 			typedef function<void(const std::exception&)>	ExceptionHandlerFunc;
 
-			void DefaultSignalExceptionHandler(const std::exception &ex)
+			inline void DefaultSignalExceptionHandler(const std::exception &ex)
 			{ Logger::Error() << "Uncaught exception in signal handler: " << diagnostic_information(ex); }
 
 
