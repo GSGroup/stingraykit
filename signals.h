@@ -188,7 +188,7 @@ namespace stingray
 
 		public:
 			Connection(const ImplPtr& signalImpl, typename Handlers::iterator it, const TaskLifeToken& token)
-				: _it(it), _token(token)
+				: _signalImpl(signalImpl), _it(it), _token(token)
 			{ _getVTable = &GetVTable; }
 
 			static VTable GetVTable()
