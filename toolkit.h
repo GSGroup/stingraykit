@@ -227,6 +227,16 @@ namespace stingray
 	inline size_t ArraySize(const T (&) [Size]) { return Size; }
 
 
+	template<typename T, size_t N>
+	T* begin(T(&arr)[N])
+	{ return &arr[0]; }
+
+
+	template<typename T, size_t N>
+	T* end(T(&arr)[N])
+	{ return &arr[N]; }
+
+
 	template<typename InputIterator, typename OutputIterator, typename Pred>
 	OutputIterator copy_if(InputIterator first, InputIterator last, OutputIterator result, Pred pred)
 	{
