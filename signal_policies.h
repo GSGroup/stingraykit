@@ -21,6 +21,32 @@ namespace stingray
 	namespace signal_policies
 	{
 
+		namespace creation
+		{
+			struct Default
+			{
+				template <typename ImplType>
+				static self_count_ptr<ImplType> CtorCreate()
+				{ return self_count_ptr<ImplType>(new ImplType()); }
+
+				template <typename ImplType>
+				static void LazyCreate(self_count_ptr<ImplType>& impl)
+				{ }
+			};
+
+			struct Lazy
+			{
+				template <typename ImplType>
+				static self_count_ptr<ImplType> CtorCreate()
+				{ return null; }
+
+				template <typename ImplType>
+				static void LazyCreate(self_count_ptr<ImplType>& impl)
+				{ if (!impl) impl.reset(new ImplType()); }
+			};
+		}
+
+
 		namespace threading
 		{
 			struct Multithreaded
