@@ -185,15 +185,6 @@ namespace stingray
 			return *this;
 		}
 
-
-		void swap(intrusive_list& other)
-		{
-			_root.swap(other._root);
-			fix_root(other);
-			other.fix_root(*this);
-			std::swap(_alloc, other._alloc);
-		}
-
 		iterator begin()		{ return iterator(_root._next); }
 		iterator end()			{ return iterator(&_root); }
 
