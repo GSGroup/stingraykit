@@ -220,7 +220,7 @@ namespace stingray
 	{ return Detail::TupleItemGetter<Tuple_, Index>::Get(tuple); }
 
 
-	Tuple<TypeList_0> MakeTuple()
+	inline Tuple<TypeList_0> MakeTuple()
 	{ return Tuple<TypeList_0>(); }
 
 
