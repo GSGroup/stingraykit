@@ -25,19 +25,8 @@ namespace stingray
 	{
 		struct ISignalConnection : public self_counter<ISignalConnection>
 		{
-			struct VTable
-			{
-				typedef void ThisFunc(ISignalConnection *self);
-				ThisFunc *Dtor, *Disconnect;
-
-				VTable(ThisFunc *dtor, ThisFunc *disconnect) : Dtor(dtor), Disconnect(disconnect) { }
-			};
-
-			typedef VTable GetVTableFunc();
-			GetVTableFunc	*_getVTable;
-
-			ISignalConnection(): _getVTable(0) {}
-			~ISignalConnection() { _getVTable().Dtor(this); }
+			virtual ~ISignalConnection() { }
+			virtual void Disconnect() = 0;
 		};
 		TOOLKIT_DECLARE_SELF_COUNT_PTR(ISignalConnection);
 	} //namespace Detail
@@ -63,7 +52,7 @@ namespace stingray
 			if (!_impl)
 				return;
 
-			_impl->_getVTable().Disconnect(_impl.get());
+			_impl->Disconnect();
 			_impl.reset();
 		}
 	};

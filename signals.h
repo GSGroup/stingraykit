@@ -165,7 +165,6 @@ namespace stingray
 		class Connection : public ISignalConnection
 		{
 		public:
-			typedef typename ISignalConnection::VTable	VTable;
 			typedef SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>		Impl;
 			typedef self_count_ptr<Impl>									ImplPtr;
 
@@ -181,25 +180,9 @@ namespace stingray
 		public:
 			Connection(const ImplPtr& signalImpl, typename Handlers::iterator it, const TaskLifeToken& token)
 				: _signalImpl(signalImpl), _it(it), _token(token)
-			{ _getVTable = &GetVTable; }
+			{ }
 
-			static VTable GetVTable()
-			{ return VTable(&_Dtor, &_Disconnect); }
-
-			static void _Dtor(ISignalConnection *self)
-			{ static_cast<Connection *>(self)->Dtor(); }
-
-			static void _Disconnect(ISignalConnection *self)
-			{ static_cast<Connection *>(self)->Disconnect(); }
-
-			void Dtor()
-			{
-				_token.~TaskLifeToken();
-				_it.~IteratorType();
-				_signalImpl.~ImplPtr();
-			}
-
-			void Disconnect()
+			virtual void Disconnect()
 			{
 				ImplPtr signal_impl = _signalImpl;
 				if (signal_impl)
