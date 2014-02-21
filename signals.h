@@ -91,7 +91,7 @@ namespace stingray
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
 		class SignalImpl : public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public ISignalConnector<Signature_>
 		{
-			template < typename Signature2_, typename ThreadingPolicy2_, typename ExceptionPolicy2_, typename PopulatorsPolicy2_, typename ConnectionPolicyControl2_ >
+			template < typename Signature2_, typename ThreadingPolicy2_, typename ExceptionPolicy2_, typename PopulatorsPolicy2_, typename ConnectionPolicyControl2_, typename CreationPolicy2_ >
 			friend class signal;
 
 			template < typename Signature2_, typename ThreadingPolicy2_, typename ExceptionPolicy2_, typename PopulatorsPolicy2_, typename ConnectionPolicyControl2_ >
@@ -262,7 +262,8 @@ namespace stingray
 		typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
 		typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
 		typename PopulatorsPolicy_ = signal_policies::populators::Configurable,
-		typename ConnectionPolicyControl_ = signal_policies::connection_policy_control::Checked >
+		typename ConnectionPolicyControl_ = signal_policies::connection_policy_control::Checked,
+		typename CreationPolicy_ = signal_policies::creation::Default>
 	class signal;
 
 #define DETAIL_SIGNAL_TEMPLATE_PARAM_DECL(Index_, UserArg_) typename T##Index_,
@@ -270,8 +271,8 @@ namespace stingray
 #define DETAIL_SIGNAL_PARAM_DECL(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) T##Index_ p##Index_
 #define DETAIL_SIGNAL_PARAM_USAGE(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) p##Index_
 #define DETAIL_DECLARE_SIGNAL(N_, UserArg_) \
-	template < TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_DECL, ~) typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ > \
-	class signal<void(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_> \
+	template < TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_DECL, ~) typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ > \
+	class signal<void(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_, CreationPolicy_> \
 	{ \
 		TOOLKIT_NONCOPYABLE(signal); \
 		\
@@ -303,10 +304,10 @@ namespace stingray
 		}; \
 		\
 	private: \
-		ImplPtr		_impl; \
+		mutable ImplPtr		_impl; \
 		\
 	public: \
-		signal() : _impl(new Impl) { } \
+		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { } \
 		explicit signal(ConnectionPolicy connectionPolicy) : _impl(new Impl(connectionPolicy)) { } \
 		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler) : _impl(new Impl(null, exceptionHandler)) { } \
 		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(new Impl(null, exceptionHandler, connectionPolicy)) { } \
@@ -318,6 +319,8 @@ namespace stingray
 		\
 		void SendCurrentState(const function<Signature>& slot) const \
 		{ \
+			if (!_impl) \
+				return; \
 			typename ThreadingPolicy_::LockType l(_impl->GetSync()); \
 			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value > wrapped_slot(slot, _impl->GetExceptionHandler()); \
 			WRAP_EXCEPTION_HANDLING( _impl->GetExceptionHandler(), _impl->template SendCurrentState<Signature>(wrapped_slot); ); \
@@ -325,20 +328,26 @@ namespace stingray
 		\
 		signal_connection connect(const function<Signature>& slot) const \
 		{ \
+			CreationPolicy_::template LazyCreate(_impl); \
 			TaskLifeToken token; \
 			return signal_connection(_impl->Connect(slot, token.GetExecutionTester(), token)); \
 		} \
 		\
 		signal_connection connect(const ITaskExecutorPtr& worker, const function<Signature>& slot) const \
 		{ \
+			CreationPolicy_::template LazyCreate(_impl); \
 			async_function<Signature> slot_func(worker, slot); \
 			return signal_connection(_impl->Connect(slot_func, null, slot_func.GetToken())); \
 		} \
 		\
-		Copyable copyable_ref() const { return Copyable(_impl); } \
+		Copyable copyable_ref() const { CreationPolicy_::template LazyCreate(_impl); return Copyable(_impl); } \
 		\
 		void operator () (TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
-		{ _impl->InvokeAll(Tuple<ParamTypes>(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); } \
+		{ \
+			if (!_impl) \
+				return; \
+			_impl->InvokeAll(Tuple<ParamTypes>(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); \
+		} \
 	};
 
 	TOOLKIT_REPEAT_NESTING_2(10, DETAIL_DECLARE_SIGNAL, ~)
