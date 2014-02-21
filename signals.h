@@ -285,12 +285,12 @@ namespace stingray
 		typedef function<void(const function<Signature>&)>		PopulatorFunc; \
 		\
 	public: \
-		class Copyable : public function_info<Signature> \
+		class Invoker : public function_info<Signature> \
 		{ \
 		private: \
 			ImplPtr		_impl; \
 		public: \
-			Copyable(const ImplPtr& impl) : _impl(impl) { } \
+			Invoker(const ImplPtr& impl) : _impl(impl) { } \
 			void operator () (TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
 			{ _impl->InvokeAll(Tuple<ParamTypes>(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); } \
 		}; \
@@ -332,8 +332,8 @@ namespace stingray
 			return signal_connection(_impl->Connect(slot_func, null, slot_func.GetToken())); \
 		} \
 		\
-		Copyable copyable_ref() const { CreationPolicy_::template LazyCreate(_impl); return Copyable(_impl); } \
 		signal_connector<Signature> connector() const { return signal_connector<Signature>(_impl); } \
+		Invoker invoker() const { CreationPolicy_::template LazyCreate(_impl); return Invoker(_impl); } \
 		\
 		void operator () (TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
 		{ \
@@ -472,7 +472,7 @@ namespace stingray
 		/**
 		 * @brief A copyable functor object that hold a reference to the signal. Be aware of possible lifetime problems!
 		 */
-		struct CopyableRef : public function_info<RetType, ParamTypes>
+		struct Invoker : public function_info<RetType, ParamTypes>
 		{
 		private:
 			const signal&	_signal;
@@ -481,7 +481,7 @@ namespace stingray
 			/**
 			 * @param[in] theSignal The referred signal
 			 */
-			CopyableRef(const signal& theSignal);
+			Invoker(const signal& theSignal);
 
 			/**
 			 * @brief Signal invokation method
@@ -572,21 +572,21 @@ namespace stingray
 
 		/**
 		 * @brief A getter of a copyable object that may be used to construct a function object (the signal itself is not copyable).
-		 * @returns A copyable functor object that hold a reference to the signal. Be aware of possible lifetime problems!
+		 * @returns A copyable functor object.
 		 */
-		CopyableRef copyable_ref() const;
+		Invoker invoker() const;
+
+		/**
+		 * @brief A getter of an object that may be used to connect to the signal.
+		 * @returns A signal_connector object.
+		 */
+		signal_connector<Signature> connector() const;
 
 		/**
 		 * @brief Invoke the populator for a given function
 		 * @param[in] connectingSlot The function that will be invoked from the populator
 		 */
 		void SendCurrentState(const FuncType& connectingSlot) const;
-
-		/**
-		 * @brief Get the populator function
-		 * @returns The populator function wrapper (uses the signal's exception handling, and locks the signal mutex)
-		 */
-		function<void(const FuncType&)> GetCurrentStateSender() const;
 
 		/**
 		 * @brief Asynchronous connect method. Is prohibited if the signal uses ConnectionPolicy::SyncOnly
