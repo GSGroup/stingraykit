@@ -11,6 +11,7 @@
 #include <stingray/toolkit/intrusive_list.h>
 #include <stingray/toolkit/self_counter.h>
 #include <stingray/toolkit/signal_connection.h>
+#include <stingray/toolkit/signal_connector.h>
 #include <stingray/toolkit/signal_policies.h>
 
 
@@ -39,15 +40,6 @@ namespace stingray
 			{ }
 			const function_storage& Func() 	{ return _func; }
 			FutureExecutionTester& Tester()	{ return _tester; }
-		};
-
-
-		template < typename Signature_ >
-		struct ISignalConnector : public self_counter<ISignalConnector<Signature_> >
-		{
-			virtual ~ISignalConnector() { }
-
-			virtual ISignalConnectionSelfCountPtr Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken) = 0;
 		};
 
 
@@ -341,6 +333,7 @@ namespace stingray
 		} \
 		\
 		Copyable copyable_ref() const { CreationPolicy_::template LazyCreate(_impl); return Copyable(_impl); } \
+		signal_connector<Signature> connector() const { return signal_connector<Signature>(_impl); } \
 		\
 		void operator () (TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
 		{ \
@@ -612,30 +605,6 @@ namespace stingray
 	}
 
 #endif
-
-	template < typename Signature_ >
-	class signal_connector
-	{
-	private:
-		self_count_ptr<Detail::ISignalConnector<Signature_> >	_impl;
-
-	public:
-		signal_connector(const signal<Signature_>& signal)
-			: _impl(signal._impl)
-		{ }
-
-		signal_connection connect(const function<Signature_>& slot) const
-		{
-			TaskLifeToken token;
-			return signal_connection(_impl->Connect(slot, token.GetExecutionTester(), token));
-		}
-
-		signal_connection connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot) const
-		{
-			async_function<Signature_> slot_func(worker, slot);
-			return signal_connection(_impl->Connect(slot_func, null, slot_func.GetToken())); // Using real execution tester instead of null may cause deadlocks!!!
-		}
-	};
 
 	/** @} */
 
