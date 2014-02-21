@@ -82,9 +82,9 @@ namespace stingray
 
 			struct Configurable
 			{
-				Configurable() : _exceptionHandler(&DefaultSignalExceptionHandler) {}
-				Configurable(const ExceptionHandlerFunc &ehf) : _exceptionHandler(ehf) {}
-				const ExceptionHandlerFunc& GetExceptionHandler() const { return _exceptionHandler; }
+				Configurable() : _exceptionHandler(&DefaultSignalExceptionHandler)		{}
+				Configurable(const ExceptionHandlerFunc &ehf) : _exceptionHandler(ehf)	{}
+				const ExceptionHandlerFunc& GetExceptionHandler() const					{ return _exceptionHandler; }
 
 			private:
 				ExceptionHandlerFunc							_exceptionHandler;
