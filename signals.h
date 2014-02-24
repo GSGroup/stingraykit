@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_NEW_SIGNALS_H
-#define STINGRAY_TOOLKIT_NEW_SIGNALS_H
+#ifndef STINGRAY_TOOLKIT_SIGNALS_H
+#define STINGRAY_TOOLKIT_SIGNALS_H
 
 
 #include <stingray/log/Logger.h>
