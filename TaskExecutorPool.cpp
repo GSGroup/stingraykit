@@ -47,7 +47,7 @@ namespace stingray
 	///////////////////////////////////////////////////////////////
 
 
-	TaskExecutorPool::TaskExecutorPool(const std::string& name, size_t maxThreads)
+	TaskExecutorPool::TaskExecutorPool(const std::string& name, u32 maxThreads)
 		: _name(name), _maxThreads(maxThreads)
 	{ }
 

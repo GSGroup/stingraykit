@@ -37,11 +37,11 @@ namespace stingray
 	private:
 		Mutex			_mutex;
 		std::string		_name;
-		size_t			_maxThreads;
+		u32				_maxThreads;
 		Workers			_workers;
 
 	public:
-		TaskExecutorPool(const std::string& name, size_t maxThreads);
+		TaskExecutorPool(const std::string& name, u32 maxThreads);
 
 		void AddTask(const function<void()>& task);
 		void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
