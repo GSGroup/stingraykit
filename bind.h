@@ -25,16 +25,12 @@ namespace stingray
 	template < size_t N > struct BindPlaceholder
 	{ static const size_t Index = N; };
 
-	static inline BindPlaceholder<0>	_1()	{ return BindPlaceholder<0>(); }
-	static inline BindPlaceholder<1>	_2()	{ return BindPlaceholder<1>(); }
-	static inline BindPlaceholder<2>	_3()	{ return BindPlaceholder<2>(); }
-	static inline BindPlaceholder<3>	_4()	{ return BindPlaceholder<3>(); }
-	static inline BindPlaceholder<4>	_5()	{ return BindPlaceholder<4>(); }
-	static inline BindPlaceholder<5>	_6()	{ return BindPlaceholder<5>(); }
-	static inline BindPlaceholder<6>	_7()	{ return BindPlaceholder<6>(); }
-	static inline BindPlaceholder<7>	_8()	{ return BindPlaceholder<7>(); }
-	static inline BindPlaceholder<8>	_9()	{ return BindPlaceholder<8>(); }
-	static inline BindPlaceholder<9>	_10()	{ return BindPlaceholder<9>(); }
+#define DETAIL_TOOLKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
+	static inline BindPlaceholder<Index_>	TOOLKIT_CAT(_, TOOLKIT_INC(Index_))()	{ return BindPlaceholder<Index_>(); }
+
+	TOOLKIT_REPEAT(20, DETAIL_TOOLKIT_DECLARE_PLACEHOLDER, ~)
+
+#undef DETAIL_TOOLKIT_DECLARE_PLACEHOLDER
 
 	namespace Detail
 	{
