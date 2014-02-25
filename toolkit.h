@@ -150,6 +150,7 @@ namespace stingray
 		template < typename T1, typename T2 > DecoratorType_(const T1& p1, const T2& p2) : BaseType_(p1, p2) { } \
 		template < typename T1, typename T2, typename T3 > DecoratorType_(const T1& p1, const T2& p2, const T3& p3) : BaseType_(p1, p2, p3) { }
 
+
 namespace stingray
 {
 
@@ -222,6 +223,10 @@ namespace stingray
 		inline bool operator () (const Something& obj) const
 		{ return InstanceOf<DestType>(obj); }
 	};
+
+	template < size_t N >
+	size_t StrLen(const char (&)[N])
+	{ return N - 1; }
 
 	template < typename T, size_t Size >
 	inline size_t ArraySize(const T (&) [Size]) { return Size; }
