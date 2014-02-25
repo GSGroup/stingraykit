@@ -41,6 +41,7 @@
 #define DETAIL_INSERT_IF_1(Something_) Something_
 
 #define TOOLKIT_INSERT_IF(Predicate_, Something_) TOOLKIT_CAT(DETAIL_INSERT_IF_, TOOLKIT_BOOL(Predicate_))(MK_PARAM(Something_))
+#define TOOLKIT_IF_ELSE(Predicate_, If_, Else_) TOOLKIT_INSERT_IF(Predicate_, MK_PARAM(If_)) TOOLKIT_INSERT_IF(TOOLKIT_NOT(Predicate_), MK_PARAM(Else_))
 
 
 #define DETAIL_COMMA_IF_0
