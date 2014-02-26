@@ -76,7 +76,7 @@ namespace stingray
 		{ __VA_ARGS__ } \
 		catch (const std::exception& ex) \
 		{ \
-			try { exceptionHandler(ex); } catch(const std::exception &exex) { Logger::Error() << "Exception inside exception handler: " << diagnostic_information(exex); } \
+			exceptionHandler(ex); \
 		}
 
 
