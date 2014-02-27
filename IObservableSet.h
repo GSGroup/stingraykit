@@ -78,9 +78,9 @@ namespace stingray
 		virtual void Clear()
 		{
 			signal_locker l(ObservableInterface::OnChanged);
-			Wrapped_::Clear();
 			FOR_EACH(ValueType v IN this->GetEnumerator())
 				ObservableInterface::OnChanged(CollectionOp::Removed, v);
+			Wrapped_::Clear();
 		}
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
