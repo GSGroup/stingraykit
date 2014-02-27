@@ -1,0 +1,101 @@
+#ifndef STINGRAY_TOOLKIT_IOBSERVABLESET_H
+#define STINGRAY_TOOLKIT_IOBSERVABLESET_H
+
+
+#include <stingray/toolkit/ISet.h>
+#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/IObservableList.h>
+#include <stingray/toolkit/ObservableCollectionLocker.h>
+
+
+namespace stingray
+{
+
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
+	template < typename ValueType_ >
+	struct IObservableSet : public virtual ISet<ValueType_>
+	{
+		signal<void(CollectionOp, const ValueType_&)>	OnChanged;
+
+		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
+
+	protected:
+		IObservableSet()
+			//: OnChanged(bind(&IObservableSet::OnChangedPopulator, this, _1))
+		{ }
+
+		virtual void OnChangedPopulator(const function<void(CollectionOp, int, const ValueType_&)>& slot)
+		{
+			int i = 0;
+			FOR_EACH(ValueType_ v IN this->GetEnumerator())
+				slot(CollectionOp::Added, i++, v);
+		}
+	};
+
+
+	template < typename Wrapped_ >
+	struct ObservableSetWrapper
+		:	public Detail::ObservableSerializableList<ObservableSetWrapper<Wrapped_>, Wrapped_>,
+			public virtual IObservableSet<typename Wrapped_::ValueType>
+	{
+		typedef typename Wrapped_::ValueType	ValueType;
+		typedef IObservableSet<ValueType>		ObservableInterface;
+
+		virtual int GetCount() const
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::GetCount();
+		}
+
+		virtual void Add(const ValueType& value)
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			Wrapped_::Add(value);
+			ObservableInterface::OnChanged(CollectionOp::Added, value);
+		}
+
+		virtual void Remove(const ValueType& value)
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			Wrapped_::Remove(value);
+			ObservableInterface::OnChanged(CollectionOp::Removed, value);
+		}
+
+		virtual bool Contains(const ValueType& value) const
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::Contains(value);
+		}
+
+		virtual void Clear()
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			Wrapped_::Clear();
+			//FOR_EACH(ValueType_ v IN this->GetEnumerator())
+			//	OnChanged(CollectionOp::Removed, v);
+		}
+
+		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::GetEnumerator();
+		}
+
+		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			return Wrapped_::Reverse();
+		}
+	};
+
+	/** @} */
+
+}
+
+
+#endif
