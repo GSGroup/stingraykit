@@ -54,7 +54,7 @@ namespace stingray
 		virtual void Add(const ValueType& value)
 		{
 			signal_locker l(ObservableInterface::OnChanged);
-			bool signal = Wrapped_::Contains(value);
+			bool signal = !Wrapped_::Contains(value);
 			Wrapped_::Add(value);
 			if (signal)
 				ObservableInterface::OnChanged(CollectionOp::Added, value);
