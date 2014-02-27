@@ -54,15 +54,19 @@ namespace stingray
 		virtual void Add(const ValueType& value)
 		{
 			signal_locker l(ObservableInterface::OnChanged);
+			bool signal = Wrapped_::Contains(value);
 			Wrapped_::Add(value);
-			ObservableInterface::OnChanged(CollectionOp::Added, value);
+			if (signal)
+				ObservableInterface::OnChanged(CollectionOp::Added, value);
 		}
 
 		virtual void Remove(const ValueType& value)
 		{
 			signal_locker l(ObservableInterface::OnChanged);
+			bool signal = Wrapped_::Contains(value);
 			Wrapped_::Remove(value);
-			ObservableInterface::OnChanged(CollectionOp::Removed, value);
+			if (signal)
+				ObservableInterface::OnChanged(CollectionOp::Removed, value);
 		}
 
 		virtual bool Contains(const ValueType& value) const
