@@ -135,6 +135,12 @@ namespace stingray
 
 			virtual ISignalConnectionSelfCountPtr Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken);
 
+			virtual void SendCurrentState(const function<Signature_>& slot) const
+			{
+				typename ThreadingPolicy_::LockType l(this->GetSync());
+				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value > wrapped_slot(slot, this->GetExceptionHandler());
+				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
+			}
 		private:
 			template<typename ContainerType>
 			void CopyHandlersToLocal(ContainerType & localCopy) const
@@ -208,7 +214,7 @@ namespace stingray
 
 			typename ThreadingPolicy_::LockType l(this->GetSync());
 			Detail::ExceptionHandlerWrapper<Signature_, function<void(const std::exception&)> > wrapped_slot(func, this->GetExceptionHandler());
-			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->template SendCurrentState<Signature_>(wrapped_slot); );
+			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
 
 			_handlers.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(func), futureExecutionTester)));
 			typename Connection::ImplPtr impl(this);
@@ -296,9 +302,7 @@ namespace stingray
 		{ \
 			if (!_impl) \
 				return; \
-			typename ThreadingPolicy_::LockType l(_impl->GetSync()); \
-			Detail::ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value > wrapped_slot(slot, _impl->GetExceptionHandler()); \
-			WRAP_EXCEPTION_HANDLING( _impl->GetExceptionHandler(), _impl->template SendCurrentState<Signature>(wrapped_slot); ); \
+			_impl->SendCurrentState(slot); \
 		} \
 		\
 		signal_connection connect(const function<Signature>& slot) const \
@@ -315,7 +319,7 @@ namespace stingray
 			return signal_connection(_impl->Connect(slot_func, null, slot_func.GetToken())); \
 		} \
 		\
-		signal_connector<Signature> connector() const { return signal_connector<Signature>(_impl); } \
+		signal_connector<Signature> connector() const { CreationPolicy_::template LazyCreate(_impl); return signal_connector<Signature>(_impl); } \
 		Invoker invoker() const { CreationPolicy_::template LazyCreate(_impl); return Invoker(_impl); } \
 		\
 		void operator () (TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \

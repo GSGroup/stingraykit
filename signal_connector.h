@@ -18,6 +18,7 @@ namespace stingray
 			virtual ~ISignalConnector() { }
 
 			virtual ISignalConnectionSelfCountPtr Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken) = 0;
+			virtual void SendCurrentState(const function<Signature_>& slot) const = 0;
 		};
 
 	}
@@ -32,6 +33,9 @@ namespace stingray
 		signal_connector(const self_count_ptr<Detail::ISignalConnector<Signature_> >& impl)
 			: _impl(impl)
 		{ }
+
+		void SendCurrentState(const function<Signature_>& slot) const
+		{ _impl->SendCurrentState(slot); }
 
 		signal_connection connect(const function<Signature_>& slot) const
 		{
