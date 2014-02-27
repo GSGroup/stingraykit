@@ -119,7 +119,9 @@ namespace stingray
 		virtual void Remove(const ValueType& value)
 		{
 			signal_locker l(ObservableInterface::OnChanged);
-			Wrapped_::Remove(value);
+			int index = Wrapped_::IndexOf(value);
+			if (index != -1)
+				RemoveAt(index);
 		}
 
 		virtual bool Contains(const ValueType& value) const
@@ -137,7 +139,8 @@ namespace stingray
 		virtual void Clear()
 		{
 			signal_locker l(ObservableInterface::OnChanged);
-			Wrapped_::Clear();
+			while (!this->IsEmpty())
+				RemoveAt(0);
 		}
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const

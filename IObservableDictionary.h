@@ -120,12 +120,20 @@ namespace stingray
 		virtual bool TryRemove(const KeyType& key)
 		{
 			signal_locker l(ObservableInterface::OnChanged);
-			return Wrapped_::TryRemove(key);
+			ValueType value;
+			if (!TryGet(key, value))
+				return false;
+
+			ObservableInterface::OnChanged(CollectionOp::Removed, key, value);
+			Wrapped_::Remove(key);
+			return true;
 		}
 
 		virtual void Clear()
 		{
 			signal_locker l(ObservableInterface::OnChanged);
+			FOR_EACH(PairType v IN this->GetEnumerator())
+				ObservableInterface::OnChanged(CollectionOp::Removed, v.Key, v.Value);
 			Wrapped_::Clear();
 		}
 
