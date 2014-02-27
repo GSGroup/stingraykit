@@ -26,14 +26,13 @@ namespace stingray
 
 	protected:
 		IObservableSet()
-			//: OnChanged(bind(&IObservableSet::OnChangedPopulator, this, _1))
+			: OnChanged(bind(&IObservableSet::OnChangedPopulator, this, _1)) //fixme: if you want to remove this populator, ask dima to implement signal::connect with no-populator override instead and re-add populator in observable lists/dictionaries
 		{ }
 
-		virtual void OnChangedPopulator(const function<void(CollectionOp, int, const ValueType_&)>& slot)
+		virtual void OnChangedPopulator(const function<void(CollectionOp, const ValueType_&)>& slot)
 		{
-			int i = 0;
 			FOR_EACH(ValueType_ v IN this->GetEnumerator())
-				slot(CollectionOp::Added, i++, v);
+				slot(CollectionOp::Added, v);
 		}
 	};
 
