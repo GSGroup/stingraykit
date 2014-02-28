@@ -192,6 +192,9 @@ namespace stingray
 			_data->insert(_data->end(), first, last);
 		}
 
+		void reserve(size_t n)
+		{ _data->reserve(_offset + n); }
+
 		template <typename U>
 		void swap(BasicByteArray<U>& other)
 		{
