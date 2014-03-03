@@ -12,6 +12,9 @@
 #include <stingray/media/MediaInfoBase.h>
 #include <stingray/media/Mp3MediaInfo.h>
 #include <stingray/mpeg/Stream.h>
+#include <stingray/net/DHCPInterfaceConfiguration.h>
+#include <stingray/net/LinkLocalInterfaceConfiguration.h>
+#include <stingray/net/ManualInterfaceConfiguration.h>
 #include <stingray/parentalcontrol/AgeRating.h>
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
@@ -69,6 +72,9 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MediaInfoBase);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Mp3MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DHCPInterfaceConfiguration);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(LinkLocalInterfaceConfiguration);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(ManualInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
 #ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::EmuServiceId);
