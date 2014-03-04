@@ -406,8 +406,9 @@ namespace stingray
 						ex.AppendDependencyName(getServiceInfo()->GetServiceTypeName());
 						throw;
 					}
-					catch (...)
+					catch (const std::exception& ex)
 					{
+						Logger::Warning() << "Service " << getServiceInfo()->GetServiceTypeName() << " dependencies initialization failed: " << ex;
 						creationFailed = true;
 						startedCreating = false;
 						throw;
@@ -415,8 +416,9 @@ namespace stingray
 
 					try
 					{ createService(); }
-					catch (...)
+					catch (const std::exception& ex)
 					{
+						Logger::Warning() << "Service " << getServiceInfo()->GetServiceTypeName() << " creation failed: " << ex;
 						creationFailed = true;
 						startedCreating = false;
 						throw;
