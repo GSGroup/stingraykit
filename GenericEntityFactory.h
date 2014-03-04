@@ -11,6 +11,15 @@
 namespace stingray
 {
 
+	class UnknowEntityTagException : public Exception
+	{
+	public:
+		template < typename EntityTagType >
+		UnknowEntityTagException(EntityTagType tag)
+			: Exception("Unknown tag: " + tag.ToString())
+		{ }
+	};
+
 	template < typename EntityTagType, size_t EntityTagLength >
 	struct GenericEntityTagReader
 	{
@@ -68,7 +77,7 @@ namespace stingray
 
 			EntityTagType tag = EntityTagReader::Read(stream);
 			typename EntityCreatorRegistry::const_iterator it = _registry.find(tag);
-			TOOLKIT_CHECK(it != _registry.end(), "Unknown tag: " + tag.ToString());
+			TOOLKIT_CHECK(it != _registry.end(), UnknowEntityTagException(tag));
 
 			return it->second->Create();
 		}
