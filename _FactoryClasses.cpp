@@ -13,6 +13,7 @@
 #include <stingray/media/Mp3MediaInfo.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/net/DHCPInterfaceConfiguration.h>
+#include <stingray/net/IgnoredInterfaceConfiguration.h>
 #include <stingray/net/LinkLocalInterfaceConfiguration.h>
 #include <stingray/net/ManualInterfaceConfiguration.h>
 #include <stingray/parentalcontrol/AgeRating.h>
@@ -73,6 +74,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Mp3MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DHCPInterfaceConfiguration);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(IgnoredInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LinkLocalInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ManualInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
