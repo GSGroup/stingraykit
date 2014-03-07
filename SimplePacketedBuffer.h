@@ -53,6 +53,18 @@ namespace stingray
 			r.Pop(processed_size);
 		}
 
+		void Clear()
+		{
+			MutexLock l(_bufferMutex);
+			while (true)
+			{
+				BithreadCircularBuffer::Reader r = _buffer.Read();
+				if (r.size() == 0)
+					return;
+
+				r.Pop(r.size());
+			}
+		}
 
 		void Write(ConstByteData data)
 		{
