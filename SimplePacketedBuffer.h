@@ -18,7 +18,6 @@ namespace stingray
 
 		Mutex					_bufferMutex;
 		Mutex					_writeMutex;
-		Mutex					_readMutex;
 
 		WaitToken				_bufferEmpty;
 
@@ -33,33 +32,27 @@ namespace stingray
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
 		{
-			MutexLock l1(_readMutex);
+			MutexLock l(_bufferMutex);
 
-			MutexLock l2(_bufferMutex);
-			for (bool sent_data = false; token; sent_data = true)
+			BithreadCircularBuffer::Reader r = _buffer.Read();
+			if (r.size() == 0)
 			{
-				BithreadCircularBuffer::Reader r = _buffer.Read();
-				if (r.size() == 0)
-				{
-					if (sent_data)
-						return;
-
-					_bufferEmpty.Wait(_bufferMutex, token);
-					continue;
-				}
-
-				TOOLKIT_CHECK(r.size() % _packetSize == 0, "Read size is not a multiple of packet size!");
-				size_t processed_size = 0;
-				{
-					MutexUnlock ul(_bufferMutex);
-					processed_size = consumer.Process(r.GetData());
-				}
-				TOOLKIT_CHECK(processed_size % _packetSize == 0, "Processed size is not a multiple of packet size!");
-				if (processed_size == 0)
-					return;
-				r.Pop(processed_size);
+				_bufferEmpty.Wait(_bufferMutex, token);
+				return;
 			}
+
+			TOOLKIT_CHECK(r.size() % _packetSize == 0, "Read size is not a multiple of packet size!");
+			size_t processed_size = 0;
+			{
+				MutexUnlock ul(_bufferMutex);
+				processed_size = consumer.Process(r.GetData());
+			}
+			TOOLKIT_CHECK(processed_size % _packetSize == 0, "Processed size is not a multiple of packet size!");
+			if (processed_size == 0)
+				return;
+			r.Pop(processed_size);
 		}
+
 
 		void Write(ConstByteData data)
 		{
