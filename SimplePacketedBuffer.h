@@ -57,7 +57,7 @@ namespace stingray
 		void Write(ConstByteData data)
 		{
 			TOOLKIT_CHECK(data.size() % _packetSize == 0, StringBuilder() % "Write size of " % data.size() % " bytes is not a multiple of packet size (" % _packetSize % " bytes)!");
-			MutexLock l1(_writeMutex);
+			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 
 			MutexLock l2(_bufferMutex);
 			while (data.size() != 0)
