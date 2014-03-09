@@ -427,6 +427,12 @@ namespace stingray
 		return str.substr(str.length() - length, length);
 	}
 
+	inline std::string RemovePrefix(const std::string& str, size_t prefixLength)
+	{ return str.substr(std::min(str.length(), prefixLength)); }
+
+	inline std::string RemoveSuffix(const std::string& str, size_t suffixLength)
+	{ return str.substr(0, str.length() - std::min(str.length(), suffixLength)); }
+
 	inline bool BeginsWith(const std::string& str, const std::string& prefix)
 	{ return str.length() >= prefix.length() && ExtractPrefix(str, prefix.length()) == prefix; }
 
