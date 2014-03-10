@@ -95,6 +95,8 @@ namespace stingray
 			typedef function<void(const std::exception&)>			ExceptionHandlerFunc;
 			typedef function<void(const function<Signature_>&)>		PopulatorFunc;
 
+			typedef ThreadingPolicy_								ThreadingPolicy;
+
 		public:
 			typedef intrusive_list_node_wrapper<FuncTypeWithDeathControl>	FuncTypeWrapper;
 			typedef intrusive_list<FuncTypeWrapper>							Handlers;
@@ -131,6 +133,14 @@ namespace stingray
 
 			SignalImpl(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy)
 				: ExceptionPolicy_(exceptionHandler), PopulatorsPolicy_(sendCurrentState), ConnectionPolicyControl_(connectionPolicy)
+			{ }
+
+			SignalImpl(const ThreadingPolicy& threadingPolicy)
+				: ThreadingPolicy_(threadingPolicy)
+			{ }
+
+			SignalImpl(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState)
+				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState)
 			{ }
 
 			virtual ISignalConnectionSelfCountPtr Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken);
@@ -273,6 +283,8 @@ namespace stingray
 		typedef function<void(const std::exception&)>			ExceptionHandlerFunc; \
 		typedef function<void(const function<Signature>&)>		PopulatorFunc; \
 		\
+		typedef ThreadingPolicy_								ThreadingPolicy; \
+		\
 	public: \
 		class Invoker : public function_info<Signature> \
 		{ \
@@ -297,6 +309,8 @@ namespace stingray
 		signal(const PopulatorFunc& sendCurrentState, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(new Impl(sendCurrentState, connectionPolicy)) { } \
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(new Impl(sendCurrentState, exceptionHandler)) { } \
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(new Impl(sendCurrentState, exceptionHandler, connectionPolicy)) { } \
+		signal(const ThreadingPolicy& threadingPolicy) : _impl(new Impl(threadingPolicy)) { } \
+		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(new Impl(threadingPolicy, sendCurrentState)) { } \
 		\
 		void SendCurrentState(const function<Signature>& slot) const \
 		{ \
