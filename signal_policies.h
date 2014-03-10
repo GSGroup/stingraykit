@@ -69,6 +69,20 @@ namespace stingray
 				typedef GenericMutexLock<DummyMutex>	LockType;
 				DummyMutex GetSync() const { return DummyMutex(); }
 			};
+
+			struct ExternalMutex
+			{
+				typedef MutexLock		LockType;
+
+			private:
+				Mutex&	_mutex;
+
+			public:
+				ExternalMutex(Mutex& mutex) : _mutex(mutex)
+				{}
+
+				const Mutex& GetSync() const { return _mutex; }
+			};
 		}
 
 
