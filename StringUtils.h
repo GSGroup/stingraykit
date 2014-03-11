@@ -443,9 +443,6 @@ namespace stingray
 	inline bool EndsWith(const std::string& str, const std::string& suffix)
 	{ return str.length() >= suffix.length() && ExtractSuffix(str, suffix.length()) == suffix; }
 
-	inline bool EqualTo(const std::string& first, const std::string& second)
-	{ return first == second; }
-
 	template<typename ContainerType>
 	inline void Split(const std::string& str, const std::string& delim, ContainerType& result)
 	{
