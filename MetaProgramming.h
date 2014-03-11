@@ -191,27 +191,20 @@ namespace stingray
 	struct CompileTimeExponent<ResultT, Base, 0> { static const ResultT Value = 1; };
 
 
+
 #define TY typename
 	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
 	struct For
 	{
-		static void Do()
-		{
-			FunctorClass<Start>::Call();
-			For<Count - 1, FunctorClass, Start + 1>::Do();
-		}
-
-#define DETAIL_TOOLKIT_DECLARE_FOR_DO(TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
-		template < TypesDecl_ > \
-		static void Do(ParamsDecl_) \
+#define DETAIL_TOOLKIT_DECLARE_FOR_DO(N_, UserArg_) \
+		TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, ~) TOOLKIT_INSERT_IF(N_, >) \
+		static void Do(TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL, ~)) \
 		{ \
-			FunctorClass<Start>::Call(ParamsUsage_); \
-			For<Count - 1, FunctorClass, Start + 1>::template Do<TypesUsage_>(ParamsUsage_); \
+			FunctorClass<Start>::Call(TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, ~)); \
+			For<Count - 1, FunctorClass, Start + 1>:: TOOLKIT_INSERT_IF(N_, template) Do TOOLKIT_INSERT_IF(N_, <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_USAGE, ~) TOOLKIT_INSERT_IF(N_, >) (TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, ~)); \
 		}
 
-		DETAIL_TOOLKIT_DECLARE_FOR_DO(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(const T1& p1), MK_PARAM(p1));
-		DETAIL_TOOLKIT_DECLARE_FOR_DO(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(const T1& p1, const T2& p2), MK_PARAM(p1, p2));
-		DETAIL_TOOLKIT_DECLARE_FOR_DO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(const T1& p1, const T2& p2, const T3& p3), MK_PARAM(p1, p2, p3));
+		TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_FOR_DO, ~)
 
 #undef DETAIL_TOOLKIT_DECLARE_FOR_DO
 	};
@@ -219,11 +212,14 @@ namespace stingray
 	template < template <int> class FunctorClass, int Start >
 	struct For<0, FunctorClass, Start>
 	{
-		static void Do() { }
+#define DETAIL_TOOLKIT_DECLARE_FOR_DO(N_, UserArg_) \
+		TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, ~) TOOLKIT_INSERT_IF(N_, >) \
+		static void Do(TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL, ~)) \
+		{ }
 
-		template <TY T1> static void Do(const T1&) { }
-		template <TY T1, TY T2> static void Do(const T1&, const T2&) { }
-		template <TY T1, TY T2, TY T3> static void Do(const T1&, const T2&, const T3&) { }
+		TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_FOR_DO, ~)
+
+#undef DETAIL_TOOLKIT_DECLARE_FOR_DO
 	};
 
 	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
