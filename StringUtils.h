@@ -427,20 +427,21 @@ namespace stingray
 		return str.substr(str.length() - length, length);
 	}
 
-	inline std::string RemovePrefix(const std::string& str, size_t prefixLength)
-	{ return str.substr(std::min(str.length(), prefixLength)); }
+	inline std::string RemovePrefix(const std::string& str, const std::string& prefix)
+	{ return str.compare(0, prefix.length(), prefix) == 0? str.substr(prefix.length()) : str; }
 
-	inline std::string RemoveSuffix(const std::string& str, size_t suffixLength)
-	{ return str.substr(0, str.length() - std::min(str.length(), suffixLength)); }
+	inline std::string RemoveSuffix(const std::string& str, const std::string& suffix)
+	{
+		if (str.length() < suffix.length())
+			return str;
+		return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0? str.substr(0, str.length() - suffix.length()) : str;
+	}
 
 	inline bool BeginsWith(const std::string& str, const std::string& prefix)
 	{ return str.length() >= prefix.length() && ExtractPrefix(str, prefix.length()) == prefix; }
 
 	inline bool EndsWith(const std::string& str, const std::string& suffix)
 	{ return str.length() >= suffix.length() && ExtractSuffix(str, suffix.length()) == suffix; }
-
-	inline bool EqualTo(const std::string& first, const std::string& second)
-	{ return first == second; }
 
 	template<typename ContainerType>
 	inline void Split(const std::string& str, const std::string& delim, ContainerType& result)
