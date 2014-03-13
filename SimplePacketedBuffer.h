@@ -78,7 +78,7 @@ namespace stingray
 				if (w.size() == 0)
 				{
 					s_logger.Warning() << "Overflow: dropping " << data.size() << " bytes";
-					continue;
+					return;
 				}
 
 				size_t write_size = std::min(data.size(), w.size());
