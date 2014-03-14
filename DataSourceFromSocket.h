@@ -3,6 +3,9 @@
 
 
 #include <stingray/net/ISocket.h>
+#include <stingray/threads/CancellationToken.h>
+#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/BithreadCircularBuffer.h>
 #include <stingray/toolkit/IDataSource.h>
 
 namespace stingray
@@ -44,6 +47,85 @@ namespace stingray
 			_dataSize -= processed_size;
 		}
 	};
+
+
+	class StreamingSocketDataSource : public virtual IDataSource
+	{
+	private:
+		ISocketPtr				_socket;
+		ThreadPtr				_worker;
+
+		CancellationToken		_token;
+
+		BithreadCircularBuffer	_buffer;
+		Mutex					_mutex;
+
+		WaitToken				_bufferEmpty;
+		WaitToken				_bufferFull;
+
+	public:
+		StreamingSocketDataSource(const ISocketPtr& socket, size_t size) :
+			_socket(socket),
+			_buffer(size)
+		{
+			_worker.reset(new Thread("streamingSocketDataSource", bind(&StreamingSocketDataSource::ThreadFunc, this)));
+		}
+
+		~StreamingSocketDataSource()
+		{
+			_token.Cancel();
+			_worker->Join();
+		}
+
+		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		{
+			MutexLock l(_mutex);
+			BithreadCircularBuffer::Reader r = _buffer.Read();
+			if (r.size() == 0)
+			{
+				_bufferEmpty.Wait(_mutex, token);
+				return;
+			}
+
+			size_t processed_size = 0;
+			{
+				MutexUnlock ul(l);
+				processed_size = consumer.Process(r.GetData());
+			}
+
+			r.Pop(processed_size);
+			_bufferFull.Broadcast();
+		}
+
+	private:
+		void ThreadFunc()
+		{
+			while (_token)
+			{
+				MutexLock l(_mutex);
+				BithreadCircularBuffer::Writer w = _buffer.Write();
+				if (w.size() == 0)
+				{
+					_bufferFull.Wait(_mutex, _token);
+					continue;
+				}
+
+				size_t received_size = 0;
+				{
+					MutexUnlock ul(l);
+					const int PollTimeout = 100;
+					if (!_socket->Poll(PollTimeout, SelectMode::Read))
+						continue;
+
+					received_size = _socket->Receive(w.GetData().data(), w.GetData().size());
+				}
+
+				w.Push(received_size);
+				_bufferEmpty.Broadcast();
+			}
+		}
+	};
+	TOOLKIT_DECLARE_PTR(StreamingSocketDataSource);
 
 }
 
