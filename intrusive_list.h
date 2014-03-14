@@ -82,6 +82,8 @@ namespace stingray
 	template < typename T , typename Allocator_ >
 	class intrusive_list : public Allocator_
 	{
+		TOOLKIT_NONASSIGNABLE(intrusive_list);
+
 	public:
 		typedef intrusive_list_node<T>	node_type;
 
@@ -173,17 +175,6 @@ namespace stingray
 				p = tmp->_next;
 				destroy_node(tmp);
 			}
-		}
-
-		intrusive_list& operator = (const intrusive_list& other)
-		{
-			if (this == &other)
-				return *this;
-
-			intrusive_list tmp(other);
-			swap(tmp);
-
-			return *this;
 		}
 
 		iterator begin()		{ return iterator(_root._next); }
