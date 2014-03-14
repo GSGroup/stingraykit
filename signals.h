@@ -143,7 +143,7 @@ namespace stingray
 				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState)
 			{ }
 
-			virtual ISignalConnectionSelfCountPtr Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken);
+			virtual ISignalConnectionSelfCountPtr Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState);
 
 			virtual void SendCurrentState(const function<Signature_>& slot) const
 			{
@@ -217,14 +217,18 @@ namespace stingray
 		};
 
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		ISignalConnectionSelfCountPtr SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function<Signature_>& func, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken)
+		ISignalConnectionSelfCountPtr SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function<Signature_>& func, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState)
 		{
 			//TOOLKIT_ASSERT(this->GetConnectionPolicy() != ConnectionPolicy::AsyncOnly);
 			typedef Connection<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>	Connection;
 
 			typename ThreadingPolicy_::LockType l(this->GetSync());
-			Detail::ExceptionHandlerWrapper<Signature_, function<void(const std::exception&)> > wrapped_slot(func, this->GetExceptionHandler());
-			WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
+
+			if (sendCurrentState)
+			{
+				Detail::ExceptionHandlerWrapper<Signature_, function<void(const std::exception&)> > wrapped_slot(func, this->GetExceptionHandler());
+				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
+			}
 
 			_handlers.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(func), futureExecutionTester)));
 			typename Connection::ImplPtr impl(this);
@@ -319,18 +323,18 @@ namespace stingray
 			_impl->SendCurrentState(slot); \
 		} \
 		\
-		signal_connection connect(const function<Signature>& slot) const \
+		signal_connection connect(const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
 			TaskLifeToken token; \
-			return signal_connection(_impl->Connect(slot, token.GetExecutionTester(), token)); \
+			return signal_connection(_impl->Connect(slot, token.GetExecutionTester(), token, sendCurrentState)); \
 		} \
 		\
-		signal_connection connect(const ITaskExecutorPtr& worker, const function<Signature>& slot) const \
+		signal_connection connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
 			async_function<Signature> slot_func(worker, slot); \
-			return signal_connection(_impl->Connect(slot_func, null, slot_func.GetToken())); \
+			return signal_connection(_impl->Connect(slot_func, null, slot_func.GetToken(), sendCurrentState)); \
 		} \
 		\
 		signal_connector<Signature> connector() const { CreationPolicy_::template LazyCreate(_impl); return signal_connector<Signature>(_impl); } \
