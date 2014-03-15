@@ -22,6 +22,7 @@
 #define TOOLKIT_TEMPLATE_PARAM_USAGE(Index_, Type_)			TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(Type_, Index_)
 #define TOOLKIT_FUNCTION_PARAM_DECL(Index_, Type_)			TOOLKIT_COMMA_IF(Index_) const TOOLKIT_CAT(Type_, Index_)& TOOLKIT_CAT(p, Index_)
 #define TOOLKIT_FUNCTION_PARAM_USAGE(Index_, Type_)			TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(p, Index_)
+#define TOOLKIT_FUNCTION_TYPED_PARAM_DECL(Index_, Type_)	TOOLKIT_COMMA_IF(Index_) const Type_& TOOLKIT_CAT(p, Index_)
 
 
 #define DETAIL_FIRST_ARG(_0, ...) _0
