@@ -20,8 +20,8 @@ namespace stingray
 			Added() { } // For deserialization only!
 			Added(const ItemType& value) : Value(value) { }
 
-			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const		{ ar.Serialize("value", Value); }
-			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar) const	{ ar.Deserialize("value", Value); }
+			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const	{ ar.Serialize("value", Value); }
+			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)		{ ar.Deserialize("value", Value); }
 		};
 
 		struct Removed
@@ -31,8 +31,8 @@ namespace stingray
 			Removed() { } // For deserialization only!
 			Removed(const ItemType& value) : Value(value) { }
 
-			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const		{ ar.Serialize("value", Value); }
-			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar) const	{ ar.Deserialize("value", Value); }
+			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const	{ ar.Serialize("value", Value); }
+			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)		{ ar.Deserialize("value", Value); }
 		};
 
 		struct Modified
@@ -43,8 +43,8 @@ namespace stingray
 			Modified() { } // For deserialization only!
 			Modified(const ItemType& oldValue, const ItemType& newValue) : OldValue(oldValue), NewValue(newValue) { }
 
-			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const		{ ar.Serialize("oldValue", OldValue).Serialize("newValue", NewValue); }
-			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar) const	{ ar.Deserialize("oldValue", OldValue).Deserialize("newValue", NewValue); }
+			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const	{ ar.Serialize("oldValue", OldValue).Serialize("newValue", NewValue); }
+			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)		{ ar.Deserialize("oldValue", OldValue).Deserialize("newValue", NewValue); }
 		};
 
 		typedef TypeList<EmptyType, Added, Removed, Modified>	Types;
@@ -86,7 +86,7 @@ namespace stingray
 		static CollectionOpVariant CreateModified(const ItemType& oldValue, const ItemType& newValue)	{ return Modified(oldValue, newValue); }
 
 		template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const		{ ar.Serialize("data", _data); }
-		template <typename ArchiveType_> void Deserialize(ArchiveType_& ar) const	{ ar.Deserialize("data", _data); }
+		template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)			{ ar.Deserialize("data", _data); }
 	};
 
 
