@@ -35,6 +35,8 @@
 #include <stingray/scanner/TricolorScanParams.h>
 #include <stingray/scanner/lybid/LybidServiceMetaInfo.h>
 #include <stingray/scanner/tricolor/TricolorServiceMetaInfo.h>
+#include <stingray/streams/PlaybackStreamContent.h>
+#include <stingray/streams/RecordStreamContent.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
 #include <stingray/tuners/dvbs/Antenna.h>
 #include <stingray/tuners/dvbs/DefaultDVBSTransport.h>
@@ -115,6 +117,8 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorServiceMetaInfo);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlaybackStreamContent);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamContent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Antenna);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBSTransport);
