@@ -7,6 +7,7 @@
 #include <stingray/app/scheduler/ScheduledEvents.h>
 #include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
+#include <stingray/ca/BasicSubscription.h>
 #include <stingray/hdmi/IHDMI.h>
 #include <stingray/media/ImageFileMediaData.h>
 #include <stingray/media/MediaInfoBase.h>
@@ -66,6 +67,8 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledViewing);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AutoFilter);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscription);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscriptionProvider);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaPreview);
