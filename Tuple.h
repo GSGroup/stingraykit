@@ -26,24 +26,6 @@ namespace stingray
 	}
 
 
-	template < typename TupleLikeObject >
-	class TupleShifter
-	{
-	public:
-		typedef typename TupleLikeObject::TypeList::Next	TypeList;
-
-	private:
-		const TupleLikeObject&	_tlo;
-
-	public:
-		TupleShifter(const TupleLikeObject& tlo) : _tlo(tlo) { }
-
-		template < size_t Index >
-		inline typename GetParamPassingType<typename GetTypeListItem<typename TupleLikeObject::TypeList, Index + 1>::ValueT>::ValueT
-		Get() const { return _tlo.template Get<Index + 1>(); }
-	};
-
-
 	struct TupleConstructorTag {};
 
 	template < typename TypeList_ >
@@ -62,8 +44,13 @@ namespace stingray
 
 	public:
 		template < typename TupleLikeObject >
-		inline Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
-			: _val(tupleLikeObject.template Get<0>()), _tail(tag, TupleShifter<TupleLikeObject>(tupleLikeObject))
+		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject) :
+			_val(tupleLikeObject.template Get<0>()), _tail(tag, tupleLikeObject, integral_constant<size_t, 1>())
+		{ }
+
+		template < typename TupleLikeObject, typename IndexOffset >
+		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy) :
+			_val(tupleLikeObject.template Get<IndexOffset::Value>()), _tail(tag, tupleLikeObject, integral_constant<size_t, IndexOffset::Value + 1>())
 		{ }
 
 		template < typename TupleLikeObject >
