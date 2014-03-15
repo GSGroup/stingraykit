@@ -18,10 +18,10 @@
 #define TOOLKIT_NARGS(...) TOOLKIT_NARGS_SEQ(Dummy_, ##__VA_ARGS__, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
 
-#define TOOLKIT_TEMPLATE_PARAM_DECL(Index_, UserArg_)	TOOLKIT_COMMA_IF(Index_) typename T##Index_
-#define TOOLKIT_TEMPLATE_PARAM_USAGE(Index_, UserArg_)	TOOLKIT_COMMA_IF(Index_) T##Index_
-#define TOOLKIT_FUNCTION_PARAM_DECL(Index_, UserArg_)	TOOLKIT_COMMA_IF(Index_) const T##Index_ p##Index_
-#define TOOLKIT_FUNCTION_PARAM_USAGE(Index_, UserArg_)	TOOLKIT_COMMA_IF(Index_) p##Index_
+#define TOOLKIT_TEMPLATE_PARAM_DECL(Index_, Type_)			TOOLKIT_COMMA_IF(Index_) typename TOOLKIT_CAT(Type_, Index_)
+#define TOOLKIT_TEMPLATE_PARAM_USAGE(Index_, Type_)			TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(Type_, Index_)
+#define TOOLKIT_FUNCTION_PARAM_DECL(Index_, Type_)			TOOLKIT_COMMA_IF(Index_) const TOOLKIT_CAT(Type_, Index_)& TOOLKIT_CAT(p, Index_)
+#define TOOLKIT_FUNCTION_PARAM_USAGE(Index_, Type_)			TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(p, Index_)
 
 
 #define DETAIL_FIRST_ARG(_0, ...) _0
