@@ -57,12 +57,12 @@ namespace stingray
 	 */
 #define STINGRAY_LOCAL_VISITOR(RetType_, Variant_, ...) \
 		TOOLKIT_CAT(STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_, TOOLKIT_NARGS(__VA_ARGS__))(__VA_ARGS__) \
-		class LocalVisitor##__LINE__ : protected LocalVisitorBase<RetType_, Variant_::TypeList>, protected LocalVisitorArgs##__LINE__ \
+		class TOOLKIT_CAT(LocalVisitor, __LINE__) : protected LocalVisitorBase<RetType_, Variant_::TypeList>, protected TOOLKIT_CAT(LocalVisitorArgs, __LINE__) \
 		{ \
 			typedef LocalVisitorBase<RetType_, Variant_::TypeList>		base; \
 		public: \
 			const base& GetVisitor() const { return *this; } \
-			LocalVisitor##__LINE__(const LocalVisitorArgs##__LINE__& args) : LocalVisitorArgs##__LINE__(args) {
+			TOOLKIT_CAT(LocalVisitor, __LINE__)(const TOOLKIT_CAT(LocalVisitorArgs, __LINE__)& args) : TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(args) {
 
 	/**
 	 * @brief Start of the code that should be executed if the visited variant holds an object of type Type_
@@ -220,63 +220,63 @@ namespace stingray
 
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_0() \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 		public: \
-			LocalVisitorArgs##__LINE__() \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)() \
 			{ } \
 		} __local_visitor_args; \
 
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_2(ParamType1_, ParamName1_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_) \
 				: ParamName1_(ParamName1_) \
 			{ } \
 		} __local_visitor_args(ParamName1_); \
 
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_4(ParamType1_, ParamName1_, ParamType2_, ParamName2_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_); \
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_6(ParamType1_, ParamName1_, ParamType2_, ParamName2_, ParamType3_, ParamName3_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
 			ParamType3_		ParamName3_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_); \
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_8(ParamType1_, ParamName1_, ParamType2_, ParamName2_, ParamType3_, ParamName3_, ParamType4_, ParamName4_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
 			ParamType3_		ParamName3_; \
 			ParamType4_		ParamName4_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_); \
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_10(ParamType1_, ParamName1_, ParamType2_, ParamName2_, ParamType3_, ParamName3_, ParamType4_, ParamName4_, ParamType5_, ParamName5_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
@@ -284,13 +284,13 @@ namespace stingray
 			ParamType4_		ParamName4_; \
 			ParamType5_		ParamName5_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_), ParamName5_(ParamName5_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_); \
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_12(ParamType1_, ParamName1_, ParamType2_, ParamName2_, ParamType3_, ParamName3_, ParamType4_, ParamName4_, ParamType5_, ParamName5_, ParamType6_, ParamName6_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
@@ -299,13 +299,13 @@ namespace stingray
 			ParamType5_		ParamName5_; \
 			ParamType6_		ParamName6_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_), ParamName5_(ParamName5_), ParamName6_(ParamName6_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_, ParamName6_); \
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_14(ParamType1_, ParamName1_, ParamType2_, ParamName2_, ParamType3_, ParamName3_, ParamType4_, ParamName4_, ParamType5_, ParamName5_, ParamType6_, ParamName6_, ParamType7_, ParamName7_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
@@ -315,13 +315,13 @@ namespace stingray
 			ParamType6_		ParamName6_; \
 			ParamType7_		ParamName7_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_), ParamName5_(ParamName5_), ParamName6_(ParamName6_), ParamName7_(ParamName7_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_, ParamName6_, ParamName7_); \
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_16(ParamType1_, ParamName1_, ParamType2_, ParamName2_, ParamType3_, ParamName3_, ParamType4_, ParamName4_, ParamType5_, ParamName5_, ParamType6_, ParamName6_, ParamType7_, ParamName7_, ParamType8_, ParamName8_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
@@ -332,13 +332,13 @@ namespace stingray
 			ParamType7_		ParamName7_; \
 			ParamType8_		ParamName8_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_, ParamType8_ ParamName8_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_, ParamType8_ ParamName8_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_), ParamName5_(ParamName5_), ParamName6_(ParamName6_), ParamName7_(ParamName7_), ParamName8_(ParamName8_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_, ParamName6_, ParamName7_, ParamName8_); \
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_18(ParamType1_, ParamName1_, ParamType2_, ParamName2_, ParamType3_, ParamName3_, ParamType4_, ParamName4_, ParamType5_, ParamName5_, ParamType6_, ParamName6_, ParamType7_, ParamName7_, ParamType8_, ParamName8_, ParamType9_, ParamName9_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
@@ -350,13 +350,13 @@ namespace stingray
 			ParamType8_		ParamName8_; \
 			ParamType9_		ParamName9_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_, ParamType8_ ParamName8_, ParamType9_ ParamName9_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_, ParamType8_ ParamName8_, ParamType9_ ParamName9_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_), ParamName5_(ParamName5_), ParamName6_(ParamName6_), ParamName7_(ParamName7_), ParamName8_(ParamName8_), ParamName9_(ParamName9_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_, ParamName6_, ParamName7_, ParamName8_, ParamName9_); \
 
 #define STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_20(ParamType1_, ParamName1_, ParamType2_, ParamName2_, ParamType3_, ParamName3_, ParamType4_, ParamName4_, ParamType5_, ParamName5_, ParamType6_, ParamName6_, ParamType7_, ParamName7_, ParamType8_, ParamName8_, ParamType9_, ParamName9_, ParamType10_, ParamName10_) \
-		class LocalVisitorArgs##__LINE__ { \
+		class TOOLKIT_CAT(LocalVisitorArgs, __LINE__) { \
 		protected: \
 			ParamType1_		ParamName1_; \
 			ParamType2_		ParamName2_; \
@@ -369,7 +369,7 @@ namespace stingray
 			ParamType9_		ParamName9_; \
 			ParamType10_		ParamName10_; \
 		public: \
-			LocalVisitorArgs##__LINE__(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_, ParamType8_ ParamName8_, ParamType9_ ParamName9_, ParamType10_ ParamName10_) \
+			TOOLKIT_CAT(LocalVisitorArgs, __LINE__)(ParamType1_ ParamName1_, ParamType2_ ParamName2_, ParamType3_ ParamName3_, ParamType4_ ParamName4_, ParamType5_ ParamName5_, ParamType6_ ParamName6_, ParamType7_ ParamName7_, ParamType8_ ParamName8_, ParamType9_ ParamName9_, ParamType10_ ParamName10_) \
 				: ParamName1_(ParamName1_), ParamName2_(ParamName2_), ParamName3_(ParamName3_), ParamName4_(ParamName4_), ParamName5_(ParamName5_), ParamName6_(ParamName6_), ParamName7_(ParamName7_), ParamName8_(ParamName8_), ParamName9_(ParamName9_), ParamName10_(ParamName10_) \
 			{ } \
 		} __local_visitor_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_, ParamName6_, ParamName7_, ParamName8_, ParamName9_, ParamName10_); \
