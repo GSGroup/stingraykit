@@ -54,6 +54,7 @@ namespace stingray
 				}
 
 				_bufferEmpty.Wait(_mutex, token);
+				return;
 			}
 
 			size_t processed_size = 0;
