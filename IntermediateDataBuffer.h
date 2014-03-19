@@ -43,35 +43,28 @@ namespace stingray
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
 		{
-			for (bool sent_data = false; token; sent_data = true)
+			MutexLock l(_mutex);
+			BithreadCircularBuffer::Reader r = _buffer.Read();
+			if (r.size() == 0)
 			{
-				MutexLock l(_mutex);
-				BithreadCircularBuffer::Reader r = _buffer.Read();
-				if (r.size() == 0)
+				if (_eod)
 				{
-					if (_eod)
-					{
-						consumer.EndOfData();
-						return;
-					}
-
-					if (sent_data)
-						return;
-
-					_bufferEmpty.Wait(_mutex, token);
-					continue;
-				}
-
-				size_t processed_size = 0;
-				{
-					MutexUnlock ul(l);
-					processed_size = consumer.Process(r.GetData());
-				}
-				if (processed_size == 0)
+					consumer.EndOfData();
 					return;
-				r.Pop(processed_size);
-				_bufferFull.Broadcast();
+				}
+
+				_bufferEmpty.Wait(_mutex, token);
 			}
+
+			size_t processed_size = 0;
+			{
+				MutexUnlock ul(l);
+				processed_size = consumer.Process(r.GetData());
+			}
+			if (processed_size == 0)
+				return;
+			r.Pop(processed_size);
+			_bufferFull.Broadcast();
 		}
 
 		void WaitBufferLevel(size_t level, const CancellationToken& token)
