@@ -62,8 +62,7 @@ namespace stingray
 				MutexUnlock ul(l);
 				processed_size = consumer.Process(r.GetData());
 			}
-			if (processed_size == 0)
-				return;
+
 			r.Pop(processed_size);
 			_bufferFull.Broadcast();
 		}
