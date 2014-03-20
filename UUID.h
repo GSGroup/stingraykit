@@ -1,8 +1,10 @@
 #ifndef STINGRAY_TOOLKIT_UUID_H
 #define STINGRAY_TOOLKIT_UUID_H
 
+
 #include <stingray/settings/ISerializable.h>
 #include <stingray/toolkit/array.h>
+
 
 namespace stingray {
 
@@ -14,8 +16,6 @@ namespace stingray {
 		DataType _data;
 
 	public:
-		UUID() {}
-
 		void SerializeAsValue(ObjectOStream & ar) const;
 		void DeserializeAsValue(ObjectIStream & ar);
 
@@ -28,6 +28,8 @@ namespace stingray {
 			GenerateImpl(result);
 			return result;
 		}
+
+		std::string ToString() const;
 
 	private:
 		static void GenerateImpl(UUID& uuid);
