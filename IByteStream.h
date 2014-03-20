@@ -18,7 +18,7 @@ namespace stingray
 		virtual u64 Write(const void* data, u64 count) = 0;
 
 		template<typename Data>
-		inline u64 ReadData(const Data &data)
+		inline u64 ReadData(Data data)
 		{ return Read(data.data(), data.size()); }
 
 		template<typename Data>
