@@ -78,7 +78,7 @@ namespace stingray
 		}
 
 		static const T& ConstInstance()
-		{ return const_cast<const T&>(Instance()); }
+		{ return Instance(); }
 
 		static void AssertInstanceCreated()
 		{ call_once(s_initFlag, &Singleton::AssertInstance); }
