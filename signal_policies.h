@@ -62,8 +62,8 @@ namespace stingray
 			{
 				struct DummyMutex
 				{
-					void Lock() { }
-					void Unlock() { }
+					void Lock() const { }
+					void Unlock() const { }
 				};
 
 				typedef GenericMutexLock<DummyMutex>	LockType;
