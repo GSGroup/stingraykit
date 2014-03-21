@@ -1,6 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_BYTEDATA_H
 #define STINGRAY_TOOLKIT_BYTEDATA_H
 
+#include <stingray/toolkit/TypeInfo.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/iterator_base.h>
@@ -252,6 +253,8 @@ namespace stingray
 
 		template<typename ObjectIStream>
 		void Deserialize(ObjectIStream & ar)		{ BasicByteArray data; ar.Deserialize("o", data._offset, 0); ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data)); *this = data; }
+
+		std::string ToString() const				{ return "BasicByteArray<" + TypeInfo(typeid(T)).GetName() + "> { size : " + stingray::ToString(_data->size()) + " }"; }
 
 		bool operator == (const BasicByteArray& other) const
 		{ return size() == other.size() && std::equal(data(), data() + size(), other.data()); }
