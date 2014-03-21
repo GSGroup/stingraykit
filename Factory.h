@@ -61,7 +61,7 @@ namespace stingray {
 
 		private:
 			Factory() {}
-			~Factory() { STINGRAY_TRY_DO("Factory::Clean failed", Clean()); }
+			~Factory() { STINGRAY_TRY("Factory::Clean failed", Clean()); }
 
 			template<typename Type>
 			Type *Create(const std::string &name)

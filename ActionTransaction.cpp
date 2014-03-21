@@ -16,7 +16,7 @@ namespace stingray
 		TRACER;
 
 		if (_active)
-			STINGRAY_TRY_DO("Couldn't rollback transaction!", Rollback());
+			STINGRAY_TRY("Couldn't rollback transaction!", Rollback());
 	}
 
 
