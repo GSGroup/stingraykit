@@ -37,9 +37,9 @@ namespace stingray
 	DECLARE_INSERT(long,				"%ld",	long);
 	DECLARE_INSERT(unsigned long long,	"%llu",	unsigned long long);
 	DECLARE_INSERT(long long,			"%lld",	long long);
-	DECLARE_INSERT(long double,			"%Lg",	long double);
-	DECLARE_INSERT(double,				"%g",	double);
-	DECLARE_INSERT(float,				"%g",	double);
+	DECLARE_INSERT(long double,			"%16.16Lg",long double);
+	DECLARE_INSERT(double,				"%16.16g",	double);
+	DECLARE_INSERT(float,				"%7.7g",	double);
 	DECLARE_INSERT(const void *,		"%p",	const void *);
 
 }
