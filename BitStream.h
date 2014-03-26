@@ -195,6 +195,13 @@ namespace stingray
 				*it++ = (ValueType)Read<ElementSize>();
 		}
 
+		template < int ElementSize, typename OutputIterator >
+		void ReadArray(OutputIterator first, OutputIterator last)
+		{
+			for ( ; first != last; first++)
+				*first = Read<ElementSize>();
+		}
+
 		template < int ElementSize, typename InputIterator >
 		void WriteArray(InputIterator it, size_t count)
 		{
@@ -203,10 +210,10 @@ namespace stingray
 		}
 
 		template < int ElementSize, typename InputIterator >
-		void WriteArray(InputIterator begin, InputIterator end)
+		void WriteArray(InputIterator first, InputIterator last)
 		{
-			for (; begin != end; ++begin)
-				Write<ElementSize>(*begin);
+			for ( ; first != last; first++)
+				Write<ElementSize>(*first);
 		}
 
 		template < int Size, typename T >
