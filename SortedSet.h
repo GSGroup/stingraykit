@@ -48,7 +48,7 @@ namespace stingray
 		};
 
 	private:
-		SetTypePtr			_items;
+		SetTypePtr				_items;
 		mutable HolderWeakPtr	_itemsEnumeratorHolder;
 
 	public:
