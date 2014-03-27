@@ -151,13 +151,6 @@ namespace stingray
 				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value > wrapped_slot(slot, this->GetExceptionHandler());
 				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
 			}
-		private:
-			template<typename ContainerType>
-			void CopyHandlersToLocal(ContainerType & localCopy) const
-			{
-				typename ThreadingPolicy_::LockType l(this->GetSync());
-				std::copy(_handlers.begin(), _handlers.end(), std::back_inserter(localCopy));
-			}
 
 			void InvokeAll(const Tuple<ParamTypes>& p) const
 			{
@@ -173,6 +166,14 @@ namespace stingray
 					if (func.Tester().Execute(guard))
 						WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), FunctorInvoker::Invoke(func.Func().ToFunction<Signature_>(), p); );
 				}
+			}
+
+		private:
+			template<typename ContainerType>
+			void CopyHandlersToLocal(ContainerType & localCopy) const
+			{
+				typename ThreadingPolicy_::LockType l(this->GetSync());
+				std::copy(_handlers.begin(), _handlers.end(), std::back_inserter(localCopy));
 			}
 		};
 
