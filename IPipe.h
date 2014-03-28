@@ -13,8 +13,8 @@ namespace stingray
 	{
 		virtual ~IPipe() {}
 
-		ConstByteArray Read(size_t size, const CancellationToken& token) const = 0;
-		void Write(ConstByteData data, const CancellationToken& token) const = 0;
+		size_t Read(ByteData dst, const CancellationToken& token) const = 0;
+		size_t Write(ConstByteData src, const CancellationToken& token) const = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IPipe);
 
