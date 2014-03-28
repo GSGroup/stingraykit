@@ -397,9 +397,6 @@ namespace stingray
 		{ return Detail::EnumerableCaster<T>(enumerable); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), bool, Contains, MK_PARAM(const T& value), MK_PARAM(value))
-		{ return Contains(enumerator, value, std::equal_to<T>()); }
-
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename EqualPredicateFunc>), bool, Contains, MK_PARAM(const T& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
@@ -407,6 +404,10 @@ namespace stingray
 					return true;
 			return false;
 		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), bool, Contains, MK_PARAM(const T& value), MK_PARAM(value))
+		{ return Contains(enumerator, value, std::equal_to<T>()); }
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), int, Count)
