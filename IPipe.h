@@ -3,6 +3,7 @@
 
 
 #include <stingray/threads/CancellationToken.h>
+#include <stingray/toolkit/ByteData.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 
