@@ -3,6 +3,8 @@
 
 
 #include <stingray/threads/CancellationToken.h>
+#include <stingray/toolkit/reference.h>
+#include <stingray/toolkit/bind.h>
 
 namespace stingray
 {
@@ -46,6 +48,39 @@ namespace stingray
 		}
 	};
 	TOOLKIT_DECLARE_PTR(IDataSource);
+
+	struct DataInterceptor : public virtual IDataSource
+	{
+		typedef function<void(optional<ConstByteData>)> FunctionType;
+
+	private:
+		IDataSourcePtr	_source;
+		FunctionType	_func;
+
+	public:
+		DataInterceptor(const IDataSourcePtr& source, const FunctionType& func) :
+			_source(source), _func(func)
+		{}
+
+		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(consumer), _1), token); }
+
+	private:
+		size_t DoPush(IDataConsumer& consumer, optional<ConstByteData> data)
+		{
+			if (data)
+			{
+				size_t size = consumer.Process(*data);
+				_func(ConstByteData(*data, 0, size));
+				return size;
+			}
+
+			consumer.EndOfData();
+			_func(null);
+			return 0;
+		}
+	};
+	TOOLKIT_DECLARE_PTR(DataInterceptor);
 
 }
 
