@@ -3,6 +3,7 @@
 
 
 #include <deque>
+#include <limits>
 #include <sstream>
 
 #include <stingray/toolkit/exception.h>
@@ -71,14 +72,22 @@ namespace stingray
 			template < typename Arguments >
 			static bool TryRead(const std::string& string, const Tuple<Arguments>& arguments, size_t index)
 			{
+				if (index == std::numeric_limits<size_t>::max() - 1)
+					return true;
+
 				if (index)
 					return ArgumentReader::TryRead(string, arguments.GetTail(), index - 1);
 				else
 					return Detail::TryRead(string, arguments.GetHead());
 			}
 
-			static bool TryRead(const std::string&, const Tuple<TypeListEndNode>&, size_t)
-			{ TOOLKIT_THROW(IndexOutOfRangeException()); }
+			static bool TryRead(const std::string&, const Tuple<TypeListEndNode>&, size_t index)
+			{
+				if (index == std::numeric_limits<size_t>::max() - 1)
+					return true;
+
+				TOOLKIT_THROW(IndexOutOfRangeException());
+			}
 		};
 
 		template < typename Arguments >
@@ -102,7 +111,8 @@ namespace stingray
 					std::string substr(format, start_pos, start_marker_pos - start_pos);
 					try
 					{
-						size_t index = FromString<size_t>(std::string(format, start_marker_pos + 1, end_marker_pos - start_marker_pos - 1));
+						const std::string index_str = std::string(format, start_marker_pos + 1, end_marker_pos - start_marker_pos - 1);
+						size_t index = index_str == "_"? std::numeric_limits<size_t>::max() : FromString<size_t>(index_str);
 						if (!substr.empty())
 							tokens.push_back(substr);
 						tokens.push_back(index);
@@ -142,6 +152,9 @@ namespace stingray
 		}
 
 	}
+
+	inline bool StringParse(const std::string& string, const std::string& format)
+	{ return Detail::StringParseImpl(string, format, Tuple<TypeList_0>()); }
 
 #define DETAIL_DEFINE_STRING_PARSE(N_, TypesDecl_, TypesUsage_, ArgumentsDecl_, ArgumentsUsage_) \
 	template < TypesDecl_ > \
