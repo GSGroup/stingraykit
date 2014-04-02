@@ -50,7 +50,7 @@ namespace stingray {
 			if (IsEmpty())
 				return other;
 			if (other.IsEmpty())
-				return *this;
+				return *static_cast<const DerivedT*>(this);
 			T start = std::max(_start, other._start);
 			T end = std::min(_end, other._end);
 			if (start >= end)
