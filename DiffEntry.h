@@ -19,6 +19,8 @@ namespace stingray
 
 		DiffEntry(const T &t, CollectionOp op) : Item(t), Op(op)
 		{}
+
+		std::string ToString() const { return StringBuilder() % "DiffEntry { op: " % Op % ", item: " % Item % " }"; }
 	};
 
 
