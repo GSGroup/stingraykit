@@ -93,7 +93,7 @@ namespace stingray
 		template < typename Arguments >
 		bool StringParseImpl(const std::string& string, const std::string& format, const Tuple<Arguments>& arguments)
 		{
-			std::deque<variant<TypeList<std::string, size_t> > > tokens;
+			std::deque<variant<TypeList<std::string, size_t>::type > > tokens;
 			std::string::size_type start_pos = 0, current_pos = 0;
 			do
 			{
