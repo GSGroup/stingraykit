@@ -130,8 +130,12 @@ namespace stingray
 			std::string::size_type current_string_pos = 0;
 			while (!tokens.empty() && current_string_pos < string.length())
 			{
-				try { index = variant_get<size_t>(tokens.front()); tokens.pop_front(); continue; }
-				catch (const bad_variant_get& ex) { };
+				if (tokens.front().contains<size_t>())
+				{
+					index = tokens.front().get<size_t>();
+					tokens.pop_front();
+					continue;
+				}
 
 				std::string substr = variant_get<std::string>(tokens.front());
 				tokens.pop_front();
