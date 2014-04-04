@@ -12,12 +12,13 @@ namespace stingray {
 	 */
 
 	template<typename ParamType>
-	struct SignalToFutureWrapper
+	class SignalToFutureWrapper
 	{
 		signal_connection_holder		_connection;
 		promise<ParamType>				_promise;
 		shared_future<ParamType>		_future;
 
+	public:
 		template<typename SignalSignature>
 		explicit SignalToFutureWrapper(const signal<SignalSignature>& s)
 		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this, _1)); }
@@ -42,12 +43,13 @@ namespace stingray {
 
 
 	template<>
-	struct SignalToFutureWrapper<void>
+	class SignalToFutureWrapper<void>
 	{
 		signal_connection_holder	_connection;
 		promise<void>				_promise;
 		shared_future<void>			_future;
 
+	public:
 		template<typename SignalSignature>
 		explicit SignalToFutureWrapper(const signal<SignalSignature>& s)
 		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this)); }
