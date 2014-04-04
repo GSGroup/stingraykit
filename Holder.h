@@ -145,6 +145,13 @@ namespace stingray
 		bool Valid() const	{ return _impl && _impl->Valid(); }
 		void Clear()		{ _impl->Clear(); }
 		void Set()			{ _impl->Set(); }
+
+		static SharedHolder<void> CreateInitialized(const CleanupFuncType& cleanupFunc)
+		{
+			SharedHolder<void> result(cleanupFunc);
+			result.Set();
+			return result;
+		}
 	};
 
 }
