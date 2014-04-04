@@ -120,6 +120,33 @@ namespace stingray
 		{ _impl->Set(handle); }
 	};
 
+
+	template <>
+	class SharedHolder<void>
+	{
+		typedef ScopedHolder<void> Impl;
+		TOOLKIT_DECLARE_PTR(Impl);
+		typedef function<void()>		CleanupFuncType;
+
+	private:
+		ImplPtr	_impl;
+
+	public:
+		SharedHolder()
+		{ }
+
+		SharedHolder(const CleanupFuncType& cleanupFunc)
+			: _impl(make_shared<Impl>(cleanupFunc))
+		{ }
+
+		~SharedHolder()
+		{ }
+
+		bool Valid() const	{ return _impl && _impl->Valid(); }
+		void Clear()		{ _impl->Clear(); }
+		void Set()			{ _impl->Set(); }
+	};
+
 }
 
 
