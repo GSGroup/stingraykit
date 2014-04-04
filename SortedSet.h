@@ -18,7 +18,7 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T , typename CompareType_ >
+	template < typename T , typename CompareType_ = std::less<T> >
 	class SortedSet : public virtual ISet<T>
 	{
 		TOOLKIT_NONCOPYABLE(SortedSet);
