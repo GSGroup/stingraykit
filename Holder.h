@@ -24,11 +24,11 @@ namespace stingray
 	public:
 		ScopedHolder(const CleanupFuncType& cleanupFunc)
 			: _cleanupFunc(cleanupFunc), _valid(false)
-		{}
+		{ }
 
 		ScopedHolder(const NativeType& handle, const CleanupFuncType& cleanupFunc)
 			: _handle(handle), _cleanupFunc(cleanupFunc), _valid(true)
-		{}
+		{ }
 
 		~ScopedHolder()					{ Cleanup(); }
 
@@ -70,7 +70,7 @@ namespace stingray
 	public:
 		ScopedHolder(const CleanupFuncType& cleanupFunc)
 			: _cleanupFunc(cleanupFunc), _valid(false)
-		{}
+		{ }
 
 		~ScopedHolder()			{ Cleanup(); }
 
@@ -82,6 +82,7 @@ namespace stingray
 		void Check() const		{ TOOLKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
 		void Cleanup() const	{ if (_valid) _cleanupFunc(); }
 	};
+
 
 	template < typename NativeType >
 	class SharedHolder
@@ -95,18 +96,18 @@ namespace stingray
 
 	public:
 		SharedHolder()
-		{}
+		{ }
 
 		SharedHolder(const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared<Impl>(cleanupFunc))
-		{}
+		{ }
 
 		SharedHolder(NativeType handle, const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared<Impl>(handle, cleanupFunc))
-		{}
+		{ }
 
 		~SharedHolder()
-		{}
+		{ }
 
 		bool Valid() const		{ return _impl && _impl->Valid(); }
 
@@ -117,6 +118,40 @@ namespace stingray
 
 		void Set(NativeType handle)
 		{ _impl->Set(handle); }
+	};
+
+
+	template <>
+	class SharedHolder<void>
+	{
+		typedef ScopedHolder<void> Impl;
+		TOOLKIT_DECLARE_PTR(Impl);
+		typedef function<void()>		CleanupFuncType;
+
+	private:
+		ImplPtr	_impl;
+
+	public:
+		SharedHolder()
+		{ }
+
+		SharedHolder(const CleanupFuncType& cleanupFunc)
+			: _impl(make_shared<Impl>(cleanupFunc))
+		{ }
+
+		~SharedHolder()
+		{ }
+
+		bool Valid() const	{ return _impl && _impl->Valid(); }
+		void Clear()		{ _impl->Clear(); }
+		void Set()			{ _impl->Set(); }
+
+		static SharedHolder<void> CreateInitialized(const CleanupFuncType& cleanupFunc)
+		{
+			SharedHolder<void> result(cleanupFunc);
+			result.Set();
+			return result;
+		}
 	};
 
 }

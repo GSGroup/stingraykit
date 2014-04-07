@@ -3,6 +3,7 @@
 
 
 #include <deque>
+#include <limits>
 #include <sstream>
 
 #include <stingray/toolkit/exception.h>
@@ -71,20 +72,28 @@ namespace stingray
 			template < typename Arguments >
 			static bool TryRead(const std::string& string, const Tuple<Arguments>& arguments, size_t index)
 			{
+				if (index == std::numeric_limits<size_t>::max() - 1)
+					return true;
+
 				if (index)
 					return ArgumentReader::TryRead(string, arguments.GetTail(), index - 1);
 				else
 					return Detail::TryRead(string, arguments.GetHead());
 			}
 
-			static bool TryRead(const std::string&, const Tuple<TypeListEndNode>&, size_t)
-			{ TOOLKIT_THROW(IndexOutOfRangeException()); }
+			static bool TryRead(const std::string&, const Tuple<TypeListEndNode>&, size_t index)
+			{
+				if (index == std::numeric_limits<size_t>::max() - 1)
+					return true;
+
+				TOOLKIT_THROW(IndexOutOfRangeException());
+			}
 		};
 
 		template < typename Arguments >
 		bool StringParseImpl(const std::string& string, const std::string& format, const Tuple<Arguments>& arguments)
 		{
-			std::deque<variant<TypeList<std::string, size_t> > > tokens;
+			std::deque<variant<TypeList<std::string, size_t>::type > > tokens;
 			std::string::size_type start_pos = 0, current_pos = 0;
 			do
 			{
@@ -102,7 +111,8 @@ namespace stingray
 					std::string substr(format, start_pos, start_marker_pos - start_pos);
 					try
 					{
-						size_t index = FromString<size_t>(std::string(format, start_marker_pos + 1, end_marker_pos - start_marker_pos - 1));
+						const std::string index_str = std::string(format, start_marker_pos + 1, end_marker_pos - start_marker_pos - 1);
+						size_t index = index_str == "_"? std::numeric_limits<size_t>::max() : FromString<size_t>(index_str);
 						if (!substr.empty())
 							tokens.push_back(substr);
 						tokens.push_back(index);
@@ -120,8 +130,12 @@ namespace stingray
 			std::string::size_type current_string_pos = 0;
 			while (!tokens.empty() && current_string_pos < string.length())
 			{
-				try { index = variant_get<size_t>(tokens.front()); tokens.pop_front(); continue; }
-				catch (const bad_variant_get& ex) { };
+				if (tokens.front().contains<size_t>())
+				{
+					index = tokens.front().get<size_t>();
+					tokens.pop_front();
+					continue;
+				}
 
 				std::string substr = variant_get<std::string>(tokens.front());
 				tokens.pop_front();
@@ -142,6 +156,9 @@ namespace stingray
 		}
 
 	}
+
+	inline bool StringParse(const std::string& string, const std::string& format)
+	{ return Detail::StringParseImpl(string, format, Tuple<TypeList_0>()); }
 
 #define DETAIL_DEFINE_STRING_PARSE(N_, TypesDecl_, TypesUsage_, ArgumentsDecl_, ArgumentsUsage_) \
 	template < TypesDecl_ > \

@@ -170,6 +170,13 @@ namespace stingray
 				return GetRef<T>();
 			}
 
+			template<typename T>
+			bool contains() const
+			{
+				CheckCanContain<T>();
+				return _type == IndexOfTypeListItem<TypeList, T>::Value;
+			}
+
 			std::string ToString() const
 			{ return ApplyVisitor(ToStringVisitor()); }
 
