@@ -129,37 +129,39 @@ namespace stingray
 		class BracketsOperatorProxy
 		{
 		private:
+			Mutex&				_mutex;
 			Key					_key;
 			ConnectionMap*		_connections;
 
 		public:
-			BracketsOperatorProxy(const Key& key, ConnectionMap& connections)
-				: _key(key), _connections(&connections)
+			BracketsOperatorProxy(Mutex& mutex, const Key& key, ConnectionMap& connections) :
+				_mutex(mutex), _key(key), _connections(&connections)
 			{ }
 
 			BracketsOperatorProxy& operator+= (const signal_connection& connection)
 			{
+				MutexLock l(_mutex);
 				_connections->insert(std::make_pair(_key, connection));
 				return *this;
 			}
 		};
 
 	private:
+		Mutex			_mutex;
 		ConnectionMap	_connections;
-		Mutex			_lock;
 
 	public:
 		signal_connection_map() { }
 		~signal_connection_map()
 		{ release_all(); }
 
-		BracketsOperatorProxy operator[] (const Key& key) { MutexLock l(_lock); return BracketsOperatorProxy(key, _connections); }
+		BracketsOperatorProxy operator[] (const Key& key) { return BracketsOperatorProxy(_mutex, key, _connections); }
 
 		void release(const Key& key)
 		{
 			std::vector<signal_connection> connections;
 			{
-				MutexLock l(_lock);
+				MutexLock l(_mutex);
 				typename ConnectionMap::iterator lower = _connections.lower_bound(key);
 				typename ConnectionMap::iterator upper = _connections.upper_bound(key);
 				std::copy(values_iterator(lower), values_iterator(upper), std::back_inserter(connections));
@@ -172,7 +174,7 @@ namespace stingray
 		{
 			ConnectionMap connections;
 			{
-				MutexLock l(_lock);
+				MutexLock l(_mutex);
 				_connections.swap(connections);
 			}
 			std::for_each(values_iterator(connections.begin()), values_iterator(connections.end()),
