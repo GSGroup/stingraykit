@@ -2,6 +2,7 @@
 
 #include <stingray/toolkit/any.h>
 
+#include <stingray/app/PushVideoOnDemand.h>
 #include <stingray/app/application_context/AppChannel.h>
 #include <stingray/app/application_context/ChannelList.h>
 #include <stingray/app/scheduler/ScheduledEvents.h>
@@ -60,6 +61,7 @@ namespace stingray { namespace Detail
 #ifdef BUILD_SHARED_LIB
 		/*nothing*/
 #else
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::PVODVideoInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(::stingray::Detail::any::ObjectHolder<stingray::app::AppChannelPtr>);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelList);
