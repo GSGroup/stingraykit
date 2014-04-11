@@ -17,8 +17,8 @@ namespace stingray
 			Error
 		);
 
-	TOOLKIT_DECLARE_ENUM_CLASS(SelectMode);
-};
+		TOOLKIT_DECLARE_ENUM_CLASS(SelectMode);
+	};
 
 }
 
