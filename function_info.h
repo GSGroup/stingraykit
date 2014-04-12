@@ -38,8 +38,13 @@ namespace stingray
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_info;
 
+
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_type;
+
+
+	struct UnspecifiedParamTypes;
+
 
 ///////////////////////////////////
 // for raw functions and methods //
@@ -234,6 +239,39 @@ namespace stingray
 
 	namespace Detail
 	{
+
+		template < size_t ParamsCount, typename RetType_, typename ParamTypes_ >
+		struct SignatureBuilderImpl;
+
+#define DETAIL_TOOLKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS(ParamNumber_, TypeListName_) TOOLKIT_COMMA_IF(ParamNumber_) typename GetTypeListItem<TypeListName_, ParamNumber_>::ValueT
+#define DETAIL_TOOLKIT_DECLARE_SIGNATURE_BUILDER(ParamsCount_, UserData_) \
+		template < typename RetType_, typename ParamTypes_ > \
+		struct SignatureBuilderImpl<ParamsCount_, RetType_, ParamTypes_> \
+		{ \
+			typedef RetType_ 		ValueT(TOOLKIT_REPEAT(ParamsCount_, DETAIL_TOOLKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS, ParamTypes_)); \
+		};
+
+		TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_SIGNATURE_BUILDER, ~)
+
+#undef DETAIL_TOOLKIT_DECLARE_SIGNATURE_BUILDER
+#undef DETAIL_TOOLKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS
+
+
+		template < typename RetType_, typename ParamTypes_ >
+		struct SignatureBuilder
+		{ typedef typename SignatureBuilderImpl<GetTypeListLength<ParamTypes_>::Value, RetType_, ParamTypes_>::ValueT ValueT; };
+
+
+		template < typename RetType_>
+		struct SignatureBuilder<RetType_, UnspecifiedParamTypes>
+		{ typedef NullType ValueT; };
+
+
+		template < typename RetType_>
+		struct SignatureBuilder<RetType_, NullType>
+		{ typedef NullType ValueT; };
+
+
 		template < typename F >
 		class GetStlFunctorNumArguments
 		{
@@ -344,8 +382,6 @@ namespace stingray
 	struct function_type
 	{ static const FunctionType::Enum Type = FunctionType::Other; };
 
-
-	struct UnspecifiedParamTypes;
 
 	template < typename RetType_>
 	struct function_info<RetType_, UnspecifiedParamTypes> : public function_type<RetType_, UnspecifiedParamTypes>
