@@ -424,6 +424,8 @@ namespace stingray
 		typedef function_ret_type		RetType;
 		/** @brief A typelist containing function parameters' types*/
 		typedef function_param_types	ParamTypes;
+		/** @brief Function signature as single type*/
+		typedef function_signature		Signature;
 	};
 
 	/**
