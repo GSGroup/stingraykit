@@ -323,8 +323,9 @@ namespace stingray
 		template < typename F >
 		struct std_function_info<F, 1> : public std_function_type<F>, public std::unary_function<typename F::argument_type, typename F::result_type>
 		{
-			typedef typename F::result_type								RetType;
-			typedef typename TypeList<typename F::argument_type>::type	ParamTypes;
+			typedef typename F::result_type									RetType;
+			typedef typename TypeList<typename F::argument_type>::type		ParamTypes;
+			typedef typename SignatureBuilder<RetType, ParamTypes>::ValueT	Signature;
 		};
 
 		template < typename F> struct std_function_type<F, 2>
@@ -333,9 +334,10 @@ namespace stingray
 		template < typename F >
 		struct std_function_info<F, 2> : public std_function_type<F>, public std::binary_function<typename F::first_argument_type, typename F::second_argument_type, typename F::result_type>
 		{
-			typedef typename F::result_type								RetType;
+			typedef typename F::result_type									RetType;
 			typedef typename TypeList<typename F::first_argument_type,
-							 typename F::second_argument_type>::type	ParamTypes;
+							 typename F::second_argument_type>::type		ParamTypes;
+			typedef typename SignatureBuilder<RetType, ParamTypes>::ValueT	Signature;
 		};
 
 
@@ -343,15 +345,15 @@ namespace stingray
 		struct std_function_type<F, -1>
 		{ static const FunctionType::Enum Type = FunctionType::Other; };
 
-
 		TOOLKIT_DECLARE_NESTED_TYPE_CHECK(RetType);
 		TOOLKIT_DECLARE_NESTED_TYPE_CHECK(ParamTypes);
 
 		template < typename F, bool HasParamTypes = HasNestedType_ParamTypes<F>::Value >
 		struct GenericFunctionInfo
 		{
-			typedef typename F::RetType		RetType;
-			typedef typename F::ParamTypes	ParamTypes;
+			typedef typename F::RetType										RetType;
+			typedef typename F::ParamTypes									ParamTypes;
+			typedef typename SignatureBuilder<RetType, ParamTypes>::ValueT	Signature;
 		};
 
 		template < typename F >
@@ -359,6 +361,7 @@ namespace stingray
 		{
 			typedef typename F::RetType	RetType;
 			typedef NullType			ParamTypes;
+			typedef NullType			Signature;
 		};
 
 		template < typename F >
@@ -366,12 +369,14 @@ namespace stingray
 		{
 			typedef typename GenericFunctionInfo<F>::RetType	RetType;
 			typedef typename GenericFunctionInfo<F>::ParamTypes	ParamTypes;
+			typedef typename GenericFunctionInfo<F>::Signature	Signature;
 		};
 	}
 
 	template < typename F >
 	struct function_type<F, NullType> : public Detail::std_function_type<F>
 	{ };
+
 
 	template < typename F >
 	struct function_info<F, NullType> : public Detail::std_function_info<F>
@@ -393,8 +398,9 @@ namespace stingray
 	template < typename RetType_, typename ParamTypes_ >
 	struct function_info : public function_type<RetType_, ParamTypes_>, public Detail::StdSomethingnaryFunctionMixin<RetType_, ParamTypes_>
 	{
-		typedef RetType_		RetType;
-		typedef ParamTypes_		ParamTypes;
+		typedef RetType_															RetType;
+		typedef ParamTypes_															ParamTypes;
+		typedef typename Detail::SignatureBuilder<RetType_, ParamTypes_>::ValueT	Signature;
 	};
 
 
