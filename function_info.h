@@ -211,20 +211,20 @@ namespace stingray
 // for toolkit::function //
 ///////////////////////////
 
-	template < typename Signature >
+	template < typename Signature_ >
 	class function;
 
-	template < typename Signature >
-	struct function_type<function<Signature>, NullType >
+	template < typename Signature_ >
+	struct function_type<function<Signature_>, NullType >
 	{ static const FunctionType::Enum Type = FunctionType::GSFunction; };
 
 
-	template < typename Signature >
-	struct function_info<function<Signature>, NullType > : public function_type<function<Signature> >
+	template < typename Signature_ >
+	struct function_info<function<Signature_>, NullType > : public function_type<function<Signature_> >
 	{
-		typedef typename function_info<Signature>::RetType		RetType;
-		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
-		typedef typename function_info<Signature>::FunctionObjectSignature	FunctionObjectSignature;
+		typedef typename function_info<Signature_>::RetType		RetType;
+		typedef typename function_info<Signature_>::ParamTypes	ParamTypes;
+		typedef typename function_info<Signature_>::FunctionObjectSignature	FunctionObjectSignature;
 	};
 
 
