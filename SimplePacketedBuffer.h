@@ -9,7 +9,7 @@
 namespace stingray
 {
 
-	class SimplePacketedBuffer : public virtual IDataSource
+	class SimplePacketedBuffer : public virtual IDataSource, public virtual IDataConsumer
 	{
 	private:
 		static NamedLogger		s_logger;
@@ -20,11 +20,11 @@ namespace stingray
 		Mutex					_writeMutex;
 
 		WaitToken				_bufferEmpty;
+		bool					_eod;
 
 	public:
 		SimplePacketedBuffer(size_t size, size_t packetSize) :
-			_buffer(size),
-			_packetSize(packetSize)
+			_buffer(size), _packetSize(packetSize), _eod(false)
 		{ TOOLKIT_CHECK(size % _packetSize == 0, "Buffer size is not a multiple of packet size!"); }
 
 		~SimplePacketedBuffer()
@@ -37,6 +37,12 @@ namespace stingray
 			BithreadCircularBuffer::Reader r = _buffer.Read();
 			if (r.size() == 0)
 			{
+				if (_eod)
+				{
+					consumer.EndOfData();
+					return;
+				}
+
 				_bufferEmpty.Wait(_bufferMutex, token);
 				return;
 			}
@@ -64,21 +70,23 @@ namespace stingray
 
 				r.Pop(r.size());
 			}
+			_eod = false;
 		}
 
-		void Write(ConstByteData data)
+		virtual size_t Process(ConstByteData data)
 		{
 			TOOLKIT_CHECK(data.size() % _packetSize == 0, StringBuilder() % "Write size of " % data.size() % " bytes is not a multiple of packet size (" % _packetSize % " bytes)!");
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 
 			MutexLock l2(_bufferMutex);
+			size_t full_size = data.size();
 			while (data.size() != 0)
 			{
 				BithreadCircularBuffer::Writer w = _buffer.Write();
 				if (w.size() == 0)
 				{
 					s_logger.Warning() << "Overflow: dropping " << data.size() << " bytes";
-					return;
+					return full_size;
 				}
 
 				size_t write_size = std::min(data.size(), w.size());
@@ -93,6 +101,14 @@ namespace stingray
 
 				data = ConstByteData(data, write_size);
 			}
+			return full_size;
+		}
+
+		virtual void EndOfData()
+		{
+			MutexLock l(_bufferMutex);
+			_eod = true;
+			_bufferEmpty.Broadcast();
 		}
 	};
 	TOOLKIT_DECLARE_PTR(SimplePacketedBuffer);
