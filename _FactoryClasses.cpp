@@ -15,6 +15,8 @@
 #include <stingray/media/Mp3MediaInfo.h>
 #include <stingray/media/formats/flv/MediaInfo.h>
 #include <stingray/media/formats/mp4/MediaInfo.h>
+#include <stingray/media/formats/mp4/Stream.h>
+#include <stingray/media/formats/mp4/StreamDescriptors.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/net/DHCPInterfaceConfiguration.h>
 #include <stingray/net/IgnoredInterfaceConfiguration.h>
@@ -84,6 +86,9 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Mp3MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(flv::MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::MediaInfo);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Stream);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaAudioStreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaVideoStreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DHCPInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(IgnoredInterfaceConfiguration);
