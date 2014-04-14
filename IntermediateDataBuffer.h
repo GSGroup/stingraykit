@@ -92,7 +92,6 @@ namespace stingray
 					continue;
 				}
 
-				const size_t ReadSizeLimit = 0x4000;
 				size_t write_size = std::min(data->size(), w.size());
 				{
 					MutexUnlock ul(l);
