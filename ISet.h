@@ -32,6 +32,7 @@ namespace stingray
 		virtual void Clear() = 0;
 		virtual bool Contains(const ValueType& value) const = 0;
 		virtual void Remove(const ValueType& value) = 0;
+		virtual bool TryRemove(const ValueType& value) = 0;
 	};
 
 	/** @} */
