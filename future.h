@@ -216,6 +216,7 @@ namespace stingray
 	private:
 		typedef shared_ptr<Detail::future_impl<ResultType> > ImplPtr;
 		ImplPtr _impl;
+
 	public:
 		shared_future() {}
 		~shared_future() {}
@@ -230,9 +231,10 @@ namespace stingray
 
 		ResultType get() const			{ check_valid(); return _impl->get(); }
 
-		void wait() const										{ check_valid(); _impl->wait(); }
-		future_status wait_for(const TimeDuration& duration)	{ check_valid(); return _impl->wait_for(duration); }
-		future_status wait_until(const Time& absTime)			{ check_valid(); return _impl->wait_until(absTime); }
+		void wait() const											{ check_valid(); _impl->wait(); }
+		future_status wait_for(const TimeDuration& duration) const	{ check_valid(); return _impl->wait_for(duration); }
+		future_status wait_until(const Time& absTime) const			{ check_valid(); return _impl->wait_until(absTime); }
+
 	private:
 		shared_future(const ImplPtr& impl) : _impl(impl) {}
 		friend shared_future<ResultType> future<ResultType>::share();
