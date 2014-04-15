@@ -14,7 +14,8 @@ namespace stingray
 	private:
 		static NamedLogger		s_logger;
 		BithreadCircularBuffer	_buffer;
-		const size_t			_packetSize;
+		const size_t			_inputPacketSize;
+		const size_t			_outputPacketSize;
 
 		Mutex					_bufferMutex;
 		Mutex					_writeMutex;
@@ -23,9 +24,13 @@ namespace stingray
 		bool					_eod;
 
 	public:
-		SimplePacketedBuffer(size_t size, size_t packetSize) :
-			_buffer(size), _packetSize(packetSize), _eod(false)
-		{ TOOLKIT_CHECK(size % _packetSize == 0, "Buffer size is not a multiple of packet size!"); }
+		SimplePacketedBuffer(size_t size, size_t inputPacketSize) :
+			_buffer(size), _inputPacketSize(inputPacketSize), _outputPacketSize(inputPacketSize), _eod(false)
+		{ CheckSizes(size, inputPacketSize, inputPacketSize); }
+
+		SimplePacketedBuffer(size_t size, size_t inputPacketSize, size_t outputPacketSize) :
+			_buffer(size), _inputPacketSize(inputPacketSize), _outputPacketSize(outputPacketSize), _eod(false)
+		{ CheckSizes(size, inputPacketSize, outputPacketSize); }
 
 		~SimplePacketedBuffer()
 		{ }
@@ -35,10 +40,14 @@ namespace stingray
 			MutexLock l(_bufferMutex);
 
 			BithreadCircularBuffer::Reader r = _buffer.Read();
-			if (r.size() == 0)
+
+			size_t packetized_size = r.size() / _outputPacketSize * _outputPacketSize;
+			if (packetized_size == 0)
 			{
 				if (_eod)
 				{
+					if (r.size() != 0)
+						Logger::Warning() << "Dropping " << r.size() << " bytes from SimplePacketedBuffer - end of data!";
 					consumer.EndOfData();
 					return;
 				}
@@ -47,13 +56,12 @@ namespace stingray
 				return;
 			}
 
-			TOOLKIT_CHECK(r.size() % _packetSize == 0, "Read size is not a multiple of packet size!");
 			size_t processed_size = 0;
 			{
 				MutexUnlock ul(_bufferMutex);
-				processed_size = consumer.Process(r.GetData());
+				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, packetized_size));
 			}
-			TOOLKIT_CHECK(processed_size % _packetSize == 0, "Processed size is not a multiple of packet size!");
+			TOOLKIT_CHECK(processed_size % _outputPacketSize == 0, "Processed size is not a multiple of output packet size!");
 			if (processed_size == 0)
 				return;
 			r.Pop(processed_size);
@@ -75,7 +83,7 @@ namespace stingray
 
 		virtual size_t Process(ConstByteData data)
 		{
-			TOOLKIT_CHECK(data.size() % _packetSize == 0, StringBuilder() % "Write size of " % data.size() % " bytes is not a multiple of packet size (" % _packetSize % " bytes)!");
+			TOOLKIT_CHECK(data.size() % _inputPacketSize == 0, StringBuilder() % "Write size of " % data.size() % " bytes is not a multiple of input packet size (" % _inputPacketSize % " bytes)!");
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 
 			MutexLock l2(_bufferMutex);
@@ -90,7 +98,7 @@ namespace stingray
 				}
 
 				size_t write_size = std::min(data.size(), w.size());
-				TOOLKIT_CHECK(write_size % _packetSize == 0, StringBuilder() % "Selected write size: " % write_size % " is not a multiple of packet size: " % _packetSize);
+				TOOLKIT_CHECK(write_size % _inputPacketSize == 0, StringBuilder() % "Selected write size: " % write_size % " is not a multiple of input packet size: " % _inputPacketSize);
 				{
 					MutexUnlock ul(_bufferMutex);
 					std::copy(data.begin(), data.begin() + write_size, w.begin());
@@ -109,6 +117,16 @@ namespace stingray
 			MutexLock l(_bufferMutex);
 			_eod = true;
 			_bufferEmpty.Broadcast();
+		}
+
+	private:
+		void CheckSizes(size_t bufferSize, size_t inputPacketSize, size_t outputPacketSize)
+		{
+			TOOLKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
+			TOOLKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
+
+			TOOLKIT_CHECK(bufferSize % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
+			TOOLKIT_CHECK(bufferSize % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 	};
 	TOOLKIT_DECLARE_PTR(SimplePacketedBuffer);
