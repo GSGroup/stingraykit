@@ -69,6 +69,16 @@ namespace stingray
 				ObservableInterface::OnChanged(CollectionOp::Removed, value);
 		}
 
+		virtual bool TryRemove(const ValueType& value)
+		{
+			signal_locker l(ObservableInterface::OnChanged);
+			if (!Wrapped_::TryRemove(value))
+				return false;
+
+			ObservableInterface::OnChanged(CollectionOp::Removed, value);
+			return true;
+		}
+
 		virtual bool Contains(const ValueType& value) const
 		{
 			signal_locker l(ObservableInterface::OnChanged);
