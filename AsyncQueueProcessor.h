@@ -1,7 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_ASYNCQUEUEPROCESSOR_H
 #define STINGRAY_TOOLKIT_ASYNCQUEUEPROCESSOR_H
 
-#include <stingray/threads/ConditionVariable.h>
+#include <stingray/threads/CancellationToken.h>
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/signals.h>
@@ -24,10 +24,10 @@ namespace stingray
 		typedef function<void (const ValueType &)>	FunctorType;
 
 	private:
-		bool				_running;
 		FunctorType			_processor;
 
-		ConditionVariable	_cond;
+		CancellationToken	_token;
+		WaitToken			_waitToken;
 		Mutex				_lock;
 
 		typedef std::list<ValueType> Queue;
@@ -41,7 +41,6 @@ namespace stingray
 		signal<void(ProgressValue)>		OnProgress;
 
 		AsyncQueueProcessor(const std::string &name, const FunctorType &processor):
-			_running(true),
 			_processor(processor),
 			_idle(true),
 			OnIdle(bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
@@ -53,8 +52,7 @@ namespace stingray
 		{
 			{
 				MutexLock l(_lock);
-				_running = false;
-				_cond.Broadcast();
+				_token.Cancel();
 			}
 			_thread.Interrupt();
 			_thread.Join();
@@ -65,7 +63,7 @@ namespace stingray
 			{
 				MutexLock l(_lock);
 				_queue.push_front(value);
-				_cond.Broadcast();
+				_waitToken.Broadcast();
 			}
 			{
 				signal_locker l(OnProgress);
@@ -79,7 +77,7 @@ namespace stingray
 			{
 				MutexLock l(_lock);
 				_queue.push_back(value);
-				_cond.Broadcast();
+				_waitToken.Broadcast();
 			}
 			{
 				signal_locker l(OnProgress);
@@ -109,12 +107,12 @@ namespace stingray
 		void ThreadFunc()
 		{
 			MutexLock l(_lock);
-			while(_running)
+			while(_token)
 			{
 				if (_queue.empty())
 				{
 					SetIdle(l, true);
-					_cond.Wait(_lock);
+					_waitToken.Wait(_lock, _token);
 					if (!_queue.empty())
 						SetIdle(l, false);
 					continue;
