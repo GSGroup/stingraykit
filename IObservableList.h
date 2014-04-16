@@ -25,7 +25,7 @@ namespace stingray
 
 	protected:
 		IObservableList()
-			//: OnChanged(bind(&IObservableList::OnChangedPopulator, this, _1))
+			: OnChanged(bind(&IObservableList::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual void OnChangedPopulator(const function<void(CollectionOp, int, const ValueType_&)>& slot)
