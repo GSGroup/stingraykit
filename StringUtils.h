@@ -106,8 +106,12 @@ namespace stingray
 		return negative? (T)0 - value: value; //Dima told me to shut compiler up. Sorry.
 	}
 
+	TOOLKIT_DECLARE_METHOD_CHECK(FromString);
+
 	template < typename T >
 	void ToString(string_ostream & result, const T& val);
+
+	TOOLKIT_DECLARE_METHOD_CHECK(ToString);
 
 	namespace Detail
 	{
@@ -164,7 +168,6 @@ namespace stingray
 	{
 		TOOLKIT_DECLARE_METHOD_CHECK(begin);
 		TOOLKIT_DECLARE_METHOD_CHECK(end);
-		TOOLKIT_DECLARE_METHOD_CHECK(ToString);
 
 		struct TypeToStringObjectType
 		{

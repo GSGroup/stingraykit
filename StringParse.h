@@ -18,8 +18,6 @@ namespace stingray
 	namespace Detail
 	{
 
-		TOOLKIT_DECLARE_METHOD_CHECK(FromString);
-
 		template < typename T, bool HasFromStringMethod = HasMethod_FromString<T>::Value >
 		struct FromStringImpl
 		{
