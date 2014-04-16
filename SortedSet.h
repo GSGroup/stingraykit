@@ -105,6 +105,14 @@ namespace stingray
 		virtual bool Contains(const ValueType& value) const
 		{ return _items->find(value) != _items->end(); }
 
+		virtual bool TryRemove(const ValueType& value)
+		{
+			typename SetType::iterator it = _items->find(value);
+			if (it == _items->end())
+				return false;
+			_items->erase(it);
+			return true;
+		}
 
 	private:
 		void CopyOnWrite()
