@@ -24,7 +24,7 @@ namespace stingray
 		bool					_eod;
 
 	public:
-		DataBuffer(size_t size, size_t inputPacketSize) :
+		DataBuffer(size_t size, size_t inputPacketSize = 1) :
 			_buffer(size), _inputPacketSize(inputPacketSize), _outputPacketSize(inputPacketSize), _eod(false)
 		{ CheckSizes(size, inputPacketSize, inputPacketSize); }
 
