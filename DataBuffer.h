@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_SIMPLEPACKETEDBUFFER_H
-#define STINGRAY_TOOLKIT_SIMPLEPACKETEDBUFFER_H
+#ifndef STINGRAY_TOOLKIT_DATABUFFER_H
+#define STINGRAY_TOOLKIT_DATABUFFER_H
 
 
 #include <stingray/log/Logger.h>
@@ -9,7 +9,7 @@
 namespace stingray
 {
 
-	class SimplePacketedBuffer : public virtual IDataSource, public virtual IDataConsumer
+	class DataBuffer : public virtual IDataBuffer
 	{
 	private:
 		static NamedLogger		s_logger;
@@ -24,16 +24,13 @@ namespace stingray
 		bool					_eod;
 
 	public:
-		SimplePacketedBuffer(size_t size, size_t inputPacketSize) :
+		DataBuffer(size_t size, size_t inputPacketSize) :
 			_buffer(size), _inputPacketSize(inputPacketSize), _outputPacketSize(inputPacketSize), _eod(false)
 		{ CheckSizes(size, inputPacketSize, inputPacketSize); }
 
-		SimplePacketedBuffer(size_t size, size_t inputPacketSize, size_t outputPacketSize) :
+		DataBuffer(size_t size, size_t inputPacketSize, size_t outputPacketSize) :
 			_buffer(size), _inputPacketSize(inputPacketSize), _outputPacketSize(outputPacketSize), _eod(false)
 		{ CheckSizes(size, inputPacketSize, outputPacketSize); }
-
-		~SimplePacketedBuffer()
-		{ }
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
 		{
@@ -47,7 +44,7 @@ namespace stingray
 				if (_eod)
 				{
 					if (r.size() != 0)
-						Logger::Warning() << "Dropping " << r.size() << " bytes from SimplePacketedBuffer - end of data!";
+						Logger::Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
 					consumer.EndOfData();
 					return;
 				}
@@ -129,7 +126,7 @@ namespace stingray
 			TOOLKIT_CHECK(bufferSize % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 	};
-	TOOLKIT_DECLARE_PTR(SimplePacketedBuffer);
+	TOOLKIT_DECLARE_PTR(DataBuffer);
 
 }
 
