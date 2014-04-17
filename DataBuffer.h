@@ -86,14 +86,14 @@ namespace stingray
 			MutexLock l2(_bufferMutex);
 
 			BithreadCircularBuffer::Writer w = _buffer.Write();
-			if (w.size() == 0)
+			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
+			if (packetized_size == 0)
 			{
 				s_logger.Warning() << "Overflow: dropping " << data.size() << " bytes";
 				return data.size();
 			}
 
-			size_t write_size = std::min(data.size(), w.size());
-			TOOLKIT_CHECK(write_size % _inputPacketSize == 0, StringBuilder() % "Selected write size: " % write_size % " is not a multiple of input packet size: " % _inputPacketSize);
+			size_t write_size = std::min(data.size(), packetized_size);
 			{
 				MutexUnlock ul(_bufferMutex);
 				std::copy(data.begin(), data.begin() + write_size, w.begin());
