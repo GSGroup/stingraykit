@@ -59,7 +59,7 @@ namespace stingray
 			size_t processed_size = 0;
 			{
 				MutexUnlock ul(_bufferMutex);
-				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, packetized_size));
+				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, packetized_size), token);
 			}
 			TOOLKIT_CHECK(processed_size % _outputPacketSize == 0, "Processed size is not a multiple of output packet size!");
 			if (processed_size == 0)
@@ -81,7 +81,7 @@ namespace stingray
 			_eod = false;
 		}
 
-		virtual size_t Process(ConstByteData data)
+		virtual size_t Process(ConstByteData data, const CancellationToken& token)
 		{
 			TOOLKIT_CHECK(data.size() % _inputPacketSize == 0, StringBuilder() % "Write size of " % data.size() % " bytes is not a multiple of input packet size (" % _inputPacketSize % " bytes)!");
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
