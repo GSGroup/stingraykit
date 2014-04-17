@@ -51,7 +51,7 @@ namespace stingray
 
 	struct DataInterceptor : public virtual IDataSource
 	{
-		typedef function<void(optional<ConstByteData>)> FunctionType;
+		typedef function<void(optional<ConstByteData>, const CancellationToken&)> FunctionType;
 
 	private:
 		IDataSourcePtr	_source;
@@ -63,20 +63,20 @@ namespace stingray
 		{}
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
-		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(consumer), _1), token); }
+		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(consumer), _1, _2), token); }
 
 	private:
-		size_t DoPush(IDataConsumer& consumer, optional<ConstByteData> data)
+		size_t DoPush(IDataConsumer& consumer, optional<ConstByteData> data, const CancellationToken& token)
 		{
 			if (data)
 			{
-				size_t size = consumer.Process(*data);
-				_func(ConstByteData(*data, 0, size));
+				size_t size = consumer.Process(*data, token);
+				_func(ConstByteData(*data, 0, size), token);
 				return size;
 			}
 
 			consumer.EndOfData();
-			_func(null);
+			_func(null, token);
 			return 0;
 		}
 	};
