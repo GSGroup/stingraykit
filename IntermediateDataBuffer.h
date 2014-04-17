@@ -21,11 +21,10 @@ namespace stingray
 		CancellationToken		_token;
 
 	public:
-		IntermediateDataBuffer(const IDataSourcePtr& source, size_t size, size_t inputQuantSize = 1, size_t outputQuantSize = 1) :
-			_source(source),
-			_buffer(size, inputQuantSize, outputQuantSize)
+		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, size_t size, size_t inputQuantSize = 1, size_t outputQuantSize = 1) :
+			_source(source), _buffer(size, inputQuantSize, outputQuantSize)
 		{
-			_worker.reset(new Thread("intermediateDataBuffer", bind(&IntermediateDataBuffer::ThreadFunc, this)));
+			_worker.reset(new Thread(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this)));
 		}
 
 		~IntermediateDataBuffer()
