@@ -5,7 +5,7 @@
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/BithreadCircularBuffer.h>
 #include <stingray/toolkit/IDataSource.h>
-#include <stingray/toolkit/SimplePacketedBuffer.h>
+#include <stingray/toolkit/DataBuffer.h>
 
 namespace stingray
 {
@@ -15,7 +15,7 @@ namespace stingray
 	private:
 		static NamedLogger		s_logger;
 		IDataSourcePtr			_source;
-		SimplePacketedBuffer	_buffer;
+		DataBuffer				_buffer;
 
 		ThreadPtr				_worker;
 		CancellationToken		_token;
