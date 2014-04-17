@@ -49,6 +49,12 @@ namespace stingray
 	};
 	TOOLKIT_DECLARE_PTR(IDataSource);
 
+
+	struct IDataBuffer : public virtual IDataConsumer, public virtual IDataSource
+	{ };
+	TOOLKIT_DECLARE_PTR(IDataBuffer);
+
+
 	struct DataInterceptor : public virtual IDataSource
 	{
 		typedef function<void(optional<ConstByteData>, const CancellationToken&)> FunctionType;
