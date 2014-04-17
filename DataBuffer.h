@@ -84,29 +84,25 @@ namespace stingray
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 
 			MutexLock l2(_bufferMutex);
-			size_t full_size = data.size();
-			while (data.size() != 0)
+
+			BithreadCircularBuffer::Writer w = _buffer.Write();
+			if (w.size() == 0)
 			{
-				BithreadCircularBuffer::Writer w = _buffer.Write();
-				if (w.size() == 0)
-				{
-					s_logger.Warning() << "Overflow: dropping " << data.size() << " bytes";
-					return full_size;
-				}
-
-				size_t write_size = std::min(data.size(), w.size());
-				TOOLKIT_CHECK(write_size % _inputPacketSize == 0, StringBuilder() % "Selected write size: " % write_size % " is not a multiple of input packet size: " % _inputPacketSize);
-				{
-					MutexUnlock ul(_bufferMutex);
-					std::copy(data.begin(), data.begin() + write_size, w.begin());
-				}
-
-				w.Push(write_size);
-				_bufferEmpty.Broadcast();
-
-				data = ConstByteData(data, write_size);
+				s_logger.Warning() << "Overflow: dropping " << data.size() << " bytes";
+				return data.size();
 			}
-			return full_size;
+
+			size_t write_size = std::min(data.size(), w.size());
+			TOOLKIT_CHECK(write_size % _inputPacketSize == 0, StringBuilder() % "Selected write size: " % write_size % " is not a multiple of input packet size: " % _inputPacketSize);
+			{
+				MutexUnlock ul(_bufferMutex);
+				std::copy(data.begin(), data.begin() + write_size, w.begin());
+			}
+
+			w.Push(write_size);
+			_bufferEmpty.Broadcast();
+
+			return write_size;
 		}
 
 		virtual void EndOfData()
