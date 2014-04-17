@@ -42,7 +42,7 @@ namespace stingray
 			}
 
 			ConstByteData data(&_packetBuffer[_dataOffset], _dataSize);
-			size_t processed_size = consumer.Process(data);
+			size_t processed_size = consumer.Process(data, token);
 			_dataOffset += processed_size;
 			_dataSize -= processed_size;
 		}
@@ -90,7 +90,7 @@ namespace stingray
 			size_t processed_size = 0;
 			{
 				MutexUnlock ul(l);
-				processed_size = consumer.Process(r.GetData());
+				processed_size = consumer.Process(r.GetData(), token);
 			}
 
 			r.Pop(processed_size);
