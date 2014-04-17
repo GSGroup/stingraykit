@@ -13,6 +13,7 @@ namespace stingray
 	{
 	private:
 		static NamedLogger		s_logger;
+		bool					_discardOnOverflow;
 		BithreadCircularBuffer	_buffer;
 		const size_t			_inputPacketSize;
 		const size_t			_outputPacketSize;
@@ -21,15 +22,18 @@ namespace stingray
 		Mutex					_writeMutex;
 
 		WaitToken				_bufferEmpty;
+		WaitToken				_bufferFull;
 		bool					_eod;
 
 	public:
-		DataBuffer(size_t size, size_t inputPacketSize = 1) :
-			_buffer(size), _inputPacketSize(inputPacketSize), _outputPacketSize(inputPacketSize), _eod(false)
+		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize = 1) :
+			_discardOnOverflow(discardOnOverflow), _buffer(size),
+			_inputPacketSize(inputPacketSize), _outputPacketSize(inputPacketSize), _eod(false)
 		{ CheckSizes(size, inputPacketSize, inputPacketSize); }
 
-		DataBuffer(size_t size, size_t inputPacketSize, size_t outputPacketSize) :
-			_buffer(size), _inputPacketSize(inputPacketSize), _outputPacketSize(outputPacketSize), _eod(false)
+		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t outputPacketSize) :
+			_discardOnOverflow(discardOnOverflow), _buffer(size),
+			_inputPacketSize(inputPacketSize), _outputPacketSize(outputPacketSize), _eod(false)
 		{ CheckSizes(size, inputPacketSize, outputPacketSize); }
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
@@ -69,6 +73,7 @@ namespace stingray
 			}
 
 			r.Pop(processed_size);
+			_bufferFull.Broadcast();
 		}
 
 		void Clear()
@@ -83,6 +88,8 @@ namespace stingray
 				r.Pop(r.size());
 			}
 			_eod = false;
+
+			_bufferFull.Broadcast();
 		}
 
 		virtual size_t Process(ConstByteData data, const CancellationToken& token)
@@ -99,8 +106,14 @@ namespace stingray
 			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
 			if (packetized_size == 0)
 			{
-				s_logger.Warning() << "Overflow: dropping " << data.size() << " bytes";
-				return data.size();
+				if (_discardOnOverflow)
+				{
+					s_logger.Warning() << "Overflow: dropping " << data.size() << " bytes";
+					return data.size();
+				}
+
+				_bufferFull.Wait(_bufferMutex, token);
+				return 0;
 			}
 
 			size_t write_size = std::min(data.size(), packetized_size);
