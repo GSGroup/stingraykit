@@ -15,14 +15,14 @@ namespace stingray
 	private:
 		static NamedLogger		s_logger;
 		IDataSourcePtr			_source;
-		DataBuffer				_buffer;
+		IDataBufferPtr			_buffer;
 
 		ThreadPtr				_worker;
 		CancellationToken		_token;
 
 	public:
-		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, size_t size, size_t inputQuantSize = 1, size_t outputQuantSize = 1) :
-			_source(source), _buffer(size, inputQuantSize, outputQuantSize)
+		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataBufferPtr& buffer) :
+			_source(source), _buffer(buffer)
 		{
 			_worker.reset(new Thread(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this)));
 		}
@@ -34,13 +34,13 @@ namespace stingray
 		}
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
-		{ return _buffer.Read(consumer, token); }
+		{ return _buffer->Read(consumer, token); }
 
 	private:
 		void ThreadFunc()
 		{
 			while (_token)
-				_source->Read(_buffer, _token);
+				_source->Read(*_buffer, _token);
 		}
 	};
 	TOOLKIT_DECLARE_PTR(IntermediateDataBuffer);
