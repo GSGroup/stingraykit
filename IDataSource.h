@@ -29,8 +29,8 @@ namespace stingray
 		FunctorDataConsumer(const FunctorType& func) : _func(func)
 		{}
 
-		virtual size_t Process(ConstByteData data)	{ return _func(data); }
-		virtual void EndOfData()					{ _func(null); }
+		virtual size_t Process(ConstByteData data, const CancellationToken& token)	{ return _func(data, token); }
+		virtual void EndOfData()													{ _func(null, CancellationToken()); }
 	};
 
 
