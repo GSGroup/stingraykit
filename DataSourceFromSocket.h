@@ -13,7 +13,6 @@ namespace stingray
 
 	struct DataSourceFromSocket : public virtual IDataSource
 	{
-		static const size_t	MaxPacketSize = 1500;
 		static const u64 	PollTimeout = 100;
 
 	private:
@@ -23,8 +22,8 @@ namespace stingray
 		size_t			_dataSize;
 
 	public:
-		DataSourceFromSocket(const ISocketPtr& socket) :
-			_socket(socket), _packetBuffer(MaxPacketSize), _dataOffset(0), _dataSize(0)
+		DataSourceFromSocket(const ISocketPtr& socket, size_t maxPacketSize) :
+			_socket(socket), _packetBuffer(maxPacketSize), _dataOffset(0), _dataSize(0)
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
