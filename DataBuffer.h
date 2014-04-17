@@ -58,9 +58,16 @@ namespace stingray
 				MutexUnlock ul(_bufferMutex);
 				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, packetized_size), token);
 			}
-			TOOLKIT_CHECK(processed_size % _outputPacketSize == 0, "Processed size is not a multiple of output packet size!");
+
 			if (processed_size == 0)
 				return;
+
+			if (processed_size % _outputPacketSize != 0)
+			{
+				s_logger.Error() << "Processed size: " << processed_size << " is not a multiple of output packet size: " << _outputPacketSize;
+				processed_size = packetized_size;
+			}
+
 			r.Pop(processed_size);
 		}
 
@@ -80,11 +87,14 @@ namespace stingray
 
 		virtual size_t Process(ConstByteData data, const CancellationToken& token)
 		{
-			TOOLKIT_CHECK(data.size() % _inputPacketSize == 0, StringBuilder() % "Write size of " % data.size() % " bytes is not a multiple of input packet size (" % _inputPacketSize % " bytes)!");
+			if (data.size() % _inputPacketSize != 0)
+			{
+				s_logger.Error() << "Data size: " << data.size() << " is not a multiple of input packet size: " << _inputPacketSize;
+				return data.size();
+			}
+
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
-
 			MutexLock l2(_bufferMutex);
-
 			BithreadCircularBuffer::Writer w = _buffer.Write();
 			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
 			if (packetized_size == 0)
