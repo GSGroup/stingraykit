@@ -9,6 +9,8 @@
 #include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
 #include <stingray/ca/BasicSubscription.h>
+#include <stingray/crypto/HdcpKey.h>
+#include <stingray/crypto/SymmetricKey.h>
 #include <stingray/hdmi/IHDMI.h>
 #include <stingray/media/ImageFileMediaData.h>
 #include <stingray/media/MediaInfoBase.h>
@@ -25,6 +27,15 @@
 #include <stingray/parentalcontrol/AgeRating.h>
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
+#endif
+#ifdef PLATFORM_MSTAR
+#	include <stingray/platform/mstar/crypto/HardwareCipherKey.h>
+#endif
+#ifdef PLATFORM_OPENSSL
+#	include <stingray/platform/openssl/crypto/Certificate.h>
+#endif
+#ifdef PLATFORM_OPENSSL
+#	include <stingray/platform/openssl/crypto/EvpKey.h>
 #endif
 #include <stingray/records/FileSystemRecord.h>
 #include <stingray/rpc/UrlObjectId.h>
@@ -78,6 +89,8 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscription);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscriptionProvider);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(HdcpKey);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(SymmetricKey);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaPreview);
@@ -106,6 +119,15 @@ namespace stingray { namespace Detail
 #endif
 #ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::TVChannel);
+#endif
+#ifdef PLATFORM_MSTAR
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(mstar::HardwareCipherKey);
+#endif
+#ifdef PLATFORM_OPENSSL
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::Certificate);
+#endif
+#ifdef PLATFORM_OPENSSL
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::EvpKey);
 #endif
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(rpc::UrlObjectId);
