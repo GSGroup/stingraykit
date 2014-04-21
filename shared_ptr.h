@@ -7,6 +7,7 @@
 
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/Macro.h>
+#include <stingray/toolkit/TypeInfo.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/ref_count.h>
@@ -219,7 +220,7 @@ namespace stingray
 			if (!_rawPtr)
 			{
 				DebuggingHelper::BreakpointHere();
-				TOOLKIT_THROW(NullPointerException());
+				TOOLKIT_THROW(NullPointerException("shared_ptr<" + TypeInfo(typeid(T)).GetName() + ">"));
 			}
 		}
 	};
