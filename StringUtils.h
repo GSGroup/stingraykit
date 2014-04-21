@@ -131,6 +131,13 @@ namespace stingray
 			static std::string Do(const From& from)
 			{ return ToString(from); }
 		};
+
+		template < >
+		struct LexicalCast<std::string, std::string>
+		{
+			static std::string Do(const std::string& from)
+			{ return from; }
+		};
 	}
 
 	template < typename To, typename From >
