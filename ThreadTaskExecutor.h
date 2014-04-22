@@ -27,8 +27,8 @@ namespace stingray
 
 	private:
 		std::string				_name;
-		volatile bool			_working;
-		volatile bool			_paused;
+		bool					_working;
+		bool					_paused;
 		ThreadPtr				_worker;
 		Mutex					_syncRoot;
 		ConditionVariable		_condVar;
