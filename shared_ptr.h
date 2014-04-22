@@ -189,9 +189,9 @@ namespace stingray
 		}
 
 
-		inline shared_ptr<T>& operator = (const shared_ptr<T>& other)
+		inline shared_ptr& operator = (const shared_ptr& other)
 		{
-			shared_ptr<T> tmp(other);
+			shared_ptr tmp(other);
 			swap(tmp);
 
 			// Uncomment this for tracing shared_ptrs
@@ -207,8 +207,8 @@ namespace stingray
 
 		inline bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
 		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
-		inline bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
-		inline bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
+		inline bool operator == (const shared_ptr& other) const		{ return _rawPtr == other._rawPtr; }
+		inline bool operator != (const shared_ptr& other) const		{ return !(*this == other); }
 
 		inline bool is_initialized() const							{ return _rawPtr != 0; }
 		inline bool boolean_test() const							{ return is_initialized(); }
