@@ -61,19 +61,22 @@ namespace stingray
 		Data		*_value;
 
 	public:
-		inline basic_ref_count(const NullPtrType&) : _value() {}
-		inline basic_ref_count() :
-			_value(new Data)
-		{}
+		inline basic_ref_count(const NullPtrType&) : _value()
+		{ }
+
+		inline basic_ref_count() : _value(new Data)
+		{ }
+
 		inline basic_ref_count(const UserDataType& userData) :
 			_value(new Data(userData))
-		{}
+		{ }
 
 		inline basic_ref_count(const basic_ref_count& other) :
 			_value(other._value)
 		{ if (_value) add_ref_self(); }
 
-		inline ~basic_ref_count() { if (_value) release_self(); }
+		inline ~basic_ref_count()
+		{ if (_value) release_self(); }
 
 		inline basic_ref_count& operator = (const basic_ref_count& other)
 		{
@@ -108,9 +111,7 @@ namespace stingray
 		}
 
 		inline void swap(basic_ref_count& other)
-		{
-			std::swap(_value, other._value);
-		}
+		{ std::swap(_value, other._value); }
 
 		const Data* get_ptr() const
 		{ return _value; }
