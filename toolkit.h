@@ -186,9 +186,6 @@ namespace stingray
 	template<typename T> T implicit_cast(T param) { return param; }
 
 
-	template < typename >
-	class shared_ptr;
-
 	template < typename SrcType >
 	struct InstanceOfTester
 	{
@@ -207,11 +204,7 @@ namespace stingray
 
 	template < typename DestType, typename SrcType >
 	bool inline InstanceOf(const SrcType& obj)
-	{
-		CompileTimeAssert<!Is1ParamTemplate<shared_ptr, DestType>::Value>		ERROR__dest_type_must_not_be_a_shared_ptr;
-		(void)ERROR__dest_type_must_not_be_a_shared_ptr;
-		return InstanceOfTester<SrcType>::template Test<DestType>(obj);
-	}
+	{ return InstanceOfTester<SrcType>::template Test<DestType>(obj); }
 
 
 	template < typename DestType >
