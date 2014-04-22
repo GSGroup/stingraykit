@@ -79,7 +79,7 @@ namespace stingray
 	{ return DynamicCaster<T>(ptr, Dummy()); }
 
 
-	template < typename T > DynamicCaster<typename EnableIf<!Is1ParamTemplate<shared_ptr, T>::Value, T>::ValueT>
+	template < typename T > DynamicCaster<typename EnableIf<!IsSharedPtr<T>::Value, T>::ValueT>
 		dynamic_caster(T& ref)
 	{ return DynamicCaster<T>(ref, Dummy(), Dummy()); }
 

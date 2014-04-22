@@ -197,7 +197,7 @@ namespace stingray
 									(
 										SameType<u8, ObjectType>::Value
 											|| SameType<const char*, ObjectType>::Value
-											|| Is1ParamTemplate<shared_ptr, ObjectType>::Value
+											|| IsSharedPtr<ObjectType>::Value
 											|| Is1ParamTemplate<optional, ObjectType>::Value
 											|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
 										TypeToStringObjectType::Other :
