@@ -5,6 +5,7 @@
 #include <stingray/toolkit/SeekMode.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/ICreator.h>
+#include <stingray/toolkit/ByteData.h>
 
 
 namespace stingray
@@ -14,16 +15,8 @@ namespace stingray
 	{
 		virtual ~IByteStream() { }
 
-		virtual u64 Read(void* data, u64 count) = 0;
-		virtual u64 Write(const void* data, u64 count) = 0;
-
-		template<typename Data>
-		inline u64 ReadData(Data data)
-		{ return Read(data.data(), data.size()); }
-
-		template<typename Data>
-		inline u64 WriteData(Data data)
-		{ return Write(data.data(), data.size()); }
+		virtual u64 Read(ByteData data) = 0;
+		virtual u64 Write(ConstByteData data) = 0;
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin) = 0;
 		virtual u64 Tell() const = 0;

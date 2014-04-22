@@ -30,13 +30,12 @@ namespace stingray
 		template < typename ContainerType, bool IsConstContainer = IsConst<typename ContainerType::value_type>::Value >
 		struct MemoryByteStreamWriter
 		{
-			static u64 Write(ContainerType& container, u64& offset, const void* data, u64 count)
+			static u64 Write(ContainerType& container, u64& offset, ConstByteData data)
 			{
-				const u8* src = static_cast<const u8*>(data);
-				if (container.size() - offset < count)
-					Detail::MemoryByteStreamContainerResizer<ContainerType>::RequireSize(container, offset + count);
-				count = std::min(count, container.size() - offset);
-				std::copy(src, src + count, container.begin() + offset);
+				if (container.size() - offset < data.size())
+					Detail::MemoryByteStreamContainerResizer<ContainerType>::RequireSize(container, offset + data.size());
+				size_t count = std::min<size_t>(data.size(), container.size() - offset);
+				std::copy(data.data(), data.data() + count, container.begin() + offset);
 				offset += count;
 				return count;
 			}
@@ -45,7 +44,7 @@ namespace stingray
 		template < typename ContainerType >
 		struct MemoryByteStreamWriter<ContainerType, true>
 		{
-			static u64 Write(ContainerType& container, u64& offset, const void* data, u64 size)
+			static u64 Write(ContainerType& container, u64& offset, ConstByteData data)
 			{ TOOLKIT_THROW("Cannot write data to a const container!"); }
 		};
 	}
@@ -65,17 +64,16 @@ namespace stingray
 
 		ContainerType GetData() const { return _data; }
 
-		virtual u64 Read(void* data, u64 count)
+		virtual u64 Read(ByteData data)
 		{
-			u8* dst = static_cast<u8*>(data);
-			count = std::min(count, _data.size() - _offset);
-			std::copy(_data.begin() + _offset, _data.begin() + _offset + count, dst);
+			size_t count = std::min<size_t>(data.size(), _data.size() - _offset);
+			std::copy(_data.begin() + _offset, _data.begin() + _offset + count, data.data());
 			_offset += count;
 			return count;
 		}
 
-		virtual u64 Write(const void* data, u64 count)
-		{ return Detail::MemoryByteStreamWriter<ContainerType>::Write(_data, _offset, data, count); }
+		virtual u64 Write(ConstByteData data)
+		{ return Detail::MemoryByteStreamWriter<ContainerType>::Write(_data, _offset, data); }
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{
@@ -102,8 +100,8 @@ namespace stingray
 	IByteStreamPtr CreateMemoryByteStream(const ContainerType& data)
 	{ return make_shared<MemoryByteStream<ContainerType> >(data); }
 
-	IByteStreamPtr CreateMemoryByteStream(const u8* data, size_t size)
-	{ return  make_shared<MemoryByteStream<ConstByteData> >(ConstByteData(data, size)); }
+	IByteStreamPtr CreateMemoryByteStream(ConstByteData data)
+	{ return  make_shared<MemoryByteStream<ConstByteData> >(data); }
 
 }
 

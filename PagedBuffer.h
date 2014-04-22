@@ -17,8 +17,8 @@ namespace stingray
 		{
 			virtual ~IPage() { }
 
-			virtual size_t Read(u64 offset, void* data, size_t count) = 0;
-			virtual size_t Write(u64 offset, const void* data, size_t count) = 0;
+			virtual size_t Read(u64 offset, ByteData data) = 0;
+			virtual size_t Write(u64 offset, ConstByteData data) = 0;
 		};
 		typedef IPage Page;
 		TOOLKIT_DECLARE_PTR(Page);
@@ -176,7 +176,7 @@ namespace stingray
 				MutexLock l(_mutex);
 				p = _pages.at(_pages.size() - pageIdxFromEnd - 1);
 			}
-			if (p->Write(offsetInPage, &data[0], data.size()) != data.size())
+			if (p->Write(offsetInPage, data) != data.size())
 				TOOLKIT_THROW("Page write failed!");
 		}
 
@@ -190,7 +190,7 @@ namespace stingray
 				MutexLock l(_mutex);
 				p = _pages.at(pageIdxFromStart);
 			}
-			if (p->Read(offsetInPage, &data[0], data.size()) != data.size())
+			if (p->Read(offsetInPage, data) != data.size())
 				TOOLKIT_THROW("Page read failed!");
 		}
 	};

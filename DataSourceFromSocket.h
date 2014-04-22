@@ -37,7 +37,7 @@ namespace stingray
 					continue;
 
 				_dataOffset = 0;
-				_dataSize = _socket->Receive(&_packetBuffer[0], _packetBuffer.size());
+				_dataSize = _socket->Receive(ByteData(&_packetBuffer[0], _packetBuffer.size()));
 			}
 
 			ConstByteData data(&_packetBuffer[_dataOffset], _dataSize);
@@ -116,7 +116,7 @@ namespace stingray
 					if (!_socket->Poll(PollTimeout, SelectMode::Read))
 						continue;
 
-					received_size = _socket->Receive(w.GetData().data(), w.GetData().size());
+					received_size = _socket->Receive(w.GetData());
 				}
 
 				w.Push(received_size);
