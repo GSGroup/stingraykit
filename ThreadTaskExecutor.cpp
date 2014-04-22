@@ -19,7 +19,6 @@ namespace stingray
 
 	ThreadTaskExecutor::~ThreadTaskExecutor()
 	{
-		//_worker->Interrupt();
 		{
 			MutexLock l(_syncRoot);
 			_working = false;
@@ -81,7 +80,6 @@ namespace stingray
 						}
 						else
 							top.first();
-					Thread::InterruptionPoint();
 					}
 				}
 				catch(const std::exception& ex)
