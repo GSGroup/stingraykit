@@ -8,6 +8,7 @@
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/TypeInfo.h>
+#include <stingray/toolkit/assert.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/ref_count.h>
@@ -20,10 +21,10 @@ namespace stingray
 
 #define TOOLKIT_DECLARE_PTR(ClassName) \
 		typedef stingray::shared_ptr<ClassName>			ClassName##Ptr; \
-		typedef stingray::weak_ptr<ClassName>				ClassName##WeakPtr
+		typedef stingray::weak_ptr<ClassName>			ClassName##WeakPtr
 
 #define TOOLKIT_DECLARE_CONST_PTR(ClassName) \
-		typedef stingray::shared_ptr<const ClassName>		ClassName##ConstPtr; \
+		typedef stingray::shared_ptr<const ClassName>	ClassName##ConstPtr; \
 		typedef stingray::weak_ptr<const ClassName>		ClassName##ConstWeakPtr
 
 
@@ -45,21 +46,54 @@ namespace stingray
 
 	namespace Detail
 	{
+		struct IDeleter
+		{
+			virtual ~IDeleter() {}
+			virtual void Delete() = 0;
+		};
+
+
 		template < typename T, bool DoTrace = shared_ptr_traits<T>::trace_ref_counts >
 		struct SharedPtrRefCounter
 		{
-			static void DoLogAddRef(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { }
-			static atomic_int_type DoAddRef(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.add_ref(); }
-			static atomic_int_type DoRelease(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.release(); }
+			static void DoLogAddRef(basic_ref_count<IDeleter*>& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { }
+			static atomic_int_type DoAddRef(basic_ref_count<IDeleter*>& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.add_ref(); }
+			static atomic_int_type DoRelease(basic_ref_count<IDeleter*>& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.release(); }
 		};
 
 		template < typename T >
 		struct SharedPtrRefCounter<T, true>
 		{
-			static void DoLogAddRef(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { rc.log_add_ref(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
-			static atomic_int_type DoAddRef(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.add_ref(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
-			static atomic_int_type DoRelease(ref_count& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.release(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
+			static void DoLogAddRef(basic_ref_count<IDeleter*>& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { rc.log_add_ref(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
+			static atomic_int_type DoAddRef(basic_ref_count<IDeleter*>& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.add_ref(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
+			static atomic_int_type DoRelease(basic_ref_count<IDeleter*>& rc, const void* objPtrVal, const void* sharedPtrPtrVal) { return rc.release(shared_ptr_traits<T>::get_trace_class_name(), objPtrVal, sharedPtrPtrVal); }
 		};
+
+
+		template <typename T, typename FunctorType>
+		struct DeleterImpl : public IDeleter
+		{
+		private:
+			T*			_ptr;
+			FunctorType	_func;
+
+		public:
+			DeleterImpl(T* ptr, const FunctorType& func) : _ptr(TOOLKIT_REQUIRE_NOT_NULL(ptr)), _func(func)
+			{ }
+
+			virtual ~DeleterImpl()
+			{ TOOLKIT_ASSERT(!_ptr); }
+
+			virtual void Delete() { TOOLKIT_ASSERT(_ptr); _func(_ptr); _ptr = null; }
+		};
+
+
+		template<typename T, typename FunctorType>
+		inline IDeleter* MakeNewDeleter(T* ptr, const FunctorType& func)
+		{ return new DeleterImpl<T, FunctorType>(ptr, func); }
+
+		inline IDeleter* MakeEmptyDeleter()
+		{ return NULL; }
 	}
 
 
@@ -83,12 +117,15 @@ namespace stingray
 		template < typename U, typename V >
 		friend shared_ptr<U> dynamic_pointer_cast(const shared_ptr<V>&);
 
-	private:
-		T*				_rawPtr;
-		ref_count		_refCount;
+		typedef Detail::IDeleter				DeleterType;
+		typedef basic_ref_count<DeleterType*>	RefCountType;
 
 	private:
-		inline shared_ptr(T* rawPtr, const ref_count& refCount) :
+		T*				_rawPtr;
+		RefCountType	_refCount;
+
+	private:
+		inline shared_ptr(T* rawPtr, const RefCountType& refCount) :
 			_rawPtr(rawPtr), _refCount(refCount)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); }
 
@@ -97,7 +134,17 @@ namespace stingray
 
 
 		explicit inline shared_ptr(T* rawPtr) :
-			_rawPtr(rawPtr), _refCount()
+			_rawPtr(rawPtr), _refCount(Detail::MakeEmptyDeleter())
+		{
+			if (_rawPtr)
+				Detail::SharedPtrRefCounter<T>::DoLogAddRef(_refCount, _rawPtr, this);
+			init_enable_shared_from_this(rawPtr);
+		}
+
+
+		template<typename Deleter>
+		explicit inline shared_ptr(T* rawPtr, const Deleter& deleter) :
+			_rawPtr(rawPtr), _refCount(rawPtr ? Detail::MakeNewDeleter(rawPtr, deleter) : Detail::MakeEmptyDeleter())
 		{
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::DoLogAddRef(_refCount, _rawPtr, this);
@@ -115,7 +162,6 @@ namespace stingray
 		{ }
 
 
-
 		template < typename U >
 		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0) :
 			_rawPtr(other._rawPtr), _refCount(other._refCount)
@@ -129,14 +175,14 @@ namespace stingray
 
 		inline ~shared_ptr()
 		{
-			if (!_rawPtr)
+			if (!_refCount.get_ptr())
 				return;
 
 			if (Detail::SharedPtrRefCounter<T>::DoRelease(_refCount, _rawPtr, this) == 0)
 			{
 				STINGRAY_ANNOTATE_HAPPENS_AFTER(_refCount.get_ptr());
 				STINGRAY_ANNOTATE_RELEASE(_refCount.get_ptr());
-				delete _rawPtr;
+				do_delete();
 			}
 			else
 				STINGRAY_ANNOTATE_HAPPENS_BEFORE(_refCount.get_ptr());
@@ -178,9 +224,7 @@ namespace stingray
 			if (!_refCount.release_if_unique())
 				return false;
 
-			delete _rawPtr;
-			_rawPtr = NULL;
-
+			do_delete();
 			return true;
 		}
 
@@ -233,6 +277,23 @@ namespace stingray
 		{ }
 
 
+		void do_delete()
+		{
+			DeleterType* deleter = _refCount.GetUserData();
+			if (deleter)
+			{
+				if (_rawPtr)
+					deleter->Delete();
+				delete deleter;
+			}
+			else
+				delete _rawPtr;
+
+			_rawPtr = null;
+			_refCount = null;
+		}
+
+
 		inline void check_ptr() const
 		{
 			if (!_rawPtr)
@@ -252,14 +313,12 @@ namespace stingray
 		template <typename U> friend class weak_ptr;
 		template <typename U> friend class shared_ptr;
 
-	private:
-		T*					_rawPtr;
-		mutable ref_count	_refCount;
+		typedef Detail::IDeleter				DeleterType;
+		typedef basic_ref_count<DeleterType*>	RefCountType;
 
 	private:
-		inline weak_ptr(T* rawPtr, const ref_count& refCount)
-			: _rawPtr(rawPtr), _refCount(refCount)
-		{ }
+		T*						_rawPtr;
+		mutable RefCountType	_refCount;
 
 	public:
 		inline weak_ptr()
@@ -273,7 +332,6 @@ namespace stingray
 		inline weak_ptr(const NullPtrType&)
 			: _rawPtr(), _refCount(null)
 		{ }
-
 
 		template < typename U >
 		inline weak_ptr(const shared_ptr<U>& sharedPtr)
