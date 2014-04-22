@@ -26,10 +26,6 @@
 namespace stingray
 {
 
-
-	template < typename T >
-	class shared_ptr;
-
 	template < typename T >
 	std::string ToString(const T& val); // for ArgumentException; TODO find better workaround
 
@@ -251,6 +247,8 @@ namespace stingray
 			_append_extended_diagnostics(result, *tkit_ex);
 
 	}
+
+
 	template < typename ExceptionType >
 	inline std::string diagnostic_information(const ExceptionType& ex)
 	{
@@ -258,7 +256,6 @@ namespace stingray
 		diagnostic_information(result, ex);
 		return result.str();
 	}
-
 
 }
 
