@@ -61,32 +61,36 @@ namespace stingray
 	void ThreadTaskExecutor::ThreadFunc()
 	{
 		MutexLock l(_syncRoot);
-		while (_working)
+		while (true)
 		{
-			while (!_paused && _working && !_queue.empty())
+			if (!_working && _queue.empty())
+				return;
+
+			if (_paused || _queue.empty())
 			{
-				TaskPair top = _queue.front();
-				_queue.pop();
-				try
-				{
-					MutexUnlock ul(l);
-					LocalExecutionGuard guard;
-					if (top.second.Execute(guard))
-					{
-						if (_profileCalls)
-						{
-							AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, ref(top.first)), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
-							top.first();
-						}
-						else
-							top.first();
-					}
-				}
-				catch(const std::exception& ex)
-				{ _exceptionHandler(ex); }
-			}
-			if (_working)
 				_condVar.Wait(_syncRoot);
+				continue;
+			}
+
+			TaskPair top = _queue.front();
+			_queue.pop();
+			try
+			{
+				MutexUnlock ul(l);
+				LocalExecutionGuard guard;
+				if (top.second.Execute(guard))
+				{
+					if (_profileCalls)
+					{
+						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, ref(top.first)), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
+						top.first();
+					}
+					else
+						top.first();
+				}
+			}
+			catch(const std::exception& ex)
+			{ _exceptionHandler(ex); }
 		}
 	}
 
