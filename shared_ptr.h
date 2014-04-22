@@ -88,37 +88,44 @@ namespace stingray
 		ref_count		_refCount;
 
 	private:
-		inline shared_ptr(T* rawPtr, const ref_count& refCount)
-			: _rawPtr(rawPtr), _refCount(refCount)
+		inline shared_ptr(T* rawPtr, const ref_count& refCount) :
+			_rawPtr(rawPtr), _refCount(refCount)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); }
 
 	public:
 		typedef T ValueType;
 
-		explicit inline shared_ptr(T* rawPtr)
-			: _rawPtr(rawPtr), _refCount()
+
+		explicit inline shared_ptr(T* rawPtr) :
+			_rawPtr(rawPtr), _refCount()
 		{
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::DoLogAddRef(_refCount, _rawPtr, this);
 			init_enable_shared_from_this(rawPtr);
 		}
 
-		inline shared_ptr()
-			: _rawPtr(), _refCount(null)
+
+		inline shared_ptr() :
+			_rawPtr(), _refCount(null)
 		{ }
 
-		inline shared_ptr(const NullPtrType&)
-			: _rawPtr(), _refCount(null)
+
+		inline shared_ptr(const NullPtrType&) :
+			_rawPtr(), _refCount(null)
 		{ }
+
+
 
 		template < typename U >
-		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0)
-			: _rawPtr(other._rawPtr), _refCount(other._refCount)
+		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0) :
+			_rawPtr(other._rawPtr), _refCount(other._refCount)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); } // Do not init enable_shared_from_this in copy ctor
 
-		inline shared_ptr(const shared_ptr<T>& other)
-			: _rawPtr(other._rawPtr), _refCount(other._refCount)
+
+		inline shared_ptr(const shared_ptr<T>& other) :
+			_rawPtr(other._rawPtr), _refCount(other._refCount)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); } // Do not init enable_shared_from_this in copy ctor
+
 
 		inline ~shared_ptr()
 		{
@@ -151,15 +158,17 @@ namespace stingray
 			return *this;
 		}
 
+
 		inline bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
 		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
 		inline bool operator == (const shared_ptr<T>& other) const	{ return _rawPtr == other._rawPtr; }
 		inline bool operator != (const shared_ptr<T>& other) const	{ return !(*this == other); }
 
-		inline bool is_initialized() const { return _rawPtr != 0; }
-		inline bool boolean_test() const { return is_initialized(); }
+		inline bool is_initialized() const							{ return _rawPtr != 0; }
+		inline bool boolean_test() const							{ return is_initialized(); }
 
-		inline weak_ptr<T> weak() const { return weak_ptr<T>(*this); }
+		inline weak_ptr<T> weak() const								{ return weak_ptr<T>(*this); }
+
 
 		inline bool release_if_unique()
 		{
@@ -175,11 +184,14 @@ namespace stingray
 			return true;
 		}
 
+
 		inline bool unique() const
 		{ return !_rawPtr || _refCount.get() == 1; }
 
+
 		inline size_t get_ref_count() const
 		{ return _rawPtr? _refCount.get(): 0; }
+
 
 		inline void reset(T* ptr = 0)
 		{
@@ -191,18 +203,23 @@ namespace stingray
 			//new(this) shared_ptr(ptr);
 		}
 
+
 		inline void swap(shared_ptr<T>& other)
 		{
 			std::swap(_rawPtr, other._rawPtr);
 			_refCount.swap(other._refCount);
 		}
 
+
 		inline T* get() const			{ return _rawPtr; }
 		inline T* operator -> () const	{ check_ptr(); return _rawPtr; }
 		inline T& operator * () const	{ check_ptr(); return *_rawPtr; }
 
+
 		template<typename U> bool owner_before(shared_ptr<U> const& other) const
 		{ return _refCount.get_ptr() < other._refCount.get_ptr(); }
+
+
 		template<typename U> bool owner_before(weak_ptr<U> const& other) const
 		{ return _refCount.get_ptr() < other._refCount.get_ptr(); }
 
@@ -210,6 +227,7 @@ namespace stingray
 		template < typename U >
 		inline void init_enable_shared_from_this(const enable_shared_from_this<U>* esft) const
 		{ if (esft) esft->init(*this); }
+
 
 		inline void init_enable_shared_from_this(...) const
 		{ }
@@ -255,6 +273,7 @@ namespace stingray
 		inline weak_ptr(const NullPtrType&)
 			: _rawPtr(), _refCount(null)
 		{ }
+
 
 		template < typename U >
 		inline weak_ptr(const shared_ptr<U>& sharedPtr)
