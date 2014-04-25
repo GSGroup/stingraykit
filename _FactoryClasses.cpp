@@ -9,8 +9,7 @@
 #include <stingray/app/tests/AutoFilter.h>
 #include <stingray/app/zapper/User.h>
 #include <stingray/ca/BasicSubscription.h>
-#include <stingray/crypto/HdcpKey.h>
-#include <stingray/crypto/SymmetricKey.h>
+#include <stingray/crypto/PlainCipherKey.h>
 #include <stingray/hdmi/IHDMI.h>
 #include <stingray/media/ImageFileMediaData.h>
 #include <stingray/media/MediaInfoBase.h>
@@ -89,8 +88,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::User);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscription);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscriptionProvider);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(HdcpKey);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(SymmetricKey);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlainCipherKey);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaPreview);
