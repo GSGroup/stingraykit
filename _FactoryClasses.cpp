@@ -61,7 +61,6 @@
 #include <stingray/tuners/dvbt/DVBTTransport.h>
 #include <stingray/tuners/ip/TsOverIpTransport.h>
 #include <stingray/update/DefaultUpdateRequirement.h>
-#include <stingray/update/system/CheckImageSignature.h>
 #include <stingray/update/system/EraseFlashPartition.h>
 #include <stingray/update/system/WriteFlashPartition.h>
 
@@ -163,7 +162,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBTTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TsOverIpTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMinimalVersionRequirement);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(CheckImageSignature);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(EraseFlashPartition);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(WriteFlashPartition);
 #endif
