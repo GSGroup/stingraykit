@@ -88,6 +88,47 @@ namespace stingray
 	};
 	TOOLKIT_DECLARE_PTR(DataInterceptor);
 
+
+	struct IPacketConsumer
+	{
+		virtual ~IPacketConsumer() {}
+
+		virtual bool Process(ConstByteData packet, const CancellationToken& token) = 0;
+		virtual void EndOfPacket() = 0;
+	};
+	TOOLKIT_DECLARE_PTR(IPacketConsumer);
+
+
+	template <typename FunctorType>
+	struct FunctorPacketConsumer : public virtual IPacketConsumer
+	{
+	private:
+		FunctorType	_func;
+
+	public:
+		FunctorPacketConsumer(const FunctorType& func) : _func(func)
+		{}
+
+		virtual bool Process(ConstByteData data, const CancellationToken& token)	{ return _func(data, token); }
+		virtual void EndOfPacket()													{ _func(null, CancellationToken()); }
+	};
+
+
+	struct IPacketSource
+	{
+		virtual ~IPacketSource() {}
+
+		virtual void Read(IPacketConsumer& consumer, const CancellationToken& token) = 0;
+
+		template <typename FunctorType>
+		void ReadToFunction(const FunctorType& func, const CancellationToken& token)
+		{
+			FunctorPacketConsumer<FunctorType> consumer(func);
+			Read(consumer, token);
+		}
+	};
+	TOOLKIT_DECLARE_PTR(IPacketSource);
+
 }
 
 #endif
