@@ -56,18 +56,9 @@ namespace stingray
 
 		GenericEntityFactory()
 		{
-			TRACER;
-
 			typedef typename Derived::Registry EntityRegistry;
 
 			ForEachInTypeList<EntityRegistry, EntityRegistrator>::Do(this);
-		}
-
-		template < typename EntityTagType::Enum EntityTag, typename EntityType >
-		void Register()
-		{
-			TRACER;
-			_registry.insert(std::make_pair(EntityTag, make_shared<DefaultConstructorCreator<BaseEntityType, EntityType> >()));
 		}
 
 		template < typename StreamType >
@@ -80,6 +71,13 @@ namespace stingray
 			TOOLKIT_CHECK(it != _registry.end(), UnknowEntityTagException(tag));
 
 			return it->second->Create();
+		}
+
+	private:
+		template < typename EntityTagType::Enum EntityTag, typename EntityType >
+		void Register()
+		{
+			_registry.insert(std::make_pair(EntityTag, make_shared<DefaultConstructorCreator<BaseEntityType, EntityType> >()));
 		}
 	};
 
