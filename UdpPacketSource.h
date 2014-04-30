@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_DATASOURCEFROMSOCKET_H
-#define STINGRAY_TOOLKIT_DATASOURCEFROMSOCKET_H
+#ifndef STINGRAY_TOOLKIT_UDPPACKETSOURCE_H
+#define STINGRAY_TOOLKIT_UDPPACKETSOURCE_H
 
 
 #include <stingray/net/ISocket.h>
@@ -11,22 +11,21 @@
 namespace stingray
 {
 
-	struct DataSourceFromSocket : public virtual IDataSource
+	class UdpPacketSource : public virtual IPacketSource
 	{
 		static const u64 	PollTimeout = 100;
 
 	private:
 		ISocketPtr		_socket;
 		std::vector<u8>	_packetBuffer;
-		size_t			_dataOffset;
 		size_t			_dataSize;
 
 	public:
-		DataSourceFromSocket(const ISocketPtr& socket, size_t maxPacketSize) :
-			_socket(socket), _packetBuffer(maxPacketSize), _dataOffset(0), _dataSize(0)
+		UdpPacketSource(const ISocketPtr& socket, size_t maxPacketSize) :
+			_socket(socket), _packetBuffer(maxPacketSize), _dataSize(0)
 		{ }
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer& consumer, const CancellationToken& token)
 		{
 			while (_dataSize == 0)
 			{
@@ -36,14 +35,11 @@ namespace stingray
 				if (!_socket->Poll(PollTimeout, SelectMode::Read))
 					continue;
 
-				_dataOffset = 0;
-				_dataSize = _socket->Receive(ByteData(&_packetBuffer[0], _packetBuffer.size()));
+				_dataSize = _socket->Receive(ByteData(_packetBuffer));
 			}
 
-			ConstByteData data(&_packetBuffer[_dataOffset], _dataSize);
-			size_t processed_size = consumer.Process(data, token);
-			_dataOffset += processed_size;
-			_dataSize -= processed_size;
+			if (consumer.Process(ConstByteData(_packetBuffer, 0, _dataSize), token))
+				_dataSize = 0;
 		}
 	};
 
