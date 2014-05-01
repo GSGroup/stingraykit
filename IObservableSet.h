@@ -26,7 +26,7 @@ namespace stingray
 
 	protected:
 		IObservableSet()
-			: OnChanged(bind(&IObservableSet::OnChangedPopulator, this, _1)) //fixme: if you want to remove this populator, ask dima to implement signal::connect with no-populator override instead and re-add populator in observable lists/dictionaries
+			: OnChanged(bind(&IObservableSet::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual void OnChangedPopulator(const function<void(CollectionOp, const ValueType_&)>& slot)
