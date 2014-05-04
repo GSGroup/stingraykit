@@ -184,7 +184,7 @@ namespace stingray
 			return result;
 		}
 
-		std::string ReadZString()
+		std::string ReadNullTerminatedString()
 		{ return ReadStringTerminatedBy('\0'); }
 
 		template < int ElementSize, typename OutputIterator >
