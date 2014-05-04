@@ -184,6 +184,12 @@ namespace stingray
 			return result;
 		}
 
+		void WriteNullTerminatedString(const std::string& str)
+		{
+			WriteArray<8>(str.begin(), str.end());
+			Write<8>('\0');
+		}
+
 		std::string ReadNullTerminatedString()
 		{ return ReadStringTerminatedBy('\0'); }
 
