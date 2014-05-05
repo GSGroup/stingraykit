@@ -14,6 +14,7 @@ namespace stingray
 	class UdpPacketSource : public virtual IPacketSource
 	{
 		static const u64 	PollTimeout = 100;
+		static const u64 	MaxUdpPacketSize = 65500;
 
 	private:
 		ISocketPtr		_socket;
@@ -21,7 +22,7 @@ namespace stingray
 		size_t			_dataSize;
 
 	public:
-		UdpPacketSource(const ISocketPtr& socket, size_t maxPacketSize) :
+		UdpPacketSource(const ISocketPtr& socket, size_t maxPacketSize = MaxUdpPacketSize) :
 			_socket(socket), _packetBuffer(maxPacketSize), _dataSize(0)
 		{ }
 
