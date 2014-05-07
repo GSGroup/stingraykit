@@ -38,6 +38,8 @@ namespace stingray
 
 			ConstByteData GetData();
 
+			bool IsBufferEnd() const;
+
 			void Pop(size_t bytes);
 		};
 

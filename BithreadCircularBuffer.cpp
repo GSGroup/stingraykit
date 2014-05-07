@@ -51,6 +51,9 @@ namespace stingray
 		{ return _container.size(); }
 
 
+		ConstByteData GetStorage() const
+		{ return _container; }
+
 		ByteData LockForWrite()
 		{
 			MutexLock l(_mutex);
@@ -168,6 +171,14 @@ namespace stingray
 
 	ConstByteData BithreadCircularBuffer::Reader::GetData()
 	{ TOOLKIT_CHECK(_valid, "Already popped data!"); return _data; }
+
+
+	bool BithreadCircularBuffer::Reader::IsBufferEnd() const
+	{
+		TOOLKIT_CHECK(_valid, "Already popped data!");
+		ConstByteData storage(_impl->GetStorage());
+		return (_data.data() + _data.size()) == (storage.data() + storage.size());
+	}
 
 
 	void BithreadCircularBuffer::Reader::Pop(size_t bytes)
