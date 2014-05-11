@@ -34,6 +34,10 @@ namespace stingray
 		}
 
 	public:
+		size_t GetDataSize()			{ return _buffer.GetDataSize(); }
+		size_t GetFreeSize()			{ return _buffer.GetFreeSize(); }
+		size_t GetStorageSize() const	{ return _buffer.GetTotalSize(); }
+
 		void Clear()
 		{
 			MutexLock l(_bufferMutex);
