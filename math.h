@@ -13,10 +13,16 @@ namespace stingray
 	inline s64 abs(s64 val)	{ return val >= 0 ? val : -val; }
 
 	inline size_t AlignUp(size_t value, size_t boundary)
-	{ return boundary * ((value + boundary - 1) / boundary); }
+	{
+		TOOLKIT_CHECK(boundary != 0, ArgumentException("boundary"));
+		return boundary * ((value + boundary - 1) / boundary);
+	}
 
 	inline size_t AlignDown(size_t value, size_t boundary)
-	{ return boundary * (value / boundary); }
+	{
+		TOOLKIT_CHECK(boundary != 0, ArgumentException("boundary"));
+		return boundary * (value / boundary);
+	}
 
 }
 
