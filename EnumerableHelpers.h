@@ -462,7 +462,7 @@ namespace stingray
 		{
 			while (enumerator.Valid() && !predicate(enumerator.Get()))
 				enumerator.Next();
-			return enumerator->Valid() ? enumerator->Get() : T();
+			return enumerator.Valid() ? enumerator.Get() : T();
 		}
 
 
