@@ -115,7 +115,7 @@ namespace stingray
 
 		inline void add_ref()
 		{
-			atomic_int_type count = Atomic::Inc(_value);
+			atomic_int_type count = Atomic::Inc(_value); (void)count;
 			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckAddRef(count));
 		}
 

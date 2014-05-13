@@ -19,16 +19,16 @@ namespace stingray
 		Storage _value;
 
 		template<typename T>
-		void Ctor()											{ CheckCanContain<T>(); T* ptr = new(&_value) T(); assert(ptr == &Ref<T>()); }
+		void Ctor()											{ CheckCanContain<T>(); T* ptr = new(&_value) T(); (void)ptr; assert(ptr == &Ref<T>()); }
 
 		template <typename T, typename P1>
-		void Ctor(const P1& p1)								{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1); assert(ptr == &Ref<T>()); }
+		void Ctor(const P1& p1)								{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1); (void)ptr; assert(ptr == &Ref<T>()); }
 
 		template <typename T, typename P1, typename P2>
-		void Ctor(const P1& p1, const P2& p2)				{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1, p2); assert(ptr == &Ref<T>()); }
+		void Ctor(const P1& p1, const P2& p2)				{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1, p2); (void)ptr; assert(ptr == &Ref<T>()); }
 
 		template <typename T, typename P1, typename P2, typename P3>
-		void Ctor(const P1& p1, const P2& p2, const P3& p3)	{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1, p2, p3); assert(ptr == &Ref<T>()); }
+		void Ctor(const P1& p1, const P2& p2, const P3& p3)	{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1, p2, p3); (void)ptr; assert(ptr == &Ref<T>()); }
 
 		template<typename T>
 		void Dtor()											{ CheckCanContain<T>(); Ref<T>().~T(); }
