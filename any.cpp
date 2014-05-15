@@ -1,8 +1,20 @@
 #include <stingray/toolkit/any.h>
 
+#include <stingray/settings/Serialization.h>
 
 namespace stingray
 {
+
+	namespace Detail {
+	namespace any
+	{
+		void ObjectHolder<ISerializablePtr>::Serialize(ObjectOStream & ar) const
+		{ ar.Serialize("obj", Object); }
+
+		void ObjectHolder<ISerializablePtr>::Deserialize(ObjectIStream & ar)
+		{ ar.Deserialize("obj", Object); }
+	}}
+
 
 	void any::Copy(Type type, const DataType& data)
 	{
@@ -73,8 +85,11 @@ namespace stingray
 		STRING(ULongLong);
 		STRING(Float);
 		STRING(Double);
-		case Type::String:	return _data.String.Ref();
-		case Type::Object:	return _data.Object->ToString();
+		case Type::String:
+			return _data.String.Ref();
+		case Type::Object:
+		case Type::SerializableObject:
+			return _data.Object->ToString();
 		}
 		TOOLKIT_THROW("Unknown type: " + _type.ToString());
 	}
@@ -104,6 +119,7 @@ namespace stingray
 		SERIALIZE(Double);
 		case Type::String: ar.Serialize("val", _data.String.Ref()); return;
 		case Type::Object:
+		case Type::SerializableObject:
 			{
 				TOOLKIT_CHECK(_data.Object->IsSerializable(), "'any' object (" + Demangle(typeid(*_data.Object).name()) + ") is not a serializable one!");
 				const IFactoryObjectCreator& creator = _data.Object->GetFactoryObjectCreator();
@@ -149,6 +165,7 @@ namespace stingray
 			}
 			break;
 		case Type::Object:
+		case Type::SerializableObject:
 			{
 				std::string classname;
 				ar.Deserialize(".class", classname);

@@ -5,8 +5,8 @@
 #include <iostream>
 #include <typeinfo>
 
-#include <stingray/settings/IsSerializable.h>
-#include <stingray/settings/Serialization.h>
+#include <stingray/settings/ISerializable.h>
+#include <stingray/toolkit/Factory.h>
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/aligned_storage.h>
@@ -39,7 +39,8 @@ namespace stingray
 				Float,
 				Double,
 				String,
-				Object
+				Object,
+				SerializableObject
 			);
 			TOOLKIT_DECLARE_ENUM_CLASS(AnyType);
 		};
@@ -59,6 +60,10 @@ namespace stingray
 		struct ObjectToString
 		{ static std::string ToString(const T& obj) { return "<not a string-representable type>"; } };
 
+		template < >
+		struct ObjectToString<ISerializablePtr, true>
+		{ static std::string ToString(const ISerializablePtr& obj) { return "<a class derived from ISerializable>"; } };
+
 		template < typename T >
 		struct ObjectToString<T, true>
 		{ static std::string ToString(const T& obj) { return stingray::ToString(obj); } };
@@ -70,27 +75,6 @@ namespace stingray
 		template < typename T >
 		struct ObjectHolder;
 
-		template
-		<
-			typename T,
-			bool IsSerializable_ = IsSerializable<T>::Value && HasMethod_GetStaticFactoryObjectCreator<ObjectHolder<T> >::Value
-		>
-		struct ObjectSerializer
-		{
-			static void Serialize(ObjectOStream & ar, const T& obj) { TOOLKIT_THROW(NotSupportedException()); }
-			static void Deserialize(ObjectIStream & ar, T& obj) { TOOLKIT_THROW(NotSupportedException()); }
-			static bool IsSerializable() { return false; }
-		};
-
-		template < typename T >
-		struct ObjectSerializer<T, true>
-		{
-			static void Serialize(ObjectOStream & ar, const T& obj)	{ ar.Serialize("obj", obj); }
-			static void Deserialize(ObjectIStream & ar, T& obj)		{ ar.Deserialize("obj", obj); }
-			static bool IsSerializable() { return true; }
-		};
-
-
 		template < typename T >
 		struct ObjectHolderBase : public virtual IObjectHolder
 		{
@@ -101,9 +85,6 @@ namespace stingray
 
 			virtual IObjectHolder* Clone() const				{ return new ObjectHolder<T>(Object); }
 			virtual std::string ToString() const				{ return ObjectToString<T>::ToString(Object); }
-			virtual void Serialize(ObjectOStream & ar) const	{ ObjectSerializer<T>::Serialize(ar, Object); }
-			virtual void Deserialize(ObjectIStream & ar)		{ ObjectSerializer<T>::Deserialize(ar, Object); }
-			virtual bool IsSerializable() const					{ return ObjectSerializer<T>::IsSerializable(); }
 		};
 
 		template < typename T >
@@ -111,7 +92,22 @@ namespace stingray
 		{
 			ObjectHolder(const T& object) : ObjectHolderBase<T>(object) { }
 
+			virtual void Serialize(ObjectOStream & ar) const	{ TOOLKIT_THROW(NotSupportedException()); }
+			virtual void Deserialize(ObjectIStream & ar)		{ TOOLKIT_THROW(NotSupportedException()); }
+			virtual bool IsSerializable() const					{ return false; }
+
 			virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const { TOOLKIT_THROW(NotImplementedException()); }
+		};
+
+		template < >
+		struct ObjectHolder<ISerializablePtr> : public ObjectHolderBase<ISerializablePtr>
+		{
+			ObjectHolder() { }
+			ObjectHolder(const ISerializablePtr& object) : ObjectHolderBase<ISerializablePtr>(object) { }
+			virtual void Serialize(ObjectOStream & ar) const;
+			virtual void Deserialize(ObjectIStream & ar);
+			virtual bool IsSerializable() const					{ return true; }
+			TOOLKIT_REGISTER_CLASS(ObjectHolder<ISerializablePtr>);
 		};
 
 #define TOOLKIT_DECLARE_SERIALIZABLE_ANY_OBJECTHOLDER(...) \
@@ -123,6 +119,9 @@ namespace stingray
 			{ \
 				ObjectHolder() { } \
 				ObjectHolder(const __VA_ARGS__& object) : ObjectHolderBase<__VA_ARGS__>(object) { } \
+				virtual void Serialize(ObjectOStream & ar) const	{ ar.Serialize("obj", Object); } \
+				virtual void Deserialize(ObjectIStream & ar)		{ ar.Deserialize("obj", Object); } \
+				virtual bool IsSerializable() const					{ return true; } \
 				TOOLKIT_REGISTER_CLASS(ObjectHolder<__VA_ARGS__>); \
 			}; \
 		}}}
@@ -146,11 +145,23 @@ namespace stingray
 			IObjectHolder*			Object;
 		};
 
+		template < typename T, bool IsPtr = IsSharedPtr<T>::Value >
+		struct IsPtrToISerializable
+		{ static const bool Value = false; };
+
 		template < typename T >
+		struct IsPtrToISerializable<T, true>
+		{ static const bool Value = Inherits<typename GetSharedPtrParam<T>::ValueT, ISerializable>::Value; };
+
+		template < typename T, bool PtrToISerializable = IsPtrToISerializable<T>::Value >
 		struct CppTypeToAnyUnionType
 		{ static const AnyType::Enum Value = AnyType::Object; };
 
-#define CPPTYPE_TO_ANYUNIONTYPE(Type_, EnumVal_) template < > struct CppTypeToAnyUnionType<Type_> { static const AnyType::Enum Value = AnyType::EnumVal_; }
+		template < typename T >
+		struct CppTypeToAnyUnionType<T, true>
+		{ static const AnyType::Enum Value = AnyType::SerializableObject; };
+
+#define CPPTYPE_TO_ANYUNIONTYPE(Type_, EnumVal_) template < bool PtrToISerializable > struct CppTypeToAnyUnionType<Type_, PtrToISerializable> { static const AnyType::Enum Value = AnyType::EnumVal_; }
 		CPPTYPE_TO_ANYUNIONTYPE( bool,					Bool );
 		CPPTYPE_TO_ANYUNIONTYPE( char,					Char );
 		CPPTYPE_TO_ANYUNIONTYPE( unsigned char,			UChar );
@@ -195,6 +206,7 @@ namespace stingray
 		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return &data.Double );
 		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val),					return &data.String.Ref() );
 		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),	ObjectHolder<T>* obj_holder = dynamic_cast<ObjectHolder<T>*>(data.Object); if (obj_holder) return &obj_holder->Object; return NULL; );
+		ANY_VAL_ACCESSOR( SerializableObject,	data.Object	= new ObjectHolder<ISerializablePtr>(val),	ObjectHolder<ISerializablePtr>* obj_holder = dynamic_cast<ObjectHolder<ISerializablePtr>*>(data.Object); if (obj_holder) return dynamic_cast<T*>(obj_holder->Object.get()); return NULL; );
 #undef ANY_VAL_ACCESSOR
 
 	}}
