@@ -2,8 +2,6 @@
 #define STINGRAY_TOOLKIT_ILIST_H
 
 
-#include <stingray/settings/IsSerializable.h>
-#include <stingray/settings/Serialization.h>
 #include <stingray/toolkit/ICollection.h>
 
 
@@ -20,43 +18,8 @@ namespace stingray
 	 * @{
 	 */
 
-	namespace Detail
-	{
-		template < typename T, typename ValueType_, bool IsSerializable_ = IsSerializable<ValueType_>::Value >
-		struct SerializableList
-		{
-			virtual ~SerializableList() { }
-
-			virtual void SerializeAsValue(ObjectOStream & ar) const
-			{
-				const T* inst = static_cast<const T*>(this);
-				std::vector<ValueType_> v;
-				v.reserve(inst->GetCount());
-				FOR_EACH(ValueType_ val IN inst->GetEnumerator())
-					v.push_back(val);
-				ar.Serialize(v);
-			}
-
-			virtual void DeserializeAsValue(ObjectIStream & ar)
-			{
-				T* inst = static_cast<T*>(this);
-				std::vector<ValueType_> v;
-				ar.Deserialize(v);
-				inst->Clear();
-				for (typename std::vector<ValueType_>::const_iterator it = v.begin(); it != v.end(); ++it)
-					inst->Add(*it);
-			}
-		};
-
-		template < typename T, typename ValueType_ >
-		struct SerializableList<T, ValueType_, false>
-		{
-			virtual ~SerializableList() { }
-		};
-	}
-
 	template < typename T >
-	struct IList : public virtual ICollection<T>, public virtual IReversableEnumerable<T>, public Detail::SerializableList<IList<T>, T >
+	struct IList : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
 	{
 		typedef T	ValueType;
 
@@ -98,6 +61,10 @@ namespace stingray
 				Remove(Get(0));
 		}
 	};
+
+	template < typename T >
+	struct InheritsIList : public Inherits1ParamTemplate<T, IList>
+	{ };
 
 	/** @} */
 

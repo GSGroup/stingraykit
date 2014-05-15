@@ -2,10 +2,7 @@
 #define STINGRAY_TOOLKIT_ISET_H
 
 
-#include <stingray/settings/IsSerializable.h>
-#include <stingray/settings/Serialization.h>
-#include <stingray/toolkit/IList.h>
-//included here for SerializableList which is the same serialization helper needed here
+#include <stingray/toolkit/ICollection.h>
 
 
 #define TOOLKIT_DECLARE_SET(ClassName) \
@@ -22,7 +19,7 @@ namespace stingray
 	 */
 
 	template < typename T >
-	struct ISet : public virtual ICollection<T>, public virtual IReversableEnumerable<T>, public Detail::SerializableList<ISet<T>, T >
+	struct ISet : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
 	{
 		typedef T	ValueType;
 

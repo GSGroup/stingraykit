@@ -39,7 +39,7 @@ namespace stingray
 
 	template < typename Wrapped_ >
 	struct ObservableSetWrapper
-		:	public Detail::ObservableSerializableList<ObservableSetWrapper<Wrapped_>, Wrapped_>,
+		:	public  Wrapped_,
 			public virtual IObservableSet<typename Wrapped_::ValueType>
 	{
 		typedef typename Wrapped_::ValueType	ValueType;
