@@ -129,6 +129,30 @@ namespace stingray
 		static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) );
 	};
 
+	template < typename Derived, template <typename> class Base>
+	class Inherits1ParamTemplate
+	{
+	private:
+		template < typename T >
+		static YesType TestInheritance(const Base<T>*);
+		static NoType TestInheritance(...);
+
+	public:
+		static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) );
+	};
+
+	template < typename Derived, template <typename, typename> class Base>
+	class Inherits2ParamTemplate
+	{
+	private:
+		template < typename T1, typename T2 >
+		static YesType TestInheritance(const Base<T1, T2>*);
+		static NoType TestInheritance(...);
+
+	public:
+		static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) );
+	};
+
 
 	template < typename T >
 	struct GetConstReferenceType
