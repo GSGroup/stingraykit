@@ -8,6 +8,7 @@
 
 #include <stingray/toolkit/EnumeratorFromStlContainer.h>
 #include <stingray/toolkit/IDictionary.h>
+#include <stingray/toolkit/KeyNotFoundExceptionCreator.h>
 
 
 namespace stingray

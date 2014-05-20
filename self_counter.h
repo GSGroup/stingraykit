@@ -2,8 +2,9 @@
 #define STINGRAY_TOOLKIT_SELF_COUNTER_H
 
 #include <stingray/toolkit/Atomic.h>
-#include <stingray/toolkit/safe_bool.h>
+#include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/exception.h>
+#include <stingray/toolkit/safe_bool.h>
 
 #define TOOLKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
 

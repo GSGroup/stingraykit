@@ -7,7 +7,6 @@
 #include <sstream>
 
 #include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/iterators.h>
 #include <stingray/toolkit/Tuple.h>
 #include <stingray/toolkit/variant.h>
 

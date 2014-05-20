@@ -3,7 +3,6 @@
 
 
 #include <stingray/threads/Thread.h>
-#include <stingray/toolkit/BithreadCircularBuffer.h>
 #include <stingray/toolkit/IDataSource.h>
 #include <stingray/toolkit/DataBuffer.h>
 

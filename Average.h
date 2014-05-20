@@ -1,7 +1,6 @@
 #ifndef STINGRAY_TOOLKIT_AVERAGE_H
 #define STINGRAY_TOOLKIT_AVERAGE_H
 
-#include <stingray/toolkit/toolkit.h>
 
 namespace stingray 
 {

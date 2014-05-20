@@ -3,7 +3,6 @@
 
 
 #include <stingray/toolkit/shared_ptr.h>
-#include <stingray/toolkit/TypeList.h>
 
 
 #define TOOLKIT_DECLARE_CREATOR(ClassName) \

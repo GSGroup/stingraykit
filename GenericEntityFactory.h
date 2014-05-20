@@ -4,7 +4,6 @@
 
 #include <map>
 
-#include <stingray/log/Logger.h>
 #include <stingray/toolkit/ICreator.h>
 
 

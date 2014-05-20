@@ -8,7 +8,6 @@
 #include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/NestedTypeCheck.h>
 #include <stingray/toolkit/EnumToString.h>
-#include <stingray/toolkit/Dummy.h>
 
 namespace stingray
 {

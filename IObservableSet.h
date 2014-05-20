@@ -5,7 +5,6 @@
 #include <stingray/toolkit/ISet.h>
 #include <stingray/toolkit/signals.h>
 #include <stingray/toolkit/toolkit.h>
-#include <stingray/toolkit/IObservableList.h>
 #include <stingray/toolkit/ObservableCollectionLocker.h>
 
 

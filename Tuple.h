@@ -3,8 +3,8 @@
 
 
 #include <stingray/toolkit/Dummy.h>
-#include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/TypeList.h>
+#include <stingray/toolkit/Types.h>
 
 
 namespace stingray

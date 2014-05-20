@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_RANDOM_H
 
 
-#include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/Types.h>
 
 
 namespace stingray

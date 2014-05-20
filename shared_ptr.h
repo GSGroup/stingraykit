@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include <stingray/toolkit/Atomic.h>
+#include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/TypeInfo.h>
 #include <stingray/toolkit/assert.h>

@@ -1,6 +1,5 @@
 #include <stingray/toolkit/TypeInfo.h>
 
-#include <stingray/toolkit/toolkit.h>
 
 
 namespace stingray
