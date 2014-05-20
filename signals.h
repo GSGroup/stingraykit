@@ -2,7 +2,6 @@
 #define STINGRAY_TOOLKIT_SIGNALS_H
 
 
-#include <stingray/log/Logger.h>
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/assert.h>
 #include <stingray/toolkit/async_function.h>
