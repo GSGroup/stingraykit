@@ -3,7 +3,6 @@
 
 
 #include <stingray/threads/Thread.h>
-#include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/function.h>
 #include <stingray/toolkit/optional.h>
 
