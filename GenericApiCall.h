@@ -12,8 +12,9 @@
 		const ReturnType res = __VA_ARGS__; \
 		if (res != SuccessValue) \
 		{ \
+			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
 			std::string msg = #__VA_ARGS__ " failed, result = " + ToString(res); \
-			s_logger.Error() << msg; \
+			TOOLKIT_STATIC_LOGGER.Error() << msg; \
 			TOOLKIT_THROW(std::runtime_error(msg)); \
 		} \
 	} while (0)
@@ -25,7 +26,8 @@
 		const ReturnType res = __VA_ARGS__; \
 		if (res != SuccessValue) \
 		{ \
-			Logger::Error() << #__VA_ARGS__ " failed, result = " << (int)res; \
+			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
+			TOOLKIT_STATIC_LOGGER.Error() << #__VA_ARGS__ " failed, result = " << (int)res; \
 		} \
 	} while (0)
 
