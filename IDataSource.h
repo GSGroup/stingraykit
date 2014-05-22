@@ -129,6 +129,31 @@ namespace stingray
 	};
 	TOOLKIT_DECLARE_PTR(IPacketSource);
 
+
+	struct ByteDataPacketSource : public virtual IPacketSource
+	{
+	private:
+		optional<ConstByteData> _data;
+
+	public:
+		ByteDataPacketSource()
+		{}
+
+		void SetData(ConstByteData data)
+		{ _data = data; }
+
+		virtual void Read(IPacketConsumer& consumer, const CancellationToken& token)
+		{
+			if (_data)
+			{
+				consumer.Process(*_data, token);
+				_data.reset();
+			}
+		}
+	};
+	TOOLKIT_DECLARE_PTR(ByteDataPacketSource);
+
+
 }
 
 #endif
