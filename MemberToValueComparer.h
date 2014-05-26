@@ -100,7 +100,7 @@ namespace stingray
 	};
 
 	template <typename MemberPointer, typename Comparer = std::equal_to<typename MemberExtractor<MemberPointer>::MemberType>, typename DereferencingManager = AllowDereferencing>
-	struct MemberToValueComparer
+	struct MemberToValueComparer : public function_info<bool, typename TypeList<typename MemberExtractor<MemberPointer>::ClassType>::type>
 	{
 		typedef MemberExtractor<MemberPointer>		Extractor;
 		typedef typename Extractor::MemberType		MemberType;
