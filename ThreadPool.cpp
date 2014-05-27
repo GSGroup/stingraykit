@@ -52,11 +52,11 @@ namespace stingray
 	{ }
 
 
-	void ThreadPool::AddTask(const function<void()>& task)
+	void ThreadPool::Queue(const function<void()>& task)
 	{ DoAddTask(bind(&WorkerWrapper::TryAddTask, _1, task)); }
 
 
-	void ThreadPool::AddTask(const function<void()>& task, const FutureExecutionTester& tester)
+	void ThreadPool::Queue(const function<void()>& task, const FutureExecutionTester& tester)
 	{ DoAddTask(bind(&WorkerWrapper::TryAddTaskWithTester, _1, task, tester)); }
 
 

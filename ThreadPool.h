@@ -43,8 +43,8 @@ namespace stingray
 	public:
 		ThreadPool(const std::string& name, u32 maxThreads);
 
-		void AddTask(const function<void()>& task);
-		void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
+		void Queue(const function<void()>& task);
+		void Queue(const function<void()>& task, const FutureExecutionTester& tester);
 
 	private:
 		void DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc);
