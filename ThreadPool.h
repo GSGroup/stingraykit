@@ -10,7 +10,7 @@
 namespace stingray
 {
 
-	class ThreadPool // Should not inherit the ITaskExecutor!
+	class ThreadPool
 	{
 		TOOLKIT_NONCOPYABLE(ThreadPool);
 
