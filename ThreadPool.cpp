@@ -1,4 +1,4 @@
-#include <stingray/toolkit/TaskExecutorPool.h>
+#include <stingray/toolkit/ThreadPool.h>
 
 #include <stingray/toolkit/bind.h>
 
@@ -6,34 +6,34 @@
 namespace stingray
 {
 
-	TaskExecutorPool::WorkerWrapper::WorkerWrapper(const std::string& name)
+	ThreadPool::WorkerWrapper::WorkerWrapper(const std::string& name)
 		: _busy(false), _worker(ITaskExecutor::Create(name))
 	{ }
 
 
-	bool TaskExecutorPool::WorkerWrapper::TryAddTask(const function<void()>& task)
+	bool ThreadPool::WorkerWrapper::TryAddTask(const function<void()>& task)
 	{
 		MutexLock l(_mutex);
 		if (_busy)
 			return false;
 		_busy = true;
-		_worker->AddTask(bind(&TaskExecutorPool::WorkerWrapper::TaskWrapper, this, task));
+		_worker->AddTask(bind(&ThreadPool::WorkerWrapper::TaskWrapper, this, task));
 		return true;
 	}
 
 
-	bool TaskExecutorPool::WorkerWrapper::TryAddTaskWithTester(const function<void()>& task, const FutureExecutionTester& tester)
+	bool ThreadPool::WorkerWrapper::TryAddTaskWithTester(const function<void()>& task, const FutureExecutionTester& tester)
 	{
 		MutexLock l(_mutex);
 		if (_busy)
 			return false;
 		_busy = true;
-		_worker->AddTask(bind(&TaskExecutorPool::WorkerWrapper::TaskWrapper, this, task), tester);
+		_worker->AddTask(bind(&ThreadPool::WorkerWrapper::TaskWrapper, this, task), tester);
 		return true;
 	}
 
 
-	void TaskExecutorPool::WorkerWrapper::TaskWrapper(const function<void()>& task)
+	void ThreadPool::WorkerWrapper::TaskWrapper(const function<void()>& task)
 	{
 		task();
 		{
@@ -47,20 +47,20 @@ namespace stingray
 	///////////////////////////////////////////////////////////////
 
 
-	TaskExecutorPool::TaskExecutorPool(const std::string& name, u32 maxThreads)
+	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads)
 		: _name(name), _maxThreads(maxThreads)
 	{ }
 
 
-	void TaskExecutorPool::AddTask(const function<void()>& task)
+	void ThreadPool::AddTask(const function<void()>& task)
 	{ DoAddTask(bind(&WorkerWrapper::TryAddTask, _1, task)); }
 
 
-	void TaskExecutorPool::AddTask(const function<void()>& task, const FutureExecutionTester& tester)
+	void ThreadPool::AddTask(const function<void()>& task, const FutureExecutionTester& tester)
 	{ DoAddTask(bind(&WorkerWrapper::TryAddTaskWithTester, _1, task, tester)); }
 
 
-	void TaskExecutorPool::DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc)
+	void ThreadPool::DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc)
 	{
 		MutexLock l(_mutex);
 		for (Workers::const_iterator it = _workers.begin(); it != _workers.end(); ++it)

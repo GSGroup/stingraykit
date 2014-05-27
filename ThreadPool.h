@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TASKEXECUTORPOOL_H
-#define STINGRAY_TOOLKIT_TASKEXECUTORPOOL_H
+#ifndef STINGRAY_TOOLKIT_THREADPOOL_H
+#define STINGRAY_TOOLKIT_THREADPOOL_H
 
 
 #include <vector>
@@ -10,9 +10,9 @@
 namespace stingray
 {
 
-	class TaskExecutorPool // Should not inherit the ITaskExecutor!
+	class ThreadPool // Should not inherit the ITaskExecutor!
 	{
-		TOOLKIT_NONCOPYABLE(TaskExecutorPool);
+		TOOLKIT_NONCOPYABLE(ThreadPool);
 
 		class WorkerWrapper
 		{
@@ -41,7 +41,7 @@ namespace stingray
 		Workers			_workers;
 
 	public:
-		TaskExecutorPool(const std::string& name, u32 maxThreads);
+		ThreadPool(const std::string& name, u32 maxThreads);
 
 		void AddTask(const function<void()>& task);
 		void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
@@ -49,7 +49,7 @@ namespace stingray
 	private:
 		void DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc);
 	};
-	TOOLKIT_DECLARE_PTR(TaskExecutorPool);
+	TOOLKIT_DECLARE_PTR(ThreadPool);
 
 }
 
