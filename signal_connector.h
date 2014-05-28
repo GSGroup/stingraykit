@@ -1,6 +1,12 @@
 #ifndef STINGRAY_TOOLKIT_SIGNAL_CONNECTOR_H
 #define STINGRAY_TOOLKIT_SIGNAL_CONNECTOR_H
 
+
+#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/async_function.h>
+#include <stingray/toolkit/signal_connection.h>
+
+
 namespace stingray
 {
 
