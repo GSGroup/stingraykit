@@ -19,20 +19,11 @@ namespace stingray
 	template < typename ValueType_ >
 	struct IObservableSet : public virtual ISet<ValueType_>
 	{
-		signal<void(CollectionOp, const ValueType_&)>	OnChanged;
-
-		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
+		virtual signal_connector<void(CollectionOp, const ValueType_&)>	OnChanged() const = 0;
+		virtual const Mutex& GetSyncRoot() const = 0;
 
 	protected:
-		IObservableSet()
-			: OnChanged(bind(&IObservableSet::OnChangedPopulator, this, _1))
-		{ }
-
-		virtual void OnChangedPopulator(const function<void(CollectionOp, const ValueType_&)>& slot)
-		{
-			FOR_EACH(ValueType_ v IN this->GetEnumerator())
-				slot(CollectionOp::Added, v);
-		}
+		virtual void InvokeOnChanged(CollectionOp, const ValueType_&) = 0;
 	};
 
 
