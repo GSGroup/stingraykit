@@ -549,6 +549,21 @@ namespace stingray
 		{ return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, not_(predicate)); }
 
 
+		template < typename T >
+		bool SequenceEqual(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second, const function<bool(const T&, const T&)>& equalPredicate)
+		{
+			shared_ptr<IEnumerator<T> > l(first->GetEnumerator()), r(first->GetEnumerator());
+			for (l, r; l->Valid() && r->Valid(); l.Next(), r.Next())
+				if (!equalPredicate(l->Get(), r->Get()))
+					return false;
+			return !l->Valid() && !l->Valid();
+		}
+
+		template < typename T >
+		bool SequenceEqual(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second)
+		{ return SequenceEqual(first, second, std::equal_to<T>()); }
+
+
 #undef DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS
 #undef DETAIL_ENUMERABLE_HELPER_METHODS
 
