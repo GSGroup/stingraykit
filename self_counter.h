@@ -97,7 +97,8 @@ namespace stingray
 	template<typename T>
 	class self_counter
 	{
-		atomic_int_type _value;
+		mutable atomic_int_type	_value;
+
 	private:
 		TOOLKIT_NONCOPYABLE(self_counter);
 
@@ -114,13 +115,13 @@ namespace stingray
 			return self_count_ptr<T>(static_cast<T*>(this));
 		}
 
-		inline void add_ref()
+		inline void add_ref() const
 		{
 			atomic_int_type count = Atomic::Inc(_value); (void)count;
 			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckAddRef(count));
 		}
 
-		inline void release_ref()
+		inline void release_ref() const
 		{
 			atomic_int_type count = Atomic::Dec(_value);
 			if (count == 0)
