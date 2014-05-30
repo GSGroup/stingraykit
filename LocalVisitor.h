@@ -57,7 +57,7 @@ namespace stingray
 	 */
 #define STINGRAY_LOCAL_VISITOR(RetType_, Variant_, ...) \
 		TOOLKIT_CAT(STINGRAY_DECLARE_LOCAL_VISITOR_ARGS_, TOOLKIT_NARGS(__VA_ARGS__))(__VA_ARGS__) \
-		class TOOLKIT_CAT(LocalVisitor, __LINE__) : protected LocalVisitorBase<RetType_, Variant_::TypeList>, protected TOOLKIT_CAT(LocalVisitorArgs, __LINE__) \
+		class TOOLKIT_CAT(LocalVisitor, __LINE__) : protected stingray::LocalVisitorBase<RetType_, Variant_::TypeList>, protected TOOLKIT_CAT(LocalVisitorArgs, __LINE__) \
 		{ \
 			typedef LocalVisitorBase<RetType_, Variant_::TypeList>		base; \
 		public: \
