@@ -84,7 +84,7 @@ namespace stingray
 #define P_(N) const T##N& p##N
 #define DETAIL_TOOLKIT_DECLARE_MAKEMEMBERLISTCOMPARER(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 	template < TypesDecl_ > \
-	MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > CompareMemberListNonAdapted(ParamsDecl_) \
+	MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > CompareMembersCmp(ParamsDecl_) \
 	{ return MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
 	template <TypesDecl_> \
 	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less> CompareMembersLess(ParamsDecl_) \
