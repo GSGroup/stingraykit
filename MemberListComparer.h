@@ -86,9 +86,12 @@ namespace stingray
 	template < TypesDecl_ > \
 	MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > CompareMemberListNonAdapted(ParamsDecl_) \
 	{ return MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
-	template <template<typename> class Adapter, TypesDecl_> \
-	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, Adapter> CompareMemberList(ParamsDecl_, const Adapter<int> &adapter = Adapter<int>()) \
-	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, Adapter>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), adapter); }
+	template <TypesDecl_> \
+	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less> CompareMembersLess(ParamsDecl_) \
+	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::less<int>()); } \
+	template <TypesDecl_> \
+	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::equal_to> CompareMembersEquals(ParamsDecl_) \
+	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::equal_to>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::equal_to<int>()); }
 
 
 	DETAIL_TOOLKIT_DECLARE_MAKEMEMBERLISTCOMPARER(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
