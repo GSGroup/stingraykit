@@ -552,11 +552,11 @@ namespace stingray
 		template < typename T, typename PredicateFunc >
 		bool SequenceEqual(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second, const PredicateFunc& equalPredicate)
 		{
-			shared_ptr<IEnumerator<T> > l(first->GetEnumerator()), r(first->GetEnumerator());
+			shared_ptr<IEnumerator<T> > l(first->GetEnumerator()), r(second->GetEnumerator());
 			for (; l->Valid() && r->Valid(); l->Next(), r->Next())
 				if (!equalPredicate(l->Get(), r->Get()))
 					return false;
-			return !l->Valid() && !l->Valid();
+			return !l->Valid() && !r->Valid();
 		}
 
 		template < typename T >
