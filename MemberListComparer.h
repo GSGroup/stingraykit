@@ -116,24 +116,6 @@ namespace stingray
 #undef P_
 #undef TY
 
-
-	template <typename MemberPointerType, MemberPointerType MemberPointer, template <typename> class Comparer>
-	struct PrimaryKeyHelper
-	{
-		typedef MemberExtractor<MemberPointerType> Extractor;
-		typedef typename Extractor::ClassType ClassType;
-		typedef typename Extractor::MemberType MemberType;
-		typedef MemberToValueComparer<MemberPointerType, Comparer<MemberType> >		UnaryT;
-		typedef MemberExtractorComparer<MemberPointerType, Comparer<MemberType>	>	BinaryToValueT;
-		typedef MemberListComparer<Tuple<TypeList_1<MemberPointerType> > >			BinaryNonAdaptedT;
-		typedef CmpAdapter<BinaryNonAdaptedT, Comparer>								BinaryT;
-
-		static UnaryT Unary(const MemberType& value = MemberType())	{ return CompareMemberToValue<Comparer>(MemberPointer, value); }
-		static BinaryToValueT BinaryToValue()						{ return CompareMember<Comparer>(MemberPointer); }
-		static BinaryT Binary()										{ return CompareMemberList<Comparer>(MemberPointer); }
-	};
-
-
 }
 
 #endif
