@@ -82,9 +82,12 @@ namespace stingray
 		inline void swap(self_count_ptr<T>& other) { std::swap(_rawPtr, other._rawPtr); }
 
 		inline T* get() const				{ return _rawPtr; }
-		inline T* operator -> () const	{ check_ptr(); return _rawPtr; }
+		inline T* operator -> () const		{ check_ptr(); return _rawPtr; }
 		inline T& operator * () const		{ check_ptr(); return *_rawPtr; }
-		inline bool unique() const		{ return _rawPtr? _rawPtr->value() == 1: true; }
+		inline bool unique() const			{ return _rawPtr? _rawPtr->value() == 1: true; }
+
+		bool before(const self_count_ptr &other) const
+		{ return get() < other.get(); }
 
 	private:
 		inline void check_ptr() const
@@ -137,6 +140,16 @@ namespace stingray
 
 		inline int value() const		{ return _value; }
 	};
+
+	template<typename T>
+	struct self_count_less;
+
+	template<typename T>
+	struct self_count_less<self_count_ptr<T> > : public std::binary_function<self_count_ptr<T>, self_count_ptr<T>, bool>
+	{
+		bool operator()(const self_count_ptr<T>& t1, const self_count_ptr<T>& t2) const		{ return t1.before(t2); }
+	};
+
 
 
 #define DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) typename TOOLKIT_CAT(Param, Index_)

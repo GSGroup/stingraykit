@@ -84,11 +84,14 @@ namespace stingray
 #define P_(N) const T##N& p##N
 #define DETAIL_TOOLKIT_DECLARE_MAKEMEMBERLISTCOMPARER(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 	template < TypesDecl_ > \
-	MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > CompareMemberListNonAdapted(ParamsDecl_) \
+	MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > CompareMembersCmp(ParamsDecl_) \
 	{ return MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
-	template <template<typename> class Adapter, TypesDecl_> \
-	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, Adapter> CompareMemberList(ParamsDecl_, const Adapter<int> &adapter = Adapter<int>()) \
-	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, Adapter>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), adapter); }
+	template <TypesDecl_> \
+	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less> CompareMembersLess(ParamsDecl_) \
+	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::less<int>()); } \
+	template <TypesDecl_> \
+	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::equal_to> CompareMembersEquals(ParamsDecl_) \
+	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::equal_to>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::equal_to<int>()); }
 
 
 	DETAIL_TOOLKIT_DECLARE_MAKEMEMBERLISTCOMPARER(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
@@ -115,24 +118,6 @@ namespace stingray
 #undef DETAIL_TOOLKIT_DECLARE_MAKEMEMBERLISTCOMPARER
 #undef P_
 #undef TY
-
-
-	template <typename MemberPointerType, MemberPointerType MemberPointer, template <typename> class Comparer>
-	struct PrimaryKeyHelper
-	{
-		typedef MemberExtractor<MemberPointerType> Extractor;
-		typedef typename Extractor::ClassType ClassType;
-		typedef typename Extractor::MemberType MemberType;
-		typedef MemberToValueComparer<MemberPointerType, Comparer<MemberType> >		UnaryT;
-		typedef MemberExtractorComparer<MemberPointerType, Comparer<MemberType>	>	BinaryToValueT;
-		typedef MemberListComparer<Tuple<TypeList_1<MemberPointerType> > >			BinaryNonAdaptedT;
-		typedef CmpAdapter<BinaryNonAdaptedT, Comparer>								BinaryT;
-
-		static UnaryT Unary(const MemberType& value = MemberType())	{ return CompareMemberToValue<Comparer>(MemberPointer, value); }
-		static BinaryToValueT BinaryToValue()						{ return CompareMember<Comparer>(MemberPointer); }
-		static BinaryT Binary()										{ return CompareMemberList<Comparer>(MemberPointer); }
-	};
-
 
 }
 

@@ -28,7 +28,7 @@ namespace stingray
 		{ return StringBuilder() % _major % '.' % _minor % '.' % _build; }
 
 		bool operator < (const SoftwareVersion& other) const
-		{ return CompareMemberList<std::less>(&SoftwareVersion::_major, &SoftwareVersion::_minor, &SoftwareVersion::_build)(*this, other); }
+		{ return CompareMembersLess(&SoftwareVersion::_major, &SoftwareVersion::_minor, &SoftwareVersion::_build)(*this, other); }
 
 		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(SoftwareVersion);
 	};
