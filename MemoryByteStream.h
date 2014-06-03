@@ -100,7 +100,7 @@ namespace stingray
 	IByteStreamPtr CreateMemoryByteStream(const ContainerType& data)
 	{ return make_shared<MemoryByteStream<ContainerType> >(data); }
 
-	IByteStreamPtr CreateMemoryByteStream(ConstByteData data)
+	inline IByteStreamPtr CreateMemoryByteStream(ConstByteData data)
 	{ return  make_shared<MemoryByteStream<ConstByteData> >(data); }
 
 }
