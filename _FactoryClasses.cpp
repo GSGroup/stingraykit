@@ -36,6 +36,9 @@
 #ifdef PLATFORM_OPENSSL
 #	include <stingray/platform/openssl/crypto/EvpKey.h>
 #endif
+#ifdef PLATFORM_STAPI
+#	include <stingray/platform/stapi/crypto/HardwareCipherKey.h>
+#endif
 #include <stingray/records/FileSystemRecord.h>
 #include <stingray/rpc/UrlObjectId.h>
 #include <stingray/scanner/DVBServiceId.h>
@@ -60,7 +63,7 @@
 #include <stingray/tuners/dvbs/Satellite.h>
 #include <stingray/tuners/dvbt/DVBTTransport.h>
 #include <stingray/tuners/ip/TsOverIpTransport.h>
-#include <stingray/update/DefaultUpdateRequirement.h>
+#include <stingray/update/VersionRequirement.h>
 #include <stingray/update/system/EraseFlashPartition.h>
 #include <stingray/update/system/WriteFlashPartition.h>
 
@@ -126,6 +129,9 @@ namespace stingray { namespace Detail
 #ifdef PLATFORM_OPENSSL
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::EvpKey);
 #endif
+#ifdef PLATFORM_STAPI
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(stapi::HardwareCipherKey);
+#endif
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(rpc::UrlObjectId);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBServiceId);
@@ -160,7 +166,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Satellite);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBTTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TsOverIpTransport);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMinimalVersionRequirement);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(VersionRequirement);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(EraseFlashPartition);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(WriteFlashPartition);
 #endif
