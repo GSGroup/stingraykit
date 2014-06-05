@@ -120,7 +120,7 @@ namespace stingray
 			}
 			while (current_pos < format.length());
 
-			if (start_pos < format.length() - 1)
+			if (start_pos < format.length())
 				tokens.push_back(std::string(format, start_pos));
 
 			size_t index = 0;
