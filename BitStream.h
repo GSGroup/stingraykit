@@ -159,6 +159,7 @@ namespace stingray
 			std::string result;
 
 			const size_t length = Read<LengthPrefixSize>();
+			result.reserve(length);
 			for (size_t i = 0; i < length; ++i)
 				result.push_back(Read<8>());
 
@@ -170,6 +171,22 @@ namespace stingray
 		{
 			Write<LengthPrefixSize>(str.length());
 			WriteArray<8>(str.begin(), str.end());
+		}
+
+		template < size_t LengthPrefixSize >
+		ByteArray ReadLengthPrefixedArray()
+		{
+			size_t size = Read<LengthPrefixSize>();
+			ByteArray result(size);
+			ReadArray<8>(result.begin(), result.end());
+			return result;
+		}
+
+		template < size_t LengthPrefixSize >
+		void WriteLengthPrefixedArray(const ConstByteArray &data)
+		{
+			Write<LengthPrefixSize>(data.size());
+			WriteArray<8>(data.begin(), data.end());
 		}
 
 		std::string ReadStringTerminatedBy(char terminator)
