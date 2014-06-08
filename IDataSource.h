@@ -101,7 +101,7 @@ namespace stingray
 		virtual ~IPacketConsumer() {}
 
 		virtual bool Process(ConstByteData packet, const CancellationToken& token) = 0;
-		virtual void EndOfPacket() = 0;
+		virtual void EndOfData() = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IPacketConsumer);
 
@@ -117,7 +117,7 @@ namespace stingray
 		{}
 
 		virtual bool Process(ConstByteData data, const CancellationToken& token)	{ return _func(data, token); }
-		virtual void EndOfPacket()													{ _func(null, CancellationToken()); }
+		virtual void EndOfData()													{ _func(null, CancellationToken()); }
 	};
 
 
