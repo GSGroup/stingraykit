@@ -19,18 +19,19 @@ namespace stingray
 	TOOLKIT_DECLARE_PTR(IDataConsumer);
 
 
-	template <typename FunctorType>
+	template <typename ProcessFunctorType, typename EodFunctorType>
 	struct FunctorDataConsumer : public virtual IDataConsumer
 	{
 	private:
-		FunctorType					_func;
+		ProcessFunctorType		_processFunc;
+		EodFunctorType			_eodFunc;
 
 	public:
-		FunctorDataConsumer(const FunctorType& func) : _func(func)
+		FunctorDataConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
 		{}
 
-		virtual size_t Process(ConstByteData data, const CancellationToken& token)	{ return _func(data, token); }
-		virtual void EndOfData()													{ _func(null, CancellationToken()); }
+		virtual size_t Process(ConstByteData data, const CancellationToken& token)	{ return _processFunc(data, token); }
+		virtual void EndOfData()													{ _eodFunc(); }
 	};
 
 
@@ -40,12 +41,20 @@ namespace stingray
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token) = 0;
 
-		template <typename FunctorType>
-		void ReadToFunction(const FunctorType& func, const CancellationToken& token)
+		template <typename ProcessFunctorType>
+		void ReadToFunction(const ProcessFunctorType& processFunc, const CancellationToken& token)
+		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
+
+		template <typename ProcessFunctorType, typename EndOfDataFunctorType>
+		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const CancellationToken& token)
 		{
-			FunctorDataConsumer<FunctorType> consumer(func);
+			FunctorDataConsumer<ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
 			Read(consumer, token);
 		}
+
+	private:
+		static void DefaultEndOfData()
+		{ TOOLKIT_THROW(NotImplementedException()); }
 	};
 	TOOLKIT_DECLARE_PTR(IDataSource);
 
