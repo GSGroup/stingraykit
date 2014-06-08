@@ -30,7 +30,7 @@ namespace stingray
 		{ _connection.Disconnect(); }
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
-		{ _source->ReadToFunction(bind(&BandwidthReporter::DoPush, this, ref(consumer), _1, _2), token); }
+		{ _source->ReadToFunction(bind(&BandwidthReporter::DoPush, this, ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, ref(consumer)), token); }
 
 	private:
 		void Report()
@@ -43,17 +43,11 @@ namespace stingray
 			_timeSinceLastReport.Restart();
 		}
 
-		size_t DoPush(IDataConsumer& consumer, optional<ConstByteData> data, const CancellationToken& token)
+		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const CancellationToken& token)
 		{
-			if (data)
-			{
-				size_t size = consumer.Process(*data, token);
-				BytesProcessed(size);
-				return size;
-			}
-
-			consumer.EndOfData();
-			return 0;
+			size_t size = consumer.Process(data, token);
+			BytesProcessed(size);
+			return size;
 		}
 
 		void BytesProcessed(size_t bytesCount)
