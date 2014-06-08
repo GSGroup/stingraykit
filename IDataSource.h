@@ -66,34 +66,32 @@ namespace stingray
 
 	struct DataInterceptor : public virtual IDataSource
 	{
-		typedef function<void(optional<ConstByteData>, const CancellationToken&)> FunctionType;
+		typedef function<void(ConstByteData)> FunctionType;
+		typedef function<void()> EodFunctionType;
 
 	private:
 		IDataSourcePtr	_source;
 		FunctionType	_func;
+		EodFunctionType	_eod;
 
 	public:
-		DataInterceptor(const IDataSourcePtr& source, const FunctionType& func) :
-			_source(source), _func(func)
+		DataInterceptor(const IDataSourcePtr& source, const FunctionType& func, const EodFunctionType& eod) :
+			_source(source), _func(func), _eod(eod)
 		{}
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
-		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(consumer), _1, _2), token); }
+		virtual void Read(IDataConsumer& c, const CancellationToken& token)
+		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(c), _1, _2), bind(&DataInterceptor::Eod, this, ref(c)), token); }
 
 	private:
-		size_t DoPush(IDataConsumer& consumer, optional<ConstByteData> data, const CancellationToken& token)
+		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const CancellationToken& token)
 		{
-			if (data)
-			{
-				size_t size = consumer.Process(*data, token);
-				_func(ConstByteData(*data, 0, size), token);
-				return size;
-			}
-
-			consumer.EndOfData();
-			_func(null, token);
-			return 0;
+			size_t size = consumer.Process(data, token);
+			_func(ConstByteData(data, 0, size));
+			return size;
 		}
+
+		void Eod(IDataConsumer& consumer)
+		{ consumer.EndOfData(); _eod(); }
 	};
 	TOOLKIT_DECLARE_PTR(DataInterceptor);
 
