@@ -32,6 +32,8 @@ namespace stingray
 			Reader(const Reader&);
 			~Reader();
 
+			Reader& operator =(const Reader&);
+
 			size_t size();
 			ConstByteData::iterator begin();
 			ConstByteData::iterator end();
@@ -54,6 +56,8 @@ namespace stingray
 			Writer(const ImplPtr& impl);
 			Writer(const Writer&);
 			~Writer();
+
+			Writer& operator =(const Writer&);
 
 			size_t size();
 			ByteData::iterator begin();

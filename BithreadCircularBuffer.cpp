@@ -157,6 +157,18 @@ namespace stingray
 	}
 
 
+	BithreadCircularBuffer::Reader& BithreadCircularBuffer::Reader::operator =(const Reader& other)
+	{
+		if (Atomic::Dec(_impl->ReadersCount()) == 0)
+			_impl->UnlockWriteAndPush(0);
+
+		_impl = other._impl;
+		_data = other._data;
+		Atomic::Inc(_impl->ReadersCount());
+		return *this;
+	}
+
+
 	size_t BithreadCircularBuffer::Reader::size()
 	{ return _data.size(); }
 
@@ -204,6 +216,19 @@ namespace stingray
 		if (Atomic::Dec(_impl->WritersCount()) == 0)
 			_impl->UnlockWriteAndPush(0);
 	}
+
+
+	BithreadCircularBuffer::Writer& BithreadCircularBuffer::Writer::operator =(const Writer& other)
+	{
+		if (Atomic::Dec(_impl->WritersCount()) == 0)
+			_impl->UnlockWriteAndPush(0);
+
+		_impl = other._impl;
+		_data = other._data;
+		Atomic::Inc(_impl->WritersCount());
+		return *this;
+	}
+
 
 	size_t BithreadCircularBuffer::Writer::size()
 	{ return _data.size(); }
