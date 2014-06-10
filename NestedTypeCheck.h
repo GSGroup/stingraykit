@@ -29,11 +29,11 @@ namespace stingray
 	template < typename T > \
 	struct HasMethod_##Method_ \
 	{ \
-		template <typename Type> \
+		template <typename Type_> \
 		class Impl \
 		{ \
 			struct BaseMixin { void Method_(){} }; \
-			struct Base : public Type, public BaseMixin { Base(); }; \
+			struct Base : public Type_, public BaseMixin { Base(); }; \
 			\
 			template <typename V, V t>    class Helper{}; \
 			\
