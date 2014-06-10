@@ -250,7 +250,13 @@ namespace stingray
 		inline void Skip(size_t bits) { _offset += bits; }
 
 		inline size_t GetBitPosition() const { return _offset; }
+
 		inline ByteDataType	GetData() const { return _buf; }
+		inline ByteDataType GetAvailableByteData() const
+		{
+			TOOLKIT_CHECK((GetBitPosition() % 8) == 0, "misaligned stream");
+			return ByteDataType(GetData(), GetBitPosition());
+		}
 
 	private:
 		template < int Size, typename T >
