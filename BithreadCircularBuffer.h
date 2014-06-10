@@ -68,8 +68,8 @@ namespace stingray
 		BithreadCircularBuffer(size_t size);
 		~BithreadCircularBuffer();
 
-		size_t GetDataSize();
-		size_t GetFreeSize();
+		size_t GetDataSize() const;
+		size_t GetFreeSize() const;
 
 		size_t GetTotalSize() const;
 

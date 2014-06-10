@@ -119,11 +119,11 @@ namespace stingray
 	{}
 
 
-	size_t BithreadCircularBuffer::GetDataSize()
+	size_t BithreadCircularBuffer::GetDataSize() const
 	{ return _impl->GetDataSize(); }
 
 
-	size_t BithreadCircularBuffer::GetFreeSize()
+	size_t BithreadCircularBuffer::GetFreeSize() const
 	{ return _impl->GetFreeSize(); }
 
 
