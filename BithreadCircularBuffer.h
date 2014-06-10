@@ -61,6 +61,8 @@ namespace stingray
 
 			ByteData GetData();
 
+			bool IsBufferEnd() const;
+
 			void Push(size_t bytes);
 		};
 

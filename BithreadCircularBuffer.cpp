@@ -221,6 +221,14 @@ namespace stingray
 	{ TOOLKIT_CHECK(_valid, "Already pushed data!"); return _data; }
 
 
+	bool BithreadCircularBuffer::Writer::IsBufferEnd() const
+	{
+		TOOLKIT_CHECK(_valid, "Already popped data!");
+		ConstByteData storage(_impl->GetStorage());
+		return (_data.data() + _data.size()) == (storage.data() + storage.size());
+	}
+
+
 	void BithreadCircularBuffer::Writer::Push(size_t bytes)
 	{
 		_impl->UnlockWriteAndPush(bytes);
