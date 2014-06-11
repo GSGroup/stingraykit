@@ -3,6 +3,7 @@
 #include <stingray/toolkit/any.h>
 
 #include <stingray/app/PushVideoOnDemand.h>
+#include <stingray/app/activation_manager/ActivationIntent.h>
 #include <stingray/app/application_context/AppChannel.h>
 #include <stingray/app/application_context/ChannelList.h>
 #include <stingray/app/scheduler/ScheduledEvents.h>
@@ -84,6 +85,10 @@ namespace stingray { namespace Detail
 		/*nothing*/
 #else
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::PVODVideoInfo);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ActivationKeyIntent);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::PersonalCodeIntent);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::PlatformNameIntent);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ReceiverTraitIntent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelList);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::CinemaHallScheduledViewing);
