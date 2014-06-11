@@ -10,6 +10,7 @@
 #include <stingray/app/zapper/User.h>
 #include <stingray/ca/BasicSubscription.h>
 #include <stingray/crypto/PlainCipherKey.h>
+#include <stingray/details/IReceiverTrait.h>
 #include <stingray/hdmi/IHDMI.h>
 #include <stingray/media/ImageFileMediaData.h>
 #include <stingray/media/MediaInfoBase.h>
@@ -97,6 +98,13 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscription);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscriptionProvider);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlainCipherKey);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBCReceiverTrait);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBSReceiverTrait);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBTReceiverTrait);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(HouseholdClientTrait);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(HouseholdServerTrait);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidOperatorTrait);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorOperatorTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaPreview);
