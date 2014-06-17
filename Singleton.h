@@ -25,17 +25,14 @@ namespace stingray
 	namespace Detail
 	{
 		template<typename T>
-		class SingletonInstanceHolder
+		class SingletonInstanceHolder : public T
 		{
 			TOOLKIT_NONCOPYABLE(SingletonInstanceHolder);
-
-		private:
-			T _instance;
 
 		public:
 			SingletonInstanceHolder()	{ }
 			~SingletonInstanceHolder()	{ TRACER; }
-			T& Get()					{ return _instance; }
+			T& Get()					{ return *this; }
 		};
 	}
 
