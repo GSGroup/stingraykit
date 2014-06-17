@@ -88,7 +88,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ActivationKeyIntent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::PersonalCodeIntent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::PlatformNameIntent);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ReceiverTraitIntent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AppChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ChannelList);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::CinemaHallScheduledViewing);
