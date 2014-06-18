@@ -164,7 +164,7 @@ namespace stingray
 	};
 
 
-	struct ByteDataPacketSource : public virtual IPacketSource
+	struct ByteDataPacketSource : public virtual IPacketSource<EmptyType>
 	{
 	private:
 		optional<ConstByteData> _data;
@@ -176,7 +176,7 @@ namespace stingray
 		void SetData(ConstByteData data)
 		{ _data = data; }
 
-		virtual void Read(IPacketConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
 		{
 			if (_data)
 			{
