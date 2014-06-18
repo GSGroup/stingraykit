@@ -7,7 +7,7 @@
 namespace stingray
 {
 
-	class DataPacketer : public virtual IPacketSource
+	class DataPacketer : public virtual IPacketSource<EmptyType>
 	{
 	private:
 		IDataSourcePtr			_source;
@@ -18,13 +18,13 @@ namespace stingray
 		{ }
 
 
-		virtual void Read(IPacketConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
 		{ _source->ReadToFunction(bind(&DataPacketer::Do, this, ref(consumer), _1, _2), token); }
 
 	private:
-		size_t Do(IPacketConsumer& consumer, optional<ConstByteData> data, const CancellationToken& token)
+		size_t Do(IPacketConsumer<EmptyType>& consumer, ConstByteData data, const CancellationToken& token)
 		{
-			ConstByteData packet(*data, 0, _packetSize);
+			ConstByteData packet(data, 0, _packetSize);
 			return consumer.Process(packet, token) ? _packetSize : 0;
 		}
 	};
@@ -32,11 +32,14 @@ namespace stingray
 
 	class DataDepacketer : public virtual IDataSource
 	{
+		typedef IPacketSource<EmptyType> PacketSource;
+		TOOLKIT_DECLARE_PTR(PacketSource);
+
 	private:
-		IPacketSourcePtr	_source;
+		PacketSourcePtr	_source;
 
 	public:
-		DataDepacketer(const IPacketSourcePtr& source) : _source(source)
+		DataDepacketer(const PacketSourcePtr& source) : _source(source)
 		{ }
 
 
@@ -44,11 +47,11 @@ namespace stingray
 		{ _source->ReadToFunction(bind(&DataDepacketer::Do, this, ref(consumer), _1, _2), token); }
 
 	private:
-		bool Do(IDataConsumer& consumer, optional<ConstByteData> packet, const CancellationToken& token)
+		bool Do(IDataConsumer& consumer, const Packet<EmptyType>& packet, const CancellationToken& token)
 		{
 			size_t offset = 0;
-			while (token && offset < packet->size())
-				offset += consumer.Process(ConstByteData(*packet, offset), token);
+			while (token && offset < packet.GetSize())
+				offset += consumer.Process(ConstByteData(packet.GetData(), offset), token);
 			return true;
 		}
 	};
