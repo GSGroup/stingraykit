@@ -11,7 +11,7 @@
 namespace stingray
 {
 
-	class UdpPacketSource : public virtual IPacketSource
+	class UdpPacketSource : public virtual IPacketSource<EmptyType>
 	{
 		static const u64 	PollTimeout = 100;
 		static const u64 	MaxUdpPacketSize = 65500;
@@ -26,7 +26,7 @@ namespace stingray
 			_socket(socket), _packetBuffer(maxPacketSize), _dataSize(0)
 		{ }
 
-		virtual void Read(IPacketConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
 		{
 			while (_dataSize == 0)
 			{
@@ -43,6 +43,7 @@ namespace stingray
 				_dataSize = 0;
 		}
 	};
+	TOOLKIT_DECLARE_PTR(UdpPacketSource);
 
 
 	class StreamingSocketDataSource : public virtual IDataSource
