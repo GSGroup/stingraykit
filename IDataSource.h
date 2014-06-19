@@ -180,7 +180,7 @@ namespace stingray
 		{
 			if (_data)
 			{
-				consumer.Process(*_data, token);
+				consumer.Process(Packet<EmptyType>(*_data), token);
 				_data.reset();
 			}
 		}
