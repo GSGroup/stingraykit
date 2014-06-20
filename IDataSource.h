@@ -19,18 +19,19 @@ namespace stingray
 	TOOLKIT_DECLARE_PTR(IDataConsumer);
 
 
-	template <typename FunctorType>
+	template <typename ProcessFunctorType, typename EodFunctorType>
 	struct FunctorDataConsumer : public virtual IDataConsumer
 	{
 	private:
-		FunctorType					_func;
+		ProcessFunctorType		_processFunc;
+		EodFunctorType			_eodFunc;
 
 	public:
-		FunctorDataConsumer(const FunctorType& func) : _func(func)
+		FunctorDataConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
 		{}
 
-		virtual size_t Process(ConstByteData data, const CancellationToken& token)	{ return _func(data, token); }
-		virtual void EndOfData()													{ _func(null, CancellationToken()); }
+		virtual size_t Process(ConstByteData data, const CancellationToken& token)	{ return _processFunc(data, token); }
+		virtual void EndOfData()													{ _eodFunc(); }
 	};
 
 
@@ -40,12 +41,20 @@ namespace stingray
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token) = 0;
 
-		template <typename FunctorType>
-		void ReadToFunction(const FunctorType& func, const CancellationToken& token)
+		template <typename ProcessFunctorType>
+		void ReadToFunction(const ProcessFunctorType& processFunc, const CancellationToken& token)
+		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
+
+		template <typename ProcessFunctorType, typename EndOfDataFunctorType>
+		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const CancellationToken& token)
 		{
-			FunctorDataConsumer<FunctorType> consumer(func);
+			FunctorDataConsumer<ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
 			Read(consumer, token);
 		}
+
+	private:
+		static void DefaultEndOfData()
+		{ TOOLKIT_THROW(NotImplementedException()); }
 	};
 	TOOLKIT_DECLARE_PTR(IDataSource);
 
@@ -57,80 +66,105 @@ namespace stingray
 
 	struct DataInterceptor : public virtual IDataSource
 	{
-		typedef function<void(optional<ConstByteData>, const CancellationToken&)> FunctionType;
+		typedef function<void(ConstByteData)> FunctionType;
+		typedef function<void()> EodFunctionType;
 
 	private:
 		IDataSourcePtr	_source;
 		FunctionType	_func;
+		EodFunctionType	_eod;
 
 	public:
-		DataInterceptor(const IDataSourcePtr& source, const FunctionType& func) :
-			_source(source), _func(func)
+		DataInterceptor(const IDataSourcePtr& source, const FunctionType& func, const EodFunctionType& eod) :
+			_source(source), _func(func), _eod(eod)
 		{}
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
-		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(consumer), _1, _2), token); }
+		virtual void Read(IDataConsumer& c, const CancellationToken& token)
+		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(c), _1, _2), bind(&DataInterceptor::Eod, this, ref(c)), token); }
 
 	private:
-		size_t DoPush(IDataConsumer& consumer, optional<ConstByteData> data, const CancellationToken& token)
+		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const CancellationToken& token)
 		{
-			if (data)
-			{
-				size_t size = consumer.Process(*data, token);
-				_func(ConstByteData(*data, 0, size), token);
-				return size;
-			}
-
-			consumer.EndOfData();
-			_func(null, token);
-			return 0;
+			size_t size = consumer.Process(data, token);
+			_func(ConstByteData(data, 0, size));
+			return size;
 		}
+
+		void Eod(IDataConsumer& consumer)
+		{ consumer.EndOfData(); _eod(); }
 	};
 	TOOLKIT_DECLARE_PTR(DataInterceptor);
 
 
+	template<typename MetadataType>
+	class Packet
+	{
+	private:
+		ConstByteData	_data;
+		MetadataType	_metadata;
+
+	public:
+		Packet(ConstByteData data, const MetadataType& metadata = MetadataType()) :
+			_data(data), _metadata(metadata)
+		{ }
+
+		ConstByteData GetData() const		{ return _data; }
+		size_t GetSize() const				{ return _data.size(); }
+		MetadataType GetMetadata() const	{ return _metadata; }
+	};
+
+
+	template<typename MetadataType>
 	struct IPacketConsumer
 	{
 		virtual ~IPacketConsumer() {}
 
-		virtual bool Process(ConstByteData packet, const CancellationToken& token) = 0;
-		virtual void EndOfPacket() = 0;
+		virtual bool Process(const Packet<MetadataType>& packet, const CancellationToken& token) = 0;
+		virtual void EndOfData() = 0;
 	};
-	TOOLKIT_DECLARE_PTR(IPacketConsumer);
 
 
-	template <typename FunctorType>
-	struct FunctorPacketConsumer : public virtual IPacketConsumer
+	template <typename MetadataType, typename ProcessFunctorType, typename EodFunctorType>
+	struct FunctorPacketConsumer : public virtual IPacketConsumer<MetadataType>
 	{
 	private:
-		FunctorType	_func;
+		ProcessFunctorType		_processFunc;
+		EodFunctorType			_eodFunc;
 
 	public:
-		FunctorPacketConsumer(const FunctorType& func) : _func(func)
+		FunctorPacketConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
 		{}
 
-		virtual bool Process(ConstByteData data, const CancellationToken& token)	{ return _func(data, token); }
-		virtual void EndOfPacket()													{ _func(null, CancellationToken()); }
+		virtual bool Process(const Packet<MetadataType>& packet, const CancellationToken& token)	{ return _processFunc(packet, token); }
+		virtual void EndOfData()																	{ _eodFunc(); }
 	};
 
 
+	template<typename MetadataType>
 	struct IPacketSource
 	{
 		virtual ~IPacketSource() {}
 
-		virtual void Read(IPacketConsumer& consumer, const CancellationToken& token) = 0;
+		virtual void Read(IPacketConsumer<MetadataType>& consumer, const CancellationToken& token) = 0;
 
-		template <typename FunctorType>
-		void ReadToFunction(const FunctorType& func, const CancellationToken& token)
+		template <typename ProcessFunctorType>
+		void ReadToFunction(const ProcessFunctorType& processFunc, const CancellationToken& token)
+		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
+
+		template <typename ProcessFunctorType, typename EndOfDataFunctorType>
+		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const CancellationToken& token)
 		{
-			FunctorPacketConsumer<FunctorType> consumer(func);
+			FunctorPacketConsumer<MetadataType, ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
 			Read(consumer, token);
 		}
+
+	private:
+		static void DefaultEndOfData()
+		{ TOOLKIT_THROW(NotImplementedException()); }
 	};
-	TOOLKIT_DECLARE_PTR(IPacketSource);
 
 
-	struct ByteDataPacketSource : public virtual IPacketSource
+	struct ByteDataPacketSource : public virtual IPacketSource<EmptyType>
 	{
 	private:
 		optional<ConstByteData> _data;
@@ -142,11 +176,11 @@ namespace stingray
 		void SetData(ConstByteData data)
 		{ _data = data; }
 
-		virtual void Read(IPacketConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
 		{
 			if (_data)
 			{
-				consumer.Process(*_data, token);
+				consumer.Process(Packet<EmptyType>(*_data), token);
 				_data.reset();
 			}
 		}

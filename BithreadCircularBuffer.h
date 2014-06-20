@@ -32,6 +32,8 @@ namespace stingray
 			Reader(const Reader&);
 			~Reader();
 
+			Reader& operator =(const Reader&);
+
 			size_t size();
 			ConstByteData::iterator begin();
 			ConstByteData::iterator end();
@@ -55,11 +57,15 @@ namespace stingray
 			Writer(const Writer&);
 			~Writer();
 
+			Writer& operator =(const Writer&);
+
 			size_t size();
 			ByteData::iterator begin();
 			ByteData::iterator end();
 
 			ByteData GetData();
+
+			bool IsBufferEnd() const;
 
 			void Push(size_t bytes);
 		};
@@ -68,8 +74,8 @@ namespace stingray
 		BithreadCircularBuffer(size_t size);
 		~BithreadCircularBuffer();
 
-		size_t GetDataSize();
-		size_t GetFreeSize();
+		size_t GetDataSize() const;
+		size_t GetFreeSize() const;
 
 		size_t GetTotalSize() const;
 
