@@ -19,7 +19,7 @@
 #include <stingray/media/formats/flv/MediaInfo.h>
 #include <stingray/media/formats/mp4/MediaInfo.h>
 #include <stingray/media/formats/mp4/Stream.h>
-#include <stingray/media/formats/mp4/StreamDescriptors.h>
+#include <stingray/media/formats/mp4/SubstreamDescriptors.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/net/DHCPInterfaceConfiguration.h>
 #include <stingray/net/IgnoredInterfaceConfiguration.h>
@@ -46,7 +46,7 @@
 #include <stingray/scanner/DVBServiceId.h>
 #include <stingray/scanner/DefaultDVBTBandInfo.h>
 #include <stingray/scanner/DefaultMpegService.h>
-#include <stingray/scanner/DefaultMpegStreamDescriptor.h>
+#include <stingray/scanner/DefaultMpegSubstreamDescriptor.h>
 #include <stingray/scanner/DefaultScanParams.h>
 #include <stingray/scanner/DreCasGeographicRegion.h>
 #include <stingray/scanner/LybidScanParams.h>
@@ -119,8 +119,8 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(flv::MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Stream);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaAudioStreamDescriptor);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaVideoStreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaAudioSubstreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaVideoSubstreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DHCPInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(IgnoredInterfaceConfiguration);
@@ -134,7 +134,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::RadioChannel);
 #endif
 #ifdef PLATFORM_EMU
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::StreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::SubstreamDescriptor);
 #endif
 #ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::TVChannel);
@@ -158,13 +158,13 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegRadioChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegService);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegTVChannel);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegAudioStreamDescriptor);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegDataCarouselStreamDescriptor);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegPcrStreamDescriptor);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegSubtitlesStreamDescriptor);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextBasedSubtitlesStreamDescriptor);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextStreamDescriptor);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegVideoStreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegAudioSubstreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegDataCarouselSubstreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegPcrSubstreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegSubtitlesSubstreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextBasedSubtitlesSubstreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextSubstreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegVideoSubstreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DreCasGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidScanParams);
