@@ -5,6 +5,7 @@
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/async_function.h>
 #include <stingray/toolkit/signal_connection.h>
+#include <stingray/toolkit/task_alive_token.h>
 
 
 namespace stingray
