@@ -74,31 +74,31 @@ namespace stingray
 		typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
 		typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
 		typedef function< bool(ConstSrcTypeRef) >					SkipPredicateType;
-		typedef function< DestType (ConstSrcTypeRef) >				CastPredicateType;
+		typedef function< DestType (ConstSrcTypeRef) >				Caster;
 
 	private:
-		SrcEnumeratorPtr			_srcEnumerator;
-		CastPredicateType			_castPredicate;
-		SkipPredicateType			_skipPredicate;
+		SrcEnumeratorPtr		_srcEnumerator;
+		Caster					_caster;
+		SkipPredicateType		_skipPredicate;
 
 	public:
-		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator)
-			: _srcEnumerator(srcEnumerator), _castPredicate(&EnumeratorWrapper::DefaultCast), _skipPredicate(&EnumeratorWrapper::NoSkip)
+		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator) :
+			_srcEnumerator(srcEnumerator), _caster(&EnumeratorWrapper::DefaultCast), _skipPredicate(&EnumeratorWrapper::NoSkip)
 		{ FindFirst(); }
 
-		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const CastPredicateType& castPredicate)
-			: _srcEnumerator(srcEnumerator), _castPredicate(castPredicate), _skipPredicate(&EnumeratorWrapper::NoSkip)
+		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster) :
+			_srcEnumerator(srcEnumerator), _caster(caster), _skipPredicate(&EnumeratorWrapper::NoSkip)
 		{ FindFirst(); }
 
-		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const CastPredicateType& castPredicate, const SkipPredicateType& skipPredicate)
-			: _srcEnumerator(srcEnumerator), _castPredicate(castPredicate), _skipPredicate(skipPredicate)
+		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster, const SkipPredicateType& skipPredicate) :
+			_srcEnumerator(srcEnumerator), _caster(caster), _skipPredicate(skipPredicate)
 		{ FindFirst(); }
 
 		virtual bool Valid() const
 		{ return _srcEnumerator->Valid(); }
 
 		virtual DestType Get() const
-		{ return _castPredicate(_srcEnumerator->Get()); }
+		{ return _caster(_srcEnumerator->Get()); }
 
 		virtual void Next()
 		{
