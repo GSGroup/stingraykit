@@ -166,20 +166,17 @@ namespace stingray
 			class CastProxy : public EnumeratorWrapper<SrcType, DestType>
 			{
 				typedef EnumeratorWrapper<SrcType, DestType>	base;
+
 			private:
 				shared_ptr<LifeAssurance>	_assurance;
 
 			public:
 				CastProxy(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<LifeAssurance>& assurance)
-					: base(srcEnumerator, &CastProxy::Cast, &CastProxy::Skip), _assurance(assurance)
+					: base(srcEnumerator, &CastProxy::Cast, InstanceOfPredicate<DestType>()), _assurance(assurance)
 				{ }
 
 			private:
-				static DestType Cast(ConstSrcTypeRef src)
-				{ return dynamic_caster(src); }
-
-				static bool Skip(ConstSrcTypeRef src)
-				{ return !InstanceOf<typename GetSharedPtrParam<DestType>::ValueT>(src); }
+				static DestType Cast(ConstSrcTypeRef src) { return dynamic_caster(src); }
 			};
 
 		private:
