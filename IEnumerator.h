@@ -73,25 +73,25 @@ namespace stingray
 	{
 		typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
 		typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
-		typedef function< bool(ConstSrcTypeRef) >					SkipPredicateType;
+		typedef function< bool(ConstSrcTypeRef) >					FilterPredicate;
 		typedef function< DestType (ConstSrcTypeRef) >				Caster;
 
 	private:
 		SrcEnumeratorPtr		_srcEnumerator;
 		Caster					_caster;
-		SkipPredicateType		_skipPredicate;
+		FilterPredicate			_filterPredicate;
 
 	public:
 		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator) :
-			_srcEnumerator(srcEnumerator), _caster(&EnumeratorWrapper::DefaultCast), _skipPredicate(&EnumeratorWrapper::NoSkip)
+			_srcEnumerator(srcEnumerator), _caster(&EnumeratorWrapper::DefaultCast), _filterPredicate(&EnumeratorWrapper::NoFilter)
 		{ FindFirst(); }
 
 		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster) :
-			_srcEnumerator(srcEnumerator), _caster(caster), _skipPredicate(&EnumeratorWrapper::NoSkip)
+			_srcEnumerator(srcEnumerator), _caster(caster), _filterPredicate(&EnumeratorWrapper::NoFilter)
 		{ FindFirst(); }
 
-		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster, const SkipPredicateType& skipPredicate) :
-			_srcEnumerator(srcEnumerator), _caster(caster), _skipPredicate(skipPredicate)
+		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster, const FilterPredicate& filterPredicate) :
+			_srcEnumerator(srcEnumerator), _caster(caster), _filterPredicate(filterPredicate)
 		{ FindFirst(); }
 
 		virtual bool Valid() const
@@ -107,18 +107,18 @@ namespace stingray
 
 			do {
 				_srcEnumerator->Next();
-			} while (Valid() && _skipPredicate(_srcEnumerator->Get()));
+			} while (Valid() && !_filterPredicate(_srcEnumerator->Get()));
 		}
 
 	private:
 		void FindFirst()
 		{
-			while (Valid() && _skipPredicate(_srcEnumerator->Get()))
+			while (Valid() && !_filterPredicate(_srcEnumerator->Get()))
 				_srcEnumerator->Next();
 		}
 
-		static bool NoSkip(ConstSrcTypeRef) { return false; }
-		static DestType DefaultCast(ConstSrcTypeRef src) { return DestType(src); }
+		static DestType DefaultCast(ConstSrcTypeRef src)	{ return DestType(src); }
+		static bool NoFilter(ConstSrcTypeRef)				{ return true; }
 	};
 
 
@@ -126,9 +126,10 @@ namespace stingray
 	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<IEnumerator<SrcType> >& src, const CasterType& caster)
 	{ return make_shared<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster); }
 
-	template<typename SrcType, typename CasterType, typename SkipperType>
-	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<IEnumerator<SrcType> >& src, const CasterType& caster, const SkipperType& skipper)
-	{ return make_shared<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster, skipper); }
+
+	template<typename SrcType, typename CasterType, typename FilterPredicate>
+	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<IEnumerator<SrcType> >& src, const CasterType& caster, const FilterPredicate& filterPredicate)
+	{ return make_shared<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
 
 
 	namespace Detail
