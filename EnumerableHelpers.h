@@ -508,18 +508,15 @@ namespace stingray
 		{
 			template < typename TResult, typename T >
 			static TResult CastHelper(typename GetConstReferenceType<T>::ValueT src) { return dynamic_caster(src); }
-
-			template < typename TResult, typename T >
-			static bool SkipHelper(typename GetConstReferenceType<T>::ValueT src) { return !InstanceOf<typename GetSharedPtrParam<TResult>::ValueT>(src); }
 		}
 
 		template < typename TResult, typename T >
 		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<IEnumerator<T> >& enumerator)
-		{ return make_shared<EnumeratorWrapper<T, TResult> >(enumerator, &Detail::CastHelper<TResult, T>, &Detail::SkipHelper<TResult, T>); }
+		{ return make_shared<EnumeratorWrapper<T, TResult> >(enumerator, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<TResult>()); }
 
 		template < typename TResult, typename T >
 		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<IEnumerable<T> >& enumerable)
-		{ return make_shared<EnumerableWrapper<T, TResult> >(enumerable, &Detail::CastHelper<TResult, T>, &Detail::SkipHelper<TResult, T>); }
+		{ return make_shared<EnumerableWrapper<T, TResult> >(enumerable, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<TResult>()); }
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Reverse)
