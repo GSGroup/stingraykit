@@ -109,12 +109,11 @@ namespace stingray
 				typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
 
 			public:
-				CastProxy(const SrcEnumerablePtr& srcEnumerable) : base(srcEnumerable, &CastProxy::Cast, &CastProxy::Skip)
+				CastProxy(const SrcEnumerablePtr& srcEnumerable) : base(srcEnumerable, &CastProxy::Cast, InstanceOfPredicate<DestType>())
 				{ }
 
 			private:
 				static DestType Cast(ConstSrcTypeRef src)	{ return dynamic_caster(src); }
-				static bool Skip(ConstSrcTypeRef src)		{ return !InstanceOf<typename GetSharedPtrParam<DestType>::ValueT>(src); }
 			};
 
 		private:
