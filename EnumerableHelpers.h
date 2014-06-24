@@ -539,11 +539,11 @@ namespace stingray
 
 		template < typename T, typename PredicateFunc >
 		shared_ptr<IEnumerator<T> > Where(const shared_ptr<IEnumerator<T> >& enumerator, const PredicateFunc& predicate)
-		{ return make_shared<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, not_(predicate)); }
+		{ return make_shared<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, predicate); }
 
 		template < typename T, typename PredicateFunc >
 		shared_ptr<IEnumerable<T> > Where(const shared_ptr<IEnumerable<T> >& enumerable, const PredicateFunc& predicate)
-		{ return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, not_(predicate)); }
+		{ return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate); }
 
 
 		template < typename T, typename PredicateFunc >
