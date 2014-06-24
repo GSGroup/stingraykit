@@ -55,33 +55,33 @@ namespace stingray
 	{
 		typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
 		typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
-		typedef function< bool(ConstSrcTypeRef) >					SkipPredicateType;
+		typedef function< bool(ConstSrcTypeRef) >					FilterPredicate;
 		typedef function< DestType (ConstSrcTypeRef) >				Caster;
 
 	private:
 		SrcEnumerablePtr			_srcEnumerable;
 		Caster						_caster;
-		SkipPredicateType			_skipPredicate;
+		FilterPredicate			_filterPredicate;
 
 	public:
 		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable)
-			: _srcEnumerable(srcEnumerable), _caster(&EnumerableWrapper::DefaultCast), _skipPredicate(&EnumerableWrapper::NoSkip)
+			: _srcEnumerable(srcEnumerable), _caster(&EnumerableWrapper::DefaultCast), _filterPredicate(&EnumerableWrapper::NoFilter)
 		{}
 
 		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster)
-			: _srcEnumerable(srcEnumerable), _caster(caster), _skipPredicate(&EnumerableWrapper::NoSkip)
+			: _srcEnumerable(srcEnumerable), _caster(caster), _filterPredicate(&EnumerableWrapper::NoFilter)
 		{}
 
-		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster, const SkipPredicateType& skipPredicate)
-			: _srcEnumerable(srcEnumerable), _caster(caster), _skipPredicate(skipPredicate)
+		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster, const FilterPredicate& filterPredicate)
+			: _srcEnumerable(srcEnumerable), _caster(caster), _filterPredicate(filterPredicate)
 		{}
 
 		virtual shared_ptr<IEnumerator<DestType> > GetEnumerator() const
-		{ return WrapEnumerator(_srcEnumerable->GetEnumerator(), _caster, _skipPredicate); }
+		{ return WrapEnumerator(_srcEnumerable->GetEnumerator(), _caster, _filterPredicate); }
 
 	private:
-		static bool NoSkip(ConstSrcTypeRef) { return false; }
 		static DestType DefaultCast(ConstSrcTypeRef src)	{ return DestType(src); }
+		static bool NoFilter(ConstSrcTypeRef)				{ return true; }
 	};
 
 
@@ -90,9 +90,9 @@ namespace stingray
 	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
 
 
-	template<typename SrcEnumerableType, typename CasterType, typename SkipperType>
-	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster, const SkipperType& skipper)
-	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, skipper); }
+	template<typename SrcEnumerableType, typename CasterType, typename FilterPredicate>
+	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster, const FilterPredicate& filterPredicate)
+	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
 
 
 	namespace Detail
