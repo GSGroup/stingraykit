@@ -56,32 +56,32 @@ namespace stingray
 		typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
 		typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
 		typedef function< bool(ConstSrcTypeRef) >					SkipPredicateType;
-		typedef function< DestType (ConstSrcTypeRef) >				CastPredicateType;
+		typedef function< DestType (ConstSrcTypeRef) >				Caster;
 
 	private:
 		SrcEnumerablePtr			_srcEnumerable;
-		CastPredicateType			_castPredicate;
+		Caster						_caster;
 		SkipPredicateType			_skipPredicate;
 
 	public:
 		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable)
-			: _srcEnumerable(srcEnumerable), _castPredicate(&EnumerableWrapper::DefaultCast), _skipPredicate(&EnumerableWrapper::NoSkip)
+			: _srcEnumerable(srcEnumerable), _caster(&EnumerableWrapper::DefaultCast), _skipPredicate(&EnumerableWrapper::NoSkip)
 		{}
 
-		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const CastPredicateType& castPredicate)
-			: _srcEnumerable(srcEnumerable), _castPredicate(castPredicate), _skipPredicate(&EnumerableWrapper::NoSkip)
+		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster)
+			: _srcEnumerable(srcEnumerable), _caster(caster), _skipPredicate(&EnumerableWrapper::NoSkip)
 		{}
 
-		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const CastPredicateType& castPredicate, const SkipPredicateType& skipPredicate)
-			: _srcEnumerable(srcEnumerable), _castPredicate(castPredicate), _skipPredicate(skipPredicate)
+		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster, const SkipPredicateType& skipPredicate)
+			: _srcEnumerable(srcEnumerable), _caster(caster), _skipPredicate(skipPredicate)
 		{}
 
 		virtual shared_ptr<IEnumerator<DestType> > GetEnumerator() const
-		{ return WrapEnumerator(_srcEnumerable->GetEnumerator(), _castPredicate, _skipPredicate); }
+		{ return WrapEnumerator(_srcEnumerable->GetEnumerator(), _caster, _skipPredicate); }
 
 	private:
 		static bool NoSkip(ConstSrcTypeRef) { return false; }
-		static DestType DefaultCast(ConstSrcTypeRef src) { return DestType(src); }
+		static DestType DefaultCast(ConstSrcTypeRef src)	{ return DestType(src); }
 	};
 
 
