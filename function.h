@@ -103,8 +103,8 @@ namespace stingray
 			typedef typename BaseType::InvokeFunc InvokeFunc;
 
 		private:
-			FunctorType	_func;
 			typedef typename FunctorTypeTransformer<Signature, FunctorType>::ValueT WrappedFunctorType;
+			WrappedFunctorType	_func;
 
 		public:
 			inline Invokable(const FunctorType& func)
