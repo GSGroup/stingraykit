@@ -118,7 +118,7 @@ namespace stingray
 		bool operator ()(const T &obj) const
 		{
 			const ClassType& deref_obj(DereferencingManager::Process(obj));
-			return _comparer(_value, Extractor::GetValue(deref_obj, _ptr));
+			return _comparer(Extractor::GetValue(deref_obj, _ptr), _value);
 		}
 	};
 
