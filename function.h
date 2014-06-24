@@ -184,10 +184,12 @@ namespace stingray
 		self_count_ptr<InvokableType>	_invokable;
 
 	protected:
-		inline ~function_base() {}
+		inline ~function_base()
+		{ }
+
 		template < typename FunctorType >
-		inline function_base(const FunctorType& func)
-			: _invokable(new Detail::Invokable<Signature, FunctorType>(func))
+		inline function_base(const FunctorType& func) :
+			_invokable(new Detail::Invokable<Signature, FunctorType>(func))
 		{ }
 
 		inline RetType Invoke(const Tuple<ParamTypes>& p) const
