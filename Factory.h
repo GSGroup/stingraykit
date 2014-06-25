@@ -97,25 +97,22 @@ namespace stingray {
 		{ Detail::Factory::Instance().RegisterTypes(); }
 
 	public:
+		const IFactoryObjectCreator& GetCreator(const std::string& name)
+		{ return Detail::Factory::Instance().GetCreator(name); }
 
-		template<typename Type>
-		const IFactoryObjectCreator& GetCreator()
-		{ return Detail::Factory::Instance().GetCreator<Type>(); }
-
-		template<typename Type>
-		Type *Create(const std::string &name)
-		{ return Detail::Factory::Instance().Create<Type > (name); }
+		template < typename T >
+		T* Create(const std::string& name)
+		{ return Detail::Factory::Instance().Create<T>(name); }
 	};
 
 }
 
 
-#define TOOLKIT_REGISTER_CLASS(type) \
+#define TOOLKIT_REGISTER_CLASS(Class_) \
 	friend class stingray::Detail::Factory; \
-	friend class stingray::Detail::SimpleFactoryObjectCreator<type>; \
-	virtual const IFactoryObjectCreator &GetFactoryObjectCreator() const	{ return GetStaticFactoryObjectCreator(); } \
-	static const IFactoryObjectCreator& GetStaticFactoryObjectCreator()		{ return stingray::Factory::Instance().GetCreator<type>(); }
+	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
+	virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const { return stingray::Factory::Instance().GetCreator(typeid(Class_).name()); }
 
-#define TOOLKIT_REGISTER_CLASS_EXPLICIT(type) stingray::Detail::Factory::Instance().Register<type>(#type, typeid(type).name())
+#define TOOLKIT_REGISTER_CLASS_EXPLICIT(Class_) stingray::Detail::Factory::Instance().Register<Class_>(#Class_, typeid(Class_).name())
 
 #endif
