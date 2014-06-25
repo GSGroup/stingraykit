@@ -69,9 +69,6 @@ namespace stingray
 		{ static std::string ToString(const T& obj) { return stingray::ToString(obj); } };
 
 
-		TOOLKIT_DECLARE_METHOD_CHECK(GetStaticFactoryObjectCreator);
-
-
 		template < typename T >
 		struct ObjectHolder;
 
