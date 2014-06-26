@@ -122,8 +122,7 @@ namespace stingray
 		case Type::SerializableObject:
 			{
 				TOOLKIT_CHECK(_data.Object->IsSerializable(), "'any' object (" + Demangle(typeid(*_data.Object).name()) + ") is not a serializable one!");
-				const IFactoryObjectCreator& creator = _data.Object->GetFactoryObjectCreator();
-				std::string classname(creator.Name());
+				std::string classname(_data.Object->GetClassName());
 				ar.Serialize(".class", classname);
 				_data.Object->Serialize(ar);
 			}

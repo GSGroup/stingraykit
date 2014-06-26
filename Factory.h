@@ -12,8 +12,6 @@ namespace stingray
 	{
 		virtual ~IFactoryObjectCreator() { }
 
-		virtual std::string Name() const = 0;
-
 		virtual IFactoryObject* Create() const = 0;
 	};
 
@@ -26,16 +24,7 @@ namespace stingray
 		template < typename ClassType >
 		class SimpleFactoryObjectCreator : public virtual IFactoryObjectCreator
 		{
-		private:
-			std::string	_typeName;
-
 		public:
-			explicit SimpleFactoryObjectCreator(const std::string& typeName)
-				: _typeName(typeName)
-			{ }
-
-			virtual std::string Name() const { return _typeName; }
-
 			virtual IFactoryObject* Create() const { return new ClassType; }
 		};
 
@@ -56,7 +45,7 @@ namespace stingray
 			template < typename ClassType >
 			void Register(const std::string& name)
 			{
-				unique_ptr<IFactoryObjectCreator> creator(new SimpleFactoryObjectCreator<ClassType>(name));
+				unique_ptr<IFactoryObjectCreator> creator(new SimpleFactoryObjectCreator<ClassType>());
 				Register(name, creator.get());
 				creator.release();
 			}
@@ -79,8 +68,6 @@ namespace stingray
 			}
 
 			IFactoryObject* Create(const std::string& name);
-
-			const IFactoryObjectCreator& GetCreator(const std::string& name);
 		};
 
 	} //Detail
@@ -92,20 +79,10 @@ namespace stingray
 		Factory() { Detail::Factory::Instance().RegisterTypes(); }
 
 	public:
-		const IFactoryObjectCreator& GetCreator(const std::string& name)
-		{ return Detail::Factory::Instance().GetCreator(name); }
-
 		template < typename T >
 		T* Create(const std::string& name)
 		{ return Detail::Factory::Instance().Create<T>(name); }
 	};
-
-	template < typename T >
-	std::string ExtractClassName()
-	{
-		const TypeInfo info(typeid(T));
-		return RemovePrefix(info.GetName(), "stingray::");
-	}
 
 }
 
@@ -113,7 +90,7 @@ namespace stingray
 #define TOOLKIT_REGISTER_CLASS(Class_) \
 	friend class stingray::Detail::Factory; \
 	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
-	virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const { return stingray::Factory::Instance().GetCreator(ExtractClassName<Class_>()); }
+	virtual std::string GetClassName() const { return RemovePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
 
 #define TOOLKIT_REGISTER_CLASS_EXPLICIT(Class_) stingray::Detail::Factory::Instance().Register<Class_>(#Class_)
 

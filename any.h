@@ -93,7 +93,7 @@ namespace stingray
 			virtual void Deserialize(ObjectIStream & ar)		{ TOOLKIT_THROW(NotSupportedException()); }
 			virtual bool IsSerializable() const					{ return false; }
 
-			virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const { TOOLKIT_THROW(NotImplementedException()); }
+			virtual std::string GetClassName() const { TOOLKIT_THROW(NotImplementedException()); }
 		};
 
 		template < >

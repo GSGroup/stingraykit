@@ -11,12 +11,14 @@
 
 namespace stingray
 {
-	struct IFactoryObjectCreator;
+
 	struct IFactoryObject
 	{
-		virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const = 0;
-		virtual ~IFactoryObject() {}
+		virtual ~IFactoryObject() { }
+
+		virtual std::string GetClassName() const = 0;
 	};
+
 }
 
 #if (__GNUC__ >= 3 || defined(__clang__)) && !defined(PRODUCTION_BUILD)
