@@ -109,7 +109,7 @@ namespace stingray
 				typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
 
 			public:
-				CastProxy(const SrcEnumerablePtr& srcEnumerable) : base(srcEnumerable, &CastProxy::Cast, InstanceOfPredicate<DestType>())
+				CastProxy(const SrcEnumerablePtr& srcEnumerable) : base(srcEnumerable, &CastProxy::Cast, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>())
 				{ }
 
 			private:
