@@ -172,7 +172,7 @@ namespace stingray
 
 			public:
 				CastProxy(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<LifeAssurance>& assurance)
-					: base(srcEnumerator, &CastProxy::Cast, InstanceOfPredicate<DestType>()), _assurance(assurance)
+					: base(srcEnumerator, &CastProxy::Cast, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()), _assurance(assurance)
 				{ }
 
 			private:
