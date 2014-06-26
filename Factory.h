@@ -1,90 +1,86 @@
 #ifndef STINGRAY_TOOLKIT_FACTORY_H
 #define STINGRAY_TOOLKIT_FACTORY_H
 
-#include <map>
-#include <string>
 
-#include <stingray/threads/Thread.h>
 #include <stingray/toolkit/Singleton.h>
-#include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/toolkit.h>
-#include <stingray/toolkit/unique_ptr.h>
 
 
-namespace stingray {
+namespace stingray
+{
 
-	struct IFactoryObjectCreator {
+	struct IFactoryObjectCreator
+	{
+		virtual ~IFactoryObjectCreator() { }
+
 		virtual std::string Name() const = 0;
-		virtual IFactoryObject * Create() const = 0;
 
-		virtual ~IFactoryObjectCreator() {}
+		virtual IFactoryObject* Create() const = 0;
 	};
+
 
 	class Factory;
 
-	namespace Detail {
+	namespace Detail
+	{
 
-		template<typename ClassType>
-		class SimpleFactoryObjectCreator : public IFactoryObjectCreator
+		template < typename ClassType >
+		class SimpleFactoryObjectCreator : public virtual IFactoryObjectCreator
 		{
-			std::string TypeName;
+		private:
+			std::string	_typeName;
 
 		public:
-			SimpleFactoryObjectCreator(const std::string &typeName) : TypeName(typeName) {}
+			explicit SimpleFactoryObjectCreator(const std::string& typeName)
+				: _typeName(typeName)
+			{ }
 
-			virtual std::string Name() const		{ return TypeName; }
-			virtual IFactoryObject *Create() const	{ return new ClassType; }
+			virtual std::string Name() const { return _typeName; }
+
+			virtual IFactoryObject* Create() const { return new ClassType; }
 		};
+
 
 		class Factory : public Singleton<Factory>
 		{
-			TOOLKIT_SINGLETON(Factory);
+			TOOLKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(Factory);
 
-		private:
+			typedef std::map<std::string, IFactoryObjectCreator*> ClassRegistry;
+
 			friend class stingray::Factory;
 
-			typedef std::map<const std::string, IFactoryObjectCreator *> RegistrarMap;
-
-			RegistrarMap	_registrars, _registrarsByTypeId;
-			Mutex			_registrarLock;
+		private:
+			ClassRegistry	_registry;
+			Mutex			_registryGuard;
 
 		public:
-			template<typename ClassType>
-			void Register(const std::string &name, const std::string &type)
+			template < typename ClassType >
+			void Register(const std::string& name)
 			{
 				unique_ptr<IFactoryObjectCreator> creator(new SimpleFactoryObjectCreator<ClassType>(name));
-				Register(name, type, creator.get());
+				Register(name, creator.get());
 				creator.release();
 			}
 
-			void Dump();
-
 		private:
-			Factory() {}
-			~Factory() { STINGRAY_TRY("Factory::Clean failed", Clean()); }
-
-			template<typename Type>
-			Type *Create(const std::string &name)
-			{
-				unique_ptr<IFactoryObject> factory_obj(Create(name));
-				Type *object = dynamic_cast<Type *> (factory_obj.get());
-				if (!object)
-					TOOLKIT_THROW(std::runtime_error("Cannot cast " + Demangle(name) + " " + Demangle(typeid(Type).name())));
-				factory_obj.release();
-				return object;
-			}
-
-			template<typename Type>
-			const IFactoryObjectCreator& GetCreator()
-			{ return GetCreator(typeid (Type).name()); }
+			~Factory();
 
 			// Defined in stingray/toolkit/_FactoryClasses.cpp
 			void RegisterTypes();
 
+			void Register(const std::string& name, IFactoryObjectCreator* creator);
+
+			template < typename T >
+			T* Create(const std::string& name)
+			{
+				unique_ptr<IFactoryObject> factory_obj(Create(name));
+				T* object = TOOLKIT_CHECKED_DYNAMIC_CASTER(factory_obj.get());
+				factory_obj.release();
+				return object;
+			}
+
 			IFactoryObject* Create(const std::string& name);
-			const IFactoryObjectCreator& GetCreator(const std::string &name);
-			void Register(const std::string &name, const std::string &type, IFactoryObjectCreator *creator);
-			void Clean();
+
+			const IFactoryObjectCreator& GetCreator(const std::string& name);
 		};
 
 	} //Detail
@@ -93,8 +89,7 @@ namespace stingray {
 	{
 		TOOLKIT_SINGLETON(Factory);
 
-		Factory()
-		{ Detail::Factory::Instance().RegisterTypes(); }
+		Factory() { Detail::Factory::Instance().RegisterTypes(); }
 
 	public:
 		const IFactoryObjectCreator& GetCreator(const std::string& name)
@@ -105,14 +100,21 @@ namespace stingray {
 		{ return Detail::Factory::Instance().Create<T>(name); }
 	};
 
+	template < typename T >
+	std::string ExtractClassName()
+	{
+		const TypeInfo info(typeid(T));
+		return RemovePrefix(info.GetName(), "stingray::");
+	}
+
 }
 
 
 #define TOOLKIT_REGISTER_CLASS(Class_) \
 	friend class stingray::Detail::Factory; \
 	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
-	virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const { return stingray::Factory::Instance().GetCreator(typeid(Class_).name()); }
+	virtual const IFactoryObjectCreator& GetFactoryObjectCreator() const { return stingray::Factory::Instance().GetCreator(ExtractClassName<Class_>()); }
 
-#define TOOLKIT_REGISTER_CLASS_EXPLICIT(Class_) stingray::Detail::Factory::Instance().Register<Class_>(#Class_, typeid(Class_).name())
+#define TOOLKIT_REGISTER_CLASS_EXPLICIT(Class_) stingray::Detail::Factory::Instance().Register<Class_>(#Class_)
 
 #endif
