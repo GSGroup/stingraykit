@@ -5,7 +5,7 @@ namespace stingray {
 namespace Detail
 {
 
-	Factory::~Factory()
+	FactoryContext::~FactoryContext()
 	{
 		STINGRAY_TRY("Clean failed",
 			MutexLock l(_registryGuard);
@@ -15,7 +15,7 @@ namespace Detail
 	}
 
 
-	void Factory::Register(const std::string& name, IFactoryObjectCreator* creator)
+	void FactoryContext::Register(const std::string& name, IFactoryObjectCreator* creator)
 	{
 		Logger::Debug() << "Registering " << name;
 
@@ -28,7 +28,7 @@ namespace Detail
 	}
 
 
-	IFactoryObject* Factory::Create(const std::string& name)
+	IFactoryObject* FactoryContext::Create(const std::string& name)
 	{
 		MutexLock l(_registryGuard);
 

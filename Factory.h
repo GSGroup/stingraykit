@@ -29,45 +29,54 @@ namespace stingray
 		};
 
 
-		class Factory : public Singleton<Factory>
+		class FactoryContext
 		{
-			TOOLKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(Factory);
-
 			typedef std::map<std::string, IFactoryObjectCreator*> ClassRegistry;
-
-			friend class stingray::Factory;
 
 		private:
 			ClassRegistry	_registry;
 			Mutex			_registryGuard;
 
 		public:
+			FactoryContext() { }
+			~FactoryContext();
+
+			void Register(const std::string& name, IFactoryObjectCreator* creator);
+
+			IFactoryObject* Create(const std::string& name);
+		};
+
+
+		class Factory : public Singleton<Factory>
+		{
+			TOOLKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(Factory);
+
+			friend class stingray::Factory;
+
+		private:
+			FactoryContext	_context;
+
+		public:
 			template < typename ClassType >
 			void Register(const std::string& name)
 			{
 				unique_ptr<IFactoryObjectCreator> creator(new SimpleFactoryObjectCreator<ClassType>());
-				Register(name, creator.get());
+				_context.Register(name, creator.get());
 				creator.release();
 			}
 
 		private:
-			~Factory();
-
 			// Defined in stingray/toolkit/_FactoryClasses.cpp
 			void RegisterTypes();
-
-			void Register(const std::string& name, IFactoryObjectCreator* creator);
 
 			template < typename T >
 			T* Create(const std::string& name)
 			{
-				unique_ptr<IFactoryObject> factory_obj(Create(name));
+				unique_ptr<IFactoryObject> factory_obj(_context.Create(name));
 				T* object = TOOLKIT_CHECKED_DYNAMIC_CASTER(factory_obj.get());
 				factory_obj.release();
 				return object;
 			}
-
-			IFactoryObject* Create(const std::string& name);
 		};
 
 	} //Detail
