@@ -22,8 +22,6 @@ namespace stingray
 	template < typename T >
 	class ArrayList : public virtual IList<T>
 	{
-		TOOLKIT_NONCOPYABLE(ArrayList);
-
 	public:
 		typedef typename IList<T>::ValueType				ValueType;
 
@@ -68,6 +66,16 @@ namespace stingray
 			TOOLKIT_REQUIRE_NOT_NULL(enumerable);
 			shared_ptr<IEnumerator<T> > enumerator(enumerable->GetEnumerator());
 			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::back_inserter(_items));
+		}
+
+		ArrayList(const ArrayList& other) : _items(new VectorType(*other._items))
+		{ }
+
+		ArrayList& operator = (const ArrayList& other)
+		{
+			_items = make_shared<VectorType>(*other._items);
+			_itemsEnumeratorHolder.reset();
+			return *this;
 		}
 
 		virtual ValueType Get(int index) const
