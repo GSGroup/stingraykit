@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_ITERATORS_H
 
 
+#include <stingray/toolkit/function_info.h>
 #include <stingray/toolkit/iterator_base.h>
 #include <stingray/toolkit/shared_ptr.h>
 
