@@ -3,10 +3,12 @@
 
 
 #include <stingray/toolkit/IEnumerable.h>
+#include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/functional.h>
 #include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>
-#include <stingray/toolkit/functional.h>
+
 
 namespace stingray
 {
@@ -314,6 +316,9 @@ namespace stingray
 		template <typename T> int Count(const EnumerableOrEnumerator<T> src);
 		template <typename T> int Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
+		template <typename T> int IndexOf(const EnumerableOrEnumerator<T> src, const T& val);
+		template <typename T> int IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+
 		template < typename T > EnumerableOrEnumerator<T> DefaultIfEmpty(const EnumerableOrEnumerator<T>& src, const T& value = T());
 
 		template < typename T > shared_ptr<IEnumerable<T> > Empty();
@@ -426,6 +431,22 @@ namespace stingray
 					++result;
 			return result;
 		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), int, IndexOf, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		{
+			int result = 0;
+			for (; enumerator.Valid(); enumerator.Next())
+			{
+				if (predicate(enumerator.Get()))
+					return result;
+				++result;
+			}
+			return -1;
+		}
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), int, IndexOf, MK_PARAM(const T& val), MK_PARAM(val))
+		{ return IndexOf(enumerator, bind(std::equal_to<T>(), val, _1)); }
 
 
 		template < typename T >
