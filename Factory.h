@@ -108,10 +108,6 @@ namespace stingray
 				return _defaultContext->Create<ClassType>(name);
 			}
 
-			template < typename ClassType >
-			void Register(const std::string& name, const Version& version)
-			{ }
-
 		private:
 			// Defined in stingray/toolkit/_FactoryClasses.cpp
 			void RegisterTypes();
@@ -144,8 +140,6 @@ namespace stingray
 #define TOOLKIT_REGISTER_CLASS_VERSION(Class_, ClassName_, ClassVersion_) \
 	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
 	virtual std::string GetClassName() const { return ClassName_; }
-
-#define TOOLKIT_REGISTER_CLASS_VERSION_EXPLICIT(Class_, ClassName_, ClassVersion_) stingray::Detail::Factory::Instance().Register<Class_>(ClassName_, Version::FromString(#ClassVersion_))
 
 
 #endif
