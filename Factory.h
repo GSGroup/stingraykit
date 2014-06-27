@@ -137,7 +137,7 @@ namespace stingray
 #define TOOLKIT_REGISTER_CLASS_EXPLICIT(Class_) stingray::Detail::Factory::Instance().Register<Class_>(#Class_)
 
 
-#define TOOLKIT_REGISTER_CLASS_VERSION(Class_, ClassName_, ClassVersion_) \
+#define TOOLKIT_REGISTER_MIGRATION_CLASS(Class_, ClassName_) \
 	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
 	virtual std::string GetClassName() const { return ClassName_; }
 
