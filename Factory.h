@@ -97,7 +97,6 @@ namespace stingray
 
 
 #define TOOLKIT_REGISTER_CLASS(Class_) \
-	friend class stingray::Detail::Factory; \
 	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
 	virtual std::string GetClassName() const { return RemovePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
 
