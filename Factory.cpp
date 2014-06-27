@@ -50,7 +50,7 @@ namespace Detail
 		MutexLock l(_guard);
 
 		FactoryContextPtr overridden = _overriddenContext.lock();
-		TOOLKIT_CHECK(overridden, "Context is already overridden!");
+		TOOLKIT_CHECK(!overridden, "Context is already overridden!");
 
 		overridden.reset(new FactoryContext());
 		_overriddenContext = overridden.weak();
