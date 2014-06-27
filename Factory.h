@@ -42,28 +42,70 @@ namespace stingray
 			FactoryContext() { }
 			~FactoryContext();
 
-			void Register(const std::string& name, IFactoryObjectCreator* creator);
-
-			IFactoryObject* Create(const std::string& name);
-		};
-
-
-		class Factory : public Singleton<Factory>
-		{
-			TOOLKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(Factory);
-
-			friend class stingray::Factory;
-
-		private:
-			FactoryContext	_context;
-
-		public:
 			template < typename ClassType >
 			void Register(const std::string& name)
 			{
 				unique_ptr<IFactoryObjectCreator> creator(new SimpleFactoryObjectCreator<ClassType>());
-				_context.Register(name, creator.get());
+				Register(name, creator.get());
 				creator.release();
+			}
+
+			template < typename ClassType >
+			ClassType* Create(const std::string& name)
+			{
+				unique_ptr<IFactoryObject> factory_obj(Create(name));
+				ClassType* object = TOOLKIT_CHECKED_DYNAMIC_CASTER(factory_obj.get());
+				factory_obj.release();
+				return object;
+			}
+
+		private:
+			void Register(const std::string& name, IFactoryObjectCreator* creator);
+
+			IFactoryObject* Create(const std::string& name);
+		};
+		TOOLKIT_DECLARE_PTR(FactoryContext);
+
+
+		class Factory : public Singleton<Factory>
+		{
+			TOOLKIT_SINGLETON(Factory);
+
+			friend class stingray::Factory;
+
+		private:
+			FactoryContextPtr		_defaultContext;
+			FactoryContextWeakPtr	_overriddenContext;
+
+			Mutex					_guard;
+
+		public:
+			Factory();
+
+			FactoryContextPtr OverrideContext();
+
+			template < typename ClassType >
+			void Register(const std::string& name)
+			{
+				MutexLock l(_guard);
+
+				const FactoryContextPtr overridden = _overriddenContext.lock();
+				if (overridden)
+					overridden->Register<ClassType>(name);
+				else
+					_defaultContext->Register<ClassType>(name);
+			}
+
+			template < typename ClassType >
+			ClassType* Create(const std::string& name)
+			{
+				MutexLock l(_guard);
+
+				const FactoryContextPtr overridden = _overriddenContext.lock();
+				if (overridden)
+					return overridden->Create<ClassType>(name);
+
+				return _defaultContext->Create<ClassType>(name);
 			}
 
 			template < typename ClassType >
@@ -73,15 +115,6 @@ namespace stingray
 		private:
 			// Defined in stingray/toolkit/_FactoryClasses.cpp
 			void RegisterTypes();
-
-			template < typename T >
-			T* Create(const std::string& name)
-			{
-				unique_ptr<IFactoryObject> factory_obj(_context.Create(name));
-				T* object = TOOLKIT_CHECKED_DYNAMIC_CASTER(factory_obj.get());
-				factory_obj.release();
-				return object;
-			}
 		};
 
 	} //Detail
@@ -93,9 +126,9 @@ namespace stingray
 		Factory() { Detail::Factory::Instance().RegisterTypes(); }
 
 	public:
-		template < typename T >
-		T* Create(const std::string& name)
-		{ return Detail::Factory::Instance().Create<T>(name); }
+		template < typename ClassType >
+		ClassType* Create(const std::string& name)
+		{ return Detail::Factory::Instance().Create<ClassType>(name); }
 	};
 
 }

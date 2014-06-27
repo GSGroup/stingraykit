@@ -39,5 +39,24 @@ namespace Detail
 		return creator.Create();
 	}
 
+
+	Factory::Factory()
+		: _defaultContext(new FactoryContext())
+	{ }
+
+
+	FactoryContextPtr Factory::OverrideContext()
+	{
+		MutexLock l(_guard);
+
+		FactoryContextPtr overridden = _overriddenContext.lock();
+		TOOLKIT_CHECK(overridden, "Context is already overridden!");
+
+		overridden.reset(new FactoryContext());
+		_overriddenContext = overridden.weak();
+
+		return overridden;
+	}
+
 }}
 
