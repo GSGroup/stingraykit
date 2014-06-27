@@ -207,6 +207,8 @@ namespace stingray
 	bool inline InstanceOf(const SrcType& obj)
 	{ return InstanceOfTester<SrcType>::template Test<DestType>(obj); }
 
+	template < typename T >
+	class shared_ptr;
 
 	template < typename DestType >
 	struct InstanceOfPredicate
@@ -215,7 +217,10 @@ namespace stingray
 
 		template < typename Something > // There is also InstanceOf for shared_ptrs somewhere in shared_ptr.h
 		inline bool operator () (const Something& obj) const
-		{ return InstanceOf<DestType>(obj); }
+		{
+			CompileTimeAssert<!Is1ParamTemplate<shared_ptr, DestType>::Value> ERROR_this_will_actually_test_your_instance_for_shared_ptr_This_is_probably_not_what_you_wanted;
+			return InstanceOf<DestType>(obj);
+		}
 	};
 
 	template < size_t N >

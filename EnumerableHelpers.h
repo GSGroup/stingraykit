@@ -512,11 +512,11 @@ namespace stingray
 
 		template < typename TResult, typename T >
 		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<IEnumerator<T> >& enumerator)
-		{ return make_shared<EnumeratorWrapper<T, TResult> >(enumerator, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<TResult>()); }
+		{ return make_shared<EnumeratorWrapper<T, TResult> >(enumerator, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
 
 		template < typename TResult, typename T >
 		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<IEnumerable<T> >& enumerable)
-		{ return make_shared<EnumerableWrapper<T, TResult> >(enumerable, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<TResult>()); }
+		{ return make_shared<EnumerableWrapper<T, TResult> >(enumerable, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Reverse)
