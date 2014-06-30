@@ -577,9 +577,27 @@ namespace stingray
 			return !l->Valid() && !r->Valid();
 		}
 
+
 		template < typename T >
 		bool SequenceEqual(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second)
 		{ return SequenceEqual(first, second, std::equal_to<T>()); }
+
+
+		template < typename T, typename CompareFunc >
+		int SequenceCmp(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second, const CompareFunc& compareFunc)
+		{
+			shared_ptr<IEnumerator<T> > l(first->GetEnumerator()), r(second->GetEnumerator());
+			for (; l->Valid(); l->Next(), r->Next())
+			{
+				if (!r->Valid())
+					return -1;
+
+				int item_result = compareFunc(l->Get(), r->Get());
+				if (item_result != 0)
+					return item_result;
+			}
+			return r->Valid() ? 1 : 0;
+		}
 
 
 #undef DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS
