@@ -124,15 +124,18 @@ namespace stingray
 		template < typename T >
 		int operator () (const T& lhs, const T& rhs) const
 		{
-			int size_result = StandardOperatorsComparer()(lhs.size(), rhs.size());
-			if (size_result != 0)
-				return size_result;
+			typename T::const_iterator first1 = lhs.begin(), last1 = lhs.end();
+			typename T::const_iterator first2 = rhs.begin(), last2 = rhs.end();
+			for (; first1 != last1; ++first1, ++first2)
+			{
+				if (first2 == last2)
+					return -1;
 
-			typedef typename T::const_iterator TCI;
-			std::pair<TCI, TCI> msmtch = std::mismatch(lhs.begin(), lhs.end(), rhs.begin(), CmpAdapter<ItemComparer, std::equal_to>());
-			if (msmtch.first == lhs.end())
-				return 0;
-			return ItemComparer()(*msmtch.first, *msmtch.second);
+				int item_result = ItemComparer()(*first1, *first2);
+				if (item_result != 0)
+					return item_result;
+			}
+			return first2 == last2 ? 0 : 1;
 		}
 	};
 
