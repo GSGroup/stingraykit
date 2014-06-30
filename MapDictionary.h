@@ -19,14 +19,16 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename KeyType_, typename ValueType_ >
+	template < typename KeyType_, typename ValueType_ , typename CompareType_ = std::less<KeyType_> >
 	class MapDictionary : public virtual IDictionary<KeyType_, ValueType_>
 	{
 	public:
-		typedef KeyType_							KeyType;
-		typedef ValueType_							ValueType;
-		typedef KeyValuePair<KeyType, ValueType>	PairType;
-		typedef std::map<KeyType, ValueType>		MapType;
+		typedef KeyType_									KeyType;
+		typedef ValueType_									ValueType;
+		typedef CompareType_								CompareType;
+
+		typedef KeyValuePair<KeyType, ValueType>			PairType;
+		typedef std::map<KeyType, ValueType, CompareType>	MapType;
 		TOOLKIT_DECLARE_PTR(MapType);
 
 	private:
