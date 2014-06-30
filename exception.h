@@ -198,12 +198,11 @@ namespace stingray
 		}
 
 		template < typename T, bool CanCastToBool = CanCast<T, bool>::Value >
-		struct NullTester
-		{ static bool Test(const T& val)		{ return true; } };
+		struct NullTester;
 
 		template < typename T >
 		struct NullTester<T, true>
-		{ static bool Test(const T& val)		{ return val; } };
+		{ static bool Test(const T& val) { return val; } };
 
 		template < typename T >
 		bool IsNotNull(const T& val) { return NullTester<T>::Test(val); }
