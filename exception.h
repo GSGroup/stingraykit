@@ -96,6 +96,12 @@ namespace stingray
 		FormatException(const std::string& expression) : Exception("Invalid format: " + expression) { }
 	};
 
+	struct MalformedDataException : public Exception
+	{
+		MalformedDataException() : Exception("Malformed data!") { }
+		MalformedDataException(const std::string& expression) : Exception("Malformed data: " + expression) { }
+	};
+
 	struct NullPointerException : public Exception
 	{
 		NullPointerException() : Exception("Accessing null pointer!") { }
