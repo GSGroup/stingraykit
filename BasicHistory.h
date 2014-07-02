@@ -20,16 +20,17 @@ namespace stingray
 		LastHistoryIndices			_lastIndices;
 		size_t						_maxHistorySize;
 		size_t						_lastHistoryIndicesCount;
-		Mutex						_mutex;
 
 	public:
 		BasicHistory(size_t maxHistorySize, size_t lastHistoryIndicesCount = 2)
 			: _maxHistorySize(maxHistorySize), _lastHistoryIndicesCount(lastHistoryIndicesCount)
 		{ }
 
+		signal<void()> OnStateChanged;
+
 		void Add(const T& val)
 		{
-			MutexLock l(_mutex);
+			signal_locker l(OnStateChanged);
 
 			//LogState("Before Add(" + ToString(val) + ")");
 
@@ -51,12 +52,14 @@ namespace stingray
 
 			AddLastIndex(_history.size() - 1);
 
+			OnStateChanged();
+
 			//LogState("After Add(" + ToString(val) + ")");
 		}
 
 		bool ToggleLast(T& outVal) // TODO: replace with more generic accessors
 		{
-			MutexLock l(_mutex);
+			signal_locker l(OnStateChanged);
 
 			//LogState("Before ToggleLast");
 
@@ -73,7 +76,23 @@ namespace stingray
 
 			//LogState("After ToggleLast");
 
+			OnStateChanged();
+
 			return true;
+		}
+
+		template < typename OStream >
+		void Serialize(OStream& s) const
+		{
+			signal_locker l(OnStateChanged);
+			s.Serialize("history", _history).Serialize("lastIndices", _lastIndices).Serialize("maxHistorySize", _maxHistorySize).Serialize("lastHistoryIndicesCount", _lastHistoryIndicesCount);
+		}
+
+		template < typename OStream >
+		void Deserialize(OStream& s)
+		{
+			signal_locker l(OnStateChanged);
+			s.Deserialize("history", _history).Deserialize("lastIndices", _lastIndices).Deserialize("maxHistorySize", _maxHistorySize).Deserialize("lastHistoryIndicesCount", _lastHistoryIndicesCount);
 		}
 
 	private:
@@ -87,7 +106,7 @@ namespace stingray
 		void LogState(const std::string& msg) const
 		{ Logger::Info() << "[BasicHistory] " << msg << ": { history: " << _history << ", lastIndices: " << _lastIndices << " }"; }
 	};
-	
+
 }
 
 
