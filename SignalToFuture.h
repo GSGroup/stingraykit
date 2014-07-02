@@ -54,6 +54,10 @@ namespace stingray {
 		explicit SignalToFutureWrapper(const signal<SignalSignature>& s)
 		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this)); }
 
+		template<typename SignalSignature>
+		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& s)
+		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this)); }
+
 		~SignalToFutureWrapper()
 		{ _connection.disconnect(); }
 
