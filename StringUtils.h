@@ -370,6 +370,9 @@ namespace stingray
 	std::string ToString(const T& val)
 	{ string_ostream result; ToString(result, val); return result.str(); }
 
+	std::string ToString(const EmptyType &)
+	{ return std::string(); }
+
 
 	template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
 	struct IsStringRepresentable

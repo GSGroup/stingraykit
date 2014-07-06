@@ -167,7 +167,9 @@ namespace stingray
 	{ return &val; }
 
 	struct EmptyType
-	{ };
+	{
+		bool operator < (const EmptyType &) const { return false; }
+	};
 
 	TOOLKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 
