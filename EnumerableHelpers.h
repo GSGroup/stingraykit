@@ -544,7 +544,7 @@ namespace stingray
 		{
 			shared_ptr<std::vector<T> > result(new std::vector<T>);
 			for (; enumerator.Valid(); enumerator.Next())
-				result.push_back(enumerator.Get());
+				result->push_back(enumerator.Get());
 			return EnumerableFromStlIterators(result->rbegin(), result->rend(), result);
 		}
 
