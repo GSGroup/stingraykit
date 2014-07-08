@@ -8,6 +8,7 @@
 #include <stingray/toolkit/BithreadCircularBuffer.h>
 #include <stingray/toolkit/IDataSource.h>
 
+
 namespace stingray
 {
 
@@ -28,19 +29,15 @@ namespace stingray
 
 		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
 		{
-			while (_dataSize == 0)
+			try
 			{
-				if (!token)
-					return;
-
-				if (!_socket->Poll(PollTimeout, SelectMode::Read))
-					continue;
-
-				_dataSize = _socket->Receive(ByteData(_packetBuffer));
+				_dataSize = _socket->Receive(ByteData(_packetBuffer), token);
+				if (consumer.Process(ConstByteData(_packetBuffer, 0, _dataSize), token))
+					_dataSize = 0;
 			}
-
-			if (consumer.Process(ConstByteData(_packetBuffer, 0, _dataSize), token))
-				_dataSize = 0;
+			catch (const OperationCanceledException& ex)
+			{
+			}
 		}
 	};
 	TOOLKIT_DECLARE_PTR(UdpPacketSource);
@@ -57,8 +54,8 @@ namespace stingray
 		BithreadCircularBuffer	_buffer;
 		Mutex					_mutex;
 
-		WaitToken				_bufferEmpty;
-		WaitToken				_bufferFull;
+		WaitToken				_hasData;
+		WaitToken				_hasSpace;
 
 	public:
 		StreamingSocketDataSource(const ISocketPtr& socket, size_t size) :
@@ -80,7 +77,7 @@ namespace stingray
 			BithreadCircularBuffer::Reader r = _buffer.Read();
 			if (r.size() == 0)
 			{
-				_bufferEmpty.Wait(_mutex, token);
+				_hasData.Wait(_mutex, token);
 				return;
 			}
 
@@ -91,7 +88,7 @@ namespace stingray
 			}
 
 			r.Pop(processed_size);
-			_bufferFull.Broadcast();
+			_hasSpace.Broadcast();
 		}
 
 	private:
@@ -103,27 +100,24 @@ namespace stingray
 				BithreadCircularBuffer::Writer w = _buffer.Write();
 				if (w.size() == 0)
 				{
-					_bufferFull.Wait(_mutex, _token);
+					_hasSpace.Wait(_mutex, _token);
 					continue;
 				}
 
 				size_t received_size = 0;
 				{
 					MutexUnlock ul(l);
-					const int PollTimeout = 100;
-					if (!_socket->Poll(PollTimeout, SelectMode::Read))
-						continue;
-
-					received_size = _socket->Receive(w.GetData());
+					received_size = _socket->Receive(w.GetData(), _token);
 				}
 
 				w.Push(received_size);
-				_bufferEmpty.Broadcast();
+				_hasData.Broadcast();
 			}
 		}
 	};
 	TOOLKIT_DECLARE_PTR(StreamingSocketDataSource);
 
 }
+
 
 #endif
