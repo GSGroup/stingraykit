@@ -540,11 +540,21 @@ namespace stingray
 		{ return make_shared<EnumerableWrapper<T, TResult> >(enumerable, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Reverse)
+		template < typename T >
+		shared_ptr<IEnumerator<T> > Reverse(const shared_ptr<IEnumerator<T> >& enumerator)
 		{
 			shared_ptr<std::vector<T> > result(new std::vector<T>);
 			for (; enumerator.Valid(); enumerator.Next())
 				result->push_back(enumerator.Get());
+			return EnumeratorFromStlIterators(result->rbegin(), result->rend(), result);
+		}
+
+		template < typename T >
+		shared_ptr<IEnumerable<T> > Reverse(const shared_ptr<IEnumerable<T> >& enumerable)
+		{
+			shared_ptr<std::vector<T> > result(new std::vector<T>);
+			for (shared_ptr<IEnumerator<T> > enumerator = enumerable->GetEnumerator(); enumerator->Valid(); enumerator->Next())
+				result->push_back(enumerator->Get());
 			return EnumerableFromStlIterators(result->rbegin(), result->rend(), result);
 		}
 
