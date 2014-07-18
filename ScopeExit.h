@@ -69,6 +69,11 @@ namespace stingray
 
 	/** @} */
 
+#define STINGRAY_DECLARE_SCOPE_EXIT_ARGS_0() \
+		struct TOOLKIT_CAT(__ScopeExitArgs, __LINE__) \
+		{ \
+		} __scope_exit_args; \
+
 #define STINGRAY_DECLARE_SCOPE_EXIT_ARGS_2(ParamType1_, ParamName1_) \
 		struct TOOLKIT_CAT(__ScopeExitArgs, __LINE__) \
 		{ \
