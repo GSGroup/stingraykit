@@ -17,8 +17,9 @@ namespace stingray
 #else
 	struct Backtrace
 	{
-		inline std::string Get() const { return std::string(); }
-		std::string ToString() const { return Get(); }
+		Backtrace()						{ }
+		inline std::string Get() const	{ return std::string(); }
+		std::string ToString() const	{ return Get(); }
 	};
 #endif
 
