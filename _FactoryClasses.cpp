@@ -56,7 +56,7 @@
 #include <stingray/scanner/lybid/LybidServiceMetaInfo.h>
 #include <stingray/scanner/terrestrial/TerrestrialServiceMetaInfo.h>
 #include <stingray/scanner/tricolor/TricolorServiceMetaInfo.h>
-#include <stingray/stats/ChannelViewingEventInfo.h>
+#include <stingray/stats/StatisticChannelInfo.h>
 #include <stingray/streams/PlaybackStreamContent.h>
 #include <stingray/streams/RecordStreamContent.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
@@ -174,7 +174,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TerrestrialServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorServiceMetaInfo);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(Detail::any::ObjectHolder<stingray::ChannelViewingEventInfo>);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(Detail::any::ObjectHolder<stingray::StatisticChannelInfo>);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlaybackStreamContent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamContent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
