@@ -116,11 +116,19 @@ namespace stingray
 			{ \
 				ObjectHolder() { } \
 				ObjectHolder(const __VA_ARGS__& object) : ObjectHolderBase<__VA_ARGS__>(object) { } \
-				virtual void Serialize(ObjectOStream & ar) const	{ ar.Serialize("obj", Object); } \
-				virtual void Deserialize(ObjectIStream & ar)		{ ar.Deserialize("obj", Object); } \
-				virtual bool IsSerializable() const					{ return true; } \
+				virtual void Serialize(ObjectOStream & ar) const; \
+				virtual void Deserialize(ObjectIStream & ar); \
+				virtual bool IsSerializable() const	{ return true; } \
 				TOOLKIT_REGISTER_CLASS(ObjectHolder<__VA_ARGS__>); \
 			}; \
+		}}}
+
+#define TOOLKIT_DEFINE_SERIALIZABLE_ANY_OBJECTHOLDER(...) \
+		namespace stingray { \
+		namespace Detail { \
+		namespace any { \
+				void ObjectHolder<__VA_ARGS__>::Serialize(ObjectOStream & ar) const	{ ar.Serialize("obj", Object); } \
+				void ObjectHolder<__VA_ARGS__>::Deserialize(ObjectIStream & ar)		{ ar.Deserialize("obj", Object); } \
 		}}}
 
 		union DataType
