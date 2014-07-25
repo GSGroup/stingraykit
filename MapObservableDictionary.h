@@ -14,8 +14,8 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename KeyType_, typename ValueType_ >
-	class MapObservableDictionary : public ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_> >
+	template < typename KeyType_, typename ValueType_, typename CompareType_ = std::less<KeyType_> >
+	class MapObservableDictionary : public ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_> >
 	{ };
 
 	/** @} */
