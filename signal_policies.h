@@ -74,10 +74,10 @@ namespace stingray
 				typedef MutexLock		LockType;
 
 			private:
-				Mutex&	_mutex;
+				const Mutex&	_mutex;
 
 			public:
-				ExternalMutex(Mutex& mutex) : _mutex(mutex)
+				ExternalMutex(const Mutex& mutex) : _mutex(mutex)
 				{}
 
 				const Mutex& GetSync() const { return _mutex; }
