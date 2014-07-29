@@ -18,17 +18,17 @@ namespace stingray
 		TOOLKIT_NONCOPYABLE(ObservableCollectionLocker);
 
 	private:
-		signal_locker _locker;
+		MutexLock		_lock;
 
 	public:
 		template < typename CollectionType >
 		ObservableCollectionLocker(const CollectionType& collection)
-			: _locker(collection.OnChanged)
+			: _lock(collection.GetSyncRoot())
 		{ }
 
 		template < typename CollectionType >
 		ObservableCollectionLocker(const shared_ptr<CollectionType>& collection)
-			: _locker(collection->OnChanged)
+			: _lock(collection->GetSyncRoot())
 		{ }
 	};
 	TOOLKIT_DECLARE_PTR(ObservableCollectionLocker);

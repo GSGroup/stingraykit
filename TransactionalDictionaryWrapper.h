@@ -25,7 +25,7 @@ namespace stingray
 
 		typedef shared_ptr<Wrapped_>					WrappedPtr;
 
-		typedef signal<void(const DiffTypePtr&)>		OnChangedSignalType;
+		typedef signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutex>		OnChangedSignalType;
 
 	private:
 		WrappedPtr						&_wrapped;
@@ -157,54 +157,63 @@ namespace stingray
 		typedef typename Wrapped_::ValueType					ValueType;
 		typedef typename Wrapped_::PairType						PairType;
 		typedef ITransactionalDictionary<KeyType, ValueType>	TransactionalInterface;
+		typedef typename TransactionalInterface::DiffTypePtr	DiffTypePtr;
 
 	private:
-		shared_ptr<Wrapped_>									_wrapped;
-		typename TransactionalInterface::TransactionTypeWeakPtr	_transaction;
+		Mutex																			_mutex;
+		shared_ptr<Wrapped_>															_wrapped;
+		typename TransactionalInterface::TransactionTypeWeakPtr							_transaction;
+		signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutex>		_onChanged;
 
 	public:
-		TransactionalDictionaryWrapper() : _wrapped(new Wrapped_())
+		TransactionalDictionaryWrapper() : _wrapped(new Wrapped_()), _onChanged(signal_policies::threading::ExternalMutex(_mutex))
 		{}
+
+		virtual const Mutex& GetSyncRoot() const
+		{ return _mutex; }
+
+		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
+		{ return _onChanged.connector(); }
 
 		virtual int GetCount() const
 		{
-			signal_locker l(TransactionalInterface::OnChanged);
+			signal_locker l(_onChanged);
 			return _wrapped->GetCount();
 		}
 
 		virtual bool IsEmpty() const
 		{
-			signal_locker l(TransactionalInterface::OnChanged);
+			signal_locker l(_onChanged);
 			return _wrapped->IsEmpty();
 		}
 
 		virtual ValueType Get(const KeyType& key) const
 		{
-			signal_locker l(TransactionalInterface::OnChanged);
+			signal_locker l(_onChanged);
 			return _wrapped->Get(key);
 		}
 
 		virtual bool ContainsKey(const KeyType& key) const
 		{
-			signal_locker l(TransactionalInterface::OnChanged);
+			signal_locker l(_onChanged);
 			return _wrapped->ContainsKey(key);
 		}
 
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
 		{
-			signal_locker l(TransactionalInterface::OnChanged);
+			signal_locker l(_onChanged);
 			return _wrapped->TryGet(key, outValue);
 		}
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 		{
-			signal_locker l(TransactionalInterface::OnChanged);
+			signal_locker l(_onChanged);
 			return _wrapped->GetEnumerator();
 		}
 
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
 		{
-			signal_locker l(TransactionalInterface::OnChanged);
+			signal_locker l(_onChanged);
 			return _wrapped->Reverse();
 		}
 
@@ -212,9 +221,9 @@ namespace stingray
 
 		virtual typename TransactionalInterface::TransactionTypePtr StartTransaction()
 		{
-			signal_locker l(TransactionalInterface::OnChanged);
+			signal_locker l(_onChanged);
 			TOOLKIT_CHECK(!_transaction.lock(), "Another transaction exist!");
-			typename TransactionalInterface::TransactionTypePtr tr(new DictionaryTransactionImpl<Wrapped_, Comparer>(_wrapped, TransactionalInterface::OnChanged));
+			typename TransactionalInterface::TransactionTypePtr tr(new DictionaryTransactionImpl<Wrapped_, Comparer>(_wrapped, _onChanged));
 			_transaction = tr;
 			return tr;
 		}

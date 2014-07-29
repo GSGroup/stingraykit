@@ -62,7 +62,8 @@ namespace stingray
 		typedef IDictionaryTransaction<KeyType_, ValueType_> TransactionType;
 		TOOLKIT_DECLARE_PTR(TransactionType);
 
-		signal<void(const DiffTypePtr&)>					OnChanged;
+		virtual const Mutex& GetSyncRoot() const = 0;
+		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const = 0;
 
 		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
 
