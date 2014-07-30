@@ -124,9 +124,13 @@ namespace stingray
 			SetPopOffset(_popOffset + size);
 		}
 
-		u64 GetSize() const
+		u64 GetSize(bool absolute = false) const
 		{
 			MutexLock l(_mutex);
+
+			if (absolute)
+				return _pageSize * _pages.size() - _endOffset;
+
 			return _pageSize * _pages.size() - _startOffset - _endOffset;
 		}
 
