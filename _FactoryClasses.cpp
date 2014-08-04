@@ -36,6 +36,9 @@
 #	include <stingray/platform/openssl/crypto/Certificate.h>
 #endif
 #ifdef PLATFORM_OPENSSL
+#	include <stingray/platform/openssl/crypto/CertificateRevocationList.h>
+#endif
+#ifdef PLATFORM_OPENSSL
 #	include <stingray/platform/openssl/crypto/EvpKey.h>
 #endif
 #ifdef PLATFORM_STAPI
@@ -144,6 +147,9 @@ namespace stingray { namespace Detail
 #endif
 #ifdef PLATFORM_OPENSSL
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::Certificate);
+#endif
+#ifdef PLATFORM_OPENSSL
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::CertificateRevocationList);
 #endif
 #ifdef PLATFORM_OPENSSL
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::EvpKey);
