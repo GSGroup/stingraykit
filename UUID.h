@@ -29,6 +29,8 @@ namespace stingray {
 			return result;
 		}
 
+		static UUID FromString(const std::string& str);
+
 		std::string ToString() const;
 
 	private:
