@@ -283,7 +283,7 @@ namespace stingray
 			}
 
 			BithreadCircularBuffer::Reader r = _buffer.Read();
-			if (r.size() < _paddingSize && r.IsBufferEnd())
+			if (r.size() == _paddingSize && r.IsBufferEnd())
 			{
 				r.Pop(_paddingSize);
 				_paddingSize = 0;
