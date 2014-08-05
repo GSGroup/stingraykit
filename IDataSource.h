@@ -3,8 +3,9 @@
 
 
 #include <stingray/threads/CancellationToken.h>
-#include <stingray/toolkit/reference.h>
+#include <stingray/toolkit/ByteData.h>
 #include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/reference.h>
 
 namespace stingray
 {
