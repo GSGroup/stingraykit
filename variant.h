@@ -42,6 +42,20 @@ namespace stingray
 
 	namespace Detail
 	{
+	    template<typename Base>
+		struct InheritsTester
+		{
+			template<typename Derived>
+			struct Predicate
+			{ static const bool Value = Inherits<Derived, Base>::Value; };
+		};
+
+		template<typename TypeList, typename Type>
+		struct TypeListFilterInheritedTypes
+		{
+			typedef typename TypeListCopyIf<TypeList, InheritsTester<Type>::template Predicate>::ValueT ValueT;
+			static const bool IsEmpty = GetTypeListLength<ValueT>::Value == 0;
+		};
 
 		template<typename Visitor, typename Variant, bool HasRetType = !SameType<typename Visitor::RetType, void>::Value>
 		struct VariantFunctorApplier
@@ -141,40 +155,42 @@ namespace stingray
 			template<typename T>
 			T* get_ptr()
 			{
-				CheckCanContain<T>();
-				if (_type != IndexOfTypeListItem<TypeList, T>::Value)
-					return null;
-				return &GetRef<T>();
+				CheckCanContainInheritedType<T>();
+				return GetPtr<T>();
 			}
 
 			template<typename T>
 			const T* get_ptr() const
 			{
-				CheckCanContain<T>();
-				if (_type != IndexOfTypeListItem<TypeList, T>::Value)
-					return null;
-				return &GetRef<T>();
+				CheckCanContainInheritedType<T>();
+				return GetPtr<T>();
 			}
 
 			template<typename T>
 			T& get()
 			{
-				CheckContains<T>();
-				return GetRef<T>();
+				CheckCanContainInheritedType<T>();
+				T *value = GetPtr<T>();
+				if (!value)
+					ThrowBadVariantGet<T>();
+				return *value;
 			}
 
 			template<typename T>
 			const T& get() const
 			{
-				CheckContains<T>();
-				return GetRef<T>();
+				CheckCanContainInheritedType<T>();
+				const T *value = GetPtr<T>();
+				if (!value)
+					ThrowBadVariantGet<T>();
+				return *value;
 			}
 
 			template<typename T>
 			bool contains() const
 			{
-				CheckCanContain<T>();
-				return _type == IndexOfTypeListItem<TypeList, T>::Value;
+				CheckCanContainInheritedType<T>();
+				return GetPtr<T>();
 			}
 
 			std::string ToString() const
@@ -200,10 +216,10 @@ namespace stingray
 				{}
 
 				template<typename T>
-				typename Visitor::RetType Call(MyType& t) const			{ return _visitor(t.GetRef<T>()); }
+				typename Visitor::RetType Call(MyType& t) const			{ return _visitor(t._storage.template Ref<T>()); }
 
 				template<typename T>
-				typename Visitor::RetType Call(const MyType& t) const	{ return _visitor(t.GetRef<T>()); }
+				typename Visitor::RetType Call(const MyType& t) const	{ return _visitor(t._storage.template Ref<T>()); }
 			};
 
 			struct DestructorFunctor : static_visitor<>
@@ -212,13 +228,33 @@ namespace stingray
 				void Call(MyType& t) const { STINGRAY_ASSURE_NOTHROW("Destructor of variant item threw an exception: ", t._storage.template Dtor<T>()); }
 			};
 
+			template<typename DesiredType>
+			struct GetPointerVisitor : static_visitor<DesiredType *>
+			{
+				template<typename Type>
+				typename EnableIf<Inherits<Type, DesiredType>::Value, DesiredType *>::ValueT operator()(Type &value)
+				{ return &value; }
+
+				template<typename Type>
+				typename EnableIf<!Inherits<Type, DesiredType>::Value, DesiredType *>::ValueT operator()(Type &value)
+				{ return NULL; }
+			};
+
 			void Destruct() { ApplyFunctor(DestructorFunctor()); }
 
 			template<typename T>
-			T& GetRef()				{ return _storage.template Ref<T>(); }
+			T* GetPtr()
+			{
+				GetPointerVisitor<T> v;
+				return ApplyVisitor(v);
+			}
 
 			template<typename T>
-			const T& GetRef() const	{ return _storage.template Ref<T>(); }
+			const T* GetPtr() const
+			{
+				GetPointerVisitor<const T> v;
+				return ApplyVisitor(v);
+			}
 
 			template<typename T>
 			void CheckCanContain() const
@@ -228,12 +264,16 @@ namespace stingray
 			}
 
 			template<typename T>
-			void CheckContains() const
+			void CheckCanContainInheritedType() const
 			{
-				CheckCanContain<T>();
-				if (_type != IndexOfTypeListItem<TypeList, T>::Value)
-					TOOLKIT_THROW(bad_variant_get(Demangle(typeid(T).name()), Demangle(type().name())));
+				typedef typename Detail::TypeListFilterInheritedTypes<TypeList, T> InheritedTypes;
+				CompileTimeAssert<!InheritedTypes::IsEmpty> ERROR__invalid_type_for_variant;
+				(void)ERROR__invalid_type_for_variant;
 			}
+
+			template<typename T>
+			void ThrowBadVariantGet() const
+			{ TOOLKIT_THROW(bad_variant_get(Demangle(typeid(T).name()), Demangle(type().name()))); }
 
 			struct GetTypeInfoVisitor : static_visitor<const std::type_info*>
 			{
@@ -447,7 +487,7 @@ namespace stingray
 
 	template<typename T, typename TypeList>
 	const T& variant_get(const variant<TypeList>& v)
-	{ return v.template get<T>(); }
+	{ return v.template get<const T>(); }
 
 	template<typename Visitor, typename TypeList>
 	typename Visitor::RetType apply_visitor(Visitor& visitor, variant<TypeList>& v)
