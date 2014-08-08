@@ -141,8 +141,7 @@ namespace stingray
 
 	BithreadCircularBuffer::Reader::Reader(const ImplPtr& impl) :
 		_impl(impl),
-		_data(impl->LockForRead()),
-		_valid(true)
+		_data(impl->LockForRead())
 	{ Atomic::Inc(_impl->ReadersCount()); }
 
 
@@ -174,20 +173,19 @@ namespace stingray
 
 
 	ConstByteData::iterator BithreadCircularBuffer::Reader::begin()
-	{ TOOLKIT_CHECK(_valid, "Already popped data!"); return _data.begin(); }
+	{ return _data.begin(); }
 
 
 	ConstByteData::iterator BithreadCircularBuffer::Reader::end()
-	{ TOOLKIT_CHECK(_valid, "Already popped data!"); return _data.end(); }
+	{ return _data.end(); }
 
 
 	ConstByteData BithreadCircularBuffer::Reader::GetData()
-	{ TOOLKIT_CHECK(_valid, "Already popped data!"); return _data; }
+	{ return _data; }
 
 
 	bool BithreadCircularBuffer::Reader::IsBufferEnd() const
 	{
-		TOOLKIT_CHECK(_valid, "Already popped data!");
 		ConstByteData storage(_impl->GetStorage());
 		return (_data.data() + _data.size()) == (storage.data() + storage.size());
 	}
@@ -196,14 +194,13 @@ namespace stingray
 	void BithreadCircularBuffer::Reader::Pop(size_t bytes)
 	{
 		_impl->UnlockReadAndPop(bytes);
-		_valid = false;
+		_data = ConstByteData(NULL, 0);
 	}
 
 
 	BithreadCircularBuffer::Writer::Writer(const ImplPtr& impl) :
 		_impl(impl),
-		_data(impl->LockForWrite()),
-		_valid(true)
+		_data(impl->LockForWrite())
 	{ Atomic::Inc(_impl->WritersCount()); }
 
 
@@ -235,20 +232,19 @@ namespace stingray
 
 
 	ByteData::iterator BithreadCircularBuffer::Writer::begin()
-	{ TOOLKIT_CHECK(_valid, "Already pushed data!"); return _data.begin(); }
+	{ return _data.begin(); }
 
 
 	ByteData::iterator BithreadCircularBuffer::Writer::end()
-	{ TOOLKIT_CHECK(_valid, "Already pushed data!"); return _data.end(); }
+	{ return _data.end(); }
 
 
 	ByteData BithreadCircularBuffer::Writer::GetData()
-	{ TOOLKIT_CHECK(_valid, "Already pushed data!"); return _data; }
+	{ return _data; }
 
 
 	bool BithreadCircularBuffer::Writer::IsBufferEnd() const
 	{
-		TOOLKIT_CHECK(_valid, "Already popped data!");
 		ConstByteData storage(_impl->GetStorage());
 		return (_data.data() + _data.size()) == (storage.data() + storage.size());
 	}
@@ -257,7 +253,7 @@ namespace stingray
 	void BithreadCircularBuffer::Writer::Push(size_t bytes)
 	{
 		_impl->UnlockWriteAndPush(bytes);
-		_valid = false;
+		_data = ByteData(null, 0);
 	}
 
 }

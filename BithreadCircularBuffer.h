@@ -25,7 +25,6 @@ namespace stingray
 		private:
 			ImplPtr			_impl;
 			ConstByteData	_data;
-			bool			_valid;
 
 		public:
 			Reader(const ImplPtr& impl);
@@ -50,7 +49,6 @@ namespace stingray
 		private:
 			ImplPtr 	_impl;
 			ByteData	_data;
-			bool		_valid;
 
 		public:
 			Writer(const ImplPtr& impl);
