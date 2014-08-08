@@ -47,11 +47,13 @@ namespace stingray
 		BasicRect Move(ValueType dx, ValueType dy) const	{ return BasicRect(X1 + dx, Y1 + dy, X2 + dx, Y2 + dy); }
 		BasicPosition<ValueType> GetTopLeft() const			{ return BasicPosition<ValueType>(X1, Y1); }
 		BasicPosition<ValueType> GetRightBottom() const		{ return BasicPosition<ValueType>(X2, Y2); }
+		Size GetSize() const								{ return Size(W(), H()); }
 
 		BasicRect Intersect(const BasicRect& other) const
 		{ return BasicRect(std::max(X1, other.X1), std::max(Y1, other.Y1), std::min(X2, other.X2), std::min(Y2, other.Y2)); }
 
 		std::string ToString() const						{ return StringBuilder() % "(" % GetTopLeft() % ", " % GetRightBottom() % ")"; }
+		bool Valid() const									{ return X2 > X1 && Y2 > Y1; }
 
 		bool operator == (const BasicRect& other) const		{ return GetTopLeft() == other.GetTopLeft() && GetRightBottom() == other.GetRightBottom(); }
 		bool operator != (const BasicRect& other) const		{ return !((*this) == other); }
