@@ -19,25 +19,14 @@ namespace stingray
 	 */
 
 	template < typename T >
-	struct IList : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
+	struct IReadonlyList : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
 	{
 		typedef T	ValueType;
 
-		virtual ~IList() { }
+		virtual ~IReadonlyList() { }
 
-		virtual void Add(const ValueType& value) = 0;
 		virtual ValueType Get(int index) const = 0;
-		virtual void Set(int index, const ValueType& value) = 0;
 		virtual int IndexOf(const ValueType& value) const = 0;
-		virtual void Insert(int index, const ValueType& value) = 0;
-		virtual void RemoveAt(int index) = 0;
-
-		virtual void Remove(const ValueType& value)
-		{
-			int index = IndexOf(value);
-			if (index != -1)
-				RemoveAt(index);
-		}
 
 		virtual bool Contains(const ValueType& value) const
 		{
@@ -54,13 +43,40 @@ namespace stingray
 
 			return false;
 		}
+	};
+
+
+	template < typename T >
+	struct InheritsIReadonlyList : public Inherits1ParamTemplate<T, IReadonlyList>
+	{ };
+
+
+	template < typename T >
+	struct IList : public virtual IReadonlyList<T>
+	{
+		typedef T	ValueType;
+
+		virtual ~IList() { }
+
+		virtual void Add(const ValueType& value) = 0;
+		virtual void Set(int index, const ValueType& value) = 0;
+		virtual void Insert(int index, const ValueType& value) = 0;
+		virtual void RemoveAt(int index) = 0;
+
+		virtual void Remove(const ValueType& value)
+		{
+			int index = IndexOf(value);
+			if (index != -1)
+				RemoveAt(index);
+		}
 
 		virtual void Clear()
 		{
 			while (this->GetCount() != 0)
-				Remove(Get(0));
+				Remove(this->Get(0));
 		}
 	};
+
 
 	template < typename T >
 	struct InheritsIList : public Inherits1ParamTemplate<T, IList>
