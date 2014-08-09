@@ -65,7 +65,7 @@ namespace stingray
 
 		virtual void Remove(const ValueType& value)
 		{
-			int index = IndexOf(value);
+			int index = this->IndexOf(value);
 			if (index != -1)
 				RemoveAt(index);
 		}
