@@ -2,6 +2,7 @@
 
 #include <stingray/toolkit/any.h>
 
+#include <stingray/app/RecordErrors.h>
 #include <stingray/app/activation_manager/ActivationIntent.h>
 #include <stingray/app/application_context/AppChannel.h>
 #include <stingray/app/application_context/ChannelList.h>
@@ -87,6 +88,12 @@ namespace stingray { namespace Detail
 #ifdef BUILD_SHARED_LIB
 		/*nothing*/
 #else
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::GenericRecordError);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::NoSpaceLeftRecordError);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::NoStorageRecordError);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::NoSubscriptionRecordError);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ProtectedChannelRecordError);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::StorageLostError);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ActivationKeyIntent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::PersonalCodeIntent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::PlatformNameIntent);
