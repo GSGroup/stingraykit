@@ -551,13 +551,17 @@ namespace stingray
 		}
 
 		template < typename CollectionType >
-		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0, typename EnableIf<!Inherits1ParamTemplate<CollectionType, IReversableEnumerable>::Value, int>::ValueT dummy2 = 0)
 		{
 			shared_ptr<std::vector<typename CollectionType::ItemType> > result(new std::vector<typename CollectionType::ItemType>);
 			for (shared_ptr<IEnumerator<typename CollectionType::ItemType> > enumerator = enumerable->GetEnumerator(); enumerator->Valid(); enumerator->Next())
 				result->push_back(enumerator->Get());
 			return EnumerableFromStlIterators(result->rbegin(), result->rend(), result);
 		}
+
+		template < typename CollectionType >
+		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0, typename EnableIf<Inherits1ParamTemplate<CollectionType, IReversableEnumerable>::Value, int>::ValueT dummy2 = 0)
+		{ return enumerable->Reverse(); }
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Single)
