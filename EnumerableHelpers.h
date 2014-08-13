@@ -531,13 +531,13 @@ namespace stingray
 			static TResult CastHelper(typename GetConstReferenceType<T>::ValueT src) { return dynamic_caster(src); }
 		}
 
-		template < typename TResult, typename T >
-		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<IEnumerator<T> >& enumerator)
-		{ return make_shared<EnumeratorWrapper<T, TResult> >(enumerator, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
+		template < typename TResult, typename CollectionType >
+		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<CollectionType>& enumerator, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerator>::Value, int>::ValueT dummy = 0)
+		{ return make_shared<EnumeratorWrapper<typename CollectionType::ItemType, TResult> >(enumerator, &Detail::CastHelper<TResult, typename CollectionType::ItemType>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
 
-		template < typename TResult, typename T >
-		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<IEnumerable<T> >& enumerable)
-		{ return make_shared<EnumerableWrapper<T, TResult> >(enumerable, &Detail::CastHelper<TResult, T>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
+		template < typename TResult, typename CollectionType >
+		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<CollectionType>& enumerable, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0)
+		{ return make_shared<EnumerableWrapper<typename CollectionType::ItemType, TResult> >(enumerable, &Detail::CastHelper<TResult, typename CollectionType::ItemType>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
 
 
 		template < typename T >
@@ -568,13 +568,19 @@ namespace stingray
 			return result;
 		}
 
-		template < typename T, typename PredicateFunc >
-		shared_ptr<IEnumerator<T> > Where(const shared_ptr<IEnumerator<T> >& enumerator, const PredicateFunc& predicate)
-		{ return make_shared<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, predicate); }
+		template < typename CollectionType, typename PredicateFunc >
+		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerator, const PredicateFunc& predicate, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerator>::Value, int>::ValueT dummy = 0)
+		{
+			typedef typename CollectionType::ItemType T;
+			return make_shared<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, predicate);
+		}
 
-		template < typename T, typename PredicateFunc >
-		shared_ptr<IEnumerable<T> > Where(const shared_ptr<IEnumerable<T> >& enumerable, const PredicateFunc& predicate)
-		{ return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate); }
+		template < typename CollectionType, typename PredicateFunc >
+		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerable, const PredicateFunc& predicate, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0)
+		{
+			typedef typename CollectionType::ItemType T;
+			return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate);
+		}
 
 
 		template < typename T, typename PredicateFunc >
