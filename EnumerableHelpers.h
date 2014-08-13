@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_ENUMERABLEHELPERS_H
 
 
+#include <stingray/toolkit/EnumeratorFromStlContainer.h>
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/bind.h>
 #include <stingray/toolkit/functional.h>
