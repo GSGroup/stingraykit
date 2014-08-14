@@ -92,11 +92,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual void Clear()
-		{
-			while (this->GetCount() != 0)
-				Remove(this->GetEnumerator()->Get().Key);
-		}
+		virtual void Clear() = 0;
 	};
 
 

@@ -124,6 +124,13 @@ namespace stingray
 			return make_shared<ReverseEnumerable>(map_enumerator_holder);
 		}
 
+		virtual void Clear()
+		{
+			CopyOnWrite();
+			_map->clear();
+		}
+
+
 	private:
 		void CopyOnWrite()
 		{
