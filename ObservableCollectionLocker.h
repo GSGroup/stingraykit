@@ -25,6 +25,11 @@ namespace stingray
 		ObservableCollectionLocker(const CollectionType& collection)
 			: _locker(collection.OnChanged)
 		{ }
+
+		template < typename CollectionType >
+		ObservableCollectionLocker(const shared_ptr<CollectionType>& collection)
+			: _locker(collection->OnChanged)
+		{ }
 	};
 	TOOLKIT_DECLARE_PTR(ObservableCollectionLocker);
 
