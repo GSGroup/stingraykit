@@ -104,6 +104,12 @@ namespace stingray
 			_items->erase(_items->begin() + index);
 		}
 
+		virtual void Clear()
+		{
+			CopyOnWrite();
+			_items->clear();
+		}
+
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{
 			shared_ptr<Holder> vector_enumerator_holder = _itemsEnumeratorHolder.lock();

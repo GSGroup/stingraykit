@@ -70,11 +70,7 @@ namespace stingray
 				RemoveAt(index);
 		}
 
-		virtual void Clear()
-		{
-			while (this->GetCount() != 0)
-				Remove(this->Get(0));
-		}
+		virtual void Clear() = 0;
 	};
 
 
