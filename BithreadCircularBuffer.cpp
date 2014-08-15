@@ -168,6 +168,10 @@ namespace stingray
 	}
 
 
+	const u8* BithreadCircularBuffer::Reader::data() const
+	{ return _data.data(); }
+
+
 	size_t BithreadCircularBuffer::Reader::size() const
 	{ return _data.size(); }
 
@@ -225,6 +229,10 @@ namespace stingray
 		Atomic::Inc(_impl->WritersCount());
 		return *this;
 	}
+
+
+	u8* BithreadCircularBuffer::Writer::data() const
+	{ return _data.data(); }
 
 
 	size_t BithreadCircularBuffer::Writer::size() const

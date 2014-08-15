@@ -33,6 +33,7 @@ namespace stingray
 
 			Reader& operator =(const Reader&);
 
+			const u8* data() const;
 			size_t size() const;
 			ConstByteData::iterator begin();
 			ConstByteData::iterator end();
@@ -57,6 +58,7 @@ namespace stingray
 
 			Writer& operator =(const Writer&);
 
+			u8* data() const;
 			size_t size() const;
 			ByteData::iterator begin();
 			ByteData::iterator end();
