@@ -25,7 +25,7 @@ namespace stingray
 
 	protected:
 		IObservableDictionary()
-			//: OnChanged(bind(&IObservableDictionary::OnChangedPopulator, this, _1))
+			: OnChanged(bind(&IObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual void OnChangedPopulator(const function<void(CollectionOp, KeyType_, ValueType_)>& slot)
