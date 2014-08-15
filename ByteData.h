@@ -355,8 +355,7 @@ namespace stingray
 			return _data[index];
 		}
 
-		inline T* data()				{ return _data; }
-		inline const T* data() const	{ return _data; }
+		inline T* data() const			{ return _data; }
 
 		inline size_t size() const
 		{ return _size; }
