@@ -168,7 +168,7 @@ namespace stingray
 	}
 
 
-	size_t BithreadCircularBuffer::Reader::size()
+	size_t BithreadCircularBuffer::Reader::size() const
 	{ return _data.size(); }
 
 
@@ -180,7 +180,7 @@ namespace stingray
 	{ return _data.end(); }
 
 
-	ConstByteData BithreadCircularBuffer::Reader::GetData()
+	ConstByteData BithreadCircularBuffer::Reader::GetData() const
 	{ return _data; }
 
 
@@ -227,7 +227,7 @@ namespace stingray
 	}
 
 
-	size_t BithreadCircularBuffer::Writer::size()
+	size_t BithreadCircularBuffer::Writer::size() const
 	{ return _data.size(); }
 
 
@@ -239,7 +239,7 @@ namespace stingray
 	{ return _data.end(); }
 
 
-	ByteData BithreadCircularBuffer::Writer::GetData()
+	ByteData BithreadCircularBuffer::Writer::GetData() const
 	{ return _data; }
 
 

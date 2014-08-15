@@ -33,11 +33,11 @@ namespace stingray
 
 			Reader& operator =(const Reader&);
 
-			size_t size();
+			size_t size() const;
 			ConstByteData::iterator begin();
 			ConstByteData::iterator end();
 
-			ConstByteData GetData();
+			ConstByteData GetData() const;
 
 			bool IsBufferEnd() const;
 
@@ -57,11 +57,11 @@ namespace stingray
 
 			Writer& operator =(const Writer&);
 
-			size_t size();
+			size_t size() const;
 			ByteData::iterator begin();
 			ByteData::iterator end();
 
-			ByteData GetData();
+			ByteData GetData() const;
 
 			bool IsBufferEnd() const;
 
