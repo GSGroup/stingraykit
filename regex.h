@@ -50,13 +50,13 @@ namespace stingray
 	};
 
 
-	void regex_search(const std::string& str, smatch& m, const regex& re);
+	bool regex_search(const std::string& str, smatch& m, const regex& re);
 
 
 	class regex
 	{
 		friend class smatch;
-		friend void regex_search(const std::string& str, smatch& m, const regex& re);
+		friend bool regex_search(const std::string& str, smatch& m, const regex& re);
 
 		class Impl;
 		TOOLKIT_DECLARE_PTR(Impl);

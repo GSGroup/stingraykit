@@ -36,10 +36,13 @@ namespace stingray
 			regfree(&_regex);
 		}
 
-		void Match(const std::string& str, smatch& m)
+		bool Match(const std::string& str, smatch& m)
 		{
 			array<regmatch_t, 32>	matches;
 			int ret = regexec(&_regex, str.c_str(), matches.size(), matches.data(), 0);
+
+			if (ret == REG_NOMATCH)
+				return false;
 			TOOLKIT_CHECK(ret == 0, StringBuilder() % "Could not execute regex '" % _str % "' for string '" % str % "', ret = " % ret % "\n" % GetRegexError(ret));
 
 			for (regmatch_t* submatch = matches.data(); submatch->rm_so >= 0; ++submatch)
@@ -50,6 +53,7 @@ namespace stingray
 				m._results.push_back(match_str);
 				m._positions.push_back(submatch->rm_so);
 			}
+			return true;
 		}
 
 	private:
@@ -80,10 +84,10 @@ namespace stingray
 	}
 
 
-	void regex_search(const std::string& str, smatch& m, const regex& re)
+	bool regex_search(const std::string& str, smatch& m, const regex& re)
 	{
 #ifdef PLATFORM_POSIX
-		re._impl->Match(str, m);
+		return re._impl->Match(str, m);
 #else
 		TOOLKIT_THROW(NotImplementedException());
 #endif
