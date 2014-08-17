@@ -111,7 +111,7 @@ namespace stingray
 
 		const_reference prefix() const							{ return _prefix; }
 		const_reference suffix() const							{ return _suffix; }
-		string_type str(size_type n = 0) const					{ return _results[n]; }
+		string_type str(size_type n = 0) const					{ return _results.at(n); }
 	};
 
 }
