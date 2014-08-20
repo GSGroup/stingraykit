@@ -36,16 +36,18 @@ namespace stingray
 		pointer _ptr;
 		pointer _begin, _end;
 
-#define	ITERATOR_CHECK_BOUNDS			do { if (_ptr < _begin || _ptr > _end) TOOLKIT_FATAL("Iterator is out of bounds!"); } while (false)
-#define ITERATOR_CHECK_BOUNDS_STRICT	do { if (_ptr < _begin || _ptr >= _end) TOOLKIT_FATAL("Iterator is out of bounds!"); } while (false)
 
 	public:
 		explicit ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
 			: _ptr(ptr)
 			, _begin(begin), _end(end)
-		{ (void)begin; (void)end; ITERATOR_CHECK_BOUNDS; }
+		{ if (_ptr < _begin || _ptr > _end) TOOLKIT_THROW(IndexOutOfRangeException()); }
 
-		reference dereference() const										{ ITERATOR_CHECK_BOUNDS_STRICT; return *_ptr; }
+		reference dereference() const
+		{
+			if (_ptr < _begin || _ptr >= _end) TOOLKIT_THROW(IndexOutOfRangeException());
+			return *_ptr;
+		}
 		bool equal(const ByteDataIterator &other) const						{ return _ptr == other._ptr; }
 		void increment()													{ ++_ptr; }
 		void decrement()													{ --_ptr; }
