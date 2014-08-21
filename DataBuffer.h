@@ -7,6 +7,7 @@
 #include <stingray/log/Logger.h>
 #include <stingray/toolkit/BithreadCircularBuffer.h>
 #include <stingray/toolkit/IDataSource.h>
+#include <stingray/toolkit/signals.h>
 
 namespace stingray
 {
