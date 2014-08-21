@@ -17,13 +17,18 @@ namespace stingray
 	 */
 
 	template < typename ValueType_ >
-	struct IObservableSet : public virtual ISet<ValueType_>
+	struct IReadonlyObservableSet : public virtual IReadonlySet<ValueType_>
 	{
 		virtual signal_connector<void(CollectionOp, const ValueType_&)>	OnChanged() const = 0;
 		virtual const Mutex& GetSyncRoot() const = 0;
 
 	protected:
 		virtual void InvokeOnChanged(CollectionOp, const ValueType_&) = 0;
+	};
+
+	template < typename ValueType_ >
+	struct IObservableSet : public virtual ISet<ValueType_>, public virtual IReadonlyObservableSet<ValueType_>
+	{
 	};
 
 

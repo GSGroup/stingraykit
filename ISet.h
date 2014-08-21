@@ -19,7 +19,17 @@ namespace stingray
 	 */
 
 	template < typename T >
-	struct ISet : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
+	struct IReadonlySet : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
+	{
+		typedef T	ValueType;
+
+		virtual ~IReadonlySet() { }
+
+		virtual bool Contains(const ValueType& value) const = 0;
+	};
+
+	template < typename T >
+	struct ISet : public virtual IReadonlySet<T>
 	{
 		typedef T	ValueType;
 
@@ -27,7 +37,6 @@ namespace stingray
 
 		virtual void Add(const ValueType& value) = 0;
 		virtual void Clear() = 0;
-		virtual bool Contains(const ValueType& value) const = 0;
 		virtual void Remove(const ValueType& value) = 0;
 		virtual bool TryRemove(const ValueType& value) = 0;
 	};
