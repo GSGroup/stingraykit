@@ -24,6 +24,28 @@ namespace stingray
 	TOOLKIT_DECLARE_PTR(IByteStream);
 	TOOLKIT_DECLARE_CREATOR(IByteStream);
 
+
+	class ByteStreamWithOffset : public IByteStream
+	{
+		IByteStreamPtr	_stream;
+		const size_t	_offset;
+
+	public:
+		ByteStreamWithOffset(const IByteStreamPtr & stream, size_t offset) : _stream(stream), _offset(offset)
+		{ _stream->Seek(offset); }
+
+		virtual u64 Tell() const
+		{
+			size_t tell = _stream->Tell();
+			TOOLKIT_CHECK(tell >= _offset, "Wrong ByteStreamWithOffset state");
+			return tell - _offset;
+		}
+
+		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)	{ _stream->Seek(static_cast<s64>(_offset) + offset, mode); }
+		virtual u64 Read(ByteData data)									{ return _stream->Read(data); }
+		virtual u64 Write(ConstByteData data)							{ return _stream->Write(data); }
+	};
+
 }
 
 

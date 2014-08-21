@@ -32,7 +32,7 @@ namespace stingray
 			TOOLKIT_CHECK(_chunk->size() > _chunkOffset, IndexOutOfRangeException(_chunkOffset, _chunk->size()));
 			size_t count = std::min(data.size(), _chunk->size() - _chunkOffset);
 			std::copy(_chunk->begin() + _chunkOffset, _chunk->begin() + _chunkOffset + count, data.data());
-			if (_chunkOffset + count >= _chunk->size())
+			if (_chunkOffset + count == _chunk->size())
 			{
 				++_chunk;
 				_chunkOffset = 0;
@@ -45,7 +45,7 @@ namespace stingray
 		virtual u64 Write(ConstByteData data)
 		{
 			TOOLKIT_CHECK(data.size() > 0, LogicException("writing empty data"));
-			if (_container->empty() || _chunkOffset == _chunk->size())
+			if (_container->empty() || _chunk == _container->end() || _chunkOffset == _chunk->size())
 			{
 				_container->push_back(ChunkType(data.data(), data.size()));
 				_chunk = _container->end();
@@ -76,13 +76,11 @@ namespace stingray
 			default:				TOOLKIT_THROW(ArgumentException("mode")); break;
 			}
 
-			TOOLKIT_CHECK(offset >= 0 && offset < total_size, IndexOutOfRangeException(offset, total_size));
+			TOOLKIT_CHECK(offset >= 0 && offset <= total_size, IndexOutOfRangeException(offset, total_size));
 
 			typename ContainerType::iterator chunk;
 			for (chunk = _container->begin(); chunk != _container->end() && offset >= chunk->size(); ++chunk)
 				offset -= chunk->size();
-
-			TOOLKIT_CHECK(chunk != _container->end(), LogicException("container end reached"));
 
 			_chunk = chunk;
 			_chunkOffset = offset;
