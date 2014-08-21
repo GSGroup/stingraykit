@@ -72,7 +72,7 @@ namespace stingray
 			{
 				if (_discardOnOverflow)
 				{
-					s_logger.Warning() << "Overflow: dropping " << data.size() << " bytes";
+					OnOverflow(data.size());
 					return data.size();
 				}
 
@@ -98,6 +98,8 @@ namespace stingray
 			_eod = true;
 			_bufferEmpty.Broadcast();
 		}
+
+		signal<void(size_t)> OnOverflow;
 	};
 
 
