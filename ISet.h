@@ -28,6 +28,7 @@ namespace stingray
 		virtual bool Contains(const ValueType& value) const = 0;
 	};
 
+
 	template < typename T >
 	struct ISet : public virtual IReadonlySet<T>
 	{
@@ -40,6 +41,11 @@ namespace stingray
 		virtual void Remove(const ValueType& value) = 0;
 		virtual bool TryRemove(const ValueType& value) = 0;
 	};
+
+
+	template < typename T >
+	struct InheritsIReadonlySet : public Inherits1ParamTemplate<T, IReadonlySet>
+	{ };
 
 	/** @} */
 
