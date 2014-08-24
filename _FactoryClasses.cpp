@@ -64,6 +64,7 @@
 #include <stingray/streams/PlaybackStreamContent.h>
 #include <stingray/streams/RecordStreamContent.h>
 #include <stingray/streams/RecordStreamMetaInfo.h>
+#include <stingray/time/TransportsTimeSourceObtainer.h>
 #include <stingray/tuners/TunerState.h>
 #include <stingray/tuners/dvbs/Antenna.h>
 #include <stingray/tuners/dvbs/DefaultDVBSTransport.h>
@@ -191,6 +192,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlaybackStreamContent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamContent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(RecordStreamMetaInfo);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(TransportTimeOffset);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(CircuitedTunerState);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LockedTunerState);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(UnlockedTunerState);
