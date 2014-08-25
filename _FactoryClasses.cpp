@@ -11,6 +11,7 @@
 #include <stingray/ca/BasicSubscription.h>
 #include <stingray/ca/BissConditionalAccess.h>
 #include <stingray/ca/DreSubscription.h>
+#include <stingray/crypto/DefaultCertificateExtension.h>
 #include <stingray/crypto/PlainCipherKey.h>
 #include <stingray/details/IReceiverTrait.h>
 #include <stingray/hdmi/IHDMI.h>
@@ -113,6 +114,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscriptionProvider);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BissSubscriptionClass);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Dre4SubscriptionClass);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultCertificateExtension);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlainCipherKey);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBCReceiverTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBSReceiverTrait);
