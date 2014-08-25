@@ -76,14 +76,15 @@ namespace stingray
 			default:				TOOLKIT_THROW(ArgumentException("mode")); break;
 			}
 
-			TOOLKIT_CHECK(offset >= 0 && offset <= total_size, IndexOutOfRangeException(offset, total_size));
+			TOOLKIT_CHECK(offset >= 0 && static_cast<size_t>(offset) <= total_size, IndexOutOfRangeException(offset, total_size));
+			size_t offset_ = offset;
 
 			typename ContainerType::iterator chunk;
-			for (chunk = _container->begin(); chunk != _container->end() && offset >= chunk->size(); ++chunk)
-				offset -= chunk->size();
+			for (chunk = _container->begin(); chunk != _container->end() && offset_ >= chunk->size(); ++chunk)
+				offset_ -= chunk->size();
 
 			_chunk = chunk;
-			_chunkOffset = offset;
+			_chunkOffset = offset_;
 		}
 
 		virtual u64 Tell() const
