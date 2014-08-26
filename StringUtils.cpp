@@ -7,6 +7,7 @@ namespace stingray
 	std::string Utf8ToLower(const std::string& str)
 	{
 		std::string result;
+		result.reserve(str.size());
 		for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
 		{
 			if (*it >= 'A' && *it <= 'Z')
