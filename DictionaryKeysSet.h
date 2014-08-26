@@ -5,6 +5,7 @@
 #include <stingray/toolkit/IObservableDictionary.h>
 #include <stingray/toolkit/IObservableSet.h>
 
+
 namespace stingray
 {
 
@@ -54,13 +55,17 @@ namespace stingray
 		typedef KeyType_	ValueType; // Dictionary KeyType is ValueType for set
 
 	private:
-		DictionaryTypePtr																			_dict;
+		DictionaryTypePtr																		_dict;
 		signal<void(CollectionOp, const ValueType&), signal_policies::threading::ExternalMutex>	_onChanged;
+		signal_connection_pool																	_connections;
 
 	public:
 		ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
 			: _dict(dict), _onChanged(signal_policies::threading::ExternalMutex(_dict->GetSyncRoot()), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1))
-		{ }
+		{ _connections += _dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))); }
+
+		~ObservableDictionaryKeysSet()
+		{ _connections.release(); }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{ return make_shared<EnumeratorWrapper<typename DictionaryType::PairType, ValueType> >(_dict->GetEnumerator(), bind(&DictionaryType::PairType::GetKey, _1)); }
