@@ -41,7 +41,9 @@ namespace stingray
 			return tell - _offset;
 		}
 
-		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)	{ _stream->Seek(static_cast<s64>(_offset) + offset, mode); }
+		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
+		{ _stream->Seek(mode == SeekMode::Begin ? static_cast<s64>(_offset) + offset : offset, mode); }
+
 		virtual u64 Read(ByteData data)									{ return _stream->Read(data); }
 		virtual u64 Write(ConstByteData data)							{ return _stream->Write(data); }
 	};

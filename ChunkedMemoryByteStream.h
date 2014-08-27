@@ -19,64 +19,76 @@ namespace stingray
 		ContainerTypePtr					_container;
 		typename ContainerType::iterator	_chunk;
 		size_t								_chunkOffset;
+		size_t								_totalSize;
 
 	public:
 		ChunkedMemoryByteStream(const ContainerTypePtr & container)
-			: _container(container), _chunk(_container->begin()), _chunkOffset(0)
+			: _container(container), _chunk(_container->begin()), _chunkOffset(0), _totalSize(TotalSize())
 		{ }
 
 		virtual u64 Read(ByteData data)
 		{
 			TOOLKIT_CHECK(!_container->empty(), LogicException("reading from empty container"));
+			NormalizePosition();
 			TOOLKIT_CHECK(_chunk != _container->end(), LogicException("reading from end of chunks"));
-			TOOLKIT_CHECK(_chunk->size() > _chunkOffset, IndexOutOfRangeException(_chunkOffset, _chunk->size()));
-			size_t count = std::min(data.size(), _chunk->size() - _chunkOffset);
-			std::copy(_chunk->begin() + _chunkOffset, _chunk->begin() + _chunkOffset + count, data.data());
-			if (_chunkOffset + count == _chunk->size())
+
+			size_t passed = 0;
+			for (size_t curcount = 0; _chunk != _container->end() && passed < data.size(); passed += curcount)
 			{
-				++_chunk;
-				_chunkOffset = 0;
+				curcount = std::min(data.size() - passed, _chunk->size() - _chunkOffset);
+				std::copy(_chunk->begin() + _chunkOffset, _chunk->begin() + _chunkOffset + curcount, data.data() + passed);
+				if (_chunkOffset + curcount == _chunk->size())
+				{
+					++_chunk;
+					_chunkOffset = 0;
+				}
+				else
+					_chunkOffset += curcount;
 			}
-			else
-				_chunkOffset += count;
-			return count;
+			return passed;
 		}
 
 		virtual u64 Write(ConstByteData data)
 		{
 			TOOLKIT_CHECK(data.size() > 0, LogicException("writing empty data"));
-			if (_container->empty() || _chunk == _container->end() || _chunkOffset == _chunk->size())
+			NormalizePosition();
+
+			size_t passed = 0;
+			for (size_t curcount = 0; passed < data.size(); passed += curcount)
 			{
-				_container->push_back(ChunkType(data.data(), data.size()));
-				_chunk = _container->end();
-				_chunkOffset = 0;
-				return data.size();
+				if (_chunk == _container->end())
+				{
+					TOOLKIT_CHECK(_chunkOffset == 0, LogicException("_chunkOffset must be 0"));
+					curcount = data.size() - passed;
+					_container->push_back(ChunkType(data.data() + passed, curcount));
+					_chunk = _container->end();
+					_chunkOffset = 0;
+					_totalSize = TotalSize();
+				}
+				else
+				{
+					TOOLKIT_CHECK(_chunk->size() > _chunkOffset, IndexOutOfRangeException(_chunkOffset, _chunk->size()));
+					curcount = std::min(data.size() - passed, _chunk->size() - _chunkOffset);
+					std::copy(data.data() + passed, data.data() + passed + curcount, _chunk->begin() + _chunkOffset);
+					_chunkOffset += curcount;
+				}
 			}
-			else
-			{
-				TOOLKIT_CHECK(_chunk->size() > _chunkOffset, IndexOutOfRangeException(_chunkOffset, _chunk->size()));
-				size_t count = std::min(data.size(), _chunk->size() - _chunkOffset);
-				std::copy(data.data(), data.data() + count, _chunk->begin() + _chunkOffset);
-				_chunkOffset += count;
-				return count;
-			}
+			return passed;
 		}
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{
 			TOOLKIT_CHECK(!_container->empty(), LogicException("seeking within empty container"));
 
-			size_t total_size = TotalSize();
-
 			switch (mode)
 			{
 			case SeekMode::Begin:	break;
 			case SeekMode::Current:	offset += static_cast<s64>(Tell()); break;
-			case SeekMode::End:		offset += static_cast<s64>(total_size); break;
+			case SeekMode::End:		offset += static_cast<s64>(_totalSize); break;
 			default:				TOOLKIT_THROW(ArgumentException("mode")); break;
 			}
 
-			TOOLKIT_CHECK(offset >= 0 && static_cast<size_t>(offset) <= total_size, IndexOutOfRangeException(offset, total_size));
+			TOOLKIT_CHECK(offset >= 0 && offset <= _totalSize, IndexOutOfRangeException(offset, _totalSize));
 			size_t offset_ = offset;
 
 			typename ContainerType::iterator chunk;
@@ -103,6 +115,15 @@ namespace stingray
 			for (typename ContainerType::const_iterator chunk = _container->begin(); chunk != _container->end(); ++chunk)
 				ret += chunk->size();
 			return ret;
+		}
+
+		void NormalizePosition()
+		{
+			if (_chunk != _container->end() && _chunkOffset == _chunk->size())
+			{
+				_chunk++;
+				_chunkOffset = 0;
+			}
 		}
 	};
 
