@@ -2,9 +2,7 @@
 #define STINGRAY_TOOLKIT_GENERICENTITYFACTORY_H
 
 
-#include <map>
-
-#include <stingray/toolkit/ICreator.h>
+#include <stingray/toolkit/exception.h>
 
 
 namespace stingray
@@ -30,53 +28,71 @@ namespace stingray
 	template < typename Derived, typename BaseEntityType, typename EntityTagType, typename EntityTagReader = GenericEntityTagReader<EntityTagType, 8> >
 	class GenericEntityFactory
 	{
-		typedef shared_ptr<BaseEntityType> 					EntityPtr;
-		typedef ICreator<BaseEntityType>					EntityCreator;
-		typedef shared_ptr<EntityCreator>					EntityCreatorPtr;
-		typedef std::map<EntityTagType, EntityCreatorPtr>	EntityCreatorRegistry;
+		typedef shared_ptr<BaseEntityType>		EntityPtr;
 
-		template < typename _RegisterEntry >
-		struct EntityRegistrator
+		template < typename Registry >
+		class EntityCreatorRegistry
 		{
-			static void Call(GenericEntityFactory* factory)
-			{ factory->Register<_RegisterEntry::Tag, typename _RegisterEntry::Type>(); }
+			template < typename EntityType >
+			struct EntityCreator
+			{
+				template < typename StreamType >
+				static EntityPtr Create(StreamType& stream)
+				{ return make_shared<EntityType>(); }
+			};
+
+			struct LastEntry
+			{
+				template < typename StreamType >
+				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
+				{ return null; }
+			};
+
+			template < typename EntityTagType::Enum Tag, typename Type, typename NextEntry, bool IsEntityType = Inherits<Type, BaseEntityType>::Value >
+			struct Entry
+			{
+				template < typename StreamType >
+				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
+				{ return tag == Tag ? If<IsEntityType, EntityCreator<Type>, Type>::ValueT::Create(stream) : NextEntry::Create(tag, stream); }
+			};
+
+			template < typename RegistryEntry, typename Result >
+			struct EntryAccumulator
+			{
+				typedef Entry<RegistryEntry::Tag, typename RegistryEntry::Type, Result>		ValueT;
+			};
+
+			typedef typename TypeListAccumulate<typename ToTypeList<Registry>::ValueT, EntryAccumulator, LastEntry>::ValueT		Entries;
+
+		public:
+			template < typename StreamType >
+			static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
+			{ return Entries::Create(tag, stream); }
 		};
 
-	private:
-		EntityCreatorRegistry	_registry;
-
 	public:
-		template < typename EntityTagType::Enum EntityTag, typename EntityType >
+		template < typename EntityTagType::Enum EntityTag, typename TargetType >
 		struct RegistryEntry
 		{
 			static const typename EntityTagType::Enum Tag = EntityTag;
-			typedef EntityType Type;
+			typedef TargetType Type;
 		};
 
-		GenericEntityFactory()
-		{
-			typedef typename Derived::Registry EntityRegistry;
-
-			ForEachInTypeList<EntityRegistry, EntityRegistrator>::Do(this);
-		}
-
 		template < typename StreamType >
-		EntityPtr Create(StreamType& stream) const
+		static EntityPtr Create(StreamType& stream)
 		{
-			typename StreamType::Rollback rollback(stream);
+			typedef EntityCreatorRegistry<typename ToTypeList<typename Derived::Registry>::ValueT>	Registry;
 
-			EntityTagType tag = EntityTagReader::Read(stream);
-			typename EntityCreatorRegistry::const_iterator it = _registry.find(tag);
-			TOOLKIT_CHECK(it != _registry.end(), UnknownEntityTagException(tag));
+			EntityTagType tag;
+			{
+				typename StreamType::Rollback rollback(stream);
+				tag = EntityTagReader::Read(stream);
+			}
 
-			return it->second->Create();
-		}
+			EntityPtr result = Registry::Create(tag, stream);
+			TOOLKIT_CHECK(result, UnknownEntityTagException(tag));
 
-	private:
-		template < typename EntityTagType::Enum EntityTag, typename EntityType >
-		void Register()
-		{
-			_registry.insert(std::make_pair(EntityTag, make_shared<DefaultConstructorCreator<BaseEntityType, EntityType> >()));
+			return result;
 		}
 	};
 
