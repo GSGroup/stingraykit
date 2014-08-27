@@ -215,6 +215,20 @@ namespace stingray
 	struct CompileTimeExponent<ResultT, Base, 0> { static const ResultT Value = 1; };
 
 
+	template <unsigned int Val, unsigned int Boundary>
+	struct CompileTimeAlignDown
+	{
+		CompileTimeAssert<Boundary != 0> ERROR__aligning_to_zero_boundary;
+		static const unsigned int Value = Val * (Val / Boundary);
+	};
+
+	template <unsigned int Val, unsigned int Boundary>
+	struct CompileTimeAlignUp
+	{
+		CompileTimeAssert<Boundary != 0> ERROR__aligning_to_zero_boundary;
+		static const unsigned int Value = Boundary * ((Val + Boundary - 1) / Boundary);
+	};
+
 
 #define TY typename
 	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
