@@ -91,16 +91,16 @@ namespace stingray
 		{ return _items->size(); }
 
 		virtual void Clear()
-		{ _items->clear(); }
+		{ CopyOnWrite(); _items->clear(); }
 
 		virtual bool IsEmpty() const
 		{ return _items->empty(); }
 
 		virtual void Add(const ValueType& value)
-		{ _items->insert(value); }
+		{ CopyOnWrite(); _items->insert(value); }
 
 		virtual void Remove(const ValueType& value)
-		{ _items->erase(value); }
+		{ CopyOnWrite(); _items->erase(value); }
 
 		virtual bool Contains(const ValueType& value) const
 		{ return _items->find(value) != _items->end(); }
@@ -110,6 +110,8 @@ namespace stingray
 			typename SetType::iterator it = _items->find(value);
 			if (it == _items->end())
 				return false;
+
+			CopyOnWrite();
 			_items->erase(it);
 			return true;
 		}
