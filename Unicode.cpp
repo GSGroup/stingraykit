@@ -14,10 +14,12 @@ namespace stingray
 		UErrorCode success = U_ZERO_ERROR;
 		_collator = icu::Collator::createInstance(success);
 		TOOLKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
+		SetCaseSensitivity(true);
 	}
 
 	void UnicodeCollator::SetCaseSensitivity(bool sensitive)
 	{
+		_caseSensitive = sensitive;
 		_collator->setStrength(sensitive? icu::Collator::TERTIARY: icu::Collator::PRIMARY);
 	}
 
@@ -48,7 +50,7 @@ namespace stingray
 
 
 #else
-	UnicodeCollator::UnicodeCollator() { }
+	UnicodeCollator::UnicodeCollator(): _caseSensitive(true) { }
 
 	void UnicodeCollator::SetCaseSensitivity(bool sensitive)
 	{ _caseSensitive = sensitive; }
