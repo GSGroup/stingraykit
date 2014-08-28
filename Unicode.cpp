@@ -13,7 +13,7 @@ namespace stingray
 	{
 		UErrorCode success = U_ZERO_ERROR;
 		_collator = icu::Collator::createInstance(success);
-		TOOLKIT_CHECK(success == U_ZERO_ERROR, "creating collator failed");
+		TOOLKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
 	}
 
 	void UnicodeCollator::SetCaseSensitivity(bool sensitive)
@@ -29,7 +29,7 @@ namespace stingray
 
 		UErrorCode success = U_ZERO_ERROR;
 		UCollationResult r = _collator->compareUTF8(str1, str2, success);
-		TOOLKIT_CHECK(success == U_ZERO_ERROR, "compareUTF8 failed");
+		TOOLKIT_CHECK(U_SUCCESS(success), "compareUTF8 failed, error: " + ToString(success));
 		return r;
 	}
 
