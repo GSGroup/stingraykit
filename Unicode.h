@@ -29,6 +29,8 @@ namespace stingray
 		int Compare(const std::string &str1, const std::string &str2) const;
 	};
 
+	std::string Utf8ToLower(const std::string& str);
+
 }
 
 
