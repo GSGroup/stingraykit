@@ -1,7 +1,10 @@
 #include <stingray/toolkit/Unicode.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/StringUtils.h>
-#include <unicode/unistr.h>
+
+#ifdef HAVE_ICU_I18N
+#	include <unicode/unistr.h>
+#endif
 
 
 namespace stingray
