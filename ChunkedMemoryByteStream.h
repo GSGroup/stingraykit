@@ -88,7 +88,7 @@ namespace stingray
 			default:				TOOLKIT_THROW(ArgumentException("mode")); break;
 			}
 
-			TOOLKIT_CHECK(offset >= 0 && offset <= _totalSize, IndexOutOfRangeException(offset, _totalSize));
+			TOOLKIT_CHECK(offset >= 0 && (u64)offset <= _totalSize, IndexOutOfRangeException(offset, _totalSize));
 			size_t offset_ = offset;
 
 			typename ContainerType::iterator chunk;
