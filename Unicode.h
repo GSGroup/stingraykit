@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_UNICODE_H
 
 #include <stingray/toolkit/toolkit.h>
+#include <stingray/toolkit/shared_ptr.h>
 
 #ifdef HAVE_ICU_I18N
 #	include <unicode/coll.h>
@@ -28,6 +29,7 @@ namespace stingray
 		void SetCaseSensitivity(bool sensitive);
 		int Compare(const std::string &str1, const std::string &str2) const;
 	};
+	TOOLKIT_DECLARE_PTR(UnicodeCollator);
 
 	std::string Utf8ToLower(const std::string& str);
 
