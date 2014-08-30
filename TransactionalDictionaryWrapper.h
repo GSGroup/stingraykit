@@ -25,7 +25,7 @@ namespace stingray
 
 		typedef shared_ptr<Wrapped_>					WrappedPtr;
 
-		typedef signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutex>		OnChangedSignalType;
+		typedef signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutexPointer> OnChangedSignalType;
 
 	private:
 		WrappedPtr						&_wrapped;
@@ -160,17 +160,17 @@ namespace stingray
 		typedef typename TransactionalInterface::DiffTypePtr	DiffTypePtr;
 
 	private:
-		Mutex																			_mutex;
-		shared_ptr<Wrapped_>															_wrapped;
-		typename TransactionalInterface::TransactionTypeWeakPtr							_transaction;
-		signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutex>		_onChanged;
+		shared_ptr<Mutex>																	_mutex;
+		shared_ptr<Wrapped_>																_wrapped;
+		typename TransactionalInterface::TransactionTypeWeakPtr								_transaction;
+		signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutexPointer>	_onChanged;
 
 	public:
-		TransactionalDictionaryWrapper() : _wrapped(new Wrapped_()), _onChanged(signal_policies::threading::ExternalMutex(_mutex))
+		TransactionalDictionaryWrapper() : _mutex(new Mutex()), _wrapped(new Wrapped_()), _onChanged(signal_policies::threading::ExternalMutexPointer(_mutex))
 		{}
 
 		virtual const Mutex& GetSyncRoot() const
-		{ return _mutex; }
+		{ return *_mutex; }
 
 		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
 		{ return _onChanged.connector(); }
