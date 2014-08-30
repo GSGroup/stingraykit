@@ -36,6 +36,8 @@ namespace stingray
 		:	public Wrapped_,
 			public virtual IObservableDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
+		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+
 	public:
 		typedef typename Wrapped_::KeyType						KeyType;
 		typedef typename Wrapped_::ValueType					ValueType;
@@ -43,15 +45,15 @@ namespace stingray
 		typedef IObservableDictionary<KeyType, ValueType>		ObservableInterface;
 
 	private:
-		Mutex																						_mutex;
-		signal<void(CollectionOp, KeyType, ValueType), signal_policies::threading::ExternalMutex>	_onChanged;
+		shared_ptr<Mutex>														_mutex;
+		signal<void(CollectionOp, KeyType, ValueType), ExternalMutexPointer>	_onChanged;
 
 	public:
 		ObservableDictionaryWrapper()
-			: _onChanged(signal_policies::threading::ExternalMutex(_mutex), bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
+			: _mutex(new Mutex()), _onChanged(ExternalMutexPointer(_mutex), bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual const Mutex& GetSyncRoot() const { return _mutex; }
+		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
 
 		virtual signal_connector<void(CollectionOp, KeyType, ValueType)>	OnChanged() const
 		{ return _onChanged.connector(); }
