@@ -16,21 +16,21 @@ namespace stingray
 	template < typename ValueType_ , typename CompareType_ = std::less<ValueType_> >
 	class SortedObservableSet : public ObservableSetWrapper<SortedSet<ValueType_, CompareType_> >
 	{
-		typedef signal_policies::threading::ExternalMutex ExternalMutex;
+		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 	private:
-		Mutex															_mutex;
-		signal<void(CollectionOp, const ValueType_&), ExternalMutex>	_onChanged;
+		shared_ptr<Mutex>													_mutex;
+		signal<void(CollectionOp, const ValueType_&), ExternalMutexPointer>	_onChanged;
 
 	public:
-		SortedObservableSet() : _onChanged(ExternalMutex(_mutex), bind(&SortedObservableSet::OnChangedPopulator, this, _1))
+		SortedObservableSet() : _mutex(new Mutex()), _onChanged(ExternalMutexPointer(_mutex), bind(&SortedObservableSet::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual signal_connector<void(CollectionOp, const ValueType_&)>	OnChanged() const
 		{ return _onChanged.connector(); }
 
 		virtual const Mutex& GetSyncRoot() const
-		{ return _mutex; }
+		{ return *_mutex; }
 
 	protected:
 		virtual void InvokeOnChanged(CollectionOp op, const ValueType_& value)
