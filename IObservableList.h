@@ -37,18 +37,18 @@ namespace stingray
 		typedef IObservableList<ValueType>		ObservableInterface;
 
 	private:
-		Mutex																							_mutex;
-		signal<void(CollectionOp, int, const ValueType&), signal_policies::threading::ExternalMutex>	_onChanged;
+		shared_ptr<Mutex>																					_mutex;
+		signal<void(CollectionOp, int, const ValueType&), signal_policies::threading::ExternalMutexPointer>	_onChanged;
 
 	public:
 		ObservableListWrapper()
-			: _onChanged(signal_policies::threading::ExternalMutex(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
+			: _mutex(new Mutex()), _onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual signal_connector<void(CollectionOp, int, const ValueType&)> OnChanged() const
 		{ return _onChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const { return _mutex; }
+		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
 
 		virtual int GetCount() const
 		{
