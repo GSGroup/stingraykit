@@ -78,9 +78,23 @@ namespace stingray
 
 			public:
 				ExternalMutex(const Mutex& mutex) : _mutex(mutex)
-				{}
+				{ }
 
 				const Mutex& GetSync() const { return _mutex; }
+			};
+
+			struct ExternalMutexPointer
+			{
+				typedef MutexLock		LockType;
+
+			private:
+				shared_ptr<Mutex>	_mutex;
+
+			public:
+				ExternalMutexPointer(const shared_ptr<Mutex>& mutex) : _mutex(mutex)
+				{ }
+
+				const Mutex& GetSync() const { return *_mutex; }
 			};
 		}
 
