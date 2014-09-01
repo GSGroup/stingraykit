@@ -48,18 +48,18 @@ namespace stingray
 				{ return null; }
 			};
 
-			template < typename EntityTagType::Enum Tag, typename Type, typename NextEntry, bool IsEntityType = Inherits<Type, BaseEntityType>::Value >
+			template < typename EntityTagType::Enum Tag, typename Type, typename NextEntry >
 			struct Entry
 			{
 				template < typename StreamType >
 				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
-				{ return tag == Tag ? If<IsEntityType, EntityCreator<Type>, Type>::ValueT::Create(stream) : NextEntry::Create(tag, stream); }
+				{ return tag == Tag ? Type::Create(stream) : NextEntry::Create(tag, stream); }
 			};
 
 			template < typename RegistryEntry, typename Result >
 			struct EntryAccumulator
 			{
-				typedef Entry<RegistryEntry::Tag, typename RegistryEntry::Type, Result>		ValueT;
+				typedef Entry<RegistryEntry::Tag, typename If<Inherits<typename RegistryEntry::Type, BaseEntityType>::Value, EntityCreator<typename RegistryEntry::Type>, typename RegistryEntry::Type>::ValueT, Result>	ValueT;
 			};
 
 			typedef typename TypeListAccumulate<typename ToTypeList<Registry>::ValueT, EntryAccumulator, LastEntry>::ValueT		Entries;
