@@ -346,6 +346,20 @@ namespace stingray
 	{ typedef typename TypeList::ValueT ValueT; };
 
 
+	template <typename TypeList, template<typename, typename> class LessPredicate>
+	struct TypeListSort
+	{
+		typedef typename TypeListMerge<TypeList_3<
+				typename TypeListSort<typename TypeListCopyIf<typename TypeList::Next, BindRight<LessPredicate, typename TypeList::ValueT>::template ValueT>::ValueT, LessPredicate>::ValueT,
+				TypeList_1<typename TypeList::ValueT>,
+				typename TypeListSort<typename TypeListCopyIf<typename TypeList::Next, Not<BindRight<LessPredicate, typename TypeList::ValueT>::template ValueT>::template ValueT>::ValueT, LessPredicate>::ValueT> >::ValueT ValueT;
+	};
+
+	template <template<typename, typename> class LessPredicate>
+	struct TypeListSort<TypeListEndNode, LessPredicate>
+	{ typedef TypeListEndNode ValueT; };
+
+
 	template < typename TypeList, template <typename> class FunctorClass >
 	struct ForEachInTypeList
 	{
