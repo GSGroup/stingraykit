@@ -39,6 +39,13 @@ namespace stingray
 		struct ValueT { static const bool Value = !Predicate<T>::Value; };
 	};
 
+	template <template <typename, typename> class Predicate, typename Right>
+	struct BindRight
+	{
+		template <typename Left>
+		struct ValueT { static const bool Value = Predicate<Left, Right>::Value; };
+	};
+
 
 	template < typename T, typename U > struct SameType { static const bool Value = false; };
 	template < typename T > struct SameType<T, T> { static const bool Value = true; };
