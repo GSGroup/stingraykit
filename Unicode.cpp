@@ -16,6 +16,8 @@ namespace stingray
 	{
 		UErrorCode success = U_ZERO_ERROR;
 		_collator = icu::Collator::createInstance(success);
+		if (success == U_FILE_ACCESS_ERROR)
+			TOOLKIT_THROW("file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
 		TOOLKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
 		SetCaseSensitivity(true);
 	}
