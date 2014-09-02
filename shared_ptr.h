@@ -105,9 +105,45 @@ namespace stingray
 	class weak_ptr;
 
 
+	class shared_ptr_base
+	{
+	private:
+		shared_ptr_base(); //initialize ref_count and could easily be forgotten in future constructors
+
+	protected:
+		typedef Detail::IDeleter				DeleterType;
+
+	public:
+		typedef basic_ref_count<DeleterType *>	RefCountType;
+
+	protected:
+		RefCountType							_refCount;
+
+		explicit shared_ptr_base(const NullPtrType&):			_refCount(null) { }
+		explicit shared_ptr_base(DeleterType *deleter):			_refCount(deleter) { }
+		explicit shared_ptr_base(const RefCountType& refCount):	_refCount(refCount) { }
+
+		bool do_delete(bool delete_object)
+		{
+			DeleterType* deleter = _refCount.GetUserData();
+			if (deleter)
+			{
+				if (delete_object)
+					deleter->Delete();
+				delete deleter;
+				return true;
+			}
+			else
+				return false;
+		}
+
+		inline void swap(shared_ptr_base &other)
+		{ _refCount.swap(other._refCount); }
+	};
+
 	/** @brief Simple shared_ptr implementation */
 	template < typename T >
-	class shared_ptr : public safe_bool<shared_ptr<T> >
+	class shared_ptr : private shared_ptr_base, public safe_bool<shared_ptr<T> >
 	{
 		template < typename U >
 		friend class weak_ptr;
@@ -118,16 +154,13 @@ namespace stingray
 		template < typename U, typename V >
 		friend shared_ptr<U> dynamic_pointer_cast(const shared_ptr<V>&);
 
-		typedef Detail::IDeleter				DeleterType;
-		typedef basic_ref_count<DeleterType*>	RefCountType;
-
 	private:
 		T*				_rawPtr;
-		RefCountType	_refCount;
 
 	private:
 		inline shared_ptr(T* rawPtr, const RefCountType& refCount) :
-			_rawPtr(rawPtr), _refCount(refCount)
+			shared_ptr_base(refCount),
+			_rawPtr(rawPtr)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); }
 
 	public:
@@ -135,7 +168,8 @@ namespace stingray
 
 
 		explicit inline shared_ptr(T* rawPtr) :
-			_rawPtr(rawPtr), _refCount(Detail::MakeEmptyDeleter())
+			shared_ptr_base(Detail::MakeEmptyDeleter()),
+			_rawPtr(rawPtr)
 		{
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::DoLogAddRef(_refCount, _rawPtr, this);
@@ -145,7 +179,8 @@ namespace stingray
 
 		template<typename Deleter>
 		explicit inline shared_ptr(T* rawPtr, const Deleter& deleter) :
-			_rawPtr(rawPtr), _refCount(rawPtr ? Detail::MakeNewDeleter(rawPtr, deleter) : Detail::MakeEmptyDeleter())
+			shared_ptr_base(rawPtr ? Detail::MakeNewDeleter(rawPtr, deleter) : Detail::MakeEmptyDeleter()),
+			_rawPtr(rawPtr)
 		{
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::DoLogAddRef(_refCount, _rawPtr, this);
@@ -154,23 +189,27 @@ namespace stingray
 
 
 		inline shared_ptr() :
-			_rawPtr(), _refCount(null)
+			shared_ptr_base(null),
+			_rawPtr()
 		{ }
 
 
 		inline shared_ptr(const NullPtrType&) :
-			_rawPtr(), _refCount(null)
+			shared_ptr_base(null),
+			_rawPtr()
 		{ }
 
 
 		template < typename U >
 		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0) :
-			_rawPtr(other._rawPtr), _refCount(other._refCount)
+			shared_ptr_base(other._refCount),
+			_rawPtr(other._rawPtr)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); } // Do not init enable_shared_from_this in copy ctor
 
 
 		inline shared_ptr(const shared_ptr<T>& other) :
-			_rawPtr(other._rawPtr), _refCount(other._refCount)
+			shared_ptr_base(other._refCount),
+			_rawPtr(other._rawPtr)
 		{ if (_rawPtr) Detail::SharedPtrRefCounter<T>::DoAddRef(_refCount, _rawPtr, this); } // Do not init enable_shared_from_this in copy ctor
 
 
@@ -252,7 +291,7 @@ namespace stingray
 		inline void swap(shared_ptr<T>& other)
 		{
 			std::swap(_rawPtr, other._rawPtr);
-			_refCount.swap(other._refCount);
+			shared_ptr_base::swap(other);
 		}
 
 
@@ -280,14 +319,7 @@ namespace stingray
 
 		void do_delete()
 		{
-			DeleterType* deleter = _refCount.GetUserData();
-			if (deleter)
-			{
-				if (_rawPtr)
-					deleter->Delete();
-				delete deleter;
-			}
-			else
+			if (!shared_ptr_base::do_delete(_rawPtr))
 				delete _rawPtr;
 
 			_rawPtr = null;
