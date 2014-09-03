@@ -381,10 +381,6 @@ namespace stingray
 		struct BalancedTypeTreeImpl<SortedTypeList, BranchType, LeafType, Begin, Begin>
 		{ typedef LeafType ValueT; };
 
-		template < template <typename, typename, typename> class BranchType, typename LeafType >
-		struct BalancedTypeTreeImpl<TypeListEndNode, BranchType, LeafType, 0, 0>
-		{ typedef LeafType ValueT; };
-
 	}
 
 	template < typename TypeList, template <typename, typename> class LessPredicate, template <typename, typename, typename> class BranchType, typename LeafType >
