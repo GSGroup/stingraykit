@@ -39,57 +39,35 @@ namespace stingray
 			struct RegistryEntryLess
 			{ static const bool Value = Left::Tag < Right::Tag; };
 
-			template < typename EntityType >
-			struct EntityCreator
-			{
-				template < typename StreamType >
-				static EntityPtr Create(StreamType& stream)
-				{ return make_shared<EntityType>(); }
-			};
-
-			struct EmptyNode
+			struct NullCreatorNode
 			{
 				template < typename StreamType >
 				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
 				{ return null; }
 			};
 
-			template < typename TypeList, size_t Begin = 0, size_t End = GetTypeListLength<TypeList>::Value >
-			struct Node
+			template < typename Entry, typename Left, typename Right >
+			struct EntityCreatorNode
 			{
-			private:
-				static const size_t Index = Begin + (End - Begin) / 2;
+				template < typename EntityType >
+				struct DefaultEntityCreator
+				{
+					template < typename StreamType >
+					static EntityPtr Create(StreamType& stream)
+					{ return make_shared<EntityType>(); }
+				};
 
-				typedef typename GetTypeListItem<TypeList, Index>::ValueT	Item;
-
-			public:
 				template < typename StreamType >
 				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
 				{
-					if (tag == Item::Tag)
-						return If<Inherits<typename Item::Type, BaseEntityType>::Value, EntityCreator<typename Item::Type>, typename Item::Type>::ValueT::Create(stream);
+					if (tag == Entry::Tag)
+						return If<Inherits<typename Entry::Type, BaseEntityType>::Value, DefaultEntityCreator<typename Entry::Type>, typename Entry::Type>::ValueT::Create(stream);
 					else
-						return tag < Item::Tag ? Node<TypeList, Begin, Index>::Create(tag, stream) : Node<TypeList, Index + 1, End>::Create(tag, stream);
+						return tag < Entry::Tag ? Left::Create(tag, stream) : Right::Create(tag, stream);
 				}
 			};
 
-			template < typename TypeList, size_t Begin >
-			struct Node<TypeList, Begin, Begin>
-			{
-				template < typename StreamType >
-				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
-				{ return null; }
-			};
-
-			template < typename TypeList >
-			struct Node<TypeList, 0, 0>
-			{
-				template < typename StreamType >
-				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
-				{ return null; }
-			};
-
-			typedef Node<typename TypeListSort<Registry, RegistryEntryLess>::ValueT> Root;
+			typedef typename BalancedTypeTree<Registry, RegistryEntryLess, EntityCreatorNode, NullCreatorNode>::ValueT Root;
 
 		public:
 			template < typename StreamType >
