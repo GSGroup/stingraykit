@@ -360,6 +360,38 @@ namespace stingray
 	{ typedef TypeListEndNode ValueT; };
 
 
+	namespace Detail
+	{
+
+		template < typename SortedTypeList, template <typename, typename, typename> class BranchType, typename LeafType, size_t Begin = 0, size_t End = GetTypeListLength<SortedTypeList>::Value >
+		struct BalancedTypeTreeImpl
+		{
+		private:
+			static const size_t Index = Begin + (End - Begin) / 2;
+
+		public:
+			typedef BranchType<
+					typename GetTypeListItem<SortedTypeList, Index>::ValueT,
+					typename BalancedTypeTreeImpl<SortedTypeList, BranchType, LeafType, Begin, Index>::ValueT,
+					typename BalancedTypeTreeImpl<SortedTypeList, BranchType, LeafType, Index + 1, End>::ValueT
+			> ValueT;
+		};
+
+		template < typename SortedTypeList, template <typename, typename, typename> class BranchType, typename LeafType, size_t Begin >
+		struct BalancedTypeTreeImpl<SortedTypeList, BranchType, LeafType, Begin, Begin>
+		{ typedef LeafType ValueT; };
+
+		template < template <typename, typename, typename> class BranchType, typename LeafType >
+		struct BalancedTypeTreeImpl<TypeListEndNode, BranchType, LeafType, 0, 0>
+		{ typedef LeafType ValueT; };
+
+	}
+
+	template < typename TypeList, template <typename, typename> class LessPredicate, template <typename, typename, typename> class BranchType, typename LeafType >
+	struct BalancedTypeTree
+	{ typedef typename Detail::BalancedTypeTreeImpl<typename TypeListSort<TypeList, LessPredicate>::ValueT, BranchType, LeafType>::ValueT ValueT; };
+
+
 	template < typename TypeList, template <typename> class FunctorClass >
 	struct ForEachInTypeList
 	{
