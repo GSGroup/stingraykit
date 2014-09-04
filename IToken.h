@@ -2,6 +2,9 @@
 #define STINGRAY_TOOLKIT_ITOKEN_H
 
 
+#include <stingray/toolkit/shared_ptr.h>
+
+
 namespace stingray
 {
 
