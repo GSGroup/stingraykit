@@ -68,8 +68,8 @@ namespace stingray
 		bool			_valid;
 
 	public:
-		ScopedHolder(const CleanupFuncType& cleanupFunc)
-			: _cleanupFunc(cleanupFunc), _valid(false)
+		ScopedHolder(const CleanupFuncType& cleanupFunc, bool valid = false)
+			: _cleanupFunc(cleanupFunc), _valid(valid)
 		{ }
 
 		~ScopedHolder()			{ Cleanup(); }
