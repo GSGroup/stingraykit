@@ -49,6 +49,7 @@ namespace stingray
 			template < typename Entry, typename Left, typename Right >
 			struct EntityCreatorNode
 			{
+
 				template < typename EntityType >
 				struct DefaultEntityCreator
 				{
@@ -99,6 +100,22 @@ namespace stingray
 
 			return result;
 		}
+	};
+
+	template <typename BaseEntityType, typename StreamType>
+	struct IEntityFactory
+	{
+		typedef shared_ptr<BaseEntityType>		EntityPtr;
+
+		virtual ~IEntityFactory() { }
+
+		virtual EntityPtr Create(StreamType& stream) const = 0;
+
+		template <typename EntityFactory>
+		struct Wrapper : public IEntityFactory<BaseEntityType, StreamType>
+		{
+			virtual EntityPtr Create(StreamType& stream) const { return EntityFactory::Create(stream); }
+		};
 	};
 
 }
