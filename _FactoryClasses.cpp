@@ -46,6 +46,7 @@
 #ifdef PLATFORM_STAPI
 #	include <stingray/platform/stapi/crypto/HardwareCipherKey.h>
 #endif
+#include <stingray/pushvod/pushvod_emu/PushVODEmulationMovie.h>
 #include <stingray/records/FileSystemRecord.h>
 #include <stingray/rpc/UrlObjectId.h>
 #include <stingray/scanner/DVBServiceId.h>
@@ -163,6 +164,7 @@ namespace stingray { namespace Detail
 #ifdef PLATFORM_STAPI
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(stapi::HardwareCipherKey);
 #endif
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(PushVODEmulationMovie);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(rpc::UrlObjectId);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBServiceId);
