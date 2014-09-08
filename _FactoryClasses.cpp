@@ -22,6 +22,8 @@
 #include <stingray/media/formats/mp4/MediaInfo.h>
 #include <stingray/media/formats/mp4/Stream.h>
 #include <stingray/media/formats/mp4/SubstreamDescriptors.h>
+#include <stingray/mpeg/ContentDescription.h>
+#include <stingray/mpeg/PvrDescription.h>
 #include <stingray/mpeg/Stream.h>
 #include <stingray/net/DHCPInterfaceConfiguration.h>
 #include <stingray/net/IgnoredInterfaceConfiguration.h>
@@ -131,6 +133,8 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaAudioSubstreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaVideoSubstreamDescriptor);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::ContentDescription);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::PvrDescription);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mpeg::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DHCPInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(IgnoredInterfaceConfiguration);
