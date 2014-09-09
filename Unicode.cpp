@@ -34,10 +34,15 @@ namespace stingray
 		CompileTimeAssert<(UCOL_LESS < 0)>		Error_invalid_less_const;
 		CompileTimeAssert<(UCOL_GREATER > 0)>	Error_invalid_greater_const;
 
+		/*
 		UErrorCode success = U_ZERO_ERROR;
 		UCollationResult r = _collator->compareUTF8(str1, str2, success);
 		TOOLKIT_CHECK(U_SUCCESS(success), "compareUTF8 failed, error: " + ToString(success));
-		return r;
+		 */
+		icu::UnicodeString u1 = icu::UnicodeString::fromUTF8(str1);
+		icu::UnicodeString u2 = icu::UnicodeString::fromUTF8(str2);
+
+		return _caseSensitive? u1.compare(u2): u1.caseCompare(u2, U_FOLD_CASE_DEFAULT);
 	}
 
 	UnicodeCollator::~UnicodeCollator()
