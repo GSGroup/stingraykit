@@ -39,6 +39,28 @@
 namespace stingray
 {
 
+	namespace regex_constants
+	{
+		enum match_flag_type
+		{
+			match_default		= 0x0,
+			format_default		= 0x0,
+
+			match_not_bol		= 0x1,
+			match_not_eol		= 0x2,
+			match_not_bow		= 0x4,
+			match_not_eow		= 0x8,
+			match_any			= 0x10,
+			match_not_null		= 0x20,
+			match_continuous	= 0x40,
+			match_prev_avail	= 0x80,
+
+			format_sed			= 0x100,
+			format_no_copy		= 0x200,
+			format_first_only	= 0x400
+		};
+	}
+
 	class regex;
 	class smatch;
 
@@ -50,13 +72,15 @@ namespace stingray
 	};
 
 
-	bool regex_search(const std::string& str, smatch& m, const regex& re);
+	bool regex_search(const std::string& str, smatch& m, const regex& re, regex_constants::match_flag_type flags = regex_constants::match_default);
+	std::string regex_replace(const std::string& str, const regex& re, const std::string& replacement, regex_constants::match_flag_type flags = regex_constants::format_default);
 
 
 	class regex
 	{
 		friend class smatch;
-		friend bool regex_search(const std::string& str, smatch& m, const regex& re);
+		friend bool regex_search(const std::string& str, smatch& m, const regex& re, regex_constants::match_flag_type flags);
+		friend std::string regex_replace(const std::string& str, const regex& re, const std::string& replacement, regex_constants::match_flag_type flags);
 
 		class Impl;
 		TOOLKIT_DECLARE_PTR(Impl);
@@ -78,7 +102,9 @@ namespace stingray
 		typedef std::vector<std::string>		ResultsVec;
 		typedef std::vector<off_t>				PositionsVec;
 
-		friend class regex::Impl;
+
+		template < typename PlatformRegex >
+		friend class BasicRegexImpl;
 
 	public:
 		typedef ResultsVec::value_type			value_type;
