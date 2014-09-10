@@ -1,7 +1,9 @@
 #ifndef STINGRAY_TOOLKIT_ITOKEN_H
 #define STINGRAY_TOOLKIT_ITOKEN_H
 
+#include <map>
 
+#include <stingray/threads/Thread.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 
