@@ -18,6 +18,7 @@ namespace stingray
         T					_data[N];
 
 	public:
+		static const size_t Size = N;
 		typedef T			value_type;
 		typedef T*			iterator;
 		typedef const T*	const_iterator;
