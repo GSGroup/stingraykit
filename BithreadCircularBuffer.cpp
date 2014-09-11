@@ -120,6 +120,10 @@ namespace stingray
 	}
 
 
+	BithreadCircularBuffer::BithreadCircularBuffer(ByteData storage, const ITokenPtr& token) : _impl(new Impl(storage, token))
+	{ }
+
+
 	BithreadCircularBuffer::~BithreadCircularBuffer()
 	{}
 

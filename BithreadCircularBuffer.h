@@ -75,6 +75,7 @@ namespace stingray
 
 	public:
 		BithreadCircularBuffer(size_t size);
+		BithreadCircularBuffer(ByteData buffer, const ITokenPtr& token);
 		~BithreadCircularBuffer();
 
 		size_t GetDataSize() const;
