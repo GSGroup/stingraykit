@@ -36,6 +36,14 @@ namespace stingray
 			TOOLKIT_CHECK(size % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
 		}
 
+		DataBufferBase(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize) :
+			_discardOnOverflow(discardOnOverflow), _buffer(storage, storageLifeAssurance),
+			_inputPacketSize(inputPacketSize), _eod(false)
+		{
+			TOOLKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
+			TOOLKIT_CHECK(_buffer.GetTotalSize() % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
+		}
+
 	public:
 		size_t GetDataSize() const		{ return _buffer.GetDataSize(); }
 		size_t GetFreeSize() const		{ return _buffer.GetFreeSize(); }
@@ -120,6 +128,17 @@ namespace stingray
 		{
 			TOOLKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
 			TOOLKIT_CHECK(size % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+		}
+
+		DataBuffer(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize = 1) :
+			DataBufferBase(discardOnOverflow, storage, storageLifeAssurance, inputPacketSize), _outputPacketSize(inputPacketSize)
+		{ }
+
+		DataBuffer(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize, size_t outputPacketSize) :
+			DataBufferBase(discardOnOverflow, storage, storageLifeAssurance, inputPacketSize), _outputPacketSize(outputPacketSize)
+		{
+			TOOLKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
+			TOOLKIT_CHECK(_buffer.GetTotalSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
