@@ -31,7 +31,7 @@ namespace stingray
 			_lockedForWrite(0), _lockedForRead(0),
 			_readersCount(0), _writersCount(0),
 			_dataIsContiguous(true)
-		{}
+		{ }
 
 
 		size_t GetDataSize() const
