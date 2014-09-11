@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <stingray/threads/Thread.h>
+#include <stingray/toolkit/ObjectToken.h>
 
 namespace stingray
 {
@@ -15,18 +16,18 @@ namespace stingray
 		static const size_t PaddingSize = 8;
 
 	private:
-		typedef std::vector<u8> ContainerType;
-
 		Mutex			_mutex;
-		ContainerType	_container;
+		ByteData		_storage;
+		ITokenPtr		_storageLifeAssurance;
 		size_t			_writeOffset, _readOffset;
 		size_t			_lockedForWrite, _lockedForRead;
 		atomic_int_type	_readersCount, _writersCount;
 		bool			_dataIsContiguous;
 
 	public:
-		Impl(size_t size) :
-			_container(size), _writeOffset(0), _readOffset(0),
+		Impl(ByteData storage, const ITokenPtr& storageLifeAssurance) :
+			_storage(storage), _storageLifeAssurance(storageLifeAssurance),
+			_writeOffset(0), _readOffset(0),
 			_lockedForWrite(0), _lockedForRead(0),
 			_readersCount(0), _writersCount(0),
 			_dataIsContiguous(true)
@@ -48,11 +49,12 @@ namespace stingray
 
 
 		size_t GetStorageSize() const
-		{ return _container.size(); }
+		{ return _storage.size(); }
 
 
 		ConstByteData GetStorage() const
-		{ return _container; }
+		{ return _storage; }
+
 
 		ByteData LockForWrite()
 		{
@@ -60,7 +62,7 @@ namespace stingray
 			TOOLKIT_CHECK(_lockedForWrite == 0, "There is another write in progress!");
 
 			_lockedForWrite = _dataIsContiguous ? (GetStorageSize() - _writeOffset) : (_readOffset - _writeOffset);
-			return ByteData(&_container[_writeOffset], _lockedForWrite);
+			return ByteData(_storage, _writeOffset, _lockedForWrite);
 		}
 
 
@@ -86,7 +88,7 @@ namespace stingray
 			TOOLKIT_CHECK(_lockedForRead == 0, "There is another read in progress!");
 
 			_lockedForRead = (_dataIsContiguous) ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset);
-			return ByteData(&_container[_readOffset], _lockedForRead);
+			return ByteData(_storage, _readOffset, _lockedForRead);
 		}
 
 
@@ -111,8 +113,11 @@ namespace stingray
 	};
 
 
-	BithreadCircularBuffer::BithreadCircularBuffer(size_t size) : _impl(new Impl(size))
-	{ }
+	BithreadCircularBuffer::BithreadCircularBuffer(size_t size)
+	{
+		shared_ptr<std::vector<u8> > storage = make_shared<std::vector<u8> >(size);
+		_impl = make_shared<Impl>(ByteData(*storage), MakeObjectToken(storage));
+	}
 
 
 	BithreadCircularBuffer::~BithreadCircularBuffer()
