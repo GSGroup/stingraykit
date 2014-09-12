@@ -69,6 +69,9 @@ namespace stingray
 
 		bool Search(const std::string& str, smatch& m, regex_constants::match_flag_type flags)
 		{
+			m._results.clear();
+			m._positions.clear();
+
 			TOOLKIT_CHECK(flags == regex_constants::match_default, NotImplementedException());
 
 			RegexMatchVec matches;
@@ -102,10 +105,10 @@ namespace stingray
 					break;
 				}
 
-				if (group_matches[0].Begin > 0)
-					replacement_entries.push_back(replacement.substr(replacement_begin, group_matches[0].Begin));
-				replacement_entries.push_back(FromString<int>(replacement.substr(group_matches[1].Begin, group_matches[1].GetLength())));
-				replacement_begin += group_matches[0].End;
+				if (group_matches.at(0).Begin > 0)
+					replacement_entries.push_back(replacement.substr(replacement_begin, group_matches.at(0).Begin));
+				replacement_entries.push_back(FromString<int>(replacement.substr(group_matches.at(1).Begin, group_matches.at(1).GetLength())));
+				replacement_begin += group_matches.at(0).End;
 			} while (true);
 
 			int begin = 0;
@@ -122,10 +125,10 @@ namespace stingray
 
 				ReplacementEntryVisitor visitor(str.c_str() + begin, matches);
 
-				result += str.substr(begin, matches[0].Begin);
+				result += str.substr(begin, matches.at(0).Begin);
 				for (ReplacementEntryVec::const_iterator it = replacement_entries.begin(); it != replacement_entries.end(); ++it)
 					result += apply_visitor(visitor, *it);
-				begin += matches[0].End;
+				begin += matches.at(0).End;
 			} while (true);
 
 			return result;
@@ -164,7 +167,7 @@ namespace stingray
 				TOOLKIT_THROW(StringBuilder() % "Could not execute regex '" % _str % "' for string '" % str % "', ret = " % ret % "\n" % GetRegexError(_regex, ret));
 
 			int count = 0;
-			while (posix_matches[count].rm_so > 0)
+			while (posix_matches[count].rm_so >= 0)
 				++count;
 
 
