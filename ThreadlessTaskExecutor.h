@@ -49,22 +49,26 @@ namespace stingray
 			MutexLock l(_syncRoot);
 			while (!_queue.empty())
 			{
-				TaskPair top = _queue.front();
+				optional<TaskPair> top = _queue.front();
 				_queue.pop();
+
+				MutexUnlock ul(l);
+
 				try
 				{
-					MutexUnlock ul(l);
 					//Tracer tracer("ThreadlessTaskExecutor::ExecuteTasks: executing pending task"); //fixme: dependency to log/
 					LocalExecutionGuard guard;
-					if (top.second.Execute(guard))
+					if (top->second.Execute(guard))
 					{
-						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(top.first)), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
-						top.first();
+						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(top->first)), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
+						top->first();
 					}
 					Thread::InterruptionPoint();
 				}
 				catch(const std::exception& ex)
 				{ _exceptionHandler(ex); }
+
+				top.reset(); // destroy object with unlocked mutex to keep lock order correct
 			}
 		}
 
