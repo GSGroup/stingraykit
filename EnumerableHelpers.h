@@ -237,7 +237,9 @@ namespace stingray
 		EnumerablePtr	_result;
 
 	public:
-		operator EnumerablePtr () const { return _result; }
+		operator EnumerablePtr () const { return Get(); }
+		EnumerablePtr Get() const		{ return _result; }
+
 		EnumerableJoiner& operator % (const EnumerablePtr& e)
 		{
 			if (_result)
