@@ -76,11 +76,11 @@ namespace stingray
 		NullArgumentException(const std::string& argName) : Exception("Null argument: " + argName) { }
 	};
 
-	class IndexOutOfRangeException : public stingray::Exception
+	class IndexOutOfRangeException : public Exception
 	{
 	public:
-		IndexOutOfRangeException() : stingray::Exception("Index out of range!") { }
-		IndexOutOfRangeException(size_t index, size_t size) : stingray::Exception(BuildErrorMessage(index, size)) { }
+		IndexOutOfRangeException() : Exception("Index out of range!") { }
+		IndexOutOfRangeException(size_t index, size_t size) : Exception(BuildErrorMessage(index, size)) { }
 
 	private:
 		static std::string BuildErrorMessage(size_t index, size_t size)
