@@ -35,6 +35,13 @@ namespace stingray
 			return *this;
 		}
 
+		StlEnumeratorAdapter operator ++ (int)
+		{
+			StlEnumeratorAdapter ret = *this;
+			++*this;
+			return ret;
+		}
+
 		T operator * () const
 		{
 			if (!_enumerator->Valid())
