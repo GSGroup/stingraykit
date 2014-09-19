@@ -33,6 +33,9 @@
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
 #endif
+#ifdef PLATFORM_EMU
+#	include <stingray/platform/emu/scanner/EmuScanPerformerFactory.h>
+#endif
 #ifdef PLATFORM_MSTAR
 #	include <stingray/platform/mstar/crypto/HardwareCipherKey.h>
 #endif
@@ -56,11 +59,14 @@
 #include <stingray/scanner/DefaultMpegService.h>
 #include <stingray/scanner/DefaultMpegSubstreamDescriptor.h>
 #include <stingray/scanner/DefaultScanParams.h>
+#include <stingray/scanner/DefaultScanPerformerFactory.h>
 #include <stingray/scanner/DreCasGeographicRegion.h>
 #include <stingray/scanner/LybidScanParams.h>
+#include <stingray/scanner/LybidScanPerformerFactory.h>
 #include <stingray/scanner/TerrestrialScanParams.h>
 #include <stingray/scanner/TricolorGeographicRegion.h>
 #include <stingray/scanner/TricolorScanParams.h>
+#include <stingray/scanner/TricolorScanPerformerFactory.h>
 #include <stingray/scanner/lybid/LybidServiceMetaInfo.h>
 #include <stingray/scanner/terrestrial/TerrestrialServiceMetaInfo.h>
 #include <stingray/scanner/tricolor/TricolorServiceMetaInfo.h>
@@ -153,6 +159,9 @@ namespace stingray { namespace Detail
 #ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::TVChannel);
 #endif
+#ifdef PLATFORM_EMU
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::EmuScanPerformerFactory);
+#endif
 #ifdef PLATFORM_MSTAR
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mstar::HardwareCipherKey);
 #endif
@@ -184,11 +193,14 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegTeletextSubstreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MpegVideoSubstreamDescriptor);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanParams);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultScanPerformerFactory);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DreCasGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidScanParams);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidScanPerformerFactory);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TerrestrialScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanParams);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanPerformerFactory);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TerrestrialServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorServiceMetaInfo);
