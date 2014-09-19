@@ -18,15 +18,18 @@ namespace stingray
 		{ }
 	};
 
-	template < typename EntityTagType, size_t EntityTagLength >
+	template < typename EntityTagType, size_t EntityTagOffset, size_t EntityTagLength >
 	struct GenericEntityTagReader
 	{
 		template < typename StreamType >
 		static EntityTagType Read(StreamType& stream)
-		{ return stream.template Read<EntityTagLength>(); }
+		{
+			stream.Skip(EntityTagOffset);
+			return stream.template Read<EntityTagLength>();
+		}
 	};
 
-	template < typename Derived, typename BaseEntityType, typename EntityTagType, typename EntityTagReader = GenericEntityTagReader<EntityTagType, 8> >
+	template < typename Derived, typename BaseEntityType, typename EntityTagType, typename EntityTagReader = GenericEntityTagReader<EntityTagType, 0, 8> >
 	class GenericEntityFactory
 	{
 		typedef shared_ptr<BaseEntityType>		EntityPtr;
@@ -35,7 +38,7 @@ namespace stingray
 		class EntityCreatorRegistry
 		{
 
-			template <typename Left, typename Right>
+			template < typename Left, typename Right >
 			struct RegistryEntryLess
 			{ static const bool Value = Left::Tag < Right::Tag; };
 
@@ -102,7 +105,7 @@ namespace stingray
 		}
 	};
 
-	template <typename BaseEntityType, typename StreamType>
+	template < typename BaseEntityType, typename StreamType >
 	struct IEntityFactory
 	{
 		typedef shared_ptr<BaseEntityType>		EntityPtr;
@@ -111,7 +114,7 @@ namespace stingray
 
 		virtual EntityPtr Create(StreamType& stream) const = 0;
 
-		template <typename EntityFactory>
+		template < typename EntityFactory >
 		struct Wrapper : public IEntityFactory<BaseEntityType, StreamType>
 		{
 			virtual EntityPtr Create(StreamType& stream) const { return EntityFactory::Create(stream); }
