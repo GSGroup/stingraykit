@@ -1,5 +1,6 @@
 #include <stingray/toolkit/ThreadPool.h>
 
+#include <stingray/log/Logger.h>
 #include <stingray/toolkit/bind.h>
 
 
@@ -35,7 +36,7 @@ namespace stingray
 
 	void ThreadPool::WorkerWrapper::TaskWrapper(const function<void()>& task)
 	{
-		task();
+		STINGRAY_TRY("Couldn't execute task", task());
 		{
 			MutexLock l(_mutex);
 			TOOLKIT_CHECK(_busy, "Internal TaskExecutorPool error!");
