@@ -26,6 +26,10 @@ namespace stingray
 		KeyType		Key;
 		ValueType	Value;
 
+		KeyValuePair()
+			: Key(), Value()
+		{ }
+
 		KeyValuePair(const KeyType& key, const ValueType& value)
 			: Key(key), Value(value)
 		{ }
