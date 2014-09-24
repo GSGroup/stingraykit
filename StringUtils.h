@@ -565,6 +565,12 @@ namespace stingray
 	inline std::string ToUpper(const std::string& str)
 	{ return Transform(str, ::toupper); }
 
+	inline std::string Capitalize(const std::string& str)
+	{ return str.empty()? str : ToUpper(str.substr(0, 1)) + str.substr(1); }
+
+	inline std::string Uncapitalize(const std::string& str)
+	{ return str.empty()? str : ToLower(str.substr(0, 1)) + str.substr(1); }
+
 	inline std::string LeftJustify(const std::string& str, size_t width, char filler = ' ')
 	{ return str + std::string(str.length() < width? width - str.length() : 0, filler); }
 
