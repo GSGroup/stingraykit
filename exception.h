@@ -103,6 +103,12 @@ namespace stingray
 		MalformedDataException(const std::string& expression) : Exception("Malformed data: " + expression) { }
 	};
 
+	struct MalformedJsonException : public MalformedDataException
+	{
+		MalformedJsonException() : MalformedDataException("Malformed json!") { }
+		MalformedJsonException(const std::string& expression) : MalformedDataException("Malformed json: " + expression) { }
+	};
+
 	struct NullPointerException : public Exception
 	{
 		NullPointerException() : Exception("Accessing null pointer!") { }
