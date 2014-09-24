@@ -61,7 +61,7 @@ namespace stingray
 	private:
 		SrcEnumerablePtr			_srcEnumerable;
 		Caster						_caster;
-		FilterPredicate			_filterPredicate;
+		FilterPredicate				_filterPredicate;
 
 	public:
 		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable)
