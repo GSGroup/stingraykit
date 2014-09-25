@@ -476,7 +476,8 @@ namespace stingray
 			if (!result.empty())
 				result.append(separator);
 
-			result.append(op(*first++));
+			result.append(op(*first));
+			++first;
 		}
 		return result;
 	}
