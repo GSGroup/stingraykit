@@ -24,6 +24,10 @@ namespace stingray
 		return boundary * (value / boundary);
 	}
 
+	inline size_t Gcd(size_t a, size_t b) { return b ? Gcd(b, a % b) : a; }
+
+	inline size_t Lcm(size_t a, size_t b) { return a / Gcd(a, b) * b; }
+
 }
 
 #endif
