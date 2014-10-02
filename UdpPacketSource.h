@@ -29,15 +29,14 @@ namespace stingray
 
 		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
 		{
-			try
+			if (_dataSize == 0)
 			{
 				_dataSize = _socket->Receive(ByteData(_packetBuffer), token);
-				if (consumer.Process(ConstByteData(_packetBuffer, 0, _dataSize), token))
-					_dataSize = 0;
+				return;
 			}
-			catch (const OperationCanceledException& ex)
-			{
-			}
+
+			if (consumer.Process(ConstByteData(_packetBuffer, 0, _dataSize), token))
+				_dataSize = 0;
 		}
 	};
 	TOOLKIT_DECLARE_PTR(UdpPacketSource);
