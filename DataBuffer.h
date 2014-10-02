@@ -313,7 +313,7 @@ namespace stingray
 			}
 
 			PacketInfo p = _packetQueue.front();
-			TOOLKIT_CHECK(p.Size <= r.size(), "Not enough data in packet buffer, got: " + ToString(p.Size) + ", need: " + ToString(r.size()));
+			TOOLKIT_CHECK(p.Size <= r.size(), "Not enough data in packet buffer, need: " + ToString(p.Size) + ", got: " + ToString(r.size()));
 			bool processed = false;
 			{
 				MutexUnlock ul(_bufferMutex);
