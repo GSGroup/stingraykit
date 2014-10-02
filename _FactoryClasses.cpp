@@ -17,8 +17,8 @@
 #include <stingray/hdmi/IHDMI.h>
 #include <stingray/media/ImageFileMediaData.h>
 #include <stingray/media/MediaInfoBase.h>
-#include <stingray/media/Mp3MediaInfo.h>
 #include <stingray/media/formats/flv/MediaInfo.h>
+#include <stingray/media/formats/mp3/Mp3MediaInfo.h>
 #include <stingray/media/formats/mp4/MediaInfo.h>
 #include <stingray/media/formats/mp4/Stream.h>
 #include <stingray/media/formats/mp4/SubstreamDescriptors.h>
@@ -127,14 +127,15 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HouseholdClientTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HouseholdServerTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidOperatorTrait);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(SatIpClientTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorOperatorTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaPreview);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(InMemoryImageMediaPreview);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(MediaInfoBase);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(Mp3MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(flv::MediaInfo);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(Mp3MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::MediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Stream);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mp4::Mp4MediaAudioSubstreamDescriptor);
