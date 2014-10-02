@@ -199,7 +199,7 @@ namespace stingray
 
 	private:
 		static NamedLogger			s_logger;
-		bool						_discardOnOverflow;
+		const bool					_discardOnOverflow;
 		BithreadCircularBuffer		_buffer;
 		std::deque<PacketInfo>		_packetQueue;
 
@@ -228,10 +228,12 @@ namespace stingray
 			{
 				BithreadCircularBuffer::Reader r = _buffer.Read();
 				if (r.size() == 0)
-					return;
+					break;
 
 				r.Pop(r.size());
 			}
+			_packetQueue.clear();
+			_paddingSize = 0;
 			_eod = false;
 
 			_bufferFull.Broadcast();
