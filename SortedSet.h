@@ -21,8 +21,6 @@ namespace stingray
 	template < typename T , typename CompareType_ = std::less<T> >
 	class SortedSet : public virtual ISet<T>
 	{
-		TOOLKIT_NONCOPYABLE(SortedSet);
-
 	public:
 		typedef typename ISet<T>::ValueType				ValueType;
 
@@ -55,6 +53,16 @@ namespace stingray
 		SortedSet()
 			: _items(new SetType)
 		{ }
+
+		SortedSet(const SortedSet& other) : _items(make_shared<SetType>(*other._items))
+		{ }
+
+		SortedSet& operator = (const SortedSet& other)
+		{
+			_items = make_shared<SetType>(*other._items);
+			_itemsEnumeratorHolder.reset();
+			return *this;
+		}
 
 		SortedSet(shared_ptr<IEnumerator<T> > enumerator)
 		{
