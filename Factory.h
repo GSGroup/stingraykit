@@ -134,7 +134,13 @@ namespace stingray
 	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
 	virtual std::string GetClassName() const { return RemovePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
 
-#define TOOLKIT_REGISTER_CLASS_EXPLICIT(Class_) stingray::Detail::Factory::Instance().Register<Class_>(#Class_)
+
+#define TOOLKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_) stingray::Detail::Factory::Instance().Register<Class_>(ClassName_)
+
+#define TOOLKIT_REGISTER_CLASS_EXPLICIT_0(Class_, ...) TOOLKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, #Class_)
+#define TOOLKIT_REGISTER_CLASS_EXPLICIT_1(Class_, ClassName_) TOOLKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_)
+
+#define TOOLKIT_REGISTER_CLASS_EXPLICIT(Class_, ...) TOOLKIT_CAT(TOOLKIT_REGISTER_CLASS_EXPLICIT_, TOOLKIT_NARGS(__VA_ARGS__))(Class_, __VA_ARGS__)
 
 
 #define TOOLKIT_REGISTER_MIGRATION_CLASS(Class_, ClassName_) \
