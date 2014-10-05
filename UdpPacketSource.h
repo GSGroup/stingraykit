@@ -7,6 +7,7 @@
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/BithreadCircularBuffer.h>
 #include <stingray/toolkit/IDataSource.h>
+#include <stingray/toolkit/math.h>
 
 
 namespace stingray
@@ -46,6 +47,7 @@ namespace stingray
 	{
 	private:
 		ISocketPtr				_socket;
+		size_t					_outputPacketSize;
 		ThreadPtr				_worker;
 
 		CancellationToken		_token;
@@ -57,10 +59,13 @@ namespace stingray
 		WaitToken				_hasSpace;
 
 	public:
-		StreamingSocketDataSource(const ISocketPtr& socket, size_t size) :
-			_socket(socket),
+		StreamingSocketDataSource(const ISocketPtr& socket, size_t size, size_t outputPacketSize = 1) :
+			_socket(socket), _outputPacketSize(outputPacketSize),
 			_buffer(size)
 		{
+			TOOLKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
+			TOOLKIT_CHECK(size % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+
 			_worker.reset(new Thread("streamingSocketDataSource", bind(&StreamingSocketDataSource::ThreadFunc, this)));
 		}
 
@@ -74,7 +79,8 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 			BithreadCircularBuffer::Reader r = _buffer.Read();
-			if (r.size() == 0)
+			size_t aligned_size = AlignDown(r.size(), _outputPacketSize);
+			if (aligned_size == 0)
 			{
 				_hasData.Wait(_mutex, token);
 				return;
@@ -83,7 +89,7 @@ namespace stingray
 			size_t processed_size = 0;
 			{
 				MutexUnlock ul(l);
-				processed_size = consumer.Process(r.GetData(), token);
+				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, aligned_size), token);
 			}
 
 			r.Pop(processed_size);
