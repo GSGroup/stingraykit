@@ -66,6 +66,8 @@ namespace stingray
 		static TOOLKIT_DECLARE_ONCE_FLAG(s_initFlag);
 
 	public:
+		static bool IsAlive() { return GetInstancePtr(); }
+
 		static T& Instance()
 		{
 			call_once(s_initFlag, &Singleton::InitInstance);
