@@ -166,7 +166,7 @@ namespace stingray
 			{
 				GCPage(_pages.front());
 				_pages.pop_front();
-				_startOffset -= _pageSize;
+				_startOffset = (_pageSize < _startOffset) ? _startOffset - _pageSize : 0;
 			}
 		}
 
