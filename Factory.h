@@ -3,7 +3,6 @@
 
 
 #include <stingray/toolkit/Singleton.h>
-#include <stingray/toolkit/Version.h>
 
 
 namespace stingray
