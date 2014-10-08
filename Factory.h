@@ -8,63 +8,59 @@
 namespace stingray
 {
 
-	struct IFactoryObjectCreator
-	{
-		virtual ~IFactoryObjectCreator() { }
-
-		virtual IFactoryObject* Create() const = 0;
-	};
-
-
 	class Factory;
 
-	namespace Detail
+	class FactoryContext
 	{
+		struct IFactoryObjectCreator
+		{
+			virtual ~IFactoryObjectCreator() { }
+
+			virtual IFactoryObject* Create() const = 0;
+		};
 
 		template < typename ClassType >
-		class SimpleFactoryObjectCreator : public virtual IFactoryObjectCreator
+		class FactoryObjectCreator : public virtual IFactoryObjectCreator
 		{
-		public:
 			virtual IFactoryObject* Create() const { return new ClassType; }
 		};
 
+		typedef std::map<std::string, IFactoryObjectCreator*> ClassRegistry;
 
-		class FactoryContext
+	private:
+		ClassRegistry	_registry;
+		Mutex			_registryGuard;
+
+	public:
+		FactoryContext() { }
+		~FactoryContext();
+
+		template < typename ClassType >
+		void Register(const std::string& name)
 		{
-			typedef std::map<std::string, IFactoryObjectCreator*> ClassRegistry;
+			unique_ptr<IFactoryObjectCreator> creator(new FactoryObjectCreator<ClassType>());
+			Register(name, creator.get());
+			creator.release();
+		}
 
-		private:
-			ClassRegistry	_registry;
-			Mutex			_registryGuard;
+		template < typename ClassType >
+		ClassType* Create(const std::string& name)
+		{
+			unique_ptr<IFactoryObject> factory_obj(Create(name));
+			ClassType* object = TOOLKIT_CHECKED_DYNAMIC_CASTER(factory_obj.get());
+			factory_obj.release();
+			return object;
+		}
 
-		public:
-			FactoryContext() { }
-			~FactoryContext();
+	private:
+		void Register(const std::string& name, IFactoryObjectCreator* creator);
 
-			template < typename ClassType >
-			void Register(const std::string& name)
-			{
-				unique_ptr<IFactoryObjectCreator> creator(new SimpleFactoryObjectCreator<ClassType>());
-				Register(name, creator.get());
-				creator.release();
-			}
+		IFactoryObject* Create(const std::string& name);
+	};
+	TOOLKIT_DECLARE_PTR(FactoryContext);
 
-			template < typename ClassType >
-			ClassType* Create(const std::string& name)
-			{
-				unique_ptr<IFactoryObject> factory_obj(Create(name));
-				ClassType* object = TOOLKIT_CHECKED_DYNAMIC_CASTER(factory_obj.get());
-				factory_obj.release();
-				return object;
-			}
-
-		private:
-			void Register(const std::string& name, IFactoryObjectCreator* creator);
-
-			IFactoryObject* Create(const std::string& name);
-		};
-		TOOLKIT_DECLARE_PTR(FactoryContext);
-
+	namespace Detail
+	{
 
 		class Factory : public Singleton<Factory>
 		{
@@ -130,7 +126,7 @@ namespace stingray
 
 
 #define TOOLKIT_REGISTER_CLASS(Class_) \
-	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
+	friend class stingray::FactoryContext::FactoryObjectCreator<Class_>; \
 	virtual std::string GetClassName() const { return RemovePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
 
 
@@ -143,7 +139,7 @@ namespace stingray
 
 
 #define TOOLKIT_REGISTER_MIGRATION_CLASS(Class_, ClassName_) \
-	friend class stingray::Detail::SimpleFactoryObjectCreator<Class_>; \
+	friend class stingray::FactoryContext::FactoryObjectCreator<Class_>; \
 	virtual std::string GetClassName() const { return ClassName_; }
 
 

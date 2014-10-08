@@ -1,8 +1,7 @@
 #include <stingray/toolkit/Factory.h>
 
 
-namespace stingray {
-namespace Detail
+namespace stingray
 {
 
 	FactoryContext::~FactoryContext()
@@ -40,23 +39,28 @@ namespace Detail
 	}
 
 
-	Factory::Factory()
-		: _defaultContext(new FactoryContext())
-	{ }
-
-
-	FactoryContextPtr Factory::OverrideContext()
+	namespace Detail
 	{
-		MutexLock l(_guard);
 
-		FactoryContextPtr overridden = _overriddenContext.lock();
-		TOOLKIT_CHECK(!overridden, "Context is already overridden!");
+		Factory::Factory()
+			: _defaultContext(new FactoryContext())
+		{ }
 
-		overridden.reset(new FactoryContext());
-		_overriddenContext = overridden.weak();
 
-		return overridden;
+		FactoryContextPtr Factory::OverrideContext()
+		{
+			MutexLock l(_guard);
+
+			FactoryContextPtr overridden = _overriddenContext.lock();
+			TOOLKIT_CHECK(!overridden, "Context is already overridden!");
+
+			overridden.reset(new FactoryContext());
+			_overriddenContext = overridden.weak();
+
+			return overridden;
+		}
+
 	}
 
-}}
+}
 
