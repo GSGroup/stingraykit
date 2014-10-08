@@ -134,6 +134,8 @@ namespace stingray
 			return _pageSize * _pages.size() - _startOffset - _endOffset;
 		}
 
+		signal<void()> OnDiscontinuity;
+
 	protected:
 		virtual PagePtr CreatePage(u64 size) = 0;
 		virtual void GCPage(PagePtr page) {}
@@ -166,7 +168,14 @@ namespace stingray
 			{
 				GCPage(_pages.front());
 				_pages.pop_front();
-				_startOffset = (_pageSize < _startOffset) ? _startOffset - _pageSize : 0;
+
+				if (_pageSize >= _startOffset)
+				{
+					_startOffset = 0;
+					OnDiscontinuity();
+				}
+				else
+					_startOffset -= _pageSize;
 			}
 		}
 
