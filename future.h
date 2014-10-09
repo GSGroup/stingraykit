@@ -76,7 +76,7 @@ namespace stingray
 			bool has_value() const		{ MutexLock l(_mutex); return _value; }
 			void wait()					{ MutexLock l(_mutex); do_wait(); }
 
-			future_status wait_for(const TimeDuration& duration)
+			future_status wait_for(TimeDuration duration)
 			{ MutexLock l(_mutex); return do_timed_wait(duration); }
 
 			future_status wait_until(const Time& absTime)
@@ -116,7 +116,7 @@ namespace stingray
 				_condition.Wait(_mutex);
 			}
 
-			future_status do_timed_wait(const TimeDuration& duration)
+			future_status do_timed_wait(TimeDuration duration)
 			{
 				if (_value || _exception)
 					return future_status::ready;
@@ -149,7 +149,7 @@ namespace stingray
 			bool has_value() const		{ MutexLock l(_mutex); return _value; }
 			void wait()					{ MutexLock l(_mutex); do_wait(); }
 
-			future_status wait_for(const TimeDuration& duration)
+			future_status wait_for(TimeDuration duration)
 			{ MutexLock l(_mutex); return do_timed_wait(duration); }
 
 			future_status wait_until(const Time& absTime)
@@ -188,7 +188,7 @@ namespace stingray
 				_condition.Wait(_mutex);
 			}
 
-			future_status do_timed_wait(const TimeDuration& duration)
+			future_status do_timed_wait(TimeDuration duration)
 			{
 				if (_value || _exception)
 					return future_status::ready;
@@ -232,7 +232,7 @@ namespace stingray
 		ResultType get() const			{ check_valid(); return _impl->get(); }
 
 		void wait() const											{ check_valid(); _impl->wait(); }
-		future_status wait_for(const TimeDuration& duration) const	{ check_valid(); return _impl->wait_for(duration); }
+		future_status wait_for(TimeDuration duration) const	{ check_valid(); return _impl->wait_for(duration); }
 		future_status wait_until(const Time& absTime) const			{ check_valid(); return _impl->wait_until(absTime); }
 
 	private:
@@ -273,7 +273,7 @@ namespace stingray
 		}
 
 		void wait() const										{ check_valid(); _impl->wait(); }
-		future_status wait_for(const TimeDuration& duration)	{ check_valid(); return _impl->wait_for(duration); }
+		future_status wait_for(TimeDuration duration)	{ check_valid(); return _impl->wait_for(duration); }
 		future_status wait_until(const Time& absTime)			{ check_valid(); return _impl->wait_until(absTime); }
 	private:
 		future(const ImplTypePtr& impl) : _impl(impl) {}
