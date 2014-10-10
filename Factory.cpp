@@ -5,16 +5,16 @@ namespace stingray
 {
 
 	FactoryContext::FactoryContext() : _overridingAllowed(false) { }
-	FactoryContext::FactoryContext(const ClassRegistry& registry)
-		: _registry(registry), _overridingAllowed(true)
+	FactoryContext::FactoryContext(const ClassNameToObjectCreatorMap& nameToCreatorMap, const TypeInfoToClassNamesMap& typeToNameMap)
+		: _classNameToCreatorMap(nameToCreatorMap), _typeInfoToNameMap(typeToNameMap), _overridingAllowed(true)
 	{ }
 
 
 	FactoryContext::~FactoryContext()
 	{
 		STINGRAY_TRY("Clean failed",
-			MutexLock l(_registryGuard);
-			for (ClassRegistry::iterator i = _registry.begin(); i != _registry.end(); ++i)
+			MutexLock l(_guard);
+			for (ClassNameToObjectCreatorMap::iterator i = _classNameToCreatorMap.begin(); i != _classNameToCreatorMap.end(); ++i)
 				delete i->second;
 		);
 	}
@@ -22,29 +22,38 @@ namespace stingray
 
 	FactoryContextPtr FactoryContext::Clone() const
 	{
-		MutexLock l(_registryGuard);
-		FactoryContextPtr clone(new FactoryContext(_registry));
+		MutexLock l(_guard);
+		FactoryContextPtr clone(new FactoryContext(_classNameToCreatorMap, _typeInfoToNameMap));
 		return clone;
 	}
 
 
-	void FactoryContext::Register(const std::string& name, IFactoryObjectCreator* creator)
+	std::string FactoryContext::GetClassName(const TypeInfo& typeinfo) const
+	{
+		MutexLock l(_guard);
+		TypeInfoToClassNamesMap::const_iterator it = _typeInfoToNameMap.find(typeinfo);
+		return it->second;
+	}
+
+
+	void FactoryContext::Register(const std::string& name, const TypeInfo& typeinfo, IFactoryObjectCreator* creator)
 	{
 		Logger::Debug() << "Registering " << name;
 
-		MutexLock l(_registryGuard);
+		MutexLock l(_guard);
 
-		TOOLKIT_CHECK(_overridingAllowed || _registry.find(name) == _registry.end(), "Class '" + name + "' was already registered!");
-		_registry[name] = creator;
+		TOOLKIT_CHECK(_overridingAllowed || _classNameToCreatorMap.find(name) == _classNameToCreatorMap.end(), "Class '" + name + "' was already registered!");
+		_classNameToCreatorMap[name] = creator;
+		_typeInfoToNameMap[typeinfo] = name;
 	}
 
 
 	IFactoryObject* FactoryContext::Create(const std::string& name)
 	{
-		MutexLock l(_registryGuard);
+		MutexLock l(_guard);
 
-		ClassRegistry::const_iterator it = _registry.find(name);
-		TOOLKIT_CHECK(it != _registry.end(), "Class '" + name + "' was not registered!");
+		ClassNameToObjectCreatorMap::const_iterator it = _classNameToCreatorMap.find(name);
+		TOOLKIT_CHECK(it != _classNameToCreatorMap.end(), "Class '" + name + "' was not registered!");
 
 		const IFactoryObjectCreator& creator = *it->second;
 		return creator.Create();

@@ -30,13 +30,16 @@ namespace stingray
 			virtual IFactoryObject* Create() const { return new ClassType; }
 		};
 
-		typedef std::map<std::string, IFactoryObjectCreator*> ClassRegistry;
+		typedef std::map<std::string, IFactoryObjectCreator*>	ClassNameToObjectCreatorMap;
+		typedef std::map<TypeInfo, std::string>					TypeInfoToClassNamesMap;
 
 	private:
-		ClassRegistry	_registry;
-		Mutex			_registryGuard;
+		Mutex							_guard;
 
-		bool			_overridingAllowed;
+		ClassNameToObjectCreatorMap		_classNameToCreatorMap;
+		TypeInfoToClassNamesMap			_typeInfoToNameMap;
+
+		bool							_overridingAllowed;
 
 	public:
 		FactoryContext();
@@ -44,11 +47,15 @@ namespace stingray
 
 		FactoryContextPtr Clone() const;
 
+		template < typename T >
+		std::string GetClassName() const
+		{ return GetClassName(TypeInfo(typeid(T))); }
+
 		template < typename ClassType >
 		void Register(const std::string& name)
 		{
 			unique_ptr<IFactoryObjectCreator> creator(new FactoryObjectCreator<ClassType>());
-			Register(name, creator.get());
+			Register(name, TypeInfo(typeid(ClassType)), creator.get());
 			creator.release();
 		}
 
@@ -62,9 +69,11 @@ namespace stingray
 		}
 
 	private:
-		FactoryContext(const ClassRegistry& registry);
+		FactoryContext(const ClassNameToObjectCreatorMap& nameToCreatorMap, const TypeInfoToClassNamesMap& typeToNameMap);
 
-		void Register(const std::string& name, IFactoryObjectCreator* creator);
+		std::string GetClassName(const TypeInfo& typeinfo) const;
+
+		void Register(const std::string& name, const TypeInfo& typeinfo, IFactoryObjectCreator* creator);
 
 		IFactoryObject* Create(const std::string& name);
 	};
