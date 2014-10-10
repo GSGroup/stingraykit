@@ -70,39 +70,21 @@ namespace stingray
 
 		private:
 			FactoryContextPtr		_rootContext;
-			FactoryContextWeakPtr	_overriddenContext;
-
-			Mutex					_guard;
 
 		public:
-			Factory();
+			Factory()
+				: _rootContext(new FactoryContext())
+			{ }
 
-			FactoryContextPtr GetRootContext();
-			FactoryContextPtr OverrideContext();
+			FactoryContextPtr GetRootContext() const { return _rootContext; }
 
 			template < typename ClassType >
 			void Register(const std::string& name)
-			{
-				MutexLock l(_guard);
-
-				const FactoryContextPtr overridden = _overriddenContext.lock();
-				if (overridden)
-					overridden->Register<ClassType>(name);
-				else
-					_rootContext->Register<ClassType>(name);
-			}
+			{ _rootContext->Register<ClassType>(name);}
 
 			template < typename ClassType >
 			ClassType* Create(const std::string& name)
-			{
-				MutexLock l(_guard);
-
-				const FactoryContextPtr overridden = _overriddenContext.lock();
-				if (overridden)
-					return overridden->Create<ClassType>(name);
-
-				return _rootContext->Create<ClassType>(name);
-			}
+			{ return _rootContext->Create<ClassType>(name); }
 
 		private:
 			// Defined in stingray/toolkit/_FactoryClasses.cpp

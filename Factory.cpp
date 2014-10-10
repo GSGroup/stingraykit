@@ -38,36 +38,5 @@ namespace stingray
 		return creator.Create();
 	}
 
-
-	namespace Detail
-	{
-
-		Factory::Factory()
-			: _rootContext(new FactoryContext())
-		{ }
-
-
-		FactoryContextPtr Factory::GetRootContext()
-		{
-			MutexLock l(_guard);
-			return _rootContext;
-		}
-
-
-		FactoryContextPtr Factory::OverrideContext()
-		{
-			MutexLock l(_guard);
-
-			FactoryContextPtr overridden = _overriddenContext.lock();
-			TOOLKIT_CHECK(!overridden, "Context is already overridden!");
-
-			overridden.reset(new FactoryContext());
-			_overriddenContext = overridden.weak();
-
-			return overridden;
-		}
-
-	}
-
 }
 
