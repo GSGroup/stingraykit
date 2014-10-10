@@ -12,6 +12,8 @@ namespace stingray
 
 	class FactoryContext
 	{
+		TOOLKIT_NONCOPYABLE(FactoryContext);
+
 		struct IFactoryObjectCreator
 		{
 			virtual ~IFactoryObjectCreator() { }
