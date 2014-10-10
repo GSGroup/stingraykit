@@ -8,6 +8,8 @@
 namespace stingray
 {
 
+	namespace Detail { class Factory; }
+
 	class Factory;
 
 	class FactoryContext;
@@ -30,26 +32,24 @@ namespace stingray
 			virtual IFactoryObject* Create() const { return new ClassType; }
 		};
 
-		typedef std::map<std::string, IFactoryObjectCreator*>	ClassNameToObjectCreatorMap;
-		typedef std::map<TypeInfo, std::string>					TypeInfoToClassNamesMap;
+		typedef std::map<std::string, IFactoryObjectCreator*>	ObjectCreatorsRegistry;
+		typedef std::map<TypeInfo, std::string>					ClassNamesRegistry;
+
+		friend class Detail::Factory;
 
 	private:
-		Mutex							_guard;
+		Mutex						_guard;
 
-		ClassNameToObjectCreatorMap		_classNameToCreatorMap;
-		TypeInfoToClassNamesMap			_typeInfoToNameMap;
+		FactoryContextPtr			_baseContext;
 
-		bool							_overridingAllowed;
+		ObjectCreatorsRegistry		_objectCreators;
+		ClassNamesRegistry			_classNames;
 
 	public:
 		FactoryContext();
 		~FactoryContext();
 
-		FactoryContextPtr Clone() const;
-
-		template < typename T >
-		std::string GetClassName() const
-		{ return GetClassName(TypeInfo(typeid(T))); }
+		std::string GetClassName(const std::type_info& info) const;
 
 		template < typename ClassType >
 		void Register(const std::string& name)
@@ -69,11 +69,9 @@ namespace stingray
 		}
 
 	private:
-		FactoryContext(const ClassNameToObjectCreatorMap& nameToCreatorMap, const TypeInfoToClassNamesMap& typeToNameMap);
+		FactoryContext(const FactoryContextPtr& baseContext);
 
-		std::string GetClassName(const TypeInfo& typeinfo) const;
-
-		void Register(const std::string& name, const TypeInfo& typeinfo, IFactoryObjectCreator* creator);
+		void Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreator* creator);
 
 		IFactoryObject* Create(const std::string& name);
 	};
@@ -96,7 +94,11 @@ namespace stingray
 			{ }
 
 			FactoryContextPtr GetRootContext() const { return _rootContext; }
-			FactoryContextPtr CloneRootContext() const { return _rootContext->Clone(); }
+			FactoryContextPtr InheritRootContext() const
+			{
+				const FactoryContextPtr context(new FactoryContext(_rootContext));
+				return context;
+			}
 
 			template < typename ClassType >
 			void Register(const std::string& name)
@@ -127,8 +129,8 @@ namespace stingray
 		FactoryContextPtr GetRootContext() const
 		{ return Detail::Factory::Instance().GetRootContext(); }
 
-		FactoryContextPtr CloneRootContext() const
-		{ return Detail::Factory::Instance().CloneRootContext(); }
+		FactoryContextPtr InheritRootContext() const
+		{ return Detail::Factory::Instance().InheritRootContext(); }
 	};
 
 }
