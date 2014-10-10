@@ -69,7 +69,7 @@ namespace stingray
 			friend class stingray::Factory;
 
 		private:
-			FactoryContextPtr		_defaultContext;
+			FactoryContextPtr		_rootContext;
 			FactoryContextWeakPtr	_overriddenContext;
 
 			Mutex					_guard;
@@ -77,6 +77,7 @@ namespace stingray
 		public:
 			Factory();
 
+			FactoryContextPtr GetRootContext();
 			FactoryContextPtr OverrideContext();
 
 			template < typename ClassType >
@@ -88,7 +89,7 @@ namespace stingray
 				if (overridden)
 					overridden->Register<ClassType>(name);
 				else
-					_defaultContext->Register<ClassType>(name);
+					_rootContext->Register<ClassType>(name);
 			}
 
 			template < typename ClassType >
@@ -100,7 +101,7 @@ namespace stingray
 				if (overridden)
 					return overridden->Create<ClassType>(name);
 
-				return _defaultContext->Create<ClassType>(name);
+				return _rootContext->Create<ClassType>(name);
 			}
 
 		private:
@@ -118,8 +119,11 @@ namespace stingray
 
 	public:
 		template < typename ClassType >
-		ClassType* Create(const std::string& name)
+		ClassType* Create(const std::string& name) const
 		{ return Detail::Factory::Instance().Create<ClassType>(name); }
+
+		FactoryContextPtr GetRootContext() const
+		{ return Detail::Factory::Instance().GetRootContext(); }
 	};
 
 }

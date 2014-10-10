@@ -43,8 +43,15 @@ namespace stingray
 	{
 
 		Factory::Factory()
-			: _defaultContext(new FactoryContext())
+			: _rootContext(new FactoryContext())
 		{ }
+
+
+		FactoryContextPtr Factory::GetRootContext()
+		{
+			MutexLock l(_guard);
+			return _rootContext;
+		}
 
 
 		FactoryContextPtr Factory::OverrideContext()
