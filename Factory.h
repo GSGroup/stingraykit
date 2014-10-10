@@ -10,6 +10,9 @@ namespace stingray
 
 	class Factory;
 
+	class FactoryContext;
+	TOOLKIT_DECLARE_PTR(FactoryContext);
+
 	class FactoryContext
 	{
 		TOOLKIT_NONCOPYABLE(FactoryContext);
@@ -37,6 +40,8 @@ namespace stingray
 		FactoryContext() { }
 		~FactoryContext();
 
+		FactoryContextPtr Clone() const;
+
 		template < typename ClassType >
 		void Register(const std::string& name)
 		{
@@ -55,11 +60,14 @@ namespace stingray
 		}
 
 	private:
+		FactoryContext(const ClassRegistry& registry)
+			: _registry(registry)
+		{ }
+
 		void Register(const std::string& name, IFactoryObjectCreator* creator);
 
 		IFactoryObject* Create(const std::string& name);
 	};
-	TOOLKIT_DECLARE_PTR(FactoryContext);
 
 	namespace Detail
 	{
@@ -79,6 +87,7 @@ namespace stingray
 			{ }
 
 			FactoryContextPtr GetRootContext() const { return _rootContext; }
+			FactoryContextPtr CloneRootContext() const { return _rootContext->Clone(); }
 
 			template < typename ClassType >
 			void Register(const std::string& name)
@@ -108,6 +117,9 @@ namespace stingray
 
 		FactoryContextPtr GetRootContext() const
 		{ return Detail::Factory::Instance().GetRootContext(); }
+
+		FactoryContextPtr CloneRootContext() const
+		{ return Detail::Factory::Instance().CloneRootContext(); }
 	};
 
 }

@@ -14,6 +14,14 @@ namespace stingray
 	}
 
 
+	FactoryContextPtr FactoryContext::Clone() const
+	{
+		MutexLock l(_registryGuard);
+		FactoryContextPtr clone(new FactoryContext(_registry));
+		return clone;
+	}
+
+
 	void FactoryContext::Register(const std::string& name, IFactoryObjectCreator* creator)
 	{
 		Logger::Debug() << "Registering " << name;
