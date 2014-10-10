@@ -27,7 +27,10 @@ namespace stingray
 		{ }
 
 		bool operator == (const TypeInfo& other) const
-		{ return *TOOLKIT_REQUIRE_NOT_NULL(_info) == *TOOLKIT_REQUIRE_NOT_NULL(other._info); }
+		{ return *_info == *other._info; }
+
+		bool operator < (const TypeInfo& other) const
+		{ return _info->before(*other._info); }
 
 		const char* GetRawName() const	{ return _info->name(); }
 
