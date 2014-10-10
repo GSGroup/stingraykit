@@ -4,6 +4,12 @@
 namespace stingray
 {
 
+	FactoryContext::FactoryContext() : _overridingAllowed(false) { }
+	FactoryContext::FactoryContext(const ClassRegistry& registry)
+		: _registry(registry), _overridingAllowed(true)
+	{ }
+
+
 	FactoryContext::~FactoryContext()
 	{
 		STINGRAY_TRY("Clean failed",
@@ -28,10 +34,8 @@ namespace stingray
 
 		MutexLock l(_registryGuard);
 
-		const ClassRegistry::const_iterator it = _registry.find(name);
-		TOOLKIT_CHECK(it == _registry.end(), "Class '" + name + "' was already registered!");
-
-		_registry.insert(std::make_pair(name, creator));
+		TOOLKIT_CHECK(_overridingAllowed || _registry.find(name) == _registry.end(), "Class '" + name + "' was already registered!");
+		_registry[name] = creator;
 	}
 
 

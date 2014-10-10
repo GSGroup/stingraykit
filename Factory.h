@@ -36,8 +36,10 @@ namespace stingray
 		ClassRegistry	_registry;
 		Mutex			_registryGuard;
 
+		bool			_overridingAllowed;
+
 	public:
-		FactoryContext() { }
+		FactoryContext();
 		~FactoryContext();
 
 		FactoryContextPtr Clone() const;
@@ -60,9 +62,7 @@ namespace stingray
 		}
 
 	private:
-		FactoryContext(const ClassRegistry& registry)
-			: _registry(registry)
-		{ }
+		FactoryContext(const ClassRegistry& registry);
 
 		void Register(const std::string& name, IFactoryObjectCreator* creator);
 
