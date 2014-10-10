@@ -23,6 +23,7 @@ namespace std
 namespace stingray
 {
 
+
 	template < typename T>
 	T FromHex(const std::string &str)
 	{
@@ -620,7 +621,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		bool GlobMatch(std::string::const_iterator p1, std::string::const_iterator p2, std::string::const_iterator s1, std::string::const_iterator s2)
+		inline bool GlobMatch(std::string::const_iterator p1, std::string::const_iterator p2, std::string::const_iterator s1, std::string::const_iterator s2)
 		{
 			// If we reach at the end of both strings, we are done
 			if (p1 == p2 && s1 == s2)
@@ -649,7 +650,7 @@ namespace stingray
 	}
 
 
-	bool GlobMatch(const std::string& pattern, const std::string& str)
+	inline bool GlobMatch(const std::string& pattern, const std::string& str)
 	{
 		return Detail::GlobMatch(pattern.begin(), pattern.end(), str.begin(), str.end());
 	}
