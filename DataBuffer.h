@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_DATABUFFER_H
 
 
+#include <string.h>
 #include <deque>
 
 #include <stingray/log/Logger.h>
@@ -16,6 +17,7 @@ namespace stingray
 	{
 	protected:
 		static NamedLogger		s_logger;
+
 		bool					_discardOnOverflow;
 		BithreadCircularBuffer	_buffer;
 		const size_t			_inputPacketSize;
@@ -92,7 +94,7 @@ namespace stingray
 			size_t write_size = std::min(data.size(), packetized_size);
 			{
 				MutexUnlock ul(_bufferMutex);
-				std::copy(data.begin(), data.begin() + write_size, w.begin());
+				::memcpy(w.data(), data.data(), write_size);
 			}
 
 			w.Push(write_size);
@@ -272,7 +274,7 @@ namespace stingray
 
 			{
 				MutexUnlock ul(_bufferMutex);
-				std::copy(data.begin(), data.end(), w.begin());
+				::memcpy(w.data(), data.data(), data.size());
 			}
 			PacketInfo p(data.size(), packet.GetMetadata());
 			_packetQueue.push_back(p);
