@@ -7,7 +7,6 @@
 #include <stingray/app/application_context/AppChannel.h>
 #include <stingray/app/application_context/ChannelList.h>
 #include <stingray/app/scheduler/ScheduledEvents.h>
-#include <stingray/app/tests/AutoFilter.h>
 #include <stingray/ca/BasicSubscription.h>
 #include <stingray/ca/BissConditionalAccess.h>
 #include <stingray/ca/DreSubscription.h>
@@ -115,7 +114,6 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledViewing);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::AutoFilter);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscription);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscriptionProvider);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BissSubscriptionClass);
