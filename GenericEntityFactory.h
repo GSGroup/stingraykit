@@ -54,7 +54,7 @@ namespace stingray
 			struct NullCreatorNode
 			{
 				template < typename StreamType >
-				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
+				static EntityPtr Process(typename EntityTagType::Enum tag, StreamType& stream)
 				{ return null; }
 			};
 
@@ -62,12 +62,12 @@ namespace stingray
 			struct EntityCreatorNode
 			{
 				template < typename StreamType >
-				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
+				static EntityPtr Process(typename EntityTagType::Enum tag, StreamType& stream)
 				{
 					if (tag == Entry::Tag)
 						return Entry::Type::Create(stream);
 					else
-						return tag < Entry::Tag ? Left::Create(tag, stream) : Right::Create(tag, stream);
+						return tag < Entry::Tag ? Left::Process(tag, stream) : Right::Process(tag, stream);
 				}
 			};
 
@@ -91,8 +91,8 @@ namespace stingray
 
 		public:
 			template < typename StreamType >
-			static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
-			{ return Root::Create(tag, stream); }
+			static EntityPtr Process(typename EntityTagType::Enum tag, StreamType& stream)
+			{ return Root::Process(tag, stream); }
 		};
 
 	public:
@@ -107,7 +107,7 @@ namespace stingray
 				tag = EntityTagReader::Read(stream);
 			}
 
-			EntityPtr result = Registry::Create(tag, stream);
+			EntityPtr result = Registry::Process(tag, stream);
 			TOOLKIT_CHECK(result, UnknownEntityTagException(tag));
 
 			return result;
