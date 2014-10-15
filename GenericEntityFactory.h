@@ -61,20 +61,11 @@ namespace stingray
 			template < typename Entry, typename Left, typename Right >
 			struct EntityCreatorNode
 			{
-
-				template < typename EntityType >
-				struct DefaultEntityCreator
-				{
-					template < typename StreamType >
-					static EntityPtr Create(StreamType& stream)
-					{ return make_shared<EntityType>(); }
-				};
-
 				template < typename StreamType >
 				static EntityPtr Create(typename EntityTagType::Enum tag, StreamType& stream)
 				{
 					if (tag == Entry::Tag)
-						return If<Inherits<typename Entry::Type, BaseEntityType>::Value, DefaultEntityCreator<typename Entry::Type>, typename Entry::Type>::ValueT::Create(stream);
+						return Entry::Type::Create(stream);
 					else
 						return tag < Entry::Tag ? Left::Create(tag, stream) : Right::Create(tag, stream);
 				}
@@ -96,7 +87,7 @@ namespace stingray
 
 			};
 
-			typedef typename BalancedTypeTree<Registry, RegistryEntryLess, EntityCreatorNode, NullCreatorNode>::ValueT Root;
+			typedef typename BalancedTypeTree<typename TypeListTransform<Registry, ToEntityCreator>::ValueT, RegistryEntryLess, EntityCreatorNode, NullCreatorNode>::ValueT Root;
 
 		public:
 			template < typename StreamType >
