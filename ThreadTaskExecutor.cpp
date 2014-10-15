@@ -24,7 +24,7 @@ namespace stingray
 			_working = false;
 			_condVar.Broadcast();
 		}
-		_worker->Join();
+		_worker.reset();
 	}
 
 

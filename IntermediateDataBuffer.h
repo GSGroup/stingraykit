@@ -29,7 +29,7 @@ namespace stingray
 		~IntermediateDataBuffer()
 		{
 			_token.Cancel();
-			_worker->Join();
+			_worker.reset();
 		}
 
 		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
