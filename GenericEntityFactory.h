@@ -34,6 +34,15 @@ namespace stingray
 	{
 		typedef shared_ptr<BaseEntityType>		EntityPtr;
 
+	public:
+		template < typename EntityTagType::Enum EntityTag, typename TargetType >
+		struct RegistryEntry
+		{
+			static const typename EntityTagType::Enum Tag = EntityTag;
+			typedef TargetType Type;
+		};
+
+	private:
 		template < typename Registry >
 		class EntityCreatorRegistry
 		{
@@ -71,6 +80,22 @@ namespace stingray
 				}
 			};
 
+			template < typename Entry >
+			struct ToEntityCreator
+			{
+
+				template < typename EntityType >
+				struct DefaultEntityCreator
+				{
+					template < typename StreamType >
+					static EntityPtr Create(StreamType& stream)
+					{ return make_shared<EntityType>(); }
+				};
+
+				typedef typename If<Inherits<typename Entry::Type, BaseEntityType>::Value, RegistryEntry<Entry::Tag, DefaultEntityCreator<typename Entry::Type> >, Entry>::ValueT ValueT;
+
+			};
+
 			typedef typename BalancedTypeTree<Registry, RegistryEntryLess, EntityCreatorNode, NullCreatorNode>::ValueT Root;
 
 		public:
@@ -80,13 +105,6 @@ namespace stingray
 		};
 
 	public:
-		template < typename EntityTagType::Enum EntityTag, typename TargetType >
-		struct RegistryEntry
-		{
-			static const typename EntityTagType::Enum Tag = EntityTag;
-			typedef TargetType Type;
-		};
-
 		template < typename StreamType >
 		static EntityPtr Create(StreamType& stream)
 		{
