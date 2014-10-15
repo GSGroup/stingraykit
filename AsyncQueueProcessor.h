@@ -36,6 +36,8 @@ namespace stingray
 		bool				_idle;
 		ProgressValue		_progress;
 
+		ThreadPtr			_thread;
+
 	public:
 		signal<void(bool)>				OnIdle;
 		signal<void(ProgressValue)>		OnProgress;
@@ -44,18 +46,14 @@ namespace stingray
 			_processor(processor),
 			_idle(true),
 			OnIdle(bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
-			OnProgress(bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1)),
-			_thread(name, bind(&AsyncQueueProcessor::ThreadFunc, this))
-		{ }
+			OnProgress(bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1))
+		{ _thread = make_shared<Thread>(name, bind(&AsyncQueueProcessor::ThreadFunc, this)); }
 
 		~AsyncQueueProcessor()
 		{
-			{
-				MutexLock l(_lock);
-				_token.Cancel();
-			}
-			_thread.Interrupt();
-			_thread.Join();
+			_token.Cancel();
+			_thread->Interrupt();
+			_thread.reset();
 		}
 
 		void PushFront(const ValueType &value)
@@ -129,8 +127,6 @@ namespace stingray
 				}
 			}
 		}
-
-		Thread				_thread; //the last one to be initialized
 	};
 
 	/** @} */
