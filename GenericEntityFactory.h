@@ -65,7 +65,7 @@ namespace stingray
 				static EntityPtr Process(typename EntityTagType::Enum tag, StreamType& stream)
 				{
 					if (tag == Entry::Tag)
-						return Entry::Type::Create(stream);
+						return Entry::Type::Do(stream);
 					else
 						return tag < Entry::Tag ? Left::Process(tag, stream) : Right::Process(tag, stream);
 				}
@@ -79,7 +79,7 @@ namespace stingray
 				struct DefaultEntityCreator
 				{
 					template < typename StreamType >
-					static EntityPtr Create(StreamType& stream)
+					static EntityPtr Do(StreamType& stream)
 					{ return make_shared<EntityType>(); }
 				};
 
@@ -87,7 +87,7 @@ namespace stingray
 				struct FactoryEntityCreator
 				{
 					template < typename StreamType >
-					static EntityPtr Create(StreamType& stream)
+					static EntityPtr Do(StreamType& stream)
 					{ return FactoryType::Create(stream); }
 				};
 
