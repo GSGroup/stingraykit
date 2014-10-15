@@ -83,7 +83,15 @@ namespace stingray
 					{ return make_shared<EntityType>(); }
 				};
 
-				typedef typename If<Inherits<typename Entry::Type, BaseEntityType>::Value, RegistryEntry<Entry::Tag, DefaultEntityCreator<typename Entry::Type> >, Entry>::ValueT ValueT;
+				template < typename FactoryType >
+				struct FactoryEntityCreator
+				{
+					template < typename StreamType >
+					static EntityPtr Create(StreamType& stream)
+					{ return FactoryType::Create(stream); }
+				};
+
+				typedef RegistryEntry<Entry::Tag, typename If<Inherits<typename Entry::Type, BaseEntityType>::Value, DefaultEntityCreator<typename Entry::Type>, FactoryEntityCreator<typename Entry::Type> >::ValueT> ValueT;
 
 			};
 
