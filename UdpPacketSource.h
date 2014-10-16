@@ -43,6 +43,39 @@ namespace stingray
 	TOOLKIT_DECLARE_PTR(UdpPacketSource);
 
 
+	class UdpMultiPacketSource : public virtual IPacketSource<EmptyType>
+	{
+		static const u64 		MaxUdpPacketSize = 65500;
+		static const size_t		DefaultMultiPacketCount = 100;
+
+	private:
+		ISocketPtr		_socket;
+		std::vector<u8>	_packetBuffer;
+		size_t			_packetCount;
+
+		size_t			_received;
+		size_t			_processed;
+
+	public:
+		UdpMultiPacketSource(const ISocketPtr& socket, size_t maxPacketSize = MaxUdpPacketSize, size_t multiPacketCount = DefaultMultiPacketCount)
+			: _socket(socket), _packetBuffer(maxPacketSize * multiPacketCount), _packetCount(multiPacketCount), _received(0), _processed(0)
+		{ }
+
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
+		{
+			if (_received == _processed)
+			{
+				_received = _socket->ReceiveMessages(ByteData(_packetBuffer), _packetCount, token);
+				_processed = 0;
+			}
+
+			while (_processed != _received && token && consumer.Process(Packet<EmptyType>(ConstByteData(_packetBuffer, _packetBuffer.size() * _processed / _packetCount, _packetBuffer.size() / _packetCount)), token))
+				++_processed;
+		}
+	};
+	TOOLKIT_DECLARE_PTR(UdpMultiPacketSource);
+
+
 	class StreamingSocketDataSource : public virtual IDataSource
 	{
 	private:
