@@ -106,7 +106,7 @@ namespace stingray
 		MetadataType	_metadata;
 
 	public:
-		Packet(ConstByteData data, const MetadataType& metadata = MetadataType()) :
+		explicit Packet(ConstByteData data, const MetadataType& metadata = MetadataType()) :
 			_data(data), _metadata(metadata)
 		{ }
 

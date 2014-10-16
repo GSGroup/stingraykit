@@ -25,7 +25,7 @@ namespace stingray
 		size_t Do(IPacketConsumer<EmptyType>& consumer, ConstByteData data, const CancellationToken& token)
 		{
 			ConstByteData packet(data, 0, _packetSize);
-			return consumer.Process(packet, token) ? _packetSize : 0;
+			return consumer.Process(Packet<EmptyType>(packet), token) ? _packetSize : 0;
 		}
 	};
 

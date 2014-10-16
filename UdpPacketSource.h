@@ -36,7 +36,7 @@ namespace stingray
 				return;
 			}
 
-			if (consumer.Process(ConstByteData(_packetBuffer, 0, _dataSize), token))
+			if (consumer.Process(Packet<EmptyType>(ConstByteData(_packetBuffer, 0, _dataSize)), token))
 				_dataSize = 0;
 		}
 	};
