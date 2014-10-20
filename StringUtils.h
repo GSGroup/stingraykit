@@ -1,12 +1,14 @@
 #ifndef STINGRAY_TOOLKIT_STRINGUTILS_H
 #define STINGRAY_TOOLKIT_STRINGUTILS_H
 
+
 #include <algorithm>
 #include <ctype.h>
 #include <string>
 
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/IEnumerable.h>
+#include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/NestedTypeCheck.h>
 #include <stingray/toolkit/Types.h>
 #include <stingray/toolkit/exception.h>
@@ -20,9 +22,9 @@ namespace std
 	template < class Key, class T, class Compare, class Allocator > class map;
 }
 
+
 namespace stingray
 {
-
 
 	template < typename T>
 	T FromHex(const std::string &str)
@@ -46,6 +48,7 @@ namespace stingray
 		}
 		return r;
 	}
+
 
 	template<typename T>
 	void ToHexImpl(string_ostream &r, T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
@@ -73,11 +76,14 @@ namespace stingray
 				r << ((char)(c > 9? c + (capital? 'A': 'a') - 10: c + '0'));
 		}
 	}
+
+
 	template<typename T>
 	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
 	{
 		string_ostream result; ToHexImpl(result, value, width, capital, add0xPrefix); return result.str();
 	}
+
 
 	template < typename T >
 	T FromString(const std::string& str)
@@ -106,17 +112,23 @@ namespace stingray
 		return negative? (T)0 - value: value; //Dima told me to shut compiler up. Sorry.
 	}
 
+
 	TOOLKIT_DECLARE_METHOD_CHECK(FromString);
+
 
 	template < typename T >
 	void ToString(string_ostream & result, const T& val);
 
+
 	TOOLKIT_DECLARE_METHOD_CHECK(ToString);
+
 
 	namespace Detail
 	{
+
 		template< typename To, typename From >
 		struct LexicalCast;
+
 
 		template< typename To >
 		struct LexicalCast<To, std::string>
@@ -125,6 +137,7 @@ namespace stingray
 			{ return FromString<To>(from); }
 		};
 
+
 		template< typename From >
 		struct LexicalCast<std::string, From>
 		{
@@ -132,13 +145,16 @@ namespace stingray
 			{ return ToString(from); }
 		};
 
+
 		template < >
 		struct LexicalCast<std::string, std::string>
 		{
 			static std::string Do(const std::string& from)
 			{ return from; }
 		};
+
 	}
+
 
 	template < typename To, typename From >
 	To lexical_cast(const From& from)
@@ -166,6 +182,7 @@ namespace stingray
 
 	}
 
+
 	template < typename From >
 	Detail::LexicalCasterProxy<From> lexical_caster(const From& from)
 	{ return Detail::LexicalCasterProxy<From>(from); }
@@ -173,14 +190,17 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		TOOLKIT_DECLARE_METHOD_CHECK(begin);
 		TOOLKIT_DECLARE_METHOD_CHECK(end);
+
 
 		struct TypeToStringObjectType
 		{
 			TOOLKIT_ENUM_VALUES(HasBeginEnd, HasToString, Enumerable, IsException, Other, ProxyObjToStdStream);
 			TOOLKIT_DECLARE_ENUM_CLASS(TypeToStringObjectType);
 		};
+
 
 		template
 			<
@@ -210,8 +230,10 @@ namespace stingray
 		struct TypeToStringObjectTypeGetter
 		{ static const TypeToStringObjectType::Enum Value = ObjType; };
 
+
 		template < typename ObjectType, TypeToStringObjectType::Enum ObjType = TypeToStringObjectTypeGetter<ObjectType>::Value >
 		struct TypeToStringSerializer;
+
 
 		template< typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasBeginEnd>
@@ -230,6 +252,7 @@ namespace stingray
 				result << "]";
 			}
 		};
+
 
 		template< typename KeyType, typename ValueType, typename CompareType, typename AllocatorType >
 		struct TypeToStringSerializer<std::map<KeyType, ValueType, CompareType, AllocatorType>, TypeToStringObjectType::HasBeginEnd>
@@ -257,6 +280,7 @@ namespace stingray
 			}
 		};
 
+
 		template<typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Enumerable>
 		{
@@ -280,6 +304,7 @@ namespace stingray
 			}
 		};
 
+
 		template< typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::ProxyObjToStdStream>
 		{
@@ -289,12 +314,14 @@ namespace stingray
 			}
 		};
 
+
 		template<>
 		struct TypeToStringSerializer<u8, TypeToStringObjectType::Other>
 		{
 			static void ToStringImpl(string_ostream & result, u8 val)
 			{ result << (u16)val; }
 		};
+
 
 		template<>
 		struct TypeToStringSerializer<std::string, TypeToStringObjectType::HasBeginEnd>
@@ -303,12 +330,14 @@ namespace stingray
 			{ result << str; }
 		};
 
+
 		template<>
 		struct TypeToStringSerializer<const char*, TypeToStringObjectType::Other>
 		{
 			static void ToStringImpl(string_ostream & result, const char* str)
 			{ result << str; }
 		};
+
 
 		template<typename T>
 		struct TypeToStringSerializer<shared_ptr<T>, TypeToStringObjectType::Other>
@@ -322,6 +351,7 @@ namespace stingray
 			}
 		};
 
+
 		template<typename T>
 		struct TypeToStringSerializer<optional<T>, TypeToStringObjectType::Other>
 		{
@@ -333,6 +363,7 @@ namespace stingray
 					result << "null";
 			}
 		};
+
 
 		template<typename U, typename V>
 		struct TypeToStringSerializer<std::pair<U, V>, TypeToStringObjectType::Other>
@@ -347,12 +378,14 @@ namespace stingray
 			}
 		};
 
+
 		template<typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::IsException>
 		{
 			static void ToStringImpl(string_ostream & result, const ObjectType& object)
 			{ return diagnostic_information(result, object); }
 		};
+
 
 		template<typename ObjectType>
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasToString>
@@ -363,13 +396,16 @@ namespace stingray
 
 	}
 
+
 	template < typename T >
 	void ToString(string_ostream & result, const T& val)
 	{ Detail::TypeToStringSerializer<T>::ToStringImpl(result, val); }
 
+
 	template < typename T >
 	std::string ToString(const T& val)
 	{ string_ostream result; ToString(result, val); return result.str(); }
+
 
 	inline std::string ToString(const EmptyType &)
 	{ return std::string(); }
@@ -378,6 +414,7 @@ namespace stingray
 	template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
 	struct IsStringRepresentable
 	{ static const bool Value = true; };
+
 
 	template < typename T >
 	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::ProxyObjToStdStream >
@@ -404,8 +441,10 @@ namespace stingray
 		return str;
 	}
 
+
 	inline std::string& ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
 	{ return ReplaceAll<char>(str, replaceSeq, replaceTo); }
+
 
 	inline std::string& ReplaceAll(std::string& str, char from, char to)
 	{
@@ -414,6 +453,7 @@ namespace stingray
 				*it = to;
 		return str;
 	}
+
 
 	inline std::string Filter(const std::string& str, const std::string& characters)
 	{
@@ -424,6 +464,7 @@ namespace stingray
 		return result;
 	}
 
+
 	inline std::string Remove(const std::string& str, char ch = ' ')
 	{
 		std::string result(str);
@@ -431,8 +472,10 @@ namespace stingray
 		return result;
 	}
 
+
 	inline std::string ExtractPrefix(const std::string& str, size_t prefixLength)
 	{ return str.substr(0, std::min(str.length(), prefixLength)); }
+
 
 	inline std::string ExtractSuffix(const std::string& str, size_t suffixLength)
 	{
@@ -440,8 +483,10 @@ namespace stingray
 		return str.substr(str.length() - length, length);
 	}
 
+
 	inline std::string RemovePrefix(const std::string& str, const std::string& prefix)
 	{ return str.compare(0, prefix.length(), prefix) == 0? str.substr(prefix.length()) : str; }
+
 
 	inline std::string RemoveSuffix(const std::string& str, const std::string& suffix)
 	{
@@ -450,23 +495,47 @@ namespace stingray
 		return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0? str.substr(0, str.length() - suffix.length()) : str;
 	}
 
+
 	inline bool BeginsWith(const std::string& str, const std::string& prefix)
 	{ return str.length() >= prefix.length() && ExtractPrefix(str, prefix.length()) == prefix; }
+
 
 	inline bool EndsWith(const std::string& str, const std::string& suffix)
 	{ return str.length() >= suffix.length() && ExtractSuffix(str, suffix.length()) == suffix; }
 
-	template<typename ContainerType>
-	inline void Split(const std::string& str, const std::string& delim, ContainerType& result)
-	{
-		size_t i = 0, j;
-		while ((j = str.find(delim, i)) != std::string::npos)
-		{
-			result.push_back(str.substr(i, j - i));
-			i = j + delim.length();
-		}
-		result.push_back(str.substr(i));
+
+#define DETAIL_SPLIT_PARAM_USAGE(Index_, UserArg_) \
+	if ((delimPos = str.find(TOOLKIT_CAT(p, Index_), lastPos)) != std::string::npos) \
+	{ \
+		if (delimPos > lastPos) \
+			result.push_back(str.substr(lastPos, delimPos - lastPos)); \
+		lastPos = delimPos + TOOLKIT_CAT(p, Index_).length(); \
+		continue; \
 	}
+
+
+#define DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION(ParamsCount_, UserData_) \
+	TOOLKIT_INSERT_IF(ParamsCount_, \
+		template <typename ContainerType> \
+		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result) \
+		{ \
+			size_t lastPos = 0; \
+			size_t delimPos; \
+			do \
+			{ \
+				TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()); \
+			} \
+			while (delimPos != std::string::npos); \
+			if (lastPos < str.length()) \
+				result.push_back(str.substr(lastPos)); \
+		} \
+	)
+
+	TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION, TOOLKIT_EMPTY())
+
+#undef DETAIL_SPLIT_PARAM_USAGE
+#undef DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION
+
 
 	template < typename InputIterator, typename UnaryOperator >
 	std::string Join(const std::string& separator, InputIterator first, InputIterator last, UnaryOperator op)
@@ -483,9 +552,11 @@ namespace stingray
 		return result;
 	}
 
+
 	template < typename InputIterator >
 	std::string Join(const std::string& separator, InputIterator first, InputIterator last)
 	{ return Join(separator, first, last, lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
+
 
 	class StringRef
 	{
@@ -526,6 +597,7 @@ namespace stingray
 		inline std::string str() const { return substr(); }
 	};
 
+
 	template<typename ContainerType>
 	inline void SplitRefs(const std::string& str, const std::string& delim, ContainerType& result)
 	{
@@ -538,11 +610,13 @@ namespace stingray
 		result.push_back(StringRef(str, i));
 	}
 
+
 	inline std::string RightStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
 	{
 		const size_t pos = str.find_last_not_of(chars);
 		return pos == std::string::npos? "" : str.substr(0, pos + 1);
 	}
+
 
 	inline std::string LeftStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
 	{
@@ -550,8 +624,10 @@ namespace stingray
 		return pos == std::string::npos? "" : str.substr(pos);
 	}
 
+
 	inline std::string Strip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
 	{ return LeftStrip(RightStrip(str, chars), chars); }
+
 
 	template< typename Transformer >
 	std::string Transform(const std::string& str, Transformer transformer)
@@ -561,20 +637,26 @@ namespace stingray
 		return result.str();
 	}
 
+
 	inline std::string ToLower(const std::string& str)
 	{ return Transform(str, ::tolower); }
+
 
 	inline std::string ToUpper(const std::string& str)
 	{ return Transform(str, ::toupper); }
 
+
 	inline std::string Capitalize(const std::string& str)
 	{ return str.empty()? str : ToUpper(str.substr(0, 1)) + str.substr(1); }
+
 
 	inline std::string Uncapitalize(const std::string& str)
 	{ return str.empty()? str : ToLower(str.substr(0, 1)) + str.substr(1); }
 
+
 	inline std::string LeftJustify(const std::string& str, size_t width, char filler = ' ')
 	{ return str + std::string(str.length() < width? width - str.length() : 0, filler); }
+
 
 	inline std::string RightJustify(const std::string& str, size_t width, char filler = ' ')
 	{ return std::string(str.length() < width? width - str.length() : 0, filler) + str;  }
@@ -613,6 +695,7 @@ namespace stingray
 		std::string ToString() const
 		{ return _stream.str(); }
 	};
+
 
 	typedef BasicStringBuilder<char>	StringBuilder;
 	typedef BasicStringBuilder<wchar_t>	WideStringBuilder;
@@ -656,7 +739,6 @@ namespace stingray
 	}
 
 }
-
 
 
 #endif
