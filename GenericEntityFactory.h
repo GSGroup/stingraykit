@@ -9,6 +9,37 @@
 namespace stingray
 {
 
+	template < typename Registry, typename TagType, typename ReturnType >
+	class EnumDrivenInvoker
+	{
+		template < typename Left, typename Right >
+		struct RegistryEntryLess
+		{ static const bool Value = Left::Tag < Right::Tag; };
+
+		template < typename Entry, typename LeftNode, typename RightNode >
+		struct BranchNode
+		{
+			template < typename T1 >
+			static ReturnType Process(typename TagType::Enum tag, T1 p1)
+			{
+				if (tag == Entry::Tag)
+					return Entry::Type::Do(p1);
+				else
+					return tag < Entry::Tag ? LeftNode::Process(tag, p1) : RightNode::Process(tag, p1);
+			}
+		};
+
+		struct LeafNode
+		{
+			template < typename T1 >
+			static ReturnType Process(typename TagType::Enum tag, T1 p1)
+			{ return ReturnType(); }
+		};
+
+	public:
+		typedef typename BalancedTypeTree<Registry, RegistryEntryLess, BranchNode, LeafNode>::ValueT ValueT;
+	};
+
 	class UnknownEntityTagException : public Exception
 	{
 	public:
@@ -32,9 +63,7 @@ namespace stingray
 	template < typename Derived, typename BaseEntityType, typename EntityTagType, typename EntityTagReader = GenericEntityTagReader<EntityTagType, 0, 8> >
 	class GenericEntityFactory
 	{
-		typedef shared_ptr<BaseEntityType>		EntityPtr;
-
-	public:
+	protected:
 		template < typename EntityTagType::Enum EntityTag, typename TargetType >
 		struct RegistryEntry
 		{
@@ -43,71 +72,40 @@ namespace stingray
 		};
 
 	private:
-		template < typename Registry >
-		class EntityCreatorRegistry
+		typedef shared_ptr<BaseEntityType>		EntityPtr;
+
+		template < typename Entry >
+		struct ToEntityCreator
 		{
 
-			template < typename Left, typename Right >
-			struct RegistryEntryLess
-			{ static const bool Value = Left::Tag < Right::Tag; };
-
-			struct NullCreatorNode
+			template < typename EntityType >
+			struct DefaultEntityCreator
 			{
 				template < typename StreamType >
-				static EntityPtr Process(typename EntityTagType::Enum tag, StreamType& stream)
-				{ return null; }
+				static EntityPtr Do(StreamType& stream)
+				{ return make_shared<EntityType>(); }
 			};
 
-			template < typename Entry, typename Left, typename Right >
-			struct EntityCreatorNode
+			template < typename FactoryType >
+			struct FactoryEntityCreator
 			{
 				template < typename StreamType >
-				static EntityPtr Process(typename EntityTagType::Enum tag, StreamType& stream)
-				{
-					if (tag == Entry::Tag)
-						return Entry::Type::Do(stream);
-					else
-						return tag < Entry::Tag ? Left::Process(tag, stream) : Right::Process(tag, stream);
-				}
+				static EntityPtr Do(StreamType& stream)
+				{ return FactoryType::Create(stream); }
 			};
 
-			template < typename Entry >
-			struct ToEntityCreator
-			{
+			typedef RegistryEntry<Entry::Tag, typename If<Inherits<typename Entry::Type, BaseEntityType>::Value,
+					DefaultEntityCreator<typename Entry::Type>,
+					FactoryEntityCreator<typename Entry::Type>
+			>::ValueT> ValueT;
 
-				template < typename EntityType >
-				struct DefaultEntityCreator
-				{
-					template < typename StreamType >
-					static EntityPtr Do(StreamType& stream)
-					{ return make_shared<EntityType>(); }
-				};
-
-				template < typename FactoryType >
-				struct FactoryEntityCreator
-				{
-					template < typename StreamType >
-					static EntityPtr Do(StreamType& stream)
-					{ return FactoryType::Create(stream); }
-				};
-
-				typedef RegistryEntry<Entry::Tag, typename If<Inherits<typename Entry::Type, BaseEntityType>::Value, DefaultEntityCreator<typename Entry::Type>, FactoryEntityCreator<typename Entry::Type> >::ValueT> ValueT;
-
-			};
-
-			typedef typename BalancedTypeTree<typename TypeListTransform<Registry, ToEntityCreator>::ValueT, RegistryEntryLess, EntityCreatorNode, NullCreatorNode>::ValueT Root;
-
-		public:
-			template < typename StreamType >
-			static EntityPtr Process(typename EntityTagType::Enum tag, StreamType& stream)
-			{ return Root::Process(tag, stream); }
 		};
 
 	public:
 		template < typename StreamType >
 		static EntityPtr Create(StreamType& stream)
 		{
-			typedef EntityCreatorRegistry<typename ToTypeList<typename Derived::Registry>::ValueT>	Registry;
+			typedef typename EnumDrivenInvoker<typename TypeListTransform<typename Derived::Registry, ToEntityCreator>::ValueT, EntityTagType, EntityPtr>::ValueT Registry;
 
 			EntityTagType tag;
 			{
