@@ -50,26 +50,28 @@ namespace stingray
 
 	private:
 		ISocketPtr		_socket;
-		std::vector<u8>	_packetBuffer;
-		size_t			_packetCount;
-
+		ByteArray		_buffer;
+		std::vector<std::pair<ByteData, size_t> > _packetBuffers;
 		size_t			_received;
 		size_t			_processed;
 
 	public:
 		UdpMultiPacketSource(const ISocketPtr& socket, size_t maxPacketSize = MaxUdpPacketSize, size_t multiPacketCount = DefaultMultiPacketCount)
-			: _socket(socket), _packetBuffer(maxPacketSize * multiPacketCount), _packetCount(multiPacketCount), _received(0), _processed(0)
-		{ }
+			: _socket(socket), _buffer(maxPacketSize * multiPacketCount), _received(0), _processed(0)
+		{
+			for (size_t i = 0; i < multiPacketCount; ++i)
+				_packetBuffers.push_back(std::make_pair(ByteData(_buffer, i * maxPacketSize, maxPacketSize), 0));
+		}
 
 		virtual void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token)
 		{
 			if (_received == _processed)
 			{
-				_received = _socket->ReceiveMessages(ByteData(_packetBuffer), _packetCount, token);
+				_received = _socket->ReceiveMessages(_packetBuffers, token);
 				_processed = 0;
 			}
 
-			while (_processed != _received && token && consumer.Process(Packet<EmptyType>(ConstByteData(_packetBuffer, _packetBuffer.size() * _processed / _packetCount, _packetBuffer.size() / _packetCount)), token))
+			while (_processed != _received && token && consumer.Process(Packet<EmptyType>(ConstByteData(_packetBuffers[_processed].first, 0, _packetBuffers[_processed].second)), token))
 				++_processed;
 		}
 	};
