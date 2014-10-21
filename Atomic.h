@@ -57,6 +57,17 @@ namespace stingray
 #endif
 
 
+#if HAVE_ATOMIC_BUILTINS
+	enum memory_order
+	{
+		memory_order_relaxed = __ATOMIC_RELAXED,	// relaxed
+		memory_order_consume = __ATOMIC_CONSUME,	// consume
+		memory_order_acquire = __ATOMIC_ACQUIRE,	// acquire
+		memory_order_release = __ATOMIC_RELEASE,	// release
+		memory_order_acq_rel = __ATOMIC_ACQ_REL,	// acquire/release
+		memory_order_seq_cst = __ATOMIC_SEQ_CST		// sequentially consistent
+	};
+#else
 	enum memory_order
 	{
 		memory_order_relaxed,	// relaxed
@@ -66,6 +77,7 @@ namespace stingray
 		memory_order_acq_rel,	// acquire/release
 		memory_order_seq_cst	// sequentially consistent
 	};
+#endif
 
 
 	struct Atomic
@@ -98,6 +110,30 @@ namespace stingray
 			while ((oldval1 = __sync_val_compare_and_swap(&ptr, oldval1, val)) != oldval2)
 				oldval2 = oldval1;
 		}
+#elif HAVE_ATOMIC_BUILTINS
+		template < typename T >
+		static inline T Inc(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __atomic_add_fetch(&ptr, 1, order); }
+
+		template < typename T >
+		static inline T Dec(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __atomic_sub_fetch(&ptr, 1, order); }
+
+		template < typename T1, typename T2 >
+		static inline T1 Add(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ return __atomic_add_fetch(&ptr, val, order); }
+
+		template < typename T1, typename T2 >
+		static inline T1 Sub(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ return __atomic_sub_fetch(&ptr, val, order); }
+
+		template < typename T >
+		static inline T Load(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __atomic_load_n(&ptr, order); }
+
+		template < typename T1, typename T2 >
+		static inline void Store(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ __atomic_store_n(&ptr, val, order); }
 #elif HAVE_SYNC_EAA || HAVE_SYNC_EAA_EXT
 		template < typename T >
 		static inline T Inc(T& ptr, memory_order order = memory_order_seq_cst)
