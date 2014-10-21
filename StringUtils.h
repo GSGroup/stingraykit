@@ -508,41 +508,6 @@ namespace stingray
 	namespace Detail
 	{
 
-		template<typename ContainerType>
-		inline void SplitImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result)
-		{
-			size_t lastPosition = 0;
-			size_t delimiterPosition;
-			do
-			{
-				delimiterPosition = std::string::npos;
-				size_t delimiterSize = 0;
-
-				for (size_t i = 0; i < delimiters.size(); ++i)
-				{
-					size_t position;
-					if ((position = sourceString.find(delimiters[i], lastPosition)) != std::string::npos && (delimiterPosition == std::string::npos || position < delimiterPosition))
-					{
-						delimiterPosition = position;
-						delimiterSize = delimiters[i].length();
-					}
-				}
-
-				if (delimiterPosition != std::string::npos)
-				{
-					if (delimiterPosition > lastPosition)
-						result.push_back(sourceString.substr(lastPosition, delimiterPosition - lastPosition));
-
-					lastPosition = delimiterPosition + delimiterSize;
-				}
-			}
-			while (delimiterPosition != std::string::npos);
-
-			if (lastPosition < sourceString.length())
-				result.push_back(sourceString.substr(lastPosition));
-		}
-
-
 		class StringRef
 		{
 		public:
@@ -583,10 +548,11 @@ namespace stingray
 
 
 		template<typename ContainerType>
-		inline void SplitRefsImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result)
+		inline void SplitRefsImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result, int maxsplit)
 		{
 			size_t lastPosition = 0;
 			size_t delimiterPosition;
+			int counter = 0;
 			do
 			{
 				delimiterPosition = std::string::npos;
@@ -602,18 +568,29 @@ namespace stingray
 					}
 				}
 
-				if (delimiterPosition != std::string::npos)
+				if (delimiterPosition != std::string::npos && (maxsplit < 0 || counter < maxsplit))
 				{
-					if (delimiterPosition > lastPosition)
-						result.push_back(StringRef(sourceString, lastPosition, delimiterPosition));
-
+					result.push_back(StringRef(sourceString, lastPosition, delimiterPosition));
 					lastPosition = delimiterPosition + delimiterSize;
+					++counter;
 				}
 			}
-			while (delimiterPosition != std::string::npos);
+			while (delimiterPosition != std::string::npos && (maxsplit < 0 || counter < maxsplit));
 
-			if (lastPosition < sourceString.length())
-				result.push_back(StringRef(sourceString, lastPosition));
+			result.push_back(StringRef(sourceString, lastPosition));
+		}
+
+
+		template<typename ContainerType>
+		inline void SplitImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result, int maxsplit)
+		{
+			std::vector<StringRef> result_;
+
+			SplitRefsImpl(sourceString, delimiters, result_, maxsplit);
+			for (size_t i = 0; i < result_.size(); ++i)
+				result.push_back(result_[i].str());
+
+			return;
 		}
 
 	}
@@ -627,9 +604,9 @@ namespace stingray
 #define DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION(ParamsCount_, UserData_) \
 	TOOLKIT_INSERT_IF(ParamsCount_, \
 		template <typename ContainerType> \
-		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result) \
+		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1) \
 		{ \
-			Detail::SplitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result); \
+			Detail::SplitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, maxsplit); \
 		} \
 	)
 
@@ -638,9 +615,9 @@ namespace stingray
 #define DETAIL_TOOLKIT_DECLARE_SPLITREFS_FUNCTION(ParamsCount_, UserData_) \
 	TOOLKIT_INSERT_IF(ParamsCount_, \
 		template <typename ContainerType> \
-		inline void SplitRefs(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result) \
+		inline void SplitRefs(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1) \
 		{ \
-			Detail::SplitRefsImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result); \
+			Detail::SplitRefsImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, maxsplit); \
 		} \
 	)
 
