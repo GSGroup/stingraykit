@@ -6,15 +6,16 @@
 #include <ctype.h>
 #include <string>
 
+#include <stingray/toolkit/CollectionBuilder.h>
 #include <stingray/toolkit/Dummy.h>
+#include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/NestedTypeCheck.h>
-#include <stingray/toolkit/Types.h>
-#include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/string_stream.h>
+#include <stingray/toolkit/Types.h>
 
 
 namespace std
@@ -504,37 +505,150 @@ namespace stingray
 	{ return str.length() >= suffix.length() && ExtractSuffix(str, suffix.length()) == suffix; }
 
 
-#define DETAIL_SPLIT_PARAM_USAGE(Index_, UserArg_) \
-	if ((delimPos = str.find(TOOLKIT_CAT(p, Index_), lastPos)) != std::string::npos) \
-	{ \
-		if (delimPos > lastPos) \
-			result.push_back(str.substr(lastPos, delimPos - lastPos)); \
-		lastPos = delimPos + TOOLKIT_CAT(p, Index_).length(); \
-		continue; \
+	namespace Detail
+	{
+
+		template<typename ContainerType>
+		inline void SplitImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result)
+		{
+			size_t lastPosition = 0;
+			size_t delimiterPosition;
+			do
+			{
+				delimiterPosition = std::string::npos;
+				size_t delimiterSize = 0;
+
+				for (size_t i = 0; i < delimiters.size(); ++i)
+				{
+					size_t position;
+					if ((position = sourceString.find(delimiters[i], lastPosition)) != std::string::npos && (delimiterPosition == std::string::npos || position < delimiterPosition))
+					{
+						delimiterPosition = position;
+						delimiterSize = delimiters[i].length();
+					}
+				}
+
+				if (delimiterPosition != std::string::npos)
+				{
+					if (delimiterPosition > lastPosition)
+						result.push_back(sourceString.substr(lastPosition, delimiterPosition - lastPosition));
+
+					lastPosition = delimiterPosition + delimiterSize;
+				}
+			}
+			while (delimiterPosition != std::string::npos);
+
+			if (lastPosition < sourceString.length())
+				result.push_back(sourceString.substr(lastPosition));
+		}
+
+
+		class StringRef
+		{
+		public:
+			typedef std::string::size_type	size_type;
+
+			static const size_type npos = std::string::npos;
+
+		private:
+			const std::string *		_owner;
+			std::string::size_type	_begin;
+			std::string::size_type	_end;
+
+		public:
+			inline StringRef(const std::string& owner, size_t begin = 0, size_t end = npos) : _owner(&owner), _begin(begin), _end(end != npos ? end : owner.size()) { }
+
+			inline bool empty() const		{ return _begin >= _end; }
+			inline size_type size() const	{ return _end >= _begin ? _end - _begin : 0; }
+
+			inline size_type find(const char c, size_type pos = 0) const
+			{
+				size_type p = _owner->find(c, pos + _begin);
+				return (p >= _end) ? npos : p - _begin;
+			}
+
+			inline size_type find(const std::string& str, size_type pos = 0) const
+			{
+				size_type p = _owner->find(str, pos + _begin);
+				return (p >= _end) ? npos : p - _begin;
+			}
+
+			inline std::string substr(size_type pos = 0, size_type n = npos) const
+			{
+				return pos < size() ? _owner->substr(_begin + pos, std::min(size() - pos, n)) : std::string();
+			}
+
+			inline std::string str() const { return substr(); }
+		};
+
+
+		template<typename ContainerType>
+		inline void SplitRefsImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result)
+		{
+			size_t lastPosition = 0;
+			size_t delimiterPosition;
+			do
+			{
+				delimiterPosition = std::string::npos;
+				size_t delimiterSize = 0;
+
+				for (size_t i = 0; i < delimiters.size(); ++i)
+				{
+					size_t position;
+					if ((position = sourceString.find(delimiters[i], lastPosition)) != std::string::npos && (delimiterPosition == std::string::npos || position < delimiterPosition))
+					{
+						delimiterPosition = position;
+						delimiterSize = delimiters[i].length();
+					}
+				}
+
+				if (delimiterPosition != std::string::npos)
+				{
+					if (delimiterPosition > lastPosition)
+						result.push_back(StringRef(sourceString, lastPosition, delimiterPosition));
+
+					lastPosition = delimiterPosition + delimiterSize;
+				}
+			}
+			while (delimiterPosition != std::string::npos);
+
+			if (lastPosition < sourceString.length())
+				result.push_back(StringRef(sourceString, lastPosition));
+		}
+
 	}
 
+
+	typedef Detail::StringRef	StringRef;
+
+
+#define DETAIL_SPLIT_PARAM_USAGE(Index_, UserArg_) % TOOLKIT_CAT(p, Index_)
 
 #define DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION(ParamsCount_, UserData_) \
 	TOOLKIT_INSERT_IF(ParamsCount_, \
 		template <typename ContainerType> \
 		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result) \
 		{ \
-			size_t lastPos = 0; \
-			size_t delimPos; \
-			do \
-			{ \
-				TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()); \
-			} \
-			while (delimPos != std::string::npos); \
-			if (lastPos < str.length()) \
-				result.push_back(str.substr(lastPos)); \
+			Detail::SplitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result); \
 		} \
 	)
 
 	TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION, TOOLKIT_EMPTY())
 
+#define DETAIL_TOOLKIT_DECLARE_SPLITREFS_FUNCTION(ParamsCount_, UserData_) \
+	TOOLKIT_INSERT_IF(ParamsCount_, \
+		template <typename ContainerType> \
+		inline void SplitRefs(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result) \
+		{ \
+			Detail::SplitRefsImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result); \
+		} \
+	)
+
+	TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_SPLITREFS_FUNCTION, TOOLKIT_EMPTY())
+
 #undef DETAIL_SPLIT_PARAM_USAGE
 #undef DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION
+#undef DETAIL_TOOLKIT_DECLARE_SPLITREFS_FUNCTION
 
 
 	template < typename InputIterator, typename UnaryOperator >
@@ -556,59 +670,6 @@ namespace stingray
 	template < typename InputIterator >
 	std::string Join(const std::string& separator, InputIterator first, InputIterator last)
 	{ return Join(separator, first, last, lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
-
-
-	class StringRef
-	{
-	public:
-		typedef std::string::size_type	size_type;
-		static const size_type npos = std::string::npos;
-
-	private:
-		const std::string *				_owner;
-		std::string::size_type			_begin, _end;
-
-	public:
-		inline StringRef(const std::string &owner, size_t begin = 0, size_t end = npos) : _owner(&owner), _begin(begin), _end(end != npos? end: owner.size()) { }
-
-		inline bool empty() const		{ return _begin >= _end; }
-		inline size_type size() const	{ return _end >= _begin? _end - _begin: 0; }
-
-		inline size_type find(const char c, size_type pos = 0) const
-		{
-			size_type p = _owner->find(c, pos + _begin);
-			return (p >= _end)? npos: p - _begin;
-		}
-
-		inline size_type find(const std::string &str, size_type pos = 0) const
-		{
-			size_type p = _owner->find(str, pos + _begin);
-			return (p >= _end)? npos: p - _begin;
-		}
-
-		inline std::string substr(size_type pos = 0, size_type n = npos) const
-		{
-			if (pos >= size())
-				return std::string();
-			 //_end - _begin - pos >= 0 now
-			return _owner->substr(_begin + pos, std::min(size() - pos, n));
-		}
-
-		inline std::string str() const { return substr(); }
-	};
-
-
-	template<typename ContainerType>
-	inline void SplitRefs(const std::string& str, const std::string& delim, ContainerType& result)
-	{
-		size_t i = 0, j;
-		while ((j = str.find(delim, i)) != std::string::npos)
-		{
-			result.push_back(StringRef(str, i, j));
-			i = j + delim.length();
-		}
-		result.push_back(StringRef(str, i));
-	}
 
 
 	inline std::string RightStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
