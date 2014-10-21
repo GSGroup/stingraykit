@@ -738,44 +738,6 @@ namespace stingray
 	typedef BasicStringBuilder<char>	StringBuilder;
 	typedef BasicStringBuilder<wchar_t>	WideStringBuilder;
 
-
-	namespace Detail
-	{
-
-		inline bool GlobMatch(std::string::const_iterator p1, std::string::const_iterator p2, std::string::const_iterator s1, std::string::const_iterator s2)
-		{
-			// If we reach at the end of both strings, we are done
-			if (p1 == p2 && s1 == s2)
-				return true;
-
-			// Make sure that the characters after '*' are present in second string.
-			// This function assumes that the first string will not contain two
-			// consecutive '*'
-			if (*p1 == '*' && (p1 + 1) != p2 && s1 == s2)
-				return false;
-
-			// If the first string contains '?', or current characters of both
-			// strings match
-			if (*p1 == '?' || *p1 == *s1)
-				return GlobMatch(p1 + 1, p2, s1 + 1, s2);
-
-			// If there is *, then there are two possibilities
-			// a) We consider current character of second string
-			// b) We ignore current character of second string.
-			if (*p1 == '*')
-				return GlobMatch(p1 + 1, p2, s1, s2) || GlobMatch(p1, p2, s1 + 1, s2);
-
-			return false;
-		}
-
-	}
-
-
-	inline bool GlobMatch(const std::string& pattern, const std::string& str)
-	{
-		return Detail::GlobMatch(pattern.begin(), pattern.end(), str.begin(), str.end());
-	}
-
 }
 
 
