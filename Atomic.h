@@ -56,26 +56,43 @@ namespace stingray
 	do { } while (0)
 #endif
 
+
+	enum memory_order
+	{
+		memory_order_relaxed,	// relaxed
+		memory_order_consume,	// consume
+		memory_order_acquire,	// acquire
+		memory_order_release,	// release
+		memory_order_acq_rel,	// acquire/release
+		memory_order_seq_cst	// sequentially consistent
+	};
+
+
 	struct Atomic
 	{
 #if HAVE_SYNC_AAF
 		template < typename T >
-		static inline T Inc(T& ptr) { return __sync_add_and_fetch(&ptr, 1); }
+		static inline T Inc(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __sync_add_and_fetch(&ptr, 1); }
 
 		template < typename T >
-		static inline T Dec(T& ptr) { return __sync_sub_and_fetch(&ptr, 1); }
+		static inline T Dec(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __sync_sub_and_fetch(&ptr, 1); }
 
 		template < typename T1, typename T2 >
-		static inline T1 Add(T1& ptr, T2 val) { return __sync_add_and_fetch(&ptr, val); }
+		static inline T1 Add(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ return __sync_add_and_fetch(&ptr, val); }
 
 		template < typename T1, typename T2 >
-		static inline T1 Sub(T1& ptr, T2 val) { return __sync_sub_and_fetch(&ptr, val); }
+		static inline T1 Sub(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ return __sync_sub_and_fetch(&ptr, val); }
 
 		template < typename T >
-		static inline T Load(T& ptr) { return __sync_add_and_fetch(&ptr, 0); }
+		static inline T Load(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __sync_add_and_fetch(&ptr, 0); }
 
 		template < typename T1, typename T2 >
-		static inline void Store(T1& ptr, T2 val)
+		static inline void Store(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
 		{
 			T1 oldval1 = 0, oldval2 = 0;
 			while ((oldval1 = __sync_val_compare_and_swap(&ptr, oldval1, val)) != oldval2)
@@ -83,40 +100,52 @@ namespace stingray
 		}
 #elif HAVE_SYNC_EAA || HAVE_SYNC_EAA_EXT
 		template < typename T >
-		static inline T Inc(T& ptr) { return __gnu_cxx::__exchange_and_add(&ptr,  1) + 1; }
+		static inline T Inc(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __gnu_cxx::__exchange_and_add(&ptr,  1) + 1; }
 
 		template < typename T >
-		static inline T Dec(T& ptr) { return __gnu_cxx::__exchange_and_add(&ptr, -1) - 1; }
+		static inline T Dec(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __gnu_cxx::__exchange_and_add(&ptr, -1) - 1; }
 
 		template < typename T1, typename T2 >
-		static inline T1 Add(T1& ptr, T2 val) { return __gnu_cxx::__exchange_and_add(&ptr,  val) + val; }
+		static inline T1 Add(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ return __gnu_cxx::__exchange_and_add(&ptr,  val) + val; }
 
 		template < typename T1, typename T2 >
-		static inline T1 Sub(T1& ptr, T2 val) { return __gnu_cxx::__exchange_and_add(&ptr, -val) - val; }
+		static inline T1 Sub(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ return __gnu_cxx::__exchange_and_add(&ptr, -val) - val; }
 
 		template < typename T >
-		static inline T Load(T& ptr) { return __gnu_cxx::__exchange_and_add(&ptr, 0); }
+		static inline T Load(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return __gnu_cxx::__exchange_and_add(&ptr, 0); }
 
 		template < typename T >
-		static inline void Store(T& ptr, T val) { ptr = val; __gnu_cxx::__exchange_and_add(&ptr, 0); }
+		static inline void Store(T& ptr, T val, memory_order order = memory_order_seq_cst)
+		{ ptr = val; __gnu_cxx::__exchange_and_add(&ptr, 0); }
 #elif HAVE_ATOMIC_H
 		template < typename T >
-		static inline T Inc(T& ptr) { return atomic_increment_val(&ptr); }
+		static inline T Inc(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return atomic_increment_val(&ptr); }
 
 		template < typename T >
-		static inline T Dec(T& ptr) { return atomic_decrement_val(&ptr); }
+		static inline T Dec(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return atomic_decrement_val(&ptr); }
 
 		template < typename T1, typename T2 >
-		static inline T1 Add(T1& ptr, T2 val) { return atomic_add(&ptr,  val); }
+		static inline T1 Add(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ return atomic_add(&ptr,  val); }
 
 		template < typename T1, typename T2 >
-		static inline T1 Sub(T1& ptr, T2 val) { return atomic_add(&ptr, -val); }
+		static inline T1 Sub(T1& ptr, T2 val, memory_order order = memory_order_seq_cst)
+		{ return atomic_add(&ptr, -val); }
 
 		template < typename T >
-		static inline T Load(T& ptr) { return atomic_exchange_and_add(&ptr, 0); }
+		static inline T Load(T& ptr, memory_order order = memory_order_seq_cst)
+		{ return atomic_exchange_and_add(&ptr, 0); }
 
 		template < typename T >
-		static inline void Store(T& ptr, T val) { atomic_exchange_acq(&ptr, val); }
+		static inline void Store(T& ptr, T val, memory_order order = memory_order_seq_cst)
+		{ atomic_exchange_acq(&ptr, val); }
 #else
 #	error "no atomic increment/decrement"
 #endif
