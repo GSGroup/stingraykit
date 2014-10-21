@@ -1,6 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_UNICODE_H
 #define STINGRAY_TOOLKIT_UNICODE_H
 
+
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/shared_ptr.h>
 
@@ -30,6 +31,7 @@ namespace stingray
 		int Compare(const std::string &str1, const std::string &str2) const;
 	};
 	TOOLKIT_DECLARE_PTR(UnicodeCollator);
+
 
 	std::string Utf8ToLower(const std::string& str);
 

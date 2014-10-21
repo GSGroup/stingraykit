@@ -1,4 +1,5 @@
 #include <stingray/toolkit/Unicode.h>
+
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/StringUtils.h>
 
@@ -16,19 +17,26 @@ namespace stingray
 	{
 		UErrorCode success = U_ZERO_ERROR;
 		_collator = icu::Collator::createInstance(success);
-		if (success == U_FILE_ACCESS_ERROR)
-			TOOLKIT_THROW("file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
+		TOOLKIT_CHECK(success != U_FILE_ACCESS_ERROR, "file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
 		TOOLKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
 		SetCaseSensitivity(true);
 	}
 
+
+	UnicodeCollator::~UnicodeCollator()
+	{
+		delete _collator;
+	}
+
+
 	void UnicodeCollator::SetCaseSensitivity(bool sensitive)
 	{
 		_caseSensitive = sensitive;
-		_collator->setStrength(sensitive? icu::Collator::TERTIARY: icu::Collator::PRIMARY);
+		_collator->setStrength(sensitive ? icu::Collator::TERTIARY : icu::Collator::SECONDARY);
 	}
 
-	int UnicodeCollator::Compare(const std::string &str1, const std::string &str2) const
+
+	int UnicodeCollator::Compare(const std::string& str1, const std::string& str2) const
 	{
 		CompileTimeAssert<(UCOL_EQUAL == 0)>	Error_invalid_equal_const;
 		CompileTimeAssert<(UCOL_LESS < 0)>		Error_invalid_less_const;
@@ -37,13 +45,10 @@ namespace stingray
 		UErrorCode success = U_ZERO_ERROR;
 		UCollationResult r = _collator->compareUTF8(str1, str2, success);
 		TOOLKIT_CHECK(U_SUCCESS(success), "compareUTF8 failed, error: " + ToString(success));
+
 		return r;
 	}
 
-	UnicodeCollator::~UnicodeCollator()
-	{
-		delete _collator;
-	}
 
 	std::string Utf8ToLower(const std::string& str)
 	{
@@ -53,20 +58,23 @@ namespace stingray
 		return r;
 	}
 
-
 #else
+
 	UnicodeCollator::UnicodeCollator(): _caseSensitive(true) { }
+
+
+	UnicodeCollator::~UnicodeCollator() { }
+
 
 	void UnicodeCollator::SetCaseSensitivity(bool sensitive)
 	{ _caseSensitive = sensitive; }
+
 
 	int UnicodeCollator::Compare(const std::string &str1, const std::string &str2) const
 	{
 		return _caseSensitive? str1.compare(str2): Utf8ToLower(str1).compare(Utf8ToLower(str2));
 	}
 
-	UnicodeCollator::~UnicodeCollator()
-	{ }
 
 	std::string Utf8ToLower(const std::string& str)
 	{
