@@ -29,7 +29,7 @@ namespace stingray
 		virtual ~BandwidthReporter()
 		{ _connection.Disconnect(); }
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{ _source->ReadToFunction(bind(&BandwidthReporter::DoPush, this, ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, ref(consumer)), token); }
 
 	private:
@@ -43,7 +43,7 @@ namespace stingray
 			_timeSinceLastReport.Restart();
 		}
 
-		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const CancellationToken& token)
+		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 		{
 			size_t size = consumer.Process(data, token);
 			BytesProcessed(size);

@@ -18,11 +18,11 @@ namespace stingray
 		{ }
 
 
-		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token)
 		{ _source->ReadToFunction(bind(&DataPacketer::Do, this, ref(consumer), _1, _2), token); }
 
 	private:
-		size_t Do(IPacketConsumer<EmptyType>& consumer, ConstByteData data, const CancellationToken& token)
+		size_t Do(IPacketConsumer<EmptyType>& consumer, ConstByteData data, const ICancellationToken& token)
 		{
 			ConstByteData packet(data, 0, _packetSize);
 			return consumer.Process(Packet<EmptyType>(packet), token) ? _packetSize : 0;
@@ -43,11 +43,11 @@ namespace stingray
 		{ }
 
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{ _source->ReadToFunction(bind(&DataDepacketer::Do, this, ref(consumer), _1, _2), token); }
 
 	private:
-		bool Do(IDataConsumer& consumer, const Packet<EmptyType>& packet, const CancellationToken& token)
+		bool Do(IDataConsumer& consumer, const Packet<EmptyType>& packet, const ICancellationToken& token)
 		{
 			size_t offset = 0;
 			while (token && offset < packet.GetSize())

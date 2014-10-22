@@ -15,7 +15,7 @@ namespace stingray
 	{
 		virtual ~IDataConsumer() {}
 
-		virtual size_t Process(ConstByteData data, const CancellationToken& token) = 0;
+		virtual size_t Process(ConstByteData data, const ICancellationToken& token) = 0;
 		virtual void EndOfData() = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IDataConsumer);
@@ -32,7 +32,7 @@ namespace stingray
 		FunctorDataConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
 		{}
 
-		virtual size_t Process(ConstByteData data, const CancellationToken& token)	{ return _processFunc(data, token); }
+		virtual size_t Process(ConstByteData data, const ICancellationToken& token)	{ return _processFunc(data, token); }
 		virtual void EndOfData()													{ _eodFunc(); }
 	};
 
@@ -41,14 +41,14 @@ namespace stingray
 	{
 		virtual ~IDataSource() {}
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token) = 0;
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token) = 0;
 
 		template <typename ProcessFunctorType>
-		void ReadToFunction(const ProcessFunctorType& processFunc, const CancellationToken& token)
+		void ReadToFunction(const ProcessFunctorType& processFunc, const ICancellationToken& token)
 		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
 
 		template <typename ProcessFunctorType, typename EndOfDataFunctorType>
-		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const CancellationToken& token)
+		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const ICancellationToken& token)
 		{
 			FunctorDataConsumer<ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
 			Read(consumer, token);
@@ -81,11 +81,11 @@ namespace stingray
 			_source(source), _func(func), _eod(eod)
 		{}
 
-		virtual void Read(IDataConsumer& c, const CancellationToken& token)
+		virtual void Read(IDataConsumer& c, const ICancellationToken& token)
 		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(c), _1, _2), bind(&DataInterceptor::Eod, this, ref(c)), token); }
 
 	private:
-		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const CancellationToken& token)
+		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 		{
 			size_t size = consumer.Process(data, token);
 			_func(ConstByteData(data, 0, size));
@@ -121,7 +121,7 @@ namespace stingray
 	{
 		virtual ~IPacketConsumer() {}
 
-		virtual bool Process(const Packet<MetadataType>& packet, const CancellationToken& token) = 0;
+		virtual bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) = 0;
 		virtual void EndOfData() = 0;
 	};
 
@@ -137,7 +137,7 @@ namespace stingray
 		FunctorPacketConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
 		{}
 
-		virtual bool Process(const Packet<MetadataType>& packet, const CancellationToken& token)	{ return _processFunc(packet, token); }
+		virtual bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token)	{ return _processFunc(packet, token); }
 		virtual void EndOfData()																	{ _eodFunc(); }
 	};
 
@@ -147,14 +147,14 @@ namespace stingray
 	{
 		virtual ~IPacketSource() {}
 
-		virtual void Read(IPacketConsumer<MetadataType>& consumer, const CancellationToken& token) = 0;
+		virtual void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token) = 0;
 
 		template <typename ProcessFunctorType>
-		void ReadToFunction(const ProcessFunctorType& processFunc, const CancellationToken& token)
+		void ReadToFunction(const ProcessFunctorType& processFunc, const ICancellationToken& token)
 		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
 
 		template <typename ProcessFunctorType, typename EndOfDataFunctorType>
-		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const CancellationToken& token)
+		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const ICancellationToken& token)
 		{
 			FunctorPacketConsumer<MetadataType, ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
 			Read(consumer, token);
@@ -178,7 +178,7 @@ namespace stingray
 		void SetData(ConstByteData data)
 		{ _data = data; }
 
-		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token)
 		{
 			if (_data)
 			{
@@ -201,7 +201,7 @@ namespace stingray
 	public:
 		ByteStreamDataSource(const IByteStreamPtr &stream, size_t readSize = DefaultReadSize) : _stream(stream), _readSize(readSize) { }
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{
 			if (_data.empty()) //fixme: replace by something more smart, like circular buffer
 			{

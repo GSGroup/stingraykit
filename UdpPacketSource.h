@@ -28,7 +28,7 @@ namespace stingray
 			_socket(socket), _packetBuffer(maxPacketSize), _dataSize(0)
 		{ }
 
-		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token)
 		{
 			if (_dataSize == 0)
 			{
@@ -61,7 +61,7 @@ namespace stingray
 			: _socket(socket), _packetBuffer(maxPacketSize * multiPacketCount), _packetCount(multiPacketCount), _received(0), _processed(0)
 		{ }
 
-		virtual void Read(IPacketConsumer<EmptyType>& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token)
 		{
 			if (_received == _processed)
 			{
@@ -108,7 +108,7 @@ namespace stingray
 			_worker.reset();
 		}
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{
 			MutexLock l(_mutex);
 			BithreadCircularBuffer::Reader r = _buffer.Read();

@@ -67,7 +67,7 @@ namespace stingray
 			_bufferFull.Broadcast();
 		}
 
-		virtual size_t Process(ConstByteData data, const CancellationToken& token)
+		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
 		{
 			if (data.size() % _inputPacketSize != 0)
 			{
@@ -143,7 +143,7 @@ namespace stingray
 			TOOLKIT_CHECK(_buffer.GetTotalSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{
 			MutexLock l(_bufferMutex);
 
@@ -241,7 +241,7 @@ namespace stingray
 			_bufferFull.Broadcast();
 		}
 
-		virtual bool Process(const Packet<MetadataType>& packet, const CancellationToken& token)
+		virtual bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token)
 		{
 			ConstByteData data(packet.GetData());
 			TOOLKIT_CHECK(data.size() <= GetStorageSize(), StringBuilder() % "Packet is too big! Buffer size: " % GetStorageSize() % " packet size:" % data.size());
@@ -292,7 +292,7 @@ namespace stingray
 			_bufferEmpty.Broadcast();
 		}
 
-		virtual void Read(IPacketConsumer<MetadataType>& consumer, const CancellationToken& token)
+		virtual void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token)
 		{
 			MutexLock l(_bufferMutex);
 

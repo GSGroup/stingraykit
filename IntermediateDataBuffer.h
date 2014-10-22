@@ -32,7 +32,7 @@ namespace stingray
 			_worker.reset();
 		}
 
-		virtual void Read(IDataConsumer& consumer, const CancellationToken& token)
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{ return _buffer->Read(consumer, token); }
 
 	private:
