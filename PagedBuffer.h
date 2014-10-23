@@ -82,7 +82,6 @@ namespace stingray
 
 			u64 page_idx = _startOffset / _pageSize, page_read_size, page_offset;
 			{
-				MutexLock l(_mutex);
 				TOOLKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
 
 				TOOLKIT_CHECK(!_usingStart, "End is being used!");
