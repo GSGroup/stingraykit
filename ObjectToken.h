@@ -1,6 +1,10 @@
 #ifndef STINGRAY_TOOLKIT_OBJECTTOKEN_H
 #define STINGRAY_TOOLKIT_OBJECTTOKEN_H
 
+
+#include <stingray/toolkit/IToken.h>
+
+
 namespace stingray
 {
 
