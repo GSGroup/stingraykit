@@ -6,9 +6,11 @@
 #include <vector>
 
 #include <stingray/toolkit/EnumeratorFromStlContainer.h>
+#include <stingray/toolkit/EnumerableHelpers.h>
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/IList.h>
 #include <stingray/toolkit/StlEnumeratorAdapter.h>
+#include <stingray/toolkit/bind.h>
 
 
 namespace stingray
@@ -55,18 +57,11 @@ namespace stingray
 			: _items(new VectorType)
 		{ }
 
-		ArrayList(shared_ptr<IEnumerator<T> > enumerator)
-		{
-			TOOLKIT_REQUIRE_NOT_NULL(enumerator);
-			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::back_inserter(_items));
-		}
+		ArrayList(shared_ptr<IEnumerator<T> > enumerator) : _items(new VectorType)
+		{ Enumerable::ForEach(enumerable, bind(&ArrayList::Add, this, _1)); }
 
-		ArrayList(shared_ptr<IEnumerable<T> > enumerable)
-		{
-			TOOLKIT_REQUIRE_NOT_NULL(enumerable);
-			shared_ptr<IEnumerator<T> > enumerator(enumerable->GetEnumerator());
-			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::back_inserter(_items));
-		}
+		ArrayList(shared_ptr<IEnumerable<T> > enumerable) : _items(new VectorType)
+		{ Enumerable::ForEach(enumerable, bind(&ArrayList::Add, this, _1)); }
 
 		ArrayList(const ArrayList& other) : _items(new VectorType(*other._items))
 		{ }
