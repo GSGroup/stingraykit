@@ -58,7 +58,7 @@ namespace stingray
 		{ }
 
 		ArrayList(shared_ptr<IEnumerator<T> > enumerator) : _items(new VectorType)
-		{ Enumerable::ForEach(enumerable, bind(&ArrayList::Add, this, _1)); }
+		{ Enumerable::ForEach(enumerator, bind(&ArrayList::Add, this, _1)); }
 
 		ArrayList(shared_ptr<IEnumerable<T> > enumerable) : _items(new VectorType)
 		{ Enumerable::ForEach(enumerable, bind(&ArrayList::Add, this, _1)); }
