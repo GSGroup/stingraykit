@@ -319,6 +319,8 @@ namespace stingray
 		template <typename T> int Count(const EnumerableOrEnumerator<T> src);
 		template <typename T> int Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
+		template <typename T> void ForEach(const EnumerableOrEnumerator<T> src, const function<void(const T&)>& func);
+
 		template <typename T> int IndexOf(const EnumerableOrEnumerator<T> src, const T& val);
 		template <typename T> int IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
@@ -433,6 +435,13 @@ namespace stingray
 				if (predicate(enumerator.Get()))
 					++result;
 			return result;
+		}
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename Func>), void, ForEach, MK_PARAM(const Func& func), MK_PARAM(func))
+		{
+			for (; enumerator.Valid(); enumerator.Next())
+				func(enumerator.Get());
 		}
 
 
