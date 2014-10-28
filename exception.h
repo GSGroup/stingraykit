@@ -52,7 +52,7 @@ namespace stingray
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(AccessDeniedException, "Access denied!");
 
 #define TOOLKIT_CHECK(Condition, ExceptionObj) \
-		do { if (!(Condition)) TOOLKIT_THROW(ExceptionObj); } while(false)
+		do { if (STINGRAY_UNLIKELY(!(Condition))) TOOLKIT_THROW(ExceptionObj); } while(false)
 
 	struct LogicException : public std::logic_error
 	{
