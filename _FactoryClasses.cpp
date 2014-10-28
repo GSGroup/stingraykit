@@ -7,10 +7,10 @@
 #include <stingray/app/application_context/AppChannel.h>
 #include <stingray/app/application_context/ChannelList.h>
 #include <stingray/app/scheduler/ScheduledEvents.h>
-#include <stingray/ca/BasicSubscription.h>
+#include <stingray/ca/BasicSubscriptionLease.h>
 #include <stingray/ca/BissConditionalAccess.h>
 #include <stingray/ca/DreSubscription.h>
-#include <stingray/ca/SubscriptionClassBundle.h>
+#include <stingray/ca/SubscriptionBundle.h>
 #include <stingray/crypto/PlainCipherKey.h>
 #include <stingray/details/IReceiverTrait.h>
 #include <stingray/hdmi/IHDMI.h>
@@ -115,11 +115,11 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledEvent);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(app::ScheduledViewing);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscription);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscriptionLease);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BasicSubscriptionProvider);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(BissSubscriptionClass);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(Dre4SubscriptionClass);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(SubscriptionClassBundle);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(Dre4Subscription);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(SubscriptionBundle);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlainCipherKey);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBCReceiverTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBSReceiverTrait);
