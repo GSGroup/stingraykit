@@ -27,6 +27,16 @@ namespace stingray
 #	define TOOLKIT_FUNCTION __func__
 #endif
 
+
+#ifdef __GNUC__
+#	define STINGRAY_LIKELY(x)	__builtin_expect((x), 1)
+#	define STINGRAY_UNLIKELY(x)	__builtin_expect((x), 0)
+#else
+#	define STINGRAY_LIKELY(x)	(x)
+#	define STINGRAY_UNLIKELY(x)	(x)
+#endif
+
+
 namespace stingray
 {
 	struct ToolkitWhere
