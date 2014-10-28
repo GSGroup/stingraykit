@@ -49,6 +49,7 @@ namespace stingray
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(InvalidOperationException, "Invalid operation!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(OperationCanceledException, "Operation has been canceled!");
 	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(SocketException, "Socket error!");
+	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(AccessDeniedException, "Access denied!");
 
 #define TOOLKIT_CHECK(Condition, ExceptionObj) \
 		do { if (!(Condition)) TOOLKIT_THROW(ExceptionObj); } while(false)
