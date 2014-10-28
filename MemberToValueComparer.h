@@ -145,6 +145,12 @@ namespace stingray
 		return MemberExtractorComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType>, DereferencingManager >(ptr, Comparer<typename MemberExtractor<MemberPointer>::MemberType>());
 	}
 
+	template <typename MemberPointer>
+	MemberExtractorComparer<MemberPointer, std::less<typename MemberExtractor<MemberPointer>::MemberType>, AllowDereferencing> CompareMemberLess(MemberPointer ptr)
+	{
+		return MemberExtractorComparer<MemberPointer, std::less<typename MemberExtractor<MemberPointer>::MemberType>, AllowDereferencing >(ptr, std::less<typename MemberExtractor<MemberPointer>::MemberType>());
+	}
+
 
 }
 
