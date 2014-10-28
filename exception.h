@@ -112,8 +112,10 @@ namespace stingray
 
 	struct NullPointerException : public Exception
 	{
-		NullPointerException() : Exception("Accessing null pointer!") { }
-		NullPointerException(const std::string& expr) : Exception("Accessing null pointer: " + expr) { }
+		NullPointerException() : Exception("Accessing null pointer!")
+		{ DebuggingHelper::BreakpointHere(); }
+		NullPointerException(const std::string& expr) : Exception("Accessing null pointer: " + expr)
+		{ DebuggingHelper::BreakpointHere(); }
 	};
 
 	struct InvalidCastException : public std::bad_cast

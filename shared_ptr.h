@@ -296,13 +296,7 @@ namespace stingray
 
 
 		inline void check_ptr() const
-		{
-			if (!_rawPtr)
-			{
-				DebuggingHelper::BreakpointHere();
-				TOOLKIT_THROW(NullPointerException("shared_ptr<" + TypeInfo(typeid(T)).GetName() + ">"));
-			}
-		}
+		{ TOOLKIT_CHECK(_rawPtr, NullPointerException("shared_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
 	};
 
 	/** @brief Simple weak_ptr implementation */
