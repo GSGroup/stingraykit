@@ -91,10 +91,7 @@ namespace stingray
 
 	private:
 		inline void check_ptr() const
-		{
-			if (!_rawPtr)
-				TOOLKIT_THROW(NullPointerException());
-		}
+		{ TOOLKIT_CHECK(_rawPtr, NullPointerException()); }
 	};
 
 	template<typename T>
