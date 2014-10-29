@@ -71,21 +71,21 @@ namespace stingray
 			future_impl() {}
 			~future_impl() {}
 
-			bool is_ready() const		{ MutexLock l(_mutex); return _value || _exception; }
-			bool has_exception() const	{ MutexLock l(_mutex); return _exception; }
-			bool has_value() const		{ MutexLock l(_mutex); return _value; }
-			void wait()					{ MutexLock l(_mutex); do_wait(); }
+			bool is_ready() const						{ MutexLock l(_mutex); return _value || _exception; }
+			bool has_exception() const					{ MutexLock l(_mutex); return _exception; }
+			bool has_value() const						{ MutexLock l(_mutex); return _value; }
+			void wait(const ICancellationToken& token = DummyCancellationToken())	{ MutexLock l(_mutex); do_wait(token); }
 
-			future_status wait_for(TimeDuration duration)
-			{ MutexLock l(_mutex); return do_timed_wait(duration); }
+			future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken())
+			{ MutexLock l(_mutex); return do_timed_wait(duration, token); }
 
-			future_status wait_until(const Time& absTime)
-			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now()); }
+			future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken())
+			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now(), token); }
 
 			ResultType get()
 			{
 				MutexLock l(_mutex);
-				do_wait();
+				do_wait(DummyCancellationToken());
 				if (_exception)
 					rethrow_exception(_exception);
 				return *_value;
@@ -109,18 +109,18 @@ namespace stingray
 			}
 
 		private:
-			void do_wait()
+			void do_wait(const ICancellationToken& token)
 			{
 				if(_value || _exception)
 					return;
-				_waitToken.Wait(_mutex);
+				_waitToken.Wait(_mutex, token);
 			}
 
-			future_status do_timed_wait(TimeDuration duration)
+			future_status do_timed_wait(TimeDuration duration, const ICancellationToken& token)
 			{
 				if (_value || _exception)
 					return future_status::ready;
-				_waitToken.TimedWait(_mutex, duration, DummyCancellationToken());
+				_waitToken.TimedWait(_mutex, duration, token);
 				if (_value || _exception)
 					return future_status::ready;
 				return future_status::timeout;
@@ -144,21 +144,21 @@ namespace stingray
 			future_impl() : _value(false) {}
 			~future_impl() {}
 
-			bool is_ready() const		{ MutexLock l(_mutex); return _value || _exception; }
-			bool has_exception() const	{ MutexLock l(_mutex); return _exception; }
-			bool has_value() const		{ MutexLock l(_mutex); return _value; }
-			void wait()					{ MutexLock l(_mutex); do_wait(); }
+			bool is_ready() const						{ MutexLock l(_mutex); return _value || _exception; }
+			bool has_exception() const					{ MutexLock l(_mutex); return _exception; }
+			bool has_value() const						{ MutexLock l(_mutex); return _value; }
+			void wait(const ICancellationToken& token = DummyCancellationToken())	{ MutexLock l(_mutex); do_wait(token); }
 
-			future_status wait_for(TimeDuration duration)
-			{ MutexLock l(_mutex); return do_timed_wait(duration); }
+			future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken())
+			{ MutexLock l(_mutex); return do_timed_wait(duration, token); }
 
-			future_status wait_until(const Time& absTime)
-			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now()); }
+			future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken())
+			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now(), token); }
 
 			void get()
 			{
 				MutexLock l(_mutex);
-				do_wait();
+				do_wait(DummyCancellationToken());
 				if (_exception)
 					rethrow_exception(_exception);
 			}
@@ -181,18 +181,18 @@ namespace stingray
 			}
 
 		private:
-			void do_wait()
+			void do_wait(const ICancellationToken& token)
 			{
 				if(_value || _exception)
 					return;
-				_waitToken.Wait(_mutex);
+				_waitToken.Wait(_mutex, token);
 			}
 
-			future_status do_timed_wait(TimeDuration duration)
+			future_status do_timed_wait(TimeDuration duration, const ICancellationToken& token)
 			{
 				if (_value || _exception)
 					return future_status::ready;
-				_waitToken.TimedWait(_mutex, duration, DummyCancellationToken());
+				_waitToken.TimedWait(_mutex, duration, token);
 				if (_value || _exception)
 					return future_status::ready;
 				return future_status::timeout;
@@ -245,10 +245,12 @@ namespace stingray
 	class future
 	{
 		TOOLKIT_NONASSIGNABLE(future);
+
 	private:
 		typedef Detail::future_impl<ResultType> ImplType;
 		TOOLKIT_DECLARE_PTR(ImplType);
 		shared_ptr<ImplType> _impl;
+
 	public:
 		~future()	{}
 
