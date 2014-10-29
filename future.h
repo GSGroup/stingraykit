@@ -1,7 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_FUTURE_H
 #define STINGRAY_TOOLKIT_FUTURE_H
 
-#include <stingray/threads/ConditionVariable.h>
+#include <stingray/threads/CancellationToken.h>
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/shared_ptr.h>
@@ -63,7 +63,7 @@ namespace stingray
 			typedef unique_ptr<WrappedResultType> ValuePtr;
 
 			Mutex				_mutex;
-			ConditionVariable	_condition;
+			WaitToken			_waitToken;
 			ValuePtr			_value;
 			exception_ptr		_exception;
 
@@ -96,7 +96,7 @@ namespace stingray
 				MutexLock l(_mutex);
 				TOOLKIT_CHECK(!_value, PromiseAlreadySatisfied());
 				_value.reset(new WrappedResultType(value));
-				_condition.Broadcast();
+				_waitToken.Broadcast();
 			}
 
 			void set_exception(exception_ptr ex)
@@ -105,7 +105,7 @@ namespace stingray
 				if (_value || _exception)
 					return;
 				_exception = ex;
-				_condition.Broadcast();
+				_waitToken.Broadcast();
 			}
 
 		private:
@@ -113,14 +113,14 @@ namespace stingray
 			{
 				if(_value || _exception)
 					return;
-				_condition.Wait(_mutex);
+				_waitToken.Wait(_mutex);
 			}
 
 			future_status do_timed_wait(TimeDuration duration)
 			{
 				if (_value || _exception)
 					return future_status::ready;
-				_condition.TimedWait(_mutex, duration);
+				_waitToken.TimedWait(_mutex, duration, DummyCancellationToken());
 				if (_value || _exception)
 					return future_status::ready;
 				return future_status::timeout;
@@ -136,7 +136,7 @@ namespace stingray
 
 		private:
 			Mutex				_mutex;
-			ConditionVariable	_condition;
+			WaitToken			_waitToken;
 			bool				_value;
 			exception_ptr		_exception;
 
@@ -168,7 +168,7 @@ namespace stingray
 				MutexLock l(_mutex);
 				TOOLKIT_CHECK(!_value, PromiseAlreadySatisfied());
 				_value = true;
-				_condition.Broadcast();
+				_waitToken.Broadcast();
 			}
 
 			void set_exception(exception_ptr ex)
@@ -177,7 +177,7 @@ namespace stingray
 				if (_value)
 					return;
 				_exception = ex;
-				_condition.Broadcast();
+				_waitToken.Broadcast();
 			}
 
 		private:
@@ -185,14 +185,14 @@ namespace stingray
 			{
 				if(_value || _exception)
 					return;
-				_condition.Wait(_mutex);
+				_waitToken.Wait(_mutex);
 			}
 
 			future_status do_timed_wait(TimeDuration duration)
 			{
 				if (_value || _exception)
 					return future_status::ready;
-				_condition.TimedWait(_mutex, duration);
+				_waitToken.TimedWait(_mutex, duration, DummyCancellationToken());
 				if (_value || _exception)
 					return future_status::ready;
 				return future_status::timeout;
