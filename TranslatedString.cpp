@@ -84,6 +84,8 @@ namespace stingray
 		return "";
 	}
 
+	int TranslatedString::DoCompare(const TranslatedString& other) const
+	{ return CompareMembersCmp(&TranslatedString::Impl::Translations)(_impl, other._impl);  }
 
 	void TranslatedString::Serialize(ObjectOStream & ar) const
 	{ ar.Serialize("translations", _impl->Translations); }
