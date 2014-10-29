@@ -74,12 +74,12 @@ namespace stingray
 			bool is_ready() const						{ MutexLock l(_mutex); return _value || _exception; }
 			bool has_exception() const					{ MutexLock l(_mutex); return _exception; }
 			bool has_value() const						{ MutexLock l(_mutex); return _value; }
-			void wait(const ICancellationToken& token = DummyCancellationToken())	{ MutexLock l(_mutex); do_wait(token); }
+			void wait(const ICancellationToken& token)	{ MutexLock l(_mutex); do_wait(token); }
 
-			future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken())
+			future_status wait_for(TimeDuration duration, const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_timed_wait(duration, token); }
 
-			future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken())
+			future_status wait_until(const Time& absTime, const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now(), token); }
 
 			ResultType get()
@@ -147,12 +147,12 @@ namespace stingray
 			bool is_ready() const						{ MutexLock l(_mutex); return _value || _exception; }
 			bool has_exception() const					{ MutexLock l(_mutex); return _exception; }
 			bool has_value() const						{ MutexLock l(_mutex); return _value; }
-			void wait(const ICancellationToken& token = DummyCancellationToken())	{ MutexLock l(_mutex); do_wait(token); }
+			void wait(const ICancellationToken& token)	{ MutexLock l(_mutex); do_wait(token); }
 
-			future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken())
+			future_status wait_for(TimeDuration duration, const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_timed_wait(duration, token); }
 
-			future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken())
+			future_status wait_until(const Time& absTime, const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now(), token); }
 
 			void get()
@@ -231,9 +231,9 @@ namespace stingray
 
 		ResultType get() const			{ check_valid(); return _impl->get(); }
 
-		void wait() const											{ check_valid(); _impl->wait(); }
-		future_status wait_for(TimeDuration duration) const	{ check_valid(); return _impl->wait_for(duration); }
-		future_status wait_until(const Time& absTime) const			{ check_valid(); return _impl->wait_until(absTime); }
+		void wait(const ICancellationToken& token = DummyCancellationToken()) const										{ check_valid(); _impl->wait(token); }
+		future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken()) const	{ check_valid(); return _impl->wait_for(duration, token); }
+		future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken()) const	{ check_valid(); return _impl->wait_until(absTime, token); }
 
 	private:
 		shared_future(const ImplPtr& impl) : _impl(impl) {}
@@ -274,9 +274,10 @@ namespace stingray
 			return result;
 		}
 
-		void wait() const										{ check_valid(); _impl->wait(); }
-		future_status wait_for(TimeDuration duration)	{ check_valid(); return _impl->wait_for(duration); }
-		future_status wait_until(const Time& absTime)			{ check_valid(); return _impl->wait_until(absTime); }
+		void wait(const ICancellationToken& token = DummyCancellationToken()) const									{ check_valid(); _impl->wait(token); }
+		future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken())	{ check_valid(); return _impl->wait_for(duration, token); }
+		future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken())	{ check_valid(); return _impl->wait_until(absTime, token); }
+
 	private:
 		future(const ImplTypePtr& impl) : _impl(impl) {}
 		friend future<ResultType> promise<ResultType>::get_future();
