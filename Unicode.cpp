@@ -91,6 +91,8 @@ namespace stingray
 				u16 c = (c0 << 6) | ((u8)*it & 0x3F);
 				if (c >= 0x410 && c <= 0x42F)
 					c += 0x20;
+				else if (c >= 0x401 && c <= 0x40f)
+					c += 0x50;
 				result.push_back(0xD0 | (c >> 6));
 				result.push_back((c & 0x3F) | 0x80);
 			}
