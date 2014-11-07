@@ -54,8 +54,8 @@ namespace stingray
 		BithreadCircularBuffer	_buffer;
 		Mutex					_mutex;
 
-		WaitToken				_hasData;
-		WaitToken				_hasSpace;
+		ConditionVariable		_hasData;
+		ConditionVariable		_hasSpace;
 
 	public:
 		StreamingSocketDataSource(const ISocketPtr& socket, size_t size, size_t outputPacketSize = 1) :

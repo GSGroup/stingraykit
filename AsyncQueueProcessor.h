@@ -27,7 +27,7 @@ namespace stingray
 		FunctorType			_processor;
 
 		CancellationToken	_token;
-		WaitToken			_waitToken;
+		ConditionVariable	_condition;
 		Mutex				_lock;
 
 		typedef std::list<ValueType> Queue;
@@ -61,7 +61,7 @@ namespace stingray
 			{
 				MutexLock l(_lock);
 				_queue.push_front(value);
-				_waitToken.Broadcast();
+				_condition.Broadcast();
 			}
 			{
 				signal_locker l(OnProgress);
@@ -75,7 +75,7 @@ namespace stingray
 			{
 				MutexLock l(_lock);
 				_queue.push_back(value);
-				_waitToken.Broadcast();
+				_condition.Broadcast();
 			}
 			{
 				signal_locker l(OnProgress);
@@ -110,7 +110,7 @@ namespace stingray
 				if (_queue.empty())
 				{
 					SetIdle(l, true);
-					_waitToken.Wait(_lock, _token);
+					_condition.Wait(_lock, _token);
 					if (!_queue.empty())
 						SetIdle(l, false);
 					continue;

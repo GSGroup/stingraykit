@@ -63,7 +63,7 @@ namespace stingray
 			typedef unique_ptr<WrappedResultType> ValuePtr;
 
 			Mutex				_mutex;
-			WaitToken			_waitToken;
+			ConditionVariable	_condition;
 			ValuePtr			_value;
 			exception_ptr		_exception;
 
@@ -96,7 +96,7 @@ namespace stingray
 				MutexLock l(_mutex);
 				TOOLKIT_CHECK(!_value, PromiseAlreadySatisfied());
 				_value.reset(new WrappedResultType(value));
-				_waitToken.Broadcast();
+				_condition.Broadcast();
 			}
 
 			void set_exception(exception_ptr ex)
@@ -105,7 +105,7 @@ namespace stingray
 				if (_value || _exception)
 					return;
 				_exception = ex;
-				_waitToken.Broadcast();
+				_condition.Broadcast();
 			}
 
 		private:
@@ -113,14 +113,14 @@ namespace stingray
 			{
 				if(_value || _exception)
 					return;
-				_waitToken.Wait(_mutex, token);
+				_condition.Wait(_mutex, token);
 			}
 
 			future_status do_timed_wait(TimeDuration duration, const ICancellationToken& token)
 			{
 				if (_value || _exception)
 					return future_status::ready;
-				_waitToken.TimedWait(_mutex, duration, token);
+				_condition.TimedWait(_mutex, duration, token);
 				if (_value || _exception)
 					return future_status::ready;
 				return future_status::timeout;
@@ -136,7 +136,7 @@ namespace stingray
 
 		private:
 			Mutex				_mutex;
-			WaitToken			_waitToken;
+			ConditionVariable	_condition;
 			bool				_value;
 			exception_ptr		_exception;
 
@@ -168,7 +168,7 @@ namespace stingray
 				MutexLock l(_mutex);
 				TOOLKIT_CHECK(!_value, PromiseAlreadySatisfied());
 				_value = true;
-				_waitToken.Broadcast();
+				_condition.Broadcast();
 			}
 
 			void set_exception(exception_ptr ex)
@@ -177,7 +177,7 @@ namespace stingray
 				if (_value)
 					return;
 				_exception = ex;
-				_waitToken.Broadcast();
+				_condition.Broadcast();
 			}
 
 		private:
@@ -185,14 +185,14 @@ namespace stingray
 			{
 				if(_value || _exception)
 					return;
-				_waitToken.Wait(_mutex, token);
+				_condition.Wait(_mutex, token);
 			}
 
 			future_status do_timed_wait(TimeDuration duration, const ICancellationToken& token)
 			{
 				if (_value || _exception)
 					return future_status::ready;
-				_waitToken.TimedWait(_mutex, duration, token);
+				_condition.TimedWait(_mutex, duration, token);
 				if (_value || _exception)
 					return future_status::ready;
 				return future_status::timeout;

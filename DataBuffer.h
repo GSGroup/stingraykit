@@ -25,8 +25,8 @@ namespace stingray
 		Mutex					_bufferMutex;
 		Mutex					_writeMutex;
 
-		WaitToken				_bufferEmpty;
-		WaitToken				_bufferFull;
+		ConditionVariable		_bufferEmpty;
+		ConditionVariable		_bufferFull;
 		bool					_eod;
 
 	protected:
@@ -209,8 +209,8 @@ namespace stingray
 		Mutex						_writeMutex;
 		size_t						_paddingSize;
 
-		WaitToken					_bufferEmpty;
-		WaitToken					_bufferFull;
+		ConditionVariable			_bufferEmpty;
+		ConditionVariable			_bufferFull;
 		bool						_eod;
 
 	public:
