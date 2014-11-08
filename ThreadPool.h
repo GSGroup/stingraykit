@@ -22,7 +22,7 @@ namespace stingray
 			ITaskExecutorPtr	_worker;
 
 		public:
-			WorkerWrapper(const std::string& name);
+			WorkerWrapper(const std::string& name, bool profileCalls);
 
 			bool TryAddTask(const function<void()>& task);
 			bool TryAddTaskWithTester(const function<void()>& task, const FutureExecutionTester& tester);
@@ -38,10 +38,11 @@ namespace stingray
 		Mutex			_mutex;
 		std::string		_name;
 		u32				_maxThreads;
+		bool			_profileCalls;
 		Workers			_workers;
 
 	public:
-		ThreadPool(const std::string& name, u32 maxThreads);
+		ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls = true);
 
 		void Queue(const function<void()>& task);
 		void Queue(const function<void()>& task, const FutureExecutionTester& tester);

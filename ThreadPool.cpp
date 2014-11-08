@@ -7,8 +7,8 @@
 namespace stingray
 {
 
-	ThreadPool::WorkerWrapper::WorkerWrapper(const std::string& name)
-		: _busy(false), _worker(ITaskExecutor::Create(name))
+	ThreadPool::WorkerWrapper::WorkerWrapper(const std::string& name, bool profileCalls)
+		: _busy(false), _worker(ITaskExecutor::Create(name, &ITaskExecutor::DefaultExceptionHandler, profileCalls))
 	{ }
 
 
@@ -48,8 +48,8 @@ namespace stingray
 	///////////////////////////////////////////////////////////////
 
 
-	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads)
-		: _name(name), _maxThreads(maxThreads)
+	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls)
+		: _name(name), _maxThreads(maxThreads), _profileCalls(profileCalls)
 	{ }
 
 
@@ -71,7 +71,7 @@ namespace stingray
 		}
 		if (_workers.size() < _maxThreads)
 		{
-			WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "_" % _workers.size()));
+			WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "_" % _workers.size(), _profileCalls));
 			_workers.push_back(w);
 			TOOLKIT_CHECK(tryAddTaskFunc(w.get()), "Internal TaskExecutorPool error!");
 		}
