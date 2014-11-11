@@ -17,29 +17,25 @@ namespace stingray
 		IDataBufferPtr			_buffer;
 
 		ThreadPtr				_worker;
-		CancellationToken		_token;
 
 	public:
 		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataBufferPtr& buffer) :
 			_source(source), _buffer(buffer)
 		{
-			_worker.reset(new Thread(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this, not_using(_1))));
+			_worker.reset(new Thread(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this, _1)));
 		}
 
 		~IntermediateDataBuffer()
-		{
-			_token.Cancel();
-			_worker.reset();
-		}
+		{ _worker.reset(); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{ return _buffer->Read(consumer, token); }
 
 	private:
-		void ThreadFunc()
+		void ThreadFunc(const ICancellationToken& token)
 		{
-			while (_token)
-				_source->Read(*_buffer, _token);
+			while (token)
+				_source->Read(*_buffer, token);
 		}
 	};
 	TOOLKIT_DECLARE_PTR(IntermediateDataBuffer);

@@ -47,11 +47,10 @@ namespace stingray
 			_idle(true),
 			OnIdle(bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
 			OnProgress(bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1))
-		{ _thread = make_shared<Thread>(name, bind(&AsyncQueueProcessor::ThreadFunc, this, not_using(_1))); }
+		{ _thread = make_shared<Thread>(name, bind(&AsyncQueueProcessor::ThreadFunc, this, _1)); }
 
 		~AsyncQueueProcessor()
 		{
-			_token.Cancel();
 			_thread->Interrupt();
 			_thread.reset();
 		}
@@ -102,15 +101,15 @@ namespace stingray
 			}
 		}
 
-		void ThreadFunc()
+		void ThreadFunc(const ICancellationToken& token)
 		{
 			MutexLock l(_lock);
-			while(_token)
+			while(token)
 			{
 				if (_queue.empty())
 				{
 					SetIdle(l, true);
-					_condition.Wait(_lock, _token);
+					_condition.Wait(_lock, token);
 					if (!_queue.empty())
 						SetIdle(l, false);
 					continue;

@@ -49,8 +49,6 @@ namespace stingray
 		size_t					_outputPacketSize;
 		ThreadPtr				_worker;
 
-		CancellationToken		_token;
-
 		BithreadCircularBuffer	_buffer;
 		Mutex					_mutex;
 
@@ -65,14 +63,11 @@ namespace stingray
 			TOOLKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
 			TOOLKIT_CHECK(size % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 
-			_worker.reset(new Thread("streamingSocketDataSource", bind(&StreamingSocketDataSource::ThreadFunc, this, not_using(_1))));
+			_worker.reset(new Thread("streamingSocketDataSource", bind(&StreamingSocketDataSource::ThreadFunc, this, _1)));
 		}
 
 		~StreamingSocketDataSource()
-		{
-			_token.Cancel();
-			_worker.reset();
-		}
+		{ _worker.reset(); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{
@@ -96,22 +91,22 @@ namespace stingray
 		}
 
 	private:
-		void ThreadFunc()
+		void ThreadFunc(const ICancellationToken& token)
 		{
-			while (_token)
+			while (token)
 			{
 				MutexLock l(_mutex);
 				BithreadCircularBuffer::Writer w = _buffer.Write();
 				if (w.size() == 0)
 				{
-					_hasSpace.Wait(_mutex, _token);
+					_hasSpace.Wait(_mutex, token);
 					continue;
 				}
 
 				size_t received_size = 0;
 				{
 					MutexUnlock ul(l);
-					received_size = _socket->Receive(w.GetData(), _token);
+					received_size = _socket->Receive(w.GetData(), token);
 				}
 
 				w.Push(received_size);
