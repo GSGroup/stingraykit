@@ -28,6 +28,7 @@
 #include <stingray/net/IgnoredInterfaceConfiguration.h>
 #include <stingray/net/LinkLocalInterfaceConfiguration.h>
 #include <stingray/net/ManualInterfaceConfiguration.h>
+#include <stingray/net/NetworkConfiguration.h>
 #include <stingray/parentalcontrol/AgeRating.h>
 #ifdef PLATFORM_EMU
 #	include <stingray/platform/emu/scanner/Channel.h>
@@ -68,6 +69,7 @@
 #include <stingray/scanner/TricolorScanPerformerFactory.h>
 #include <stingray/scanner/lybid/LybidServiceMetaInfo.h>
 #include <stingray/scanner/terrestrial/TerrestrialServiceMetaInfo.h>
+#include <stingray/scanner/tricolor/AutoCreatedListMetaInfo.h>
 #include <stingray/scanner/tricolor/TricolorServiceMetaInfo.h>
 #include <stingray/stats/StatisticChannelInfo.h>
 #include <stingray/streams/PlaybackStreamContent.h>
@@ -148,6 +150,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(IgnoredInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LinkLocalInterfaceConfiguration);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ManualInterfaceConfiguration);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(Detail::any::ObjectHolder<NetworkConfigurationStatus>);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(AgeRating);
 #ifdef PLATFORM_EMU
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(emu::EmuServiceId);
@@ -205,6 +208,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanPerformerFactory);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TerrestrialServiceMetaInfo);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(AutoCreatedListMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Detail::any::ObjectHolder<stingray::StatisticChannelInfo>);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlaybackStreamContent);
