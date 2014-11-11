@@ -23,7 +23,7 @@ namespace stingray
 		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataBufferPtr& buffer) :
 			_source(source), _buffer(buffer)
 		{
-			_worker.reset(new Thread(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this)));
+			_worker.reset(new Thread(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this, not_using(_1))));
 		}
 
 		~IntermediateDataBuffer()

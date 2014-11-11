@@ -14,7 +14,7 @@ namespace stingray
 
 	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls)
 		: _name(name), _working(true), _paused(false), _exceptionHandler(exceptionHandler), _profileCalls(profileCalls)
-	{ _worker.reset(new Thread(name, bind(&ThreadTaskExecutor::ThreadFunc, this))); }
+	{ _worker.reset(new Thread(name, bind(&ThreadTaskExecutor::ThreadFunc, this, not_using(_1)))); }
 
 
 	ThreadTaskExecutor::~ThreadTaskExecutor()
