@@ -79,6 +79,7 @@
 #include <stingray/time/TDTTimeSourceId.h>
 #include <stingray/time/TransportsTimeSourceObtainer.h>
 #include <stingray/tuners/TunerState.h>
+#include <stingray/tuners/dvbc/DVBCTransport.h>
 #include <stingray/tuners/dvbs/Antenna.h>
 #include <stingray/tuners/dvbs/DefaultDVBSTransport.h>
 #include <stingray/tuners/dvbs/Satellite.h>
@@ -220,6 +221,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(CircuitedTunerState);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LockedTunerState);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(UnlockedTunerState);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBCTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Antenna);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBSTransport);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Satellite);
