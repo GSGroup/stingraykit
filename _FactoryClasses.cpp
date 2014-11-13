@@ -54,8 +54,8 @@
 #include <stingray/pushvod/pushvod_emu/PushVODEmulationMovie.h>
 #include <stingray/records/FileSystemRecord.h>
 #include <stingray/rpc/UrlObjectId.h>
+#include <stingray/scanner/DVBBandInfo.h>
 #include <stingray/scanner/DVBServiceId.h>
-#include <stingray/scanner/DefaultDVBTBandInfo.h>
 #include <stingray/scanner/DefaultMpegService.h>
 #include <stingray/scanner/DefaultMpegSubstreamDescriptor.h>
 #include <stingray/scanner/DefaultScanParams.h>
@@ -186,8 +186,9 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(PushVODEmulationMovie);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemRecord);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(rpc::UrlObjectId);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBCBandInfo);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBTBandInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBServiceId);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultDVBTBandInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegRadioChannel);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegService);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DefaultMpegTVChannel);
