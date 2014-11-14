@@ -588,7 +588,7 @@ namespace stingray
 
 			SplitRefsImpl(sourceString, delimiters, result_, maxsplit);
 			for (size_t i = 0; i < result_.size(); ++i)
-				result.push_back(lexical_cast<typename ContainerType::value_type, std::string>(result_[i].str()));
+				Detail::CollectionInserter<ContainerType>::Insert(result, lexical_cast<typename ContainerType::value_type, std::string>(result_[i].str()));
 
 			return;
 		}
