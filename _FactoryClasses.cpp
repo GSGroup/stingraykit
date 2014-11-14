@@ -63,6 +63,7 @@
 #include <stingray/scanner/DreCasGeographicRegion.h>
 #include <stingray/scanner/LybidScanParams.h>
 #include <stingray/scanner/LybidScanPerformerFactory.h>
+#include <stingray/scanner/StreamableServiceMetaInfo.h>
 #include <stingray/scanner/TerrestrialScanParams.h>
 #include <stingray/scanner/TricolorGeographicRegion.h>
 #include <stingray/scanner/TricolorScanParams.h>
@@ -204,6 +205,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DreCasGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(LybidScanPerformerFactory);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(StreamableServiceMetaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TerrestrialScanParams);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorGeographicRegion);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorScanParams);
