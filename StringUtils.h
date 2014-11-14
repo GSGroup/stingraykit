@@ -581,14 +581,14 @@ namespace stingray
 		}
 
 
-		template<typename ContainerType>
-		inline void SplitImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result, int maxsplit)
+		template<typename ContainerType, typename UnaryOperator>
+		inline void SplitImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result, UnaryOperator op, int maxsplit)
 		{
 			std::vector<StringRef> result_;
 
 			SplitRefsImpl(sourceString, delimiters, result_, maxsplit);
 			for (size_t i = 0; i < result_.size(); ++i)
-				Detail::CollectionInserter<ContainerType>::Insert(result, lexical_cast<typename ContainerType::value_type, std::string>(result_[i].str()));
+				Detail::CollectionInserter<ContainerType>::Insert(result, op(result_[i].str()));
 
 			return;
 		}
@@ -606,7 +606,7 @@ namespace stingray
 		template <typename ContainerType> \
 		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1) \
 		{ \
-			Detail::SplitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, maxsplit); \
+			Detail::SplitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, lexical_cast<typename ContainerType::value_type, std::string>, maxsplit); \
 		} \
 	)
 
