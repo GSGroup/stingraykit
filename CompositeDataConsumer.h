@@ -12,23 +12,27 @@ namespace stingray
 
 	class CompositeDataConsumer : public virtual IDataConsumer
 	{
+		TOOLKIT_DECLARE_SIMPLE_EXCEPTION(ProcessingCancelledException, "Processing have been cancelled!");
+
 		typedef std::list<IDataConsumerWeakPtr> ConsumersContainer;
 
 	private:
-		Mutex				_consumersGuard;
+		Mutex				_guard;
+
 		ConsumersContainer	_consumers;
 
 	public:
 		void AddConsumer(const IDataConsumerPtr& consumer)
 		{
-			MutexLock l(_consumersGuard);
+			MutexLock l(_guard);
 			_consumers.remove_if(bind(&IDataConsumerWeakPtr::expired, _1));
 			_consumers.push_back(consumer);
 		}
 
 		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
 		{
-			ForEachConsumer(bind(&CompositeDataConsumer::ProcessImpl, _1, data, ref(token)));
+			try { ForEachConsumer(bind(&CompositeDataConsumer::ProcessImpl, _1, data, ref(token))); }
+			catch (const ProcessingCancelledException& ex) { }
 			return data.size();
 		}
 
@@ -38,7 +42,7 @@ namespace stingray
 	private:
 		void ForEachConsumer(const function<void (const IDataConsumerPtr&)>& func)
 		{
-			MutexLock l(_consumersGuard);
+			MutexLock l(_guard);
 			std::for_each(_consumers.begin(), _consumers.end(), bind(&CompositeDataConsumer::Invoke, _1, func));
 		}
 
@@ -50,7 +54,14 @@ namespace stingray
 		}
 
 		static void ProcessImpl(const IDataConsumerPtr& consumer, ConstByteData data, const ICancellationToken& token)
-		{ TOOLKIT_CHECK(consumer->Process(data, token) == data.size(), NotImplementedException()); }
+		{
+			for (size_t offset = 0; offset < data.size(); )
+			{
+				TOOLKIT_CHECK(token, ProcessingCancelledException());
+				const size_t processed = consumer->Process(ConstByteData(data, offset), token);
+				offset += processed;
+			}
+		}
 
 		static void EndOfDataImpl(const IDataConsumerPtr& consumer)
 		{ consumer->EndOfData(); }
