@@ -606,12 +606,12 @@ namespace stingray
 		template <typename ContainerType> \
 		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1) \
 		{ \
-			Detail::SplitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, lexical_cast<typename ContainerType::value_type, std::string>, maxsplit); \
+			Detail::SplitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, lexical_caster<typename ContainerType::value_type>, maxsplit); \
 		} \
 	) \
 	TOOLKIT_INSERT_IF(ParamsCount_, \
 		template <typename ContainerType TOOLKIT_COMMA typename UnaryOperator> \
-		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, UnaryOperator op, int maxsplit = -1) \
+		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, UnaryOperator op, int maxsplit = -1, typename EnableIf<Detail::FunctorTypeValidator<UnaryOperator>::ValueT, Dummy>::ValueT* = 0) \
 		{ \
 			Detail::SplitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, op, maxsplit); \
 		} \
