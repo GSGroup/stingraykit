@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_COMPOSITEDATACONSUMER_H
 
 
+#include <stingray/log/Logger.h>
 #include <stingray/toolkit/IDataSource.h>
 
 #include <list>
@@ -17,6 +18,8 @@ namespace stingray
 		typedef std::list<IDataConsumerWeakPtr> ConsumersContainer;
 
 	private:
+		static NamedLogger	s_logger;
+
 		Mutex				_guard;
 
 		ConsumersContainer	_consumers;
@@ -59,6 +62,11 @@ namespace stingray
 			{
 				TOOLKIT_CHECK(token, ProcessingCancelledException());
 				const size_t processed = consumer->Process(ConstByteData(data, offset), token);
+				if (processed == 0)
+				{
+					s_logger.Warning() << "Process() returned zero!";
+					Thread::Sleep(TimeDuration(100));
+				}
 				offset += processed;
 			}
 		}
