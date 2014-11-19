@@ -90,6 +90,9 @@ namespace stingray
 	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less> CompareMembersLess(ParamsDecl_) \
 	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::less<int>()); } \
 	template <TypesDecl_> \
+	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::greater> CompareMembersGreater(ParamsDecl_) \
+	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::greater>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::greater<int>()); } \
+	template <TypesDecl_> \
 	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::equal_to> CompareMembersEquals(ParamsDecl_) \
 	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::equal_to>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::equal_to<int>()); }
 
