@@ -2,6 +2,7 @@
 #define STINGRAY_TOOLKIT_ENUMERABLEHELPERS_H
 
 
+#include <stingray/toolkit/Comparable.h>
 #include <stingray/toolkit/EnumeratorFromStlContainer.h>
 #include <stingray/toolkit/IEnumerable.h>
 #include <stingray/toolkit/bind.h>
@@ -615,22 +616,41 @@ namespace stingray
 		{ return SequenceEqual(first, second, std::equal_to<T>()); }
 
 
-		template < typename T, typename CompareFunc >
-		int SequenceCmp(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second, const CompareFunc& compareFunc)
+		template < typename CompareFunc >
+		class SequenceCmp : public function_info<int, UnspecifiedParamTypes>
 		{
-			shared_ptr<IEnumerator<T> > l(first->GetEnumerator()), r(second->GetEnumerator());
-			for (; l->Valid(); l->Next(), r->Next())
+		private:
+			CompareFunc	_compareFunc;
+
+		public:
+			SequenceCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc)
+			{ }
+
+			template<typename T>
+			int operator() (const shared_ptr<T>& first, const shared_ptr<T>& second) const
 			{
-				if (!r->Valid())
-					return -1;
+				shared_ptr<IEnumerator<typename T::ItemType> > l(first->GetEnumerator()), r(second->GetEnumerator());
+				for (; l->Valid(); l->Next(), r->Next())
+				{
+					if (!r->Valid())
+						return -1;
 
-				int item_result = compareFunc(l->Get(), r->Get());
-				if (item_result != 0)
-					return item_result;
+					int item_result = _compareFunc(l->Get(), r->Get());
+					if (item_result != 0)
+						return item_result;
+				}
+				return r->Valid() ? 1 : 0;
 			}
-			return r->Valid() ? 1 : 0;
-		}
+		};
 
+
+		SequenceCmp<ComparableCmp> MakeSequenceCmp()
+		{ return SequenceCmp<ComparableCmp>(); }
+
+
+		template < typename CompareFunc >
+		SequenceCmp<CompareFunc> MakeSequenceCmp(const CompareFunc& compareFunc)
+		{ return SequenceCmp<CompareFunc>(compareFunc); }
 
 #undef DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS
 #undef DETAIL_ENUMERABLE_HELPER_METHODS
