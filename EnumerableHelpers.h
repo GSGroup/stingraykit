@@ -644,7 +644,7 @@ namespace stingray
 		};
 
 
-		SequenceCmp<ComparableCmp> MakeSequenceCmp()
+		inline SequenceCmp<ComparableCmp> MakeSequenceCmp()
 		{ return SequenceCmp<ComparableCmp>(); }
 
 
