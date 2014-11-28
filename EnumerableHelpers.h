@@ -462,6 +462,25 @@ namespace stingray
 		{ return IndexOf(enumerator, bind(std::equal_to<T>(), val, _1)); }
 
 
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), T, ElementAt, MK_PARAM(size_t index), MK_PARAM(index))
+		{
+			size_t current = 0;
+			for (; enumerator.Valid(); enumerator.Next(), ++current)
+				if (index == current)
+					return enumerator.Get();
+			TOOLKIT_THROW(IndexOutOfRangeException());
+		}
+
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), T, ElementAtOrDefault, MK_PARAM(size_t index), MK_PARAM(index))
+		{
+			size_t current = 0;
+			for (; enumerator.Valid(); enumerator.Next(), ++current)
+				if (index == current)
+					return enumerator.Get();
+			return T();
+		}
+
+
 		template < typename T >
 		shared_ptr<IEnumerable<T> > DefaultIfEmpty(const shared_ptr<IEnumerable<T> >& src, const T& value = T())
 		{ return Any(src) ? src : MakeOneItemEnumerable(value); }
