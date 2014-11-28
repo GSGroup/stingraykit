@@ -127,7 +127,7 @@ namespace stingray
 				const size_t BytesRequirement = (OffsetBits + SizeBits + 7) / 8;
 				TOOLKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
 
-				typedef typename ShiftableType<T>::ValueT			ShiftableT;
+				typedef typename ShiftableType<T>::ValueT					ShiftableT;
 				typedef typename MinimalTypeSelector<SizeBits>::ValueT		MinimalT;
 
 				ShiftableT result = ShiftableT();
@@ -152,7 +152,7 @@ namespace stingray
 					}
 				}
 				if (!BigEndian)
-					result = SwappableType<MinimalT>::Swap(result);
+					result = SwappableType<MinimalT>::Swap(result << (sizeof(MinimalT) * 8 - SizeBits)); //24 bit values are shifted left, so 11 22 33 becomes 00 33 22 11, not 33 22 11 00
 				return static_cast<typename BitsGetterResultType<T>::ValueT>(result);
 			}
 		};
@@ -182,7 +182,7 @@ namespace stingray
 				const size_t BytesRequirement = (OffsetBits + SizeBits + 7) / 8;
 				TOOLKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
 
-				typedef typename ShiftableType<T>::ValueT			ShiftableT;
+				typedef typename ShiftableType<T>::ValueT					ShiftableT;
 				typedef typename MinimalTypeSelector<SizeBits>::ValueT		MinimalT;
 
 				ShiftableT result = ShiftableT();
@@ -193,7 +193,7 @@ namespace stingray
 					result = (result << 8) | _buf[offset + i];
 
 				if (!BigEndian)
-					result = SwappableType<MinimalT>::Swap(result);
+					result = SwappableType<MinimalT>::Swap(result << (sizeof(MinimalT) * 8 - SizeBits)); //24 bit values are shifted left, so 11 22 33 becomes 00 33 22 11, not 33 22 11 00
 				return static_cast<typename BitsGetterResultType<T>::ValueT>(result);
 			}
 
