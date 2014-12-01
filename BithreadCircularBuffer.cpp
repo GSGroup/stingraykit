@@ -108,6 +108,17 @@ namespace stingray
 		}
 
 
+		void Clear()
+		{
+			MutexLock l(_mutex);
+			TOOLKIT_CHECK(_lockedForRead == 0, "There is another read in progress!");
+			TOOLKIT_CHECK(_lockedForWrite == 0, "There is another write in progress!");
+			_writeOffset = 0;
+			_readOffset = 0;
+			_dataIsContiguous = true;
+		}
+
+
 		atomic_int_type& ReadersCount() { return _readersCount; }
 		atomic_int_type& WritersCount() { return _writersCount; }
 	};
@@ -146,6 +157,10 @@ namespace stingray
 
 	BithreadCircularBuffer::Writer BithreadCircularBuffer::Write()
 	{ return Writer(_impl); }
+
+
+	void BithreadCircularBuffer::Clear()
+	{ _impl->Clear(); }
 
 
 	BithreadCircularBuffer::Reader::Reader(const ImplPtr& impl) :

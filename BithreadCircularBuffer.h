@@ -85,6 +85,9 @@ namespace stingray
 
 		Reader Read();
 		Writer Write();
+
+		/// @brief: Clears buffer completely. Warning: can't be called simultaneously with Read(...) or Write(...)
+		void Clear();
 	};
 	TOOLKIT_DECLARE_PTR(BithreadCircularBuffer);
 
