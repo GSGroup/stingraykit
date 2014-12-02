@@ -11,13 +11,6 @@
 namespace stingray
 {
 
-	namespace Detail
-	{
-		void DoLogAddRef(const char* className, atomic_int_type refs, const void* objPtrVal, const void* sharedPtrPtrVal);
-		void DoLogRelease(const char* className, atomic_int_type refs, const void* objPtrVal, const void* sharedPtrPtrVal);
-	}
-
-
 	template < typename UserDataType >
 	class basic_ref_count_data
 	{
@@ -90,24 +83,7 @@ namespace stingray
 		inline atomic_int_type get() const	{ assert(_value); return _value->Value; }
 		inline atomic_int_type add_ref()	{ assert(_value); return Atomic::Inc(_value->Value); }
 		inline atomic_int_type release()	{ assert(_value); return Atomic::Dec(_value->Value); }
-		inline bool release_if_unique()	{ assert(_value); return Atomic::CompareAndExchange(_value->Value, 1, 0) == 1; }
-
-		void log_add_ref(const char* className, const void* objPtrVal, const void* sharedPtrPtrVal)
-		{ atomic_int_type res = get(); Detail::DoLogAddRef(className, res, objPtrVal, sharedPtrPtrVal); }
-
-		atomic_int_type add_ref(const char* className, const void* objPtrVal, const void* sharedPtrPtrVal)
-		{ atomic_int_type res = add_ref(); Detail::DoLogAddRef(className, res, objPtrVal, sharedPtrPtrVal); return res; }
-
-		atomic_int_type release(const char* className, const void* objPtrVal, const void* sharedPtrPtrVal)
-		{ atomic_int_type res = release(); Detail::DoLogRelease(className, res, objPtrVal, sharedPtrPtrVal); return res; }
-
-		bool release_if_unique(const char* className, const void* objPtrVal, const void* sharedPtrPtrVal)
-		{
-			bool res = release_if_unique();
-			if (res)
-				Detail::DoLogRelease(className, 0, objPtrVal, sharedPtrPtrVal);
-			return res;
-		}
+		inline bool release_if_unique()		{ assert(_value); return Atomic::CompareAndExchange(_value->Value, 1, 0) == 1; }
 
 		inline void swap(basic_ref_count& other)
 		{ std::swap(_value, other._value); }
