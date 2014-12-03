@@ -185,9 +185,6 @@ namespace stingray
 		template < typename U >
 		friend class shared_ptr;
 
-		template < typename U, typename V >
-		friend shared_ptr<U> dynamic_pointer_cast(const shared_ptr<V>&);
-
 	private:
 		T*						_rawPtr;
 		Detail::shared_ptr_impl	_impl;
@@ -617,6 +614,7 @@ namespace stingray
 		};
 	}
 
+
 	template < typename DestType, typename SrcType >
 	inline shared_ptr<DestType> dynamic_pointer_cast(const shared_ptr<SrcType>& src)
 	{
@@ -624,7 +622,7 @@ namespace stingray
 		if (rawDest == NULL)
 			return shared_ptr<DestType>();
 
-		return shared_ptr<DestType>(rawDest, src._impl);
+		return shared_ptr<DestType>(src, rawDest);
 	}
 
 
