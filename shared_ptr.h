@@ -414,8 +414,6 @@ namespace stingray
 	template < typename T >
 	class weak_ptr
 	{
-		template < typename U, typename V >
-		friend weak_ptr<U> dynamic_pointer_cast(const weak_ptr<V>&);
 		template <typename U> friend class weak_ptr;
 		template <typename U> friend class shared_ptr;
 
@@ -627,16 +625,6 @@ namespace stingray
 			return shared_ptr<DestType>();
 
 		return shared_ptr<DestType>(rawDest, src._impl);
-	}
-
-	template < typename DestType, typename SrcType >
-	inline weak_ptr<DestType> dynamic_pointer_cast(const weak_ptr<SrcType>& src)
-	{
-		DestType* rawDest = Detail::DynamicCastHelper<DestType, SrcType>::Do(src._rawPtr);
-		if (rawDest == NULL)
-			return weak_ptr<DestType>();
-
-		return weak_ptr<DestType>(rawDest, src._impl);
 	}
 
 
