@@ -1,6 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_ASYNCQUEUEPROCESSOR_H
 #define STINGRAY_TOOLKIT_ASYNCQUEUEPROCESSOR_H
 
+#include <stingray/log/Logger.h>
 #include <stingray/threads/CancellationToken.h>
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/function.h>
