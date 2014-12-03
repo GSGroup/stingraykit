@@ -3,6 +3,7 @@
 
 #include <stingray/toolkit/fatal.h>
 
-#define TOOLKIT_ASSERT(value) if (!(value)) TOOLKIT_FATAL("assertion " #value " failed")
+#define TOOLKIT_ASSERT(value) \
+		do { if (!(value)) TOOLKIT_FATAL("assertion " #value " failed"); } while (false)
 
 #endif
