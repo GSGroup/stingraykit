@@ -475,7 +475,7 @@ namespace stingray
 			atomic_int_type sc = _impl.TryAddStrongReference();
 			if (sc == 0)
 			{
-				STINGRAY_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr()); // TODO: Check whether this necessary
+				STINGRAY_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr()); // TODO: Check whether this is necessary
 				return shared_ptr<T>();
 			}
 			Detail::SharedPtrRefCounter<T>::LogAddRef(sc, _rawPtr, this);
