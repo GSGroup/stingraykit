@@ -249,6 +249,13 @@ namespace stingray
 		{ AddRef(); }
 
 
+		/// @brief: Aliasing constuctor - similar to standard one
+		template < typename U >
+		inline shared_ptr(const shared_ptr<U>& other, T* ptr) :
+			_rawPtr(ptr), _impl(other._impl)
+		{ AddRef(); }
+
+
 		inline ~shared_ptr()
 		{
 			if (!_rawPtr)
