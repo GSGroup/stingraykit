@@ -51,17 +51,11 @@ namespace stingray
 		size_t GetFreeSize() const		{ return _buffer.GetFreeSize(); }
 		size_t GetStorageSize() const	{ return _buffer.GetTotalSize(); }
 
+		/// @brief: Clears buffer completely. Warning: can't be called simultaneously with Process(...) or Read(...)
 		void Clear()
 		{
 			MutexLock l(_bufferMutex);
-			while (true)
-			{
-				BithreadCircularBuffer::Reader r = _buffer.Read();
-				if (r.size() == 0)
-					return;
-
-				r.Pop(r.size());
-			}
+			_buffer.Clear();
 			_eod = false;
 
 			_bufferFull.Broadcast();
