@@ -14,6 +14,7 @@
 #include <stingray/crypto/PlainCipherKey.h>
 #include <stingray/details/IReceiverTrait.h>
 #include <stingray/hdmi/IHDMI.h>
+#include <stingray/media/FileSystemMediaDataDirectory.h>
 #include <stingray/media/ImageFileMediaData.h>
 #include <stingray/media/MediaInfoBase.h>
 #include <stingray/media/formats/flv/MediaInfo.h>
@@ -135,6 +136,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(SatIpClientTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(TricolorOperatorTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(HDMIConfig);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(FileSystemMediaDataDirectory);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaInfo);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(ImageFileMediaPreview);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(InMemoryImageMediaPreview);
