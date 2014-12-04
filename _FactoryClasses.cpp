@@ -11,7 +11,7 @@
 #include <stingray/ca/BissConditionalAccess.h>
 #include <stingray/ca/DreSubscription.h>
 #include <stingray/ca/SubscriptionBundle.h>
-#include <stingray/crypto/PlainCipherKey.h>
+#include <stingray/crypto/SoftwareCipherKey.h>
 #include <stingray/details/IReceiverTrait.h>
 #include <stingray/hdmi/IHDMI.h>
 #include <stingray/media/ImageFileMediaData.h>
@@ -38,15 +38,6 @@
 #endif
 #ifdef PLATFORM_MSTAR
 #	include <stingray/platform/mstar/crypto/HardwareCipherKey.h>
-#endif
-#ifdef PLATFORM_OPENSSL
-#	include <stingray/platform/openssl/crypto/Certificate.h>
-#endif
-#ifdef PLATFORM_OPENSSL
-#	include <stingray/platform/openssl/crypto/CertificateRevocationList.h>
-#endif
-#ifdef PLATFORM_OPENSSL
-#	include <stingray/platform/openssl/crypto/EvpKey.h>
 #endif
 #ifdef PLATFORM_STAPI
 #	include <stingray/platform/stapi/crypto/HardwareCipherKey.h>
@@ -125,7 +116,7 @@ namespace stingray { namespace Detail
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Dre4Provider);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(Dre4Subscription);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(SubscriptionBundle);
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(PlainCipherKey);
+		TOOLKIT_REGISTER_CLASS_EXPLICIT(SoftwareCipherKey);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBCReceiverTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBSReceiverTrait);
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(DVBTReceiverTrait);
@@ -171,15 +162,6 @@ namespace stingray { namespace Detail
 #endif
 #ifdef PLATFORM_MSTAR
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(mstar::HardwareCipherKey);
-#endif
-#ifdef PLATFORM_OPENSSL
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::Certificate);
-#endif
-#ifdef PLATFORM_OPENSSL
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::CertificateRevocationList);
-#endif
-#ifdef PLATFORM_OPENSSL
-		TOOLKIT_REGISTER_CLASS_EXPLICIT(openssl::EvpKey);
 #endif
 #ifdef PLATFORM_STAPI
 		TOOLKIT_REGISTER_CLASS_EXPLICIT(stapi::HardwareCipherKey);
