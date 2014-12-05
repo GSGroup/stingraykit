@@ -52,7 +52,6 @@ namespace stingray
 
 		~AsyncQueueProcessor()
 		{
-			_thread->Interrupt();
 			_thread.reset();
 		}
 
