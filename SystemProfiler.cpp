@@ -37,6 +37,7 @@ namespace stingray
 		: _impl(new Impl()), _message(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
 	{ _start = _impl->GetMicroseconds(); }
 
+
 	SystemProfiler::~SystemProfiler()
 	{
 		s64 elapsed_ms = (_impl->GetMicroseconds() - _start) / 1000;
@@ -44,9 +45,8 @@ namespace stingray
 		if (elapsed_ms < _thresholdMs)
 			return;
 
-		Logger::StreamAccessProxy sac = (_criticalMs >= _thresholdMs && elapsed_ms > _criticalMs) ? Logger::Warning() : Logger::Info();
-
-		sac << _message << ": " << elapsed_ms << " ms";
+		LogLevel ll = (_criticalMs >= _thresholdMs && elapsed_ms > _criticalMs) ? LogLevel::Warning : LogLevel::Info;
+		Logger::Stream(ll) << _message << ": " << elapsed_ms << " ms";
 	}
 
 }
