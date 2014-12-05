@@ -16,7 +16,7 @@ namespace stingray
 		s64 GetMicroseconds() const
 		{
 			struct timespec ts = {};
-			if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
+			if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1)
 				throw SystemException("clock_gettime");
 			return (s64)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
 		}
@@ -44,7 +44,7 @@ namespace stingray
 		if (elapsed_ms < _thresholdMs)
 			return;
 
-		Logger::StreamAccessProxy sac = (_criticalMs > _thresholdMs && elapsed_ms > _criticalMs) ? Logger::Warning() : Logger::Info();
+		Logger::StreamAccessProxy sac = (_criticalMs >= _thresholdMs && elapsed_ms > _criticalMs) ? Logger::Warning() : Logger::Info();
 
 		sac << _message << ": " << elapsed_ms << " ms";
 	}
