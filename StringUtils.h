@@ -52,11 +52,8 @@ namespace stingray
 
 
 	template<typename T>
-	void ToHexImpl(string_ostream &r, T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
+	void ToHexImpl(string_ostream &r, T value, size_t width = 0, bool capital = false)
 	{
-		if (add0xPrefix)
-			r << "0x";
-
 		static const size_t max_width = sizeof(T) * 2;
 		size_t start;
 		if (width > max_width)
@@ -82,7 +79,11 @@ namespace stingray
 	template<typename T>
 	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
 	{
-		string_ostream result; ToHexImpl(result, value, width, capital, add0xPrefix); return result.str();
+		string_ostream result;
+		if (add0xPrefix)
+			result << "0x";
+		ToHexImpl(result, value, width, capital);
+		return result.str();
 	}
 
 
