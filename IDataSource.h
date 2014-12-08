@@ -3,6 +3,7 @@
 
 
 #include <stingray/threads/CancellationToken.h>
+#include <stingray/threads/atomic.h>
 #include <stingray/toolkit/ByteData.h>
 #include <stingray/toolkit/IByteStream.h>
 #include <stingray/toolkit/bind.h>
@@ -96,6 +97,46 @@ namespace stingray
 		{ consumer.EndOfData(); _eod(); }
 	};
 	TOOLKIT_DECLARE_PTR(DataInterceptor);
+
+
+	class ReactiveDataSource : public virtual IDataSource
+	{
+
+		class ReactiveDataConsumer : public virtual IDataConsumer
+		{
+		private:
+			IDataConsumer&	_consumer;
+			atomic<bool>	_endOfData;
+
+		public:
+			explicit ReactiveDataConsumer(IDataConsumer& consumer)
+				: _consumer(consumer), _endOfData(false)
+			{ }
+
+			bool IsEndOfData() const { return _endOfData; }
+
+			virtual size_t Process(ConstByteData data, const ICancellationToken& token) { return _consumer.Process(data, token); }
+
+			virtual void EndOfData()
+			{ _endOfData = true; _consumer.EndOfData(); }
+		};
+
+	private:
+		IDataSourcePtr	_source;
+
+	public:
+		explicit ReactiveDataSource(const IDataSourcePtr& source)
+			: _source(source)
+		{ }
+
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		{
+			ReactiveDataConsumer reactiveConsumer(consumer);
+			while (token && !reactiveConsumer.IsEndOfData())
+				_source->Read(reactiveConsumer, token);
+		}
+	};
+	TOOLKIT_DECLARE_PTR(ReactiveDataSource);
 
 
 	template<typename MetadataType>
