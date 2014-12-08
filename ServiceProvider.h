@@ -466,7 +466,8 @@ namespace stingray
 		{
 			shared_ptr<ServiceInterface> inst;
 			{
-				SystemProfiler sp("[ServiceProvider] Creating " + s_serviceCreator->GetServiceTypeName() + " service", 30, 100);
+				Logger::Info() << "[ServiceProvider] Creating " << s_serviceCreator->GetServiceTypeName() << " service";
+				SystemProfiler sp("[ServiceProvider] Creating " + s_serviceCreator->GetServiceTypeName() + " service", 100, 100);
 				inst = s_serviceCreator->Create();
 			}
 			GetInstancePtr() = inst;
