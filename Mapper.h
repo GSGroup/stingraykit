@@ -142,7 +142,7 @@ namespace stingray
 				DetailCheckSizes();
 				typedef typename GetTypeListItem<Default, 1>::ValueT DefaultValue;
 
-				DstT result;
+				DstT result = static_cast<DstT>(0);
 				if (ForIf<GetTypeListLength<List>::Value / 2, MapFunctor>::Do(val, ref(result)))
 					return DefaultValue::GetValue(val);
 				return result;
@@ -153,7 +153,7 @@ namespace stingray
 				DetailCheckSizes();
 				typedef typename GetTypeListItem<Default, 0>::ValueT DefaultValue;
 
-				SrcT result;
+				SrcT result = static_cast<SrcT>(0);
 				if (ForIf<GetTypeListLength<List>::Value / 2, UnmapFunctor>::Do(val, ref(result)))
 					return DefaultValue::GetValue(val);
 				return result;
