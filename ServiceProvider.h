@@ -71,7 +71,7 @@ namespace stingray
 	 * namespace stingray {
 	 * namespace my_new_platform
 	 * {
-	 *     class MyAudioOutput : public virtual IAudioOutput, public ServiceTraits<IAudioOutput, TypeList_3<ILogger, ISomeService, ISomeOtherService> >
+	 *     class MyAudioOutput : public virtual IAudioOutput, public ServiceTraits<IAudioOutput, TypeList<ILogger, ISomeService, ISomeOtherService>::type >
 	 *     {
 	 *         // ...
 	 *     };
