@@ -1,6 +1,6 @@
 #if !HAVE_TASK_EXECUTOR
 
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 #include <stingray/timer/ExecutorsProfiler.h>
 #include <stingray/toolkit/ThreadTaskExecutor.h>
 #include <stingray/toolkit/bind.h>

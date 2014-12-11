@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_COMPOSITEDATACONSUMER_H
 
 
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/IDataSource.h>
 
 #include <list>

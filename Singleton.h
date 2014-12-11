@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_SINGLETON_H
 
 
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 #include <stingray/threads/call_once.h>
 #include <stingray/toolkit/unique_ptr.h>
 #include <stingray/toolkit/toolkit.h>

@@ -1,6 +1,6 @@
 #include <stingray/toolkit/ActionTransaction.h>
 
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 
 
 namespace stingray

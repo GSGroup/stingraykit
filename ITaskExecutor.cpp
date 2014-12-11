@@ -1,7 +1,7 @@
 #include <stingray/toolkit/ITaskExecutor.h>
 
 #include <stingray/toolkit/ThreadTaskExecutor.h>
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 
 
 namespace stingray

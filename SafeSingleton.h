@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_SAFESINGLETON_H
 
 
-#include <stingray/log/SystemLogger.h>
+#include <stingray/toolkit/log/SystemLogger.h>
 #include <stingray/threads/call_once.h>
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/bind.h>

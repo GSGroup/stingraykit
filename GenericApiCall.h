@@ -1,7 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_GENERICAPICALL_H
 #define STINGRAY_TOOLKIT_GENERICAPICALL_H
 
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/exception.h>
 

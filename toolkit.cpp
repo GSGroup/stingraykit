@@ -7,7 +7,7 @@
 #	include <cxxabi.h>
 #endif
 
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/Backtrace.h>
 #include <stingray/toolkit/ScopeExit.h>
 #include <stingray/toolkit/StringUtils.h>

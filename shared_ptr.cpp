@@ -1,6 +1,6 @@
 #include <stingray/toolkit/shared_ptr.h>
 
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/Backtrace.h>
 
 

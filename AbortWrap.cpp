@@ -1,4 +1,4 @@
-#include <stingray/log/Logger.h>
+#include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/Backtrace.h>
 
 
