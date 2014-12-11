@@ -126,20 +126,26 @@ namespace stingray
 		}
 	};
 
-	template < typename BaseEntityType, typename StreamType >
+	template < typename BaseEntityType, typename StreamType_ >
 	struct IEntityFactory
 	{
-		typedef shared_ptr<BaseEntityType>		EntityPtr;
+		typedef StreamType_									StreamType;
+		typedef IEntityFactory<BaseEntityType, StreamType>	InterfaceType;
+		typedef shared_ptr<BaseEntityType>					EntityPtr;
 
 		virtual ~IEntityFactory() { }
 
 		virtual EntityPtr Create(StreamType& stream) const = 0;
+	};
 
-		template < typename EntityFactory >
-		struct Wrapper : public IEntityFactory<BaseEntityType, StreamType>
-		{
-			virtual EntityPtr Create(StreamType& stream) const { return EntityFactory::Create(stream); }
-		};
+	template < typename InterfaceType, typename EntityFactory >
+	struct EntityFactoryWrapper : public InterfaceType
+	{
+		typedef typename InterfaceType::StreamType		StreamType;
+		typedef typename InterfaceType::EntityPtr		EntityPtr;
+
+		virtual EntityPtr Create(StreamType& stream) const
+		{ return EntityFactory::Create(stream); }
 	};
 
 }
