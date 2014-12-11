@@ -50,7 +50,7 @@ namespace stingray
 			InstanceHolder()
 			{
 				T* instance = new T();
-				Atomic::Store(s_instance, instance);
+				Atomic::Store(s_instance, (intptr_t)instance);
 				Atomic::Store(s_refCount, 1);
 			}
 
