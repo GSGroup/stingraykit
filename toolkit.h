@@ -179,6 +179,7 @@ namespace stingray
 	struct EmptyType
 	{
 		bool operator < (const EmptyType &) const { return false; }
+		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(EmptyType);
 	};
 
 	TOOLKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
