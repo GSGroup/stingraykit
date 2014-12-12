@@ -287,18 +287,18 @@ namespace stingray
 				std::string operator()(const T& t) const { return stingray::ToString(t); }
 			};
 
-			template < typename VariantType >
-			struct LessVisitor : static_visitor<bool>
+			template<typename VariantType, template <typename> class ComparerType>
+			struct ComparerVisitor : static_visitor<bool>
 			{
 			private:
-				const VariantType& _rhs;
+				const VariantType&	_rhs;
 
 			public:
-				LessVisitor(const VariantType& rhs) : _rhs(rhs)
+				ComparerVisitor(const VariantType& rhs) : _rhs(rhs)
 				{}
 
 				template<typename T>
-				bool operator()(const T& t) const { return t < _rhs.template get<T>(); }
+				bool operator()(const T& t) const { return ComparerType<T>()(t, _rhs.template get<T>()); }
 			};
 		};
 	}
@@ -355,7 +355,7 @@ namespace stingray
 
 		bool operator < (const variant& other) const
 		{
-			typedef typename base::template LessVisitor<MyType> VisitorType;
+			typedef typename base::template ComparerVisitor<MyType, std::less> VisitorType;
 			if (this->which() != other.which())
 				return this->which() < other.which();
 			return this->ApplyVisitor(VisitorType(other));
@@ -428,7 +428,7 @@ namespace stingray
 
 		bool operator < (const variant& other) const
 		{
-			typedef typename base::template LessVisitor<MyType> VisitorType;
+			typedef typename base::template ComparerVisitor<MyType, std::less> VisitorType;
 			if (this->which() != other.which())
 				return this->which() < other.which();
 			return this->ApplyVisitor(VisitorType(other));
