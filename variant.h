@@ -353,6 +353,16 @@ namespace stingray
 
 		bool empty() const { return false; }
 
+		bool operator == (const variant& other) const
+		{
+			typedef typename base::template ComparerVisitor<MyType, std::equal_to> VisitorType;
+			if (this->which() != other.which())
+				return false;
+			return this->ApplyVisitor(VisitorType(other));
+		}
+
+		TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(variant);
+
 		bool operator < (const variant& other) const
 		{
 			typedef typename base::template ComparerVisitor<MyType, std::less> VisitorType;
@@ -361,7 +371,7 @@ namespace stingray
 			return this->ApplyVisitor(VisitorType(other));
 		}
 
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(variant);
+		TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
 
 	private:
 		template <typename T>
@@ -426,6 +436,16 @@ namespace stingray
 
 		bool empty() const { return base::which() == IndexOfTypeListItem<TypeList, EmptyType>::Value; }
 
+		bool operator == (const variant& other) const
+		{
+			typedef typename base::template ComparerVisitor<MyType, std::equal_to> VisitorType;
+			if (this->which() != other.which())
+				return false;
+			return this->ApplyVisitor(VisitorType(other));
+		}
+
+		TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(variant);
+
 		bool operator < (const variant& other) const
 		{
 			typedef typename base::template ComparerVisitor<MyType, std::less> VisitorType;
@@ -434,7 +454,7 @@ namespace stingray
 			return this->ApplyVisitor(VisitorType(other));
 		}
 
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(variant);
+		TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
 
 	private:
 		template <typename T>
