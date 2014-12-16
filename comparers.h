@@ -43,7 +43,7 @@ namespace stingray
 		less_to_cmp(const less_comparer& less) : _less(less) { }
 
 		template < typename T, typename U >
-		bool operator () (const T& l, const U& r) const
+		int operator () (const T& l, const U& r) const
 		{ return _less(l, r) ? -1 : (_less(r, l) ? 1 : 0); }
 	};
 
