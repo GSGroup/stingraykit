@@ -8,7 +8,7 @@
 namespace stingray
 {
 
-	template <typename MemberPointerTuple, typename DereferencingManager = AllowDereferencing>
+	template <typename MemberPointerTuple>
 	struct MemberListComparer
 	{
 	private:
@@ -49,7 +49,7 @@ namespace stingray
 
 		template <typename ClassType1, typename ClassType2>
 		int operator ()(const ClassType1 &lhs, const ClassType2 &rhs) const
-		{ return Compare(DereferencingManager::Process(lhs), DereferencingManager::Process(rhs), _memberPointerList); }
+		{ return Compare(AllowDereferencing::Process(lhs), AllowDereferencing::Process(rhs), _memberPointerList); }
 	};
 
 	template < >
