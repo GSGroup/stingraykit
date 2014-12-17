@@ -79,6 +79,44 @@ namespace stingray
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return Compare(lhs, rhs); }
 		};
+
+
+		struct Cmp : public CmpComparerBase<Cmp>
+		{
+			template<typename T>
+			int DoCompare(const T& lhs, const T& rhs) const
+			{
+				if (lhs < rhs)
+					return -1;
+				if (rhs < lhs)
+					return 1;
+				return 0;
+			}
+		};
+
+
+		struct Less : public LessComparerBase<Less>
+		{
+			template<typename T>
+			bool DoCompare(const T& lhs, const T& rhs) const
+			{ return lhs < rhs; }
+		};
+
+
+		struct Equals : public EqualsComparerBase<Equals>
+		{
+			template<typename T>
+			bool DoCompare(const T& lhs, const T& rhs) const
+			{ return lhs == rhs; }
+		};
+
+
+		struct Greater : public GreaterComparerBase<Greater>
+		{
+			template<typename T>
+			bool DoCompare(const T& lhs, const T& rhs) const
+			{ return rhs < lhs; }
+		};
 	}
 
 
