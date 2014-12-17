@@ -231,18 +231,10 @@ namespace stingray
 		_name(name),
 		_logLevel(OptionalLogLevel::Null),
 		_backtrace(false)
-	{
-#ifndef PLATFORM_OSPLUS_FIXME
-		NamedLoggerRegistry::Instance().Register(_name, this);
-#endif
-	}
+	{ NamedLoggerRegistry::Instance().Register(_name, this); }
 
 	NamedLogger::~NamedLogger()
-	{
-#ifndef PLATFORM_OSPLUS_FIXME
-		NamedLoggerRegistry::Instance().Unregister(_name, this);
-#endif
-	}
+	{ NamedLoggerRegistry::Instance().Unregister(_name, this); }
 
 
 	/////////////////////////////////////////////////////////////////
