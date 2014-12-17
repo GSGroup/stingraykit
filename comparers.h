@@ -174,20 +174,6 @@ namespace stingray
 	};
 
 
-	struct StandardOperatorsComparer : public function_info<int, UnspecifiedParamTypes>
-	{
-		template < typename T >
-		int operator () (const T& lhs, const T& rhs) const
-		{
-			if (lhs < rhs)
-				return -1;
-			if (rhs < lhs)
-				return 1;
-			return 0;
-		}
-	};
-
-
 	struct DereferencerComparer : public function_info<int, UnspecifiedParamTypes>
 	{
 		template < typename PtrType >
