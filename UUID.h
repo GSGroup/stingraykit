@@ -3,7 +3,7 @@
 
 
 #include <stingray/settings/ISerializable.h>
-#include <stingray/toolkit/array.h>
+#include <stingray/toolkit/collection/array.h>
 
 
 namespace stingray {

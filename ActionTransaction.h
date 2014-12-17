@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/function/function.h>
 
 
 namespace stingray

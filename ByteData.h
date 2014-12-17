@@ -4,7 +4,7 @@
 #include <stingray/toolkit/TypeInfo.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
-#include <stingray/toolkit/iterator_base.h>
+#include <stingray/toolkit/collection/iterator_base.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>
 

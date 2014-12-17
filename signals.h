@@ -4,10 +4,10 @@
 
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/assert.h>
-#include <stingray/toolkit/async_function.h>
-#include <stingray/toolkit/function.h>
-#include <stingray/toolkit/inplace_vector.h>
-#include <stingray/toolkit/intrusive_list.h>
+#include <stingray/toolkit/function/async_function.h>
+#include <stingray/toolkit/function/function.h>
+#include <stingray/toolkit/collection/inplace_vector.h>
+#include <stingray/toolkit/collection/intrusive_list.h>
 #include <stingray/toolkit/self_counter.h>
 #include <stingray/toolkit/signal_connection.h>
 #include <stingray/toolkit/signal_connector.h>

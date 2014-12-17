@@ -4,7 +4,7 @@
 #include <stingray/toolkit/log/Logger.h>
 #include <stingray/threads/CancellationToken.h>
 #include <stingray/threads/Thread.h>
-#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/function/function.h>
 #include <stingray/toolkit/signals.h>
 #include <stingray/toolkit/ProgressValue.h>
 #include <list>

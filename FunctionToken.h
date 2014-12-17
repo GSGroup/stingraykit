@@ -4,7 +4,7 @@
 
 #include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/IToken.h>
-#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/function/function.h>
 
 namespace stingray
 {

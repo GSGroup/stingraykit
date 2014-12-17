@@ -3,7 +3,7 @@
 
 
 #include <stingray/toolkit/ITaskExecutor.h>
-#include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/function/bind.h>
 
 namespace stingray
 {

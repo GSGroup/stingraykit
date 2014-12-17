@@ -1,7 +1,7 @@
 #include <stingray/toolkit/ThreadPool.h>
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/function/bind.h>
 
 
 namespace stingray

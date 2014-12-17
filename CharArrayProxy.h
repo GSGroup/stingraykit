@@ -8,7 +8,7 @@
 
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/Types.h>
-#include <stingray/toolkit/array.h>
+#include <stingray/toolkit/collection/array.h>
 #include <stingray/toolkit/exception.h>
 
 

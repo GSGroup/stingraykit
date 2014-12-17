@@ -7,7 +7,7 @@
 
 #include <stingray/toolkit/PhoenixSingleton.h>
 #include <stingray/toolkit/Types.h>
-#include <stingray/toolkit/iterator_base.h>
+#include <stingray/toolkit/collection/iterator_base.h>
 
 namespace stingray
 {

@@ -3,8 +3,8 @@
 #include <stingray/toolkit/log/Logger.h>
 #include <stingray/timer/ExecutorsProfiler.h>
 #include <stingray/toolkit/ThreadTaskExecutor.h>
-#include <stingray/toolkit/bind.h>
-#include <stingray/toolkit/function_name_getter.h>
+#include <stingray/toolkit/function/bind.h>
+#include <stingray/toolkit/function/function_name_getter.h>
 
 
 namespace stingray

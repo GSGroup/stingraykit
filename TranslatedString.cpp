@@ -3,7 +3,7 @@
 #include <map>
 
 #include <stingray/settings/Serialization.h>
-#include <stingray/toolkit/CollectionBuilder.h>
+#include <stingray/toolkit/collection/CollectionBuilder.h>
 
 namespace stingray
 {

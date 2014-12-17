@@ -12,7 +12,7 @@
 #include <stingray/toolkit/PhoenixSingleton.h>
 #include <stingray/toolkit/SafeSingleton.h>
 #include <stingray/toolkit/StringFormat.h>
-#include <stingray/toolkit/iterators.h>
+#include <stingray/toolkit/collection/iterators.h>
 
 namespace stingray
 {

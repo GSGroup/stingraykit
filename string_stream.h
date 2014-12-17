@@ -3,7 +3,7 @@
 
 #define STRING_STREAM_USES_INPLACE_VECTOR 0
 #if STRING_STREAM_USES_INPLACE_VECTOR
-#	include <stingray/toolkit/inplace_vector.h>
+#	include <stingray/toolkit/collection/inplace_vector.h>
 #else
 #	include <vector>
 #endif

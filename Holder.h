@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_HOLDER_H
 
 
-#include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/function/bind.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 

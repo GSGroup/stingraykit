@@ -5,7 +5,7 @@
 #include <stingray/toolkit/log/SystemLogger.h>
 #include <stingray/threads/call_once.h>
 #include <stingray/toolkit/Atomic.h>
-#include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/function/bind.h>
 
 namespace stingray
 {

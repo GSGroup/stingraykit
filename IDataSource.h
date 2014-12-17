@@ -6,7 +6,7 @@
 #include <stingray/threads/atomic.h>
 #include <stingray/toolkit/ByteData.h>
 #include <stingray/toolkit/IByteStream.h>
-#include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/function/bind.h>
 #include <stingray/toolkit/reference.h>
 
 namespace stingray

@@ -3,7 +3,7 @@
 
 
 #include <list>
-#include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/function/bind.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/threads/Thread.h>
 

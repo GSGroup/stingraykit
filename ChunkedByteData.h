@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_CHUNKEDBYTEDATA_H
 
 #include <stingray/toolkit/ByteData.h>
-#include <stingray/toolkit/IEnumerable.h>
+#include <stingray/toolkit/collection/IEnumerable.h>
 
 
 namespace stingray

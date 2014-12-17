@@ -3,7 +3,7 @@
 
 
 #include <stingray/toolkit/toolkit.h>
-#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/function/function.h>
 #include <stingray/toolkit/Macro.h>
 
 

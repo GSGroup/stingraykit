@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include <stingray/toolkit/bind.h>
-#include <stingray/toolkit/iterators.h>
+#include <stingray/toolkit/function/bind.h>
+#include <stingray/toolkit/collection/iterators.h>
 
 
 /*

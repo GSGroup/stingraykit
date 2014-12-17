@@ -11,8 +11,8 @@
 #include <stingray/toolkit/Backtrace.h>
 #include <stingray/toolkit/ScopeExit.h>
 #include <stingray/toolkit/StringUtils.h>
-#include <stingray/toolkit/array.h>
-#include <stingray/toolkit/bind.h>
+#include <stingray/toolkit/collection/array.h>
+#include <stingray/toolkit/function/bind.h>
 
 namespace stingray
 {

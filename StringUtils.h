@@ -6,10 +6,10 @@
 #include <ctype.h>
 #include <string>
 
-#include <stingray/toolkit/CollectionBuilder.h>
+#include <stingray/toolkit/collection/CollectionBuilder.h>
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/IEnumerable.h>
+#include <stingray/toolkit/collection/IEnumerable.h>
 #include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/NestedTypeCheck.h>
 #include <stingray/toolkit/optional.h>

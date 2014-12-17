@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_ITASKEXECUTOR_H
 
 
-#include <stingray/toolkit/function.h>
+#include <stingray/toolkit/function/function.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/task_alive_token.h>
 
