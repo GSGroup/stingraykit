@@ -3,61 +3,62 @@
 
 #include <stingray/toolkit/MemberToValueComparer.h>
 #include <stingray/toolkit/Tuple.h>
+#include <stingray/toolkit/comparers.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 namespace stingray
 {
 
+	namespace Detail
+	{
+		template <typename MemberPointerTuple>
+		struct MemberListComparerImpl
+		{
+			template <typename ClassType, typename MemberPointerType>
+			static int CompareMember(const ClassType &lhs, const ClassType &rhs, const MemberPointerType &pointer)
+			{
+				typedef MemberExtractor<MemberPointerType> Extractor;
+				return comparers::Cmp()(Extractor::GetValue(lhs, pointer), Extractor::GetValue(rhs, pointer));
+			}
+
+			template <typename ClassType, typename MemberPointerT, typename ComparerT>
+			static int CompareMember(const ClassType &lhs, const ClassType &rhs, const CustomMemberComparerWrapper<MemberPointerT, ComparerT> &comparer)
+			{ return comparer.Compare(lhs, rhs); }
+
+			template <typename ClassType>
+			static int Do(const ClassType &lhs, const ClassType &rhs, const MemberPointerTuple &tuple)
+			{
+				int result = CompareMember(lhs, rhs, tuple.GetHead());
+				if (result == 0)
+					return MemberListComparerImpl<typename MemberPointerTuple::Tail>::Do(lhs, rhs, tuple.GetTail());
+				return result;
+			}
+		};
+
+
+		template < >
+		struct MemberListComparerImpl<Tuple<TypeListEndNode> >
+		{
+			template <typename ClassType>
+			static int Do(const ClassType &lhs, const ClassType &rhs, const Tuple<TypeListEndNode> &tuple)
+			{ return 0; }
+		};
+	}
+
+
 	template <typename MemberPointerTuple>
-	struct MemberListComparer
+	struct MemberListComparer : public comparers::CmpComparerBase<MemberListComparer<MemberPointerTuple> >
 	{
 	private:
 		MemberPointerTuple _memberPointerList;
-		template<typename MemberType>
-		static int CompareMemberValue(MemberType lhs, MemberType rhs)
-		{
-			if (lhs < rhs)
-				return -1;
-			if (rhs < lhs)
-				return 1;
-			return 0;
-		}
-		template <typename ClassType, typename MemberPointerType>
-		static int CompareMember(const ClassType &lhs, const ClassType &rhs, const MemberPointerType &pointer)
-		{
-			typedef MemberExtractor<MemberPointerType> Extractor;
-			return CompareMemberValue(Extractor::GetValue(lhs, pointer), Extractor::GetValue(rhs, pointer));
-		}
-		template <typename ClassType, typename MemberPointerT, typename ComparerT>
-		static int CompareMember(const ClassType &lhs, const ClassType &rhs, const CustomMemberComparerWrapper<MemberPointerT, ComparerT> &comparer)
-		{
-			return comparer.Compare(lhs, rhs);
-		}
+
 	public:
-		template <typename ClassType>
-		static int Compare(const ClassType &lhs, const ClassType &rhs, const MemberPointerTuple &tuple)
-		{
-			int result = CompareMember(lhs, rhs, tuple.GetHead());
-			if (result == 0)
-				return MemberListComparer<typename MemberPointerTuple::Tail>::Compare(lhs, rhs, tuple.GetTail());
-			return result;
-		}
+		MemberListComparer(const MemberPointerTuple& memberPointerList) : _memberPointerList(memberPointerList)
+		{ }
 
-		MemberListComparer(const MemberPointerTuple &memberPointerList)
-			: _memberPointerList(memberPointerList)
-		{}
-
-		template <typename ClassType1, typename ClassType2>
-		int operator ()(const ClassType1 &lhs, const ClassType2 &rhs) const
-		{ return Compare(AllowDereferencing::Process(lhs), AllowDereferencing::Process(rhs), _memberPointerList); }
-	};
-
-	template < >
-	struct MemberListComparer<Tuple<TypeListEndNode> >
-	{
-		template <typename ClassType>
-		static int Compare(const ClassType &lhs, const ClassType &rhs, const Tuple<TypeListEndNode> &tuple)
-		{ return 0; }
+		template <typename T>
+		int DoCompare(const T& lhs, const T& rhs) const
+		{ return Detail::MemberListComparerImpl<MemberPointerTuple>::Do(lhs, rhs, _memberPointerList); }
 	};
 
 

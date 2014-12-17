@@ -2,7 +2,6 @@
 #define STINGRAY_TOOLKIT_COMPARERS_H
 
 
-#include <stingray/toolkit/MemberListComparer.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/function/function_info.h>
 #include <stingray/toolkit/shared_ptr.h>
