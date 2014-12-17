@@ -42,41 +42,22 @@ namespace stingray
 	};
 
 
-	struct ComparableCmp : std::binary_function<const shared_ptr<const IComparable> &, const shared_ptr<const IComparable> &, int>
+	struct ComparableCmp : public comparers::CmpComparerBase<ComparableCmp>
 	{
-		typedef const shared_ptr<const IComparable> & PointerType;
-
-		inline int operator()(PointerType l, PointerType r) const						{ return Compare(l, r); }
-		inline int operator()(const IComparable& l, const IComparable& r) const			{ return Compare(l, r); }
-
-		static inline int Compare(PointerType l, PointerType r)							{ return (l && r) ? Compare(*l, *r) : StandardOperatorsComparer()(l.get(), r.get()); }
-		static inline int Compare(const IComparable& l, const IComparable& r)			{ return l.Compare(r); }
+		int DoCompare(const IComparable& l, const IComparable& r) const		{ return l.Compare(r); }
 	};
 
 
-	struct ComparableLess : std::binary_function<const shared_ptr<const IComparable> &, const shared_ptr<const IComparable> &, bool>
+	struct ComparableLess : public comparers::LessComparerBase<ComparableLess>
 	{
-		typedef const shared_ptr<const IComparable> & PointerType;
-
-		inline bool operator()(PointerType l, PointerType r) const						{ return Compare(l, r); }
-		inline bool operator()(const IComparable& l, const IComparable& r)	const		{ return Compare(l, r); }
-
-		static inline bool Compare(PointerType l, PointerType r)						{ return (l && r) ? Compare(*l, *r) : (l.get() < r.get()); }
-		static inline bool Compare(const IComparable& l, const IComparable& r)			{ return l.Compare(r) < 0; }
+		bool DoCompare(const IComparable& l, const IComparable& r) const	{ return l.Compare(r) < 0; }
 	};
 
 
-	struct ComparableEquals : std::binary_function<const shared_ptr<const IComparable> &, const shared_ptr<const IComparable> &, bool>
+	struct ComparableEquals : public comparers::EqualsComparerBase<ComparableEquals>
 	{
-		typedef const shared_ptr<const IComparable> & PointerType;
-
-		inline bool operator()(PointerType l, PointerType r) const						{ return Compare(l, r); }
-		inline bool operator()(const IComparable& l, const IComparable& r) const		{ return Compare(l, r); }
-
-		static inline bool Compare(PointerType l, PointerType r)						{ return (l && r) ? Compare(*l, *r) : (l.get() == r.get()); }
-		static inline bool Compare(const IComparable& l, const IComparable& r)			{ return l.Compare(r) == 0; }
+		bool DoCompare(const IComparable& l, const IComparable& r) const	{ return l.Compare(r) == 0; }
 	};
-
 
 }
 
