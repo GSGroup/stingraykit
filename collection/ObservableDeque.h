@@ -4,7 +4,7 @@
 #include <deque>
 
 #include <stingray/toolkit/collection/iterator_base.h>
-#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/signal/signals.h>
 
 namespace stingray
 {

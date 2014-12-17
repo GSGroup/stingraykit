@@ -1,4 +1,4 @@
-#include <stingray/toolkit/signal_policies.h>
+#include <stingray/toolkit/signal/signal_policies.h>
 #include <stingray/toolkit/log/Logger.h>
 
 namespace stingray

@@ -6,7 +6,7 @@
 #include <stingray/timer/Timer.h>
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/shared_ptr.h>
-#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/signal/signals.h>
 #include <stingray/toolkit/future.h>
 
 

@@ -1,10 +1,10 @@
-#ifndef STINGRAY_TOOLKIT_SIGNAL_CONNECTOR_H
-#define STINGRAY_TOOLKIT_SIGNAL_CONNECTOR_H
+#ifndef STINGRAY_TOOLKIT_SIGNAL_SIGNAL_CONNECTOR_H
+#define STINGRAY_TOOLKIT_SIGNAL_SIGNAL_CONNECTOR_H
 
 
 #include <stingray/toolkit/ITaskExecutor.h>
 #include <stingray/toolkit/function/async_function.h>
-#include <stingray/toolkit/signal_connection.h>
+#include <stingray/toolkit/signal/signal_connection.h>
 #include <stingray/toolkit/task_alive_token.h>
 
 

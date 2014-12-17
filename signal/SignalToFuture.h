@@ -1,8 +1,8 @@
-#ifndef STINGRAY_TOOLKIT_SIGNALTOFUTURE_H
-#define STINGRAY_TOOLKIT_SIGNALTOFUTURE_H
+#ifndef STINGRAY_TOOLKIT_SIGNAL_SIGNALTOFUTURE_H
+#define STINGRAY_TOOLKIT_SIGNAL_SIGNALTOFUTURE_H
 
 #include <stingray/toolkit/future.h>
-#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/signal/signals.h>
 
 namespace stingray {
 

@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_COLLECTIONS_OBSERVABLECOLLECTIONLOCKER_H
 
 
-#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/signal/signals.h>
 
 
 namespace stingray

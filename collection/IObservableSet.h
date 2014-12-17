@@ -3,7 +3,7 @@
 
 
 #include <stingray/toolkit/collection/ISet.h>
-#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/signal/signals.h>
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/collection/ObservableCollectionLocker.h>
 

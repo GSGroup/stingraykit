@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_SIGNALS_H
-#define STINGRAY_TOOLKIT_SIGNALS_H
+#ifndef STINGRAY_TOOLKIT_SIGNAL_SIGNALS_H
+#define STINGRAY_TOOLKIT_SIGNAL_SIGNALS_H
 
 
 #include <stingray/toolkit/ITaskExecutor.h>
@@ -9,9 +9,9 @@
 #include <stingray/toolkit/collection/inplace_vector.h>
 #include <stingray/toolkit/collection/intrusive_list.h>
 #include <stingray/toolkit/self_counter.h>
-#include <stingray/toolkit/signal_connection.h>
-#include <stingray/toolkit/signal_connector.h>
-#include <stingray/toolkit/signal_policies.h>
+#include <stingray/toolkit/signal/signal_connection.h>
+#include <stingray/toolkit/signal/signal_connector.h>
+#include <stingray/toolkit/signal/signal_policies.h>
 
 
 namespace stingray

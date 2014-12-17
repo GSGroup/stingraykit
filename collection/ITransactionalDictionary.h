@@ -4,7 +4,7 @@
 #include <stingray/toolkit/collection/DiffEntry.h>
 #include <stingray/toolkit/collection/IDictionary.h>
 #include <stingray/toolkit/collection/ObservableCollectionLocker.h>
-#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/signal/signals.h>
 #include <stingray/toolkit/toolkit.h>
 
 namespace stingray

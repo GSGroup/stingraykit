@@ -11,7 +11,7 @@
 #include <stingray/toolkit/Singleton.h>
 #include <stingray/toolkit/SystemProfiler.h>
 #include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/signals.h>
+#include <stingray/toolkit/signal/signals.h>
 
 
 namespace stingray
