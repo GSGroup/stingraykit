@@ -11,6 +11,77 @@
 namespace stingray
 {
 
+	namespace comparers
+	{
+		template<typename Derived_>
+		struct CmpComparerBase : public function_info<int, UnspecifiedParamTypes>
+		{
+			template <typename Lhs, typename Rhs>
+			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, int>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
+			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
+
+			template <typename Lhs, typename Rhs>
+			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, int>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
+			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0)); }
+
+			template < typename Lhs, typename Rhs >
+			int operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return Compare(lhs, rhs); }
+		};
+
+
+		template<typename Derived_>
+		struct LessComparerBase : public function_info<bool, UnspecifiedParamTypes>
+		{
+			template <typename Lhs, typename Rhs>
+			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
+			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
+
+			template <typename Lhs, typename Rhs>
+			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
+			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (!lhs && rhs); }
+
+			template < typename Lhs, typename Rhs >
+			bool operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return Compare(lhs, rhs); }
+		};
+
+
+		template<typename Derived_>
+		struct EqualsComparerBase : public function_info<bool, UnspecifiedParamTypes>
+		{
+			template <typename Lhs, typename Rhs>
+			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
+			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
+
+			template <typename Lhs, typename Rhs>
+			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
+			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (!lhs && !rhs); }
+
+			template < typename Lhs, typename Rhs >
+			bool operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return Compare(lhs, rhs); }
+		};
+
+
+		template<typename Derived_>
+		struct GreaterComparerBase : public function_info<bool, UnspecifiedParamTypes>
+		{
+			template <typename Lhs, typename Rhs>
+			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
+			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
+
+			template <typename Lhs, typename Rhs>
+			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
+			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (lhs && !rhs); }
+
+			template < typename Lhs, typename Rhs >
+			bool operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return Compare(lhs, rhs); }
+		};
+	}
+
+
 	template < typename less_comparer >
 	class less_to_equals : public function_info<less_comparer>
 	{
