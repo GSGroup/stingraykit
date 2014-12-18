@@ -62,25 +62,6 @@ namespace stingray
 	};
 
 
-	template <typename IntComparer, template<typename> class Adapter>
-	struct CmpAdapter
-	{
-	private:
-		IntComparer _comparer;
-		Adapter<int> _adapter;
-	public:
-		CmpAdapter(): _comparer(), _adapter()
-		{}
-		CmpAdapter(const IntComparer& comparer, const Adapter<int> &adapter = Adapter<int>())
-			: _comparer(comparer), _adapter(adapter)
-		{}
-		template <typename ClassType1, typename ClassType2>
-		int operator ()(const ClassType1 &lhs, const ClassType2 &rhs) const
-		{
-			return _adapter(_comparer(lhs, rhs), 0);
-		}
-	};
-
 #define TY typename
 #define P_(N) const T##N& p##N
 #define DETAIL_TOOLKIT_DECLARE_MAKEMEMBERLISTCOMPARER(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
