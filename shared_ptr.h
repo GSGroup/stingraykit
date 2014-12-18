@@ -169,9 +169,6 @@ namespace stingray
 
 
 	template < typename T >
-	class enable_shared_from_this;
-
-	template < typename T >
 	class weak_ptr;
 
 
@@ -355,11 +352,6 @@ namespace stingray
 		{ return _impl.get_ptr() < other._impl.get_ptr(); }
 
 	private:
-		template < typename U >
-		inline void init_enable_shared_from_this(const enable_shared_from_this<U>* esft) const
-		{ if (esft) esft->init(*this); }
-
-
 		inline void init_enable_shared_from_this(...) const
 		{ }
 
