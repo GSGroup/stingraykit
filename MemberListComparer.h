@@ -88,14 +88,14 @@ namespace stingray
 	MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > CompareMembersCmp(ParamsDecl_) \
 	{ return MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
 	template <TypesDecl_> \
-	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less> CompareMembersLess(ParamsDecl_) \
-	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::less>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::less<int>()); } \
+	comparers::CmpToLess<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > > CompareMembersLess(ParamsDecl_) \
+	{ return comparers::CmpToLess<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
 	template <TypesDecl_> \
-	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::greater> CompareMembersGreater(ParamsDecl_) \
-	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::greater>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::greater<int>()); } \
+	comparers::CmpToGreater<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > > CompareMembersGreater(ParamsDecl_) \
+	{ return comparers::CmpToGreater<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
 	template <TypesDecl_> \
-	CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::equal_to> CompareMembersEquals(ParamsDecl_) \
-	{ return CmpAdapter<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >, std::equal_to>(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_), std::equal_to<int>()); }
+	comparers::CmpToEquals<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > > CompareMembersEquals(ParamsDecl_) \
+	{ return comparers::CmpToEquals<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); }
 
 
 	DETAIL_TOOLKIT_DECLARE_MAKEMEMBERLISTCOMPARER(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
