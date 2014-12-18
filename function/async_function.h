@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_FUNCTION_ASYNC_FUNCTION_H
 
 
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/toolkit/Macro.h>
 #include <stingray/toolkit/function/bind.h>
 #include <stingray/toolkit/function/function.h>

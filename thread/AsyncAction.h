@@ -1,10 +1,10 @@
-#ifndef STINGRAY_TOOLKIT_ASYNCACTION_H
-#define STINGRAY_TOOLKIT_ASYNCACTION_H
+#ifndef STINGRAY_TOOLKIT_THREAD_ASYNCACTION_H
+#define STINGRAY_TOOLKIT_THREAD_ASYNCACTION_H
 
 
 #include <stingray/threads/Thread.h>
 #include <stingray/timer/Timer.h>
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/signal/signals.h>
 #include <stingray/toolkit/future.h>

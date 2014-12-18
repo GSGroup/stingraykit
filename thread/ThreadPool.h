@@ -1,10 +1,10 @@
-#ifndef STINGRAY_TOOLKIT_THREADPOOL_H
-#define STINGRAY_TOOLKIT_THREADPOOL_H
+#ifndef STINGRAY_TOOLKIT_THREAD_THREADPOOL_H
+#define STINGRAY_TOOLKIT_THREAD_THREADPOOL_H
 
 
 #include <vector>
 
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 
 
 namespace stingray

@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_SIGNAL_SIGNALS_H
 
 
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/toolkit/assert.h>
 #include <stingray/toolkit/function/async_function.h>
 #include <stingray/toolkit/function/function.h>

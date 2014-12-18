@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_THREADLESSTASKEXECUTOR_H
-#define STINGRAY_TOOLKIT_THREADLESSTASKEXECUTOR_H
+#ifndef STINGRAY_TOOLKIT_THREAD_THREADLESSTASKEXECUTOR_H
+#define STINGRAY_TOOLKIT_THREAD_THREADLESSTASKEXECUTOR_H
 
 
 #include <queue>
@@ -8,7 +8,7 @@
 #include <stingray/timer/AsyncProfiler.h>
 #include <stingray/timer/ExecutorsProfiler.h>
 #include <stingray/toolkit/Final.h>
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/threads/Thread.h>
 
 

@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_FINALIZER_H
 
 
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/toolkit/function/bind.h>
 
 namespace stingray

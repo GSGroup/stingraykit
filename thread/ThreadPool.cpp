@@ -1,4 +1,4 @@
-#include <stingray/toolkit/ThreadPool.h>
+#include <stingray/toolkit/thread/ThreadPool.h>
 
 #include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/function/bind.h>

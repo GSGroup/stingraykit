@@ -1,6 +1,6 @@
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 
-#include <stingray/toolkit/ThreadTaskExecutor.h>
+#include <stingray/toolkit/thread/ThreadTaskExecutor.h>
 #include <stingray/toolkit/log/Logger.h>
 
 

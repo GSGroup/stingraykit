@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_THREADTASKEXECUTOR_H
-#define STINGRAY_TOOLKIT_THREADTASKEXECUTOR_H
+#ifndef STINGRAY_TOOLKIT_THREAD_THREADTASKEXECUTOR_H
+#define STINGRAY_TOOLKIT_THREAD_THREADTASKEXECUTOR_H
 
 #include <queue>
 #include <list>
@@ -7,7 +7,7 @@
 #include <stingray/threads/ConditionVariable.h>
 #include <stingray/threads/Thread.h>
 #include <stingray/toolkit/Final.h>
-#include <stingray/toolkit/ITaskExecutor.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 
 
 namespace stingray
