@@ -116,6 +116,63 @@ namespace stingray
 			bool DoCompare(const T& lhs, const T& rhs) const
 			{ return rhs < lhs; }
 		};
+
+
+		template<typename CmpComparer_>
+		struct CmpToLess
+		{
+		private:
+			CmpComparer_	_comparer;
+
+		public:
+			CmpToLess()
+			{ }
+
+			CmpToLess(const CmpComparer_& comparer) : _comparer(comparer)
+			{ }
+
+			template <typename Lhs, typename Rhs>
+			bool operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return _comparer(lhs, rhs) < 0; }
+		};
+
+
+		template<typename CmpComparer_>
+		struct CmpToGreater
+		{
+		private:
+			CmpComparer_	_comparer;
+
+		public:
+			CmpToGreater()
+			{ }
+
+			CmpToGreater(const CmpComparer_& comparer) : _comparer(comparer)
+			{ }
+
+			template <typename Lhs, typename Rhs>
+			bool operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return _comparer(lhs, rhs) > 0; }
+		};
+
+
+		template<typename CmpComparer_>
+		struct CmpToEquals
+		{
+		private:
+			CmpComparer_	_comparer;
+
+		public:
+			CmpToEquals()
+			{ }
+
+			CmpToEquals(const CmpComparer_& comparer) : _comparer(comparer)
+			{ }
+
+			template <typename Lhs, typename Rhs>
+			bool operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return _comparer(lhs, rhs) == 0; }
+		};
 	}
 
 
