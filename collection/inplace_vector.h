@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_COLLECTIONS_INPLACE_VECTOR_H
-#define STINGRAY_TOOLKIT_COLLECTIONS_INPLACE_VECTOR_H
+#ifndef STINGRAY_TOOLKIT_COLLECTION_INPLACE_VECTOR_H
+#define STINGRAY_TOOLKIT_COLLECTION_INPLACE_VECTOR_H
 
 #include <stingray/toolkit/aligned_storage.h>
 #include <stingray/toolkit/collection/array.h>
