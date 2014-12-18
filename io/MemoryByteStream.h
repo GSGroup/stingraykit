@@ -1,9 +1,9 @@
-#ifndef STINGRAY_TOOLKIT_MEMORYBYTESTREAM_H
-#define STINGRAY_TOOLKIT_MEMORYBYTESTREAM_H
+#ifndef STINGRAY_TOOLKIT_IO_MEMORYBYTESTREAM_H
+#define STINGRAY_TOOLKIT_IO_MEMORYBYTESTREAM_H
 
 
 #include <stingray/toolkit/collection/ByteData.h>
-#include <stingray/toolkit/IByteStream.h>
+#include <stingray/toolkit/io/IByteStream.h>
 #include <stingray/toolkit/MetaProgramming.h>
 
 

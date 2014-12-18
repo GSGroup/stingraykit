@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_SEEKMODE_H
-#define STINGRAY_TOOLKIT_SEEKMODE_H
+#ifndef STINGRAY_TOOLKIT_IO_SEEKMODE_H
+#define STINGRAY_TOOLKIT_IO_SEEKMODE_H
 
 
 #include <stingray/toolkit/toolkit.h>

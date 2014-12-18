@@ -1,9 +1,9 @@
-#ifndef STINGRAY_TOOLKIT_COMPOSITEDATACONSUMER_H
-#define STINGRAY_TOOLKIT_COMPOSITEDATACONSUMER_H
+#ifndef STINGRAY_TOOLKIT_IO_COMPOSITEDATACONSUMER_H
+#define STINGRAY_TOOLKIT_IO_COMPOSITEDATACONSUMER_H
 
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/IDataSource.h>
+#include <stingray/toolkit/io/IDataSource.h>
 
 #include <list>
 

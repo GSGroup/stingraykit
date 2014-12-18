@@ -1,8 +1,8 @@
-#ifndef STINGRAY_TOOLKIT_DATAPACKETER_H
-#define STINGRAY_TOOLKIT_DATAPACKETER_H
+#ifndef STINGRAY_TOOLKIT_IO_DATAPACKETER_H
+#define STINGRAY_TOOLKIT_IO_DATAPACKETER_H
 
 
-#include <stingray/toolkit/IDataSource.h>
+#include <stingray/toolkit/io/IDataSource.h>
 
 namespace stingray
 {

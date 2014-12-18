@@ -1,8 +1,8 @@
-#ifndef STINGRAY_TOOLKIT_IBYTESTREAM_H
-#define STINGRAY_TOOLKIT_IBYTESTREAM_H
+#ifndef STINGRAY_TOOLKIT_IO_IBYTESTREAM_H
+#define STINGRAY_TOOLKIT_IO_IBYTESTREAM_H
 
 
-#include <stingray/toolkit/SeekMode.h>
+#include <stingray/toolkit/io/SeekMode.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/ICreator.h>
 #include <stingray/toolkit/collection/ByteData.h>

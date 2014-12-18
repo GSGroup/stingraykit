@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_JSONLINESSTREAM_H
 
 
-#include <stingray/toolkit/IDataSource.h>
+#include <stingray/toolkit/io/IDataSource.h>
 #include <stingray/settings/ByteDataSerializer.h>
 
 

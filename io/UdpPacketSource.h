@@ -1,12 +1,12 @@
-#ifndef STINGRAY_TOOLKIT_UDPPACKETSOURCE_H
-#define STINGRAY_TOOLKIT_UDPPACKETSOURCE_H
+#ifndef STINGRAY_TOOLKIT_IO_UDPPACKETSOURCE_H
+#define STINGRAY_TOOLKIT_IO_UDPPACKETSOURCE_H
 
 
 #include <stingray/net/ISocket.h>
 #include <stingray/threads/CancellationToken.h>
 #include <stingray/threads/Thread.h>
-#include <stingray/toolkit/BithreadCircularBuffer.h>
-#include <stingray/toolkit/IDataSource.h>
+#include <stingray/toolkit/io/BithreadCircularBuffer.h>
+#include <stingray/toolkit/io/IDataSource.h>
 #include <stingray/toolkit/math.h>
 
 

@@ -1,13 +1,13 @@
-#ifndef STINGRAY_TOOLKIT_DATABUFFER_H
-#define STINGRAY_TOOLKIT_DATABUFFER_H
+#ifndef STINGRAY_TOOLKIT_IO_DATABUFFER_H
+#define STINGRAY_TOOLKIT_IO_DATABUFFER_H
 
 
 #include <string.h>
 #include <deque>
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/BithreadCircularBuffer.h>
-#include <stingray/toolkit/IDataSource.h>
+#include <stingray/toolkit/io/BithreadCircularBuffer.h>
+#include <stingray/toolkit/io/IDataSource.h>
 #include <stingray/toolkit/signal/signals.h>
 
 namespace stingray

@@ -1,4 +1,4 @@
-#include <stingray/toolkit/BithreadCircularBuffer.h>
+#include <stingray/toolkit/io/BithreadCircularBuffer.h>
 
 #include <vector>
 

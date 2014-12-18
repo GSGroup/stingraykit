@@ -1,11 +1,11 @@
-#ifndef STINGRAY_TOOLKIT_IDATASOURCE_H
-#define STINGRAY_TOOLKIT_IDATASOURCE_H
+#ifndef STINGRAY_TOOLKIT_IO_IDATASOURCE_H
+#define STINGRAY_TOOLKIT_IO_IDATASOURCE_H
 
 
 #include <stingray/threads/CancellationToken.h>
 #include <stingray/threads/atomic.h>
 #include <stingray/toolkit/collection/ByteData.h>
-#include <stingray/toolkit/IByteStream.h>
+#include <stingray/toolkit/io/IByteStream.h>
 #include <stingray/toolkit/function/bind.h>
 #include <stingray/toolkit/reference.h>
 

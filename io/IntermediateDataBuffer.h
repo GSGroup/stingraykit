@@ -1,10 +1,10 @@
-#ifndef STINGRAY_TOOLKIT_INTERMEDIATEDATABUFFER_H
-#define STINGRAY_TOOLKIT_INTERMEDIATEDATABUFFER_H
+#ifndef STINGRAY_TOOLKIT_IO_INTERMEDIATEDATABUFFER_H
+#define STINGRAY_TOOLKIT_IO_INTERMEDIATEDATABUFFER_H
 
 
 #include <stingray/threads/Thread.h>
-#include <stingray/toolkit/IDataSource.h>
-#include <stingray/toolkit/DataBuffer.h>
+#include <stingray/toolkit/io/IDataSource.h>
+#include <stingray/toolkit/io/DataBuffer.h>
 
 namespace stingray
 {

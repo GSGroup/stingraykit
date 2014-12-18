@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_IPIPE_H
-#define STINGRAY_TOOLKIT_IPIPE_H
+#ifndef STINGRAY_TOOLKIT_IO_IPIPE_H
+#define STINGRAY_TOOLKIT_IO_IPIPE_H
 
 
 #include <stingray/threads/CancellationToken.h>

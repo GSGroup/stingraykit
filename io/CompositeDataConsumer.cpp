@@ -1,4 +1,4 @@
-#include <stingray/toolkit/CompositeDataConsumer.h>
+#include <stingray/toolkit/io/CompositeDataConsumer.h>
 
 namespace stingray
 {
