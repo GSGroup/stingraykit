@@ -4,7 +4,7 @@
 #include <deque>
 
 #include <stingray/toolkit/ScopeExit.h>
-#include <stingray/toolkit/ByteData.h>
+#include <stingray/toolkit/collection/ByteData.h>
 
 namespace stingray
 {

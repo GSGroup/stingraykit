@@ -6,7 +6,7 @@
 #	include <byteswap.h>
 #endif
 
-#include <stingray/toolkit/ByteData.h>
+#include <stingray/toolkit/collection/ByteData.h>
 #include <stingray/toolkit/toolkit.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/Dummy.h>

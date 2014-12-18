@@ -4,7 +4,7 @@
 #include <map>
 
 #include <stingray/threads/Thread.h>
-#include <stingray/toolkit/ByteData.h>
+#include <stingray/toolkit/collection/ByteData.h>
 #include <stingray/toolkit/IToken.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/toolkit.h>

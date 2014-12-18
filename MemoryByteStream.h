@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_MEMORYBYTESTREAM_H
 
 
-#include <stingray/toolkit/ByteData.h>
+#include <stingray/toolkit/collection/ByteData.h>
 #include <stingray/toolkit/IByteStream.h>
 #include <stingray/toolkit/MetaProgramming.h>
 

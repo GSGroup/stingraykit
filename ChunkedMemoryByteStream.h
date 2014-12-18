@@ -1,7 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_CHUNKEDMEMORYBYTESTREAM_H
 #define STINGRAY_TOOLKIT_CHUNKEDMEMORYBYTESTREAM_H
 
-#include <stingray/toolkit/ByteData.h>
+#include <stingray/toolkit/collection/ByteData.h>
 #include <stingray/toolkit/IByteStream.h>
 
 

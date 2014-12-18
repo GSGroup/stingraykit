@@ -5,7 +5,7 @@
 #include <stingray/toolkit/SeekMode.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/ICreator.h>
-#include <stingray/toolkit/ByteData.h>
+#include <stingray/toolkit/collection/ByteData.h>
 
 
 namespace stingray
