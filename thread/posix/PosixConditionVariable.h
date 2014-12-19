@@ -5,7 +5,7 @@
 
 #include <stingray/toolkit/thread/posix/PosixThreadEngine.h>
 #include <stingray/toolkit/thread/ICancellationToken.h>
-#include <stingray/time/Time.h>
+#include <stingray/toolkit/time/Time.h>
 
 namespace stingray
 {

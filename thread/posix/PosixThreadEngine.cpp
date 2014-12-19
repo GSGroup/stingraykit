@@ -19,7 +19,7 @@
 
 #include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/thread/posix/SignalHandler.h>
-#include <stingray/platform/posix/timer/utils.h>
+#include <stingray/toolkit/time/posix/utils.h>
 #include <stingray/toolkit/thread/GenericMutexLock.h>
 #include <stingray/toolkit/diagnostics/ExecutorsProfiler.h>
 #include <stingray/toolkit/Holder.h>

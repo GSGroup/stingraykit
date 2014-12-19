@@ -2,8 +2,8 @@
 
 #include <errno.h>
 
-#include <stingray/platform/posix/timer/TimeEngine.h>
-#include <stingray/platform/posix/timer/utils.h>
+#include <stingray/toolkit/time/posix/TimeEngine.h>
+#include <stingray/toolkit/time/posix/utils.h>
 #include <stingray/toolkit/ScopeExit.h>
 #include <stingray/toolkit/Singleton.h>
 #include <stingray/toolkit/reference.h>

@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_THREAD_ICANCELLATIONTOKEN_H
 
 
-#include <stingray/time/Time.h>
+#include <stingray/toolkit/time/Time.h>
 #include <stingray/toolkit/safe_bool.h>
 
 namespace stingray

@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#include <stingray/time/Time.h>
+#include <stingray/toolkit/time/Time.h>
 #include <stingray/toolkit/exception.h>
 
 namespace stingray {

@@ -2,7 +2,7 @@
 #include <errno.h>
 
 #include <stingray/toolkit/SystemException.h>
-#include <stingray/platform/posix/timer/utils.h>
+#include <stingray/toolkit/time/posix/utils.h>
 
 namespace stingray {
 namespace posix {

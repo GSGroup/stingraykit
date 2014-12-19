@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_THREAD_BASICCONDITIONVARIABLE_H
 
 
-#include <stingray/time/Time.h>
+#include <stingray/toolkit/time/Time.h>
 
 
 namespace stingray

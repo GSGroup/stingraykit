@@ -9,7 +9,7 @@
 
 #include <stingray/toolkit/thread/osplus/OS21CallOnce.h>
 #include <stingray/toolkit/thread/IThreadEngine.h>
-#include <stingray/time/Time.h>
+#include <stingray/toolkit/time/Time.h>
 #include <stingray/toolkit/function/function.h>
 
 
