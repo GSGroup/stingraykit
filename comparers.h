@@ -141,7 +141,7 @@ namespace stingray
 
 
 		template<typename CmpComparer_>
-		struct CmpToLess
+		struct CmpToLess : public function_info<bool, UnspecifiedParamTypes>
 		{
 		private:
 			CmpComparer_	_comparer;
@@ -160,7 +160,7 @@ namespace stingray
 
 
 		template<typename CmpComparer_>
-		struct CmpToGreater
+		struct CmpToGreater : public function_info<bool, UnspecifiedParamTypes>
 		{
 		private:
 			CmpComparer_	_comparer;
@@ -179,7 +179,7 @@ namespace stingray
 
 
 		template<typename CmpComparer_>
-		struct CmpToEquals
+		struct CmpToEquals : public function_info<bool, UnspecifiedParamTypes>
 		{
 		private:
 			CmpComparer_	_comparer;
