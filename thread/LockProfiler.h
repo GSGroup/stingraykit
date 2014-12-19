@@ -1,7 +1,7 @@
 #ifndef STINGRAY_TOOLKIT_THREAD_LOCKPROFILER_H
 #define STINGRAY_TOOLKIT_THREAD_LOCKPROFILER_H
 
-#include <stingray/timer/ElapsedTime.h>
+#include <stingray/toolkit/time/ElapsedTime.h>
 #include <stingray/toolkit/diagnostics/Backtrace.h>
 #include <stdio.h>
 

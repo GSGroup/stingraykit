@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_DIAGNOSTICS_THREADTIMEPROFILER_H
 
 
-#include <stingray/timer/ElapsedTime.h>
+#include <stingray/toolkit/time/ElapsedTime.h>
 #include <stingray/toolkit/NestedTypeCheck.h>
 
 

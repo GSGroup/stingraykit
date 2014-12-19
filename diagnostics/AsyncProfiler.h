@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include <stingray/timer/ElapsedTime.h>
+#include <stingray/toolkit/time/ElapsedTime.h>
 #include <stingray/timer/Timer.h>
 #include <stingray/toolkit/shared_ptr.h>
 

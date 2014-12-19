@@ -11,7 +11,7 @@
 #include <stingray/toolkit/log/LoggerStream.h>
 #include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/thread/atomic.h>
-#include <stingray/timer/ElapsedTime.h>
+#include <stingray/toolkit/time/ElapsedTime.h>
 #include <stingray/toolkit/IToken.h>
 #include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/light_shared_ptr.h>

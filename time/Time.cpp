@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include <stingray/settings/Serialization.h>
-#include <stingray/timer/TimeEngine.h>
+#include <stingray/toolkit/time/TimeEngine.h>
 #include <stingray/toolkit/StringFormat.h>
 #include <stingray/toolkit/exception.h>
 

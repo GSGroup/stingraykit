@@ -3,7 +3,7 @@
 
 
 #include <stingray/settings/ISerializable.h>
-#include <stingray/timer/BrokenDownTime.h>
+#include <stingray/toolkit/time/BrokenDownTime.h>
 #include <stingray/toolkit/NumericRange.h>
 #include <stingray/toolkit/toolkit.h>
 

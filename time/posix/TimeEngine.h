@@ -6,7 +6,7 @@
 #include <sys/time.h>
 
 #include <stingray/toolkit/thread/Thread.h>
-#include <stingray/timer/BrokenDownTime.h>
+#include <stingray/toolkit/time/BrokenDownTime.h>
 #include <stingray/toolkit/Atomic.h>
 
 

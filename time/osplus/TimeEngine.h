@@ -4,7 +4,7 @@
 
 #include <os21/ostime.h>
 
-#include <stingray/timer/BrokenDownTime.h>
+#include <stingray/toolkit/time/BrokenDownTime.h>
 
 
 namespace stingray {

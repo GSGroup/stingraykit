@@ -4,7 +4,7 @@
 #include <limits>
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/timer/ElapsedTime.h>
+#include <stingray/toolkit/time/ElapsedTime.h>
 #include <stingray/toolkit/StringUtils.h>
 
 

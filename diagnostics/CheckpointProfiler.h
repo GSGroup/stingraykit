@@ -8,7 +8,7 @@
 
 #include <stingray/toolkit/log/LogLevel.h>
 #include <stingray/toolkit/thread/Thread.h>
-#include <stingray/timer/ElapsedTime.h>
+#include <stingray/toolkit/time/ElapsedTime.h>
 #include <stingray/toolkit/time/Time.h>
 #include <stingray/toolkit/optional.h>
 
