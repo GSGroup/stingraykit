@@ -247,6 +247,15 @@ namespace stingray
 	{ };
 
 
+	struct OwnerCmp : public function_info<int, UnspecifiedParamTypes>
+	{
+		template < typename Lhs, typename Rhs >
+		int operator () (const Lhs& lhs, const Rhs& rhs) const
+		{ return lhs.owner_before(rhs) ? -1 : (rhs.owner_before(lhs) ? 1 : 0); }
+	};
+	TOOLKIT_DECLARE_COMPARERS(Owner);
+
+
 	template<typename ItemComparer>
 	struct CollectionComparer : public function_info<ItemComparer>
 	{
