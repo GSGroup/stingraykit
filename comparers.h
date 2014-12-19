@@ -195,6 +195,13 @@ namespace stingray
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return _comparer(lhs, rhs) == 0; }
 		};
+
+
+#define TOOLKIT_DECLARE_COMPARERS(ClassName) \
+	typedef stingray::comparers::CmpToLess<ClassName##Cmp> ClassName##Less; \
+	typedef stingray::comparers::CmpToEquals<ClassName##Cmp> ClassName##Equals; \
+	typedef stingray::comparers::CmpToGreater<ClassName##Cmp> ClassName##Greater;
+
 	}
 
 
