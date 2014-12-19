@@ -34,7 +34,7 @@ namespace stingray
 		std::string ToString() const;
 		static LocaleString FromUtf8(const std::string &str);
 
-		int Compare(const LocaleString& a, const LocaleString &b) const;
+		int Compare(const LocaleString &other) const;
 	};
 
 	template<typename T>

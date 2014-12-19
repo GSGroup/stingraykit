@@ -31,7 +31,7 @@ namespace stingray {
 	}
 
 	bool LocaleString::operator<(const LocaleString& other) const
-	{ return Compare(*this, other) < 0; }
+	{ return Compare(other) < 0; }
 
 	bool LocaleString::operator==(const LocaleString& other) const
 	{
@@ -41,7 +41,7 @@ namespace stingray {
 		if (Text.size() != other.Text.size())
 			return false;
 
-		return Compare(*this, other) == 0;
+		return Compare(other) == 0;
 	}
 
 	bool LocaleString::operator!=(const LocaleString& other) const
@@ -53,8 +53,8 @@ namespace stingray {
 	LocaleString LocaleString::FromUtf8(const std::string &str)
 	{ return StringCodec::FromUtf8(str); }
 
-	int LocaleString::Compare(const LocaleString& a, const LocaleString &b) const
-	{ return StringCodec::Compare(a, b); }
+	int LocaleString::Compare(const LocaleString &other) const
+	{ return StringCodec::Compare(*this, other); }
 
 
 }
