@@ -247,18 +247,6 @@ namespace stingray
 	{ };
 
 
-	struct CompareMethodComparer : public function_info<int, UnspecifiedParamTypes>
-	{
-		template < typename PtrType >
-		typename EnableIf<(IsPointer<PtrType>::Value || IsSharedPtr<PtrType>::Value), int>::ValueT   operator () (const PtrType& l, const PtrType& r) const
-		{ return l ? (r? l->Compare(*r): 1) : (r ? -1 : 0); }
-
-		template < typename Type >
-		typename EnableIf<!(IsPointer<Type>::Value || IsSharedPtr<Type>::Value), int>::ValueT   operator () (const Type& l, const Type& r) const
-		{ return l.Compare(r); }
-	};
-
-
 	template<typename ItemComparer>
 	struct CollectionComparer : public function_info<ItemComparer>
 	{
