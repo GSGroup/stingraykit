@@ -1,8 +1,8 @@
 #include <stingray/toolkit/thread/Thread.h>
 
 #include <stingray/toolkit/function/bind.h>
-#include <stingray/timer/AsyncProfiler.h>
-#include <stingray/timer/ExecutorsProfiler.h>
+#include <stingray/toolkit/diagnostics/AsyncProfiler.h>
+#include <stingray/toolkit/diagnostics/ExecutorsProfiler.h>
 
 
 namespace stingray

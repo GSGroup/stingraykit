@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_GENERICAPICALL_H
-#define STINGRAY_TOOLKIT_GENERICAPICALL_H
+#ifndef STINGRAY_TOOLKIT_DIAGNOSTICS_GENERICAPICALL_H
+#define STINGRAY_TOOLKIT_DIAGNOSTICS_GENERICAPICALL_H
 
 #include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/thread/Thread.h>

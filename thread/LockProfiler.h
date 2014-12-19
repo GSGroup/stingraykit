@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_THREAD_LOCKPROFILER_H
 
 #include <stingray/timer/ElapsedTime.h>
-#include <stingray/toolkit/Backtrace.h>
+#include <stingray/toolkit/diagnostics/Backtrace.h>
 #include <stdio.h>
 
 namespace stingray

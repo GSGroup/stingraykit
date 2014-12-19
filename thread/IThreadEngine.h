@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_THREAD_ITHREADENGINE_H
 
 
-#include <stingray/toolkit/ExternalAPIGuard.h>
+#include <stingray/toolkit/diagnostics/ExternalAPIGuard.h>
 #include <stingray/toolkit/ICreator.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/shared_ptr.h>

@@ -7,7 +7,7 @@
 #include <stingray/toolkit/thread/posix/PosixSemaphore.h>
 #include <stingray/toolkit/thread/ICancellationToken.h>
 #include <stingray/toolkit/thread/IThreadEngine.h>
-#include <stingray/toolkit/Backtrace.h>
+#include <stingray/toolkit/diagnostics/Backtrace.h>
 #include <stingray/toolkit/function/function.h>
 
 namespace stingray

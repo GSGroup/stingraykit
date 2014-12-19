@@ -1,5 +1,5 @@
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/Backtrace.h>
+#include <stingray/toolkit/diagnostics/Backtrace.h>
 
 
 extern "C" typeof(abort) __real_abort;

@@ -1,4 +1,4 @@
-#include <stingray/toolkit/SystemProfiler.h>
+#include <stingray/toolkit/diagnostics/SystemProfiler.h>
 
 #include <time.h>
 

@@ -9,7 +9,7 @@
 
 
 #ifdef USE_BACKTRACE_FOR_EXCEPTIONS
-#	include <stingray/toolkit/Backtrace.h>
+#	include <stingray/toolkit/diagnostics/Backtrace.h>
 #endif
 
 #include <stingray/toolkit/MetaProgramming.h>

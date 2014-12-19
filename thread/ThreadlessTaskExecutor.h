@@ -5,8 +5,8 @@
 #include <queue>
 #include <list>
 
-#include <stingray/timer/AsyncProfiler.h>
-#include <stingray/timer/ExecutorsProfiler.h>
+#include <stingray/toolkit/diagnostics/AsyncProfiler.h>
+#include <stingray/toolkit/diagnostics/ExecutorsProfiler.h>
 #include <stingray/toolkit/Final.h>
 #include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/toolkit/thread/Thread.h>

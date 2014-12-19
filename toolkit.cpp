@@ -8,7 +8,7 @@
 #endif
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/Backtrace.h>
+#include <stingray/toolkit/diagnostics/Backtrace.h>
 #include <stingray/toolkit/ScopeExit.h>
 #include <stingray/toolkit/StringUtils.h>
 #include <stingray/toolkit/collection/array.h>

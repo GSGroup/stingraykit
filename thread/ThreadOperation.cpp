@@ -1,7 +1,7 @@
 #include <stingray/toolkit/thread/ThreadOperation.h>
 
 #include <stingray/toolkit/thread/Thread.h>
-#include <stingray/toolkit/Backtrace.h>
+#include <stingray/toolkit/diagnostics/Backtrace.h>
 
 
 namespace stingray

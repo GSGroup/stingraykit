@@ -1,7 +1,7 @@
 #include <stingray/toolkit/shared_ptr.h>
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/Backtrace.h>
+#include <stingray/toolkit/diagnostics/Backtrace.h>
 
 
 namespace stingray

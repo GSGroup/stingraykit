@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include <stingray/toolkit/log/SystemLogger.h>
-#include <stingray/toolkit/Backtrace.h>
+#include <stingray/toolkit/diagnostics/Backtrace.h>
 #include <stingray/toolkit/FunctionToken.h>
 #include <stingray/toolkit/PhoenixSingleton.h>
 #include <stingray/toolkit/SafeSingleton.h>
