@@ -3,7 +3,7 @@
 
 
 #include <stingray/toolkit/thread/Thread.h>
-#include <stingray/timer/Timer.h>
+#include <stingray/toolkit/timer/Timer.h>
 #include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/signal/signals.h>

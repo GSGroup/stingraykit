@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_BANDWIDTHREPORTER_H
 
 
-#include <stingray/timer/Timer.h>
+#include <stingray/toolkit/timer/Timer.h>
 
 namespace stingray
 {
