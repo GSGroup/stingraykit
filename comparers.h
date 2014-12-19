@@ -197,6 +197,44 @@ namespace stingray
 		};
 
 
+		template<typename LessComparer_>
+		struct LessToEquals : public function_info<bool, UnspecifiedParamTypes>
+		{
+		private:
+			LessComparer_	_lessComparer;
+
+		public:
+			LessToEquals()
+			{ }
+
+			LessToEquals(const LessComparer_& comparer) : _lessComparer(comparer)
+			{ }
+
+			template <typename Lhs, typename Rhs>
+			bool operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return !_lessComparer(lhs, rhs) && !_lessComparer(rhs, lhs); }
+		};
+
+
+		template<typename LessComparer_>
+		struct LessToCmp : public function_info<int, UnspecifiedParamTypes>
+		{
+		private:
+			LessComparer_	_lessComparer;
+
+		public:
+			LessToCmp()
+			{ }
+
+			LessToCmp(const LessComparer_& comparer) : _lessComparer(comparer)
+			{ }
+
+			template <typename Lhs, typename Rhs>
+			int operator () (const Lhs& lhs, const Rhs& rhs) const
+			{ return _lessComparer(lhs, rhs) ? -1 : (_lessComparer(rhs, lhs) ? 1 : 0); }
+		};
+
+
 #define TOOLKIT_DECLARE_COMPARERS(ClassName) \
 	typedef stingray::comparers::CmpToLess<ClassName##Cmp> ClassName##Less; \
 	typedef stingray::comparers::CmpToEquals<ClassName##Cmp> ClassName##Equals; \
