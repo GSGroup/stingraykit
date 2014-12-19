@@ -5,10 +5,6 @@
 #include <stingray/toolkit/shared_ptr.h>
 
 
-#define TOOLKIT_DECLARE_COMPARER(ClassName) \
-		typedef stingray::IComparer<ClassName>				ClassName##Comparer; \
-		TOOLKIT_DECLARE_PTR(ClassName##Comparer);
-
 namespace stingray
 {
 
