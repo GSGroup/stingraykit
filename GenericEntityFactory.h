@@ -9,42 +9,47 @@
 namespace stingray
 {
 
-	template < typename Registry, typename TagType, typename ReturnType >
-	class EnumDrivenInvoker
+	namespace Detail
 	{
-		template < typename Left, typename Right >
-		struct RegistryEntryLess
-		{ static const bool Value = Left::Tag < Right::Tag; };
 
-		template < typename Entry, typename LeftNode, typename RightNode >
-		struct BranchNode
+		template < typename Registry, typename TagType, typename ReturnType >
+		class EnumDrivenInvoker
 		{
+			template < typename Left, typename Right >
+			struct RegistryEntryLess
+			{ static const bool Value = Left::Tag < Right::Tag; };
+
+			template < typename Entry, typename LeftNode, typename RightNode >
+			struct BranchNode
+			{
 #define DETAIL_TOOLKIT_DECLARE_BRANCHNODE_PROCESS(N_, UserArg_) \
-			TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, T) TOOLKIT_INSERT_IF(N_, >) \
-			static ReturnType Process(typename TagType::Enum tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
-			{ \
-				if (tag == Entry::Tag) \
-					return Entry::Type::Do(TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)); \
-				else \
-					return tag < Entry::Tag ? LeftNode::Process(tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)) : RightNode::Process(tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)); \
-			}
-			TOOLKIT_REPEAT_NESTING_2(5, DETAIL_TOOLKIT_DECLARE_BRANCHNODE_PROCESS, ~)
+				TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, T) TOOLKIT_INSERT_IF(N_, >) \
+				static ReturnType Process(typename TagType::Enum tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
+				{ \
+					if (tag == Entry::Tag) \
+						return Entry::Type::Do(TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)); \
+					else \
+						return tag < Entry::Tag ? LeftNode::Process(tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)) : RightNode::Process(tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)); \
+				}
+				TOOLKIT_REPEAT_NESTING_2(5, DETAIL_TOOLKIT_DECLARE_BRANCHNODE_PROCESS, ~)
 #undef DETAIL_TOOLKIT_DECLARE_BRANCHNODE_PROCESS
-		};
+			};
 
-		struct LeafNode
-		{
+			struct LeafNode
+			{
 #define DETAIL_TOOLKIT_DECLARE_LEAFNODE_PROCESS(N_, UserArg_) \
-			TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, T) TOOLKIT_INSERT_IF(N_, >) \
-			static ReturnType Process(typename TagType::Enum tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
-			{ return ReturnType(); }
-			TOOLKIT_REPEAT_NESTING_2(5, DETAIL_TOOLKIT_DECLARE_LEAFNODE_PROCESS, ~)
+				TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, T) TOOLKIT_INSERT_IF(N_, >) \
+				static ReturnType Process(typename TagType::Enum tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
+				{ return ReturnType(); }
+				TOOLKIT_REPEAT_NESTING_2(5, DETAIL_TOOLKIT_DECLARE_LEAFNODE_PROCESS, ~)
 #undef DETAIL_TOOLKIT_DECLARE_LEAFNODE_PROCESS
+			};
+
+		public:
+			typedef typename BalancedTypeTree<Registry, RegistryEntryLess, BranchNode, LeafNode>::ValueT ValueT;
 		};
 
-	public:
-		typedef typename BalancedTypeTree<Registry, RegistryEntryLess, BranchNode, LeafNode>::ValueT ValueT;
-	};
+	}
 
 	class UnknownEntityTagException : public Exception
 	{
@@ -111,7 +116,7 @@ namespace stingray
 		template < typename StreamType >
 		static EntityPtr Create(StreamType& stream)
 		{
-			typedef typename EnumDrivenInvoker<typename TypeListTransform<typename Derived::Registry, ToEntityCreator>::ValueT, EntityTagType, EntityPtr>::ValueT Registry;
+			typedef typename Detail::EnumDrivenInvoker<typename TypeListTransform<typename Derived::Registry, ToEntityCreator>::ValueT, EntityTagType, EntityPtr>::ValueT Registry;
 
 			EntityTagType tag;
 			{
