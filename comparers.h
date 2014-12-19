@@ -259,11 +259,6 @@ namespace stingray
 	};
 
 
-	template < typename T >
-	struct owner_equals : public less_to_equals<owner_less<T> >
-	{ };
-
-
 	template < typename less_comparer >
 	class less_to_cmp : public function_info<int, UnspecifiedParamTypes>
 	{
@@ -278,11 +273,6 @@ namespace stingray
 		int operator () (const T& l, const U& r) const
 		{ return _less(l, r) ? -1 : (_less(r, l) ? 1 : 0); }
 	};
-
-
-	template < typename T >
-	struct owner_cmp : public less_to_cmp<owner_less<T> >
-	{ };
 
 
 	struct OwnerCmp : public function_info<int, UnspecifiedParamTypes>
