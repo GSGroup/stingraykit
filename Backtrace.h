@@ -3,7 +3,7 @@
 
 #include <string>
 #if defined(HAVE_BACKTRACE)
-#	include <stingray/platform/posix/threads/Backtrace.h>
+#	include <stingray/toolkit/thread/posix/Backtrace.h>
 #elif defined(USE_GCC_BACKTRACE)
 #	include <stingray/platform/gcc/Backtrace.h>
 #endif

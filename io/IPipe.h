@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_IO_IPIPE_H
 
 
-#include <stingray/threads/CancellationToken.h>
+#include <stingray/toolkit/thread/CancellationToken.h>
 #include <stingray/toolkit/collection/ByteData.h>
 #include <stingray/toolkit/shared_ptr.h>
 

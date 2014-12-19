@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_GENERICAPICALL_H
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/exception.h>
 
 #define GENERIC_API_CALL(ReturnType, SuccessValue, ...) \

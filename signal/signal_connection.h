@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/collection/iterators.h>
 #include <stingray/toolkit/self_counter.h>
 

@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/collection/ByteData.h>
 #include <stingray/toolkit/IToken.h>
 #include <stingray/toolkit/shared_ptr.h>

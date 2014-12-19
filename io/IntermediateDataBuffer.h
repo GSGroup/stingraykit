@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_IO_INTERMEDIATEDATABUFFER_H
 
 
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/io/IDataSource.h>
 #include <stingray/toolkit/io/DataBuffer.h>
 

@@ -9,7 +9,7 @@
 #include <stingray/timer/ExecutorsProfiler.h>
 #include <stingray/toolkit/Final.h>
 #include <stingray/toolkit/thread/ITaskExecutor.h>
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 
 
 namespace stingray

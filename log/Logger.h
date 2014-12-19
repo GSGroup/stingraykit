@@ -9,8 +9,8 @@
 #include <stingray/log/ILogger.h>
 #include <stingray/toolkit/log/LogLevel.h>
 #include <stingray/toolkit/log/LoggerStream.h>
-#include <stingray/threads/Thread.h>
-#include <stingray/threads/atomic.h>
+#include <stingray/toolkit/thread/Thread.h>
+#include <stingray/toolkit/thread/atomic.h>
 #include <stingray/timer/ElapsedTime.h>
 #include <stingray/toolkit/IToken.h>
 #include <stingray/toolkit/StringUtils.h>

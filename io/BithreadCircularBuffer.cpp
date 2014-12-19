@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/ObjectToken.h>
 
 namespace stingray

@@ -2,8 +2,8 @@
 #define STINGRAY_TOOLKIT_THREAD_ASYNCQUEUEPROCESSOR_H
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/threads/CancellationToken.h>
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/CancellationToken.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/function/function.h>
 #include <stingray/toolkit/signal/signals.h>
 #include <stingray/toolkit/ProgressValue.h>

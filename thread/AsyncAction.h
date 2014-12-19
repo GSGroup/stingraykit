@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_THREAD_ASYNCACTION_H
 
 
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/timer/Timer.h>
 #include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/toolkit/shared_ptr.h>

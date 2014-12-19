@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_INTEGERSEQUENCEGENERATOR_H
 
 
-#include <stingray/threads/atomic.h>
+#include <stingray/toolkit/thread/atomic.h>
 
 
 namespace stingray

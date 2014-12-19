@@ -4,8 +4,8 @@
 #include <queue>
 #include <list>
 
-#include <stingray/threads/ConditionVariable.h>
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/ConditionVariable.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/Final.h>
 #include <stingray/toolkit/thread/ITaskExecutor.h>
 

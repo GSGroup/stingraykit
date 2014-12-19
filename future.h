@@ -1,8 +1,8 @@
 #ifndef STINGRAY_TOOLKIT_FUTURE_H
 #define STINGRAY_TOOLKIT_FUTURE_H
 
-#include <stingray/threads/CancellationToken.h>
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/CancellationToken.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/unique_ptr.h>

@@ -5,7 +5,7 @@
 #include <list>
 #include <stingray/toolkit/function/bind.h>
 #include <stingray/toolkit/shared_ptr.h>
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 
 
 namespace stingray

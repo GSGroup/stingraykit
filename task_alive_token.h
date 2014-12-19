@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_TASK_ALIVE_TOKEN_H
 
 
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/Final.h>
 #include <stingray/toolkit/self_counter.h>
 

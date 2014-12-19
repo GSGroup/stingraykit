@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_SIGNAL_SIGNAL_POLICIES_H
 
 
-#include <stingray/threads/Thread.h>
+#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/function/function.h>
 #include <stingray/toolkit/optional.h>
 
