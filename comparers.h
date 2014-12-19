@@ -243,38 +243,6 @@ namespace stingray
 	}
 
 
-	template < typename less_comparer >
-	class less_to_equals : public function_info<less_comparer>
-	{
-	private:
-		less_comparer	_less;
-
-	public:
-		less_to_equals() { }
-		less_to_equals(const less_comparer& less) : _less(less) { }
-
-		template < typename T, typename U >
-		bool operator () (const T& l, const U& r) const
-		{ return !_less(l, r) && !_less(r, l); }
-	};
-
-
-	template < typename less_comparer >
-	class less_to_cmp : public function_info<int, UnspecifiedParamTypes>
-	{
-	private:
-		less_comparer	_less;
-
-	public:
-		less_to_cmp() { }
-		less_to_cmp(const less_comparer& less) : _less(less) { }
-
-		template < typename T, typename U >
-		int operator () (const T& l, const U& r) const
-		{ return _less(l, r) ? -1 : (_less(r, l) ? 1 : 0); }
-	};
-
-
 	struct OwnerCmp : public function_info<int, UnspecifiedParamTypes>
 	{
 		template < typename Lhs, typename Rhs >
