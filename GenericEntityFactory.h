@@ -51,6 +51,29 @@ namespace stingray
 
 	}
 
+	template < typename Derived, typename TagType, typename ReturnType >
+	class GenericInvoker
+	{
+	protected:
+		template < typename TagType::Enum Tag_, typename TargetType >
+		struct RegistryEntry
+		{
+			static const typename TagType::Enum Tag = Tag_;
+			typedef TargetType Type;
+		};
+
+	public:
+#define DETAIL_TOOLKIT_DECLARE_GENERICINVOKER_INVOKE(N_, UserArg_) \
+		TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, T) TOOLKIT_INSERT_IF(N_, >) \
+		static ReturnType Invoke(typename TagType::Enum tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
+		{ \
+			typedef typename Detail::EnumDrivenInvoker<typename Derived::Registry, TagType, ReturnType>::ValueT Invoker; \
+			return Invoker::Process(tag TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)); \
+		}
+		TOOLKIT_REPEAT_NESTING_2(5, DETAIL_TOOLKIT_DECLARE_GENERICINVOKER_INVOKE, ~)
+#undef DETAIL_TOOLKIT_DECLARE_GENERICINVOKER_INVOKE
+	};
+
 	class UnknownEntityTagException : public Exception
 	{
 	public:
