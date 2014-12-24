@@ -70,6 +70,14 @@ namespace stingray
 		{ dynamic_cast<VisitorByPtr<const BaseType, const DerivedType>&>(visitor).Visit(shared_ptr<const DerivedType>(thisptr, static_cast<const DerivedType*>(this))); }
 	};
 
+	template < typename BaseType, typename DerivedType >
+	void ApplyVisitor(IVisitor<BaseType>& visitor, DerivedType& visitable)
+	{ visitable.Accept(visitor); }
+
+	template < typename BaseType, typename DerivedType >
+	void ApplyVisitor(IVisitorByPtr<BaseType>& visitor, const shared_ptr<DerivedType>& visitable)
+	{ visitable->AcceptPtr(visitor, shared_ptr<BaseType>(visitable)); }
+
 }
 
 
