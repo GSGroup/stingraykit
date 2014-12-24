@@ -63,7 +63,7 @@ namespace stingray
 	template < typename T, typename U>
 	struct CanCast
 	{
-		static YesType Test(bool);
+		static YesType Test(U);
 		static NoType Test(...);
 
 		static const bool Value = sizeof(Test(*((const T*)0))) == sizeof(YesType);
