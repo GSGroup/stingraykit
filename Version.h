@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_VERSION_H
 
 
-#include <stingray/toolkit/MemberListComparer.h>
+#include <stingray/toolkit/compare/MemberListComparer.h>
 #include <stingray/toolkit/StringUtils.h>
 
 

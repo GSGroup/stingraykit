@@ -5,7 +5,7 @@
 #include <stingray/toolkit/log/LogLevel.h>
 #include <stingray/toolkit/time/Time.h>
 #include <stingray/toolkit/optional.h>
-#include <stingray/toolkit/MemberListComparer.h>
+#include <stingray/toolkit/compare/MemberListComparer.h>
 
 #include <functional>
 

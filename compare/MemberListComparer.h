@@ -1,9 +1,9 @@
-#ifndef STINGRAY_TOOLKIT_MEMBERLISTCOMPARER_H
-#define STINGRAY_TOOLKIT_MEMBERLISTCOMPARER_H
+#ifndef STINGRAY_TOOLKIT_COMPARE_MEMBERLISTCOMPARER_H
+#define STINGRAY_TOOLKIT_COMPARE_MEMBERLISTCOMPARER_H
 
-#include <stingray/toolkit/MemberToValueComparer.h>
+#include <stingray/toolkit/compare/MemberToValueComparer.h>
 #include <stingray/toolkit/Tuple.h>
-#include <stingray/toolkit/comparers.h>
+#include <stingray/toolkit/compare/comparers.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 namespace stingray

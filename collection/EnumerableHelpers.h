@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_COLLECTION_ENUMERABLEHELPERS_H
 
 
-#include <stingray/toolkit/Comparable.h>
+#include <stingray/toolkit/compare/Comparable.h>
 #include <stingray/toolkit/collection/EnumeratorFromStlContainer.h>
 #include <stingray/toolkit/collection/IEnumerable.h>
 #include <stingray/toolkit/function/bind.h>
