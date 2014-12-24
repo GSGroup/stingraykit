@@ -5,7 +5,7 @@
 #if defined(HAVE_BACKTRACE)
 #	include <stingray/toolkit/thread/posix/Backtrace.h>
 #elif defined(USE_GCC_BACKTRACE)
-#	include <stingray/platform/gcc/Backtrace.h>
+#	include <stingray/toolkit/diagnostics/gcc/Backtrace.h>
 #endif
 
 namespace stingray
