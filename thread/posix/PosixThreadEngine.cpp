@@ -17,30 +17,26 @@
 
 #include <memory>
 
-#include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/thread/posix/SignalHandler.h>
-#include <stingray/toolkit/time/posix/utils.h>
-#include <stingray/toolkit/thread/GenericMutexLock.h>
-#include <stingray/toolkit/diagnostics/ExecutorsProfiler.h>
 #include <stingray/toolkit/Holder.h>
 #include <stingray/toolkit/Mapper.h>
 #include <stingray/toolkit/ScopeExit.h>
-#include <stingray/toolkit/string/StringFormat.h>
-#include <stingray/toolkit/string/StringUtils.h>
+#include <stingray/toolkit/Singleton.h>
 #include <stingray/toolkit/SystemException.h>
-#include <stingray/toolkit/function/bind.h>
+#include <stingray/toolkit/diagnostics/ExecutorsProfiler.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
+#include <stingray/toolkit/function/bind.h>
+#include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/optional.h>
-#include <stingray/toolkit/task_alive_token.h>
+#include <stingray/toolkit/string/StringFormat.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/string/string_stream.h>
+#include <stingray/toolkit/task_alive_token.h>
+#include <stingray/toolkit/thread/CancellationToken.h>
+#include <stingray/toolkit/thread/GenericMutexLock.h>
+#include <stingray/toolkit/thread/posix/SignalHandler.h>
+#include <stingray/toolkit/time/posix/utils.h>
 
-#define PTHREAD_CREATE_FAILURE_TESTS 1
-
-#if PTHREAD_CREATE_FAILURE_TESTS
-#	include <stingray/filesystem/FileSystemProvider.h>
-#	include <stingray/hardware/WatchdogProvider.h>
-#endif
 
 namespace stingray
 {
@@ -921,35 +917,7 @@ namespace stingray
 #endif
 
 		if (ret != 0)
-		{
-#if PTHREAD_CREATE_FAILURE_TESTS
-			try {
-				IDirectoryPtr dir = FileSystemProvider::Get().GetDirectory("/proc/self/task");
-				FOR_EACH(IFileDescriptorPtr f IN dir->GetFiles())
-				{
-					PTELogger.Info() << "\t" << f->GetPath().filename();
-				}
-			} catch(const std::exception &ex) { PTELogger.Error() << "error getting tasks " << ex; }
-
-			PTELogger.Info() << "threads max: " << sysconf( _SC_THREAD_THREADS_MAX );
-
-			{
-				std::vector<void *> pages;
-				try {
-					try { WatchdogProvider::Get().KeepAlive(); } catch(const std::exception &ex) {}
-					do {
-						pages.push_back(malloc(4096)); if (pages.back()) ((u8 *)pages.back())[0] = pages.size() & 0xff;
-						PTELogger.Info() << "allocated " << pages.size();
-					} while(pages.back());
-				} catch(const std::exception &ex) {}
-
-				for(size_t i = 0; i < pages.size(); ++i)
-					free(pages[i]);
-				PTELogger.Info() << "allocation failed on " << pages.size() << "th page";
-			}
-#endif
 			TOOLKIT_FATAL("pthread_create: ret = " + ToString(ret) + ", " + SystemException::GetErrorMessage(ret));
-		}
 		else
 			thread_arg.release();
 
