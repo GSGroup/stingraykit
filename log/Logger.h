@@ -6,15 +6,15 @@
 #include <set>
 #include <string>
 
-#include <stingray/log/ILogger.h>
+#include <stingray/toolkit/IToken.h>
+#include <stingray/toolkit/light_shared_ptr.h>
+#include <stingray/toolkit/log/ILoggerSink.h>
 #include <stingray/toolkit/log/LogLevel.h>
 #include <stingray/toolkit/log/LoggerStream.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/thread/atomic.h>
 #include <stingray/toolkit/time/ElapsedTime.h>
-#include <stingray/toolkit/IToken.h>
-#include <stingray/toolkit/string/StringUtils.h>
-#include <stingray/toolkit/light_shared_ptr.h>
 
 namespace stingray
 {
