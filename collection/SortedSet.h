@@ -8,6 +8,7 @@
 #include <stingray/toolkit/collection/IEnumerable.h>
 #include <stingray/toolkit/collection/ISet.h>
 #include <stingray/toolkit/collection/StlEnumeratorAdapter.h>
+#include <stingray/toolkit/thread/Thread.h>
 
 
 namespace stingray
