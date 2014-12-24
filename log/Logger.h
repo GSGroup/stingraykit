@@ -13,7 +13,7 @@
 #include <stingray/toolkit/thread/atomic.h>
 #include <stingray/toolkit/time/ElapsedTime.h>
 #include <stingray/toolkit/IToken.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/light_shared_ptr.h>
 
 namespace stingray

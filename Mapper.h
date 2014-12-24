@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_MAPPER_H
 
 
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/reference.h>
 
 

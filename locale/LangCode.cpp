@@ -1,6 +1,6 @@
 #include <stingray/toolkit/locale/LangCode.h>
 
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/collection/array.h>
 #include <stingray/toolkit/exception.h>
 

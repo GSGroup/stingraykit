@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_NUMERICRANGE_H
 
 #include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 namespace stingray {
 

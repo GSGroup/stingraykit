@@ -3,9 +3,9 @@
 
 
 #include <stingray/toolkit/log/LogLevel.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/light_shared_ptr.h>
-#include <stingray/toolkit/string_stream.h>
+#include <stingray/toolkit/string/string_stream.h>
 
 namespace stingray
 {

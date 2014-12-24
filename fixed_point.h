@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_FIXED_POINT_H
 
 
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 namespace stingray
 {

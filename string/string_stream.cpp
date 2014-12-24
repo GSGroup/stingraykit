@@ -1,4 +1,4 @@
-#include <stingray/toolkit/string_stream.h>
+#include <stingray/toolkit/string/string_stream.h>
 #include <stingray/toolkit/exception.h>
 #include <stdio.h>
 

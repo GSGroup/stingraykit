@@ -1,7 +1,7 @@
 #include <stingray/toolkit/thread/posix/Subprocess.h>
 
 #include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/SystemException.h>
 
 #include <unistd.h>

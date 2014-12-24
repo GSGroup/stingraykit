@@ -1,4 +1,4 @@
-#include <stingray/toolkit/TranslatedString.h>
+#include <stingray/toolkit/string/TranslatedString.h>
 
 #include <map>
 

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_STRINGUTILS_H
-#define STINGRAY_TOOLKIT_STRINGUTILS_H
+#ifndef STINGRAY_TOOLKIT_STRING_STRINGUTILS_H
+#define STINGRAY_TOOLKIT_STRING_STRINGUTILS_H
 
 
 #include <algorithm>
@@ -14,7 +14,7 @@
 #include <stingray/toolkit/NestedTypeCheck.h>
 #include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/shared_ptr.h>
-#include <stingray/toolkit/string_stream.h>
+#include <stingray/toolkit/string/string_stream.h>
 #include <stingray/toolkit/Types.h>
 
 

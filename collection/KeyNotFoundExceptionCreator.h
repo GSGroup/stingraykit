@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_COLLECTION_KEYNOTFOUNDEXCEPTIONCREATOR_H
 
 
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/exception.h>
 
 

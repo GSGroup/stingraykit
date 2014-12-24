@@ -3,7 +3,7 @@
 
 
 #include <stingray/toolkit/compare/MemberListComparer.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 
 namespace stingray

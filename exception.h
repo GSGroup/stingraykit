@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <string>
-#include <stingray/toolkit/string_stream.h>
+#include <stingray/toolkit/string/string_stream.h>
 
 
 #ifdef USE_BACKTRACE_FOR_EXCEPTIONS

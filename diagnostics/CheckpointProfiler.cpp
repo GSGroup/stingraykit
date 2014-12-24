@@ -1,7 +1,7 @@
 #include <stingray/toolkit/diagnostics/CheckpointProfiler.h>
 
 #include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 
 namespace stingray

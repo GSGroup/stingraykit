@@ -1,7 +1,7 @@
-#include <stingray/toolkit/Unicode.h>
+#include <stingray/toolkit/string/Unicode.h>
 
 #include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 #ifdef HAVE_ICU_I18N
 #	include <unicode/unistr.h>

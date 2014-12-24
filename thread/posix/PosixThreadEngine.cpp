@@ -25,15 +25,15 @@
 #include <stingray/toolkit/Holder.h>
 #include <stingray/toolkit/Mapper.h>
 #include <stingray/toolkit/ScopeExit.h>
-#include <stingray/toolkit/StringFormat.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringFormat.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/SystemException.h>
 #include <stingray/toolkit/function/bind.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/fatal.h>
 #include <stingray/toolkit/optional.h>
 #include <stingray/toolkit/task_alive_token.h>
-#include <stingray/toolkit/string_stream.h>
+#include <stingray/toolkit/string/string_stream.h>
 
 #define PTHREAD_CREATE_FAILURE_TESTS 1
 

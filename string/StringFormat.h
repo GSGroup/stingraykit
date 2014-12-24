@@ -1,7 +1,7 @@
-#ifndef STINGRAY_TOOLKIT_STRINGFORMAT_H
-#define STINGRAY_TOOLKIT_STRINGFORMAT_H
+#ifndef STINGRAY_TOOLKIT_STRING_STRINGFORMAT_H
+#define STINGRAY_TOOLKIT_STRING_STRINGFORMAT_H
 
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 namespace stingray {
 

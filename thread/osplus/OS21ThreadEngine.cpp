@@ -14,7 +14,7 @@
 #include <stingray/toolkit/thread/GenericMutexLock.h>
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/exception.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 
 namespace stingray

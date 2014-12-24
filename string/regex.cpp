@@ -1,4 +1,4 @@
-#include <stingray/toolkit/regex.h>
+#include <stingray/toolkit/string/regex.h>
 
 #ifdef PLATFORM_POSIX
 #	include <regex.h>
@@ -6,7 +6,7 @@
 #	warning No regex support on nonposix systems!
 #endif
 
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/variant.h>
 

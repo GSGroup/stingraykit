@@ -1,5 +1,5 @@
 #include <stingray/toolkit/ProgressValue.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 namespace stingray
 {

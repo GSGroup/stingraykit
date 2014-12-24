@@ -4,7 +4,7 @@
 
 #include <stingray/settings/Serialization.h>
 #include <stingray/toolkit/time/TimeEngine.h>
-#include <stingray/toolkit/StringFormat.h>
+#include <stingray/toolkit/string/StringFormat.h>
 #include <stingray/toolkit/exception.h>
 
 namespace stingray

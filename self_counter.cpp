@@ -1,7 +1,7 @@
 #include <stingray/toolkit/self_counter.h>
 
 #include <stingray/toolkit/fatal.h>
-#include <stingray/toolkit/StringUtils.h>
+#include <stingray/toolkit/string/StringUtils.h>
 
 namespace stingray {
 

@@ -1,7 +1,7 @@
 #include <stingray/toolkit/log/LoggerMessage.h>
 
 #include <stingray/toolkit/thread/Thread.h>
-#include <stingray/toolkit/StringFormat.h>
+#include <stingray/toolkit/string/StringFormat.h>
 
 
 namespace stingray

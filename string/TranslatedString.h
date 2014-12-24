@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TRANSLATEDSTRING_H
-#define STINGRAY_TOOLKIT_TRANSLATEDSTRING_H
+#ifndef STINGRAY_TOOLKIT_STRING_TRANSLATEDSTRING_H
+#define STINGRAY_TOOLKIT_STRING_TRANSLATEDSTRING_H
 
 #include <stingray/toolkit/locale/LangCode.h>
 #include <stingray/settings/ISerializable.h>
