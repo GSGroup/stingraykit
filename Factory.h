@@ -109,7 +109,7 @@ namespace stingray
 			{ return _rootContext->Create<ClassType>(name); }
 
 		private:
-			// Defined in stingray/toolkit/_FactoryClasses.cpp
+			// Defined in stingray/settings/_FactoryClasses.cpp
 			void RegisterTypes();
 		};
 
