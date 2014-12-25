@@ -1,7 +1,7 @@
 #include <stingray/toolkit/locale/LocaleString.h>
 
 #include <stingray/toolkit/locale/StringCodec.h>
-#include <stingray/settings/Serialization.h>
+#include <stingray/toolkit/serialization/Serialization.h>
 
 namespace stingray {
 

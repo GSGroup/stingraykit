@@ -1,6 +1,6 @@
 #include <stingray/toolkit/any.h>
 
-#include <stingray/settings/Serialization.h>
+#include <stingray/toolkit/serialization/Serialization.h>
 
 namespace stingray
 {

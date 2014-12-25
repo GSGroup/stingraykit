@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include <stingray/settings/Serialization.h>
+#include <stingray/toolkit/serialization/Serialization.h>
 #include <stingray/toolkit/collection/CollectionBuilder.h>
 
 namespace stingray

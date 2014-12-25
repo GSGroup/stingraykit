@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <algorithm>
 
-#include <stingray/settings/Serialization.h>
+#include <stingray/toolkit/serialization/Serialization.h>
 
 
 namespace stingray

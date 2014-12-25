@@ -5,7 +5,7 @@
 #include <iostream>
 #include <typeinfo>
 
-#include <stingray/settings/ISerializable.h>
+#include <stingray/toolkit/serialization/ISerializable.h>
 #include <stingray/toolkit/Factory.h>
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/string/StringUtils.h>

@@ -4,7 +4,7 @@
 #include <string>
 
 #include <stingray/toolkit/locale/Encoding.h>
-#include <stingray/settings/ISerializable.h>
+#include <stingray/toolkit/serialization/ISerializable.h>
 
 namespace stingray
 {

@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_TIME_TIME_H
 
 
-#include <stingray/settings/ISerializable.h>
+#include <stingray/toolkit/serialization/ISerializable.h>
 #include <stingray/toolkit/time/BrokenDownTime.h>
 #include <stingray/toolkit/NumericRange.h>
 #include <stingray/toolkit/toolkit.h>

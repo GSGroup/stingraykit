@@ -2,7 +2,7 @@
 #define STINGRAY_TOOLKIT_UUID_H
 
 
-#include <stingray/settings/ISerializable.h>
+#include <stingray/toolkit/serialization/ISerializable.h>
 #include <stingray/toolkit/collection/array.h>
 
 
