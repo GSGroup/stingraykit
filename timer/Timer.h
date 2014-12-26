@@ -2,14 +2,14 @@
 #define STINGRAY_TOOLKIT_TIMER_TIMER_H
 
 
-#include <stingray/toolkit/log/Logger.h>
-#include <stingray/toolkit/thread/Thread.h>
-#include <stingray/toolkit/thread/ConditionVariable.h>
-#include <stingray/toolkit/function/function.h>
-#include <stingray/toolkit/function/bind.h>
 #include <stingray/toolkit/Final.h>
-#include <stingray/toolkit/thread/ITaskExecutor.h>
 #include <stingray/toolkit/ScopeExit.h>
+#include <stingray/toolkit/function/bind.h>
+#include <stingray/toolkit/function/function.h>
+#include <stingray/toolkit/log/Logger.h>
+#include <stingray/toolkit/thread/ConditionVariable.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
+#include <stingray/toolkit/thread/Thread.h>
 
 namespace stingray
 {
@@ -86,7 +86,7 @@ namespace stingray
 	};
 
 
-	class Timer : TOOLKIT_FINAL(Timer)
+	class Timer : TOOLKIT_FINAL(Timer), public virtual ITaskExecutor
 	{
 		TOOLKIT_NONCOPYABLE(Timer);
 
@@ -126,6 +126,12 @@ namespace stingray
 		TimerConnection SetTimer(const TimeDuration& interval, const function<void()>& func);
 		TimerConnection SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func);
 
+		virtual void AddTask(const function<void()>& task)
+		{ AddTask(task, null); }
+
+		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester)
+		{ SetTimeout(0, function_with_token<void()>(task, tester)); }
+
 		/** @deprecated */
 		TimerConnection SetTimeout(size_t timeoutMilliseconds, const function<void()>& func)
 		{ return SetTimeout(TimeDuration(timeoutMilliseconds), func); }
@@ -146,18 +152,6 @@ namespace stingray
 	};
 	TOOLKIT_DECLARE_PTR(Timer);
 
-	class TimerTaskExecutorAdapter : public ITaskExecutor
-	{
-		TimerPtr _timer;
-
-	public:
-		TimerTaskExecutorAdapter(TimerPtr timer): _timer(TOOLKIT_REQUIRE_NOT_NULL(timer)) {}
-
-		virtual void AddTask(const function<void()>& task)
-		{ AddTask(task, null); }
-		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester)
-		{ _timer->SetTimeout(0, function_with_token<void()>(task, tester)); }
-	};
 
 	class ExecutionDeferrer
 	{
