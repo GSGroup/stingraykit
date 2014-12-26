@@ -24,7 +24,7 @@ namespace stingray
 			return;
 		}
 		if (_behaviour == Behaviour::Verbose)
-			_startConnection = profiler->_timer.SetTimeout(0, bind(&AsyncProfiler::ReportStart, _callInfo));
+			profiler->ReportStart(_callInfo);
 		_criticalConnection = profiler->_timer.SetTimeout(criticalMs, bind(&AsyncProfiler::ReportCriticalTime, _callInfo, TimeDuration(criticalMs), _threadInfo));
 		_errorConnection = profiler->_timer.SetTimer(MaxSessionTime, bind(&AsyncProfiler::ReportErrorTime, _callInfo, _threadInfo, make_shared<int>(1)));
 	}
@@ -35,14 +35,13 @@ namespace stingray
 		AsyncProfilerPtr profiler = _profiler.lock();
 		_criticalConnection.Disconnect();
 		_errorConnection.Disconnect();
-		_startConnection.Disconnect();
 		if (!profiler)
 		{
 			s_logger.Warning() << "profiler session destroyed after profiler death";
 			return;
 		}
 		if (_behaviour == Behaviour::Verbose)
-			profiler->_timer.SetTimeout(0, bind(&AsyncProfiler::ReportEnd, _callInfo, TimeDuration(_elapsed.ElapsedMilliseconds())));
+			profiler->ReportEnd(_callInfo, _elapsed.Elapsed());
 	}
 
 

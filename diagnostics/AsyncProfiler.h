@@ -66,7 +66,6 @@ namespace stingray
 			CallInfoPtr					_callInfo;
 			TimerConnectionHolder		_criticalConnection;
 			TimerConnectionHolder		_errorConnection;
-			TimerConnectionHolder		_startConnection;
 			ElapsedTime					_elapsed;
 			Behaviour					_behaviour;
 
