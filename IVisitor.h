@@ -15,8 +15,33 @@ namespace stingray
 	};
 
 	template < typename BaseType, typename DerivedType >
-	struct Visitor : public virtual IVisitor<BaseType>
+	struct VisitorBase : public virtual IVisitor<BaseType>
 	{
+		virtual void InvokeVisit(DerivedType& visitable) = 0;
+	};
+
+	template < typename BaseType, typename ValueType >
+	struct IVisitorWithValue : public IVisitor<BaseType>
+	{
+	private:
+		ValueType	_value;
+
+	public:
+		ValueType GetValue() const				{ return _value; }
+		void SetValue(const ValueType& value)	{ _value = value; }
+	};
+
+	template < typename BaseType, typename DerivedType, typename ValueType = void >
+	struct Visitor : public virtual IVisitorWithValue<BaseType, ValueType>, public VisitorBase<BaseType, DerivedType>
+	{
+		virtual void InvokeVisit(DerivedType& visitable)	{ SetValue(Visit(visitable)); }
+		virtual ValueType Visit(DerivedType& visitable) = 0;
+	};
+
+	template < typename BaseType, typename DerivedType >
+	struct Visitor<BaseType, DerivedType, void> : public VisitorBase<BaseType, DerivedType>
+	{
+		virtual void InvokeVisit(DerivedType& visitable)	{ Visit(visitable); }
 		virtual void Visit(DerivedType& visitable) = 0;
 	};
 
@@ -33,10 +58,10 @@ namespace stingray
 	struct Visitable : public virtual IVisitable<BaseType>
 	{
 		virtual void Accept(IVisitor<BaseType>& visitor)
-		{ dynamic_cast<Visitor<BaseType, DerivedType>&>(visitor).Visit(*static_cast<DerivedType*>(this)); }
+		{ dynamic_cast<VisitorBase<BaseType, DerivedType>&>(visitor).InvokeVisit(*static_cast<DerivedType*>(this)); }
 
 		virtual void Accept(IVisitor<const BaseType>& visitor) const
-		{ dynamic_cast<Visitor<const BaseType, const DerivedType>&>(visitor).Visit(*static_cast<const DerivedType*>(this)); }
+		{ dynamic_cast<VisitorBase<const BaseType, const DerivedType>&>(visitor).InvokeVisit(*static_cast<const DerivedType*>(this)); }
 	};
 
 	template < typename BaseType >
@@ -100,6 +125,13 @@ namespace stingray
 	template < typename BaseType, typename DerivedType >
 	void ApplyVisitor(IVisitor<BaseType>& visitor, DerivedType& visitable)
 	{ visitable.Accept(visitor); }
+
+	template < typename BaseType, typename DerivedType, typename ValueType >
+	ValueType ApplyVisitor(IVisitorWithValue<BaseType, ValueType>& visitor, DerivedType& visitable)
+	{
+		visitable.Accept(visitor);
+		return visitor.GetValue();
+	}
 
 	template < typename BaseType, typename DerivedType >
 	void ApplyVisitor(IVisitorByPtr<BaseType>& visitor, const shared_ptr<DerivedType>& visitable)
