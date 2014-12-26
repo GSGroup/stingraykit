@@ -46,8 +46,35 @@ namespace stingray
 	};
 
 	template < typename BaseType, typename DerivedType >
-	struct VisitorByPtr : public virtual IVisitorByPtr<BaseType>
+	struct VisitorByPtrBase : public virtual IVisitorByPtr<BaseType>
 	{
+		virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable) = 0;
+	};
+
+	template < typename BaseType, typename ValueType >
+	class IVisitorByPtrWithValue : public IVisitorByPtr<BaseType>
+	{
+	private:
+		ValueType	_value;
+
+	public:
+		ValueType GetValue() const				{ return _value; }
+		void SetValue(const ValueType& value)	{ _value = value; }
+	};
+
+	template < typename BaseType, typename DerivedType, typename ValueType = void >
+	struct VisitorByPtr : public virtual IVisitorByPtrWithValue<BaseType, ValueType>, public VisitorByPtrBase<BaseType, DerivedType>
+	{
+		virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ SetValue(Visit(visitable)); }
+
+		virtual ValueType Visit(const shared_ptr<DerivedType>& visitable) = 0;
+	};
+
+	template < typename BaseType, typename DerivedType >
+	struct VisitorByPtr<BaseType, DerivedType, void> : public VisitorByPtrBase<BaseType, DerivedType>
+	{
+		virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ Visit(visitable); }
+
 		virtual void Visit(const shared_ptr<DerivedType>& visitable) = 0;
 	};
 
@@ -64,10 +91,10 @@ namespace stingray
 	struct VisitableByPtr : public virtual IVisitableByPtr<BaseType>
 	{
 		virtual void AcceptPtr(IVisitorByPtr<BaseType>& visitor, const shared_ptr<BaseType>& thisptr)
-		{ dynamic_cast<VisitorByPtr<BaseType, DerivedType>&>(visitor).Visit(shared_ptr<DerivedType>(thisptr, static_cast<DerivedType*>(this))); }
+		{ dynamic_cast<VisitorByPtrBase<BaseType, DerivedType>&>(visitor).InvokeVisit(shared_ptr<DerivedType>(thisptr, static_cast<DerivedType*>(this))); }
 
 		virtual void AcceptPtr(IVisitorByPtr<const BaseType>& visitor, const shared_ptr<const BaseType>& thisptr) const
-		{ dynamic_cast<VisitorByPtr<const BaseType, const DerivedType>&>(visitor).Visit(shared_ptr<const DerivedType>(thisptr, static_cast<const DerivedType*>(this))); }
+		{ dynamic_cast<VisitorByPtrBase<const BaseType, const DerivedType>&>(visitor).InvokeVisit(shared_ptr<const DerivedType>(thisptr, static_cast<const DerivedType*>(this))); }
 	};
 
 	template < typename BaseType, typename DerivedType >
@@ -77,6 +104,13 @@ namespace stingray
 	template < typename BaseType, typename DerivedType >
 	void ApplyVisitor(IVisitorByPtr<BaseType>& visitor, const shared_ptr<DerivedType>& visitable)
 	{ visitable->AcceptPtr(visitor, shared_ptr<BaseType>(visitable)); }
+
+	template < typename BaseType, typename DerivedType, typename ValueType >
+	ValueType ApplyVisitor(IVisitorByPtrWithValue<BaseType, ValueType>& visitor, const shared_ptr<DerivedType>& visitable)
+	{
+		visitable->AcceptPtr(visitor, shared_ptr<BaseType>(visitable));
+		return visitor.GetValue();
+	}
 
 }
 
