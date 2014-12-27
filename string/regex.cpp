@@ -147,6 +147,7 @@ namespace stingray
 			: _str(str)
 		{
 			ReplaceAll(_str, "\\d", "[0-9]");
+			ReplaceAll(_str, "\\w", "[a-zA-Z0-9_]");
 
 			int ret = regcomp(&_regex, _str.c_str(), REG_EXTENDED);
 			STINGRAYKIT_CHECK(ret == 0, StringBuilder() % "Could not compile regex '" % _str % "', ret = " % ret % "\n" % GetRegexError(_regex, ret));
