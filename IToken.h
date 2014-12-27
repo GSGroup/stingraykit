@@ -3,8 +3,8 @@
 
 #include <map>
 
-#include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/shared_ptr.h>
+#include <stingray/toolkit/thread/Thread.h>
 
 
 namespace stingray
@@ -15,6 +15,25 @@ namespace stingray
 		virtual ~IToken() { }
 	};
 	TOOLKIT_DECLARE_PTR(IToken);
+
+
+	class TokenReturnProxy
+	{
+		TOOLKIT_NONASSIGNABLE(TokenReturnProxy);
+
+		class Impl;
+		TOOLKIT_DECLARE_PTR(Impl);
+
+	private:
+		ImplPtr				_impl;
+
+	public:
+		TokenReturnProxy(const ITokenPtr& token);
+		TokenReturnProxy(const TokenReturnProxy& other);
+		~TokenReturnProxy();
+
+		operator ITokenPtr() const;
+	};
 
 
 	class TokenPool
