@@ -36,6 +36,40 @@ namespace stingray
 	};
 
 
+	class TokenHolder
+	{
+	private:
+		Mutex			_mutex;
+		ITokenPtr		_token;
+
+	public:
+		TokenHolder()
+		{ }
+
+		TokenHolder(const ITokenPtr& token)
+			: _token(token)
+		{ }
+
+		void Set(const ITokenPtr& token)
+		{
+			ITokenPtr local_token = token;
+			{
+				MutexLock l(_mutex);
+				std::swap(local_token, _token);
+			}
+		}
+
+		void Reset()
+		{ Set(null); }
+
+		TokenHolder& operator = (const ITokenPtr& token)
+		{
+			Set(token);
+			return *this;
+		}
+	};
+
+
 	class TokenPool
 	{
 		TOOLKIT_NONCOPYABLE(TokenPool);
