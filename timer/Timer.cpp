@@ -191,7 +191,7 @@ namespace stingray
 	}
 
 
-	TimerConnection Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
+	ITokenPtr Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
 	{
 		MutexLock l(_queue->Sync());
 
@@ -199,15 +199,15 @@ namespace stingray
 		_queue->Push(ci);
 		_cond.Broadcast();
 
-		return TimerConnection(ci);
+		return ITokenPtr(new TimerConnectionToken(ci));
 	}
 
 
-	TimerConnection Timer::SetTimer(const TimeDuration& interval, const function<void()>& func)
+	ITokenPtr Timer::SetTimer(const TimeDuration& interval, const function<void()>& func)
 	{ return SetTimer(interval, interval, func); }
 
 
-	TimerConnection Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
+	ITokenPtr Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
 	{
 		MutexLock l(_queue->Sync());
 
@@ -215,7 +215,17 @@ namespace stingray
 		_queue->Push(ci);
 		_cond.Broadcast();
 
-		return TimerConnection(ci);
+		return ITokenPtr(new TimerConnectionToken(ci));
+	}
+
+
+	void Timer::AddTask(const function<void()>& task, const FutureExecutionTester& tester)
+	{
+		MutexLock l(_queue->Sync());
+
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(function_with_token<void()>(task, tester), TimeDuration(), null, _queue);
+		_queue->Push(ci);
+		_cond.Broadcast();
 	}
 
 

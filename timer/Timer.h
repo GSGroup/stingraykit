@@ -31,57 +31,25 @@ namespace stingray
 	}
 
 
-	class TimerConnection
+	class TimerConnectionToken : public virtual IToken
 	{
 		friend class Timer;
 
 	private:
 		Detail::ITimerConnectionImplPtr		_impl;
 
-	private:
-		TimerConnection(const Detail::ITimerConnectionImplPtr& impl)
+		TimerConnectionToken(const Detail::ITimerConnectionImplPtr& impl)
 			: _impl(impl)
 		{ }
 
 	public:
-		TimerConnection()
-		{ }
-
-		void Disconnect()
+		~TimerConnectionToken()
 		{
 			if (_impl)
 			{
 				_impl->Disconnect();
 				_impl.reset();
 			}
-		}
-	};
-
-
-	class TimerConnectionHolder
-	{
-		TOOLKIT_NONCOPYABLE(TimerConnectionHolder);
-
-	private:
-		TimerConnection		_connection;
-
-	public:
-		TimerConnectionHolder() { }
-		TimerConnectionHolder(const TimerConnection& connection)
-			: _connection(connection)
-		{ }
-
-		~TimerConnectionHolder()
-		{ Disconnect(); }
-
-		void Disconnect()
-		{ _connection.Disconnect(); }
-
-		TimerConnectionHolder& operator= (const TimerConnection& connection)
-		{
-			_connection.Disconnect();
-			_connection = connection;
-			return *this;
 		}
 	};
 
@@ -122,26 +90,25 @@ namespace stingray
 		void Start();
 		void Stop();
 
-		TimerConnection SetTimeout(const TimeDuration& timeout, const function<void()>& func);
-		TimerConnection SetTimer(const TimeDuration& interval, const function<void()>& func);
-		TimerConnection SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func);
+		ITokenPtr SetTimeout(const TimeDuration& timeout, const function<void()>& func);
+		ITokenPtr SetTimer(const TimeDuration& interval, const function<void()>& func);
+		ITokenPtr SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func);
 
 		virtual void AddTask(const function<void()>& task)
 		{ AddTask(task, null); }
 
-		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester)
-		{ SetTimeout(0, function_with_token<void()>(task, tester)); }
+		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
 
 		/** @deprecated */
-		TimerConnection SetTimeout(size_t timeoutMilliseconds, const function<void()>& func)
+		ITokenPtr SetTimeout(size_t timeoutMilliseconds, const function<void()>& func)
 		{ return SetTimeout(TimeDuration(timeoutMilliseconds), func); }
 
 		/** @deprecated */
-		TimerConnection SetTimer(size_t intervalMilliseconds, const function<void()>& func)
+		ITokenPtr SetTimer(size_t intervalMilliseconds, const function<void()>& func)
 		{ return SetTimer(TimeDuration(intervalMilliseconds), func); }
 
 		/** @deprecated */
-		TimerConnection SetTimer(size_t timeoutMilliseconds, size_t intervalMilliseconds, const function<void()>& func)
+		ITokenPtr SetTimer(size_t timeoutMilliseconds, size_t intervalMilliseconds, const function<void()>& func)
 		{ return SetTimer(TimeDuration(timeoutMilliseconds), TimeDuration(intervalMilliseconds), func); }
 
 		static void DefaultExceptionHandler(const std::exception& ex);
@@ -159,10 +126,10 @@ namespace stingray
 		size_t						_timeout;
 		Timer&						_timer;
 
-		TimerConnectionHolder		_connection;
+		ITokenPtr					_connection;
 		Mutex						_connectionMutex;
 
-		TimerConnectionHolder		_doDeferConnection;
+		ITokenPtr					_doDeferConnection;
 		Mutex 						_doDeferConnectionMutex;
 
 		Mutex						_mutex;
@@ -191,11 +158,11 @@ namespace stingray
 
 			{
 				MutexLock l(_doDeferConnectionMutex);
-				_doDeferConnection.Disconnect();
+				_doDeferConnection.reset();
 			}
 			{
 				MutexLock l(_connectionMutex);
-				_connection.Disconnect();
+				_connection.reset();
 			}
 		}
 
@@ -258,69 +225,6 @@ namespace stingray
 		void DeferWithTimeout(const function<void()>& func, size_t timeout)	{ Defer(func, timeout); }
 	};
 	TOOLKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
-
-
-	template < typename Key, typename Compare = std::less<Key> >
-	class TimerConnectionMap
-	{
-		TOOLKIT_NONCOPYABLE(TimerConnectionMap);
-
-		typedef std::multimap<Key, TimerConnection, Compare> ConnectionMap;
-
-		class BracketsOperatorProxy
-		{
-		private:
-			Mutex&				_mutex;
-			Key					_key;
-			ConnectionMap*		_connections;
-
-		public:
-			BracketsOperatorProxy(Mutex& mutex, const Key& key, ConnectionMap& connections) :
-				_mutex(mutex), _key(key), _connections(&connections)
-			{ }
-
-			BracketsOperatorProxy& operator+= (const TimerConnection& connection)
-			{
-				MutexLock l(_mutex);
-				_connections->insert(std::make_pair(_key, connection));
-				return *this;
-			}
-		};
-
-	private:
-		Mutex			_mutex;
-		ConnectionMap	_connections;
-
-	public:
-		TimerConnectionMap() { }
-		~TimerConnectionMap()
-		{ release_all(); }
-
-		BracketsOperatorProxy operator[] (const Key& key) { return BracketsOperatorProxy(_mutex, key, _connections); }
-
-		void release(const Key& key)
-		{
-			std::vector<TimerConnection> connections;
-			{
-				MutexLock l(_mutex);
-				typename ConnectionMap::iterator lower = _connections.lower_bound(key);
-				typename ConnectionMap::iterator upper = _connections.upper_bound(key);
-				std::copy(values_iterator(lower), values_iterator(upper), std::back_inserter(connections));
-				_connections.erase(lower, upper);
-			}
-			std::for_each(connections.begin(), connections.end(), std::mem_fun_ref(&TimerConnection::Disconnect));
-		}
-
-		void release_all()
-		{
-			ConnectionMap connections;
-			{
-				MutexLock l(_mutex);
-				_connections.swap(connections);
-			}
-			std::for_each(values_iterator(connections.begin()), values_iterator(connections.end()), bind(&TimerConnection::Disconnect, _1));
-		}
-	};
 
 	/** @} */
 

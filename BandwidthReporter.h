@@ -19,7 +19,7 @@ namespace stingray
 		u64						_dataSinceLastReport;
 		ElapsedTime				_timeSinceLastReport;
 		Timer					_timer;
-		TimerConnectionHolder	_connection;
+		TokenHolder	_connection;
 
 	public:
 		BandwidthReporter(const IDataSourcePtr& source, const std::string& timerName) :
@@ -27,7 +27,7 @@ namespace stingray
 		{ _connection = _timer.SetTimer(ReportBandwidthTimeout, bind(&BandwidthReporter::Report, this)); }
 
 		virtual ~BandwidthReporter()
-		{ _connection.Disconnect(); }
+		{ _connection.Reset(); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{ _source->ReadToFunction(bind(&BandwidthReporter::DoPush, this, ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, ref(consumer)), token); }
