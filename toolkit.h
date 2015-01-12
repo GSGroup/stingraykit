@@ -75,6 +75,15 @@ namespace stingray
 	private: \
 		ClassName& operator= (const ClassName&)
 
+#define TOOLKIT_SIMPLE_ENUM_TO_STRING_BEGIN(EnumType) \
+	std::string ToString(EnumType value) { \
+		switch (value) { \
+		default: return std::string("Unknown enum value " + stingray::ToString(static_cast<int>(value)) + " of " #EnumType);
+
+#define TOOLKIT_SIMPLE_ENUM_VALUE(enumValue) case enumValue: return std::string(#enumValue)
+
+#define TOOLKIT_SIMPLE_ENUM_TO_STRING_END() }}
+
 #define TOOLKIT_ENUM_VALUES(...) \
 	private: \
 		inline static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
