@@ -37,6 +37,14 @@ namespace stingray
 
 	}
 
+	struct VisitorException : public Exception
+	{
+		template < typename VisitorType, typename VisitableType >
+		VisitorException(const VisitorType& visitor, const VisitableType& visitable)
+			: Exception(TypeInfo(visitor).GetName() + " can't visit " +  TypeInfo(visitable).GetName())
+		{ }
+	};
+
 	template < typename BaseType, typename ValueType >
 	struct IVisitor : public Detail::IVisitorBase<BaseType>
 	{
