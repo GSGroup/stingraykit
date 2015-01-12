@@ -87,10 +87,18 @@ namespace stingray
 	struct Visitable : public virtual IVisitable<BaseType>
 	{
 		virtual void Accept(Detail::IVisitorBase<BaseType>& visitor)
-		{ dynamic_cast<Detail::VisitorBase<BaseType, DerivedType>&>(visitor).InvokeVisit(*static_cast<DerivedType*>(this)); }
+		{
+			Detail::VisitorBase<BaseType, DerivedType>* derivedVisitor = dynamic_caster(&visitor);
+			TOOLKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
+			derivedVisitor->InvokeVisit(*static_cast<DerivedType*>(this));
+		}
 
 		virtual void Accept(Detail::IVisitorBase<const BaseType>& visitor) const
-		{ dynamic_cast<Detail::VisitorBase<const BaseType, const DerivedType>&>(visitor).InvokeVisit(*static_cast<const DerivedType*>(this)); }
+		{
+			Detail::VisitorBase<const BaseType, const DerivedType>* derivedVisitor = dynamic_caster(&visitor);
+			TOOLKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
+			derivedVisitor->InvokeVisit(*static_cast<const DerivedType*>(this));
+		}
 	};
 
 	template < typename BaseType, typename ValueType >
@@ -137,10 +145,18 @@ namespace stingray
 	struct VisitableByPtr : public virtual IVisitableByPtr<BaseType>
 	{
 		virtual void AcceptPtr(Detail::IVisitorByPtrBase<BaseType>& visitor, const shared_ptr<BaseType>& thisptr)
-		{ dynamic_cast<Detail::VisitorByPtrBase<BaseType, DerivedType>&>(visitor).InvokeVisit(shared_ptr<DerivedType>(thisptr, static_cast<DerivedType*>(this))); }
+		{
+			Detail::VisitorByPtrBase<BaseType, DerivedType>* derivedVisitor = dynamic_caster(&visitor);
+			TOOLKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
+			derivedVisitor->InvokeVisit(shared_ptr<DerivedType>(thisptr, static_cast<DerivedType*>(this)));
+		}
 
 		virtual void AcceptPtr(Detail::IVisitorByPtrBase<const BaseType>& visitor, const shared_ptr<const BaseType>& thisptr) const
-		{ dynamic_cast<Detail::VisitorByPtrBase<const BaseType, const DerivedType>&>(visitor).InvokeVisit(shared_ptr<const DerivedType>(thisptr, static_cast<const DerivedType*>(this))); }
+		{
+			Detail::VisitorByPtrBase<const BaseType, const DerivedType>* derivedVisitor = dynamic_caster(&visitor);
+			TOOLKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
+			derivedVisitor->InvokeVisit(shared_ptr<const DerivedType>(thisptr, static_cast<const DerivedType*>(this)));
+		}
 	};
 
 
