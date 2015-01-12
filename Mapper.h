@@ -22,7 +22,7 @@ namespace stingray
 		struct FailImpl
 		{
 			static Dst GetValue(Src from)
-			{ TOOLKIT_THROW(StringBuilder() % "Mapping " % Demangle(typeid(Src).name()) % " -> " % Demangle(typeid(Dst).name()) % " failed! Source value: " % ToString(from)); }
+			{ STINGRAYKIT_THROW(StringBuilder() % "Mapping " % Demangle(typeid(Src).name()) % " -> " % Demangle(typeid(Dst).name()) % " failed! Source value: " % ToString(from)); }
 			static bool HasValue(Src from)	{ return false; }
 		};
 
@@ -30,7 +30,7 @@ namespace stingray
 		struct FailImpl<Src, Dst, false>
 		{
 			static Dst GetValue(Src from)
-			{ TOOLKIT_THROW(StringBuilder() % "Mapping " % Demangle(typeid(Src).name()) % " -> " % Demangle(typeid(Dst).name()) % " failed! Source value is not string representable!"); }
+			{ STINGRAYKIT_THROW(StringBuilder() % "Mapping " % Demangle(typeid(Src).name()) % " -> " % Demangle(typeid(Dst).name()) % " failed! Source value is not string representable!"); }
 			static bool HasValue(Src from)	{ return false; }
 		};
 

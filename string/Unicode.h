@@ -15,7 +15,7 @@ namespace stingray
 
 	class UnicodeCollator
 	{
-		TOOLKIT_NONCOPYABLE(UnicodeCollator);
+		STINGRAYKIT_NONCOPYABLE(UnicodeCollator);
 
 	private:
 #ifdef HAVE_ICU_I18N
@@ -30,7 +30,7 @@ namespace stingray
 		void SetCaseSensitivity(bool sensitive);
 		int Compare(const std::string &str1, const std::string &str2) const;
 	};
-	TOOLKIT_DECLARE_PTR(UnicodeCollator);
+	STINGRAYKIT_DECLARE_PTR(UnicodeCollator);
 
 
 	std::string Utf8ToLower(const std::string& str);

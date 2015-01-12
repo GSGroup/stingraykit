@@ -7,7 +7,7 @@
 namespace stingray
 {
 
-	TOOLKIT_DEFINE_NAMED_LOGGER(ThreadOperationReporter);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadOperationReporter);
 
 	ThreadOperationReporter::ThreadOperationReporter(ThreadOperation op)
 	{

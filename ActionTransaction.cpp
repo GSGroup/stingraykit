@@ -16,7 +16,7 @@ namespace stingray
 		TRACER;
 
 		if (_active)
-			STINGRAY_TRY("Couldn't rollback transaction!", Rollback());
+			STINGRAYKIT_TRY("Couldn't rollback transaction!", Rollback());
 	}
 
 
@@ -24,7 +24,7 @@ namespace stingray
 	{
 		TRACER;
 
-		TOOLKIT_CHECK(_active, "Transaction is inactive!");
+		STINGRAYKIT_CHECK(_active, "Transaction is inactive!");
 
 		actionFunc();
 
@@ -36,7 +36,7 @@ namespace stingray
 	{
 		TRACER;
 
-		TOOLKIT_CHECK(_active, "Transaction is inactive!");
+		STINGRAYKIT_CHECK(_active, "Transaction is inactive!");
 
 		_active = false;
 	}
@@ -46,7 +46,7 @@ namespace stingray
 	{
 		TRACER;
 
-		TOOLKIT_CHECK(_active, "Transaction is inactive!");
+		STINGRAYKIT_CHECK(_active, "Transaction is inactive!");
 
 		for (RollbackSequence::reverse_iterator it = _rollbackSequence.rbegin(); it != _rollbackSequence.rend(); ++it)
 			(*it)();

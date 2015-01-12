@@ -32,7 +32,7 @@ namespace stingray
 		ValuesFromSignalCollector() : _val(new Builder) { }
 
 		void operator() (const ValueType& val) const { (*_val) % val; }
-		void operator() (CollectionOp op, const ValueType& val) const { TOOLKIT_CHECK(op == CollectionOp::Added, "Invalid CollectionOp!"); (*_val) % val; }
+		void operator() (CollectionOp op, const ValueType& val) const { STINGRAYKIT_CHECK(op == CollectionOp::Added, "Invalid CollectionOp!"); (*_val) % val; }
 
 		const CollectionType* operator -> () const	{ return &GetValues(); }
 		const CollectionType& GetValues() const { return *_val; }
@@ -58,7 +58,7 @@ namespace stingray
 
 		void operator() (const T& val) const
 		{
-			TOOLKIT_CHECK(!*_val, "Value already set!");
+			STINGRAYKIT_CHECK(!*_val, "Value already set!");
 			_val->reset(new T(val));
 		}
 
@@ -66,7 +66,7 @@ namespace stingray
 
 		const T& GetValue() const
 		{
-			TOOLKIT_CHECK(*_val, "Value is not set!");
+			STINGRAYKIT_CHECK(*_val, "Value is not set!");
 			return **_val;
 		}
 

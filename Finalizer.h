@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_FINALIZER_H
-#define STINGRAY_TOOLKIT_FINALIZER_H
+#ifndef STINGRAY_STINGRAYKIT_FINALIZER_H
+#define STINGRAY_STINGRAYKIT_FINALIZER_H
 
 
 #include <stingray/toolkit/thread/ITaskExecutor.h>
@@ -14,7 +14,7 @@ namespace stingray
 		ITaskExecutorPtr	_executor;
 
 	public:
-		Finalizer(const ITaskExecutorPtr& executor) : _executor(TOOLKIT_REQUIRE_NOT_NULL(executor))
+		Finalizer(const ITaskExecutorPtr& executor) : _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor))
 		{ }
 
 		template< typename T >

@@ -108,21 +108,21 @@ namespace stingray
 			if (c >= '0' && c <= '9')
 				value = value * 10 + (c - '0');
 			else
-				TOOLKIT_THROW(ArgumentException("str", str));
+				STINGRAYKIT_THROW(ArgumentException("str", str));
 		}
 
 		return negative? (T)0 - value: value; //Dima told me to shut compiler up. Sorry.
 	}
 
 
-	TOOLKIT_DECLARE_METHOD_CHECK(FromString);
+	STINGRAYKIT_DECLARE_METHOD_CHECK(FromString);
 
 
 	template < typename T >
 	void ToString(string_ostream & result, const T& val);
 
 
-	TOOLKIT_DECLARE_METHOD_CHECK(ToString);
+	STINGRAYKIT_DECLARE_METHOD_CHECK(ToString);
 
 
 	namespace Detail
@@ -193,14 +193,14 @@ namespace stingray
 	namespace Detail
 	{
 
-		TOOLKIT_DECLARE_METHOD_CHECK(begin);
-		TOOLKIT_DECLARE_METHOD_CHECK(end);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(begin);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(end);
 
 
 		struct TypeToStringObjectType
 		{
-			TOOLKIT_ENUM_VALUES(HasBeginEnd, HasToString, Enumerable, IsException, Other, ProxyObjToStdStream);
-			TOOLKIT_DECLARE_ENUM_CLASS(TypeToStringObjectType);
+			STINGRAYKIT_ENUM_VALUES(HasBeginEnd, HasToString, Enumerable, IsException, Other, ProxyObjToStdStream);
+			STINGRAYKIT_DECLARE_ENUM_CLASS(TypeToStringObjectType);
 		};
 
 
@@ -289,7 +289,7 @@ namespace stingray
 			template <typename T>
 			static void ToStringImpl(string_ostream & result, const IEnumerable<T>& enumerable)
 			{
-				shared_ptr<IEnumerator<T> > e = TOOLKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
+				shared_ptr<IEnumerator<T> > e = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
 				result << "[";
 				if (e->Valid())
 				{
@@ -601,40 +601,40 @@ namespace stingray
 	typedef Detail::StringRef	StringRef;
 
 
-#define DETAIL_SPLIT_PARAM_USAGE(Index_, UserArg_) % TOOLKIT_CAT(p, Index_)
+#define DETAIL_SPLIT_PARAM_USAGE(Index_, UserArg_) % STINGRAYKIT_CAT(p, Index_)
 
-#define DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION(ParamsCount_, UserData_) \
-	TOOLKIT_INSERT_IF(ParamsCount_, \
+#define DETAIL_STINGRAYKIT_DECLARE_SPLIT_FUNCTION(ParamsCount_, UserData_) \
+	STINGRAYKIT_INSERT_IF(ParamsCount_, \
 		template <typename ContainerType> \
-		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1, Detail::SplitImpl<ContainerType, typename ContainerType::value_type(*)(const std::string&), typename ContainerType::value_type> splitImpl = Detail::SplitImpl<ContainerType, typename ContainerType::value_type(*)(const std::string&), typename ContainerType::value_type>()) \
+		inline void Split(const std::string& str, STINGRAYKIT_REPEAT(ParamsCount_, STINGRAYKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1, Detail::SplitImpl<ContainerType, typename ContainerType::value_type(*)(const std::string&), typename ContainerType::value_type> splitImpl = Detail::SplitImpl<ContainerType, typename ContainerType::value_type(*)(const std::string&), typename ContainerType::value_type>()) \
 		{ \
-			splitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, lexical_cast<typename ContainerType::value_type, std::string>, maxsplit); \
+			splitImpl(str, VectorBuilder<std::string>() STINGRAYKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, STINGRAYKIT_EMPTY()), result, lexical_cast<typename ContainerType::value_type, std::string>, maxsplit); \
 		} \
 	) \
-	TOOLKIT_INSERT_IF(ParamsCount_, \
-		template <typename ContainerType TOOLKIT_COMMA typename UnaryOperator> \
-		inline void Split(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, UnaryOperator op, int maxsplit = -1, Detail::SplitImpl<ContainerType, UnaryOperator, typename ContainerType::value_type> splitImpl = Detail::SplitImpl<ContainerType, UnaryOperator, typename ContainerType::value_type>()) \
+	STINGRAYKIT_INSERT_IF(ParamsCount_, \
+		template <typename ContainerType STINGRAYKIT_COMMA typename UnaryOperator> \
+		inline void Split(const std::string& str, STINGRAYKIT_REPEAT(ParamsCount_, STINGRAYKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, UnaryOperator op, int maxsplit = -1, Detail::SplitImpl<ContainerType, UnaryOperator, typename ContainerType::value_type> splitImpl = Detail::SplitImpl<ContainerType, UnaryOperator, typename ContainerType::value_type>()) \
 		{ \
-			splitImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, op, maxsplit); \
+			splitImpl(str, VectorBuilder<std::string>() STINGRAYKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, STINGRAYKIT_EMPTY()), result, op, maxsplit); \
 		} \
 	)
 
-	TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION, TOOLKIT_EMPTY())
+	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_SPLIT_FUNCTION, STINGRAYKIT_EMPTY())
 
-#define DETAIL_TOOLKIT_DECLARE_SPLITREFS_FUNCTION(ParamsCount_, UserData_) \
-	TOOLKIT_INSERT_IF(ParamsCount_, \
+#define DETAIL_STINGRAYKIT_DECLARE_SPLITREFS_FUNCTION(ParamsCount_, UserData_) \
+	STINGRAYKIT_INSERT_IF(ParamsCount_, \
 		template <typename ContainerType> \
-		inline void SplitRefs(const std::string& str, TOOLKIT_REPEAT(ParamsCount_, TOOLKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1) \
+		inline void SplitRefs(const std::string& str, STINGRAYKIT_REPEAT(ParamsCount_, STINGRAYKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1) \
 		{ \
-			Detail::SplitRefsImpl(str, VectorBuilder<std::string>() TOOLKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, TOOLKIT_EMPTY()), result, maxsplit); \
+			Detail::SplitRefsImpl(str, VectorBuilder<std::string>() STINGRAYKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, STINGRAYKIT_EMPTY()), result, maxsplit); \
 		} \
 	)
 
-	TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_SPLITREFS_FUNCTION, TOOLKIT_EMPTY())
+	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_SPLITREFS_FUNCTION, STINGRAYKIT_EMPTY())
 
 #undef DETAIL_SPLIT_PARAM_USAGE
-#undef DETAIL_TOOLKIT_DECLARE_SPLIT_FUNCTION
-#undef DETAIL_TOOLKIT_DECLARE_SPLITREFS_FUNCTION
+#undef DETAIL_STINGRAYKIT_DECLARE_SPLIT_FUNCTION
+#undef DETAIL_STINGRAYKIT_DECLARE_SPLITREFS_FUNCTION
 
 
 	template < typename InputIterator, typename UnaryOperator >

@@ -14,15 +14,15 @@ namespace stingray
 	{
 		virtual ~IToken() { }
 	};
-	TOOLKIT_DECLARE_PTR(IToken);
+	STINGRAYKIT_DECLARE_PTR(IToken);
 
 
 	class TokenReturnProxy
 	{
-		TOOLKIT_NONASSIGNABLE(TokenReturnProxy);
+		STINGRAYKIT_NONASSIGNABLE(TokenReturnProxy);
 
 		class Impl;
-		TOOLKIT_DECLARE_PTR(Impl);
+		STINGRAYKIT_DECLARE_PTR(Impl);
 
 	private:
 		ImplPtr				_impl;
@@ -72,7 +72,7 @@ namespace stingray
 
 	class TokenPool
 	{
-		TOOLKIT_NONCOPYABLE(TokenPool);
+		STINGRAYKIT_NONCOPYABLE(TokenPool);
 
 		typedef std::vector<ITokenPtr> Tokens;
 
@@ -117,7 +117,7 @@ namespace stingray
 	template < typename Key, typename Compare = std::less<Key> >
 	class TokenMap
 	{
-		TOOLKIT_NONCOPYABLE(TokenMap);
+		STINGRAYKIT_NONCOPYABLE(TokenMap);
 
 		typedef std::multimap<Key, ITokenPtr, Compare> Tokens;
 

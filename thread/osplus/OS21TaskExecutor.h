@@ -16,7 +16,7 @@ namespace osplus
 
 
 	class TaskExecutor
-		: TOOLKIT_FINAL(TaskExecutor)
+		: STINGRAYKIT_FINAL(TaskExecutor)
 		, public virtual ITaskExecutor
 	{
 		typedef function<void()>							TaskType;

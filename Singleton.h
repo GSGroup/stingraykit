@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_SINGLETON_H
-#define STINGRAY_TOOLKIT_SINGLETON_H
+#ifndef STINGRAY_STINGRAYKIT_SINGLETON_H
+#define STINGRAY_STINGRAYKIT_SINGLETON_H
 
 
 #include <stingray/toolkit/log/Logger.h>
@@ -8,13 +8,13 @@
 #include <stingray/toolkit/toolkit.h>
 
 
-#define TOOLKIT_SINGLETON(ClassName) \
+#define STINGRAYKIT_SINGLETON(ClassName) \
 		friend class ::stingray::Detail::SingletonInstanceHolder<ClassName>; \
 		friend class ::stingray::Singleton<ClassName>; \
-		TOOLKIT_NONCOPYABLE(ClassName)
+		STINGRAYKIT_NONCOPYABLE(ClassName)
 
-#define TOOLKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(ClassName) \
-		TOOLKIT_SINGLETON(ClassName); \
+#define STINGRAYKIT_SINGLETON_WITH_TRIVIAL_CONSTRUCTOR(ClassName) \
+		STINGRAYKIT_SINGLETON(ClassName); \
 	private: \
 		ClassName() { }
 
@@ -27,7 +27,7 @@ namespace stingray
 		template<typename T>
 		class SingletonInstanceHolder : public T
 		{
-			TOOLKIT_NONCOPYABLE(SingletonInstanceHolder);
+			STINGRAYKIT_NONCOPYABLE(SingletonInstanceHolder);
 
 		public:
 			SingletonInstanceHolder()	{ }
@@ -54,7 +54,7 @@ namespace stingray
 
 		static void AssertInstance()
 		{
-			TOOLKIT_FATAL("Singleton '" + Demangle(typeid(T).name()) + "' has not been created!");
+			STINGRAYKIT_FATAL("Singleton '" + Demangle(typeid(T).name()) + "' has not been created!");
 		}
 
 		static InstanceHolderTypePtr& GetInstancePtr()
@@ -63,7 +63,7 @@ namespace stingray
 			return inst;
 		}
 
-		static TOOLKIT_DECLARE_ONCE_FLAG(s_initFlag);
+		static STINGRAYKIT_DECLARE_ONCE_FLAG(s_initFlag);
 
 	public:
 		static bool IsAlive() { return GetInstancePtr(); }
@@ -72,7 +72,7 @@ namespace stingray
 		{
 			call_once(s_initFlag, &Singleton::InitInstance);
 			if (!GetInstancePtr())
-				TOOLKIT_THROW("Singleton '" + Demangle(typeid(T).name()) + "' could not be created!");
+				STINGRAYKIT_THROW("Singleton '" + Demangle(typeid(T).name()) + "' could not be created!");
 			return GetInstancePtr()->Get();
 		}
 
@@ -85,7 +85,7 @@ namespace stingray
 
 
 	template< typename T >
-	TOOLKIT_DEFINE_ONCE_FLAG(Singleton<T>::s_initFlag);
+	STINGRAYKIT_DEFINE_ONCE_FLAG(Singleton<T>::s_initFlag);
 
 
 	template < typename T >

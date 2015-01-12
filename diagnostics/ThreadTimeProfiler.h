@@ -14,7 +14,7 @@ namespace stingray
 	 * @{
 	 */
 
-	TOOLKIT_DECLARE_METHOD_CHECK(GetThreadMicroseconds);
+	STINGRAYKIT_DECLARE_METHOD_CHECK(GetThreadMicroseconds);
 
 
 	template < typename ThreadEngineType, bool HasGetThreadMicroseconds = HasMethod_GetThreadMicroseconds<ThreadEngineType>::Value >

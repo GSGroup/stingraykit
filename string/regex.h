@@ -83,7 +83,7 @@ namespace stingray
 		friend std::string regex_replace(const std::string& str, const regex& re, const std::string& replacement, regex_constants::match_flag_type flags);
 
 		class Impl;
-		TOOLKIT_DECLARE_PTR(Impl);
+		STINGRAYKIT_DECLARE_PTR(Impl);
 
 	private:
 		ImplPtr		_impl;

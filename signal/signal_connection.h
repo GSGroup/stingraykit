@@ -25,7 +25,7 @@ namespace stingray
 			virtual ~ISignalConnection() { }
 			virtual void Disconnect() = 0;
 		};
-		TOOLKIT_DECLARE_SELF_COUNT_PTR(ISignalConnection);
+		STINGRAYKIT_DECLARE_SELF_COUNT_PTR(ISignalConnection);
 	} //namespace Detail
 
 
@@ -57,7 +57,7 @@ namespace stingray
 
 	class signal_connection_holder
 	{
-		TOOLKIT_NONCOPYABLE(signal_connection_holder);
+		STINGRAYKIT_NONCOPYABLE(signal_connection_holder);
 
 	private:
 		signal_connection _connection;
@@ -79,7 +79,7 @@ namespace stingray
 
 	class signal_connection_pool
 	{
-		TOOLKIT_NONCOPYABLE(signal_connection_pool);
+		STINGRAYKIT_NONCOPYABLE(signal_connection_pool);
 
 		typedef std::vector<signal_connection> signal_connection_list;
 		signal_connection_list _connections;
@@ -119,7 +119,7 @@ namespace stingray
 	template < typename Key, typename Compare = std::less<Key> >
 	class signal_connection_map
 	{
-		TOOLKIT_NONCOPYABLE(signal_connection_map);
+		STINGRAYKIT_NONCOPYABLE(signal_connection_map);
 
 		typedef std::multimap<Key, signal_connection, Compare> ConnectionMap;
 

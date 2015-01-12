@@ -57,10 +57,10 @@ namespace stingray
 
 		if (lang == LangCode::Any)
 		{
-			TOOLKIT_CHECK(!_impl->Translations.empty(), "No translations!");
+			STINGRAYKIT_CHECK(!_impl->Translations.empty(), "No translations!");
 			return _impl->Translations.begin()->second;
 		}
-		TOOLKIT_THROW("No such translation!");
+		STINGRAYKIT_THROW("No such translation!");
 	}
 
 

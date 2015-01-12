@@ -34,16 +34,16 @@ namespace stingray
 			_discardOnOverflow(discardOnOverflow), _buffer(size),
 			_inputPacketSize(inputPacketSize), _eod(false)
 		{
-			TOOLKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
-			TOOLKIT_CHECK(size % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
+			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
+			STINGRAYKIT_CHECK(size % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
 		}
 
 		DataBufferBase(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize) :
 			_discardOnOverflow(discardOnOverflow), _buffer(storage, storageLifeAssurance),
 			_inputPacketSize(inputPacketSize), _eod(false)
 		{
-			TOOLKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
-			TOOLKIT_CHECK(_buffer.GetTotalSize() % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
+			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
+			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
 		}
 
 	public:
@@ -122,8 +122,8 @@ namespace stingray
 		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t outputPacketSize) :
 			DataBufferBase(discardOnOverflow, size, inputPacketSize), _outputPacketSize(outputPacketSize)
 		{
-			TOOLKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
-			TOOLKIT_CHECK(size % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
+			STINGRAYKIT_CHECK(size % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
 		DataBuffer(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize = 1) :
@@ -133,8 +133,8 @@ namespace stingray
 		DataBuffer(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize, size_t outputPacketSize) :
 			DataBufferBase(discardOnOverflow, storage, storageLifeAssurance, inputPacketSize), _outputPacketSize(outputPacketSize)
 		{
-			TOOLKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
-			TOOLKIT_CHECK(_buffer.GetTotalSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
+			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
@@ -177,7 +177,7 @@ namespace stingray
 			_bufferFull.Broadcast();
 		}
 	};
-	TOOLKIT_DECLARE_PTR(DataBuffer);
+	STINGRAYKIT_DECLARE_PTR(DataBuffer);
 
 
 	template<typename MetadataType>
@@ -238,7 +238,7 @@ namespace stingray
 		virtual bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token)
 		{
 			ConstByteData data(packet.GetData());
-			TOOLKIT_CHECK(data.size() <= GetStorageSize(), StringBuilder() % "Packet is too big! Buffer size: " % GetStorageSize() % " packet size:" % data.size());
+			STINGRAYKIT_CHECK(data.size() <= GetStorageSize(), StringBuilder() % "Packet is too big! Buffer size: " % GetStorageSize() % " packet size:" % data.size());
 
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 			MutexLock l2(_bufferMutex);
@@ -311,7 +311,7 @@ namespace stingray
 			}
 
 			PacketInfo p = _packetQueue.front();
-			TOOLKIT_CHECK(p.Size <= r.size(), "Not enough data in packet buffer, need: " + ToString(p.Size) + ", got: " + ToString(r.size()));
+			STINGRAYKIT_CHECK(p.Size <= r.size(), "Not enough data in packet buffer, need: " + ToString(p.Size) + ", got: " + ToString(r.size()));
 			bool processed = false;
 			{
 				MutexUnlock ul(_bufferMutex);

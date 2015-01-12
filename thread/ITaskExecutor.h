@@ -25,7 +25,7 @@ namespace stingray
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 	};
-	TOOLKIT_DECLARE_PTR(ITaskExecutor);
+	STINGRAYKIT_DECLARE_PTR(ITaskExecutor);
 
 	/** @} */
 

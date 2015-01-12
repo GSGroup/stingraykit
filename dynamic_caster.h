@@ -34,7 +34,7 @@ namespace stingray
 			(void)ERROR__gcc_3x_bug;
 			U* result_ptr = Detail::DynamicCastHelper<U, T>::Do(_ptr);
 			if (!result_ptr)
-				TOOLKIT_THROW(std::bad_cast());
+				STINGRAYKIT_THROW(std::bad_cast());
 			return *result_ptr;
 		}
 
@@ -44,7 +44,7 @@ namespace stingray
 			(void)ERROR__gcc_3x_bug;
 			const U* result_ptr = Detail::DynamicCastHelper<const U, T>::Do(_ptr);
 			if (!result_ptr)
-				TOOLKIT_THROW(std::bad_cast());
+				STINGRAYKIT_THROW(std::bad_cast());
 			return *result_ptr;
 		}
 	};
@@ -147,8 +147,8 @@ namespace stingray
 	}
 
 
-#define TOOLKIT_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::checked_dynamic_caster(Expr_, TOOLKIT_WHERE)
-#define TOOLKIT_NULLABLE_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::nullable_checked_dynamic_caster(Expr_, TOOLKIT_WHERE)
+#define STINGRAYKIT_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::checked_dynamic_caster(Expr_, STINGRAYKIT_WHERE)
+#define STINGRAYKIT_NULLABLE_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::nullable_checked_dynamic_caster(Expr_, STINGRAYKIT_WHERE)
 
 
 }

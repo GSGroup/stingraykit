@@ -89,14 +89,14 @@ namespace stingray
 		virtual void Accept(Detail::IVisitorBase<BaseType>& visitor)
 		{
 			Detail::VisitorBase<BaseType, DerivedType>* derivedVisitor = dynamic_caster(&visitor);
-			TOOLKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
+			STINGRAYKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
 			derivedVisitor->InvokeVisit(*static_cast<DerivedType*>(this));
 		}
 
 		virtual void Accept(Detail::IVisitorBase<const BaseType>& visitor) const
 		{
 			Detail::VisitorBase<const BaseType, const DerivedType>* derivedVisitor = dynamic_caster(&visitor);
-			TOOLKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
+			STINGRAYKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
 			derivedVisitor->InvokeVisit(*static_cast<const DerivedType*>(this));
 		}
 	};
@@ -147,14 +147,14 @@ namespace stingray
 		virtual void AcceptPtr(Detail::IVisitorByPtrBase<BaseType>& visitor, const shared_ptr<BaseType>& thisptr)
 		{
 			Detail::VisitorByPtrBase<BaseType, DerivedType>* derivedVisitor = dynamic_caster(&visitor);
-			TOOLKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
+			STINGRAYKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
 			derivedVisitor->InvokeVisit(shared_ptr<DerivedType>(thisptr, static_cast<DerivedType*>(this)));
 		}
 
 		virtual void AcceptPtr(Detail::IVisitorByPtrBase<const BaseType>& visitor, const shared_ptr<const BaseType>& thisptr) const
 		{
 			Detail::VisitorByPtrBase<const BaseType, const DerivedType>* derivedVisitor = dynamic_caster(&visitor);
-			TOOLKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
+			STINGRAYKIT_CHECK(derivedVisitor, VisitorException(visitor, *this));
 			derivedVisitor->InvokeVisit(shared_ptr<const DerivedType>(thisptr, static_cast<const DerivedType*>(this)));
 		}
 	};

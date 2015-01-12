@@ -13,7 +13,7 @@ namespace osplus
 		: _exceptionHandler(exceptionHandler)
 	{
 		_queue = message_create_queue(sizeof(TaskPair*), 128); /* TODO: replace with message_create_queue_p */
-		TOOLKIT_CHECK(_queue, Exception("message_create_queue"));
+		STINGRAYKIT_CHECK(_queue, Exception("message_create_queue"));
 		_worker.reset(new Thread(name, bind(&TaskExecutor::ThreadFunc, this, not_using(_1))));
 	}
 

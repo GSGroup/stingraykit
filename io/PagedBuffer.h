@@ -21,7 +21,7 @@ namespace stingray
 			virtual size_t Write(u64 offset, ConstByteData data) = 0;
 		};
 		typedef IPage Page;
-		TOOLKIT_DECLARE_PTR(Page);
+		STINGRAYKIT_DECLARE_PTR(Page);
 
 	private:
 		typedef std::deque<PagePtr> PagesContainer;
@@ -50,7 +50,7 @@ namespace stingray
 		{
 			{
 				MutexLock l(_mutex);
-				TOOLKIT_CHECK(!_pushing, "Previous push has not finished yet!");
+				STINGRAYKIT_CHECK(!_pushing, "Previous push has not finished yet!");
 				_pushing = true;
 			}
 			ScopeExitInvoker sei(bind(&PagedBuffer::PushingFinished, this));
@@ -82,9 +82,9 @@ namespace stingray
 
 			u64 page_idx = _startOffset / _pageSize, page_read_size, page_offset;
 			{
-				TOOLKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
+				STINGRAYKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
 
-				TOOLKIT_CHECK(!_usingStart, "End is being used!");
+				STINGRAYKIT_CHECK(!_usingStart, "End is being used!");
 				_usingStart = true;
 
 				page_offset = _startOffset % _pageSize;
@@ -108,7 +108,7 @@ namespace stingray
 		void Seek(u64 offset)
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset, IndexOutOfRangeException());
+			STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset, IndexOutOfRangeException());
 
 			_startOffset = _popOffset + offset;
 		}
@@ -117,8 +117,8 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 
-			TOOLKIT_CHECK(size <= _pageSize * _pages.size(), IndexOutOfRangeException());
-			TOOLKIT_CHECK(!_usingStart, "End is being used!");
+			STINGRAYKIT_CHECK(size <= _pageSize * _pages.size(), IndexOutOfRangeException());
+			STINGRAYKIT_CHECK(!_usingStart, "End is being used!");
 
 			SetPopOffset(_popOffset + size);
 		}
@@ -189,7 +189,7 @@ namespace stingray
 				p = _pages.at(_pages.size() - pageIdxFromEnd - 1);
 			}
 			if (p->Write(offsetInPage, data) != data.size())
-				TOOLKIT_THROW("Page write failed!");
+				STINGRAYKIT_THROW("Page write failed!");
 		}
 
 		void ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, ByteData data) const
@@ -203,7 +203,7 @@ namespace stingray
 				p = _pages.at(pageIdxFromStart);
 			}
 			if (p->Read(offsetInPage, data) != data.size())
-				TOOLKIT_THROW("Page read failed!");
+				STINGRAYKIT_THROW("Page read failed!");
 		}
 	};
 

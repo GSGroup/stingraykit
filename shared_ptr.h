@@ -20,11 +20,11 @@ namespace stingray
 {
 
 
-#define TOOLKIT_DECLARE_PTR(ClassName) \
+#define STINGRAYKIT_DECLARE_PTR(ClassName) \
 		typedef stingray::shared_ptr<ClassName>			ClassName##Ptr; \
 		typedef stingray::weak_ptr<ClassName>			ClassName##WeakPtr
 
-#define TOOLKIT_DECLARE_CONST_PTR(ClassName) \
+#define STINGRAYKIT_DECLARE_CONST_PTR(ClassName) \
 		typedef stingray::shared_ptr<const ClassName>	ClassName##ConstPtr; \
 		typedef stingray::weak_ptr<const ClassName>		ClassName##ConstWeakPtr
 
@@ -37,7 +37,7 @@ namespace stingray
 	};
 
 
-#define TOOLKIT_TRACE_SHARED_PTRS(ClassName_) \
+#define STINGRAYKIT_TRACE_SHARED_PTRS(ClassName_) \
 		template < > struct shared_ptr_traits<ClassName_> \
 		{ \
 			static const bool trace_ref_counts = true; \
@@ -56,7 +56,7 @@ namespace stingray
 
 		class shared_ptr_data
 		{
-			TOOLKIT_NONCOPYABLE(shared_ptr_data);
+			STINGRAYKIT_NONCOPYABLE(shared_ptr_data);
 
 		public:
 			atomic_int_type		_strongReferences;
@@ -87,23 +87,23 @@ namespace stingray
 				return *this;
 			}
 
-			inline void Init(IDeleter* deleter)					{ TOOLKIT_DEBUG_ASSERT(!_value); _value = new shared_ptr_data(deleter); }
-			inline void Destroy()								{ TOOLKIT_DEBUG_ASSERT(_value); delete _value; _value = null; }
+			inline void Init(IDeleter* deleter)					{ STINGRAYKIT_DEBUG_ASSERT(!_value); _value = new shared_ptr_data(deleter); }
+			inline void Destroy()								{ STINGRAYKIT_DEBUG_ASSERT(_value); delete _value; _value = null; }
 
-			inline IDeleter* GetDeleter() const					{ TOOLKIT_DEBUG_ASSERT(_value); return _value->_deleter; }
+			inline IDeleter* GetDeleter() const					{ STINGRAYKIT_DEBUG_ASSERT(_value); return _value->_deleter; }
 
-			inline atomic_int_type GetWeakReferences() const	{ TOOLKIT_DEBUG_ASSERT(_value); return _value->_weakReferences; }
-			inline atomic_int_type AddWeakReference()			{ TOOLKIT_DEBUG_ASSERT(_value); return Atomic::Inc(_value->_weakReferences); }
-			inline atomic_int_type ReleaseWeakReference()		{ TOOLKIT_DEBUG_ASSERT(_value); return Atomic::Dec(_value->_weakReferences); }
+			inline atomic_int_type GetWeakReferences() const	{ STINGRAYKIT_DEBUG_ASSERT(_value); return _value->_weakReferences; }
+			inline atomic_int_type AddWeakReference()			{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::Inc(_value->_weakReferences); }
+			inline atomic_int_type ReleaseWeakReference()		{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::Dec(_value->_weakReferences); }
 
-			inline atomic_int_type GetStrongReferences() const	{ TOOLKIT_DEBUG_ASSERT(_value); return _value->_strongReferences; }
-			inline atomic_int_type AddStrongReference()			{ TOOLKIT_DEBUG_ASSERT(_value); return Atomic::Inc(_value->_strongReferences); }
-			inline atomic_int_type ReleaseStrongReference()		{ TOOLKIT_DEBUG_ASSERT(_value); return Atomic::Dec(_value->_strongReferences); }
+			inline atomic_int_type GetStrongReferences() const	{ STINGRAYKIT_DEBUG_ASSERT(_value); return _value->_strongReferences; }
+			inline atomic_int_type AddStrongReference()			{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::Inc(_value->_strongReferences); }
+			inline atomic_int_type ReleaseStrongReference()		{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::Dec(_value->_strongReferences); }
 
-			inline bool ReleaseStrongIfUnique()					{ TOOLKIT_DEBUG_ASSERT(_value); return Atomic::CompareAndExchange(_value->_strongReferences, 1, 0) == 1; }
+			inline bool ReleaseStrongIfUnique()					{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::CompareAndExchange(_value->_strongReferences, 1, 0) == 1; }
 			inline atomic_int_type TryAddStrongReference()
 			{
-				TOOLKIT_DEBUG_ASSERT(_value);
+				STINGRAYKIT_DEBUG_ASSERT(_value);
 				atomic_int_type c = Atomic::Load(_value->_strongReferences);
 				while (c != 0)
 				{
@@ -190,7 +190,7 @@ namespace stingray
 		inline shared_ptr(T* rawPtr, const Detail::shared_ptr_impl& impl) :
 			_rawPtr(rawPtr), _impl(impl)
 		{
-			TOOLKIT_DEBUG_ASSERT(_rawPtr);
+			STINGRAYKIT_DEBUG_ASSERT(_rawPtr);
 			atomic_int_type c = _impl.AddStrongReference();
 			Detail::SharedPtrRefCounter<T>::LogAddRef(c, _rawPtr, this);
 		}
@@ -260,11 +260,11 @@ namespace stingray
 
 			if (sc == 0)
 			{
-				STINGRAY_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
+				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
 				do_delete();
 			}
 			else
-				STINGRAY_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
+				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
 		}
 
 
@@ -306,7 +306,7 @@ namespace stingray
 
 			Detail::SharedPtrRefCounter<T>::LogReleaseRef(0, _rawPtr, this);
 
-			STINGRAY_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
+			STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
 			do_delete();
 
 			return true;
@@ -383,20 +383,20 @@ namespace stingray
 			atomic_int_type wc = _impl.ReleaseWeakReference();
 			if (wc == 0)
 			{
-				STINGRAY_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
-				STINGRAY_ANNOTATE_RELEASE(_impl.get_ptr());
+				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
+				STINGRAYKIT_ANNOTATE_RELEASE(_impl.get_ptr());
 
 				_impl.Destroy();
 			}
 			else
-				STINGRAY_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
+				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
 
 			_impl = Detail::shared_ptr_impl();
 		}
 
 
 		inline void check_ptr() const
-		{ TOOLKIT_CHECK(_rawPtr, NullPointerException("shared_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
+		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("shared_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
 	};
 
 	/** @brief Simple weak_ptr implementation */
@@ -443,13 +443,13 @@ namespace stingray
 			atomic_int_type wc = _impl.ReleaseWeakReference();
 			if (wc == 0)
 			{
-				STINGRAY_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
-				STINGRAY_ANNOTATE_RELEASE(_impl.get_ptr());
+				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
+				STINGRAYKIT_ANNOTATE_RELEASE(_impl.get_ptr());
 
 				_impl.Destroy();
 			}
 			else
-				STINGRAY_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
+				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
 		}
 
 		inline weak_ptr& operator = (const weak_ptr& other)
@@ -467,7 +467,7 @@ namespace stingray
 			atomic_int_type sc = _impl.TryAddStrongReference();
 			if (sc == 0)
 			{
-				STINGRAY_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr()); // TODO: Check whether this is necessary
+				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr()); // TODO: Check whether this is necessary
 				return shared_ptr<T>();
 			}
 			Detail::SharedPtrRefCounter<T>::LogAddRef(sc, _rawPtr, this);
@@ -569,7 +569,7 @@ namespace stingray
 
 		public:
 			WeakPtrToPointerProxy(const weak_ptr<T>& weakPtr)
-				: _sharedPtr(TOOLKIT_REQUIRE_NOT_NULL(weakPtr.lock()))
+				: _sharedPtr(STINGRAYKIT_REQUIRE_NOT_NULL(weakPtr.lock()))
 			{}
 
 			operator T* () const { return _sharedPtr.get(); }
@@ -646,7 +646,7 @@ namespace stingray
 	};
 
 
-#define DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
+#define DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
 	template < typename ObjType, Typenames_ > \
 	shared_ptr<ObjType> make_shared_##Size_(ParamsDecl_) { return shared_ptr<ObjType>(new ObjType(Params_)); } \
 	template < typename ObjType, Typenames_ > \
@@ -663,20 +663,20 @@ namespace stingray
 #define TY typename
 #define P_(N) const T##N& p##N
 
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(1, MK_PARAM(TY T1), MK_PARAM(P_(1)), MK_PARAM(p1))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(2, MK_PARAM(TY T1, TY T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
-	DETAIL_TOOLKIT_DECLARE_MAKE_SHARED(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(1, MK_PARAM(TY T1), MK_PARAM(P_(1)), MK_PARAM(p1))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(2, MK_PARAM(TY T1, TY T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
 
 #undef P_
 #undef TY
-#undef DETAIL_TOOLKIT_DECLARE_MAKE_SHARED
+#undef DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED
 
 
 	template<typename T>

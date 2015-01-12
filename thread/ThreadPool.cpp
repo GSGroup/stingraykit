@@ -36,10 +36,10 @@ namespace stingray
 
 	void ThreadPool::WorkerWrapper::TaskWrapper(const function<void()>& task)
 	{
-		STINGRAY_TRY("Couldn't execute task", task());
+		STINGRAYKIT_TRY("Couldn't execute task", task());
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(_busy, "Internal TaskExecutorPool error!");
+			STINGRAYKIT_CHECK(_busy, "Internal TaskExecutorPool error!");
 			_busy = false;
 		}
 	}
@@ -73,11 +73,11 @@ namespace stingray
 		{
 			WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "_" % _workers.size(), _profileCalls));
 			_workers.push_back(w);
-			TOOLKIT_CHECK(tryAddTaskFunc(w.get()), "Internal TaskExecutorPool error!");
+			STINGRAYKIT_CHECK(tryAddTaskFunc(w.get()), "Internal TaskExecutorPool error!");
 		}
 		else
 		{
-			TOOLKIT_THROW(NotImplementedException());
+			STINGRAYKIT_THROW(NotImplementedException());
 		}
 	}
 

@@ -10,10 +10,10 @@ namespace stingray
 
 	struct SelectMode
 	{
-		TOOLKIT_ENUM_VALUES(None = 0, Read = 1, Write = 2, Error = 4);
-		TOOLKIT_DECLARE_ENUM_CLASS(SelectMode);
+		STINGRAYKIT_ENUM_VALUES(None = 0, Read = 1, Write = 2, Error = 4);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(SelectMode);
 	};
-	TOOLKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(SelectMode);
+	STINGRAYKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(SelectMode);
 
 }
 

@@ -38,7 +38,7 @@ namespace stingray
 				_source->Read(*_buffer, token);
 		}
 	};
-	TOOLKIT_DECLARE_PTR(IntermediateDataBuffer);
+	STINGRAYKIT_DECLARE_PTR(IntermediateDataBuffer);
 
 }
 

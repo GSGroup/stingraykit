@@ -17,7 +17,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		TOOLKIT_DECLARE_NESTED_TYPE_CHECK(container_type);
+		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(container_type);
 
 		template < typename IteratorType, bool HasContainer = HasNestedType_container_type<IteratorType>::Value >
 		struct GetIteratorValueType
@@ -53,23 +53,23 @@ namespace stingray
 				case 5:		return bits.template Get<5, Size>();
 				case 6:		return bits.template Get<6, Size>();
 				case 7:		return bits.template Get<7, Size>();
-				default:	TOOLKIT_THROW(std::runtime_error("This world went totally insane. =("));
+				default:	STINGRAYKIT_THROW(std::runtime_error("This world went totally insane. =("));
 				}
 			}
 		};
 
-#define DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(Op_) \
+#define DETAIL_STINGRAYKIT_DECL_BSRP_OPERATOR(Op_) \
 			template < typename T, typename ByteDataType_, bool BigEndian, int Size > T operator Op_ (const BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>& bsrp, T val) { return static_cast<T>(bsrp) Op_ val; } \
 			template < typename T, typename ByteDataType_, bool BigEndian, int Size > T operator Op_ (T val, const BasicBitStreamReadProxy<ByteDataType_, BigEndian, Size>& bsrp) { return val Op_ static_cast<T>(bsrp); }
 
-		DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(+)
-		DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(-)
-		DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(*)
-		DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(/)
-		DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(>>)
-		DETAIL_TOOLKIT_DECL_BSRP_OPERATOR(<<)
+		DETAIL_STINGRAYKIT_DECL_BSRP_OPERATOR(+)
+		DETAIL_STINGRAYKIT_DECL_BSRP_OPERATOR(-)
+		DETAIL_STINGRAYKIT_DECL_BSRP_OPERATOR(*)
+		DETAIL_STINGRAYKIT_DECL_BSRP_OPERATOR(/)
+		DETAIL_STINGRAYKIT_DECL_BSRP_OPERATOR(>>)
+		DETAIL_STINGRAYKIT_DECL_BSRP_OPERATOR(<<)
 
-#undef DETAIL_TOOLKIT_DECL_BSRP_OPERATOR
+#undef DETAIL_STINGRAYKIT_DECL_BSRP_OPERATOR
 	}
 
 	template < typename ByteDataType_, bool BigEndian = true >
@@ -256,7 +256,7 @@ namespace stingray
 		inline ByteDataType	GetData() const { return _buf; }
 		inline ByteDataType GetAvailableByteData() const
 		{
-			TOOLKIT_CHECK((GetBitPosition() % 8) == 0, "misaligned stream");
+			STINGRAYKIT_CHECK((GetBitPosition() % 8) == 0, "misaligned stream");
 			return ByteDataType(GetData(), GetBitPosition());
 		}
 

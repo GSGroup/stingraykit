@@ -84,7 +84,7 @@ namespace stingray
 	const ICancellationToken& Thread::GetCancellationToken()
 	{
 		const ICancellationToken* token = ThreadEngine::GetCurrentThreadData()->GetCancellationToken();
-		TOOLKIT_CHECK(token, InvalidOperationException());
+		STINGRAYKIT_CHECK(token, InvalidOperationException());
 		return *token;
 	}
 
@@ -104,7 +104,7 @@ namespace stingray
 	void Thread::PrioritySetter::Set(ThreadSchedulingParams params)
 	{
 		Reset();
-		STINGRAY_TRY("Can't set scheduling params!", _prevParams = ThreadEngine::SetCurrentThreadPriority(params));
+		STINGRAYKIT_TRY("Can't set scheduling params!", _prevParams = ThreadEngine::SetCurrentThreadPriority(params));
 	}
 
 
@@ -112,7 +112,7 @@ namespace stingray
 	{
 		if (_prevParams)
 		{
-			STINGRAY_TRY("Can't restore scheduling params!", ThreadEngine::SetCurrentThreadPriority(*_prevParams));
+			STINGRAYKIT_TRY("Can't restore scheduling params!", ThreadEngine::SetCurrentThreadPriority(*_prevParams));
 			_prevParams.reset();
 		}
 	}

@@ -16,7 +16,7 @@ namespace stingray
 
 	class ExecutorsProfiler : public PhoenixSingleton<ExecutorsProfiler>
 	{
-		TOOLKIT_PHOENIXSINGLETON(ExecutorsProfiler);
+		STINGRAYKIT_PHOENIXSINGLETON(ExecutorsProfiler);
 
 	private:
 		AsyncProfilerPtr	_profiler;

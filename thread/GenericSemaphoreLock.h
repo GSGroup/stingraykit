@@ -12,7 +12,7 @@ namespace stingray
     template<typename T>
 	class GenericSemaphoreLock
 	{
-		TOOLKIT_NONCOPYABLE(GenericSemaphoreLock);
+		STINGRAYKIT_NONCOPYABLE(GenericSemaphoreLock);
 
 	private:
 		T&		_semaphore;
@@ -27,7 +27,7 @@ namespace stingray
 			try
 			{ _semaphore.Signal(); }
 			catch(const std::exception& ex)
-			{ TOOLKIT_FATAL(StringBuilder() % "Couldn't unlock semaphore in ~SemaphoreLock()\n" % ex); }
+			{ STINGRAYKIT_FATAL(StringBuilder() % "Couldn't unlock semaphore in ~SemaphoreLock()\n" % ex); }
 		}
 	};
 

@@ -17,8 +17,8 @@ namespace stingray
 	 * @{
 	 */
 
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(BufferIsFullException, "Buffer is full!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(BufferUnderrunException, "Can't pop such a data size - it's too big!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BufferIsFullException, "Buffer is full!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BufferUnderrunException, "Can't pop such a data size - it's too big!");
 
 	class CircularDataReserver
 	{
@@ -35,12 +35,12 @@ namespace stingray
 		{ }
 
 		~CircularDataReserver()
-		{ STINGRAY_TRY("Cannot release data!", _dataReleaser(_data.size())); }
+		{ STINGRAYKIT_TRY("Cannot release data!", _dataReleaser(_data.size())); }
 
 		ConstByteData GetData() const
 		{ return _data; }
 	};
-	TOOLKIT_DECLARE_PTR(CircularDataReserver);
+	STINGRAYKIT_DECLARE_PTR(CircularDataReserver);
 
 
 	struct ICircularBuffer
@@ -56,7 +56,7 @@ namespace stingray
 		virtual bool CanPush(size_t size) = 0;
 		virtual void Clear() = 0;
 	};
-	TOOLKIT_DECLARE_PTR(ICircularBuffer);
+	STINGRAYKIT_DECLARE_PTR(ICircularBuffer);
 
 	/** @} */
 

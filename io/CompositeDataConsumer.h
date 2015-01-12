@@ -13,7 +13,7 @@ namespace stingray
 
 	class CompositeDataConsumer : public virtual IDataConsumer
 	{
-		TOOLKIT_DECLARE_SIMPLE_EXCEPTION(ProcessingCancelledException, "Processing have been cancelled!");
+		STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(ProcessingCancelledException, "Processing have been cancelled!");
 
 		typedef std::list<IDataConsumerWeakPtr> ConsumersContainer;
 
@@ -60,7 +60,7 @@ namespace stingray
 		{
 			for (size_t offset = 0; offset < data.size(); )
 			{
-				TOOLKIT_CHECK(token, ProcessingCancelledException());
+				STINGRAYKIT_CHECK(token, ProcessingCancelledException());
 				const size_t processed = consumer->Process(ConstByteData(data, offset), token);
 				if (processed == 0)
 				{
@@ -74,7 +74,7 @@ namespace stingray
 		static void EndOfDataImpl(const IDataConsumerPtr& consumer)
 		{ consumer->EndOfData(); }
 	};
-	TOOLKIT_DECLARE_PTR(CompositeDataConsumer);
+	STINGRAYKIT_DECLARE_PTR(CompositeDataConsumer);
 
 }
 

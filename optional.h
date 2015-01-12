@@ -64,7 +64,7 @@ namespace stingray
 
 		bool operator<(const optional& rhs) const
 		{ return rhs.is_initialized() && (!is_initialized() || (get() < rhs.get())); }
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(optional);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(optional);
 
 		void assign(ConstParamType value)
 		{ reset(); _value.Ctor(value); _initialized = true; }
@@ -78,7 +78,7 @@ namespace stingray
 		}
 
 	private:
-		void CheckInitialized() const				{ TOOLKIT_CHECK(is_initialized(), "Not initialized!"); }
+		void CheckInitialized() const				{ STINGRAYKIT_CHECK(is_initialized(), "Not initialized!"); }
 	};
 
 }

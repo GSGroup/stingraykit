@@ -49,8 +49,8 @@ namespace stingray
 		{ }
 
 		virtual bool Valid() const		{ return _current != _end; }
-		virtual ValueType Get() const	{ TOOLKIT_CHECK(Valid(), "Enumerator is not valid!"); return *_current; }
-		virtual void Next()				{ TOOLKIT_CHECK(Valid(), "Enumerator is not valid!"); ++_current; }
+		virtual ValueType Get() const	{ STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!"); return *_current; }
+		virtual void Next()				{ STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!"); ++_current; }
 	};
 
 

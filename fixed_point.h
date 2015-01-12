@@ -107,7 +107,7 @@ namespace stingray
 		{
 			std::vector<std::string> v;
 			Split(str, ".", v);
-			TOOLKIT_CHECK(v.size() == 1 || v.size() == 2, ArgumentException("str", str));
+			STINGRAYKIT_CHECK(v.size() == 1 || v.size() == 2, ArgumentException("str", str));
 			if (v.size() == 1)
 				return stingray::FromString<value_type>(v[0]);
 			else

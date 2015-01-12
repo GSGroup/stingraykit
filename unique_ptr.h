@@ -12,7 +12,7 @@ namespace stingray
 	template<typename T>
 	class unique_ptr : public safe_bool<unique_ptr<T> >
 	{
-		TOOLKIT_NONCOPYABLE(unique_ptr);
+		STINGRAYKIT_NONCOPYABLE(unique_ptr);
 		T* _rawPtr;
 
 	public:
@@ -42,7 +42,7 @@ namespace stingray
 
 	private:
 		inline void check_ptr() const
-		{ TOOLKIT_CHECK(_rawPtr, NullPointerException()); }
+		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
 	};
 
 

@@ -27,7 +27,7 @@ namespace stingray
 
 			virtual void Disconnect() = 0;
 		};
-		TOOLKIT_DECLARE_PTR(ITimerConnectionImpl);
+		STINGRAYKIT_DECLARE_PTR(ITimerConnectionImpl);
 	}
 
 
@@ -54,17 +54,17 @@ namespace stingray
 	};
 
 
-	class Timer : TOOLKIT_FINAL(Timer), public virtual ITaskExecutor
+	class Timer : STINGRAYKIT_FINAL(Timer), public virtual ITaskExecutor
 	{
-		TOOLKIT_NONCOPYABLE(Timer);
+		STINGRAYKIT_NONCOPYABLE(Timer);
 
 		static NamedLogger			s_logger;
 
 		class CallbackInfo;
-		TOOLKIT_DECLARE_PTR(CallbackInfo);
+		STINGRAYKIT_DECLARE_PTR(CallbackInfo);
 
 		class CallbackQueue;
-		TOOLKIT_DECLARE_PTR(CallbackQueue);
+		STINGRAYKIT_DECLARE_PTR(CallbackQueue);
 
 		struct CallbackInfoOrder;
 
@@ -117,7 +117,7 @@ namespace stingray
 		std::string GetProfilerMessage(const function<void()>& func);
 		void ThreadFunc();
 	};
-	TOOLKIT_DECLARE_PTR(Timer);
+	STINGRAYKIT_DECLARE_PTR(Timer);
 
 
 	class ExecutionDeferrer
@@ -169,7 +169,7 @@ namespace stingray
 		// we shouldn't call Defer from deferred function!
 		void Defer(const function<void()>& func)
 		{
-			TOOLKIT_CHECK(_timeout != 0, Exception("Invalid timeout!"));
+			STINGRAYKIT_CHECK(_timeout != 0, Exception("Invalid timeout!"));
 			Defer(func, _timeout);
 		}
 
@@ -199,7 +199,7 @@ namespace stingray
 		bool IsCancellationActive() const
 		{ MutexLock l(_mutex); return _cancellationActive; }
 	};
-	TOOLKIT_DECLARE_PTR(ExecutionDeferrer);
+	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrer);
 
 
 	class ExecutionDeferrerWithTimer
@@ -224,7 +224,7 @@ namespace stingray
 		void DeferNoTimeout(const function<void()>& func)					{ Defer(func); }
 		void DeferWithTimeout(const function<void()>& func, size_t timeout)	{ Defer(func, timeout); }
 	};
-	TOOLKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
+	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
 
 	/** @} */
 

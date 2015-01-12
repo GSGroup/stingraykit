@@ -22,18 +22,18 @@ namespace stingray
 }
 
 #if (__GNUC__ >= 3 || defined(__clang__)) && !defined(PRODUCTION_BUILD)
-#	define TOOLKIT_FUNCTION __PRETTY_FUNCTION__
+#	define STINGRAYKIT_FUNCTION __PRETTY_FUNCTION__
 #else
-#	define TOOLKIT_FUNCTION __func__
+#	define STINGRAYKIT_FUNCTION __func__
 #endif
 
 
 #ifdef __GNUC__
-#	define STINGRAY_LIKELY(x)	__builtin_expect((x), 1)
-#	define STINGRAY_UNLIKELY(x)	__builtin_expect((x), 0)
+#	define STINGRAYKIT_LIKELY(x)	__builtin_expect((x), 1)
+#	define STINGRAYKIT_UNLIKELY(x)	__builtin_expect((x), 0)
 #else
-#	define STINGRAY_LIKELY(x)	(x)
-#	define STINGRAY_UNLIKELY(x)	(x)
+#	define STINGRAYKIT_LIKELY(x)	(x)
+#	define STINGRAYKIT_UNLIKELY(x)	(x)
 #endif
 
 
@@ -57,34 +57,34 @@ namespace stingray
 }
 
 // God damn C++!!!11 =(
-#define TOOLKIT_WHERE (::stingray::ToolkitWhere(__FILE__, __LINE__, TOOLKIT_FUNCTION))
+#define STINGRAYKIT_WHERE (::stingray::ToolkitWhere(__FILE__, __LINE__, STINGRAYKIT_FUNCTION))
 
 #ifdef DEBUG
-#	define TOOLKIT_DEBUG_ONLY(...) __VA_ARGS__
+#	define STINGRAYKIT_DEBUG_ONLY(...) __VA_ARGS__
 #else
-#	define TOOLKIT_DEBUG_ONLY(...)
+#	define STINGRAYKIT_DEBUG_ONLY(...)
 #endif
 
 
-#define TOOLKIT_NONCOPYABLE(ClassName) \
+#define STINGRAYKIT_NONCOPYABLE(ClassName) \
 	private: \
 		ClassName(const ClassName&); \
 		ClassName& operator= (const ClassName&)
 
-#define TOOLKIT_NONASSIGNABLE(ClassName) \
+#define STINGRAYKIT_NONASSIGNABLE(ClassName) \
 	private: \
 		ClassName& operator= (const ClassName&)
 
-#define TOOLKIT_SIMPLE_ENUM_TO_STRING_BEGIN(EnumType) \
+#define STINGRAYKIT_SIMPLE_ENUM_TO_STRING_BEGIN(EnumType) \
 	std::string ToString(EnumType value) { \
 		switch (value) { \
 		default: return std::string("Unknown enum value " + stingray::ToString(static_cast<int>(value)) + " of " #EnumType);
 
-#define TOOLKIT_SIMPLE_ENUM_VALUE(enumValue) case enumValue: return std::string(#enumValue)
+#define STINGRAYKIT_SIMPLE_ENUM_VALUE(enumValue) case enumValue: return std::string(#enumValue)
 
-#define TOOLKIT_SIMPLE_ENUM_TO_STRING_END() }}
+#define STINGRAYKIT_SIMPLE_ENUM_TO_STRING_END() }}
 
-#define TOOLKIT_ENUM_VALUES(...) \
+#define STINGRAYKIT_ENUM_VALUES(...) \
 	private: \
 		inline static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
 		{ \
@@ -95,7 +95,7 @@ namespace stingray
 	public: \
 		enum Enum { __VA_ARGS__ }
 
-#define TOOLKIT_DECLARE_ENUM_CLASS(ClassName) \
+#define STINGRAYKIT_DECLARE_ENUM_CLASS(ClassName) \
 		friend class stingray::Detail::EnumToStringMapInstance<ClassName>; \
 	public: \
 		std::string ToString() const					{ return stingray::Detail::EnumToStringMap<ClassName>::EnumToString(_enumVal); } \
@@ -122,7 +122,7 @@ namespace stingray
 	private: \
 		Enum _enumVal
 
-#define TOOLKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
+#define STINGRAYKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
 		inline ClassName_& operator |= (ClassName_& l, ClassName_::Enum r) \
 		{ return l = ClassName_((ClassName_::Enum)((int)l | (int)r)); } \
 		inline ClassName_& operator &= (ClassName_& l, ClassName_::Enum r) \
@@ -132,7 +132,7 @@ namespace stingray
 		inline ClassName_::Enum operator & (ClassName_::Enum l, ClassName_::Enum r) \
 		{ ClassName_ result(l); return result &= r; }
 
-#define TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
+#define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
 		inline bool operator > (const ClassName& other) const \
 		{ return other < (*this); } \
 		inline bool operator <= (const ClassName& other) const \
@@ -144,11 +144,11 @@ namespace stingray
 		inline bool operator == (const ClassName& other) const \
 		{ return !(other != (*this)); }
 
-#define TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(ClassName) \
+#define STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(ClassName) \
 		inline bool operator != (const ClassName& other) const \
 		{ return !(*this == other); }
 
-#define TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(ClassName) \
+#define STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(ClassName) \
 		inline bool operator > (const ClassName& other) const \
 		{ return other < *this; } \
 		inline bool operator <= (const ClassName& other) const \
@@ -156,7 +156,7 @@ namespace stingray
 		inline bool operator >= (const ClassName& other) const \
 		{ return !(*this < other); } \
 
-#define TOOLKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(TemplateArgs, ClassName) \
+#define STINGRAYKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(TemplateArgs, ClassName) \
 		TemplateArgs inline bool operator <  (const ClassName& lhs, const ClassName& rhs) { return lhs <  rhs; } \
 		TemplateArgs inline bool operator >  (const ClassName& lhs, const ClassName& rhs) { return lhs >  rhs; } \
 		TemplateArgs inline bool operator <= (const ClassName& lhs, const ClassName& rhs) { return lhs <= rhs; } \
@@ -164,7 +164,7 @@ namespace stingray
 		TemplateArgs inline bool operator != (const ClassName& lhs, const ClassName& rhs) { return lhs != rhs; } \
 		TemplateArgs inline bool operator == (const ClassName& lhs, const ClassName& rhs) { return lhs == rhs; }
 
-#define TOOLKIT_TRANSPARENT_DECORATOR_CTORS(DecoratorType_, BaseType_) \
+#define STINGRAYKIT_TRANSPARENT_DECORATOR_CTORS(DecoratorType_, BaseType_) \
 		DecoratorType_() { } \
 		template < typename T1 > DecoratorType_(const T1& p1) : BaseType_(p1) { }\
 		template < typename T1, typename T2 > DecoratorType_(const T1& p1, const T2& p2) : BaseType_(p1, p2) { } \
@@ -188,10 +188,10 @@ namespace stingray
 	struct EmptyType
 	{
 		bool operator < (const EmptyType &) const { return false; }
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(EmptyType);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(EmptyType);
 	};
 
-	TOOLKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
+	STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 
 	template < typename T >
 	struct IsEnumClass { static const bool Value = HasNestedType_Enum<T>::Value; };
@@ -288,13 +288,13 @@ namespace stingray
 
 	struct CollectionOp
 	{
-		TOOLKIT_ENUM_VALUES
+		STINGRAYKIT_ENUM_VALUES
 		(
 			Added,
 			Removed,
 			Updated
 		);
-		TOOLKIT_DECLARE_ENUM_CLASS(CollectionOp);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(CollectionOp);
 	};
 
 	struct DebuggingHelper

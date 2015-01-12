@@ -29,7 +29,7 @@ namespace stingray
 
 		typedef KeyValuePair<KeyType, ValueType>			PairType;
 		typedef std::map<KeyType, ValueType, CompareType>	MapType;
-		TOOLKIT_DECLARE_PTR(MapType);
+		STINGRAYKIT_DECLARE_PTR(MapType);
 
 	private:
 		struct Holder
@@ -37,7 +37,7 @@ namespace stingray
 			MapTypePtr		Map;
 			Holder(const MapTypePtr& map) : Map(map) { }
 		};
-		TOOLKIT_DECLARE_PTR(Holder);
+		STINGRAYKIT_DECLARE_PTR(Holder);
 
 		struct ReverseEnumerable : public virtual IEnumerable<PairType>
 		{
@@ -81,7 +81,7 @@ namespace stingray
 		virtual ValueType Get(const KeyType& key) const
 		{
 			typename MapType::const_iterator it = _map->find(key);
-			TOOLKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
+			STINGRAYKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
@@ -99,7 +99,7 @@ namespace stingray
 		{
 			CopyOnWrite();
 			typename MapType::iterator it = _map->find(key);
-			TOOLKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
+			STINGRAYKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
 			_map->erase(it);
 		}
 

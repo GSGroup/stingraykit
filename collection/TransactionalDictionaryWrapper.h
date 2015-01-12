@@ -222,7 +222,7 @@ namespace stingray
 		virtual typename TransactionalInterface::TransactionTypePtr StartTransaction()
 		{
 			signal_locker l(_onChanged);
-			TOOLKIT_CHECK(!_transaction.lock(), "Another transaction exist!");
+			STINGRAYKIT_CHECK(!_transaction.lock(), "Another transaction exist!");
 			typename TransactionalInterface::TransactionTypePtr tr(new DictionaryTransactionImpl<Wrapped_, Comparer>(_wrapped, _onChanged));
 			_transaction = tr;
 			return tr;

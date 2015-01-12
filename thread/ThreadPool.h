@@ -12,7 +12,7 @@ namespace stingray
 
 	class ThreadPool
 	{
-		TOOLKIT_NONCOPYABLE(ThreadPool);
+		STINGRAYKIT_NONCOPYABLE(ThreadPool);
 
 		class WorkerWrapper
 		{
@@ -30,7 +30,7 @@ namespace stingray
 		private:
 			void TaskWrapper(const function<void()>& task);
 		};
-		TOOLKIT_DECLARE_PTR(WorkerWrapper);
+		STINGRAYKIT_DECLARE_PTR(WorkerWrapper);
 
 		typedef std::vector<WorkerWrapperPtr>	Workers;
 
@@ -50,7 +50,7 @@ namespace stingray
 	private:
 		void DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc);
 	};
-	TOOLKIT_DECLARE_PTR(ThreadPool);
+	STINGRAYKIT_DECLARE_PTR(ThreadPool);
 
 }
 

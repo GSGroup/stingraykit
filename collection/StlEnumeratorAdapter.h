@@ -38,14 +38,14 @@ namespace stingray
 		T operator * () const
 		{
 			if (!_enumerator->Valid())
-				TOOLKIT_THROW(std::runtime_error("Trying to dereference an invalid enumerator!"));
+				STINGRAYKIT_THROW(std::runtime_error("Trying to dereference an invalid enumerator!"));
 			return _enumerator->Get();
 		}
 
 		bool operator != (const StlEnumeratorAdapter& other)
 		{
 			if (other._enumerator != NULL)
-				TOOLKIT_THROW(NotImplementedException());
+				STINGRAYKIT_THROW(NotImplementedException());
 			return _enumerator->Valid();
 		}
 

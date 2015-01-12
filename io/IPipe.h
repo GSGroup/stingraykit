@@ -17,7 +17,7 @@ namespace stingray
 		virtual size_t Read(ByteData dst, const ICancellationToken& token) = 0;
 		virtual size_t Write(ConstByteData src, const ICancellationToken& token) = 0;
 	};
-	TOOLKIT_DECLARE_PTR(IPipe);
+	STINGRAYKIT_DECLARE_PTR(IPipe);
 
 }
 

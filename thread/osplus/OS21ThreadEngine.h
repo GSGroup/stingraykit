@@ -22,7 +22,7 @@ namespace stingray
 #if CHECK_MUTEX_DEADLOCK
 	class OS21Mutex
 	{
-		TOOLKIT_NONCOPYABLE(OS21Mutex);
+		STINGRAYKIT_NONCOPYABLE(OS21Mutex);
 
 		class ScopedMutexLock
 		{
@@ -48,8 +48,8 @@ namespace stingray
 	public:
 		OS21Mutex() : _sp(semaphore_create_fifo(1)), _mutex(mutex_create_fifo()), _task(0), _count(0)
 		{
-			TOOLKIT_CHECK(_sp, std::runtime_error("semaphore_create_fifo"));
-			TOOLKIT_CHECK(_mutex, std::runtime_error("mutex_create_priority"));
+			STINGRAYKIT_CHECK(_sp, std::runtime_error("semaphore_create_fifo"));
+			STINGRAYKIT_CHECK(_mutex, std::runtime_error("mutex_create_priority"));
 		}
 
 		~OS21Mutex()
@@ -82,10 +82,10 @@ namespace stingray
 				mutex_lock(_mutex);
 
 				if (_task)
-					TOOLKIT_FATAL("Task not null!");
+					STINGRAYKIT_FATAL("Task not null!");
 
 				if (_count)
-					TOOLKIT_FATAL("Count not zero!");
+					STINGRAYKIT_FATAL("Count not zero!");
 
 				_task = task_id();
 			}
@@ -114,14 +114,14 @@ namespace stingray
 #else
 	class OS21Mutex
 	{
-		TOOLKIT_NONCOPYABLE(OS21Mutex);
+		STINGRAYKIT_NONCOPYABLE(OS21Mutex);
 
 	private:
 		mutex_t*	_mutex;
 
 	public:
 		OS21Mutex()
-		{ TOOLKIT_CHECK((_mutex = mutex_create_priority()), std::runtime_error("mutex_create_priority")); }
+		{ STINGRAYKIT_CHECK((_mutex = mutex_create_priority()), std::runtime_error("mutex_create_priority")); }
 
 		~OS21Mutex()
 		{ mutex_delete(_mutex); }
@@ -139,20 +139,20 @@ namespace stingray
 
 	class OS21Semaphore
 	{
-		TOOLKIT_NONCOPYABLE(OS21Semaphore);
+		STINGRAYKIT_NONCOPYABLE(OS21Semaphore);
 
 	private:
 		semaphore_t*	_sp;
 
 	public:
 		OS21Semaphore(int count = 0)
-		{ TOOLKIT_CHECK((_sp = semaphore_create_priority(count)), std::runtime_error("semaphore_create_priority")); }
+		{ STINGRAYKIT_CHECK((_sp = semaphore_create_priority(count)), std::runtime_error("semaphore_create_priority")); }
 
 		~OS21Semaphore()
 		{ semaphore_delete(_sp); }
 
 		inline void Wait() const
-		{ TOOLKIT_CHECK(OS21_SUCCESS == semaphore_wait(_sp), std::runtime_error("semaphore_wait failed!")); }
+		{ STINGRAYKIT_CHECK(OS21_SUCCESS == semaphore_wait(_sp), std::runtime_error("semaphore_wait failed!")); }
 
 		// TODO: implement TimedWait(absTime) version
 		inline bool TimedWait(TimeDuration timeout) const

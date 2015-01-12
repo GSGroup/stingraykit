@@ -30,7 +30,7 @@ namespace stingray
 		bool operator < (const Version& other) const
 		{ return CompareMembersLess(&Version::_major, &Version::_minor, &Version::_build)(*this, other); }
 
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Version);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Version);
 	};
 
 }

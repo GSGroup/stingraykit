@@ -17,7 +17,7 @@ namespace stingray
     template<typename T>
 	class GenericMutexLock
 	{
-		TOOLKIT_NONCOPYABLE(GenericMutexLock);
+		STINGRAYKIT_NONCOPYABLE(GenericMutexLock);
 		template <typename U> friend class GenericMutexUnlock;
 
 	private:
@@ -33,14 +33,14 @@ namespace stingray
 			try
 			{ _mutex.Unlock(); }
 			catch(const std::exception& ex)
-			{ TOOLKIT_FATAL(StringBuilder() % "Couldn't unlock mutex in ~MutexLock()\n" % ex); }
+			{ STINGRAYKIT_FATAL(StringBuilder() % "Couldn't unlock mutex in ~MutexLock()\n" % ex); }
 		}
 	};
 
 	template<typename T>
 	class GenericMutexUnlock
 	{
-		TOOLKIT_NONCOPYABLE(GenericMutexUnlock);
+		STINGRAYKIT_NONCOPYABLE(GenericMutexUnlock);
 
 	private:
 		const T&		_mutex;
@@ -59,7 +59,7 @@ namespace stingray
 			try
 			{ _mutex.Lock(); }
 			catch(const std::exception& ex)
-			{ TOOLKIT_FATAL("Couldn't lock mutex in ~MutexUnlock()"); }
+			{ STINGRAYKIT_FATAL("Couldn't lock mutex in ~MutexUnlock()"); }
 		}
 	};
 

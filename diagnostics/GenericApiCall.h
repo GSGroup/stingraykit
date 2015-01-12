@@ -14,8 +14,8 @@
 		{ \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
 			std::string msg = #__VA_ARGS__ " failed, result = " + ToString(res); \
-			TOOLKIT_STATIC_LOGGER.Error() << msg; \
-			TOOLKIT_THROW(std::runtime_error(msg)); \
+			STINGRAYKIT_STATIC_LOGGER.Error() << msg; \
+			STINGRAYKIT_THROW(std::runtime_error(msg)); \
 		} \
 	} while (0)
 
@@ -27,7 +27,7 @@
 		if (res != SuccessValue) \
 		{ \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-			TOOLKIT_STATIC_LOGGER.Error() << #__VA_ARGS__ " failed, result = " << (int)res; \
+			STINGRAYKIT_STATIC_LOGGER.Error() << #__VA_ARGS__ " failed, result = " << (int)res; \
 		} \
 	} while (0)
 

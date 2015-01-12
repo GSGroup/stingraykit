@@ -23,7 +23,7 @@ namespace stingray
 		char buf[32]; \
 		int r = snprintf(buf, sizeof(buf), VALUE_FORMAT, static_cast<VALUE_FORMAT_TYPE>(value)); \
 		if (r == -1) \
-			TOOLKIT_THROW("snprintf failed"); \
+			STINGRAYKIT_THROW("snprintf failed"); \
 		write(buf, r); \
 	} \
 	extern template void string_ostream::Insert(VALUE_TYPE)

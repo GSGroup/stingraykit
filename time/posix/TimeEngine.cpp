@@ -29,11 +29,11 @@ namespace posix
 		tv.tv_sec = milliseconds / 1000;
 		tv.tv_usec = (milliseconds % 1000) * 1000;
 		if (settimeofday(&tv, 0))
-			TOOLKIT_THROW(SystemException("settimeofday"));
+			STINGRAYKIT_THROW(SystemException("settimeofday"));
 #else
 		struct timeval tv = {};
 		if (gettimeofday(&tv, 0))
-			TOOLKIT_THROW(SystemException("gettimeofday"));
+			STINGRAYKIT_THROW(SystemException("gettimeofday"));
 
 		s64 ms = (s64)tv.tv_sec * 1000 + tv.tv_usec / 1000;
 		MutexLock l(s_deltaMillisecondsMutex);
@@ -45,7 +45,7 @@ namespace posix
 	{
 		struct timeval tv = {};
 		if (gettimeofday(&tv, 0))
-			TOOLKIT_THROW(SystemException("gettimeofday"));
+			STINGRAYKIT_THROW(SystemException("gettimeofday"));
 
 		s64 ms = (s64)tv.tv_sec * 1000 + tv.tv_usec / 1000;
 #ifdef PLATFORM_EMBEDDED
@@ -72,7 +72,7 @@ namespace posix
 		bdt.tm_mon = bdTime.Month - 1;
 		bdt.tm_year = bdTime.Year - 1900;
 		time_t result = mktime(&bdt);
-		TOOLKIT_CHECK(result != -1, SystemException("mktime failed while processing bdt = " + bdTime.ToString() + "!"));
+		STINGRAYKIT_CHECK(result != -1, SystemException("mktime failed while processing bdt = " + bdTime.ToString() + "!"));
 		return (s64)result * 1000;
 	}
 
@@ -82,7 +82,7 @@ namespace posix
 		tm b = { };
 
 		if (localtime_r(&t, &b) == NULL)
-			TOOLKIT_THROW(SystemException("localtime_r failed!"));
+			STINGRAYKIT_THROW(SystemException("localtime_r failed!"));
 
 		return BrokenDownTime(milliseconds % 1000, b.tm_sec, b.tm_min, b.tm_hour, b.tm_wday, b.tm_mday, b.tm_mon + 1, b.tm_yday, b.tm_year + 1900);
 	}

@@ -70,7 +70,7 @@ namespace stingray
 		char c = 0;
 		int components = sscanf(s.c_str(), "%d%c", &n, &c);
 		if (components < 1)
-			TOOLKIT_THROW("Invalid time duration format");
+			STINGRAYKIT_THROW("Invalid time duration format");
 		switch (c)
 		{
 		case 'H':
@@ -85,7 +85,7 @@ namespace stingray
 		case 0:
 			return TimeDuration(n);
 		};
-		TOOLKIT_THROW("Could not parse TimeDuration!");
+		STINGRAYKIT_THROW("Could not parse TimeDuration!");
 	}
 
 
@@ -143,7 +143,7 @@ namespace stingray
 				bdt.Milliseconds	= 0;
 			}
 			else
-				TOOLKIT_THROW("Could not parse Time!");
+				STINGRAYKIT_THROW("Could not parse Time!");
 		}
 		else
 		{
@@ -165,7 +165,7 @@ namespace stingray
 				bdt.Milliseconds	= 0;
 			}
 			else
-				TOOLKIT_THROW("Could not parse Time!");
+				STINGRAYKIT_THROW("Could not parse Time!");
 		}
 
 		return FromBrokenDownTime(bdt, kind);
@@ -180,7 +180,7 @@ namespace stingray
 
 	TimeZone::TimeZone(s16 minutes)
 		: _minutesFromUtc(minutes)
-	{ TOOLKIT_CHECK(_minutesFromUtc >= -12 * MinutesPerHour && _minutesFromUtc <= 14 * MinutesPerHour, IndexOutOfRangeException()); }
+	{ STINGRAYKIT_CHECK(_minutesFromUtc >= -12 * MinutesPerHour && _minutesFromUtc <= 14 * MinutesPerHour, IndexOutOfRangeException()); }
 
 	TimeZone TimeZone::Current()
 	{ return TimeZone(TimeEngine::GetMinutesFromUtc()); }
@@ -196,7 +196,7 @@ namespace stingray
 		char sign;
 		int hours, minutes;
 
-		TOOLKIT_CHECK(sscanf(str.c_str(), "%c%d:%d", &sign, &hours, &minutes) == 3, FormatException());
+		STINGRAYKIT_CHECK(sscanf(str.c_str(), "%c%d:%d", &sign, &hours, &minutes) == 3, FormatException());
 
 		const int value = hours * MinutesPerHour + minutes;
 		return TimeZone(sign == '+'? value : -value);

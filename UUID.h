@@ -20,7 +20,7 @@ namespace stingray {
 		void DeserializeAsValue(ObjectIStream & ar);
 
 		bool operator< (const UUID& other) const;
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(UUID);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(UUID);
 
 		static UUID Generate()
 		{

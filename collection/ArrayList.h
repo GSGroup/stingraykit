@@ -29,14 +29,14 @@ namespace stingray
 
 	private:
 		typedef std::vector<ValueType>						VectorType;
-		TOOLKIT_DECLARE_PTR(VectorType);
+		STINGRAYKIT_DECLARE_PTR(VectorType);
 
 		struct Holder
 		{
 			VectorTypePtr		Items;
 			Holder(const VectorTypePtr& items) : Items(items) { }
 		};
-		TOOLKIT_DECLARE_PTR(Holder);
+		STINGRAYKIT_DECLARE_PTR(Holder);
 
 		struct ReverseEnumerable : public virtual IEnumerable<ValueType>
 		{
@@ -75,14 +75,14 @@ namespace stingray
 
 		virtual ValueType Get(int index) const
 		{
-			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			STINGRAYKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
 			return (*_items)[index];
 		}
 
 		virtual void Set(int index, const ValueType& value)
 		{
 			CopyOnWrite();
-			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			STINGRAYKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
 			(*_items)[index] = value;
 		}
 
@@ -95,7 +95,7 @@ namespace stingray
 		virtual void RemoveAt(int index)
 		{
 			CopyOnWrite();
-			TOOLKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			STINGRAYKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
 			_items->erase(_items->begin() + index);
 		}
 
@@ -134,7 +134,7 @@ namespace stingray
 
 		virtual void Insert(int index, const ValueType& value)
 		{
-			TOOLKIT_CHECK(index >= 0 && index <= (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			STINGRAYKIT_CHECK(index >= 0 && index <= (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
 
 			typename VectorType::iterator it = _items->begin();
 			std::advance(it, index);

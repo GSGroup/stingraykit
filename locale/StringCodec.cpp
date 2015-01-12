@@ -378,7 +378,7 @@ namespace stingray
 
 		UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
 		if (!unpack)
-			TOOLKIT_THROW(std::runtime_error("conversion from " + src.TextEncoding.ToString() + " not supported"));
+			STINGRAYKIT_THROW(std::runtime_error("conversion from " + src.TextEncoding.ToString() + " not supported"));
 
 		std::string r;
 		r.reserve(src.Text.size() * 2);
@@ -406,9 +406,9 @@ namespace stingray
 		//as it different symbols are differently ordered between unicode and iso
 		UnpackFunc unpack_a = GetUnpackFunc(a.TextEncoding), unpack_b = GetUnpackFunc(b.TextEncoding);
 		if (!unpack_a)
-			TOOLKIT_THROW(std::runtime_error("conversion from " + a.TextEncoding.ToString() + " not supported"));
+			STINGRAYKIT_THROW(std::runtime_error("conversion from " + a.TextEncoding.ToString() + " not supported"));
 		if (!unpack_b)
-			TOOLKIT_THROW(std::runtime_error("conversion from " + b.TextEncoding.ToString() + " not supported"));
+			STINGRAYKIT_THROW(std::runtime_error("conversion from " + b.TextEncoding.ToString() + " not supported"));
 
 		const std::string &str_a = a.Text, &str_b = b.Text;
 		std::string::const_iterator i_a = str_a.begin(), i_b = str_b.begin();
@@ -555,7 +555,7 @@ namespace stingray
 	{
 		UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
 		if (!unpack)
-			TOOLKIT_THROW("invalid src encoding" + src.TextEncoding.ToString());
+			STINGRAYKIT_THROW("invalid src encoding" + src.TextEncoding.ToString());
 
 		PackFunc pack = GetCodePagePackFunc(code_page); //always valid
 		std::string::const_iterator i = src.Text.begin();

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_FUNCTION_FUNCTION_H
-#define STINGRAY_TOOLKIT_FUNCTION_FUNCTION_H
+#ifndef STINGRAY_STINGRAYKIT_FUNCTION_FUNCTION_H
+#define STINGRAY_STINGRAYKIT_FUNCTION_FUNCTION_H
 
 #include <stingray/toolkit/function/FunctorInvoker.h>
 #include <stingray/toolkit/Tuple.h>
@@ -93,7 +93,7 @@ namespace stingray
 		template < typename Signature, typename FunctorType, bool HasReturnType = !SameType<typename function_info<Signature>::RetType, void>::Value >
 		class Invokable : public IInvokable<Signature>
 		{
-			TOOLKIT_NONCOPYABLE(Invokable);
+			STINGRAYKIT_NONCOPYABLE(Invokable);
 
 			typedef IInvokable<Signature>		BaseType;
 			typedef typename BaseType::VTable	VTable;
@@ -131,7 +131,7 @@ namespace stingray
 		template < typename Signature, typename FunctorType >
 		class Invokable<Signature, FunctorType, false> : public IInvokable<Signature>
 		{
-			TOOLKIT_NONCOPYABLE(Invokable);
+			STINGRAYKIT_NONCOPYABLE(Invokable);
 
 			typedef IInvokable<Signature>		BaseType;
 			typedef typename BaseType::VTable	VTable;
@@ -232,7 +232,7 @@ namespace stingray
 		explicit function(const BaseType& base) : BaseType(base)
 		{}
 
-		//TOOLKIT_NONASSIGNABLE(function); //This will break ActionTransaction and swig, and never actually was here. Uncomment it and fix all operator= for functions
+		//STINGRAYKIT_NONASSIGNABLE(function); //This will break ActionTransaction and swig, and never actually was here. Uncomment it and fix all operator= for functions
 	};
 
 	template < typename RetType, typename ParamTypes >
@@ -242,7 +242,7 @@ namespace stingray
 #define TY typename
 #define PT(N_) typename GetTypeListItem<ParamTypes, N_ - 1>::ValueT
 
-#define DETAIL_TOOLKIT_DECLARE_FUNCTION(ParamsCount_, ParamTypenames_, ParamTypes_, ParamDecl_, ParamUsage_, ParamsFromTypeList_) \
+#define DETAIL_STINGRAYKIT_DECLARE_FUNCTION(ParamsCount_, ParamTypenames_, ParamTypes_, ParamDecl_, ParamUsage_, ParamsFromTypeList_) \
 	template < typename R, ParamTypenames_ > \
 	class function<R(ParamTypes_)> : public function_base<R(ParamTypes_)> \
 	{ \
@@ -269,16 +269,16 @@ namespace stingray
 
 	//Please do not set inline to inline above, this will cause recursive force-inlining, which is incompatible with some compilers
 
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1), MK_PARAM(PT(1)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2), MK_PARAM(PT(1), PT(2)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3), MK_PARAM(PT(1), PT(2), PT(3)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4), MK_PARAM(PT(1), PT(2), PT(3), PT(4)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1, T2, T3, T4, T5, T6), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6), MK_PARAM(p1, p2, p3, p4, p5, p6), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1, T2, T3, T4, T5, T6, T7), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7), MK_PARAM(p1, p2, p3, p4, p5, p6, p7), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8), PT(9)));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8), PT(9), PT(10)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1), MK_PARAM(PT(1)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2), MK_PARAM(PT(1), PT(2)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3), MK_PARAM(PT(1), PT(2), PT(3)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4), MK_PARAM(PT(1), PT(2), PT(3), PT(4)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1, T2, T3, T4, T5, T6), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6), MK_PARAM(p1, p2, p3, p4, p5, p6), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1, T2, T3, T4, T5, T6, T7), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7), MK_PARAM(p1, p2, p3, p4, p5, p6, p7), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8), PT(9)));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8), PT(9), PT(10)));
 
 #undef PT
 #undef TY

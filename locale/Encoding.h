@@ -15,7 +15,7 @@ namespace stingray
 
 	struct Encoding
 	{
-		TOOLKIT_ENUM_VALUES
+		STINGRAYKIT_ENUM_VALUES
 		(
 			ISO_8859_1,
 			ISO_8859_2,
@@ -73,7 +73,7 @@ namespace stingray
 			}
 		}
 
-		TOOLKIT_DECLARE_ENUM_CLASS(Encoding);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(Encoding);
 	};
 
 	/** @} */

@@ -30,14 +30,14 @@ namespace stingray
 			bool IsAlive() const	{ return _alive; }
 			void Kill()				{ _alive = false; }
 		};
-		TOOLKIT_DECLARE_SELF_COUNT_PTR(TaskLifeTokenImpl);
+		STINGRAYKIT_DECLARE_SELF_COUNT_PTR(TaskLifeTokenImpl);
 	};
 
 
 	struct FutureExecutionTester;
 	struct LocalExecutionGuard : public safe_bool<LocalExecutionGuard>
 	{
-		TOOLKIT_NONCOPYABLE(LocalExecutionGuard);
+		STINGRAYKIT_NONCOPYABLE(LocalExecutionGuard);
 
 	private:
 		bool									_allow;
@@ -91,7 +91,7 @@ namespace stingray
 	};
 
 
-	class TaskLifeToken : TOOLKIT_FINAL(TaskLifeToken)
+	class TaskLifeToken : STINGRAYKIT_FINAL(TaskLifeToken)
 	{
 	private:
 		Detail::TaskLifeTokenImplSelfCountPtr _impl;
@@ -118,7 +118,7 @@ namespace stingray
 		FutureExecutionTester GetExecutionTester() const
 		{ return FutureExecutionTester(_impl); }
 	};
-	TOOLKIT_DECLARE_PTR(TaskLifeToken);
+	STINGRAYKIT_DECLARE_PTR(TaskLifeToken);
 
 	//void InvokeTask(const function<void ()>& task, const TaskLifeToken::ValueWeakPtr& tokenValue);
 
@@ -126,7 +126,7 @@ namespace stingray
 	template < typename Signature >
 	class function_with_token;
 
-#define DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(ParamTypenames_, ParamTypes_, ParamDecl_, ParamUsage_) \
+#define DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(ParamTypenames_, ParamTypes_, ParamDecl_, ParamUsage_) \
 	template < ParamTypenames_ > \
 	class function_with_token<void(ParamTypes_)> : public function_info<void(ParamTypes_)> \
 	{ \
@@ -148,12 +148,12 @@ namespace stingray
 	}
 
 #define TY typename
-	DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(/**/, /**/, /**/, /**/);
-	DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4));
-	DETAIL_TOOLKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(/**/, /**/, /**/, /**/);
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4));
+	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5));
 #undef TY
 
 	/** @} */

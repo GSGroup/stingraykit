@@ -20,7 +20,7 @@ namespace stingray {
 		{ }
 
 		NumericRange(T start, T end) : _start(start), _end(end)
-		{ TOOLKIT_CHECK(start <= end, ArgumentException("Start is greater than end " + ToString())); }
+		{ STINGRAYKIT_CHECK(start <= end, ArgumentException("Start is greater than end " + ToString())); }
 
 	public:
 		T GetStart() const		{ return _start; }

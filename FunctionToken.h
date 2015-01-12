@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_FUNCTIONTOKEN_H
-#define STINGRAY_TOOLKIT_FUNCTIONTOKEN_H
+#ifndef STINGRAY_STINGRAYKIT_FUNCTIONTOKEN_H
+#define STINGRAY_STINGRAYKIT_FUNCTIONTOKEN_H
 
 
 #include <stingray/toolkit/log/Logger.h>
@@ -19,7 +19,7 @@ namespace stingray
 		{ }
 
 		virtual ~FunctionToken()
-		{ STINGRAY_TRY_NO_MESSAGE(_cleanupFunc()); }
+		{ STINGRAYKIT_TRY_NO_MESSAGE(_cleanupFunc()); }
 	};
 
 }

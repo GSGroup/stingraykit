@@ -11,7 +11,7 @@ namespace stingray
 {
 
 
-#define TOOLKIT_ASSERT_SIGNED(Type, Signed) \
+#define STINGRAYKIT_ASSERT_SIGNED(Type, Signed) \
 		struct Type##SignedChecker \
 		{ \
 			static const Type Neg = ~(Type)0; \
@@ -19,13 +19,13 @@ namespace stingray
 			CompileTimeAssert< (Neg < Zero) == Signed > ERROR__invalid_signed_##Type; \
 		};
 
-#define TOOLKIT_ASSERT_SIZE_OF(Type, Size) \
+#define STINGRAYKIT_ASSERT_SIZE_OF(Type, Size) \
 		struct Type##SizeChecker\
 		{ \
 			CompileTimeAssert< sizeof(Type) == Size > ERROR__invalid_size_of_##Type; \
 		};
 
-#define DETAIL_TOOLKIT_DECLARE_INT_TRAITS(NativeType_) \
+#define DETAIL_STINGRAYKIT_DECLARE_INT_TRAITS(NativeType_) \
 	template <> struct IntTraits<signed NativeType_> \
 	{ \
 		static const size_t BitsCount = sizeof(signed NativeType_) * 8; \
@@ -39,13 +39,13 @@ namespace stingray
 		static const unsigned NativeType_ Max = ~(unsigned NativeType_)0; \
 	};
 
-#define DETAIL_TOOLKIT_DECLARE_INT_TYPE(NativeType_, BitsCount_) \
+#define DETAIL_STINGRAYKIT_DECLARE_INT_TYPE(NativeType_, BitsCount_) \
 	typedef unsigned NativeType_	u##BitsCount_; \
 	typedef signed NativeType_		s##BitsCount_; \
-	TOOLKIT_ASSERT_SIZE_OF(u##BitsCount_,	BitsCount_ / 8) \
-	TOOLKIT_ASSERT_SIZE_OF(s##BitsCount_,	BitsCount_ / 8) \
-	TOOLKIT_ASSERT_SIGNED(u##BitsCount_,	false) \
-	TOOLKIT_ASSERT_SIGNED(s##BitsCount_,	true) \
+	STINGRAYKIT_ASSERT_SIZE_OF(u##BitsCount_,	BitsCount_ / 8) \
+	STINGRAYKIT_ASSERT_SIZE_OF(s##BitsCount_,	BitsCount_ / 8) \
+	STINGRAYKIT_ASSERT_SIGNED(u##BitsCount_,	false) \
+	STINGRAYKIT_ASSERT_SIGNED(s##BitsCount_,	true) \
 	template <> struct IntType<BitsCount_, true> \
 	{ \
 		typedef s##BitsCount_ ValueT; \
@@ -77,12 +77,12 @@ namespace stingray
 	template < typename IntType_ >
 	struct IntTraits;
 
-	DETAIL_TOOLKIT_DECLARE_INT_TYPE(char,		8);
-	DETAIL_TOOLKIT_DECLARE_INT_TYPE(short,		16);
-	DETAIL_TOOLKIT_DECLARE_INT_TYPE(int,		32);
-	DETAIL_TOOLKIT_DECLARE_INT_TYPE(long long,	64);
+	DETAIL_STINGRAYKIT_DECLARE_INT_TYPE(char,		8);
+	DETAIL_STINGRAYKIT_DECLARE_INT_TYPE(short,		16);
+	DETAIL_STINGRAYKIT_DECLARE_INT_TYPE(int,		32);
+	DETAIL_STINGRAYKIT_DECLARE_INT_TYPE(long long,	64);
 
-	DETAIL_TOOLKIT_DECLARE_INT_TRAITS(long int);
+	DETAIL_STINGRAYKIT_DECLARE_INT_TRAITS(long int);
 
 	typedef TypeList<u8, s8, u16, s16, u32, s32, u64, s64>::type FixedWidthIntTypes;
 	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TypeList<unsigned, unsigned long, size_t, int, long, off_t> > >::ValueT IntTypes;

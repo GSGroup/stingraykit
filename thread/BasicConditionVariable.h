@@ -16,7 +16,7 @@ namespace stingray
 	template < typename MutexType, typename SemaphoreType >
 	class BasicConditionVariable
 	{
-		TOOLKIT_NONCOPYABLE(BasicConditionVariable);
+		STINGRAYKIT_NONCOPYABLE(BasicConditionVariable);
 
 		typedef GenericMutexLock<MutexType>		MutexLockType;
 		typedef GenericMutexUnlock<MutexType>	MutexUnlockType;

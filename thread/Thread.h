@@ -95,7 +95,7 @@ namespace stingray
 
 	class Thread
 	{
-		TOOLKIT_NONCOPYABLE(Thread);
+		STINGRAYKIT_NONCOPYABLE(Thread);
 
 		typedef function<void(const ICancellationToken&)>	FuncType;
 		typedef std::vector<ThreadStats>					ThreadStatsVec;
@@ -103,7 +103,7 @@ namespace stingray
 	public:
 		class PrioritySetter
 		{
-			TOOLKIT_NONCOPYABLE(PrioritySetter);
+			STINGRAYKIT_NONCOPYABLE(PrioritySetter);
 
 		private:
 			optional<ThreadSchedulingParams>	_prevParams;
@@ -150,7 +150,7 @@ namespace stingray
 	private:
 		void BeginThread(const FuncType& threadFunc);
 	};
-	TOOLKIT_DECLARE_PTR(Thread);
+	STINGRAYKIT_DECLARE_PTR(Thread);
 
 
 	class ThreadCancellationTokenSetter

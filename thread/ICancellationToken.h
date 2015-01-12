@@ -78,7 +78,7 @@ namespace stingray
 	template<typename CancellationHandler_>
 	class CancellationHandlerHolder : public CancellationHandlerHolderBase
 	{
-		TOOLKIT_NONCOPYABLE(CancellationHandlerHolder);
+		STINGRAYKIT_NONCOPYABLE(CancellationHandlerHolder);
 
 	private:
 		CancellationHandler_	_handler;

@@ -22,7 +22,7 @@ namespace stingray
 	{
 		struct AnyType
 		{
-			TOOLKIT_ENUM_VALUES
+			STINGRAYKIT_ENUM_VALUES
 			(
 				Empty,
 				Bool,
@@ -42,7 +42,7 @@ namespace stingray
 				Object,
 				SerializableObject
 			);
-			TOOLKIT_DECLARE_ENUM_CLASS(AnyType);
+			STINGRAYKIT_DECLARE_ENUM_CLASS(AnyType);
 		};
 
 
@@ -89,11 +89,11 @@ namespace stingray
 		{
 			ObjectHolder(const T& object) : ObjectHolderBase<T>(object) { }
 
-			virtual void Serialize(ObjectOStream & ar) const	{ TOOLKIT_THROW(NotSupportedException()); }
-			virtual void Deserialize(ObjectIStream & ar)		{ TOOLKIT_THROW(NotSupportedException()); }
+			virtual void Serialize(ObjectOStream & ar) const	{ STINGRAYKIT_THROW(NotSupportedException()); }
+			virtual void Deserialize(ObjectIStream & ar)		{ STINGRAYKIT_THROW(NotSupportedException()); }
 			virtual bool IsSerializable() const					{ return false; }
 
-			virtual std::string GetClassName() const { TOOLKIT_THROW(NotImplementedException()); }
+			virtual std::string GetClassName() const { STINGRAYKIT_THROW(NotImplementedException()); }
 		};
 
 		template < >
@@ -104,10 +104,10 @@ namespace stingray
 			virtual void Serialize(ObjectOStream & ar) const;
 			virtual void Deserialize(ObjectIStream & ar);
 			virtual bool IsSerializable() const					{ return true; }
-			TOOLKIT_REGISTER_CLASS(ObjectHolder<ISerializablePtr>);
+			STINGRAYKIT_REGISTER_CLASS(ObjectHolder<ISerializablePtr>);
 		};
 
-#define TOOLKIT_DECLARE_SERIALIZABLE_ANY_OBJECTHOLDER(...) \
+#define STINGRAYKIT_DECLARE_SERIALIZABLE_ANY_OBJECTHOLDER(...) \
 		namespace stingray { \
 		namespace Detail { \
 		namespace any { \
@@ -119,11 +119,11 @@ namespace stingray
 				virtual void Serialize(ObjectOStream & ar) const; \
 				virtual void Deserialize(ObjectIStream & ar); \
 				virtual bool IsSerializable() const	{ return true; } \
-				TOOLKIT_REGISTER_CLASS(ObjectHolder<__VA_ARGS__>); \
+				STINGRAYKIT_REGISTER_CLASS(ObjectHolder<__VA_ARGS__>); \
 			}; \
 		}}}
 
-#define TOOLKIT_DEFINE_SERIALIZABLE_ANY_OBJECTHOLDER(...) \
+#define STINGRAYKIT_DEFINE_SERIALIZABLE_ANY_OBJECTHOLDER(...) \
 		namespace stingray { \
 		namespace Detail { \
 		namespace any { \
@@ -305,7 +305,7 @@ namespace stingray
 	{
 		T* ptr = operand.template Get<T>();
 		if (!ptr)
-			TOOLKIT_THROW(bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
+			STINGRAYKIT_THROW(bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
 		return *ptr;
 	}
 
@@ -314,7 +314,7 @@ namespace stingray
 	{
 		const T* ptr = operand.template Get<T>();
 		if (!ptr)
-			TOOLKIT_THROW(bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
+			STINGRAYKIT_THROW(bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
 		return *ptr;
 	}
 

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_FUNCTION_BIND_H
-#define STINGRAY_TOOLKIT_FUNCTION_BIND_H
+#ifndef STINGRAY_STINGRAYKIT_FUNCTION_BIND_H
+#define STINGRAY_STINGRAYKIT_FUNCTION_BIND_H
 
 
 #include <stingray/toolkit/function/function.h>
@@ -25,12 +25,12 @@ namespace stingray
 	template < size_t N > struct BindPlaceholder
 	{ static const size_t Index = N; };
 
-#define DETAIL_TOOLKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
-	static inline BindPlaceholder<Index_>	TOOLKIT_CAT(_, TOOLKIT_INC(Index_))()	{ return BindPlaceholder<Index_>(); }
+#define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
+	static inline BindPlaceholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_))()	{ return BindPlaceholder<Index_>(); }
 
-	TOOLKIT_REPEAT(20, DETAIL_TOOLKIT_DECLARE_PLACEHOLDER, ~)
+	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~)
 
-#undef DETAIL_TOOLKIT_DECLARE_PLACEHOLDER
+#undef DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER
 
 	namespace Detail
 	{
@@ -315,7 +315,7 @@ namespace stingray
 			std::string GetFuncName() const { return get_function_name(base::_func); }
 		};
 
-#define DETAIL_TOOLKIT_DECLARE_BINDER(N, CallParamsDecl_, CallParamsUsage_) \
+#define DETAIL_STINGRAYKIT_DECLARE_BINDER(N, CallParamsDecl_, CallParamsUsage_) \
 		template < typename RetType_, typename AllParameters, typename FunctorType > \
 		struct Binder<RetType_, AllParameters, FunctorType, N> : private BinderBase<RetType_, AllParameters, FunctorType>, public function_info<RetType_, typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT> \
 		{ \
@@ -340,22 +340,22 @@ namespace stingray
 
 #define P_(N) typename GetTypeListItem<CallProxiesParamTypes, N - 1>::ValueT p##N
 
-		DETAIL_TOOLKIT_DECLARE_BINDER(1, MK_PARAM(P_(1)), MK_PARAM(p1));
-		DETAIL_TOOLKIT_DECLARE_BINDER(2, MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2));
-		DETAIL_TOOLKIT_DECLARE_BINDER(3, MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3));
-		DETAIL_TOOLKIT_DECLARE_BINDER(4, MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4));
-		DETAIL_TOOLKIT_DECLARE_BINDER(5, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5));
-		DETAIL_TOOLKIT_DECLARE_BINDER(6, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6));
-		DETAIL_TOOLKIT_DECLARE_BINDER(7, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7));
-		DETAIL_TOOLKIT_DECLARE_BINDER(8, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8));
-		DETAIL_TOOLKIT_DECLARE_BINDER(9, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9));
-		DETAIL_TOOLKIT_DECLARE_BINDER(10, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(1, MK_PARAM(P_(1)), MK_PARAM(p1));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(2, MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(3, MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(4, MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(5, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(6, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(7, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(8, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(9, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9));
+		DETAIL_STINGRAYKIT_DECLARE_BINDER(10, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10));
 
 #undef P_
 
 	}
 
-#define DETAIL_TOOLKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
+#define DETAIL_STINGRAYKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
 	template < typename FunctorType, TemplateBindParams_ > \
 	Detail::Binder<typename function_info<FunctorType>::RetType, typename TypeList<BindParamTypes_>::type, FunctorType > \
 		bind(const FunctorType& func, BindParamsDecl_) \
@@ -366,16 +366,16 @@ namespace stingray
 		return Detail::Binder<RetType, AllParams, FunctorType>(func, all_params); \
 	}
 
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1, T2, T3, T4, T5, T6), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6), MK_PARAM(p1, p2, p3, p4, p5, p6))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1, T2, T3, T4, T5, T6, T7), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
-	DETAIL_TOOLKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1, T2, T3, T4, T5, T6), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6), MK_PARAM(p1, p2, p3, p4, p5, p6))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1, T2, T3, T4, T5, T6, T7), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
+	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
 
 #undef TY
 

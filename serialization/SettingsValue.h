@@ -18,7 +18,7 @@ namespace stingray
 
 	class SettingsValue : public self_counter<SettingsValue>, public variant<SettingsValueTypes>
 	{
-		TOOLKIT_NONCOPYABLE(SettingsValue);
+		STINGRAYKIT_NONCOPYABLE(SettingsValue);
 
 	public:
 		SettingsValue()

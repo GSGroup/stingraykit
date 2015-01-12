@@ -10,12 +10,12 @@ namespace stingray {
 		void SelfCounterHelper::CheckAddRef(int count)
 		{
 			if (count <= 0)
-				TOOLKIT_FATAL(StringBuilder() % "self_counter add_ref value error: " % count);
+				STINGRAYKIT_FATAL(StringBuilder() % "self_counter add_ref value error: " % count);
 		}
 		void SelfCounterHelper::CheckReleaseRef(int count)
 		{
 			if (count < 0)
-				TOOLKIT_FATAL(StringBuilder() % "self_counter release_ref value error: " % count);
+				STINGRAYKIT_FATAL(StringBuilder() % "self_counter release_ref value error: " % count);
 		}
 	}
 

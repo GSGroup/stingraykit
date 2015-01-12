@@ -45,7 +45,7 @@ namespace stingray
 		struct MemoryByteStreamWriter<ContainerType, true>
 		{
 			static u64 Write(ContainerType& container, u64& offset, ConstByteData data)
-			{ TOOLKIT_THROW("Cannot write data to a const container!"); }
+			{ STINGRAYKIT_THROW("Cannot write data to a const container!"); }
 		};
 	}
 
@@ -85,9 +85,9 @@ namespace stingray
 			case SeekMode::End:		new_ofs = _data.size() + offset; break;
 			}
 			if (new_ofs < 0)
-				TOOLKIT_THROW(IndexOutOfRangeException());
+				STINGRAYKIT_THROW(IndexOutOfRangeException());
 			if (new_ofs > (int)_data.size())
-				TOOLKIT_THROW(NotImplementedException());
+				STINGRAYKIT_THROW(NotImplementedException());
 			_offset = new_ofs;
 		}
 

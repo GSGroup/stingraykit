@@ -4,8 +4,8 @@
 namespace stingray
 {
 
-	TOOLKIT_DEFINE_NAMED_LOGGER(DataBufferBase);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(DataBufferBase);
 
-	TOOLKIT_DEFINE_NAMED_LOGGER(DataBuffer);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(DataBuffer);
 
 }

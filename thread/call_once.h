@@ -19,8 +19,8 @@ namespace stingray
 	 * @{
 	 */
 
-#define TOOLKIT_DECLARE_ONCE_FLAG(flagName_) ::stingray::CallOnce::OnceNativeType flagName_
-#define TOOLKIT_DEFINE_ONCE_FLAG(flagName_) ::stingray::CallOnce::OnceNativeType flagName_ = STINGRAY_ONCE_INIT_VALUE
+#define STINGRAYKIT_DECLARE_ONCE_FLAG(flagName_) ::stingray::CallOnce::OnceNativeType flagName_
+#define STINGRAYKIT_DEFINE_ONCE_FLAG(flagName_) ::stingray::CallOnce::OnceNativeType flagName_ = STINGRAYKIT_ONCE_INIT_VALUE
 
 	inline void call_once(CallOnce::OnceNativeType& flag, void (*func)())
 	{ CallOnce::CallOnce(flag, func); }

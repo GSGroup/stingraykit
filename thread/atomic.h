@@ -11,12 +11,12 @@ namespace stingray
 	{
 		struct AtomicImplType
 		{
-			TOOLKIT_ENUM_VALUES(
+			STINGRAYKIT_ENUM_VALUES(
 				Integral,
 				EnumClass,
 				Fallback);
 
-			TOOLKIT_DECLARE_ENUM_CLASS(AtomicImplType);
+			STINGRAYKIT_DECLARE_ENUM_CLASS(AtomicImplType);
 		};
 
 
@@ -28,7 +28,7 @@ namespace stingray
 		template<typename T>
 		class AtomicImpl<T, AtomicImplType::Integral>
 		{
-			TOOLKIT_NONCOPYABLE(AtomicImpl);
+			STINGRAYKIT_NONCOPYABLE(AtomicImpl);
 
 		private:
 			typedef atomic_int_type AtomicType;
@@ -52,7 +52,7 @@ namespace stingray
 		template<typename T>
 		class AtomicImpl<T, AtomicImplType::EnumClass>
 		{
-			TOOLKIT_NONCOPYABLE(AtomicImpl);
+			STINGRAYKIT_NONCOPYABLE(AtomicImpl);
 
 		private:
 			typedef atomic_int_type AtomicType;
@@ -73,7 +73,7 @@ namespace stingray
 		template<typename T>
 		class AtomicImpl<T, AtomicImplType::Fallback>
 		{
-			TOOLKIT_NONCOPYABLE(AtomicImpl);
+			STINGRAYKIT_NONCOPYABLE(AtomicImpl);
 
 		private:
 			Mutex	_mutex;
@@ -92,7 +92,7 @@ namespace stingray
 	template<typename T>
 	class atomic
 	{
-		TOOLKIT_NONCOPYABLE(atomic);
+		STINGRAYKIT_NONCOPYABLE(atomic);
 
 	private:
 		Detail::AtomicImpl<T>	_impl;

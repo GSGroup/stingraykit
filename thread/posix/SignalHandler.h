@@ -42,13 +42,13 @@ namespace posix
 			sigemptyset(&_myAct.sa_mask);
 			sigaddset(&_myAct.sa_mask, SIGCANCEL);
 #endif
-			TOOLKIT_CHECK(sigaction(_signalNum, &_myAct, &_oldAct) == 0, SystemException("sigaction"));
+			STINGRAYKIT_CHECK(sigaction(_signalNum, &_myAct, &_oldAct) == 0, SystemException("sigaction"));
 		}
 
 		~SignalHandlerSetter()
 		{
 			if (sigaction(_signalNum, &_oldAct, NULL) != 0)
-				perror(("sigaction(" + ToString(_signalNum) + ", ...): " + TOOLKIT_WHERE.ToString()).c_str());
+				perror(("sigaction(" + ToString(_signalNum) + ", ...): " + STINGRAYKIT_WHERE.ToString()).c_str());
 		}
 
 		int GetSignalNum() const

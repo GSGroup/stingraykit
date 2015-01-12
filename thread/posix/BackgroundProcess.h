@@ -38,7 +38,7 @@ namespace stingray { namespace posix
 		inline int GetPid() const { return _pid; }
 		void Kill(int sig);
 	};
-	TOOLKIT_DECLARE_PTR(BackgroundProcess);
+	STINGRAYKIT_DECLARE_PTR(BackgroundProcess);
 
 }}
 

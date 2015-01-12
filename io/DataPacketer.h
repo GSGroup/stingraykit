@@ -33,7 +33,7 @@ namespace stingray
 	class DataDepacketer : public virtual IDataSource
 	{
 		typedef IPacketSource<EmptyType> PacketSource;
-		TOOLKIT_DECLARE_PTR(PacketSource);
+		STINGRAYKIT_DECLARE_PTR(PacketSource);
 
 	private:
 		PacketSourcePtr	_source;

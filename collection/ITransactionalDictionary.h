@@ -21,7 +21,7 @@ namespace stingray
 		typedef IDictionary<KeyType_, ValueType_>			base;
 		typedef DiffEntry<typename base::PairType>			DiffEntryType;
 		typedef IEnumerable<DiffEntryType>					DiffType;
-		TOOLKIT_DECLARE_PTR(DiffType);
+		STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		virtual DiffTypePtr Diff() const = 0;
 
@@ -39,7 +39,7 @@ namespace stingray
 				this->Remove(entry.Item.Key); // gcc loses his mind over this line without this
 				break;
 			default:
-				TOOLKIT_THROW("Not supported CollectionOp");
+				STINGRAYKIT_THROW("Not supported CollectionOp");
 			}
 		}
 
@@ -57,10 +57,10 @@ namespace stingray
 
 		typedef DiffEntry<PairType>							DiffEntryType;
 		typedef IEnumerable<DiffEntryType>					DiffType;
-		TOOLKIT_DECLARE_PTR(DiffType);
+		STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		typedef IDictionaryTransaction<KeyType_, ValueType_> TransactionType;
-		TOOLKIT_DECLARE_PTR(TransactionType);
+		STINGRAYKIT_DECLARE_PTR(TransactionType);
 
 		virtual const Mutex& GetSyncRoot() const = 0;
 		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const = 0;

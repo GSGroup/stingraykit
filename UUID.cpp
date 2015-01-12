@@ -32,7 +32,7 @@ namespace stingray
 	{
 		std::vector<u8> v;
 		TypeWriter<std::vector<u8>, ObjectIStream>::Deserialize(ar, v);
-		TOOLKIT_CHECK(v.size() == _data.size(), "UUID size mismatch!");
+		STINGRAYKIT_CHECK(v.size() == _data.size(), "UUID size mismatch!");
 		std::copy(v.begin(), v.end(), _data.begin());
 	}
 
@@ -45,7 +45,7 @@ namespace stingray
 
 	UUID UUID::FromString(const std::string& str)
 	{
-		TOOLKIT_CHECK(str.size() == static_cast<std::string::size_type>(2 * std::count(UuidFormat.begin(), UuidFormat.end(), 'X') + std::count(UuidFormat.begin(), UuidFormat.end(), '-')), "Invalid format");
+		STINGRAYKIT_CHECK(str.size() == static_cast<std::string::size_type>(2 * std::count(UuidFormat.begin(), UuidFormat.end(), 'X') + std::count(UuidFormat.begin(), UuidFormat.end(), '-')), "Invalid format");
 
 		UUID result;
 
@@ -55,7 +55,7 @@ namespace stingray
 			if (*format_it == 'X')
 				*data_it++ = FromHex<u8>(std::string((str_it++).base(), 2 * sizeof(u8)));
 			else
-				TOOLKIT_CHECK(*str_it == '-', "Expected '-'");
+				STINGRAYKIT_CHECK(*str_it == '-', "Expected '-'");
 			++str_it;
 		}
 

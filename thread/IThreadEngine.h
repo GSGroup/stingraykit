@@ -19,13 +19,13 @@ namespace stingray
 
 	struct ThreadSchedulingPolicy
 	{
-		TOOLKIT_ENUM_VALUES
+		STINGRAYKIT_ENUM_VALUES
 		(
 			NonRealtime,
 			RealtimeRoundRobin,
 			RealtimeFIFO
 		);
-		TOOLKIT_DECLARE_ENUM_CLASS(ThreadSchedulingPolicy);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(ThreadSchedulingPolicy);
 	};
 
 
@@ -49,7 +49,7 @@ namespace stingray
 	{
 		virtual ~ITLSUserData() { }
 	};
-	TOOLKIT_DECLARE_PTR(ITLSUserData);
+	STINGRAYKIT_DECLARE_PTR(ITLSUserData);
 
 
 	class ICancellationToken;
@@ -80,7 +80,7 @@ namespace stingray
 		const std::string& GetThreadName() const	{ return _threadName; }
 		void SetThreadName(const std::string& name)	{ _threadName = name; }
 
-		void SetCancellationToken(const ICancellationToken* token)	{ TOOLKIT_CHECK(!token || (token && !_token), InvalidOperationException()); _token = token; }
+		void SetCancellationToken(const ICancellationToken* token)	{ STINGRAYKIT_CHECK(!token || (token && !_token), InvalidOperationException()); _token = token; }
 		const ICancellationToken* GetCancellationToken()			{ return _token; }
 	};
 
@@ -92,7 +92,7 @@ namespace stingray
 		virtual void RequestBacktrace() const = 0;
 		virtual std::string GetName() const = 0;
 	};
-	TOOLKIT_DECLARE_PTR(IThreadInfo);
+	STINGRAYKIT_DECLARE_PTR(IThreadInfo);
 
 
 	struct IThread
@@ -101,9 +101,9 @@ namespace stingray
 
 		virtual ~IThread() { }
 		virtual void Interrupt() = 0;
-		virtual ThreadId GetId() { TOOLKIT_THROW(NotImplementedException()); }
+		virtual ThreadId GetId() { STINGRAYKIT_THROW(NotImplementedException()); }
 	};
-	TOOLKIT_DECLARE_PTR(IThread);
+	STINGRAYKIT_DECLARE_PTR(IThread);
 
 
 	class ThreadStats

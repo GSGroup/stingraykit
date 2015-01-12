@@ -16,7 +16,7 @@ namespace stingray
 {
 
 
-	class ThreadlessTaskExecutor : TOOLKIT_FINAL(ThreadlessTaskExecutor), public virtual ITaskExecutor
+	class ThreadlessTaskExecutor : STINGRAYKIT_FINAL(ThreadlessTaskExecutor), public virtual ITaskExecutor
 	{
 		typedef function<void()>							TaskType;
 		typedef function<void(const std::exception&)>		ExceptionHandlerType;
@@ -42,7 +42,7 @@ namespace stingray
 		virtual void AddTask(const TaskType& task)
 		{ AddTask(task, null); }
 
-		virtual void Pause(bool pause) { TOOLKIT_THROW(NotSupportedException()); }
+		virtual void Pause(bool pause) { STINGRAYKIT_THROW(NotSupportedException()); }
 
 		void ExecuteTasks()
 		{
@@ -76,7 +76,7 @@ namespace stingray
 		{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
 	};
 
-	TOOLKIT_DECLARE_PTR(ThreadlessTaskExecutor);
+	STINGRAYKIT_DECLARE_PTR(ThreadlessTaskExecutor);
 
 }
 

@@ -5,7 +5,7 @@
 
 namespace stingray {
 
-#define TOOLKIT_LAZY_PROPERTY(PropertyType, PropertyName) \
+#define STINGRAYKIT_LAZY_PROPERTY(PropertyType, PropertyName) \
 	public: \
 		const PropertyType& Get##PropertyName() const \
 		{ \

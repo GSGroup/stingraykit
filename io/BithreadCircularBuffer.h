@@ -14,11 +14,11 @@ namespace stingray
 
 	struct BithreadCircularBuffer
 	{
-		TOOLKIT_NONCOPYABLE(BithreadCircularBuffer);
+		STINGRAYKIT_NONCOPYABLE(BithreadCircularBuffer);
 
 	private:
 		struct Impl;
-		TOOLKIT_DECLARE_PTR(Impl);
+		STINGRAYKIT_DECLARE_PTR(Impl);
 
 		ImplPtr	_impl;
 
@@ -89,7 +89,7 @@ namespace stingray
 		/// @brief: Clears buffer completely. Warning: can't be called simultaneously with Read(...) or Write(...)
 		void Clear();
 	};
-	TOOLKIT_DECLARE_PTR(BithreadCircularBuffer);
+	STINGRAYKIT_DECLARE_PTR(BithreadCircularBuffer);
 
 }
 

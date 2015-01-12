@@ -8,9 +8,9 @@
 #include <stingray/toolkit/shared_ptr.h>
 
 
-#define TOOLKIT_DECLARE_ENUMERATOR(ClassName) \
+#define STINGRAYKIT_DECLARE_ENUMERATOR(ClassName) \
 		typedef stingray::IEnumerator<ClassName>				ClassName##Enumerator; \
-		TOOLKIT_DECLARE_PTR(ClassName##Enumerator)
+		STINGRAYKIT_DECLARE_PTR(ClassName##Enumerator)
 
 namespace stingray
 {

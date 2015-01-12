@@ -14,14 +14,14 @@ namespace stingray
 
 	class ObjectPool
 	{
-		TOOLKIT_NONCOPYABLE(ObjectPool);
+		STINGRAYKIT_NONCOPYABLE(ObjectPool);
 
 		struct IObjectHolder
 		{
 			virtual ~IObjectHolder() { }
 			virtual bool TryRemove() = 0;
 		};
-		TOOLKIT_DECLARE_PTR(IObjectHolder);
+		STINGRAYKIT_DECLARE_PTR(IObjectHolder);
 
 		template < typename T >
 		struct ObjectHolder : public virtual IObjectHolder

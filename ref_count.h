@@ -14,7 +14,7 @@ namespace stingray
 	template < typename UserDataType >
 	class basic_ref_count_data
 	{
-		TOOLKIT_NONCOPYABLE(basic_ref_count_data);
+		STINGRAYKIT_NONCOPYABLE(basic_ref_count_data);
 
 	public:
 		atomic_int_type		Value;
@@ -29,7 +29,7 @@ namespace stingray
 	template < >
 	class basic_ref_count_data<NullType>
 	{
-		TOOLKIT_NONCOPYABLE(basic_ref_count_data);
+		STINGRAYKIT_NONCOPYABLE(basic_ref_count_data);
 
 	public:
 		atomic_int_type		Value;
@@ -106,12 +106,12 @@ namespace stingray
 			assert(result >= 0);
 			if (result == 0)
 			{
-				STINGRAY_ANNOTATE_HAPPENS_AFTER(_value);
-				STINGRAY_ANNOTATE_RELEASE(_value);
+				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_value);
+				STINGRAYKIT_ANNOTATE_RELEASE(_value);
 				delete _value;
 			}
 			else
-				STINGRAY_ANNOTATE_HAPPENS_BEFORE(_value);
+				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_value);
 			return result;
 		}
 	};

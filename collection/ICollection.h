@@ -4,10 +4,10 @@
 
 #include <stingray/toolkit/collection/IEnumerable.h>
 
-#define TOOLKIT_DECLARE_COLLECTION(ClassName) \
+#define STINGRAYKIT_DECLARE_COLLECTION(ClassName) \
 		typedef stingray::ICollection<ClassName>				ClassName##Collection; \
-		TOOLKIT_DECLARE_PTR(ClassName##Collection); \
-		TOOLKIT_DECLARE_ENUMERABLE(ClassName)
+		STINGRAYKIT_DECLARE_PTR(ClassName##Collection); \
+		STINGRAYKIT_DECLARE_ENUMERABLE(ClassName)
 
 namespace stingray
 {

@@ -15,7 +15,7 @@
 #include <stingray/toolkit/MetaProgramming.h>
 #include <stingray/toolkit/toolkit.h>
 
-#define TOOLKIT_DECLARE_SIMPLE_EXCEPTION(ExceptionClass, Message) \
+#define STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(ExceptionClass, Message) \
 	struct ExceptionClass : public stingray::Exception \
 	{ \
 		ExceptionClass() : stingray::Exception(Message) { } \
@@ -38,21 +38,21 @@ namespace stingray
 		virtual ~Exception() throw() { }
 	};
 
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(NotSupportedException, "The feature is not supported!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(DeviceBusyException, "Device is busy!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(BrokenPromise, "Promise destroyed before value is set!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(PromiseAlreadySatisfied, "Promise value have already been set!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(FutureAlreadyRetrieved, "Future have already been retrieved!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(CrcErrorException, "CRC mismatch!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(TimeoutException, "Timed out!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(InvalidOperationException, "Invalid operation!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(OperationCanceledException, "Operation has been canceled!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(SocketException, "Socket error!");
-	TOOLKIT_DECLARE_SIMPLE_EXCEPTION(AccessDeniedException, "Access denied!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotSupportedException, "The feature is not supported!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(DeviceBusyException, "Device is busy!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BrokenPromise, "Promise destroyed before value is set!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PromiseAlreadySatisfied, "Promise value have already been set!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(FutureAlreadyRetrieved, "Future have already been retrieved!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(CrcErrorException, "CRC mismatch!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(TimeoutException, "Timed out!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InvalidOperationException, "Invalid operation!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(OperationCanceledException, "Operation has been canceled!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(SocketException, "Socket error!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(AccessDeniedException, "Access denied!");
 
-#define TOOLKIT_CHECK(Condition, ExceptionObj) \
-		do { if (STINGRAY_UNLIKELY(!(Condition))) TOOLKIT_THROW(ExceptionObj); } while(false)
+#define STINGRAYKIT_CHECK(Condition, ExceptionObj) \
+		do { if (STINGRAYKIT_UNLIKELY(!(Condition))) STINGRAYKIT_THROW(ExceptionObj); } while(false)
 
 	struct LogicException : public std::logic_error
 	{
@@ -139,7 +139,7 @@ namespace stingray
 	};
 
 
-#define TOOLKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, TOOLKIT_WHERE)
+#define STINGRAYKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, STINGRAYKIT_WHERE)
 
 
 	namespace Detail
@@ -241,8 +241,8 @@ namespace stingray
 	}
 
 
-#define TOOLKIT_MAKE_EXCEPTION(...) ::stingray::Detail::MakeException(__VA_ARGS__, TOOLKIT_WHERE)
-#define TOOLKIT_THROW(...) throw ::stingray::Detail::MakeException(__VA_ARGS__, TOOLKIT_WHERE)
+#define STINGRAYKIT_MAKE_EXCEPTION(...) ::stingray::Detail::MakeException(__VA_ARGS__, STINGRAYKIT_WHERE)
+#define STINGRAYKIT_THROW(...) throw ::stingray::Detail::MakeException(__VA_ARGS__, STINGRAYKIT_WHERE)
 
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 

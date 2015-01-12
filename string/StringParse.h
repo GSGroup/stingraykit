@@ -83,7 +83,7 @@ namespace stingray
 				if (index == std::numeric_limits<size_t>::max() - 1)
 					return true;
 
-				TOOLKIT_THROW(IndexOutOfRangeException());
+				STINGRAYKIT_THROW(IndexOutOfRangeException());
 			}
 		};
 

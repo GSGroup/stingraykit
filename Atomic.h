@@ -32,27 +32,27 @@ namespace stingray
 #endif
 
 #if STINGRAY_USE_HELGRIND_ANNOTATIONS
-#	define STINGRAY_ANNOTATE_HAPPENS_BEFORE(Marker_) \
+#	define STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(Marker_) \
 	do \
 	{ \
 		ANNOTATE_HAPPENS_BEFORE(Marker_); \
 	} while (0)
-#	define STINGRAY_ANNOTATE_HAPPENS_AFTER(Marker_) \
+#	define STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(Marker_) \
 	do \
 	{ \
 		ANNOTATE_HAPPENS_AFTER(Marker_); \
 	} while (0)
-#	define STINGRAY_ANNOTATE_RELEASE(Marker_) \
+#	define STINGRAYKIT_ANNOTATE_RELEASE(Marker_) \
 	do \
 	{ \
 		ANNOTATE_HAPPENS_BEFORE_FORGET_ALL(Marker_); \
 	} while (0)
 #else
-#	define STINGRAY_ANNOTATE_HAPPENS_BEFORE(Marker_) \
+#	define STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(Marker_) \
 	do { } while (0)
-#	define STINGRAY_ANNOTATE_HAPPENS_AFTER(Marker_) \
+#	define STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(Marker_) \
 	do { } while (0)
-#	define STINGRAY_ANNOTATE_RELEASE(Marker_) \
+#	define STINGRAYKIT_ANNOTATE_RELEASE(Marker_) \
 	do { } while (0)
 #endif
 

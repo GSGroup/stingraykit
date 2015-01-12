@@ -10,7 +10,7 @@ namespace stingray
 
 	struct BithreadCircularBuffer::Impl
 	{
-		TOOLKIT_NONCOPYABLE(Impl);
+		STINGRAYKIT_NONCOPYABLE(Impl);
 
 		// TODO: finish padding support
 		static const size_t PaddingSize = 8;
@@ -59,7 +59,7 @@ namespace stingray
 		ByteData LockForWrite()
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(_lockedForWrite == 0, "There is another write in progress!");
+			STINGRAYKIT_CHECK(_lockedForWrite == 0, "There is another write in progress!");
 
 			_lockedForWrite = _dataIsContiguous ? (GetStorageSize() - _writeOffset) : (_readOffset - _writeOffset);
 			return ByteData(_storage, _writeOffset, _lockedForWrite);
@@ -69,7 +69,7 @@ namespace stingray
 		void UnlockWriteAndPush(size_t pushSize)
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(pushSize <= _lockedForWrite, ArgumentException("pushSize", pushSize));
+			STINGRAYKIT_CHECK(pushSize <= _lockedForWrite, ArgumentException("pushSize", pushSize));
 			_writeOffset += pushSize;
 
 			if (_writeOffset == GetStorageSize())
@@ -85,7 +85,7 @@ namespace stingray
 		ConstByteData LockForRead()
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(_lockedForRead == 0, "There is another read in progress!");
+			STINGRAYKIT_CHECK(_lockedForRead == 0, "There is another read in progress!");
 
 			_lockedForRead = (_dataIsContiguous) ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset);
 			return ByteData(_storage, _readOffset, _lockedForRead);
@@ -95,7 +95,7 @@ namespace stingray
 		void UnlockReadAndPop(size_t popSize)
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(popSize <= _lockedForRead, ArgumentException("popSize", popSize));
+			STINGRAYKIT_CHECK(popSize <= _lockedForRead, ArgumentException("popSize", popSize));
 			_readOffset += popSize;
 
 			if (_readOffset == GetStorageSize())
@@ -111,8 +111,8 @@ namespace stingray
 		void Clear()
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(_lockedForRead == 0, "There is another read in progress!");
-			TOOLKIT_CHECK(_lockedForWrite == 0, "There is another write in progress!");
+			STINGRAYKIT_CHECK(_lockedForRead == 0, "There is another read in progress!");
+			STINGRAYKIT_CHECK(_lockedForWrite == 0, "There is another write in progress!");
 			_writeOffset = 0;
 			_readOffset = 0;
 			_dataIsContiguous = true;

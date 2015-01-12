@@ -40,14 +40,14 @@ namespace stingray
 
 		CharArrayProxy& operator=(const std::string& str)
 		{
-			TOOLKIT_CHECK(Size > str.size(), ArgumentException("str", str));
+			STINGRAYKIT_CHECK(Size > str.size(), ArgumentException("str", str));
 			strncpy(_array, str.c_str(), Size);
 			return *this;
 		}
 
 		CharArrayProxy& operator=(const char* str)
 		{
-			TOOLKIT_CHECK(Size > strlen(str), ArgumentException("str", str));
+			STINGRAYKIT_CHECK(Size > strlen(str), ArgumentException("str", str));
 			strncpy(_array, str, Size);
 			return *this;
 		}
@@ -63,7 +63,7 @@ namespace stingray
 	public:
 		StringToCharArrayHelper(const std::string& str)
 		{
-			TOOLKIT_CHECK(Size > str.size(), ArgumentException("str", str));
+			STINGRAYKIT_CHECK(Size > str.size(), ArgumentException("str", str));
 			strncpy(_array.data(), str.c_str(), Size);
 		}
 

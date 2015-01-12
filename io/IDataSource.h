@@ -19,7 +19,7 @@ namespace stingray
 		virtual size_t Process(ConstByteData data, const ICancellationToken& token) = 0;
 		virtual void EndOfData() = 0;
 	};
-	TOOLKIT_DECLARE_PTR(IDataConsumer);
+	STINGRAYKIT_DECLARE_PTR(IDataConsumer);
 
 
 	template <typename ProcessFunctorType, typename EodFunctorType>
@@ -57,14 +57,14 @@ namespace stingray
 
 	private:
 		static void DefaultEndOfData()
-		{ TOOLKIT_THROW(NotImplementedException()); }
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
 	};
-	TOOLKIT_DECLARE_PTR(IDataSource);
+	STINGRAYKIT_DECLARE_PTR(IDataSource);
 
 
 	struct IDataBuffer : public virtual IDataConsumer, public virtual IDataSource
 	{ };
-	TOOLKIT_DECLARE_PTR(IDataBuffer);
+	STINGRAYKIT_DECLARE_PTR(IDataBuffer);
 
 
 	struct DataInterceptor : public virtual IDataSource
@@ -96,7 +96,7 @@ namespace stingray
 		void Eod(IDataConsumer& consumer)
 		{ consumer.EndOfData(); _eod(); }
 	};
-	TOOLKIT_DECLARE_PTR(DataInterceptor);
+	STINGRAYKIT_DECLARE_PTR(DataInterceptor);
 
 
 	class ReactiveDataSource : public virtual IDataSource
@@ -136,7 +136,7 @@ namespace stingray
 				_source->Read(reactiveConsumer, token);
 		}
 	};
-	TOOLKIT_DECLARE_PTR(ReactiveDataSource);
+	STINGRAYKIT_DECLARE_PTR(ReactiveDataSource);
 
 
 	template<typename MetadataType>
@@ -203,7 +203,7 @@ namespace stingray
 
 	private:
 		static void DefaultEndOfData()
-		{ TOOLKIT_THROW(NotImplementedException()); }
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
 	};
 
 
@@ -228,7 +228,7 @@ namespace stingray
 			}
 		}
 	};
-	TOOLKIT_DECLARE_PTR(ByteDataPacketSource);
+	STINGRAYKIT_DECLARE_PTR(ByteDataPacketSource);
 
 	class ByteStreamDataSource : public IDataSource
 	{
@@ -256,7 +256,7 @@ namespace stingray
 				_data = ConstByteArray(data, 0, s);
 			}
 			size_t processed = consumer.Process(_data.GetByteData(), token);
-			TOOLKIT_CHECK(processed <= _data.size(), "invalid return value for data consumer");
+			STINGRAYKIT_CHECK(processed <= _data.size(), "invalid return value for data consumer");
 			if (processed < _data.size())
 			{
 				_data = ConstByteArray(_data, processed, _data.size() - processed);

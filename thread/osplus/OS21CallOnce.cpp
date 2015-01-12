@@ -6,7 +6,7 @@ namespace stingray {
 
 
 	void OS21CallOnce::CallOnce(OnceNativeType& once, void (*func)())
-	{ TOOLKIT_CHECK( !__gthread_once(&once, func), std::runtime_error("__gthread_once") ); }
+	{ STINGRAYKIT_CHECK( !__gthread_once(&once, func), std::runtime_error("__gthread_once") ); }
 
 
 }

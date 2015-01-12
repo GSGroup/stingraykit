@@ -33,7 +33,7 @@ namespace stingray
 	private:
 		void Timeout();
 	};
-	TOOLKIT_DECLARE_PTR(EventWatcher);
+	STINGRAYKIT_DECLARE_PTR(EventWatcher);
 
 
 	class EventWatcherWithTimer
@@ -51,7 +51,7 @@ namespace stingray
 		signal<void ()> OnOccured;
 		signal<void ()> OnTimeout;
 	};
-	TOOLKIT_DECLARE_PTR(EventWatcherWithTimer);
+	STINGRAYKIT_DECLARE_PTR(EventWatcherWithTimer);
 
 	/** @} */
 

@@ -19,7 +19,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		TOOLKIT_DECLARE_METHOD_CHECK(push_back);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(push_back);
 
 		template < typename CollectionType, bool HasPushBack = HasMethod_push_back<CollectionType>::Value>
 		struct CollectionInserter

@@ -11,7 +11,7 @@
 #include <vector>
 #include <algorithm>
 
-#define DETAIL_BYTEDATA_INDEX_CHECK(Arg1, Arg2) TOOLKIT_CHECK((Arg1) <= (Arg2), IndexOutOfRangeException(Arg1, Arg2))
+#define DETAIL_BYTEDATA_INDEX_CHECK(Arg1, Arg2) STINGRAYKIT_CHECK((Arg1) <= (Arg2), IndexOutOfRangeException(Arg1, Arg2))
 
 
 namespace stingray
@@ -41,11 +41,11 @@ namespace stingray
 		explicit ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
 			: _ptr(ptr)
 			, _begin(begin), _end(end)
-		{ if (_ptr < _begin || _ptr > _end) TOOLKIT_THROW(IndexOutOfRangeException()); }
+		{ if (_ptr < _begin || _ptr > _end) STINGRAYKIT_THROW(IndexOutOfRangeException()); }
 
 		reference dereference() const
 		{
-			if (_ptr < _begin || _ptr >= _end) TOOLKIT_THROW(IndexOutOfRangeException());
+			if (_ptr < _begin || _ptr >= _end) STINGRAYKIT_THROW(IndexOutOfRangeException());
 			return *_ptr;
 		}
 		bool equal(const ByteDataIterator &other) const						{ return _ptr == other._ptr; }
@@ -149,14 +149,14 @@ namespace stingray
 		template < typename U >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset)
 			: _data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
-		{ TOOLKIT_CHECK(_data->size() >= _offset, ArgumentException("offset")); }
+		{ STINGRAYKIT_CHECK(_data->size() >= _offset, ArgumentException("offset")); }
 
 		template < typename U >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit)
 			: _data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(sizeLimit)
 		{
-			TOOLKIT_CHECK(_data->size() >= _offset, ArgumentException("offset"));
-			TOOLKIT_CHECK((_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size()) && (_sizeLimit + offset <= other._sizeLimit), ArgumentException("sizeLimit"));
+			STINGRAYKIT_CHECK(_data->size() >= _offset, ArgumentException("offset"));
+			STINGRAYKIT_CHECK((_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size()) && (_sizeLimit + offset <= other._sizeLimit), ArgumentException("sizeLimit"));
 		}
 
 		inline size_t GetOffset() const { return _offset; }
@@ -170,7 +170,7 @@ namespace stingray
 		{
 			if (_data->size() < size + _offset)
 			{
-				TOOLKIT_CHECK(_sizeLimit == NoSizeLimit, NotImplementedException());
+				STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit, NotImplementedException());
 				_data->resize(size + _offset);
 			}
 		}
@@ -178,7 +178,7 @@ namespace stingray
 		inline T& operator[](size_t index) const
 		{
 			if (index >= size())
-				TOOLKIT_THROW(IndexOutOfRangeException(index, size()));
+				STINGRAYKIT_THROW(IndexOutOfRangeException(index, size()));
 			return (*_data)[index + _offset];
 		}
 
@@ -191,7 +191,7 @@ namespace stingray
 		template < typename InputIterator >
 		void append(InputIterator first, InputIterator last)
 		{
-			TOOLKIT_CHECK(_sizeLimit == NoSizeLimit, NotImplementedException());
+			STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit, NotImplementedException());
 			_data->insert(_data->end(), first, last);
 		}
 
@@ -261,12 +261,12 @@ namespace stingray
 		bool operator == (const BasicByteArray& other) const
 		{ return size() == other.size() && std::equal(data(), data() + size(), other.data()); }
 
-		TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicByteArray);
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicByteArray);
 
 		bool operator < (const BasicByteArray& other) const
 		{ return std::lexicographical_compare(data(), data() + size(), other.data(), other.data() + other.size()); }
 
-		TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(BasicByteArray);
+		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(BasicByteArray);
 	};
 
 
@@ -353,7 +353,7 @@ namespace stingray
 		inline T& operator[](size_t index) const
 		{
 			if (index >= _size)
-				TOOLKIT_THROW(IndexOutOfRangeException(index, _size));
+				STINGRAYKIT_THROW(IndexOutOfRangeException(index, _size));
 			return _data[index];
 		}
 
@@ -380,12 +380,12 @@ namespace stingray
 		bool operator == (const BasicByteData& other) const
 		{ return size() == other.size() && std::equal(data(), data() + size(), other.data()); }
 
-		TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicByteData);
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicByteData);
 
 		bool operator < (const BasicByteData& other) const
 		{ return std::lexicographical_compare(data(), data() + size(), other.data(), other.data() + other.size()); }
 
-		TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(BasicByteData);
+		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(BasicByteData);
 	};
 
 

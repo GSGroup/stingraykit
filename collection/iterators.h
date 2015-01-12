@@ -157,7 +157,7 @@ namespace stingray
 
 	 	void increment()
 		{
-			TOOLKIT_CHECK(_it != _end, "Cannot increment iterator");
+			STINGRAYKIT_CHECK(_it != _end, "Cannot increment iterator");
 			++_it;
 			FindNextValid();
 		}
@@ -285,7 +285,7 @@ namespace stingray
 		{
 			typedef DstType RetType;
 			DstType operator() (const SrcType& src) const
-			{ return TOOLKIT_CHECKED_DYNAMIC_CASTER(src); }
+			{ return STINGRAYKIT_CHECKED_DYNAMIC_CASTER(src); }
 		};
 	}
 

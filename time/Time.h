@@ -49,7 +49,7 @@ namespace stingray
 		TimeDuration operator/(int multiplier) const		{ TimeDuration result(*this); return result /= multiplier; }
 
 		bool operator < (TimeDuration other) const			{ return _microseconds < other._microseconds; }
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
 
 		std::string ToString(const std::string& format = "") const;
 		static TimeDuration FromString(const std::string& s);
@@ -84,7 +84,7 @@ namespace stingray
 		static TimeZone Current();
 
 		bool operator < (const TimeZone& other) const { return _minutesFromUtc < other._minutesFromUtc; }
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeZone);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeZone);
 
 		std::string ToString() const;
 		static TimeZone FromString(const std::string& str);
@@ -96,8 +96,8 @@ namespace stingray
 
 	class TimeKind
 	{
-		TOOLKIT_ENUM_VALUES(Utc, Local);
-		TOOLKIT_DECLARE_ENUM_CLASS(TimeKind);
+		STINGRAYKIT_ENUM_VALUES(Utc, Local);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(TimeKind);
 	};
 
 
@@ -148,7 +148,7 @@ namespace stingray
 		bool operator < (const Time& other) const
 		{ return _milliseconds < other._milliseconds; }
 
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Time);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Time);
 
 
 		static Time Now();

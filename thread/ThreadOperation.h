@@ -11,8 +11,8 @@ namespace stingray
 
 	struct ThreadOperation
 	{
-		TOOLKIT_ENUM_VALUES(Network, IO);
-		TOOLKIT_DECLARE_ENUM_CLASS(ThreadOperation);
+		STINGRAYKIT_ENUM_VALUES(Network, IO);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(ThreadOperation);
 	};
 
 

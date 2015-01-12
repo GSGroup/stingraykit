@@ -118,7 +118,7 @@ namespace stingray
 				_queue.pop_front();
 
 				MutexUnlock ll(l);
-				STINGRAY_TRY("exception in queue processor", _processor(value));
+				STINGRAYKIT_TRY("exception in queue processor", _processor(value));
 				{
 					signal_locker l(OnProgress);
 					++_progress.Current;

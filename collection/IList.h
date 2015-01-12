@@ -5,10 +5,10 @@
 #include <stingray/toolkit/collection/ICollection.h>
 
 
-#define TOOLKIT_DECLARE_LIST(ClassName) \
+#define STINGRAYKIT_DECLARE_LIST(ClassName) \
 		typedef stingray::IList<ClassName>				ClassName##List; \
-		TOOLKIT_DECLARE_PTR(ClassName##List); \
-		TOOLKIT_DECLARE_COLLECTION(ClassName)
+		STINGRAYKIT_DECLARE_PTR(ClassName##List); \
+		STINGRAYKIT_DECLARE_COLLECTION(ClassName)
 
 namespace stingray
 {

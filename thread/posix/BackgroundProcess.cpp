@@ -14,7 +14,7 @@
 
 namespace stingray { namespace posix
 {
-	TOOLKIT_DEFINE_NAMED_LOGGER(BackgroundProcess);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(BackgroundProcess);
 
 	namespace
 	{
@@ -25,7 +25,7 @@ namespace stingray { namespace posix
 		_name(name), _restart(restart), _pid(-1)
 	{
 #if defined(STINGRAY_USE_VFORK_DISABLED)
-		TOOLKIT_THROW("the use of vfork are prohibited!");
+		STINGRAYKIT_THROW("the use of vfork are prohibited!");
 #endif
 		std::vector<std::string> args_copy;
 		args_copy.push_back(name);
@@ -52,7 +52,7 @@ namespace stingray { namespace posix
 	{
 		while(_restart)
 		{
-			STINGRAY_TRY("starting process failed ", Start());
+			STINGRAYKIT_TRY("starting process failed ", Start());
 			Wait();
 			s_logger.Info() << "process " << _name << " exited";;
 			Thread::Sleep(RestartInterval);
@@ -70,7 +70,7 @@ namespace stingray { namespace posix
 #if HAVE_POSIX_SPAWN
 		int status = posix_spawnp(&_pid, file, NULL, NULL, &_argv[0], environ);
 		if (status != 0)
-			TOOLKIT_THROW(SystemException("posix_spawnp failed"));
+			STINGRAYKIT_THROW(SystemException("posix_spawnp failed"));
 #else
 		pid_t pid = vfork();
 		//no c++ code below this point

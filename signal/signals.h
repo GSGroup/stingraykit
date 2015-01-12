@@ -45,8 +45,8 @@ namespace stingray
 		template<typename Signature, typename ExceptionHandlerFunc, size_t ParamsNum = GetTypeListLength<typename function_info<Signature>::ParamTypes>::Value>
 		struct ExceptionHandlerWrapper;
 
-#define DETAIL_EXCEPTION_HANDLER_PARAM_DECL(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) typename GetParamPassingType<typename GetTypeListItem<ParamTypes, Index_>::ValueT>::ValueT p##Index_
-#define DETAIL_EXCEPTION_HANDLER_PARAM_USAGE(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) p##Index_
+#define DETAIL_EXCEPTION_HANDLER_PARAM_DECL(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename GetParamPassingType<typename GetTypeListItem<ParamTypes, Index_>::ValueT>::ValueT p##Index_
+#define DETAIL_EXCEPTION_HANDLER_PARAM_USAGE(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) p##Index_
 #define DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(N_, UserArg_) \
 		template<typename Signature, typename ExceptionHandlerFunc> \
 		struct ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, N_> : public function_info<Signature> \
@@ -57,14 +57,14 @@ namespace stingray
 			const ExceptionHandlerFunc& _exFunc; \
 			ExceptionHandlerWrapper(const FuncType& func, const ExceptionHandlerFunc& exFunc) : _func(func), _exFunc(exFunc) \
 			{ } \
-			void operator() (TOOLKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_DECL, ~)) const \
+			void operator() (STINGRAYKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_DECL, ~)) const \
 			{ \
-				try { _func(TOOLKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_USAGE, ~)); } \
+				try { _func(STINGRAYKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_USAGE, ~)); } \
 				catch (std::exception& ex) { _exFunc(ex); } \
 			} \
 		};
 
-		TOOLKIT_REPEAT_NESTING_2(10, DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER, ~)
+		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER, ~)
 
 #undef DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER
 #undef DETAIL_EXCEPTION_HANDLER_PARAM_USAGE
@@ -219,7 +219,7 @@ namespace stingray
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
 		ISignalConnectionSelfCountPtr SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function<Signature_>& func, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState)
 		{
-			//TOOLKIT_ASSERT(this->GetConnectionPolicy() != ConnectionPolicy::AsyncOnly);
+			//STINGRAYKIT_ASSERT(this->GetConnectionPolicy() != ConnectionPolicy::AsyncOnly);
 			typedef Connection<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>	Connection;
 
 			typename ThreadingPolicy_::LockType l(this->GetSync());
@@ -241,7 +241,7 @@ namespace stingray
 
 	class signal_locker
 	{
-		TOOLKIT_NONCOPYABLE(signal_locker);
+		STINGRAYKIT_NONCOPYABLE(signal_locker);
 
 	private:
 		MutexLock	_mutexLock;
@@ -262,20 +262,20 @@ namespace stingray
 	class signal;
 
 #define DETAIL_SIGNAL_TEMPLATE_PARAM_DECL(Index_, UserArg_) typename T##Index_,
-#define DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) T##Index_
-#define DETAIL_SIGNAL_PARAM_DECL(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) T##Index_ p##Index_
-#define DETAIL_SIGNAL_PARAM_USAGE(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) p##Index_
+#define DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) T##Index_
+#define DETAIL_SIGNAL_PARAM_DECL(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) T##Index_ p##Index_
+#define DETAIL_SIGNAL_PARAM_USAGE(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) p##Index_
 #define DETAIL_DECLARE_SIGNAL(N_, UserArg_) \
-	template < TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_DECL, ~) typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ > \
-	class signal<void(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_, CreationPolicy_> \
+	template < STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_DECL, ~) typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ > \
+	class signal<void(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_, CreationPolicy_> \
 	{ \
-		TOOLKIT_NONCOPYABLE(signal); \
+		STINGRAYKIT_NONCOPYABLE(signal); \
 		\
 		friend class signal_locker; \
 		template < typename Signature2_ > friend class signal_connector; \
 		\
 	public: \
-		typedef void Signature(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)); \
+		typedef void Signature(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)); \
 		\
 		typedef void											RetType; \
 		typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
@@ -296,8 +296,8 @@ namespace stingray
 			ImplPtr		_impl; \
 		public: \
 			Invoker(const ImplPtr& impl) : _impl(impl) { } \
-			void operator () (TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
-			{ _impl->InvokeAll(Tuple<ParamTypes>(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); } \
+			void operator () (STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
+			{ _impl->InvokeAll(Tuple<ParamTypes>(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); } \
 		}; \
 		\
 	private: \
@@ -340,15 +340,15 @@ namespace stingray
 		signal_connector<Signature> connector() const { CreationPolicy_::template LazyCreate(_impl); return signal_connector<Signature>(_impl); } \
 		Invoker invoker() const { CreationPolicy_::template LazyCreate(_impl); return Invoker(_impl); } \
 		\
-		void operator () (TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
+		void operator () (STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
 		{ \
 			if (!_impl) \
 				return; \
-			_impl->InvokeAll(Tuple<ParamTypes>(TOOLKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); \
+			_impl->InvokeAll(Tuple<ParamTypes>(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); \
 		} \
 	};
 
-	TOOLKIT_REPEAT_NESTING_2(10, DETAIL_DECLARE_SIGNAL, ~)
+	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECLARE_SIGNAL, ~)
 
 #undef DETAIL_DECLARE_SIGNAL
 #undef DETAIL_SIGNAL_PARAM_USAGE
@@ -360,8 +360,8 @@ namespace stingray
 
 	struct ConnectionPolicy
 	{
-		TOOLKIT_ENUM_VALUES(SyncOnly, AsyncOnly, Any);
-		TOOLKIT_DECLARE_ENUM_CLASS(ConnectionPolicy);
+		STINGRAYKIT_ENUM_VALUES(SyncOnly, AsyncOnly, Any);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(ConnectionPolicy);
 	};
 
 
@@ -436,7 +436,7 @@ namespace stingray
 	 *         value -= item;
 	 *         break;
 	 *     default:
-	 *         TOOLKIT_THROW(NotImplementedException());
+	 *         STINGRAYKIT_THROW(NotImplementedException());
 	 *     }
 	 *     std::cout << "Accumulated value: " << value << std::endl;
 	 * }
@@ -606,7 +606,7 @@ namespace stingray
 		 */
 		signal_connection connect(const FuncType& handler) const;
 
-		TOOLKIT_NONCOPYABLE(signal);
+		STINGRAYKIT_NONCOPYABLE(signal);
 	}
 
 #endif

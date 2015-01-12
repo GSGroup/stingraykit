@@ -14,7 +14,7 @@ namespace stingray
 	class SafeSingleton
 	{
 	private:
-		static TOOLKIT_DECLARE_ONCE_FLAG(s_initFlag);
+		static STINGRAYKIT_DECLARE_ONCE_FLAG(s_initFlag);
 		static u32		s_refCount;
 		static intptr_t	s_instance;
 
@@ -95,7 +95,7 @@ namespace stingray
 
 
 	template< typename T >
-	TOOLKIT_DEFINE_ONCE_FLAG(SafeSingleton<T>::s_initFlag);
+	STINGRAYKIT_DEFINE_ONCE_FLAG(SafeSingleton<T>::s_initFlag);
 
 
 	template < typename T >

@@ -18,7 +18,7 @@ namespace stingray
 	 * @{
 	 */
 
-	class ThreadTaskExecutor : TOOLKIT_FINAL(ThreadTaskExecutor), public virtual ITaskExecutor
+	class ThreadTaskExecutor : STINGRAYKIT_FINAL(ThreadTaskExecutor), public virtual ITaskExecutor
 	{
 		typedef function<void()>										TaskType;
 		typedef function<void(const std::exception&)>					ExceptionHandlerType;
@@ -48,7 +48,7 @@ namespace stingray
 		std::string GetProfilerMessage(const function<void()>& func);
 		void ThreadFunc();
 	};
-	TOOLKIT_DECLARE_PTR(ThreadTaskExecutor);
+	STINGRAYKIT_DECLARE_PTR(ThreadTaskExecutor);
 
 	/** @} */
 

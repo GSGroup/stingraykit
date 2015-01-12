@@ -60,7 +60,7 @@ namespace stingray
 
 	class EnterExternalAPIGuardBase
 	{
-		TOOLKIT_NONCOPYABLE(EnterExternalAPIGuardBase);
+		STINGRAYKIT_NONCOPYABLE(EnterExternalAPIGuardBase);
 
 	private:
 		ExternalAPIGuardStack*	_stack;
@@ -78,7 +78,7 @@ namespace stingray
 
 	class LeaveExternalAPIGuardBase
 	{
-		TOOLKIT_NONCOPYABLE(LeaveExternalAPIGuardBase);
+		STINGRAYKIT_NONCOPYABLE(LeaveExternalAPIGuardBase);
 
 	private:
 		ExternalAPIGuardStack*	_stack;

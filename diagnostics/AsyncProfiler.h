@@ -18,7 +18,7 @@ namespace stingray
 	 */
 
 	class AsyncProfiler;
-	TOOLKIT_DECLARE_PTR(AsyncProfiler);
+	STINGRAYKIT_DECLARE_PTR(AsyncProfiler);
 
 	class AsyncProfiler
 	{
@@ -46,7 +46,7 @@ namespace stingray
 			std::string GetBacktrace() const
 			{ return _backtrace.Get(); }
 		};
-		TOOLKIT_DECLARE_PTR(CallInfo);
+		STINGRAYKIT_DECLARE_PTR(CallInfo);
 
 	public:
 		class Session
@@ -54,8 +54,8 @@ namespace stingray
 		public:
 			struct Behaviour
 			{
-				TOOLKIT_ENUM_VALUES(Silent, Verbose);
-				TOOLKIT_DECLARE_ENUM_CLASS(Behaviour);
+				STINGRAYKIT_ENUM_VALUES(Silent, Verbose);
+				STINGRAYKIT_DECLARE_ENUM_CLASS(Behaviour);
 			};
 
 			struct NameGetterTag { };
@@ -77,7 +77,7 @@ namespace stingray
 		private:
 			void Start(size_t criticalMs);
 		};
-		TOOLKIT_DECLARE_PTR(Session);
+		STINGRAYKIT_DECLARE_PTR(Session);
 
 	private:
 		static NamedLogger		s_logger;
@@ -94,7 +94,7 @@ namespace stingray
 	};
 
 
-#define STINGRAY_PROFILE_CALL(Profiler_, Milliseconds_, Call_) \
+#define STINGRAYKIT_PROFILE_CALL(Profiler_, Milliseconds_, Call_) \
 	do { \
 		AsyncProfiler::Session detail_session(Profiler_, #Call_, Milliseconds_); \
 		Call_; \

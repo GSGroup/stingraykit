@@ -41,7 +41,7 @@ namespace stingray
 				  DisableInterruptionPoints(0)
 			{ }
 
-			TOOLKIT_NONCOPYABLE(OS21TLSUserData);
+			STINGRAYKIT_NONCOPYABLE(OS21TLSUserData);
 		};
 
 		atomic_int_type OS21TLSUserData::s_threadIdGenerator = 0;
@@ -55,7 +55,7 @@ namespace stingray
 				: tlsData(tlsData)
 			{ }
 
-			TOOLKIT_NONCOPYABLE(TLSDataHolder);
+			STINGRAYKIT_NONCOPYABLE(TLSDataHolder);
 		};
 
 
@@ -65,7 +65,7 @@ namespace stingray
 			static void Init(const TLSData& tlsData)
 			{
 				task_t *task = task_id();
-				TOOLKIT_CHECK(!IsInitialized(task), std::runtime_error("TLS data already assigned!"));
+				STINGRAYKIT_CHECK(!IsInitialized(task), std::runtime_error("TLS data already assigned!"));
 				Initialize(NULL, TLSData(tlsData.GetThreadName(), ITLSUserDataPtr(new OS21TLSUserData(task))));
 			}
 
@@ -84,7 +84,7 @@ namespace stingray
 			static void Initialize(task_t* taskPtr, const TLSData& tlsData)
 			{
 				std::auto_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(tlsData));
-				TOOLKIT_CHECK(task_private_data_set(taskPtr, tls_ptr.get(), NULL, &TLS::Dtor) == OS21_SUCCESS, Exception("task_private_data_set"));
+				STINGRAYKIT_CHECK(task_private_data_set(taskPtr, tls_ptr.get(), NULL, &TLS::Dtor) == OS21_SUCCESS, Exception("task_private_data_set"));
 				tls_ptr.release();
 			}
 
@@ -104,9 +104,9 @@ namespace stingray
 			TLSDataGetter(task_t* task = NULL)
 			{
 				Data = TLS::Get(task);
-				TOOLKIT_CHECK(Data, Exception("No TLS data!"));
+				STINGRAYKIT_CHECK(Data, Exception("No TLS data!"));
 				UserData = static_cast<OS21TLSUserData*>(Data->GetUserData().get());
-				TOOLKIT_CHECK(UserData, Exception("No TLS user data!"));
+				STINGRAYKIT_CHECK(UserData, Exception("No TLS user data!"));
 				UserData->Mutex.Lock();
 			}
 
@@ -154,8 +154,8 @@ namespace stingray
 			if (_threadIsDetached)
 				return;
 
-			TOOLKIT_CHECK(task_wait(&_thread, 1, TIMEOUT_INFINITY) == OS21_SUCCESS, std::runtime_error("task_wait"));
-			TOOLKIT_CHECK(task_delete(_thread) == OS21_SUCCESS, std::runtime_error("task_delete"));
+			STINGRAYKIT_CHECK(task_wait(&_thread, 1, TIMEOUT_INFINITY) == OS21_SUCCESS, std::runtime_error("task_wait"));
+			STINGRAYKIT_CHECK(task_delete(_thread) == OS21_SUCCESS, std::runtime_error("task_delete"));
 		}
 
 		virtual void Interrupt()
@@ -169,7 +169,7 @@ namespace stingray
 
 		virtual ThreadId GetId() { return (ThreadId)_thread; }
 	};
-	TOOLKIT_DECLARE_PTR(OS21Thread);
+	STINGRAYKIT_DECLARE_PTR(OS21Thread);
 
 
 	class ThreadArg
@@ -316,7 +316,7 @@ namespace stingray
 		thread_obj->SetThread(thread);
 		task_resume(thread);
 
-		TOOLKIT_CHECK(thread, std::runtime_error("task_create failed!"));
+		STINGRAYKIT_CHECK(thread, std::runtime_error("task_create failed!"));
 
 		thread_arg.release();
 
@@ -385,7 +385,7 @@ namespace stingray
 		for (task_t * task_p = task_list_next(NULL); task_p != NULL; task_p = task_list_next(task_p))
 		{
 			task_status_t task_stat = {};
-			TOOLKIT_CHECK(task_status(task_p, &task_stat, 0) == OS21_SUCCESS, Exception("task_status failed!"));
+			STINGRAYKIT_CHECK(task_status(task_p, &task_stat, 0) == OS21_SUCCESS, Exception("task_status failed!"));
 			u64 systemTime = ((u64)task_stat.task_time * 1000) / time_ticks_per_sec();
 
 			if (TLS::IsInitialized(task_p))

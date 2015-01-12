@@ -12,8 +12,8 @@ namespace stingray
 
 	struct ConnectionPolicy
 	{
-		TOOLKIT_ENUM_VALUES(SyncOnly, AsyncOnly, Any);
-		TOOLKIT_DECLARE_ENUM_CLASS(ConnectionPolicy);
+		STINGRAYKIT_ENUM_VALUES(SyncOnly, AsyncOnly, Any);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(ConnectionPolicy);
 	};
 
 

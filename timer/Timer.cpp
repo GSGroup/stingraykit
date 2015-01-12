@@ -45,7 +45,7 @@ namespace stingray
 
 	class Timer::CallbackInfo : public virtual Detail::ITimerConnectionImpl
 	{
-		TOOLKIT_NONCOPYABLE(CallbackInfo);
+		STINGRAYKIT_NONCOPYABLE(CallbackInfo);
 		typedef function<void()>		FuncT;
 
 	private:
@@ -70,7 +70,7 @@ namespace stingray
 				return _timeout.get();
 			if (_period.is_initialized())
 				return _period.get();
-			TOOLKIT_THROW("Timer::CallbackInfo internal error: neither _timeout nor _period is set!");
+			STINGRAYKIT_THROW("Timer::CallbackInfo internal error: neither _timeout nor _period is set!");
 		}
 
 	public:
@@ -128,7 +128,7 @@ namespace stingray
 	Timer::CallbackInfoPtr Timer::CallbackQueue::Pop()
 	{
 		MutexLock l(_mutex);
-		TOOLKIT_CHECK(!_container.empty(), "popping callback from empty list");
+		STINGRAYKIT_CHECK(!_container.empty(), "popping callback from empty list");
 
 		CallbackInfoPtr ci = _container.front();
 		_container.pop_front();
@@ -136,7 +136,7 @@ namespace stingray
 		return ci;
 	}
 
-	TOOLKIT_DEFINE_NAMED_LOGGER(Timer);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(Timer);
 
 	Timer::Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler, bool profileCalls)
 		: _timerName(timerName), _working(true), _alive(true), _queue(new CallbackQueue), _exceptionHandler(exceptionHandler), _profileCalls(profileCalls)

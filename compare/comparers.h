@@ -82,7 +82,7 @@ namespace stingray
 
 		namespace Detail
 		{
-			TOOLKIT_DECLARE_METHOD_CHECK(Compare);
+			STINGRAYKIT_DECLARE_METHOD_CHECK(Compare);
 		}
 
 
@@ -235,7 +235,7 @@ namespace stingray
 		};
 
 
-#define TOOLKIT_DECLARE_COMPARERS(ClassName) \
+#define STINGRAYKIT_DECLARE_COMPARERS(ClassName) \
 	typedef stingray::comparers::CmpToLess<ClassName##Cmp> ClassName##Less; \
 	typedef stingray::comparers::CmpToEquals<ClassName##Cmp> ClassName##Equals; \
 	typedef stingray::comparers::CmpToGreater<ClassName##Cmp> ClassName##Greater;
@@ -249,7 +249,7 @@ namespace stingray
 		int operator () (const Lhs& lhs, const Rhs& rhs) const
 		{ return lhs.owner_before(rhs) ? -1 : (rhs.owner_before(lhs) ? 1 : 0); }
 	};
-	TOOLKIT_DECLARE_COMPARERS(Owner);
+	STINGRAYKIT_DECLARE_COMPARERS(Owner);
 
 
 	template<typename ItemComparer>

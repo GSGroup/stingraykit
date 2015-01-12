@@ -98,7 +98,7 @@ namespace stingray
 
 
 	class ThreadDataStorage;
-	TOOLKIT_DECLARE_PTR(ThreadDataStorage);
+	STINGRAYKIT_DECLARE_PTR(ThreadDataStorage);
 
 
 	class PosixThreadInfo : public virtual IThreadInfo
@@ -122,7 +122,7 @@ namespace stingray
 
 		virtual std::string GetName() const { return _name; }
 	};
-	TOOLKIT_DECLARE_PTR(PosixThreadInfo);
+	STINGRAYKIT_DECLARE_PTR(PosixThreadInfo);
 
 
 
@@ -229,7 +229,7 @@ namespace stingray
 				: tlsData(theTlsData), threadReg(id, threadHandle, threadData)
 			{ }
 
-			TOOLKIT_NONCOPYABLE(TLSDataHolder);
+			STINGRAYKIT_NONCOPYABLE(TLSDataHolder);
 		};
 
 
@@ -245,7 +245,7 @@ namespace stingray
 			static void Init(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
 			{
 				if (Get() != NULL)
-					TOOLKIT_THROW(std::runtime_error("TLS data already assigned!"));
+					STINGRAYKIT_THROW(std::runtime_error("TLS data already assigned!"));
 
 				SetValue(tlsData, threadData);
 			}
@@ -277,21 +277,21 @@ namespace stingray
 			static void InitKey()
 			{
 				if (pthread_once(&g_TLS_keyOnce, &TLS::DoInit) != 0)
-					TOOLKIT_THROW(SystemException("pthread_once"));
+					STINGRAYKIT_THROW(SystemException("pthread_once"));
 			}
 
 			static void SetValue(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
 			{
 				std::auto_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(gettid(), pthread_self(), tlsData, threadData));
 				if (pthread_setspecific(s_key, tls_ptr.get()) != 0)
-					TOOLKIT_THROW(SystemException("pthread_setspecific"));
+					STINGRAYKIT_THROW(SystemException("pthread_setspecific"));
 				tls_ptr.release();
 			}
 
 			static void DoInit()
 			{
 				if (pthread_key_create(&s_key, &TLS::Dtor) != 0)
-					TOOLKIT_THROW(SystemException("pthread_key_create"));
+					STINGRAYKIT_THROW(SystemException("pthread_key_create"));
 			}
 
 			static void Dtor(void* val)
@@ -315,7 +315,7 @@ namespace stingray
 
 	class PosixMutexAttr : public Singleton<PosixMutexAttr>
 	{
-		TOOLKIT_SINGLETON(PosixMutexAttr);
+		STINGRAYKIT_SINGLETON(PosixMutexAttr);
 
 	private:
 		pthread_mutexattr_t		_mutexAttr;
@@ -324,10 +324,10 @@ namespace stingray
 		PosixMutexAttr()
 		{
 			if (pthread_mutexattr_init(&_mutexAttr) != 0)
-				TOOLKIT_THROW(SystemException("pthread_mutexattr_init"));
+				STINGRAYKIT_THROW(SystemException("pthread_mutexattr_init"));
 
 			if (pthread_mutexattr_settype(&_mutexAttr, PTHREAD_MUTEX_RECURSIVE) != 0)
-				TOOLKIT_THROW(SystemException("pthread_mutexattr_settype"));
+				STINGRAYKIT_THROW(SystemException("pthread_mutexattr_settype"));
 		}
 
 	public:
@@ -341,7 +341,7 @@ namespace stingray
 	{
 		int result = pthread_mutex_init(&_rawMutex, &PosixMutexAttr::Instance().Get());
 		if (result != 0)
-			TOOLKIT_FATAL("pthread_mutex_init");
+			STINGRAYKIT_FATAL("pthread_mutex_init");
 	}
 
 
@@ -374,10 +374,10 @@ namespace stingray
 				bool is_in_sync_primitive_code = tls ? tls->IsInSyncPrimitiveCode() : false;
 				if (tls)
 					tls->EnterSyncPrimitiveCode();
-				STINGRAY_SCOPE_EXIT(MK_PARAM(TLSData*, tls))
+				STINGRAYKIT_SCOPE_EXIT(MK_PARAM(TLSData*, tls))
 					if (tls)
 						tls->LeaveSyncPrimitiveCode();
-				STINGRAY_SCOPE_EXIT_END;
+				STINGRAYKIT_SCOPE_EXIT_END;
 
 				if (!is_in_sync_primitive_code)
 				{
@@ -418,7 +418,7 @@ namespace stingray
 
 	void PosixMutex::HandleReturnCode(const char *where, int code) const
 	{
-		TOOLKIT_THROW(LogicException(std::string(where) + " : " + SystemException::GetErrorMessage(code)));
+		STINGRAYKIT_THROW(LogicException(std::string(where) + " : " + SystemException::GetErrorMessage(code)));
 	}
 
 
@@ -587,7 +587,7 @@ namespace stingray
 
 	class PosixThread : public virtual IThread
 	{
-		TOOLKIT_NONCOPYABLE(PosixThread);
+		STINGRAYKIT_NONCOPYABLE(PosixThread);
 
 	private:
 		ThreadDataStoragePtr	_data;
@@ -627,7 +627,7 @@ namespace stingray
 			if (result)
 			{
 				std::string backtrace = Backtrace().Get();
-				TOOLKIT_FATAL("pthread_join failed: " + SystemException::GetErrorMessage(result) + (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace)));
+				STINGRAYKIT_FATAL("pthread_join failed: " + SystemException::GetErrorMessage(result) + (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace)));
 			}
 
 			if (!_data->IsExited())
@@ -654,7 +654,7 @@ namespace stingray
 					return;
 				}
 
-				TOOLKIT_FATAL("pthread_cancel: " + SystemException::GetErrorMessage(ret));
+				STINGRAYKIT_FATAL("pthread_cancel: " + SystemException::GetErrorMessage(ret));
 			}
 #endif
 		}
@@ -674,7 +674,7 @@ namespace stingray
 		}
 
 	};
-	TOOLKIT_DECLARE_PTR(PosixThread);
+	STINGRAYKIT_DECLARE_PTR(PosixThread);
 
 
 	class PosixThreadAttr
@@ -690,7 +690,7 @@ namespace stingray
 		{
 			int ret = pthread_attr_init(&_threadAttr);
 			if (ret)
-				TOOLKIT_THROW(SystemException("pthread_attr_init", ret));
+				STINGRAYKIT_THROW(SystemException("pthread_attr_init", ret));
 
 			SetStackSize(DefaultStackSize);
 		}
@@ -706,7 +706,7 @@ namespace stingray
 			size_t size;
 			int ret = pthread_attr_getstacksize(&_threadAttr, &size);
 			if (ret)
-				TOOLKIT_THROW(SystemException("pthread_attr_getstacksize", ret));
+				STINGRAYKIT_THROW(SystemException("pthread_attr_getstacksize", ret));
 			return size;
 		}
 
@@ -714,7 +714,7 @@ namespace stingray
 		{
 			int ret = pthread_attr_setstacksize(&_threadAttr, size);
 			if (ret)
-				TOOLKIT_THROW(SystemException("pthread_attr_setstacksize", ret));
+				STINGRAYKIT_THROW(SystemException("pthread_attr_setstacksize", ret));
 		}
 
 		static const PosixThreadAttr& Instance() // Do not want to use Singleton class here 'cause it may depend on these threading objects
@@ -917,7 +917,7 @@ namespace stingray
 #endif
 
 		if (ret != 0)
-			TOOLKIT_FATAL("pthread_create: ret = " + ToString(ret) + ", " + SystemException::GetErrorMessage(ret));
+			STINGRAYKIT_FATAL("pthread_create: ret = " + ToString(ret) + ", " + SystemException::GetErrorMessage(ret));
 		else
 			thread_arg.release();
 
@@ -931,7 +931,7 @@ namespace stingray
 		if (pthread_yield() != 0)
 			PTELogger.Warning() << "pthread_yield failed!";
 #else
-		STINGRAY_TRY("[PosixThreadEngine] Sleep failed", Sleep(0));
+		STINGRAYKIT_TRY("[PosixThreadEngine] Sleep failed", Sleep(0));
 #endif
 	}
 
@@ -947,7 +947,7 @@ namespace stingray
 		while (nanosleep(&req, &rem) != 0)
 		{
 			if (errno != EINTR)
-				TOOLKIT_THROW(SystemException("nanosleep"));
+				STINGRAYKIT_THROW(SystemException("nanosleep"));
 
 			req = rem;
 		}
@@ -964,7 +964,7 @@ namespace stingray
 	{
 		int state = enable ? PTHREAD_CANCEL_ENABLE : PTHREAD_CANCEL_DISABLE, old_state = 0;
 		if (pthread_setcancelstate(state, &old_state) != 0)
-			TOOLKIT_THROW(SystemException("pthread_setcancelstate"));
+			STINGRAYKIT_THROW(SystemException("pthread_setcancelstate"));
 
 		return old_state == PTHREAD_CANCEL_ENABLE;
 	}
@@ -985,7 +985,7 @@ namespace stingray
 
 	void PosixThreadEngine::SetCurrentThreadName(const std::string& name)
 	{
-		STINGRAY_TRY("[PosixThreadEngine] failed setting current thread name", TLS::Init(TLSData(name), make_shared<ThreadDataStorage>(name, ThreadDataStoragePtr())));
+		STINGRAYKIT_TRY("[PosixThreadEngine] failed setting current thread name", TLS::Init(TLSData(name), make_shared<ThreadDataStorage>(name, ThreadDataStoragePtr())));
 	}
 
 
@@ -1003,7 +1003,7 @@ namespace stingray
 		ThreadStatsVec result;
 
 		pid_t gid = getpgid((pid_t)0);
-		TOOLKIT_CHECK(gid != -1, SystemException("getpgid"));
+		STINGRAYKIT_CHECK(gid != -1, SystemException("getpgid"));
 
 		for (ThreadsMap::const_iterator it = g_threadsCreated.begin(); it != g_threadsCreated.end(); ++it)
 		{
@@ -1028,10 +1028,10 @@ namespace stingray
 		ThreadStatsVec result;
 
 		pid_t gid = getpgid((pid_t)0);
-		TOOLKIT_CHECK(gid != -1, SystemException("getpgid"));
+		STINGRAYKIT_CHECK(gid != -1, SystemException("getpgid"));
 
 		ScopedHolder<DIR*> rootDir(opendir(("/proc/" + ToString(gid) + "/task").c_str()), &closedir);
-		TOOLKIT_CHECK(rootDir.Valid(), SystemException("opendir"));
+		STINGRAYKIT_CHECK(rootDir.Valid(), SystemException("opendir"));
 
 		struct dirent* dirEntry;
 		while ((dirEntry = readdir(rootDir.Get())) != NULL)
@@ -1085,7 +1085,7 @@ namespace stingray
 		int old_policy = SCHED_OTHER;
 		struct sched_param old_scheduler_params = {};
 		int res = pthread_getschedparam(pthread_self(), &old_policy, &old_scheduler_params);
-		TOOLKIT_CHECK(res == 0, SystemException("pthread_getschedparam", res));
+		STINGRAYKIT_CHECK(res == 0, SystemException("pthread_getschedparam", res));
 
 		int policy = SchedulingPolicyMapper::Map(params.GetPolicy());
 		int min_priority = sched_get_priority_min(policy);
@@ -1094,7 +1094,7 @@ namespace stingray
 		scheduler_params.sched_priority = std::min(std::max(params.GetPriority(), min_priority), max_priority);
 
 		res = pthread_setschedparam(pthread_self(), policy, &scheduler_params);
-		TOOLKIT_CHECK(res == 0, SystemException("pthread_setschedparam", res));
+		STINGRAYKIT_CHECK(res == 0, SystemException("pthread_setschedparam", res));
 
 		return ThreadSchedulingParams(SchedulingPolicyMapper::Unmap(old_policy), old_scheduler_params.sched_priority);
 	}

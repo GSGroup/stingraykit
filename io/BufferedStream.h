@@ -95,7 +95,7 @@ namespace stingray
 		virtual u64 Tell() const
 		{ return _currentOffset; }
 	};
-	TOOLKIT_DECLARE_PTR(BufferedStream);
+	STINGRAYKIT_DECLARE_PTR(BufferedStream);
 
 }
 

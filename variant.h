@@ -13,10 +13,10 @@
 #include <stingray/toolkit/static_visitor.h>
 
 
-#define STINGRAY_ASSURE_NOTHROW(ErrorMessage_, ...) \
+#define STINGRAYKIT_ASSURE_NOTHROW(ErrorMessage_, ...) \
 		do { \
 			try { __VA_ARGS__; } \
-			catch (const std::exception& ex) { TOOLKIT_FATAL(StringBuilder() % ErrorMessage_ % ":\n" % stingray::diagnostic_information(ex)); } \
+			catch (const std::exception& ex) { STINGRAYKIT_FATAL(StringBuilder() % ErrorMessage_ % ":\n" % stingray::diagnostic_information(ex)); } \
 		} while (0)
 
 
@@ -77,7 +77,7 @@ namespace stingray
 				typedef typename Visitor::RetType RetType;
 				optional<RetType> result;
 				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var), ref(result)))
-					TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
+					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 				return *result;
 			}
 		};
@@ -100,7 +100,7 @@ namespace stingray
 			static void Apply(const Visitor& v, Variant& var)
 			{
 				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var)))
-					TOOLKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
+					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 			}
 		};
 
@@ -122,7 +122,7 @@ namespace stingray
 			{ return _type; }
 
 			const std::type_info& type() const
-			{ return *TOOLKIT_REQUIRE_NOT_NULL(ApplyVisitor(GetTypeInfoVisitor())); }
+			{ return *STINGRAYKIT_REQUIRE_NOT_NULL(ApplyVisitor(GetTypeInfoVisitor())); }
 
 			template<typename Visitor>
 			typename Visitor::RetType ApplyVisitor(Visitor& v)
@@ -225,7 +225,7 @@ namespace stingray
 			struct DestructorFunctor : static_visitor<>
 			{
 				template<typename T>
-				void Call(MyType& t) const { STINGRAY_ASSURE_NOTHROW("Destructor of variant item threw an exception: ", t._storage.template Dtor<T>()); }
+				void Call(MyType& t) const { STINGRAYKIT_ASSURE_NOTHROW("Destructor of variant item threw an exception: ", t._storage.template Dtor<T>()); }
 			};
 
 			template<typename DesiredType>
@@ -273,7 +273,7 @@ namespace stingray
 
 			template<typename T>
 			void ThrowBadVariantGet() const
-			{ TOOLKIT_THROW(bad_variant_get(Demangle(typeid(T).name()), Demangle(type().name()))); }
+			{ STINGRAYKIT_THROW(bad_variant_get(Demangle(typeid(T).name()), Demangle(type().name()))); }
 
 			struct GetTypeInfoVisitor : static_visitor<const std::type_info*>
 			{
@@ -361,7 +361,7 @@ namespace stingray
 			return this->ApplyVisitor(VisitorType(other));
 		}
 
-		TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(variant);
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(variant);
 
 		bool operator < (const variant& other) const
 		{
@@ -371,13 +371,13 @@ namespace stingray
 			return this->ApplyVisitor(VisitorType(other));
 		}
 
-		TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
+		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
 
 	private:
 		template <typename T>
 		void AssignVal(const T& val)
 		{
-			STINGRAY_ASSURE_NOTHROW("Copy-ctor of never-empty variant item threw an exception: ", this->_storage.template Ctor<T>(val));
+			STINGRAYKIT_ASSURE_NOTHROW("Copy-ctor of never-empty variant item threw an exception: ", this->_storage.template Ctor<T>(val));
 			this->_type = IndexOfTypeListItem<TypeList, T>::Value;
 		}
 
@@ -444,7 +444,7 @@ namespace stingray
 			return this->ApplyVisitor(VisitorType(other));
 		}
 
-		TOOLKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(variant);
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(variant);
 
 		bool operator < (const variant& other) const
 		{
@@ -454,7 +454,7 @@ namespace stingray
 			return this->ApplyVisitor(VisitorType(other));
 		}
 
-		TOOLKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
+		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
 
 	private:
 		template <typename T>
@@ -526,7 +526,7 @@ namespace stingray
 	{ return v.ApplyVisitor(visitor); }
 
 
-#define STINGRAY_DECLARE_FORWARD_VISITOR(MemberFunctionName_) \
+#define STINGRAYKIT_DECLARE_FORWARD_VISITOR(MemberFunctionName_) \
 	template < typename TargetType_ > \
 	class Detail_ForwardVisitor_##MemberFunctionName_ : public static_visitor<void> \
 	{ \

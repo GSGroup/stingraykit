@@ -43,7 +43,7 @@ namespace stingray
 			_data.Object = data.Object->Clone();
 			break;
 		default:
-			TOOLKIT_THROW(ArgumentException("type", type.ToString()));
+			STINGRAYKIT_THROW(ArgumentException("type", type.ToString()));
 		}
 		_type = type;
 	}
@@ -91,7 +91,7 @@ namespace stingray
 		case Type::SerializableObject:
 			return _data.Object->ToString();
 		}
-		TOOLKIT_THROW("Unknown type: " + _type.ToString());
+		STINGRAYKIT_THROW("Unknown type: " + _type.ToString());
 	}
 
 #undef STRING
@@ -121,14 +121,14 @@ namespace stingray
 		case Type::Object:
 		case Type::SerializableObject:
 			{
-				TOOLKIT_CHECK(_data.Object->IsSerializable(), "'any' object (" + Demangle(typeid(*_data.Object).name()) + ") is not a serializable one!");
+				STINGRAYKIT_CHECK(_data.Object->IsSerializable(), "'any' object (" + Demangle(typeid(*_data.Object).name()) + ") is not a serializable one!");
 				std::string classname(_data.Object->GetClassName());
 				ar.Serialize(".class", classname);
 				_data.Object->Serialize(ar);
 			}
 			return;
 		}
-		TOOLKIT_THROW("Unknown type: " + _type.ToString());//you could see warning about unhandled type if leave it here
+		STINGRAYKIT_THROW("Unknown type: " + _type.ToString());//you could see warning about unhandled type if leave it here
 	}
 #undef SERIALIZE
 
@@ -172,7 +172,7 @@ namespace stingray
 				_data.Object->Deserialize(ar);
 			}
 			break;
-		default:			TOOLKIT_THROW("Unknown type: " + _type.ToString());
+		default:			STINGRAYKIT_THROW("Unknown type: " + _type.ToString());
 		}
 		_type = type;
 	}

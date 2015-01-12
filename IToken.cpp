@@ -31,7 +31,7 @@ namespace stingray
 			return _token;
 		}
 	};
-	TOOLKIT_DEFINE_NAMED_LOGGER(TokenReturnProxy::Impl);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(TokenReturnProxy::Impl);
 
 
 	TokenReturnProxy::TokenReturnProxy(const ITokenPtr& token)

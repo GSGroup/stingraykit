@@ -44,7 +44,7 @@ namespace stingray
 		bool operator < (const LoggerMessage &other) const
 		{ return CompareMembersLess(&LoggerMessage::_loggerName, &LoggerMessage::_logLevel, &LoggerMessage::_time, &LoggerMessage::_threadName, &LoggerMessage::_message)(*this, other); }
 
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LoggerMessage);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LoggerMessage);
 	};
 
 	/** @} */

@@ -8,7 +8,7 @@
 namespace stingray
 {
 
-#define TOOLKIT_DECLARE_NESTED_TYPE_CHECK(NestedType_) \
+#define STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(NestedType_) \
 	template < typename T > \
 	class HasNestedType_##NestedType_ \
 	{ \
@@ -25,7 +25,7 @@ namespace stingray
 		{ static const bool Value = false; };
 	}
 
-#define TOOLKIT_DECLARE_METHOD_CHECK(Method_) \
+#define STINGRAYKIT_DECLARE_METHOD_CHECK(Method_) \
 	template < typename T > \
 	struct HasMethod_##Method_ \
 	{ \

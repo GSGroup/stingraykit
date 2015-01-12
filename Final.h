@@ -1,15 +1,15 @@
-#ifndef STINGRAY_TOOLKIT_FINAL_H
-#define STINGRAY_TOOLKIT_FINAL_H
+#ifndef STINGRAY_STINGRAYKIT_FINAL_H
+#define STINGRAY_STINGRAYKIT_FINAL_H
 
 
 namespace stingray
 {
 
 	// Usage:
-	// class A : TOOLKIT_FINAL(A) { };
+	// class A : STINGRAYKIT_FINAL(A) { };
 
-#define TOOLKIT_FINAL(ClassName_) private virtual stingray::Final<ClassName_>
-#define TOOLKIT_NONPOLYMORPHIC(ClassName_) TOOLKIT_FINAL(ClassName_), public virtual stingray::NonPolymorphicMarker
+#define STINGRAYKIT_FINAL(ClassName_) private virtual stingray::Final<ClassName_>
+#define STINGRAYKIT_NONPOLYMORPHIC(ClassName_) STINGRAYKIT_FINAL(ClassName_), public virtual stingray::NonPolymorphicMarker
 
 	class NonPolymorphicMarker { };
 

@@ -54,7 +54,7 @@ namespace stingray
 		else if (_root->contains<std::string>())
 			UnpackBinaryEncoding(data, _root->get<std::string>());
 		else
-			TOOLKIT_THROW("invalid type for binary data value");
+			STINGRAYKIT_THROW("invalid type for binary data value");
 	}
 
 }

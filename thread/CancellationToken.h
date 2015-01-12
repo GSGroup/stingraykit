@@ -14,7 +14,7 @@ namespace stingray
 
 	class CancellationToken : public ICancellationToken
 	{
-		TOOLKIT_NONCOPYABLE(CancellationToken);
+		STINGRAYKIT_NONCOPYABLE(CancellationToken);
 
 	private:
 		Mutex							_mutex;
@@ -55,7 +55,7 @@ namespace stingray
 		virtual void Reset()
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(!_cancelHandler && (_cancelled == _cancelDone), LogicException("CancellationToken is in use!"));
+			STINGRAYKIT_CHECK(!_cancelHandler && (_cancelled == _cancelDone), LogicException("CancellationToken is in use!"));
 			_cancelled = false;
 			_cancelDone = false;
 		}
@@ -79,7 +79,7 @@ namespace stingray
 			if (_cancelled)
 				return false;
 
-			TOOLKIT_CHECK(!_cancelHandler, "Cancellation handler already registered");
+			STINGRAYKIT_CHECK(!_cancelHandler, "Cancellation handler already registered");
 			_cancelHandler = &handler;
 			return true;
 		}

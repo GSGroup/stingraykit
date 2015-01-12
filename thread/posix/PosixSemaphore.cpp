@@ -11,7 +11,7 @@ namespace posix {
 	PosixSemaphore::PosixSemaphore(int count)
 	{
 		if(sem_init(&_semaphore, 0, count) < 0)
-			TOOLKIT_THROW(SystemException("sem_init"));
+			STINGRAYKIT_THROW(SystemException("sem_init"));
 	}
 
 	PosixSemaphore::~PosixSemaphore()
@@ -20,7 +20,7 @@ namespace posix {
 	void PosixSemaphore::Wait() const
 	{
 		if (sem_wait(&_semaphore) != 0)
-			TOOLKIT_THROW(SystemException("sem_wait"));
+			STINGRAYKIT_THROW(SystemException("sem_wait"));
 	}
 
 	bool PosixSemaphore::TimedWait(TimeDuration interval) const
@@ -31,7 +31,7 @@ namespace posix {
 
 		int result = sem_timedwait(&_semaphore, &t);
 		if (result != 0 && errno != ETIMEDOUT)
-			TOOLKIT_THROW(SystemException("sem_timedwait"));
+			STINGRAYKIT_THROW(SystemException("sem_timedwait"));
 		else
 			return result == 0;
 	}
@@ -43,7 +43,7 @@ namespace posix {
 
 		int result = sem_timedwait(&_semaphore, &t);
 		if (result != 0 && errno != ETIMEDOUT)
-			TOOLKIT_THROW(SystemException("sem_timedwait"));
+			STINGRAYKIT_THROW(SystemException("sem_timedwait"));
 		else
 			return result == 0;
 	}
@@ -51,7 +51,7 @@ namespace posix {
 	void PosixSemaphore::Signal() const
 	{
 		if (sem_post(&_semaphore))
-			TOOLKIT_THROW(SystemException("sem_post"));
+			STINGRAYKIT_THROW(SystemException("sem_post"));
 	}
 
 

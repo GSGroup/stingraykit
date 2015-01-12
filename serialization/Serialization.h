@@ -41,8 +41,8 @@ namespace stingray
 
 	struct SerializationUtils
 	{
-		TOOLKIT_DECLARE_METHOD_CHECK(Deserialize);
-		TOOLKIT_DECLARE_METHOD_CHECK(Serialize);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(Deserialize);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(Serialize);
 
 		template<typename T>
 		struct IsStringRepresentable
@@ -53,8 +53,8 @@ namespace stingray
 
 		struct TypeTraits
 		{
-			TOOLKIT_ENUM_VALUES( SignedInt, UnsignedInt, StringRepresentableClass, NullType, Other );
-			TOOLKIT_DECLARE_ENUM_CLASS(TypeTraits);
+			STINGRAYKIT_ENUM_VALUES( SignedInt, UnsignedInt, StringRepresentableClass, NullType, Other );
+			STINGRAYKIT_DECLARE_ENUM_CLASS(TypeTraits);
 		};
 		template<typename Type, typename Stream, TypeTraits::Enum Traits =
 			SameType<Type, NullPtrType>::Value? TypeTraits::NullType:
@@ -229,10 +229,10 @@ namespace stingray
 
 	private:
 		//GENERIC COLLECTION SERIALIZATION
-		TOOLKIT_DECLARE_METHOD_CHECK(Serialize);
-		TOOLKIT_DECLARE_METHOD_CHECK(SerializeAsValue);
-		TOOLKIT_DECLARE_METHOD_CHECK(begin);
-		TOOLKIT_DECLARE_METHOD_CHECK(end);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(Serialize);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(SerializeAsValue);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(begin);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(end);
 
 		enum CollectionSerializationType
 		{
@@ -308,7 +308,7 @@ namespace stingray
 
 			shared_ptr<IFactoryObject> factory_object = dynamic_caster(value);
 			if (!factory_object)
-				TOOLKIT_THROW(std::string("type ") + Demangle(typeid(*value).name()) + " cannot be serialized, no IFactoryObject interface found");
+				STINGRAYKIT_THROW(std::string("type ") + Demangle(typeid(*value).name()) + " cannot be serialized, no IFactoryObject interface found");
 
 			std::string classname(_context->GetClassName(typeid(*value)));
 			BeginObject();
@@ -495,7 +495,7 @@ namespace stingray
 		{
 			SettingsValue *property = Get(name);
 			if (!property)
-				TOOLKIT_THROW(SettingsValueException(name + "(not found)"));
+				STINGRAYKIT_THROW(SettingsValueException(name + "(not found)"));
 
 			try { ObjectIStream(property, _collection, _context).Deserialize(value); } catch(SettingsValueException &ex) { ex.Append(name); throw; }
 			return *this;
@@ -556,10 +556,10 @@ namespace stingray
 
 		//GENERIC COLLECTION DESERIALIZATION
 
-		TOOLKIT_DECLARE_METHOD_CHECK(insert);
-		TOOLKIT_DECLARE_METHOD_CHECK(push_back);
-		TOOLKIT_DECLARE_METHOD_CHECK(Deserialize);
-		TOOLKIT_DECLARE_METHOD_CHECK(DeserializeAsValue);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(insert);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(push_back);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(Deserialize);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(DeserializeAsValue);
 
 		template< typename CollectionType, int InsertType = HasMethod_Deserialize<CollectionType>::Value? 0:
 			HasMethod_DeserializeAsValue<CollectionType>::Value? 1:
@@ -662,7 +662,7 @@ namespace stingray
 			{
 				int pk;
 				Deserialize(".pk", pk);
-				value = TOOLKIT_CHECKED_DYNAMIC_CASTER(_collection->GetObject(classname, pk));
+				value = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(_collection->GetObject(classname, pk));
 			}
 			else
 			{	//default deserialize
@@ -698,7 +698,7 @@ namespace stingray
 				{
 				case 0: ObjectIStream(&src, owner, _context).Deserialize(_value.first); break;
 				case 1: ObjectIStream(&src, owner, _context).Deserialize(_value.second); break;
-				default: TOOLKIT_THROW(std::runtime_error("pair must contain two elements"));
+				default: STINGRAYKIT_THROW(std::runtime_error("pair must contain two elements"));
 				}
 			}
 		};

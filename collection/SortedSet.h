@@ -27,14 +27,14 @@ namespace stingray
 
 	private:
 		typedef std::set<ValueType, CompareType_>		SetType;
-		TOOLKIT_DECLARE_PTR(SetType);
+		STINGRAYKIT_DECLARE_PTR(SetType);
 
 		struct Holder
 		{
 			SetTypePtr		Items;
 			Holder(const SetTypePtr& items) : Items(items) { }
 		};
-		TOOLKIT_DECLARE_PTR(Holder);
+		STINGRAYKIT_DECLARE_PTR(Holder);
 
 		struct ReverseEnumerable : public virtual IEnumerable<ValueType>
 		{
@@ -70,14 +70,14 @@ namespace stingray
 		SortedSet(shared_ptr<IEnumerator<T> > enumerator)
 			: _mutex(new Mutex())
 		{
-			TOOLKIT_REQUIRE_NOT_NULL(enumerator);
+			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::inserter(_items));
 		}
 
 		SortedSet(shared_ptr<IEnumerable<T> > enumerable)
 			: _mutex(new Mutex())
 		{
-			TOOLKIT_REQUIRE_NOT_NULL(enumerable);
+			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			shared_ptr<IEnumerator<T> > enumerator(enumerable->GetEnumerator());
 			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::inserter(_items));
 		}

@@ -12,7 +12,7 @@ namespace stingray
 
 	class ActionTransaction
 	{
-		TOOLKIT_NONCOPYABLE(ActionTransaction);
+		STINGRAYKIT_NONCOPYABLE(ActionTransaction);
 
 		typedef function<void ()> ActionFunc;
 		typedef function<void ()> RollbackFunc;

@@ -10,14 +10,14 @@ namespace stingray
 
 	struct SeekMode
 	{
-		TOOLKIT_ENUM_VALUES
+		STINGRAYKIT_ENUM_VALUES
 		(
 			Begin,
 			End,
 			Current
 		);
 
-		TOOLKIT_DECLARE_ENUM_CLASS(SeekMode);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(SeekMode);
 	};
 
 }

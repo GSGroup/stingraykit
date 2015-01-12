@@ -49,7 +49,7 @@ namespace posix
 	}
 
 	inline void timespec_now(clockid_t clockId, timespec* t)
-	{ TOOLKIT_CHECK(clock_gettime(clockId, t) == 0, SystemException("clock_gettime")); }
+	{ STINGRAYKIT_CHECK(clock_gettime(clockId, t) == 0, SystemException("clock_gettime")); }
 
 }}
 

@@ -13,7 +13,7 @@ namespace posix {
 
 	class PosixSemaphore
 	{
-		TOOLKIT_NONCOPYABLE(PosixSemaphore);
+		STINGRAYKIT_NONCOPYABLE(PosixSemaphore);
 
 	private:
 		mutable sem_t	_semaphore;

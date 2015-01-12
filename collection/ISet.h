@@ -5,10 +5,10 @@
 #include <stingray/toolkit/collection/ICollection.h>
 
 
-#define TOOLKIT_DECLARE_SET(ClassName) \
+#define STINGRAYKIT_DECLARE_SET(ClassName) \
 		typedef stingray::ISet<ClassName> ClassName##Set; \
-		TOOLKIT_DECLARE_PTR(ClassName##Set); \
-		TOOLKIT_DECLARE_COLLECTION(ClassName)
+		STINGRAYKIT_DECLARE_PTR(ClassName##Set); \
+		STINGRAYKIT_DECLARE_COLLECTION(ClassName)
 
 namespace stingray
 {

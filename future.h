@@ -19,11 +19,11 @@ namespace stingray
 
 	struct future_status
 	{
-		TOOLKIT_ENUM_VALUES(
+		STINGRAYKIT_ENUM_VALUES(
 			ready,
 			timeout
 		);
-		TOOLKIT_DECLARE_ENUM_CLASS(future_status);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(future_status);
 	};
 
 	namespace Detail
@@ -94,7 +94,7 @@ namespace stingray
 			void set_value(SetType value)
 			{
 				MutexLock l(_mutex);
-				TOOLKIT_CHECK(!_value, PromiseAlreadySatisfied());
+				STINGRAYKIT_CHECK(!_value, PromiseAlreadySatisfied());
 				_value.reset(new WrappedResultType(value));
 				_condition.Broadcast();
 			}
@@ -166,7 +166,7 @@ namespace stingray
 			void set_value()
 			{
 				MutexLock l(_mutex);
-				TOOLKIT_CHECK(!_value, PromiseAlreadySatisfied());
+				STINGRAYKIT_CHECK(!_value, PromiseAlreadySatisfied());
 				_value = true;
 				_condition.Broadcast();
 			}
@@ -238,17 +238,17 @@ namespace stingray
 	private:
 		shared_future(const ImplPtr& impl) : _impl(impl) {}
 		friend shared_future<ResultType> future<ResultType>::share();
-		void check_valid() const { TOOLKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the shared_future!")); }
+		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the shared_future!")); }
 	};
 
 	template<typename ResultType>
 	class future
 	{
-		TOOLKIT_NONASSIGNABLE(future);
+		STINGRAYKIT_NONASSIGNABLE(future);
 
 	private:
 		typedef Detail::future_impl<ResultType> ImplType;
-		TOOLKIT_DECLARE_PTR(ImplType);
+		STINGRAYKIT_DECLARE_PTR(ImplType);
 		shared_ptr<ImplType> _impl;
 
 	public:
@@ -281,13 +281,13 @@ namespace stingray
 	private:
 		future(const ImplTypePtr& impl) : _impl(impl) {}
 		friend future<ResultType> promise<ResultType>::get_future();
-		void check_valid() const { TOOLKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the future!")); }
+		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the future!")); }
 	};
 
 	template<typename ResultType>
 	class promise
 	{
-		TOOLKIT_NONCOPYABLE(promise);
+		STINGRAYKIT_NONCOPYABLE(promise);
 
 	public:
 		typedef typename Detail::future_impl<ResultType>::SetType SetType;
@@ -310,7 +310,7 @@ namespace stingray
 		{ _futureImpl.swap(other._futureImpl); }
 
 		future<ResultType> get_future()
-		{ TOOLKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
 
 		void set_value(SetType result)
 		{ _futureImpl->set_value(result); }
@@ -322,7 +322,7 @@ namespace stingray
 	template<>
 	class promise<void>
 	{
-		TOOLKIT_NONCOPYABLE(promise);
+		STINGRAYKIT_NONCOPYABLE(promise);
 
 	private:
 		typedef void							ResultType;
@@ -343,7 +343,7 @@ namespace stingray
 		{ _futureImpl.swap(other._futureImpl); }
 
 		future<ResultType> get_future()
-		{ TOOLKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
 
 		void set_value()
 		{ _futureImpl->set_value(); }

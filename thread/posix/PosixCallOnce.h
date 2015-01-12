@@ -13,7 +13,7 @@ namespace stingray {
 		static void CallOnce(OnceNativeType& once, void (*func)());
 	};
 
-#define STINGRAY_ONCE_INIT_VALUE PTHREAD_ONCE_INIT
+#define STINGRAYKIT_ONCE_INIT_VALUE PTHREAD_ONCE_INIT
 
 
 }

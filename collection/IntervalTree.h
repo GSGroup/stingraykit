@@ -176,19 +176,19 @@ namespace stingray
 
 		void clear()
 		{
-			TOOLKIT_THROW(NotImplementedException);
+			STINGRAYKIT_THROW(NotImplementedException);
 		}
 
 		template < typename OutputIter >
 		void get_intersecting(const PointType& p, OutputIter it) const
 		{
-			TOOLKIT_THROW(NotImplementedException);
+			STINGRAYKIT_THROW(NotImplementedException);
 		}
 
 		template < typename OutputIter >
 		void get_intersecting(const T& val, OutputIter it) const
 		{
-			TOOLKIT_THROW(NotImplementedException);
+			STINGRAYKIT_THROW(NotImplementedException);
 		}
 
 	private:

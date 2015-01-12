@@ -23,7 +23,7 @@ namespace stingray
 		virtual void Serialize(ObjectOStream& ar) const = 0;
 		virtual void Deserialize(ObjectIStream& ar) = 0;
 	};
-	TOOLKIT_DECLARE_PTR(ISerializable);
+	STINGRAYKIT_DECLARE_PTR(ISerializable);
 
 
 	namespace Detail

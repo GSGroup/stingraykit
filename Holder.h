@@ -13,7 +13,7 @@ namespace stingray
 	template < typename NativeType >
 	class ScopedHolder
 	{
-		TOOLKIT_NONCOPYABLE(ScopedHolder);
+		STINGRAYKIT_NONCOPYABLE(ScopedHolder);
 		typedef function<void(NativeType&)>		CleanupFuncType;
 
 	private:
@@ -47,7 +47,7 @@ namespace stingray
 		}
 
 	private:
-		void Check() const { TOOLKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
+		void Check() const { STINGRAYKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
 		void Cleanup()
 		{
 			if (_valid)
@@ -60,7 +60,7 @@ namespace stingray
 	template <>
 	class ScopedHolder<void>
 	{
-		TOOLKIT_NONCOPYABLE(ScopedHolder);
+		STINGRAYKIT_NONCOPYABLE(ScopedHolder);
 		typedef function<void()>	CleanupFuncType;
 
 	private:
@@ -79,7 +79,7 @@ namespace stingray
 		void Set()				{ Cleanup(); _valid = true; }
 
 	private:
-		void Check() const		{ TOOLKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
+		void Check() const		{ STINGRAYKIT_CHECK(_valid, std::logic_error("ScopedHolder is not valid!")); }
 		void Cleanup() const	{ if (_valid) _cleanupFunc(); }
 	};
 
@@ -88,7 +88,7 @@ namespace stingray
 	class SharedHolder
 	{
 		typedef ScopedHolder<NativeType> Impl;
-		TOOLKIT_DECLARE_PTR(Impl);
+		STINGRAYKIT_DECLARE_PTR(Impl);
 		typedef function<void(NativeType)>		CleanupFuncType;
 
 	private:
@@ -125,7 +125,7 @@ namespace stingray
 	class SharedHolder<void>
 	{
 		typedef ScopedHolder<void> Impl;
-		TOOLKIT_DECLARE_PTR(Impl);
+		STINGRAYKIT_DECLARE_PTR(Impl);
 		typedef function<void()>		CleanupFuncType;
 
 	private:

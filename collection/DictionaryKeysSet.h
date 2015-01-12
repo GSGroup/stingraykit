@@ -12,10 +12,10 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class DictionaryKeysSet : public virtual IReadonlySet<KeyType_>
 	{
-		TOOLKIT_NONCOPYABLE(DictionaryKeysSet);
+		STINGRAYKIT_NONCOPYABLE(DictionaryKeysSet);
 
 		typedef IDictionary<KeyType_, ValueType_> DictionaryType;
-		TOOLKIT_DECLARE_PTR(DictionaryType);
+		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
 		typedef KeyType_	ValueType; // Dictionary KeyType is ValueType for set
 
@@ -47,10 +47,10 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class ObservableDictionaryKeysSet : public virtual IReadonlyObservableSet<KeyType_>
 	{
-		TOOLKIT_NONCOPYABLE(ObservableDictionaryKeysSet);
+		STINGRAYKIT_NONCOPYABLE(ObservableDictionaryKeysSet);
 
 		typedef IObservableDictionary<KeyType_, ValueType_> DictionaryType;
-		TOOLKIT_DECLARE_PTR(DictionaryType);
+		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
 		typedef KeyType_	ValueType; // Dictionary KeyType is ValueType for set
 

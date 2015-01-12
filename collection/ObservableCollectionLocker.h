@@ -15,7 +15,7 @@ namespace stingray
 
 	class ObservableCollectionLocker
 	{
-		TOOLKIT_NONCOPYABLE(ObservableCollectionLocker);
+		STINGRAYKIT_NONCOPYABLE(ObservableCollectionLocker);
 
 	private:
 		MutexLock		_lock;
@@ -31,7 +31,7 @@ namespace stingray
 			: _lock(collection->GetSyncRoot())
 		{ }
 	};
-	TOOLKIT_DECLARE_PTR(ObservableCollectionLocker);
+	STINGRAYKIT_DECLARE_PTR(ObservableCollectionLocker);
 
 	/** @} */
 

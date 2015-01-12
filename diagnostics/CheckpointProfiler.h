@@ -73,7 +73,7 @@ namespace stingray
 			CheckpointProfilerHolder(const std::string& name, bool enabled);
 			~CheckpointProfilerHolder();
 		};
-		TOOLKIT_DECLARE_PTR(CheckpointProfilerHolder);
+		STINGRAYKIT_DECLARE_PTR(CheckpointProfilerHolder);
 
 	private:
 		CheckpointProfilerHolderPtr		_profilerHolder;

@@ -57,7 +57,7 @@ namespace stingray
 
 	class PosixConditionVariableAttr : public Singleton<PosixConditionVariableAttr>
 	{
-		TOOLKIT_SINGLETON(PosixConditionVariableAttr);
+		STINGRAYKIT_SINGLETON(PosixConditionVariableAttr);
 
 	private:
 		pthread_condattr_t		_condAttr;
@@ -66,8 +66,8 @@ namespace stingray
 		PosixConditionVariableAttr()
 		{
 			int ret = 0;
-			TOOLKIT_CHECK((ret = pthread_condattr_init(&_condAttr)) == 0, SystemException("pthread_condattr_init", ret));
-			TOOLKIT_CHECK((ret = pthread_condattr_setclock(&_condAttr, CLOCK_MONOTONIC)) == 0, SystemException("pthread_condattr_setclock", ret));
+			STINGRAYKIT_CHECK((ret = pthread_condattr_init(&_condAttr)) == 0, SystemException("pthread_condattr_init", ret));
+			STINGRAYKIT_CHECK((ret = pthread_condattr_setclock(&_condAttr, CLOCK_MONOTONIC)) == 0, SystemException("pthread_condattr_setclock", ret));
 		}
 
 	public:
@@ -80,7 +80,7 @@ namespace stingray
 	PosixConditionVariable::PosixConditionVariable()
 	{
 		int ret = 0;
-		TOOLKIT_CHECK((ret = pthread_cond_init(&_cond, &PosixConditionVariableAttr::ConstInstance().Get())) == 0, SystemException("pthread_cond_init", ret));
+		STINGRAYKIT_CHECK((ret = pthread_cond_init(&_cond, &PosixConditionVariableAttr::ConstInstance().Get())) == 0, SystemException("pthread_cond_init", ret));
 	}
 
 
@@ -112,7 +112,7 @@ namespace stingray
 	{
 		int ret = pthread_cond_wait(&_cond, &mutex._rawMutex);
 		if (ret != 0)
-			TOOLKIT_THROW(SystemException("pthread_cond_wait", ret));
+			STINGRAYKIT_THROW(SystemException("pthread_cond_wait", ret));
 	}
 
 
@@ -123,7 +123,7 @@ namespace stingray
 		posix::timespec_add(&t, interval);
 		int ret = pthread_cond_timedwait(&_cond, &mutex._rawMutex, &t);
 		if (ret != 0 && ret != ETIMEDOUT)
-			TOOLKIT_THROW(SystemException("pthread_cond_timedwait", ret));
+			STINGRAYKIT_THROW(SystemException("pthread_cond_timedwait", ret));
 
 		return ret != ETIMEDOUT;
 	}
@@ -133,7 +133,7 @@ namespace stingray
 	{
 		int ret = pthread_cond_broadcast(&_cond);
 		if (ret != 0)
-			TOOLKIT_THROW(SystemException("pthread_cond_broadcast", ret));
+			STINGRAYKIT_THROW(SystemException("pthread_cond_broadcast", ret));
 	}
 
 }

@@ -26,11 +26,11 @@ namespace stingray
 	public:
 		typedef promise<ResultType> Promise;
 		typedef future<ResultType>	Future;
-		TOOLKIT_DECLARE_PTR(Promise);
+		STINGRAYKIT_DECLARE_PTR(Promise);
 
 	private:
 		struct PromiseRef { PromisePtr Ptr; PromiseRef(): Ptr(new Promise) {} };
-		TOOLKIT_DECLARE_PTR(PromiseRef);
+		STINGRAYKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
 		ReachStateFunc					_reachStateFunc;
@@ -100,11 +100,11 @@ namespace stingray
 	public:
 		typedef promise<void>	Promise;
 		typedef future<void>	Future;
-		TOOLKIT_DECLARE_PTR(Promise);
+		STINGRAYKIT_DECLARE_PTR(Promise);
 
 	private:
 		struct PromiseRef { PromisePtr Ptr; PromiseRef(): Ptr(new Promise) {} };
-		TOOLKIT_DECLARE_PTR(PromiseRef);
+		STINGRAYKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
 		ReachStateFunc					_reachStateFunc;
@@ -173,11 +173,11 @@ namespace stingray
 	public:
 		typedef promise<void>	Promise;
 		typedef future<void>	Future;
-		TOOLKIT_DECLARE_PTR(Promise);
+		STINGRAYKIT_DECLARE_PTR(Promise);
 
 	private:
 		struct PromiseRef { PromisePtr Ptr; PromiseRef(): Ptr(new Promise) {} };
-		TOOLKIT_DECLARE_PTR(PromiseRef);
+		STINGRAYKIT_DECLARE_PTR(PromiseRef);
 
 		ITaskExecutorPtr				_worker;
 		ReachStateFunc					_reachStateFunc;

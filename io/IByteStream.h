@@ -21,8 +21,8 @@ namespace stingray
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin) = 0;
 		virtual u64 Tell() const = 0;
 	};
-	TOOLKIT_DECLARE_PTR(IByteStream);
-	TOOLKIT_DECLARE_CREATOR(IByteStream);
+	STINGRAYKIT_DECLARE_PTR(IByteStream);
+	STINGRAYKIT_DECLARE_CREATOR(IByteStream);
 
 
 	class ByteStreamWithOffset : public IByteStream
@@ -37,7 +37,7 @@ namespace stingray
 		virtual u64 Tell() const
 		{
 			size_t tell = _stream->Tell();
-			TOOLKIT_CHECK(tell >= _offset, "Wrong ByteStreamWithOffset state");
+			STINGRAYKIT_CHECK(tell >= _offset, "Wrong ByteStreamWithOffset state");
 			return tell - _offset;
 		}
 

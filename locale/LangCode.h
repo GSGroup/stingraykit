@@ -30,7 +30,7 @@ namespace stingray
 		LangCode(const char *code);
 
 		inline bool operator <  (const LangCode& other) const	{ return _code < other._code; }
-		TOOLKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LangCode);
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LangCode);
 
 		static LangCode FromString(const std::string &code)		{ return LangCode(code); }
 		std::string ToString() const;

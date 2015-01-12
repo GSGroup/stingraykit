@@ -9,18 +9,18 @@ namespace stingray
 	LangCode::LangCode(u32 code) : _code(code)
 	{
 		if (code & 0xff000000u)
-			TOOLKIT_THROW(std::string("invalid language code: ") + stingray::ToString(code));
+			STINGRAYKIT_THROW(std::string("invalid language code: ") + stingray::ToString(code));
 		ToUpper();
 	}
 
 	LangCode::LangCode(const std::string &code)
 	{
 		if (code.size() != 3)
-			TOOLKIT_THROW("invalid language code: " + code);
+			STINGRAYKIT_THROW("invalid language code: " + code);
 
 		char a = DoToUpper(code[0]), b = DoToUpper(code[1]), c = DoToUpper(code[2]);
 		//if (a < 'A' || a > 'Z' || b < 'A' || b > 'Z' || c < 'A' || c > 'Z')
-		//	TOOLKIT_THROW("invalid language code: " + code);
+		//	STINGRAYKIT_THROW("invalid language code: " + code);
 
 		_code = (((u8)a) << 16) | (((u8)b) << 8) | (((u8)c) << 0);
 	}

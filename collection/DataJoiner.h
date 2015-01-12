@@ -106,7 +106,7 @@ namespace stingray
 		template <typename VisitorType>
 		static void ApplyToIntervals(DataJoinerIterator from, DataJoinerIterator to, VisitorType& visitor)
 		{
-			TOOLKIT_CHECK(from._containers == to._containers, "Iterators are from different containers!");
+			STINGRAYKIT_CHECK(from._containers == to._containers, "Iterators are from different containers!");
 			For<ContainersCount, IntervalsFunctor<VisitorType>::template Func>::Do(from, to, ref(visitor));
 		}
 
@@ -162,7 +162,7 @@ namespace stingray
 		{
 			difference_type result = 0;
 			if (ForIf<ContainersCount, DistanceFunctor>::Do(_containers, _iterator, ref(result)))
-				TOOLKIT_THROW("Unknown index!");
+				STINGRAYKIT_THROW("Unknown index!");
 			return result;
 		}
 
@@ -190,7 +190,7 @@ namespace stingray
 		{
 			if (ForIf<ContainersCount, AdvanceFunctor>::Do(_containers, ref(offset), ref(_iterator)))
 			{
-				TOOLKIT_CHECK(offset == 0, "Offset is too big!");
+				STINGRAYKIT_CHECK(offset == 0, "Offset is too big!");
 				typedef typename GetTypeListItem<IndexedIterators, ContainersCount - 1>::ValueT IterType;
 				_iterator = IterType(_containers->template Get<ContainersCount - 1>()->end());
 			}

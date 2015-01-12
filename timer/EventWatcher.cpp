@@ -7,7 +7,7 @@ namespace stingray
 	EventWatcher::EventWatcher(Timer& timer, size_t timeout, size_t frequency)
 		: _deferrer(new ExecutionDeferrer(timer, timeout)), _frequency(frequency), _count(0)
 	{
-		TOOLKIT_CHECK(frequency, ArgumentException("frequency"));
+		STINGRAYKIT_CHECK(frequency, ArgumentException("frequency"));
 		_deferrer->Defer(bind(&EventWatcher::Timeout, this));
 	}
 

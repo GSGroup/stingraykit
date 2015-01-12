@@ -6,7 +6,7 @@
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/safe_bool.h>
 
-#define TOOLKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
+#define STINGRAYKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
 
 namespace stingray
 {
@@ -91,7 +91,7 @@ namespace stingray
 
 	private:
 		inline void check_ptr() const
-		{ TOOLKIT_CHECK(_rawPtr, NullPointerException()); }
+		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
 	};
 
 	template<typename T>
@@ -100,7 +100,7 @@ namespace stingray
 		mutable atomic_int_type	_value;
 
 	private:
-		TOOLKIT_NONCOPYABLE(self_counter);
+		STINGRAYKIT_NONCOPYABLE(self_counter);
 
 	protected:
 		~self_counter() {}
@@ -118,7 +118,7 @@ namespace stingray
 		inline void add_ref() const
 		{
 			atomic_int_type count = Atomic::Inc(_value); (void)count;
-			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckAddRef(count));
+			STINGRAYKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckAddRef(count));
 		}
 
 		inline void release_ref() const
@@ -126,13 +126,13 @@ namespace stingray
 			atomic_int_type count = Atomic::Dec(_value);
 			if (count == 0)
 			{
-				STINGRAY_ANNOTATE_HAPPENS_AFTER(&_value);
-				STINGRAY_ANNOTATE_RELEASE(&_value);
+				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&_value);
+				STINGRAYKIT_ANNOTATE_RELEASE(&_value);
 				delete static_cast<const T*>(this);
 			}
 			else
-				STINGRAY_ANNOTATE_HAPPENS_BEFORE(&_value);
-			TOOLKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckReleaseRef(count));
+				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(&_value);
+			STINGRAYKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckReleaseRef(count));
 		}
 
 		inline int value() const		{ return _value; }
@@ -149,18 +149,18 @@ namespace stingray
 
 
 
-#define DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) typename TOOLKIT_CAT(Param, Index_)
-#define DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) const TOOLKIT_CAT(Param, Index_)& TOOLKIT_CAT(p, Index_)
-#define DETAIL_MAKE_SELF_COUNT_PTR_PARAMS(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(p, Index_)
+#define DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename STINGRAYKIT_CAT(Param, Index_)
+#define DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) const STINGRAYKIT_CAT(Param, Index_)& STINGRAYKIT_CAT(p, Index_)
+#define DETAIL_MAKE_SELF_COUNT_PTR_PARAMS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(p, Index_)
 #define DETAIL_DECL_MAKE_SELF_COUNT_PTR(N_, UserArg_) \
-	template< typename T TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES, TOOLKIT_EMPTY()) > \
-	self_count_ptr<T> make_self_count_ptr(TOOLKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS, TOOLKIT_EMPTY())) \
-	{ return self_count_ptr<T>(new T(TOOLKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMS, TOOLKIT_EMPTY()))); } \
-	template< typename T TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES, TOOLKIT_EMPTY()) > \
-	self_count_ptr<T> make_self_count_ptr_##N_(TOOLKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS, TOOLKIT_EMPTY())) \
-	{ return self_count_ptr<T>(new T(TOOLKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMS, TOOLKIT_EMPTY()))); }
+	template< typename T STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES, STINGRAYKIT_EMPTY()) > \
+	self_count_ptr<T> make_self_count_ptr(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS, STINGRAYKIT_EMPTY())) \
+	{ return self_count_ptr<T>(new T(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMS, STINGRAYKIT_EMPTY()))); } \
+	template< typename T STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES, STINGRAYKIT_EMPTY()) > \
+	self_count_ptr<T> make_self_count_ptr_##N_(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS, STINGRAYKIT_EMPTY())) \
+	{ return self_count_ptr<T>(new T(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMS, STINGRAYKIT_EMPTY()))); }
 
-	TOOLKIT_REPEAT_NESTING_2(10, DETAIL_DECL_MAKE_SELF_COUNT_PTR, TOOLKIT_EMPTY())
+	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECL_MAKE_SELF_COUNT_PTR, STINGRAYKIT_EMPTY())
 
 
 #undef DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS

@@ -16,7 +16,7 @@ namespace stingray
 
 	class PosixMutex
 	{
-		TOOLKIT_NONCOPYABLE(PosixMutex);
+		STINGRAYKIT_NONCOPYABLE(PosixMutex);
 
 		friend class PosixConditionVariable;
 

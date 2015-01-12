@@ -12,7 +12,7 @@ namespace stingray
 
 	class PosixConditionVariable
 	{
-		TOOLKIT_NONCOPYABLE(PosixConditionVariable);
+		STINGRAYKIT_NONCOPYABLE(PosixConditionVariable);
 
 	private:
 		mutable pthread_cond_t	_cond;

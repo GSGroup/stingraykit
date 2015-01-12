@@ -77,13 +77,13 @@ namespace stingray
 					unsigned val;
 					s >> val;
 					if (s.fail())
-						TOOLKIT_THROW("Cannot parse enum class value: '" + str + "'!");
+						STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
 					while (!s.eof())
 					{
 						char c = 0;
 						s >> c;
 						if (!s.eof() && !IsWhitespace(c))
-							TOOLKIT_THROW("Cannot parse enum class value: '" + str + "'!");
+							STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
 					}
 					return val;
 				}
@@ -109,7 +109,7 @@ namespace stingray
 				{
 					it = _strToEnum.find(bit_val);
 					if (it == _strToEnum.end())
-						TOOLKIT_THROW("Cannot parse enum class value: '" + str + "'!");
+						STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
 
 					bit_val.clear();
 					result |= (s32)it->second;
@@ -120,7 +120,7 @@ namespace stingray
 			}
 
 			if (!has_nonwhitespace_chars)
-				TOOLKIT_THROW("Cannot parse enum class value: '" + str + "'!");
+				STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
 
 			return result;
 		}
@@ -158,7 +158,7 @@ namespace stingray
 			}
 
 			if (v_it != _values.end())
-				TOOLKIT_THROW("Internal error in EnumToStringMap, enum values: \"" + str + "\"");
+				STINGRAYKIT_THROW("Internal error in EnumToStringMap, enum values: \"" + str + "\"");
 		}
 
 		EnumToStringMapBase::EnumToStringMapBase() : _impl(new Impl())

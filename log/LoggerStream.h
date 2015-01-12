@@ -65,12 +65,12 @@ namespace stingray
 	};
 
 
-#define TOOLKIT_HIDE_DUPLICATING_LOGS(N_, ...) stingray::Detail::HideDuplicatingLogs(N_, __FILE__, __LINE__, ##__VA_ARGS__)
+#define STINGRAYKIT_HIDE_DUPLICATING_LOGS(N_, ...) stingray::Detail::HideDuplicatingLogs(N_, __FILE__, __LINE__, ##__VA_ARGS__)
 
 
 	class LoggerStream
 	{
-		TOOLKIT_NONASSIGNABLE(LoggerStream);
+		STINGRAYKIT_NONASSIGNABLE(LoggerStream);
 		typedef string_ostream							StreamType;
 
 		typedef void LogFunction(const char* loggerName, LogLevel logLevel, const std::string& message);

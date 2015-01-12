@@ -26,7 +26,7 @@ namespace stingray
 
 	class NamedLoggerRegistry : public PhoenixSingleton<NamedLoggerRegistry>
 	{
-		TOOLKIT_PHOENIXSINGLETON(NamedLoggerRegistry);
+		STINGRAYKIT_PHOENIXSINGLETON(NamedLoggerRegistry);
 
 		struct StrLess
 		{
@@ -218,7 +218,7 @@ namespace stingray
 			}
 		}
 	};
-	TOOLKIT_DECLARE_PTR(LoggerImpl);
+	STINGRAYKIT_DECLARE_PTR(LoggerImpl);
 
 
 	typedef SafeSingleton<LoggerImpl> LoggerSingleton;

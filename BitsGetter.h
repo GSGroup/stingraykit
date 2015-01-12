@@ -125,7 +125,7 @@ namespace stingray
 				CompileTimeAssert<SizeBits + OffsetBits >= OffsetBits>();
 
 				const size_t BytesRequirement = (OffsetBits + SizeBits + 7) / 8;
-				TOOLKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
+				STINGRAYKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT					ShiftableT;
 				typedef typename MinimalTypeSelector<SizeBits>::ValueT		MinimalT;
@@ -180,7 +180,7 @@ namespace stingray
 				CompileTimeAssert<SizeBits + OffsetBits >= OffsetBits>();
 
 				const size_t BytesRequirement = (OffsetBits + SizeBits + 7) / 8;
-				TOOLKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
+				STINGRAYKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT					ShiftableT;
 				typedef typename MinimalTypeSelector<SizeBits>::ValueT		MinimalT;
@@ -199,22 +199,22 @@ namespace stingray
 
 		};
 
-#define DETAIL_TOOLKIT_DECL_BGP_OPERATOR(Op_) \
+#define DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(Op_) \
 		template < typename T, typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks > T operator Op_ (BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, UseMasks> bgp, T val) { return static_cast<T>(bgp) Op_ val; } \
 		template < typename T, typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks > T operator Op_ (T val, BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, UseMasks> bgp) { return val Op_ static_cast<T>(bgp); }
 
-	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(+)
-	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(-)
-	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(*)
-	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(/)
-	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(<<)
-	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(>>)
-	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(==)
-	DETAIL_TOOLKIT_DECL_BGP_OPERATOR(!=)
+	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(+)
+	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(-)
+	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(*)
+	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(/)
+	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(<<)
+	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(>>)
+	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(==)
+	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(!=)
 
-#undef DETAIL_TOOLKIT_DECL_BGP_OPERATOR
+#undef DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR
 
-		TOOLKIT_DECLARE_METHOD_CHECK(RequireSize);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(RequireSize);
 
 		template < typename ByteDataType_, bool CanResize = HasMethod_RequireSize<ByteDataType_>::Value >
 		struct ByteDataResizer
@@ -249,7 +249,7 @@ namespace stingray
 
 				size_t required_size = (OffsetBits + SizeBits + 7) / 8;
 				ByteDataResizer<ByteDataType>::RequireSize(_buf, required_size);
-				TOOLKIT_CHECK(required_size <= _buf.size(), IndexOutOfRangeException(required_size, _buf.size()));
+				STINGRAYKIT_CHECK(required_size <= _buf.size(), IndexOutOfRangeException(required_size, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT			ShiftableT;
 				typedef typename BitsGetterResultType<T>::ValueT	ResType;
@@ -306,7 +306,7 @@ namespace stingray
 
 				size_t required_size = (OffsetBits + SizeBits + 7) / 8;
 				ByteDataResizer<ByteDataType>::RequireSize(_buf, required_size);
-				TOOLKIT_CHECK(required_size <= _buf.size(), IndexOutOfRangeException(required_size, _buf.size()));
+				STINGRAYKIT_CHECK(required_size <= _buf.size(), IndexOutOfRangeException(required_size, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT			ShiftableT;
 				typedef typename BitsGetterResultType<T>::ValueT	ResType;

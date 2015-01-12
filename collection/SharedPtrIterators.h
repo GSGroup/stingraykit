@@ -99,7 +99,7 @@ private:
 	inline void CheckBounds() const
 	{
 #if defined(DEBUG)
-		TOOLKIT_CHECK(_currentIterator != _endIterator, IndexOutOfRangeException());
+		STINGRAYKIT_CHECK(_currentIterator != _endIterator, IndexOutOfRangeException());
 #endif
 	}
 

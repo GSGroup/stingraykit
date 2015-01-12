@@ -24,7 +24,7 @@ namespace stingray
 		int GetLength() const
 		{
 			int len = End - Begin;
-			TOOLKIT_CHECK(len > 0, "Submatch length is negative!");
+			STINGRAYKIT_CHECK(len > 0, "Submatch length is negative!");
 			return len;
 		}
 
@@ -50,7 +50,7 @@ namespace stingray
 		std::string operator () (int matchNumber) const
 		{
 			int i = matchNumber;
-			TOOLKIT_CHECK(i >= 0 && i < (int)_matches.size(), IndexOutOfRangeException(i, _matches.size()));
+			STINGRAYKIT_CHECK(i >= 0 && i < (int)_matches.size(), IndexOutOfRangeException(i, _matches.size()));
 			std::string res = std::string(_srcString + _matches[i].Begin, _matches[i].GetLength());
 			return res;
 		}
@@ -72,7 +72,7 @@ namespace stingray
 			m._results.clear();
 			m._positions.clear();
 
-			TOOLKIT_CHECK(flags == regex_constants::match_default, NotImplementedException());
+			STINGRAYKIT_CHECK(flags == regex_constants::match_default, NotImplementedException());
 
 			RegexMatchVec matches;
 			if (!this->DoMatch(str.c_str(), matches))
@@ -89,7 +89,7 @@ namespace stingray
 
 		std::string Replace(const std::string& str, const regex& re, const std::string& replacement, regex_constants::match_flag_type flags)
 		{
-			TOOLKIT_CHECK((flags & ~regex_constants::format_first_only) == 0, NotImplementedException());
+			STINGRAYKIT_CHECK((flags & ~regex_constants::format_first_only) == 0, NotImplementedException());
 
 			ReplacementEntryVec replacement_entries;
 			PlatformRegex group_regex("\\\\(\\d+)"); // TODO: cache this somewhere
@@ -149,7 +149,7 @@ namespace stingray
 			ReplaceAll(_str, "\\d", "[0-9]");
 
 			int ret = regcomp(&_regex, _str.c_str(), REG_EXTENDED);
-			TOOLKIT_CHECK(ret == 0, StringBuilder() % "Could not compile regex '" % _str % "', ret = " % ret % "\n" % GetRegexError(_regex, ret));
+			STINGRAYKIT_CHECK(ret == 0, StringBuilder() % "Could not compile regex '" % _str % "', ret = " % ret % "\n" % GetRegexError(_regex, ret));
 		}
 
 		~PosixRegexImpl()
@@ -164,7 +164,7 @@ namespace stingray
 				return false;
 
 			if (ret != 0)
-				TOOLKIT_THROW(StringBuilder() % "Could not execute regex '" % _str % "' for string '" % str % "', ret = " % ret % "\n" % GetRegexError(_regex, ret));
+				STINGRAYKIT_THROW(StringBuilder() % "Could not execute regex '" % _str % "' for string '" % str % "', ret = " % ret % "\n" % GetRegexError(_regex, ret));
 
 			int count = 0;
 			while (posix_matches[count].rm_so >= 0)

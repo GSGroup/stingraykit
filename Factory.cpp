@@ -12,7 +12,7 @@ namespace stingray
 
 	FactoryContext::~FactoryContext()
 	{
-		STINGRAY_TRY("Clean failed",
+		STINGRAYKIT_TRY("Clean failed",
 			MutexLock l(_guard);
 			for (ObjectCreatorsRegistry::iterator i = _objectCreators.begin(); i != _objectCreators.end(); ++i)
 				delete i->second;
@@ -32,7 +32,7 @@ namespace stingray
 				return it->second;
 		}
 
-		TOOLKIT_CHECK(_baseContext, "Class '" + info_.GetClassName() + "' isn't registered!");
+		STINGRAYKIT_CHECK(_baseContext, "Class '" + info_.GetClassName() + "' isn't registered!");
 		return _baseContext->GetClassName(info);
 	}
 
@@ -43,7 +43,7 @@ namespace stingray
 
 		MutexLock l(_guard);
 
-		TOOLKIT_CHECK(_objectCreators.find(name) == _objectCreators.end(), "Class '" + name + "' is already registered!");
+		STINGRAYKIT_CHECK(_objectCreators.find(name) == _objectCreators.end(), "Class '" + name + "' is already registered!");
 
 		_objectCreators[name] = creator;
 		_classNames[info] = name;
@@ -60,7 +60,7 @@ namespace stingray
 				return it->second->Create();
 		}
 
-		TOOLKIT_CHECK(_baseContext, "Class '" + name + "' isn't registered!");
+		STINGRAYKIT_CHECK(_baseContext, "Class '" + name + "' isn't registered!");
 		return _baseContext->Create(name);
 	}
 

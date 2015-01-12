@@ -14,13 +14,13 @@ namespace stingray
 
 	inline size_t AlignUp(size_t value, size_t boundary)
 	{
-		TOOLKIT_CHECK(boundary != 0, ArgumentException("boundary"));
+		STINGRAYKIT_CHECK(boundary != 0, ArgumentException("boundary"));
 		return boundary * ((value + boundary - 1) / boundary);
 	}
 
 	inline size_t AlignDown(size_t value, size_t boundary)
 	{
-		TOOLKIT_CHECK(boundary != 0, ArgumentException("boundary"));
+		STINGRAYKIT_CHECK(boundary != 0, ArgumentException("boundary"));
 		return boundary * (value / boundary);
 	}
 

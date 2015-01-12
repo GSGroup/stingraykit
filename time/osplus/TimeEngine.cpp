@@ -38,7 +38,7 @@ namespace osplus
 		bdt.tm_mon = bdTime.Month - 1;
 		bdt.tm_year = bdTime.Year - 1900;
 		time_t result = osplus_mktime(&bdt);
-		TOOLKIT_CHECK(result != -1, Exception("mktime failed while processing bdt = " + bdTime.ToString() + "!"));
+		STINGRAYKIT_CHECK(result != -1, Exception("mktime failed while processing bdt = " + bdTime.ToString() + "!"));
 		return (s64)result * 1000;
 	}
 
@@ -48,7 +48,7 @@ namespace osplus
 		tm b = { };
 
 		if (osplus_localtime(&t, &b) == NULL)
-			TOOLKIT_THROW(Exception("localtime_r failed!"));
+			STINGRAYKIT_THROW(Exception("localtime_r failed!"));
 
 		return BrokenDownTime(milliseconds % 1000, b.tm_sec, b.tm_min, b.tm_hour, b.tm_wday, b.tm_mday, b.tm_mon + 1, b.tm_yday, b.tm_year + 1900);
 	}

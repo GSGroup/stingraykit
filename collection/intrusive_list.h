@@ -82,7 +82,7 @@ namespace stingray
 	template < typename T , typename Allocator_ >
 	class intrusive_list : public Allocator_
 	{
-		TOOLKIT_NONASSIGNABLE(intrusive_list);
+		STINGRAYKIT_NONASSIGNABLE(intrusive_list);
 
 	public:
 		typedef intrusive_list_node<T>	node_type;
@@ -201,7 +201,7 @@ namespace stingray
 		void erase(const iterator& it)
 		{
 			if (it == end())
-				TOOLKIT_THROW("destroying iterator pointing to the end");
+				STINGRAYKIT_THROW("destroying iterator pointing to the end");
 
 			pointer_type p = const_cast<pointer_type>(it.get());
 			p->unlink();

@@ -24,8 +24,8 @@ namespace stingray
 	struct EmptyEnumerator : public virtual IEnumerator<T>
 	{
 		virtual bool Valid() const	{ return false; }
-		virtual T Get() const		{ TOOLKIT_THROW(NotSupportedException()); }
-		virtual void Next()			{ TOOLKIT_THROW(NotSupportedException()); }
+		virtual T Get() const		{ STINGRAYKIT_THROW(NotSupportedException()); }
+		virtual void Next()			{ STINGRAYKIT_THROW(NotSupportedException()); }
 	};
 
 
@@ -60,7 +60,7 @@ namespace stingray
 		virtual T Get() const
 		{
 			if (!_valid)
-				TOOLKIT_THROW(std::runtime_error("Invalid enumerator!"));
+				STINGRAYKIT_THROW(std::runtime_error("Invalid enumerator!"));
 			return _value;
 		}
 	};
@@ -99,8 +99,8 @@ namespace stingray
 
 		public:
 			JoiningEnumerator(const TargetEnumeratorPtr& first, const TargetEnumeratorPtr& second) :
-				_first(TOOLKIT_REQUIRE_NOT_NULL(first)),
-				_second(TOOLKIT_REQUIRE_NOT_NULL(second))
+				_first(STINGRAYKIT_REQUIRE_NOT_NULL(first)),
+				_second(STINGRAYKIT_REQUIRE_NOT_NULL(second))
 			{}
 
 			virtual bool Valid() const
@@ -214,8 +214,8 @@ namespace stingray
 
 		public:
 			JoiningEnumerable(const TargetEnumerablePtr& first, const TargetEnumerablePtr& second) :
-				_first(TOOLKIT_REQUIRE_NOT_NULL(first)),
-				_second(TOOLKIT_REQUIRE_NOT_NULL(second))
+				_first(STINGRAYKIT_REQUIRE_NOT_NULL(first)),
+				_second(STINGRAYKIT_REQUIRE_NOT_NULL(second))
 			{}
 
 			virtual shared_ptr<IEnumerator<EnumeratedT> > GetEnumerator() const
@@ -278,17 +278,17 @@ namespace stingray
 	}
 
 
-#define DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) typename TOOLKIT_CAT(T, Index_)
-#define DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(T, Index_)
-#define DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) const TOOLKIT_CAT(T, Index_)& TOOLKIT_CAT(p, Index_)
-#define DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS(Index_, UserArg_) TOOLKIT_COMMA_IF(Index_) TOOLKIT_CAT(p, Index_)
+#define DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename STINGRAYKIT_CAT(T, Index_)
+#define DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(T, Index_)
+#define DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) const STINGRAYKIT_CAT(T, Index_)& STINGRAYKIT_CAT(p, Index_)
+#define DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(p, Index_)
 
 #define DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE(N_, UserArg_) \
-	template< typename EnumeratorType_ TOOLKIT_COMMA_IF(N_) TOOLKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS, TOOLKIT_EMPTY()) > \
-	shared_ptr<SimpleEnumerable<EnumeratorType_, Tuple<TOOLKIT_INSERT_IF(N_, typename) TypeList_##N_ TOOLKIT_INSERT_IF(N_, <) TOOLKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES, TOOLKIT_EMPTY()) TOOLKIT_INSERT_IF(N_, >)::type  > > > MakeSimpleEnumerable(TOOLKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS, TOOLKIT_EMPTY())) \
-	{ return Detail::MakeSimpleEnumerableImpl<EnumeratorType_>(MakeTuple(TOOLKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS, TOOLKIT_EMPTY()))); }
+	template< typename EnumeratorType_ STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS, STINGRAYKIT_EMPTY()) > \
+	shared_ptr<SimpleEnumerable<EnumeratorType_, Tuple<STINGRAYKIT_INSERT_IF(N_, typename) TypeList_##N_ STINGRAYKIT_INSERT_IF(N_, <) STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES, STINGRAYKIT_EMPTY()) STINGRAYKIT_INSERT_IF(N_, >)::type  > > > MakeSimpleEnumerable(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS, STINGRAYKIT_EMPTY())) \
+	{ return Detail::MakeSimpleEnumerableImpl<EnumeratorType_>(MakeTuple(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS, STINGRAYKIT_EMPTY()))); }
 
-	TOOLKIT_REPEAT_NESTING_2(5, DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE, TOOLKIT_EMPTY())
+	STINGRAYKIT_REPEAT_NESTING_2(5, DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE, STINGRAYKIT_EMPTY())
 
 #undef DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE
 
@@ -355,20 +355,20 @@ namespace stingray
 		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator); \
 		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerator<T> >& enumerator) { return Name_(*enumerator); } \
 		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable) { return Name_(*enumerable.GetEnumerator()); } \
-		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable); } \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable) { STINGRAYKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable); } \
 		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator)
 
 #define DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(TemplateDecl_, RetType_, Name_, ParamsDecl_, ParamsUsage_) \
 		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator, ParamsDecl_); \
 		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerator<T> >& enumerator, ParamsDecl_) { return Name_(*enumerator, ParamsUsage_); } \
 		TemplateDecl_ RetType_ Name_(const IEnumerable<T>& enumerable, ParamsDecl_) { return Name_(*enumerable.GetEnumerator(), ParamsUsage_); } \
-		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable, ParamsDecl_) { TOOLKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable, ParamsUsage_); } \
+		TemplateDecl_ RetType_ Name_(const shared_ptr<IEnumerable<T> >& enumerable, ParamsDecl_) { STINGRAYKIT_CHECK(enumerable, NullArgumentException("enumerable")); return Name_(*enumerable, ParamsUsage_); } \
 		TemplateDecl_ RetType_ Name_(IEnumerator<T>& enumerator, ParamsDecl_)
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename AggregateFunc>), T, Aggregate, MK_PARAM(const AggregateFunc& aggregateFunc), MK_PARAM(aggregateFunc))
 		{
-			TOOLKIT_CHECK(enumerator->Valid(), InvalidOperationException());
+			STINGRAYKIT_CHECK(enumerator->Valid(), InvalidOperationException());
 			T result = enumerator.Get();
 			enumerator.Next();
 			for (; enumerator.Valid(); enumerator.Next())
@@ -468,7 +468,7 @@ namespace stingray
 			for (; enumerator.Valid(); enumerator.Next(), ++current)
 				if (index == current)
 					return enumerator.Get();
-			TOOLKIT_THROW(IndexOutOfRangeException());
+			STINGRAYKIT_THROW(IndexOutOfRangeException());
 		}
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), T, ElementAtOrDefault, MK_PARAM(size_t index), MK_PARAM(index))
@@ -493,7 +493,7 @@ namespace stingray
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, First)
 		{
-			TOOLKIT_CHECK(enumerator.Valid(), InvalidOperationException());
+			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
 			return enumerator.Get();
 		}
 
@@ -501,7 +501,7 @@ namespace stingray
 		{
 			while (enumerator.Valid() && !predicate(enumerator.Get()))
 				enumerator.Next();
-			TOOLKIT_CHECK(enumerator.Valid(), InvalidOperationException());
+			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
 			return enumerator.Get();
 		}
 
@@ -524,7 +524,7 @@ namespace stingray
 			optional<T> result;
 			for (; enumerator.Valid(); enumerator.Next())
 				result = enumerator.Get();
-			TOOLKIT_CHECK(result, InvalidOperationException());
+			STINGRAYKIT_CHECK(result, InvalidOperationException());
 			return *result;
 		}
 
@@ -534,7 +534,7 @@ namespace stingray
 			for (; enumerator.Valid(); enumerator.Next())
 				if (predicate(enumerator.Get()))
 					result = enumerator.Get();
-			TOOLKIT_CHECK(result, InvalidOperationException());
+			STINGRAYKIT_CHECK(result, InvalidOperationException());
 			return *result;
 		}
 
@@ -597,10 +597,10 @@ namespace stingray
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Single)
 		{
-			TOOLKIT_CHECK(enumerator.Valid(), InvalidOperationException());
+			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
 			T result = enumerator.Get();
 			enumerator.Next();
-			TOOLKIT_CHECK(!enumerator.Valid(), InvalidOperationException());
+			STINGRAYKIT_CHECK(!enumerator.Valid(), InvalidOperationException());
 			return result;
 		}
 

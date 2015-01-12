@@ -48,7 +48,7 @@ namespace stingray
 					return cropped_data;
 				}
 				else
-					TOOLKIT_THROW(BufferIsFullException());
+					STINGRAYKIT_THROW(BufferIsFullException());
 			}
 			return data;
 		}
@@ -147,7 +147,7 @@ namespace stingray
 		CircularDataReserverPtr Pop(size_t size = std::numeric_limits<size_t>::max())
 		{
 			MutexLock l(_mutex);
-			TOOLKIT_CHECK(_lockedDataSize == 0, "Previous data was not freed");
+			STINGRAYKIT_CHECK(_lockedDataSize == 0, "Previous data was not freed");
 
 			if (_loggingEnabled)
 			{
@@ -226,7 +226,7 @@ namespace stingray
 		{ return size <= GetFreeSize(); }
 	};
 	template<bool DiscardOnOverflow>
-	TOOLKIT_DEFINE_NAMED_LOGGER(CircularBufferBase<DiscardOnOverflow>);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(CircularBufferBase<DiscardOnOverflow>);
 
 	/** @} */
 

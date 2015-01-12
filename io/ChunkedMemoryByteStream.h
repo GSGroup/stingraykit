@@ -28,9 +28,9 @@ namespace stingray
 
 		virtual u64 Read(ByteData data)
 		{
-			TOOLKIT_CHECK(!_container->empty(), LogicException("reading from empty container"));
+			STINGRAYKIT_CHECK(!_container->empty(), LogicException("reading from empty container"));
 			NormalizePosition();
-			TOOLKIT_CHECK(_chunk != _container->end(), LogicException("reading from end of chunks"));
+			STINGRAYKIT_CHECK(_chunk != _container->end(), LogicException("reading from end of chunks"));
 
 			size_t passed = 0;
 			for (size_t curcount = 0; _chunk != _container->end() && passed < data.size(); passed += curcount)
@@ -50,7 +50,7 @@ namespace stingray
 
 		virtual u64 Write(ConstByteData data)
 		{
-			TOOLKIT_CHECK(data.size() > 0, LogicException("writing empty data"));
+			STINGRAYKIT_CHECK(data.size() > 0, LogicException("writing empty data"));
 			NormalizePosition();
 
 			size_t passed = 0;
@@ -58,7 +58,7 @@ namespace stingray
 			{
 				if (_chunk == _container->end())
 				{
-					TOOLKIT_CHECK(_chunkOffset == 0, LogicException("_chunkOffset must be 0"));
+					STINGRAYKIT_CHECK(_chunkOffset == 0, LogicException("_chunkOffset must be 0"));
 					curcount = data.size() - passed;
 					_container->push_back(ChunkType(data.data() + passed, curcount));
 					_chunk = _container->end();
@@ -67,7 +67,7 @@ namespace stingray
 				}
 				else
 				{
-					TOOLKIT_CHECK(_chunk->size() > _chunkOffset, IndexOutOfRangeException(_chunkOffset, _chunk->size()));
+					STINGRAYKIT_CHECK(_chunk->size() > _chunkOffset, IndexOutOfRangeException(_chunkOffset, _chunk->size()));
 					curcount = std::min(data.size() - passed, _chunk->size() - _chunkOffset);
 					std::copy(data.data() + passed, data.data() + passed + curcount, _chunk->begin() + _chunkOffset);
 					_chunkOffset += curcount;
@@ -78,17 +78,17 @@ namespace stingray
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{
-			TOOLKIT_CHECK(!_container->empty(), LogicException("seeking within empty container"));
+			STINGRAYKIT_CHECK(!_container->empty(), LogicException("seeking within empty container"));
 
 			switch (mode)
 			{
 			case SeekMode::Begin:	break;
 			case SeekMode::Current:	offset += static_cast<s64>(Tell()); break;
 			case SeekMode::End:		offset += static_cast<s64>(_totalSize); break;
-			default:				TOOLKIT_THROW(ArgumentException("mode")); break;
+			default:				STINGRAYKIT_THROW(ArgumentException("mode")); break;
 			}
 
-			TOOLKIT_CHECK(offset >= 0 && (u64)offset <= _totalSize, IndexOutOfRangeException(offset, _totalSize));
+			STINGRAYKIT_CHECK(offset >= 0 && (u64)offset <= _totalSize, IndexOutOfRangeException(offset, _totalSize));
 			size_t offset_ = offset;
 
 			typename ContainerType::iterator chunk;

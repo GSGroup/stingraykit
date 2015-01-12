@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_PHOENIXSINGLETON_H
-#define STINGRAY_TOOLKIT_PHOENIXSINGLETON_H
+#ifndef STINGRAY_STINGRAYKIT_PHOENIXSINGLETON_H
+#define STINGRAY_STINGRAYKIT_PHOENIXSINGLETON_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -9,9 +9,9 @@
 namespace stingray
 {
 
-#define TOOLKIT_PHOENIXSINGLETON(ClassName) \
+#define STINGRAYKIT_PHOENIXSINGLETON(ClassName) \
 		friend class ::stingray::PhoenixSingleton<ClassName>; \
-		TOOLKIT_NONCOPYABLE(ClassName)
+		STINGRAYKIT_NONCOPYABLE(ClassName)
 
 
 	template <typename T>

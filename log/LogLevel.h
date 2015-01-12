@@ -15,7 +15,7 @@ namespace stingray
 
 	struct LogLevel
 	{
-		TOOLKIT_ENUM_VALUES
+		STINGRAYKIT_ENUM_VALUES
 		(
 			Trace,
 			Debug,
@@ -24,7 +24,7 @@ namespace stingray
 			Error
 		);
 
-		TOOLKIT_DECLARE_ENUM_CLASS(LogLevel);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(LogLevel);
 	};
 
 	/** @} */

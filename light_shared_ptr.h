@@ -15,7 +15,7 @@ namespace stingray
 {
 
 
-#define TOOLKIT_DECLARE_LIGHT_PTR(ClassName) \
+#define STINGRAYKIT_DECLARE_LIGHT_PTR(ClassName) \
 		typedef stingray::light_shared_ptr<ClassName>				ClassName##LightPtr; \
 		typedef stingray::light_shared_ptr<const ClassName>		ClassName##LightConstPtr; \
 		typedef stingray::light_weak_ptr<ClassName>				ClassName##LightWeakPtr; \
@@ -112,7 +112,7 @@ namespace stingray
 
 	private:
 		inline void check_ptr() const
-		{ TOOLKIT_CHECK(get(), NullPointerException()); }
+		{ STINGRAYKIT_CHECK(get(), NullPointerException()); }
 	};
 
 	template < typename T >
@@ -182,7 +182,7 @@ namespace stingray
 
 		public:
 			LightWeakPtrToPointerProxy(const light_weak_ptr<T>& weakPtr)
-				: _sharedPtr(TOOLKIT_REQUIRE_NOT_NULL(weakPtr.lock()))
+				: _sharedPtr(STINGRAYKIT_REQUIRE_NOT_NULL(weakPtr.lock()))
 			{}
 
 			operator T* () const { return _sharedPtr.get(); }
@@ -229,7 +229,7 @@ namespace stingray
 	light_shared_ptr<ObjType> make_light_shared_0() { return light_shared_ptr<ObjType>(new ObjType); }
 
 
-#define DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
+#define DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
 	template < typename ObjType, Typenames_ > \
 	light_shared_ptr<ObjType> make_light_shared_##Size_(ParamsDecl_) { return light_shared_ptr<ObjType>(new ObjType(Params_)); } \
 	template < typename ObjType, Typenames_ > \
@@ -239,20 +239,20 @@ namespace stingray
 #define TY typename
 #define P_(N) const T##N& p##N
 
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(1, MK_PARAM(TY T1), MK_PARAM(P_(1)), MK_PARAM(p1))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(2, MK_PARAM(TY T1, TY T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
-	DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(1, MK_PARAM(TY T1), MK_PARAM(P_(1)), MK_PARAM(p1))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(2, MK_PARAM(TY T1, TY T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
+	DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
 
 #undef P_
 #undef TY
-#undef DETAIL_TOOLKIT_DECLARE_MAKE_LIGHT_SHARED
+#undef DETAIL_STINGRAYKIT_DECLARE_MAKE_LIGHT_SHARED
 
 }
 

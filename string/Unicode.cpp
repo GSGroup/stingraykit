@@ -17,8 +17,8 @@ namespace stingray
 	{
 		UErrorCode success = U_ZERO_ERROR;
 		_collator = icu::Collator::createInstance(success);
-		TOOLKIT_CHECK(success != U_FILE_ACCESS_ERROR, "file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
-		TOOLKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
+		STINGRAYKIT_CHECK(success != U_FILE_ACCESS_ERROR, "file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
+		STINGRAYKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
 		SetCaseSensitivity(true);
 	}
 
@@ -44,7 +44,7 @@ namespace stingray
 
 		UErrorCode success = U_ZERO_ERROR;
 		UCollationResult r = _collator->compareUTF8(str1, str2, success);
-		TOOLKIT_CHECK(U_SUCCESS(success), "compareUTF8 failed, error: " + ToString(success));
+		STINGRAYKIT_CHECK(U_SUCCESS(success), "compareUTF8 failed, error: " + ToString(success));
 
 		return r;
 	}
@@ -87,7 +87,7 @@ namespace stingray
 			else if ((u8)*it == 0xD0)
 			{
 				u16 c0 = (u8)*it & 0x1F;
-				TOOLKIT_CHECK(++it != str.end(), "Malformed utf-8!");
+				STINGRAYKIT_CHECK(++it != str.end(), "Malformed utf-8!");
 				u16 c = (c0 << 6) | ((u8)*it & 0x3F);
 				if (c >= 0x410 && c <= 0x42F)
 					c += 0x20;

@@ -24,26 +24,26 @@ namespace stingray
 	 * @{
 	 */
 
-#define TOOLKIT_DEFINE_NAMED_LOGGER(...) \
+#define STINGRAYKIT_DEFINE_NAMED_LOGGER(...) \
 		stingray::NamedLogger	__VA_ARGS__::s_logger(#__VA_ARGS__)
 
-#define STINGRAY_TRY(ErrorMessage_, ...) \
+#define STINGRAYKIT_TRY(ErrorMessage_, ...) \
 		do { \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
 			try { __VA_ARGS__; } \
-			catch (const std::exception& ex) { TOOLKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << stingray::diagnostic_information(ex); } \
+			catch (const std::exception& ex) { STINGRAYKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << stingray::diagnostic_information(ex); } \
 		} while (0)
 
 
-#define STINGRAY_TRY_EX(LogLevel_, ErrorMessage_, ...) \
+#define STINGRAYKIT_TRY_EX(LogLevel_, ErrorMessage_, ...) \
 		do { \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
 			try { __VA_ARGS__; } \
-			catch (const std::exception& ex) { TOOLKIT_STATIC_LOGGER.LogLevel_() << (ErrorMessage_) << ":\n" << stingray::diagnostic_information(ex); } \
+			catch (const std::exception& ex) { STINGRAYKIT_STATIC_LOGGER.LogLevel_() << (ErrorMessage_) << ":\n" << stingray::diagnostic_information(ex); } \
 		} while (0)
 
 
-#define STINGRAY_TRY_NO_MESSAGE(...) STINGRAY_TRY(#__VA_ARGS__, __VA_ARGS__)
+#define STINGRAYKIT_TRY_NO_MESSAGE(...) STINGRAYKIT_TRY(#__VA_ARGS__, __VA_ARGS__)
 
 
 	class Logger
@@ -79,7 +79,7 @@ namespace stingray
 	{
 		struct OptionalLogLevel
 		{
-			TOOLKIT_ENUM_VALUES(
+			STINGRAYKIT_ENUM_VALUES(
 				Trace	= LogLevel::Trace,
 				Debug	= LogLevel::Debug,
 				Info	= LogLevel::Info,
@@ -97,7 +97,7 @@ namespace stingray
 				return LogLevel((LogLevel::Enum)level.val());
 			}
 
-			TOOLKIT_DECLARE_ENUM_CLASS(OptionalLogLevel);
+			STINGRAYKIT_DECLARE_ENUM_CLASS(OptionalLogLevel);
 		};
 
 	private:
@@ -251,14 +251,14 @@ namespace stingray
 #define LOG_EXCEPTIONS(...) (Detail::LoggerDetail::LogExceptionsGuard(#__VA_ARGS__) ? (__VA_ARGS__) : (__VA_ARGS__))
 
 #define DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR \
-	::stingray::Detail::NamedLoggerAccessor TOOLKIT_CAT(detail_static_logger_accessor, __LINE__); \
+	::stingray::Detail::NamedLoggerAccessor STINGRAYKIT_CAT(detail_static_logger_accessor, __LINE__); \
 	do { \
 		using namespace ::stingray::Detail::LoggerDetail; \
-		TOOLKIT_CAT(detail_static_logger_accessor, __LINE__) = s_logger; \
+		STINGRAYKIT_CAT(detail_static_logger_accessor, __LINE__) = s_logger; \
 	} while (0)
 
-#define TOOLKIT_STATIC_LOGGER \
-	(TOOLKIT_CAT(detail_static_logger_accessor, __LINE__))
+#define STINGRAYKIT_STATIC_LOGGER \
+	(STINGRAYKIT_CAT(detail_static_logger_accessor, __LINE__))
 
 	class Tracer
 	{
@@ -274,7 +274,7 @@ namespace stingray
 
 
 #if !defined(PRODUCTION_BUILD)
-#	define TRACER	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; stingray::Tracer tracer(TOOLKIT_STATIC_LOGGER, TOOLKIT_FUNCTION)
+#	define TRACER	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; stingray::Tracer tracer(STINGRAYKIT_STATIC_LOGGER, STINGRAYKIT_FUNCTION)
 #else
 #	define TRACER
 #endif

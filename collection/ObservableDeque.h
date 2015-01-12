@@ -50,7 +50,7 @@ namespace stingray
 	template<typename T>
 	class ObservableDeque
 	{
-		TOOLKIT_NONCOPYABLE(ObservableDeque);
+		STINGRAYKIT_NONCOPYABLE(ObservableDeque);
 
 	private:
 		typedef std::deque<T> ContainerType;
@@ -72,20 +72,20 @@ namespace stingray
 		const T& operator[](size_t n) const	{ return _container[n]; }
 		void replace(size_t idx, const T &t)
 		{
-			TOOLKIT_CHECK(idx < size(), "replace: invalid index");
+			STINGRAYKIT_CHECK(idx < size(), "replace: invalid index");
 			_container[idx] = t;
 			CollectionChanged(CollectionOp::Updated, idx, t);
 		}
 
-		const T& front() const		{ TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!")); return _container.front(); }
-		const T& back() const		{ TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!")); return _container.back(); }
+		const T& front() const		{ STINGRAYKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!")); return _container.front(); }
+		const T& back() const		{ STINGRAYKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!")); return _container.back(); }
 
 		void push_back(const T &t)	{ _container.push_back(t);	CollectionChanged(CollectionOp::Added, _container.size() - 1, t); }
 		void push_front(const T &t)	{ _container.push_front(t);	CollectionChanged(CollectionOp::Added, 0, t); }
 
 		void pop_back()
 		{
-			TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!"));
+			STINGRAYKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!"));
 			T item(back());
 			_container.pop_back();
 			CollectionChanged(CollectionOp::Removed, _container.size(), item);
@@ -93,7 +93,7 @@ namespace stingray
 
 		void pop_front()
 		{
-			TOOLKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!"));
+			STINGRAYKIT_CHECK(!empty(), std::runtime_error("ObservableCollection is empty!"));
 			T item(front());
 			_container.pop_front();
 			CollectionChanged(CollectionOp::Removed, 0, item);

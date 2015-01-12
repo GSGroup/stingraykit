@@ -45,7 +45,7 @@ namespace stingray
 	}
 
 
-	TOOLKIT_DEFINE_NAMED_LOGGER(AsyncProfiler);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler);
 
 	AsyncProfiler::AsyncProfiler(const std::string& threadName)
 		: _timer(threadName, &Timer::DefaultExceptionHandler, false)

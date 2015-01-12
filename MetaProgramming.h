@@ -241,30 +241,30 @@ namespace stingray
 	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
 	struct For
 	{
-#define DETAIL_TOOLKIT_DECLARE_FOR_DO(N_, UserArg_) \
-		TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, T) TOOLKIT_INSERT_IF(N_, >) \
-		static void Do(TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL, T)) \
+#define DETAIL_STINGRAYKIT_DECLARE_FOR_DO(N_, UserArg_) \
+		STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
+		static void Do(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
 		{ \
-			FunctorClass<Start>::Call(TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)); \
-			For<Count - 1, FunctorClass, Start + 1>:: TOOLKIT_INSERT_IF(N_, template) Do TOOLKIT_INSERT_IF(N_, <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_USAGE, T) TOOLKIT_INSERT_IF(N_, >) (TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_USAGE, T)); \
+			FunctorClass<Start>::Call(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
+			For<Count - 1, FunctorClass, Start + 1>:: STINGRAYKIT_INSERT_IF(N_, template) Do STINGRAYKIT_INSERT_IF(N_, <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE, T) STINGRAYKIT_INSERT_IF(N_, >) (STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
 		}
 
-		TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_FOR_DO, ~)
+		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_FOR_DO, ~)
 
-#undef DETAIL_TOOLKIT_DECLARE_FOR_DO
+#undef DETAIL_STINGRAYKIT_DECLARE_FOR_DO
 	};
 
 	template < template <int> class FunctorClass, int Start >
 	struct For<0, FunctorClass, Start>
 	{
-#define DETAIL_TOOLKIT_DECLARE_FOR_DO(N_, UserArg_) \
-		TOOLKIT_INSERT_IF(N_, template <) TOOLKIT_REPEAT(N_, TOOLKIT_TEMPLATE_PARAM_DECL, T) TOOLKIT_INSERT_IF(N_, >) \
-		static void Do(TOOLKIT_REPEAT(N_, TOOLKIT_FUNCTION_PARAM_DECL, T)) \
+#define DETAIL_STINGRAYKIT_DECLARE_FOR_DO(N_, UserArg_) \
+		STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
+		static void Do(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
 		{ }
 
-		TOOLKIT_REPEAT_NESTING_2(10, DETAIL_TOOLKIT_DECLARE_FOR_DO, ~)
+		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_FOR_DO, ~)
 
-#undef DETAIL_TOOLKIT_DECLARE_FOR_DO
+#undef DETAIL_STINGRAYKIT_DECLARE_FOR_DO
 	};
 
 	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
@@ -276,7 +276,7 @@ namespace stingray
 			return success && ForIf<Count - 1, FunctorClass, Start + 1>::Do();
 		}
 
-#define DETAIL_TOOLKIT_DECLARE_FOR_IF_DO(TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
+#define DETAIL_STINGRAYKIT_DECLARE_FOR_IF_DO(TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 		template < TypesDecl_ > \
 		static bool Do(ParamsDecl_) \
 		{ \
@@ -284,11 +284,11 @@ namespace stingray
 			return success && ForIf<Count - 1, FunctorClass, Start + 1>::template Do<TypesUsage_>(ParamsUsage_); \
 		}
 
-		DETAIL_TOOLKIT_DECLARE_FOR_IF_DO(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(const T1& p1), MK_PARAM(p1));
-		DETAIL_TOOLKIT_DECLARE_FOR_IF_DO(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(const T1& p1, const T2& p2), MK_PARAM(p1, p2));
-		DETAIL_TOOLKIT_DECLARE_FOR_IF_DO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(const T1& p1, const T2& p2, const T3& p3), MK_PARAM(p1, p2, p3));
+		DETAIL_STINGRAYKIT_DECLARE_FOR_IF_DO(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(const T1& p1), MK_PARAM(p1));
+		DETAIL_STINGRAYKIT_DECLARE_FOR_IF_DO(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(const T1& p1, const T2& p2), MK_PARAM(p1, p2));
+		DETAIL_STINGRAYKIT_DECLARE_FOR_IF_DO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(const T1& p1, const T2& p2, const T3& p3), MK_PARAM(p1, p2, p3));
 
-#undef DETAIL_TOOLKIT_DECLARE_FOR_IF_DO
+#undef DETAIL_STINGRAYKIT_DECLARE_FOR_IF_DO
 	};
 
 	template < template <int> class FunctorClass, int Start >

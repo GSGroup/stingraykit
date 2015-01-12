@@ -8,10 +8,10 @@ namespace stingray {
 
 	void PosixCallOnce::CallOnce(OnceNativeType& once, void (*func)())
 	{
-		STINGRAY_ANNOTATE_HAPPENS_BEFORE(&once);
+		STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(&once);
 		if (pthread_once(&once, func))
-			TOOLKIT_THROW(SystemException("pthread_once"));
-		STINGRAY_ANNOTATE_HAPPENS_AFTER(&once);
+			STINGRAYKIT_THROW(SystemException("pthread_once"));
+		STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&once);
 	}
 
 

@@ -17,7 +17,7 @@ namespace stingray
 
 	class SystemProfiler
 	{
-		TOOLKIT_NONCOPYABLE(SystemProfiler);
+		STINGRAYKIT_NONCOPYABLE(SystemProfiler);
 
 		class Impl;
 
