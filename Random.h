@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_RANDOM_H
-#define STINGRAY_TOOLKIT_RANDOM_H
+#ifndef STINGRAYKIT_RANDOM_H
+#define STINGRAYKIT_RANDOM_H
 
 
 #include <stingray/toolkit/Types.h>

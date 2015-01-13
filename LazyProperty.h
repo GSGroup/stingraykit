@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_LAZYPROPERTY_H
-#define STINGRAY_TOOLKIT_LAZYPROPERTY_H
+#ifndef STINGRAYKIT_LAZYPROPERTY_H
+#define STINGRAYKIT_LAZYPROPERTY_H
 
 #include <stingray/toolkit/shared_ptr.h>
 

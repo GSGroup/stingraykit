@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TIME_TIMEENGINE_H
-#define STINGRAY_TOOLKIT_TIME_TIMEENGINE_H
+#ifndef STINGRAYKIT_TIME_TIMEENGINE_H
+#define STINGRAYKIT_TIME_TIMEENGINE_H
 
 #if defined(PLATFORM_POSIX)
 #	include <stingray/toolkit/time/posix/TimeEngine.h>

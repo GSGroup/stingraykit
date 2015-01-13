@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_REFERENCE_H
-#define STINGRAY_TOOLKIT_REFERENCE_H
+#ifndef STINGRAYKIT_REFERENCE_H
+#define STINGRAYKIT_REFERENCE_H
 
 
 #include <stingray/toolkit/toolkit.h>

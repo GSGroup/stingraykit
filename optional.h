@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_OPTIONAL_H
-#define STINGRAY_TOOLKIT_OPTIONAL_H
+#ifndef STINGRAYKIT_OPTIONAL_H
+#define STINGRAYKIT_OPTIONAL_H
 
 #include <stingray/toolkit/aligned_storage.h>
 #include <stingray/toolkit/exception.h>

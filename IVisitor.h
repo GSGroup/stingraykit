@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_IVISITOR_H
-#define STINGRAY_TOOLKIT_IVISITOR_H
+#ifndef STINGRAYKIT_IVISITOR_H
+#define STINGRAYKIT_IVISITOR_H
 
 
 #include <stingray/toolkit/shared_ptr.h>

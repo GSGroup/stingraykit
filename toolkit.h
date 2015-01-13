@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TOOLKIT_H
-#define STINGRAY_TOOLKIT_TOOLKIT_H
+#ifndef STINGRAYKIT_TOOLKIT_H
+#define STINGRAYKIT_TOOLKIT_H
 
 
 #include <stdexcept>

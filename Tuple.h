@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TUPLE_H
-#define STINGRAY_TOOLKIT_TUPLE_H
+#ifndef STINGRAYKIT_TUPLE_H
+#define STINGRAYKIT_TUPLE_H
 
 
 #include <stingray/toolkit/Dummy.h>

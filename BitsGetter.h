@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_BITSGETTER_H
-#define STINGRAY_TOOLKIT_BITSGETTER_H
+#ifndef STINGRAYKIT_BITSGETTER_H
+#define STINGRAYKIT_BITSGETTER_H
 
 #include <limits>
 #if defined(__GNUC__) || defined(__clang__)

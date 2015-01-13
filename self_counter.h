@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_SELF_COUNTER_H
-#define STINGRAY_TOOLKIT_SELF_COUNTER_H
+#ifndef STINGRAYKIT_SELF_COUNTER_H
+#define STINGRAYKIT_SELF_COUNTER_H
 
 #include <stingray/toolkit/Atomic.h>
 #include <stingray/toolkit/Dummy.h>

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_DYNAMIC_CASTER_H
-#define STINGRAY_TOOLKIT_DYNAMIC_CASTER_H
+#ifndef STINGRAYKIT_DYNAMIC_CASTER_H
+#define STINGRAYKIT_DYNAMIC_CASTER_H
 
 
 #include <stingray/toolkit/MetaProgramming.h>

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_DATAPIPE_H
-#define STINGRAY_TOOLKIT_DATAPIPE_H
+#ifndef STINGRAYKIT_DATAPIPE_H
+#define STINGRAYKIT_DATAPIPE_H
 
 #include <stingray/toolkit/Dummy.h>
 #include <stingray/toolkit/Tuple.h>

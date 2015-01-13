@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_ATOMIC_H
-#define STINGRAY_TOOLKIT_ATOMIC_H
+#ifndef STINGRAYKIT_ATOMIC_H
+#define STINGRAYKIT_ATOMIC_H
 
 #include <cassert>
 

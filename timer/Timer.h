@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TIMER_TIMER_H
-#define STINGRAY_TOOLKIT_TIMER_TIMER_H
+#ifndef STINGRAYKIT_TIMER_TIMER_H
+#define STINGRAYKIT_TIMER_TIMER_H
 
 
 #include <stingray/toolkit/Final.h>

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_FUTURE_H
-#define STINGRAY_TOOLKIT_FUTURE_H
+#ifndef STINGRAYKIT_FUTURE_H
+#define STINGRAYKIT_FUTURE_H
 
 #include <stingray/toolkit/thread/CancellationToken.h>
 #include <stingray/toolkit/thread/Thread.h>

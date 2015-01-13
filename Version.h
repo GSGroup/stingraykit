@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_VERSION_H
-#define STINGRAY_TOOLKIT_VERSION_H
+#ifndef STINGRAYKIT_VERSION_H
+#define STINGRAYKIT_VERSION_H
 
 
 #include <stingray/toolkit/compare/MemberListComparer.h>

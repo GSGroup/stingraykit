@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TIME_TIME_H
-#define STINGRAY_TOOLKIT_TIME_TIME_H
+#ifndef STINGRAYKIT_TIME_TIME_H
+#define STINGRAYKIT_TIME_TIME_H
 
 
 #include <stingray/toolkit/serialization/ISerializable.h>

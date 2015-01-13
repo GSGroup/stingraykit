@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_MAPPER_H
-#define STINGRAY_TOOLKIT_MAPPER_H
+#ifndef STINGRAYKIT_MAPPER_H
+#define STINGRAYKIT_MAPPER_H
 
 
 #include <stingray/toolkit/string/StringUtils.h>

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_FUNCTION_PACKARGUMENTS_H
-#define STINGRAY_STINGRAYKIT_FUNCTION_PACKARGUMENTS_H
+#ifndef STINGRAYKIT_FUNCTION_PACKARGUMENTS_H
+#define STINGRAYKIT_FUNCTION_PACKARGUMENTS_H
 
 #include <stingray/toolkit/function/function.h>
 #include <stingray/toolkit/Tuple.h>

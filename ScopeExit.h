@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_SCOPEEXIT_H
-#define STINGRAY_TOOLKIT_SCOPEEXIT_H
+#ifndef STINGRAYKIT_SCOPEEXIT_H
+#define STINGRAYKIT_SCOPEEXIT_H
 
 
 #include <stingray/toolkit/toolkit.h>

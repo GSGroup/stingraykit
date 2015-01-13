@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TYPES_H
-#define STINGRAY_TOOLKIT_TYPES_H
+#ifndef STINGRAYKIT_TYPES_H
+#define STINGRAYKIT_TYPES_H
 
 
 #include <stdint.h>

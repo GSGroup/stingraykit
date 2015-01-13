@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_ICLONEABLE_H
-#define STINGRAY_TOOLKIT_ICLONEABLE_H
+#ifndef STINGRAYKIT_ICLONEABLE_H
+#define STINGRAYKIT_ICLONEABLE_H
 
 
 #include <stingray/toolkit/shared_ptr.h>

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_FINALIZER_H
-#define STINGRAY_STINGRAYKIT_FINALIZER_H
+#ifndef STINGRAYKIT_FINALIZER_H
+#define STINGRAYKIT_FINALIZER_H
 
 
 #include <stingray/toolkit/thread/ITaskExecutor.h>

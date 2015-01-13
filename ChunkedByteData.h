@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_CHUNKEDBYTEDATA_H
-#define STINGRAY_TOOLKIT_CHUNKEDBYTEDATA_H
+#ifndef STINGRAYKIT_CHUNKEDBYTEDATA_H
+#define STINGRAYKIT_CHUNKEDBYTEDATA_H
 
 #include <stingray/toolkit/collection/ByteData.h>
 #include <stingray/toolkit/collection/IEnumerable.h>

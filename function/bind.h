@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_FUNCTION_BIND_H
-#define STINGRAY_STINGRAYKIT_FUNCTION_BIND_H
+#ifndef STINGRAYKIT_FUNCTION_BIND_H
+#define STINGRAYKIT_FUNCTION_BIND_H
 
 
 #include <stingray/toolkit/function/function.h>

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_THREAD_ATOMIC_H
-#define STINGRAY_TOOLKIT_THREAD_ATOMIC_H
+#ifndef STINGRAYKIT_THREAD_ATOMIC_H
+#define STINGRAYKIT_THREAD_ATOMIC_H
 
 #include <stingray/toolkit/thread/Thread.h>
 #include <stingray/toolkit/Atomic.h>

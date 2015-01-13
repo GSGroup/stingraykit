@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_ICREATOR_H
-#define STINGRAY_TOOLKIT_ICREATOR_H
+#ifndef STINGRAYKIT_ICREATOR_H
+#define STINGRAYKIT_ICREATOR_H
 
 
 #include <stingray/toolkit/shared_ptr.h>

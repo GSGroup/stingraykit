@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_RECT_H
-#define STINGRAY_TOOLKIT_RECT_H
+#ifndef STINGRAYKIT_RECT_H
+#define STINGRAYKIT_RECT_H
 
 
 #include <stingray/toolkit/Position.h>

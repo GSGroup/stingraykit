@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_NUMERICRANGE_H
-#define STINGRAY_TOOLKIT_NUMERICRANGE_H
+#ifndef STINGRAYKIT_NUMERICRANGE_H
+#define STINGRAYKIT_NUMERICRANGE_H
 
 #include <stingray/toolkit/exception.h>
 #include <stingray/toolkit/string/StringUtils.h>

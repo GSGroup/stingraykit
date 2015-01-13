@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_COLLECTION_BYTEDATA_H
-#define STINGRAY_TOOLKIT_COLLECTION_BYTEDATA_H
+#ifndef STINGRAYKIT_COLLECTION_BYTEDATA_H
+#define STINGRAYKIT_COLLECTION_BYTEDATA_H
 
 #include <stingray/toolkit/TypeInfo.h>
 #include <stingray/toolkit/exception.h>

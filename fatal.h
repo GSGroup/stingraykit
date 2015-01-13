@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_FATAL_H
-#define STINGRAY_STINGRAYKIT_FATAL_H
+#ifndef STINGRAYKIT_FATAL_H
+#define STINGRAYKIT_FATAL_H
 
 #include <stingray/toolkit/toolkit.h>
 

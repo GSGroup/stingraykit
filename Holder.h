@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_HOLDER_H
-#define STINGRAY_TOOLKIT_HOLDER_H
+#ifndef STINGRAYKIT_HOLDER_H
+#define STINGRAYKIT_HOLDER_H
 
 
 #include <stingray/toolkit/function/bind.h>

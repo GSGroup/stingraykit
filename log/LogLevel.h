@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_LOG_LOGLEVEL_H
-#define STINGRAY_TOOLKIT_LOG_LOGLEVEL_H
+#ifndef STINGRAYKIT_LOG_LOGLEVEL_H
+#define STINGRAYKIT_LOG_LOGLEVEL_H
 
 
 #include <stingray/toolkit/toolkit.h>

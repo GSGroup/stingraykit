@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_FACTORY_H
-#define STINGRAY_TOOLKIT_FACTORY_H
+#ifndef STINGRAYKIT_FACTORY_H
+#define STINGRAYKIT_FACTORY_H
 
 
 #include <stingray/toolkit/Singleton.h>

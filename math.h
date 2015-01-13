@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_MATH_H
-#define STINGRAY_TOOLKIT_MATH_H
+#ifndef STINGRAYKIT_MATH_H
+#define STINGRAYKIT_MATH_H
 
 
 #include <stingray/toolkit/exception.h>

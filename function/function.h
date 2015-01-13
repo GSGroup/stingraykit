@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_FUNCTION_FUNCTION_H
-#define STINGRAY_STINGRAYKIT_FUNCTION_FUNCTION_H
+#ifndef STINGRAYKIT_FUNCTION_FUNCTION_H
+#define STINGRAYKIT_FUNCTION_FUNCTION_H
 
 #include <stingray/toolkit/function/FunctorInvoker.h>
 #include <stingray/toolkit/Tuple.h>

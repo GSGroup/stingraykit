@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_SINGLETON_H
-#define STINGRAY_STINGRAYKIT_SINGLETON_H
+#ifndef STINGRAYKIT_SINGLETON_H
+#define STINGRAYKIT_SINGLETON_H
 
 
 #include <stingray/toolkit/log/Logger.h>

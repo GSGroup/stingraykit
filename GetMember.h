@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_GETMEMBER_H
-#define STINGRAY_TOOLKIT_GETMEMBER_H
+#ifndef STINGRAYKIT_GETMEMBER_H
+#define STINGRAYKIT_GETMEMBER_H
 
 
 #include <stingray/toolkit/function/function_info.h>

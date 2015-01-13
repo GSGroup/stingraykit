@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_THREAD_CALL_ONCE_H
-#define STINGRAY_TOOLKIT_THREAD_CALL_ONCE_H
+#ifndef STINGRAYKIT_THREAD_CALL_ONCE_H
+#define STINGRAYKIT_THREAD_CALL_ONCE_H
 
 #if PLATFORM_POSIX
 #	include <stingray/toolkit/thread/posix/PosixCallOnce.h>

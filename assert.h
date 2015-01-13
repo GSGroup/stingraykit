@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_ASSERT_H
-#define STINGRAY_STINGRAYKIT_ASSERT_H
+#ifndef STINGRAYKIT_ASSERT_H
+#define STINGRAYKIT_ASSERT_H
 
 #include <stingray/toolkit/fatal.h>
 

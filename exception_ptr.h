@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_EXCEPTION_PTR_H
-#define STINGRAY_TOOLKIT_EXCEPTION_PTR_H
+#ifndef STINGRAYKIT_EXCEPTION_PTR_H
+#define STINGRAYKIT_EXCEPTION_PTR_H
 
 #include <stingray/toolkit/light_shared_ptr.h>
 #include <stingray/toolkit/exception.h>

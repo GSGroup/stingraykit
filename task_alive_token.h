@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TASK_ALIVE_TOKEN_H
-#define STINGRAY_TOOLKIT_TASK_ALIVE_TOKEN_H
+#ifndef STINGRAYKIT_TASK_ALIVE_TOKEN_H
+#define STINGRAYKIT_TASK_ALIVE_TOKEN_H
 
 
 #include <stingray/toolkit/thread/Thread.h>

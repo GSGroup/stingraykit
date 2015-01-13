@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_LAZY_H
-#define STINGRAY_TOOLKIT_LAZY_H
+#ifndef STINGRAYKIT_LAZY_H
+#define STINGRAYKIT_LAZY_H
 
 
 #include <stingray/toolkit/function/function.h>

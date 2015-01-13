@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_IO_SELECTMODE_H
-#define STINGRAY_TOOLKIT_IO_SELECTMODE_H
+#ifndef STINGRAYKIT_IO_SELECTMODE_H
+#define STINGRAYKIT_IO_SELECTMODE_H
 
 
 #include <stingray/toolkit/toolkit.h>

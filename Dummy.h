@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_DUMMY_H
-#define STINGRAY_TOOLKIT_DUMMY_H
+#ifndef STINGRAYKIT_DUMMY_H
+#define STINGRAYKIT_DUMMY_H
 
 
 namespace stingray

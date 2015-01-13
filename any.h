@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_ANY_H
-#define STINGRAY_TOOLKIT_ANY_H
+#ifndef STINGRAYKIT_ANY_H
+#define STINGRAYKIT_ANY_H
 
 
 #include <iostream>

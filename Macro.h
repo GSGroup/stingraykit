@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_MACRO_H
-#define STINGRAY_TOOLKIT_MACRO_H
+#ifndef STINGRAYKIT_MACRO_H
+#define STINGRAYKIT_MACRO_H
 
 /**
  * @addtogroup toolkit_macro

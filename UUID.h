@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_UUID_H
-#define STINGRAY_TOOLKIT_UUID_H
+#ifndef STINGRAYKIT_UUID_H
+#define STINGRAYKIT_UUID_H
 
 
 #include <stingray/toolkit/serialization/ISerializable.h>

@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_THREAD_BARRIER_H
-#define STINGRAY_TOOLKIT_THREAD_BARRIER_H
+#ifndef STINGRAYKIT_THREAD_BARRIER_H
+#define STINGRAYKIT_THREAD_BARRIER_H
 
 #include <stingray/toolkit/thread/ConditionVariable.h>
 #include <stingray/toolkit/thread/Thread.h>

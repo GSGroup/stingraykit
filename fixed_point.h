@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_FIXED_POINT_H
-#define STINGRAY_TOOLKIT_FIXED_POINT_H
+#ifndef STINGRAYKIT_FIXED_POINT_H
+#define STINGRAYKIT_FIXED_POINT_H
 
 
 #include <stingray/toolkit/string/StringUtils.h>

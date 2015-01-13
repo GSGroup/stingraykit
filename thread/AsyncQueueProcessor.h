@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_THREAD_ASYNCQUEUEPROCESSOR_H
-#define STINGRAY_TOOLKIT_THREAD_ASYNCQUEUEPROCESSOR_H
+#ifndef STINGRAYKIT_THREAD_ASYNCQUEUEPROCESSOR_H
+#define STINGRAYKIT_THREAD_ASYNCQUEUEPROCESSOR_H
 
 #include <stingray/toolkit/log/Logger.h>
 #include <stingray/toolkit/thread/CancellationToken.h>

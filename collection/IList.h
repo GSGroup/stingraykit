@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_COLLECTION_ILIST_H
-#define STINGRAY_TOOLKIT_COLLECTION_ILIST_H
+#ifndef STINGRAYKIT_COLLECTION_ILIST_H
+#define STINGRAYKIT_COLLECTION_ILIST_H
 
 
 #include <stingray/toolkit/collection/ICollection.h>

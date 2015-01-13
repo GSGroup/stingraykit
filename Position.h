@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_POSITION_H
-#define STINGRAY_TOOLKIT_POSITION_H
+#ifndef STINGRAYKIT_POSITION_H
+#define STINGRAYKIT_POSITION_H
 
 
 #include <stingray/toolkit/string/StringUtils.h>

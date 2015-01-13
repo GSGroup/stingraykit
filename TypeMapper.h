@@ -1,5 +1,5 @@
-#ifndef STINGRAY_TOOLKIT_TYPEMAPPER_H
-#define STINGRAY_TOOLKIT_TYPEMAPPER_H
+#ifndef STINGRAYKIT_TYPEMAPPER_H
+#define STINGRAYKIT_TYPEMAPPER_H
 
 
 #include <stingray/toolkit/TypeList.h>
