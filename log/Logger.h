@@ -24,8 +24,11 @@ namespace stingray
 	 * @{
 	 */
 
-#define STINGRAYKIT_DEFINE_NAMED_LOGGER(...) \
-		stingray::NamedLogger	__VA_ARGS__::s_logger(#__VA_ARGS__)
+#define DETAIL_DEFINE_NAMED_LOGGER_1(ClassName) stingray::NamedLogger ClassName::s_logger(#ClassName)
+#define DETAIL_DEFINE_NAMED_LOGGER_2(ClassName, LoggerName) stingray::NamedLogger ClassName::s_logger(LoggerName)
+
+#define STINGRAYKIT_DEFINE_NAMED_LOGGER(...) STINGRAYKIT_CAT(DETAIL_DEFINE_NAMED_LOGGER_, STINGRAYKIT_NARGS(__VA_ARGS__))(__VA_ARGS__)
+
 
 #define STINGRAYKIT_TRY(ErrorMessage_, ...) \
 		do { \
