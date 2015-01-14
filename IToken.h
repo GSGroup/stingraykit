@@ -27,8 +27,11 @@ namespace stingray
 		Token()
 		{ }
 
+		Token(const NullPtrType& token)
+		{ }
+
 		template<typename T>
-		Token(const T& token) : _token(token)
+		Token(const shared_ptr<T>& token) : _token(token)
 		{ }
 
 		Token& operator = (const Token& token)		{ Set(token); return *this; }
