@@ -41,8 +41,8 @@ namespace stingray
 	{
 		_impl.reset(new EventWatcher(_timer, timeout, frequency));
 
-		_impl->OnOccured.connect(OnOccured.invoker());
-		_impl->OnTimeout.connect(OnTimeout.invoker());
+		_tokens += _impl->OnOccured.connect(OnOccured.invoker());
+		_tokens += _impl->OnTimeout.connect(OnTimeout.invoker());
 	}
 
 

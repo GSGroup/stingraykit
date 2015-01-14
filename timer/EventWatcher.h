@@ -41,6 +41,7 @@ namespace stingray
 	private:
 		Timer 				_timer;
 		EventWatcherPtr		_impl;
+		TokenPool			_tokens;
 
 	public:
 		EventWatcherWithTimer(const std::string& name, size_t timeout, size_t frequency);
