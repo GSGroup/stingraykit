@@ -324,14 +324,14 @@ namespace stingray
 			_impl->SendCurrentState(slot); \
 		} \
 		\
-		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const \
+		TokenReturnProxy connect(const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
 			TaskLifeToken token; \
 			return _impl->Connect(slot, token.GetExecutionTester(), token, sendCurrentState); \
 		} \
 		\
-		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
+		TokenReturnProxy connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
 			async_function<Signature> slot_func(worker, slot); \
@@ -599,13 +599,13 @@ namespace stingray
 		 * @param[in] executor The ITaskExecutor object that will be used for the handler invokation
 		 * @param[in] handler The signal handler function (slot)
 		 */
-		Token connect(const ITaskExecutorPtr& executor, const FuncType& handler) const;
+		TokenReturnProxy connect(const ITaskExecutorPtr& executor, const FuncType& handler) const;
 
 		/**
 		 * @brief Synchronous connect method. Is prohibited if the signal uses ConnectionPolicy::AsyncOnly
 		 * @param[in] handler The signal handler function (slot)
 		 */
-		Token connect(const FuncType& handler) const;
+		TokenReturnProxy connect(const FuncType& handler) const;
 
 		STINGRAYKIT_NONCOPYABLE(signal);
 	}
