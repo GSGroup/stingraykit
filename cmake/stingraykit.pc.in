@@ -1,0 +1,5 @@
+ Name: libstingraykit
+ Version: 1.0.0
+ Description: Stingraykit library
+ Libs: -L${LIBRARY_OUTPUT_PATH} ${STINGRAYKIT_LIBS_STR}
+ Cflags: ${CMAKE_CXX_FLAGS} ${STINGRAYKIT_DEFINITIONS_STR} ${STINGRAYKIT_INCLUDE_DIRECTORIES_STR}
