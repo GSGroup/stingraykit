@@ -104,20 +104,13 @@ namespace stingray
 		Mutex		_mutex;
 
 	public:
-		TokenPool() { }
-		~TokenPool() { Release(); }
+		TokenPool()									{ }
+		~TokenPool()								{ Release(); }
 
-		void Add(const Token& token)
-		{
-			MutexLock l(_mutex);
-			_tokens.push_back(token);
-		}
+		bool Empty() const							{ MutexLock l(_mutex); return _tokens.empty(); }
 
-		bool Empty() const
-		{
-			MutexLock l(_mutex);
-			return _tokens.empty();
-		}
+		void Add(const Token& token)				{ MutexLock l(_mutex); _tokens.push_back(token); }
+		TokenPool& operator+= (const Token& token)	{ Add(token); return *this; }
 
 		void Release()
 		{
@@ -129,13 +122,6 @@ namespace stingray
 			while (!tokens.empty())
 				tokens.pop_back();
 		}
-
-		TokenPool& operator+= (const Token& token)
-		{
-			Add(token);
-			return *this;
-		}
-
 	};
 
 
