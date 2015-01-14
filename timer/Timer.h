@@ -19,40 +19,6 @@ namespace stingray
 	 * @{
 	 */
 
-	namespace Detail
-	{
-		struct ITimerConnectionImpl
-		{
-			virtual ~ITimerConnectionImpl() { }
-
-			virtual void Disconnect() = 0;
-		};
-		STINGRAYKIT_DECLARE_PTR(ITimerConnectionImpl);
-	}
-
-
-	class TimerConnectionToken : public virtual IToken
-	{
-		friend class Timer;
-
-	private:
-		Detail::ITimerConnectionImplPtr		_impl;
-
-		TimerConnectionToken(const Detail::ITimerConnectionImplPtr& impl)
-			: _impl(impl)
-		{ }
-
-	public:
-		~TimerConnectionToken()
-		{
-			if (_impl)
-			{
-				_impl->Disconnect();
-				_impl.reset();
-			}
-		}
-	};
-
 
 	class Timer : STINGRAYKIT_FINAL(Timer), public virtual ITaskExecutor
 	{
