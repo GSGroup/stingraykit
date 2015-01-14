@@ -57,7 +57,7 @@ namespace stingray
 	private:
 		DictionaryTypePtr																		_dict;
 		signal<void(CollectionOp, const ValueType&), signal_policies::threading::ExternalMutex>	_onChanged;
-		signal_connection_pool																	_connections;
+		TokenPool																				_connections;
 
 	public:
 		ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
@@ -65,7 +65,7 @@ namespace stingray
 		{ _connections += _dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))); }
 
 		~ObservableDictionaryKeysSet()
-		{ _connections.release(); }
+		{ _connections.Release(); }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{ return make_shared<EnumeratorWrapper<typename DictionaryType::PairType, ValueType> >(_dict->GetEnumerator(), bind(&DictionaryType::PairType::GetKey, _1)); }

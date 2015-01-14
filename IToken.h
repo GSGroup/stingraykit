@@ -3,6 +3,7 @@
 
 #include <map>
 
+#include <stingray/toolkit/collection/iterators.h>
 #include <stingray/toolkit/shared_ptr.h>
 #include <stingray/toolkit/thread/Thread.h>
 
@@ -17,6 +18,29 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(IToken);
 
 
+	class Token : public safe_bool<Token>
+	{
+	private:
+		ITokenPtr	_token;
+
+	public:
+		Token()
+		{ }
+
+		template<typename T>
+		Token(const T& token) : _token(token)
+		{ }
+
+		Token& operator = (const Token& token)		{ Set(token); return *this; }
+
+		void Set(const Token& token)				{ _token = token._token; }
+		void Reset()								{ Set(null); }
+
+		bool IsInitialized() const					{ return _token; }
+		bool boolean_test() const					{ return IsInitialized(); }
+	};
+
+
 	class TokenReturnProxy
 	{
 		STINGRAYKIT_NONASSIGNABLE(TokenReturnProxy);
@@ -28,41 +52,40 @@ namespace stingray
 		ImplPtr				_impl;
 
 	public:
-		TokenReturnProxy(const ITokenPtr& token);
+		TokenReturnProxy(const Token& token);
 		TokenReturnProxy(const TokenReturnProxy& other);
 		~TokenReturnProxy();
 
-		operator ITokenPtr() const;
+		operator Token() const;
 	};
 
 
 	class TokenHolder
 	{
 	private:
-		Mutex			_mutex;
-		ITokenPtr		_token;
+		Mutex		_mutex;
+		Token		_token;
 
 	public:
 		TokenHolder()
 		{ }
 
-		TokenHolder(const ITokenPtr& token)
-			: _token(token)
+		TokenHolder(const Token& token) : _token(token)
 		{ }
 
-		void Set(const ITokenPtr& token)
+		void Set(const Token& token)
 		{
-			ITokenPtr local_token = token;
+			Token local_copy = token;
 			{
 				MutexLock l(_mutex);
-				std::swap(local_token, _token);
+				std::swap(local_copy, _token);
 			}
 		}
 
 		void Reset()
 		{ Set(null); }
 
-		TokenHolder& operator = (const ITokenPtr& token)
+		TokenHolder& operator = (const Token& token)
 		{
 			Set(token);
 			return *this;
@@ -74,7 +97,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(TokenPool);
 
-		typedef std::vector<ITokenPtr> Tokens;
+		typedef std::vector<Token> Tokens;
 
 	private:
 		Tokens		_tokens;
@@ -84,7 +107,7 @@ namespace stingray
 		TokenPool() { }
 		~TokenPool() { Release(); }
 
-		void Add(const ITokenPtr& token)
+		void Add(const Token& token)
 		{
 			MutexLock l(_mutex);
 			_tokens.push_back(token);
@@ -105,7 +128,7 @@ namespace stingray
 			}
 		}
 
-		TokenPool& operator+= (const ITokenPtr& token)
+		TokenPool& operator+= (const Token& token)
 		{
 			Add(token);
 			return *this;
@@ -119,7 +142,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(TokenMap);
 
-		typedef std::multimap<Key, ITokenPtr, Compare> Tokens;
+		typedef std::multimap<Key, Token, Compare> Tokens;
 
 		class BracketsOperatorProxy
 		{
@@ -131,7 +154,7 @@ namespace stingray
 		public:
 			BracketsOperatorProxy(Mutex& mutex, const Key& key, Tokens& tokens) : _mutex(mutex), _key(key), _tokens(&tokens) { }
 
-			BracketsOperatorProxy& operator+= (const ITokenPtr& token)
+			BracketsOperatorProxy& operator+= (const Token& token)
 			{
 				MutexLock l(_mutex);
 				_tokens->insert(std::make_pair(_key, token));
@@ -151,7 +174,7 @@ namespace stingray
 
 		void release(const Key& key)
 		{
-			std::vector<ITokenPtr> tokens;
+			std::vector<Token> tokens;
 			{
 				MutexLock l(_mutex);
 				typename Tokens::iterator lower = _tokens.lower_bound(key);

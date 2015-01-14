@@ -64,8 +64,8 @@ namespace stingray
 			AsyncProfilerWeakPtr		_profiler;
 			IThreadInfoPtr				_threadInfo;
 			CallInfoPtr					_callInfo;
-			ITokenPtr					_criticalConnection;
-			ITokenPtr					_errorConnection;
+			Token					_criticalConnection;
+			Token					_errorConnection;
 			ElapsedTime					_elapsed;
 			Behaviour					_behaviour;
 

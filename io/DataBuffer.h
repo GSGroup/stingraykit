@@ -38,7 +38,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(size % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
 		}
 
-		DataBufferBase(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize) :
+		DataBufferBase(bool discardOnOverflow, ByteData storage, const Token& storageLifeAssurance, size_t inputPacketSize) :
 			_discardOnOverflow(discardOnOverflow), _buffer(storage, storageLifeAssurance),
 			_inputPacketSize(inputPacketSize), _eod(false)
 		{
@@ -126,11 +126,11 @@ namespace stingray
 			STINGRAYKIT_CHECK(size % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
-		DataBuffer(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize = 1) :
+		DataBuffer(bool discardOnOverflow, ByteData storage, const Token& storageLifeAssurance, size_t inputPacketSize = 1) :
 			DataBufferBase(discardOnOverflow, storage, storageLifeAssurance, inputPacketSize), _outputPacketSize(inputPacketSize)
 		{ }
 
-		DataBuffer(bool discardOnOverflow, ByteData storage, const ITokenPtr& storageLifeAssurance, size_t inputPacketSize, size_t outputPacketSize) :
+		DataBuffer(bool discardOnOverflow, ByteData storage, const Token& storageLifeAssurance, size_t inputPacketSize, size_t outputPacketSize) :
 			DataBufferBase(discardOnOverflow, storage, storageLifeAssurance, inputPacketSize), _outputPacketSize(outputPacketSize)
 		{
 			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));

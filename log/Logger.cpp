@@ -293,7 +293,7 @@ namespace stingray
 	{ NamedLoggerRegistry::Instance().GetLoggerNames(out); }
 
 
-	ITokenPtr Logger::AddSink(const ILoggerSinkPtr& sink)
+	Token Logger::AddSink(const ILoggerSinkPtr& sink)
 	{
 		LoggerImplPtr logger = LoggerSingleton::Instance();
 		if (!logger)

@@ -2,8 +2,9 @@
 #define STINGRAYKIT_COLLECTION_ITERATORS_H
 
 
-#include <stingray/toolkit/function/function_info.h>
 #include <stingray/toolkit/collection/iterator_base.h>
+#include <stingray/toolkit/dynamic_caster.h>
+#include <stingray/toolkit/function/function_info.h>
 #include <stingray/toolkit/shared_ptr.h>
 
 

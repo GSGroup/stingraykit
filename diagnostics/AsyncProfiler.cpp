@@ -33,8 +33,8 @@ namespace stingray
 	AsyncProfiler::Session::~Session()
 	{
 		AsyncProfilerPtr profiler = _profiler.lock();
-		_criticalConnection.reset();
-		_errorConnection.reset();
+		_criticalConnection.Reset();
+		_errorConnection.Reset();
 		if (!profiler)
 		{
 			s_logger.Warning() << "profiler session destroyed after profiler death";

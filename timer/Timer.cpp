@@ -191,7 +191,7 @@ namespace stingray
 	}
 
 
-	ITokenPtr Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
+	Token Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
 	{
 		MutexLock l(_queue->Sync());
 
@@ -199,15 +199,15 @@ namespace stingray
 		_queue->Push(ci);
 		_cond.Broadcast();
 
-		return ITokenPtr(new TimerConnectionToken(ci));
+		return Token(new TimerConnectionToken(ci));
 	}
 
 
-	ITokenPtr Timer::SetTimer(const TimeDuration& interval, const function<void()>& func)
+	Token Timer::SetTimer(const TimeDuration& interval, const function<void()>& func)
 	{ return SetTimer(interval, interval, func); }
 
 
-	ITokenPtr Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
+	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
 	{
 		MutexLock l(_queue->Sync());
 
@@ -215,7 +215,7 @@ namespace stingray
 		_queue->Push(ci);
 		_cond.Broadcast();
 
-		return ITokenPtr(new TimerConnectionToken(ci));
+		return Token(new TimerConnectionToken(ci));
 	}
 
 

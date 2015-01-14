@@ -24,7 +24,7 @@ namespace stingray
 
 
 	template <typename T>
-	ITokenPtr MakeObjectToken(const T& object)
+	Token MakeObjectToken(const T& object)
 	{ return make_shared<Detail::ObjectToken<T> >(object); }
 
 }

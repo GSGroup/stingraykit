@@ -14,7 +14,7 @@ namespace stingray {
 	template<typename ParamType>
 	class SignalToFutureWrapper
 	{
-		signal_connection_holder		_connection;
+		TokenHolder						_connection;
 		promise<ParamType>				_promise;
 		shared_future<ParamType>		_future;
 
@@ -28,7 +28,7 @@ namespace stingray {
 		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this, _1)); }
 
 		~SignalToFutureWrapper()
-		{ _connection.disconnect(); }
+		{ _connection.Reset(); }
 
 		shared_future<ParamType> GetFuture()
 		{
@@ -45,7 +45,7 @@ namespace stingray {
 	template<>
 	class SignalToFutureWrapper<void>
 	{
-		signal_connection_holder	_connection;
+		TokenHolder					_connection;
 		promise<void>				_promise;
 		shared_future<void>			_future;
 
@@ -59,7 +59,7 @@ namespace stingray {
 		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this)); }
 
 		~SignalToFutureWrapper()
-		{ _connection.disconnect(); }
+		{ _connection.Reset(); }
 
 		shared_future<void> GetFuture()
 		{

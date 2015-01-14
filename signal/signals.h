@@ -2,16 +2,16 @@
 #define STINGRAYKIT_SIGNAL_SIGNALS_H
 
 
-#include <stingray/toolkit/thread/ITaskExecutor.h>
+#include <stingray/toolkit/IToken.h>
 #include <stingray/toolkit/assert.h>
-#include <stingray/toolkit/function/async_function.h>
-#include <stingray/toolkit/function/function.h>
 #include <stingray/toolkit/collection/inplace_vector.h>
 #include <stingray/toolkit/collection/intrusive_list.h>
+#include <stingray/toolkit/function/async_function.h>
+#include <stingray/toolkit/function/function.h>
 #include <stingray/toolkit/self_counter.h>
-#include <stingray/toolkit/signal/signal_connection.h>
 #include <stingray/toolkit/signal/signal_connector.h>
 #include <stingray/toolkit/signal/signal_policies.h>
+#include <stingray/toolkit/thread/ITaskExecutor.h>
 
 
 namespace stingray
@@ -142,7 +142,7 @@ namespace stingray
 				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState)
 			{ }
 
-			virtual ISignalConnectionSelfCountPtr Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState);
+			virtual Token Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState);;
 
 			virtual void SendCurrentState(const function<Signature_>& slot) const
 			{
@@ -178,7 +178,7 @@ namespace stingray
 
 
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		class Connection : public ISignalConnection
+		class Connection : public IToken
 		{
 		public:
 			typedef SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>		Impl;
@@ -198,7 +198,7 @@ namespace stingray
 				: _signalImpl(signalImpl), _it(it), _token(token)
 			{ }
 
-			virtual void Disconnect()
+			virtual ~Connection()
 			{
 				ImplPtr signal_impl = _signalImpl;
 				if (signal_impl)
@@ -217,7 +217,7 @@ namespace stingray
 		};
 
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		ISignalConnectionSelfCountPtr SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function<Signature_>& func, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState)
+		Token SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function<Signature_>& func, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState)
 		{
 			//STINGRAYKIT_ASSERT(this->GetConnectionPolicy() != ConnectionPolicy::AsyncOnly);
 			typedef Connection<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>	Connection;
@@ -233,7 +233,8 @@ namespace stingray
 			_handlers.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(func), futureExecutionTester)));
 			typename Connection::ImplPtr impl(this);
 			this->add_ref();
-			return ISignalConnectionSelfCountPtr(new Connection(impl, --_handlers.end(), taskLifeToken));
+			ITokenPtr result = make_shared<Connection>(impl, --_handlers.end(), taskLifeToken);
+			return result;
 		}
 
 	}
@@ -323,18 +324,18 @@ namespace stingray
 			_impl->SendCurrentState(slot); \
 		} \
 		\
-		signal_connection connect(const function<Signature>& slot, bool sendCurrentState = true) const \
+		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
 			TaskLifeToken token; \
-			return signal_connection(_impl->Connect(slot, token.GetExecutionTester(), token, sendCurrentState)); \
+			return _impl->Connect(slot, token.GetExecutionTester(), token, sendCurrentState); \
 		} \
 		\
-		signal_connection connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
+		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
 			async_function<Signature> slot_func(worker, slot); \
-			return signal_connection(_impl->Connect(slot_func, null, slot_func.GetToken(), sendCurrentState)); \
+			return _impl->Connect(slot_func, null, slot_func.GetToken(), sendCurrentState); \
 		} \
 		\
 		signal_connector<Signature> connector() const { CreationPolicy_::template LazyCreate(_impl); return signal_connector<Signature>(_impl); } \
@@ -598,13 +599,13 @@ namespace stingray
 		 * @param[in] executor The ITaskExecutor object that will be used for the handler invokation
 		 * @param[in] handler The signal handler function (slot)
 		 */
-		signal_connection connect(const ITaskExecutorPtr& executor, const FuncType& handler) const;
+		Token connect(const ITaskExecutorPtr& executor, const FuncType& handler) const;
 
 		/**
 		 * @brief Synchronous connect method. Is prohibited if the signal uses ConnectionPolicy::AsyncOnly
 		 * @param[in] handler The signal handler function (slot)
 		 */
-		signal_connection connect(const FuncType& handler) const;
+		Token connect(const FuncType& handler) const;
 
 		STINGRAYKIT_NONCOPYABLE(signal);
 	}

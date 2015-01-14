@@ -71,7 +71,7 @@ namespace stingray
 		static LoggerStream Warning()	{ return Stream(LogLevel::Warning); }
 		static LoggerStream Error()	{ return Stream(LogLevel::Error); }
 
-		static ITokenPtr AddSink(const ILoggerSinkPtr& sink);
+		static Token AddSink(const ILoggerSinkPtr& sink);
 
 		static void Log(LogLevel logLevel, const std::string& message);
 		static void Log(const std::string& loggerName, LogLevel logLevel, const std::string& message);

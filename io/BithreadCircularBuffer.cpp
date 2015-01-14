@@ -18,14 +18,14 @@ namespace stingray
 	private:
 		Mutex			_mutex;
 		ByteData		_storage;
-		ITokenPtr		_storageLifeAssurance;
+		Token		_storageLifeAssurance;
 		size_t			_writeOffset, _readOffset;
 		size_t			_lockedForWrite, _lockedForRead;
 		atomic_int_type	_readersCount, _writersCount;
 		bool			_dataIsContiguous;
 
 	public:
-		Impl(ByteData storage, const ITokenPtr& storageLifeAssurance) :
+		Impl(ByteData storage, const Token& storageLifeAssurance) :
 			_storage(storage), _storageLifeAssurance(storageLifeAssurance),
 			_writeOffset(0), _readOffset(0),
 			_lockedForWrite(0), _lockedForRead(0),
@@ -131,7 +131,7 @@ namespace stingray
 	}
 
 
-	BithreadCircularBuffer::BithreadCircularBuffer(ByteData storage, const ITokenPtr& token) : _impl(new Impl(storage, token))
+	BithreadCircularBuffer::BithreadCircularBuffer(ByteData storage, const Token& token) : _impl(new Impl(storage, token))
 	{ }
 
 
