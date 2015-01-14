@@ -126,6 +126,8 @@ namespace stingray
 				MutexLock l(_mutex);
 				tokens.swap(_tokens);
 			}
+			while (!tokens.empty())
+				tokens.pop_back();
 		}
 
 		TokenPool& operator+= (const Token& token)
