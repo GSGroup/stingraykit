@@ -104,10 +104,10 @@ namespace stingray
 		};
 
 	private:
-		const char*					_name;
-		DuplicatingLogsFilter		_duplicatingLogsFilter;
-		atomic<OptionalLogLevel>	_logLevel;
-		atomic<bool>				_backtrace;
+		const char*						_name;
+		mutable DuplicatingLogsFilter	_duplicatingLogsFilter;
+		atomic<OptionalLogLevel>		_logLevel;
+		atomic<bool>					_backtrace;
 
 	public:
 		NamedLogger(const char* name);
@@ -128,13 +128,13 @@ namespace stingray
 		inline void EnableBacktrace(bool enable)
 		{ _backtrace = enable; }
 
-		LoggerStream Stream(LogLevel logLevel);
+		LoggerStream Stream(LogLevel logLevel) const;
 
-		LoggerStream Trace()	{ return Stream(LogLevel::Trace); }
-		LoggerStream Debug()	{ return Stream(LogLevel::Debug); }
-		LoggerStream Info()		{ return Stream(LogLevel::Info); }
-		LoggerStream Warning()	{ return Stream(LogLevel::Warning); }
-		LoggerStream Error()	{ return Stream(LogLevel::Error); }
+		LoggerStream Trace()	const { return Stream(LogLevel::Trace); }
+		LoggerStream Debug()	const { return Stream(LogLevel::Debug); }
+		LoggerStream Info()		const { return Stream(LogLevel::Info); }
+		LoggerStream Warning()	const { return Stream(LogLevel::Warning); }
+		LoggerStream Error()	const { return Stream(LogLevel::Error); }
 
 		void Log(LogLevel logLevel, const std::string& message)
 		{ Stream(logLevel) << message; }

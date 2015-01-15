@@ -328,7 +328,7 @@ namespace stingray
 	}
 
 
-	LoggerStream NamedLogger::Stream(LogLevel logLevel)
+	LoggerStream NamedLogger::Stream(LogLevel logLevel) const
 	{ return LoggerStream(_name, GetLogLevel(), logLevel, &_duplicatingLogsFilter, &LoggerStreamHelper::Log); }
 
 
