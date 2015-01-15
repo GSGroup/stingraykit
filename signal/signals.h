@@ -233,8 +233,7 @@ namespace stingray
 			_handlers.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(func), futureExecutionTester)));
 			typename Connection::ImplPtr impl(this);
 			this->add_ref();
-			ITokenPtr result = make_shared<Connection>(impl, --_handlers.end(), taskLifeToken);
-			return result;
+			return MakeToken<Connection>(impl, --_handlers.end(), taskLifeToken);
 		}
 
 	}

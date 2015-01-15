@@ -234,7 +234,7 @@ namespace stingray
 		_queue->Push(ci);
 		_cond.Broadcast();
 
-		return make_shared<TimerConnectionToken>(ci);
+		return MakeToken<TimerConnectionToken>(ci);
 	}
 
 
@@ -250,7 +250,7 @@ namespace stingray
 		_queue->Push(ci);
 		_cond.Broadcast();
 
-		return make_shared<TimerConnectionToken>(ci);
+		return MakeToken<TimerConnectionToken>(ci);
 	}
 
 
