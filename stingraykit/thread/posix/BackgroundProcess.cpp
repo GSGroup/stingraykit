@@ -37,7 +37,7 @@ namespace stingray { namespace posix
 
 		_argv.push_back(0);
 
-		_monitor = make_shared<Thread>("monitor: " + name, bind(&BackgroundProcess::Monitor, this, not_using(_1)));
+		_monitor = make_shared<Thread>("monitor: " + name, bind(&BackgroundProcess::Monitor, this, _1));
 	}
 
 	void BackgroundProcess::Convert(ArgHolder &dst, const std::string &src)
@@ -48,9 +48,9 @@ namespace stingray { namespace posix
 		_argv.push_back(&dst[0]);
 	}
 
-	void BackgroundProcess::Monitor()
+	void BackgroundProcess::Monitor(const ICancellationToken& token)
 	{
-		while(_restart)
+		while(token && _restart)
 		{
 			STINGRAYKIT_TRY("starting process failed ", Start());
 			Wait();

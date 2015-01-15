@@ -26,7 +26,7 @@ namespace stingray { namespace posix
 
 	private:
 		void Convert(ArgHolder &dst, const std::string &src);
-		void Monitor();
+		void Monitor(const ICancellationToken& token);
 		void Start();
 		void Stop();
 		void Wait();
