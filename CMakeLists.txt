@@ -402,8 +402,8 @@ endif (PLATFORM_LINUX_EMU OR PLATFORM_EMU_TS)
 
 list(APPEND STINGRAYKIT_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR})
 
-file(MAKE_DIRECTORY lib)
-file(MAKE_DIRECTORY stingraykit-doxygen)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/stingraykit-doxygen)
 
 if (PLATFORM_POSIX)
 	message(STATUS "Using posix platform")
@@ -426,7 +426,7 @@ set(STINGRAYKIT_LIBS ${STINGRAYKIT_LIBS} PARENT_SCOPE)
 add_definitions(${STINGRAYKIT_DEFINITIONS})
 include_directories(${STINGRAYKIT_INCLUDE_DIRECTORIES})
 
-add_custom_target(stingraykit-doxygen doxygen ./doxygen/doxy.cfg 2> /dev/null)
+add_custom_target(stingraykit-doxygen doxygen ${CMAKE_CURRENT_SOURCE_DIR}/doxygen/doxy.cfg 2> /dev/null)
 
 set(STINGRAYKIT_LIBS_STR "")
 foreach(_LIB ${STINGRAYKIT_LIBS})
