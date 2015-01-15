@@ -66,53 +66,53 @@ else()
 endif ()
 
 set(stingraykit_SRC
-	locale/LangCode.cpp
-	locale/LocaleString.cpp
-	locale/StringCodec.cpp
-	locale/Translit.cpp
-	serialization/Serialization.cpp
-	thread/Thread.cpp
-	thread/ThreadOperation.cpp
-	time/Time.cpp
-	diagnostics/AsyncProfiler.cpp
-	time/BrokenDownTime.cpp
-	diagnostics/CheckpointProfiler.cpp
-	time/ElapsedTime.cpp
-	timer/EventWatcher.cpp
-	timer/Timer.cpp
-	ActionTransaction.cpp
-	EnumToString.cpp
-	Factory.cpp
-	IToken.cpp
-	ProgressValue.cpp
-	Random.cpp
-	SystemException.cpp
-	TypeInfo.cpp
-	UUID.cpp
-	Version.cpp
-	any.cpp
-	diagnostics/AbortWrap.cpp
-	diagnostics/SystemProfiler.cpp
-	function/function_name_getter.cpp
-	io/BithreadCircularBuffer.cpp
-	io/CompositeDataConsumer.cpp
-	io/DataBuffer.cpp
-	log/Logger.cpp
-	log/LoggerMessage.cpp
-	log/LoggerStream.cpp
-	log/SystemLogger.cpp
-	self_counter.cpp
-	shared_ptr.cpp
-	signal/signal_policies.cpp
-	string/TranslatedString.cpp
-	string/Unicode.cpp
-	string/regex.cpp
-	string/string_stream.cpp
-	task_alive_token.cpp
-	thread/ITaskExecutor.cpp
-	thread/ThreadPool.cpp
-	thread/ThreadTaskExecutor.cpp
-	toolkit.cpp
+	stingraykit/locale/LangCode.cpp
+	stingraykit/locale/LocaleString.cpp
+	stingraykit/locale/StringCodec.cpp
+	stingraykit/locale/Translit.cpp
+	stingraykit/serialization/Serialization.cpp
+	stingraykit/thread/Thread.cpp
+	stingraykit/thread/ThreadOperation.cpp
+	stingraykit/time/Time.cpp
+	stingraykit/diagnostics/AsyncProfiler.cpp
+	stingraykit/time/BrokenDownTime.cpp
+	stingraykit/diagnostics/CheckpointProfiler.cpp
+	stingraykit/time/ElapsedTime.cpp
+	stingraykit/timer/EventWatcher.cpp
+	stingraykit/timer/Timer.cpp
+	stingraykit/ActionTransaction.cpp
+	stingraykit/EnumToString.cpp
+	stingraykit/Factory.cpp
+	stingraykit/IToken.cpp
+	stingraykit/ProgressValue.cpp
+	stingraykit/Random.cpp
+	stingraykit/SystemException.cpp
+	stingraykit/TypeInfo.cpp
+	stingraykit/UUID.cpp
+	stingraykit/Version.cpp
+	stingraykit/any.cpp
+	stingraykit/diagnostics/AbortWrap.cpp
+	stingraykit/diagnostics/SystemProfiler.cpp
+	stingraykit/function/function_name_getter.cpp
+	stingraykit/io/BithreadCircularBuffer.cpp
+	stingraykit/io/CompositeDataConsumer.cpp
+	stingraykit/io/DataBuffer.cpp
+	stingraykit/log/Logger.cpp
+	stingraykit/log/LoggerMessage.cpp
+	stingraykit/log/LoggerStream.cpp
+	stingraykit/log/SystemLogger.cpp
+	stingraykit/self_counter.cpp
+	stingraykit/shared_ptr.cpp
+	stingraykit/signal/signal_policies.cpp
+	stingraykit/string/TranslatedString.cpp
+	stingraykit/string/Unicode.cpp
+	stingraykit/string/regex.cpp
+	stingraykit/string/string_stream.cpp
+	stingraykit/task_alive_token.cpp
+	stingraykit/thread/ITaskExecutor.cpp
+	stingraykit/thread/ThreadPool.cpp
+	stingraykit/thread/ThreadTaskExecutor.cpp
+	stingraykit/toolkit.cpp
 )
 
 
@@ -123,10 +123,10 @@ if (PLATFORM_STAPI)
 		list(APPEND STINGRAYKIT_DEFINITIONS -DPLATFORM_OSPLUS=1)
 
 		list(APPEND stingraykit_SRC
-			thread/osplus/OS21CallOnce.cpp
-			thread/osplus/OS21TaskExecutor.cpp
-			thread/osplus/OS21ThreadEngine.cpp
-			time/osplus/TimeEngine.cpp
+			stingraykit/thread/osplus/OS21CallOnce.cpp
+			stingraykit/thread/osplus/OS21TaskExecutor.cpp
+			stingraykit/thread/osplus/OS21ThreadEngine.cpp
+			stingraykit/time/osplus/TimeEngine.cpp
 		)
 	endif (PLATFORM_OSPLUS)
 endif (PLATFORM_STAPI)
@@ -148,12 +148,12 @@ if (PLATFORM_POSIX)
 	set(COMMON_FLAGS "${COMMON_FLAGS} -pthread")
 
 	list(APPEND stingraykit_SRC
-		thread/posix/BackgroundProcess.cpp
-		thread/posix/PosixCallOnce.cpp
-		thread/posix/PosixConditionVariable.cpp
-		thread/posix/PosixSemaphore.cpp
-		thread/posix/PosixThreadEngine.cpp
-		time/posix/TimeEngine.cpp
+		stingraykit/thread/posix/BackgroundProcess.cpp
+		stingraykit/thread/posix/PosixCallOnce.cpp
+		stingraykit/thread/posix/PosixConditionVariable.cpp
+		stingraykit/thread/posix/PosixSemaphore.cpp
+		stingraykit/thread/posix/PosixThreadEngine.cpp
+		stingraykit/time/posix/TimeEngine.cpp
 	)
 endif (PLATFORM_POSIX)
 
@@ -316,7 +316,7 @@ if (USE_BACKTRACE)
 			message(STATUS "Using GCC backtrace")
 			list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_GCC_BACKTRACE=1)
 			list(APPEND stingraykit_SRC
-				diagnostics/gcc/Backtrace.cpp
+				stingraykit/diagnostics/gcc/Backtrace.cpp
 			)
 		endif (HAVE_GCC_UNWIND)
 	endif (PLATFORM_GCC)
@@ -327,7 +327,7 @@ if (USE_BACKTRACE)
 		if (HAVE_BACKTRACE)
 			list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BACKTRACE=1)
 			list(APPEND stingraykit_SRC
-				thread/posix/Backtrace.cpp
+				stingraykit/thread/posix/Backtrace.cpp
 			)
 		endif (HAVE_BACKTRACE)
 	endif (NOT DEFINED HAVE_GCC_UNWIND)
@@ -400,8 +400,7 @@ if (PLATFORM_LINUX_EMU OR PLATFORM_EMU_TS)
 	endif ()
 endif (PLATFORM_LINUX_EMU OR PLATFORM_EMU_TS)
 
-#list(APPEND STINGRAYKIT_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR})
-list(APPEND STINGRAYKIT_INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR})
+list(APPEND STINGRAYKIT_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR})
 
 file(MAKE_DIRECTORY lib)
 file(MAKE_DIRECTORY stingraykit-doxygen)

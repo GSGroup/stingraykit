@@ -1,0 +1,79 @@
+#ifndef STINGRAYKIT_COLLECTION_STLENUMERATORADAPTER_H
+#define STINGRAYKIT_COLLECTION_STLENUMERATORADAPTER_H
+
+
+#include <stingraykit/collection/IEnumerator.h>
+#include <stingraykit/shared_ptr.h>
+
+
+namespace stingray
+{
+
+	/**
+	 * @addtogroup toolkit_collections
+	 * @{
+	 */
+
+	template < typename T >
+	class StlEnumeratorAdapter : public std::iterator< std::forward_iterator_tag, T >
+	{
+	private:
+		shared_ptr<IEnumerator<T> >		_enumerator;
+
+	public:
+		StlEnumeratorAdapter() // This means the end of a collection
+		{ }
+
+		StlEnumeratorAdapter(shared_ptr<IEnumerator<T> > enumerator)
+			: _enumerator(enumerator)
+		{ }
+
+		const StlEnumeratorAdapter& operator ++ ()
+		{
+			if (_enumerator->Valid()) // Should we throw if _enumerator is not valid?
+				_enumerator->Next();
+			return *this;
+		}
+
+		T operator * () const
+		{
+			if (!_enumerator->Valid())
+				STINGRAYKIT_THROW(std::runtime_error("Trying to dereference an invalid enumerator!"));
+			return _enumerator->Get();
+		}
+
+		bool operator != (const StlEnumeratorAdapter& other)
+		{
+			if (other._enumerator != NULL)
+				STINGRAYKIT_THROW(NotImplementedException());
+			return _enumerator->Valid();
+		}
+
+		// whatever
+	};
+
+
+	template < typename T >
+	inline StlEnumeratorAdapter<T> Wrap(shared_ptr<IEnumerator<T> > enumerator)
+	{ return StlEnumeratorAdapter<T>(enumerator); }
+
+
+	template < typename T >
+	inline StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerator<T> >/* enumerator*/)
+	{ return StlEnumeratorAdapter<T>(); }
+
+
+	template < typename T >
+	inline StlEnumeratorAdapter<T> Wrap(shared_ptr<IEnumerable<T> > enumerable)
+	{ return StlEnumeratorAdapter<T>(enumerable->GetEnumerator()); }
+
+
+	template < typename T >
+	inline StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerable<T> >/* enumerator*/)
+	{ return StlEnumeratorAdapter<T>(); }
+
+	/** @} */
+
+}
+
+#endif
