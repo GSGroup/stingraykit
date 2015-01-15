@@ -226,7 +226,7 @@ namespace stingray
 	}
 
 
-	Token Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
+	TokenReturnProxy Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
 	{
 		MutexLock l(_queue->Sync());
 
@@ -238,11 +238,11 @@ namespace stingray
 	}
 
 
-	Token Timer::SetTimer(const TimeDuration& interval, const function<void()>& func)
+	TokenReturnProxy Timer::SetTimer(const TimeDuration& interval, const function<void()>& func)
 	{ return SetTimer(interval, interval, func); }
 
 
-	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
+	TokenReturnProxy Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
 	{
 		MutexLock l(_queue->Sync());
 
