@@ -41,12 +41,14 @@ namespace stingray
 
 		TimeDuration operator-=(TimeDuration other)			{ _microseconds -= other._microseconds; return *this; }
 		TimeDuration operator-(TimeDuration other) const 	{ TimeDuration result(*this); return result -= other; }
+		TimeDuration operator-() const 						{ return TimeDuration(-GetMilliseconds()); }
 
 		TimeDuration operator*=(int multiplier)				{ _microseconds *= multiplier; return *this; }
 		TimeDuration operator*(int multiplier) const		{ TimeDuration result(*this); return result *= multiplier; }
 
 		TimeDuration operator/=(int multiplier)				{ _microseconds /= multiplier; return *this; }
 		TimeDuration operator/(int multiplier) const		{ TimeDuration result(*this); return result /= multiplier; }
+
 
 		bool operator < (TimeDuration other) const			{ return _microseconds < other._microseconds; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
