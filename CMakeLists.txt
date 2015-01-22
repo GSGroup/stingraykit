@@ -66,20 +66,6 @@ else()
 endif ()
 
 set(stingraykit_SRC
-	stingraykit/locale/LangCode.cpp
-	stingraykit/locale/LocaleString.cpp
-	stingraykit/locale/StringCodec.cpp
-	stingraykit/locale/Translit.cpp
-	stingraykit/serialization/Serialization.cpp
-	stingraykit/thread/Thread.cpp
-	stingraykit/thread/ThreadOperation.cpp
-	stingraykit/time/Time.cpp
-	stingraykit/diagnostics/AsyncProfiler.cpp
-	stingraykit/time/BrokenDownTime.cpp
-	stingraykit/diagnostics/CheckpointProfiler.cpp
-	stingraykit/time/ElapsedTime.cpp
-	stingraykit/timer/EventWatcher.cpp
-	stingraykit/timer/Timer.cpp
 	stingraykit/ActionTransaction.cpp
 	stingraykit/EnumToString.cpp
 	stingraykit/Factory.cpp
@@ -91,28 +77,53 @@ set(stingraykit_SRC
 	stingraykit/UUID.cpp
 	stingraykit/Version.cpp
 	stingraykit/any.cpp
+	stingraykit/self_counter.cpp
+	stingraykit/shared_ptr.cpp
+	stingraykit/task_alive_token.cpp
+	stingraykit/toolkit.cpp
+
 	stingraykit/diagnostics/AbortWrap.cpp
+	stingraykit/diagnostics/AsyncProfiler.cpp
+	stingraykit/diagnostics/CheckpointProfiler.cpp
 	stingraykit/diagnostics/SystemProfiler.cpp
+
 	stingraykit/function/function_name_getter.cpp
+
 	stingraykit/io/BithreadCircularBuffer.cpp
 	stingraykit/io/CompositeDataConsumer.cpp
 	stingraykit/io/DataBuffer.cpp
+
+	stingraykit/locale/LangCode.cpp
+	stingraykit/locale/LocaleString.cpp
+	stingraykit/locale/StringCodec.cpp
+	stingraykit/locale/Translit.cpp
+
 	stingraykit/log/Logger.cpp
 	stingraykit/log/LoggerMessage.cpp
 	stingraykit/log/LoggerStream.cpp
 	stingraykit/log/SystemLogger.cpp
-	stingraykit/self_counter.cpp
-	stingraykit/shared_ptr.cpp
+
+	stingraykit/serialization/Serialization.cpp
+
 	stingraykit/signal/signal_policies.cpp
+
 	stingraykit/string/TranslatedString.cpp
 	stingraykit/string/Unicode.cpp
 	stingraykit/string/regex.cpp
 	stingraykit/string/string_stream.cpp
-	stingraykit/task_alive_token.cpp
+
 	stingraykit/thread/ITaskExecutor.cpp
+	stingraykit/thread/Thread.cpp
+	stingraykit/thread/ThreadOperation.cpp
 	stingraykit/thread/ThreadPool.cpp
 	stingraykit/thread/ThreadTaskExecutor.cpp
-	stingraykit/toolkit.cpp
+
+	stingraykit/time/BrokenDownTime.cpp
+	stingraykit/time/ElapsedTime.cpp
+	stingraykit/time/Time.cpp
+
+	stingraykit/timer/EventWatcher.cpp
+	stingraykit/timer/Timer.cpp
 )
 
 
