@@ -558,6 +558,9 @@ namespace stingray
 	template < typename T >
 	inline T* to_pointer(const shared_ptr<T>& ptr) { return ptr.get(); }
 
+	template < typename T >
+	inline T* to_pointer(shared_ptr<T>& ptr) { return ptr.get(); }
+
 
 	namespace Detail
 	{
