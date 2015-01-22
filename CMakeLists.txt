@@ -92,6 +92,7 @@ set(stingraykit_SRC
 	stingraykit/io/BithreadCircularBuffer.cpp
 	stingraykit/io/CompositeDataConsumer.cpp
 	stingraykit/io/DataBuffer.cpp
+	stingraykit/io/DataSourceReader.cpp
 
 	stingraykit/locale/LangCode.cpp
 	stingraykit/locale/LocaleString.cpp
