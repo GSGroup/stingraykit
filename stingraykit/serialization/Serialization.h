@@ -207,21 +207,25 @@ namespace stingray
 		}
 
 		template<typename T>
+		ObjectOStream& Serialize(const optional<T>& value)
+		{
+			if (value)
+				return Serialize(*value);
+			return Serialize(null);
+		}
+
+		template<typename T>
 		ObjectOStream& Serialize(const std::string& name, const T& value)
 		{
 			WritePropertyName(name);
-			Serialize(value);
-			return *this;
+			return Serialize(value);
 		}
 
 		template<typename T>
 		ObjectOStream& Serialize(const std::string& name, const optional<T>& value)
 		{
 			if (value)
-			{
-				WritePropertyName(name);
-				Serialize(*value);
-			}
+				return Serialize(name, *value);
 			return *this;
 		}
 
@@ -487,6 +491,20 @@ namespace stingray
 		ObjectIStream& Deserialize(T& value)
 		{
 			try { TypeWriter<T, ObjectIStream>::Deserialize(*this, value); } catch(SettingsValueException &ex) { ex.Append("?"); throw; }
+			return *this;
+		}
+
+		template<typename T>
+		ObjectIStream& Deserialize(optional<T>& value)
+		{
+			if (is_null())
+				value = null;
+			else
+			{
+				T value_;
+				Deserialize(value_);
+				value = value_;
+			}
 			return *this;
 		}
 
