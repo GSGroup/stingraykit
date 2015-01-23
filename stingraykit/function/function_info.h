@@ -391,7 +391,8 @@ namespace stingray
 	template < typename RetType_>
 	struct function_info<RetType_, UnspecifiedParamTypes> : public function_type<RetType_, UnspecifiedParamTypes>
 	{
-		typedef RetType_		RetType;
+		typedef RetType_				RetType;
+		typedef UnspecifiedParamTypes	ParamTypes;
 	};
 
 
