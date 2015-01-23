@@ -2,14 +2,15 @@
 #define STINGRAYKIT_FUNCTION_BIND_H
 
 
-#include <stingraykit/function/function.h>
-#include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/Macro.h>
 #include <stingraykit/MetaProgramming.h>
-#include <stingraykit/reference.h>
-#include <stingraykit/shared_ptr.h>
+#include <stingraykit/PerfectForwarding.h>
 #include <stingraykit/Tuple.h>
 #include <stingraykit/TypeList.h>
+#include <stingraykit/function/FunctorInvoker.h>
+#include <stingraykit/function/function.h>
+#include <stingraykit/reference.h>
+#include <stingraykit/shared_ptr.h>
 
 
 namespace stingray
@@ -84,6 +85,10 @@ namespace stingray
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex = 0, size_t Count = GetBinderParamsCount<AllParameters>::Value >
 		struct BinderParamTypesGetter
 		{ typedef TypeListNode<typename BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex>::ValueT, typename BinderParamTypesGetter<OriginalParamTypes, AllParameters, CurrentIndex + 1, Count>::ValueT> ValueT; };
+
+		template < typename AllParameters, size_t CurrentIndex, size_t Count >
+		struct BinderParamTypesGetter<UnspecifiedParamTypes, AllParameters, CurrentIndex, Count>
+		{ typedef UnspecifiedParamTypes ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t Count >
 		struct BinderParamTypesGetter<OriginalParamTypes, AllParameters, Count, Count>
@@ -173,63 +178,6 @@ namespace stingray
 		};
 
 		template<typename T>
-		struct BindCallParamTraits
-		{
-			typedef typename GetParamPassingType<T>::ValueT ValueT;
-		};
-
-		template<typename T>
-		struct ToPointerCallProxy
-		{
-		private:
-			T*				_rawPtr;
-
-		public:
-			ToPointerCallProxy(T* ptr)
-				: _rawPtr(ptr)
-			{}
-			ToPointerCallProxy(T& ref)
-				: _rawPtr(&ref)
-			{}
-			template < typename U >
-			ToPointerCallProxy(const shared_ptr<U>& ptr)
-				: _rawPtr(ptr.get())
-			{}
-			operator T*() const { return _rawPtr; }
-		};
-
-		template< >
-		struct ToPointerCallProxy<void>
-		{
-		private:
-			void* _rawPtr;
-		public:
-			ToPointerCallProxy(void* ptr)
-				: _rawPtr(ptr)
-			{}
-			operator void*() const { return _rawPtr; }
-		};
-
-		template< >
-		struct ToPointerCallProxy<const void>
-		{
-		private:
-			const void* _rawPtr;
-
-		public:
-			ToPointerCallProxy(const void* ptr)
-				: _rawPtr(ptr)
-			{}
-			operator const void*() const { return _rawPtr; }
-		};
-
-		template<typename T>
-		struct BindCallParamTraits<T*>
-		{
-			typedef const ToPointerCallProxy<T>& ValueT;
-		};
-
-		template<typename T>
 		struct IsNotChomped
 		{ static const bool Value = true; };
 
@@ -237,14 +185,14 @@ namespace stingray
 		struct IsNotChomped<Chomper<N> >
 		{ static const bool Value = false; };
 
-		template < typename RetType_, typename AllParameters, typename FunctorType >
-		class BinderBase
+		template < typename AllParameters, typename FunctorType >
+		class Binder
 		{
 		public:
-			typedef RetType_																									RetType;
-			typedef typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT		ParamTypes;
+			typedef typename function_info<FunctorType>::RetType															RetType;
+			typedef typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT	ParamTypes;
 
-		protected:
+		private:
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
 			template < typename BinderParams >
@@ -273,97 +221,37 @@ namespace stingray
 			FunctorType					_func;
 			Tuple<BoundParams>			_boundParams;
 
-		protected:
-			BinderBase(const FunctorType& func, const Tuple<AllParameters>& allParams)
+		public:
+			Binder(const FunctorType& func, const Tuple<AllParameters>& allParams)
 				: _func(func), _boundParams(GetBoundParams(allParams))
 			{ }
+
+			STINGRAYKIT_PERFECT_FORWARDING(RetType, operator(), Do)
+
+			std::string GetFuncName() const { return get_function_name(_func); }
 
 		private:
 			static inline Tuple<BoundParams> GetBoundParams(const Tuple<AllParameters>& all)
 			{ return Tuple<BoundParams>::CreateFromTupleLikeObject(NonPlaceholdersCutter<AllParameters>(all)); }
-		};
 
-
-		template
-			<
-				typename RetType,
-				typename AllParameters,
-				typename FunctorType,
-				size_t BinderParamsCount = GetBinderParamsCount<AllParameters>::Value
-			>
-		struct Binder;
-
-		template < typename RetType_, typename AllParameters, typename FunctorType >
-		struct Binder<RetType_, AllParameters, FunctorType, 0> : private BinderBase<RetType_, AllParameters, FunctorType>, public function_info<RetType_, typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT>
-		{
-			typedef BinderBase<RetType_, AllParameters, FunctorType>	base;
-			typedef typename base::RetType								RetType;
-			typedef typename base::ParamTypes							ParamTypes;
-
-			Binder(const FunctorType& func, const Tuple<AllParameters>& allParams)
-				: base(func, allParams)
-			{ }
-
-			inline RetType operator () () const
+			template< typename ParamTypeList >
+			RetType Do(const Tuple<ParamTypeList>& params) const
 			{
-				typedef TypeList_0	BinderParams;
-				Tuple<BinderParams> call_params;
-				typename base::template RealParameters<BinderParams> rp(base::_boundParams, call_params);
-				return FunctorInvoker::Invoke<FunctorType>(base::_func, rp);
+				RealParameters<ParamTypeList> rp(_boundParams, params);
+				return FunctorInvoker::Invoke<FunctorType>(_func, rp);
 			}
-
-			std::string GetFuncName() const { return get_function_name(base::_func); }
 		};
-
-#define DETAIL_STINGRAYKIT_DECLARE_BINDER(N, CallParamsDecl_, CallParamsUsage_) \
-		template < typename RetType_, typename AllParameters, typename FunctorType > \
-		struct Binder<RetType_, AllParameters, FunctorType, N> : private BinderBase<RetType_, AllParameters, FunctorType>, public function_info<RetType_, typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT> \
-		{ \
-			typedef BinderBase<RetType_, AllParameters, FunctorType>					base; \
-			typedef typename base::RetType												RetType; \
-			typedef typename base::ParamTypes											ParamTypes; \
-			typedef typename TypeListTransform<ParamTypes, BindCallParamTraits>::ValueT	CallProxiesParamTypes; \
-			\
-			Binder(const FunctorType& func, const Tuple<AllParameters>& allParams) \
-				: base(func, allParams) \
-			{ } \
-			\
-			inline RetType operator () (CallParamsDecl_) const  \
-			{ \
-				Tuple<ParamTypes> call_params(CallParamsUsage_); \
-				typename base::template RealParameters<ParamTypes> rp(base::_boundParams, call_params); \
-				return FunctorInvoker::Invoke<FunctorType>(base::_func, rp); \
-			} \
-			\
-			std::string GetFuncName() const { return get_function_name(base::_func); } \
-		}
-
-#define P_(N) typename GetTypeListItem<CallProxiesParamTypes, N - 1>::ValueT p##N
-
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(1, MK_PARAM(P_(1)), MK_PARAM(p1));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(2, MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(3, MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(4, MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(5, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(6, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(7, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(8, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(9, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9));
-		DETAIL_STINGRAYKIT_DECLARE_BINDER(10, MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10));
-
-#undef P_
 
 	}
 
 #define DETAIL_STINGRAYKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
 	template < typename FunctorType, TemplateBindParams_ > \
-	Detail::Binder<typename function_info<FunctorType>::RetType, typename TypeList<BindParamTypes_>::type, FunctorType > \
+	Detail::Binder<typename TypeList<BindParamTypes_>::type, FunctorType> \
 		bind(const FunctorType& func, BindParamsDecl_) \
 	{ \
-		typedef typename function_info<FunctorType>::RetType	RetType; \
 		typedef typename TypeList<BindParamTypes_>::type		AllParams; \
 		Tuple<AllParams> all_params(BindParamsUsage_); \
-		return Detail::Binder<RetType, AllParams, FunctorType>(func, all_params); \
+		return Detail::Binder<AllParams, FunctorType>(func, all_params); \
 	}
 
 	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1))

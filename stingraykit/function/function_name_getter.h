@@ -64,25 +64,21 @@ namespace stingray
 	{
 		template
 			<
-				typename RetType,
 				typename AllParameters,
-				typename FunctorType,
-				size_t BinderParamsCount
+				typename FunctorType
 			>
 		struct Binder;
 	}
 
 	template
 		<
-			typename RetType,
 			typename AllParameters,
 			typename FunctorType,
-			size_t BinderParamsCount,
 			typename FunctionType::Enum FuncType_
 		>
-	struct function_name_getter<Detail::Binder<RetType, AllParameters, FunctorType, BinderParamsCount>, FuncType_>
+	struct function_name_getter<Detail::Binder<AllParameters, FunctorType>, FuncType_ >
 	{
-		static std::string get(const Detail::Binder<RetType, AllParameters, FunctorType, BinderParamsCount>& func) { return "{ binder: " + func.GetFuncName() + " }"; }
+		static std::string get(const Detail::Binder<AllParameters, FunctorType>& func) { return "{ binder: " + func.GetFuncName() + " }"; }
 	};
 
 
