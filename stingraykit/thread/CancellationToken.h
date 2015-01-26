@@ -4,6 +4,7 @@
 
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/ICancellationToken.h>
+#include <stingraykit/thread/DummyCancellationToken.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/optional.h>
@@ -103,23 +104,6 @@ namespace stingray
 			while (!_cancelDone)
 				_cond.Wait(_mutex);
 		}
-	};
-
-
-	struct DummyCancellationToken : public ICancellationToken
-	{
-	public:
-		virtual void Cancel()							{ }
-		virtual void Reset()							{ }
-
-		virtual void Sleep(TimeDuration duration) const	{ Thread::Sleep(duration); }
-
-		virtual bool IsCancelled() const				{ return false; }
-
-	protected:
-		virtual bool RegisterCancellationHandler(ICancellationHandler& handler) const	{ return true; }
-		virtual bool TryUnregisterCancellationHandler() const							{ return true; }
-		virtual void UnregisterCancellationHandler() const								{ }
 	};
 
 }
