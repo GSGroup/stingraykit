@@ -113,6 +113,7 @@ set(stingraykit_SRC
 	stingraykit/string/regex.cpp
 	stingraykit/string/string_stream.cpp
 
+	stingraykit/thread/CancellationToken.cpp
 	stingraykit/thread/DummyCancellationToken.cpp
 	stingraykit/thread/ITaskExecutor.cpp
 	stingraykit/thread/Thread.cpp

@@ -25,85 +25,20 @@ namespace stingray
 		mutable ICancellationHandler*	_cancelHandler;
 
 	public:
-		CancellationToken() : _cancelled(false), _cancelDone(false), _cancelHandler(null)
-		{ }
+		CancellationToken();
+		virtual ~CancellationToken();
 
-		virtual ~CancellationToken()
-		{ }
+		virtual void Cancel();
+		virtual void Reset();
 
-		virtual void Cancel()
-		{
-			ICancellationHandler* cancelHandler = null;
-			{
-				MutexLock l(_mutex);
-				if (_cancelled)
-					return;
+		virtual void Sleep(TimeDuration duration) const;
 
-				cancelHandler = _cancelHandler;
-				_cancelled = true;
-			}
-
-			if (cancelHandler)
-				cancelHandler->Cancel();
-
-			{
-				MutexLock l(_mutex);
-				_cancelDone = true;
-				_cond.Broadcast();
-			}
-		}
-
-		virtual void Reset()
-		{
-			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(!_cancelHandler && (_cancelled == _cancelDone), LogicException("CancellationToken is in use!"));
-			_cancelled = false;
-			_cancelDone = false;
-		}
-
-		virtual void Sleep(TimeDuration duration) const
-		{
-			MutexLock l(_mutex);
-			if (_cancelled)
-				return;
-
-			_cond.TimedWait(_mutex, duration);
-		}
-
-		virtual bool IsCancelled() const
-		{ MutexLock l(_mutex); return _cancelled; }
+		virtual bool IsCancelled() const;
 
 	protected:
-		virtual bool RegisterCancellationHandler(ICancellationHandler& handler) const
-		{
-			MutexLock l(_mutex);
-			if (_cancelled)
-				return false;
-
-			STINGRAYKIT_CHECK(!_cancelHandler, "Cancellation handler already registered");
-			_cancelHandler = &handler;
-			return true;
-		}
-
-		virtual bool TryUnregisterCancellationHandler() const
-		{
-			MutexLock l(_mutex);
-			_cancelHandler = null;
-
-			return !_cancelled;
-		}
-
-		virtual void UnregisterCancellationHandler() const
-		{
-			MutexLock l(_mutex);
-			_cancelHandler = null;
-
-			if (!_cancelled)
-				return;
-
-			while (!_cancelDone)
-				_cond.Wait(_mutex);
-		}
+		virtual bool RegisterCancellationHandler(ICancellationHandler& handler) const;
+		virtual bool TryUnregisterCancellationHandler() const;
+		virtual void UnregisterCancellationHandler() const;
 	};
 
 }
