@@ -12,7 +12,6 @@
 #include <stingraykit/assert.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/fatal.h>
-#include <stingraykit/ref_count.h>
 #include <stingraykit/safe_bool.h>
 #include <stingraykit/toolkit.h>
 
