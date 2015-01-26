@@ -2,6 +2,7 @@
 #define STINGRAYKIT_THREAD_GENERICMUTEXLOCK_H
 
 #include <stingraykit/fatal.h>
+#include <stingraykit/string/StringUtils.h>
 
 namespace stingray
 {

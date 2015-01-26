@@ -4,7 +4,6 @@
 
 #include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/time/BrokenDownTime.h>
-#include <stingraykit/NumericRange.h>
 #include <stingraykit/toolkit.h>
 
 namespace stingray
