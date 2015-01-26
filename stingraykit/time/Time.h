@@ -175,20 +175,6 @@ namespace stingray
 		int DaysTo(const Time& endTime);
 	};
 
-	class TimeInterval : public NumericRange<TimeInterval, Time>
-	{
-	public:
-		typedef NumericRange<TimeInterval, Time> base;
-
-	public:
-		TimeInterval() : base(Time(0), Time(0))
-		{}
-		TimeInterval(Time start, Time end) : base(start, end)
-		{}
-		TimeDuration GetDuration() const { return GetEnd() - GetStart(); }
-		static TimeInterval CreateEmpty() { return TimeInterval(); }
-	};
-
 	/** @} */
 
 }
