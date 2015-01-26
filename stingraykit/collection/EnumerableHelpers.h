@@ -6,7 +6,6 @@
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/function/bind.h>
-#include <stingraykit/function/functional.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/toolkit.h>
