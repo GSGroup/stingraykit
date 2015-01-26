@@ -21,7 +21,6 @@ namespace stingray
 		virtual void Log(const LoggerMessage& message) = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(ILoggerSink);
-	STINGRAYKIT_DECLARE_ENUMERABLE(ILoggerSinkPtr);
 
 	/** @} */
 
