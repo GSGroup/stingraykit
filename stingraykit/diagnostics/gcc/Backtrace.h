@@ -2,7 +2,6 @@
 #define GCC_BACKTRACE_H__
 
 #include <string>
-#include <vector>
 
 #include <stingraykit/collection/array.h>
 
