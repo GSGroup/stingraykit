@@ -83,29 +83,6 @@ namespace stingray
 	{ return make_shared<IteratorsRangeEnumerator<IteratorType, ContainerLifeAssuranceType> >(begin, end, lifeAssurance); }
 
 
-	template<typename ResultType, typename SourceType>
-	class AdapterEnumerator : public virtual IEnumerator<ResultType>
-	{
-		typedef function<ResultType(const SourceType& src)>	AdapterType;
-
-	private:
-		AdapterType _adapter;
-		const SourceType *_current, *_end;
-
-	public:
-		AdapterEnumerator(const AdapterType& adapter, const SourceType *begin, const SourceType *end)
-			: _adapter(adapter), _current(begin), _end(end)
-		{ }
-
-		virtual bool Valid() const { return _current != _end; };
-		virtual ResultType Get() const { return _adapter(*_current); }
-
-		virtual void Next() {
-			if (_current != _end)
-				++_current;
-		}
-	};
-
 	namespace Detail
 	{
 
