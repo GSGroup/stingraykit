@@ -4,10 +4,7 @@
 
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/ICancellationToken.h>
-#include <stingraykit/thread/DummyCancellationToken.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/function/function.h>
-#include <stingraykit/optional.h>
 
 
 namespace stingray

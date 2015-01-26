@@ -2,12 +2,12 @@
 #define STINGRAYKIT_IO_IDATASOURCE_H
 
 
-#include <stingraykit/thread/CancellationToken.h>
-#include <stingraykit/thread/atomic.h>
 #include <stingraykit/collection/ByteData.h>
-#include <stingraykit/io/IByteStream.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/io/IByteStream.h>
 #include <stingraykit/reference.h>
+#include <stingraykit/thread/ICancellationToken.h>
+#include <stingraykit/thread/atomic.h>
 
 namespace stingray
 {

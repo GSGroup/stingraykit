@@ -2,9 +2,9 @@
 #define STINGRAYKIT_IO_IPIPE_H
 
 
-#include <stingraykit/thread/CancellationToken.h>
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/shared_ptr.h>
+#include <stingraykit/thread/ICancellationToken.h>
 
 
 namespace stingray

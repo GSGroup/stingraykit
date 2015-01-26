@@ -1,13 +1,15 @@
 #ifndef STINGRAYKIT_FUTURE_H
 #define STINGRAYKIT_FUTURE_H
 
-#include <stingraykit/thread/CancellationToken.h>
-#include <stingraykit/thread/Thread.h>
 #include <stingraykit/exception.h>
-#include <stingraykit/shared_ptr.h>
-#include <stingraykit/unique_ptr.h>
-#include <stingraykit/toolkit.h>
 #include <stingraykit/exception_ptr.h>
+#include <stingraykit/shared_ptr.h>
+#include <stingraykit/thread/ConditionVariable.h>
+#include <stingraykit/thread/DummyCancellationToken.h>
+#include <stingraykit/thread/ICancellationToken.h>
+#include <stingraykit/thread/Thread.h>
+#include <stingraykit/toolkit.h>
+#include <stingraykit/unique_ptr.h>
 
 namespace stingray
 {
