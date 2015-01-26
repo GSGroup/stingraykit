@@ -7,7 +7,6 @@
 #include <string>
 
 #include <stingraykit/IToken.h>
-#include <stingraykit/light_shared_ptr.h>
 #include <stingraykit/log/ILoggerSink.h>
 #include <stingraykit/log/LogLevel.h>
 #include <stingraykit/log/LoggerStream.h>
@@ -65,11 +64,11 @@ namespace stingray
 
 		static LoggerStream Stream(LogLevel logLevel, DuplicatingLogsFilter* duplicatingLogsFilter = NULL);
 
-		static LoggerStream Trace()	{ return Stream(LogLevel::Trace); }
-		static LoggerStream Debug()	{ return Stream(LogLevel::Debug); }
+		static LoggerStream Trace()		{ return Stream(LogLevel::Trace); }
+		static LoggerStream Debug()		{ return Stream(LogLevel::Debug); }
 		static LoggerStream Info()		{ return Stream(LogLevel::Info); }
 		static LoggerStream Warning()	{ return Stream(LogLevel::Warning); }
-		static LoggerStream Error()	{ return Stream(LogLevel::Error); }
+		static LoggerStream Error()		{ return Stream(LogLevel::Error); }
 
 		static Token AddSink(const ILoggerSinkPtr& sink);
 

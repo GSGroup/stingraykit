@@ -3,8 +3,8 @@
 
 
 #include <stingraykit/log/LogLevel.h>
+#include <stingraykit/shared_ptr.h>
 #include <stingraykit/string/StringUtils.h>
-#include <stingraykit/light_shared_ptr.h>
 #include <stingraykit/string/string_stream.h>
 
 namespace stingray
@@ -71,17 +71,17 @@ namespace stingray
 	class LoggerStream
 	{
 		STINGRAYKIT_NONASSIGNABLE(LoggerStream);
-		typedef string_ostream							StreamType;
+		typedef string_ostream					StreamType;
 
 		typedef void LogFunction(const char* loggerName, LogLevel logLevel, const std::string& message);
 
-		const char*										_loggerName;
-		LogLevel										_loggerLogLevel;
-		LogLevel										_streamLogLevel;
-		light_shared_ptr<StreamType>					_stream;
-		DuplicatingLogsFilter*							_duplicatingLogsFilter;
-		light_shared_ptr<Detail::HideDuplicatingLogs>	_hideDuplicatingLogs;
-		LogFunction*									_logFunction;
+		const char*								_loggerName;
+		LogLevel								_loggerLogLevel;
+		LogLevel								_streamLogLevel;
+		shared_ptr<StreamType>					_stream;
+		DuplicatingLogsFilter*					_duplicatingLogsFilter;
+		shared_ptr<Detail::HideDuplicatingLogs>	_hideDuplicatingLogs;
+		LogFunction*							_logFunction;
 
 	public:
 		LoggerStream(const char* loggerName, LogLevel loggerLogLevel, LogLevel streamLogLevel, DuplicatingLogsFilter* duplicatingLogsFilter, LogFunction* logFunction);
