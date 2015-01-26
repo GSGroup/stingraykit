@@ -5,14 +5,11 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <string>
-#include <stingraykit/string/string_stream.h>
 
-
-#ifdef USE_BACKTRACE_FOR_EXCEPTIONS
-#	include <stingraykit/diagnostics/Backtrace.h>
-#endif
 
 #include <stingraykit/MetaProgramming.h>
+#include <stingraykit/diagnostics/Backtrace.h>
+#include <stingraykit/string/string_stream.h>
 #include <stingraykit/toolkit.h>
 
 #define STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(ExceptionClass, Message) \
