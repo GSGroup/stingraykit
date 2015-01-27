@@ -32,4 +32,8 @@ namespace stingray
 		return StringFormat("[%1%] [%2%] {%3%} %4%", _time.ToString(), _logLevel, _threadName, _message);
 	}
 
+
+	bool LoggerMessage::operator < (const LoggerMessage &other) const
+	{ return CompareMembersLess(&LoggerMessage::_loggerName, &LoggerMessage::_logLevel, &LoggerMessage::_time, &LoggerMessage::_threadName, &LoggerMessage::_message)(*this, other); }
+
 }

@@ -31,19 +31,17 @@ namespace stingray
 		LoggerMessage(const LogLevel& logLevel, const std::string& message);
 		LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message);
 
-		bool HasLoggerName() const { return _loggerName; }
+		bool HasLoggerName() const			{ return _loggerName; }
 		std::string GetLoggerName() const;
 
-		LogLevel GetLogLevel() const { return _logLevel; }
-		Time GetTime() const { return _time; }
-		std::string GetThreadName() const { return _threadName; }
-		std::string GetMessage() const { return _message; }
+		LogLevel GetLogLevel() const		{ return _logLevel; }
+		Time GetTime() const				{ return _time; }
+		std::string GetThreadName() const	{ return _threadName; }
+		std::string GetMessage() const		{ return _message; }
 
 		std::string ToString() const;
 
-		bool operator < (const LoggerMessage &other) const
-		{ return CompareMembersLess(&LoggerMessage::_loggerName, &LoggerMessage::_logLevel, &LoggerMessage::_time, &LoggerMessage::_threadName, &LoggerMessage::_message)(*this, other); }
-
+		bool operator < (const LoggerMessage &other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LoggerMessage);
 	};
 
