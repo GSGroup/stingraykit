@@ -328,9 +328,31 @@ namespace stingray
 	}
 
 
+	LogLevel NamedLogger::GetLogLevel() const
+	{
+		optional<LogLevel> logLevel = OptionalLogLevel::ToLogLevel(_logLevel.load(memory_order_relaxed));
+		return logLevel ? *logLevel : Logger::GetLogLevel();
+	}
+
+
+	void NamedLogger::SetLogLevel(LogLevel logLevel)
+	{ _logLevel.store(OptionalLogLevel::FromLogLevel(logLevel), memory_order_relaxed); }
+
+
+	bool NamedLogger::BacktraceEnabled() const
+	{ return _backtrace; }
+
+
+	void NamedLogger::EnableBacktrace(bool enable)
+	{ _backtrace = enable; }
+
+
 	LoggerStream NamedLogger::Stream(LogLevel logLevel) const
 	{ return LoggerStream(_name, GetLogLevel(), logLevel, &_duplicatingLogsFilter, &LoggerStreamHelper::Log); }
 
+
+	void NamedLogger::Log(LogLevel logLevel, const std::string& message)
+	{ Stream(logLevel) << message; }
 
 	/////////////////////////////////////////////////////////////////
 
@@ -339,9 +361,11 @@ namespace stingray
 		: _namedLogger(NULL), _action(action)
 	{ Logger::Info() << _action << "..."; }
 
+
 	ActionLogger::ActionLogger(NamedLogger& namedLogger, const std::string& action)
 		: _namedLogger(&namedLogger), _action(action)
 	{ _namedLogger->Info() << _action << "..."; }
+
 
 	ActionLogger::~ActionLogger()
 	{

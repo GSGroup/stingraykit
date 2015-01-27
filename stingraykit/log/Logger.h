@@ -112,20 +112,11 @@ namespace stingray
 		NamedLogger(const char* name);
 		~NamedLogger();
 
-		LogLevel GetLogLevel() const
-		{
-			optional<LogLevel> logLevel = OptionalLogLevel::ToLogLevel(_logLevel.load(memory_order_relaxed));
-			return logLevel ? *logLevel : Logger::GetLogLevel();
-		}
+		LogLevel GetLogLevel() const;
+		void SetLogLevel(LogLevel logLevel);
 
-		void SetLogLevel(LogLevel logLevel)
-		{ _logLevel.store(OptionalLogLevel::FromLogLevel(logLevel), memory_order_relaxed); }
-
-		inline bool BacktraceEnabled() const
-		{ return _backtrace; }
-
-		inline void EnableBacktrace(bool enable)
-		{ _backtrace = enable; }
+		inline bool BacktraceEnabled() const;
+		inline void EnableBacktrace(bool enable);
 
 		LoggerStream Stream(LogLevel logLevel) const;
 
@@ -135,8 +126,7 @@ namespace stingray
 		LoggerStream Warning()	const { return Stream(LogLevel::Warning); }
 		LoggerStream Error()	const { return Stream(LogLevel::Error); }
 
-		void Log(LogLevel logLevel, const std::string& message)
-		{ Stream(logLevel) << message; }
+		void Log(LogLevel logLevel, const std::string& message);
 	};
 
 
@@ -227,6 +217,7 @@ namespace stingray
 		using namespace ::stingray::Detail::LoggerDetail; \
 		STINGRAYKIT_CAT(detail_static_logger_accessor, __LINE__) = s_logger; \
 	} while (0)
+
 
 #define STINGRAYKIT_STATIC_LOGGER \
 	(STINGRAYKIT_CAT(detail_static_logger_accessor, __LINE__))
