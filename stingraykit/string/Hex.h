@@ -78,6 +78,36 @@ namespace stingray
 	}
 
 
+	template < typename T >
+	class HexFormatter
+	{
+		const T&	_val;
+		size_t		_width;
+
+	public:
+		inline explicit HexFormatter(const T& val, size_t width)
+			: _val(val), _width(width)
+		{ }
+
+		std::string ToString() const
+		{
+			typedef typename IntType<sizeof(T) * 8, false>::ValueT CastTo;
+			CompileTimeAssert<sizeof(CastTo) >= sizeof(T)> ERROR__T_is_bigger_than_CastTo;
+			CompileTimeAssert<sizeof(u64) >= sizeof(T)> ERROR__T_is_bigger_than_u64;
+			(void)ERROR__T_is_bigger_than_CastTo;
+			(void)ERROR__T_is_bigger_than_u64;
+
+			string_ostream ss;
+			ToHexImpl(ss, (u64)(CastTo)_val, _width);
+			return ss.str();
+		}
+	};
+
+
+	template < typename T >
+	inline HexFormatter<T> Hex(const T& val, size_t width = 0)
+	{ return HexFormatter<T>(val, width); }
+
 
 	struct ShortHexDumpFormatter
 	{
