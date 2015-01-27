@@ -28,6 +28,7 @@
 #include <stingraykit/function/bind.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/optional.h>
+#include <stingraykit/string/Hex.h>
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/StringUtils.h>
 #include <stingraykit/string/string_stream.h>
