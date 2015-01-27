@@ -27,66 +27,6 @@ namespace std
 namespace stingray
 {
 
-	template < typename T>
-	T FromHex(const std::string &str)
-	{
-		size_t n = str.size();
-		T r = T();
-		for(size_t i = 0; i < n; ++i)
-		{
-			char c = str[i];
-			if (c >= '0' && c <= '9')
-				c -= '0';
-			else
-			{
-				c &= ~ 0x20;
-				if (c >= 'A' && c <= 'F')
-					c = c - 'A' + 10;
-				else
-					throw std::runtime_error(std::string("invalid char '") + str[i] + "' in hex string");
-			}
-			r |= c << ((n - i - 1) * 4);
-		}
-		return r;
-	}
-
-
-	template<typename T>
-	void ToHexImpl(string_ostream &r, T value, size_t width = 0, bool capital = false)
-	{
-		static const size_t max_width = sizeof(T) * 2;
-		size_t start;
-		if (width > max_width)
-		{
-			for(size_t i = max_width; i < width; ++i)
-				r << "0";
-			start = 0;
-		}
-		else
-			start = max_width - width;
-
-		bool seen_non_zero = false;
-		for(size_t i = 0; i < max_width; ++i)
-		{
-			char c = (value >> ((max_width - i - 1) * 4)) & 0x0f;
-			seen_non_zero |= c;
-			if (seen_non_zero || i >= start || i == max_width - 1)
-				r << ((char)(c > 9? c + (capital? 'A': 'a') - 10: c + '0'));
-		}
-	}
-
-
-	template<typename T>
-	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
-	{
-		string_ostream result;
-		if (add0xPrefix)
-			result << "0x";
-		ToHexImpl(result, value, width, capital);
-		return result.str();
-	}
-
-
 	template < typename T >
 	T FromString(const std::string& str)
 	{
