@@ -4,7 +4,7 @@
 #include <algorithm>
 
 #include <stingraykit/serialization/Serialization.h>
-#include <stingraykit/string/HexDump.h>
+#include <stingraykit/string/Hex.h>
 
 
 namespace stingray
