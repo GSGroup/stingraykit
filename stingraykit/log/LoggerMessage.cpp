@@ -1,7 +1,8 @@
 #include <stingraykit/log/LoggerMessage.h>
 
-#include <stingraykit/thread/Thread.h>
+#include <stingraykit/compare/MemberListComparer.h>
 #include <stingraykit/string/StringFormat.h>
+#include <stingraykit/thread/Thread.h>
 
 
 namespace stingray

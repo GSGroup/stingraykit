@@ -2,8 +2,9 @@
 
 #include <map>
 
-#include <stingraykit/serialization/Serialization.h>
 #include <stingraykit/collection/CollectionBuilder.h>
+#include <stingraykit/compare/MemberListComparer.h>
+#include <stingraykit/serialization/Serialization.h>
 
 namespace stingray
 {
