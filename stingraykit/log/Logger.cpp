@@ -439,22 +439,4 @@ namespace stingray
 	void LogExceptionTo(NamedLogger& namedLogger, const std::exception& ex)
 	{ namedLogger.Error() << diagnostic_information(ex); }
 
-
-	/////////////////////////////////////////////////////////////////
-
-
-	namespace Detail {
-	namespace LoggerDetail
-	{
-		LogExceptionsGuard::~LogExceptionsGuard()
-		{
-			if (!std::uncaught_exception())
-				return;
-
-			try
-			{ Logger::Error() << "An exception occured while calling '" << _text << "'!"; }
-			catch(const std::exception&)
-			{ return; }
-		}
-	}}
 }

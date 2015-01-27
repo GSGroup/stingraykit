@@ -48,6 +48,14 @@ namespace stingray
 #define STINGRAYKIT_TRY_NO_MESSAGE(...) STINGRAYKIT_TRY(#__VA_ARGS__, __VA_ARGS__)
 
 
+#define STINGRAYKIT_LOG_EXCEPTIONS(ErrorMessage_, ...) \
+		do { \
+			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
+			try { __VA_ARGS__; } \
+			catch (const std::exception& ex) { STINGRAYKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << ex; throw; } \
+		} while (0)
+
+
 	class Logger
 	{
 	public:
@@ -195,21 +203,8 @@ namespace stingray
 	namespace LoggerDetail
 	{
 		extern NullPtrType	s_logger; // Static logger fallback
-
-		class LogExceptionsGuard
-		{
-		private:
-			const char* _text;
-
-		public:
-			LogExceptionsGuard(const char* text) : _text(text) { }
-			~LogExceptionsGuard();
-
-			operator bool() const { return true; }
-		};
 	}}
 
-#define LOG_EXCEPTIONS(...) (Detail::LoggerDetail::LogExceptionsGuard(#__VA_ARGS__) ? (__VA_ARGS__) : (__VA_ARGS__))
 
 #define DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR \
 	::stingray::Detail::NamedLoggerAccessor STINGRAYKIT_CAT(detail_static_logger_accessor, __LINE__); \
