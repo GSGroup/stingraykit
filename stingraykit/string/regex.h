@@ -6,9 +6,8 @@
 #include <string>
 #include <vector>
 
-#include <stingraykit/function/bind.h>
-#include <stingraykit/collection/iterators.h>
-
+#include <stingraykit/exception.h>
+#include <stingraykit/shared_ptr.h>
 
 /*
  * 	.			Match any character

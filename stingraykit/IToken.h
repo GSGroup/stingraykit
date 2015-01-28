@@ -3,7 +3,6 @@
 
 #include <map>
 
-#include <stingraykit/collection/iterators.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/thread/Thread.h>
 
@@ -209,7 +208,8 @@ namespace stingray
 				MutexLock l(_mutex);
 				typename Tokens::iterator lower = _tokens.lower_bound(key);
 				typename Tokens::iterator upper = _tokens.upper_bound(key);
-				std::copy(values_iterator(lower), values_iterator(upper), std::back_inserter(tokens));
+				for (typename Tokens::iterator it = lower; it != upper; ++it)
+					tokens.push_back(it->second);
 				_tokens.erase(lower, upper);
 			}
 		}
