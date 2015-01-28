@@ -1,6 +1,6 @@
 #include <stingraykit/time/BrokenDownTime.h>
 
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 
 
 namespace stingray

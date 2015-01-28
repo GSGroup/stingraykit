@@ -6,7 +6,7 @@
 
 #include <stingraykit/MetaProgramming.h>
 #include <stingraykit/MultiStorageFor.h>
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/fatal.h>
 #include <stingraykit/reference.h>

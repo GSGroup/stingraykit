@@ -22,7 +22,7 @@
 #include <stingraykit/collection/ISet.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/MetaProgramming.h>
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/TypeList.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/reference.h>

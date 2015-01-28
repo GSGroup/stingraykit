@@ -10,7 +10,7 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/diagnostics/Backtrace.h>
 #include <stingraykit/ScopeExit.h>
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/collection/array.h>
 #include <stingraykit/function/bind.h>
 

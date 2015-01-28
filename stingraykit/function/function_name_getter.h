@@ -6,7 +6,7 @@
 
 #include <typeinfo>
 
-//#include <stingraykit/string/StringUtils.h>
+//#include <stingraykit/string/ToString.h>
 #include <stingraykit/toolkit.h>
 #include <stingraykit/function/function_info.h>
 

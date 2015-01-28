@@ -2,7 +2,7 @@
 #define STINGRAYKIT_POSITION_H
 
 
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 
 
 namespace stingray

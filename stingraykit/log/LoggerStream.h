@@ -4,7 +4,7 @@
 
 #include <stingraykit/log/LogLevel.h>
 #include <stingraykit/shared_ptr.h>
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/string/string_stream.h>
 
 namespace stingray

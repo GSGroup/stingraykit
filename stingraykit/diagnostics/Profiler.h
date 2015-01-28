@@ -5,7 +5,7 @@
 
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/time/ElapsedTime.h>
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 
 
 namespace stingray

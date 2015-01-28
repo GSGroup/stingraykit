@@ -10,7 +10,7 @@
 #include <stingraykit/log/ILoggerSink.h>
 #include <stingraykit/log/LogLevel.h>
 #include <stingraykit/log/LoggerStream.h>
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/thread/atomic.h>
 #include <stingraykit/time/ElapsedTime.h>

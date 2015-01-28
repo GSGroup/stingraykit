@@ -6,7 +6,7 @@
 
 #include <stingraykit/collection/ICollection.h>
 #include <stingraykit/collection/IEnumerable.h>
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 
 
 namespace stingray

@@ -2,7 +2,7 @@
 #define STINGRAYKIT_COLLECTION_KEYNOTFOUNDEXCEPTIONCREATOR_H
 
 
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/exception.h>
 
 

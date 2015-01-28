@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 
 namespace stingray
 {
