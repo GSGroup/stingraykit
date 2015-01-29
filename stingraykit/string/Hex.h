@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_STRING_HEXDUMP_H
-#define STINGRAYKIT_STRING_HEXDUMP_H
+#ifndef STINGRAYKIT_STRING_HEX_H
+#define STINGRAYKIT_STRING_HEX_H
 
 #include <limits>
 #include <string>
