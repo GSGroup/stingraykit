@@ -3,6 +3,7 @@
 
 
 #include <stingraykit/Singleton.h>
+#include <stingraykit/string/StringUtils.h>
 
 
 namespace stingray

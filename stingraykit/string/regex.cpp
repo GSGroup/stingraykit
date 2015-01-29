@@ -6,8 +6,9 @@
 #	warning No regex support on nonposix systems!
 #endif
 
-#include <stingraykit/string/ToString.h>
 #include <stingraykit/exception.h>
+#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/variant.h>
 
 

@@ -1,9 +1,11 @@
 #ifndef STINGRAYKIT_STRING_STRINGFORMAT_H
 #define STINGRAYKIT_STRING_STRINGFORMAT_H
 
+#include <stingraykit/string/StringUtils.h>
 #include <stingraykit/string/ToString.h>
 
-namespace stingray {
+namespace stingray
+{
 
 	namespace Detail
 	{

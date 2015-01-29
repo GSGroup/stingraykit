@@ -2,10 +2,11 @@
 
 #include <stdio.h>
 
-#include <stingraykit/serialization/Serialization.h>
-#include <stingraykit/time/TimeEngine.h>
-#include <stingraykit/string/StringFormat.h>
 #include <stingraykit/exception.h>
+#include <stingraykit/serialization/Serialization.h>
+#include <stingraykit/string/StringFormat.h>
+#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/time/TimeEngine.h>
 
 namespace stingray
 {
