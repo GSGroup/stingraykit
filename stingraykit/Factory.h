@@ -3,6 +3,7 @@
 
 
 #include <stingraykit/Singleton.h>
+#include <stingraykit/dynamic_caster.h>
 #include <stingraykit/string/StringUtils.h>
 
 

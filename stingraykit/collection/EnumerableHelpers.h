@@ -2,9 +2,10 @@
 #define STINGRAYKIT_COLLECTION_ENUMERABLEHELPERS_H
 
 
-#include <stingraykit/compare/Comparable.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/IEnumerable.h>
+#include <stingraykit/compare/Comparable.h>
+#include <stingraykit/dynamic_caster.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/shared_ptr.h>
