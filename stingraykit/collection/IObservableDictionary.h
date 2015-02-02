@@ -2,6 +2,7 @@
 #define STINGRAYKIT_COLLECTION_IOBSERVABLEDICTIONARY_H
 
 
+#include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/ObservableCollectionLocker.h>
 #include <stingraykit/signal/signals.h>

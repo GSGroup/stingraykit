@@ -3,7 +3,6 @@
 
 
 #include <stingraykit/collection/iterator_base.h>
-#include <stingraykit/dynamic_caster.h>
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/shared_ptr.h>
 

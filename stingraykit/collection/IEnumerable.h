@@ -2,6 +2,7 @@
 #define STINGRAYKIT_COLLECTION_IENUMERABLE_H
 
 
+#include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/IEnumerator.h>
 
 #define STINGRAYKIT_DECLARE_ENUMERABLE(ClassName) \

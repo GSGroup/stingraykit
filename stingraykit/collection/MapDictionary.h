@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
+#include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 

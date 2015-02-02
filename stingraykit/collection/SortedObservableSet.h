@@ -2,6 +2,7 @@
 #define STINGRAYKIT_COLLECTION_SORTEDOBSERVABLESET_H
 
 
+#include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IObservableSet.h>
 #include <stingraykit/collection/SortedSet.h>
 

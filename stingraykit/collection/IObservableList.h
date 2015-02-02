@@ -2,10 +2,11 @@
 #define STINGRAYKIT_COLLECTION_IOBSERVABLELIST_H
 
 
+#include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IList.h>
+#include <stingraykit/collection/ObservableCollectionLocker.h>
 #include <stingraykit/signal/signals.h>
 #include <stingraykit/toolkit.h>
-#include <stingraykit/collection/ObservableCollectionLocker.h>
 
 
 namespace stingray

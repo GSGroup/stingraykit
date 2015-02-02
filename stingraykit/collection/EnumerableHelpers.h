@@ -3,6 +3,7 @@
 
 
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
+#include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/compare/Comparable.h>
 #include <stingraykit/dynamic_caster.h>

@@ -8,12 +8,12 @@
 
 #include <stingraykit/diagnostics/PrivateIncludeGuard.h>
 
-#include <stingraykit/serialization/ISerializable.h>
-#include <stingraykit/serialization/SettingsValueException.h>
-#include <stingraykit/serialization/SettingsValueForward.h>
-#include <stingraykit/collection/ByteData.h>
 #include <stingraykit/Factory.h>
 #include <stingraykit/Final.h>
+#include <stingraykit/MetaProgramming.h>
+#include <stingraykit/TypeList.h>
+#include <stingraykit/collection/ByteData.h>
+#include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/IList.h>
 #include <stingraykit/collection/IObservableDictionary.h>
@@ -21,12 +21,13 @@
 #include <stingraykit/collection/IObservableSet.h>
 #include <stingraykit/collection/ISet.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
-#include <stingraykit/MetaProgramming.h>
-#include <stingraykit/string/ToString.h>
-#include <stingraykit/TypeList.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/reference.h>
+#include <stingraykit/serialization/ISerializable.h>
+#include <stingraykit/serialization/SettingsValueException.h>
+#include <stingraykit/serialization/SettingsValueForward.h>
 #include <stingraykit/shared_ptr.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/toolkit.h>
 #include <stingraykit/variant.h>
 

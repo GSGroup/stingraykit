@@ -2,6 +2,7 @@
 #define STINGRAYKIT_COLLECTION_DICTIONARYKEYSSET_H
 
 
+#include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/IObservableDictionary.h>
 #include <stingraykit/collection/IObservableSet.h>
 
