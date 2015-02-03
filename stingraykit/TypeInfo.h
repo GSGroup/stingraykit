@@ -1,12 +1,8 @@
 #ifndef STINGRAYKIT_TYPEINFO_H
 #define STINGRAYKIT_TYPEINFO_H
 
-
 #include <string>
 #include <typeinfo>
-
-#include <stingraykit/exception.h>
-
 
 namespace stingray
 {
