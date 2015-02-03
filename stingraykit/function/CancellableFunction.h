@@ -1,6 +1,8 @@
 #ifndef STINGRAYKIT_FUNCTION_CANCELLABLEFUNCTION_H
 #define STINGRAYKIT_FUNCTION_CANCELLABLEFUNCTION_H
 
+#include <stingraykit/PerfectForwarding.h>
+
 namespace stingray
 {
 
