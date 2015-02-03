@@ -120,42 +120,6 @@ namespace stingray
 	};
 	STINGRAYKIT_DECLARE_PTR(TaskLifeToken);
 
-	//void InvokeTask(const function<void ()>& task, const TaskLifeToken::ValueWeakPtr& tokenValue);
-
-
-	template < typename Signature >
-	class function_with_token;
-
-#define DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(ParamTypenames_, ParamTypes_, ParamDecl_, ParamUsage_) \
-	template < ParamTypenames_ > \
-	class function_with_token<void(ParamTypes_)> : public function_info<void(ParamTypes_)> \
-	{ \
-		typedef function<void(ParamTypes_)>	FuncType; \
-	private: \
-		FuncType				_func; \
-		FutureExecutionTester	_execTester; \
-	public: \
-		function_with_token(const FuncType& func, const FutureExecutionTester& execTester) \
-			: _func(func), _execTester(execTester) \
-		{ } \
-		inline void operator ()(ParamDecl_) const \
-		{ \
-			LocalExecutionGuard guard; \
-			if (_execTester.Execute(guard)) \
-				_func(ParamUsage_); \
-		} \
-		std::string get_name() const { return "{ function_with_token: " + _func.get_name() + " }"; } \
-	}
-
-#define TY typename
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(/**/, /**/, /**/, /**/);
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_WITH_TOKEN(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5));
-#undef TY
-
 	/** @} */
 
 }
