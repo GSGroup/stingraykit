@@ -1,12 +1,16 @@
 #include <stingraykit/thread/posix/BackgroundProcess.h>
+
 #include <stingraykit/SystemException.h>
 #include <stingraykit/function/bind.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <signal.h>
 #include <unistd.h>
-#include <stdlib.h>
+
 #if HAVE_POSIX_SPAWN
 #	include <spawn.h>
 #endif

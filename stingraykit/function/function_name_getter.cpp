@@ -1,5 +1,6 @@
 #include <stingraykit/function/function_name_getter.h>
 
+#include <stdio.h>
 
 namespace stingray {
 namespace Detail
