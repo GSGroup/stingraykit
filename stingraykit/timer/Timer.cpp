@@ -2,12 +2,13 @@
 
 #include <list>
 
-#include <stingraykit/log/Logger.h>
-#include <stingraykit/time/ElapsedTime.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
+#include <stingraykit/function/CancellableFunction.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/function/function_name_getter.h>
+#include <stingraykit/log/Logger.h>
 #include <stingraykit/task_alive_token.h>
+#include <stingraykit/time/ElapsedTime.h>
 
 
 namespace stingray
@@ -258,7 +259,7 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(function_with_token<void()>(task, tester), TimeDuration(), null, _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), TimeDuration(), null, _queue);
 		_queue->Push(ci);
 		_cond.Broadcast();
 	}
