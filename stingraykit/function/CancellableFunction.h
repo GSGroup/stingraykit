@@ -18,6 +18,9 @@ namespace stingray
 
 		STINGRAYKIT_PERFECT_FORWARDING(void, operator (), Do)
 
+		std::string get_name() const
+		{ return "{ CancellableFunction: " + get_function_name(_func) + " }"; }
+
 	private:
 		template< typename ParamTypeList >
 		void Do(const Tuple<ParamTypeList>& params) const
