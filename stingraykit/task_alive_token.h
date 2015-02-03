@@ -144,7 +144,7 @@ namespace stingray
 			if (_execTester.Execute(guard)) \
 				_func(ParamUsage_); \
 		} \
-		std::string get_name() const { return _func.get_name(); } \
+		std::string get_name() const { return "{ function_with_token: " + _func.get_name() + " }"; } \
 	}
 
 #define TY typename

@@ -199,7 +199,7 @@ namespace stingray
 		}
 
 	public:
-		std::string get_name() const { return _invokable->_getVTable().GetName(_invokable.get()); }
+		std::string get_name() const { return "{ function: " + _invokable->_getVTable().GetName(_invokable.get()) + " }"; }
 
 	private:
 		friend class function_storage;

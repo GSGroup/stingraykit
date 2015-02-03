@@ -1,15 +1,9 @@
 #ifndef STINGRAYKIT_FUNCTION_FUNCTION_NAME_GETTER_H
 #define STINGRAYKIT_FUNCTION_FUNCTION_NAME_GETTER_H
 
-
-#include <stdio.h>
-
-#include <typeinfo>
-
-//#include <stingraykit/string/ToString.h>
-#include <stingraykit/toolkit.h>
+#include <stingraykit/NestedTypeCheck.h>
+#include <stingraykit/TypeInfo.h>
 #include <stingraykit/function/function_info.h>
-
 
 namespace stingray
 {
@@ -26,59 +20,35 @@ namespace stingray
 		std::string FuncPtrToString(intptr_t* ptrptr, size_t n);
 	}
 
-	template < typename Func_, typename FunctionType::Enum FuncType_ = function_type<Func_>::Type >
+
+	STINGRAYKIT_DECLARE_METHOD_CHECK(get_name);
+
+
+	template < typename Func_, typename FunctionType::Enum FuncType_ = function_type<Func_>::Type, bool HasGetName = HasMethod_get_name<Func_>::Value >
 	struct function_name_getter
 	{
-		static std::string get(const Func_& func) { return "{ functor: " + Demangle(typeid(func).name()) + " }"; }
+		static std::string get(const Func_& func) { return "{ functor: " + TypeInfo(func).GetName() + " }"; }
 	};
 
+
 	template < typename Func_ >
-	struct function_name_getter<Func_, FunctionType::RawFunctionPtr>
+	struct function_name_getter<Func_, FunctionType::RawFunctionPtr, false>
 	{
 		static std::string get(const Func_& func) { return "{ function: " + Detail::FuncPtrToString((intptr_t*)(&func), sizeof(func) / sizeof(intptr_t)) + " }"; }
 	};
 
+
 	template < typename Func_ >
-	struct function_name_getter<Func_, FunctionType::MethodPtr>
+	struct function_name_getter<Func_, FunctionType::MethodPtr, false>
 	{
 		static std::string get(const Func_& func) { return "{ method: " + Detail::FuncPtrToString((intptr_t*)(&func), sizeof(func) / sizeof(intptr_t)) + " }"; }
 	};
 
-	template < typename Func_ >
-	struct function_name_getter<Func_, FunctionType::GSFunction>
+
+	template < typename Func_, typename FunctionType::Enum FuncType_ >
+	struct function_name_getter<Func_, FuncType_, true>
 	{
-		static std::string get(const Func_& func) { return "{ gs_function: " + func.get_name() + " }"; }
-	};
-
-	template < typename Signature >
-	class function_with_token;
-
-	template < typename Signature, typename FunctionType::Enum FuncType_ >
-	struct function_name_getter<function_with_token<Signature>, FuncType_>
-	{
-		static std::string get(const function_with_token<Signature>& func) { return "{ function_with_token: " + func.get_name() + " }"; }
-	};
-
-
-	namespace Detail
-	{
-		template
-			<
-				typename AllParameters,
-				typename FunctorType
-			>
-		struct Binder;
-	}
-
-	template
-		<
-			typename AllParameters,
-			typename FunctorType,
-			typename FunctionType::Enum FuncType_
-		>
-	struct function_name_getter<Detail::Binder<AllParameters, FunctorType>, FuncType_ >
-	{
-		static std::string get(const Detail::Binder<AllParameters, FunctorType>& func) { return "{ binder: " + func.GetFuncName() + " }"; }
+		static std::string get(const Func_& func) { return func.get_name(); }
 	};
 
 

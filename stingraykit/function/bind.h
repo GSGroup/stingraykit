@@ -228,7 +228,7 @@ namespace stingray
 
 			STINGRAYKIT_PERFECT_FORWARDING(RetType, operator(), Do)
 
-			std::string GetFuncName() const { return get_function_name(_func); }
+			std::string get_name() const { return "{ binder: " + get_function_name(_func) + " }"; }
 
 		private:
 			static inline Tuple<BoundParams> GetBoundParams(const Tuple<AllParameters>& all)
