@@ -77,8 +77,8 @@ namespace stingray
 			try
 			{
 				MutexUnlock ul(l);
-				LocalExecutionGuard guard;
-				if (top->second.Execute(guard))
+				LocalExecutionGuard guard(top->second);
+				if (guard)
 				{
 					if (_profileCalls)
 					{

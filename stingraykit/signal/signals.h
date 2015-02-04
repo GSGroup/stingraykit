@@ -161,8 +161,8 @@ namespace stingray
 				{
 					FuncTypeWithDeathControl& func = (*it);
 
-					LocalExecutionGuard guard;
-					if (func.Tester().Execute(guard))
+					LocalExecutionGuard guard(func.Tester());
+					if (guard)
 						WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), FunctorInvoker::Invoke(func.Func().ToFunction<Signature_>(), p); );
 				}
 			}

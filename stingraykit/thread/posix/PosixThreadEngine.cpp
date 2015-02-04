@@ -116,8 +116,8 @@ namespace stingray
 
 		virtual void RequestBacktrace() const
 		{
-			LocalExecutionGuard g;
-			if (_threadGuard.Execute(g))
+			LocalExecutionGuard g(_threadGuard);
+			if (g)
 				posix::SendSignal(_threadHandle, g_threadBacktracePrinter.GetSignalNum());
 		}
 

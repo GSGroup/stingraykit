@@ -34,7 +34,24 @@ namespace stingray
 	};
 
 
-	struct FutureExecutionTester;
+	struct LocalExecutionGuard;
+	struct FutureExecutionTester
+	{
+		friend struct LocalExecutionGuard;
+
+	private:
+		typedef Detail::TaskLifeTokenImplSelfCountPtr ImplPtr;
+		ImplPtr _impl;
+
+	public:
+		FutureExecutionTester(const NullPtrType&) // always allows func execution
+		{ }
+
+		FutureExecutionTester(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
+		{ }
+	};
+
+
 	struct LocalExecutionGuard : public safe_bool<LocalExecutionGuard>
 	{
 		STINGRAYKIT_NONCOPYABLE(LocalExecutionGuard);
@@ -44,25 +61,11 @@ namespace stingray
 		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
 
 	public:
-		LocalExecutionGuard() : _allow(false)
-		{}
-		~LocalExecutionGuard()
+		LocalExecutionGuard(const FutureExecutionTester& tester) : _allow(true), _impl(tester._impl)
 		{
-			if (_impl)
-				_impl->GetMutex().Unlock();
-		}
-		bool boolean_test() const	{ return _allow; }
-
-	private:
-		friend struct FutureExecutionTester;
-		void SetImpl(const Detail::TaskLifeTokenImplSelfCountPtr& impl)
-		{
-			if (!impl)
-			{
-				_allow = true;
+			if (!_impl)
 				return;
-			}
-			_impl = impl;
+
 			_impl->GetMutex().Lock();
 			_allow = _impl->IsAlive();
 			if (!_allow)
@@ -71,23 +74,15 @@ namespace stingray
 				_impl.reset();
 			}
 		}
-	};
 
+		~LocalExecutionGuard()
+		{
+			if (_impl)
+				_impl->GetMutex().Unlock();
+		}
 
-	struct FutureExecutionTester
-	{
-	private:
-		typedef Detail::TaskLifeTokenImplSelfCountPtr ImplPtr;
-		ImplPtr _impl;
-
-	public:
-		FutureExecutionTester(const NullPtrType&) // always allows func execution
-		{}
-
-		FutureExecutionTester(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
-		{}
-
-		LocalExecutionGuard& Execute(LocalExecutionGuard& token) const { token.SetImpl(_impl); return token; }
+		bool boolean_test() const
+		{ return _allow; }
 	};
 
 

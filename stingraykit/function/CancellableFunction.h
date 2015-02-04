@@ -27,8 +27,8 @@ namespace stingray
 		template< typename ParamTypeList >
 		void Do(const Tuple<ParamTypeList>& params) const
 		{
-			LocalExecutionGuard guard;
-			if (_tester.Execute(guard))
+			LocalExecutionGuard guard(_tester);
+			if (guard)
 				FunctorInvoker::Invoke(_func, params);
 		}
 	};

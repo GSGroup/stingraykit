@@ -44,8 +44,8 @@ namespace osplus
 			message_release(_queue, msg);
 			try
 			{
-				LocalExecutionGuard exec_guard;
-				if (task_pair->second.Execute(exec_guard))
+				LocalExecutionGuard exec_guard(task_pair->second);
+				if (exec_guard)
 					task_pair->first();
 				Thread::InterruptionPoint();
 			}

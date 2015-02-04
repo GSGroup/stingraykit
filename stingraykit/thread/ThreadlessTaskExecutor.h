@@ -57,8 +57,8 @@ namespace stingray
 				try
 				{
 					//Tracer tracer("ThreadlessTaskExecutor::ExecuteTasks: executing pending task"); //fixme: dependency to log/
-					LocalExecutionGuard guard;
-					if (top->second.Execute(guard))
+					LocalExecutionGuard guard(top->second);
+					if (guard)
 					{
 						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(top->first)), 10000, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
 						top->first();

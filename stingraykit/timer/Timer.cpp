@@ -115,8 +115,7 @@ namespace stingray
 		{ }
 
 		const FuncT& GetFunc() const							{ return _func; }
-
-		LocalExecutionGuard& Execute(LocalExecutionGuard& guard) const 	{ return _token.GetExecutionTester().Execute(guard); }
+		FutureExecutionTester GetExecutionTester() const 		{ return _token.GetExecutionTester(); }
 
 		bool IsPeriodic() const									{ return _period.is_initialized(); }
 		bool Triggered() const									{ return TimeDuration(_timer.ElapsedMilliseconds()) >= GetTimeBeforeTrigger(); }
@@ -189,8 +188,8 @@ namespace stingray
 		while(!_queue->IsEmpty())
 		{
 			CallbackInfoPtr i = _queue->Pop();
-			LocalExecutionGuard guard;
-			if (i->Execute(guard))
+			LocalExecutionGuard guard(i->GetExecutionTester());
+			if (guard)
 			{
 				has_tasks = true;
 				break;
@@ -288,8 +287,8 @@ namespace stingray
 				bool working = _working;
 
 				{
-					LocalExecutionGuard guard;
-					if (!top->Execute(guard))
+					LocalExecutionGuard guard(top->GetExecutionTester());
+					if (!guard)
 					{
 						top.reset();
 						continue;
