@@ -183,38 +183,29 @@ namespace stingray
 		public:
 			typedef SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>		Impl;
 			typedef self_count_ptr<Impl>									ImplPtr;
-
-		private:
-			typedef intrusive_list_node_wrapper<FuncTypeWithDeathControl>	FuncTypeWrapper;
-			typedef intrusive_list<FuncTypeWrapper>							Handlers;
+			typedef typename Impl::Handlers									Handlers;
 			typedef typename Handlers::iterator								IteratorType;
 
+		private:
 			ImplPtr				_signalImpl;
 			IteratorType		_it;
 			TaskLifeToken		_token;
 
 		public:
-			Connection(const ImplPtr& signalImpl, typename Handlers::iterator it, const TaskLifeToken& token)
-				: _signalImpl(signalImpl), _it(it), _token(token)
+			Connection(const ImplPtr& signalImpl, IteratorType it, const TaskLifeToken& token) :
+				_signalImpl(signalImpl), _it(it), _token(token)
 			{ }
 
 			virtual ~Connection()
 			{
-				ImplPtr signal_impl = _signalImpl;
-				if (signal_impl)
 				{
-					typename ThreadingPolicy_::LockType l(signal_impl->GetSync());
-					_signalImpl.reset();
-					Handlers &handlers = signal_impl->_handlers;
-					if (_it != handlers.end())
-					{
-						handlers.erase(_it);
-						_it = handlers.end();
-					}
+					typename ThreadingPolicy_::LockType l(_signalImpl->GetSync());
+					_signalImpl->_handlers.erase(_it);
 				}
 				_token.Release();
 			}
 		};
+
 
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
 		Token SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function<Signature_>& func, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState)
