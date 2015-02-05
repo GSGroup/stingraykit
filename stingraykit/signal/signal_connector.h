@@ -52,7 +52,7 @@ namespace stingray
 
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
-			async_function<Signature_> slot_func(worker, slot);
+			AsyncFunction<Signature_> slot_func(worker, slot);
 			return _impl->Connect(slot_func, null, slot_func.GetToken(), sendCurrentState); // Using real execution tester instead of null may cause deadlocks!!!
 		}
 	};

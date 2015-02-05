@@ -21,7 +21,7 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename Signature, bool HasReturnType = !SameType<typename function_info<Signature>::RetType, void>::Value >
-		class async_function_base
+		class AsyncFunctionBase
 		{
 		public:
 			typedef void											RetType;
@@ -34,14 +34,14 @@ namespace stingray
 			TaskLifeToken		_token;
 
 		protected:
-			inline async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
+			inline AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctionType& func)
 				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func)
 			{ }
 
 			RetType DoAddTask(const function<void()>& func) const
 			{ _executor->AddTask(func, _token.GetExecutionTester()); }
 
-			inline ~async_function_base() { }
+			inline ~AsyncFunctionBase() { }
 
 		public:
 			TaskLifeToken GetToken() const { return _token; }
@@ -49,7 +49,7 @@ namespace stingray
 
 
 		template < typename Signature >
-		class async_function_base<Signature, true>
+		class AsyncFunctionBase<Signature, true>
 		{
 		public:
 			typedef typename function_info<Signature>::RetType		AsyncRetType;
@@ -66,18 +66,18 @@ namespace stingray
 			TaskLifeToken		_token;
 
 		protected:
-			inline async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
+			inline AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctionType& func)
 				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func)
 			{ }
 
 			RetType DoAddTask(const function<AsyncRetType()>& func) const
 			{
 				PromiseTypePtr promise(new PromiseType);
-				_executor->AddTask(bind(&async_function_base::FuncWrapper, func, promise), _token.GetExecutionTester());
+				_executor->AddTask(bind(&AsyncFunctionBase::FuncWrapper, func, promise), _token.GetExecutionTester());
 				return promise->get_future();
 			}
 
-			inline ~async_function_base() { }
+			inline ~AsyncFunctionBase() { }
 
 		private:
 			static void FuncWrapper(const function<AsyncRetType()>& func, const PromiseTypePtr& promise)
@@ -95,17 +95,17 @@ namespace stingray
 	}
 
 	template < typename Signature >
-	class async_function;
+	class AsyncFunction;
 
 
 	template < typename R >
-	class async_function < R() > : public Detail::async_function_base<R()>
+	class AsyncFunction < R() > : public Detail::AsyncFunctionBase<R()>
 	{
-		typedef Detail::async_function_base<R()>	base;
+		typedef Detail::AsyncFunctionBase<R()>	base;
 
 	public:
-		inline async_function(const ITaskExecutorPtr& executor, const function<R()>& func)
-			: base(executor, func)
+		inline AsyncFunction(const ITaskExecutorPtr& executor, const function<R()>& func) :
+			base(executor, func)
 		{ }
 
 		inline typename base::RetType  operator ()() const { return base::DoAddTask(base::_func); }
@@ -117,12 +117,12 @@ namespace stingray
 
 #define DETAIL_STINGRAYKIT_DECLARE_ASYNC_FUNCTION(Typenames_, Types_, Decl_, Usage_) \
 	template < typename R, Typenames_ > \
-	class async_function < R(Types_) > : public Detail::async_function_base<R(Types_)> \
+	class AsyncFunction < R(Types_) > : public Detail::AsyncFunctionBase<R(Types_)> \
 	{ \
-		typedef Detail::async_function_base<R(Types_)>	base; \
+		typedef Detail::AsyncFunctionBase<R(Types_)>	base; \
 		\
 	public: \
-		async_function(const ITaskExecutorPtr& executor, const function<R(Types_)>& func) \
+		AsyncFunction(const ITaskExecutorPtr& executor, const function<R(Types_)>& func) \
 			: base(executor, func) \
 		{ } \
 		\

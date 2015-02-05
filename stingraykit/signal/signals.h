@@ -324,7 +324,7 @@ namespace stingray
 		TokenReturnProxy connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
-			async_function<Signature> slot_func(worker, slot); \
+			AsyncFunction<Signature> slot_func(worker, slot); \
 			return _impl->Connect(slot_func, null, slot_func.GetToken(), sendCurrentState); \
 		} \
 		\
