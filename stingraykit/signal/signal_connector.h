@@ -3,7 +3,7 @@
 
 
 #include <stingraykit/IToken.h>
-#include <stingraykit/function/async_function.h>
+#include <stingraykit/function/AsyncFunction.h>
 #include <stingraykit/task_alive_token.h>
 #include <stingraykit/thread/ITaskExecutor.h>
 

@@ -1,18 +1,16 @@
 #ifndef STINGRAYKIT_SIGNAL_SIGNALS_H
 #define STINGRAYKIT_SIGNAL_SIGNALS_H
 
-
 #include <stingraykit/IToken.h>
 #include <stingraykit/assert.h>
 #include <stingraykit/collection/inplace_vector.h>
 #include <stingraykit/collection/intrusive_list.h>
-#include <stingraykit/function/async_function.h>
+#include <stingraykit/function/AsyncFunction.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/self_counter.h>
 #include <stingraykit/signal/signal_connector.h>
 #include <stingraykit/signal/signal_policies.h>
 #include <stingraykit/thread/ITaskExecutor.h>
-
 
 namespace stingray
 {
