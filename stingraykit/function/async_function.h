@@ -29,9 +29,9 @@ namespace stingray
 			typedef function<Signature>								FunctionType;
 
 		protected:
-			ITaskExecutorWeakPtr	_executor;
-			FunctionType			_func;
-			TaskLifeToken			_token;
+			ITaskExecutorPtr	_executor;
+			FunctionType		_func;
+			TaskLifeToken		_token;
 
 		protected:
 			inline async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
@@ -39,11 +39,7 @@ namespace stingray
 			{ }
 
 			RetType DoAddTask(const function<void()>& func) const
-			{
-				ITaskExecutorPtr executor_l = this->_executor.lock();
-				if (executor_l)
-					executor_l->AddTask(func, _token.GetExecutionTester());
-			}
+			{ _executor->AddTask(func, _token.GetExecutionTester()); }
 
 			inline ~async_function_base() { }
 
@@ -65,9 +61,9 @@ namespace stingray
 			typedef function<Signature>								FunctionType;
 
 		protected:
-			ITaskExecutorWeakPtr	_executor;
-			FunctionType			_func;
-			TaskLifeToken			_token;
+			ITaskExecutorPtr	_executor;
+			FunctionType		_func;
+			TaskLifeToken		_token;
 
 		protected:
 			inline async_function_base(const ITaskExecutorPtr& executor, const FunctionType& func)
@@ -77,9 +73,7 @@ namespace stingray
 			RetType DoAddTask(const function<AsyncRetType()>& func) const
 			{
 				PromiseTypePtr promise(new PromiseType);
-				ITaskExecutorPtr executor_l = this->_executor.lock();
-				if (executor_l)
-					executor_l->AddTask(bind(&async_function_base::FuncWrapper, func, promise), _token.GetExecutionTester());
+				_executor->AddTask(bind(&async_function_base::FuncWrapper, func, promise), _token.GetExecutionTester());
 				return promise->get_future();
 			}
 
