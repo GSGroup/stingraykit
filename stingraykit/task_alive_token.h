@@ -64,6 +64,9 @@ namespace stingray
 
 		FutureExecutionTester(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
 		{ }
+
+		bool IsDummy() const
+		{ return !_impl; }
 	};
 
 
@@ -110,7 +113,8 @@ namespace stingray
 
 		void Release()
 		{
-			_impl->Kill();
+			if (_impl)
+				_impl->Kill();
 		}
 
 		TaskLifeToken& Reset()
@@ -119,8 +123,18 @@ namespace stingray
 			return (*this = TaskLifeToken());
 		}
 
+		bool IsDummy() const
+		{ return !_impl; }
+
 		FutureExecutionTester GetExecutionTester() const
 		{ return FutureExecutionTester(_impl); }
+
+		static TaskLifeToken CreateDummyTaskToken()
+		{ return TaskLifeToken(null); }
+
+	private:
+		TaskLifeToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
+		{ }
 	};
 	STINGRAYKIT_DECLARE_PTR(TaskLifeToken);
 
