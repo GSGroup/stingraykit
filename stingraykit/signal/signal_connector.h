@@ -19,13 +19,15 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename Signature_ >
-		struct ISignalConnector : public self_counter<ISignalConnector<Signature_> >
+		struct ISignalConnector : public self_counter<ISignalConnector>
 		{
 			virtual ~ISignalConnector() { }
 
-			virtual Token Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState) = 0;
-			virtual void SendCurrentState(const function<Signature_>& slot) const = 0;
+			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState) = 0;
+			virtual void SendCurrentState(const function_storage& slot) const = 0;
+
+			virtual TaskLifeToken CreateSyncToken() const = 0;
+			virtual TaskLifeToken CreateAsyncToken() const = 0;
 		};
 
 	}
@@ -34,26 +36,25 @@ namespace stingray
 	class signal_connector
 	{
 	private:
-		self_count_ptr<Detail::ISignalConnector<Signature_> >	_impl;
+		self_count_ptr<Detail::ISignalConnector>	_impl;
 
 	public:
-		signal_connector(const self_count_ptr<Detail::ISignalConnector<Signature_> >& impl)
-			: _impl(impl)
+		signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl)
 		{ }
 
 		void SendCurrentState(const function<Signature_>& slot) const
-		{ _impl->SendCurrentState(slot); }
+		{ _impl->SendCurrentState(function_storage(slot)); }
 
-		Token connect(const function<Signature_>& slot, bool sendCurrentState = true) const
+		TokenReturnProxy connect(const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
-			TaskLifeToken token;
-			return _impl->Connect(slot, token.GetExecutionTester(), token, sendCurrentState);
+			TaskLifeToken token(_impl->CreateSyncToken());
+			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState);
 		}
 
-		Token connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
+		TokenReturnProxy connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
-			AsyncFunction<Signature_> slot_func(worker, slot);
-			return _impl->Connect(slot_func, null, slot_func.GetToken(), sendCurrentState); // Using real execution tester instead of null may cause deadlocks!!!
+			TaskLifeToken token(_impl->CreateAsyncToken());
+			return _impl->Connect(function_storage(function<Signature_>(MakeAsyncFunction(worker, slot, token))), null, token, sendCurrentState);
 		}
 	};
 

@@ -25,18 +25,40 @@ namespace stingray
 	namespace Detail
 	{
 
-		struct FuncTypeWithDeathControl
+		struct CancellableStorage
 		{
 		private:
-			function_storage		_func;
+			function_storage		_functionStorage;
 			FutureExecutionTester	_tester;
 
 		public:
-			FuncTypeWithDeathControl(const function_storage& func, const FutureExecutionTester& tester = null)
-				: _func(func), _tester(tester)
+			CancellableStorage(const function_storage& func, const FutureExecutionTester& tester) :
+				_functionStorage(func), _tester(tester)
 			{ }
-			const function_storage& Func() 	{ return _func; }
-			FutureExecutionTester& Tester()	{ return _tester; }
+
+			template <typename Signature_, typename Params_>
+			void Invoke(const Params_& p) const
+			{
+				LocalExecutionGuard guard(_tester);
+				if (guard)
+					FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p);
+			}
+		};
+
+
+		struct ThreadlessStorage
+		{
+		private:
+			function_storage		_functionStorage;
+
+		public:
+			ThreadlessStorage(const function_storage& func, const FutureExecutionTester& tester) :
+				_functionStorage(func)
+			{ STINGRAYKIT_CHECK(tester.IsDummy(), "ThreadlessStorage can't be used with real tokens!"); }
+
+			template <typename Signature_, typename Params_>
+			void Invoke(const Params_& p) const
+			{ FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p); }
 		};
 
 
@@ -77,15 +99,37 @@ namespace stingray
 		}
 
 
+		template <bool IsThreadsafe>
+		struct ISignalImpl : public ISignalConnector
+		{
+			typedef CancellableStorage						FuncType;
+			typedef intrusive_list_node_wrapper<FuncType>	Handler;
+			typedef intrusive_list<Handler>					Handlers;
+
+			virtual Handlers::iterator AddHandler(const Handler& handler) = 0;
+			virtual void RemoveHandler(Handlers::iterator it) = 0;
+		};
+
+
+		template <>
+		struct ISignalImpl<false> : public ISignalConnector
+		{
+			typedef ThreadlessStorage						FuncType;
+			typedef intrusive_list_node_wrapper<FuncType>	Handler;
+			typedef intrusive_list<Handler>					Handlers;
+
+			virtual Handlers::iterator AddHandler(const Handler& handler) = 0;
+			virtual void RemoveHandler(Handlers::iterator it) = 0;
+		};
+
+
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		class SignalImpl : public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public ISignalConnector<Signature_>
+		class SignalImpl : public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public ISignalImpl<ThreadingPolicy_::IsThreadsafe>
 		{
 			template < typename Signature2_, typename ThreadingPolicy2_, typename ExceptionPolicy2_, typename PopulatorsPolicy2_, typename ConnectionPolicyControl2_, typename CreationPolicy2_ >
 			friend class signal;
 
-			template < typename Signature2_, typename ThreadingPolicy2_, typename ExceptionPolicy2_, typename PopulatorsPolicy2_, typename ConnectionPolicyControl2_ >
-			friend class Connection;
-
+			typedef ISignalImpl<ThreadingPolicy_::IsThreadsafe>																	base;
 			typedef SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>		MyType;
 			typedef typename function_info<Signature_>::ParamTypes																ParamTypes;
 
@@ -95,8 +139,9 @@ namespace stingray
 			typedef ThreadingPolicy_								ThreadingPolicy;
 
 		public:
-			typedef intrusive_list_node_wrapper<FuncTypeWithDeathControl>	FuncTypeWrapper;
-			typedef intrusive_list<FuncTypeWrapper>							Handlers;
+			typedef typename base::FuncType	FuncType;
+			typedef typename base::Handler	Handler;
+			typedef typename base::Handlers	Handlers;
 
 		private:
 			Handlers		_handlers;
@@ -140,29 +185,38 @@ namespace stingray
 				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState)
 			{ }
 
-			virtual Token Connect(const function<Signature_>& funcStorage, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState);;
+			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState);
 
-			virtual void SendCurrentState(const function<Signature_>& slot) const
+			virtual void SendCurrentState(const function_storage& slot) const
 			{
 				typename ThreadingPolicy_::LockType l(this->GetSync());
-				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc, GetTypeListLength<ParamTypes>::Value > wrapped_slot(slot, this->GetExceptionHandler());
-				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
+				DoSendCurrentState(slot);
 			}
 
 			void InvokeAll(const Tuple<ParamTypes>& p) const
 			{
-				typedef inplace_vector<FuncTypeWithDeathControl, 16> local_copy_type;
+				typedef inplace_vector<FuncType, 16> local_copy_type;
 				local_copy_type local_copy;
 				this->CopyHandlersToLocal(local_copy);
 
 				for (typename local_copy_type::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
-				{
-					FuncTypeWithDeathControl& func = (*it);
+					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature_>(p); );
+			}
 
-					LocalExecutionGuard guard(func.Tester());
-					if (guard)
-						WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), FunctorInvoker::Invoke(func.Func().ToFunction<Signature_>(), p); );
-				}
+			virtual TaskLifeToken CreateSyncToken() const	{ return ThreadingPolicy::CreateSyncToken(); }
+			virtual TaskLifeToken CreateAsyncToken() const	{ return ThreadingPolicy::CreateAsyncToken(); }
+
+			virtual typename Handlers::iterator AddHandler(const Handler& handler)
+			{
+				// mutex is locked in Connect
+				_handlers.push_back(handler);
+				return --_handlers.end();
+			}
+
+			virtual void RemoveHandler(typename Handlers::iterator it)
+			{
+				typename ThreadingPolicy_::LockType l(this->GetSync());
+				_handlers.erase(it);
 			}
 
 		private:
@@ -172,17 +226,25 @@ namespace stingray
 				typename ThreadingPolicy_::LockType l(this->GetSync());
 				std::copy(_handlers.begin(), _handlers.end(), std::back_inserter(localCopy));
 			}
+
+			void DoSendCurrentState(const function_storage& slot) const
+			{
+				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrapped_slot(slot.ToFunction<Signature_>(), this->GetExceptionHandler());
+				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
+			}
 		};
 
 
-		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
+		template <bool IsThreadsafe>
 		class Connection : public IToken
 		{
 		public:
-			typedef SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>		Impl;
-			typedef self_count_ptr<Impl>									ImplPtr;
-			typedef typename Impl::Handlers									Handlers;
-			typedef typename Handlers::iterator								IteratorType;
+			typedef ISignalImpl<IsThreadsafe>		Impl;
+			typedef self_count_ptr<Impl>			ImplPtr;
+			typedef typename Impl::Handlers			Handlers;
+			typedef typename Handlers::iterator		IteratorType;
+			typedef typename Impl::FuncType			FuncType;
+			typedef typename Impl::Handler			Handler;
 
 		private:
 			ImplPtr				_signalImpl;
@@ -190,41 +252,32 @@ namespace stingray
 			TaskLifeToken		_token;
 
 		public:
-			Connection(const ImplPtr& signalImpl, IteratorType it, const TaskLifeToken& token) :
-				_signalImpl(signalImpl), _it(it), _token(token)
+			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken) :
+				_signalImpl(signalImpl), _it(signalImpl->AddHandler(Handler(FuncType(func, invokeToken)))), _token(connectionToken)
 			{ }
 
 			virtual ~Connection()
 			{
-				{
-					typename ThreadingPolicy_::LockType l(_signalImpl->GetSync());
-					_signalImpl->_handlers.erase(_it);
-				}
+				_signalImpl->RemoveHandler(_it);
 				_token.Release();
 			}
 		};
 
 
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		Token SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function<Signature_>& func, const FutureExecutionTester& futureExecutionTester, const TaskLifeToken& taskLifeToken, bool sendCurrentState)
+		Token SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState)
 		{
-			//STINGRAYKIT_ASSERT(this->GetConnectionPolicy() != ConnectionPolicy::AsyncOnly);
-			typedef Connection<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>	Connection;
-
 			typename ThreadingPolicy_::LockType l(this->GetSync());
 
 			if (sendCurrentState)
-			{
-				Detail::ExceptionHandlerWrapper<Signature_, function<void(const std::exception&)> > wrapped_slot(func, this->GetExceptionHandler());
-				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
-			}
+				DoSendCurrentState(func);
 
-			_handlers.push_back(FuncTypeWrapper(FuncTypeWithDeathControl(function_storage(func), futureExecutionTester)));
+			typedef Connection<ThreadingPolicy::IsThreadsafe> Connection;
 			typename Connection::ImplPtr impl(this);
 			this->add_ref();
-			return MakeToken<Connection>(impl, --_handlers.end(), taskLifeToken);
-		}
 
+			return MakeToken<Connection>(impl, func, invokeToken, connectionToken);
+		}
 	}
 
 
@@ -309,21 +362,21 @@ namespace stingray
 		{ \
 			if (!_impl) \
 				return; \
-			_impl->SendCurrentState(slot); \
+			_impl->SendCurrentState(function_storage(slot)); \
 		} \
 		\
 		TokenReturnProxy connect(const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
-			TaskLifeToken token; \
-			return _impl->Connect(slot, token.GetExecutionTester(), token, sendCurrentState); \
+			TaskLifeToken token(_impl->CreateSyncToken()); \
+			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState); \
 		} \
 		\
 		TokenReturnProxy connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
-			AsyncFunction<Signature> slot_func(worker, slot); \
-			return _impl->Connect(slot_func, null, slot_func.GetToken(), sendCurrentState); \
+			TaskLifeToken token(_impl->CreateAsyncToken()); \
+			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token))), null, token, sendCurrentState); \
 		} \
 		\
 		signal_connector<Signature> connector() const { CreationPolicy_::template LazyCreate(_impl); return signal_connector<Signature>(_impl); } \

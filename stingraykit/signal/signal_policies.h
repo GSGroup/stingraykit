@@ -1,11 +1,10 @@
 #ifndef STINGRAYKIT_SIGNAL_SIGNAL_POLICIES_H
 #define STINGRAYKIT_SIGNAL_SIGNAL_POLICIES_H
 
-
-#include <stingraykit/thread/Thread.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/optional.h>
-
+#include <stingraykit/task_alive_token.h>
+#include <stingraykit/thread/Thread.h>
 
 namespace stingray
 {
@@ -50,27 +49,39 @@ namespace stingray
 		{
 			struct Multithreaded
 			{
+				static const bool IsThreadsafe = true;
+
 				typedef MutexLock		LockType;
-				const Mutex& GetSync() const { return _mutex; }
 
 			private:
 				Mutex	_mutex;
+
+			public:
+				const Mutex& GetSync() const			{ return _mutex; }
+				TaskLifeToken CreateSyncToken() const	{ return TaskLifeToken(); }
+				TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 			};
 
 			struct Threadless
 			{
+				static const bool IsThreadsafe = false;
+
 				struct DummyMutex
 				{
 					void Lock() const { }
 					void Unlock() const { }
 				};
-
 				typedef GenericMutexLock<DummyMutex>	LockType;
-				DummyMutex GetSync() const { return DummyMutex(); }
+
+				DummyMutex GetSync() const				{ return DummyMutex(); }
+				TaskLifeToken CreateSyncToken() const	{ return TaskLifeToken::CreateDummyTaskToken(); }
+				TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 			};
 
 			struct ExternalMutex
 			{
+				static const bool IsThreadsafe = true;
+
 				typedef MutexLock		LockType;
 
 			private:
@@ -80,11 +91,15 @@ namespace stingray
 				ExternalMutex(const Mutex& mutex) : _mutex(mutex)
 				{ }
 
-				const Mutex& GetSync() const { return _mutex; }
+				const Mutex& GetSync() const			{ return _mutex; }
+				TaskLifeToken CreateSyncToken() const	{ return TaskLifeToken(); }
+				TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 			};
 
 			struct ExternalMutexPointer
 			{
+				static const bool IsThreadsafe = true;
+
 				typedef MutexLock		LockType;
 
 			private:
@@ -94,7 +109,9 @@ namespace stingray
 				ExternalMutexPointer(const shared_ptr<Mutex>& mutex) : _mutex(mutex)
 				{ }
 
-				const Mutex& GetSync() const { return *_mutex; }
+				const Mutex& GetSync() const			{ return *_mutex; }
+				TaskLifeToken CreateSyncToken() const	{ return TaskLifeToken(); }
+				TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 			};
 		}
 
