@@ -38,6 +38,10 @@ namespace stingray
 				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func)
 			{ }
 
+			inline AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctionType& func, const TaskLifeToken& token)
+				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _token(token)
+			{ }
+
 			RetType DoAddTask(const function<void()>& func) const
 			{ _executor->AddTask(func, _token.GetExecutionTester()); }
 
@@ -108,6 +112,10 @@ namespace stingray
 			base(executor, func)
 		{ }
 
+		inline AsyncFunction(const ITaskExecutorPtr& executor, const function<R()>& func, const TaskLifeToken& token) :
+			base(executor, func, token)
+		{ }
+
 		inline typename base::RetType  operator ()() const { return base::DoAddTask(base::_func); }
 	};
 
@@ -124,6 +132,10 @@ namespace stingray
 	public: \
 		AsyncFunction(const ITaskExecutorPtr& executor, const function<R(Types_)>& func) \
 			: base(executor, func) \
+		{ } \
+		\
+		AsyncFunction(const ITaskExecutorPtr& executor, const function<R(Types_)>& func, const TaskLifeToken& token) \
+			: base(executor, func, token) \
 		{ } \
 		\
 		typename base::RetType operator ()(Decl_) const \
@@ -152,6 +164,10 @@ namespace stingray
 	AsyncFunction<typename function_info<FunctorType>::Signature> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func)
 	{ return AsyncFunction<typename function_info<FunctorType>::Signature>(executor, func); }
 
+
+	template <typename FunctorType>
+	AsyncFunction<typename function_info<FunctorType>::Signature> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const TaskLifeToken& token)
+	{ return AsyncFunction<typename function_info<FunctorType>::Signature>(executor, func, token); }
 
 	/** @} */
 
