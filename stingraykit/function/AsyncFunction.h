@@ -148,6 +148,11 @@ namespace stingray
 #undef TY
 
 
+	template <typename FunctorType>
+	AsyncFunction<typename function_info<FunctorType>::Signature> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func)
+	{ return AsyncFunction<typename function_info<FunctorType>::Signature>(executor, func); }
+
+
 	/** @} */
 
 }
