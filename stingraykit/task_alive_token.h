@@ -25,10 +25,25 @@ namespace stingray
 
 		public:
 			TaskLifeTokenImpl() : _alive(true)
-			{}
-			Mutex& GetMutex() 		{ return _sync; }
-			bool IsAlive() const	{ return _alive; }
-			void Kill()				{ _alive = false; }
+			{ }
+
+			bool TryStartExecution()
+			{
+				_sync.Lock();
+				if (_alive)
+					return true;
+				_sync.Unlock();
+				return false;
+			}
+
+			void FinishExecution()
+			{ _sync.Unlock(); }
+
+			void Kill()
+			{
+				MutexLock l(_sync);
+				_alive = false;
+			}
 		};
 		STINGRAYKIT_DECLARE_SELF_COUNT_PTR(TaskLifeTokenImpl);
 	};
@@ -65,20 +80,15 @@ namespace stingray
 		{
 			if (!_impl)
 				return;
-
-			_impl->GetMutex().Lock();
-			_allow = _impl->IsAlive();
+			_allow = _impl->TryStartExecution();
 			if (!_allow)
-			{
-				_impl->GetMutex().Unlock();
 				_impl.reset();
-			}
 		}
 
 		~LocalExecutionGuard()
 		{
 			if (_impl)
-				_impl->GetMutex().Unlock();
+				_impl->FinishExecution();
 		}
 
 		bool boolean_test() const
@@ -93,14 +103,13 @@ namespace stingray
 
 	public:
 		TaskLifeToken() : _impl(new Detail::TaskLifeTokenImpl)
-		{}
+		{ }
 
 		~TaskLifeToken()
-		{}
+		{ }
 
 		void Release()
 		{
-			MutexLock l(_impl->GetMutex());
 			_impl->Kill();
 		}
 
