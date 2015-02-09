@@ -2,6 +2,7 @@
 #define STINGRAYKIT_FUNCTION_CANCELLABLEFUNCTION_H
 
 #include <stingraykit/PerfectForwarding.h>
+#include <stingraykit/task_alive_token.h>
 
 namespace stingray
 {
