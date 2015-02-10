@@ -1,9 +1,9 @@
 #ifndef STINGRAYKIT_FUNCTION_FUNCTION_NAME_GETTER_H
 #define STINGRAYKIT_FUNCTION_FUNCTION_NAME_GETTER_H
 
-#include <stingraykit/NestedTypeCheck.h>
 #include <stingraykit/TypeInfo.h>
 #include <stingraykit/function/function_info.h>
+#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 
 namespace stingray
 {

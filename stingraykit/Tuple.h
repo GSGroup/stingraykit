@@ -1,23 +1,14 @@
 #ifndef STINGRAYKIT_TUPLE_H
 #define STINGRAYKIT_TUPLE_H
 
-
 #include <stingraykit/Dummy.h>
 #include <stingraykit/TypeList.h>
 #include <stingraykit/Types.h>
-
+#include <stingraykit/metaprogramming/ParamPassingType.h>
 
 namespace stingray
 {
 
-
-	template < typename T >
-	struct GetParamPassingType
-	{
-		typedef typename Dereference<typename Deconst<T>::ValueT>::ValueT RawType;
-		typedef typename If<IsBuiltinType<T>::Value || IsPointer<T>::Value, RawType, const RawType&>::ValueT ConstPassingType;
-		typedef typename If<IsNonConstReference<T>::Value, RawType&, ConstPassingType>::ValueT ValueT;
-	};
 
 	namespace Detail
 	{

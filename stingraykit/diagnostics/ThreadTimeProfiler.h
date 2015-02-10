@@ -2,8 +2,8 @@
 #define STINGRAYKIT_DIAGNOSTICS_THREADTIMEPROFILER_H
 
 
+#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/time/ElapsedTime.h>
-#include <stingraykit/NestedTypeCheck.h>
 
 
 namespace stingray

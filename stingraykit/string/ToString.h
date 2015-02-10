@@ -1,22 +1,20 @@
 #ifndef STINGRAYKIT_STRING_TOSTRING_H
 #define STINGRAYKIT_STRING_TOSTRING_H
 
+#include <stingraykit/Dummy.h>
+#include <stingraykit/Macro.h>
+#include <stingraykit/Types.h>
+#include <stingraykit/collection/CollectionBuilder.h>
+#include <stingraykit/collection/IEnumerable.h>
+#include <stingraykit/exception.h>
+#include <stingraykit/metaprogramming/NestedTypeCheck.h>
+#include <stingraykit/optional.h>
+#include <stingraykit/shared_ptr.h>
+#include <stingraykit/string/string_stream.h>
 
 #include <algorithm>
 #include <ctype.h>
 #include <string>
-
-#include <stingraykit/collection/CollectionBuilder.h>
-#include <stingraykit/Dummy.h>
-#include <stingraykit/exception.h>
-#include <stingraykit/collection/IEnumerable.h>
-#include <stingraykit/Macro.h>
-#include <stingraykit/NestedTypeCheck.h>
-#include <stingraykit/optional.h>
-#include <stingraykit/shared_ptr.h>
-#include <stingraykit/string/string_stream.h>
-#include <stingraykit/Types.h>
-
 
 namespace std
 {

@@ -1,9 +1,10 @@
 #ifndef STINGRAYKIT_NESTEDTYPECHECK_H
 #define STINGRAYKIT_NESTEDTYPECHECK_H
 
-
-#include <stingraykit/MetaProgramming.h>
-
+#include <stingraykit/metaprogramming/If.h>
+#include <stingraykit/metaprogramming/TypeTraits.h>
+#include <stingraykit/metaprogramming/TypeTransformations.h>
+#include <stingraykit/metaprogramming/YesNo.h>
 
 namespace stingray
 {

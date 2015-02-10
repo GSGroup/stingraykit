@@ -1,12 +1,11 @@
 #ifndef STINGRAYKIT_COLLECTION_COLLECTIONBUILDER_H
 #define STINGRAYKIT_COLLECTION_COLLECTIONBUILDER_H
 
+#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 
-#include <set>
 #include <map>
+#include <set>
 #include <vector>
-#include <stingraykit/NestedTypeCheck.h>
-
 
 namespace stingray
 {

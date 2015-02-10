@@ -1,13 +1,12 @@
 #ifndef STINGRAYKIT_TOOLKIT_H
 #define STINGRAYKIT_TOOLKIT_H
 
-
-#include <stdexcept>
-
+#include <stingraykit/EnumToString.h>
 #include <stingraykit/MetaProgramming.h>
 #include <stingraykit/Types.h>
-#include <stingraykit/NestedTypeCheck.h>
-#include <stingraykit/EnumToString.h>
+#include <stingraykit/metaprogramming/NestedTypeCheck.h>
+
+#include <stdexcept>
 
 namespace stingray
 {

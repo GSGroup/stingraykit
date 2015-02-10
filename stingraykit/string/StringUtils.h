@@ -1,23 +1,21 @@
 #ifndef STINGRAYKIT_STRING_STRINGUTILS_H
 #define STINGRAYKIT_STRING_STRINGUTILS_H
 
-
-#include <algorithm>
-#include <ctype.h>
-#include <string>
-
 #include <stingraykit/Dummy.h>
 #include <stingraykit/Macro.h>
-#include <stingraykit/NestedTypeCheck.h>
 #include <stingraykit/Types.h>
 #include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/exception.h>
+#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/string/string_stream.h>
 
+#include <algorithm>
+#include <ctype.h>
+#include <string>
 
 namespace std
 {
