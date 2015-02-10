@@ -14,13 +14,13 @@ namespace stingray
 	 */
 
 	template <typename T>
-	class intrusive_list;
+	class IntrusiveList;
 
 
 	class IntrusiveListNodeData
 	{
 		template <typename U>
-		friend class intrusive_list;
+		friend class IntrusiveList;
 
 		IntrusiveListNodeData	*_prev, *_next;
 
@@ -76,9 +76,9 @@ namespace stingray
 
 
 	template <typename T>
-	class intrusive_list
+	class IntrusiveList
 	{
-		STINGRAYKIT_NONCOPYABLE(intrusive_list);
+		STINGRAYKIT_NONCOPYABLE(IntrusiveList);
 
 	public:
 		typedef T						value_type;
@@ -111,10 +111,10 @@ namespace stingray
 		static NodeDataType* get_prev(const NodeDataType* n)	{ return n->_prev; }
 
 	public:
-		intrusive_list() : _root()
+		IntrusiveList() : _root()
 		{ }
 
-		~intrusive_list()
+		~IntrusiveList()
 		{ STINGRAYKIT_ASSERT(empty()); }
 
 		iterator begin()			{ return iterator(_root._next); }

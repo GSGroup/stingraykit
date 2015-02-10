@@ -3,8 +3,8 @@
 
 #include <stingraykit/IToken.h>
 #include <stingraykit/assert.h>
+#include <stingraykit/collection/IntrusiveList.h>
 #include <stingraykit/collection/inplace_vector.h>
-#include <stingraykit/collection/intrusive_list.h>
 #include <stingraykit/function/AsyncFunction.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/self_counter.h>
@@ -104,7 +104,7 @@ namespace stingray
 		{
 			typedef CancellableStorage			FuncType;
 			typedef IntrusiveListNode<FuncType>	Handler;
-			typedef intrusive_list<FuncType>	Handlers;
+			typedef IntrusiveList<FuncType>	Handlers;
 
 			virtual void AddHandler(Handler& handler) = 0;
 			virtual void RemoveHandler(Handler& handler) = 0;
@@ -116,7 +116,7 @@ namespace stingray
 		{
 			typedef ThreadlessStorage			FuncType;
 			typedef IntrusiveListNode<FuncType>	Handler;
-			typedef intrusive_list<FuncType>	Handlers;
+			typedef IntrusiveList<FuncType>		Handlers;
 
 			virtual void AddHandler(Handler& handler) = 0;
 			virtual void RemoveHandler(Handler& handler) = 0;
