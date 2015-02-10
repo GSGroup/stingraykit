@@ -57,4 +57,29 @@ namespace stingray
 			STINGRAYKIT_THROW("invalid type for binary data value");
 	}
 
+	static inline u8 xdigit(char c) {
+		if (c >= '0' && c <= '9')
+			return c - '0';
+		c |= 0x20; //lowercasing
+		if (c >= 'a' && c <= 'f')
+			return c - 'a' + 10;
+		STINGRAYKIT_THROW(std::runtime_error(std::string("invalid hex digit") + c));
+	}
+
+	void ObjectIStream::UnpackBinaryEncoding(byte_array &data, const std::string& str) //sorry for that :(
+	{
+		if (str.size() < 4 || str.compare(0, 4, "hex=") != 0)
+			STINGRAYKIT_THROW(std::runtime_error("invalid binary encoding"));
+
+		data.resize((str.size() - 4) / 2);
+		byte_array::iterator dst = data.begin();
+		for(std::string::const_iterator i = str.begin() + 4; i != str.end(); )
+		{
+			u8 h = xdigit(*i++) << 4;
+			if (i == str.end())
+				STINGRAYKIT_THROW(std::runtime_error("half-byte in hex dump"));
+			*dst++ = xdigit(*i++) | h;
+		}
+	}
+
 }
