@@ -102,24 +102,24 @@ namespace stingray
 		template <bool IsThreadsafe>
 		struct ISignalImpl : public ISignalConnector
 		{
-			typedef CancellableStorage						FuncType;
-			typedef intrusive_list_node_wrapper<FuncType>	Handler;
-			typedef intrusive_list<Handler>					Handlers;
+			typedef CancellableStorage			FuncType;
+			typedef IntrusiveListNode<FuncType>	Handler;
+			typedef intrusive_list<FuncType>	Handlers;
 
-			virtual Handlers::iterator AddHandler(const Handler& handler) = 0;
-			virtual void RemoveHandler(Handlers::iterator it) = 0;
+			virtual void AddHandler(Handler& handler) = 0;
+			virtual void RemoveHandler(Handler& handler) = 0;
 		};
 
 
 		template <>
 		struct ISignalImpl<false> : public ISignalConnector
 		{
-			typedef ThreadlessStorage						FuncType;
-			typedef intrusive_list_node_wrapper<FuncType>	Handler;
-			typedef intrusive_list<Handler>					Handlers;
+			typedef ThreadlessStorage			FuncType;
+			typedef IntrusiveListNode<FuncType>	Handler;
+			typedef intrusive_list<FuncType>	Handlers;
 
-			virtual Handlers::iterator AddHandler(const Handler& handler) = 0;
-			virtual void RemoveHandler(Handlers::iterator it) = 0;
+			virtual void AddHandler(Handler& handler) = 0;
+			virtual void RemoveHandler(Handler& handler) = 0;
 		};
 
 
@@ -206,17 +206,16 @@ namespace stingray
 			virtual TaskLifeToken CreateSyncToken() const	{ return ThreadingPolicy::CreateSyncToken(); }
 			virtual TaskLifeToken CreateAsyncToken() const	{ return ThreadingPolicy::CreateAsyncToken(); }
 
-			virtual typename Handlers::iterator AddHandler(const Handler& handler)
+			virtual void AddHandler(Handler& handler)
 			{
 				// mutex is locked in Connect
 				_handlers.push_back(handler);
-				return --_handlers.end();
 			}
 
-			virtual void RemoveHandler(typename Handlers::iterator it)
+			virtual void RemoveHandler(Handler& handler)
 			{
 				typename ThreadingPolicy_::LockType l(this->GetSync());
-				_handlers.erase(it);
+				_handlers.erase(handler);
 			}
 
 		private:
@@ -241,24 +240,22 @@ namespace stingray
 		public:
 			typedef ISignalImpl<IsThreadsafe>		Impl;
 			typedef self_count_ptr<Impl>			ImplPtr;
-			typedef typename Impl::Handlers			Handlers;
-			typedef typename Handlers::iterator		IteratorType;
 			typedef typename Impl::FuncType			FuncType;
 			typedef typename Impl::Handler			Handler;
 
 		private:
 			ImplPtr				_signalImpl;
-			IteratorType		_it;
+			Handler				_handler;
 			TaskLifeToken		_token;
 
 		public:
 			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken) :
-				_signalImpl(signalImpl), _it(signalImpl->AddHandler(Handler(FuncType(func, invokeToken)))), _token(connectionToken)
-			{ }
+				_signalImpl(signalImpl), _handler(FuncType(func, invokeToken)), _token(connectionToken)
+			{ _signalImpl->AddHandler(_handler); }
 
 			virtual ~Connection()
 			{
-				_signalImpl->RemoveHandler(_it);
+				_signalImpl->RemoveHandler(_handler);
 				_token.Release();
 			}
 		};
