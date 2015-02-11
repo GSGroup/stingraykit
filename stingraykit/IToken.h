@@ -10,17 +10,16 @@
 namespace stingray
 {
 
-	struct IToken
+	struct IToken : public self_counter<IToken>
 	{
 		virtual ~IToken() { }
 	};
-	STINGRAYKIT_DECLARE_PTR(IToken);
 
 
 	class Token : public safe_bool<Token>
 	{
 	private:
-		ITokenPtr	_token;
+		self_count_ptr<IToken>	_token;
 
 	public:
 		Token()
@@ -30,7 +29,7 @@ namespace stingray
 		{ }
 
 		template<typename T>
-		Token(const shared_ptr<T>& token) : _token(token)
+		Token(const self_count_ptr<T>& token) : _token(token)
 		{ }
 
 		Token& operator = (const Token& token)		{ Set(token); return *this; }
@@ -46,7 +45,7 @@ namespace stingray
 #define DETAIL_DECL_MAKE_TOKEN(N_, UserArg_) \
 	template< typename T STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, Param) > \
 	Token MakeToken(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, Param)) \
-	{ return shared_ptr<IToken>(new T(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, STINGRAYKIT_EMPTY()))); }
+	{ return self_count_ptr<IToken>(new T(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, STINGRAYKIT_EMPTY()))); }
 
 
 	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECL_MAKE_TOKEN, STINGRAYKIT_EMPTY())
