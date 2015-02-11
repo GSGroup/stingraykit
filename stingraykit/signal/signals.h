@@ -229,7 +229,7 @@ namespace stingray
 			void DoSendCurrentState(const function_storage& slot) const
 			{
 				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrapped_slot(slot.ToFunction<Signature_>(), this->GetExceptionHandler());
-				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentState<Signature_>(wrapped_slot); );
+				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentStateImpl<Signature_>(wrapped_slot); );
 			}
 		};
 

@@ -144,7 +144,7 @@ namespace stingray
 			struct Null
 			{
 				template < typename Signature_ >
-				void SendCurrentState(const function<Signature_>& slot) const { }
+				void SendCurrentStateImpl(const function<Signature_>& slot) const { }
 			};
 
 			struct Configurable
@@ -155,7 +155,7 @@ namespace stingray
 				Configurable(const function<void(const function<Signature_>&)>& func) : _sendCurrentState(function_storage(func)) { }
 
 				template < typename Signature_ >
-				void SendCurrentState(const function<Signature_>& slot) const
+				void SendCurrentStateImpl(const function<Signature_>& slot) const
 				{
 					if (_sendCurrentState)
 						_sendCurrentState->ToFunction<void(const function<Signature_>&)>()(slot);
