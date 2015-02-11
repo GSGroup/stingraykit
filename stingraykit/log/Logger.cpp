@@ -300,7 +300,7 @@ namespace stingray
 			return null;
 
 		logger->AddSink(sink);
-		return make_shared<FunctionToken>(bind(&LoggerImpl::RemoveSink, logger, sink));
+		return MakeToken<FunctionToken>(bind(&LoggerImpl::RemoveSink, logger, sink));
 	}
 
 
