@@ -47,42 +47,34 @@ namespace stingray
 
 		namespace threading
 		{
+			struct DummyMutex
+			{
+				void Lock() const { }
+				void Unlock() const { }
+			};
+			typedef GenericMutexLock<DummyMutex>	DummyLock;
+
 			struct Multithreaded
 			{
 				static const bool IsThreadsafe = true;
-
-				typedef MutexLock		LockType;
 
 			private:
 				Mutex	_mutex;
 
 			public:
 				const Mutex& GetSync() const			{ return _mutex; }
-				TaskLifeToken CreateSyncToken() const	{ return TaskLifeToken(); }
-				TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 			};
 
 			struct Threadless
 			{
 				static const bool IsThreadsafe = false;
 
-				struct DummyMutex
-				{
-					void Lock() const { }
-					void Unlock() const { }
-				};
-				typedef GenericMutexLock<DummyMutex>	LockType;
-
 				DummyMutex GetSync() const				{ return DummyMutex(); }
-				TaskLifeToken CreateSyncToken() const	{ return TaskLifeToken::CreateDummyTaskToken(); }
-				TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 			};
 
 			struct ExternalMutex
 			{
 				static const bool IsThreadsafe = true;
-
-				typedef MutexLock		LockType;
 
 			private:
 				const Mutex&	_mutex;
@@ -92,15 +84,11 @@ namespace stingray
 				{ }
 
 				const Mutex& GetSync() const			{ return _mutex; }
-				TaskLifeToken CreateSyncToken() const	{ return TaskLifeToken(); }
-				TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 			};
 
 			struct ExternalMutexPointer
 			{
 				static const bool IsThreadsafe = true;
-
-				typedef MutexLock		LockType;
 
 			private:
 				shared_ptr<Mutex>	_mutex;
@@ -110,8 +98,6 @@ namespace stingray
 				{ }
 
 				const Mutex& GetSync() const			{ return *_mutex; }
-				TaskLifeToken CreateSyncToken() const	{ return TaskLifeToken(); }
-				TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 			};
 		}
 

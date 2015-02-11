@@ -100,51 +100,109 @@ namespace stingray
 
 
 		template <bool IsThreadsafe>
-		struct ISignalImpl : public ISignalConnector
+		struct SignalImplBase : public ISignalConnector
 		{
-			typedef CancellableStorage			FuncType;
-			typedef IntrusiveListNode<FuncType>	Handler;
-			typedef IntrusiveList<FuncType>	Handlers;
+			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncType;
+			typedef IntrusiveListNode<FuncType>													Handler;
+			typedef IntrusiveList<FuncType>														Handlers;
 
-			virtual void AddHandler(Handler& handler) = 0;
-			virtual void RemoveHandler(Handler& handler) = 0;
+		protected:
+			typedef signal_policies::threading::DummyMutex										DummyMutex;
+			typedef signal_policies::threading::DummyLock										DummyLock;
+			typedef typename If<IsThreadsafe, const Mutex&, DummyMutex>::ValueT					MutexRefType;
+			typedef typename If<IsThreadsafe, MutexLock, DummyLock>::ValueT						LockType;
+			typedef inplace_vector<FuncType, 16>												LocalHandlersCopy;
+
+		protected:
+			Handlers	_handlers;
+
+		public:
+			virtual TaskLifeToken CreateSyncToken() const	{ return IsThreadsafe ? TaskLifeToken() : TaskLifeToken::CreateDummyTaskToken(); }
+			virtual TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
+
+			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState);
+
+			virtual void SendCurrentState(const function_storage& slot) const
+			{
+				LockType l(DoGetSync());
+				DoSendCurrentState(slot);
+			}
+
+			void AddHandler(Handler& handler)
+			{
+				// mutex is locked in Connect
+				_handlers.push_back(handler);
+			}
+
+			void RemoveHandler(Handler& handler)
+			{
+				LockType l(DoGetSync());
+				_handlers.erase(handler);
+			}
+
+		protected:
+			void CopyHandlersToLocal(LocalHandlersCopy& localCopy) const
+			{ std::copy(_handlers.begin(), _handlers.end(), std::back_inserter(localCopy)); }
+
+		protected:
+			virtual MutexRefType DoGetSync() const = 0;
+			virtual void DoSendCurrentState(const function_storage& slot) const = 0;
 		};
 
 
-		template <>
-		struct ISignalImpl<false> : public ISignalConnector
+		template <bool IsThreadsafe>
+		class Connection : public IToken
 		{
-			typedef ThreadlessStorage			FuncType;
-			typedef IntrusiveListNode<FuncType>	Handler;
-			typedef IntrusiveList<FuncType>		Handlers;
+		public:
+			typedef SignalImplBase<IsThreadsafe>	Impl;
+			typedef self_count_ptr<Impl>			ImplPtr;
+			typedef typename Impl::FuncType			FuncType;
+			typedef typename Impl::Handler			Handler;
 
-			virtual void AddHandler(Handler& handler) = 0;
-			virtual void RemoveHandler(Handler& handler) = 0;
+		private:
+			ImplPtr				_signalImpl;
+			Handler				_handler;
+			TaskLifeToken		_token;
+
+		public:
+			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken) :
+				_signalImpl(signalImpl), _handler(FuncType(func, invokeToken)), _token(connectionToken)
+			{ _signalImpl->AddHandler(_handler); }
+
+			virtual ~Connection()
+			{
+				_signalImpl->RemoveHandler(_handler);
+				_token.Release();
+			}
 		};
+
+
+		template < bool IsThreadsafe >
+		Token SignalImplBase<IsThreadsafe>::Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState)
+		{
+			LockType l(DoGetSync());
+			if (sendCurrentState)
+				DoSendCurrentState(func);
+
+			typedef Connection<IsThreadsafe> Connection;
+			typename Connection::ImplPtr impl(this);
+			this->add_ref();
+
+			return MakeToken<Connection>(impl, func, invokeToken, connectionToken);
+		}
 
 
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		class SignalImpl : public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public ISignalImpl<ThreadingPolicy_::IsThreadsafe>
+		class SignalImpl : public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public SignalImplBase<ThreadingPolicy_::IsThreadsafe>
 		{
 			template < typename Signature2_, typename ThreadingPolicy2_, typename ExceptionPolicy2_, typename PopulatorsPolicy2_, typename ConnectionPolicyControl2_, typename CreationPolicy2_ >
 			friend class signal;
 
-			typedef ISignalImpl<ThreadingPolicy_::IsThreadsafe>																	base;
-			typedef SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>		MyType;
-			typedef typename function_info<Signature_>::ParamTypes																ParamTypes;
+			typedef SignalImplBase<ThreadingPolicy_::IsThreadsafe>	base;
+			typedef typename function_info<Signature_>::ParamTypes	ParamTypes;
 
 			typedef function<void(const std::exception&)>			ExceptionHandlerFunc;
 			typedef function<void(const function<Signature_>&)>		PopulatorFunc;
-
-			typedef ThreadingPolicy_								ThreadingPolicy;
-
-		public:
-			typedef typename base::FuncType	FuncType;
-			typedef typename base::Handler	Handler;
-			typedef typename base::Handlers	Handlers;
-
-		private:
-			Handlers		_handlers;
 
 		public:
 			SignalImpl() { }
@@ -177,104 +235,36 @@ namespace stingray
 				: ExceptionPolicy_(exceptionHandler), PopulatorsPolicy_(sendCurrentState), ConnectionPolicyControl_(connectionPolicy)
 			{ }
 
-			SignalImpl(const ThreadingPolicy& threadingPolicy)
+			SignalImpl(const ThreadingPolicy_& threadingPolicy)
 				: ThreadingPolicy_(threadingPolicy)
 			{ }
 
-			SignalImpl(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState)
+			SignalImpl(const ThreadingPolicy_& threadingPolicy, const PopulatorFunc& sendCurrentState)
 				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState)
 			{ }
 
-			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState);
-
-			virtual void SendCurrentState(const function_storage& slot) const
-			{
-				typename ThreadingPolicy_::LockType l(this->GetSync());
-				DoSendCurrentState(slot);
-			}
-
 			void InvokeAll(const Tuple<ParamTypes>& p) const
 			{
-				typedef inplace_vector<FuncType, 16> local_copy_type;
-				local_copy_type local_copy;
-				this->CopyHandlersToLocal(local_copy);
+				typename base::LocalHandlersCopy local_copy;
+				{
+					typename base::LockType l(this->GetSync());
+					this->CopyHandlersToLocal(local_copy);
+				}
 
-				for (typename local_copy_type::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
+				for (typename base::LocalHandlersCopy::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
 					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature_>(p); );
 			}
 
-			virtual TaskLifeToken CreateSyncToken() const	{ return ThreadingPolicy::CreateSyncToken(); }
-			virtual TaskLifeToken CreateAsyncToken() const	{ return ThreadingPolicy::CreateAsyncToken(); }
-
-			virtual void AddHandler(Handler& handler)
-			{
-				// mutex is locked in Connect
-				_handlers.push_back(handler);
-			}
-
-			virtual void RemoveHandler(Handler& handler)
-			{
-				typename ThreadingPolicy_::LockType l(this->GetSync());
-				_handlers.erase(handler);
-			}
-
 		private:
-			template<typename ContainerType>
-			void CopyHandlersToLocal(ContainerType & localCopy) const
-			{
-				typename ThreadingPolicy_::LockType l(this->GetSync());
-				std::copy(_handlers.begin(), _handlers.end(), std::back_inserter(localCopy));
-			}
+			virtual typename base::MutexRefType DoGetSync() const
+			{ return this->GetSync(); }
 
-			void DoSendCurrentState(const function_storage& slot) const
+			virtual void DoSendCurrentState(const function_storage& slot) const
 			{
 				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrapped_slot(slot.ToFunction<Signature_>(), this->GetExceptionHandler());
 				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentStateImpl<Signature_>(wrapped_slot); );
 			}
 		};
-
-
-		template <bool IsThreadsafe>
-		class Connection : public IToken
-		{
-		public:
-			typedef ISignalImpl<IsThreadsafe>		Impl;
-			typedef self_count_ptr<Impl>			ImplPtr;
-			typedef typename Impl::FuncType			FuncType;
-			typedef typename Impl::Handler			Handler;
-
-		private:
-			ImplPtr				_signalImpl;
-			Handler				_handler;
-			TaskLifeToken		_token;
-
-		public:
-			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken) :
-				_signalImpl(signalImpl), _handler(FuncType(func, invokeToken)), _token(connectionToken)
-			{ _signalImpl->AddHandler(_handler); }
-
-			virtual ~Connection()
-			{
-				_signalImpl->RemoveHandler(_handler);
-				_token.Release();
-			}
-		};
-
-
-		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		Token SignalImpl<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>::Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState)
-		{
-			typename ThreadingPolicy_::LockType l(this->GetSync());
-
-			if (sendCurrentState)
-				DoSendCurrentState(func);
-
-			typedef Connection<ThreadingPolicy::IsThreadsafe> Connection;
-			typename Connection::ImplPtr impl(this);
-			this->add_ref();
-
-			return MakeToken<Connection>(impl, func, invokeToken, connectionToken);
-		}
 	}
 
 
