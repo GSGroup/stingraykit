@@ -117,6 +117,9 @@ namespace stingray
 		{ }
 
 		inline typename base::RetType  operator ()() const { return base::DoAddTask(base::_func); }
+
+		std::string get_name() const
+		{ return "{ AsyncFunction: " + get_function_name(base::_func) + " }"; }
 	};
 
 
@@ -142,6 +145,9 @@ namespace stingray
 		{ \
 			return base::DoAddTask(bind(this->_func, Usage_)); \
 		} \
+		\
+		std::string get_name() const \
+		{ return "{ AsyncFunction: " + get_function_name(base::_func) + " }"; } \
 	}
 
 
