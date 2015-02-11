@@ -66,7 +66,7 @@ namespace stingray
 		STINGRAYKIT_THROW(std::runtime_error(std::string("invalid hex digit") + c));
 	}
 
-	void ObjectIStream::UnpackBinaryEncoding(byte_array &data, const std::string& str) //sorry for that :(
+	void ObjectIStream::UnpackBinaryEncoding(byte_array &data, const std::string& str)
 	{
 		if (str.size() < 4 || str.compare(0, 4, "hex=") != 0)
 			STINGRAYKIT_THROW(std::runtime_error("invalid binary encoding"));
