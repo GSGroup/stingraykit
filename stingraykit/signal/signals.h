@@ -73,8 +73,12 @@ namespace stingray
 		{ \
 			typedef function<Signature>								FuncType; \
 			typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
-			const FuncType& _func; \
-			const ExceptionHandlerFunc& _exFunc; \
+			\
+		private: \
+			FuncType				_func; \
+			ExceptionHandlerFunc	_exFunc; \
+			\
+		public: \
 			ExceptionHandlerWrapper(const FuncType& func, const ExceptionHandlerFunc& exFunc) : _func(func), _exFunc(exFunc) \
 			{ } \
 			void operator() (STINGRAYKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_DECL, ~)) const \
