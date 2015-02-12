@@ -263,9 +263,9 @@ namespace stingray
 			virtual typename base::MutexRefType DoGetSync() const
 			{ return this->GetSync(); }
 
-			virtual void DoSendCurrentState(const function_storage& slot) const
+			virtual void DoSendCurrentState(const function_storage& storage) const
 			{
-				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrapped_slot(slot.ToFunction<Signature_>(), this->GetExceptionHandler());
+				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrapped_slot(storage.ToFunction<Signature_>(), this->GetExceptionHandler());
 				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentStateImpl<Signature_>(wrapped_slot); );
 			}
 		};
