@@ -2,7 +2,6 @@
 #define STINGRAYKIT_ANY_H
 
 
-#include <iostream>
 #include <typeinfo>
 
 #include <stingraykit/serialization/ISerializable.h>
