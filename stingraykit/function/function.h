@@ -179,9 +179,10 @@ namespace stingray
 
 	protected:
 		typedef Detail::IInvokable<Signature>					InvokableType;
+		typedef self_count_ptr<InvokableType>					InvokableTypePtr;
 		typedef typename InvokableType::InvokeFunc				InvokeFunc;
 
-		self_count_ptr<InvokableType>	_invokable;
+		InvokableTypePtr	_invokable;
 
 	protected:
 		inline ~function_base()
@@ -201,10 +202,9 @@ namespace stingray
 	public:
 		std::string get_name() const { return "{ function: " + _invokable->_getVTable().GetName(_invokable.get()) + " }"; }
 
-	private:
-		friend class function_storage;
-		explicit function_base(const self_count_ptr<InvokableType>& ptr) : _invokable(ptr)
-		{}
+	protected:
+		function_base(const InvokableTypePtr& ptr, Dummy dummy) : _invokable(ptr)
+		{ }
 	};
 
 	template < typename RetType, typename ParamTypes, size_t ParamCount = GetTypeListLength<ParamTypes>::Value >
@@ -229,8 +229,9 @@ namespace stingray
 
 	private:
 		friend class function_storage;
-		explicit function(const BaseType& base) : BaseType(base)
-		{}
+		typedef typename BaseType::InvokableTypePtr InvokableTypePtr;
+		function(const InvokableTypePtr& invokable, Dummy dummy) : BaseType(invokable, dummy)
+		{ }
 
 		//STINGRAYKIT_NONASSIGNABLE(function); //This will break ActionTransaction and swig, and never actually was here. Uncomment it and fix all operator= for functions
 	};
@@ -260,8 +261,9 @@ namespace stingray
 		} \
 	private: \
 		friend class function_storage; \
-		explicit function(const BaseType& base) : BaseType(base) \
-		{} \
+		typedef typename BaseType::InvokableTypePtr InvokableTypePtr; \
+		function(const InvokableTypePtr& invokable, Dummy dummy) : BaseType(invokable, dummy) \
+		{ } \
 	}; \
 	template < typename RetType, typename ParamTypes > \
 	struct FunctionConstructor<RetType, ParamTypes, ParamsCount_ > \
@@ -296,9 +298,8 @@ namespace stingray
 		template<typename Signature>
 		function<Signature> ToFunction() const
 		{
-			typedef typename function_base<Signature>::InvokableType TargetInvokable;
-			self_count_ptr<TargetInvokable> ptr(_invokable, static_cast_tag());
-			return function<Signature>(function_base<Signature>(ptr));
+			typedef typename function<Signature>::InvokableTypePtr TargetInvokablePtr;
+			return function<Signature>(TargetInvokablePtr(_invokable, static_cast_tag()), Dummy());
 		}
 	};
 
