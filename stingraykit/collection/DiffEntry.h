@@ -20,6 +20,9 @@ namespace stingray
 		DiffEntry(const T &t, CollectionOp op) : Item(t), Op(op)
 		{}
 
+		bool operator == (const DiffEntry& other) const { return Item == other.Item && Op == other.Op; }
+		bool operator != (const DiffEntry& other) const { return !(*this == other); }
+
 		std::string ToString() const { return StringBuilder() % "DiffEntry { op: " % Op % ", item: " % Item % " }"; }
 	};
 
