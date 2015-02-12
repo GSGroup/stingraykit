@@ -38,6 +38,9 @@ namespace stingray
 			: Key(pair.first), Value(pair.second)
 		{ }
 
+		bool operator == (const KeyValuePair& other) const { return Key == other.Key && Value == other.Value; }
+		bool operator != (const KeyValuePair& other) const { return !(*this == other); }
+
 		KeyType GetKey() const			{ return Key; }
 		ValueType GetValue() const		{ return Value; }
 
