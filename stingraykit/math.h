@@ -7,10 +7,10 @@
 namespace stingray
 {
 
-	inline s8 abs(s8 val)	{ return val >= 0 ? val : -val; }
-	inline s16 abs(s16 val)	{ return val >= 0 ? val : -val; }
-	inline s32 abs(s32 val)	{ return val >= 0 ? val : -val; }
-	inline s64 abs(s64 val)	{ return val >= 0 ? val : -val; }
+	inline s8	Abs(s8 val)		{ return val >= 0 ? val : -val; }
+	inline s16	Abs(s16 val)	{ return val >= 0 ? val : -val; }
+	inline s32	Abs(s32 val)	{ return val >= 0 ? val : -val; }
+	inline s64	Abs(s64 val)	{ return val >= 0 ? val : -val; }
 
 	inline size_t AlignUp(size_t value, size_t boundary)
 	{
