@@ -21,6 +21,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(FactoryContext);
 
+	public:
 		struct IFactoryObjectCreator
 		{
 			virtual ~IFactoryObjectCreator() { }
@@ -34,6 +35,7 @@ namespace stingray
 			virtual IFactoryObject* Create() const { return new ClassType; }
 		};
 
+	private:
 		typedef std::map<std::string, IFactoryObjectCreator*>	ObjectCreatorsRegistry;
 		typedef std::map<TypeInfo, std::string>					ClassNamesRegistry;
 
