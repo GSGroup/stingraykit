@@ -1,8 +1,9 @@
 #ifndef STINGRAYKIT_COLLECTION_TRANSACTIONALDICTIONARYWRAPPER_H
 #define STINGRAYKIT_COLLECTION_TRANSACTIONALDICTIONARYWRAPPER_H
 
-
+#include <stingraykit/collection/ArrayList.h>
 #include <stingraykit/collection/EnumerableHelpers.h>
+#include <stingraykit/collection/IList.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
 
 namespace stingray
@@ -157,6 +158,7 @@ namespace stingray
 		typedef typename Wrapped_::ValueType					ValueType;
 		typedef typename Wrapped_::PairType						PairType;
 		typedef ITransactionalDictionary<KeyType, ValueType>	TransactionalInterface;
+		typedef typename TransactionalInterface::DiffEntryType	DiffEntryType;
 		typedef typename TransactionalInterface::DiffTypePtr	DiffTypePtr;
 
 	private:
@@ -166,7 +168,9 @@ namespace stingray
 		signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutexPointer>	_onChanged;
 
 	public:
-		TransactionalDictionaryWrapper() : _mutex(new Mutex()), _wrapped(new Wrapped_()), _onChanged(signal_policies::threading::ExternalMutexPointer(_mutex))
+		TransactionalDictionaryWrapper() :
+			_mutex(new Mutex()), _wrapped(new Wrapped_()),
+			_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&TransactionalDictionaryWrapper::OnChangedPopulator, this, _1))
 		{}
 
 		virtual const Mutex& GetSyncRoot() const
@@ -226,6 +230,15 @@ namespace stingray
 			typename TransactionalInterface::TransactionTypePtr tr(new DictionaryTransactionImpl<Wrapped_, Comparer>(_wrapped, _onChanged));
 			_transaction = tr;
 			return tr;
+		}
+
+	private:
+		void OnChangedPopulator(const function<void(const DiffTypePtr&)>& slot) const
+		{
+			shared_ptr<IList<DiffEntryType> > diff(new ArrayList<DiffEntryType>);
+			FOR_EACH(PairType p IN GetEnumerator())
+				diff->Add(DiffEntryType(p, CollectionOp::Added));
+			slot(diff);
 		}
 	};
 
