@@ -290,7 +290,7 @@ namespace stingray
 
 	public:
 		template<typename Signature>
-		explicit function_storage(const function<Signature> &func) : _invokable(func._invokable, static_cast_tag())
+		explicit function_storage(const function<Signature> &func) : _invokable(func._invokable)
 		{ }
 
 		template<typename Signature>
