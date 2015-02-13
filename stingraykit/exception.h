@@ -158,13 +158,10 @@ namespace stingray
 	{
 	private:
 		ToolkitWhere	_where;
-#ifdef USE_BACKTRACE_FOR_EXCEPTIONS
 		Backtrace		_backtrace;
-#endif
 
 	public:
-		BaseException(ToolkitWhere where)
-			: _where(where)
+		BaseException(ToolkitWhere where) : _where(where)
 		{}
 
 		virtual ~BaseException() throw() { }
@@ -172,11 +169,7 @@ namespace stingray
 		virtual size_t GetLine() const				{ return _where.GetLine(); }
 		virtual const char* GetFilename() const		{ return _where.GetFilename(); }
 		virtual const char* GetFunctionName() const	{ return _where.GetFunctionName(); }
-#ifdef USE_BACKTRACE_FOR_EXCEPTIONS
 		virtual std::string GetBacktrace() const	{ return _backtrace.Get(); }
-#else
-		virtual std::string GetBacktrace() const	{ return std::string(); }
-#endif
 	};
 
 	template < typename UserBaseException >
