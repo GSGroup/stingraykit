@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_NESTEDTYPECHECK_H
-#define STINGRAYKIT_NESTEDTYPECHECK_H
+#ifndef STINGRAYKIT_METAPROGRAMMING_NESTEDTYPECHECK_H
+#define STINGRAYKIT_METAPROGRAMMING_NESTEDTYPECHECK_H
 
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
