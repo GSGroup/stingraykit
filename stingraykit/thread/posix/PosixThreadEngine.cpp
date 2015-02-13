@@ -75,7 +75,6 @@ namespace stingray
 
 		static void HandlerFunc(int signalNum, siginfo_t* sigInfo, void* ctx)
 		{
-			TLSData::DisableThreadCancellationToken dtc(ThreadEngine::GetCurrentThreadData());
 			try
 			{
 				PTELogger.Warning() << "Backtrace of thread " << Thread::GetCurrentThreadName() <<  ": " << Backtrace();

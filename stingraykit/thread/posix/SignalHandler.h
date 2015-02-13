@@ -36,7 +36,7 @@ namespace posix
 			memset(&_myAct, 0, sizeof(_myAct));
 			memset(&_oldAct, 0, sizeof(_oldAct));
 
-			_myAct.sa_sigaction	= &HandlerFuncHolder::HandlerFunc;
+			_myAct.sa_sigaction	= &HandlerFunc;
 			_myAct.sa_flags		= SA_SIGINFO | SA_RESTART;
 #ifdef __GNU_LIBRARY__
 			sigemptyset(&_myAct.sa_mask);
@@ -53,6 +53,13 @@ namespace posix
 
 		int GetSignalNum() const
 		{ return _signalNum; }
+
+	private:
+		static void HandlerFunc(int signalNum, siginfo_t* sigInfo, void* ctx)
+		{
+			TLSData::DisableThreadCancellationToken dtc(ThreadEngine::GetCurrentThreadData());
+			HandlerFuncHolder::HandlerFunc(signalNum, sigInfo, ctx);
+		}
 	};
 
 	inline bool SendSignal(const pthread_t& threadHandle, int signalNum)
