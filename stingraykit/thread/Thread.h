@@ -55,6 +55,7 @@ namespace stingray
 	class EnableInterruptionPoints
 	{
 	private:
+		bool	_enabled;
 		bool	_prevValue;
 
 	public:

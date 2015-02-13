@@ -14,11 +14,18 @@ namespace stingray
 	}
 
 	EnableInterruptionPoints::EnableInterruptionPoints(bool value)
-		: _prevValue(ThreadEngine::EnableInterruptionPoints(value))
-	{ }
+	{
+		TLSData * tls = ThreadEngine::GetCurrentThreadData();
+		_enabled = tls? tls->IsThreadCancellationEnabled(): false;
+		if (_enabled)
+			_prevValue = ThreadEngine::EnableInterruptionPoints(value);
+	}
 
 	EnableInterruptionPoints::~EnableInterruptionPoints()
-	{ ThreadEngine::EnableInterruptionPoints(_prevValue); }
+	{
+		if (_enabled)
+			ThreadEngine::EnableInterruptionPoints(_prevValue);
+	}
 
 	////////////////////////////////////////
 

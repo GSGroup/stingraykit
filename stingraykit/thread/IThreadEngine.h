@@ -63,10 +63,11 @@ namespace stingray
 		ExternalAPIGuardStack		_externalApiGuardStack;
 		ITLSUserDataPtr				_userData;
 		int							_syncPrimitiveCodeCounter;
+		int							_disableCancellationCounter;
 
 	public:
 		explicit TLSData(const std::string& threadName, const ITLSUserDataPtr& userData = null)
-			: _threadName(threadName), _token(NULL), _userData(userData), _syncPrimitiveCodeCounter(0)
+			: _threadName(threadName), _token(NULL), _userData(userData), _syncPrimitiveCodeCounter(0), _disableCancellationCounter(0)
 		{ }
 
 		ExternalAPIGuardStack& GetExternalAPIGuardStack()				{ return _externalApiGuardStack; }
@@ -76,12 +77,27 @@ namespace stingray
 		void EnterSyncPrimitiveCode()				{ ++_syncPrimitiveCodeCounter; }
 		void LeaveSyncPrimitiveCode()				{ --_syncPrimitiveCodeCounter; }
 
+		bool IsThreadCancellationEnabled() const	{ return _disableCancellationCounter <= 0; }
+		void DisableThreadCancellation()			{ ++_disableCancellationCounter; }
+		void EnableThreadCancellation()				{ --_disableCancellationCounter; }
+
 		ITLSUserDataPtr GetUserData() const			{ return _userData; }
 		const std::string& GetThreadName() const	{ return _threadName; }
 		void SetThreadName(const std::string& name)	{ _threadName = name; }
 
 		void SetCancellationToken(const ICancellationToken* token)	{ STINGRAYKIT_CHECK(!token || (token && !_token), InvalidOperationException()); _token = token; }
 		const ICancellationToken* GetCancellationToken()			{ return _token; }
+
+		class DisableThreadCancellationToken
+		{
+			TLSData *				_tlsData;
+
+		public:
+			DisableThreadCancellationToken(TLSData * tlsData): _tlsData(tlsData)
+			{ if (_tlsData) _tlsData->DisableThreadCancellation(); }
+			~DisableThreadCancellationToken()
+			{ if (_tlsData) _tlsData->EnableThreadCancellation(); }
+		};
 	};
 
 
