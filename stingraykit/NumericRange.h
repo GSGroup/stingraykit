@@ -42,7 +42,7 @@ namespace stingray {
 		{
 			if (IsEmpty() || other.IsEmpty())
 				return false;
-			return (_start < other._start && other._start < _end) || (_start < other._end && other._end < _end);
+			return _start < other._end && other._start < _end;
 		}
 
 		DerivedT Intersect(const DerivedT& other) const
