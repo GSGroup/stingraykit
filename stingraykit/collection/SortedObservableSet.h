@@ -1,10 +1,10 @@
 #ifndef STINGRAYKIT_COLLECTION_SORTEDOBSERVABLESET_H
 #define STINGRAYKIT_COLLECTION_SORTEDOBSERVABLESET_H
 
-
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IObservableSet.h>
 #include <stingraykit/collection/SortedSet.h>
+#include <stingraykit/compare/comparers.h>
 
 namespace stingray
 {
@@ -14,7 +14,7 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename ValueType_ , typename CompareType_ = std::less<ValueType_> >
+	template < typename ValueType_ , typename CompareType_ = comparers::Less >
 	class SortedObservableSet : public ObservableSetWrapper<SortedSet<ValueType_, CompareType_> >
 	{
 		typedef ObservableSetWrapper<SortedSet<ValueType_, CompareType_> > base;
