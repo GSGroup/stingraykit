@@ -234,12 +234,10 @@ namespace stingray
 		};
 
 
-		static pthread_once_t	g_TLS_keyOnce = PTHREAD_ONCE_INIT;
-
-
 		class TLS
 		{
 		private:
+			static pthread_once_t	s_TLS_keyOnce;
 			static pthread_key_t	s_key;
 
 		public:
@@ -277,7 +275,7 @@ namespace stingray
 		private:
 			static void InitKey()
 			{
-				if (pthread_once(&g_TLS_keyOnce, &TLS::DoInit) != 0)
+				if (pthread_once(&s_TLS_keyOnce, &TLS::DoInit) != 0)
 					STINGRAYKIT_THROW(SystemException("pthread_once"));
 			}
 
@@ -304,6 +302,7 @@ namespace stingray
 
 
 		pthread_key_t	TLS::s_key;
+		pthread_once_t	TLS::s_TLS_keyOnce = PTHREAD_ONCE_INIT;
 
 
 		inline u64 TicksToMs(u64 ticks)
