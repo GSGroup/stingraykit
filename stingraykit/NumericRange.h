@@ -74,8 +74,8 @@ namespace stingray {
 			return StringBuilder() % "["  % _start % " - " % _end  % "]";
 		}
 
-		bool operator== (const DerivedT& rhs)	{ return _start == rhs._start && _end == rhs._end; }
-		bool operator!= (const DerivedT& rhs)	{ return !(*this == rhs); }
+		bool operator== (const DerivedT& rhs) const	{ return _start == rhs._start && _end == rhs._end; }
+		bool operator!= (const DerivedT& rhs) const	{ return !(*this == rhs); }
 	};
 
 	template< typename T >
