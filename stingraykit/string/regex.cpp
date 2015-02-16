@@ -25,7 +25,7 @@ namespace stingray
 		int GetLength() const
 		{
 			int len = End - Begin;
-			STINGRAYKIT_CHECK(len > 0, "Submatch length is negative!");
+			STINGRAYKIT_CHECK(len >= 0, "Submatch length is negative!");
 			return len;
 		}
 
