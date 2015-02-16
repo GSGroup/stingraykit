@@ -38,8 +38,6 @@
 
 #include <memory>
 
-#undef STINGRAYKIT_HAS_THREAD_KEYWORD
-
 namespace stingray
 {
 
@@ -240,11 +238,9 @@ namespace stingray
 			static pthread_key_t			s_key;
 
 #ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-			static __thread bool			s_initialized;
 			static __thread TLSDataHolder *	s_holder;
-#else
-			static pthread_once_t			s_TLS_keyOnce;
 #endif
+			static pthread_once_t			s_TLS_keyOnce;
 
 		public:
 			static void Init(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
@@ -281,16 +277,8 @@ namespace stingray
 		private:
 			static void InitKey()
 			{
-#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-				if (!s_initialized)
-				{
-					s_initialized = true;
-					DoInit();
-				}
-#else
 				if (pthread_once(&s_TLS_keyOnce, &TLS::DoInit) != 0)
 					STINGRAYKIT_THROW(SystemException("pthread_once"));
-#endif
 			}
 
 			static void SetValue(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
@@ -331,11 +319,9 @@ namespace stingray
 		pthread_key_t	TLS::s_key;
 
 #ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-		__thread bool				TLS::s_initialized = false;
 		__thread TLSDataHolder *	TLS::s_holder = NULL;
-#else
-		pthread_once_t				TLS::s_TLS_keyOnce = PTHREAD_ONCE_INIT;
 #endif
+		pthread_once_t				TLS::s_TLS_keyOnce = PTHREAD_ONCE_INIT;
 
 		inline u64 TicksToMs(u64 ticks)
 		{
