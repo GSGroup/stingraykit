@@ -38,6 +38,8 @@
 
 #include <memory>
 
+#undef STINGRAYKIT_HAS_THREAD_KEYWORD
+
 namespace stingray
 {
 
