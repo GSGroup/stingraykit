@@ -232,12 +232,17 @@ namespace stingray
 			STINGRAYKIT_NONCOPYABLE(TLSDataHolder);
 		};
 
-
 		class TLS
 		{
 		private:
-			static pthread_once_t	s_TLS_keyOnce;
-			static pthread_key_t	s_key;
+			static pthread_key_t			s_key;
+
+#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
+			static __thread bool			s_initialized;
+			static __thread TLSDataHolder *	s_holder;
+#else
+			static pthread_once_t			s_TLS_keyOnce;
+#endif
 
 		public:
 			static void Init(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
@@ -260,22 +265,30 @@ namespace stingray
 			static TLSData* Get()
 			{
 				InitKey();
-				TLSDataHolder* holder = reinterpret_cast<TLSDataHolder*>(pthread_getspecific(s_key));
+				TLSDataHolder* holder = GetHolder();
 				return holder ? &holder->tlsData : NULL;
 			}
 
 			static ThreadDataStorage* GetPrivateData()
 			{
 				InitKey();
-				TLSDataHolder* holder = reinterpret_cast<TLSDataHolder*>(pthread_getspecific(s_key));
+				TLSDataHolder* holder = GetHolder();
 				return holder ? holder->threadReg.Data.get() : NULL;
 			}
 
 		private:
 			static void InitKey()
 			{
+#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
+				if (!s_initialized)
+				{
+					s_initialized = true;
+					DoInit();
+				}
+#else
 				if (pthread_once(&s_TLS_keyOnce, &TLS::DoInit) != 0)
 					STINGRAYKIT_THROW(SystemException("pthread_once"));
+#endif
 			}
 
 			static void SetValue(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
@@ -283,6 +296,9 @@ namespace stingray
 				unique_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(gettid(), pthread_self(), tlsData, threadData));
 				if (pthread_setspecific(s_key, tls_ptr.get()) != 0)
 					STINGRAYKIT_THROW(SystemException("pthread_setspecific"));
+#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
+				s_holder = tls_ptr.get();
+#endif
 				tls_ptr.release();
 			}
 
@@ -294,15 +310,30 @@ namespace stingray
 
 			static void Dtor(void* val)
 			{
+#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
+				s_holder = NULL;
+#endif
 				TLSDataHolder* holder = reinterpret_cast<TLSDataHolder*>(val);
 				delete holder;
 			}
+
+			static TLSDataHolder *GetHolder()
+#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
+			{ return s_holder; }
+#else
+			{ return reinterpret_cast<TLSDataHolder*>(pthread_getspecific(s_key)); }
+#endif
 		};
 
 
 		pthread_key_t	TLS::s_key;
-		pthread_once_t	TLS::s_TLS_keyOnce = PTHREAD_ONCE_INIT;
 
+#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
+		__thread bool				TLS::s_initialized = false;
+		__thread TLSDataHolder *	TLS::s_holder = NULL;
+#else
+		pthread_once_t				TLS::s_TLS_keyOnce = PTHREAD_ONCE_INIT;
+#endif
 
 		inline u64 TicksToMs(u64 ticks)
 		{

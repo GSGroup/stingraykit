@@ -318,6 +318,12 @@ if ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${COMMON_LINK_OPTS}")
 endif ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang"))
 
+check_cxx_source_compiles("static __thread int i = 0; int main() { return i; }" HAVE_THREAD_KEYWORD)
+
+if (HAVE_THREAD_KEYWORD)
+	add_definitions(-DSTINGRAYKIT_HAS_THREAD_KEYWORD=1)
+endif (HAVE_THREAD_KEYWORD)
+
 CHECK_C_SOURCE_COMPILES("#include <time.h>
 	int main(int argc, char *argv[]) { clockid_t x; return 0; }" HAVE_CLOCKID_T)
 
