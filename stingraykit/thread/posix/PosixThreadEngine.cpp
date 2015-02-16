@@ -277,15 +277,15 @@ namespace stingray
 		private:
 			static void InitKey()
 			{
-				if (pthread_once(&s_TLS_keyOnce, &TLS::DoInit) != 0)
-					STINGRAYKIT_THROW(SystemException("pthread_once"));
+				if (int err = pthread_once(&s_TLS_keyOnce, &TLS::DoInit))
+					STINGRAYKIT_THROW(SystemException("pthread_once", err));
 			}
 
 			static void SetValue(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
 			{
 				unique_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(gettid(), pthread_self(), tlsData, threadData));
-				if (pthread_setspecific(s_key, tls_ptr.get()) != 0)
-					STINGRAYKIT_THROW(SystemException("pthread_setspecific"));
+				if (int err = pthread_setspecific(s_key, tls_ptr.get()))
+					STINGRAYKIT_THROW(SystemException("pthread_setspecific", err));
 #ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
 				s_holder = tls_ptr.get();
 #endif
@@ -294,8 +294,8 @@ namespace stingray
 
 			static void DoInit()
 			{
-				if (pthread_key_create(&s_key, &TLS::Dtor) != 0)
-					STINGRAYKIT_THROW(SystemException("pthread_key_create"));
+				if (int err = pthread_key_create(&s_key, &TLS::Dtor))
+					STINGRAYKIT_THROW(SystemException("pthread_key_create", err));
 			}
 
 			static void Dtor(void* val)
@@ -341,11 +341,11 @@ namespace stingray
 	private:
 		PosixMutexAttr()
 		{
-			if (pthread_mutexattr_init(&_mutexAttr) != 0)
-				STINGRAYKIT_THROW(SystemException("pthread_mutexattr_init"));
+			if (int err = pthread_mutexattr_init(&_mutexAttr))
+				STINGRAYKIT_THROW(SystemException("pthread_mutexattr_init", err));
 
-			if (pthread_mutexattr_settype(&_mutexAttr, PTHREAD_MUTEX_RECURSIVE) != 0)
-				STINGRAYKIT_THROW(SystemException("pthread_mutexattr_settype"));
+			if (int err = pthread_mutexattr_settype(&_mutexAttr, PTHREAD_MUTEX_RECURSIVE))
+				STINGRAYKIT_THROW(SystemException("pthread_mutexattr_settype", err));
 		}
 
 	public:
@@ -981,8 +981,8 @@ namespace stingray
 	bool PosixThreadEngine::EnableInterruptionPoints(bool enable)
 	{
 		int state = enable ? PTHREAD_CANCEL_ENABLE : PTHREAD_CANCEL_DISABLE, old_state = 0;
-		if (pthread_setcancelstate(state, &old_state) != 0)
-			STINGRAYKIT_THROW(SystemException("pthread_setcancelstate"));
+		if (int err = pthread_setcancelstate(state, &old_state))
+			STINGRAYKIT_THROW(SystemException("pthread_setcancelstate", err));
 
 		return old_state == PTHREAD_CANCEL_ENABLE;
 	}
