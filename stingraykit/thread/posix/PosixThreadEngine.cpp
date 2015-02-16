@@ -1,22 +1,4 @@
 #include <stingraykit/thread/posix/PosixThreadEngine.h>
-
-#include <errno.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/syscall.h>
-#include <sys/prctl.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <dirent.h>
-
-
-#ifdef HAVE_ABI_FORCE_UNWIND
-#include <cxxabi.h>
-#endif
-
-#include <memory>
-
 #include <stingraykit/Holder.h>
 #include <stingraykit/Mapper.h>
 #include <stingraykit/ScopeExit.h>
@@ -37,7 +19,24 @@
 #include <stingraykit/thread/GenericMutexLock.h>
 #include <stingraykit/thread/posix/SignalHandler.h>
 #include <stingraykit/time/posix/utils.h>
+#include <stingraykit/unique_ptr.h>
 
+#include <errno.h>
+#include <pthread.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
+#include <sys/prctl.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <dirent.h>
+
+
+#ifdef HAVE_ABI_FORCE_UNWIND
+#include <cxxabi.h>
+#endif
+
+#include <memory>
 
 namespace stingray
 {
@@ -281,7 +280,7 @@ namespace stingray
 
 			static void SetValue(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
 			{
-				std::auto_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(gettid(), pthread_self(), tlsData, threadData));
+				unique_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(gettid(), pthread_self(), tlsData, threadData));
 				if (pthread_setspecific(s_key, tls_ptr.get()) != 0)
 					STINGRAYKIT_THROW(SystemException("pthread_setspecific"));
 				tls_ptr.release();
