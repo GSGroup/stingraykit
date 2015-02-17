@@ -78,15 +78,7 @@ namespace stingray
 	{
 	public:
 		IndexOutOfRangeException() : Exception("Index out of range!") { }
-		IndexOutOfRangeException(size_t index, size_t size) : Exception(BuildErrorMessage(index, size)) { }
-
-	private:
-		static std::string BuildErrorMessage(size_t index, size_t size)
-		{
-			string_ostream stream;
-			stream << "Index " << index << " out of range " << size;
-			return stream.str();
-		}
+		IndexOutOfRangeException(size_t index, size_t size) : Exception("Index " + ToString(index) + " out of range " + ToString(size)) { }
 	};
 
 	struct FormatException : public Exception
