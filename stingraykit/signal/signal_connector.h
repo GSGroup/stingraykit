@@ -45,13 +45,13 @@ namespace stingray
 		void SendCurrentState(const function<Signature_>& slot) const
 		{ _impl->SendCurrentState(function_storage(slot)); }
 
-		TokenReturnProxy connect(const function<Signature_>& slot, bool sendCurrentState = true) const
+		Token connect(const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
 			TaskLifeToken token(_impl->CreateSyncToken());
 			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState);
 		}
 
-		TokenReturnProxy connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
+		Token connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
 			TaskLifeToken token(_impl->CreateAsyncToken());
 			return _impl->Connect(function_storage(function<Signature_>(MakeAsyncFunction(worker, slot, token))), null, token, sendCurrentState);

@@ -69,7 +69,6 @@ set(stingraykit_SRC
 	stingraykit/ActionTransaction.cpp
 	stingraykit/EnumToString.cpp
 	stingraykit/Factory.cpp
-	stingraykit/IToken.cpp
 	stingraykit/ProgressValue.cpp
 	stingraykit/Random.cpp
 	stingraykit/SystemException.cpp

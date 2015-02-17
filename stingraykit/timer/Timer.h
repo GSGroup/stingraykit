@@ -56,9 +56,9 @@ namespace stingray
 		void Start();
 		void Stop();
 
-		TokenReturnProxy SetTimeout(const TimeDuration& timeout, const function<void()>& func);
-		TokenReturnProxy SetTimer(const TimeDuration& interval, const function<void()>& func);
-		TokenReturnProxy SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func);
+		Token SetTimeout(const TimeDuration& timeout, const function<void()>& func);
+		Token SetTimer(const TimeDuration& interval, const function<void()>& func);
+		Token SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func);
 
 		virtual void AddTask(const function<void()>& task)
 		{ AddTask(task, null); }
@@ -66,15 +66,15 @@ namespace stingray
 		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
 
 		/** @deprecated */
-		TokenReturnProxy SetTimeout(size_t timeoutMilliseconds, const function<void()>& func)
+		Token SetTimeout(size_t timeoutMilliseconds, const function<void()>& func)
 		{ return SetTimeout(TimeDuration(timeoutMilliseconds), func); }
 
 		/** @deprecated */
-		TokenReturnProxy SetTimer(size_t intervalMilliseconds, const function<void()>& func)
+		Token SetTimer(size_t intervalMilliseconds, const function<void()>& func)
 		{ return SetTimer(TimeDuration(intervalMilliseconds), func); }
 
 		/** @deprecated */
-		TokenReturnProxy SetTimer(size_t timeoutMilliseconds, size_t intervalMilliseconds, const function<void()>& func)
+		Token SetTimer(size_t timeoutMilliseconds, size_t intervalMilliseconds, const function<void()>& func)
 		{ return SetTimer(TimeDuration(timeoutMilliseconds), TimeDuration(intervalMilliseconds), func); }
 
 		static void DefaultExceptionHandler(const std::exception& ex);

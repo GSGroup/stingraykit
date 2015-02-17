@@ -54,25 +54,6 @@ namespace stingray
 #undef DETAIL_DECL_MAKE_TOKEN
 
 
-	class TokenReturnProxy
-	{
-		STINGRAYKIT_NONASSIGNABLE(TokenReturnProxy);
-
-		class Impl;
-		STINGRAYKIT_DECLARE_PTR(Impl);
-
-	private:
-		ImplPtr				_impl;
-
-	public:
-		TokenReturnProxy(const Token& token);
-		TokenReturnProxy(const TokenReturnProxy& other);
-		~TokenReturnProxy();
-
-		operator Token() const;
-	};
-
-
 	class TokenHolder
 	{
 	private:
