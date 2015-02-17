@@ -348,6 +348,8 @@ namespace stingray
 
 		template <typename T> T Single(const EnumerableOrEnumerator<T> src);
 
+		template < typename T, typename FunctorType > EnumerableOrEnumerator<typename FunctorType::RetType> Transform(const EnumerableOrEnumerator<T>& src, const FunctorType& f);
+
 		template < typename T > EnumerableOrEnumerator<T> Where(const EnumerableOrEnumerator<T>& src, const function<bool(const T&)>& predicate);
 
 #else
@@ -604,6 +606,61 @@ namespace stingray
 			STINGRAYKIT_CHECK(!enumerator.Valid(), InvalidOperationException());
 			return result;
 		}
+
+
+		namespace Detail
+		{
+			template < typename SrcType, typename FunctorType >
+			class EnumeratorTransformer : public IEnumerator<typename function_info<FunctorType>::RetType>
+			{
+				typedef IEnumerator<typename function_info<FunctorType>::RetType >	base;
+				typedef shared_ptr<IEnumerator<SrcType> >							SrcEnumeratorPtr;
+
+			private:
+				SrcEnumeratorPtr	_src;
+				FunctorType			_functor;
+
+			public:
+				EnumeratorTransformer(const SrcEnumeratorPtr& src, const FunctorType& functor) :
+					_src(src), _functor(functor)
+				{ }
+
+				virtual bool Valid() const					{ return _src->Valid(); }
+				virtual typename base::ItemType Get() const	{ return _functor(_src->Get()); }
+				virtual void Next()							{ _src->Next(); }
+			};
+
+
+			template < typename SrcType, typename FunctorType >
+			class EnumerableTransformer : public IEnumerable<typename function_info<FunctorType>::RetType>
+			{
+				typedef IEnumerable<typename function_info<FunctorType>::RetType >	base;
+				typedef shared_ptr<IEnumerable<SrcType> >							SrcEnumerablePtr;
+
+			private:
+				SrcEnumerablePtr	_src;
+				FunctorType			_functor;
+
+			public:
+				EnumerableTransformer(const SrcEnumerablePtr& src, const FunctorType& functor) :
+					_src(src), _functor(functor)
+				{ }
+
+				virtual shared_ptr<IEnumerator<typename base::ItemType> > GetEnumerator() const
+				{ return make_shared<EnumeratorTransformer>(_src->GetEnumerator(), _functor); }
+			};
+		}
+
+
+		template < typename T, typename FunctorType >
+		shared_ptr<IEnumerator<typename FunctorType::RetType> > Transform(const shared_ptr<IEnumerator<T> >& src, const FunctorType& f)
+		{ return make_shared<Detail::EnumeratorTransformer<T, FunctorType> >(src, f); }
+
+
+		template < typename T, typename FunctorType >
+		shared_ptr<IEnumerable<typename FunctorType::RetType> > Transform(const shared_ptr<IEnumerable<T> >& src, const FunctorType& f)
+		{ return make_shared<Detail::EnumerableTransformer<T, FunctorType> >(src, f); }
+
 
 		template < typename CollectionType, typename PredicateFunc >
 		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerator, const PredicateFunc& predicate, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerator>::Value, int>::ValueT dummy = 0)
