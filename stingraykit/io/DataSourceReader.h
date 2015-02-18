@@ -3,6 +3,7 @@
 
 
 #include <stingraykit/io/IDataSource.h>
+#include <stingraykit/thread/DummyCancellationToken.h>
 
 
 namespace stingray
@@ -16,7 +17,7 @@ namespace stingray
 	public:
 		explicit DataSourceReader(const IDataSourcePtr& source);
 
-		ByteArray ReadToEnd(const ICancellationToken& token);
+		ByteArray ReadToEnd(const ICancellationToken& token = DummyCancellationToken());
 	};
 
 }
