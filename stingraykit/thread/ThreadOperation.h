@@ -11,8 +11,23 @@ namespace stingray
 
 	struct ThreadOperation
 	{
-		STINGRAYKIT_ENUM_VALUES(Network, IO);
+		STINGRAYKIT_ENUM_VALUES(
+			Network = 1,
+			IO = 2);
+
 		STINGRAYKIT_DECLARE_ENUM_CLASS(ThreadOperation);
+	};
+	STINGRAYKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ThreadOperation);
+
+
+	class ThreadOperationConstrainer
+	{
+	private:
+		int	_oldValue;
+
+	public:
+		ThreadOperationConstrainer(ThreadOperation restrictedOperations);
+		~ThreadOperationConstrainer();
 	};
 
 
