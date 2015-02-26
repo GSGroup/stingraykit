@@ -1,13 +1,13 @@
 #ifndef STINGRAYKIT_IO_BITHREADCIRCULARBUFFER_H
 #define STINGRAYKIT_IO_BITHREADCIRCULARBUFFER_H
 
-#include <map>
-
-#include <stingraykit/thread/Thread.h>
-#include <stingraykit/collection/ByteData.h>
 #include <stingraykit/IToken.h>
+#include <stingraykit/collection/ByteData.h>
 #include <stingraykit/shared_ptr.h>
+#include <stingraykit/thread/Thread.h>
 #include <stingraykit/toolkit.h>
+
+#include <map>
 
 namespace stingray
 {

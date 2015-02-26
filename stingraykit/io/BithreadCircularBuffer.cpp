@@ -20,32 +20,22 @@ namespace stingray
 		ByteData		_storage;
 		Token		_storageLifeAssurance;
 		size_t			_writeOffset, _readOffset;
-		size_t			_lockedForWrite, _lockedForRead;
-		atomic_int_type	_readersCount, _writersCount;
 		bool			_dataIsContiguous;
 
 	public:
 		Impl(ByteData storage, const Token& storageLifeAssurance) :
 			_storage(storage), _storageLifeAssurance(storageLifeAssurance),
 			_writeOffset(0), _readOffset(0),
-			_lockedForWrite(0), _lockedForRead(0),
-			_readersCount(0), _writersCount(0),
 			_dataIsContiguous(true)
 		{ }
 
 
 		size_t GetDataSize() const
-		{
-			MutexLock l(_mutex);
-			return _dataIsContiguous ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset + _writeOffset);
-		}
+		{ return _dataIsContiguous ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset + _writeOffset); }
 
 
 		size_t GetFreeSize() const
-		{
-			MutexLock l(_mutex);
-			return GetStorageSize() - GetDataSize() - 1;
-		}
+		{ return GetStorageSize() - GetDataSize() - 1; }
 
 
 		size_t GetStorageSize() const
@@ -56,20 +46,16 @@ namespace stingray
 		{ return _storage; }
 
 
-		ByteData LockForWrite()
+		ByteData Write()
 		{
-			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(_lockedForWrite == 0, "There is another write in progress!");
-
-			_lockedForWrite = _dataIsContiguous ? (GetStorageSize() - _writeOffset) : (_readOffset - _writeOffset);
-			return ByteData(_storage, _writeOffset, _lockedForWrite);
+			size_t size = _dataIsContiguous ? (GetStorageSize() - _writeOffset) : (_readOffset - _writeOffset);
+			return ByteData(_storage, _writeOffset, size);
 		}
 
 
-		void UnlockWriteAndPush(size_t pushSize)
+		void Push(size_t pushSize)
 		{
-			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(pushSize <= _lockedForWrite, ArgumentException("pushSize", pushSize));
+			STINGRAYKIT_CHECK(_writeOffset + pushSize <= GetStorageSize(), ArgumentException("pushSize", pushSize));
 			_writeOffset += pushSize;
 
 			if (_writeOffset == GetStorageSize())
@@ -77,25 +63,19 @@ namespace stingray
 				_writeOffset = 0;
 				_dataIsContiguous = !_dataIsContiguous;
 			}
-
-			_lockedForWrite = 0;
 		}
 
 
-		ConstByteData LockForRead()
+		ConstByteData Read()
 		{
-			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(_lockedForRead == 0, "There is another read in progress!");
-
-			_lockedForRead = (_dataIsContiguous) ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset);
-			return ByteData(_storage, _readOffset, _lockedForRead);
+			size_t size = (_dataIsContiguous) ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset);
+			return ByteData(_storage, _readOffset, size);
 		}
 
 
-		void UnlockReadAndPop(size_t popSize)
+		void Pop(size_t popSize)
 		{
-			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(popSize <= _lockedForRead, ArgumentException("popSize", popSize));
+			STINGRAYKIT_CHECK(_readOffset + popSize <= GetStorageSize(), ArgumentException("popSize", popSize));
 			_readOffset += popSize;
 
 			if (_readOffset == GetStorageSize())
@@ -103,24 +83,15 @@ namespace stingray
 				_readOffset = 0;
 				_dataIsContiguous = !_dataIsContiguous;
 			}
-
-			_lockedForRead = 0;
 		}
 
 
 		void Clear()
 		{
-			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(_lockedForRead == 0, "There is another read in progress!");
-			STINGRAYKIT_CHECK(_lockedForWrite == 0, "There is another write in progress!");
 			_writeOffset = 0;
 			_readOffset = 0;
 			_dataIsContiguous = true;
 		}
-
-
-		atomic_int_type& ReadersCount() { return _readersCount; }
-		atomic_int_type& WritersCount() { return _writersCount; }
 	};
 
 
@@ -136,7 +107,7 @@ namespace stingray
 
 
 	BithreadCircularBuffer::~BithreadCircularBuffer()
-	{}
+	{ }
 
 
 	size_t BithreadCircularBuffer::GetDataSize() const
@@ -165,29 +136,22 @@ namespace stingray
 
 	BithreadCircularBuffer::Reader::Reader(const ImplPtr& impl) :
 		_impl(impl),
-		_data(impl->LockForRead())
-	{ Atomic::Inc(_impl->ReadersCount()); }
+		_data(impl->Read())
+	{ }
 
 
 	BithreadCircularBuffer::Reader::Reader(const Reader& other) : _impl(other._impl), _data(other._data)
-	{ Atomic::Inc(_impl->ReadersCount()); }
+	{ }
 
 
 	BithreadCircularBuffer::Reader::~Reader()
-	{
-		if (Atomic::Dec(_impl->ReadersCount()) == 0)
-			_impl->UnlockReadAndPop(0);
-	}
+	{ }
 
 
 	BithreadCircularBuffer::Reader& BithreadCircularBuffer::Reader::operator =(const Reader& other)
 	{
-		if (Atomic::Dec(_impl->ReadersCount()) == 0)
-			_impl->UnlockWriteAndPush(0);
-
 		_impl = other._impl;
 		_data = other._data;
-		Atomic::Inc(_impl->ReadersCount());
 		return *this;
 	}
 
@@ -221,36 +185,29 @@ namespace stingray
 
 	void BithreadCircularBuffer::Reader::Pop(size_t bytes)
 	{
-		_impl->UnlockReadAndPop(bytes);
+		_impl->Pop(bytes);
 		_data = ConstByteData(NULL, 0);
 	}
 
 
 	BithreadCircularBuffer::Writer::Writer(const ImplPtr& impl) :
 		_impl(impl),
-		_data(impl->LockForWrite())
-	{ Atomic::Inc(_impl->WritersCount()); }
+		_data(impl->Write())
+	{ }
 
 
 	BithreadCircularBuffer::Writer::Writer(const Writer& other) : _impl(other._impl), _data(other._data)
-	{ Atomic::Inc(_impl->WritersCount()); }
+	{ }
 
 
 	BithreadCircularBuffer::Writer::~Writer()
-	{
-		if (Atomic::Dec(_impl->WritersCount()) == 0)
-			_impl->UnlockWriteAndPush(0);
-	}
+	{ }
 
 
 	BithreadCircularBuffer::Writer& BithreadCircularBuffer::Writer::operator =(const Writer& other)
 	{
-		if (Atomic::Dec(_impl->WritersCount()) == 0)
-			_impl->UnlockWriteAndPush(0);
-
 		_impl = other._impl;
 		_data = other._data;
-		Atomic::Inc(_impl->WritersCount());
 		return *this;
 	}
 
@@ -284,7 +241,7 @@ namespace stingray
 
 	void BithreadCircularBuffer::Writer::Push(size_t bytes)
 	{
-		_impl->UnlockWriteAndPush(bytes);
+		_impl->Push(bytes);
 		_data = ByteData(null, 0);
 	}
 
