@@ -47,9 +47,9 @@ namespace stingray
 		}
 
 	public:
-		size_t GetDataSize() const		{ return _buffer.GetDataSize(); }
-		size_t GetFreeSize() const		{ return _buffer.GetFreeSize(); }
-		size_t GetStorageSize() const	{ return _buffer.GetTotalSize(); }
+		size_t GetDataSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetDataSize(); }
+		size_t GetFreeSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
+		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
 
 		/// @brief: Clears buffer completely. Warning: can't be called simultaneously with Process(...) or Read(...)
 		void Clear()
@@ -213,9 +213,9 @@ namespace stingray
 			_paddingSize(0), _eod(false)
 		{ }
 
-		size_t GetDataSize()			{ return _buffer.GetDataSize(); }
-		size_t GetFreeSize()			{ return _buffer.GetFreeSize(); }
-		size_t GetStorageSize() const	{ return _buffer.GetTotalSize(); }
+		size_t GetDataSize()			{ MutexLock l(_bufferMutex); return _buffer.GetDataSize(); }
+		size_t GetFreeSize()			{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
+		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
 
 		void Clear()
 		{
