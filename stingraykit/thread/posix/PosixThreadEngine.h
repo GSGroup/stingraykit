@@ -30,8 +30,23 @@ namespace stingray
 		inline ~PosixMutex()
 		{ pthread_mutex_destroy(&_rawMutex); }
 
-		void Lock() const;
-		void Unlock() const;
+		void Lock() const
+		{
+			int result = pthread_mutex_trylock(&_rawMutex);
+			if (result == 0)
+				return;
+			DoLock(result);
+		}
+
+		void Unlock() const
+		{
+			int result = pthread_mutex_unlock(&_rawMutex);
+			if (STINGRAYKIT_UNLIKELY(result != 0))
+				HandleReturnCode("pthread_mutex_unlock", result);
+		}
+
+	private:
+		void DoLock(int tryLockResult) const;
 	};
 
 

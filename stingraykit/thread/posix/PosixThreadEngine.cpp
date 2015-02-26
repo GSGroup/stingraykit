@@ -1,4 +1,5 @@
 #include <stingraykit/thread/posix/PosixThreadEngine.h>
+
 #include <stingraykit/Holder.h>
 #include <stingraykit/Mapper.h>
 #include <stingraykit/ScopeExit.h>
@@ -373,13 +374,10 @@ namespace stingray
 	}
 
 
-	void PosixMutex::Lock() const
+	void PosixMutex::DoLock(int tryLockResult) const
 	{
-		int result = pthread_mutex_trylock(&_rawMutex);
-		if (result == 0)
-			return;
-		else if (result != EBUSY)
-			HandleReturnCode("pthread_mutex_trylock", result);
+		if (tryLockResult != EBUSY)
+			HandleReturnCode("pthread_mutex_trylock", tryLockResult);
 
 		timespec lock_duration = {};
 		lock_duration.tv_sec = 3;
@@ -433,14 +431,6 @@ namespace stingray
 			else
 				HandleReturnCode("pthread_mutex_timedlock", result);
 		}
-	}
-
-
-	void PosixMutex::Unlock() const
-	{
-		int result = pthread_mutex_unlock(&_rawMutex);
-		if (result != 0)
-			HandleReturnCode("pthread_mutex_unlock", result);
 	}
 
 
