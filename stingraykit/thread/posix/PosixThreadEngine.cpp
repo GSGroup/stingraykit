@@ -19,19 +19,20 @@
 #include <stingraykit/thread/CancellationToken.h>
 #include <stingraykit/thread/GenericMutexLock.h>
 #include <stingraykit/thread/posix/SignalHandler.h>
+#include <stingraykit/thread/posix/ThreadLocal.h>
 #include <stingraykit/time/posix/utils.h>
 #include <stingraykit/unique_ptr.h>
 
+#include <stdio.h>
+
+#include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
-#include <sys/types.h>
-#include <sys/syscall.h>
 #include <sys/prctl.h>
 #include <sys/stat.h>
-#include <stdio.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <dirent.h>
-
 
 #ifdef HAVE_ABI_FORCE_UNWIND
 #include <cxxabi.h>
@@ -233,15 +234,19 @@ namespace stingray
 			STINGRAYKIT_NONCOPYABLE(TLSDataHolder);
 		};
 
+
+		STINGRAYKIT_DECLARE_THREAD_LOCAL_POD(bool, TlsInitializedFlag);
+		STINGRAYKIT_DEFINE_THREAD_LOCAL_POD(bool, TlsInitializedFlag, false);
+
+
+		STINGRAYKIT_DECLARE_THREAD_LOCAL_POD(TLSDataHolder*, TlsPointerHolder);
+		STINGRAYKIT_DEFINE_THREAD_LOCAL_POD(TLSDataHolder*, TlsPointerHolder, NULL);
+
+
 		class TLS
 		{
 		private:
 			static pthread_key_t			s_key;
-
-#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-			static __thread bool			s_initialized;
-			static __thread TLSDataHolder *	s_holder;
-#endif
 			static pthread_once_t			s_TLS_keyOnce;
 
 		public:
@@ -279,16 +284,12 @@ namespace stingray
 		private:
 			static void InitKey()
 			{
-#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-				//this could be simplified as s_holder check, but InitKey now called only from Get(). Fix it later
-				if (s_initialized)
+				//this could be simplified as TlsInitializedFlag check, but InitKey now called only from Get(). Fix it later
+				if (TlsInitializedFlag::Get())
 					return;
-#endif
 				if (int err = pthread_once(&s_TLS_keyOnce, &TLS::DoInit))
 					STINGRAYKIT_THROW(SystemException("pthread_once", err));
-#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-				s_initialized = true;
-#endif
+				TlsInitializedFlag::Set(true);
 			}
 
 			static void SetValue(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
@@ -296,9 +297,7 @@ namespace stingray
 				unique_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(gettid(), pthread_self(), tlsData, threadData));
 				if (int err = pthread_setspecific(s_key, tls_ptr.get()))
 					STINGRAYKIT_THROW(SystemException("pthread_setspecific", err));
-#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-				s_holder = tls_ptr.get();
-#endif
+				TlsPointerHolder::Set(tls_ptr.get());
 				tls_ptr.release();
 			}
 
@@ -310,29 +309,17 @@ namespace stingray
 
 			static void Dtor(void* val)
 			{
-#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-				s_holder = NULL;
-#endif
 				TLSDataHolder* holder = reinterpret_cast<TLSDataHolder*>(val);
 				delete holder;
 			}
 
 			static TLSDataHolder *GetHolder()
-#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-			{ return s_holder; }
-#else
-			{ return reinterpret_cast<TLSDataHolder*>(pthread_getspecific(s_key)); }
-#endif
+			{ return TlsPointerHolder::Get(); }
 		};
 
 
 		pthread_key_t	TLS::s_key;
-
-#ifdef STINGRAYKIT_HAS_THREAD_KEYWORD
-		__thread TLSDataHolder *	TLS::s_holder = NULL;
-		__thread bool				TLS::s_initialized = false;
-#endif
-		pthread_once_t				TLS::s_TLS_keyOnce = PTHREAD_ONCE_INIT;
+		pthread_once_t	TLS::s_TLS_keyOnce = PTHREAD_ONCE_INIT;
 
 		inline u64 TicksToMs(u64 ticks)
 		{
