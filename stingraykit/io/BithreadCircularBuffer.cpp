@@ -17,14 +17,13 @@ namespace stingray
 
 	private:
 		Mutex			_mutex;
-		ByteData		_storage;
-		Token		_storageLifeAssurance;
+		BytesOwner		_storage;
 		size_t			_writeOffset, _readOffset;
 		bool			_dataIsContiguous;
 
 	public:
-		Impl(ByteData storage, const Token& storageLifeAssurance) :
-			_storage(storage), _storageLifeAssurance(storageLifeAssurance),
+		Impl(const BytesOwner& storage) :
+			_storage(storage),
 			_writeOffset(0), _readOffset(0),
 			_dataIsContiguous(true)
 		{ }
@@ -95,14 +94,11 @@ namespace stingray
 	};
 
 
-	BithreadCircularBuffer::BithreadCircularBuffer(size_t size)
-	{
-		shared_ptr<std::vector<u8> > storage = make_shared<std::vector<u8> >(size);
-		_impl = make_shared<Impl>(ByteData(*storage), MakeObjectToken(storage));
-	}
+	BithreadCircularBuffer::BithreadCircularBuffer(size_t size) : _impl(make_shared<Impl>(BytesOwner::Create(size)))
+	{ }
 
 
-	BithreadCircularBuffer::BithreadCircularBuffer(ByteData storage, const Token& token) : _impl(new Impl(storage, token))
+	BithreadCircularBuffer::BithreadCircularBuffer(const BytesOwner& storage) : _impl(new Impl(storage))
 	{ }
 
 

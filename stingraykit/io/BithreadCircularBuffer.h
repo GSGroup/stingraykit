@@ -3,6 +3,7 @@
 
 #include <stingraykit/IToken.h>
 #include <stingraykit/collection/ByteData.h>
+#include <stingraykit/collection/BytesOwner.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/toolkit.h>
@@ -75,7 +76,7 @@ namespace stingray
 
 	public:
 		BithreadCircularBuffer(size_t size);
-		BithreadCircularBuffer(ByteData buffer, const Token& token);
+		BithreadCircularBuffer(const BytesOwner& storage);
 		~BithreadCircularBuffer();
 
 		size_t GetDataSize() const;
