@@ -235,14 +235,6 @@ namespace stingray
 		};
 
 
-		STINGRAYKIT_DECLARE_THREAD_LOCAL_POD(bool, TlsInitializedFlag);
-		STINGRAYKIT_DEFINE_THREAD_LOCAL_POD(bool, TlsInitializedFlag, false);
-
-
-		STINGRAYKIT_DECLARE_THREAD_LOCAL_POD(TLSDataHolder*, TlsPointerHolder);
-		STINGRAYKIT_DEFINE_THREAD_LOCAL_POD(TLSDataHolder*, TlsPointerHolder, NULL);
-
-
 		class TLS
 		{
 		private:
@@ -284,12 +276,8 @@ namespace stingray
 		private:
 			static void InitKey()
 			{
-				//this could be simplified as TlsInitializedFlag check, but InitKey now called only from Get(). Fix it later
-				if (TlsInitializedFlag::Get())
-					return;
 				if (int err = pthread_once(&s_TLS_keyOnce, &TLS::DoInit))
 					STINGRAYKIT_THROW(SystemException("pthread_once", err));
-				TlsInitializedFlag::Set(true);
 			}
 
 			static void SetValue(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
@@ -297,7 +285,6 @@ namespace stingray
 				unique_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(gettid(), pthread_self(), tlsData, threadData));
 				if (int err = pthread_setspecific(s_key, tls_ptr.get()))
 					STINGRAYKIT_THROW(SystemException("pthread_setspecific", err));
-				TlsPointerHolder::Set(tls_ptr.get());
 				tls_ptr.release();
 			}
 
@@ -314,7 +301,7 @@ namespace stingray
 			}
 
 			static TLSDataHolder *GetHolder()
-			{ return TlsPointerHolder::Get(); }
+			{ return static_cast<TLSDataHolder*>(pthread_getspecific(s_key)); }
 		};
 
 
