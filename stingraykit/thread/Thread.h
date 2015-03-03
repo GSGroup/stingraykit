@@ -118,8 +118,6 @@ namespace stingray
 			void Reset();
 		};
 
-		static const std::string	UndefinedThreadName;
-
 	private:
 		IThreadPtr		_thread;
 		std::string		_name;

@@ -66,13 +66,8 @@ namespace stingray
 	void Thread::TrySetCurrentThreadName(const std::string& name)
 	{ ThreadEngine::TrySetCurrentThreadName(name); }
 
-	const std::string Thread::UndefinedThreadName("__undefined__");
-
 	const std::string& Thread::GetCurrentThreadName()
-	{
-		const TLSData* tls_data = ThreadEngine::GetCurrentThreadData();
-		return tls_data ? tls_data->GetThreadName() : UndefinedThreadName;
-	}
+	{ return ThreadEngine::GetCurrentThreadData()->GetThreadName(); }
 
 	IThreadInfoPtr Thread::GetCurrentThreadInfo()
 	{
