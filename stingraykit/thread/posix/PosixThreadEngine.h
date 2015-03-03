@@ -69,7 +69,6 @@ namespace stingray
 		static IThreadInfoPtr GetCurrentThreadInfo();
 		static TLSData* GetCurrentThreadData();
 		static void SetCurrentThreadName(const std::string& name);
-		static void TrySetCurrentThreadName(const std::string& name);
 		static ThreadStatsVec GetStingrayThreadsStats();
 		static ThreadStatsVec GetThreadsStats();
 

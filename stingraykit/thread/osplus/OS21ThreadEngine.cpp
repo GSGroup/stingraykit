@@ -374,9 +374,6 @@ namespace stingray
 		tls_data->SetThreadName(name);
 	}
 
-	void OS21ThreadEngine::TrySetCurrentThreadName(const std::string& name)
-	{ SetCurrentThreadName(name); }
-
 	OS21ThreadEngine::ThreadStatsVec OS21ThreadEngine::GetThreadsStats()
 	{
 		ScopedTaskLock l; // prevents current task from preemption

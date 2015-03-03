@@ -984,9 +984,6 @@ namespace stingray
 	static ThreadDataStoragePtr CreateThreadDataStorage(const std::string& name)
 	{ return make_shared<ThreadDataStorage>(name, ThreadDataStoragePtr()); }
 
-	void PosixThreadEngine::TrySetCurrentThreadName(const std::string& name)
-	{ TLS::TryInit(TLSData(name), bind(&CreateThreadDataStorage, const_ref(name))); }
-
 
 	PosixThreadEngine::ThreadStatsVec PosixThreadEngine::GetStingrayThreadsStats()
 	{

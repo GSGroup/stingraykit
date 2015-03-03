@@ -138,7 +138,6 @@ namespace stingray
 		static void SleepMicroseconds(u64 microseconds);
 		static IThread::ThreadId GetCurrentThreadId();
 		static void SetCurrentThreadName(const std::string& name);
-		static void TrySetCurrentThreadName(const std::string& name);
 		static const std::string& GetCurrentThreadName();
 		static IThreadInfoPtr GetCurrentThreadInfo();
 		static ThreadStatsVec GetStats();

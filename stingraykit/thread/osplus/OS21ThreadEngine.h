@@ -197,7 +197,6 @@ namespace stingray
 		static bool EnableInterruptionPoints(bool enable);
 		static TLSData* GetCurrentThreadData();
 		static void SetCurrentThreadName(const std::string& name);
-		static void TrySetCurrentThreadName(const std::string& name);
 		static ThreadStatsVec GetThreadsStats();
 		static void CallOnce(OnceNativeType& once, void (*func)()) { OS21CallOnce::CallOnce(once, func); }
 		static s64 GetThreadMicroseconds();
