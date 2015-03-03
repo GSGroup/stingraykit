@@ -7,16 +7,16 @@
 namespace stingray
 {
 
-	STINGRAYKIT_DECLARE_THREAD_LOCAL_POD(int, RestrictedThreadOperations);
-	STINGRAYKIT_DEFINE_THREAD_LOCAL_POD(int, RestrictedThreadOperations, 0);
+	STINGRAYKIT_DECLARE_THREAD_LOCAL(int, RestrictedThreadOperations);
+	STINGRAYKIT_DEFINE_THREAD_LOCAL(int, RestrictedThreadOperations);
 
 	ThreadOperationConstrainer::ThreadOperationConstrainer(ThreadOperation restrictedOperations) :
 		_oldValue(RestrictedThreadOperations::Get())
-	{ RestrictedThreadOperations::Set(_oldValue | restrictedOperations.val()); }
+	{ RestrictedThreadOperations::Get() = _oldValue | restrictedOperations.val(); }
 
 
 	ThreadOperationConstrainer::~ThreadOperationConstrainer()
-	{ RestrictedThreadOperations::Set(_oldValue); }
+	{ RestrictedThreadOperations::Get() = _oldValue; }
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadOperationReporter);
