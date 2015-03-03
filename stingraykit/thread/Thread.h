@@ -120,7 +120,6 @@ namespace stingray
 
 	private:
 		IThreadPtr		_thread;
-		std::string		_name;
 
 	public:
 		explicit Thread(const std::string& name, const FuncType& threadFunc);
@@ -128,12 +127,11 @@ namespace stingray
 
 		void Interrupt();
 		IThread::ThreadId GetId();
-		const std::string& GetName() const { return _name; }
 
 		static void InterruptionPoint();
 		static void Yield();
 		/** @deprecated */
-		static inline void Sleep(u32 milliseconds)				{ SleepMicroseconds(1000u * (u64)milliseconds); }
+		static inline void Sleep(u32 milliseconds)		{ SleepMicroseconds(1000u * (u64)milliseconds); }
 		static inline void Sleep(TimeDuration duration)	{ SleepMicroseconds(1000u * duration.GetMilliseconds()); }
 		static void SleepMicroseconds(u64 microseconds);
 		static IThread::ThreadId GetCurrentThreadId();
@@ -144,9 +142,6 @@ namespace stingray
 		static void SetCancellationToken(const ICancellationToken& token);
 		static void ResetCancellationToken();
 		static const ICancellationToken& GetCancellationToken();
-
-	private:
-		void BeginThread(const FuncType& threadFunc);
 	};
 	STINGRAYKIT_DECLARE_PTR(Thread);
 

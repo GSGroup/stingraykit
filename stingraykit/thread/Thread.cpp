@@ -30,17 +30,11 @@ namespace stingray
 	////////////////////////////////////////
 
 	Thread::Thread(const std::string& name, const FuncType& threadFunc)
-		: _name(name)
-	{ BeginThread(threadFunc); }
+	{ _thread = ThreadEngine::BeginThread(threadFunc, name); }
+
 
 	Thread::~Thread()
-	{
-		_thread.reset();
-	}
-
-
-	void Thread::BeginThread(const FuncType& threadFunc)
-	{ _thread = ThreadEngine::BeginThread(threadFunc, _name); }
+	{ _thread.reset(); }
 
 	void Thread::Interrupt()
 	{ _thread->Interrupt(); }
@@ -67,9 +61,7 @@ namespace stingray
 	{ return ThreadEngine::GetCurrentThreadData()->GetThreadName(); }
 
 	IThreadInfoPtr Thread::GetCurrentThreadInfo()
-	{
-		return ThreadEngine::GetCurrentThreadInfo();
-	}
+	{ return ThreadEngine::GetCurrentThreadInfo(); }
 
 	Thread::ThreadStatsVec Thread::GetStats()
 	{ return ThreadEngine::GetThreadsStats(); }
