@@ -68,16 +68,15 @@ namespace stingray
 		static IThread::ThreadId GetCurrentThreadId();
 		static IThreadInfoPtr GetCurrentThreadInfo();
 		static TLSData* GetCurrentThreadData();
+
 		static void SetCurrentThreadName(const std::string& name);
-		static ThreadStatsVec GetStingrayThreadsStats();
+		static const std::string& GetCurrentThreadName();
+
 		static ThreadStatsVec GetThreadsStats();
 
 		static ThreadSchedulingParams SetCurrentThreadPriority(ThreadSchedulingParams params);
 
 		static void CallOnce(OnceNativeType& once, void (*func)()) { PosixCallOnce::CallOnce(once, func); }
-
-	private:
-		static void* ThreadFunc(void* arg);
 	};
 
 

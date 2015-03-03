@@ -58,7 +58,7 @@ namespace stingray
 	{ ThreadEngine::SetCurrentThreadName(name); }
 
 	const std::string& Thread::GetCurrentThreadName()
-	{ return ThreadEngine::GetCurrentThreadData()->GetThreadName(); }
+	{ return ThreadEngine::GetCurrentThreadName(); }
 
 	IThreadInfoPtr Thread::GetCurrentThreadInfo()
 	{ return ThreadEngine::GetCurrentThreadInfo(); }

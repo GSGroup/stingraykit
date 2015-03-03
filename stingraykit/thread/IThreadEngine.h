@@ -1,13 +1,12 @@
 #ifndef STINGRAYKIT_THREAD_ITHREADENGINE_H
 #define STINGRAYKIT_THREAD_ITHREADENGINE_H
 
-
-#include <stingraykit/diagnostics/ExternalAPIGuard.h>
 #include <stingraykit/ICreator.h>
+#include <stingraykit/diagnostics/ExternalAPIGuard.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/shared_ptr.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/toolkit.h>
-
 
 namespace stingray
 {
@@ -58,7 +57,6 @@ namespace stingray
 	class TLSData
 	{
 	private:
-		std::string					_threadName;
 		const ICancellationToken*	_token;
 		ExternalAPIGuardStack		_externalApiGuardStack;
 		ITLSUserDataPtr				_userData;
@@ -66,8 +64,8 @@ namespace stingray
 		int							_disableCancellationCounter;
 
 	public:
-		explicit TLSData(const std::string& threadName, const ITLSUserDataPtr& userData = null)
-			: _threadName(threadName), _token(NULL), _userData(userData), _syncPrimitiveCodeCounter(0), _disableCancellationCounter(0)
+		explicit TLSData(const ITLSUserDataPtr& userData = null)
+			: _token(NULL), _userData(userData), _syncPrimitiveCodeCounter(0), _disableCancellationCounter(0)
 		{ }
 
 		ExternalAPIGuardStack& GetExternalAPIGuardStack()				{ return _externalApiGuardStack; }
@@ -82,8 +80,6 @@ namespace stingray
 		void EnableThreadCancellation()				{ --_disableCancellationCounter; }
 
 		ITLSUserDataPtr GetUserData() const			{ return _userData; }
-		const std::string& GetThreadName() const	{ return _threadName; }
-		void SetThreadName(const std::string& name)	{ _threadName = name; }
 
 		void SetCancellationToken(const ICancellationToken* token)	{ STINGRAYKIT_CHECK(!token || (token && !_token), InvalidOperationException()); _token = token; }
 		const ICancellationToken* GetCancellationToken()			{ return _token; }
@@ -122,38 +118,59 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(IThread);
 
 
+	struct ThreadCpuStats
+	{
+	private:
+		TimeDuration	_uTime;
+		TimeDuration	_sTime;
+
+	public:
+		ThreadCpuStats()
+		{ }
+
+		ThreadCpuStats(TimeDuration uTime, TimeDuration sTime) : _uTime(uTime), _sTime(sTime)
+		{ }
+
+		ThreadCpuStats& operator += (const ThreadCpuStats& other)
+		{
+			_uTime += other._uTime;
+			_sTime += other._sTime;
+			return *this;
+		}
+
+		TimeDuration GetUserTime() const	{ return _uTime; }
+		TimeDuration GetSystemTime() const	{ return _sTime; }
+
+		std::string ToString() const
+		{ return StringBuilder() % "{ user: " % _uTime.GetMilliseconds() % " ms, system: " % _sTime.GetMilliseconds() % " ms }"; }
+	};
+
+
 	class ThreadStats
 	{
 	private:
 		u64				_threadId;
 		u64				_parentId;
 		std::string		_threadName;
-		u64				_uTime;
-		u64				_sTime;
 
-		u64				_childrenUTime;
-		u64				_childrenSTime;
+		ThreadCpuStats	_cpuStats;
+		ThreadCpuStats	_childrenCpuStats;
 
 	public:
-		ThreadStats(u64 threadId, u64 parentId, const std::string& threadName, u64 uTime, u64 sTime, u64 childrenUTime, u64 childrenSTime) :
+		ThreadStats(u64 threadId, u64 parentId, const std::string& threadName, ThreadCpuStats cpuStats, ThreadCpuStats childrenCpuStats) :
 			_threadId(threadId),
 			_parentId(parentId),
 			_threadName(threadName),
-			_uTime(uTime),
-			_sTime(sTime),
-			_childrenUTime(childrenUTime),
-			_childrenSTime(childrenSTime)
+			_cpuStats(cpuStats),
+			_childrenCpuStats(childrenCpuStats)
 		{ }
 
 		u64 GetThreadId() const						{ return _threadId; }
 		u64 GetParentId() const						{ return _parentId; }
-		const std::string& GetThreadName() const	{ return _threadName; }
-		u64 GetCpu() const							{ return _uTime + _sTime; }
-		u64 GetUTime() const						{ return _uTime; }
-		u64 GetSTime() const						{ return _sTime; }
+		std::string GetThreadName() const			{ return _threadName; }
 
-		u64 GetChildrenUTime() const				{ return _childrenUTime; }
-		u64 GetChildrenSTime() const				{ return _childrenSTime; }
+		ThreadCpuStats GetCpuStats() const			{ return _cpuStats; }
+		ThreadCpuStats GetChildrenCpuStats() const	{ return _childrenCpuStats; }
 	};
 
 	/** @} */

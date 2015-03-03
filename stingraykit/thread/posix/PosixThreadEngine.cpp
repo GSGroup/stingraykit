@@ -17,7 +17,9 @@
 #include <stingraykit/string/string_stream.h>
 #include <stingraykit/task_alive_token.h>
 #include <stingraykit/thread/CancellationToken.h>
+#include <stingraykit/thread/DummyCancellationToken.h>
 #include <stingraykit/thread/GenericMutexLock.h>
+#include <stingraykit/thread/posix/PosixThreadStats.h>
 #include <stingraykit/thread/posix/SignalHandler.h>
 #include <stingraykit/thread/posix/ThreadLocal.h>
 #include <stingraykit/time/posix/utils.h>
@@ -99,10 +101,6 @@ namespace stingray
 	static posix::SignalHandlerSetter<ThreadBacktracePrinter>		g_threadBacktracePrinter(SIGUSR1);
 
 
-	class ThreadDataStorage;
-	STINGRAYKIT_DECLARE_PTR(ThreadDataStorage);
-
-
 	class PosixThreadInfo : public virtual IThreadInfo
 	{
 	private:
@@ -111,8 +109,8 @@ namespace stingray
 		FutureExecutionTester		_threadGuard;
 
 	public:
-		PosixThreadInfo(const pthread_t& threadHandle, const std::string& name, const FutureExecutionTester& threadGuard)
-			: _threadHandle(threadHandle), _name(name), _threadGuard(threadGuard)
+		PosixThreadInfo(const pthread_t& threadHandle, const std::string& name, const FutureExecutionTester& threadGuard) :
+			_threadHandle(threadHandle), _name(name), _threadGuard(threadGuard)
 		{ }
 
 		virtual void RequestBacktrace() const
@@ -127,70 +125,62 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(PosixThreadInfo);
 
 
+	class ThreadDataStorage;
+	STINGRAYKIT_DECLARE_PTR(ThreadDataStorage);
+
 
 	class ThreadDataStorage
 	{
-		std::string				_name;
-		optional<u64>			_tid;
-		optional<pthread_t>		_threadHandle;
-		PosixThreadInfoPtr		_threadInfo;
-		ThreadDataStoragePtr	_parent;
+		const u64					_kernelId;
+		const pthread_t				_pthreadId;
+		const ThreadDataStoragePtr	_parent;
 
-		atomic_int_type			_exitedChildrenUTime;
-		atomic_int_type			_exitedChildrenSTime;
+		const PosixThreadInfoPtr	_threadInfo;
 
-		atomic_int_type			_threadFuncExited;
-
-		CancellationToken		_token;
-		TaskLifeToken			_lifeToken;
+		Mutex						_mutex;
+		std::string					_name;
+		ThreadCpuStats				_childrenStats;
 
 	public:
-		ThreadDataStorage(const std::string& name, const ThreadDataStoragePtr& parent) :
-			_name(name),
+		ThreadDataStorage(u64 kernelId, pthread_t pthreadId, const std::string& name, const ThreadDataStoragePtr& parent, const FutureExecutionTester& executionTester) :
+			_kernelId(kernelId),
+			_pthreadId(pthreadId),
 			_parent(parent),
-			_exitedChildrenUTime(0),
-			_exitedChildrenSTime(0),
-			_threadFuncExited(0)
+			_threadInfo(make_shared<PosixThreadInfo>(pthreadId, _name, executionTester)),
+			_name(name)
 		{ }
 
-		~ThreadDataStorage()
-		{ }
+		u64 GetKernelId() const										{ return _kernelId; }
+		pthread_t GetPthreadId() const								{ return _pthreadId; }
+		PosixThreadInfoPtr GetThreadInfo() const					{ return _threadInfo; }
+		ThreadDataStoragePtr GetParentThread() const				{ return _parent; }
 
-		void SetTid(u64 tid) 							{ _tid = tid; }
-		u64 GetTid() const								{ return _tid.get(); }
+		std::string GetThreadName() const							{ GenericMutexLock<PosixMutex> l(_mutex); return _name; }
+		void SetThreadName(const std::string& name)					{ GenericMutexLock<PosixMutex> l(_mutex); _name = name; }
 
-		void SetThreadHandle(const pthread_t& handle)
-		{
-			_threadHandle = handle;
-			_threadInfo.reset(new PosixThreadInfo(handle, _name, _lifeToken.GetExecutionTester()));
-		}
-		pthread_t GetThreadHandler() const				{ return *_threadHandle; }
-
-		PosixThreadInfoPtr GetThreadInfo() const		{ return _threadInfo; }
-
-		const std::string& GetThreadName() const		{ return _name; }
-		ThreadDataStoragePtr GetParentThread() const	{ return _parent; }
-
-		void StoreChildTime(u64 utime, u64 stime)
-		{
-			Atomic::Add(_exitedChildrenUTime, utime);
-			Atomic::Add(_exitedChildrenSTime, stime);
-		}
-
-		u64 GetChildrenUTime()					{ return Atomic::Load(_exitedChildrenUTime); }
-		u64 GetChildrenSTime()					{ return Atomic::Load(_exitedChildrenSTime); }
-
-		void SetExited()						{ Atomic::Store(_threadFuncExited, 1); }
-		bool IsExited()							{ return Atomic::Load(_threadFuncExited) == 1; }
-
-		CancellationToken& GetToken()			{ return _token; }
-		TaskLifeToken& GetLifeToken()			{ return _lifeToken; }
+		void StoreChildStats(ThreadCpuStats childStats) 			{ GenericMutexLock<PosixMutex> l(_mutex); _childrenStats += childStats; }
+		ThreadCpuStats GetChildrenStats() const						{ GenericMutexLock<PosixMutex> l(_mutex); return _childrenStats; }
 	};
+
+
+	STINGRAYKIT_DECLARE_THREAD_LOCAL(ThreadDataStoragePtr, ThreadDataHolder);
+	STINGRAYKIT_DEFINE_THREAD_LOCAL(ThreadDataStoragePtr, ThreadDataHolder);
+
+
+	struct ThreadNameAccessor
+	{
+	private:
+		STINGRAYKIT_DECLARE_THREAD_LOCAL(std::string, ThreadLocalHolder);
+
+	public:
+		static const std::string& Get()			{ return ThreadLocalHolder::Get(); }
+		static void Set(const std::string& str)	{ ThreadLocalHolder::Get() = str; ThreadDataHolder::Get()->SetThreadName(str); }
+	};
+	STINGRAYKIT_DEFINE_THREAD_LOCAL(std::string, ThreadNameAccessor::ThreadLocalHolder);
 
 
 	namespace
 	{
-
 		typedef std::map<u64, ThreadDataStoragePtr>	ThreadsMap;
 
 		shared_ptr<PosixMutex>	g_threadsCreatedMutex(new PosixMutex);
@@ -199,120 +189,35 @@ namespace stingray
 
 		struct ThreadRegistration
 		{
-			u64						Id;
-			ThreadDataStoragePtr	Data;
 		private:
-			shared_ptr<PosixMutex> _mutex;
+			shared_ptr<PosixMutex>	_mutex;
+			ThreadsMap::iterator	_iterator;
 
 		public:
-			ThreadRegistration(u64 id, const pthread_t& threadHandle, const ThreadDataStoragePtr& data)
-				: Id(id), Data(data), _mutex(g_threadsCreatedMutex)
+			ThreadRegistration(const ThreadDataStoragePtr& data) : _mutex(g_threadsCreatedMutex)
 			{
-				Data->SetTid(id);
-				Data->SetThreadHandle(threadHandle);
 				GenericMutexLock<PosixMutex> l(*_mutex);
-				g_threadsCreated.insert(std::make_pair(Id, Data));
+				_iterator = g_threadsCreated.insert(std::make_pair(data->GetKernelId(), data)).first;
 			}
 
 			~ThreadRegistration()
 			{
 				GenericMutexLock<PosixMutex> l(*_mutex);
-				g_threadsCreated.erase(Id);
+				g_threadsCreated.erase(_iterator);
 			}
 		};
 
 
-		struct TLSDataHolder
-		{
-			TLSData					tlsData;
-			ThreadRegistration		threadReg;
-
-			TLSDataHolder(u64 id, const pthread_t& threadHandle, const TLSData& theTlsData, const ThreadDataStoragePtr& threadData)
-				: tlsData(theTlsData), threadReg(id, threadHandle, threadData)
-			{ }
-
-			STINGRAYKIT_NONCOPYABLE(TLSDataHolder);
-		};
+		STINGRAYKIT_DECLARE_PTR(TLSData);
+		STINGRAYKIT_DECLARE_THREAD_LOCAL(TLSDataPtr, TLSDataHolder);
+		STINGRAYKIT_DEFINE_THREAD_LOCAL(TLSDataPtr, TLSDataHolder);
 
 
-		class TLS
-		{
-		private:
-			static pthread_key_t			s_key;
-			static pthread_once_t			s_TLS_keyOnce;
+		TimeDuration TicksToTimeDuration(u64 ticks)
+		{ return TimeDuration::FromMilliseconds(ticks * 1000 / sysconf(_SC_CLK_TCK)); }
 
-		public:
-			static void Init(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
-			{
-				if (Get() != NULL)
-					STINGRAYKIT_THROW(std::runtime_error("TLS data already assigned!"));
-
-				SetValue(tlsData, threadData);
-			}
-
-			template < typename ThreadDataStorageCreator >
-			static void TryInit(const TLSData& tlsData, const ThreadDataStorageCreator& threadDataCreator)
-			{
-				if (Get() != NULL)
-					return;
-
-				SetValue(tlsData, threadDataCreator());
-			}
-
-			static TLSData* Get()
-			{
-				InitKey();
-				TLSDataHolder* holder = GetHolder();
-				return holder ? &holder->tlsData : NULL;
-			}
-
-			static ThreadDataStorage* GetPrivateData()
-			{
-				InitKey();
-				TLSDataHolder* holder = GetHolder();
-				return holder ? holder->threadReg.Data.get() : NULL;
-			}
-
-		private:
-			static void InitKey()
-			{
-				if (int err = pthread_once(&s_TLS_keyOnce, &TLS::DoInit))
-					STINGRAYKIT_THROW(SystemException("pthread_once", err));
-			}
-
-			static void SetValue(const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
-			{
-				unique_ptr<TLSDataHolder> tls_ptr(new TLSDataHolder(gettid(), pthread_self(), tlsData, threadData));
-				if (int err = pthread_setspecific(s_key, tls_ptr.get()))
-					STINGRAYKIT_THROW(SystemException("pthread_setspecific", err));
-				tls_ptr.release();
-			}
-
-			static void DoInit()
-			{
-				if (int err = pthread_key_create(&s_key, &TLS::Dtor))
-					STINGRAYKIT_THROW(SystemException("pthread_key_create", err));
-			}
-
-			static void Dtor(void* val)
-			{
-				TLSDataHolder* holder = reinterpret_cast<TLSDataHolder*>(val);
-				delete holder;
-			}
-
-			static TLSDataHolder *GetHolder()
-			{ return static_cast<TLSDataHolder*>(pthread_getspecific(s_key)); }
-		};
-
-
-		pthread_key_t	TLS::s_key;
-		pthread_once_t	TLS::s_TLS_keyOnce = PTHREAD_ONCE_INIT;
-
-		inline u64 TicksToMs(u64 ticks)
-		{
-			return ticks * 1000 / sysconf(_SC_CLK_TCK);
-		}
-
+		ThreadCpuStats CpuStatsFromTicks(u64 uTime, u64 sTime)
+		{ return ThreadCpuStats(TicksToTimeDuration(uTime), TicksToTimeDuration(sTime)); }
 	}
 
 
@@ -414,167 +319,47 @@ namespace stingray
 	}
 
 
-	namespace
+	class PosixThreadAttr
 	{
-		struct Stat
-		{
-			// 0
-			s64				pid;
-			char			tcomm[1024];
-			char			state;
-			s64				ppid;
-			s64				pgid;
-			// 5
-			s64				sid;
-			s64				tty_nr;
-			s64				tty_pgrp;
-			s64				flags;
-			s64				min_flt;
-			// 10
-			s64				cmin_flt;
-			s64				maj_flt;
-			s64				cmaj_flt;
-			s64				utime;
-			s64				stimev;
-			// 15
-			s64				cutime;
-			s64				cstime;
-			s64				priority;
-			s64				nicev;
-			s64				num_threads;
-			// 20
-			s64				it_real_value;
-			u64				start_time;
-			s64				vsize;
-			s64				rss;
-			s64				rsslim;
-			// 25
-			s64				start_code;
-			s64				end_code;
-			s64				start_stack;
-			s64				esp;
-			s64				eip;
-			// 30
-			s64				pending;
-			s64				blocked;
-			s64				sigign;
-			s64				sigcatch;
-			s64				wchan;
-			// 35
-			s64				zero1;
-			s64				zero2;
-			s64				exit_signal;
-			s64				processor;
-			s64				rt_priority;
-			// 40
-			s64				policy;
+	public:
+		static const size_t DefaultStackSize = 1024 * 1024;
 
-			std::string ToString() const
+		struct Impl
+		{
+		private:
+			pthread_attr_t _threadAttr;
+
+		public:
+			Impl()
 			{
-				string_ostream ss;
-				ss		<< "pid: " << pid << ", tcomm: " << std::string(tcomm) << ", state: " << state << ", ppid: " << ppid << ", pgid: " << pgid
-						<< ", sid: " << sid << ", tty_nr: " << tty_nr << ", tty_pgrp: " << tty_pgrp << ", flags: " << flags << ", min_flt: " << min_flt
-						<< ", cmin_flt: " << cmin_flt << ", maj_flt: " << maj_flt << ", cmin_flt: " << cmaj_flt << ", utime: " << utime << ", stimev: " << stimev
-						<< ", cutime: " << cutime << ", cstime: " << cstime << ", priority: " << priority << ", nicev: " << nicev << ", num_threads: " << num_threads
-						<< ", it_real_value: " << it_real_value << ", start_time: " << start_time << ", vsize: " << vsize << ", rss: " << rss << ", rsslim: " << rsslim
-						<< ", start_code: " << start_code << ", end_code: " << end_code << ", start_stack: " << start_stack << ", esp: " << esp << ", eip: " << eip
-						<< ", pending: " << pending << ", blocked: " << blocked << ", sigign: " << sigign << ", sigcatch: " << sigcatch << ", wchan: " << wchan
-						<< ", zero1: " << zero1 << ", zero2: " << zero2 << ", exit_signal: " << exit_signal << ", processor: " << processor << ", rt_priority: " << rt_priority
-						<< ", policy: " << policy
-				;
-				return ss.str();
+				int ret = pthread_attr_init(&_threadAttr);
+				STINGRAYKIT_CHECK(ret == 0, SystemException("pthread_attr_init", ret));
+
+				ret = pthread_attr_setstacksize(&_threadAttr, DefaultStackSize);
+				STINGRAYKIT_CHECK(ret == 0, SystemException("pthread_attr_setstacksize", ret));
 			}
+
+			~Impl()
+			{ pthread_attr_destroy(&_threadAttr); }
+
+			const pthread_attr_t& Get() const
+			{ return _threadAttr; }
 		};
-	}
+		STINGRAYKIT_DECLARE_PTR(Impl);
+
+	public:
+		static ImplPtr Get()
+		{
+			ImplPtr result = SafeSingleton<Impl>::Instance();
+			return result ? result : make_shared<Impl>();
+		}
+	};
 
 
-	static void ReadCpuTimeFromStat(FILE* stat, Stat& s)
-	{
-		int count = fscanf(stat, "%lld (%1024[^)]) %c %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %llu %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld",
-		// 0
-		&s.pid,
-		s.tcomm,
-		&s.state,
-		&s.ppid,
-		&s.pgid,
-		// 5
-		&s.sid,
-		&s.tty_nr,
-		&s.tty_pgrp,
-		&s.flags,
-		&s.min_flt,
-		// 10
-		&s.cmin_flt,
-		&s.maj_flt,
-		&s.cmaj_flt,
-		&s.utime,
-		&s.stimev,
-		// 15
-		&s.cutime,
-		&s.cstime,
-		&s.priority,
-		&s.nicev,
-		&s.num_threads,
-		// 20
-		&s.it_real_value,
-		&s.start_time,
-		&s.vsize,
-		&s.rss,
-		&s.rsslim,
-		// 25
-		&s.start_code,
-		&s.end_code,
-		&s.start_stack,
-		&s.esp,
-		&s.eip,
-		// 30
-		&s.pending,
-		&s.blocked,
-		&s.sigign,
-		&s.sigcatch,
-		&s.wchan,
-		// 35
-		&s.zero1,
-		&s.zero2,
-		&s.exit_signal,
-		&s.processor,
-		&s.rt_priority,
-		// 40
-		&s.policy);
-
-		static const int ArgsCount = 41;
-		if (count != ArgsCount)
-			PTELogger.Warning() << "Can't read CPU time from stat!";
-	}
-
-
-	static bool GetThreadStats(u64 gid, u64 id, Stat& stat)
-	{
-#ifndef PLATFORM_STAPI
-		std::string filename = "/proc/" + ToString(gid) + "/task/" + ToString(id) + "/stat";
-#else
-		// Looks like in ST linux correct CPU usage for thread 123 is accessible at /proc/123/task/123/stat
-		std::string filename = "/proc/" + ToString(id) + "/task/" + ToString(id) + "/stat";
+#ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
+	struct InterruptException
+	{ static void Throw(void*) { throw InterruptException(); } };
 #endif
-
-		FILE* stat_f = fopen(filename.c_str(), "r");
-		if (stat_f)
-		{
-			ScopeExitInvoker sei(bind(&fclose, stat_f));
-			ReadCpuTimeFromStat(stat_f, stat);
-		}
-		else
-		{
-			filename = "/proc/" + ToString(id) + "/stat";
-			stat_f = fopen(filename.c_str(), "r");
-			if (!stat_f)
-				return false;
-
-			ScopeExitInvoker sei(bind(&fclose, stat_f));
-			ReadCpuTimeFromStat(stat_f, stat);
-		}
-		return true;
-	}
 
 
 	class PosixThread : public virtual IThread
@@ -582,49 +367,74 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(PosixThread);
 
 	private:
-		ThreadDataStoragePtr	_data;
+		static const u64 StartingTimeDurationLimit = 1000;
 
-		const std::string		_name;
+	private:
+		function<void (const ICancellationToken&)>	_func;
+		std::string									_initialName;
+		ThreadDataStoragePtr						_parent;
 
-		Mutex					_mutex;
-		optional<pthread_t>		_id;
+		const std::string							_name;
+
+		PosixMutex									_mutex;
+		PosixConditionVariable						_cv;
+		ThreadDataStoragePtr						_data;
+
+		bool										_exited;
+		CancellationToken							_token;
+		TaskLifeToken								_lifeToken;
 
 	public:
-		PosixThread(const ThreadDataStoragePtr& data, const std::string& name) :
-			_data(data),
-			_name(name)
-		{ }
+		PosixThread(const function<void (const ICancellationToken&)>& func, const std::string& name, const ThreadDataStoragePtr& parent) :
+			_func(func), _initialName(name), _parent(parent),
+			_exited(false)
+		{
+			for (int attempt = 0; attempt < 3; ++attempt)
+			{
+				pthread_t id;
+				int ret = pthread_create(&id, &PosixThreadAttr::Get()->Get(), &PosixThread::ThreadFuncStatic, this);
+				if (ret == 0)
+				{
+					AsyncProfiler::Session profileSession(ExecutorsProfiler::Instance().GetProfiler(), std::string("Starting ") + name, StartingTimeDurationLimit, AsyncProfiler::Session::Behaviour::Silent);
+
+					GenericMutexLock<PosixMutex> l(_mutex);
+					while (!_data)
+						_cv.Wait(_mutex, DummyCancellationToken());
+
+					STINGRAYKIT_ASSERT(id == _data->GetPthreadId());
+					return;
+				}
+
+				if (ret == EAGAIN)
+				{
+					PTELogger.Warning() << "pthread_create failed with EAGAIN, retrying...";
+					Thread::Sleep(100);
+				}
+				else
+					STINGRAYKIT_FATAL("pthread_create: ret = " + ToString(ret) + ", " + SystemException::GetErrorMessage(ret));
+			}
+			STINGRAYKIT_FATAL("pthread_create failed too much times!");
+		}
+
 
 		virtual ~PosixThread()
 		{
 			AsyncProfiler::Session profile_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&PosixThread::GetAsyncProfilerMessage, this), ThreadDtorProfileReportThreshold, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
-			_data->GetToken().Cancel();
-			_data->GetLifeToken().Release();
-			Join();
-		}
 
-		void SetThreadId(const pthread_t& id)
-		{ GenericMutexLock<PosixMutex> l(_mutex); _id = id; }
+			_token.Cancel();
+			_lifeToken.Release();
 
-		pthread_t GetThreadId()
-		{ GenericMutexLock<PosixMutex> l(_mutex); return *_id; }
-
-		void Join()
-		{
-			TRACER;
 			bool prev = PosixThreadEngine::EnableInterruptionPoints(false);
 			ScopeExitInvoker sei(bind(&PosixThreadEngine::EnableInterruptionPoints, prev));
 
-			int result = pthread_join(GetThreadId(), NULL);
+			int result = pthread_join(_data->GetPthreadId(), NULL);
 			if (result)
-			{
-				std::string backtrace = Backtrace().Get();
-				STINGRAYKIT_FATAL("pthread_join failed: " + SystemException::GetErrorMessage(result) + (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace)));
-			}
+				STINGRAYKIT_FATAL("pthread_join failed: " + SystemException::GetErrorMessage(result));
 
-			if (!_data->IsExited())
+			if (!_exited)
 				PTELogger.Error() << "Critical: Alert! Threadfunc never exited!";
 		}
+
 
 		virtual void Interrupt()
 		{
@@ -633,16 +443,12 @@ namespace stingray
 #ifdef PLATFORM_NP6
 #	warning Thread interruptions disabled
 #else
-			//this flag could be unreliable, consider remove it or made atomic with save/load
-			if (_data->IsExited())
-				return;
-
-			int ret = pthread_cancel(GetThreadId());
+			int ret = pthread_cancel(_data->GetPthreadId());
 			if (ret != 0)
 			{
 				if (ret == ESRCH)
 				{
-					Logger::Info() << "no thread with the ID thread (" + ToString(GetThreadId()) + ") could be found (threadfunc exited)";
+					Logger::Info() << "no thread with the ID thread (" << _data->GetPthreadId() << ") could be found (threadfunc exited)";
 					return;
 				}
 
@@ -653,11 +459,8 @@ namespace stingray
 
 	private:
 		void RequestThreadBacktrace() const
-		{
-			GenericMutexLock<PosixMutex> l(_mutex);
-			if (_id)
-				posix::SendSignal(*_id, g_threadBacktracePrinter.GetSignalNum());
-		}
+		{ posix::SendSignal(_data->GetPthreadId(), g_threadBacktracePrinter.GetSignalNum()); }
+
 
 		std::string GetAsyncProfilerMessage() const
 		{
@@ -665,255 +468,128 @@ namespace stingray
 			return _name + ": destroying";
 		}
 
+
+		void ThreadFuncExited()
+		{
+			_exited = true;
+
+			optional<ThreadCpuStats> cpuStats;
+			Stat s;
+			if (Stat::GetThreadStats(getpgid((pid_t)0), GetKernelId(), s))
+				cpuStats = CpuStatsFromTicks(s.utime, s.stimev);
+
+			ThreadCpuStats childrenStats = _data->GetChildrenStats();
+			PTELogger.Debug() << "Exiting threadfunc of thread '" << _data->GetThreadName() << "' with tid = " << GetKernelId() << ". Stats: " << cpuStats << ". Children stats: " << childrenStats;
+
+			ThreadCpuStats total = childrenStats;
+			if (cpuStats)
+				total += *cpuStats;
+
+			ThreadDataStoragePtr parent = _data->GetParentThread();
+			if (parent)
+				parent->StoreChildStats(total);
+		}
+
+
+		static void* ThreadFuncStatic(void* instancePtr)
+		{
+			PosixThread* t = static_cast<PosixThread*>(instancePtr);
+			t->ThreadFunc();
+			return NULL;
+		}
+
+
+		u64 GetKernelId()
+		{ return gettid(); }
+
+
+		void ThreadFunc()
+		{
+			ThreadDataStoragePtr threadData(new ThreadDataStorage(gettid(), pthread_self(), _initialName, _parent, _lifeToken.GetExecutionTester()));
+			{
+				GenericMutexLock<PosixMutex> l(_mutex);
+				_data = threadData;
+				_cv.Broadcast();
+			}
+
+			int old_state = 0, old_type = 0;
+			if (pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &old_type) != 0)
+				return;
+			if (pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &old_state) != 0)
+				return;
+
+#ifdef HAVE_PTHREAD_SETNAME
+			pthread_setname_np(pthread_self(), _initialName.c_str());
+#endif
+
+			// PR_SET_NAME requires string of 16 bytes maximum
+			std::string cropped_name(_initialName.substr(0, 16));
+			prctl(PR_SET_NAME, cropped_name.c_str());
+
+#ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
+			pthread_cleanup_push(&InterruptException::Throw, NULL);
+#endif
+
+			ThreadRegistration registrator(threadData);
+
+			TLSDataPtr tlsData = make_shared<TLSData>();
+			TLSDataHolder::Get() = tlsData;
+
+			try
+			{
+				PTELogger.Debug() << "Entered threadfunc of thread '" << _data->GetThreadName() << "' with tid = " << GetKernelId();
+				ScopeExitInvoker sei(bind(&PosixThread::ThreadFuncExited, this));
+
+				_func(_token); // Execute!
+			}
+			catch (const std::exception& ex)
+			{
+				PTELogger.Error() << "Uncaught std::exception:" << ex << "\n   in thread with tid = " << GetKernelId();
+			}
+#ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
+			catch (const InterruptException&)
+			{
+				PTELogger.Info() << "Thread with id = " << GetKernelId() << " interrupted";
+			}
+#endif
+#ifdef HAVE_ABI_FORCE_UNWIND
+			catch (abi::__forced_unwind&)
+			{
+				PTELogger.Debug() << "Thread with id = " << GetKernelId() << " interrupted";
+				throw;
+			}
+			catch (...)
+			{
+				PTELogger.Error() << "Uncaught unknown exception\n    in thread with tid = " << GetKernelId();
+				throw;
+			}
+#else
+			catch (...)
+			{
+				PTELogger.Debug() << "Uncaught unknown exception\n    in thread with tid = " << GetKernelId();
+				throw;
+			}
+#endif
+
+#ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
+			pthread_cleanup_pop(0);
+#endif
+		}
 	};
 	STINGRAYKIT_DECLARE_PTR(PosixThread);
 
 
-	class PosixThreadAttr
-	{
-	public:
-		static const size_t DefaultStackSize = 1024 * 1024;
-
-	private:
-		pthread_attr_t _threadAttr;
-
-	private:
-		PosixThreadAttr()
-		{
-			int ret = pthread_attr_init(&_threadAttr);
-			if (ret)
-				STINGRAYKIT_THROW(SystemException("pthread_attr_init", ret));
-
-			SetStackSize(DefaultStackSize);
-		}
-
-	public:
-		~PosixThreadAttr()
-		{ pthread_attr_destroy(&_threadAttr); }
-
-		const pthread_attr_t& Get() const { return _threadAttr; }
-
-		size_t GetStackSize() const
-		{
-			size_t size;
-			int ret = pthread_attr_getstacksize(&_threadAttr, &size);
-			if (ret)
-				STINGRAYKIT_THROW(SystemException("pthread_attr_getstacksize", ret));
-			return size;
-		}
-
-		void SetStackSize(size_t size)
-		{
-			int ret = pthread_attr_setstacksize(&_threadAttr, size);
-			if (ret)
-				STINGRAYKIT_THROW(SystemException("pthread_attr_setstacksize", ret));
-		}
-
-		static const PosixThreadAttr& Instance() // Do not want to use Singleton class here 'cause it may depend on these threading objects
-		{
-			static PosixThreadAttr inst;
-			return inst;
-		}
-	};
-
-
-	class ThreadArg
-	{
-	private:
-		typedef function<void(const ICancellationToken& token)> FuncType;
-
-		FuncType				_func;
-		TLSData					_tlsData;
-		ThreadDataStoragePtr	_threadData;
-
-	public:
-		ThreadArg(const FuncType& func, const TLSData& tlsData, const ThreadDataStoragePtr& threadData)
-			: _func(func), _tlsData(tlsData), _threadData(threadData)
-		{ }
-
-		const FuncType& GetFunc() const						{ return _func; }
-		const TLSData& GetTLSData() const					{ return _tlsData; }
-		const ThreadDataStoragePtr& GetThreadData() const	{ return _threadData; }
-	};
-
-
-#ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
-	struct InterruptException
-	{ static void Throw(void*) { throw InterruptException(); } };
-#endif
-
-
-	void* PosixThreadEngine::ThreadFunc(void* arg)
-	{
-		class ThreadDetacher
-		{
-			ThreadDataStoragePtr	_data;
-
-		public:
-			ThreadDetacher(const ThreadDataStoragePtr& data) : _data(data)
-			{ }
-
-			~ThreadDetacher()
-			{ _data->SetExited(); }
-		};
-
-		int old_state = 0, old_type = 0;
-		if (pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &old_type) != 0)
-			return (void*)-1;
-		if (pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &old_state) != 0)
-			return (void*)-1;
-
-		std::auto_ptr<ThreadArg> thread_arg(reinterpret_cast<ThreadArg*>(arg));
-
-		class ThreadFuncLogger
-		{
-		private:
-			u64						_tid;
-			ThreadDataStoragePtr	_data;
-			bool					_testMode;
-
-		public:
-			ThreadFuncLogger(const ThreadDataStoragePtr& data) : _tid(gettid()), _data(data), _testMode(getenv("TEST_MODE") != NULL)
-			{}
-
-			void LogEnter()
-			{
-				if (!_testMode)
-					PTELogger.Debug() << "Entered threadfunc of thread '" << _data->GetThreadName() << "' with tid = " << _tid;
-			}
-
-			~ThreadFuncLogger()
-			{
-				u64 utime = 0, stime = 0;
-
-				Stat s;
-				if (GetThreadStats(getpgid((pid_t)0), _tid, s))
-				{
-					utime = s.utime;
-					stime = s.stimev;
-				}
-
-				std::string stat = StringFormat("u: %1% ms, s: %2% ms", TicksToMs(utime), TicksToMs(stime));
-				if (_data->GetChildrenUTime() != 0 || _data->GetChildrenSTime() != 0)
-				{
-					std::string childrenStat = StringFormat("u: %1% ms, s: %2% ms", TicksToMs(_data->GetChildrenUTime()), TicksToMs(_data->GetChildrenSTime()));
-					if (!_testMode)
-						PTELogger.Debug() << "Exiting threadfunc of thread '" << _data->GetThreadName() << "' with tid = " << _tid << ". Stats: " << stat << ". Children stats: " << childrenStat;
-				}
-				else
-				{
-					if (!_testMode)
-						PTELogger.Debug() << "Exiting threadfunc of thread '" << _data->GetThreadName() << "' with tid = " << _tid << ". Stats: " << stat;
-				}
-
-				ThreadDataStoragePtr parent = _data->GetParentThread();
-				if (parent)
-					parent->StoreChildTime(utime + _data->GetChildrenUTime(), stime + _data->GetChildrenSTime());
-			}
-
-			size_t GetId() const { return _tid; }
-		};
-
-		ThreadFuncLogger tfl(thread_arg->GetThreadData());
-
-		// PR_SET_NAME requires string of 16 bytes maximum
-		std::string cropped_name(thread_arg->GetTLSData().GetThreadName().substr(0, 16));
-		prctl(PR_SET_NAME, cropped_name.c_str());
-
-		int ret = 0;
-
-#ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
-		pthread_cleanup_push(&InterruptException::Throw, NULL);
-#endif
-
-		try
-		{
-			ThreadDetacher detacher(thread_arg->GetThreadData());
-
-			TLS::Init(thread_arg->GetTLSData(), thread_arg->GetThreadData());
-
-			tfl.LogEnter();
-
-			(thread_arg->GetFunc())(thread_arg->GetThreadData()->GetToken()); // Execute!
-		}
-		catch (const std::exception& ex)
-		{
-			PTELogger.Error() << "Uncaught std::exception:" << ex << "\n   in thread with tid = " << tfl.GetId();
-			ret = 1;
-		}
-#ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
-		catch (const InterruptException&)
-		{
-			PTELogger.Info() << "Thread with id = " << tfl.GetId() << " interrupted";
-			ret = 1;
-		}
-#endif
-#ifdef HAVE_ABI_FORCE_UNWIND
-		catch (abi::__forced_unwind&)
-		{
-			PTELogger.Debug() << "Thread with id = " << tfl.GetId() << " interrupted";
-			throw;
-		}
-		catch (...)
-		{
-			PTELogger.Error() << "Uncaught unknown exception\n    in thread with tid = " << tfl.GetId();
-			throw;
-		}
-#else
-		catch (...)
-		{
-			PTELogger.Debug() << "Uncaught unknown exception\n    in thread with tid = " << tfl.GetId();
-			throw;
-		}
-#endif
-
-#ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
-		pthread_cleanup_pop(0);
-#endif
-
-		return reinterpret_cast<void*>(ret);
-	}
-
-
 	IThreadPtr PosixThreadEngine::BeginThread(const FuncType& func, const std::string& name)
 	{
-		ThreadDataStoragePtr parent_data;
+		ThreadDataStoragePtr parent;
 		{
 			GenericMutexLock<PosixMutex> l(*g_threadsCreatedMutex);
 			ThreadsMap::iterator it = g_threadsCreated.find(gettid());
 			if (it != g_threadsCreated.end())
-				parent_data = it->second;
+				parent = it->second;
 		}
 
-		ThreadDataStoragePtr thread_data(new ThreadDataStorage(name, parent_data));
-		shared_ptr<PosixThread> thread_obj(new PosixThread(thread_data, name));
-		TLSData tls_data(name);
-		std::auto_ptr<ThreadArg> thread_arg(new ThreadArg(func, tls_data, thread_data));
-
-		pthread_t pthread_id;
-		int ret, attempt = 0;
-		do
-		{
-			ret = pthread_create(&pthread_id, &PosixThreadAttr::Instance().Get(), &PosixThreadEngine::ThreadFunc, thread_arg.get());
-			if (ret == EAGAIN)
-			{
-				PTELogger.Warning() << "pthread_create failed with EAGAIN, retrying...";
-				Thread::Sleep(100);
-			}
-		}
-		while(ret == EAGAIN && attempt++ < 3);
-
-		thread_obj->SetThreadId(pthread_id);
-#ifdef HAVE_PTHREAD_SETNAME
-		pthread_setname_np(pthread_id, tls_data.GetThreadName().c_str());
-#endif
-
-		if (ret != 0)
-			STINGRAYKIT_FATAL("pthread_create: ret = " + ToString(ret) + ", " + SystemException::GetErrorMessage(ret));
-		else
-			thread_arg.release();
-
-		return thread_obj;
+		return make_shared<PosixThread>(func, name, parent);
 	}
 
 
@@ -965,49 +641,24 @@ namespace stingray
 	IThread::ThreadId PosixThreadEngine::GetCurrentThreadId()
 	{ return gettid(); }
 
+
 	IThreadInfoPtr PosixThreadEngine::GetCurrentThreadInfo()
 	{
-		ThreadDataStorage* privateData = TLS::GetPrivateData();
-		return privateData ? privateData->GetThreadInfo() : null;
+		ThreadDataStoragePtr dataStorage = ThreadDataHolder::Get();
+		return dataStorage ? dataStorage->GetThreadInfo() : null;
 	}
 
+
 	TLSData* PosixThreadEngine::GetCurrentThreadData()
-	{ return TLS::Get(); }
+	{ return TLSDataHolder::Get().get(); }
 
 
 	void PosixThreadEngine::SetCurrentThreadName(const std::string& name)
-	{
-		STINGRAYKIT_TRY("[PosixThreadEngine] failed setting current thread name", TLS::Init(TLSData(name), make_shared<ThreadDataStorage>(name, ThreadDataStoragePtr())));
-	}
+	{ ThreadNameAccessor::Set(name); }
 
 
-	static ThreadDataStoragePtr CreateThreadDataStorage(const std::string& name)
-	{ return make_shared<ThreadDataStorage>(name, ThreadDataStoragePtr()); }
-
-
-	PosixThreadEngine::ThreadStatsVec PosixThreadEngine::GetStingrayThreadsStats()
-	{
-		GenericMutexLock<PosixMutex> l(*g_threadsCreatedMutex);
-
-		ThreadStatsVec result;
-
-		pid_t gid = getpgid((pid_t)0);
-		STINGRAYKIT_CHECK(gid != -1, SystemException("getpgid"));
-
-		for (ThreadsMap::const_iterator it = g_threadsCreated.begin(); it != g_threadsCreated.end(); ++it)
-		{
-			u64 ptid = it->second->GetParentThread() ? it->second->GetParentThread()->GetTid() : 0;
-			Stat stat;
-
-			if (GetThreadStats(gid, it->first, stat))
-				result.push_back(ThreadStats(it->first, ptid, it->second->GetThreadName(), TicksToMs(stat.utime), TicksToMs(stat.stimev),
-						TicksToMs(it->second->GetChildrenUTime()), TicksToMs(it->second->GetChildrenSTime())));
-			else
-				result.push_back(ThreadStats(it->first, ptid, it->second->GetThreadName(), 999, 999, TicksToMs(it->second->GetChildrenUTime()), TicksToMs(it->second->GetChildrenSTime())));
-		}
-
-		return result;
-	}
+	const std::string& PosixThreadEngine::GetCurrentThreadName()
+	{ return ThreadNameAccessor::Get(); }
 
 
 	PosixThreadEngine::ThreadStatsVec PosixThreadEngine::GetThreadsStats()
@@ -1035,22 +686,20 @@ namespace stingray
 
 			Stat stat;
 			u64 tid = FromString<u64>(dirName);
-			if (S_ISDIR(st.st_mode) && GetThreadStats(gid, tid, stat))
+			if (S_ISDIR(st.st_mode) && Stat::GetThreadStats(gid, tid, stat))
 			{
 				std::string threadName(stat.tcomm);
-				u64 childrenUTime = 0; //stat.cutime;
-				u64 childrenSTime = 0; //stat.cstime;
+				ThreadCpuStats childrenStats;
 				u64 parentId = 0; //stat.ppid;
 				if (g_threadsCreated.find(tid) != g_threadsCreated.end())
 				{
 					threadName = g_threadsCreated[tid]->GetThreadName();
-					childrenUTime = g_threadsCreated[tid]->GetChildrenUTime();
-					childrenSTime = g_threadsCreated[tid]->GetChildrenSTime();
+					childrenStats = g_threadsCreated[tid]->GetChildrenStats();
 					if (g_threadsCreated[tid]->GetParentThread())
-						parentId = g_threadsCreated[tid]->GetParentThread()->GetTid();
+						parentId = g_threadsCreated[tid]->GetParentThread()->GetKernelId();
 				}
 
-				result.push_back(ThreadStats(tid, parentId, threadName, TicksToMs(stat.utime), TicksToMs(stat.stimev), TicksToMs(childrenUTime), TicksToMs(childrenSTime)));
+				result.push_back(ThreadStats(tid, parentId, threadName, CpuStatsFromTicks(stat.utime, stat.stimev), childrenStats));
 			}
 		}
 
