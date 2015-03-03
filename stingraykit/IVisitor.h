@@ -63,7 +63,7 @@ namespace stingray
 	template < typename BaseType, typename DerivedType, typename ValueType = void >
 	struct Visitor : public virtual IVisitor<BaseType, ValueType>, public Detail::VisitorBase<BaseType, DerivedType>
 	{
-		virtual void InvokeVisit(DerivedType& visitable)	{ SetValue(Visit(visitable)); }
+		virtual void InvokeVisit(DerivedType& visitable)	{ this->SetValue(Visit(visitable)); }
 		virtual ValueType Visit(DerivedType& visitable) = 0;
 	};
 
