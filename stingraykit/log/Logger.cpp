@@ -204,7 +204,7 @@ namespace stingray
 		}
 
 
-		void DoLog(const SinksBundle& sinks, const LoggerMessage& message)
+		static void DoLog(const SinksBundle& sinks, const LoggerMessage& message)
 		{
 			for (SinksBundle::const_iterator it = sinks.begin(); it != sinks.end(); ++it)
 			{
