@@ -153,7 +153,7 @@ namespace stingray
 			_kernelId(kernelId),
 			_pthreadId(pthreadId),
 			_parent(parent),
-			_threadInfo(make_shared<PosixThreadInfo>(pthreadId, _name, executionTester)),
+			_threadInfo(make_shared<PosixThreadInfo>(pthreadId, name, executionTester)),
 			_name(name)
 		{ }
 
