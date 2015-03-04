@@ -181,7 +181,14 @@ namespace stingray
 
 	public:
 		static const std::string& Get()			{ return ThreadLocalHolder::Get(); }
-		static void Set(const std::string& str)	{ ThreadLocalHolder::Get() = str; ThreadDataHolder::Get()->SetThreadName(str); }
+		static void Set(const std::string& str)
+		{
+			ThreadLocalHolder::Get() = str;
+			ThreadDataStoragePtr& data = ThreadDataHolder::Get();
+			if (!data)
+				data = make_shared<ThreadDataStorage>(gettid(), pthread_self(), std::string(), null, null);
+			data->SetThreadName(str);
+		}
 	};
 	STINGRAYKIT_DEFINE_THREAD_LOCAL(std::string, ThreadNameAccessor::ThreadLocalHolder);
 
@@ -385,6 +392,8 @@ namespace stingray
 
 		PosixMutex									_mutex;
 		PosixConditionVariable						_cv;
+		bool										_started;
+
 		ThreadDataStoragePtr						_data;
 
 		bool										_exited;
@@ -393,8 +402,7 @@ namespace stingray
 
 	public:
 		PosixThread(const function<void (const ICancellationToken&)>& func, const std::string& name, const ThreadDataStoragePtr& parent) :
-			_func(func), _initialName(name), _parent(parent),
-			_exited(false)
+			_func(func), _initialName(name), _parent(parent), _started(false), _exited(false)
 		{
 			for (int attempt = 0; attempt < 3; ++attempt)
 			{
@@ -402,12 +410,13 @@ namespace stingray
 				int ret = pthread_create(&id, &PosixThreadAttr::Get()->Get(), &PosixThread::ThreadFuncStatic, this);
 				if (ret == 0)
 				{
-					AsyncProfiler::Session profileSession(ExecutorsProfiler::Instance().GetProfiler(), std::string("Starting ") + name, StartingTimeDurationLimit, AsyncProfiler::Session::Behaviour::Silent);
+					{
+						GenericMutexLock<PosixMutex> l(_mutex);
+						while (!_started)
+							_cv.Wait(_mutex, DummyCancellationToken());
+					}
 
-					GenericMutexLock<PosixMutex> l(_mutex);
-					while (!_data)
-						_cv.Wait(_mutex, DummyCancellationToken());
-
+					STINGRAYKIT_CHECK(_data, "PosixThread failed to start!");
 					STINGRAYKIT_ASSERT(id == _data->GetPthreadId());
 					return;
 				}
@@ -510,14 +519,17 @@ namespace stingray
 		{ return gettid(); }
 
 
+		void ThreadFuncStarted()
+		{
+			GenericMutexLock<PosixMutex> l(_mutex);
+			_started = true;
+			_cv.Broadcast();
+		}
+
+
 		void ThreadFunc()
 		{
-			ThreadDataStoragePtr threadData(new ThreadDataStorage(gettid(), pthread_self(), _initialName, _parent, _lifeToken.GetExecutionTester()));
-			{
-				GenericMutexLock<PosixMutex> l(_mutex);
-				_data = threadData;
-				_cv.Broadcast();
-			}
+			ScopeExitInvoker sei(bind(&PosixThread::ThreadFuncStarted, this)); // in case something throws an exception
 
 			int old_state = 0, old_type = 0;
 			if (pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &old_type) != 0)
@@ -537,7 +549,12 @@ namespace stingray
 			pthread_cleanup_push(&InterruptException::Throw, NULL);
 #endif
 
-			ThreadRegistration registrator(threadData);
+			_data = make_shared<ThreadDataStorage>(gettid(), pthread_self(), _initialName, _parent, _lifeToken.GetExecutionTester());
+			ThreadDataHolder::Get() = _data;
+			ThreadNameAccessor::Set(_initialName);
+			ThreadFuncStarted();
+
+			ThreadRegistration registrator(_data);
 
 			TLSDataPtr tlsData = make_shared<TLSData>();
 			TLSDataHolder::Get() = tlsData;
