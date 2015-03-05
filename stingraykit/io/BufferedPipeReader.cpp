@@ -4,31 +4,33 @@ namespace stingray
 {
 
 	BufferedPipeReader::BufferedPipeReader(const IPipePtr& pipe, size_t bufferSize)
-		: _pipe(pipe), _buffer(bufferSize), _bufferedDataOffset(0), _bufferedDataLength(0)
+		: _pipe(pipe), _buffer(bufferSize), _bufferedDataBegin(_buffer.end()), _bufferedDataEnd(_buffer.end())
 	{ }
 
 
 	size_t BufferedPipeReader::Read(ByteData data, const ICancellationToken& token)
 	{
-		if (_bufferedDataOffset == _bufferedDataLength)
-		{
-			_bufferedDataLength = _pipe->Read(_buffer.GetByteData(), token);
-			_bufferedDataOffset = 0;
-		}
+		FillBufferIfNecessary(token, false);
 
-		const size_t read = std::min(data.size(), _bufferedDataLength - _bufferedDataOffset);
-		std::copy(_buffer.begin(), _buffer.begin() + read, data.begin());
-		_bufferedDataOffset += read;
+		const size_t size = std::min(data.size(), (size_t)std::distance(_bufferedDataBegin, _bufferedDataEnd));
+		std::copy(_buffer.begin(), _buffer.begin() + size, data.begin());
+		std::advance(_bufferedDataBegin, size);
 
-		return read;
+		return size;
+	}
+
+
+	u8 BufferedPipeReader::PeekByte(const ICancellationToken& token)
+	{
+		FillBufferIfNecessary(token, true);
+		return *_bufferedDataBegin;
 	}
 
 
 	u8 BufferedPipeReader::ReadByte(const ICancellationToken& token)
 	{
-		u8 result;
-		STINGRAYKIT_CHECK(Read(ByteData(&result, sizeof(result)), token) == sizeof(result), OperationCanceledException());
-		return result;
+		FillBufferIfNecessary(token, true);
+		return *_bufferedDataBegin++;
 	}
 
 
@@ -38,6 +40,20 @@ namespace stingray
 		for (u8 byte = ReadByte(token); byte != '\n'; byte = ReadByte(token))
 			result.push_back(byte);
 		return result;
+	}
+
+
+	void BufferedPipeReader::FillBufferIfNecessary(const ICancellationToken& token, bool throwOperationCancelledException)
+	{
+		if (_bufferedDataBegin == _bufferedDataEnd)
+		{
+			const size_t read = _pipe->Read(_buffer.GetByteData(), token);
+			if (read == 0)
+				STINGRAYKIT_CHECK(!throwOperationCancelledException, OperationCanceledException());
+
+			_bufferedDataBegin = _buffer.begin();
+			_bufferedDataEnd = _buffer.begin() + read;
+		}
 	}
 
 }
