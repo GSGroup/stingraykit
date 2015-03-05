@@ -37,8 +37,20 @@ namespace stingray
 	std::string BufferedPipeReader::ReadLine(const ICancellationToken& token)
 	{
 		std::string result;
-		for (u8 byte = ReadByte(token); byte != '\n'; byte = ReadByte(token))
+		for (u8 byte = ReadByte(token); ; byte = ReadByte(token))
+		{
+			if (byte == '\n')
+				return result;
+
+			if (byte == '\r')
+			{
+				if (PeekByte(token) == '\n')
+					ReadByte(token);
+				return result;
+			}
+
 			result.push_back(byte);
+		}
 		return result;
 	}
 
