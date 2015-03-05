@@ -89,6 +89,7 @@ set(stingraykit_SRC
 	stingraykit/function/function_name_getter.cpp
 
 	stingraykit/io/BithreadCircularBuffer.cpp
+	stingraykit/io/BufferedPipeReader.cpp
 	stingraykit/io/CompositeDataConsumer.cpp
 	stingraykit/io/DataBuffer.cpp
 	stingraykit/io/DataSourceReader.cpp
