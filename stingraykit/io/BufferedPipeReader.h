@@ -2,7 +2,6 @@
 #define STINGRAYKIT_IO_BUFFEREDPIPEREADER_H
 
 #include <stingraykit/io/IPipe.h>
-#include <stingraykit/io/MemoryCircularBuffer.h>
 
 namespace stingray
 {
@@ -12,8 +11,12 @@ namespace stingray
 		static const size_t DefaultBufferSize = 4096;
 
 	private:
-		IPipePtr						_pipe;
-		MemoryCircularBuffer<false>		_buffer;
+		IPipePtr	_pipe;
+
+		ByteArray	_buffer;
+
+		size_t		_bufferedDataOffset;
+		size_t		_bufferedDataLength;
 
 	public:
 		explicit BufferedPipeReader(const IPipePtr& pipe, size_t bufferSize = DefaultBufferSize);

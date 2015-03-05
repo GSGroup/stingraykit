@@ -4,34 +4,30 @@ namespace stingray
 {
 
 	BufferedPipeReader::BufferedPipeReader(const IPipePtr& pipe, size_t bufferSize)
-		: _pipe(pipe), _buffer(bufferSize)
+		: _pipe(pipe), _buffer(bufferSize), _bufferedDataOffset(0), _bufferedDataLength(0)
 	{ }
 
 
 	size_t BufferedPipeReader::Read(ByteData data, const ICancellationToken& token)
 	{
-		if (_buffer.GetSize() == 0)
+		if (_bufferedDataOffset == _bufferedDataLength)
 		{
-			ByteArray buffer_(_buffer.GetFreeSize());
-
-			const size_t read = _pipe->Read(buffer_.GetByteData(), token); // TODO: read directly into buffer
-
-			_buffer.Push(ConstByteData(buffer_, read));
+			_bufferedDataLength = _pipe->Read(_buffer.GetByteData(), token);
+			_bufferedDataOffset = 0;
 		}
 
-		const CircularDataReserverPtr reserver = _buffer.Pop(data.size());
+		const size_t read = std::min(data.size(), _bufferedDataLength - _bufferedDataOffset);
+		std::copy(_buffer.begin(), _buffer.begin() + read, data.begin());
+		_bufferedDataOffset += read;
 
-		const ConstByteData data_ = reserver->GetData();
-		std::copy(data_.begin(), data_.end(), data.begin());
-
-		return data_.size();
+		return read;
 	}
 
 
 	u8 BufferedPipeReader::ReadByte(const ICancellationToken& token)
 	{
 		u8 result;
-		STINGRAYKIT_CHECK(Read(ByteData(&result, sizeof(result)), token) == sizeof(result), PipeClosedException());
+		STINGRAYKIT_CHECK(Read(ByteData(&result, sizeof(result)), token) == sizeof(result), OperationCanceledException());
 		return result;
 	}
 
