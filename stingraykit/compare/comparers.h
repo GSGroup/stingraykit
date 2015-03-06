@@ -259,11 +259,11 @@ namespace stingray
 	STINGRAYKIT_DECLARE_COMPARERS(Owner);
 
 
-	template<typename ItemComparer>
-	struct CollectionCmp : public function_info<ItemComparer>
+	template<typename ItemCmp = comparers::Cmp>
+	struct CollectionCmp : public comparers::CmpComparerBase<CollectionCmp<ItemCmp> >
 	{
 		template < typename T >
-		int operator () (const T& lhs, const T& rhs) const
+		int DoCompare(const T& lhs, const T& rhs) const
 		{
 			typename T::const_iterator first1 = lhs.begin(), last1 = lhs.end();
 			typename T::const_iterator first2 = rhs.begin(), last2 = rhs.end();
@@ -272,14 +272,13 @@ namespace stingray
 				if (first2 == last2)
 					return -1;
 
-				int item_result = ItemComparer()(*first1, *first2);
+				int item_result = ItemCmp()(*first1, *first2);
 				if (item_result != 0)
 					return item_result;
 			}
 			return first2 == last2 ? 0 : 1;
 		}
 	};
-
 
 }
 
