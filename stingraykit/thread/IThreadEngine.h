@@ -145,6 +145,12 @@ namespace stingray
 			return *this;
 		}
 
+		ThreadCpuStats operator + (const ThreadCpuStats& other)
+		{
+			ThreadCpuStats result(*this);
+			return result += other;
+		}
+
 		TimeDuration GetUserTime() const	{ return _uTime; }
 		TimeDuration GetSystemTime() const	{ return _sTime; }
 
