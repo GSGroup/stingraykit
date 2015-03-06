@@ -378,7 +378,7 @@ namespace stingray
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename AggregateFunc>), T, Aggregate, MK_PARAM(const AggregateFunc& aggregateFunc), MK_PARAM(aggregateFunc))
 		{
-			STINGRAYKIT_CHECK(enumerator->Valid(), InvalidOperationException());
+			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
 			T result = enumerator.Get();
 			enumerator.Next();
 			for (; enumerator.Valid(); enumerator.Next())
