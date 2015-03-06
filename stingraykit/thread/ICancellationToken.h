@@ -74,10 +74,10 @@ namespace stingray
 		void Register(ICancellationHandler& handler)
 		{ _cancelledBeforeRegistration = !_token.RegisterCancellationHandler(handler); }
 
-		bool TryUnregister()
+		bool TryUnregister(ICancellationHandler& handler)
 		{ return _token.TryUnregisterCancellationHandler(); }
 
-		void Unregister()
+		void Unregister(ICancellationHandler& handler)
 		{ _token.UnregisterCancellationHandler(); }
 	};
 
@@ -106,7 +106,11 @@ namespace stingray
 		{ Register(_handler); }
 
 		~CancellationHandlerHolder()
-		{ Unregister(); }
+		{
+			if (STINGRAYKIT_LIKELY(TryUnregister(_handler)))
+				return;
+			Unregister(_handler);
+		}
 
 		CancellationHandler_& GetHandler()
 		{ return _handler; }

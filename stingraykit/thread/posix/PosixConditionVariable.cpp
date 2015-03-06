@@ -53,11 +53,11 @@ namespace stingray
 
 		~CancellationHolder()
 		{
-			if (TryUnregister())
+			if (TryUnregister(_handler))
 				return;
 
 			MutexUnlock ul(_handler.GetMutex());
-			Unregister();
+			Unregister(_handler);
 		}
 	};
 
