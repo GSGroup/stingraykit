@@ -22,6 +22,7 @@ namespace stingray
 
 	public:
 		virtual void Cancel() = 0;
+		virtual void Reset() { }
 	};
 
 
@@ -78,7 +79,10 @@ namespace stingray
 		{ return _token.TryUnregisterCancellationHandler(); }
 
 		void Unregister(ICancellationHandler& handler)
-		{ _token.UnregisterCancellationHandler(); }
+		{
+			if (!_token.UnregisterCancellationHandler())
+				handler.Reset();
+		}
 	};
 
 
