@@ -489,21 +489,19 @@ namespace stingray
 		{
 			_exited = true;
 
-			optional<ThreadCpuStats> cpuStats;
+			ThreadCpuStats cpuStats;
 			Stat s;
 			if (Stat::GetThreadStats(getpgid((pid_t)0), GetKernelId(), s))
 				cpuStats = CpuStatsFromTicks(s.utime, s.stimev);
+			else
+				PTELogger.Debug() << "Can't get thread stats for thread '" << _data->GetThreadName() << "' with tid = " << GetKernelId();
 
 			ThreadCpuStats childrenStats = _data->GetChildrenStats();
 			PTELogger.Debug() << "Exiting threadfunc of thread '" << _data->GetThreadName() << "' with tid = " << GetKernelId() << ". Stats: " << cpuStats << ". Children stats: " << childrenStats;
 
-			ThreadCpuStats total = childrenStats;
-			if (cpuStats)
-				total += *cpuStats;
-
 			ThreadDataStoragePtr parent = _data->GetParentThread();
 			if (parent)
-				parent->StoreChildStats(total);
+				parent->StoreChildStats(cpuStats + childrenStats);
 		}
 
 
