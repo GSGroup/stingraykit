@@ -49,7 +49,7 @@ namespace stingray
 	protected:
 		virtual bool RegisterCancellationHandler(ICancellationHandler& handler) const = 0;
 		virtual bool TryUnregisterCancellationHandler() const = 0;
-		virtual void UnregisterCancellationHandler() const = 0;
+		virtual bool UnregisterCancellationHandler() const = 0;
 	};
 
 

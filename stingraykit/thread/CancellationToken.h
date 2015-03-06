@@ -42,7 +42,7 @@ namespace stingray
 	protected:
 		virtual bool RegisterCancellationHandler(ICancellationHandler& handler) const;
 		virtual bool TryUnregisterCancellationHandler() const;
-		virtual void UnregisterCancellationHandler() const;
+		virtual bool UnregisterCancellationHandler() const;
 	};
 
 }

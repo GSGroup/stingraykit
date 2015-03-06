@@ -86,16 +86,17 @@ namespace stingray
 	}
 
 
-	void CancellationToken::UnregisterCancellationHandler() const
+	bool CancellationToken::UnregisterCancellationHandler() const
 	{
 		MutexLock l(_mutex);
 		_cancelHandler = null;
 
 		if (!_cancelled)
-			return;
+			return true;
 
 		while (!_cancelDone)
 			_cond.Wait(_mutex);
+		return false;
 	}
 
 }
