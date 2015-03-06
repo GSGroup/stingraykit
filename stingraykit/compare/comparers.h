@@ -260,7 +260,7 @@ namespace stingray
 
 
 	template<typename ItemComparer>
-	struct CollectionComparer : public function_info<ItemComparer>
+	struct CollectionCmp : public function_info<ItemComparer>
 	{
 		template < typename T >
 		int operator () (const T& lhs, const T& rhs) const
