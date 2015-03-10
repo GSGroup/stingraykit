@@ -27,6 +27,9 @@ namespace stingray
 			Added() { } // For deserialization only!
 			Added(const ItemType& value) : Value(value) { }
 
+			bool operator == (const Added& other) const								{ return Value == other.Value; }
+			bool operator != (const Added& other) const								{ return !(*this == other); }
+
 			std::string ToString() const											{ return StringBuilder() % "{ Added: " % Value % " }"; }
 
 			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const	{ ar.Serialize("value", Value); }
@@ -39,6 +42,9 @@ namespace stingray
 
 			Removed() { } // For deserialization only!
 			Removed(const ItemType& value) : Value(value) { }
+
+			bool operator == (const Removed& other) const							{ return Value == other.Value; }
+			bool operator != (const Removed& other) const							{ return !(*this == other); }
 
 			std::string ToString() const											{ return StringBuilder() % "{ Removed: " % Value % " }"; }
 
@@ -53,6 +59,9 @@ namespace stingray
 
 			Modified() { } // For deserialization only!
 			Modified(const ItemType& oldValue, const ItemType& newValue) : OldValue(oldValue), NewValue(newValue) { }
+
+			bool operator == (const Modified& other) const							{ return OldValue == other.OldValue && NewValue == other.NewValue; }
+			bool operator != (const Modified& other) const							{ return !(*this == other); }
 
 			std::string ToString() const											{ return StringBuilder() % "{ Modified: " % OldValue % " -> " % NewValue % " }"; }
 
@@ -93,6 +102,9 @@ namespace stingray
 
 		const variant<Types>& GetVariant() const
 		{ return _data; }
+
+		bool operator == (const CollectionOpVariant& other) const	{ return _data == other._data; }
+		bool operator != (const CollectionOpVariant& other) const	{ return !(*this == other); }
 
 		static CollectionOpVariant CreateAdded(const ItemType& value)									{ return Added(value); }
 		static CollectionOpVariant CreateRemoved(const ItemType& value)									{ return Removed(value); }
