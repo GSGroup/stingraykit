@@ -8,8 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stdexcept>
-
 namespace stingray
 {
 
@@ -40,12 +38,11 @@ public: \
 	T##_iterator T##_find(const T##_key_type &key)				{ return _##T.find(key); } \
 	T##_const_iterator T##_find(const T##_key_type &key) const	{ return _##T.find(key); } \
 \
+	std::pair<T##_const_iterator, T##_const_iterator> T##_equal_range(const T##_key_type &key) const	{ return _##T.equal_range(key); } \
+	std::pair<T##_iterator, T##_iterator> T##_equal_range(const T##_key_type &key)						{ return _##T.equal_range(key); } \
+\
 	void T##_insert(const T##_key_type &key, const T##_mapped_type &value) \
 	{ \
-		T##_iterator i ( _##T.find(key) ); \
-		if (i != _##T.end()) throw std::runtime_error(#T " key is not unique"); \
-		O##_iterator j ( _##O.find(value) ); \
-		if (j != _##O.end()) throw std::runtime_error(#O " key is not unique"); \
 		_##T.insert(T##_value_type(key, value)); \
 		_##O.insert(O##_value_type(value, key)); \
 	} \
