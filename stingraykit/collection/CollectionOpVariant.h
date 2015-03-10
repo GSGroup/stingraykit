@@ -27,6 +27,8 @@ namespace stingray
 			Added() { } // For deserialization only!
 			Added(const ItemType& value) : Value(value) { }
 
+			std::string ToString() const											{ return StringBuilder() % "{ Added: " % Value % " }"; }
+
 			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const	{ ar.Serialize("value", Value); }
 			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)		{ ar.Deserialize("value", Value); }
 		};
@@ -37,6 +39,8 @@ namespace stingray
 
 			Removed() { } // For deserialization only!
 			Removed(const ItemType& value) : Value(value) { }
+
+			std::string ToString() const											{ return StringBuilder() % "{ Removed: " % Value % " }"; }
 
 			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const	{ ar.Serialize("value", Value); }
 			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)		{ ar.Deserialize("value", Value); }
@@ -49,6 +53,8 @@ namespace stingray
 
 			Modified() { } // For deserialization only!
 			Modified(const ItemType& oldValue, const ItemType& newValue) : OldValue(oldValue), NewValue(newValue) { }
+
+			std::string ToString() const											{ return StringBuilder() % "{ Modified: " % OldValue % " -> " % NewValue % " }"; }
 
 			template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const	{ ar.Serialize("oldValue", OldValue).Serialize("newValue", NewValue); }
 			template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)		{ ar.Deserialize("oldValue", OldValue).Deserialize("newValue", NewValue); }
@@ -91,6 +97,8 @@ namespace stingray
 		static CollectionOpVariant CreateAdded(const ItemType& value)									{ return Added(value); }
 		static CollectionOpVariant CreateRemoved(const ItemType& value)									{ return Removed(value); }
 		static CollectionOpVariant CreateModified(const ItemType& oldValue, const ItemType& newValue)	{ return Modified(oldValue, newValue); }
+
+		std::string ToString() const												{ return GetVariant().ToString(); }
 
 		template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const		{ ar.Serialize("data", _data); }
 		template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)			{ ar.Deserialize("data", _data); }
