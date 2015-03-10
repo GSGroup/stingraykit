@@ -100,6 +100,10 @@ namespace stingray
 		const T& As() const
 		{ return variant_get<T>(_data); }
 
+		const Added& AsAdded() const		{ return As<Added>(); }
+		const Removed& AsRemoved() const	{ return As<Removed>(); }
+		const Modified& AsModified() const	{ return As<Modified>(); }
+
 		const variant<Types>& GetVariant() const
 		{ return _data; }
 
