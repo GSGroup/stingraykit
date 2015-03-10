@@ -16,10 +16,8 @@ namespace stingray
 	 */
 
 	template<typename ResultType = void>
-	struct static_visitor
-	{
-		typedef ResultType RetType;
-	};
+	struct static_visitor : public function_info<ResultType, UnspecifiedParamTypes>
+	{ };
 
 	/** @} */
 }
