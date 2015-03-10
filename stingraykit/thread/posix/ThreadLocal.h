@@ -15,6 +15,13 @@
 #include <pthread.h>
 
 #if defined(STINGRAYKIT_HAS_THREAD_KEYWORD) && defined(PLATFORM_POSIX)
+
+#ifdef __mips__
+#define DETAIL_STINGRAYKIT_TLS_GET_ATTR __attribute__((nomips16))
+#else
+#define DETAIL_STINGRAYKIT_TLS_GET_ATTR
+#endif
+
 #	define STINGRAYKIT_DECLARE_THREAD_LOCAL(Type_, Name_) \
 	struct Name_ \
 	{ \
@@ -49,7 +56,7 @@
 		}; \
 		static __thread Type_* s_value; \
 	public: \
-		static Type_& Get() \
+		DETAIL_STINGRAYKIT_TLS_GET_ATTR static Type_& Get() \
 		{ \
 			if (!s_value)\
 			{ \
