@@ -63,7 +63,9 @@ namespace stingray
 
 	template < typename BaseType >
 	struct IVisitor<BaseType, void> : public Detail::IVisitorBase<BaseType>
-	{ };
+	{
+		void GetValue() const { }
+	};
 
 	template < typename BaseType, typename DerivedType, typename ValueType = void >
 	struct Visitor : public virtual IVisitor<BaseType, ValueType>, public Detail::VisitorBase<BaseType, DerivedType>
@@ -119,7 +121,9 @@ namespace stingray
 
 	template < typename BaseType >
 	struct IVisitorByPtr<BaseType, void> : public Detail::IVisitorByPtrBase<BaseType>
-	{ };
+	{
+		void GetValue() const { }
+	};
 
 	template < typename BaseType, typename DerivedType, typename ValueType = void >
 	struct VisitorByPtr : public virtual IVisitorByPtr<BaseType, ValueType>, public Detail::VisitorByPtrBase<BaseType, DerivedType>
@@ -165,15 +169,6 @@ namespace stingray
 	};
 
 
-	template < typename BaseType, typename DerivedType >
-	void ApplyVisitor(IVisitor<BaseType, void>& visitor, DerivedType& visitable)
-	{
-		typedef typename Deconst<BaseType>::ValueT RawBaseType;
-		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
-
-		static_cast<IVisitableBaseType&>(visitable).Accept(visitor);
-	}
-
 	template < typename BaseType, typename DerivedType, typename ValueType >
 	ValueType ApplyVisitor(IVisitor<BaseType, ValueType>& visitor, DerivedType& visitable)
 	{
@@ -182,15 +177,6 @@ namespace stingray
 
 		static_cast<IVisitableBaseType&>(visitable).Accept(visitor);
 		return visitor.GetValue();
-	}
-
-	template < typename BaseType, typename DerivedType >
-	void ApplyVisitor(IVisitorByPtr<BaseType, void>& visitor, const shared_ptr<DerivedType>& visitable)
-	{
-		typedef typename Deconst<BaseType>::ValueT RawBaseType;
-		typedef typename If<IsConst<DerivedType>::Value, const IVisitableByPtr<const RawBaseType>, IVisitableByPtr<RawBaseType> >::ValueT IVisitableByPtrBaseType;
-
-		static_cast<IVisitableByPtrBaseType*>(visitable.get())->AcceptPtr(visitor, visitable);
 	}
 
 	template < typename BaseType, typename DerivedType, typename ValueType >
