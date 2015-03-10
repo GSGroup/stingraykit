@@ -167,23 +167,39 @@ namespace stingray
 
 	template < typename BaseType, typename DerivedType >
 	void ApplyVisitor(IVisitor<BaseType, void>& visitor, DerivedType& visitable)
-	{ visitable.Accept(visitor); }
+	{
+		typedef typename Deconst<BaseType>::ValueT RawBaseType;
+		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
+
+		static_cast<IVisitableBaseType&>(visitable).Accept(visitor);
+	}
 
 	template < typename BaseType, typename DerivedType, typename ValueType >
 	ValueType ApplyVisitor(IVisitor<BaseType, ValueType>& visitor, DerivedType& visitable)
 	{
-		visitable.Accept(visitor);
+		typedef typename Deconst<BaseType>::ValueT RawBaseType;
+		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
+
+		static_cast<IVisitableBaseType&>(visitable).Accept(visitor);
 		return visitor.GetValue();
 	}
 
 	template < typename BaseType, typename DerivedType >
 	void ApplyVisitor(IVisitorByPtr<BaseType, void>& visitor, const shared_ptr<DerivedType>& visitable)
-	{ visitable->AcceptPtr(visitor, shared_ptr<BaseType>(visitable)); }
+	{
+		typedef typename Deconst<BaseType>::ValueT RawBaseType;
+		typedef typename If<IsConst<DerivedType>::Value, const IVisitableByPtr<const RawBaseType>, IVisitableByPtr<RawBaseType> >::ValueT IVisitableByPtrBaseType;
+
+		static_cast<IVisitableByPtrBaseType*>(visitable.get())->AcceptPtr(visitor, visitable);
+	}
 
 	template < typename BaseType, typename DerivedType, typename ValueType >
 	ValueType ApplyVisitor(IVisitorByPtr<BaseType, ValueType>& visitor, const shared_ptr<DerivedType>& visitable)
 	{
-		visitable->AcceptPtr(visitor, shared_ptr<BaseType>(visitable));
+		typedef typename Deconst<BaseType>::ValueT RawBaseType;
+		typedef typename If<IsConst<DerivedType>::Value, const IVisitableByPtr<const RawBaseType>, IVisitableByPtr<RawBaseType> >::ValueT IVisitableByPtrBaseType;
+
+		static_cast<IVisitableByPtrBaseType*>(visitable.get())->AcceptPtr(visitor, shared_ptr<BaseType>(visitable));
 		return visitor.GetValue();
 	}
 
