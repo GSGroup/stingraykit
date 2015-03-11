@@ -17,7 +17,7 @@
 #if defined(STINGRAYKIT_HAS_THREAD_KEYWORD) && defined(PLATFORM_POSIX)
 
 #ifdef __mips__
-#define DETAIL_STINGRAYKIT_TLS_GET_ATTR __attribute__((nomips16))
+#define DETAIL_STINGRAYKIT_TLS_GET_ATTR __attribute__((nomips16, noinline))
 #else
 #define DETAIL_STINGRAYKIT_TLS_GET_ATTR
 #endif
