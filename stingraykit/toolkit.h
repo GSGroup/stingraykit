@@ -10,6 +10,7 @@
 
 #include <stingraykit/EnumToString.h>
 #include <stingraykit/MetaProgramming.h>
+#include <stingraykit/NullPtrType.h>
 #include <stingraykit/Types.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
 
@@ -202,15 +203,6 @@ namespace stingray
 	template < typename T >
 	struct IsEnumClass { static const bool Value = HasNestedType_Enum<T>::Value; };
 
-
-	struct NullPtrType
-	{
-		template < typename T >
-		operator T* () const
-		{ return 0; }
-	};
-
-	extern NullPtrType null;
 
 	template<typename T> T implicit_cast(T param) { return param; }
 
