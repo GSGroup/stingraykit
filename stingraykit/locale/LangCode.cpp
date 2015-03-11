@@ -13,6 +13,8 @@
 
 namespace stingray
 {
+	const LangCode::AnyType LangCode::Any;
+
 	LangCode::LangCode(u32 code) : _code(code)
 	{
 		if (code & 0xff000000u)
