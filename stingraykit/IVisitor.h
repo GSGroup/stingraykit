@@ -185,6 +185,7 @@ namespace stingray
 		typedef typename Deconst<BaseType>::ValueT RawBaseType;
 		typedef typename If<IsConst<DerivedType>::Value, const IVisitableByPtr<const RawBaseType>, IVisitableByPtr<RawBaseType> >::ValueT IVisitableByPtrBaseType;
 
+		STINGRAYKIT_CHECK(visitable, NullArgumentException("visitable"));
 		static_cast<IVisitableByPtrBaseType*>(visitable.get())->AcceptPtr(visitor, shared_ptr<BaseType>(visitable));
 		return visitor.GetValue();
 	}
