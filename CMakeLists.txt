@@ -93,6 +93,7 @@ set(stingraykit_SRC
 	stingraykit/io/CompositeDataConsumer.cpp
 	stingraykit/io/DataBuffer.cpp
 	stingraykit/io/DataSourceReader.cpp
+	stingraykit/io/PipeDataSource.cpp
 	stingraykit/io/PipeReader.cpp
 
 	stingraykit/locale/LangCode.cpp
