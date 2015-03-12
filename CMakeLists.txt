@@ -90,6 +90,7 @@ set(stingraykit_SRC
 
 	stingraykit/io/BithreadCircularBuffer.cpp
 	stingraykit/io/BufferedPipeReader.cpp
+	stingraykit/io/BufferedPipe.cpp
 	stingraykit/io/CompositeDataConsumer.cpp
 	stingraykit/io/DataBuffer.cpp
 	stingraykit/io/DataSourceReader.cpp
