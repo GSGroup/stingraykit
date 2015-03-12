@@ -34,10 +34,14 @@ namespace stingray
 						return result;
 					STINGRAYKIT_THROW(NotSupportedException());
 				}
+
+				result.push_back(byte);
 			}
 		}
 		catch (const PipeClosedException&)
-		{ return result; }
+		{
+			return result;
+		}
 	}
 
 }
