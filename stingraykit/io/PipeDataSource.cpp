@@ -16,7 +16,7 @@ namespace stingray
 			if (read == 0)
 				return;
 
-			const size_t processed = consumer.Process(ConstByteData(_buffer, read), token);
+			const size_t processed = consumer.Process(ConstByteData(_buffer, 0, read), token);
 			if (processed == 0)
 				return;
 
