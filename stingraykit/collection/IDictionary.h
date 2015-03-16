@@ -110,6 +110,11 @@ namespace stingray
 	};
 
 
+	template < typename T >
+	struct InheritsIDictionary : public Inherits2ParamTemplate<T, IDictionary>
+	{ };
+
+
 	template<typename EnumeratorType>
 	shared_ptr<IEnumerator<typename EnumeratorType::PairType::KeyType> > KeysEnumerator(const shared_ptr<EnumeratorType>& enumerator)
 	{
