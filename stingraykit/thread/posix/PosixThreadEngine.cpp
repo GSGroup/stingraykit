@@ -672,7 +672,11 @@ namespace stingray
 
 
 	TLSData* PosixThreadEngine::GetCurrentThreadData()
-	{ return TLSDataHolder::Get().get(); }
+	{
+		if (!TLSDataHolder::Get())
+			TLSDataHolder::Get() = make_shared<TLSData>();
+		return TLSDataHolder::Get().get();
+	}
 
 
 	void PosixThreadEngine::SetCurrentThreadName(const std::string& name)
