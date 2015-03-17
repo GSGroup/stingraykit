@@ -193,11 +193,10 @@ namespace stingray
 			std::vector<Token> tokens;
 			{
 				MutexLock l(_mutex);
-				typename Tokens::iterator lower = _tokens.lower_bound(key);
-				typename Tokens::iterator upper = _tokens.upper_bound(key);
-				for (typename Tokens::iterator it = lower; it != upper; ++it)
+				std::pair<typename Tokens::iterator, typename Tokens::iterator> range = _tokens.equal_range(key);
+				for (typename Tokens::iterator it = range.first; it != range.second; ++it)
 					tokens.push_back(it->second);
-				_tokens.erase(lower, upper);
+				_tokens.erase(range.first, range.second);
 			}
 		}
 
