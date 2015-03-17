@@ -685,19 +685,28 @@ namespace stingray
 
 
 		template < typename T, typename PredicateFunc >
-		bool SequenceEqual(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second, const PredicateFunc& equalPredicate)
+		bool SequenceEqual(const shared_ptr<IEnumerator<T> >& first, const shared_ptr<IEnumerator<T> >& second, const PredicateFunc& equalPredicate)
 		{
-			shared_ptr<IEnumerator<T> > l(first->GetEnumerator()), r(second->GetEnumerator());
-			for (; l->Valid() && r->Valid(); l->Next(), r->Next())
-				if (!equalPredicate(l->Get(), r->Get()))
+			for (; first->Valid() && second->Valid(); first->Next(), second->Next())
+				if (!equalPredicate(first->Get(), second->Get()))
 					return false;
-			return !l->Valid() && !r->Valid();
+			return !first->Valid() && !second->Valid();
 		}
 
 
 		template < typename T >
-		bool SequenceEqual(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second)
+		bool SequenceEqual(const shared_ptr<IEnumerator<T> >& first, const shared_ptr<IEnumerator<T> >& second)
 		{ return SequenceEqual(first, second, std::equal_to<T>()); }
+
+
+		template < typename First, typename Second, typename PredicateFunc >
+		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second, const PredicateFunc& equalPredicate)
+		{ return SequenceEqual(ToEnumerator(first), ToEnumerator(second), equalPredicate); }
+
+
+		template < typename First, typename Second >
+		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second)
+		{ return SequenceEqual(ToEnumerator(first), ToEnumerator(second)); }
 
 
 		template < typename CompareFunc >
