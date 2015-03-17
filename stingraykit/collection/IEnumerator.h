@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/collection/ToEnumerator.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/shared_ptr.h>
 
@@ -47,6 +48,18 @@ namespace stingray
 	public:
 		static const bool Value = sizeof(GetIsEnumerator((const T*)0)) == sizeof(YesType);
 	};
+
+
+	namespace Detail
+	{
+		template< typename T >
+		struct ToEnumeratorImpl<T, typename EnableIf<IsEnumerator<T>::Value, void>::ValueT>
+		{
+			typedef IEnumerator<typename T::ItemType>	ValueT;
+
+			static shared_ptr<ValueT> Do(const shared_ptr<T>& src) { return src; }
+		};
+	}
 
 
 	/** @} */
