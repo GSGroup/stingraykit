@@ -25,18 +25,19 @@ namespace stingray
 	 */
 
 	template < typename KeyType_, typename ValueType_ >
-	struct IObservableDictionary : public virtual IDictionary<KeyType_, ValueType_>
+	struct IReadonlyObservableDictionary : public virtual IReadonlyDictionary<KeyType_, ValueType_>
 	{
 		virtual signal_connector<void(CollectionOp, KeyType_, ValueType_)>	OnChanged() const = 0;
 
 		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
 
-	protected:
-		IObservableDictionary() { }
-
-	public:
 		virtual const Mutex& GetSyncRoot() const = 0;
 	};
+
+
+	template < typename KeyType_, typename ValueType_ >
+	struct IObservableDictionary : public virtual IDictionary<KeyType_, ValueType_>, public virtual IReadonlyObservableDictionary<KeyType_, ValueType_>
+	{ };
 
 
 	template < typename Wrapped_ >
