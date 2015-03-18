@@ -109,6 +109,8 @@ namespace stingray
 		typedef std::vector<ThreadStats>					ThreadStatsVec;
 
 	public:
+		typedef IThread::ThreadId ThreadId;
+
 		class PrioritySetter
 		{
 			STINGRAYKIT_NONCOPYABLE(PrioritySetter);
@@ -133,7 +135,7 @@ namespace stingray
 		~Thread();
 
 		void Interrupt();
-		IThread::ThreadId GetId();
+		ThreadId GetId();
 
 		static void InterruptionPoint();
 		static void Yield();
@@ -141,7 +143,7 @@ namespace stingray
 		static inline void Sleep(u32 milliseconds)		{ SleepMicroseconds(1000u * (u64)milliseconds); }
 		static inline void Sleep(TimeDuration duration)	{ SleepMicroseconds(1000u * duration.GetMilliseconds()); }
 		static void SleepMicroseconds(u64 microseconds);
-		static IThread::ThreadId GetCurrentThreadId();
+		static ThreadId GetCurrentThreadId();
 		static void SetCurrentThreadName(const std::string& name);
 		static const std::string& GetCurrentThreadName();
 		static IThreadInfoPtr GetCurrentThreadInfo();
