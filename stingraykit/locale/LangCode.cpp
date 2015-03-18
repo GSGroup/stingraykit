@@ -13,7 +13,7 @@
 
 namespace stingray
 {
-	const LangCode::AnyType LangCode::Any;
+	const LangCode::AnyType LangCode::Any = {};
 
 	LangCode::LangCode(u32 code) : _code(code)
 	{
