@@ -391,7 +391,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerable<T> > Reverse() const
 		{ STINGRAYKIT_THROW(NotImplementedException()); }
 
-		virtual typename base::TransactionTypePtr StartTransaction()
+		virtual typename base::TransactionPtr StartTransaction()
 		{ return make_shared<Detail::SetTransaction<T, Comparer> >(_setImpl); }
 
 	private:

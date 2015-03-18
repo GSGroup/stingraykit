@@ -62,13 +62,13 @@ namespace stingray
 		typedef IEnumerable<DiffEntryType>	DiffType;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
-		typedef ISetTransaction<T>			TransactionType;
-		STINGRAYKIT_DECLARE_PTR(TransactionType);
+		typedef ISetTransaction<T>			Transaction;
+		STINGRAYKIT_DECLARE_PTR(Transaction);
 
 		virtual const Mutex& GetSync() const = 0;
 		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const = 0;
 
-		virtual TransactionTypePtr StartTransaction() = 0;
+		virtual TransactionPtr StartTransaction() = 0;
 	};
 
 	/** @} */
