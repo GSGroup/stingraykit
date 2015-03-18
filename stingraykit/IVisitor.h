@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/dynamic_caster.h>
+#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -54,10 +55,10 @@ namespace stingray
 	struct IVisitor : public Detail::IVisitorBase<BaseType>
 	{
 	private:
-		ValueType	_value;
+		optional<ValueType>		_value;
 
 	public:
-		ValueType GetValue() const				{ return _value; }
+		ValueType GetValue() const				{ return *_value; }
 		void SetValue(const ValueType& value)	{ _value = value; }
 	};
 
@@ -112,10 +113,10 @@ namespace stingray
 	class IVisitorByPtr : public Detail::IVisitorByPtrBase<BaseType>
 	{
 	private:
-		ValueType	_value;
+		optional<ValueType>		_value;
 
 	public:
-		ValueType GetValue() const				{ return _value; }
+		ValueType GetValue() const				{ return *_value; }
 		void SetValue(const ValueType& value)	{ _value = value; }
 	};
 
@@ -129,7 +130,6 @@ namespace stingray
 	struct VisitorByPtr : public virtual IVisitorByPtr<BaseType, ValueType>, public Detail::VisitorByPtrBase<BaseType, DerivedType>
 	{
 		virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ this->SetValue(Visit(visitable)); }
-
 		virtual ValueType Visit(const shared_ptr<DerivedType>& visitable) = 0;
 	};
 
@@ -137,7 +137,6 @@ namespace stingray
 	struct VisitorByPtr<BaseType, DerivedType, void> : public virtual IVisitorByPtr<BaseType, void>, public Detail::VisitorByPtrBase<BaseType, DerivedType>
 	{
 		virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ Visit(visitable); }
-
 		virtual void Visit(const shared_ptr<DerivedType>& visitable) = 0;
 	};
 
