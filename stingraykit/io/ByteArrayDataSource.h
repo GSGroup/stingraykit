@@ -29,7 +29,7 @@ namespace stingray
 		{
 			if (_processed == _data.size())
 			{
-				consumer.EndOfData();
+				consumer.EndOfData(token);
 				return;
 			}
 

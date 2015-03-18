@@ -41,13 +41,13 @@ namespace stingray
 
 		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
 		{
-			try { ForEachConsumer(bind(&CompositeDataConsumer::ProcessImpl, _1, data, ref(token))); }
+			try { ForEachConsumer(bind(&CompositeDataConsumer::ProcessImpl, _1, data, const_ref(token))); }
 			catch (const ProcessingCancelledException& ex) { }
 			return data.size();
 		}
 
-		virtual void EndOfData()
-		{ ForEachConsumer(bind(&CompositeDataConsumer::EndOfDataImpl, _1)); }
+		virtual void EndOfData(const ICancellationToken& token)
+		{ ForEachConsumer(bind(&CompositeDataConsumer::EndOfDataImpl, _1, const_ref(token))); }
 
 	private:
 		void ForEachConsumer(const function<void (const IDataConsumerPtr&)>& func)
@@ -78,8 +78,8 @@ namespace stingray
 			}
 		}
 
-		static void EndOfDataImpl(const IDataConsumerPtr& consumer)
-		{ consumer->EndOfData(); }
+		static void EndOfDataImpl(const IDataConsumerPtr& consumer, const ICancellationToken& token)
+		{ consumer->EndOfData(token); }
 	};
 	STINGRAYKIT_DECLARE_PTR(CompositeDataConsumer);
 

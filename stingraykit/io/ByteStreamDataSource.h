@@ -34,7 +34,7 @@ namespace stingray
 				size_t s = _stream->Read(data.GetByteData());
 				if (s == 0)
 				{
-					consumer.EndOfData();
+					consumer.EndOfData(token);
 					return;
 				}
 				_data = ConstByteArray(data, 0, s);

@@ -37,7 +37,7 @@ namespace stingray
 		{ _connection.Reset(); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&BandwidthReporter::DoPush, this, ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, ref(consumer)), token); }
+		{ _source->ReadToFunction(bind(&BandwidthReporter::DoPush, this, ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, ref(consumer), _1), token); }
 
 	private:
 		void Report()

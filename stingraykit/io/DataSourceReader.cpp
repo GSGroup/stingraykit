@@ -30,7 +30,7 @@ namespace stingray
 				return data.size();
 			}
 
-			virtual void EndOfData() { }
+			virtual void EndOfData(const ICancellationToken&) { }
 
 			ByteArray GetData() const { return _data; }
 		};

@@ -24,7 +24,7 @@ namespace stingray
 		}
 		catch (const PipeClosedException&)
 		{
-			consumer.EndOfData();
+			consumer.EndOfData(token);
 		}
 	}
 

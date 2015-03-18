@@ -104,7 +104,7 @@ namespace stingray
 			return write_size;
 		}
 
-		virtual void EndOfData()
+		virtual void EndOfData(const ICancellationToken&)
 		{
 			MutexLock l(_bufferMutex);
 			_eod = true;
@@ -157,7 +157,7 @@ namespace stingray
 				{
 					if (r.size() != 0)
 						Logger::Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
-					consumer.EndOfData();
+					consumer.EndOfData(token);
 					return;
 				}
 

@@ -23,7 +23,7 @@ namespace stingray
 		virtual ~IDataConsumer() {}
 
 		virtual size_t Process(ConstByteData data, const ICancellationToken& token) = 0;
-		virtual void EndOfData() = 0;
+		virtual void EndOfData(const ICancellationToken& token) = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(IDataConsumer);
 
@@ -40,7 +40,7 @@ namespace stingray
 		{}
 
 		virtual size_t Process(ConstByteData data, const ICancellationToken& token)	{ return _processFunc(data, token); }
-		virtual void EndOfData()													{ _eodFunc(); }
+		virtual void EndOfData(const ICancellationToken& token)						{ _eodFunc(token); }
 	};
 
 
@@ -62,7 +62,7 @@ namespace stingray
 		}
 
 	private:
-		static void DefaultEndOfData()
+		static void DefaultEndOfData(const ICancellationToken&)
 		{ STINGRAYKIT_THROW(NotImplementedException()); }
 	};
 	STINGRAYKIT_DECLARE_PTR(IDataSource);
@@ -89,7 +89,7 @@ namespace stingray
 		{}
 
 		virtual void Read(IDataConsumer& c, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(c), _1, _2), bind(&DataInterceptor::Eod, this, ref(c)), token); }
+		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(c), _1, _2), bind(&DataInterceptor::Eod, this, ref(c), _1), token); }
 
 	private:
 		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
@@ -99,8 +99,8 @@ namespace stingray
 			return size;
 		}
 
-		void Eod(IDataConsumer& consumer)
-		{ consumer.EndOfData(); _eod(); }
+		void Eod(IDataConsumer& consumer, const ICancellationToken& token)
+		{ consumer.EndOfData(token); _eod(); }
 	};
 	STINGRAYKIT_DECLARE_PTR(DataInterceptor);
 
@@ -123,8 +123,8 @@ namespace stingray
 
 			virtual size_t Process(ConstByteData data, const ICancellationToken& token) { return _consumer.Process(data, token); }
 
-			virtual void EndOfData()
-			{ _endOfData = true; _consumer.EndOfData(); }
+			virtual void EndOfData(const ICancellationToken& token)
+			{ _endOfData = true; _consumer.EndOfData(token); }
 		};
 
 	private:
