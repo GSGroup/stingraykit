@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_STINGRAYKIT_COLLECTION_TOENUMERATOR_H
-#define STINGRAY_STINGRAYKIT_STINGRAYKIT_COLLECTION_TOENUMERATOR_H
+#ifndef STINGRAYKIT_COLLECTION_TOENUMERATOR_H
+#define STINGRAYKIT_COLLECTION_TOENUMERATOR_H
 
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
