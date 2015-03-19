@@ -125,6 +125,7 @@ set(stingraykit_SRC
 
 	stingraykit/time/BrokenDownTime.cpp
 	stingraykit/time/ElapsedTime.cpp
+	stingraykit/time/NtpTimestamp.cpp
 	stingraykit/time/Time.cpp
 
 	stingraykit/timer/EventWatcher.cpp
