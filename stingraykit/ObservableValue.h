@@ -30,14 +30,14 @@ namespace stingray
 		signal<void(ParamPassingType)>		_onChanged;
 
 	public:
-		ObservableValue()
-			:	_val(),
-				_onChanged(bind(&ObservableValue::OnChangedPopulator, this, _1))
+		ObservableValue() :
+			_val(),
+			_onChanged(bind(&ObservableValue::OnChangedPopulator, this, _1))
 		{ }
 
-		ObservableValue(ParamPassingType val)
-			:	_val(val),
-				_onChanged(bind(&ObservableValue::OnChangedPopulator, this, _1))
+		ObservableValue(ParamPassingType val) :
+			_val(val),
+			_onChanged(bind(&ObservableValue::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableValue& operator= (ParamPassingType val)
@@ -66,7 +66,8 @@ namespace stingray
 			return _val;
 		}
 
-		signal_connector<void(ParamPassingType)> OnChanged() const { return _onChanged.connector(); }
+		signal_connector<void(ParamPassingType)> OnChanged() const
+		{ return _onChanged.connector(); }
 
 	private:
 		void OnChangedPopulator(const function<void(ParamPassingType)>& slot) const
