@@ -26,7 +26,7 @@ namespace stingray
 		u32 integerPart = time.GetMilliseconds() / 1000 +  DifferenceBetweenUnixNtpTime;
 		u32 fractionPart = time.GetMilliseconds() / 1000 * (1UL << 32);
 
-		u64 timestamp = (integerPart << 32) | fractionPart;
+		u64 timestamp = ((u64)integerPart << 32) | fractionPart;
 
 		return NtpTimestamp(timestamp);
 	}
