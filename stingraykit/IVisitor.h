@@ -41,6 +41,31 @@ namespace stingray
 			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable) = 0;
 		};
 
+		template < typename TypeList, typename EndNode >
+		struct InheritanceAccumulator
+		{
+			template < typename Current, typename Result >
+			struct AccumulateFunc
+			{
+				struct ValueT : public Current, public Result { };
+			};
+
+			typedef typename TypeListAccumulate<typename ToTypeList<TypeList>::ValueT, AccumulateFunc, EndNode>::ValueT ValueT;
+		};
+
+		template < template < typename, typename, typename > class VisitorType, typename BaseType, typename ValueType >
+		struct ToVisitorImpl
+		{
+			template < typename DerivedType >
+			struct type
+			{
+				typedef VisitorType<BaseType, DerivedType, ValueType> ValueT;
+			};
+		};
+
+		template < typename BaseType >
+		struct EndNode { };
+
 	}
 
 	struct VisitorException : public Exception
@@ -68,19 +93,30 @@ namespace stingray
 		void GetValue() const { }
 	};
 
-	template < typename BaseType, typename DerivedType, typename ValueType = void >
-	struct Visitor : public virtual IVisitor<BaseType, ValueType>, public Detail::VisitorBase<BaseType, DerivedType>
+	namespace Detail
 	{
-		virtual void InvokeVisit(DerivedType& visitable)	{ this->SetValue(Visit(visitable)); }
-		virtual ValueType Visit(DerivedType& visitable) = 0;
-	};
 
-	template < typename BaseType, typename DerivedType >
-	struct Visitor<BaseType, DerivedType, void> : public virtual IVisitor<BaseType, void>, public Detail::VisitorBase<BaseType, DerivedType>
-	{
-		virtual void InvokeVisit(DerivedType& visitable)	{ Visit(visitable); }
-		virtual void Visit(DerivedType& visitable) = 0;
-	};
+		template < typename BaseType, typename DerivedType, typename ValueType = void >
+		struct VisitorImpl : public virtual IVisitor<BaseType, ValueType>, public Detail::VisitorBase<BaseType, DerivedType>
+		{
+			virtual void InvokeVisit(DerivedType& visitable)	{ this->SetValue(Visit(visitable)); }
+			virtual ValueType Visit(DerivedType& visitable) = 0;
+		};
+
+		template < typename BaseType, typename DerivedType >
+		struct VisitorImpl<BaseType, DerivedType, void> : public virtual IVisitor<BaseType, void>, public Detail::VisitorBase<BaseType, DerivedType>
+		{
+			virtual void InvokeVisit(DerivedType& visitable)	{ Visit(visitable); }
+			virtual void Visit(DerivedType& visitable) = 0;
+		};
+
+	}
+
+	template < typename BaseType, typename DerivedTypes, typename ValueType = void >
+	struct Visitor : public Detail::InheritanceAccumulator<
+			typename TypeListTransform<typename ToTypeList<DerivedTypes>::ValueT, Detail::ToVisitorImpl<Detail::VisitorImpl, BaseType, ValueType>::template type>::ValueT,
+			Detail::EndNode<BaseType> >::ValueT
+	{ };
 
 	template < typename BaseType >
 	struct IVisitable
@@ -126,19 +162,30 @@ namespace stingray
 		void GetValue() const { }
 	};
 
-	template < typename BaseType, typename DerivedType, typename ValueType = void >
-	struct VisitorByPtr : public virtual IVisitorByPtr<BaseType, ValueType>, public Detail::VisitorByPtrBase<BaseType, DerivedType>
+	namespace Detail
 	{
-		virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ this->SetValue(Visit(visitable)); }
-		virtual ValueType Visit(const shared_ptr<DerivedType>& visitable) = 0;
-	};
 
-	template < typename BaseType, typename DerivedType >
-	struct VisitorByPtr<BaseType, DerivedType, void> : public virtual IVisitorByPtr<BaseType, void>, public Detail::VisitorByPtrBase<BaseType, DerivedType>
-	{
-		virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ Visit(visitable); }
-		virtual void Visit(const shared_ptr<DerivedType>& visitable) = 0;
-	};
+		template < typename BaseType, typename DerivedType, typename ValueType = void >
+		struct VisitorByPtrImpl : public virtual IVisitorByPtr<BaseType, ValueType>, public Detail::VisitorByPtrBase<BaseType, DerivedType>
+		{
+			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ this->SetValue(Visit(visitable)); }
+			virtual ValueType Visit(const shared_ptr<DerivedType>& visitable) = 0;
+		};
+
+		template < typename BaseType, typename DerivedType >
+		struct VisitorByPtrImpl<BaseType, DerivedType, void> : public virtual IVisitorByPtr<BaseType, void>, public Detail::VisitorByPtrBase<BaseType, DerivedType>
+		{
+			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ Visit(visitable); }
+			virtual void Visit(const shared_ptr<DerivedType>& visitable) = 0;
+		};
+
+	}
+
+	template < typename BaseType, typename DerivedTypes, typename ValueType = void >
+	struct VisitorByPtr : public Detail::InheritanceAccumulator<
+			typename TypeListTransform<typename ToTypeList<DerivedTypes>::ValueT, Detail::ToVisitorImpl<Detail::VisitorByPtrImpl, BaseType, ValueType>::template type>::ValueT,
+			Detail::EndNode<BaseType> >::ValueT
+	{ };
 
 	template < typename BaseType >
 	struct IVisitableByPtr
