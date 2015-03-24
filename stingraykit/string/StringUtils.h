@@ -13,6 +13,7 @@
 #include <stingraykit/Types.h>
 #include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/collection/IEnumerable.h>
+#include <stingraykit/collection/Range.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/optional.h>
@@ -153,95 +154,80 @@ namespace stingray
 			inline std::string str() const { return substr(); }
 		};
 
-
-		template<typename ContainerType>
-		inline void SplitRefsImpl(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result, int maxsplit)
-		{
-			size_t lastPosition = 0;
-			size_t delimiterPosition;
-			int counter = 0;
-			do
-			{
-				delimiterPosition = std::string::npos;
-				size_t delimiterSize = 0;
-
-				for (size_t i = 0; i < delimiters.size(); ++i)
-				{
-					size_t position;
-					if ((position = sourceString.find(delimiters[i], lastPosition)) != std::string::npos && (delimiterPosition == std::string::npos || position < delimiterPosition))
-					{
-						delimiterPosition = position;
-						delimiterSize = delimiters[i].length();
-					}
-				}
-
-				if (delimiterPosition != std::string::npos && (maxsplit < 0 || counter < maxsplit))
-				{
-					result.push_back(StringRef(sourceString, lastPosition, delimiterPosition));
-					lastPosition = delimiterPosition + delimiterSize;
-					++counter;
-				}
-			}
-			while (delimiterPosition != std::string::npos && (maxsplit < 0 || counter < maxsplit));
-
-			result.push_back(StringRef(sourceString, lastPosition));
-		}
-
-
-		template<typename ContainerType, typename UnaryOperator, typename ValueType>
-		struct SplitImpl
-		{
-			void operator()(const std::string& sourceString, const std::vector<std::string>& delimiters, ContainerType& result, UnaryOperator op, int maxsplit)
-			{
-				std::vector<StringRef> refs;
-				SplitRefsImpl(sourceString, delimiters, refs, maxsplit);
-
-				for (size_t i = 0; i < refs.size(); ++i)
-					Detail::CollectionInserter<ContainerType>::Insert(result, op(refs[i].str()));
-			}
-		};
-
 	}
 
 
 	typedef Detail::StringRef	StringRef;
 
+	namespace Detail
+	{
+		class SplitStringValueProxy
+		{
+			StringRef						_ref;
 
-#define DETAIL_SPLIT_PARAM_USAGE(Index_, UserArg_) % STINGRAYKIT_CAT(p, Index_)
+		public:
+			SplitStringValueProxy(const StringRef &ref) : _ref(ref) { }
 
-#define DETAIL_STINGRAYKIT_DECLARE_SPLIT_FUNCTION(ParamsCount_, UserData_) \
-	STINGRAYKIT_INSERT_IF(ParamsCount_, \
-		template <typename ContainerType> \
-		inline void Split(const std::string& str, STINGRAYKIT_REPEAT(ParamsCount_, STINGRAYKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1, Detail::SplitImpl<ContainerType, typename ContainerType::value_type(*)(const std::string&), typename ContainerType::value_type> splitImpl = Detail::SplitImpl<ContainerType, typename ContainerType::value_type(*)(const std::string&), typename ContainerType::value_type>()) \
-		{ \
-			splitImpl(str, VectorBuilder<std::string>() STINGRAYKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, STINGRAYKIT_EMPTY()), result, lexical_cast<typename ContainerType::value_type, std::string>, maxsplit); \
-		} \
-	) \
-	STINGRAYKIT_INSERT_IF(ParamsCount_, \
-		template <typename ContainerType STINGRAYKIT_COMMA typename UnaryOperator> \
-		inline void Split(const std::string& str, STINGRAYKIT_REPEAT(ParamsCount_, STINGRAYKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, UnaryOperator op, int maxsplit = -1, Detail::SplitImpl<ContainerType, UnaryOperator, typename ContainerType::value_type> splitImpl = Detail::SplitImpl<ContainerType, UnaryOperator, typename ContainerType::value_type>()) \
-		{ \
-			splitImpl(str, VectorBuilder<std::string>() STINGRAYKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, STINGRAYKIT_EMPTY()), result, op, maxsplit); \
-		} \
-	)
+			operator std::string () const
+			{ return _ref.str(); }
 
-	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_SPLIT_FUNCTION, STINGRAYKIT_EMPTY())
+			operator const StringRef & () const
+			{ return _ref; }
 
-#define DETAIL_STINGRAYKIT_DECLARE_SPLITREFS_FUNCTION(ParamsCount_, UserData_) \
-	STINGRAYKIT_INSERT_IF(ParamsCount_, \
-		template <typename ContainerType> \
-		inline void SplitRefs(const std::string& str, STINGRAYKIT_REPEAT(ParamsCount_, STINGRAYKIT_FUNCTION_TYPED_PARAM_DECL, std::string), ContainerType& result, int maxsplit = -1) \
-		{ \
-			Detail::SplitRefsImpl(str, VectorBuilder<std::string>() STINGRAYKIT_REPEAT(ParamsCount_, DETAIL_SPLIT_PARAM_USAGE, STINGRAYKIT_EMPTY()), result, maxsplit); \
-		} \
-	)
+/* fixme: make me work
+			template<typename R>
+			operator typename EnableIf
+			<
+				IsIntType<typename Deconst<typename Dereference<R>::ValueT>::ValueT>::Value,
+				typename Deconst<typename Dereference<R>::ValueT>::ValueT
+			>::ValueT () const
+			{
+				typedef typename Deconst<typename Dereference<R>::ValueT>::ValueT ValueType;
+				return FromString<ValueType>(_ref.str());
+			}
+*/
+		};
 
-	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_SPLITREFS_FUNCTION, STINGRAYKIT_EMPTY())
+		class SplitStringIterator : public iterator_base<SplitStringIterator, std::string, std::forward_iterator_tag>
+		{
+		public:
+			typedef std::string				ValueType;
+			static const size_t				NoLimit = 0;
 
-#undef DETAIL_SPLIT_PARAM_USAGE
-#undef DETAIL_STINGRAYKIT_DECLARE_SPLIT_FUNCTION
-#undef DETAIL_STINGRAYKIT_DECLARE_SPLITREFS_FUNCTION
+		private:
+			const ValueType &				_string;
+			const ValueType &				_delimiter;
+			size_t							_startPos;
+			size_t							_nextPos;
+			size_t							_limit;
 
+		public:
+			SplitStringIterator(const ValueType &string, const ValueType & delimiter, size_t pos, size_t limit): _string(string), _delimiter(delimiter), _startPos(pos), _limit(limit)
+			{
+				_nextPos = _startPos != std::string::npos? _string.find(_delimiter, _startPos): std::string::npos;
+			}
+
+			void increment()
+			{
+				STINGRAYKIT_CHECK(_startPos != std::string::npos, "Invalid iterator incremented");
+				_startPos = _nextPos;
+				if (_startPos != std::string::npos)
+				{
+					_startPos += _delimiter.size();
+					_nextPos = (_limit == NoLimit || --_limit != 0)? _string.find(_delimiter, _startPos): std::string::npos;
+				}
+			}
+
+			bool equal(const SplitStringIterator &other) const
+			{ return _startPos == other._startPos; }
+
+			SplitStringValueProxy operator *() const
+			{ return SplitStringValueProxy(StringRef(_string, _startPos, _nextPos)); }
+		};
+	}
+
+	inline Range<Detail::SplitStringIterator> Split(const std::string &string, const std::string &delimiter, size_t limit = Detail::SplitStringIterator::NoLimit)
+	{ return MakeRange(Detail::SplitStringIterator(string, delimiter, 0, limit), Detail::SplitStringIterator(string, delimiter, std::string::npos, limit)); }
 
 	template < typename InputIterator, typename UnaryOperator >
 	std::string Join(const std::string& separator, InputIterator first, InputIterator last, UnaryOperator op)

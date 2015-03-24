@@ -52,7 +52,7 @@ namespace stingray
 	static std::string StringFormat(string_ostream & result, const std::string & format, const Tuple<TupleParams> & params)
 	{
 		std::vector<StringRef> substrings;
-		SplitRefs(format, "%", substrings);
+		Split(format, "%").CopyTo(std::back_inserter(substrings));
 
 		STINGRAYKIT_CHECK((substrings.size() % 2) == 1, "Format mismatch: no corresponding %");
 		for (size_t i = 0; i != substrings.size(); ++i)
