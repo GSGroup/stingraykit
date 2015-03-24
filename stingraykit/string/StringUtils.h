@@ -18,8 +18,6 @@
 #include <stingraykit/optional.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/string/lexical_cast.h>
-#include <stingraykit/string/string_stream.h>
-#include <stingraykit/string/ToString.h>
 
 #include <algorithm>
 #include <ctype.h>
