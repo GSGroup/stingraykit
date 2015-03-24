@@ -101,6 +101,8 @@ namespace stingray
 
 	////////////////////////////////////////
 
+	typedef IThread::ThreadId ThreadId;
+
 	class Thread
 	{
 		STINGRAYKIT_NONCOPYABLE(Thread);
@@ -109,8 +111,6 @@ namespace stingray
 		typedef std::vector<ThreadStats>					ThreadStatsVec;
 
 	public:
-		typedef IThread::ThreadId ThreadId;
-
 		class PrioritySetter
 		{
 			STINGRAYKIT_NONCOPYABLE(PrioritySetter);

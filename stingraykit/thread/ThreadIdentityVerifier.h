@@ -16,7 +16,7 @@ namespace stingray
 	class ThreadIdentityVerifier
 	{
 	private:
-		Thread::ThreadId	_threadId;
+		ThreadId	_threadId;
 
 	public:
 		ThreadIdentityVerifier()
