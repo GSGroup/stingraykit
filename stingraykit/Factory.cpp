@@ -27,8 +27,11 @@ namespace stingray
 		);
 	}
 
-	std::string Factory::GetClassName(const std::string & type)
-	{ return RemovePrefix(type, "stingray::"); }
+	std::string Factory::RemoveTypePrefix(const std::string & type, const std::string &prefix)
+	{ return RemovePrefix(type, prefix); }
+
+	std::string Factory::RemoveTypeSuffix(const std::string & type, const std::string &suffix)
+	{ return RemoveSuffix(type, suffix); }
 
 	std::string FactoryContext::GetClassName(const std::type_info& info) const
 	{

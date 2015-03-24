@@ -142,7 +142,8 @@ namespace stingray
 		FactoryContextPtr InheritRootContext() const
 		{ return Detail::Factory::Instance().InheritRootContext(); }
 
-		static std::string GetClassName(const std::string & type);
+		static std::string RemoveTypeSuffix(const std::string & type, const std::string &suffix);
+		static std::string RemoveTypePrefix(const std::string & type, const std::string &prefix);
 	};
 
 }
@@ -150,7 +151,7 @@ namespace stingray
 
 #define STINGRAYKIT_REGISTER_CLASS(Class_) \
 	friend class stingray::FactoryContext::FactoryObjectCreator<Class_>; \
-	virtual std::string GetClassName() const { return stingray::Factory::GetClassName(TypeInfo(typeid(Class_)).GetName()); }
+	virtual std::string GetClassName() const { return stingray::Factory::RemoveTypePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
 
 
 #define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_) stingray::Detail::Factory::Instance().Register<Class_>(ClassName_)
