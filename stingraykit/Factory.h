@@ -11,7 +11,6 @@
 
 #include <stingraykit/Singleton.h>
 #include <stingraykit/dynamic_caster.h>
-#include <stingraykit/string/StringUtils.h>
 
 
 namespace stingray
@@ -142,6 +141,8 @@ namespace stingray
 
 		FactoryContextPtr InheritRootContext() const
 		{ return Detail::Factory::Instance().InheritRootContext(); }
+
+		static std::string GetClassName(const std::string & type);
 	};
 
 }
@@ -149,7 +150,7 @@ namespace stingray
 
 #define STINGRAYKIT_REGISTER_CLASS(Class_) \
 	friend class stingray::FactoryContext::FactoryObjectCreator<Class_>; \
-	virtual std::string GetClassName() const { return RemovePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
+	virtual std::string GetClassName() const { return stingray::Factory::GetClassName(TypeInfo(typeid(Class_)).GetName()); }
 
 
 #define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_) stingray::Detail::Factory::Instance().Register<Class_>(ClassName_)

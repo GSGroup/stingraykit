@@ -6,6 +6,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/Factory.h>
+#include <stingraykit/string/StringUtils.h>
 
 
 namespace stingray
@@ -26,6 +27,8 @@ namespace stingray
 		);
 	}
 
+	std::string Factory::GetClassName(const std::string & type)
+	{ return RemovePrefix(type, "stingray::"); }
 
 	std::string FactoryContext::GetClassName(const std::type_info& info) const
 	{
