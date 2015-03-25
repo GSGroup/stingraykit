@@ -204,6 +204,9 @@ namespace stingray
 		public:
 			SplitStringValueProxy(const StringRef &ref) : _ref(ref) { }
 
+			std::string ToString() const
+			{ return _ref.str(); }
+
 			operator std::string () const
 			{ return _ref.str(); }
 
