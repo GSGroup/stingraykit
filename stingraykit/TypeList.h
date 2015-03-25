@@ -195,6 +195,14 @@ namespace stingray
 	struct TypeListAppend<TypeListEndNode, Val>
 	{ typedef TypeListNode<Val, TypeListEndNode>	ValueT; };
 
+	template < typename TypeList, typename Val >
+	struct TypeListPrepend
+	{ typedef TypeListNode<Val, TypeList>	ValueT; };
+
+	template < typename Val >
+	struct TypeListPrepend<TypeListEndNode, Val>
+	{ typedef TypeListNode<Val, TypeListEndNode>	ValueT; };
+
 	template < typename TypeList, size_t N >
 	struct TryGetTypeListItem
 	{ typedef typename TryGetTypeListItem<typename TypeList::Next, N - 1>::ValueT	ValueT; };
