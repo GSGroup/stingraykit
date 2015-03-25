@@ -42,6 +42,10 @@ namespace stingray
 	Range<ValueType> ToRange(const std::pair<ValueType, ValueType> &pair)
 	{ return MakeRange(pair.first, pair.second); }
 
+	template<typename CollectionType>
+	Range<typename CollectionType::const_iterator> ToRange(const CollectionType &collection)
+	{ return MakeRange(collection.begin(), collection.end()); }
+
 }
 
 #endif
