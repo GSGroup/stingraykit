@@ -154,13 +154,49 @@ namespace stingray
 			inline std::string str() const { return substr(); }
 		};
 
+		struct DelimiterMatch
+		{
+			size_t Position;
+			size_t Size;
+
+			DelimiterMatch() : Position(std::string::npos), Size() { }
+			DelimiterMatch(size_t pos, size_t size): Position(pos), Size(size) { }
+		};
 	}
 
 
 	typedef Detail::StringRef	StringRef;
 
+	class IsAnyOf
+	{
+		std::string _list;
+
+	public:
+		IsAnyOf(const std::string & list): _list(list)
+		{ }
+
+		template<typename StringLikeObject>
+		Detail::DelimiterMatch operator()(const StringLikeObject & string, size_t startPos)
+		{ return Detail::DelimiterMatch(string.find_first_of(_list, startPos), 1); }
+	};
+
 	namespace Detail
 	{
+		class StaticSplitDelimiter
+		{
+			std::string		_delimiter;
+
+		public:
+			StaticSplitDelimiter(const std::string &delimiter): _delimiter(delimiter) { }
+
+			template<typename StringLikeObject>
+			Detail::DelimiterMatch operator()(const StringLikeObject &string, size_t startPos) const
+			{ return Detail::DelimiterMatch(string.find(_delimiter, startPos), _delimiter.size()); }
+
+			size_t size() const
+			{ return _delimiter.size(); }
+		};
+
 		class SplitStringValueProxy
 		{
 			StringRef						_ref;
@@ -188,33 +224,36 @@ namespace stingray
 */
 		};
 
-		class SplitStringIterator : public iterator_base<SplitStringIterator, std::string, std::forward_iterator_tag>
+		template<typename StringSearchType>
+		class SplitStringIterator : public iterator_base<SplitStringIterator<StringSearchType>, std::string, std::forward_iterator_tag>
 		{
 		public:
 			typedef std::string				ValueType;
 			static const size_t				NoLimit = 0;
 
 		private:
+			StringSearchType				_search;
 			const ValueType &				_string;
-			const ValueType &				_delimiter;
 			size_t							_startPos;
-			size_t							_nextPos;
+			DelimiterMatch					_next;
 			size_t							_limit;
 
 		public:
-			SplitStringIterator(const ValueType &string, const ValueType & delimiter, size_t pos, size_t limit): _string(string), _delimiter(delimiter), _startPos(pos), _limit(limit)
+			SplitStringIterator(const StringSearchType &search, const ValueType &string, size_t pos, size_t limit):
+				_search(search), _string(string), _startPos(pos), _limit(limit)
 			{
-				_nextPos = _startPos != std::string::npos? _string.find(_delimiter, _startPos): std::string::npos;
+				if (_startPos != std::string::npos)
+					_next = _search(_string, _startPos);
 			}
 
 			void increment()
 			{
 				STINGRAYKIT_CHECK(_startPos != std::string::npos, "Invalid iterator incremented");
-				_startPos = _nextPos;
+				_startPos = _next.Position;
 				if (_startPos != std::string::npos)
 				{
-					_startPos += _delimiter.size();
-					_nextPos = (_limit == NoLimit || --_limit != 0)? _string.find(_delimiter, _startPos): std::string::npos;
+					_startPos += _next.Size;
+					_next = (_limit == NoLimit || --_limit != 0)? _search(_string, _startPos): Detail::DelimiterMatch();
 				}
 			}
 
@@ -222,12 +261,23 @@ namespace stingray
 			{ return _startPos == other._startPos; }
 
 			SplitStringValueProxy operator *() const
-			{ return SplitStringValueProxy(StringRef(_string, _startPos, _nextPos)); }
+			{ return SplitStringValueProxy(StringRef(_string, _startPos, _next.Position)); }
 		};
+
+		typedef SplitStringIterator<StaticSplitDelimiter>	StaticDelimiterSplitStringIterator;
+		typedef SplitStringIterator<IsAnyOf>				IsAnyOfSplitStringIterator;
 	}
 
-	inline Range<Detail::SplitStringIterator> Split(const std::string &string, const std::string &delimiter, size_t limit = Detail::SplitStringIterator::NoLimit)
-	{ return MakeRange(Detail::SplitStringIterator(string, delimiter, 0, limit), Detail::SplitStringIterator(string, delimiter, std::string::npos, limit)); }
+	inline Range<Detail::StaticDelimiterSplitStringIterator> Split(const std::string &string, const std::string &delimiter, size_t limit = Detail::StaticDelimiterSplitStringIterator::NoLimit)
+	{
+		Detail::StaticSplitDelimiter d(delimiter);
+		return MakeRange(Detail::StaticDelimiterSplitStringIterator(d, string, 0, limit), Detail::StaticDelimiterSplitStringIterator(d, string, std::string::npos, limit));
+	}
+
+	inline Range<Detail::IsAnyOfSplitStringIterator> Split(const std::string &string, const IsAnyOf &search, size_t limit = Detail::IsAnyOfSplitStringIterator::NoLimit)
+	{
+		return MakeRange(Detail::IsAnyOfSplitStringIterator(search, string, 0, limit), Detail::IsAnyOfSplitStringIterator(search, string, std::string::npos, limit));
+	}
 
 	template < typename InputIterator, typename UnaryOperator >
 	std::string Join(const std::string& separator, InputIterator first, InputIterator last, UnaryOperator op)
