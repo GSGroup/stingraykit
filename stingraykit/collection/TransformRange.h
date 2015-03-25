@@ -36,7 +36,7 @@ namespace stingray
 	}
 
 	template<typename FunctionType, typename InputIteratorType>
-	Range<Detail::TransformRangeIterator<FunctionType, InputIteratorType> > TransformRange(const FunctionType & transform, const Range<InputIteratorType> & input)
+	Range<Detail::TransformRangeIterator<FunctionType, InputIteratorType> > TransformRange(const Range<InputIteratorType> & input, const FunctionType & transform)
 	{
 		typedef Detail::TransformRangeIterator<FunctionType, InputIteratorType>		OutputIteratorType;
 		return Range<OutputIteratorType>(OutputIteratorType(transform, input.Begin), OutputIteratorType(transform, input.End));
