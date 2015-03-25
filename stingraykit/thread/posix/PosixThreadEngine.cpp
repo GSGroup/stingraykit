@@ -136,17 +136,48 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ThreadDataStorage);
 
 
+	class ThreadsRegistry
+	{
+	public:
+		typedef std::map<u64, ThreadDataStorage*>	ThreadsMap;
+
+	private:
+		PosixMutex	_mutex;
+		ThreadsMap	_threadsMap;
+
+	public:
+		const PosixMutex& GetSync() const	{ return _mutex; }
+		ThreadsMap& GetMap()				{ return _threadsMap; }
+	};
+
+
+	STINGRAYKIT_DECLARE_PTR(TLSData);
+	STINGRAYKIT_DECLARE_THREAD_LOCAL(TLSDataPtr, TLSDataHolder);
+	STINGRAYKIT_DEFINE_THREAD_LOCAL(TLSDataPtr, TLSDataHolder);
+
+
+	TimeDuration TicksToTimeDuration(u64 ticks)
+	{ return TimeDuration::FromMilliseconds(ticks * 1000 / sysconf(_SC_CLK_TCK)); }
+
+
+	ThreadCpuStats CpuStatsFromTicks(u64 uTime, u64 sTime)
+	{ return ThreadCpuStats(TicksToTimeDuration(uTime), TicksToTimeDuration(sTime)); }
+
+
 	class ThreadDataStorage
 	{
-		const u64					_kernelId;
-		const pthread_t				_pthreadId;
-		const ThreadDataStoragePtr	_parent;
+		const u64								_kernelId;
+		const pthread_t							_pthreadId;
+		const ThreadDataStoragePtr				_parent;
 
-		const PosixThreadInfoPtr	_threadInfo;
+		const PosixThreadInfoPtr				_threadInfo;
 
-		Mutex						_mutex;
-		std::string					_name;
-		ThreadCpuStats				_childrenStats;
+		Mutex									_mutex;
+		std::string								_name;
+		ThreadCpuStats							_childrenStats;
+
+		shared_ptr<ThreadsRegistry>				_registry;
+		ThreadsRegistry::ThreadsMap::iterator	_iterator;
 
 	public:
 		ThreadDataStorage(u64 kernelId, pthread_t pthreadId, const std::string& name, const ThreadDataStoragePtr& parent, const FutureExecutionTester& executionTester) :
@@ -154,8 +185,24 @@ namespace stingray
 			_pthreadId(pthreadId),
 			_parent(parent),
 			_threadInfo(make_shared<PosixThreadInfo>(pthreadId, name, executionTester)),
-			_name(name)
-		{ }
+			_name(name),
+			_registry(SafeSingleton<ThreadsRegistry>::Instance())
+		{
+			if (!_registry)
+				return;
+
+			GenericMutexLock<PosixMutex> l(_registry->GetSync());
+			_iterator = _registry->GetMap().insert(std::make_pair(GetKernelId(), this)).first;
+		}
+
+		~ThreadDataStorage()
+		{
+			if (_registry)
+				return;
+
+			GenericMutexLock<PosixMutex> l(_registry->GetSync());
+			_registry->GetMap().erase(_iterator);
+		}
 
 		u64 GetKernelId() const										{ return _kernelId; }
 		pthread_t GetPthreadId() const								{ return _pthreadId; }
@@ -191,48 +238,6 @@ namespace stingray
 		}
 	};
 	STINGRAYKIT_DEFINE_THREAD_LOCAL(std::string, ThreadNameAccessor::ThreadLocalHolder);
-
-
-	namespace
-	{
-		typedef std::map<u64, ThreadDataStoragePtr>	ThreadsMap;
-
-		shared_ptr<PosixMutex>	g_threadsCreatedMutex(new PosixMutex);
-		ThreadsMap				g_threadsCreated;
-
-
-		struct ThreadRegistration
-		{
-		private:
-			shared_ptr<PosixMutex>	_mutex;
-			ThreadsMap::iterator	_iterator;
-
-		public:
-			ThreadRegistration(const ThreadDataStoragePtr& data) : _mutex(g_threadsCreatedMutex)
-			{
-				GenericMutexLock<PosixMutex> l(*_mutex);
-				_iterator = g_threadsCreated.insert(std::make_pair(data->GetKernelId(), data)).first;
-			}
-
-			~ThreadRegistration()
-			{
-				GenericMutexLock<PosixMutex> l(*_mutex);
-				g_threadsCreated.erase(_iterator);
-			}
-		};
-
-
-		STINGRAYKIT_DECLARE_PTR(TLSData);
-		STINGRAYKIT_DECLARE_THREAD_LOCAL(TLSDataPtr, TLSDataHolder);
-		STINGRAYKIT_DEFINE_THREAD_LOCAL(TLSDataPtr, TLSDataHolder);
-
-
-		TimeDuration TicksToTimeDuration(u64 ticks)
-		{ return TimeDuration::FromMilliseconds(ticks * 1000 / sysconf(_SC_CLK_TCK)); }
-
-		ThreadCpuStats CpuStatsFromTicks(u64 uTime, u64 sTime)
-		{ return ThreadCpuStats(TicksToTimeDuration(uTime), TicksToTimeDuration(sTime)); }
-	}
 
 
 	class PosixMutexAttr : public Singleton<PosixMutexAttr>
@@ -302,10 +307,12 @@ namespace stingray
 				{
 					int owner = _rawMutex.__data.__owner; // Cannot use _rawMutex.__data.__lock without libc internal headers, so owner may contain bad values
 					std::string owner_name;
+					shared_ptr<ThreadsRegistry> registry = SafeSingleton<ThreadsRegistry>::Instance();
+					if (registry)
 					{
-						GenericMutexLock<PosixMutex> l(*g_threadsCreatedMutex);
-						ThreadsMap::iterator it = g_threadsCreated.find(owner);
-						if (it != g_threadsCreated.end())
+						GenericMutexLock<PosixMutex> l(registry->GetSync());
+						ThreadsRegistry::ThreadsMap::iterator it = registry->GetMap().find(owner);
+						if (it != registry->GetMap().end())
 						{
 							owner_name = it->second->GetThreadName();
 							IThreadInfoPtr threadInfo = it->second->GetThreadInfo();
@@ -552,8 +559,6 @@ namespace stingray
 			ThreadNameAccessor::Set(_initialName);
 			ThreadFuncStarted();
 
-			ThreadRegistration registrator(_data);
-
 			TLSDataPtr tlsData = make_shared<TLSData>();
 			TLSDataHolder::Get() = tlsData;
 
@@ -603,14 +608,7 @@ namespace stingray
 
 	IThreadPtr PosixThreadEngine::BeginThread(const FuncType& func, const std::string& name)
 	{
-		ThreadDataStoragePtr parent;
-		{
-			GenericMutexLock<PosixMutex> l(*g_threadsCreatedMutex);
-			ThreadsMap::iterator it = g_threadsCreated.find(gettid());
-			if (it != g_threadsCreated.end())
-				parent = it->second;
-		}
-
+		ThreadDataStoragePtr parent = ThreadDataHolder::Get();
 		return make_shared<PosixThread>(func, name, parent);
 	}
 
@@ -689,9 +687,9 @@ namespace stingray
 
 	PosixThreadEngine::ThreadStatsVec PosixThreadEngine::GetThreadsStats()
 	{
-		GenericMutexLock<PosixMutex> l(*g_threadsCreatedMutex);
-
 		ThreadStatsVec result;
+
+		shared_ptr<ThreadsRegistry> registry = SafeSingleton<ThreadsRegistry>::Instance();
 
 		pid_t gid = getpgid((pid_t)0);
 		STINGRAYKIT_CHECK(gid != -1, SystemException("getpgid"));
@@ -717,12 +715,16 @@ namespace stingray
 				std::string threadName(stat.tcomm);
 				ThreadCpuStats childrenStats;
 				u64 parentId = 0; //stat.ppid;
-				if (g_threadsCreated.find(tid) != g_threadsCreated.end())
+				if (registry)
 				{
-					threadName = g_threadsCreated[tid]->GetThreadName();
-					childrenStats = g_threadsCreated[tid]->GetChildrenStats();
-					if (g_threadsCreated[tid]->GetParentThread())
-						parentId = g_threadsCreated[tid]->GetParentThread()->GetKernelId();
+					GenericMutexLock<PosixMutex> l(registry->GetSync());
+					if (registry->GetMap().find(tid) != registry->GetMap().end())
+					{
+						threadName = registry->GetMap()[tid]->GetThreadName();
+						childrenStats = registry->GetMap()[tid]->GetChildrenStats();
+						if (registry->GetMap()[tid]->GetParentThread())
+							parentId = registry->GetMap()[tid]->GetParentThread()->GetKernelId();
+					}
 				}
 
 				result.push_back(ThreadStats(tid, parentId, threadName, CpuStatsFromTicks(stat.utime, stat.stimev), childrenStats));
