@@ -16,31 +16,22 @@ namespace stingray
 	namespace Detail
 	{
 
-		template< typename To, typename From >
+		template< typename To, typename From, bool From_ToStringConvertible = IsStringRepresentable<From>::Value >
 		struct LexicalCast;
 
 
-		template< typename To >
-		struct LexicalCast<To, std::string>
+		template< typename To, typename From>
+		struct LexicalCast<To, From, true>
 		{
-			static To Do(const std::string& from)
-			{ return FromString<To>(from); }
+			static To Do(const From& from)
+			{ return FromString<To>(ToString(from)); }
 		};
 
-
-		template< typename From >
-		struct LexicalCast<std::string, From>
+		template< typename From>
+		struct LexicalCast<std::string, From, true>
 		{
 			static std::string Do(const From& from)
 			{ return ToString(from); }
-		};
-
-
-		template < >
-		struct LexicalCast<std::string, std::string>
-		{
-			static std::string Do(const std::string& from)
-			{ return from; }
 		};
 
 	}
