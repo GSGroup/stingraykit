@@ -38,9 +38,12 @@ namespace stingray
 
 
 	template < typename To, typename From >
-	To lexical_cast(const From& from)
+	typename EnableIf<!SameType<To, From>::Value, To>::ValueT lexical_cast(const From & from)
 	{ return Detail::LexicalCast<To, From>::Do(from); }
 
+	template < typename To, typename From>
+	typename EnableIf<SameType<To, From>::Value, From>::ValueT lexical_cast(const From & from)
+	{ return from; }
 
 	namespace Detail
 	{
