@@ -31,7 +31,7 @@ namespace stingray
 					STINGRAYKIT_CHECK(Index < inputSize, "not enough data to fill output range");
 					Type ptr = tuple.template Get<Index>();
 					typedef typename Depointer<Type>::ValueT ValueType;
-					*ptr = lexical_cast<ValueType>(*iter++);
+					*ptr = lexical_cast<ValueType>(static_cast<typename IteratorType::value_type>(*iter++));
 				}
 			};
 
@@ -42,7 +42,7 @@ namespace stingray
 			template<typename IteratorType>
 			IteratorType FillFrom(const Range<IteratorType> &inputRange)
 			{
-				size_t inputSize = inputRange.Distance();
+				size_t inputSize = std::distance(inputRange.Begin, inputRange.End);
 				IteratorType i(inputRange.Begin);
 				stingray::For<TupleType::Size, Iterate>::Do(_tuple, &i, inputSize);
 				return i;

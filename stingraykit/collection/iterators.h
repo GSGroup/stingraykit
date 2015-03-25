@@ -10,6 +10,7 @@
 
 
 #include <stingraykit/collection/iterator_base.h>
+#include <stingraykit/collection/Range.h>
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/shared_ptr.h>
 
@@ -192,31 +193,6 @@ namespace stingray
 	weak_locker_iterator<WrappedIterator> weak_locker_end(const WrappedIterator&)
 	{ return weak_locker_iterator<WrappedIterator>(); }
 
-
-	template<typename IteratorT>
-	struct IteratorsRange
-	{
-		typedef IteratorT iterator;
-		typedef IteratorT const_iterator;
-
-	private:
-		IteratorT _begin;
-		IteratorT _end;
-
-	public:
-		IteratorsRange(const iterator& b, const iterator& e) : _begin(b), _end(e)
-		{}
-
-		iterator begin() const	{ return _begin; }
-		iterator end() const	{ return _end; }
-	};
-
-
-	template<typename IteratorT>
-	IteratorsRange<IteratorT> MakeIteratorsRange(const IteratorT& b, const IteratorT& e)
-	{ return IteratorsRange<IteratorT>(b, e); }
-
-
 	namespace Detail
 	{
 		template<typename WrappedIterator, typename TransformFunc, typename TransformBackFunc, typename ResultType>
@@ -267,6 +243,9 @@ namespace stingray
 		void increment()									{ ++_wrapped; }
 		void decrement()									{ --_wrapped; }
 
+		size_t distance_to(const TransformerIterator &other) const
+		{ return std::distance(_wrapped, other._wrapped); }
+
 		WrappedIterator base() const						{ return _wrapped; }
 	};
 
@@ -274,15 +253,6 @@ namespace stingray
 	template<typename T, typename TransformFunc>
 	TransformerIterator<T, TransformFunc, EmptyType> TransformIterator(const T& iter, const TransformFunc& transformFunc)
 	{ return TransformerIterator<T, TransformFunc, EmptyType>(iter, transformFunc, EmptyType()); }
-
-
-	template<typename T, typename TransformFunc>
-	IteratorsRange<TransformerIterator<typename T::const_iterator, TransformFunc, EmptyType> > TransformRange(const T& range, const TransformFunc& transformFunc)
-	{
-		return IteratorsRange<TransformerIterator<typename T::const_iterator, TransformFunc, EmptyType> >(
-			TransformIterator(range.begin(), transformFunc),
-			TransformIterator(range.end(), transformFunc));
-	}
 
 
 	namespace Detail
@@ -304,11 +274,11 @@ namespace stingray
 
 
 	template<typename DstType, typename RangeType>
-	IteratorsRange<TransformerIterator<typename RangeType::const_iterator, Detail::IteratorCaster<DstType, typename RangeType::iterator::value_type>, Detail::IteratorCaster<typename RangeType::iterator::value_type, DstType> > > CastRange(const RangeType& range)
+	Range<TransformerIterator<typename RangeType::const_iterator, Detail::IteratorCaster<DstType, typename RangeType::iterator::value_type>, Detail::IteratorCaster<typename RangeType::iterator::value_type, DstType> > > CastRange(const RangeType& range)
 	{
 		typedef typename RangeType::iterator::value_type SrcType;
 
-		return IteratorsRange<TransformerIterator<typename RangeType::const_iterator, Detail::IteratorCaster<DstType, SrcType>, Detail::IteratorCaster<SrcType, DstType> > >(
+		return Range<TransformerIterator<typename RangeType::const_iterator, Detail::IteratorCaster<DstType, SrcType>, Detail::IteratorCaster<SrcType, DstType> > >(
 			CastIterator<DstType, SrcType>(range.begin()),
 			CastIterator<DstType, SrcType>(range.end()));
 	}

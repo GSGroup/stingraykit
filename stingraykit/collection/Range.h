@@ -30,8 +30,10 @@ namespace stingray
 			return out;
 		}
 
-		size_t Distance() const
-		{ return std::distance(Begin, End); }
+		typedef ValueType		const_iterator;
+
+		ValueType begin() const { return Begin; }
+		ValueType end() const	{ return End; }
 	};
 
 	template<typename RangeValueType>
