@@ -27,19 +27,34 @@ namespace stingray
 	{
 	private:
 		Detail::NamedLoggerAccessor	_logger;
-		ElapsedTime					_et;
-		std::string					_message;
+		std::string					_messageHolder;
+		const char*					_message;
+		optional<ToolkitWhere>		_where;
 		u64							_thresholdMs;
 		u64							_criticalMs;
 
+		ElapsedTime					_et;
+
 	public:
-		explicit Profiler(const std::string& message, u64 thresholdMs = 0, u64 criticalMs = std::numeric_limits<size_t>::max())
-			: _message(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
+		explicit Profiler(const std::string& message, u64 thresholdMs = 0, u64 criticalMs = std::numeric_limits<size_t>::max()) :
+			_messageHolder(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
+		{ _message = _messageHolder.c_str(); }
+
+		explicit Profiler(const Detail::NamedLoggerAccessor& logger, const char* message, u64 thresholdMs = 0, u64 criticalMs = std::numeric_limits<size_t>::max()) :
+			_logger(logger), _message(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
 		{ }
 
-		explicit Profiler(const Detail::NamedLoggerAccessor& logger, const std::string& message, u64 thresholdMs = 0, u64 criticalMs = std::numeric_limits<size_t>::max())
-			: _logger(logger), _message(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
+		explicit Profiler(const Detail::NamedLoggerAccessor& logger, const char* message, ToolkitWhere where, u64 thresholdMs = 0, u64 criticalMs = std::numeric_limits<size_t>::max()) :
+			_logger(logger), _message(message), _where(where), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
 		{ }
+
+		explicit Profiler(const Detail::NamedLoggerAccessor& logger, const std::string& message, u64 thresholdMs = 0, u64 criticalMs = std::numeric_limits<size_t>::max()) :
+			_logger(logger), _messageHolder(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
+		{ _message = _messageHolder.c_str(); }
+
+		explicit Profiler(const Detail::NamedLoggerAccessor& logger, const std::string& message, ToolkitWhere where, u64 thresholdMs = 0, u64 criticalMs = std::numeric_limits<size_t>::max()) :
+			_logger(logger), _messageHolder(message), _where(where), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
+		{ _message = _messageHolder.c_str(); }
 
 		~Profiler()
 		{
@@ -49,7 +64,10 @@ namespace stingray
 				if (ms > _thresholdMs)
 				{
 					LogLevel ll = (ms > _criticalMs) ? LogLevel::Warning : LogLevel::Info;
-					_logger.Stream(ll) << ms << " milliseconds - " << _message;
+					if (_where)
+						_logger.Stream(ll) << ms << " milliseconds - " << *_where << ": " <<_message;
+					else
+						_logger.Stream(ll) << ms << " milliseconds - " << _message;
 				}
 			}
 			catch (const std::exception& ex)
@@ -63,7 +81,7 @@ namespace stingray
 
 #define STINGRAYKIT_PROFILER(Milliseconds_, Message_) \
 	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, StringBuilder() % STINGRAYKIT_WHERE % ": " % (Message_), Milliseconds_);
+	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), STINGRAYKIT_WHERE, Milliseconds_);
 
 #define STINGRAYKIT_PROFILER_NO_WHERE(Milliseconds_, Message_) \
 	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
@@ -71,7 +89,7 @@ namespace stingray
 
 #define STINGRAYKIT_PROFILER_CRITICAL_TIME(Milliseconds_, Message_) \
 	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, StringBuilder() % STINGRAYKIT_WHERE % ": " % (Message_), Milliseconds_, Milliseconds_);
+	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), STINGRAYKIT_WHERE, Milliseconds_, Milliseconds_);
 
 #define STINGRAYKIT_PROFILE(Milliseconds_, Call_) \
 	do { \
