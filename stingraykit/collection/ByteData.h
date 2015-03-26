@@ -297,60 +297,65 @@ namespace stingray
 		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
 
 		template < typename U >
-		BasicByteData(BasicByteData<U> data)
-			: _data(data.size() == 0 ? NULL : &data[0]), _size(data.size())
+		BasicByteData(BasicByteData<U> data) :
+			_data(data.size() == 0 ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U >
-		BasicByteData(std::vector<U>& data)
-			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
+		BasicByteData(std::vector<U>& data) :
+			_data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U >
-		BasicByteData(const std::vector<U>& data)
-			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
+		BasicByteData(const std::vector<U>& data) :
+			_data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U >
-		explicit BasicByteData(BasicByteArray<U>& array) //disallow storing anonymous copies without explicit intention to do so
-			: _data(array.data()), _size(array.size())
+		explicit BasicByteData(BasicByteArray<U>& array) : //disallow storing anonymous copies without explicit intention to do so
+			_data(array.data()), _size(array.size())
 		{ }
 
 		template < typename U >
-		explicit BasicByteData(const BasicByteArray<U>& array) //disallow storing anonymous copies without explicit intention to do so
-			: _data(array.data()), _size(array.size())
+		explicit BasicByteData(const BasicByteArray<U>& array) : //disallow storing anonymous copies without explicit intention to do so
+			_data(array.data()), _size(array.size())
 		{ }
 
 		template < typename U >
-		BasicByteData(BasicByteArray<U>& array, size_t offset)
-			: _data(array.data() + offset), _size(array.size() - offset)
+		BasicByteData(BasicByteArray<U>& array, size_t offset) :
+			_data(array.data() + offset), _size(array.size() - offset)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, array.size()); }
 
 		template < typename U >
-		BasicByteData(const BasicByteArray<U>& array, size_t offset)
-			: _data(array.data() + offset), _size(array.size() - offset)
+		BasicByteData(const BasicByteArray<U>& array, size_t offset) :
+			_data(array.data() + offset), _size(array.size() - offset)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, array.size()); }
 
 		template < typename U >
-		BasicByteData(BasicByteArray<U>& array, size_t offset, size_t size)
-			: _data(array.data() + offset), _size(size)
+		BasicByteData(BasicByteArray<U>& array, size_t offset, size_t size) :
+			_data(array.data() + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size, array.size()); }
 
 		template < typename U >
-		BasicByteData(const BasicByteArray<U>& array, size_t offset, size_t size)
-			: _data(array.data() + offset), _size(size)
+		BasicByteData(const BasicByteArray<U>& array, size_t offset, size_t size) :
+			_data(array.data() + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size, array.size()); }
 
-		BasicByteData(T* data, size_t size)
-			: _data(data), _size(size)
+		template<typename U, size_t N>
+		BasicByteData(U(&arr)[N]) :
+			_data(&arr[0]), _size(N)
 		{ }
 
-		BasicByteData(BasicByteData data, size_t offset)
-			: _data(data._data + offset), _size(data._size - offset)
+		BasicByteData(T* data, size_t size) :
+			_data(data), _size(size)
+		{ }
+
+		BasicByteData(BasicByteData data, size_t offset) :
+			_data(data._data + offset), _size(data._size - offset)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, data._size); }
 
-		BasicByteData(BasicByteData data, size_t offset, size_t size)
-			: _data(data._data + offset), _size(size)
+		BasicByteData(BasicByteData data, size_t offset, size_t size) :
+			_data(data._data + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size, data._size); }
 
 		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); } //made compatible with array for template classes
