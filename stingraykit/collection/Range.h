@@ -22,14 +22,6 @@ namespace stingray
 		OutputIteratorType CopyTo(const OutputIteratorType &out) const
 		{ return std::copy(Begin, End, out); }
 
-		template<typename OutputIteratorType, typename TransformFunc>
-		OutputIteratorType CopyTo(const TransformFunc & transform, OutputIteratorType out) const
-		{
-			for(ValueType i = Begin; i != End; ++i)
-				*out++ = transform(*i);
-			return out;
-		}
-
 		typedef ValueType		const_iterator;
 
 		ValueType begin() const { return Begin; }
