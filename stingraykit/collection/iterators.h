@@ -249,10 +249,44 @@ namespace stingray
 		WrappedIterator base() const						{ return _wrapped; }
 	};
 
+	template<typename T, typename TransformFunc, typename ResultType>
+	struct TransformerIterator<T, TransformFunc, EmptyType, ResultType> :
+		public iterator_base<
+			TransformerIterator<T, TransformFunc, EmptyType, ResultType>,
+			ResultType, typename std::iterator_traits<T>::iterator_category>
+	{
+		typedef iterator_base<
+			TransformerIterator<T, TransformFunc, EmptyType, ResultType>,
+			ResultType, typename std::iterator_traits<T>::iterator_category> BaseType;
+
+		typedef T WrappedIterator;
+
+	private:
+		WrappedIterator		_wrapped;
+		TransformFunc		_transform;
+
+	public:
+		TransformerIterator(const WrappedIterator& wrapped, const TransformFunc& transformFunc) :
+			_wrapped(wrapped), _transform(transformFunc)
+		{ }
+
+		ResultType operator *() const
+		{ return _transform(*_wrapped); }
+
+		bool equal(const TransformerIterator& other) const	{ return _wrapped == other._wrapped; }
+		void increment()									{ ++_wrapped; }
+		void decrement()									{ --_wrapped; }
+
+		size_t distance_to(const TransformerIterator &other) const
+		{ return std::distance(_wrapped, other._wrapped); }
+
+		WrappedIterator base() const						{ return _wrapped; }
+	};
+
 
 	template<typename T, typename TransformFunc>
 	TransformerIterator<T, TransformFunc, EmptyType> TransformIterator(const T& iter, const TransformFunc& transformFunc)
-	{ return TransformerIterator<T, TransformFunc, EmptyType>(iter, transformFunc, EmptyType()); }
+	{ return TransformerIterator<T, TransformFunc, EmptyType>(iter, transformFunc); }
 
 
 	namespace Detail
