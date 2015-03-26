@@ -10,8 +10,8 @@
 
 #include <stingraykit/function/function.h>
 #include <stingraykit/optional.h>
-#include <stingraykit/task_alive_token.h>
 #include <stingraykit/thread/Thread.h>
+#include <stingraykit/TaskLifeToken.h>
 
 namespace stingray
 {

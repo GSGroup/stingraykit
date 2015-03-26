@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_TASK_ALIVE_TOKEN_H
-#define STINGRAYKIT_TASK_ALIVE_TOKEN_H
+#ifndef STINGRAYKIT_TASKALIVETOKEN_H
+#define STINGRAYKIT_TASKALIVETOKEN_H
 
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -24,6 +24,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		struct TaskLifeTokenImpl : public self_counter<TaskLifeTokenImpl>
 		{
 		private:
@@ -53,6 +54,7 @@ namespace stingray
 			}
 		};
 		STINGRAYKIT_DECLARE_SELF_COUNT_PTR(TaskLifeTokenImpl);
+
 	};
 
 

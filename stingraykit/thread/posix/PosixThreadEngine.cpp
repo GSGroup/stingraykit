@@ -22,7 +22,6 @@
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/string/string_stream.h>
-#include <stingraykit/task_alive_token.h>
 #include <stingraykit/thread/CancellationToken.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
 #include <stingraykit/thread/GenericMutexLock.h>
@@ -37,6 +36,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
+#include <stingraykit/TaskLifeToken.h>
 #include <sys/prctl.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>

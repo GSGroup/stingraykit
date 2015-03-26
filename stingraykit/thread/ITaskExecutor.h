@@ -11,7 +11,7 @@
 
 #include <stingraykit/function/function.h>
 #include <stingraykit/shared_ptr.h>
-#include <stingraykit/task_alive_token.h>
+#include <stingraykit/TaskLifeToken.h>
 
 
 namespace stingray

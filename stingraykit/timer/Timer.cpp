@@ -14,8 +14,8 @@
 #include <stingraykit/function/bind.h>
 #include <stingraykit/function/function_name_getter.h>
 #include <stingraykit/log/Logger.h>
-#include <stingraykit/task_alive_token.h>
 #include <stingraykit/time/ElapsedTime.h>
+#include <stingraykit/TaskLifeToken.h>
 
 
 namespace stingray
