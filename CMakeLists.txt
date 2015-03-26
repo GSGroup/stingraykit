@@ -78,7 +78,6 @@ set(stingraykit_SRC
 	stingraykit/any.cpp
 	stingraykit/self_counter.cpp
 	stingraykit/shared_ptr.cpp
-	stingraykit/task_alive_token.cpp
 	stingraykit/toolkit.cpp
 
 	stingraykit/diagnostics/AbortWrap.cpp
