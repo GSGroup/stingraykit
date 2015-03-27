@@ -20,12 +20,13 @@ namespace stingray
 	{
 		STINGRAYKIT_ENUM_VALUES(
 			Network = 1,
-			IO = 2);
+			IO = 2,
+			UI = 4
+		);
 
 		STINGRAYKIT_DECLARE_ENUM_CLASS(ThreadOperation);
 	};
 	STINGRAYKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ThreadOperation);
-
 
 	class ThreadOperationConstrainer
 	{
@@ -47,6 +48,25 @@ namespace stingray
 		ThreadOperationReporter(ThreadOperation op);
 		~ThreadOperationReporter();
 	};
+
+	class ExclusiveThreadOperation
+	{
+		int _oldValue;
+
+	public:
+		ExclusiveThreadOperation(ThreadOperation op);
+		~ExclusiveThreadOperation();
+	};
+
+	class ExclusiveThreadOperationChecker
+	{
+		static NamedLogger	s_logger;
+
+	public:
+		ExclusiveThreadOperationChecker(ThreadOperation op);
+		~ExclusiveThreadOperationChecker();
+	};
+
 
 }
 

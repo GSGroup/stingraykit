@@ -34,8 +34,38 @@ namespace stingray
 			s_logger.Error() << op << " operations are prohibited in this thread!\nBacktrace: " << Backtrace();
 	}
 
-
 	ThreadOperationReporter::~ThreadOperationReporter()
+	{ }
+
+
+	STINGRAYKIT_DECLARE_THREAD_LOCAL(int, ExclusiveThreadOperations);
+	STINGRAYKIT_DEFINE_THREAD_LOCAL(int, ExclusiveThreadOperations);
+
+	ExclusiveThreadOperation::ExclusiveThreadOperation(ThreadOperation op):
+		_oldValue(ExclusiveThreadOperations::Get())
+	{
+		ExclusiveThreadOperations::Get() = _oldValue | op.val();
+	}
+
+	ExclusiveThreadOperation::~ExclusiveThreadOperation()
+	{
+		ExclusiveThreadOperations::Get() = _oldValue;
+	}
+
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(ExclusiveThreadOperationChecker);
+
+	ExclusiveThreadOperationChecker::ExclusiveThreadOperationChecker(ThreadOperation op)
+	{
+		if (!(op.val() & ExclusiveThreadOperations::Get()))
+		{
+			s_logger.Error() << op << " operations happened out of exclusive operation area: " << Backtrace();
+#ifndef PLATFORM_EMBEDDED
+			STINGRAYKIT_FATAL("forbidden exclusive operation");
+#endif
+		}
+	}
+
+	ExclusiveThreadOperationChecker::~ExclusiveThreadOperationChecker()
 	{ }
 
 }
