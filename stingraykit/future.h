@@ -97,6 +97,7 @@ namespace stingray
 				do_wait(DummyCancellationToken());
 				if (_exception)
 					rethrow_exception(_exception);
+				STINGRAYKIT_CHECK(_value, OperationCanceledException());
 				return *_value;
 			}
 
@@ -170,6 +171,7 @@ namespace stingray
 				do_wait(DummyCancellationToken());
 				if (_exception)
 					rethrow_exception(_exception);
+				STINGRAYKIT_CHECK(_value, OperationCanceledException());
 			}
 
 			void set_value()
