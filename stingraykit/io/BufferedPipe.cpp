@@ -28,8 +28,8 @@ namespace stingray
 		}
 
 		const size_t size = std::min(_bufferSize - _bufferOffset, data.size());
-		std::copy(_buffer.begin(), _buffer.begin() + size, data.begin());
-		_bufferSize += size;
+		std::copy(_buffer.begin() + _bufferOffset, _buffer.begin() + _bufferOffset + size, data.begin());
+		_bufferOffset += size;
 
 		return size;
 	}
