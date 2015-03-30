@@ -40,8 +40,11 @@ namespace stingray
 		}
 		catch (const PipeClosedException&)
 		{
-			return result;
+			if (result.empty())
+				throw;
 		}
+
+		return result;
 	}
 
 }
