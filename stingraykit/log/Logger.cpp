@@ -67,7 +67,7 @@ namespace stingray
 					return;
 				}
 			}
-			SystemLogger::Log(LoggerMessage(LogLevel::Error, StringBuilder() % "Unknown named logger: " % loggerName, false));
+			SystemLogger::Log(LogLevel::Error, StringBuilder() % "Unknown named logger: " % loggerName);
 		}
 
 		void GetLoggerNames(std::set<std::string>& out) const
@@ -102,12 +102,13 @@ namespace stingray
 				it->second->EnableBacktrace(enable);
 		}
 
-		void SetHighlightEnabled(const std::string& loggerName, bool enable)
+		bool GetBacktraceEnabled(const std::string& loggerName)
 		{
 			MutexLock l(_registryMutex);
-			std::pair<LoggerRegistry::iterator, LoggerRegistry::iterator> range = _registry.equal_range(loggerName.c_str());
-			for (LoggerRegistry::iterator it = range.first; it != range.second; ++it)
-				it->second->EnableHighlight(enable);
+			LoggerRegistry::const_iterator it = _registry.find(loggerName.c_str());
+			if (it == _registry.end())
+				return false;
+			return it->second->BacktraceEnabled();
 		}
 	};
 
@@ -154,29 +155,63 @@ namespace stingray
 		{ _logLevel.store(logLevel, memory_order_relaxed); }
 
 
-		void Log(const LoggerMessage& message) throw()
+		void Log(LogLevel logLevel, const std::string& message) throw()
 		{
 			try
 			{
 				EnableInterruptionPoints eip(false);
+				DoLog(logLevel, message);
+			}
+			catch (const std::exception&)
+			{ }
+		}
 
-				SinksBundle sinks;
-				{
-					MutexLock l(_logMutex);
-					sinks = _sinks;
-				}
 
-				if (sinks.empty())
-					SystemLogger::Log(message);
-				else
-					PutMessageToSinks(sinks, message);
+		void Log(const std::string& loggerName, LogLevel logLevel, const std::string& message) throw()
+		{
+			try
+			{
+				EnableInterruptionPoints eip(false);
+				DoLog(loggerName, logLevel, message);
 			}
 			catch (const std::exception&)
 			{ }
 		}
 
 	private:
-		static void PutMessageToSinks(const SinksBundle& sinks, const LoggerMessage& message)
+		void DoLog(LogLevel logLevel, const std::string& message)
+		{
+			SinksBundle sinks;
+
+			{
+				MutexLock l(_logMutex);
+				sinks = _sinks;
+			}
+
+			if (sinks.empty())
+				SystemLogger::Log(logLevel, message);
+			else
+				DoLog(sinks, LoggerMessage(logLevel, message));
+		}
+
+
+		void DoLog(const std::string& loggerName, LogLevel logLevel, const std::string& message)
+		{
+			SinksBundle sinks;
+
+			{
+				MutexLock l(_logMutex);
+				sinks = _sinks;
+			}
+
+			if (sinks.empty())
+				SystemLogger::Log(loggerName, logLevel, message);
+			else
+				DoLog(sinks, LoggerMessage(loggerName, logLevel, message));
+		}
+
+
+		static void DoLog(const SinksBundle& sinks, const LoggerMessage& message)
 		{
 			for (SinksBundle::const_iterator it = sinks.begin(); it != sinks.end(); ++it)
 			{
@@ -200,12 +235,13 @@ namespace stingray
 
 
 	NamedLogger::NamedLogger(const char* name) :
-		_params(name),
-		_logLevel(OptionalLogLevel::Null)
-	{ NamedLoggerRegistry::Instance().Register(_params.GetName(), this); }
+		_name(name),
+		_logLevel(OptionalLogLevel::Null),
+		_backtrace(false)
+	{ NamedLoggerRegistry::Instance().Register(_name, this); }
 
 	NamedLogger::~NamedLogger()
-	{ NamedLoggerRegistry::Instance().Unregister(_params.GetName(), this); }
+	{ NamedLoggerRegistry::Instance().Unregister(_name, this); }
 
 
 	/////////////////////////////////////////////////////////////////
@@ -221,18 +257,27 @@ namespace stingray
 
 
 	void Logger::SetLogLevel(LogLevel logLevel)
-	{
-		Atomic::Store(LogLevelHolder::s_logLevel, (u32)logLevel.val(), memory_order_relaxed);
-		Stream(logLevel) << "Log level is " << logLevel;
-	}
+	{ Atomic::Store(LogLevelHolder::s_logLevel, (u32)logLevel.val(), memory_order_relaxed); }
 
 
 	LogLevel Logger::GetLogLevel()
 	{ return (LogLevel::Enum)Atomic::Load(LogLevelHolder::s_logLevel, memory_order_relaxed); }
 
 
+	struct LoggerStreamHelper
+	{
+		static void Log(const char* loggerName, LogLevel logLevel, const std::string& message)
+		{
+			if (loggerName)
+				Logger::Log(loggerName, logLevel, message);
+			else
+				Logger::Log(logLevel, message);
+		}
+	};
+
+
 	LoggerStream Logger::Stream(LogLevel logLevel, DuplicatingLogsFilter* duplicatingLogsFilter)
-	{ return LoggerStream(null, GetLogLevel(), logLevel, duplicatingLogsFilter, &Logger::DoLog); }
+	{ return LoggerStream(null, GetLogLevel(), logLevel, duplicatingLogsFilter, &LoggerStreamHelper::Log); }
 
 
 	void Logger::SetLogLevel(const std::string& loggerName, LogLevel logLevel)
@@ -247,8 +292,8 @@ namespace stingray
 	{ NamedLoggerRegistry::Instance().SetBacktraceEnabled(loggerName, enable); }
 
 
-	void Logger::SetHighlightEnabled(const std::string& loggerName, bool enable)
-	{ NamedLoggerRegistry::Instance().SetHighlightEnabled(loggerName, enable); }
+	bool Logger::GetBacktraceEnabled(const std::string& loggerName)
+	{ return NamedLoggerRegistry::Instance().GetBacktraceEnabled(loggerName); }
 
 
 	void Logger::GetLoggerNames(std::set<std::string>& out)
@@ -266,23 +311,27 @@ namespace stingray
 	}
 
 
-	void Logger::DoLog(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& text)
+	void Logger::Log(LogLevel logLevel, const std::string& message)
 	{
 		LoggerImplPtr logger = LoggerSingleton::Instance();
 		LogLevel ll = logger ? logger->GetLogLevel() : LogLevel(LogLevel::Debug);
 		if (logLevel < ll)
 			return;
 
-		optional<LoggerMessage> msg;
-		if (loggerParams)
-			msg = LoggerMessage(loggerParams->GetName(), logLevel, text + (loggerParams->BacktraceEnabled() ? ": " + Backtrace().Get() : std::string()), loggerParams->HighlightEnabled());
-		else
-			msg = LoggerMessage(logLevel, text, false);
-
 		if (logger)
-			logger->Log(*msg);
+			return logger->Log(logLevel, message);
 		else
-			SystemLogger::Log(*msg);
+			SystemLogger::Log(logLevel, message);
+	}
+
+
+	void Logger::Log(const std::string& loggerName, LogLevel logLevel, const std::string& message)
+	{
+		LoggerImplPtr logger = LoggerSingleton::Instance();
+		if (logger)
+			logger->Log(loggerName, logLevel, message + (GetBacktraceEnabled(loggerName) ? ": " + Backtrace().Get() : std::string()));
+		else
+			SystemLogger::Log(loggerName, logLevel, message + (GetBacktraceEnabled(loggerName) ? ": " + Backtrace().Get() : std::string()));
 	}
 
 
@@ -294,33 +343,19 @@ namespace stingray
 
 
 	void NamedLogger::SetLogLevel(LogLevel logLevel)
-	{
-		_logLevel.store(OptionalLogLevel::FromLogLevel(logLevel), memory_order_relaxed);
-		Stream(logLevel) << "Log level is " << logLevel;
-	}
+	{ _logLevel.store(OptionalLogLevel::FromLogLevel(logLevel), memory_order_relaxed); }
 
 
 	bool NamedLogger::BacktraceEnabled() const
-	{ return _params.BacktraceEnabled(); }
+	{ return _backtrace; }
 
 
 	void NamedLogger::EnableBacktrace(bool enable)
-	{
-		_params.EnableBacktrace(enable);
-		Stream(GetLogLevel()) << "Backtrace " << (enable ? "enabled" : "disabled");
-	}
-
-
-	bool NamedLogger::HighlightEnabled() const
-	{ return _params.HighlightEnabled(); }
-
-
-	void NamedLogger::EnableHighlight(bool enable)
-	{ _params.EnableHighlight(enable); }
+	{ _backtrace = enable; }
 
 
 	LoggerStream NamedLogger::Stream(LogLevel logLevel) const
-	{ return LoggerStream(&_params, GetLogLevel(), logLevel, &_duplicatingLogsFilter, &Logger::DoLog); }
+	{ return LoggerStream(_name, GetLogLevel(), logLevel, &_duplicatingLogsFilter, &LoggerStreamHelper::Log); }
 
 
 	void NamedLogger::Log(LogLevel logLevel, const std::string& message)

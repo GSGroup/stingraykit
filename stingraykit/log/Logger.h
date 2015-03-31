@@ -65,8 +65,6 @@ namespace stingray
 
 	class Logger
 	{
-		friend class NamedLogger;
-
 	public:
 		static void SetLogLevel(LogLevel logLevel);
 		static LogLevel GetLogLevel();
@@ -75,7 +73,7 @@ namespace stingray
 		static LogLevel GetLogLevel(const std::string& loggerName);
 
 		static void SetBacktraceEnabled(const std::string& loggerName, bool enable);
-		static void SetHighlightEnabled(const std::string& loggerName, bool enable);
+		static bool GetBacktraceEnabled(const std::string& loggerName);
 
 		static void GetLoggerNames(std::set<std::string>& out);
 
@@ -89,8 +87,8 @@ namespace stingray
 
 		static Token AddSink(const ILoggerSinkPtr& sink);
 
-	private:
-		static void DoLog(const NamedLoggerParams* namedLogger, LogLevel logLevel, const std::string& message);
+		static void Log(LogLevel logLevel, const std::string& message);
+		static void Log(const std::string& loggerName, LogLevel logLevel, const std::string& message);
 	};
 
 
@@ -104,7 +102,6 @@ namespace stingray
 				Info	= LogLevel::Info,
 				Warning	= LogLevel::Warning,
 				Error	= LogLevel::Error,
-				Silent	= LogLevel::Silent,
 				Null);
 
 			static OptionalLogLevel FromLogLevel(optional<LogLevel> level)
@@ -121,24 +118,20 @@ namespace stingray
 		};
 
 	private:
-		NamedLoggerParams				_params;
+		const char*						_name;
 		mutable DuplicatingLogsFilter	_duplicatingLogsFilter;
 		atomic<OptionalLogLevel>		_logLevel;
+		atomic<bool>					_backtrace;
 
 	public:
 		NamedLogger(const char* name);
 		~NamedLogger();
-
-		const char* GetName() const { return _params.GetName(); }
 
 		LogLevel GetLogLevel() const;
 		void SetLogLevel(LogLevel logLevel);
 
 		inline bool BacktraceEnabled() const;
 		inline void EnableBacktrace(bool enable);
-
-		bool HighlightEnabled() const;
-		void EnableHighlight(bool enable);
 
 		LoggerStream Stream(LogLevel logLevel) const;
 
@@ -148,7 +141,7 @@ namespace stingray
 		LoggerStream Warning()	const { return Stream(LogLevel::Warning); }
 		LoggerStream Error()	const { return Stream(LogLevel::Error); }
 
-		void Log(LogLevel logLevel, const std::string& text);
+		void Log(LogLevel logLevel, const std::string& message);
 	};
 
 

@@ -10,7 +10,6 @@
 
 
 #include <stingraykit/log/LogLevel.h>
-#include <stingraykit/log/NamedLoggerParams.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/string/string_stream.h>
@@ -81,9 +80,9 @@ namespace stingray
 		STINGRAYKIT_NONASSIGNABLE(LoggerStream);
 		typedef string_ostream					StreamType;
 
-		typedef void LogFunction(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& message);
+		typedef void LogFunction(const char* loggerName, LogLevel logLevel, const std::string& message);
 
-		const NamedLoggerParams*				_loggerParams;
+		const char*								_loggerName;
 		LogLevel								_loggerLogLevel;
 		LogLevel								_streamLogLevel;
 		shared_ptr<StreamType>					_stream;
@@ -92,7 +91,7 @@ namespace stingray
 		LogFunction*							_logFunction;
 
 	public:
-		LoggerStream(const NamedLoggerParams* loggerParams, LogLevel loggerLogLevel, LogLevel streamLogLevel, DuplicatingLogsFilter* duplicatingLogsFilter, LogFunction* logFunction);
+		LoggerStream(const char* loggerName, LogLevel loggerLogLevel, LogLevel streamLogLevel, DuplicatingLogsFilter* duplicatingLogsFilter, LogFunction* logFunction);
 		~LoggerStream();
 
 		template < typename T >

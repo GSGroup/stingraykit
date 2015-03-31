@@ -9,15 +9,15 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/log/LoggerMessage.h>
-
+#include <stingraykit/log/LogLevel.h>
 
 namespace stingray
 {
 
 	struct SystemLogger
 	{
-		static void Log(const LoggerMessage& message) throw ();
+		static void Log(LogLevel logLevel, const std::string& message) throw ();
+		static void Log(const std::string& loggerName, LogLevel logLevel, const std::string& message) throw ();
 	};
 
 }
