@@ -32,11 +32,13 @@ namespace stingray
 		Time					_time;
 		std::string				_threadName;
 		std::string				_message;
+		bool					_highlight;
 
 	public:
-		LoggerMessage(const LogLevel& logLevel, const std::string& message);
-		LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message);
+		LoggerMessage(const LogLevel& logLevel, const std::string& message, bool highlight);
+		LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message, bool highlight);
 
+		bool Highlight() const				{ return _highlight; }
 		bool HasLoggerName() const			{ return _loggerName; }
 		std::string GetLoggerName() const;
 

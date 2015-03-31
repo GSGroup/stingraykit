@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_LOG_SYSTEMLOGGER_H
-#define STINGRAYKIT_LOG_SYSTEMLOGGER_H
+#ifndef STINGRAYKIT_LOG_NAMEDLOGGERPARAMS_H
+#define STINGRAYKIT_LOG_NAMEDLOGGERPARAMS_H
 
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -9,15 +9,30 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/log/LoggerMessage.h>
+#include <stingraykit/thread/atomic.h>
 
 
 namespace stingray
 {
 
-	struct SystemLogger
+	class NamedLoggerParams
 	{
-		static void Log(const LoggerMessage& message) throw ();
+	private:
+		const char*						_name;
+		atomic<bool>					_backtrace;
+		atomic<bool>					_highlight;
+
+	public:
+		NamedLoggerParams(const char* name) : _name(name), _backtrace(false), _highlight(false)
+		{ }
+
+		const char* GetName() const			{ return _name; }
+
+		bool BacktraceEnabled() const		{ return _backtrace; }
+		void EnableBacktrace(bool enable)	{ _backtrace = enable; }
+
+		bool HighlightEnabled() const		{ return _highlight; }
+		void EnableHighlight(bool enable)	{ _highlight = enable; }
 	};
 
 }

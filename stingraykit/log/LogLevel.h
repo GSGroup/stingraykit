@@ -28,7 +28,8 @@ namespace stingray
 			Debug,
 			Info,
 			Warning,
-			Error
+			Error,
+			Silent
 		);
 
 		STINGRAYKIT_DECLARE_ENUM_CLASS(LogLevel);
