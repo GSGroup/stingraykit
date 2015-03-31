@@ -28,6 +28,15 @@ namespace stingray
 
 		bool operator == (const BasicPosition& other) const	{ return X == other.X && Y == other.Y; }
 		bool operator != (const BasicPosition& other) const	{ return !((*this) == other); }
+
+
+		template < typename OStream >
+		void Serialize(OStream& ar) const
+		{ ar.Serialize("x", X).Serialize("y", Y); }
+
+		template < typename IStream >
+		void Deserialize(IStream& ar)
+		{ ar.Deserialize("x", X).Deserialize("y", Y); }
 	};
 	typedef BasicPosition<int> Position;
 

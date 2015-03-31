@@ -1,6 +1,8 @@
 #ifndef STINGRAYKIT_RECT_H
 #define STINGRAYKIT_RECT_H
 
+#include <stingray/filesystem/path.h>
+
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
 // provided that the above copyright notice and this permission notice appear in all copies.
@@ -30,8 +32,18 @@ namespace stingray
 		inline Size operator / (int k)						{ return Size(Width / k, Height / k); }
 		inline bool Valid() const							{ return Width > 0 && Height > 0; }
 
-		inline bool operator==(const Size &other) const	{ return Width == other.Width && Height == other.Height; }
-		inline bool operator!=(const Size &other) const { return !((*this) == other); }
+		inline bool operator==(const Size &other) const		{ return Width == other.Width && Height == other.Height; }
+		inline bool operator!=(const Size &other) const		{ return !((*this) == other); }
+
+		std::string ToString() const						{ return StringBuilder() % "(" % Width % ", " % Height % ")"; }
+
+		template < typename OStream >
+		void Serialize(OStream& ar) const
+		{ ar.Serialize("w", Width).Serialize("h", Height); }
+
+		template < typename IStream >
+		void Deserialize(IStream& ar)
+		{ ar.Deserialize("w", Width).Deserialize("h", Height); }
 	};
 
 
@@ -64,6 +76,14 @@ namespace stingray
 
 		bool operator == (const BasicRect& other) const		{ return GetTopLeft() == other.GetTopLeft() && GetRightBottom() == other.GetRightBottom(); }
 		bool operator != (const BasicRect& other) const		{ return !((*this) == other); }
+
+		template < typename OStream >
+		void Serialize(OStream& ar) const
+		{ ar.Serialize("x1", X1).Serialize("y1", Y1).Serialize("x2", X2).Serialize("y2", Y2); }
+
+		template < typename IStream >
+		void Deserialize(IStream& ar)
+		{ ar.Deserialize("x1", X1).Deserialize("y1", Y1).Deserialize("x2", X2).Deserialize("y2", Y2); }
 	};
 	typedef BasicRect<int> Rect;
 
