@@ -28,7 +28,9 @@ namespace stingray
 		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester) = 0;
 		virtual ~ITaskExecutor() {}
 
-		static shared_ptr<ITaskExecutor> Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler = &ITaskExecutor::DefaultExceptionHandler, bool profileCalls = true);
+		static shared_ptr<ITaskExecutor> Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler, bool profileCalls = true);
+		static shared_ptr<ITaskExecutor> Create(const std::string& name, bool profileCalls = true)
+		{ return Create(name, &DefaultExceptionHandler, profileCalls); }
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 	};
