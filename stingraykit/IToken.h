@@ -186,6 +186,12 @@ namespace stingray
 		TokenMap() { }
 		~TokenMap() { release_all(); }
 
+		bool contains(const Key& key) const
+		{
+			MutexLock l(_mutex);
+			return _tokens.find(key) != _tokens.end();
+		}
+
 		BracketsOperatorProxy operator[] (const Key& key) { return BracketsOperatorProxy(_mutex, key, _tokens); }
 
 		void release(const Key& key)
