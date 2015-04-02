@@ -36,12 +36,19 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename IterType >
-		struct GetMapKeysIteratorPointedType : public If<IsConstReference<typename IterType::reference>::Value, const typename IterType::value_type::first_type, typename IterType::value_type::first_type>
-		{ };
+		struct GetMapKeysIteratorPointedType
+		{
+			typedef typename Dereference<typename IterType::value_type::first_type>::ValueT DerefKeyType;
+			typedef typename If<IsConstReference<typename IterType::reference>::Value, const DerefKeyType, DerefKeyType>::ValueT ValueT;
+		};
+
 
 		template < typename IterType >
-		struct GetMapValuesIteratorPointedType : public If<IsConstReference<typename IterType::reference>::Value, const typename IterType::value_type::second_type, typename IterType::value_type::second_type>
-		{ };
+		struct GetMapValuesIteratorPointedType
+		{
+			typedef typename Dereference<typename IterType::value_type::second_type>::ValueT DerefValueType;
+			typedef typename If<IsConstReference<typename IterType::reference>::Value, const DerefValueType, DerefValueType>::ValueT ValueT;
+		};
 	}
 
 	template < typename MapIterator >
