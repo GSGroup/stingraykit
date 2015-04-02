@@ -8,6 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/compare/comparers.h>
+
 namespace stingray
 {
 
@@ -32,6 +34,21 @@ namespace stingray
 		}
 		return false;
 	}
+
+
+	template<class It1, class It2, class Pred>
+	bool equal(It1 first1, It1 last1, It2 first2, It2 last2, Pred p)
+	{
+		for (; first1 != last1; ++first1, ++first2)
+			if (first2 == last2 || !p(*first1, *first2))
+				return false;
+		return first2 == last2;
+	}
+
+
+	template<class It1, class It2>
+	bool equal(It1 first1, It1 last1, It2 first2, It2 last2)
+	{ return equal(first1, last1, first2, last2, comparers::Equals()); }
 
 }
 
