@@ -118,11 +118,10 @@ namespace stingray
 
 	private:
 		SinksBundle					_sinks;
-		atomic<LogLevel>			_logLevel;
 		Mutex						_logMutex;
 
 	public:
-		LoggerImpl() : _logLevel(LogLevel::Info)
+		LoggerImpl()
 		{ }
 
 
@@ -144,14 +143,6 @@ namespace stingray
 			if (it != _sinks.end())
 				_sinks.erase(it);
 		}
-
-
-		LogLevel GetLogLevel() const throw()
-		{ return _logLevel.load(memory_order_relaxed); }
-
-
-		void SetLogLevel(LogLevel logLevel) throw()
-		{ _logLevel.store(logLevel, memory_order_relaxed); }
 
 
 		void Log(const LoggerMessage& message) throw()
@@ -269,8 +260,8 @@ namespace stingray
 	void Logger::DoLog(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& text)
 	{
 		LoggerImplPtr logger = LoggerSingleton::Instance();
-		LogLevel ll = logger ? logger->GetLogLevel() : LogLevel(LogLevel::Debug);
-		if (logLevel < ll)
+		LogLevel ll = logger ? GetLogLevel() : LogLevel(LogLevel::Debug);
+		if (!loggerParams && logLevel < ll) // NamedLogger LoggerStream checks the log level in its destructor
 			return;
 
 		optional<LoggerMessage> msg;
