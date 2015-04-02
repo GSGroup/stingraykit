@@ -261,29 +261,6 @@ namespace stingray
 	{ return &arr[N]; }
 
 
-	template<typename InputIterator, typename OutputIterator, typename Pred>
-	OutputIterator copy_if(InputIterator first, InputIterator last, OutputIterator result, Pred pred)
-	{
-		for (; first != last; ++first)
-			if (pred(*first))
-				*result++ = *first;
-		return result;
-	}
-
-
-	template<class InputIterator, class UnaryPredicate>
-	bool any_of (InputIterator first, InputIterator last, UnaryPredicate pred)
-	{
-		while (first != last)
-		{
-			if (pred(*first))
-				return true;
-			++first;
-		}
-		return false;
-	}
-
-
 	struct CollectionOp
 	{
 		STINGRAYKIT_ENUM_VALUES
