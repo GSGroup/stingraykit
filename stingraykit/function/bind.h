@@ -93,13 +93,17 @@ namespace stingray
 		struct BinderParamTypesGetter
 		{ typedef TypeListNode<typename BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex>::ValueT, typename BinderParamTypesGetter<OriginalParamTypes, AllParameters, CurrentIndex + 1, Count>::ValueT> ValueT; };
 
+		template < typename OriginalParamTypes, typename AllParameters, size_t Count >
+		struct BinderParamTypesGetter<OriginalParamTypes, AllParameters, Count, Count>
+		{ typedef TypeListEndNode	ValueT; };
+
 		template < typename AllParameters, size_t CurrentIndex, size_t Count >
 		struct BinderParamTypesGetter<UnspecifiedParamTypes, AllParameters, CurrentIndex, Count>
 		{ typedef UnspecifiedParamTypes ValueT; };
 
-		template < typename OriginalParamTypes, typename AllParameters, size_t Count >
-		struct BinderParamTypesGetter<OriginalParamTypes, AllParameters, Count, Count>
-		{ typedef TypeListEndNode	ValueT; };
+		template < typename AllParameters, size_t Count >
+		struct BinderParamTypesGetter<UnspecifiedParamTypes, AllParameters, Count, Count>
+		{ typedef UnspecifiedParamTypes ValueT; };
 
 		template < typename AllParameters >
 		struct BoundParamTypesGetter
