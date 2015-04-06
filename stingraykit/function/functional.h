@@ -43,6 +43,12 @@ namespace stingray
 	template < typename F >
 	Detail::NotFunc<F> not_(const F& f) { return Detail::NotFunc<F>(f); }
 
+
+	struct NopFunctor : public function_info<void()>
+	{
+		void operator() () const { }
+	};
+
 	/** @} */
 
 }
