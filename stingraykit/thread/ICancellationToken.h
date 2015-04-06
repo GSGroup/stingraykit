@@ -76,12 +76,22 @@ namespace stingray
 		{ _registered = _token.TryRegisterCancellationHandler(handler); }
 
 		bool TryUnregister(ICancellationHandler& handler)
-		{ return _token.TryUnregisterCancellationHandler(); }
+		{
+			if (!_registered)
+				return true;
+
+			_registered = !_token.TryUnregisterCancellationHandler();
+			return !_registered;
+		}
 
 		void Unregister(ICancellationHandler& handler)
 		{
+			if (!_registered)
+				return;
+
 			if (!_token.UnregisterCancellationHandler())
 				handler.Reset();
+			_registered = false;
 		}
 	};
 
