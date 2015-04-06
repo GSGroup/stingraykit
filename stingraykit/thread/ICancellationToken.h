@@ -58,22 +58,22 @@ namespace stingray
 	{
 	private:
 		const ICancellationToken&	_token;
-		bool						_cancelledBeforeRegistration;
+		bool						_registered;
 
 	public:
 		bool IsCancelled() const
-		{ return _cancelledBeforeRegistration; }
+		{ return !_registered; }
 
 	protected:
 		CancellationHandlerHolderBase(const ICancellationToken& token) :
-			_token(token), _cancelledBeforeRegistration(false)
+			_token(token), _registered(false)
 		{ }
 
 		~CancellationHandlerHolderBase()
 		{ }
 
 		void Register(ICancellationHandler& handler)
-		{ _cancelledBeforeRegistration = !_token.TryRegisterCancellationHandler(handler); }
+		{ _registered = _token.TryRegisterCancellationHandler(handler); }
 
 		bool TryUnregister(ICancellationHandler& handler)
 		{ return _token.TryUnregisterCancellationHandler(); }
