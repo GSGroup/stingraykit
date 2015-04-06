@@ -65,7 +65,7 @@ namespace stingray
 	{ MutexLock l(_mutex); return _cancelled; }
 
 
-	bool CancellationToken::RegisterCancellationHandler(ICancellationHandler& handler) const
+	bool CancellationToken::TryRegisterCancellationHandler(ICancellationHandler& handler) const
 	{
 		MutexLock l(_mutex);
 		if (_cancelled)

@@ -40,7 +40,7 @@ namespace stingray
 		virtual bool IsCancelled() const;
 
 	protected:
-		virtual bool RegisterCancellationHandler(ICancellationHandler& handler) const;
+		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const;
 		virtual bool TryUnregisterCancellationHandler() const;
 		virtual bool UnregisterCancellationHandler() const;
 	};

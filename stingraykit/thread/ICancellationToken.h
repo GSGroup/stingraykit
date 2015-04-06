@@ -48,7 +48,7 @@ namespace stingray
 		bool boolean_test() const { return !IsCancelled(); }
 
 	protected:
-		virtual bool RegisterCancellationHandler(ICancellationHandler& handler) const = 0;
+		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const = 0;
 		virtual bool TryUnregisterCancellationHandler() const = 0;
 		virtual bool UnregisterCancellationHandler() const = 0;
 	};
@@ -73,7 +73,7 @@ namespace stingray
 		{ }
 
 		void Register(ICancellationHandler& handler)
-		{ _cancelledBeforeRegistration = !_token.RegisterCancellationHandler(handler); }
+		{ _cancelledBeforeRegistration = !_token.TryRegisterCancellationHandler(handler); }
 
 		bool TryUnregister(ICancellationHandler& handler)
 		{ return _token.TryUnregisterCancellationHandler(); }

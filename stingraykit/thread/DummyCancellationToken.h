@@ -25,7 +25,7 @@ namespace stingray
 		virtual bool IsCancelled() const				{ return false; }
 
 	protected:
-		virtual bool RegisterCancellationHandler(ICancellationHandler& handler) const	{ return true; }
+		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const	{ return true; }
 		virtual bool TryUnregisterCancellationHandler() const							{ return true; }
 		virtual bool UnregisterCancellationHandler() const								{ return true; }
 	};
