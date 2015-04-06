@@ -31,33 +31,6 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename FunctorType, bool B = function_type<FunctorType>::Type == FunctionType::Other>
-		struct FunctorTypeValidator
-		{ static const bool Value = HasNestedType_RetType<FunctorType>::Value && HasNestedType_ParamTypes<FunctorType>::Value; };
-
-		template<typename FunctorType>
-		struct FunctorTypeValidator<FunctorType, false>
-		{ static const bool Value = true; };
-
-		template
-			<
-				typename Signature, typename FunctorType,
-				bool HasMetaInfo = FunctorTypeValidator<FunctorType>::Value
-			>
-		struct FunctorTypeTransformer
-		{ typedef FunctorType ValueT; };
-
-		template < typename Signature, typename FunctorType >
-		struct FunctorTypeTransformer<Signature, FunctorType, false>
-		{
-			struct ValueT : public FunctorType, public function_info<Signature>
-			{
-				explicit ValueT(const FunctorType& baseObj)
-					: FunctorType(baseObj)
-				{ }
-			};
-		};
-
 		struct IInvokableBase : public self_counter<IInvokableBase>
 		{
 			struct VTable
@@ -110,8 +83,7 @@ namespace stingray
 			typedef typename BaseType::InvokeFunc InvokeFunc;
 
 		private:
-			typedef typename FunctorTypeTransformer<Signature, FunctorType>::ValueT WrappedFunctorType;
-			WrappedFunctorType	_func;
+			FunctorType	_func;
 
 		public:
 			inline Invokable(const FunctorType& func)
@@ -123,7 +95,7 @@ namespace stingray
 
 		protected:
 			inline typename BaseType::RetType DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
-			{ return FunctorInvoker::Invoke<WrappedFunctorType>(_func, p); }
+			{ return FunctorInvoker::Invoke(_func, p); }
 
 			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
 			{ return static_cast<MyType *>(self)->DoInvoke(p); }
@@ -148,8 +120,7 @@ namespace stingray
 			typedef typename BaseType::InvokeFunc InvokeFunc;
 
 		private:
-			typedef typename FunctorTypeTransformer<Signature, FunctorType>::ValueT WrappedFunctorType;
-			WrappedFunctorType	_func;
+			FunctorType	_func;
 
 		public:
 			inline Invokable(const FunctorType& func)
