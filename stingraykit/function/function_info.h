@@ -366,9 +366,9 @@ namespace stingray
 		template < typename F >
 		struct GenericFunctionInfo<F, false>
 		{
-			typedef typename F::RetType	RetType;
-			typedef NullType			ParamTypes;
-			typedef NullType			Signature;
+			typedef typename F::RetType		RetType;
+			typedef UnspecifiedParamTypes	ParamTypes;
+			typedef NullType				Signature;
 		};
 
 		template < typename F >
