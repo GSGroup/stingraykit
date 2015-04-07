@@ -695,7 +695,7 @@ namespace stingray
 		STINGRAYKIT_CHECK(gid != -1, SystemException("getpgid"));
 
 		ScopedHolder<DIR*> rootDir(opendir(("/proc/" + ToString(gid) + "/task").c_str()), &closedir);
-		STINGRAYKIT_CHECK(rootDir.Valid(), SystemException("opendir"));
+		STINGRAYKIT_CHECK(rootDir.Get() != NULL, SystemException("opendir"));
 
 		struct dirent* dirEntry;
 		while ((dirEntry = readdir(rootDir.Get())) != NULL)
