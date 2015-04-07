@@ -636,37 +636,17 @@ namespace stingray
 	};
 
 
-	template < typename ObjType, size_t ParamsCount >
-	struct MakeShared;
-
-
 	template < typename ObjType >
 	shared_ptr<ObjType> make_shared() { return shared_ptr<ObjType>(new ObjType); }
 	template < typename ObjType >
 	shared_ptr<ObjType> make_shared_0() { return shared_ptr<ObjType>(new ObjType); }
 
 
-	template < typename ObjType>
-	struct MakeShared<ObjType, 0>
-	{
-		typedef shared_ptr<ObjType> RetType;
-
-		shared_ptr<ObjType> operator() () const { return shared_ptr<ObjType>(new ObjType); }
-	};
-
-
 #define DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
 	template < typename ObjType, Typenames_ > \
 	shared_ptr<ObjType> make_shared_##Size_(ParamsDecl_) { return shared_ptr<ObjType>(new ObjType(Params_)); } \
 	template < typename ObjType, Typenames_ > \
-	shared_ptr<ObjType> make_shared(ParamsDecl_) { return shared_ptr<ObjType>(new ObjType(Params_)); } \
-	template < typename ObjType > \
-	struct MakeShared<ObjType, Size_> \
-	{ \
-		typedef shared_ptr<ObjType> RetType; \
-		template < Typenames_ > \
-		shared_ptr<ObjType> operator() (ParamsDecl_) const { return shared_ptr<ObjType>(new ObjType(Params_)); } \
-	};
+	shared_ptr<ObjType> make_shared(ParamsDecl_) { return shared_ptr<ObjType>(new ObjType(Params_)); }
 
 
 #define TY typename
@@ -686,6 +666,29 @@ namespace stingray
 #undef P_
 #undef TY
 #undef DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED
+
+
+#define DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(N_) \
+	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+	shared_ptr<ObjType> operator() (STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) const \
+	{ return shared_ptr<ObjType>(new ObjType(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))); }
+
+	template <typename ObjType>
+	struct MakeShared
+	{
+		typedef shared_ptr<ObjType> RetType;
+
+		shared_ptr<ObjType> operator() () const
+		{ return shared_ptr<ObjType>(new ObjType()); }
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(1);
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(2);
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(3);
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(4);
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(5);
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(6);
+	};
+
+#undef DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR
 
 
 	template<typename T>

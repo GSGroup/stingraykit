@@ -272,7 +272,7 @@ namespace stingray
 		{ }
 
 		virtual shared_ptr<IEnumerator<typename EnumeratorType_::ItemType> > GetEnumerator() const
-		{ return FunctorInvoker::Invoke(MakeShared<EnumeratorType_, ParamsTuple_::Size>(), _tuple); }
+		{ return FunctorInvoker::Invoke(MakeShared<EnumeratorType_>(), _tuple); }
 	};
 
 
