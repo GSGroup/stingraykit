@@ -644,8 +644,6 @@ namespace stingray
 
 #define DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
 	template < typename ObjType, Typenames_ > \
-	shared_ptr<ObjType> make_shared_##Size_(ParamsDecl_) { return shared_ptr<ObjType>(new ObjType(Params_)); } \
-	template < typename ObjType, Typenames_ > \
 	shared_ptr<ObjType> make_shared(ParamsDecl_) { return shared_ptr<ObjType>(new ObjType(Params_)); }
 
 
