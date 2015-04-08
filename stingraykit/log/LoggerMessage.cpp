@@ -15,13 +15,17 @@
 namespace stingray
 {
 
-	LoggerMessage::LoggerMessage(const LogLevel& logLevel, const std::string& message, bool highlight)
-		: _logLevel(logLevel), _time(Time::Now()), _threadName(Thread::GetCurrentThreadName()), _message(message), _highlight(highlight)
+	LoggerMessage::LoggerMessage(const LogLevel& logLevel, const std::string& message, bool highlight) :
+		_logLevel(logLevel), _time(Time::Now()),
+		_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),
+		_message(message), _highlight(highlight)
 	{ }
 
 
-	LoggerMessage::LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message, bool highlight)
-		: _loggerName(loggerName), _logLevel(logLevel), _time(Time::Now()), _threadName(Thread::GetCurrentThreadName()), _message(message), _highlight(highlight)
+	LoggerMessage::LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message, bool highlight) :
+		_loggerName(loggerName), _logLevel(logLevel), _time(Time::Now()),
+		_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),
+		_message(message), _highlight(highlight)
 	{ }
 
 
@@ -34,11 +38,10 @@ namespace stingray
 
 	std::string LoggerMessage::ToString() const
 	{
-		std::string threadName = _threadName.empty() ? "__undefined__" : _threadName;
 		if (_loggerName)
-			return StringFormat("[%1%] [%2%] {%3%} [%4%] %5%", _time.ToString(), _logLevel, threadName, *_loggerName, _message);
+			return StringFormat("[%1%] [%2%] {%3%} [%4%] %5%", _time.ToString(), _logLevel, _threadName, *_loggerName, _message);
 
-		return StringFormat("[%1%] [%2%] {%3%} %4%", _time.ToString(), _logLevel, threadName, _message);
+		return StringFormat("[%1%] [%2%] {%3%} %4%", _time.ToString(), _logLevel, _threadName, _message);
 	}
 
 
