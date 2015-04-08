@@ -67,6 +67,7 @@ endif ()
 
 set(stingraykit_SRC
 	stingraykit/ActionTransaction.cpp
+	stingraykit/BigNum.cpp
 	stingraykit/EnumToString.cpp
 	stingraykit/Factory.cpp
 	stingraykit/ProgressValue.cpp
