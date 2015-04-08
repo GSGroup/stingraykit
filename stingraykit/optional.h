@@ -1,6 +1,8 @@
 #ifndef STINGRAYKIT_OPTIONAL_H
 #define STINGRAYKIT_OPTIONAL_H
 
+#include <stingraykit/compare/comparers.h>
+
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
 // provided that the above copyright notice and this permission notice appear in all copies.
@@ -72,6 +74,13 @@ namespace stingray
 		bool operator<(const optional& rhs) const
 		{ return rhs.is_initialized() && (!is_initialized() || (get() < rhs.get())); }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(optional);
+
+		int Compare(const optional& other) const
+		{
+			if (is_initialized() && other.is_initialized())
+				return comparers::Cmp()(get(), other.get());
+			return comparers::Cmp()(is_initialized(), other.is_initialized());
+		}
 
 		void assign(ConstParamType value)
 		{ reset(); _value.Ctor(value); _initialized = true; }
