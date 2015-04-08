@@ -10,7 +10,7 @@
 
 
 #include <stingraykit/log/Logger.h>
-#include <stingraykit/IToken.h>
+#include <stingraykit/Token.h>
 #include <stingraykit/function/function.h>
 
 namespace stingray

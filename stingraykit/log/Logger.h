@@ -13,7 +13,7 @@
 #include <set>
 #include <string>
 
-#include <stingraykit/IToken.h>
+#include <stingraykit/Token.h>
 #include <stingraykit/log/ILoggerSink.h>
 #include <stingraykit/log/LogLevel.h>
 #include <stingraykit/log/LoggerStream.h>
