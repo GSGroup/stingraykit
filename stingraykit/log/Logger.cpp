@@ -94,7 +94,7 @@ namespace stingray
 			return it->second->GetLogLevel();
 		}
 
-		void SetBacktraceEnabled(const std::string& loggerName, bool enable)
+		void EnableBacktrace(const std::string& loggerName, bool enable)
 		{
 			MutexLock l(_registryMutex);
 			std::pair<LoggerRegistry::iterator, LoggerRegistry::iterator> range = _registry.equal_range(loggerName.c_str());
@@ -102,7 +102,7 @@ namespace stingray
 				it->second->EnableBacktrace(enable);
 		}
 
-		void SetHighlightEnabled(const std::string& loggerName, bool enable)
+		void EnableHighlight(const std::string& loggerName, bool enable)
 		{
 			MutexLock l(_registryMutex);
 			std::pair<LoggerRegistry::iterator, LoggerRegistry::iterator> range = _registry.equal_range(loggerName.c_str());
@@ -234,12 +234,12 @@ namespace stingray
 	{ return NamedLoggerRegistry::Instance().GetLogLevel(loggerName); }
 
 
-	void Logger::SetBacktraceEnabled(const std::string& loggerName, bool enable)
-	{ NamedLoggerRegistry::Instance().SetBacktraceEnabled(loggerName, enable); }
+	void Logger::EnableBacktrace(const std::string& loggerName, bool enable)
+	{ NamedLoggerRegistry::Instance().EnableBacktrace(loggerName, enable); }
 
 
-	void Logger::SetHighlightEnabled(const std::string& loggerName, bool enable)
-	{ NamedLoggerRegistry::Instance().SetHighlightEnabled(loggerName, enable); }
+	void Logger::EnableHighlight(const std::string& loggerName, bool enable)
+	{ NamedLoggerRegistry::Instance().EnableHighlight(loggerName, enable); }
 
 
 	void Logger::GetLoggerNames(std::set<std::string>& out)

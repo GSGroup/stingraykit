@@ -68,17 +68,6 @@ namespace stingray
 		friend class NamedLogger;
 
 	public:
-		static void SetLogLevel(LogLevel logLevel);
-		static LogLevel GetLogLevel();
-
-		static void SetLogLevel(const std::string& loggerName, LogLevel logLevel);
-		static LogLevel GetLogLevel(const std::string& loggerName);
-
-		static void SetBacktraceEnabled(const std::string& loggerName, bool enable);
-		static void SetHighlightEnabled(const std::string& loggerName, bool enable);
-
-		static void GetLoggerNames(std::set<std::string>& out);
-
 		static LoggerStream Stream(LogLevel logLevel, DuplicatingLogsFilter* duplicatingLogsFilter = NULL);
 
 		static LoggerStream Trace()		{ return Stream(LogLevel::Trace); }
@@ -86,6 +75,20 @@ namespace stingray
 		static LoggerStream Info()		{ return Stream(LogLevel::Info); }
 		static LoggerStream Warning()	{ return Stream(LogLevel::Warning); }
 		static LoggerStream Error()		{ return Stream(LogLevel::Error); }
+
+		static void SetLogLevel(LogLevel logLevel);
+		static LogLevel GetLogLevel();
+
+		/// @name Named loggers control
+		/// @{
+		static void SetLogLevel(const std::string& loggerName, LogLevel logLevel);
+		static LogLevel GetLogLevel(const std::string& loggerName);
+
+		static void EnableBacktrace(const std::string& loggerName, bool enable);
+		static void EnableHighlight(const std::string& loggerName, bool enable);
+
+		static void GetLoggerNames(std::set<std::string>& out);
+		/// @}
 
 		static Token AddSink(const ILoggerSinkPtr& sink);
 
