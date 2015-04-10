@@ -81,9 +81,7 @@ namespace stingray
 
 		/// @name Named loggers control
 		/// @{
-		static void SetLogLevel(const std::string& loggerName, LogLevel logLevel);
-		static LogLevel GetLogLevel(const std::string& loggerName);
-
+		static void SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel);
 		static void EnableBacktrace(const std::string& loggerName, bool enable);
 		static void EnableHighlight(const std::string& loggerName, bool enable);
 
@@ -127,6 +125,7 @@ namespace stingray
 		NamedLoggerParams				_params;
 		mutable DuplicatingLogsFilter	_duplicatingLogsFilter;
 		atomic<OptionalLogLevel>		_logLevel;
+		Token							_token;
 
 	public:
 		NamedLogger(const char* name);
@@ -134,8 +133,13 @@ namespace stingray
 
 		const char* GetName() const { return _params.GetName(); }
 
+		/// @brief Gets log level for NamedLogger
+		/// @returns NamedLogger log level if it has one, or global Logger log level otherwise
 		LogLevel GetLogLevel() const;
-		void SetLogLevel(LogLevel logLevel);
+
+		/// @brief Sets or removes specific log level for NamedLogger
+		/// @param logLevel log level value to set or null - to remove specific log level and use global one instead
+		void SetLogLevel(optional<LogLevel> logLevel);
 
 		inline bool BacktraceEnabled() const;
 		inline void EnableBacktrace(bool enable);
@@ -175,7 +179,7 @@ namespace stingray
 			NamedLoggerAccessor& operator =(NamedLogger& logger)
 			{ _logger = &logger; return *this; }
 
-			LogLevel GetLogLevel() const		{ return _logger ? _logger->GetLogLevel() : Logger::GetLogLevel(); }
+			LogLevel GetLogLevel() const			{ return _logger ? _logger->GetLogLevel() : Logger::GetLogLevel(); }
 
 			LoggerStream Stream(LogLevel logLevel)	{ return _logger ? _logger->Stream(logLevel) : Logger::Stream(logLevel); }
 

@@ -31,94 +31,132 @@ namespace stingray
 	}}
 
 
-	class NamedLoggerRegistry : public PhoenixSingleton<NamedLoggerRegistry>
+	struct NamedLoggerSettings
 	{
-		STINGRAYKIT_PHOENIXSINGLETON(NamedLoggerRegistry);
+	private:
+		optional<LogLevel>	_logLevel;
+		bool				_backtrace;
+		bool				_highlight;
 
+	public:
+		NamedLoggerSettings() :
+			_backtrace(false), _highlight(false)
+		{ }
+
+		optional<LogLevel> GetLogLevel() const			{ return _logLevel; }
+		void SetLogLevel(optional<LogLevel> logLevel)	{ _logLevel = logLevel; }
+
+		bool BacktraceEnabled() const					{ return _backtrace; }
+		void EnableBacktrace(bool enable)				{ _backtrace = enable; }
+
+		bool HighlightEnabled() const					{ return _highlight; }
+		void EnableHighlight(bool enable)				{ _highlight = enable; }
+
+		bool IsEmpty() const							{ return GetLogLevel() || BacktraceEnabled() || HighlightEnabled(); }
+	};
+
+
+	class NamedLoggerRegistry
+	{
 		struct StrLess
 		{
 			bool operator() (const char* l, const char* r) const { return strcmp(l, r) < 0; }
 		};
 
-		typedef std::multimap<const char*, NamedLogger*, StrLess> LoggerRegistry;
+		typedef std::map<std::string, NamedLoggerSettings>			SettingsRegistry;
+		typedef std::multimap<const char*, NamedLogger*, StrLess>	ObjectsRegistry;
 
 	private:
-		LoggerRegistry	_registry;
-		Mutex			_registryMutex;
-
-		NamedLoggerRegistry() { }
+		Mutex				_mutex;
+		SettingsRegistry	_settings;
+		ObjectsRegistry		_objects;
 
 	public:
-		void Register(const char* loggerName, NamedLogger* logger)
+		NamedLoggerRegistry()
+		{ }
+
+		ObjectsRegistry::iterator Register(const char* loggerName, NamedLogger* logger)
 		{
-			MutexLock l(_registryMutex);
-			_registry.insert(std::make_pair(loggerName, logger));
+			MutexLock l(_mutex);
+			SettingsRegistry::iterator it = _settings.find(loggerName);
+			if (it != _settings.end())
+			{
+				logger->SetLogLevel(it->second.GetLogLevel());
+				logger->EnableBacktrace(it->second.BacktraceEnabled());
+				logger->EnableHighlight(it->second.HighlightEnabled());
+			}
+			return _objects.insert(std::make_pair(loggerName, logger));
 		}
 
-		void Unregister(const char* loggerName, NamedLogger* logger)
+		void Unregister(ObjectsRegistry::iterator it)
 		{
-			MutexLock l(_registryMutex);
-			std::pair<LoggerRegistry::iterator, LoggerRegistry::iterator> range = _registry.equal_range(loggerName);
-			for (LoggerRegistry::iterator it = range.first; it != range.second; ++it)
-			{
-				if (it->second == logger)
-				{
-					_registry.erase(it);
-					return;
-				}
-			}
-			SystemLogger::Log(LoggerMessage(LogLevel::Error, StringBuilder() % "Unknown named logger: " % loggerName, false));
+			MutexLock l(_mutex);
+			_objects.erase(it);
 		}
 
 		void GetLoggerNames(std::set<std::string>& out) const
 		{
-			MutexLock l(_registryMutex);
+			MutexLock l(_mutex);
 			out.clear();
-			std::copy(keys_iterator(_registry.begin()), keys_iterator(_registry.end()), std::inserter(out, out.begin()));
+			std::copy(keys_iterator(_objects.begin()), keys_iterator(_objects.end()), std::inserter(out, out.begin()));
 		}
 
-		void SetLogLevel(const std::string& loggerName, LogLevel logLevel)
+		void SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel)
 		{
-			MutexLock l(_registryMutex);
-			std::pair<LoggerRegistry::iterator, LoggerRegistry::iterator> range = _registry.equal_range(loggerName.c_str());
-			for (LoggerRegistry::iterator it = range.first; it != range.second; ++it)
+			MutexLock l(_mutex);
+			std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+			for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 				it->second->SetLogLevel(logLevel);
-		}
 
-		LogLevel GetLogLevel(const std::string& loggerName)
-		{
-			MutexLock l(_registryMutex);
-			LoggerRegistry::const_iterator it = _registry.find(loggerName.c_str());
-			if (it == _registry.end())
-				return Logger::GetLogLevel();
-			return it->second->GetLogLevel();
+			SettingsRegistry::iterator it = _settings.find(loggerName);
+			if (it == _settings.end())
+				it = _settings.insert(std::make_pair(loggerName, NamedLoggerSettings())).first;
+			it->second.SetLogLevel(logLevel);
+			if (it->second.IsEmpty())
+				_settings.erase(it);
 		}
 
 		void EnableBacktrace(const std::string& loggerName, bool enable)
 		{
-			MutexLock l(_registryMutex);
-			std::pair<LoggerRegistry::iterator, LoggerRegistry::iterator> range = _registry.equal_range(loggerName.c_str());
-			for (LoggerRegistry::iterator it = range.first; it != range.second; ++it)
+			MutexLock l(_mutex);
+			std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+			for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 				it->second->EnableBacktrace(enable);
+
+			SettingsRegistry::iterator it = _settings.find(loggerName);
+			if (it == _settings.end())
+				it = _settings.insert(std::make_pair(loggerName, NamedLoggerSettings())).first;
+			it->second.EnableBacktrace(enable);
+			if (it->second.IsEmpty())
+				_settings.erase(it);
 		}
 
 		void EnableHighlight(const std::string& loggerName, bool enable)
 		{
-			MutexLock l(_registryMutex);
-			std::pair<LoggerRegistry::iterator, LoggerRegistry::iterator> range = _registry.equal_range(loggerName.c_str());
-			for (LoggerRegistry::iterator it = range.first; it != range.second; ++it)
+			MutexLock l(_mutex);
+			std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+			for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 				it->second->EnableHighlight(enable);
+
+			SettingsRegistry::iterator it = _settings.find(loggerName);
+			if (it == _settings.end())
+				it = _settings.insert(std::make_pair(loggerName, NamedLoggerSettings())).first;
+			it->second.EnableHighlight(enable);
+			if (it->second.IsEmpty())
+				_settings.erase(it);
 		}
 	};
+	STINGRAYKIT_DECLARE_PTR(NamedLoggerRegistry);
 
 
 	class LoggerImpl
 	{
-		typedef std::vector<ILoggerSinkPtr> SinksBundle;
+		typedef std::vector<ILoggerSinkPtr>							SinksBundle;
 
 	private:
-		SinksBundle					_sinks;
-		Mutex						_logMutex;
+		SinksBundle				_sinks;
+		Mutex					_logMutex;
+		NamedLoggerRegistry		_registry;
 
 	public:
 		LoggerImpl()
@@ -166,6 +204,11 @@ namespace stingray
 			{ }
 		}
 
+
+		NamedLoggerRegistry& GetRegistry()
+		{ return _registry; }
+
+
 	private:
 		static void PutMessageToSinks(const SinksBundle& sinks, const LoggerMessage& message)
 		{
@@ -193,10 +236,18 @@ namespace stingray
 	NamedLogger::NamedLogger(const char* name) :
 		_params(name),
 		_logLevel(OptionalLogLevel::Null)
-	{ NamedLoggerRegistry::Instance().Register(_params.GetName(), this); }
+	{
+		LoggerImplPtr logger = LoggerSingleton::Instance();
+		if (logger)
+		{
+			NamedLoggerRegistryPtr r(logger, &(logger->GetRegistry()));
+			_token = MakeToken<FunctionToken>(bind(&NamedLoggerRegistry::Unregister, r, r->Register(_params.GetName(), this)));
+		}
+	}
+
 
 	NamedLogger::~NamedLogger()
-	{ NamedLoggerRegistry::Instance().Unregister(_params.GetName(), this); }
+	{ _token.Reset(); }
 
 
 	/////////////////////////////////////////////////////////////////
@@ -226,24 +277,36 @@ namespace stingray
 	{ return LoggerStream(null, GetLogLevel(), logLevel, duplicatingLogsFilter, &Logger::DoLog); }
 
 
-	void Logger::SetLogLevel(const std::string& loggerName, LogLevel logLevel)
-	{ NamedLoggerRegistry::Instance().SetLogLevel(loggerName, logLevel); }
-
-
-	LogLevel Logger::GetLogLevel(const std::string& loggerName)
-	{ return NamedLoggerRegistry::Instance().GetLogLevel(loggerName); }
+	void Logger::SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel)
+	{
+		LoggerImplPtr logger = LoggerSingleton::Instance();
+		if (logger)
+			logger->GetRegistry().SetLogLevel(loggerName, logLevel);
+	}
 
 
 	void Logger::EnableBacktrace(const std::string& loggerName, bool enable)
-	{ NamedLoggerRegistry::Instance().EnableBacktrace(loggerName, enable); }
+	{
+		LoggerImplPtr logger = LoggerSingleton::Instance();
+		if (logger)
+			logger->GetRegistry().EnableBacktrace(loggerName, enable);
+	}
 
 
 	void Logger::EnableHighlight(const std::string& loggerName, bool enable)
-	{ NamedLoggerRegistry::Instance().EnableHighlight(loggerName, enable); }
+	{
+		LoggerImplPtr logger = LoggerSingleton::Instance();
+		if (logger)
+			logger->GetRegistry().EnableHighlight(loggerName, enable);
+	}
 
 
 	void Logger::GetLoggerNames(std::set<std::string>& out)
-	{ NamedLoggerRegistry::Instance().GetLoggerNames(out); }
+	{
+		LoggerImplPtr logger = LoggerSingleton::Instance();
+		if (logger)
+			logger->GetRegistry().GetLoggerNames(out);
+	}
 
 
 	Token Logger::AddSink(const ILoggerSinkPtr& sink)
@@ -284,10 +347,10 @@ namespace stingray
 	}
 
 
-	void NamedLogger::SetLogLevel(LogLevel logLevel)
+	void NamedLogger::SetLogLevel(optional<LogLevel> logLevel)
 	{
 		_logLevel.store(OptionalLogLevel::FromLogLevel(logLevel), memory_order_relaxed);
-		Stream(logLevel) << "Log level is " << logLevel;
+		Stream(GetLogLevel()) << "Log level is " << logLevel;
 	}
 
 
