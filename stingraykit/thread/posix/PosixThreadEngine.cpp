@@ -411,32 +411,21 @@ namespace stingray
 		PosixThread(const function<void (const ICancellationToken&)>& func, const std::string& name, const ThreadDataStoragePtr& parent) :
 			_func(func), _initialName(name), _parent(parent), _started(false), _exited(false)
 		{
-			for (int attempt = 0; attempt < 3; ++attempt)
+			pthread_t id;
+			int ret = pthread_create(&id, &PosixThreadAttr::Get()->Get(), &PosixThread::ThreadFuncStatic, this);
+			if (ret != 0)
+				STINGRAYKIT_FATAL("pthread_create: ret = " + ToString(ret) + ", " + SystemException::GetErrorMessage(ret));
+
 			{
-				pthread_t id;
-				int ret = pthread_create(&id, &PosixThreadAttr::Get()->Get(), &PosixThread::ThreadFuncStatic, this);
-				if (ret == 0)
-				{
-					{
-						GenericMutexLock<PosixMutex> l(_mutex);
-						while (!_started)
-							_cv.Wait(_mutex, DummyCancellationToken());
-					}
-
-					STINGRAYKIT_CHECK(_data, "PosixThread failed to start!");
-					STINGRAYKIT_ASSERT(id == _data->GetPthreadId());
-					return;
-				}
-
-				if (ret == EAGAIN)
-				{
-					PTELogger.Warning() << "pthread_create failed with EAGAIN, retrying...";
-					Thread::Sleep(100);
-				}
-				else
-					STINGRAYKIT_FATAL("pthread_create: ret = " + ToString(ret) + ", " + SystemException::GetErrorMessage(ret));
+				GenericMutexLock<PosixMutex> l(_mutex);
+				while (!_started)
+					_cv.Wait(_mutex, DummyCancellationToken());
 			}
-			STINGRAYKIT_FATAL("pthread_create failed too much times!");
+
+			if (!_data)
+				STINGRAYKIT_FATAL("PosixThread failed to start!");
+
+			STINGRAYKIT_ASSERT(id == _data->GetPthreadId());
 		}
 
 
