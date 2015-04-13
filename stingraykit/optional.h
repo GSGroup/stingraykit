@@ -50,6 +50,8 @@ namespace stingray
 		ConstParamType get() const					{ CheckInitialized(); return _value.Ref(); }
 		ParamType      get()						{ CheckInitialized(); return _value.Ref(); }
 
+		ConstParamType get_value_or(ConstParamType value) const { return is_initialized()? _value.Ref() : value; }
+
 		ConstPtrParamType get_ptr() const			{ CheckInitialized(); return &_value.Ref(); }
 		PtrParamType get_ptr()						{ CheckInitialized(); return &_value.Ref(); }
 
