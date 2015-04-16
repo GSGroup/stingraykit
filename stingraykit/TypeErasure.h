@@ -1,6 +1,8 @@
 #ifndef STINGRAYKIT_TYPEERASURE_H
 #define STINGRAYKIT_TYPEERASURE_H
 
+#include <stingraykit/Macro.h>
+
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
 // provided that the above copyright notice and this permission notice appear in all copies.
@@ -73,8 +75,21 @@ namespace stingray
 	}
 
 
+#define DETAIL_TYPEERASURE_CALL_PARAM_DECL(ParamIndex_, ParamVariantId_) \
+	STINGRAYKIT_COMMA_IF(ParamIndex_) STINGRAYKIT_INSERT_IF(STINGRAYKIT_BITWISE_AND(ParamVariantId_, STINGRAYKIT_POW(2, ParamIndex_)), const) STINGRAYKIT_CAT(T, ParamIndex_)& STINGRAYKIT_CAT(p, ParamIndex_)
+
+#define DETAIL_TYPEERASURE_CALL(N_, ParamsCount_) \
+	template< typename Concept_ STINGRAYKIT_COMMA_IF(ParamsCount_) STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
+	typename EnableIf<GetTypeListLength<typename Concept_::ParamTypes>::Value == N_, typename Concept_::RetType>::ValueT \
+	Call(STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, DETAIL_TYPEERASURE_CALL_PARAM_DECL, N_)) \
+	{ \
+		typedef Tuple<typename Concept_::ParamTypes> ParamsTuple; \
+		return CallPacked<Concept_>(ParamsTuple(STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))); \
+	}
+
+
 	template<typename Concepts_, typename Base_ = TypeErasureBase>
-	class TypeErasurePtr
+	class TypeErasure
 	{
 		typedef typename TypeListPrepend<Concepts_, Concepts::Destructor>::ValueT AllConcepts;
 
@@ -82,10 +97,10 @@ namespace stingray
 		Base_* _data;
 
 	public:
-		TypeErasurePtr() : _data()
+		TypeErasure() : _data()
 		{ }
 
-		~TypeErasurePtr()
+		~TypeErasure()
 		{ }
 
 		template<typename Wrapped>
@@ -105,13 +120,20 @@ namespace stingray
 		{ _data = new TypeErasureImpl<AllConcepts, Wrapped>(p1, p2, p3); }
 
 		void Free()
-		{ Call<Concepts::Destructor>(MakeTuple()); _data = NULL; }
+		{ Call<Concepts::Destructor>(); _data = NULL; }
 
 		Base_* Get() const
 		{ return _data; }
 
+		STINGRAYKIT_REPEAT( 1, DETAIL_TYPEERASURE_CALL, 0)
+		STINGRAYKIT_REPEAT( 2, DETAIL_TYPEERASURE_CALL, 1)
+		STINGRAYKIT_REPEAT( 4, DETAIL_TYPEERASURE_CALL, 2)
+		STINGRAYKIT_REPEAT( 8, DETAIL_TYPEERASURE_CALL, 3)
+		STINGRAYKIT_REPEAT(16, DETAIL_TYPEERASURE_CALL, 4)
+		STINGRAYKIT_REPEAT(32, DETAIL_TYPEERASURE_CALL, 5)
+
 		template<typename Concept_>
-		typename Concept_::RetType Call(const Tuple<typename Concept_::ParamTypes>& params)
+		typename Concept_::RetType CallPacked(const Tuple<typename Concept_::ParamTypes>& params)
 		{
 			STINGRAYKIT_ASSERT(_data);
 			TypeErasureBase::VTableFunc* vTable = _data->GetVTable();
@@ -124,6 +146,10 @@ namespace stingray
 			return reinterpret_cast<TypedFunction*>(virtualFunc)(_data, params);
 		}
 	};
+
+
+#undef DETAIL_TYPEERASURE_CALL
+#undef DETAIL_TYPEERASURE_CALL_PARAM_DECL
 
 
 	template<typename Concepts_, typename Wrapped_>
