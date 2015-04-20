@@ -57,22 +57,44 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename TypeErasureImpl_, typename Concept_>
-		struct ConceptInvoker
-		{
-			static typename Concept_::RetType DoCall(TypeErasureBase* self, const Tuple<typename Concept_::ParamTypes>& paramTuple)
-			{
-				typedef Tuple<typename TypeListPrepend<typename Concept_::ParamTypes, TypeErasureImpl_&>::ValueT> AllParamsTuple;
-				AllParamsTuple allParams(static_cast<TypeErasureImpl_&>(*self), paramTuple);
-				return FunctorInvoker::Invoke(&Concept_::template Apply<TypeErasureImpl_>, allParams);
-			}
+		template<typename TypeErasureImpl_, typename Concept_, size_t ParamsCount = GetTypeListLength<typename Concept_::ParamTypes>::Value>
+		struct ConceptInvoker;
+
+
+#define DETAIL_CONCEPTINVOKER_PARAM(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename GetTypeListItem<typename Concept_::ParamTypes, Index_>::ValueT p##Index_
+#define DETAIL_CONCEPTINVOKER(N_) \
+		template<typename TypeErasureImpl_, typename Concept_> \
+		struct ConceptInvoker<TypeErasureImpl_, Concept_, N_> \
+		{ \
+			static typename Concept_::RetType DoCall(TypeErasureBase* self, STINGRAYKIT_REPEAT(N_, DETAIL_CONCEPTINVOKER_PARAM, ~)) \
+			{ return Concept_::Apply(static_cast<TypeErasureImpl_&>(*self), STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); } \
 		};
 
 
-		template<typename TypeErasureImpl_>
-		struct ConceptInvoker<TypeErasureImpl_, Concepts::Destructor>
+		template<typename TypeErasureImpl_, typename Concept_>
+		struct ConceptInvoker<TypeErasureImpl_, Concept_, 0>
 		{
-			static void DoCall(TypeErasureBase* self, const Tuple<TypeList_0>& paramTuple)
+			static typename Concept_::RetType DoCall(TypeErasureBase* self)
+			{ return Concept_::Apply(static_cast<TypeErasureImpl_&>(*self)); }
+		};
+
+
+		DETAIL_CONCEPTINVOKER(1)
+		DETAIL_CONCEPTINVOKER(2)
+		DETAIL_CONCEPTINVOKER(3)
+		DETAIL_CONCEPTINVOKER(4)
+		DETAIL_CONCEPTINVOKER(5)
+		DETAIL_CONCEPTINVOKER(6)
+		DETAIL_CONCEPTINVOKER(7)
+		DETAIL_CONCEPTINVOKER(8)
+		DETAIL_CONCEPTINVOKER(9)
+		DETAIL_CONCEPTINVOKER(10)
+
+
+		template<typename TypeErasureImpl_>
+		struct ConceptInvoker<TypeErasureImpl_, Concepts::Destructor, 0>
+		{
+			static void DoCall(TypeErasureBase* self)
 			{ delete static_cast<TypeErasureImpl_*>(self); }
 		};
 
@@ -98,14 +120,17 @@ namespace stingray
 #define DETAIL_TYPEERASURE_CALL_PARAM_DECL(ParamIndex_, ParamVariantId_) \
 	STINGRAYKIT_COMMA_IF(ParamIndex_) STINGRAYKIT_INSERT_IF(STINGRAYKIT_BITWISE_AND(ParamVariantId_, STINGRAYKIT_POW(2, ParamIndex_)), const) STINGRAYKIT_CAT(T, ParamIndex_)& STINGRAYKIT_CAT(p, ParamIndex_)
 
-
 #define DETAIL_TYPEERASURE_CALL(N_, ParamsCount_) \
 	template< typename Concept_ STINGRAYKIT_COMMA_IF(ParamsCount_) STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
 	typename Concept_::RetType Call(STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, DETAIL_TYPEERASURE_CALL_PARAM_DECL, N_)) \
 	{ \
 		CompileTimeAssert<GetTypeListLength<typename Concept_::ParamTypes>::Value == N_> ErrorParamsCountMismatch; (void)ErrorParamsCountMismatch; \
-		typedef Tuple<typename Concept_::ParamTypes> ParamsTuple; \
-		return CallPacked<Concept_>(ParamsTuple(STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))); \
+		TypeErasureBase::VTableFunc* vTable = _data->GetVTable(); \
+		const size_t ConceptIndex = IndexOfTypeListItem<AllConcepts, Concept_>::Value; \
+		TypeErasureBase::DetypedFunctionPtr virtualFunc = vTable(ConceptIndex); \
+		typedef typename TypeListPrepend<typename Concept_::ParamTypes, TypeErasureBase*>::ValueT AllParams; \
+		typedef typename Detail::SignatureBuilder<typename Concept_::RetType, AllParams>::ValueT Signature; \
+		return reinterpret_cast<Signature*>(virtualFunc)(_data STINGRAYKIT_COMMA_IF(ParamsCount_) STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
 	}
 
 
@@ -161,18 +186,6 @@ namespace stingray
 		STINGRAYKIT_REPEAT( 8, DETAIL_TYPEERASURE_CALL, 3)
 		STINGRAYKIT_REPEAT(16, DETAIL_TYPEERASURE_CALL, 4)
 		STINGRAYKIT_REPEAT(32, DETAIL_TYPEERASURE_CALL, 5)
-
-		template<typename Concept_>
-		typename Concept_::RetType CallPacked(const Tuple<typename Concept_::ParamTypes>& params)
-		{
-			TypeErasureBase::VTableFunc* vTable = _data->GetVTable();
-
-			const size_t ConceptIndex = IndexOfTypeListItem<AllConcepts, Concept_>::Value;
-			TypeErasureBase::DetypedFunctionPtr virtualFunc = vTable(ConceptIndex);
-
-			typedef typename Concept_::RetType TypedFunction(TypeErasureBase*, const Tuple<typename Concept_::ParamTypes>&);
-			return reinterpret_cast<TypedFunction*>(virtualFunc)(_data, params);
-		}
 	};
 
 
