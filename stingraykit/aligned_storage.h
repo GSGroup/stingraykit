@@ -8,12 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <cassert>
 #include <stddef.h>
 
 #include <stingraykit/Types.h>
-
 
 namespace stingray
 {
@@ -142,47 +140,6 @@ namespace stingray
 	};
 
 
-// useful on gcc-4.4
-#ifdef STINGRAY_USE_STRICT_ALIASING_STORAGE_FOR_WORKAROUND
-	template<typename T, bool IsPod = IsBuiltinType<T>::Value || IsPointer<T>::Value>
-	struct StorageFor
-	{
-		typename aligned_storage<sizeof(T), alignment_of<T>::Value>::type	_value;
-		T*																	_ptr;
-
-		void Ctor()											{ _ptr = new(&_value) T(); }
-
-		template < typename P1 >
-		void Ctor(const P1& p1)								{ _ptr = new(&_value) T(p1); }
-
-		template < typename P1, typename P2 >
-		void Ctor(const P1& p1, const P2& p2)				{ _ptr = new(&_value) T(p1, p2); }
-
-		template < typename P1, typename P2, typename P3 >
-		void Ctor(const P1& p1, const P2& p2, const P3& p3) { _ptr = new(&_value) T(p1, p2, p3); }
-
-		void Dtor()
-		{ Ref().~T(); }
-
-		T& Ref()				{ return *_ptr; }
-		const T& Ref() const	{ return *_ptr; }
-	};
-
-	template<typename T>
-	struct StorageFor<T, true>
-	{
-		T	_value;
-
-		StorageFor() : _value() { }
-
-		void Ctor()		{ _value = T(); }
-		void Ctor(T t)	{ _value = t; }
-		void Dtor()		{ }
-
-		T& Ref()				{ return _value; }
-		const T& Ref() const	{ return _value; }
-	};
-#else
 
 	template<typename T>
 	struct StorageFor
@@ -206,7 +163,6 @@ namespace stingray
 		T& Ref()				{ return *static_cast<T*>(static_cast<void*>(&_value)); }
 		const T& Ref() const	{ return *static_cast<const T*>(static_cast<const void*>(&_value)); }
 	};
-#endif
 
 
 }
