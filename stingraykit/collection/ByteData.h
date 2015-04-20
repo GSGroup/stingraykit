@@ -8,12 +8,11 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/TypeInfo.h>
-#include <stingraykit/exception.h>
-#include <stingraykit/fatal.h>
 #include <stingraykit/collection/iterator_base.h>
 #include <stingraykit/shared_ptr.h>
-#include <stingraykit/toolkit.h>
+#include <stingraykit/Dummy.h>
+#include <stingraykit/MetaProgramming.h>
+#include <stingraykit/TypeInfo.h>
 
 #include <vector>
 #include <algorithm>
@@ -95,6 +94,19 @@ namespace stingray
 	template < typename T >
 	class BasicByteData;
 
+	namespace ByteArrayUtils
+	{
+
+		STINGRAYKIT_DECLARE_METHOD_CHECK(begin);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(end);
+
+		template < typename T >
+		struct HasBeginEndMethods
+		{
+			static const bool Value = HasMethod_begin<T>::Value && HasMethod_end<T>::Value;
+		};
+
+	}
 
 	/**
 	 * @brief An object that retains shared ownership of an array of bytes
@@ -142,6 +154,11 @@ namespace stingray
 		BasicByteArray(const T* data, size_t size)
 			: _data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ std::copy(data, data + size, _data->begin()); }
+
+		template < typename U >
+		BasicByteArray(const U& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<U>::Value, Dummy>::ValueT* dummy = 0)
+			: _data(new CollectionType(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
+		{ }
 
 		template < typename InputIterator >
 		BasicByteArray(InputIterator first, InputIterator last)
