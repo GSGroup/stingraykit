@@ -140,22 +140,29 @@ namespace stingray
 	};
 
 
+#define DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(N_) \
+	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+	void Ctor(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
+	{ T* ptr = new(&_value) T(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); (void)ptr; assert(ptr == &Ref()); }
 
 	template<typename T>
 	struct StorageFor
 	{
 		typename aligned_storage<sizeof(T), alignment_of<T>::Value>::type	_value;
 
-		void Ctor()											{ T* ptr = new(&_value) T(); (void)ptr; assert(ptr == &Ref()); }
+		void Ctor()
+		{ T* ptr = new(&_value) T(); (void)ptr; assert(ptr == &Ref()); }
 
-		template < typename P1 >
-		void Ctor(const P1& p1)								{ T* ptr = new(&_value) T(p1); (void)ptr; assert(ptr == &Ref()); }
-
-		template < typename P1, typename P2 >
-		void Ctor(const P1& p1, const P2& p2)				{ T* ptr = new(&_value) T(p1, p2); (void)ptr; assert(ptr == &Ref()); }
-
-		template < typename P1, typename P2, typename P3 >
-		void Ctor(const P1& p1, const P2& p2, const P3& p3)	{ T* ptr = new(&_value) T(p1, p2, p3); (void)ptr; assert(ptr == &Ref()); }
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(1)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(2)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(3)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(4)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(5)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(6)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(7)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(8)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(9)
+		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(10)
 
 		void Dtor()
 		{ Ref().~T(); }
@@ -164,6 +171,8 @@ namespace stingray
 		const T& Ref() const	{ return *static_cast<const T*>(static_cast<const void*>(&_value)); }
 	};
 
+
+#undef DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR
 
 }
 
