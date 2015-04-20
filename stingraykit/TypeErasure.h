@@ -12,7 +12,6 @@
 #include <stingraykit/Tuple.h>
 #include <stingraykit/assert.h>
 #include <stingraykit/function/FunctorInvoker.h>
-#include <stingraykit/metaprogramming/ForIf.h>
 #include <stingraykit/reference.h>
 
 namespace stingray
@@ -194,6 +193,35 @@ namespace stingray
 #undef DETAIL_TYPEERASURE_ALLOCATE
 
 
+	namespace Detail
+	{
+		template <template <size_t> class FunctorClass, size_t MaxIndex>
+		struct RuntimeImplSelector;
+
+
+#define DETAIL_RUNTIMEIMPLSELECTOR_CASE(Index_, UserArg_) case Index_: FunctorClass<Index_>::Do(p1); return true;
+#define DETAIL_RUNTIMEIMPLSELECTOR(N_, UserArg_) \
+		template <template <size_t> class FunctorClass> \
+		struct RuntimeImplSelector<FunctorClass, N_> \
+		{ \
+			template<typename T1> \
+			static bool Do(size_t index, const T1& p1) \
+			{ \
+				switch (index) \
+				{ \
+				STINGRAYKIT_REPEAT_NESTING_2(N_, DETAIL_RUNTIMEIMPLSELECTOR_CASE, ~) \
+				default: return false; \
+				} \
+			} \
+		};
+
+		STINGRAYKIT_REPEAT(16, DETAIL_RUNTIMEIMPLSELECTOR, ~)
+
+#undef DETAIL_RUNTIMEIMPLSELECTOR
+#undef DETAIL_RUNTIMEIMPLSELECTOR_CASE
+	}
+
+
 #define DETAIL_TYPEERASUREIMPL_CTOR(N_) \
 	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
 	TypeErasureImpl(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) : Wrapped_(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)) \
@@ -229,24 +257,21 @@ namespace stingray
 		typedef void DetypedFunction();
 		typedef DetypedFunction* DetypedFunctionPtr;
 
-		template<int Index>
+		template<size_t Index>
 		struct VTableHelper
 		{
-			static bool Call(size_t index, DetypedFunctionPtr& result)
+			static void Do(DetypedFunctionPtr& result)
 			{
-				if (index != Index)
-					return true;
 				typedef typename GetTypeListItem<Concepts, Index>::ValueT Concept;
 				typedef Detail::ConceptInvoker<Self, Concept> ConceptInvoker;
 				result = reinterpret_cast<DetypedFunctionPtr>(&ConceptInvoker::DoCall);
-				return false; // stop ForIf
 			}
 		};
 
 		static DetypedFunctionPtr VTableFuncImpl(size_t functionIndex)
 		{
 			DetypedFunctionPtr result = NULL;
-			if (ForIf<GetTypeListLength<Concepts>::Value, VTableHelper>::Do(functionIndex, ref(result)))
+			if (!Detail::RuntimeImplSelector<VTableHelper, GetTypeListLength<Concepts>::Value>::Do(functionIndex, ref(result)))
 				Detail::TypeErasureHelper::Terminate();
 			return result;
 		}
