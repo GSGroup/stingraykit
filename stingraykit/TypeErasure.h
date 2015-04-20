@@ -1,8 +1,6 @@
 #ifndef STINGRAYKIT_TYPEERASURE_H
 #define STINGRAYKIT_TYPEERASURE_H
 
-#include <stingraykit/Macro.h>
-
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
 // provided that the above copyright notice and this permission notice appear in all copies.
@@ -10,7 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/Macro.h>
+#include <stingraykit/Tuple.h>
+#include <stingraykit/assert.h>
+#include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/metaprogramming/ForIf.h>
+#include <stingraykit/reference.h>
 
 namespace stingray
 {
@@ -72,17 +75,35 @@ namespace stingray
 			static void DoCall(TypeErasureBase* self, const Tuple<TypeList_0>& paramTuple)
 			{ delete static_cast<TypeErasureImpl_*>(self); }
 		};
+
+
+		struct TypeErasureHelper
+		{
+			static void Terminate()
+			{ STINGRAYKIT_FATAL("Pure virtual function called"); }
+		};
+	}
+
+
+#define DETAIL_TYPEERASURE_ALLOCATE(N_) \
+	template<typename Wrapped, STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+	Wrapped* Allocate(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
+	{ \
+		Wrapped* result = new TypeErasureImpl<AllConcepts, Wrapped>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
+		_data = result; \
+		return result; \
 	}
 
 
 #define DETAIL_TYPEERASURE_CALL_PARAM_DECL(ParamIndex_, ParamVariantId_) \
 	STINGRAYKIT_COMMA_IF(ParamIndex_) STINGRAYKIT_INSERT_IF(STINGRAYKIT_BITWISE_AND(ParamVariantId_, STINGRAYKIT_POW(2, ParamIndex_)), const) STINGRAYKIT_CAT(T, ParamIndex_)& STINGRAYKIT_CAT(p, ParamIndex_)
 
+
 #define DETAIL_TYPEERASURE_CALL(N_, ParamsCount_) \
 	template< typename Concept_ STINGRAYKIT_COMMA_IF(ParamsCount_) STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
-	typename EnableIf<GetTypeListLength<typename Concept_::ParamTypes>::Value == N_, typename Concept_::RetType>::ValueT \
-	Call(STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, DETAIL_TYPEERASURE_CALL_PARAM_DECL, N_)) \
+	typename Concept_::RetType Call(STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, DETAIL_TYPEERASURE_CALL_PARAM_DECL, N_)) \
 	{ \
+		CompileTimeAssert<GetTypeListLength<typename Concept_::ParamTypes>::Value == N_> ErrorParamsCountMismatch; (void)ErrorParamsCountMismatch; \
 		typedef Tuple<typename Concept_::ParamTypes> ParamsTuple; \
 		return CallPacked<Concept_>(ParamsTuple(STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))); \
 	}
@@ -100,24 +121,33 @@ namespace stingray
 		TypeErasure() : _data()
 		{ }
 
+		TypeErasure(const TypeErasure& other) : _data(other._data)
+		{ }
+
 		~TypeErasure()
 		{ }
 
+		TypeErasure& operator = (const TypeErasure& other)
+		{ _data = other._data; return *this; }
+
 		template<typename Wrapped>
-		void Allocate()
-		{ _data = new TypeErasureImpl<AllConcepts, Wrapped>(); }
+		Wrapped* Allocate()
+		{
+			Wrapped* result = new TypeErasureImpl<AllConcepts, Wrapped>();
+			_data = result;
+			return result;
+		}
 
-		template<typename Wrapped, typename T1>
-		void Allocate(const T1& p1)
-		{ _data = new TypeErasureImpl<AllConcepts, Wrapped>(p1); }
-
-		template<typename Wrapped, typename T1, typename T2>
-		void Allocate(const T1& p1, const T2& p2)
-		{ _data = new TypeErasureImpl<AllConcepts, Wrapped>(p1, p2); }
-
-		template<typename Wrapped, typename T1, typename T2, typename T3>
-		void Allocate(const T1& p1, const T2& p2, const T3& p3)
-		{ _data = new TypeErasureImpl<AllConcepts, Wrapped>(p1, p2, p3); }
+		DETAIL_TYPEERASURE_ALLOCATE(1)
+		DETAIL_TYPEERASURE_ALLOCATE(2)
+		DETAIL_TYPEERASURE_ALLOCATE(3)
+		DETAIL_TYPEERASURE_ALLOCATE(4)
+		DETAIL_TYPEERASURE_ALLOCATE(5)
+		DETAIL_TYPEERASURE_ALLOCATE(6)
+		DETAIL_TYPEERASURE_ALLOCATE(7)
+		DETAIL_TYPEERASURE_ALLOCATE(8)
+		DETAIL_TYPEERASURE_ALLOCATE(9)
+		DETAIL_TYPEERASURE_ALLOCATE(10)
 
 		void Free()
 		{ Call<Concepts::Destructor>(); _data = NULL; }
@@ -135,9 +165,7 @@ namespace stingray
 		template<typename Concept_>
 		typename Concept_::RetType CallPacked(const Tuple<typename Concept_::ParamTypes>& params)
 		{
-			STINGRAYKIT_ASSERT(_data);
 			TypeErasureBase::VTableFunc* vTable = _data->GetVTable();
-			STINGRAYKIT_ASSERT(vTable);
 
 			const size_t ConceptIndex = IndexOfTypeListItem<AllConcepts, Concept_>::Value;
 			TypeErasureBase::DetypedFunctionPtr virtualFunc = vTable(ConceptIndex);
@@ -150,6 +178,13 @@ namespace stingray
 
 #undef DETAIL_TYPEERASURE_CALL
 #undef DETAIL_TYPEERASURE_CALL_PARAM_DECL
+#undef DETAIL_TYPEERASURE_ALLOCATE
+
+
+#define DETAIL_TYPEERASUREIMPL_CTOR(N_) \
+	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+	TypeErasureImpl(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) : Wrapped_(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)) \
+	{ TypeErasureBase::_vTable = &VTableFuncImpl; }
 
 
 	template<typename Concepts_, typename Wrapped_>
@@ -163,17 +198,16 @@ namespace stingray
 		TypeErasureImpl()
 		{ TypeErasureBase::_vTable = &VTableFuncImpl; }
 
-		template<typename T1>
-		TypeErasureImpl(const T1& p1) : Wrapped_(p1)
-		{ TypeErasureBase::_vTable = &VTableFuncImpl; }
-
-		template<typename T1, typename T2>
-		TypeErasureImpl(const T1& p1, const T2& p2) : Wrapped_(p1, p2)
-		{ TypeErasureBase::_vTable = &VTableFuncImpl; }
-
-		template<typename T1, typename T2, typename T3>
-		TypeErasureImpl(const T1& p1, const T2& p2, const T3& p3) : Wrapped_(p1, p2, p3)
-		{ TypeErasureBase::_vTable = &VTableFuncImpl; }
+		DETAIL_TYPEERASUREIMPL_CTOR(1)
+		DETAIL_TYPEERASUREIMPL_CTOR(2)
+		DETAIL_TYPEERASUREIMPL_CTOR(3)
+		DETAIL_TYPEERASUREIMPL_CTOR(4)
+		DETAIL_TYPEERASUREIMPL_CTOR(5)
+		DETAIL_TYPEERASUREIMPL_CTOR(6)
+		DETAIL_TYPEERASUREIMPL_CTOR(7)
+		DETAIL_TYPEERASUREIMPL_CTOR(8)
+		DETAIL_TYPEERASUREIMPL_CTOR(9)
+		DETAIL_TYPEERASUREIMPL_CTOR(10)
 
 		~TypeErasureImpl()
 		{ TypeErasureBase::_vTable = NULL; }
@@ -200,10 +234,13 @@ namespace stingray
 		{
 			DetypedFunctionPtr result = NULL;
 			if (ForIf<GetTypeListLength<Concepts>::Value, VTableHelper>::Do(functionIndex, ref(result)))
-				STINGRAYKIT_FATAL("Pure virtual function called");
+				Detail::TypeErasureHelper::Terminate();
 			return result;
 		}
 	};
+
+
+#undef DETAIL_TYPEERASUREIMPL_CTOR
 
 }
 
