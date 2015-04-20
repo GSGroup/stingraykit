@@ -15,6 +15,7 @@
 #include <stingraykit/Atomic.h>
 #include <stingraykit/Dummy.h>
 #include <stingraykit/Macro.h>
+#include <stingraykit/TypeErasure.h>
 #include <stingraykit/TypeInfo.h>
 #include <stingraykit/assert.h>
 #include <stingraykit/exception.h>
@@ -53,67 +54,102 @@ namespace stingray
 
 	namespace Detail
 	{
-		struct IDeleter
+		struct ISharedPtrData : public TypeErasureBase
 		{
-			virtual ~IDeleter() { }
-			virtual void Delete() = 0;
-		};
-
-
-		class shared_ptr_data
-		{
-			STINGRAYKIT_NONCOPYABLE(shared_ptr_data);
-
-		public:
 			atomic_int_type		_strongReferences;
 			atomic_int_type		_weakReferences;
-			IDeleter*			_deleter;
 
-			inline shared_ptr_data(IDeleter* deleter) :
-				_strongReferences(1), _weakReferences(1), _deleter(deleter)
+			ISharedPtrData() : _strongReferences(1), _weakReferences(1)
 			{ }
 		};
 
 
-		class shared_ptr_impl
+		template<typename T>
+		class DefaultSharedPtrData : public ISharedPtrData
 		{
-			shared_ptr_data		*_value;
+		private:
+			T*	_ptr;
 
 		public:
-			inline shared_ptr_impl() : _value(null)
+			DefaultSharedPtrData(T* ptr) : _ptr(ptr)
 			{ }
 
-			inline shared_ptr_impl(const shared_ptr_impl& other) :
-				_value(other._value)
+			void Dispose()
+			{ delete _ptr; }
+		};
+
+
+		template<typename T, typename Deleter>
+		class DeleterSharedPtrData : public ISharedPtrData
+		{
+		private:
+			T*		_ptr;
+			Deleter	_deleter;
+
+		public:
+			DeleterSharedPtrData(T* ptr, const Deleter& deleter) : _ptr(ptr), _deleter(deleter)
 			{ }
 
-			inline shared_ptr_impl& operator = (const shared_ptr_impl& other)
+			void Dispose()
+			{ _deleter(_ptr); }
+		};
+
+
+		struct DisposeConcept : public function_info<void, TypeList_0>
+		{
+			template<typename T>
+			static void Apply(T& t)
+			{ t.Dispose(); }
+		};
+
+
+#define DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(N_) \
+		template<typename DataImpl_, STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+		DataImpl_* Allocate(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
+		{ return _value.Allocate<DataImpl_>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); }
+
+
+		class SharedPtrImpl
+		{
+			TypeErasure<TypeList<DisposeConcept>::type, ISharedPtrData>	_value;
+
+		public:
+			inline SharedPtrImpl()
+			{ }
+
+			template<typename DataImpl_>
+			DataImpl_* Allocate()
+			{ return _value.Allocate<DataImpl_>(); }
+
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(1)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(2)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(3)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(4)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(5)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(6)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(7)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(8)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(9)
+			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(10)
+
+			void Dispose()								{ return _value.Call<DisposeConcept>(); }
+			void Destroy()								{ _value.Free(); }
+
+			atomic_int_type GetWeakReferences() const	{ return _value.Get()->_weakReferences; }
+			atomic_int_type AddWeakReference()			{ return Atomic::Inc(_value.Get()->_weakReferences); }
+			atomic_int_type ReleaseWeakReference()		{ return Atomic::Dec(_value.Get()->_weakReferences); }
+
+			atomic_int_type GetStrongReferences() const	{ return _value.Get()->_strongReferences; }
+			atomic_int_type AddStrongReference()		{ return Atomic::Inc(_value.Get()->_strongReferences); }
+			atomic_int_type ReleaseStrongReference()	{ return Atomic::Dec(_value.Get()->_strongReferences); }
+
+			bool ReleaseStrongIfUnique()				{ return Atomic::CompareAndExchange(_value.Get()->_strongReferences, 1, 0) == 1; }
+			atomic_int_type TryAddStrongReference()
 			{
-				_value = other._value;
-				return *this;
-			}
-
-			inline void Init(IDeleter* deleter)					{ STINGRAYKIT_DEBUG_ASSERT(!_value); _value = new shared_ptr_data(deleter); }
-			inline void Destroy()								{ STINGRAYKIT_DEBUG_ASSERT(_value); delete _value; _value = null; }
-
-			inline IDeleter* GetDeleter() const					{ STINGRAYKIT_DEBUG_ASSERT(_value); return _value->_deleter; }
-
-			inline atomic_int_type GetWeakReferences() const	{ STINGRAYKIT_DEBUG_ASSERT(_value); return _value->_weakReferences; }
-			inline atomic_int_type AddWeakReference()			{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::Inc(_value->_weakReferences); }
-			inline atomic_int_type ReleaseWeakReference()		{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::Dec(_value->_weakReferences); }
-
-			inline atomic_int_type GetStrongReferences() const	{ STINGRAYKIT_DEBUG_ASSERT(_value); return _value->_strongReferences; }
-			inline atomic_int_type AddStrongReference()			{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::Inc(_value->_strongReferences); }
-			inline atomic_int_type ReleaseStrongReference()		{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::Dec(_value->_strongReferences); }
-
-			inline bool ReleaseStrongIfUnique()					{ STINGRAYKIT_DEBUG_ASSERT(_value); return Atomic::CompareAndExchange(_value->_strongReferences, 1, 0) == 1; }
-			inline atomic_int_type TryAddStrongReference()
-			{
-				STINGRAYKIT_DEBUG_ASSERT(_value);
-				atomic_int_type c = Atomic::Load(_value->_strongReferences);
+				atomic_int_type c = Atomic::Load(_value.Get()->_strongReferences);
 				while (c != 0)
 				{
-					atomic_int_type newc = Atomic::CompareAndExchange(_value->_strongReferences, c, c + 1);
+					atomic_int_type newc = Atomic::CompareAndExchange(_value.Get()->_strongReferences, c, c + 1);
 					if (newc == c)
 						return newc;
 					c = newc;
@@ -121,7 +157,7 @@ namespace stingray
 				return 0;
 			}
 
-			const shared_ptr_data* get_ptr() const				{ return _value; }
+			const ISharedPtrData* get_ptr() const		{ return _value.Get(); }
 		};
 
 
@@ -145,32 +181,6 @@ namespace stingray
 			static void LogReleaseRef(atomic_int_type referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)
 			{ Detail::DoLogReleaseRef(shared_ptr_traits<T>::get_trace_class_name(), referencesCount, objPtrVal, sharedPtrPtrVal); }
 		};
-
-
-		template <typename T, typename FunctorType>
-		struct DeleterImpl : public IDeleter
-		{
-		private:
-			T*			_ptr;
-			FunctorType	_func;
-
-		public:
-			DeleterImpl(T* ptr, const FunctorType& func) : _ptr(ptr), _func(func)
-			{ }
-
-			virtual ~DeleterImpl()
-			{ }
-
-			virtual void Delete() { _func(_ptr); }
-		};
-
-
-		template<typename T, typename FunctorType>
-		inline IDeleter* MakeNewDeleter(T* ptr, const FunctorType& func)
-		{ return new DeleterImpl<T, FunctorType>(ptr, func); }
-
-		inline IDeleter* MakeEmptyDeleter()
-		{ return NULL; }
 	}
 
 
@@ -190,16 +200,12 @@ namespace stingray
 
 	private:
 		T*						_rawPtr;
-		Detail::shared_ptr_impl	_impl;
+		Detail::SharedPtrImpl	_impl;
 
 	private:
-		inline shared_ptr(T* rawPtr, const Detail::shared_ptr_impl& impl) :
+		inline shared_ptr(T* rawPtr, const Detail::SharedPtrImpl& impl) :
 			_rawPtr(rawPtr), _impl(impl)
-		{
-			STINGRAYKIT_DEBUG_ASSERT(_rawPtr);
-			atomic_int_type c = _impl.AddStrongReference();
-			Detail::SharedPtrRefCounter<T>::LogAddRef(c, _rawPtr, this);
-		}
+		{ }
 
 	public:
 		typedef T ValueType;
@@ -210,7 +216,7 @@ namespace stingray
 			if (!_rawPtr)
 				return;
 
-			_impl.Init(Detail::MakeEmptyDeleter());
+			_impl.Allocate<Detail::DefaultSharedPtrData<T> >(rawPtr);
 			Detail::SharedPtrRefCounter<T>::LogAddRef(1, _rawPtr, this);
 
 			init_enable_shared_from_this(_rawPtr);
@@ -223,7 +229,7 @@ namespace stingray
 			if (!_rawPtr)
 				return;
 
-			_impl.Init(Detail::MakeNewDeleter(rawPtr, deleter));
+			_impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(rawPtr, deleter);
 			Detail::SharedPtrRefCounter<T>::LogAddRef(1, _rawPtr, this);
 
 			init_enable_shared_from_this(_rawPtr);
@@ -374,16 +380,7 @@ namespace stingray
 
 		void do_delete()
 		{
-			Detail::IDeleter* deleter = _impl.GetDeleter();
-			if (deleter)
-			{
-				if (_rawPtr)
-					deleter->Delete();
-				delete deleter;
-			}
-			else
-				delete _rawPtr;
-
+			_impl.Dispose();
 			_rawPtr = null;
 
 			atomic_int_type wc = _impl.ReleaseWeakReference();
@@ -397,13 +394,14 @@ namespace stingray
 			else
 				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
 
-			_impl = Detail::shared_ptr_impl();
+			_impl = Detail::SharedPtrImpl();
 		}
 
 
 		inline void check_ptr() const
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("shared_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
 	};
+
 
 	/** @brief Simple weak_ptr implementation */
 	template < typename T >
@@ -414,7 +412,7 @@ namespace stingray
 
 	private:
 		T*								_rawPtr;
-		mutable Detail::shared_ptr_impl	_impl;
+		mutable Detail::SharedPtrImpl	_impl;
 
 	public:
 		inline weak_ptr() : _rawPtr()
@@ -479,10 +477,6 @@ namespace stingray
 			Detail::SharedPtrRefCounter<T>::LogAddRef(sc, _rawPtr, this);
 
 			shared_ptr<T> result(_rawPtr, _impl);
-
-			atomic_int_type sc2 = _impl.ReleaseStrongReference();
-			Detail::SharedPtrRefCounter<T>::LogReleaseRef(sc2, _rawPtr, this);
-
 			return result;
 		}
 
