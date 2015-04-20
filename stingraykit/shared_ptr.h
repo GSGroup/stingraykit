@@ -17,6 +17,7 @@
 #include <stingraykit/Macro.h>
 #include <stingraykit/TypeErasure.h>
 #include <stingraykit/TypeInfo.h>
+#include <stingraykit/aligned_storage.h>
 #include <stingraykit/assert.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/fatal.h>
@@ -93,6 +94,44 @@ namespace stingray
 			void Dispose()
 			{ _deleter(_ptr); }
 		};
+
+
+#define DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(N_) \
+	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+	InplaceSharedPtrData(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
+	{ _storage.Ctor(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); }
+
+
+		template<typename T>
+		class InplaceSharedPtrData : public ISharedPtrData
+		{
+		private:
+			StorageFor<T>	_storage;
+
+		public:
+			InplaceSharedPtrData()
+			{ _storage.Ctor(); }
+
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(1)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(2)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(3)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(4)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(5)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(6)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(7)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(8)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(9)
+			DETAIL_STINGRAYKIT_INPLACEDATA_CTOR(10)
+
+			void Dispose()
+			{ _storage.Dtor(); }
+
+			T* Get()
+			{ return &_storage.Ref(); }
+		};
+
+
+#undef DETAIL_STINGRAYKIT_INPLACEDATA_CTOR
 
 
 		struct DisposeConcept : public function_info<void, TypeList_0>
@@ -188,6 +227,10 @@ namespace stingray
 	class weak_ptr;
 
 
+	template < typename T >
+	class MakeShared;
+
+
 	/** @brief Simple shared_ptr implementation */
 	template < typename T >
 	class shared_ptr : public safe_bool<shared_ptr<T> >
@@ -197,6 +240,9 @@ namespace stingray
 
 		template < typename U >
 		friend class shared_ptr;
+
+		template < typename U >
+		friend class MakeShared;
 
 	private:
 		T*						_rawPtr;
@@ -630,15 +676,52 @@ namespace stingray
 	};
 
 
+#define DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(N_) \
+	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+	shared_ptr<ObjType> operator() (STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) const \
+	{ \
+		Detail::SharedPtrImpl impl; \
+		Detail::InplaceSharedPtrData<ObjType>* data = impl.Allocate<Detail::InplaceSharedPtrData<ObjType> >(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
+		shared_ptr<ObjType> result(data->Get(), impl); \
+		Detail::SharedPtrRefCounter<ObjType>::LogAddRef(1, result.get(), &result); \
+		return result; \
+	}
+
+	template <typename ObjType>
+	struct MakeShared
+	{
+		typedef shared_ptr<ObjType> RetType;
+
+		shared_ptr<ObjType> operator() () const
+		{
+			Detail::SharedPtrImpl impl;
+			Detail::InplaceSharedPtrData<ObjType>* data = impl.Allocate<Detail::InplaceSharedPtrData<ObjType> >();
+			shared_ptr<ObjType> result(data->Get(), impl);
+			Detail::SharedPtrRefCounter<ObjType>::LogAddRef(1, result.get(), &result);
+			return result;
+		}
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(1)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(2)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(3)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(4)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(5)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(6)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(7)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(8)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(9)
+		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(10)
+	};
+
+#undef DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR
+
+
 	template < typename ObjType >
-	shared_ptr<ObjType> make_shared() { return shared_ptr<ObjType>(new ObjType); }
-	template < typename ObjType >
-	shared_ptr<ObjType> make_shared_0() { return shared_ptr<ObjType>(new ObjType); }
+	shared_ptr<ObjType> make_shared() { return MakeShared<ObjType>()(); }
 
 
 #define DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
 	template < typename ObjType, Typenames_ > \
-	shared_ptr<ObjType> make_shared(ParamsDecl_) { return shared_ptr<ObjType>(new ObjType(Params_)); }
+	shared_ptr<ObjType> make_shared(ParamsDecl_) { return MakeShared<ObjType>()(Params_); }
 
 
 #define TY typename
@@ -658,29 +741,6 @@ namespace stingray
 #undef P_
 #undef TY
 #undef DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED
-
-
-#define DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(N_) \
-	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
-	shared_ptr<ObjType> operator() (STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) const \
-	{ return shared_ptr<ObjType>(new ObjType(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))); }
-
-	template <typename ObjType>
-	struct MakeShared
-	{
-		typedef shared_ptr<ObjType> RetType;
-
-		shared_ptr<ObjType> operator() () const
-		{ return shared_ptr<ObjType>(new ObjType()); }
-		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(1);
-		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(2);
-		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(3);
-		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(4);
-		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(5);
-		DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR(6);
-	};
-
-#undef DETAIL_STINGRAYKIT_MAKE_SHARED_FUNCTOR_OPERATOR
 
 
 	template<typename T>
