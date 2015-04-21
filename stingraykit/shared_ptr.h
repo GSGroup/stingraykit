@@ -199,6 +199,7 @@ namespace stingray
 			const ISharedPtrData* get_ptr() const		{ return _value.Get(); }
 		};
 
+#undef DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE
 
 		void DoLogAddRef(const char* className, atomic_int_type refs, const void* objPtrVal, const void* sharedPtrPtrVal);
 		void DoLogReleaseRef(const char* className, atomic_int_type refs, const void* objPtrVal, const void* sharedPtrPtrVal);
