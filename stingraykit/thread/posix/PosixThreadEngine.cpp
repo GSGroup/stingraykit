@@ -197,7 +197,7 @@ namespace stingray
 
 		~ThreadDataStorage()
 		{
-			if (_registry)
+			if (!_registry)
 				return;
 
 			GenericMutexLock<PosixMutex> l(_registry->GetSync());
