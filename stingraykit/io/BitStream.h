@@ -264,7 +264,7 @@ namespace stingray
 		inline ByteDataType GetAvailableByteData() const
 		{
 			STINGRAYKIT_CHECK((GetBitPosition() % 8) == 0, "misaligned stream");
-			return ByteDataType(GetData(), GetBitPosition());
+			return ByteDataType(GetData(), GetBitPosition() / 8);
 		}
 
 	private:
