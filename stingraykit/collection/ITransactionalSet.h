@@ -65,7 +65,7 @@ namespace stingray
 		typedef ISetTransaction<T>			Transaction;
 		STINGRAYKIT_DECLARE_PTR(Transaction);
 
-		virtual const Mutex& GetSync() const = 0;
+		virtual const Mutex& GetSyncRoot() const = 0;
 		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const = 0;
 
 		virtual TransactionPtr StartTransaction() = 0;

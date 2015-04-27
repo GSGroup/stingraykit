@@ -316,17 +316,17 @@ namespace stingray
 		TransactionalSet() : _setImpl(make_shared<SetImpl>())
 		{ }
 
-		virtual const Mutex& GetSync() const									{ return _setImpl->GetSync(); }
+		virtual const Mutex& GetSyncRoot() const								{ return _setImpl->GetSync(); }
 		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const	{ return _setImpl->OnChanged(); }
 
-		virtual int GetCount() const											{ MutexLock l(GetSync()); return GetContainer().size(); }
-		virtual bool IsEmpty() const											{ MutexLock l(GetSync()); return GetContainer().empty(); }
+		virtual int GetCount() const											{ MutexLock l(GetSyncRoot()); return GetContainer().size(); }
+		virtual bool IsEmpty() const											{ MutexLock l(GetSyncRoot()); return GetContainer().empty(); }
 
-		virtual bool Contains(const T& value) const								{ MutexLock l(GetSync()); return GetContainer().find(value) != GetContainer().end(); }
+		virtual bool Contains(const T& value) const								{ MutexLock l(GetSyncRoot()); return GetContainer().find(value) != GetContainer().end(); }
 
 		virtual void Add(const T& value)
 		{
-			MutexLock l(GetSync());
+			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
 
 			EnumerableBuilder<DiffEntryType> diff;
@@ -344,7 +344,7 @@ namespace stingray
 
 		virtual void Remove(const T& value)
 		{
-			MutexLock l(GetSync());
+			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
 
 			EnumerableBuilder<DiffEntryType> diff;
@@ -358,7 +358,7 @@ namespace stingray
 
 		virtual bool TryRemove(const T& value)
 		{
-			MutexLock l(GetSync());
+			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
 
 			EnumerableBuilder<DiffEntryType> diff;
@@ -374,7 +374,7 @@ namespace stingray
 
 		virtual void Clear()
 		{
-			MutexLock l(GetSync());
+			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
 
 			EnumerableBuilder<DiffEntryType> diff;
