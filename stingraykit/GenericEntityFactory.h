@@ -8,10 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/exception.h>
 #include <stingraykit/TypeList.h>
-
 
 namespace stingray
 {
@@ -58,6 +56,7 @@ namespace stingray
 
 	}
 
+
 	template < typename Derived, typename TagType, typename ReturnType >
 	class GenericInvoker
 	{
@@ -81,6 +80,7 @@ namespace stingray
 #undef DETAIL_STINGRAYKIT_DECLARE_GENERICINVOKER_INVOKE
 	};
 
+
 	class UnknownEntityTagException : public Exception
 	{
 	public:
@@ -89,6 +89,7 @@ namespace stingray
 			: Exception("Unknown tag: " + tag.ToString())
 		{ }
 	};
+
 
 	template < typename EntityTagType, size_t EntityTagOffset, size_t EntityTagLength >
 	struct GenericEntityTagReader
@@ -100,6 +101,7 @@ namespace stingray
 			return stream.template Read<EntityTagLength>();
 		}
 	};
+
 
 	template < typename Derived, typename BaseEntityType, typename EntityTagType, typename EntityTagReader = GenericEntityTagReader<EntityTagType, 0, 8> >
 	class GenericEntityFactory
@@ -161,29 +163,6 @@ namespace stingray
 		}
 	};
 
-	template < typename BaseEntityType, typename StreamType_ >
-	struct IEntityFactory
-	{
-		typedef StreamType_									StreamType;
-		typedef IEntityFactory<BaseEntityType, StreamType>	InterfaceType;
-		typedef shared_ptr<BaseEntityType>					EntityPtr;
-
-		virtual ~IEntityFactory() { }
-
-		virtual EntityPtr Create(StreamType& stream) const = 0;
-	};
-
-	template < typename InterfaceType, typename EntityFactory >
-	struct EntityFactoryWrapper : public InterfaceType
-	{
-		typedef typename InterfaceType::StreamType		StreamType;
-		typedef typename InterfaceType::EntityPtr		EntityPtr;
-
-		virtual EntityPtr Create(StreamType& stream) const
-		{ return EntityFactory::Create(stream); }
-	};
-
 }
-
 
 #endif
