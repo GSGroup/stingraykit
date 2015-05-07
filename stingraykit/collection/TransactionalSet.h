@@ -184,14 +184,14 @@ namespace stingray
 
 			virtual void Add(const T& value)
 			{
-				typename Container::const_iterator it = GetContainer().find(value);
-				if (it != GetContainer().end())
-					GetRemoved().insert(*it);
-
-				it = GetAdded().find(value);
-				if (it != GetAdded().end())
-					GetAdded().erase(it);
-				STINGRAYKIT_CHECK(GetAdded().insert(value).second, LogicException("Adding element that already exists!"));
+				typename Container::const_iterator it = GetRemoved().find(value);
+				if (it != GetRemoved().end())
+				{
+					GetRemoved().erase(it);
+					return;
+				}
+				STINGRAYKIT_CHECK(GetContainer().count(value) == 0, "Value already exists!");
+				STINGRAYKIT_CHECK(GetAdded().insert(value).second, "Value already exists!");
 			}
 
 			virtual void Remove(const T& value)
@@ -204,8 +204,7 @@ namespace stingray
 				}
 				it = GetContainer().find(value);
 				STINGRAYKIT_CHECK(it != GetContainer().end(), "No such value!");
-				STINGRAYKIT_CHECK(GetRemoved().count(value) == 0, "No such value!");
-				GetRemoved().insert(*it);
+				STINGRAYKIT_CHECK(GetRemoved().insert(*it).second, "No such value!");
 			}
 
 			virtual void Clear()
@@ -223,10 +222,9 @@ namespace stingray
 					return true;
 				}
 				it = GetContainer().find(value);
-				if (it == GetContainer().end() || GetRemoved().count(value) != 0)
+				if (it == GetContainer().end())
 					return false;
-				GetRemoved().insert(*it);
-				return true;
+				return GetRemoved().insert(*it).second;
 			}
 
 			virtual typename base::DiffTypePtr Diff() const
@@ -329,16 +327,9 @@ namespace stingray
 			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
 
-			EnumerableBuilder<DiffEntryType> diff;
-			typename Container::iterator it = GetContainer().find(value);
-			if (it != GetContainer().end())
-			{
-				diff % DiffEntryType(*it, CollectionOp::Removed);
-				GetContainer().erase(it);
-			}
-			diff % DiffEntryType(value, CollectionOp::Added);
-			STINGRAYKIT_CHECK(GetContainer().insert(value).second, LogicException("Adding element that already exists!"));
-			_setImpl->InvokeOnChanged(diff.Get());
+			STINGRAYKIT_CHECK(GetContainer().insert(value).second, "Value already exists!");
+
+			_setImpl->InvokeOnChanged(MakeOneItemEnumerable(DiffEntryType(value, CollectionOp::Added)));
 			_setImpl->GetStamp()++;
 		}
 
@@ -352,6 +343,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(it != GetContainer().end(), "Removing non-existing element!");
 			diff % DiffEntryType(*it, CollectionOp::Removed);
 			GetContainer().erase(it);
+
 			_setImpl->InvokeOnChanged(diff.Get());
 			_setImpl->GetStamp()++;
 		}
@@ -367,6 +359,7 @@ namespace stingray
 				return false;
 			diff % DiffEntryType(*it, CollectionOp::Removed);
 			GetContainer().erase(it);
+
 			_setImpl->InvokeOnChanged(diff.Get());
 			_setImpl->GetStamp()++;
 			return true;
@@ -381,6 +374,7 @@ namespace stingray
 			for (typename Container::const_iterator it = GetContainer().begin(); it != GetContainer().end(); ++it)
 				diff % DiffEntryType(*it, CollectionOp::Removed);
 			GetContainer().clear();
+
 			_setImpl->InvokeOnChanged(diff.Get());
 			_setImpl->GetStamp()++;
 		}
