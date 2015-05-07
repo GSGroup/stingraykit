@@ -247,8 +247,12 @@ namespace stingray
 					GetContainer().erase(*it);
 				for (typename Container::const_iterator it = GetAdded().begin(); it != GetAdded().end(); ++it)
 					STINGRAYKIT_CHECK(GetContainer().insert(*it).second, LogicException("Adding element that already exists!"));
+
 				_setImpl->InvokeOnChanged(Diff());
 				_setImpl->GetStamp()++;
+
+				GetAdded().clear();
+				GetRemoved().clear();
 			}
 
 			virtual void Revert()
