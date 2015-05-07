@@ -240,6 +240,9 @@ namespace stingray
 
 			virtual void Commit()
 			{
+				if (GetRemoved().empty() && GetAdded().empty())
+					return;
+
 				for (typename Container::const_iterator it = GetRemoved().begin(); it != GetRemoved().end(); ++it)
 					GetContainer().erase(*it);
 				for (typename Container::const_iterator it = GetAdded().begin(); it != GetAdded().end(); ++it)
@@ -369,6 +372,9 @@ namespace stingray
 		{
 			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
+
+			if (GetContainer().empty())
+				return;
 
 			EnumerableBuilder<DiffEntryType> diff;
 			for (typename Container::const_iterator it = GetContainer().begin(); it != GetContainer().end(); ++it)
