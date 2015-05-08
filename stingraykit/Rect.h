@@ -68,6 +68,9 @@ namespace stingray
 		BasicPosition<ValueType> GetRightBottom() const		{ return BasicPosition<ValueType>(X2, Y2); }
 		Size GetSize() const								{ return Size(W(), H()); }
 
+		inline bool Intersects(const BasicRect &other) const
+		{ return X1 <= other.X2 && X2 >= other.X1 && Y1 <= other.Y2 && Y2 >= other.Y1; }
+
 		BasicRect Intersect(const BasicRect& other) const
 		{ return BasicRect(std::max(X1, other.X1), std::max(Y1, other.Y1), std::min(X2, other.X2), std::min(Y2, other.Y2)); }
 
