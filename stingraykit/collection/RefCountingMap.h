@@ -15,7 +15,7 @@
 namespace stingray
 {
 
-	template<typename Key_, typename Value_>
+	template<typename Key_, typename Value_, typename Comparer_ = comparers::Less>
 	class RefCountingMap
 	{
 		struct ValueHolder
@@ -28,7 +28,7 @@ namespace stingray
 			{ }
 		};
 
-		typedef std::map<Key_, ValueHolder>					Impl;
+		typedef std::map<Key_, ValueHolder, Comparer_>		Impl;
 		typedef function<Value_(const Key_&)>				AddFunc;
 		typedef function<void(const Key_&, const Value_&)>	RemoveFunc;
 
@@ -73,14 +73,11 @@ namespace stingray
 		typedef Iterator const_iterator;
 
 	private:
-		AddFunc		_addFunc;
-		RemoveFunc	_removeFunc;
 		Mutex		_mutex;
 		Impl		_impl;
 
 	public:
-		RefCountingMap(const AddFunc& addFunc, const RemoveFunc& removeFunc) :
-			_addFunc(addFunc), _removeFunc(removeFunc)
+		RefCountingMap()
 		{ }
 
 		bool empty() const				{ return _impl.empty(); }
@@ -91,7 +88,8 @@ namespace stingray
 
 		iterator find(const Key_& key)	{ return _impl.find(key); }
 
-		iterator add(const Key_& key)
+		template<typename DoAddFunc>
+		iterator add(const Key_& key, const DoAddFunc& doAddFunc)
 		{
 			typename Impl::iterator it = _impl.find(key);
 			if (it != _impl.end())
@@ -100,10 +98,11 @@ namespace stingray
 				return it;
 			}
 
-			return _impl.insert(std::make_pair(key, ValueHolder(1, _addFunc(key)))).first;
+			return _impl.insert(std::make_pair(key, ValueHolder(1, doAddFunc(key)))).first;
 		}
 
-		size_t erase(const Key_& key)
+		template<typename DoRemoveFunc>
+		size_t erase(const Key_& key, const DoRemoveFunc& doRemoveFunc)
 		{
 			typename Impl::iterator implIt = _impl.find(key);
 			if (implIt == _impl.end())
@@ -112,25 +111,27 @@ namespace stingray
 			if (--(implIt->second.References) > 0)
 				return 1;
 
-			_removeFunc(implIt->first, implIt->second.Value);
+			doRemoveFunc(implIt->first, implIt->second.Value);
 			_impl.erase(implIt);
 			return 1;
 		}
 
-		void erase(iterator it)
+		template<typename DoRemoveFunc>
+		void erase(iterator it, const DoRemoveFunc& doRemoveFunc)
 		{
 			typename Impl::iterator implIt = it.GetImpl();
 			if (--(implIt->second.References) > 0)
 				return;
 
-			_removeFunc(implIt->first, implIt->second.Value);
+			doRemoveFunc(implIt->first, implIt->second.Value);
 			_impl.erase(implIt);
 		}
 
-		void clear()
+		template<typename DoRemoveFunc>
+		void clear(const DoRemoveFunc& doRemoveFunc)
 		{
 			for (typename Impl::iterator it = _impl.begin(); it != _impl.end(); ++it)
-				_removeFunc(it->first, it->second.Value);
+				doRemoveFunc(it->first, it->second.Value);
 			_impl.clear();
 		}
 	};
