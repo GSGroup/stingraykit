@@ -42,21 +42,21 @@ namespace stingray
 		void Serialize(ObjectOStream & ar) const;
 		void Deserialize(ObjectIStream & ar);
 
-		TimeDuration operator+=(TimeDuration other)			{ _microseconds += other._microseconds; return *this; }
-		TimeDuration operator+(TimeDuration other) const 	{ TimeDuration result(*this); return result += other; }
+		TimeDuration operator+=(TimeDuration other)				{ _microseconds += other._microseconds; return *this; }
+		TimeDuration operator+(TimeDuration other) const 		{ TimeDuration result(*this); return result += other; }
 
-		TimeDuration operator-=(TimeDuration other)			{ _microseconds -= other._microseconds; return *this; }
-		TimeDuration operator-(TimeDuration other) const 	{ TimeDuration result(*this); return result -= other; }
-		TimeDuration operator-() const 						{ return TimeDuration(-GetMilliseconds()); }
+		TimeDuration operator-=(TimeDuration other)				{ _microseconds -= other._microseconds; return *this; }
+		TimeDuration operator-(TimeDuration other) const 		{ TimeDuration result(*this); return result -= other; }
+		TimeDuration operator-() const 							{ return TimeDuration(-GetMilliseconds()); }
 
-		TimeDuration operator*=(int multiplier)				{ _microseconds *= multiplier; return *this; }
-		TimeDuration operator*(int multiplier) const		{ TimeDuration result(*this); return result *= multiplier; }
+		TimeDuration operator*=(int multiplier)					{ _microseconds *= multiplier; return *this; }
+		TimeDuration operator*(int multiplier) const			{ TimeDuration result(*this); return result *= multiplier; }
 
-		TimeDuration operator/=(int multiplier)				{ _microseconds /= multiplier; return *this; }
-		TimeDuration operator/(int multiplier) const		{ TimeDuration result(*this); return result /= multiplier; }
+		TimeDuration operator/=(int multiplier)					{ _microseconds /= multiplier; return *this; }
+		TimeDuration operator/(int multiplier) const			{ TimeDuration result(*this); return result /= multiplier; }
 
 
-		bool operator < (TimeDuration other) const			{ return _microseconds < other._microseconds; }
+		bool operator < (TimeDuration other) const				{ return _microseconds < other._microseconds; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
 
 		std::string ToString(const std::string& format = "") const;
@@ -65,15 +65,15 @@ namespace stingray
 		static TimeDuration FromMicroseconds(s64 microseconds)	{ return TimeDuration(microseconds, Dummy()); }
 		static TimeDuration FromMilliseconds(s64 milliseconds)	{ return TimeDuration(milliseconds); }
 
-		static TimeDuration Second()	{ return TimeDuration(1000); }
-		static TimeDuration Minute()	{ return Second() * 60; }
-		static TimeDuration Hour()		{ return Minute() * 60; }
-		static TimeDuration Day()		{ return Hour() * 24; }
+		static TimeDuration Second()							{ return TimeDuration(1000); }
+		static TimeDuration Minute()							{ return Second() * 60; }
+		static TimeDuration Hour()								{ return Minute() * 60; }
+		static TimeDuration Day()								{ return Hour() * 24; }
 
-		static TimeDuration FromSeconds(int seconds)	{ return Second() * seconds; }
-		static TimeDuration FromMinutes(int minutes)	{ return Minute() * minutes; }
-		static TimeDuration FromHours(int hours)		{ return Hour() * hours; }
-		static TimeDuration FromDays(int days)			{ return Day() * days; }
+		static TimeDuration FromSeconds(int seconds)			{ return Second() * seconds; }
+		static TimeDuration FromMinutes(int minutes)			{ return Minute() * minutes; }
+		static TimeDuration FromHours(int hours)				{ return Hour() * hours; }
+		static TimeDuration FromDays(int days)					{ return Day() * days; }
 	};
 
 
