@@ -171,20 +171,77 @@ namespace stingray
 			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(9)
 			DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE(10)
 
-			void Dispose()								{ return _value.Call<DisposeConcept>(); }
-			void Destroy()								{ _value.Free(); }
+			void AddWeakReference()
+			{
+				if (_value.Get())
+					Atomic::Inc(_value.Get()->_weakReferences);
+			}
 
-			atomic_int_type GetWeakReferences() const	{ return _value.Get()->_weakReferences; }
-			atomic_int_type AddWeakReference()			{ return Atomic::Inc(_value.Get()->_weakReferences); }
-			atomic_int_type ReleaseWeakReference()		{ return Atomic::Dec(_value.Get()->_weakReferences); }
+			void ReleaseWeakReference()
+			{
+				if (!_value.Get())
+					return;
 
-			atomic_int_type GetStrongReferences() const	{ return _value.Get()->_strongReferences; }
-			atomic_int_type AddStrongReference()		{ return Atomic::Inc(_value.Get()->_strongReferences); }
-			atomic_int_type ReleaseStrongReference()	{ return Atomic::Dec(_value.Get()->_strongReferences); }
+				atomic_int_type result = Atomic::Dec(_value.Get()->_weakReferences);
+				if (result == 0)
+				{
+					STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&_value.Get()->_weakReferences);
+					STINGRAYKIT_ANNOTATE_RELEASE(&_value.Get()->_weakReferences);
 
-			bool ReleaseStrongIfUnique()				{ return Atomic::CompareAndExchange(_value.Get()->_strongReferences, 1, 0) == 1; }
+					_value.Free();
+				}
+				else
+					STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(&_value.Get()->_weakReferences);
+			}
+
+			atomic_int_type GetStrongReferences() const
+			{ return _value.Get() ? _value.Get()->_strongReferences : 0; }
+
+			atomic_int_type AddStrongReference()
+			{
+				if (!_value.Get())
+					return 0;
+				return Atomic::Inc(_value.Get()->_strongReferences);
+			}
+
+			atomic_int_type ReleaseStrongReference()
+			{
+				if (!_value.Get())
+					return 0;
+
+				atomic_int_type result = Atomic::Dec(_value.Get()->_strongReferences);
+				if (result == 0)
+				{
+					STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&_value.Get()->_strongReferences);
+					STINGRAYKIT_ANNOTATE_RELEASE(&_value.Get()->_strongReferences);
+					Dispose();
+				}
+				else
+					STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(&_value.Get()->_strongReferences);
+
+				return result;
+			}
+
+			bool ReleaseStrongIfUnique()
+			{
+				if (!_value.Get())
+					return false;
+
+				atomic_int_type c = Atomic::CompareAndExchange(_value.Get()->_strongReferences, 1, 0);
+				if (c != 1)
+					return false;
+
+				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&_value.Get()->_strongReferences);
+				STINGRAYKIT_ANNOTATE_RELEASE(&_value.Get()->_strongReferences);
+				Dispose();
+				return true;
+			}
+
 			atomic_int_type TryAddStrongReference()
 			{
+				if (!_value.Get())
+					return 0;
+
 				atomic_int_type c = Atomic::Load(_value.Get()->_strongReferences);
 				while (c != 0)
 				{
@@ -196,7 +253,15 @@ namespace stingray
 				return 0;
 			}
 
-			const ISharedPtrData* get_ptr() const		{ return _value.Get(); }
+			bool Before(const SharedPtrImpl& other) const
+			{ return _value.Get() < other._value.Get(); }
+
+		private:
+			void Dispose()
+			{
+				_value.Call<DisposeConcept>();
+				ReleaseWeakReference();
+			}
 		};
 
 #undef DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE
@@ -264,7 +329,7 @@ namespace stingray
 				return;
 
 			_impl.Allocate<Detail::DefaultSharedPtrData<T> >(rawPtr);
-			Detail::SharedPtrRefCounter<T>::LogAddRef(1, _rawPtr, this);
+			LogAddRef(1);
 
 			init_enable_shared_from_this(_rawPtr);
 		}
@@ -273,11 +338,8 @@ namespace stingray
 		template<typename Deleter>
 		inline shared_ptr(T* rawPtr, const Deleter& deleter) : _rawPtr(rawPtr)
 		{
-			if (!_rawPtr)
-				return;
-
 			_impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(rawPtr, deleter);
-			Detail::SharedPtrRefCounter<T>::LogAddRef(1, _rawPtr, this);
+			LogAddRef(1);
 
 			init_enable_shared_from_this(_rawPtr);
 		}
@@ -293,38 +355,24 @@ namespace stingray
 
 		inline shared_ptr(const shared_ptr<T>& other) :
 			_rawPtr(other._rawPtr), _impl(other._impl)
-		{ AddRef(); }
+		{ LogAddRef(_impl.AddStrongReference()); }
 
 
 		template < typename U >
 		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0) :
 			_rawPtr(other._rawPtr), _impl(other._impl)
-		{ AddRef(); }
+		{ LogAddRef(_impl.AddStrongReference()); }
 
 
 		/// @brief: Aliasing constuctor - similar to standard one
 		template < typename U >
 		inline shared_ptr(const shared_ptr<U>& other, T* ptr) :
 			_rawPtr(ptr), _impl(other._impl)
-		{ AddRef(); }
+		{ LogAddRef(_impl.AddStrongReference()); }
 
 
 		inline ~shared_ptr()
-		{
-			if (!_rawPtr)
-				return;
-
-			atomic_int_type sc = _impl.ReleaseStrongReference();
-			Detail::SharedPtrRefCounter<T>::LogReleaseRef(sc, _rawPtr, this);
-
-			if (sc == 0)
-			{
-				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
-				do_delete();
-			}
-			else
-				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
-		}
+		{ LogReleaseRef(_impl.ReleaseStrongReference()); }
 
 
 		inline shared_ptr& operator = (const shared_ptr& other)
@@ -356,28 +404,23 @@ namespace stingray
 
 		inline bool release_if_unique()
 		{
-			if (!_rawPtr)
-				return true;
-
 			bool result = _impl.ReleaseStrongIfUnique();
 			if (!result)
 				return false;
 
-			Detail::SharedPtrRefCounter<T>::LogReleaseRef(0, _rawPtr, this);
-
-			STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
-			do_delete();
-
+			LogReleaseRef(0);
+			_rawPtr = null;
+			_impl = Detail::SharedPtrImpl();
 			return true;
 		}
 
 
 		inline bool unique() const
-		{ return !_rawPtr || _impl.GetStrongReferences() == 1; }
+		{ return use_count() == 1; }
 
 
-		inline size_t get_ref_count() const
-		{ return _rawPtr? _impl.GetStrongReferences(): 0; }
+		inline size_t use_count() const
+		{ return _impl.GetStrongReferences(); }
 
 
 		inline void reset(T* ptr = 0)
@@ -404,44 +447,28 @@ namespace stingray
 
 
 		template<typename U> bool owner_before(shared_ptr<U> const& other) const
-		{ return _impl.get_ptr() < other._impl.get_ptr(); }
+		{ return _impl.Before(other._impl); }
 
 
 		template<typename U> bool owner_before(weak_ptr<U> const& other) const
-		{ return _impl.get_ptr() < other._impl.get_ptr(); }
+		{ return _impl.Before(other._impl); }
 
 	private:
 		inline void init_enable_shared_from_this(...) const
 		{ }
 
 
-		void AddRef()
+		void LogAddRef(atomic_int_type referencesCount)
 		{
-			if (!_rawPtr)
-				return;
-
-			atomic_int_type c = _impl.AddStrongReference();
-			Detail::SharedPtrRefCounter<T>::LogAddRef(c, _rawPtr, this);
+			if (_rawPtr)
+				Detail::SharedPtrRefCounter<T>::LogAddRef(referencesCount, _rawPtr, this);
 		}
 
 
-		void do_delete()
+		void LogReleaseRef(atomic_int_type referencesCount)
 		{
-			_impl.Dispose();
-			_rawPtr = null;
-
-			atomic_int_type wc = _impl.ReleaseWeakReference();
-			if (wc == 0)
-			{
-				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
-				STINGRAYKIT_ANNOTATE_RELEASE(_impl.get_ptr());
-
-				_impl.Destroy();
-			}
-			else
-				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
-
-			_impl = Detail::SharedPtrImpl();
+			if (_rawPtr)
+				Detail::SharedPtrRefCounter<T>::LogReleaseRef(referencesCount, _rawPtr, this);
 		}
 
 
@@ -470,38 +497,24 @@ namespace stingray
 
 		inline weak_ptr(const shared_ptr<T>& sharedPtr) :
 			_rawPtr(sharedPtr._rawPtr), _impl(sharedPtr._impl)
-		{ AddRef(); }
+		{ _impl.AddWeakReference(); }
 
 		template < typename U >
 		inline weak_ptr(const shared_ptr<U>& sharedPtr) :
 			_rawPtr(sharedPtr._rawPtr), _impl(sharedPtr._impl)
-		{ AddRef(); }
+		{ _impl.AddWeakReference(); }
 
 		inline weak_ptr(const weak_ptr& other) :
 			_rawPtr(other._rawPtr), _impl(other._impl)
-		{ AddRef(); }
+		{ _impl.AddWeakReference(); }
 
 		template < typename U >
 		inline weak_ptr(const weak_ptr<U>& other) :
 			_rawPtr(other._rawPtr), _impl(other._impl)
-		{ AddRef(); }
+		{ _impl.AddWeakReference(); }
 
 		inline ~weak_ptr()
-		{
-			if (!_rawPtr)
-				return;
-
-			atomic_int_type wc = _impl.ReleaseWeakReference();
-			if (wc == 0)
-			{
-				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr());
-				STINGRAYKIT_ANNOTATE_RELEASE(_impl.get_ptr());
-
-				_impl.Destroy();
-			}
-			else
-				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_impl.get_ptr());
-		}
+		{ _impl.ReleaseWeakReference(); }
 
 		inline weak_ptr& operator = (const weak_ptr& other)
 		{
@@ -512,16 +525,12 @@ namespace stingray
 
 		inline shared_ptr<T> lock() const
 		{
-			if (!_rawPtr)
-				return shared_ptr<T>();
-
 			atomic_int_type sc = _impl.TryAddStrongReference();
 			if (sc == 0)
-			{
-				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_impl.get_ptr()); // TODO: Check whether this is necessary
 				return shared_ptr<T>();
-			}
-			Detail::SharedPtrRefCounter<T>::LogAddRef(sc, _rawPtr, this);
+
+			if (_rawPtr)
+				Detail::SharedPtrRefCounter<T>::LogAddRef(sc, _rawPtr, this);
 
 			shared_ptr<T> result(_rawPtr, _impl);
 			return result;
@@ -539,24 +548,17 @@ namespace stingray
 			std::swap(_impl, other._impl);
 		}
 
-		inline size_t get_ref_count() const
-		{ return _rawPtr? _impl.GetStrongReferences(): 0; }
+		inline size_t use_count() const
+		{ return _impl.GetStrongReferences(); }
 
-		inline bool expired() const	{ return !_rawPtr || _impl.GetStrongReferences() == 0; }
+		inline bool expired() const
+		{ return use_count() == 0; }
 
 		template<typename U> bool owner_before(shared_ptr<U> const& other) const
-		{ return _impl.get_ptr() < other._impl.get_ptr(); }
+		{ return _impl.Before(other._impl); }
+
 		template<typename U> bool owner_before(weak_ptr<U> const& other) const
-		{ return _impl.get_ptr() < other._impl.get_ptr(); }
-
-	private:
-		void AddRef()
-		{
-			if (!_rawPtr)
-				return;
-
-			_impl.AddWeakReference();
-		}
+		{ return _impl.Before(other._impl); }
 	};
 
 

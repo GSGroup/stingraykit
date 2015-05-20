@@ -95,7 +95,7 @@ namespace stingray
 		inline bool unique() const
 		{ return !get() || _refCount.get() == 1; }
 
-		inline size_t get_ref_count() const
+		inline size_t use_count() const
 		{ return get()? _refCount.get(): 0; }
 
 		inline void reset()
@@ -156,7 +156,7 @@ namespace stingray
 			return light_shared_ptr<T>(_refCount);
 		}
 
-		inline size_t get_ref_count() const
+		inline size_t use_count() const
 		{ return !_refCount.IsNull() ? _refCount.get(): 0; }
 
 		inline bool expired() const	{ return _refCount.IsNull() || _refCount.get() == 0; }
