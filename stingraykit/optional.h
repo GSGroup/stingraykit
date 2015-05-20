@@ -32,13 +32,13 @@ namespace stingray
 
 
 	public:
-		optional() : _initialized(false)
+		optional() : _value(), _initialized(false)
 		{ }
-		optional(const NullPtrType&) : _initialized(false)
+		optional(const NullPtrType&) : _value(), _initialized(false)
 		{ }
-		optional(ConstParamType value): _initialized(false)
+		optional(ConstParamType value): _value(), _initialized(false)
 		{ assign(value); }
-		optional(const optional& other): _initialized(false)
+		optional(const optional& other): _value(), _initialized(false)
 		{ assign(other); }
 
 		~optional()									{ reset(); }
