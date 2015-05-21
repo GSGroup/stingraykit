@@ -23,10 +23,9 @@ namespace posix
 		return (u64)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
 	}
 
-	s16 TimeEngine::s_minutesFromUtc = 0;
+	atomic_int_type		TimeEngine::s_minutesFromUtc	= 0;
 #ifndef PLATFORM_EMBEDDED
-	Mutex	TimeEngine::s_deltaMillisecondsMutex;
-	s64		TimeEngine::s_deltaMilliseconds = 0;
+	atomic_int_type		TimeEngine::s_deltaMilliseconds = 0;
 #endif
 
 	void TimeEngine::SetMillisecondsSinceEpoch(s64 milliseconds)
@@ -43,8 +42,7 @@ namespace posix
 			STINGRAYKIT_THROW(SystemException("gettimeofday"));
 
 		s64 ms = (s64)tv.tv_sec * 1000 + tv.tv_usec / 1000;
-		MutexLock l(s_deltaMillisecondsMutex);
-		s_deltaMilliseconds = milliseconds - ms;
+		Atomic::Store(s_deltaMilliseconds, milliseconds - ms);
 #endif
 	}
 
@@ -58,16 +56,15 @@ namespace posix
 #ifdef PLATFORM_EMBEDDED
 		return ms;
 #else
-		MutexLock l(s_deltaMillisecondsMutex);
-		return ms + s_deltaMilliseconds;
+		return ms + Atomic::Load(s_deltaMilliseconds);
 #endif
 	}
 
 	s16 TimeEngine::GetMinutesFromUtc()
-	{ return s_minutesFromUtc; }
+	{ return Atomic::Load(s_minutesFromUtc); }
 
 	void TimeEngine::SetMinutesFromUtc(s16 minutes)
-	{ s_minutesFromUtc = minutes; }
+	{ Atomic::Store(s_minutesFromUtc, minutes); }
 
 	s64 TimeEngine::MillisecondsFromBrokenDown(const BrokenDownTime& bdTime)
 	{

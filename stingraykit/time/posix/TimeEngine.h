@@ -35,10 +35,9 @@ namespace posix
 	class TimeEngine
 	{
 	private:
-		static s16		s_minutesFromUtc;
+		static atomic_int_type		s_minutesFromUtc;
 #ifndef PLATFORM_EMBEDDED
-		static Mutex	s_deltaMillisecondsMutex;
-		static s64		s_deltaMilliseconds;
+		static atomic_int_type		s_deltaMilliseconds;
 #endif
 
 	public:
