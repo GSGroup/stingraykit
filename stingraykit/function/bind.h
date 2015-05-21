@@ -77,8 +77,10 @@ namespace stingray
 
 		struct AbsentParamDummy
 		{
+			AbsentParamDummy() { }
+
 			template<typename T>
-			AbsentParamDummy(const T&) {}
+			AbsentParamDummy(const T&) { }
 		};
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value != -1 >
