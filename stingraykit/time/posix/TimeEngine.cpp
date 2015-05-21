@@ -78,8 +78,8 @@ namespace posix
 		bdt.tm_mday = bdTime.MonthDay;
 		bdt.tm_mon = bdTime.Month - 1;
 		bdt.tm_year = bdTime.Year - 1900;
-		time_t result = mktime(&bdt);
-		STINGRAYKIT_CHECK(result != -1, SystemException("mktime failed while processing bdt = " + bdTime.ToString() + "!"));
+		time_t result = timegm(&bdt);
+		STINGRAYKIT_CHECK(result != -1, SystemException("timegm failed while processing bdt = " + bdTime.ToString() + "!"));
 		return (s64)result * 1000;
 	}
 
