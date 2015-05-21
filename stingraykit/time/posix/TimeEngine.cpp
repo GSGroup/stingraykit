@@ -77,7 +77,7 @@ namespace posix
 		bdt.tm_year = bdTime.Year - 1900;
 		time_t result = timegm(&bdt);
 		STINGRAYKIT_CHECK(result != -1, SystemException("timegm failed while processing bdt = " + bdTime.ToString() + "!"));
-		return (s64)result * 1000;
+		return (s64)result * 1000 + bdTime.Milliseconds;
 	}
 
 	BrokenDownTime TimeEngine::BrokenDownFromMilliseconds(s64 milliseconds)
