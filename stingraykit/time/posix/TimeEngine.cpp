@@ -88,8 +88,8 @@ namespace posix
 		time_t t = milliseconds / 1000;
 		tm b = { };
 
-		if (localtime_r(&t, &b) == NULL)
-			STINGRAYKIT_THROW(SystemException("localtime_r failed!"));
+		if (gmtime_r(&t, &b) == NULL)
+			STINGRAYKIT_THROW(SystemException("gmtime_r failed!"));
 
 		return BrokenDownTime(milliseconds % 1000, b.tm_sec, b.tm_min, b.tm_hour, b.tm_wday, b.tm_mday, b.tm_mon + 1, b.tm_yday, b.tm_year + 1900);
 	}
