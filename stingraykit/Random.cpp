@@ -22,6 +22,14 @@ namespace stingray
 		: _seed(seed & 0x7fffffffU)
 	{ }
 
+	u32 Random::Next(u32 maxValue)
+	{
+		static const u32 maxRand = 0x8000u;
+		u32 next = Next();
+		if (maxValue <= maxRand)
+			next >>= 16;
+		return next % maxValue;
+	}
 
 	u32 Random::Next()
 	{

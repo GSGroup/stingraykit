@@ -25,8 +25,7 @@ namespace stingray
 		Random(u32 seed);
 
 		u32 Next();
-		u32 Next(u32 maxValue)
-		{ return Next() % maxValue; }
+		u32 Next(u32 maxValue);
 		u32 Next(u32 minValue, u32 maxValue)
 		{ return minValue + Next(maxValue - minValue); }
 	};
