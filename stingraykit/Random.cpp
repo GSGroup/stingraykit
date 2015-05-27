@@ -14,26 +14,20 @@ namespace stingray
 {
 
 	Random::Random()
-		: _seed(std::time(0) & 0x7fffffffU)
+		: _seed(std::time(0))
 	{ }
 
 
 	Random::Random(u32 seed)
-		: _seed(seed & 0x7fffffffU)
+		: _seed(seed)
 	{ }
 
 	u32 Random::Next(u32 maxValue)
-	{
-		static const u32 maxRand = 0x8000u;
-		u32 next = Next();
-		if (maxValue <= maxRand)
-			next >>= 16;
-		return next % maxValue;
-	}
+	{ return Next() % maxValue; }
 
 	u32 Random::Next()
 	{
-		_seed = (_seed * 1103515245U + 12345U) & 0x7fffffffU;
+		_seed = _seed * 1664525U + 1013904223U;
 		return _seed;
 	}
 
