@@ -13,6 +13,7 @@
 #include <stingraykit/Types.h>
 #include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/collection/IEnumerable.h>
+#include <stingraykit/collection/RangeBase.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/optional.h>
@@ -79,7 +80,7 @@ namespace stingray
 
 		struct TypeToStringObjectType
 		{
-			STINGRAYKIT_ENUM_VALUES(HasBeginEnd, HasToString, Enumerable, IsException, Other, ProxyObjToStdStream);
+			STINGRAYKIT_ENUM_VALUES(HasToString, Range, Enumerable, HasBeginEnd, IsException, Other, ProxyObjToStdStream);
 			STINGRAYKIT_DECLARE_ENUM_CLASS(TypeToStringObjectType);
 		};
 
@@ -90,20 +91,23 @@ namespace stingray
 				TypeToStringObjectType::Enum ObjType =
 					HasMethod_ToString<ObjectType>::Value ?
 						TypeToStringObjectType::HasToString :
-						(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ?
-							TypeToStringObjectType::HasBeginEnd :
+						(IsRange<ObjectType>::Value ?
+							TypeToStringObjectType::Range :
 							(IsEnumerable<ObjectType>::Value ?
 								TypeToStringObjectType::Enumerable :
-								(Inherits<ObjectType, std::exception>::Value ?
-									TypeToStringObjectType::IsException :
-									(
-										SameType<u8, ObjectType>::Value
-											|| SameType<const char*, ObjectType>::Value
-											|| IsSharedPtr<ObjectType>::Value
-											|| Is1ParamTemplate<optional, ObjectType>::Value
-											|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
-										TypeToStringObjectType::Other :
-										TypeToStringObjectType::ProxyObjToStdStream
+								(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ?
+									TypeToStringObjectType::HasBeginEnd :
+									(Inherits<ObjectType, std::exception>::Value ?
+										TypeToStringObjectType::IsException :
+										(
+											SameType<u8, ObjectType>::Value
+												|| SameType<const char*, ObjectType>::Value
+												|| IsSharedPtr<ObjectType>::Value
+												|| Is1ParamTemplate<optional, ObjectType>::Value
+												|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
+											TypeToStringObjectType::Other :
+											TypeToStringObjectType::ProxyObjToStdStream
+										)
 									)
 								)
 							)
@@ -181,6 +185,29 @@ namespace stingray
 					result << ", ";
 					ToString(result, e->Get());
 					e->Next();
+				}
+				result << "]";
+			}
+		};
+
+
+		template<typename ObjectType>
+		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Range>
+		{
+			static void ToStringImpl(string_ostream & result, const ObjectType& range)
+			{
+				ObjectType copy(range);
+				result << "[";
+				if (copy.IsValid())
+				{
+					ToString(result, copy.Get());
+					copy.Next();
+				}
+				while (copy.IsValid())
+				{
+					result << ", ";
+					ToString(result, copy.Get());
+					copy.Next();
 				}
 				result << "]";
 			}
