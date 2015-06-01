@@ -29,6 +29,8 @@ namespace stingray {
 namespace posix
 {
 
+#ifndef STINGRAY_SIGNAL_HANDLING_DISABLED
+
 	template < typename HandlerFuncHolder >
 	class SignalHandlerSetter
 	{
@@ -72,6 +74,23 @@ namespace posix
 	inline bool SendSignal(const pthread_t& threadHandle, int signalNum)
 	{ return (pthread_kill(threadHandle, signalNum) == 0); }
 
+#else
+
+	template < typename HandlerFuncHolder >
+	class SignalHandlerSetter
+	{
+	private:
+		int _signalNum;
+
+	public:
+		SignalHandlerSetter(int signalNum) : _signalNum(signalNum) { }
+
+		int GetSignalNum() const { return _signalNum; }
+	};
+
+	inline bool SendSignal(const pthread_t& threadHandle, int signalNum) { return true; }
+
+#endif
 
 }}
 
