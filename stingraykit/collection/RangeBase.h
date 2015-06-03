@@ -2,6 +2,7 @@
 #define STINGRAYKIT_COLLECTION_RANGEBASE_H
 
 #include <stingraykit/MetaProgramming.h>
+#include <stingraykit/safe_bool.h>
 #include <stingraykit/toolkit.h>
 
 #include <iterator>
@@ -42,6 +43,7 @@ namespace stingray
 		template<typename Derived_, typename ValueType_, typename Category_>
 		struct RangeBase :
 			public std::iterator<Category_, ValueType_, std::ptrdiff_t, ArrowProxy<ValueType_>, ValueType_>,
+			public safe_bool<Derived_>,
 			public RangeMarker
 		{
 		private:
@@ -71,11 +73,10 @@ namespace stingray
 			Derived        operator -  (std::ptrdiff_t distance) const { Derived result(GetDerived()); return result -= distance; }
 			std::ptrdiff_t operator -  (const Derived& other) const    { return GetDerived().GetPosition() - other.GetPosition(); }
 
-			Derived begin() const
-			{ Derived result(GetDerived()); return result.First(); }
+			Derived begin() const                                      { Derived r(GetDerived()); return r.First(); }
+			Derived end() const                                        { Derived r(GetDerived()); r.Last(); return r.Next(); }
 
-			Derived end() const
-			{ Derived result(GetDerived()); result.Last(); return result.Next(); }
+			bool boolean_test() const                                  { return GetDerived().IsValid(); }
 
 		private:
 			Derived& GetDerived()                                      { return *static_cast<Derived*>(this); }
