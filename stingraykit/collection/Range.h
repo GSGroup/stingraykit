@@ -334,15 +334,15 @@ namespace stingray
 
 
 		template<typename Range_, typename Functor_>
-		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename function_info<Functor_>::RetType, typename Range_::Category>
+		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename GetConstReferenceType<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category>
 		{
 			typedef RangeTransformer<Range_, Functor_> Self;
-			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename function_info<Functor_>::RetType, typename Range_::Category> base;
+			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename GetConstReferenceType<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category> base;
 
 		private:
-			Range_                             _impl;
-			Functor_                           _functor;
-			optional<typename base::ValueType> _cache;
+			Range_                                              _impl;
+			Functor_                                            _functor;
+			optional<typename function_info<Functor_>::RetType> _cache;
 
 		public:
 			RangeTransformer(const Range_& impl, const Functor_& functor) : _impl(impl), _functor(functor)
