@@ -306,7 +306,10 @@ namespace stingray
 				if (!is_in_sync_primitive_code)
 				{
 					int owner = _rawMutex.__data.__owner; // Cannot use _rawMutex.__data.__lock without libc internal headers, so owner may contain bad values
-					std::string owner_name;
+
+					optional<ThreadId> ownerId;
+					std::string ownerName;
+
 					shared_ptr<ThreadsRegistry> registry = SafeSingleton<ThreadsRegistry>::Instance();
 					if (registry)
 					{
@@ -314,7 +317,9 @@ namespace stingray
 						ThreadsRegistry::ThreadsMap::iterator it = registry->GetMap().find(owner);
 						if (it != registry->GetMap().end())
 						{
-							owner_name = it->second->GetThreadName();
+							ownerId = it->second->GetKernelId();
+							ownerName = it->second->GetThreadName();
+
 							IThreadInfoPtr threadInfo = it->second->GetThreadInfo();
 							if (threadInfo)
 								threadInfo->RequestBacktrace();
@@ -322,7 +327,7 @@ namespace stingray
 					}
 
 					std::string backtrace = Backtrace().Get();
-					PTELogger.Warning() << "Could not lock mutex (0x" << Hex(this, 8) << ", owned by "  << (owner_name.empty() ? ToString(owner) : "'" + owner_name + "'")<< ") for "
+					PTELogger.Warning() << "Could not lock mutex (0x" << Hex(this, 8) << ", owned by "  << (ownerName.empty() ? ToString(owner) : "'" + ownerName + "'") << ", current thread id: " << PosixThreadEngine::GetCurrentThreadId() << ", owner thread id: " << ownerId << ") for "
 						<< (lock_full_duration.tv_sec ? ToString(lock_full_duration.tv_sec) + " s " : "")
 						<< (lock_full_duration.tv_nsec ? ToString(lock_full_duration.tv_nsec / 1000000) + " ms" : "")
 						<< ", there is probably a deadlock" << (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace));
