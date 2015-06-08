@@ -33,6 +33,26 @@ namespace stingray
 	{ return &arr[N]; }
 
 
+	template <typename Collection>
+	typename Collection::const_iterator begin(const Collection& collection)
+	{ return collection.begin(); }
+
+
+	template <typename Collection>
+	typename Collection::const_iterator end(const Collection& collection)
+	{ return collection.end(); }
+
+
+	template <typename Collection>
+	typename Collection::iterator begin(Collection& collection)
+	{ return collection.begin(); }
+
+
+	template <typename Collection>
+	typename Collection::iterator end(Collection& collection)
+	{ return collection.end(); }
+
+
 	template<typename BidirectionalIteratorT>
 	BidirectionalIteratorT prev(BidirectionalIteratorT it, typename std::iterator_traits<BidirectionalIteratorT>::difference_type n = 1)
 	{ std::advance(it, -n);	return it; }
