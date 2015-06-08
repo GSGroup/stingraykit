@@ -416,6 +416,36 @@ namespace stingray
 			for (; range.IsValid(); range.Next())
 				functor(range.Get());
 		}
+
+
+		template <typename Range_, class Predicate_>
+		bool AnyOf(Range_ range, Predicate_ predicate)
+		{
+			for (; range.IsValid(); range.Next())
+				if (predicate(range.Get()))
+					return true;
+			return false;
+		}
+
+
+		template <typename Range_, class Predicate_>
+		bool AllOf(Range_ range, Predicate_ predicate)
+		{
+			for (; range.IsValid(); range.Next())
+				if (!predicate(range.Get()))
+					return false;
+			return true;
+		}
+
+
+		template <typename Range_, class Predicate_>
+		bool NoneOf(Range_ range, Predicate_ predicate)
+		{
+			for (; range.IsValid(); range.Next())
+				if (predicate(range.Get()))
+					return false;
+			return true;
+		}
 	}
 
 
