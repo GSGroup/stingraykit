@@ -3,6 +3,7 @@
 
 #include <stingraykit/collection/RangeBase.h>
 #include <stingraykit/collection/Transformers.h>
+#include <stingraykit/collection/iterators.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/optional.h>
 
@@ -458,7 +459,18 @@ namespace stingray
 			typedef Range::IteratorRange<IterType> ValueT;
 
 			static ValueT Do(T& collection)
-			{ return ValueT(collection.begin(), collection.begin(), collection.end()); }
+			{ return ValueT(begin(collection), begin(collection), end(collection)); }
+		};
+
+
+		template <typename ArrayType_>
+		struct ToRangeImpl<ArrayType_, typename EnableIf<IsArray<ArrayType_>::Value, void>::ValueT>
+		{
+			typedef typename RemoveExtent<ArrayType_>::ValueT MemberType;
+			typedef Range::IteratorRange<MemberType*> ValueT;
+
+			static ValueT Do(ArrayType_& arr)
+			{ return ValueT(begin(arr), begin(arr), end(arr)); }
 		};
 
 
