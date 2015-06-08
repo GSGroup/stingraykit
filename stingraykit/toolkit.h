@@ -215,6 +215,7 @@ namespace stingray
 		{ return (dynamic_cast<const DestType*>(&obj) != 0); }
 	};
 
+
 	template < typename T >
 	struct InstanceOfTester<T*>
 	{
@@ -223,12 +224,15 @@ namespace stingray
 		{ return (dynamic_cast<const DestType*>(ptr) != 0); }
 	};
 
+
 	template < typename DestType, typename SrcType >
 	bool inline InstanceOf(const SrcType& obj)
 	{ return InstanceOfTester<SrcType>::template Test<DestType>(obj); }
 
+
 	template < typename T >
 	class shared_ptr;
+
 
 	template < typename DestType >
 	struct InstanceOfPredicate
@@ -243,22 +247,14 @@ namespace stingray
 		}
 	};
 
+
 	template < size_t N >
 	size_t StrLen(const char (&)[N])
 	{ return N - 1; }
 
+
 	template < typename T, size_t Size >
 	inline size_t ArraySize(const T (&) [Size]) { return Size; }
-
-
-	template<typename T, size_t N>
-	T* begin(T(&arr)[N])
-	{ return &arr[0]; }
-
-
-	template<typename T, size_t N>
-	T* end(T(&arr)[N])
-	{ return &arr[N]; }
 
 
 	struct CollectionOp

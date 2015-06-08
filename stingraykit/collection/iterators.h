@@ -23,14 +23,24 @@ namespace stingray
 	 * @{
 	 */
 
+	template <typename T, size_t N>
+	T* begin(T(&arr)[N])
+	{ return &arr[0]; }
+
+
+	template <typename T, size_t N>
+	T* end(T(&arr)[N])
+	{ return &arr[N]; }
+
+
 	template<typename BidirectionalIteratorT>
 	BidirectionalIteratorT prev(BidirectionalIteratorT it, typename std::iterator_traits<BidirectionalIteratorT>::difference_type n = 1)
 	{ std::advance(it, -n);	return it; }
 
+
 	template<typename BidirectionalIteratorT>
 	BidirectionalIteratorT next(BidirectionalIteratorT it, typename std::iterator_traits<BidirectionalIteratorT>::difference_type n = 1)
 	{ std::advance(it, n);	return it; }
-
 
 
 	namespace Detail
