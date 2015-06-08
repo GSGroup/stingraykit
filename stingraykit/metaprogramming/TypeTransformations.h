@@ -11,6 +11,8 @@
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
 
+#include <stddef.h>
+
 namespace stingray
 {
 
@@ -47,6 +49,21 @@ namespace stingray
 
 	template<typename T>
 	struct Deconst<const T> { typedef T ValueT; };
+
+
+	template <typename T>
+	struct RemoveExtent
+	{ typedef T ValueT; };
+
+
+	template <typename T>
+	struct RemoveExtent<T[]>
+	{ typedef T ValueT; };
+
+
+	template <typename T, size_t N>
+	struct RemoveExtent<T[N]>
+	{ typedef T ValueT; };
 
 }
 
