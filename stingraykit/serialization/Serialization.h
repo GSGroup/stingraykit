@@ -688,7 +688,7 @@ namespace stingray
 			{
 				int pk;
 				Deserialize(".pk", pk);
-				value = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(_collection->GetObject(classname, pk));
+				value = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(STINGRAYKIT_REQUIRE_NOT_NULL(_collection->GetObject(classname, pk)));
 			}
 			else
 			{	//default deserialize

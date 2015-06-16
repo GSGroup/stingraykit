@@ -234,7 +234,7 @@ namespace stingray
 			{
 				if (!_cache)
 				{
-					Dst_ temp = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(_impl.Get());
+					Dst_ temp = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(STINGRAYKIT_REQUIRE_NOT_NULL(_impl.Get()));
 					_cache = temp;
 				}
 			}

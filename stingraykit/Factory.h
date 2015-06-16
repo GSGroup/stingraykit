@@ -73,7 +73,7 @@ namespace stingray
 		ClassType* Create(const std::string& name)
 		{
 			unique_ptr<IFactoryObject> factory_obj(Create(name));
-			ClassType* object = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(factory_obj.get());
+			ClassType* object = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(STINGRAYKIT_REQUIRE_NOT_NULL(factory_obj.get()));
 			factory_obj.release();
 			return object;
 		}
