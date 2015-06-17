@@ -198,12 +198,12 @@ namespace stingray
 			{
 				ObjectType copy(range);
 				result << "[";
-				if (copy.IsValid())
+				if (copy.Valid())
 				{
 					ToString(result, copy.Get());
 					copy.Next();
 				}
-				while (copy.IsValid())
+				while (copy.Valid())
 				{
 					result << ", ";
 					ToString(result, copy.Get());

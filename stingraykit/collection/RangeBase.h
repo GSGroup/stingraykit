@@ -76,7 +76,7 @@ namespace stingray
 			Derived begin() const                                      { Derived r(GetDerived()); return r.First(); }
 			Derived end() const                                        { Derived r(GetDerived()); r.Last(); return r.Next(); }
 
-			bool boolean_test() const                                  { return GetDerived().IsValid(); }
+			bool boolean_test() const                                  { return GetDerived().Valid(); }
 
 		private:
 			Derived& GetDerived()                                      { return *static_cast<Derived*>(this); }

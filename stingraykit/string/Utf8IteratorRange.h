@@ -57,7 +57,7 @@ namespace stingray
 		IteratorType GetIterator() const
 		{ return _it; }
 
-		bool IsValid() const
+		bool Valid() const
 		{ return _it != _end; }
 
 		bool Equals(const Self & other) const

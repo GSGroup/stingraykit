@@ -254,7 +254,7 @@ namespace stingray
 				_search(search), _string(string), _startPos(0), _results(0), _resultsLimit(limit)
 			{ _next = _search(_string, _startPos); }
 
-			bool IsValid() const
+			bool Valid() const
 			{ return _startPos != std::string::npos; }
 
 			typename base::ValueType Get()
@@ -268,7 +268,7 @@ namespace stingray
 
 			Self& Next()
 			{
-				STINGRAYKIT_CHECK(IsValid(), "Invalid range advanced!");
+				STINGRAYKIT_CHECK(Valid(), "Invalid range advanced!");
 				_startPos = _next.Position;
 				if (_startPos != std::string::npos)
 				{
@@ -378,7 +378,7 @@ namespace stingray
 				template<typename Range_>
 				static void Call(const TupleType& tuple, Range_* range)
 				{
-					STINGRAYKIT_CHECK(range->IsValid(), "not enough data to fill output range");
+					STINGRAYKIT_CHECK(range->Valid(), "not enough data to fill output range");
 					Type ptr = tuple.template Get<Index>();
 					*ptr = lexical_cast<typename Depointer<Type>::ValueT>(range->Get());
 					range->Next();

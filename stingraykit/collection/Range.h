@@ -16,7 +16,7 @@ namespace stingray
 		//{
 		//    typedef ValueType_ ValueType;
 		//
-		//    bool IsValid() const;
+		//    bool Valid() const;
 		//    ValueType Get();
 		//
 		//    bool Equals(const Self& other) const;
@@ -75,7 +75,7 @@ namespace stingray
 			OutputIteratorRange(const Iterator_& it) : _it(it)
 			{ }
 
-			bool IsValid() const { return true; }
+			bool Valid() const   { return true; }
 			ValueType Get()      { return *_it; }
 
 			void First()         { CompileTimeAssert<false> errorNoFirstInOutputRange; (void)errorNoFirstInOutputRange; }
@@ -99,7 +99,7 @@ namespace stingray
 			IteratorRange(const It_& begin, const It_& it, const It_& end) : _begin(begin), _it(it), _end(end)
 			{ }
 
-			bool IsValid() const
+			bool Valid() const
 			{ return _it && *_it != _end; }
 
 			typename base::ValueType Get()
@@ -180,7 +180,7 @@ namespace stingray
 			RangeFilter(const Range_& impl, const Predicate_& predicate) : _impl(impl), _predicate(predicate)
 			{ FindNext(); }
 
-			bool IsValid() const                        { return _impl.IsValid(); }
+			bool Valid() const                          { return _impl.Valid(); }
 			typename base::ValueType Get()              { return _impl.Get(); }
 			bool Equals(const RangeFilter& other) const { return _impl == other._impl; }
 			Self& First()                               { _impl.First(); FindNext(); return *this; }
@@ -191,13 +191,13 @@ namespace stingray
 		private:
 			void FindNext()
 			{
-				while (_impl.IsValid() && !_predicate(_impl.Get()))
+				while (_impl.Valid() && !_predicate(_impl.Get()))
 					_impl.Next();
 			}
 
 			void FindPrev()
 			{
-				while (_impl.IsValid() && !_predicate(_impl.Get()))
+				while (_impl.Valid() && !_predicate(_impl.Get()))
 					_impl.Prev();
 			}
 		};
@@ -217,7 +217,7 @@ namespace stingray
 			RangeCaster(const Range_& impl) : _impl(impl)
 			{ }
 
-			bool IsValid() const                        { return _impl.IsValid(); }
+			bool Valid() const                          { return _impl.Valid(); }
 			typename base::ValueType Get()              { DoCast(); return *_cache; }
 			bool Equals(const RangeCaster& other) const { return _impl == other._impl; }
 			Self& First()                               { _impl.First(); _cache.reset(); return *this; }
@@ -276,7 +276,7 @@ namespace stingray
 			RangeOfType(const Range_& impl) : _impl(impl)
 			{ FindNext(); }
 
-			bool IsValid() const                        { return _impl.IsValid(); }
+			bool Valid() const                          { return _impl.Valid(); }
 			typename base::ValueType Get()              { return Storage::Unwrap(_dst); }
 			bool Equals(const RangeOfType& other) const { return _impl == other._impl; }
 			Self& First()                               { _impl.First(); FindNext(); return *this; }
@@ -287,7 +287,7 @@ namespace stingray
 		private:
 			void FindNext()
 			{
-				for ( ; _impl.IsValid(); _impl.Next())
+				for ( ; _impl.Valid(); _impl.Next())
 				{
 					_dst = Storage::Wrap(dynamic_caster(_impl.Get()));
 					if (_dst)
@@ -297,7 +297,7 @@ namespace stingray
 
 			void FindPrev()
 			{
-				for ( ; _impl.IsValid(); _impl.Prev())
+				for ( ; _impl.Valid(); _impl.Prev())
 				{
 					_dst = Storage::Wrap(dynamic_caster(_impl.Get()));
 					if (_dst)
@@ -320,7 +320,7 @@ namespace stingray
 			RangeReverser(const Range_& impl) : _impl(impl)
 			{ First(); }
 
-			bool IsValid() const                          { return _impl.IsValid(); }
+			bool Valid() const                            { return _impl.Valid(); }
 			typename base::ValueType Get()                { return _impl.Get(); }
 			bool Equals(const RangeReverser& other) const { return _impl == other._impl; }
 			Self& First()                                 { _impl.Last(); return *this; }
@@ -349,7 +349,7 @@ namespace stingray
 			RangeTransformer(const Range_& impl, const Functor_& functor) : _impl(impl), _functor(functor)
 			{ }
 
-			bool IsValid() const                             { return _impl.IsValid(); }
+			bool Valid() const                               { return _impl.Valid(); }
 			typename base::ValueType Get()                   { DoTransform(); return *_cache; }
 			bool Equals(const RangeTransformer& other) const { return _impl == other._impl; }
 			Self& First()                                    { _impl.First(); _cache.reset(); return *this; }
@@ -373,9 +373,9 @@ namespace stingray
 		template <typename SrcRange_, typename DstRange_>
 		typename EnableIf<IsRange<DstRange_>::Value, DstRange_>::ValueT Copy(SrcRange_ src, DstRange_ dst)
 		{
-			for (; src.IsValid(); src.Next(), dst.Next())
+			for (; src.Valid(); src.Next(), dst.Next())
 			{
-				STINGRAYKIT_CHECK(dst.IsValid(), "Destination range is not valid!");
+				STINGRAYKIT_CHECK(dst.Valid(), "Destination range is not valid!");
 				dst.Get() = src.Get();
 			}
 			return dst;
@@ -385,7 +385,7 @@ namespace stingray
 		template <typename SrcRange_, typename DstIterator_>
 		typename EnableIf<!IsRange<DstIterator_>::Value, DstIterator_>::ValueT Copy(SrcRange_ src, DstIterator_ dst)
 		{
-			for (; src.IsValid(); src.Next(), ++dst)
+			for (; src.Valid(); src.Next(), ++dst)
 				*dst = src.Get();
 			return dst;
 		}
@@ -414,7 +414,7 @@ namespace stingray
 		template <typename Range_, typename Functor_>
 		void ForEach(Range_ range, const Functor_& functor)
 		{
-			for (; range.IsValid(); range.Next())
+			for (; range.Valid(); range.Next())
 				functor(range.Get());
 		}
 
@@ -422,7 +422,7 @@ namespace stingray
 		template <typename Range_, class Predicate_>
 		bool AnyOf(Range_ range, Predicate_ predicate)
 		{
-			for (; range.IsValid(); range.Next())
+			for (; range.Valid(); range.Next())
 				if (predicate(range.Get()))
 					return true;
 			return false;
@@ -432,7 +432,7 @@ namespace stingray
 		template <typename Range_, class Predicate_>
 		bool AllOf(Range_ range, Predicate_ predicate)
 		{
-			for (; range.IsValid(); range.Next())
+			for (; range.Valid(); range.Next())
 				if (!predicate(range.Get()))
 					return false;
 			return true;
@@ -442,7 +442,7 @@ namespace stingray
 		template <typename Range_, class Predicate_>
 		bool NoneOf(Range_ range, Predicate_ predicate)
 		{
-			for (; range.IsValid(); range.Next())
+			for (; range.Valid(); range.Next())
 				if (predicate(range.Get()))
 					return false;
 			return true;
