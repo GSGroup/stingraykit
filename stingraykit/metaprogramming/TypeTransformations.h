@@ -44,6 +44,9 @@ namespace stingray
 	template < typename T >
 	struct Depointer<T*> { typedef T	ValueT; };
 
+	template < typename T >
+	struct Depointer<T* const> { typedef T	ValueT; };
+
 	template<typename T>
 	struct Deconst { typedef T ValueT; };
 

@@ -41,6 +41,9 @@ namespace stingray
 	struct IsPointer<T*> { static const bool Value = true; };
 
 	template < typename T >
+	struct IsPointer<T* const> { static const bool Value = true; };
+
+	template < typename T >
 	struct IsArray { static const bool Value = false; };
 
 	template < typename T, unsigned N >
