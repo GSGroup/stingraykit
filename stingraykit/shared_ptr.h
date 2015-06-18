@@ -19,6 +19,7 @@
 #include <stingraykit/TypeInfo.h>
 #include <stingraykit/aligned_storage.h>
 #include <stingraykit/assert.h>
+#include <stingraykit/dynamic_caster.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/fatal.h>
 #include <stingraykit/safe_bool.h>
@@ -570,6 +571,10 @@ namespace stingray
 	struct IsSharedPtr<shared_ptr<T> >
 	{ static const bool Value = true; };
 
+	template < typename T >
+	struct IsSharedPtr<const shared_ptr<T> >
+	{ static const bool Value = true; };
+
 
 	template < typename SharedPtrT >
 	struct GetSharedPtrParam;
@@ -639,34 +644,34 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename DestType, typename SrcType, bool UseImplicit = Inherits<SrcType, DestType>::Value >
-		struct DynamicCastHelper
+		template <typename SrcPtr_, typename DstPtr_>
+		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<IsSharedPtr<SrcPtr_>::Value && IsSharedPtr<DstPtr_>::Value, void>::ValueT>
 		{
-			static DestType* Do(SrcType* src)
-			{
-				CompileTimeAssert<!IsPointer<DestType>::Value> ERROR__pointer_to_pointer_dynamic_cast;
-				(void)ERROR__pointer_to_pointer_dynamic_cast;
-				return dynamic_cast<DestType*>(src);
-			}
+			static DstPtr_ Do(const SrcPtr_& src)
+			{ return DstPtr_(src, PointersCaster<typename SrcPtr_::ValueType, typename DstPtr_::ValueType>::Do(src.get())); }
 		};
 
-		template < typename DestType, typename SrcType >
-		struct DynamicCastHelper<DestType, SrcType, true>
+
+		template <typename Src_, typename Dst_>
+		struct DynamicCastImpl<Src_, Dst_, typename EnableIf<IsSharedPtr<Src_>::Value != IsSharedPtr<Dst_>::Value, void>::ValueT>
 		{
-			static DestType* Do(SrcType* src)
-			{ return src; }
+			// Explicitly prohibit casting if one of the types is a pointer and another one is not
 		};
-	}
 
 
-	template < typename DestType, typename SrcType >
-	inline shared_ptr<DestType> dynamic_pointer_cast(const shared_ptr<SrcType>& src)
-	{
-		DestType* rawDest = Detail::DynamicCastHelper<DestType, SrcType>::Do(src.get());
-		if (rawDest == NULL)
-			return shared_ptr<DestType>();
+		template <typename Src_>
+		class DynamicCasterImpl<Src_, typename EnableIf<IsSharedPtr<Src_>::Value, void>::ValueT>
+		{
+		private:
+			Src_ _src;
 
-		return shared_ptr<DestType>(src, rawDest);
+		public:
+			explicit DynamicCasterImpl(const Src_& src) : _src(src)
+			{ }
+
+			template <typename Dst_> operator shared_ptr<Dst_> () const
+			{ return DynamicCast<shared_ptr<Dst_>, Src_>(_src); }
+		};
 	}
 
 
