@@ -42,7 +42,7 @@ namespace stingray
 		const_iterator cend() const	{ return _data + N; }
 		iterator end()				{ return _data + N; }
 
-		array() {}
+		array(): _data() {}
 		void assign(const array &other)			{ std::copy(other.begin(), other.end(), begin()); }
 		array(const array& other)				{ assign(other); }
 		array& operator=(const array& other)	{ assign(other); return *this; }
