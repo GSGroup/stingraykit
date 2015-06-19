@@ -260,50 +260,25 @@ namespace stingray
 	};
 
 
-	template< typename EnumeratorType_, typename ParamsTuple_ >
-	struct SimpleEnumerable : public IEnumerable<typename EnumeratorType_::ItemType>
+	template <typename Functor_>
+	class SimpleEnumerable : public IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType>
 	{
+		typedef IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType> base;
 	private:
-		ParamsTuple_ _tuple;
+		Functor_ _functor;
 
 	public:
-		SimpleEnumerable(const ParamsTuple_& tuple)
-			: _tuple(tuple)
+		SimpleEnumerable(const Functor_& functor) : _functor(functor)
 		{ }
 
-		virtual shared_ptr<IEnumerator<typename EnumeratorType_::ItemType> > GetEnumerator() const
-		{ return FunctorInvoker::Invoke(MakeShared<EnumeratorType_>(), _tuple); }
+		virtual shared_ptr<IEnumerator<typename base::ItemType> > GetEnumerator() const
+		{ return _functor(); }
 	};
 
 
-	namespace Detail
-	{
-
-		template< typename EnumeratorType_, typename ParamsTuple_ >
-		shared_ptr<SimpleEnumerable<EnumeratorType_, ParamsTuple_> > MakeSimpleEnumerableImpl(const ParamsTuple_& tuple)
-		{ return make_shared<SimpleEnumerable<EnumeratorType_, ParamsTuple_> >(tuple); }
-
-	}
-
-
-#define DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename STINGRAYKIT_CAT(T, Index_)
-#define DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(T, Index_)
-#define DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) const STINGRAYKIT_CAT(T, Index_)& STINGRAYKIT_CAT(p, Index_)
-#define DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(p, Index_)
-
-#define DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE(N_, UserArg_) \
-	template< typename EnumeratorType_ STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS, STINGRAYKIT_EMPTY()) > \
-	shared_ptr<SimpleEnumerable<EnumeratorType_, Tuple<STINGRAYKIT_INSERT_IF(N_, typename) TypeList_##N_ STINGRAYKIT_INSERT_IF(N_, <) STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES, STINGRAYKIT_EMPTY()) STINGRAYKIT_INSERT_IF(N_, >)::type  > > > MakeSimpleEnumerable(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS, STINGRAYKIT_EMPTY())) \
-	{ return Detail::MakeSimpleEnumerableImpl<EnumeratorType_>(MakeTuple(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS, STINGRAYKIT_EMPTY()))); }
-
-	STINGRAYKIT_REPEAT_NESTING_2(5, DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE, STINGRAYKIT_EMPTY())
-
-#undef DETAIL_DECLARE_MAKE_SIMPLE_ENUMERABLE
-
-#undef DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMS
-#undef DETAIL_MAKE_SIMPLE_ENUMERABLE_PARAMDECLS
-#undef DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMES
-#undef DETAIL_MAKE_SIMPLE_ENUMERABLE_TYPENAMESDECLS
+	template <typename Functor_>
+	shared_ptr<SimpleEnumerable<Functor_> > MakeSimpleEnumerable(const Functor_& functor)
+	{ return make_shared<SimpleEnumerable<Functor_> >(functor); }
 
 
 	namespace Enumerable
