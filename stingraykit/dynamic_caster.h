@@ -128,43 +128,39 @@ namespace stingray
 
 	namespace Detail
 	{
-		template< typename SourceType, bool AllowNullSource = false >
+		template <typename Src_>
 		class CheckedDynamicCaster
 		{
-			SourceType		_source;
-			ToolkitWhere	_where;
+			Src_         _src;
+			ToolkitWhere _where;
 
 		public:
-			CheckedDynamicCaster(const SourceType& source, ToolkitWhere where)
-				: _source(source), _where(where)
+			CheckedDynamicCaster(const Src_& src, ToolkitWhere where) :
+				_src(src), _where(where)
 			{ }
 
-			template< typename TargetType >
-			operator TargetType() const
+			template <typename Dst_>
+			operator Dst_() const
 			{
-				TargetType target = DynamicCast<TargetType>(_source);
+				if (!_src)
+					return null;
 
-				if (target || (!_source && AllowNullSource))
-					return target;
+				Dst_ dst = DynamicCast<Dst_>(_src);
+				if (dst)
+					return dst;
 
-				throw stingray::Detail::MakeException(InvalidCastException(_source ? TypeInfo(*_source).GetName() : "null", TypeInfo(typeid(TargetType)).GetName()), _where);
+				throw stingray::Detail::MakeException(InvalidCastException(TypeInfo(*_src).GetName(), TypeInfo(typeid(Dst_)).GetName()), _where);
 			}
 		};
 
 
-		template < typename T >
-		CheckedDynamicCaster<T> checked_dynamic_caster(const T& source, ToolkitWhere where)
-		{ return CheckedDynamicCaster<T>(source, where); }
-
-
-		template < typename T >
-		CheckedDynamicCaster<T, true> nullable_checked_dynamic_caster(const T& source, ToolkitWhere where)
-		{ return CheckedDynamicCaster<T, true>(source, where); }
+		template <typename Src_>
+		CheckedDynamicCaster<Src_> checked_dynamic_caster(const Src_& src, ToolkitWhere where)
+		{ return CheckedDynamicCaster<Src_>(src, where); }
 	}
 
 
 #define STINGRAYKIT_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::checked_dynamic_caster(Expr_, STINGRAYKIT_WHERE)
-#define STINGRAYKIT_NULLABLE_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::nullable_checked_dynamic_caster(Expr_, STINGRAYKIT_WHERE)
 
 
 }
