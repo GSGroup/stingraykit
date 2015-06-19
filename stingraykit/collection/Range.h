@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/RefStorage.h>
 #include <stingraykit/collection/RangeBase.h>
 #include <stingraykit/collection/Transformers.h>
 #include <stingraykit/collection/iterators.h>
@@ -248,26 +249,6 @@ namespace stingray
 		};
 
 
-		template <typename T>
-		struct RefStorage
-		{
-			typedef T ValueType;
-
-			static T Wrap(const T& value)   { return value; }
-			static T Unwrap(const T& value) { return value; }
-		};
-
-
-		template <typename T>
-		struct RefStorage<T&>
-		{
-			typedef T* ValueType;
-
-			static ValueType Wrap(T& value) { return &value; }
-			static T& Unwrap(ValueType ptr) { return *ptr; }
-		};
-
-
 		template <typename Dst_, typename Range_>
 		class RangeOfType : public RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
@@ -296,7 +277,7 @@ namespace stingray
 			{
 				for ( ; _impl.Valid(); _impl.Next())
 				{
-					_dst = Storage::Wrap(dynamic_caster(_impl.Get()));
+					_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_impl.Get()));
 					if (_dst)
 						return;
 				}
@@ -306,7 +287,7 @@ namespace stingray
 			{
 				for ( ; _impl.Valid(); _impl.Prev())
 				{
-					_dst = Storage::Wrap(dynamic_caster(_impl.Get()));
+					_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_impl.Get()));
 					if (_dst)
 						return;
 				}
