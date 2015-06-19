@@ -10,7 +10,6 @@
 
 
 #include <stingraykit/MetaProgramming.h>
-#include <stingraykit/shared_ptr.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/Dummy.h>
 #include <stingraykit/TypeInfo.h>
@@ -19,106 +18,116 @@
 namespace stingray
 {
 
-
-	template < typename T >
-	class DynamicCaster
+	namespace Detail
 	{
-	private:
-		T*		_ptr;
-
-	public:
-		DynamicCaster(T* ptr, const Dummy&) : _ptr(ptr) { }
-		DynamicCaster(T& ref, const Dummy&, const Dummy&) : _ptr(&ref) { }
-
-		template < typename U > operator U* () const
-		{ return Detail::DynamicCastHelper<U, T>::Do(_ptr); }
-
-		operator const DynamicCaster&() const { return *this; } // workaround for an old GCC bug
-
-		template < typename U > operator U& () const
+		template <typename Src_, typename Dst_, typename Enabler = void>
+		struct PointersCaster
 		{
-			CompileTimeAssert<!SameType<typename Deconst<U>::ValueT, DynamicCaster>::Value> ERROR__gcc_3x_bug;
-			(void)ERROR__gcc_3x_bug;
-			U* result_ptr = Detail::DynamicCastHelper<U, T>::Do(_ptr);
-			if (!result_ptr)
-				STINGRAYKIT_THROW(std::bad_cast());
-			return *result_ptr;
-		}
+			static Dst_* Do(Src_* src)
+			{
+				// Src_ and Dst_ types must be complete
+				(void)sizeof(Src_); (void)sizeof(Dst_);
+				return dynamic_cast<Dst_*>(src);
+			}
+		};
 
-		template < typename U > operator const U& () const
+
+		template <typename Src_, typename Dst_>
+		struct PointersCaster<Src_, Dst_, typename EnableIf<Inherits<Src_, Dst_>::Value, void>::ValueT>
 		{
-			CompileTimeAssert<!SameType<typename Deconst<U>::ValueT, DynamicCaster>::Value> ERROR__gcc_3x_bug;
-			(void)ERROR__gcc_3x_bug;
-			const U* result_ptr = Detail::DynamicCastHelper<const U, T>::Do(_ptr);
-			if (!result_ptr)
-				STINGRAYKIT_THROW(std::bad_cast());
-			return *result_ptr;
-		}
-	};
+			static Dst_* Do(Src_* src)
+			{ return src; }
+		};
 
 
-	template < typename T >
-	class SharedDynamicCaster
-	{
-	private:
-		shared_ptr<T>		_ptr;
+		template <typename Src_, typename Dst_, typename Enabler = void>
+		struct DynamicCastImpl;
 
-	public:
-		SharedDynamicCaster(const shared_ptr<T>& ptr, const Dummy&) : _ptr(ptr) { }
 
-		operator const SharedDynamicCaster&() const { return *this; } // workaround for an old GCC bug
-
-		template < typename U > operator shared_ptr<U> () const { return dynamic_pointer_cast<U>(_ptr); }
-		/*
-		template < typename U > operator U* () const { return dynamic_cast<U*>(_ptr.get()); }
-		template < typename U > operator U& () const
+		template <typename Src_, typename DstReference_>
+		struct DynamicCastImpl<Src_, DstReference_, typename EnableIf<IsReference<DstReference_>::Value, void>::ValueT>
 		{
-			CompileTimeAssert<!SameType<U, SharedDynamicCaster>::Value> ERROR__old_gcc_bug; (void)ERROR__old_gcc_bug;
-			CompileTimeAssert<!Is1ParamTemplate<shared_ptr, typename Deconst<U>::Type>::Value> ERROR__test; (void)ERROR__test; // =(((
-			return dynamic_cast<U&>(*_ptr.get());
-		}
-		*/
-	};
+			static DstReference_ Do(Src_& src)
+			{
+				typedef typename Dereference<DstReference_>::ValueT Dst_;
+				Dst_* dst = PointersCaster<Src_, Dst_>::Do(&src);
+				STINGRAYKIT_CHECK(dst, InvalidCastException(TypeInfo(src).GetName(), TypeInfo(typeid(Dst_)).GetName()));
+				return *dst;
+			}
+		};
 
 
-	template < typename T > DynamicCaster<T>
-		dynamic_caster(T* ptr)
-	{ return DynamicCaster<T>(ptr, Dummy()); }
+		template <typename SrcPtr_, typename DstPtr_>
+		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<IsPointer<SrcPtr_>::Value && IsPointer<DstPtr_>::Value, void>::ValueT>
+		{
+			static DstPtr_ Do(SrcPtr_ src)
+			{ return PointersCaster<typename Depointer<SrcPtr_>::ValueT, typename Depointer<DstPtr_>::ValueT>::Do(src); }
+		};
 
 
-	template < typename T > DynamicCaster<typename EnableIf<!IsSharedPtr<T>::Value, T>::ValueT>
-		dynamic_caster(T& ref)
-	{ return DynamicCaster<T>(ref, Dummy(), Dummy()); }
+		template <typename Src_, typename Dst_>
+		struct DynamicCastImpl<Src_, Dst_, typename EnableIf<IsPointer<Src_>::Value != IsPointer<Dst_>::Value, void>::ValueT>
+		{
+			// Explicitly prohibit casting if one of the types is a pointer and another one is not
+		};
+	}
 
 
-	template < typename T > SharedDynamicCaster<T>
-		dynamic_caster(const shared_ptr<T>& shPtr)
-	{ return SharedDynamicCaster<T>(shPtr, Dummy()); }
+	template <typename Dst_, typename Src_>
+	Dst_ DynamicCast(Src_& src)
+	{ return Detail::DynamicCastImpl<Src_, Dst_>::Do(src); }
+
+
+	template <typename Dst_, typename Src_>
+	Dst_ DynamicCast(const Src_& src)
+	{ return Detail::DynamicCastImpl<const Src_, Dst_>::Do(src); }
+
 
 	namespace Detail
 	{
-
-
-		template < typename SourceType, typename DestinationType >
-		struct Caster;
-
-
-		template < typename SourceType, typename DestinationType >
-		struct Caster<SourceType*, DestinationType*>
+		template <typename Src_, typename Enabler = void>
+		class DynamicCasterImpl
 		{
-			static DestinationType* Do(SourceType* source)
-			{ return dynamic_cast<DestinationType*>(source); }
+		private:
+			Src_& _src;
+
+		public:
+			explicit DynamicCasterImpl(Src_& src) : _src(src)
+			{ }
+
+			template <typename Dst_> operator Dst_& () const
+			{ return DynamicCast<Dst_&, Src_>(_src); }
 		};
 
 
-		template < typename SourceType, typename DestinationType >
-		struct Caster<shared_ptr<SourceType>, shared_ptr<DestinationType> >
+		template <typename SrcPtr_>
+		class DynamicCasterImpl<SrcPtr_, typename EnableIf<IsPointer<SrcPtr_>::Value, void>::ValueT>
 		{
-			static shared_ptr<DestinationType> Do(const shared_ptr<SourceType>& source)
-			{ return dynamic_pointer_cast<DestinationType>(source); }
+		private:
+			SrcPtr_ _src;
+
+		public:
+			explicit DynamicCasterImpl(SrcPtr_ src) : _src(src)
+			{ }
+
+			template <typename Dst_> operator Dst_* () const
+			{ return DynamicCast<Dst_*, SrcPtr_>(_src); }
 		};
+	}
 
 
+	template <typename Src_>
+	Detail::DynamicCasterImpl<Src_> dynamic_caster(Src_& src)
+	{ return Detail::DynamicCasterImpl<Src_>(src); }
+
+
+	template <typename Src_>
+	Detail::DynamicCasterImpl<const Src_> dynamic_caster(const Src_& src)
+	{ return Detail::DynamicCasterImpl<const Src_>(src); }
+
+
+	namespace Detail
+	{
 		template< typename SourceType, bool AllowNullSource = false >
 		class CheckedDynamicCaster
 		{
@@ -133,7 +142,7 @@ namespace stingray
 			template< typename TargetType >
 			operator TargetType() const
 			{
-				TargetType target = Caster<SourceType, TargetType>::Do(_source);
+				TargetType target = DynamicCast<TargetType>(_source);
 
 				if (target || (!_source && AllowNullSource))
 					return target;

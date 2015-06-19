@@ -13,6 +13,7 @@
 #include <stdexcept>
 
 #include <stingraykit/Macro.h>
+#include <stingraykit/dynamic_caster.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/ref_count.h>
 #include <stingraykit/safe_bool.h>
@@ -180,7 +181,6 @@ namespace stingray
 
 	namespace Detail
 	{
-
 		template < typename T >
 		class LightWeakPtrToPointerProxy
 		{
@@ -194,31 +194,26 @@ namespace stingray
 
 			operator T* () const { return _sharedPtr.get(); }
 		};
+
+
+		template <typename SrcPtr_, typename DstPtr_>
+		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<Is1ParamTemplate<light_shared_ptr, SrcPtr_>::Value && Is1ParamTemplate<light_shared_ptr, DstPtr_>::Value, void>::ValueT>
+		{
+			static DstPtr_ Do(const SrcPtr_& src)
+			{ return DstPtr_(src, PointersCaster<typename SrcPtr_::ValueType, typename DstPtr_::ValueType>::Do(src.get())); }
+		};
+
+
+		template <typename Src_, typename Dst_>
+		struct DynamicCastImpl<Src_, Dst_, typename EnableIf<Is1ParamTemplate<light_shared_ptr, Src_>::Value != Is1ParamTemplate<light_shared_ptr, Dst_>::Value, void>::ValueT>
+		{
+			// Explicitly prohibit casting if one of the types is a pointer and another one is not
+		};
 	}
+
 
 	template < typename T >
 	inline Detail::LightWeakPtrToPointerProxy<T> to_pointer(const light_weak_ptr<T>& ptr) { return ptr; }
-
-
-	template < typename DestType, typename SrcType >
-	inline light_shared_ptr<DestType> dynamic_pointer_cast(const light_shared_ptr<SrcType>& src)
-	{
-		DestType* rawDest = dynamic_cast<DestType*>(src.get());
-		if (rawDest == NULL)
-			return light_shared_ptr<DestType>();
-
-		return light_shared_ptr<DestType>(rawDest, src._refCount);
-	}
-
-	template < typename DestType, typename SrcType >
-	inline light_weak_ptr<DestType> dynamic_pointer_cast(const light_weak_ptr<SrcType>& src)
-	{
-		DestType* rawDest = dynamic_cast<DestType*>(src._rawPtr);
-		if (rawDest == NULL)
-			return light_weak_ptr<DestType>();
-
-		return light_weak_ptr<DestType>(rawDest, src._refCount);
-	}
 
 
 	template < typename T >
