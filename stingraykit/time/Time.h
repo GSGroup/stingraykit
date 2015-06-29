@@ -34,8 +34,9 @@ namespace stingray
 		explicit TimeDuration(s64 milliseconds = 0) : _microseconds(1000 * milliseconds)
 		{ }
 
-		s64 GetMilliseconds() const							{ return _microseconds / 1000; }
 		s64 GetMicroseconds() const							{ return _microseconds; }
+		s64 GetMilliseconds() const							{ return GetMicroseconds() / 1000; }
+		s64 GetSeconds() const								{ return GetMilliseconds() / 1000; }
 
 		TimeDuration Absolute() const						{ return TimeDuration(_microseconds < 0 ? -_microseconds : _microseconds, Dummy()); }
 
