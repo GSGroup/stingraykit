@@ -130,11 +130,11 @@ namespace stingray
 		value_type		_suffix;
 
 	public:
-		const_reference operator[] (size_type n) const			{ return _results[n]; }
+		const_reference operator[] (size_type n) const			{ return _results.at(n); }
 
 		size_type size() const									{ return _results.size(); }
-		size_type length(size_type n = 0) const					{ return _results[n].size(); }
-		difference_type position(size_type n = 0) const			{ return _positions[n]; }
+		size_type length(size_type n = 0) const					{ return _results.at(n).size(); }
+		difference_type position(size_type n = 0) const			{ return _positions.at(n); }
 
 		iterator begin()										{ return _results.begin(); }
 		iterator end()											{ return _results.end(); }
