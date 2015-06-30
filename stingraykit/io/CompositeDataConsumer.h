@@ -11,6 +11,7 @@
 
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/io/IDataSource.h>
+#include <stingraykit/function/functional.h>
 
 #include <list>
 
@@ -37,6 +38,12 @@ namespace stingray
 			MutexLock l(_guard);
 			_consumers.remove_if(bind(&IDataConsumerWeakPtr::expired, _1));
 			_consumers.push_back(consumer);
+		}
+
+		bool HasConsumers()
+		{
+			MutexLock l(_guard);
+			return std::find_if(_consumers.begin(), _consumers.end(), not_(bind(&IDataConsumerWeakPtr::expired, _1))) != _consumers.end();
 		}
 
 		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
