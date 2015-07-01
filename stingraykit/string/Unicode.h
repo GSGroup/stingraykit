@@ -10,6 +10,7 @@
 
 
 #include <stingraykit/toolkit.h>
+#include <stingraykit/unique_ptr.h>
 #include <stingraykit/shared_ptr.h>
 
 #ifdef HAVE_ICU_I18N
