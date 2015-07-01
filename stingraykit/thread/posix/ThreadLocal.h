@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/SafeSingleton.h>
 #include <stingraykit/SystemException.h>
 #include <stingraykit/unique_ptr.h>
@@ -73,7 +74,7 @@
 		} \
 	private: \
 		static void Dtor(void* val) \
-		{ ValueHolder* holder = static_cast<ValueHolder*>(val); delete holder; } \
+		{ ValueHolder* holder = static_cast<ValueHolder*>(val); CheckedDelete(holder); } \
 	};
 
 #	define STINGRAYKIT_DEFINE_THREAD_LOCAL(Type_, Name_) __thread Type_* Name_::s_value = NULL

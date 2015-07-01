@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/Atomic.h>
+#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/Dummy.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/safe_bool.h>
@@ -135,7 +136,7 @@ namespace stingray
 			{
 				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&_value);
 				STINGRAYKIT_ANNOTATE_RELEASE(&_value);
-				delete static_cast<const T*>(this);
+				CheckedDelete(static_cast<const T*>(this));
 			}
 			else
 				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(&_value);

@@ -9,10 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <sys/types.h>
-#include <stdexcept>
-
 #include <stingraykit/Atomic.h>
+#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/Dummy.h>
 #include <stingraykit/Macro.h>
 #include <stingraykit/TypeErasure.h>
@@ -24,6 +22,10 @@
 #include <stingraykit/fatal.h>
 #include <stingraykit/safe_bool.h>
 #include <stingraykit/toolkit.h>
+
+#include <sys/types.h>
+
+#include <stdexcept>
 
 namespace stingray
 {
@@ -77,7 +79,7 @@ namespace stingray
 			{ }
 
 			void Dispose()
-			{ delete _ptr; }
+			{ CheckedDelete(_ptr); }
 		};
 
 

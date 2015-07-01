@@ -94,7 +94,7 @@ namespace stingray
 		struct ConceptInvoker<TypeErasureImpl_, Concepts::Destructor, 0>
 		{
 			static void DoCall(TypeErasureBase* self)
-			{ delete static_cast<TypeErasureImpl_*>(self); }
+			{ CheckedDelete(static_cast<TypeErasureImpl_*>(self)); }
 		};
 
 

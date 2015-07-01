@@ -9,11 +9,11 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <assert.h>
 #include <stingraykit/Atomic.h>
+#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/toolkit.h>
 
-
+#include <assert.h>
 
 namespace stingray
 {
@@ -115,7 +115,7 @@ namespace stingray
 			{
 				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(_value);
 				STINGRAYKIT_ANNOTATE_RELEASE(_value);
-				delete _value;
+				CheckedDelete(_value);
 			}
 			else
 				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(_value);

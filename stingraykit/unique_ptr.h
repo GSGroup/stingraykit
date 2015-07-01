@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/safe_bool.h>
 #include <stingraykit/toolkit.h>
@@ -28,7 +29,7 @@ namespace stingray
 		{}
 
 		~unique_ptr()
-		{ delete _rawPtr; }
+		{ CheckedDelete(_rawPtr); }
 
 		inline bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
 		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
@@ -43,7 +44,7 @@ namespace stingray
 
 		inline void reset(T* ptr = 0)
 		{
-			delete _rawPtr;
+			CheckedDelete(_rawPtr);
 			_rawPtr = ptr;
 		}
 

@@ -43,7 +43,7 @@ namespace stingray
 		{
 			u32 refcount = Atomic::Dec(s_refCount);
 			if (refcount == 0)
-				delete DoGetInstancePtr();
+				CheckedDelete(DoGetInstancePtr());
 		}
 
 		static T* DoGetInstancePtr()

@@ -9,8 +9,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/thread/ITaskExecutor.h>
+#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/thread/ITaskExecutor.h>
 
 namespace stingray
 {
@@ -31,7 +32,7 @@ namespace stingray
 	private:
 		template< typename T >
 		static void DoDelete(T* t)
-		{ delete t; }
+		{ CheckedDelete(t); }
 	};
 
 }

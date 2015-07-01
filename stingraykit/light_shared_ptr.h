@@ -9,15 +9,17 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <sys/types.h>
-#include <stdexcept>
-
+#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/Macro.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/ref_count.h>
 #include <stingraykit/safe_bool.h>
 #include <stingraykit/toolkit.h>
+
+#include <sys/types.h>
+
+#include <stdexcept>
 
 namespace stingray
 {
@@ -76,7 +78,7 @@ namespace stingray
 		{
 			T* raw_ptr = get();
 			if (!_refCount.IsNull() && _refCount.release() == 0)
-				delete raw_ptr;
+				CheckedDelete(raw_ptr);
 		}
 
 
