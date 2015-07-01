@@ -26,9 +26,9 @@ namespace stingray
 
 	private:
 #ifdef HAVE_ICU_I18N
-		icu::Collator *		_collator;
+		unique_ptr<icu::Collator>	_collator;
 #endif
-		bool				_caseSensitive;
+		bool						_caseSensitive;
 
 	public:
 		UnicodeCollator();

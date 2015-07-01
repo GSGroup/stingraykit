@@ -7,6 +7,7 @@
 
 #include <stingraykit/string/Unicode.h>
 
+#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/string/ToString.h>
 
@@ -20,10 +21,10 @@ namespace stingray
 
 #ifdef HAVE_ICU_I18N
 
-	UnicodeCollator::UnicodeCollator() : _collator()
+	UnicodeCollator::UnicodeCollator()
 	{
 		UErrorCode success = U_ZERO_ERROR;
-		_collator = icu::Collator::createInstance(success);
+		_collator.reset(icu::Collator::createInstance(success));
 		STINGRAYKIT_CHECK(success != U_FILE_ACCESS_ERROR, "file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
 		STINGRAYKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
 		SetCaseSensitivity(true);
@@ -31,9 +32,7 @@ namespace stingray
 
 
 	UnicodeCollator::~UnicodeCollator()
-	{
-		delete _collator;
-	}
+	{ }
 
 
 	void UnicodeCollator::SetCaseSensitivity(bool sensitive)
