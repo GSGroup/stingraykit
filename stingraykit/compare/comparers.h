@@ -162,7 +162,12 @@ namespace stingray
 
 			template <typename Lhs, typename Rhs>
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
-			{ return _comparer(lhs, rhs) < 0; }
+			{
+				CompileTimeAssert<SameType<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
+				(void)ErrorExpectedCmpComparer;
+
+				return _comparer(lhs, rhs) < 0;
+			}
 		};
 
 
@@ -181,7 +186,12 @@ namespace stingray
 
 			template <typename Lhs, typename Rhs>
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
-			{ return _comparer(lhs, rhs) > 0; }
+			{
+				CompileTimeAssert<SameType<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
+				(void)ErrorExpectedCmpComparer;
+
+				return _comparer(lhs, rhs) > 0;
+			}
 		};
 
 
@@ -200,7 +210,12 @@ namespace stingray
 
 			template <typename Lhs, typename Rhs>
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
-			{ return _comparer(lhs, rhs) == 0; }
+			{
+				CompileTimeAssert<SameType<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
+				(void)ErrorExpectedCmpComparer;
+
+				return _comparer(lhs, rhs) == 0;
+			}
 		};
 
 
@@ -265,6 +280,9 @@ namespace stingray
 		template < typename T >
 		int DoCompare(const T& lhs, const T& rhs) const
 		{
+			CompileTimeAssert<SameType<typename function_info<ItemCmp>::RetType, int>::Value> ErrorExpectedCmpComparer;
+			(void)ErrorExpectedCmpComparer;
+
 			typename T::const_iterator first1 = lhs.begin(), last1 = lhs.end();
 			typename T::const_iterator first2 = rhs.begin(), last2 = rhs.end();
 			for (; first1 != last1; ++first1, ++first2)

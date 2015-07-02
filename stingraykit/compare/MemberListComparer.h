@@ -30,7 +30,12 @@ namespace stingray
 
 			template <typename ClassType, typename MemberPointerT, typename ComparerT>
 			static int CompareMember(const ClassType &lhs, const ClassType &rhs, const CustomMemberComparerWrapper<MemberPointerT, ComparerT> &comparer)
-			{ return comparer.Compare(lhs, rhs); }
+			{
+				CompileTimeAssert<SameType<typename function_info<ComparerT>::RetType, int>::Value> ErrorExpectedCmpComparer;
+				(void)ErrorExpectedCmpComparer;
+
+				return comparer.Compare(lhs, rhs);
+			}
 
 			template <typename ClassType>
 			static int Do(const ClassType &lhs, const ClassType &rhs, const MemberPointerTuple &tuple)
