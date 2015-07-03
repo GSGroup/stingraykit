@@ -69,7 +69,7 @@
 	} else { __VA_ARGS__
 
 #define DETAIL_STINGRAYKIT_TYPE_CASE_IMPL_DETAIL_DYNAMICDETAIL_CASE(N_, Value_, AsName_, Type_, ...) \
-	} else if (const Type_ detailTypeSwitchCase##N_ = dynamic_caster(Value_)) { const Type_& AsName_ = detailTypeSwitchCase##N_; __VA_ARGS__
+	} else if (const Type_ detailTypeSwitchCase##N_ = DynamicCast<Type_>(Value_)) { const Type_& AsName_ = detailTypeSwitchCase##N_; __VA_ARGS__
 
 #define DETAIL_STINGRAYKIT_TYPE_CASE_IMPL_DETAIL_DYNAMICDETAIL_DEFAULT(N_, Value_, AsName_, ...) \
 	} else { __VA_ARGS__
