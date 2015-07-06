@@ -9,12 +9,14 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
+#include <stingraykit/RefStorage.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/compare/Comparable.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/lazy.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/toolkit.h>
@@ -544,17 +546,55 @@ namespace stingray
 
 		namespace Detail
 		{
-			template < typename TResult, typename T >
-			static TResult CastHelper(typename GetConstReferenceType<T>::ValueT src) { return dynamic_caster(src); }
+			template <typename Dst_, typename SrcEnumerator_>
+			class EnumeratorOfType : public IEnumerator<Dst_>
+			{
+				typedef RefStorage<Dst_> Storage;
+
+			private:
+				SrcEnumerator_              _srcEnumerator;
+				typename Storage::ValueType _dst;
+
+			public:
+				EnumeratorOfType(const SrcEnumerator_& srcEnumerator) : _srcEnumerator(srcEnumerator)
+				{ FindNext(); }
+
+				virtual bool Valid() const { return _srcEnumerator->Valid(); }
+				virtual Dst_ Get() const   { return Storage::Unwrap(_dst); }
+				virtual void Next()        { _srcEnumerator->Next(); FindNext(); }
+
+			private:
+				void FindNext()
+				{
+					for ( ; _srcEnumerator->Valid(); _srcEnumerator->Next())
+					{
+						_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_srcEnumerator->Get()));
+						if (_dst)
+							return;
+					}
+				}
+
+				void FindPrev()
+				{
+					for ( ; _srcEnumerator->Valid(); _srcEnumerator->Prev())
+					{
+						_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_srcEnumerator->Get()));
+						if (_dst)
+							return;
+					}
+				}
+			};
 		}
 
-		template < typename TResult, typename CollectionType >
-		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<CollectionType>& enumerator, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerator>::Value, int>::ValueT dummy = 0)
-		{ return make_shared<EnumeratorWrapper<typename CollectionType::ItemType, TResult> >(enumerator, &Detail::CastHelper<TResult, typename CollectionType::ItemType>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
 
-		template < typename TResult, typename CollectionType >
-		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<CollectionType>& enumerable, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0)
-		{ return make_shared<EnumerableWrapper<typename CollectionType::ItemType, TResult> >(enumerable, &Detail::CastHelper<TResult, typename CollectionType::ItemType>, InstanceOfPredicate<typename GetSharedPtrParam<TResult>::ValueT>()); }
+		template <typename TResult, typename SrcEnumerator>
+		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<Inherits1ParamTemplate<SrcEnumerator, IEnumerator>::Value, int>::ValueT dummy = 0)
+		{ return make_shared<Detail::EnumeratorOfType<TResult, shared_ptr<SrcEnumerator> > >(enumerator); }
+
+
+		template <typename TResult, typename SrcEnumerable>
+		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<Inherits1ParamTemplate<SrcEnumerable, IEnumerable>::Value, int>::ValueT dummy = 0)
+		{ return MakeSimpleEnumerable(bind(MakeShared<Detail::EnumeratorOfType<TResult, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType> > > >(), lazy(bind(&SrcEnumerable::GetEnumerator, enumerable)))); }
 
 
 		template < typename CollectionType >
