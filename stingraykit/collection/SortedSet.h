@@ -26,7 +26,7 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T , typename CompareType_ = std::less<T> >
+	template < typename T , typename CompareType_ = comparers::Less >
 	class SortedSet : public virtual ISet<T>
 	{
 	public:
