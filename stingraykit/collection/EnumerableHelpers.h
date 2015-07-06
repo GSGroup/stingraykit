@@ -769,6 +769,16 @@ namespace stingray
 	}
 
 
+	template <typename Enumerable_>
+	struct FirstOrDefaultTransformerImpl<shared_ptr<Enumerable_>, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+	{
+		typedef typename Enumerable_::ItemType ValueT;
+
+		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const FirstOrDefaultTransformer& action)
+		{ return Enumerable::FirstOrDefault(enumerable); }
+	};
+
+
 	template <typename Enumerable_, typename Predicate_>
 	struct FilterTransformerImpl<shared_ptr<Enumerable_>, Predicate_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
 	{

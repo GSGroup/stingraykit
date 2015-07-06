@@ -24,6 +24,24 @@ namespace stingray
 	{ static const bool Value = Inherits<T, TransformerMarker>::Value; };
 
 
+	template<typename Arg_, typename Enabler = void>
+	struct FirstOrDefaultTransformerImpl;
+
+
+	struct FirstOrDefaultTransformer : public TransformerMarker
+	{
+		template<typename Arg_>
+		struct Dispatcher
+		{
+			typedef FirstOrDefaultTransformerImpl<Arg_> Impl;
+		};
+	};
+
+
+	inline FirstOrDefaultTransformer FirstOrDefault()
+	{ return FirstOrDefaultTransformer(); }
+
+
 	template <typename Arg_, typename Transformer_>
 	typename EnableIf<IsTransformer<Transformer_>::Value, typename Transformer_::template Dispatcher<Arg_>::Impl::ValueT>::ValueT operator | (const Arg_& arg, const Transformer_& action)
 	{ return Transformer_::template Dispatcher<Arg_>::Impl::Do(arg, action); }
