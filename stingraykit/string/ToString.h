@@ -33,8 +33,16 @@ namespace std
 namespace stingray
 {
 
+	STINGRAYKIT_DECLARE_METHOD_CHECK(FromString);
+
 	template < typename T >
-	T FromString(const std::string& str)
+	typename EnableIf<HasMethod_FromString<T>::Value, T>::ValueT FromString(const std::string& str)
+	{
+		return T::FromString(str);
+	}
+
+	template < typename T >
+	typename EnableIf<!HasMethod_FromString<T>::Value, T>::ValueT FromString(const std::string& str)
 	{
 		if (str.empty()) //old from string behaved this way.
 			return 0;
@@ -59,9 +67,6 @@ namespace stingray
 
 		return negative? (T)0 - value: value; //Dima told me to shut compiler up. Sorry.
 	}
-
-
-	STINGRAYKIT_DECLARE_METHOD_CHECK(FromString);
 
 
 	template < typename T >
