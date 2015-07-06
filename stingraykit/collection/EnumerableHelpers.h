@@ -13,6 +13,7 @@
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/IEnumerable.h>
+#include <stingraykit/collection/Transformers.h>
 #include <stingraykit/compare/Comparable.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/function/bind.h>
@@ -766,6 +767,60 @@ namespace stingray
 #endif
 
 	}
+
+
+	template <typename Enumerable_, typename Predicate_>
+	struct FilterTransformerImpl<shared_ptr<Enumerable_>, Predicate_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+	{
+		typedef typename Enumerable_::ItemType ItemType;
+		typedef shared_ptr<IEnumerable<ItemType> > ValueT;
+
+		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const FilterTransformer<Predicate_>& action)
+		{ return Enumerable::Where(enumerable, action.GetPredicate()); }
+	};
+
+
+	template <typename Enumerable_>
+	struct ReverseTransformerImpl<shared_ptr<Enumerable_>, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+	{
+		typedef typename Enumerable_::ItemType ItemType;
+		typedef shared_ptr<IEnumerable<ItemType> > ValueT;
+
+		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const ReverseTransformer& action)
+		{ return Enumerable::Reverse(enumerable); }
+	};
+
+
+	template <typename Enumerable_, typename Functor_>
+	struct TransformTransformerImpl<shared_ptr<Enumerable_>, Functor_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+	{
+		typedef typename Enumerable_::ItemType ItemType;
+		typedef shared_ptr<IEnumerable<ItemType> > ValueT;
+
+		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const TransformTransformer<Functor_>& action)
+		{ return Enumerable::Transform(enumerable, action.GetFunctor()); }
+	};
+
+
+	template <typename Enumerable_, typename Dst_>
+	struct CastTransformerImpl<shared_ptr<Enumerable_>, Dst_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+	{
+		typedef typename Enumerable_::ItemType ItemType;
+		typedef shared_ptr<IEnumerable<ItemType> > ValueT;
+
+		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const CastTransformer<Dst_>& action)
+		{ return Enumerable::Cast<Dst_>(enumerable); }
+	};
+
+
+	template <typename Enumerable_, typename Dst_>
+	struct OfTypeTransformerImpl<shared_ptr<Enumerable_>, Dst_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+	{
+		typedef shared_ptr<IEnumerable<Dst_> > ValueT;
+
+		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const OfTypeTransformer<Dst_>& action)
+		{ return Enumerable::OfType<Dst_>(enumerable); }
+	};
 
 	/** @} */
 
