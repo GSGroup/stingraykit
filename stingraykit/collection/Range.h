@@ -10,6 +10,7 @@
 
 #include <stingraykit/RefStorage.h>
 #include <stingraykit/collection/RangeBase.h>
+#include <stingraykit/collection/ToRange.h>
 #include <stingraykit/collection/Transformers.h>
 #include <stingraykit/collection/iterators.h>
 #include <stingraykit/dynamic_caster.h>
@@ -440,7 +441,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template <typename T, typename Enabler = void>
+		template <typename T, typename Enabler>
 		struct ToRangeImpl
 		{
 			typedef typename If<IsConst<T>::Value, typename T::const_iterator, typename T::iterator>::ValueT IterType;
@@ -481,16 +482,6 @@ namespace stingray
 			{ return r; }
 		};
 	}
-
-
-	template <typename T>
-	typename Detail::ToRangeImpl<T>::ValueT ToRange(T& src)
-	{ return Detail::ToRangeImpl<T>::Do(src); }
-
-
-	template <typename T>
-	typename Detail::ToRangeImpl<const T>::ValueT ToRange(const T& src)
-	{ return Detail::ToRangeImpl<const T>::Do(src); }
 
 
 	template <typename It_>
