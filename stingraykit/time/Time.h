@@ -170,6 +170,9 @@ namespace stingray
 		std::string ToString(const std::string& format = "", TimeKind kind = TimeKind::Local) const;
 		static Time FromString(const std::string& s, TimeKind kind = TimeKind::Local);
 
+		u64 ToNtpTimestamp() const;
+		static Time FromNtpTimestamp(u64 timestamp);
+
 		static Time MJDtoEpoch(int mjd, u32 bcdTime = 0);
 		static TimeDuration BCDDurationToTimeDuration(u32 bcdTime);
 

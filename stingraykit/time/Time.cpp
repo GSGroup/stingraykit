@@ -210,9 +210,22 @@ namespace stingray
 		return TimeZone(sign == '+'? value : -value);
 	}
 
+
 	void TimeZone::Serialize(ObjectOStream & ar) const	{ ar.Serialize("offset", _minutesFromUtc); }
 	void TimeZone::Deserialize(ObjectIStream & ar)		{ ar.Deserialize("offset", _minutesFromUtc); }
 
+
+	const s64 SecondsBetweenNtpAndUnixEpochs = 2208988800ll;
+
+	u64 Time::ToNtpTimestamp() const
+	{
+		return GetMilliseconds() / 1000 + SecondsBetweenNtpAndUnixEpochs;
+	}
+
+	Time Time::FromNtpTimestamp(u64 timestamp)
+	{
+		return Time((timestamp - SecondsBetweenNtpAndUnixEpochs) * 1000);
+	}
 
 	static inline u8 bcdValue(u8 byte)
 	{ return ((byte >> 4) & 0x0f) * 10 + (byte & 0x0f); }
