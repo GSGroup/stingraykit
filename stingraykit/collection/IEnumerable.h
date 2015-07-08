@@ -10,7 +10,9 @@
 
 #include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/IEnumerator.h>
+#include <stingraykit/collection/RangeBase.h>
 #include <stingraykit/collection/ToEnumerator.h>
+#include <stingraykit/collection/ToRange.h>
 
 #define STINGRAYKIT_DECLARE_ENUMERABLE(ClassName) \
 		typedef stingray::IEnumerable<ClassName>				ClassName##Enumerable; \
@@ -66,6 +68,38 @@ namespace stingray
 			typedef IEnumerator<typename T::ItemType>	ValueT;
 
 			static shared_ptr<ValueT> Do(const shared_ptr<T>& src) { return src->GetEnumerator(); }
+		};
+
+
+		template <typename Enumerable_>
+		class EnumerableToRange : public Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag>
+		{
+			typedef Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag> base;
+			typedef EnumerableToRange<Enumerable_> Self;
+
+		private:
+			const Enumerable_&                                       _enumerable;
+			shared_ptr<IEnumerator<typename Enumerable_::ItemType> > _enumerator;
+
+		public:
+			EnumerableToRange(const Enumerable_& e) : _enumerable(e)
+			{ First(); }
+
+			bool Valid() const             { return _enumerator->Valid(); }
+			typename base::ValueType Get() { return _enumerator->Get(); }
+
+			Self& First()                  { _enumerator = _enumerable.GetEnumerator(); return *this; }
+			Self& Next()                   { _enumerator->Next(); return *this; }
+		};
+
+
+		template <typename Enumerable_>
+		struct ToRangeImpl<Enumerable_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+		{
+			typedef EnumerableToRange<Enumerable_> ValueT;
+
+			static ValueT Do(const Enumerable_& r)
+			{ return ValueT(r); }
 		};
 	}
 
