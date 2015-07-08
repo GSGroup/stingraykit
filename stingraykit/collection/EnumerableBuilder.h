@@ -29,6 +29,10 @@ namespace stingray
 		EnumerableBuilder() : _container(make_shared<Container>())
 		{ }
 
+		template <typename Iter>
+		EnumerableBuilder(Iter first, Iter last) : _container(make_shared<Container>(first, last))
+		{ }
+
 		shared_ptr<IEnumerable<ItemType> > Get() const
 		{ return EnumerableFromStlContainer(*_container, _container); }
 
