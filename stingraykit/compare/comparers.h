@@ -13,7 +13,6 @@
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/shared_ptr.h>
 
-
 namespace stingray
 {
 
@@ -272,31 +271,6 @@ namespace stingray
 		{ return lhs.owner_before(rhs) ? -1 : (rhs.owner_before(lhs) ? 1 : 0); }
 	};
 	STINGRAYKIT_DECLARE_COMPARERS(Owner);
-
-
-	template<typename ItemCmp = comparers::Cmp>
-	struct CollectionCmp : public comparers::CmpComparerBase<CollectionCmp<ItemCmp> >
-	{
-		template < typename T >
-		int DoCompare(const T& lhs, const T& rhs) const
-		{
-			CompileTimeAssert<SameType<typename function_info<ItemCmp>::RetType, int>::Value> ErrorExpectedCmpComparer;
-			(void)ErrorExpectedCmpComparer;
-
-			typename T::const_iterator first1 = lhs.begin(), last1 = lhs.end();
-			typename T::const_iterator first2 = rhs.begin(), last2 = rhs.end();
-			for (; first1 != last1; ++first1, ++first2)
-			{
-				if (first2 == last2)
-					return -1;
-
-				int item_result = ItemCmp()(*first1, *first2);
-				if (item_result != 0)
-					return item_result;
-			}
-			return first2 == last2 ? 0 : 1;
-		}
-	};
 
 }
 
