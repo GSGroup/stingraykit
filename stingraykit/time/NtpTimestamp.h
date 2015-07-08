@@ -16,13 +16,16 @@ namespace stingray
 	class NtpTimestamp
 	{
 		static const s64 DifferenceBetweenUnixNtpTime = 2208988800ll;
+
 	private:
 		u64 _timestamp;
 
 	public:
-		NtpTimestamp(const u64 timestamp);
+		explicit NtpTimestamp(const u64 timestamp)
+			: _timestamp(timestamp)
+		{ }
 
-		u64 GetNtpTimestamp() const;
+		u64 GetTimestamp() const { return _timestamp; }
 
 		Time ToTime() const;
 		static NtpTimestamp FromTime(const Time& time);

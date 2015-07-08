@@ -3,12 +3,6 @@
 namespace stingray
 {
 
-	NtpTimestamp::NtpTimestamp(const u64 timestamp) : _timestamp(timestamp) { }
-
-
-	u64 NtpTimestamp::GetNtpTimestamp() const { return _timestamp; }
-
-
 	Time NtpTimestamp::ToTime() const
 	{
 		u32 integerPart = _timestamp >> 32;
