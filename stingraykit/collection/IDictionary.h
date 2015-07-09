@@ -48,6 +48,14 @@ namespace stingray
 		bool operator == (const KeyValuePair& other) const { return Key == other.Key && Value == other.Value; }
 		bool operator != (const KeyValuePair& other) const { return !(*this == other); }
 
+		int Compare(const KeyValuePair& other) const
+		{
+			int r = comparers::Cmp()(Key, other.Key);
+			if (r != 0)
+				return r;
+			return comparers::Cmp()(Value, other.Value);
+		}
+
 		KeyType GetKey() const			{ return Key; }
 		ValueType GetValue() const		{ return Value; }
 
