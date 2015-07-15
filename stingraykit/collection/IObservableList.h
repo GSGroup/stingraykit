@@ -25,13 +25,19 @@ namespace stingray
 	 */
 
 	template < typename ValueType_ >
-	struct IObservableList : public virtual IList<ValueType_>
+	struct IReadonlyObservableList : public virtual IReadonlyList<ValueType_>
 	{
 		virtual signal_connector<void(CollectionOp, int, const ValueType_&)> OnChanged() const = 0;
 
 		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
 
 		virtual const Mutex& GetSyncRoot() const = 0;
+	};
+
+
+	template < typename ValueType_ >
+	struct IObservableList : public virtual IList<ValueType_>, public virtual IReadonlyObservableList<ValueType_>
+	{
 	};
 
 
