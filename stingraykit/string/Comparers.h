@@ -28,6 +28,7 @@ namespace stingray
 
 	}
 
+
 	class CaseInsensitiveLess
 	{
 	public:
