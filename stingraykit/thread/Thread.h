@@ -108,7 +108,6 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(Thread);
 
 		typedef function<void(const ICancellationToken&)>	FuncType;
-		typedef std::vector<ThreadStats>					ThreadStatsVec;
 
 	public:
 		class PrioritySetter
@@ -147,7 +146,10 @@ namespace stingray
 		static void SetCurrentThreadName(const std::string& name);
 		static const std::string& GetCurrentThreadName();
 		static IThreadInfoPtr GetCurrentThreadInfo();
+
+		typedef std::vector<ThreadStats> ThreadStatsVec;
 		static ThreadStatsVec GetStats();
+
 		static void SetCancellationToken(const ICancellationToken& token);
 		static void ResetCancellationToken();
 		static const ICancellationToken& GetCancellationToken();
