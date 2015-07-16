@@ -29,7 +29,7 @@ namespace stingray {
 namespace posix
 {
 
-#ifndef STINGRAY_SIGNAL_HANDLING_DISABLED
+#ifdef STINGRAY_SIGNAL_HANDLING_ENABLED
 
 	template < typename HandlerFuncHolder >
 	class SignalHandlerSetter
