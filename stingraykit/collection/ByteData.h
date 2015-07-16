@@ -313,6 +313,10 @@ namespace stingray
 		typedef std::reverse_iterator<iterator>									reverse_iterator;
 		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
 
+		BasicByteData() :
+			_data(), _size()
+		{ }
+
 		template < typename U >
 		BasicByteData(BasicByteData<U> data) :
 			_data(data.size() == 0 ? NULL : &data[0]), _size(data.size())
