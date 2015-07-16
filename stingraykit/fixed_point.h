@@ -24,6 +24,8 @@ namespace stingray
 	private:
 		value_type _value;
 
+		fixed_point(value_type value, bool dummy) : _value(value) { } //raw ctor
+
 	public:
 		inline fixed_point(value_type value = 0) : _value(value << N) {}
 
@@ -110,6 +112,9 @@ namespace stingray
 			value_type res = (*this * 1000).to_int();
 			return StringBuilder() % (res / 1000) % "." % (res % 1000);
 		}
+
+		static fixed_point FromRawValue(value_type value)
+		{ return fixed_point(value, false); }
 
 		static fixed_point FromString(const std::string& str)
 		{
