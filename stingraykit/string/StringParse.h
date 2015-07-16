@@ -24,6 +24,21 @@ namespace stingray
 	namespace Detail
 	{
 
+		template < typename ConverterType, typename ValueType >
+		class ParseProxy
+		{
+		private:
+			ValueType&		_target;
+
+		public:
+			ParseProxy(ValueType& target) : _target(target) { }
+
+			ParseProxy& GetReference()		{ return *this; }
+
+			void Parse(const std::string& str)	{ _target = ConverterType::Interpret(str); }
+		};
+
+
 		template < typename T, bool HasFromStringMethod = HasMethod_FromString<T>::Value >
 		struct FromStringImpl
 		{
@@ -42,6 +57,17 @@ namespace stingray
 			{
 				std::istringstream stream(str);
 				return (stream >> value).eof();
+			}
+		};
+
+		template < typename ConverterType, typename ValueType >
+		struct FromStringImpl<ParseProxy<ConverterType, ValueType>, false>
+		{
+			static bool Do(const std::string& str, ParseProxy<ConverterType, ValueType>& adapter)
+			{
+				try { adapter.Parse(str); }
+				catch (const std::exception& ex) { return false; }
+				return true;
 			}
 		};
 
@@ -184,6 +210,10 @@ namespace stingray
 
 #undef DETAIL_DEFINE_STRING_PARSE
 
+
+	template < typename ConverterType, typename ValueType >
+	Detail::ParseProxy<ConverterType, ValueType> MakeParseProxy(ValueType& value)
+	{ return Detail::ParseProxy<ConverterType, ValueType>(value); }
 
 }
 
