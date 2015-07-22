@@ -20,6 +20,7 @@ namespace stingray
 	struct fixed_point
 	{
 		typedef value_type_ value_type;
+		typedef typename IntType<sizeof(value_type) * 16, IsSigned<value_type>::Value>::ValueT DoubleType;
 
 	private:
 		value_type _value;
@@ -54,8 +55,8 @@ namespace stingray
 
 		inline fixed_point& operator+= (fixed_point o)					{ _value += o._value; return *this; }
 		inline fixed_point& operator-= (fixed_point o)					{ _value -= o._value; return *this; }
-		inline fixed_point& operator*= (fixed_point o)					{ _value = (_value * o._value) >> N; return *this; }
-		inline fixed_point& operator/= (fixed_point o)					{ _value = (_value << N) / o._value; return *this; }
+		inline fixed_point& operator*= (fixed_point o)					{ _value = ((DoubleType)_value * o._value) >> N; return *this; }
+		inline fixed_point& operator/= (fixed_point o)					{ _value = ((DoubleType)_value << N) / o._value; return *this; }
 
 
 		template<typename T>
@@ -93,11 +94,11 @@ namespace stingray
 		static fixed_point sqrt(value_type value)
 		{
 			fixed_point ret(0);
-			value_type ret_sq = -(value << (N * 2)) - 1;
+			DoubleType ret_sq = -((DoubleType)value << (N * 2)) - 1;
 			for (int s = 30; s >= 0; s -= 2)
 			{
 				ret._value += ret._value;
-				value_type b = ret_sq + ((2 * ret._value + 1) << s);
+				DoubleType b = ret_sq + ((2 * ret._value + 1) << s);
 				if (b < 0)
 				{
 					ret_sq = b;
