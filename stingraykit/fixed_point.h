@@ -37,6 +37,7 @@ namespace stingray
 		inline fixed_point operator- (fixed_point o) const	{ fixed_point res(*this); return res -= o; }
 		inline fixed_point operator* (fixed_point o) const	{ fixed_point res(*this); return res *= o; }
 		inline fixed_point operator/ (fixed_point o) const	{ fixed_point res(*this); return res /= o; }
+		inline fixed_point operator- () const				{ return fixed_point(-_value, false); }
 
 		template<typename T>
 		inline typename EnableIf<IsIntType<T>::Value, fixed_point>::ValueT operator* (T value) const
