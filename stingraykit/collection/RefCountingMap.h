@@ -73,7 +73,6 @@ namespace stingray
 		typedef Iterator const_iterator;
 
 	private:
-		Mutex		_mutex;
 		Impl		_impl;
 
 	public:
