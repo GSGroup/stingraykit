@@ -400,6 +400,36 @@ namespace stingray
 		{ return RangeTransformer<SrcRange_, Functor_>(src, functor); }
 
 
+		namespace Detail
+		{
+			template <typename Src_>
+			struct MapKeysFunctor
+			{
+				typedef typename Dereference<Src_>::ValueT::first_type RetType;
+				RetType operator() (const Src_& src) const
+				{ return src.first; }
+			};
+
+			template <typename Src_>
+			struct MapValuesFunctor
+			{
+				typedef typename Dereference<Src_>::ValueT::second_type RetType;
+				RetType operator() (const Src_& src) const
+				{ return src.second; }
+			};
+		}
+
+
+		template <typename SrcRange_>
+		RangeTransformer<SrcRange_, Detail::MapKeysFunctor<typename SrcRange_::ValueType> > MapKeys(const SrcRange_& src)
+		{ return RangeTransformer<SrcRange_, Detail::MapKeysFunctor<typename SrcRange_::ValueType> >(src, Detail::MapKeysFunctor<typename SrcRange_::ValueType>()); }
+
+
+		template <typename SrcRange_>
+		RangeTransformer<SrcRange_, Detail::MapValuesFunctor<typename SrcRange_::ValueType> > MapValues(const SrcRange_& src)
+		{ return RangeTransformer<SrcRange_, Detail::MapValuesFunctor<typename SrcRange_::ValueType> >(src, Detail::MapValuesFunctor<typename SrcRange_::ValueType>()); }
+
+
 		template <typename Range_, typename Functor_>
 		void ForEach(Range_ range, const Functor_& functor)
 		{
