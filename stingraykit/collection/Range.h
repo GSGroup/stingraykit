@@ -468,6 +468,16 @@ namespace stingray
 		{
 			typedef Range::IteratorRange<IterType_> ValueT;
 
+			static ValueT Do(std::pair<IterType_, IterType_>& p)
+			{ return ValueT(p.first, p.first, p.second); }
+		};
+
+
+		template <typename IterType_>
+		struct ToRangeImpl<const std::pair<IterType_, IterType_>, void>
+		{
+			typedef Range::IteratorRange<IterType_> ValueT;
+
 			static ValueT Do(const std::pair<IterType_, IterType_>& p)
 			{ return ValueT(p.first, p.first, p.second); }
 		};
