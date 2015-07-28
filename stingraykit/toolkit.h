@@ -151,6 +151,14 @@ namespace stingray
 		inline bool operator == (const ClassName& other) const \
 		{ return !(other != (*this)); }
 
+#define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(ClassName) \
+		inline bool operator <  (const ClassName& other) const { return Compare(other) <  0; } \
+		inline bool operator >  (const ClassName& other) const { return Compare(other) >  0; } \
+		inline bool operator <= (const ClassName& other) const { return Compare(other) <= 0; } \
+		inline bool operator >= (const ClassName& other) const { return Compare(other) >= 0; } \
+		inline bool operator == (const ClassName& other) const { return Compare(other) == 0; } \
+		inline bool operator != (const ClassName& other) const { return Compare(other) != 0; }
+
 #define STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(ClassName) \
 		inline bool operator != (const ClassName& other) const \
 		{ return !(*this == other); }
