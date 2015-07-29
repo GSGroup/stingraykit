@@ -21,6 +21,7 @@ include(CheckCXXSourceCompiles)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 include(TestBigEndian)
+include(CheckTypeSize)
 
 find_package(PkgConfig)
 
@@ -64,6 +65,11 @@ if (ICU_FOUND AND ICU_I18N_FOUND)
 else()
 	message(STATUS "not using ICU library")
 endif ()
+
+CHECK_TYPE_SIZE(time_t TIME_T_SIZE)
+if (TIME_T_SIZE LESS 8)
+	message(WARNING "WARNING: time_t size is ${TIME_T_SIZE}, the resulting program will be vulnerable to year-2038 bug!")
+endif()
 
 set(stingraykit_SRC
 	stingraykit/ActionTransaction.cpp
