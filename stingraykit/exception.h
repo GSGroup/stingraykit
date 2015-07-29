@@ -23,6 +23,7 @@
 	struct ExceptionClass : public stingray::Exception \
 	{ \
 		ExceptionClass() : stingray::Exception(Message) { } \
+		ExceptionClass(const std::string & message) : stingray::Exception(message + ": " + Message) { } \
 		virtual ~ExceptionClass() throw() { } \
 	}
 
