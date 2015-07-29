@@ -68,7 +68,8 @@ endif ()
 
 CHECK_TYPE_SIZE(time_t TIME_T_SIZE)
 if (TIME_T_SIZE LESS 8)
-	message(WARNING "WARNING: time_t size is ${TIME_T_SIZE}, the resulting program will be vulnerable to year-2038 bug!")
+	message(STATUS "time_t size is ${TIME_T_SIZE}, the resulting program might be vulnerable to year-2038 bug!")
+	add_definitions(-DSTINGRAYKIT_32_BIT_TIME_T=1)
 endif()
 
 set(stingraykit_SRC

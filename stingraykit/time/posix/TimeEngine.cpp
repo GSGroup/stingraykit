@@ -11,9 +11,68 @@
 #include <stingraykit/SystemException.h>
 
 
-namespace stingray {
-namespace posix
+namespace stingray { namespace posix
 {
+
+#ifdef STINGRAYKIT_32_BIT_TIME_T
+
+	//work around year 2038 bug.
+	//this slightly modified version of gmtime_r was taken from http://www.2038bug.com/developers.html
+
+#	define LEAP_CHECK(n) ((!(((n) + 1900) % 400) || (!(((n) + 1900) % 4) && (((n) + 1900) % 100))) != 0)
+#	define WRAP(a,b,m)	((a) = ((a) <  0  ) ? ((b)--, (a) + (m)) : (a))
+
+	namespace
+	{
+		struct tm *gmtime64_r (s64 t, struct tm *p)
+		{
+			static const int days[4][13] =
+			{
+				{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+				{31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+				{0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
+				{0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366},
+			};
+
+			int v_tm_sec, v_tm_min, v_tm_hour, v_tm_mon, v_tm_wday, v_tm_tday;
+			int leap;
+			long m;
+			v_tm_sec = (int) ((s64) t % (s64) 60);
+			t /= 60;
+			v_tm_min = (int) ((s64) t % (s64) 60);
+			t /= 60;
+			v_tm_hour = (int) ((s64) t % (s64) 24);
+			t /= 24;
+			v_tm_tday = (int) t;
+			WRAP (v_tm_sec, v_tm_min, 60);
+			WRAP (v_tm_min, v_tm_hour, 60);
+			WRAP (v_tm_hour, v_tm_tday, 24);
+			if ((v_tm_wday = (v_tm_tday + 4) % 7) < 0)
+				v_tm_wday += 7;
+			m = (long) v_tm_tday;
+			p->tm_year = 70;
+			leap = LEAP_CHECK (p->tm_year);
+			while (m >= (long) days[leap + 2][12])
+			{
+				m -= (long) days[leap + 2][12];
+				p->tm_year++;
+				leap = LEAP_CHECK (p->tm_year);
+			}
+			v_tm_mon = 0;
+			while (m >= (long) days[leap][v_tm_mon])
+			{
+				m -= (long) days[leap][v_tm_mon];
+				v_tm_mon++;
+			}
+			p->tm_mday = (int) m + 1;
+			p->tm_yday = days[leap + 2][v_tm_mon] + m;
+			p->tm_sec = v_tm_sec, p->tm_min = v_tm_min, p->tm_hour = v_tm_hour,
+									 p->tm_mon = v_tm_mon, p->tm_wday = v_tm_wday;
+			return p;
+		}
+	}
+
+#endif
 
 	u64 MonotonicTimer::GetMicroseconds() const
 	{
@@ -82,11 +141,16 @@ namespace posix
 
 	BrokenDownTime TimeEngine::BrokenDownFromMilliseconds(s64 milliseconds)
 	{
-		time_t t = milliseconds / 1000;
 		tm b = { };
+#ifdef STINGRAYKIT_32_BIT_TIME_T
+		if (gmtime64_r(milliseconds / 1000, &b) == NULL)
+			STINGRAYKIT_THROW(SystemException("gmtime64_r failed!"));
+#else
+		time_t t = milliseconds / 1000;
 
 		if (gmtime_r(&t, &b) == NULL)
 			STINGRAYKIT_THROW(SystemException("gmtime_r failed!"));
+#endif
 
 		return BrokenDownTime(milliseconds % 1000, b.tm_sec, b.tm_min, b.tm_hour, b.tm_wday, b.tm_mday, b.tm_mon + 1, b.tm_yday, b.tm_year + 1900);
 	}
