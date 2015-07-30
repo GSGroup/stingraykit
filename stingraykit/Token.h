@@ -61,6 +61,34 @@ namespace stingray
 #undef DETAIL_DECL_MAKE_TOKEN
 
 
+	namespace Detail
+	{
+		template<typename T>
+		struct AttachTokenCustomDeleter
+		{
+		private:
+			shared_ptr<T> _ptr;
+			Token         _token;
+
+		public:
+			AttachTokenCustomDeleter(const shared_ptr<T>& ptr, const Token& token) :
+				_ptr(ptr), _token(token)
+			{ }
+
+			void operator() (T* ptr)
+			{
+				_token.Reset();
+				_ptr.reset();
+			}
+		};
+	}
+
+
+	template<typename T>
+	shared_ptr<T> AttachToken(const shared_ptr<T>& ptr, const Token& token)
+	{ return shared_ptr<T>(ptr.get(), Detail::AttachTokenCustomDeleter<T>(ptr, token)); }
+
+
 	class TokenHolder
 	{
 	private:
