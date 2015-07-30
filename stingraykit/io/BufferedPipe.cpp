@@ -15,7 +15,7 @@ namespace stingray
 	{ }
 
 
-	size_t BufferedPipe::Read(ByteData data, const ICancellationToken& token)
+	u64 BufferedPipe::Read(ByteData data, const ICancellationToken& token)
 	{
 		if (_bufferOffset == _bufferSize)
 		{

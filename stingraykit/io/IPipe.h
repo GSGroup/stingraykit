@@ -8,24 +8,16 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stingraykit/collection/ByteData.h>
-#include <stingraykit/shared_ptr.h>
-#include <stingraykit/thread/ICancellationToken.h>
-
+#include <stingraykit/io/IInputByteStream.h>
+#include <stingraykit/io/IOutputByteStream.h>
 
 namespace stingray
 {
 
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PipeClosedException, "Pipe has been closed!");
 
-	struct IPipe
-	{
-		virtual ~IPipe() {}
-
-		virtual size_t Read(ByteData dst, const ICancellationToken& token) = 0;
-		virtual size_t Write(ConstByteData src, const ICancellationToken& token) = 0;
-	};
+	struct IPipe : public virtual IInputByteStream, public virtual IOutputByteStream
+	{ };
 	STINGRAYKIT_DECLARE_PTR(IPipe);
 
 }
