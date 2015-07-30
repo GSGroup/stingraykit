@@ -71,7 +71,7 @@ namespace stingray
 
 		ContainerType GetData() const { return _data; }
 
-		virtual u64 Read(ByteData data)
+		virtual u64 Read(ByteData data, const ICancellationToken& token)
 		{
 			size_t count = std::min<size_t>(data.size(), _data.size() - _offset);
 			std::copy(_data.begin() + _offset, _data.begin() + _offset + count, data.data());
@@ -79,7 +79,7 @@ namespace stingray
 			return count;
 		}
 
-		virtual u64 Write(ConstByteData data)
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
 		{ return Detail::MemoryByteStreamWriter<ContainerType>::Write(_data, _offset, data); }
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)

@@ -8,23 +8,16 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
+#include <stingraykit/io/IInputByteStream.h>
+#include <stingraykit/io/IOutputByteStream.h>
 #include <stingraykit/io/SeekMode.h>
-#include <stingraykit/shared_ptr.h>
 #include <stingraykit/ICreator.h>
-#include <stingraykit/collection/ByteData.h>
-
 
 namespace stingray
 {
 
-	struct IByteStream
+	struct IByteStream : public virtual IInputByteStream, public virtual IOutputByteStream
 	{
-		virtual ~IByteStream() { }
-
-		virtual u64 Read(ByteData data) = 0;
-		virtual u64 Write(ConstByteData data) = 0;
-
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin) = 0;
 		virtual u64 Tell() const = 0;
 	};
@@ -51,8 +44,8 @@ namespace stingray
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{ _stream->Seek(mode == SeekMode::Begin ? static_cast<s64>(_offset) + offset : offset, mode); }
 
-		virtual u64 Read(ByteData data)									{ return _stream->Read(data); }
-		virtual u64 Write(ConstByteData data)							{ return _stream->Write(data); }
+		virtual u64 Read(ByteData data, const ICancellationToken& token)						{ return _stream->Read(data, token); }
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token)					{ return _stream->Write(data, token); }
 	};
 
 }

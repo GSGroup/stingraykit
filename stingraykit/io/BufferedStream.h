@@ -45,7 +45,7 @@ namespace stingray
 		BufferedStream(IByteStreamPtr stream, size_t bufferSize = DefaultBufferSize):
 			_stream(stream), _readBuffer(bufferSize), _readBufferSize(bufferSize), _readBufferOffset(bufferSize), _currentOffset(0) {}
 
-		virtual u64 Read(ByteData data)
+		virtual u64 Read(ByteData data, const ICancellationToken& token)
 		{
 			u64 total = 0;
 			u8 *dst = data.data();
@@ -53,7 +53,7 @@ namespace stingray
 			{
 				if (_readBufferOffset >= _readBufferSize)
 				{
-					_readBufferSize = _stream->Read(_readBuffer.GetByteData());
+					_readBufferSize = _stream->Read(_readBuffer.GetByteData(), token);
 					_readBufferOffset = 0;
 				}
 				u64 n = std::min<u64>(data.size(), GetBufferSize());
@@ -66,14 +66,14 @@ namespace stingray
 			return total;
 		}
 
-		virtual u64 Write(ConstByteData data)
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
 		{
 			if (_readBufferOffset < _readBufferSize)
 			{
 				_readBufferOffset = _readBufferSize; //flush read buffer
 				_stream->Seek(_currentOffset);
 			}
-			u64 r = _stream->Write(data);
+			u64 r = _stream->Write(data, token);
 			_currentOffset += r;
 			return r;
 		}
