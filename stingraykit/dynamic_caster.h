@@ -97,6 +97,8 @@ namespace stingray
 
 			template <typename Dst_> operator Dst_& () const
 			{ return DynamicCast<Dst_&, Src_>(_src); }
+			template <typename Dst_> operator const Dst_& () const
+			{ return DynamicCast<const Dst_ &, Src_>(_src); }
 		};
 
 
