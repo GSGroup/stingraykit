@@ -87,7 +87,7 @@ namespace stingray
 			bool Valid() const   { return true; }
 			ValueType Get()      { return *_it; }
 
-			void First()         { CompileTimeAssert<false> errorNoFirstInOutputRange; (void)errorNoFirstInOutputRange; }
+			void First()         { CompileTimeAssert<sizeof(Iterator_) < 0> errorNoFirstInOutputRange; (void)errorNoFirstInOutputRange; }
 			void Next()          { ++_it; }
 		};
 

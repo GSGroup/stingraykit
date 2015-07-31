@@ -73,7 +73,7 @@ namespace stingray
 			Derived&       operator -- ()                              { GetDerived().Prev(); return GetDerived(); }
 			Derived        operator -- (int)                           { Derived result(GetDerived()); GetDerived().Prev(); return result; }
 
-			ValueType      operator [] (std::ptrdiff_t index) const    { CompileTimeAssert<false> errorNoBracketsOperator; (void)errorNoBracketsOperator; }
+			ValueType      operator [] (std::ptrdiff_t index) const    { CompileTimeAssert<sizeof(ValueType_) < 0> errorNoBracketsOperator; (void)errorNoBracketsOperator; }
 			Derived&       operator += (std::ptrdiff_t distance)       { GetDerived().Move(distance); return GetDerived(); }
 			Derived        operator +  (std::ptrdiff_t distance) const { Derived result(GetDerived()); return result += distance; }
 			Derived&       operator -= (std::ptrdiff_t distance)       { GetDerived().Move(distance); return GetDerived(); }
