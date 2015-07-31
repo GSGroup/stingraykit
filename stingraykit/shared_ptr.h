@@ -297,7 +297,7 @@ namespace stingray
 
 
 	template < typename T >
-	class MakeShared;
+	struct MakeShared;
 
 
 	/** @brief Simple shared_ptr implementation */
@@ -311,7 +311,7 @@ namespace stingray
 		friend class shared_ptr;
 
 		template < typename U >
-		friend class MakeShared;
+		friend struct MakeShared;
 
 	private:
 		T*						_rawPtr;
