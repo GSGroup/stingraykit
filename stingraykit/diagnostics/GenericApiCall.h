@@ -34,7 +34,7 @@
 		if (res != SuccessValue) \
 		{ \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-			STINGRAYKIT_STATIC_LOGGER.Error() << #__VA_ARGS__ " failed, result = " << (int)res; \
+			STINGRAYKIT_STATIC_LOGGER.Error() << #__VA_ARGS__ " failed, result = " << ToString(res); \
 		} \
 	} while (0)
 
