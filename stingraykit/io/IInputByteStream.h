@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_STINGRAYKIT_IO_IINPUTBYTESTREAM_H
-#define STINGRAY_STINGRAYKIT_STINGRAYKIT_IO_IINPUTBYTESTREAM_H
+#ifndef STINGRAYKIT_IO_IINPUTBYTESTREAM_H
+#define STINGRAYKIT_IO_IINPUTBYTESTREAM_H
 
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
