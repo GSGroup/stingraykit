@@ -69,7 +69,7 @@ namespace stingray
 		bool					_enable;
 
 	public:
-		ProfileSession(const std::string& id, u64 threshold, bool enable = true) : _info(id), _threshold(threshold), _enable(enable)
+		ProfileSession(const std::string& id, u64 threshold = 0, bool enable = true) : _info(id), _threshold(threshold), _enable(enable)
 		{
 			_elapsedTime = ElapsedTime();
 		}
