@@ -832,6 +832,16 @@ namespace stingray
 		{ return Enumerable::OfType<Dst_>(enumerable); }
 	};
 
+
+    template <typename Enumerable_>
+    struct AnyTransformerImpl<shared_ptr<Enumerable_>, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+    {
+        typedef bool ValueT;
+
+        static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const AnyTransformer& action)
+        { return Enumerable::Any(enumerable); }
+    };
+
 	/** @} */
 
 }
