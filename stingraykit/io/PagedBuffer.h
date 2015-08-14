@@ -115,7 +115,7 @@ namespace stingray
 		void Seek(u64 offset)
 		{
 			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset, IndexOutOfRangeException());
+			STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset, IndexOutOfRangeException(offset, _pageSize * _pages.size() - _endOffset));
 
 			_startOffset = _popOffset + offset;
 		}
