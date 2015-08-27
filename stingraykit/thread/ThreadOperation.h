@@ -30,6 +30,8 @@ namespace stingray
 
 	class ThreadOperationConstrainer
 	{
+		STINGRAYKIT_NONCOPYABLE(ThreadOperationConstrainer);
+
 	private:
 		int	_oldValue;
 
@@ -51,6 +53,9 @@ namespace stingray
 
 	class ExclusiveThreadOperation
 	{
+		STINGRAYKIT_NONCOPYABLE(ExclusiveThreadOperation);
+
+	private:
 		int _oldValue;
 
 	public:
