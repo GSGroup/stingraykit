@@ -95,7 +95,7 @@ namespace stingray
 
 #define STINGRAYKIT_PROFILE_CRITICAL_TIME(Milliseconds_, Call_) \
 	do { \
-		STINGRAYKIT_PROFILER_CRITICAL_TIME(Milliseconds_, #Call_); \
+		STINGRAYKIT_PROFILER(Milliseconds_, #Call_); \
 		Call_; \
 	} while (false)
 
