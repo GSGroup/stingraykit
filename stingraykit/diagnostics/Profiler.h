@@ -83,10 +83,6 @@ namespace stingray
 	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
 	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), Milliseconds_);
 
-#define STINGRAYKIT_PROFILER_CRITICAL_TIME(Milliseconds_, Message_) \
-	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), STINGRAYKIT_WHERE, Milliseconds_);
-
 #define STINGRAYKIT_PROFILE(Milliseconds_, Call_) \
 	do { \
 		STINGRAYKIT_PROFILER(Milliseconds_, #Call_); \
