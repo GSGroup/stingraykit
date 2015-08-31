@@ -7,9 +7,7 @@
 
 #include <stingraykit/thread/ThreadPool.h>
 
-#include <stingraykit/function/bind.h>
-#include <stingraykit/log/Logger.h>
-#include <stingraykit/thread/ConditionVariable.h>
+#include <stingraykit/diagnostics/ExecutorsProfiler.h>
 
 namespace stingray
 {
@@ -17,13 +15,13 @@ namespace stingray
 	class ThreadPool::WorkerWrapper
 	{
 	private:
-		bool				_profileCalls;
+		const bool			_profileCalls;
 
 		Mutex				_guard;
 		optional<Task>		_task;
 		ConditionVariable	_cond;
 
-		ThreadPtr			_worker;
+		const ThreadPtr		_worker;
 
 	public:
 		explicit WorkerWrapper(const std::string& name, bool profileCalls = true) :
@@ -55,7 +53,13 @@ namespace stingray
 
 				STINGRAYKIT_TRY("Task execution failed",
 					MutexUnlock ul(l);
-					(*_task)(token);
+					if (_profileCalls)
+					{
+						AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % get_function_name(*_task) % " in ThreadPool worker", 10000, AsyncProfiler::Session::Behaviour::Silent);
+						(*_task)(token);
+					}
+					else
+						(*_task)(token);
 				);
 				_task.reset();
 			}
