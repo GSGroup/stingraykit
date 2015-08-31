@@ -51,9 +51,6 @@ namespace stingray
 		ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls = true);
 
 		void Queue(const function<void()>& task);
-
-	private:
-		void DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc);
 	};
 	STINGRAYKIT_DECLARE_PTR(ThreadPool);
 

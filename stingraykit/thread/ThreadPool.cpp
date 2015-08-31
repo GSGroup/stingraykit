@@ -45,33 +45,22 @@ namespace stingray
 	///////////////////////////////////////////////////////////////
 
 
-	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls)
-		: _name(name), _maxThreads(maxThreads), _profileCalls(profileCalls)
+	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls) :
+		_name(name), _maxThreads(maxThreads), _profileCalls(profileCalls)
 	{ }
 
 
 	void ThreadPool::Queue(const function<void()>& task)
-	{ DoAddTask(bind(&WorkerWrapper::TryAddTask, _1, task)); }
-
-
-	void ThreadPool::DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc)
 	{
 		MutexLock l(_mutex);
 		for (Workers::const_iterator it = _workers.begin(); it != _workers.end(); ++it)
-		{
-			if (tryAddTaskFunc(it->get()))
+			if ((*it)->TryAddTask(task))
 				return;
-		}
-		if (_workers.size() < _maxThreads)
-		{
-			WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "_" % _workers.size(), _profileCalls));
-			_workers.push_back(w);
-			STINGRAYKIT_CHECK(tryAddTaskFunc(w.get()), "Internal TaskExecutorPool error!");
-		}
-		else
-		{
-			STINGRAYKIT_THROW(NotImplementedException());
-		}
+
+		STINGRAYKIT_CHECK(_workers.size() < _maxThreads, "Thread limit exceeded");
+		const WorkerWrapperPtr w(new WorkerWrapper(StringBuilder() % _name % "_" % _workers.size(), _profileCalls));
+		_workers.push_back(w);
+		STINGRAYKIT_CHECK(w->TryAddTask(task), "Internal ThreadPool error!");
 	}
 
 }
