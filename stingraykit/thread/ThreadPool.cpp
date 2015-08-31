@@ -9,40 +9,58 @@
 
 #include <stingraykit/function/bind.h>
 #include <stingraykit/log/Logger.h>
+#include <stingraykit/thread/ConditionVariable.h>
 
 namespace stingray
 {
 
-	ThreadPool::WorkerWrapper::WorkerWrapper(const std::string& name, bool profileCalls)
-		: _busy(false), _worker(ITaskExecutor::Create(name, &ITaskExecutor::DefaultExceptionHandler, profileCalls))
-	{ }
-
-
-	bool ThreadPool::WorkerWrapper::TryAddTask(const function<void()>& task)
+	class ThreadPool::WorkerWrapper
 	{
-		MutexLock l(_mutex);
-		if (_busy)
-			return false;
-		_busy = true;
-		_worker->AddTask(bind(&ThreadPool::WorkerWrapper::TaskWrapper, this, task));
-		return true;
-	}
+	private:
+		bool				_profileCalls;
 
+		Mutex				_guard;
+		optional<Task>		_task;
+		ConditionVariable	_cond;
 
+		ThreadPtr			_worker;
 
+	public:
+		explicit WorkerWrapper(const std::string& name, bool profileCalls = true) :
+			_profileCalls(profileCalls), _worker(new Thread(name, bind(&WorkerWrapper::ThreadFunc, this, _1)))
+		{ }
 
-	void ThreadPool::WorkerWrapper::TaskWrapper(const function<void()>& task)
-	{
-		STINGRAYKIT_TRY("Couldn't execute task", task());
+		bool TryAddTask(const Task& task)
 		{
-			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(_busy, "Internal TaskExecutorPool error!");
-			_busy = false;
+			MutexLock l(_guard);
+			if (_task)
+				return false;
+
+			_task = task;
+			_cond.Broadcast();
+			return true;
 		}
-	}
 
+	private:
+		void ThreadFunc(const ICancellationToken& token)
+		{
+			MutexLock l(_guard);
+			while (token)
+			{
+				if (!_task)
+				{
+					_cond.Wait(_guard, token);
+					continue;
+				}
 
-	///////////////////////////////////////////////////////////////
+				STINGRAYKIT_TRY("Task execution failed",
+					MutexUnlock ul(l);
+					(*_task)(token);
+				);
+				_task.reset();
+			}
+		}
+	};
 
 
 	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls) :
@@ -50,7 +68,7 @@ namespace stingray
 	{ }
 
 
-	void ThreadPool::Queue(const function<void()>& task)
+	void ThreadPool::Queue(const Task& task)
 	{
 		MutexLock l(_mutex);
 		for (Workers::const_iterator it = _workers.begin(); it != _workers.end(); ++it)
