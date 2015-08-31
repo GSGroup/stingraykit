@@ -7,9 +7,8 @@
 
 #include <stingraykit/thread/ThreadPool.h>
 
-#include <stingraykit/log/Logger.h>
 #include <stingraykit/function/bind.h>
-
+#include <stingraykit/log/Logger.h>
 
 namespace stingray
 {
@@ -30,15 +29,6 @@ namespace stingray
 	}
 
 
-	bool ThreadPool::WorkerWrapper::TryAddTaskWithTester(const function<void()>& task, const FutureExecutionTester& tester)
-	{
-		MutexLock l(_mutex);
-		if (_busy)
-			return false;
-		_busy = true;
-		_worker->AddTask(bind(&ThreadPool::WorkerWrapper::TaskWrapper, this, task), tester);
-		return true;
-	}
 
 
 	void ThreadPool::WorkerWrapper::TaskWrapper(const function<void()>& task)
@@ -62,10 +52,6 @@ namespace stingray
 
 	void ThreadPool::Queue(const function<void()>& task)
 	{ DoAddTask(bind(&WorkerWrapper::TryAddTask, _1, task)); }
-
-
-	void ThreadPool::Queue(const function<void()>& task, const FutureExecutionTester& tester)
-	{ DoAddTask(bind(&WorkerWrapper::TryAddTaskWithTester, _1, task, tester)); }
 
 
 	void ThreadPool::DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc)

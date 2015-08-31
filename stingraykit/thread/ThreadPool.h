@@ -32,7 +32,6 @@ namespace stingray
 			WorkerWrapper(const std::string& name, bool profileCalls);
 
 			bool TryAddTask(const function<void()>& task);
-			bool TryAddTaskWithTester(const function<void()>& task, const FutureExecutionTester& tester);
 
 		private:
 			void TaskWrapper(const function<void()>& task);
@@ -52,7 +51,6 @@ namespace stingray
 		ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls = true);
 
 		void Queue(const function<void()>& task);
-		void Queue(const function<void()>& task, const FutureExecutionTester& tester);
 
 	private:
 		void DoAddTask(const function<bool(WorkerWrapper*)>& tryAddTaskFunc);
