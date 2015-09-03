@@ -1,4 +1,4 @@
-#include <stingray/stingraykit/stingraykit/time/NtpTimestamp.h>
+#include <stingraykit/time/NtpTimestamp.h>
 
 namespace stingray
 {
