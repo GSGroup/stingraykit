@@ -20,6 +20,7 @@ namespace stingray
 	{
 		SystemException(const std::string &message) throw();
 		SystemException(const std::string &message, int err) throw();
+		SystemException(const std::string &message, const std::string &path, int err) throw();
 
 		static std::string GetErrorMessage(int err) throw();
 		static std::string GetErrorMessage() throw();
@@ -33,17 +34,17 @@ namespace stingray
 		static std::string ErrnoToStr(int e);
 	};
 
-#define STINGRAYKIT_THROW_SYSTEM_EXCEPTION(MESSAGE, ERROR) \
+#define STINGRAYKIT_THROW_SYSTEM_EXCEPTION(MESSAGE, PATH, ERROR) \
 	do \
 	{ \
 		switch(ERROR) \
 		{ \
-		case ENOENT:	STINGRAYKIT_THROW(FileNotFoundException(MESSAGE)); \
+		case ENOENT:	STINGRAYKIT_THROW(FileNotFoundException(PATH)); \
 		case EACCES:	STINGRAYKIT_THROW(AccessDeniedException(MESSAGE)); \
 		case EIO:		STINGRAYKIT_THROW(InputOutputException(MESSAGE)); \
 		case EBUSY:		STINGRAYKIT_THROW(DeviceBusyException(MESSAGE)); \
 		case ENOSPC:	STINGRAYKIT_THROW(NoSpaceLeftException(MESSAGE)); \
-		default:		STINGRAYKIT_THROW(SystemException(MESSAGE, ERROR)); \
+		default:		STINGRAYKIT_THROW(SystemException(MESSAGE, PATH, ERROR)); \
 		} \
 	} while(false)
 

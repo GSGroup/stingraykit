@@ -20,6 +20,9 @@ namespace stingray
 	SystemException::SystemException(const std::string &message, int err) throw():
 		Exception(message + ": errno = " + GetErrorMessage(err)), _error(err) {}
 
+	SystemException::SystemException(const std::string &message, const std::string &path, int err) throw():
+		Exception(message + (!path.empty()? " '" + path + "'": std::string()) + ": errno = " + GetErrorMessage(err)), _error(err) {}
+
 	std::string SystemException::GetErrorMessage(int err) throw()
 	{
 		std::string result = ErrnoToStr(err);
