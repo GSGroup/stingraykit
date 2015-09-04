@@ -84,7 +84,13 @@ namespace stingray
 		}
 
 		void assign(ConstParamType value)
-		{ reset(); _value.Ctor(value); _initialized = true; }
+		{
+			if (_initialized && &_value.Ref() == &value)
+				return;
+			reset();
+			_value.Ctor(value);
+			_initialized = true;
+		}
 
 		void assign(const optional& other)
 		{
