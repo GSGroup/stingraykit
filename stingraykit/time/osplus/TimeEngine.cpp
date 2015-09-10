@@ -26,14 +26,18 @@ namespace osplus
 	s64 TimeEngine::GetMillisecondsSinceEpoch()
 	{ return ((s64)time_now() + s_delta) * 1000 / time_ticks_per_sec(); }
 
+
 	void TimeEngine::SetMillisecondsSinceEpoch(s64 milliseconds)
 	{ s_delta = (milliseconds * time_ticks_per_sec() / 1000) - time_now(); /* FIXME: interpolate delta? */ }
+
 
 	s16 TimeEngine::GetMinutesFromUtc()
 	{ return s_minutesFromUtc; }
 
+
 	void TimeEngine::SetMinutesFromUtc(s16 minutes)
 	{ s_minutesFromUtc = minutes; }
+
 
 	s64 TimeEngine::MillisecondsFromBrokenDown(const BrokenDownTime& bdTime)
 	{
@@ -49,6 +53,7 @@ namespace osplus
 		return (s64)result * 1000;
 	}
 
+
 	BrokenDownTime TimeEngine::BrokenDownFromMilliseconds(s64 milliseconds)
 	{
 		time_t t = milliseconds / 1000;
@@ -60,8 +65,8 @@ namespace osplus
 		return BrokenDownTime(milliseconds % 1000, b.tm_sec, b.tm_min, b.tm_hour, b.tm_wday, b.tm_mday, b.tm_mon + 1, b.tm_yday, b.tm_year + 1900);
 	}
 
-	MonotonicTimer TimeEngine::CreateMonotonicTimer()
-	{ return MonotonicTimer(); }
 
+	u64 TimeEngine::GetMonotonicMicroseconds()
+	{ return (u64)time_now() * 1000000 / time_ticks_per_sec(); }
 
 }}

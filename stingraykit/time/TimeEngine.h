@@ -22,11 +22,9 @@ namespace stingray
 	 * @addtogroup toolkit_timer
 	 * @{
 	 */
-	typedef posix::MonotonicTimer	MonotonicTimer;
 	typedef posix::TimeEngine		TimeEngine;
 	/** @} */
 #elif defined(PLATFORM_STAPI)
-	typedef osplus::MonotonicTimer	MonotonicTimer;
 	typedef osplus::TimeEngine		TimeEngine;
 #else
 #	error Time engine not configured

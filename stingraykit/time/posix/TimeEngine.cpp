@@ -74,14 +74,6 @@ namespace stingray { namespace posix
 
 #endif
 
-	u64 MonotonicTimer::GetMicroseconds() const
-	{
-		struct timespec ts = {};
-		if (clock_gettime(_clock, &ts) == -1)
-			throw SystemException("clock_gettime");
-		return (u64)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
-	}
-
 	atomic_int_type		TimeEngine::s_minutesFromUtc	= 0;
 #ifndef PLATFORM_EMBEDDED
 	atomic_int_type		TimeEngine::s_deltaMilliseconds = 0;
@@ -155,13 +147,18 @@ namespace stingray { namespace posix
 		return BrokenDownTime(milliseconds % 1000, b.tm_sec, b.tm_min, b.tm_hour, b.tm_wday, b.tm_mday, b.tm_mon + 1, b.tm_yday, b.tm_year + 1900);
 	}
 
-	MonotonicTimer TimeEngine::CreateMonotonicTimer()
+
+	u64 TimeEngine::GetMonotonicMicroseconds()
 	{
 #if POSIX_HAVE_MONOTONIC_TIMER
-		return MonotonicTimer(CLOCK_MONOTONIC);
+		clockid_t clock = CLOCK_MONOTONIC;
 #else
-		return MonotonicTimer(CLOCK_REALTIME);
+		clockid_t clock = CLOCK_REALTIME;
 #endif
+
+		struct timespec ts = { };
+		STINGRAYKIT_CHECK(clock_gettime(clock, &ts) != -1, SystemException("clock_gettime"));
+		return (u64)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
 	}
 
 }}
