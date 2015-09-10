@@ -21,17 +21,6 @@ namespace stingray {
 namespace posix
 {
 
-	class MonotonicTimer
-	{
-		clockid_t _clock;
-
-	public:
-		MonotonicTimer(clockid_t clock_id) : _clock(clock_id) {}
-
-		u64 GetMicroseconds() const;
-	};
-
-
 	class TimeEngine
 	{
 	private:
@@ -50,7 +39,7 @@ namespace posix
 		static s64 MillisecondsFromBrokenDown(const BrokenDownTime& bdTime);
 		static BrokenDownTime BrokenDownFromMilliseconds(s64 milliseconds);
 
-		static MonotonicTimer CreateMonotonicTimer();
+		static u64 GetMonotonicMicroseconds();
 	};
 
 }}

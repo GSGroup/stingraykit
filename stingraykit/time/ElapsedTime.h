@@ -24,8 +24,7 @@ namespace stingray
 	class ElapsedTime
 	{
 	private:
-		MonotonicTimer		_timer;
-		s64					_start;
+		u64					_start;
 
 	public:
 		ElapsedTime();

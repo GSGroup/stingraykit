@@ -18,14 +18,6 @@ namespace stingray {
 namespace osplus
 {
 
-	class MonotonicTimer
-	{
-	public:
-		u64 GetMicroseconds() const //some random value from unspecified point in the past
-		{ return (u64)time_now() * 1000000 / time_ticks_per_sec(); }
-	};
-
-
 	class TimeEngine
 	{
 	private:
@@ -44,7 +36,7 @@ namespace osplus
 		static s64 MillisecondsFromBrokenDown(const BrokenDownTime& bdTime);
 		static BrokenDownTime BrokenDownFromMilliseconds(s64 milliseconds);
 
-		static MonotonicTimer CreateMonotonicTimer();
+		static u64 GetMonotonicMicroseconds();
 	};
 
 }}

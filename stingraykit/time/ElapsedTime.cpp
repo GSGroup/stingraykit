@@ -14,28 +14,25 @@ namespace stingray
 {
 
 	ElapsedTime::ElapsedTime()
-		: _timer(TimeEngine::CreateMonotonicTimer())
-	{
-		_start = _timer.GetMicroseconds();
-	}
+	{ _start = TimeEngine::GetMonotonicMicroseconds(); }
+
 
 	TimeDuration ElapsedTime::Restart()
 	{
-		s64 newStart = _timer.GetMicroseconds();
+		u64 newStart = TimeEngine::GetMonotonicMicroseconds();
 		TimeDuration result(TimeDuration::FromMicroseconds(newStart - _start));
 		_start = newStart;
 		return result;
 	}
 
+
 	s64 ElapsedTime::ElapsedMilliseconds() const
-	{
-		return ElapsedMicroseconds() / 1000;
-	}
+	{ return ElapsedMicroseconds() / 1000; }
+
 
 	s64 ElapsedTime::ElapsedMicroseconds() const
-	{
-		return (s64)_timer.GetMicroseconds() - _start;
-	}
+	{ return TimeEngine::GetMonotonicMicroseconds() - _start; }
+
 
 	TimeDuration ElapsedTime::Elapsed() const
 	{ return TimeDuration(ElapsedMilliseconds()); }
