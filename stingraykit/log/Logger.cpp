@@ -423,35 +423,35 @@ namespace stingray
 	/////////////////////////////////////////////////////////////////
 
 
-	Tracer::Tracer(const Detail::NamedLoggerAccessor& logger, const char* funcName)
-		: _logger(logger), _funcName(funcName)
+	Tracer::Tracer(const Detail::NamedLoggerAccessor& logger, const char* funcName) :
+		_logger(logger), _logLevel(logger.GetLogLevel()), _funcName(funcName)
 	{
-		if (_logger.GetLogLevel() >= LogLevel::Trace)
-			_logger.Trace() << "TRACER: entering function '" <<  _funcName << "'";
+		if (_logLevel > LogLevel::Trace)
+			return;
+
+		_startTime = TimeEngine::GetMonotonicMicroseconds();
+		_logger.Trace() << "TRACER: entering function '" << _funcName << "'";
 	}
 
 
 	Tracer::~Tracer()
 	{
-		s64 ms = 0;
-		int mms = 0;
-		try { s64 e = _elapsedTime.ElapsedMicroseconds(); ms = e / 1000; mms = e % 1000; } catch(const std::exception&) {}
-		if (std::uncaught_exception())
+		if (_logLevel > LogLevel::Trace)
+			return;
+
+		try
 		{
-			try
-			{
-				if (_logger.GetLogLevel() >= LogLevel::Trace)
-					_logger.Trace() << "TRACER: leaving function '" << _funcName << "' due to an exception (" << StringFormat("%1%.%2$3%", ms, mms) << " ms)";
-			}
-			catch(const std::exception&)
-			{ return; }
-		}
-		else
-		{
-			if (_logger.GetLogLevel() >= LogLevel::Trace)
+			s64 e = TimeEngine::GetMonotonicMicroseconds() - _startTime;
+			s64 ms = e / 1000;
+			int mms = e % 1000;
+
+			if (std::uncaught_exception())
+				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' due to an exception (" << StringFormat("%1%.%2$3%", ms, mms) << " ms)";
+			else
 				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' (" << StringFormat("%1%.%2$3%", ms, mms) << " ms)";
 		}
-
+		catch(const std::exception&)
+		{ }
 	}
 
 

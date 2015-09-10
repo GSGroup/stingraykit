@@ -242,8 +242,9 @@ namespace stingray
 	{
 	private:
 		Detail::NamedLoggerAccessor	_logger;
+		LogLevel					_logLevel;
 		const char*					_funcName;
-		ElapsedTime					_elapsedTime;
+		u64							_startTime;
 
 	public:
 		Tracer(const Detail::NamedLoggerAccessor& logger, const char* funcName);
