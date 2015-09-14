@@ -36,13 +36,13 @@
 			{ \
 				int res = pthread_key_create(&_key, &Name_::Dtor); \
 				if (res != 0) \
-					STINGRAYKIT_FATAL(StringBuilder() % "pthread_key_create failed: " % SystemException::GetErrorMessage(res)); \
+					STINGRAYKIT_FATAL(stingray::StringBuilder() % "pthread_key_create failed: " % stingray::SystemException::GetErrorMessage(res)); \
 			} \
 			~KeyHolder() \
 			{ \
 				int res = pthread_key_delete(_key); \
 				if (res != 0) \
-					STINGRAYKIT_FATAL(StringBuilder() % "pthread_key_delete failed: " % SystemException::GetErrorMessage(res)); \
+					STINGRAYKIT_FATAL(stingray::StringBuilder() % "pthread_key_delete failed: " % stingray::SystemException::GetErrorMessage(res)); \
 			} \
 			pthread_key_t GetKey() const \
 			{ return _key; } \
@@ -61,12 +61,12 @@
 		{ \
 			if (!s_value)\
 			{ \
-				KeyHolderPtr key = SafeSingleton<KeyHolder>::Instance(); \
+				KeyHolderPtr key = stingray::SafeSingleton<KeyHolder>::Instance(); \
 				if (!key) \
-					key = make_shared<KeyHolder>(); \
-				unique_ptr<ValueHolder> valPtr(new ValueHolder(key)); \
+					key = stingray::make_shared<KeyHolder>(); \
+				stingray::unique_ptr<ValueHolder> valPtr(new ValueHolder(key)); \
 				int res = pthread_setspecific(key->GetKey(), valPtr.get()); \
-				STINGRAYKIT_CHECK(res == 0, SystemException("pthread_setspecific", res)); \
+				STINGRAYKIT_CHECK(res == 0, stingray::SystemException("pthread_setspecific", res)); \
 				s_value = &(valPtr->Value); \
 				valPtr.release(); \
 			} \
@@ -74,7 +74,7 @@
 		} \
 	private: \
 		static void Dtor(void* val) \
-		{ ValueHolder* holder = static_cast<ValueHolder*>(val); CheckedDelete(holder); } \
+		{ ValueHolder* holder = static_cast<ValueHolder*>(val); stingray::CheckedDelete(holder); } \
 	};
 
 #	define STINGRAYKIT_DEFINE_THREAD_LOCAL(Type_, Name_) __thread Type_* Name_::s_value = NULL
