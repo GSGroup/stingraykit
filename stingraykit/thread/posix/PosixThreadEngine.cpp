@@ -192,11 +192,7 @@ namespace stingray
 				return;
 
 			GenericMutexLock<PosixMutex> l(_registry->GetSync());
-
-			std::pair<ThreadsRegistry::ThreadsMap::iterator, bool> pair = _registry->GetMap().insert(std::make_pair(GetKernelId(), this));
-			STINGRAYKIT_ASSERT(pair.second);
-
-			_iterator = pair.first;
+			_iterator = _registry->GetMap().insert(std::make_pair(GetKernelId(), this)).first;
 		}
 
 		~ThreadDataStorage()
