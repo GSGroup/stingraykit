@@ -254,21 +254,17 @@ namespace stingray
 
 		enum CollectionSerializationType
 		{
-			CollectionSerializeWithSerialize = 0,
-			CollectionSerializeWithBeginEnd = 1,
-			CollectionSerializeWithSerializeAsValue = 2
+			CollectionSerializeWithSerialize,
+			CollectionSerializeWithSerializeAsValue,
+			CollectionSerializeWithBeginEnd
 		};
 
 		template <typename CollectionType, CollectionSerializationType ObjectType =
-			!HasMethod_Serialize<CollectionType>::Value?
-			(
-				(HasMethod_begin<CollectionType>::Value && HasMethod_end<CollectionType>::Value)
-					? CollectionSerializeWithBeginEnd :
-					(
-						HasMethod_SerializeAsValue<CollectionType>::Value? CollectionSerializeWithSerializeAsValue: CollectionSerializeWithSerialize
-					)
-			)
-			: CollectionSerializeWithSerialize>
+			HasMethod_Serialize<CollectionType>::Value ? CollectionSerializeWithSerialize : (
+				HasMethod_SerializeAsValue<CollectionType>::Value ? CollectionSerializeWithSerializeAsValue : (
+					(HasMethod_begin<CollectionType>::Value && HasMethod_end<CollectionType>::Value) ? CollectionSerializeWithBeginEnd :
+						CollectionSerializeWithSerialize))
+		>
 		struct CollectionSerializer;
 
 		template< typename ValueType >
