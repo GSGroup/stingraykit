@@ -51,10 +51,16 @@ namespace stingray
 	{
 		STINGRAYKIT_DECLARE_METHOD_CHECK(Deserialize);
 		STINGRAYKIT_DECLARE_METHOD_CHECK(Serialize);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(DeserializeAsValue);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(SerializeAsValue);
 
 		template<typename T>
 		struct IsStringRepresentable
-		{ static const bool Value = HasMethod_FromString<T>::Value && HasMethod_ToString<T>::Value && !(HasMethod_Serialize<T>::Value && HasMethod_Deserialize<T>::Value); };
+		{
+			static const bool Value = HasMethod_FromString<T>::Value && HasMethod_ToString<T>::Value
+					&& !(HasMethod_Serialize<T>::Value && HasMethod_Deserialize<T>::Value)
+					&& !(HasMethod_SerializeAsValue<T>::Value && HasMethod_DeserializeAsValue<T>::Value);
+		};
 
 		typedef TypeList<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long, size_t, u8, u16, u32, u64>::type UnsignedTypes;
 		typedef TypeList<char, short, int, long, long long, off_t, s8, s16, s32, s64>::type SignedTypes;
