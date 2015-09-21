@@ -139,7 +139,7 @@ namespace stingray
 	class ThreadsRegistry
 	{
 	public:
-		typedef std::map<u64, ThreadDataStorage*>	ThreadsMap;
+		typedef std::multimap<u64, ThreadDataStorage*>	ThreadsMap;
 
 	private:
 		PosixMutex	_mutex;
@@ -192,7 +192,7 @@ namespace stingray
 				return;
 
 			GenericMutexLock<PosixMutex> l(_registry->GetSync());
-			_iterator = _registry->GetMap().insert(std::make_pair(GetKernelId(), this)).first;
+			_iterator = _registry->GetMap().insert(std::make_pair(GetKernelId(), this));
 		}
 
 		~ThreadDataStorage()
@@ -712,12 +712,13 @@ namespace stingray
 				if (registry)
 				{
 					GenericMutexLock<PosixMutex> l(registry->GetSync());
-					if (registry->GetMap().find(tid) != registry->GetMap().end())
+					ThreadsRegistry::ThreadsMap::iterator it = registry->GetMap().find(tid);
+					if (it != registry->GetMap().end())
 					{
-						threadName = registry->GetMap()[tid]->GetThreadName();
-						childrenStats = registry->GetMap()[tid]->GetChildrenStats();
-						if (registry->GetMap()[tid]->GetParentThread())
-							parentId = registry->GetMap()[tid]->GetParentThread()->GetKernelId();
+						threadName = it->second->GetThreadName();
+						childrenStats = it->second->GetChildrenStats();
+						if (it->second->GetParentThread())
+							parentId = it->second->GetParentThread()->GetKernelId();
 					}
 				}
 
