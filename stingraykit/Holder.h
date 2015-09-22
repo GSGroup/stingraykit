@@ -8,14 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/function/bind.h>
+#include <stingraykit/log/Logger.h>
 #include <stingraykit/shared_ptr.h>
-
 
 namespace stingray
 {
-
 
 	template < typename NativeType >
 	class ScopedHolder
@@ -37,7 +35,7 @@ namespace stingray
 			: _handle(handle), _cleanupFunc(cleanupFunc), _valid(true)
 		{ }
 
-		~ScopedHolder()					{ Cleanup(); }
+		~ScopedHolder()					{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
 
 		bool Valid() const				{ return _valid; }
 		const NativeType& Get() const	{ Check();					return _handle; }
@@ -79,7 +77,7 @@ namespace stingray
 			: _cleanupFunc(cleanupFunc), _valid(valid)
 		{ }
 
-		~ScopedHolder()			{ Cleanup(); }
+		~ScopedHolder()			{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
 
 		bool Valid() const		{ return _valid; }
 		void Clear()			{ Cleanup(); _valid = false; }
@@ -162,6 +160,5 @@ namespace stingray
 	};
 
 }
-
 
 #endif
