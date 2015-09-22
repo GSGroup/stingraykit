@@ -267,13 +267,6 @@ namespace stingray
 		>
 		struct CollectionSerializer;
 
-		template< typename ValueType >
-		struct CollectionSerializer<std::map<std::string, ValueType>, CollectionSerializeWithBeginEnd>
-		{
-			static void Serialize(ObjectOStream& dst, const std::map<std::string, ValueType> &collection)
-			{ dst.serialize(collection); }
-		};
-
 		template< typename CollectionType>
 		struct CollectionSerializer<CollectionType, CollectionSerializeWithBeginEnd>
 		{
@@ -393,15 +386,6 @@ namespace stingray
 		{
 			Write(value);
 			return *this;
-		}
-
-		template<typename ValueType>
-		void serialize(const std::map<std::string, ValueType>& data)
-		{
-			BeginObject();
-			for (typename std::map<std::string, ValueType>::const_iterator it = data.begin(); it != data.end(); ++it)
-				Serialize(it->first, it->second);
-			EndObject();
 		}
 
 		template<typename Iterator>
