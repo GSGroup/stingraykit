@@ -8,31 +8,32 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/locale/LangCode.h>
 #include <stingraykit/serialization/ISerializable.h>
-
 
 namespace stingray
 {
 
-
 	struct TranslatedString
 	{
+	public:
+		typedef IDictionary<LangCode, std::string>	Dictionary;
+		typedef shared_ptr<Dictionary> DictionaryPtr;
+
 	private:
-		struct Impl;
-		shared_ptr<Impl>	_impl;
+		DictionaryPtr	_dictionary;
 
 	public:
 		TranslatedString();
-		TranslatedString(const TranslatedString& other);
 		~TranslatedString();
-
-		TranslatedString& operator =(const TranslatedString& other);
 
 		void AddTranslation(LangCode lang, const std::string& str);
 
 		bool HasTranslation(LangCode lang) const;
 		std::string GetTranslation(LangCode lang) const;
+
+		DictionaryPtr GetTranslations() const;
 
 		void Serialize(ObjectOStream &ar) const;
 		void Deserialize(ObjectIStream &ar);
@@ -51,9 +52,7 @@ namespace stingray
 		int DoCompare(const TranslatedString& other) const;
 	};
 
-
 }
-
 
 #endif
 

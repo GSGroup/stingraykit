@@ -7,69 +7,47 @@
 
 #include <stingraykit/string/TranslatedString.h>
 
-#include <map>
-
 #include <stingraykit/collection/CollectionBuilder.h>
-#include <stingraykit/compare/MemberListComparer.h>
+#include <stingraykit/collection/EnumerableHelpers.h>
+#include <stingraykit/collection/MapDictionary.h>
 #include <stingraykit/serialization/Serialization.h>
 
 namespace stingray
 {
 
-
-	struct TranslatedString::Impl
-	{
-		typedef std::map<LangCode, std::string> Container;
-		Container Translations;
-	};
-
-
-	TranslatedString::TranslatedString() : _impl(new Impl())
-	{}
-
-
-	TranslatedString::TranslatedString(const TranslatedString& other) : _impl(other._impl)
-	{}
+	TranslatedString::TranslatedString() :
+		_dictionary(new MapDictionary<LangCode, std::string>())
+	{ }
 
 
 	TranslatedString::~TranslatedString()
-	{}
-
-
-	TranslatedString& TranslatedString::operator =(const TranslatedString& other)
-	{
-		_impl = other._impl;
-		return *this;
-	}
+	{ }
 
 
 	void TranslatedString::AddTranslation(LangCode lang, const std::string& str)
-	{
-		_impl->Translations[lang] = str;
-	}
+	{ _dictionary->Set(lang, str); }
 
 
 	bool TranslatedString::HasTranslation(LangCode lang) const
 	{
 		if (lang == LangCode::Any)
-			return !_impl->Translations.empty();
-		return _impl->Translations.find(lang) != _impl->Translations.end();
+			return !_dictionary->IsEmpty();
+
+		return _dictionary->ContainsKey(lang);
 	}
 
 
 	std::string TranslatedString::GetTranslation(LangCode lang) const
 	{
-		Impl::Container::const_iterator it = _impl->Translations.find(lang);
-		if (it != _impl->Translations.end())
-			return it->second;
-
 		if (lang == LangCode::Any)
-		{
-			STINGRAYKIT_CHECK(!_impl->Translations.empty(), "No translations!");
-			return _impl->Translations.begin()->second;
-		}
-		STINGRAYKIT_THROW("No such translation!");
+			return _dictionary->GetEnumerator()->Get().Value;
+
+		return _dictionary->Get(lang);
 	}
+
+
+	TranslatedString::DictionaryPtr TranslatedString::GetTranslations() const
+	{ return _dictionary; }
 
 
 	std::string TranslatedString::SelectTranslation(LangCode l0) const
@@ -92,21 +70,20 @@ namespace stingray
 		return "";
 	}
 
+
 	int TranslatedString::DoCompare(const TranslatedString& other) const
-	{ return CompareMembersCmp(&TranslatedString::Impl::Translations)(_impl, other._impl);  }
+	{ return Enumerable::MakeSequenceCmp(comparers::Equals())(_dictionary, other._dictionary); }
+
 
 	void TranslatedString::Serialize(ObjectOStream & ar) const
-	{ ar.Serialize("translations", _impl->Translations); }
+	{ ar.Serialize("translations", *_dictionary); }
 
 
 	void TranslatedString::Deserialize(ObjectIStream & ar)
-	{ ar.Deserialize("translations", _impl->Translations); }
+	{ ar.Deserialize("translations", *_dictionary); }
 
 
 	std::string TranslatedString::ToString() const
-	{ return stingray::ToString(_impl->Translations); }
-
+	{ return stingray::ToString(_dictionary); }
 
 }
-
-
