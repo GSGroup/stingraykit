@@ -154,6 +154,9 @@ namespace stingray
 			inline std::string str() const { return substr(); }
 
 			operator std::string() const   { return str(); }
+
+			bool operator != (const std::string& other) const { return str() != other; }
+			bool operator == (const std::string& other) const { return str() == other; }
 		};
 
 		struct DelimiterMatch
