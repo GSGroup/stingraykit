@@ -438,6 +438,16 @@ namespace stingray
 		}
 
 
+		template <typename Range_, class Value_>
+		bool Contains(Range_ range, Value_ value)
+		{
+			for (; range.Valid(); range.Next())
+				if (range.Get() == value)
+					return true;
+			return false;
+		}
+
+
 		template <typename Range_, class Predicate_>
 		bool AnyOf(Range_ range, Predicate_ predicate)
 		{
