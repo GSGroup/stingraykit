@@ -480,6 +480,12 @@ namespace stingray
 	};
 
 
+	template<typename T>
+	void swap(shared_ptr<T>& lhs, shared_ptr<T>& rhs)
+	{ lhs.swap(rhs); }
+
+
+
 	/** @brief Simple weak_ptr implementation */
 	template < typename T >
 	class weak_ptr
@@ -563,6 +569,11 @@ namespace stingray
 		template<typename U> bool owner_before(weak_ptr<U> const& other) const
 		{ return _impl.Before(other._impl); }
 	};
+
+
+	template<typename T>
+	void swap(weak_ptr<T>& lhs, weak_ptr<T>& rhs)
+	{ lhs.swap(rhs); }
 
 
 	template < typename SharedPtrT >
