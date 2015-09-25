@@ -405,9 +405,7 @@ namespace stingray
 			std_map.reserve(data.GetCount());
 			FOR_EACH(Pair p IN data.GetEnumerator())
 				std_map.push_back(std::make_pair(p.Key, p.Value));
-			BeginObject();
 			Serialize(std_map);
-			EndObject();
 			return *this;
 		}
 
