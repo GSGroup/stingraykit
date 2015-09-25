@@ -12,13 +12,13 @@ namespace stingray
 
 	static const size_t MaxSessionTime = 60000;
 
-	AsyncProfiler::Session::Session(const AsyncProfilerWeakPtr& profiler, const std::string& name, size_t criticalMs, Behaviour behaviour)
-		: _profiler(profiler), _threadInfo(Thread::GetCurrentThreadInfo()), _callInfo(new CallInfo(name, null)), _behaviour(behaviour)
+	AsyncProfiler::Session::Session(const AsyncProfilerWeakPtr& profiler, const std::string& name, size_t criticalMs)
+		: _profiler(profiler), _threadInfo(Thread::GetCurrentThreadInfo()), _callInfo(new CallInfo(name, null))
 	{ Start(criticalMs); }
 
 
-	AsyncProfiler::Session::Session(const AsyncProfilerWeakPtr& profiler, const NameGetterFunc& nameGetter, size_t criticalMs, Behaviour behaviour, const NameGetterTag&)
-		: _profiler(profiler), _threadInfo(Thread::GetCurrentThreadInfo()), _callInfo(new CallInfo(null, nameGetter)), _behaviour(behaviour)
+	AsyncProfiler::Session::Session(const AsyncProfilerWeakPtr& profiler, const NameGetterFunc& nameGetter, size_t criticalMs, const NameGetterTag&)
+		: _profiler(profiler), _threadInfo(Thread::GetCurrentThreadInfo()), _callInfo(new CallInfo(null, nameGetter))
 	{ Start(criticalMs); }
 
 

@@ -77,8 +77,8 @@ namespace stingray
 			Behaviour					_behaviour;
 
 		public:
-			Session(const AsyncProfilerWeakPtr& profiler, const std::string& name, size_t criticalMs, Behaviour behaviour = Behaviour::Silent);
-			Session(const AsyncProfilerWeakPtr& profiler, const NameGetterFunc& nameGetter, size_t criticalMs, Behaviour behaviour, const NameGetterTag&);
+			Session(const AsyncProfilerWeakPtr& profiler, const std::string& name, size_t criticalMs);
+			Session(const AsyncProfilerWeakPtr& profiler, const NameGetterFunc& nameGetter, size_t criticalMs, const NameGetterTag&);
 			~Session();
 
 		private:
