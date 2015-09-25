@@ -10,73 +10,103 @@
 namespace stingray
 {
 
-	static const size_t MaxSessionTime = 60000;
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler::Session);
 
-	AsyncProfiler::Session::Session(const AsyncProfilerWeakPtr& profiler, const std::string& name, size_t criticalMs)
-		: _profiler(profiler), _threadInfo(Thread::GetCurrentThreadInfo()), _callInfo(new CallInfo(name, null))
-	{ Start(criticalMs); }
-
-
-	AsyncProfiler::Session::Session(const AsyncProfilerWeakPtr& profiler, const NameGetterFunc& nameGetter, size_t criticalMs, const NameGetterTag&)
-		: _profiler(profiler), _threadInfo(Thread::GetCurrentThreadInfo()), _callInfo(new CallInfo(null, nameGetter))
-	{ Start(criticalMs); }
+	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const char* name, size_t criticalMs) :
+		_asyncProfiler(asyncProfiler),
+		_nameHolder(name),
+		_thresholdMs(criticalMs),
+		_impl(_nameHolder.Get())
+	{ _asyncProfiler->AddSession(_impl); }
 
 
-	void AsyncProfiler::Session::Start(size_t criticalMs)
-	{
-		AsyncProfilerPtr profiler = _profiler.lock();
-		if (!profiler)
-		{
-			s_logger.Warning() << "Start called on dead profiler";
-			return;
-		}
-		if (_behaviour == Behaviour::Verbose)
-			profiler->ReportStart(_callInfo);
-		_criticalConnection = profiler->_timer.SetTimeout(criticalMs, bind(&AsyncProfiler::ReportCriticalTime, _callInfo, TimeDuration(criticalMs), _threadInfo));
-		_errorConnection = profiler->_timer.SetTimer(MaxSessionTime, bind(&AsyncProfiler::ReportErrorTime, _callInfo, _threadInfo, make_shared<int>(1)));
-	}
+	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const std::string& name, size_t criticalMs) :
+		_asyncProfiler(asyncProfiler),
+		_nameHolder(name),
+		_thresholdMs(criticalMs),
+		_impl(_nameHolder.Get())
+	{ _asyncProfiler->AddSession(_impl); }
+
+
+	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const NameGetterFunc& nameGetter, size_t criticalMs, const NameGetterTag&) :
+		_asyncProfiler(asyncProfiler),
+		_nameHolder(null),
+		_thresholdMs(criticalMs),
+		_impl(nameGetter)
+	{ _asyncProfiler->AddSession(_impl); }
 
 
 	AsyncProfiler::Session::~Session()
 	{
-		AsyncProfilerPtr profiler = _profiler.lock();
-		_criticalConnection.Reset();
-		_errorConnection.Reset();
-		if (!profiler)
+		STINGRAYKIT_TRY("Can't remove session from profiler", _asyncProfiler->RemoveSession(_impl));
+
+		try
 		{
-			s_logger.Warning() << "profiler session destroyed after profiler death";
-			return;
+			TimeDuration duration(TimeDuration::FromMicroseconds(TimeEngine::GetMonotonicMicroseconds() - _impl.GetStartTime()));
+			if (duration > TimeDuration::FromMilliseconds(_thresholdMs))
+				s_logger.Warning() << _impl.GetName() << " took " << duration;
 		}
-		if (_behaviour == Behaviour::Verbose)
-			profiler->ReportEnd(_callInfo, _elapsed.Elapsed());
+		catch (const std::exception& ex)
+		{ s_logger.Error() << ex; }
 	}
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler);
 
-	AsyncProfiler::AsyncProfiler(const std::string& threadName)
-		: _timer(threadName, &Timer::DefaultExceptionHandler, false)
+	AsyncProfiler::AsyncProfiler(const std::string& threadName) :
+		_timeoutMicroseconds(30 * 1000 * 1000),
+		_thread(ThreadEngine::BeginThread(bind(&AsyncProfiler::ThreadFunc, this, _1), threadName))
 	{ }
 
 
-	void AsyncProfiler::ReportStart(const CallInfoPtr& callInfo)
-	{ s_logger.Info() << "Executing " << callInfo->GetName() << "..."; }
+	AsyncProfiler::~AsyncProfiler()
+	{ _thread.reset(); }
 
-	void AsyncProfiler::ReportEnd(const CallInfoPtr& callInfo, TimeDuration time)
-	{ s_logger.Info() << callInfo->GetName() << " took " << time; }
 
-	void AsyncProfiler::ReportCriticalTime(const CallInfoPtr& callInfo, TimeDuration criticalTime, const IThreadInfoPtr& threadInfo)
+	void AsyncProfiler::ThreadFunc(const ICancellationToken& token)
 	{
-		s_logger.Warning() << callInfo->GetName() << (threadInfo? (" in thread '" + threadInfo->GetName() + "'"): std::string()) << " is being executed for more than " << criticalTime << "! Invoked from:\n" << callInfo->GetBacktrace();
-		if (threadInfo)
-			threadInfo->RequestBacktrace();
+		MutexLock l(_mutex);
+		while (token)
+		{
+			if (_sessions.empty())
+			{
+				_condition.Wait(_mutex, token);
+				continue;
+			}
+
+			SessionImpl& top = *_sessions.begin();
+			u64 timeNow = TimeEngine::GetMonotonicMicroseconds();
+			if (timeNow < top.GetAbsoluteTimeout())
+			{
+				_condition.TimedWait(_mutex, TimeDuration::FromMicroseconds(top.GetAbsoluteTimeout() - timeNow));
+				continue;
+			}
+
+			s_logger.Error() << "Task " << top.GetName() << " in thread " << top.GetThreadName() << " is being executed for more than " << TimeDuration::FromMicroseconds(timeNow - top.GetStartTime()) << " invoked from: " << top.GetBacktrace();
+
+			_sessions.erase(top);
+			top.SetAbsoluteTimeout(TimeEngine::GetMonotonicMicroseconds() + _timeoutMicroseconds);
+			_sessions.push_back(top);
+		}
 	}
 
-	void AsyncProfiler::ReportErrorTime(const CallInfoPtr& callInfo, const IThreadInfoPtr& threadInfo, const shared_ptr<int>& counter)
+
+	void AsyncProfiler::AddSession(SessionImpl& session)
 	{
-		s_logger.Error() << callInfo->GetName() << (threadInfo? (" in thread '" + threadInfo->GetName() + "'"): std::string()) << " is being executed for more than " << TimeDuration((s64)((*counter)++) * (s64)MaxSessionTime) << "! Invoked from:\n" << callInfo->GetBacktrace();
-		if (threadInfo)
-			threadInfo->RequestBacktrace();
+		MutexLock l(_mutex);
+		session.SetAbsoluteTimeout(TimeEngine::GetMonotonicMicroseconds() + _timeoutMicroseconds);
+		_sessions.push_back(session);
+		if (&*_sessions.begin() == &session)
+			_condition.Broadcast();
+	}
+
+
+	void AsyncProfiler::RemoveSession(SessionImpl& session)
+	{
+		MutexLock l(_mutex);
+		if (&*_sessions.begin() == &session)
+			_condition.Broadcast();
+		_sessions.erase(session);
 	}
 
 }
