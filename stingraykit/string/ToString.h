@@ -331,6 +331,21 @@ namespace stingray
 
 
 	template < typename T >
+	struct IsStringRepresentable<shared_ptr<T>, Detail::TypeToStringObjectType::Other>
+	{ static const bool Value = IsStringRepresentable<T>::Value; };
+
+
+	template < typename T >
+	struct IsStringRepresentable<optional<T>, Detail::TypeToStringObjectType::Other>
+	{ static const bool Value = IsStringRepresentable<T>::Value; };
+
+
+	template < typename T, typename U >
+	struct IsStringRepresentable<std::pair<T, U>, Detail::TypeToStringObjectType::Other>
+	{ static const bool Value = IsStringRepresentable<T>::Value && IsStringRepresentable<U>::Value; };
+
+
+	template < typename T >
 	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::ProxyObjToStdStream >
 	{ static const bool Value = TypeListContains<BuiltinTypes, T>::Value; }; // TODO: Is this enough?
 
