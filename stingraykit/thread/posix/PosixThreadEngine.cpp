@@ -474,6 +474,9 @@ namespace stingray
 #endif
 		}
 
+		virtual IThreadInfoPtr GetThreadInfo() const
+		{ return _data->GetThreadInfo(); }
+
 	private:
 		void RequestThreadBacktrace() const
 		{ posix::SendSignal(_data->GetPthreadId(), g_threadBacktracePrinter.GetSignalNum()); }
