@@ -406,7 +406,7 @@ namespace stingray
 			FOR_EACH(Pair p IN data.GetEnumerator())
 				std_map.push_back(std::make_pair(p.Key, p.Value));
 			BeginObject();
-			Serialize("data", std_map);
+			Serialize(std_map);
 			EndObject();
 			return *this;
 		}
@@ -796,7 +796,10 @@ namespace stingray
 
 			data.Clear();
 			std::vector<std::pair<K, V> > std_map;
-			Deserialize("data", std_map);
+			if (is_array())
+				Deserialize(std_map);
+			else
+				Deserialize("data", std_map);
 			for (typename std::vector<std::pair<K, V> >::const_iterator it = std_map.begin(); it != std_map.end(); ++it)
 				data.Set(it->first, it->second);
 			return *this;
@@ -822,7 +825,10 @@ namespace stingray
 		ObjectIStream& deserialize(ITransactionalDictionary<K, V> & data)
 		{
 			std::vector<std::pair<K, V> > std_map;
-			Deserialize("data", std_map);
+			if (is_array())
+				Deserialize(std_map);
+			else
+				Deserialize("data", std_map);
 			typename ITransactionalDictionary<K, V>::TransactionTypePtr trans = data.StartTransaction();
 			trans->Clear();
 			for (typename std::vector<std::pair<K, V> >::const_iterator it = std_map.begin(); it != std_map.end(); ++it)
