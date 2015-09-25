@@ -436,8 +436,6 @@ namespace stingray
 
 		virtual ~PosixThread()
 		{
-			AsyncProfiler::Session profile_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&PosixThread::GetAsyncProfilerMessage, this), ThreadDtorProfileReportThreshold, AsyncProfiler::Session::Behaviour::Silent, AsyncProfiler::Session::NameGetterTag());
-
 			_token.Cancel();
 			_lifeToken.Release();
 
@@ -480,13 +478,6 @@ namespace stingray
 	private:
 		void RequestThreadBacktrace() const
 		{ posix::SendSignal(_data->GetPthreadId(), g_threadBacktracePrinter.GetSignalNum()); }
-
-
-		std::string GetAsyncProfilerMessage() const
-		{
-			RequestThreadBacktrace();
-			return _name + ": destroying";
-		}
 
 
 		void ThreadFuncExited()
