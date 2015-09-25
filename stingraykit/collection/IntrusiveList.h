@@ -9,8 +9,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/Types.h>
-#include <stingraykit/exception.h>
+#include <stingraykit/assert.h>
 #include <stingraykit/collection/iterator_base.h>
+#include <stingraykit/exception.h>
 
 namespace stingray
 {
@@ -32,8 +33,8 @@ namespace stingray
 		IntrusiveListNodeData	*_prev, *_next;
 
 	protected:
-		inline IntrusiveListNodeData()
-			: _prev(this), _next(this)
+		inline IntrusiveListNodeData() :
+			_prev(this), _next(this)
 		{ }
 
 		~IntrusiveListNodeData()
@@ -67,21 +68,6 @@ namespace stingray
 	};
 
 
-	template < typename T >
-	class IntrusiveListNode : public IntrusiveListNodeData
-	{
-	private:
-		T	_data;
-
-	public:
-		IntrusiveListNode(const T& data) : _data(data)
-		{ }
-
-		operator T& ()				{ return _data; }
-		operator const T& () const	{ return _data; }
-	};
-
-
 	template <typename T>
 	class IntrusiveList
 	{
@@ -90,26 +76,41 @@ namespace stingray
 	public:
 		typedef T						value_type;
 		typedef IntrusiveListNodeData	NodeDataType;
-		typedef IntrusiveListNode<T>	NodeType;
 
 	public:
-		class iterator : public iterator_base<iterator, const T, std::bidirectional_iterator_tag>
+		class iterator : public iterator_base<iterator, T, std::bidirectional_iterator_tag>
 		{
-			typedef iterator_base<iterator, const T, std::bidirectional_iterator_tag>	base;
+			typedef iterator_base<iterator, T, std::bidirectional_iterator_tag>	base;
+
+		private:
+			IntrusiveListNodeData*	_current;
+
+		public:
+			iterator(IntrusiveListNodeData* current) : _current(current)
+			{ }
+
+			typename base::reference dereference() const	{ return *static_cast<T*>(_current); }
+			bool equal(const iterator &other) const			{ return _current == other._current; }
+			void increment()								{ _current = get_next(_current); }
+			void decrement()								{ _current = get_prev(_current); }
+		};
+
+		class const_iterator : public iterator_base<const_iterator, const T, std::bidirectional_iterator_tag>
+		{
+			typedef iterator_base<const_iterator, const T, std::bidirectional_iterator_tag>	base;
 
 		private:
 			const IntrusiveListNodeData*	_current;
 
 		public:
-			iterator(const IntrusiveListNodeData* current) : _current(current)
+			const_iterator(const IntrusiveListNodeData* current) : _current(current)
 			{ }
 
-			typename base::reference dereference() const	{ return *static_cast<const NodeType* >(_current); }
-			bool equal(const iterator &other) const			{ return _current == other._current; }
+			typename base::reference dereference() const	{ return *static_cast<const T*>(_current); }
+			bool equal(const const_iterator &other) const	{ return _current == other._current; }
 			void increment()								{ _current = get_next(_current); }
 			void decrement()								{ _current = get_prev(_current); }
 		};
-		typedef iterator const_iterator;
 
 	private:
 		IntrusiveListNodeData	_root;
@@ -124,21 +125,18 @@ namespace stingray
 		~IntrusiveList()
 		{ STINGRAYKIT_ASSERT(empty()); }
 
-		iterator begin()			{ return iterator(_root._next); }
-		iterator end()				{ return iterator(&_root); }
+		iterator begin()				{ return iterator(_root._next); }
+		iterator end()					{ return iterator(&_root); }
 
 		// Sorry. =)
-		iterator begin() const		{ return iterator(_root._next); }
-		iterator end() const		{ return iterator(&_root); }
+		const_iterator begin() const	{ return const_iterator(_root._next); }
+		const_iterator end() const		{ return const_iterator(&_root); }
 
-		inline bool empty() const	{ return _root.unlinked(); }
-		size_t size() const			{ return std::distance(begin(), end()); }
+		inline bool empty() const		{ return _root.unlinked(); }
+		size_t size() const				{ return std::distance(begin(), end()); }
 
-		void push_back(IntrusiveListNode<T>& value)
-		{ value.insert_before(&_root); }
-
-		void erase(IntrusiveListNode<T>& value)
-		{ value.unlink(); }
+		void push_back(T& value)		{ value.insert_before(&_root); }
+		void erase(T& value)			{ value.unlink(); }
 	};
 
 	/** @} */
