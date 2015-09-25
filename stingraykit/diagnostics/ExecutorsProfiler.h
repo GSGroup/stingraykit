@@ -34,7 +34,7 @@ namespace stingray
 		{ }
 
 	public:
-		AsyncProfilerWeakPtr GetProfiler() const { return _profiler; }
+		AsyncProfilerPtr GetProfiler() const { return _profiler; }
 	};
 
 	/** @} */

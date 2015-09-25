@@ -9,12 +9,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <string>
-
+#include <stingraykit/collection/IntrusiveList.h>
+#include <stingraykit/shared_ptr.h>
 #include <stingraykit/time/ElapsedTime.h>
 #include <stingraykit/timer/Timer.h>
-#include <stingraykit/shared_ptr.h>
 
+#include <string>
 
 namespace stingray
 {
@@ -30,74 +30,113 @@ namespace stingray
 	class AsyncProfiler
 	{
 	private:
-		typedef function<std::string()>	NameGetterFunc;
-
-		class CallInfo
+		class MessageHolder
 		{
-			optional<std::string>		_name;
-			optional<NameGetterFunc>	_nameGetter;
-			Backtrace					_backtrace;
+		private:
+			std::string _messageHolder;
+			const char* _message;
 
 		public:
-			CallInfo(const optional<std::string>& name, const optional<NameGetterFunc>& nameGetter)
-				: _name(name), _nameGetter(nameGetter)
+			MessageHolder(const char* message) : _message(message)
+			{ }
+
+			MessageHolder(const std::string& message) : _messageHolder(message)
+			{ _message = _messageHolder.c_str(); }
+
+			const char* Get() const
+			{ return _message; }
+		};
+
+		typedef function<std::string()>	NameGetterFunc;
+
+		class SessionImpl : public IntrusiveListNodeData
+		{
+			STINGRAYKIT_NONCOPYABLE(SessionImpl);
+
+		private:
+			const char*					_name;
+			optional<NameGetterFunc>	_nameGetter;
+			Backtrace					_backtrace;
+			IThreadInfoPtr				_threadInfo;
+			u64							_startTime;
+			u64							_timeoutTime;
+
+		public:
+			SessionImpl(const char* name) :
+				_name(name),
+				_threadInfo(Thread::GetCurrentThreadInfo()),
+				_startTime(TimeEngine::GetMonotonicMicroseconds())
+			{ }
+
+			SessionImpl(const optional<NameGetterFunc>& nameGetter) :
+				_name(null),
+				_nameGetter(nameGetter),
+				_threadInfo(Thread::GetCurrentThreadInfo()),
+				_startTime(TimeEngine::GetMonotonicMicroseconds())
 			{ }
 
 			std::string GetName()
 			{
-				if (!_name.is_initialized())
-					_name = _nameGetter.get()();
-				return *_name;
+				if (!_name)
+					return _nameGetter.get()();
+				return _name;
 			}
+
+			std::string GetThreadName() const
+			{ return _threadInfo->GetName(); }
 
 			std::string GetBacktrace() const
 			{ return _backtrace.Get(); }
+
+			u64 GetStartTime() const
+			{ return _startTime; }
+
+			u64 GetAbsoluteTimeout() const
+			{ return _timeoutTime; }
+
+			void SetAbsoluteTimeout(u64 timeout)
+			{ _timeoutTime = timeout; }
 		};
-		STINGRAYKIT_DECLARE_PTR(CallInfo);
 
 	public:
 		class Session
 		{
 		public:
-			struct Behaviour
-			{
-				STINGRAYKIT_ENUM_VALUES(Silent, Verbose);
-				STINGRAYKIT_DECLARE_ENUM_CLASS(Behaviour);
-			};
-
 			struct NameGetterTag { };
 
 		private:
-			AsyncProfilerWeakPtr		_profiler;
-			IThreadInfoPtr				_threadInfo;
-			CallInfoPtr					_callInfo;
-			Token					_criticalConnection;
-			Token					_errorConnection;
-			ElapsedTime					_elapsed;
-			Behaviour					_behaviour;
+			static NamedLogger	s_logger;
+			AsyncProfilerPtr	_asyncProfiler;
+			MessageHolder		_nameHolder;
+			u64					_thresholdMs;
+			SessionImpl			_impl;
 
 		public:
-			Session(const AsyncProfilerWeakPtr& profiler, const std::string& name, size_t criticalMs, Behaviour behaviour = Behaviour::Silent);
-			Session(const AsyncProfilerWeakPtr& profiler, const NameGetterFunc& nameGetter, size_t criticalMs, Behaviour behaviour, const NameGetterTag&);
+			Session(const AsyncProfilerPtr& profiler, const char* name, size_t criticalMs);
+			Session(const AsyncProfilerPtr& profiler, const std::string& name, size_t criticalMs);
+			Session(const AsyncProfilerPtr& profiler, const NameGetterFunc& nameGetter, size_t criticalMs, const NameGetterTag&);
 			~Session();
-
-		private:
-			void Start(size_t criticalMs);
 		};
-		STINGRAYKIT_DECLARE_PTR(Session);
 
 	private:
-		static NamedLogger		s_logger;
-		Timer					_timer;
+		typedef IntrusiveList<SessionImpl> Sessions;
+
+	private:
+		static NamedLogger s_logger;
+		const u64          _timeoutMicroseconds;
+		Mutex              _mutex;
+		ConditionVariable  _condition;
+		Sessions           _sessions;
+		IThreadPtr         _thread;
 
 	public:
 		AsyncProfiler(const std::string& threadName);
+		~AsyncProfiler();
 
 	private:
-		static void ReportStart(const CallInfoPtr& callInfo);
-		static void ReportEnd(const CallInfoPtr& callInfo, TimeDuration time);
-		static void ReportCriticalTime(const CallInfoPtr& callInfo, TimeDuration criticalTime, const IThreadInfoPtr& threadInfo);
-		static void ReportErrorTime(const CallInfoPtr& callInfo, const IThreadInfoPtr& threadInfo, const shared_ptr<int>& counter);
+		void ThreadFunc(const ICancellationToken& token);
+		void AddSession(SessionImpl& session);
+		void RemoveSession(SessionImpl& session);
 	};
 
 

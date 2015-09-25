@@ -32,7 +32,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		struct CancellableStorage
+		struct CancellableStorage : public IntrusiveListNodeData
 		{
 		private:
 			function_storage		_functionStorage;
@@ -53,7 +53,7 @@ namespace stingray
 		};
 
 
-		struct ThreadlessStorage
+		struct ThreadlessStorage : public IntrusiveListNodeData
 		{
 		private:
 			function_storage		_functionStorage;
@@ -114,8 +114,8 @@ namespace stingray
 		struct SignalImplBase : public ISignalConnector
 		{
 			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncType;
-			typedef IntrusiveListNode<FuncType>													Handler;
-			typedef IntrusiveList<FuncType>														Handlers;
+			typedef FuncType																	Handler;
+			typedef IntrusiveList<Handler>														Handlers;
 
 		protected:
 			typedef signal_policies::threading::DummyMutex										DummyMutex;

@@ -120,7 +120,8 @@ namespace stingray
 
 		virtual ~IThread() { }
 		virtual void Interrupt() = 0;
-		virtual ThreadId GetId() { STINGRAYKIT_THROW(NotImplementedException()); }
+		virtual ThreadId GetId()                     { STINGRAYKIT_THROW(NotImplementedException()); }
+		virtual IThreadInfoPtr GetThreadInfo() const { STINGRAYKIT_THROW(NotImplementedException()); }
 	};
 	STINGRAYKIT_DECLARE_PTR(IThread);
 
