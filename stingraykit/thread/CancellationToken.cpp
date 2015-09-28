@@ -62,7 +62,7 @@ namespace stingray
 
 
 	bool CancellationToken::IsCancelled() const
-	{ MutexLock l(_mutex); return _cancelled; }
+	{ return _cancelled.load(memory_order_relaxed); }
 
 
 	bool CancellationToken::TryRegisterCancellationHandler(ICancellationHandler& handler) const
