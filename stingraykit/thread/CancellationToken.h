@@ -12,7 +12,7 @@
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/ICancellationToken.h>
 #include <stingraykit/thread/Thread.h>
-
+#include <stingraykit/thread/atomic.h>
 
 namespace stingray
 {
@@ -24,7 +24,7 @@ namespace stingray
 	private:
 		Mutex							_mutex;
 		ConditionVariable				_cond;
-		bool							_cancelled;
+		atomic<bool>					_cancelled;
 		bool							_cancelDone;
 		mutable ICancellationHandler*	_cancelHandler;
 

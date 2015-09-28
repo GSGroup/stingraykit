@@ -82,11 +82,18 @@ namespace stingray
 				continue;
 			}
 
-			s_logger.Error() << "Task " << top.GetName() << " in thread " << top.GetThreadName() << " is being executed for more than " << TimeDuration::FromMicroseconds(timeNow - top.GetStartTime()) << " invoked from: " << top.GetBacktrace();
-
 			_sessions.erase(top);
 			top.SetAbsoluteTimeout(TimeEngine::GetMonotonicMicroseconds() + _timeoutMicroseconds);
 			_sessions.push_back(top);
+
+			// copy all necessary data before releasing mutex
+			std::string name(top.GetName());
+			std::string tname(top.GetThreadName());
+			u64 startTime = top.GetStartTime();
+			std::string backtrace(top.GetBacktrace());
+
+			MutexUnlock ul(l);
+			s_logger.Error() << "Task " << name << " in thread " << tname << " is being executed for more than " << TimeDuration::FromMicroseconds(timeNow - startTime) << " invoked from: " << backtrace;
 		}
 	}
 

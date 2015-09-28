@@ -19,6 +19,7 @@ namespace stingray
 		struct AtomicImplType
 		{
 			STINGRAYKIT_ENUM_VALUES(
+				Bool,
 				Integral,
 				EnumClass,
 				Fallback);
@@ -28,9 +29,28 @@ namespace stingray
 
 
 		template<typename T, AtomicImplType::Enum ImplType =
+			SameType<T, bool>::Value ? AtomicImplType::Bool :
 			IsIntType<T>::Value ? AtomicImplType::Integral :
 			IsEnumClass<T>::Value ? AtomicImplType::EnumClass : AtomicImplType::Fallback>
 		class AtomicImpl;
+
+
+		template <>
+		class AtomicImpl<bool, AtomicImplType::Bool>
+		{
+			STINGRAYKIT_NONCOPYABLE(AtomicImpl);
+
+		private:
+			mutable atomic_int_type _value;
+
+		public:
+			AtomicImpl()											{ }
+			AtomicImpl(bool value) : _value((atomic_int_type)value)	{ }
+
+			bool load(memory_order order) const			{ return (bool)Atomic::Load(_value, order); }
+			void store(bool value, memory_order order)	{ Atomic::Store(_value, (atomic_int_type)value, order); }
+		};
+
 
 		template<typename T>
 		class AtomicImpl<T, AtomicImplType::Integral>
