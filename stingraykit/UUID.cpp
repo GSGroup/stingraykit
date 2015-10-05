@@ -38,10 +38,17 @@ namespace stingray
 
 	void UUID::DeserializeAsValue(ObjectIStream & ar)
 	{
+		std::string s;
 		std::vector<u8> v;
-		TypeWriter<std::vector<u8>, ObjectIStream>::Deserialize(ar, v);
-		STINGRAYKIT_CHECK(v.size() == _data.size(), "UUID size mismatch!");
-		std::copy(v.begin(), v.end(), _data.begin());
+		TypeWriter<std::string, ObjectIStream>::Deserialize(ar, s);
+		if (s.size() >= 4 && s.substr(0, 4) == "hex=")
+		{
+			TypeWriter<std::vector<u8>, ObjectIStream>::Deserialize(ar, v);
+			STINGRAYKIT_CHECK(v.size() == _data.size(), "UUID size mismatch!");
+			std::copy(v.begin(), v.end(), _data.begin());
+		}
+		else
+			*this = FromString(s);
 	}
 
 
