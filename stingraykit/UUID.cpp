@@ -6,13 +6,10 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/UUID.h>
+#include <stingraykit/string/Hex.h>
 
 #include <stdlib.h>
 #include <algorithm>
-
-#include <stingraykit/serialization/Serialization.h>
-#include <stingraykit/string/Hex.h>
-
 
 namespace stingray
 {
@@ -26,29 +23,6 @@ namespace stingray
 	bool UUID::operator<(const UUID& other) const
 	{
 		return std::lexicographical_compare(_data.begin(), _data.end(), other._data.begin(), other._data.end());
-	}
-
-
-	void UUID::SerializeAsValue(ObjectOStream & ar) const
-	{
-		std::vector<u8> v(_data.begin(), _data.end());
-		TypeWriter<std::vector<u8>, ObjectOStream>::Serialize(ar, v);
-	}
-
-
-	void UUID::DeserializeAsValue(ObjectIStream & ar)
-	{
-		std::string s;
-		std::vector<u8> v;
-		TypeWriter<std::string, ObjectIStream>::Deserialize(ar, s);
-		if (s.size() >= 4 && s.substr(0, 4) == "hex=")
-		{
-			TypeWriter<std::vector<u8>, ObjectIStream>::Deserialize(ar, v);
-			STINGRAYKIT_CHECK(v.size() == _data.size(), "UUID size mismatch!");
-			std::copy(v.begin(), v.end(), _data.begin());
-		}
-		else
-			*this = FromString(s);
 	}
 
 

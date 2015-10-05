@@ -9,12 +9,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/collection/array.h>
+#include <stingraykit/toolkit.h>
 
 
-namespace stingray {
-
+namespace stingray
+{
 
 	struct UUID
 	{
@@ -23,9 +23,6 @@ namespace stingray {
 		DataType _data;
 
 	public:
-		void SerializeAsValue(ObjectOStream & ar) const;
-		void DeserializeAsValue(ObjectIStream & ar);
-
 		bool operator< (const UUID& other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(UUID);
 
@@ -44,10 +41,6 @@ namespace stingray {
 		static void GenerateImpl(UUID& uuid);
 	};
 
-
-
 }
 
-
 #endif
-
