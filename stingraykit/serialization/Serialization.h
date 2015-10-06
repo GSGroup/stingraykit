@@ -9,17 +9,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <string>
-#include <vector>
-#include <map>
-
-#include <stingraykit/diagnostics/PrivateIncludeGuard.h>
-
 #include <stingraykit/Factory.h>
 #include <stingraykit/Final.h>
 #include <stingraykit/MetaProgramming.h>
 #include <stingraykit/TypeList.h>
 #include <stingraykit/collection/ByteData.h>
+#include <stingraykit/collection/BytesOwner.h>
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/IList.h>
@@ -28,6 +23,7 @@
 #include <stingraykit/collection/IObservableSet.h>
 #include <stingraykit/collection/ISet.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
+#include <stingraykit/diagnostics/PrivateIncludeGuard.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/reference.h>
 #include <stingraykit/serialization/ISerializable.h>
@@ -38,6 +34,9 @@
 #include <stingraykit/toolkit.h>
 #include <stingraykit/variant.h>
 
+#include <map>
+#include <string>
+#include <vector>
 
 namespace stingray
 {
@@ -448,6 +447,11 @@ namespace stingray
 			return *this;
 		}
 
+		ObjectOStream& serialize(ConstByteData data)
+		{
+			std::vector<u8> proxy(data.begin(), data.end());
+			return serialize(proxy);
+		}
 	};
 
 
@@ -848,6 +852,15 @@ namespace stingray
 		template<typename T>
 		typename EnableIf<!InheritsIList<T>::Value && !InheritsIReadonlySet<T>::Value && !InheritsIReadonlyDictionary<T>::Value, ObjectIStream&>::ValueT deserialize(T& value)
 		{ return CollectionDeserializer<T>::Deserialize(_collection, *this, value); }
+
+		template<typename T>
+		ObjectIStream& deserialize(BasicBytesOwner<T>& data)
+		{
+			std::vector<typename Deconst<T>::ValueT> proxy(data.begin(), data.end());
+			deserialize(proxy);
+			data = BasicBytesOwner<T>::Create(proxy);
+			return *this;
+		}
 	};
 
 	/** @} */
