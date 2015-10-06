@@ -9,11 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/Token.h>
-#include <stingraykit/ObjectToken.h>
 #include <stingraykit/collection/ByteData.h>
-#include <stingraykit/shared_ptr.h>
-
-#include <vector>
+#include <stingraykit/unique_ptr.h>
 
 namespace stingray
 {
@@ -21,7 +18,21 @@ namespace stingray
 	template < typename T >
 	class BasicBytesOwner
 	{
+		struct Storage : public IToken
+		{
+		private:
+			T* _data;
+
+		public:
+			Storage(T* data) : _data(data)
+			{ }
+
+			virtual ~Storage()
+			{ delete[] _data; }
+		};
+
 		typedef BasicByteData<T>							DataType;
+		typedef typename Deconst<T>::ValueT					DeconstT;
 
 	public:
 		typedef T											value_type;
@@ -37,6 +48,9 @@ namespace stingray
 		Token		_lifeAssurance;
 
 	public:
+		BasicBytesOwner()
+		{ }
+
 		BasicBytesOwner(DataType data, const Token& lifeAssurance) :
 			_data(data), _lifeAssurance(lifeAssurance)
 		{ }
@@ -49,21 +63,21 @@ namespace stingray
 			_data(other._data, offset, size), _lifeAssurance(other._lifeAssurance)
 		{ }
 
-		T& operator[](size_t index) const		{ return _data[index]; }
+		T& operator[](size_t index) const				{ return _data[index]; }
 
-		T* data() const							{ return _data.data(); }
-		size_t size() const						{ return _data.size(); }
+		T* data() const									{ return _data.data(); }
+		size_t size() const								{ return _data.size(); }
 
-		bool empty() const						{ return _data.size() == 0; }
+		bool empty() const								{ return _data.size() == 0; }
 
-		iterator begin() const					{ return _data.begin(); }
-		iterator end() const					{ return _data.end(); }
+		iterator begin() const							{ return _data.begin(); }
+		iterator end() const							{ return _data.end(); }
 
-		reverse_iterator rbegin() const			{ return _data.rbegin(); }
-		reverse_iterator rend() const			{ return _data.rend(); }
+		reverse_iterator rbegin() const					{ return _data.rbegin(); }
+		reverse_iterator rend() const					{ return _data.rend(); }
 
-		operator BasicByteData<T>() const		{ return _data; }
-		operator BasicByteData<const T>() const	{ return _data; }
+		operator BasicByteData<DeconstT>() const		{ return _data; }
+		operator BasicByteData<const DeconstT>() const	{ return _data; }
 
 		bool operator == (const BasicBytesOwner& other) const
 		{ return _data == other._data; }
@@ -77,8 +91,19 @@ namespace stingray
 
 		static BasicBytesOwner Create(size_t size)
 		{
-			shared_ptr<std::vector<T> > storage = make_shared<std::vector<T> >(size);
-			return BasicBytesOwner(*storage, MakeObjectToken(storage));
+			unique_ptr<T> arr(new T[size]);
+			BasicBytesOwner result(DataType(arr.get(), size), MakeToken<Storage>(arr.get()));
+			arr.release();
+			return result;
+		}
+
+		static BasicBytesOwner Create(BasicByteData<const T> data)
+		{
+			unique_ptr<DeconstT[]> arr(new DeconstT[data.size()]);
+			std::copy(data.begin(), data.end(), arr.get());
+			BasicBytesOwner result(DataType(arr.get(), data.size()), MakeToken<Storage>(arr.get()));
+			arr.release();
+			return result;
 		}
 	};
 
