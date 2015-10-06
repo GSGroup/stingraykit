@@ -344,7 +344,7 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		explicit BasicByteData(const BasicByteArray<U>& array) : //disallow storing anonymous copies without explicit intention to do so
+		BasicByteData(const BasicByteArray<U>& array) :
 			_data(array.data()), _size(array.size())
 		{ }
 
