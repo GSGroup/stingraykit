@@ -8,14 +8,15 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/iterator_base.h>
-#include <stingraykit/shared_ptr.h>
 #include <stingraykit/Dummy.h>
 #include <stingraykit/MetaProgramming.h>
 #include <stingraykit/TypeInfo.h>
+#include <stingraykit/collection/array.h>
+#include <stingraykit/collection/iterator_base.h>
+#include <stingraykit/shared_ptr.h>
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 #define DETAIL_BYTEDATA_INDEX_CHECK(Arg1, Arg2) STINGRAYKIT_CHECK((Arg1) <= (Arg2), IndexOutOfRangeException(Arg1, Arg2))
 
@@ -156,7 +157,7 @@ namespace stingray
 		{ std::copy(data, data + size, _data->begin()); }
 
 		template < typename U >
-		BasicByteArray(const U& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<U>::Value, Dummy>::ValueT* dummy = 0)
+		explicit BasicByteArray(const U& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<U>::Value, Dummy>::ValueT* dummy = 0)
 			: _data(new CollectionType(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
@@ -332,13 +333,18 @@ namespace stingray
 			_data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
-		template < typename U >
-		explicit BasicByteData(BasicByteArray<U>& array) : //disallow storing anonymous copies without explicit intention to do so
-			_data(array.data()), _size(array.size())
+		template < typename U, size_t N >
+		BasicByteData(array<U, N>& data) :
+			_data(data.empty() ? NULL : &data[0]), _size(data.size())
+		{ }
+
+		template < typename U, size_t N >
+		BasicByteData(const array<U, N>& data) :
+			_data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U >
-		explicit BasicByteData(const BasicByteArray<U>& array) : //disallow storing anonymous copies without explicit intention to do so
+		BasicByteData(const BasicByteArray<U>& array) :
 			_data(array.data()), _size(array.size())
 		{ }
 
