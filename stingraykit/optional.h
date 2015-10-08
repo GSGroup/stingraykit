@@ -33,12 +33,18 @@ namespace stingray
 	public:
 		optional() : _value(), _initialized(false)
 		{ }
+
 		optional(const NullPtrType&) : _value(), _initialized(false)
 		{ }
-		optional(ConstParamType value): _value(), _initialized(false)
-		{ assign(value); }
-		optional(const optional& other): _value(), _initialized(false)
-		{ assign(other); }
+
+		optional(ConstParamType value): _value(), _initialized(true)
+		{ _value.Ctor(value); }
+
+		optional(const optional& other): _value(), _initialized(other.is_initialized())
+		{
+			if (other.is_initialized())
+				_value.Ctor(other.get());
+		}
 
 		~optional()									{ reset(); }
 
