@@ -69,7 +69,7 @@ namespace stingray
 		{ }
 
 		MapDictionary& operator =(const MapDictionary& other)
-		{ _map.reset(new MapType(*other->_map)); return *this; }
+		{ _map.reset(new MapType(*other._map)); return *this; }
 
 		virtual int GetCount() const { return _map->size(); }
 		virtual bool IsEmpty() const { return _map->empty(); }
