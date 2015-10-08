@@ -19,6 +19,8 @@ namespace stingray
 	class ScopedHolder
 	{
 		STINGRAYKIT_NONCOPYABLE(ScopedHolder);
+
+	public:
 		typedef function<void(NativeType&)>		CleanupFuncType;
 
 	private:
@@ -66,6 +68,8 @@ namespace stingray
 	class ScopedHolder<void>
 	{
 		STINGRAYKIT_NONCOPYABLE(ScopedHolder);
+
+	public:
 		typedef function<void()>	CleanupFuncType;
 
 	private:
