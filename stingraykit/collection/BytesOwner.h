@@ -91,7 +91,7 @@ namespace stingray
 
 		static BasicBytesOwner Create(size_t size)
 		{
-			unique_ptr<T> arr(new T[size]);
+			unique_ptr<DeconstT[]> arr(new T[size]);
 			BasicBytesOwner result(DataType(arr.get(), size), MakeToken<Storage>(arr.get()));
 			arr.release();
 			return result;
