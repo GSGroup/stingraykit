@@ -317,7 +317,7 @@ namespace stingray
 			Self& Last()                                  { _impl.First(); return *this; }
 			Self& Prev()                                  { _impl.Next(); return *this; }
 
-			int GetPosition() const                       { return (int)_impl.GetSize() - _impl.GetPosition() - 1; }
+			int GetPosition() const                       { return static_cast<int>(_impl.GetSize()) - static_cast<int>(_impl.GetPosition()) - 1; }
 			size_t GetSize() const                        { return _impl.GetSize(); }
 			Self& Move(int distance)                      { _impl.Move(distance); return *this; }
 		};
