@@ -110,7 +110,7 @@ namespace stingray
 		typedef stingray::Detail::EnumIterator<ClassName> const_iterator; \
 		static const_iterator begin()					{ return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
 		static const_iterator end()						{ return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
-		ClassName() { const std::vector<int>& v = stingray::Detail::EnumToStringMap<ClassName>::GetEnumValues(); _enumVal = v.empty() ? (Enum)0 : (Enum)v.front(); } \
+		ClassName() : _enumVal() { const std::vector<int>& v = stingray::Detail::EnumToStringMap<ClassName>::GetEnumValues(); if (!v.empty()) _enumVal = static_cast<Enum>(v.front()); } \
 		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
 		Enum val() const { return _enumVal; } \
@@ -131,9 +131,9 @@ namespace stingray
 
 #define STINGRAYKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
 		inline ClassName_& operator |= (ClassName_& l, ClassName_::Enum r) \
-		{ return l = ClassName_((ClassName_::Enum)((int)l | (int)r)); } \
+		{ return l = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(l) | static_cast<int>(r))); } \
 		inline ClassName_& operator &= (ClassName_& l, ClassName_::Enum r) \
-		{ return l = ClassName_((ClassName_::Enum)((int)l & (int)r)); } \
+		{ return l = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(l) & static_cast<int>(r))); } \
 		inline ClassName_::Enum operator | (ClassName_::Enum l, ClassName_::Enum r) \
 		{ ClassName_ result(l); return result |= r; } \
 		inline ClassName_::Enum operator & (ClassName_::Enum l, ClassName_::Enum r) \

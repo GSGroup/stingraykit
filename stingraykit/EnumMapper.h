@@ -61,7 +61,7 @@ namespace stingray
 
 			static const int NextMinValue = EnumMappingTraits<NextNode, SourceEnumTraits>::MinValue;
 			static const int NextMaxValue = EnumMappingTraits<NextNode, SourceEnumTraits>::MaxValue;
-			static const int CurrentValue = (int)EnumMappingValueGetter<EnumMapping, SourceEnumTraits>::Value;
+			static const int CurrentValue = static_cast<int>(EnumMappingValueGetter<EnumMapping, SourceEnumTraits>::Value);
 
 		public:
 			static const int MinValue = CurrentValue < NextMinValue? CurrentValue : NextMinValue;
@@ -85,7 +85,7 @@ namespace stingray
 		public:
 			static void Build(DestEnum* array, bool* mapped, int minValue)
 			{
-				const int index = (int)EnumMappingValueGetter<EnumMapping, MapSourceEnum>::Value - minValue;
+				const int index = static_cast<int>(EnumMappingValueGetter<EnumMapping, MapSourceEnum>::Value) - minValue;
 
 				array[index] = EnumMappingValueGetter<EnumMapping, !MapSourceEnum>::Value;
 				mapped[index] = true;
@@ -131,10 +131,11 @@ namespace stingray
 			{ return Singleton<EnumMapper<EnumMapping, MapSource> >::Instance().DoMap(val); }
 
 		private:
-			DestEnum DoMap(SrcEnum val)
+			DestEnum DoMap(SrcEnum enumValue)
 			{
-				const int index = (int)val - MinValue;
-				STINGRAYKIT_CHECK((int)val >= MinValue && (int)val <= MaxValue, ArgumentException("val"));
+				const int val = static_cast<int>(enumValue);
+				const int index = val - MinValue;
+				STINGRAYKIT_CHECK(val >= MinValue && val <= MaxValue, ArgumentException("val"));
 				STINGRAYKIT_CHECK(_mapped[index], ArgumentException("val"));
 				return _array[index];
 			}

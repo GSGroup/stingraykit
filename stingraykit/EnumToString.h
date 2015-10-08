@@ -75,7 +75,7 @@ namespace stingray
 
 		public:
 			static const EnumValuesVec& GetEnumValues()					{ return PhoenixType::Instance().DoGetEnumValues(); }
-			static std::string EnumToString(NativeEnum val)				{ return PhoenixType::Instance().DoEnumToString((int)val); }
+			static std::string EnumToString(NativeEnum val)				{ return PhoenixType::Instance().DoEnumToString(static_cast<int>(val)); }
 			static NativeEnum EnumFromString(const std::string& str)	{ return (NativeEnum)PhoenixType::Instance().DoEnumFromString(str); }
 
 		private:
