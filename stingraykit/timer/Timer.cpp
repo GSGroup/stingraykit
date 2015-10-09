@@ -180,8 +180,8 @@ namespace stingray
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(Timer);
 
-	Timer::Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler, bool profileCalls)
-		: _timerName(timerName), _working(true), _alive(true), _queue(new CallbackQueue), _exceptionHandler(exceptionHandler), _profileCalls(profileCalls)
+	Timer::Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler, bool profileCalls) :
+		_timerName(timerName), _alive(true), _queue(new CallbackQueue), _exceptionHandler(exceptionHandler), _profileCalls(profileCalls)
 	{
 		_worker.reset(new Thread(timerName, bind(&Timer::ThreadFunc, this, not_using(_1))));
 	}
@@ -205,20 +205,6 @@ namespace stingray
 
 		if (has_tasks)
 			Logger::Warning() << "[Timer] Killing timer " << _timerName << " which still has some functions to execute";
-	}
-
-
-	void Timer::Start()
-	{
-		MutexLock l(_queue->Sync());
-		_working = true;
-	}
-
-
-	void Timer::Stop()
-	{
-		MutexLock l(_queue->Sync());
-		_working = false;
 	}
 
 
@@ -291,7 +277,6 @@ namespace stingray
 			if (top->Triggered())
 			{
 				top = _queue->Pop(); //fixme: check that's the same object
-				bool working = _working;
 
 				{
 					LocalExecutionGuard guard(top->GetExecutionTester());
@@ -305,21 +290,18 @@ namespace stingray
 					if (top->IsPeriodic())
 						top->Restart();
 
-					if (working)
+					try
 					{
-						try
+						if (_profileCalls)
 						{
-							if (_profileCalls)
-							{
-								AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(top->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
-								(top->GetFunc())();
-							}
-							else
-								(top->GetFunc())();
+							AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(top->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
+							(top->GetFunc())();
 						}
-						catch(const std::exception &ex)
-						{ _exceptionHandler(ex); }
+						else
+							(top->GetFunc())();
 					}
+					catch(const std::exception &ex)
+					{ _exceptionHandler(ex); }
 
 					if (!top->IsPeriodic())
 						top.reset();

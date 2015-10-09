@@ -48,7 +48,6 @@ namespace stingray
 		std::string					_timerName;
 		ThreadPtr					_worker;
 		ConditionVariable			_cond;
-		bool						_working;
 		bool						_alive;
 		CallbackQueuePtr			_queue;
 		ExceptionHandler			_exceptionHandler;
@@ -59,9 +58,6 @@ namespace stingray
 		~Timer();
 
 		void Shutdown();
-
-		void Start();
-		void Stop();
 
 		Token SetTimeout(const TimeDuration& timeout, const function<void()>& func);
 		Token SetTimer(const TimeDuration& interval, const function<void()>& func);
