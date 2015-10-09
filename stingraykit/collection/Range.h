@@ -359,6 +359,65 @@ namespace stingray
 		};
 
 
+		/// Doesn't support neither random-access nor equality check for now
+		template <typename Range_>
+		class RangeCycler : public RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
+		{
+			typedef RangeCycler<Range_> Self;
+			typedef RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT> base;
+
+		private:
+			Range_ _impl;
+
+		public:
+			RangeCycler(const Range_& impl) : _impl(impl)
+			{ STINGRAYKIT_CHECK(_impl.Valid(), "Can't cycle empty range!"); }
+
+			bool Valid() const             { return true; }
+			typename base::ValueType Get() { return _impl.Get(); }
+
+			Self& First()
+			{
+				_impl.First();
+				CheckValid();
+				return *this;
+			}
+
+			Self& Next()
+			{
+				_impl.Next();
+				if (_impl.Valid())
+					return *this;
+
+				_impl.First();
+				CheckValid();
+				return *this;
+			}
+
+			Self& Last()
+			{
+				_impl.Last();
+				CheckValid();
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				_impl.Prev();
+				if (_impl.Valid())
+					return *this;
+
+				_impl.Last();
+				CheckValid();
+				return *this;
+			}
+
+		protected:
+			void CheckValid() const
+			{ STINGRAYKIT_CHECK(_impl.Valid(), LogicException("Something is terribly wrong with internal range!")); }
+		};
+
+
 		template <typename SrcRange_, typename DstRange_>
 		typename EnableIf<IsRange<DstRange_>::Value, DstRange_>::ValueT Copy(SrcRange_ src, DstRange_ dst)
 		{
@@ -428,6 +487,11 @@ namespace stingray
 		template <typename SrcRange_>
 		RangeTransformer<SrcRange_, Detail::MapValuesFunctor<typename SrcRange_::ValueType> > MapValues(const SrcRange_& src)
 		{ return RangeTransformer<SrcRange_, Detail::MapValuesFunctor<typename SrcRange_::ValueType> >(src, Detail::MapValuesFunctor<typename SrcRange_::ValueType>()); }
+
+
+		template <typename SrcRange_>
+		RangeCycler<SrcRange_> Cycle(const SrcRange_& src)
+		{ return RangeCycler<SrcRange_>(src); }
 
 
 		template <typename Range_, typename Functor_>
