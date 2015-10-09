@@ -78,6 +78,9 @@ namespace stingray
 	Thread::ThreadStatsVec Thread::GetStats()
 	{ return ThreadEngine::GetThreadsStats(); }
 
+	optional<SystemStats> Thread::GetSystemStats()
+	{ return ThreadEngine::GetSystemStats(); }
+
 	void Thread::SetCancellationToken(const ICancellationToken& token)
 	{ ThreadEngine::GetCurrentThreadData()->SetCancellationToken(&token); }
 

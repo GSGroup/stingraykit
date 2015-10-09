@@ -81,6 +81,8 @@ namespace stingray
 
 		static ThreadStatsVec GetThreadsStats();
 
+		static optional<SystemStats> GetSystemStats();
+
 		static ThreadSchedulingParams SetCurrentThreadPriority(ThreadSchedulingParams params);
 
 		static void CallOnce(OnceNativeType& once, void (*func)()) { PosixCallOnce::CallOnce(once, func); }

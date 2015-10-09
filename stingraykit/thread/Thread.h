@@ -150,6 +150,8 @@ namespace stingray
 		typedef std::vector<ThreadStats> ThreadStatsVec;
 		static ThreadStatsVec GetStats();
 
+		static optional<SystemStats> GetSystemStats();
+
 		static void SetCancellationToken(const ICancellationToken& token);
 		static void ResetCancellationToken();
 		static const ICancellationToken& GetCancellationToken();

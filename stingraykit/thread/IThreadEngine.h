@@ -187,6 +187,27 @@ namespace stingray
 		ThreadCpuStats GetChildrenCpuStats() const	{ return _childrenCpuStats; }
 	};
 
+
+	class SystemStats
+	{
+	private:
+		u64 _user;
+		u64 _system;
+		u64 _idle;
+
+	public:
+		SystemStats(u64 user, u64 system, u64 idle) :
+			_user(user), _system(system), _idle(idle)
+		{ }
+
+		u64 GetUser() const		{ return _user; }
+		u64 GetSystem() const	{ return _system; }
+		u64 GetIdle() const		{ return _idle; }
+
+		std::string ToString() const
+		{ return StringBuilder() % "{ user: " % _user % " ticks, system: " % _system % " ticks, idle: " % _idle % " }"; }
+	};
+
 	/** @} */
 
 }
