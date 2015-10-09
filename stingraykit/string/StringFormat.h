@@ -40,40 +40,46 @@ namespace stingray
 			}
 		};
 
+
 		template<>
 		struct TupleToStringHelper<TypeListEndNode>
 		{
 			static void ItemToString(string_ostream &, const Tuple<TypeListEndNode>& tuple, size_t index, size_t width)
 			{ STINGRAYKIT_THROW("Tuple item index mismatch!"); }
 		};
+
+
+		template<typename FormatFragments_, typename TupleParams>
+		static void StringFormatImpl(string_ostream& result, FormatFragments_ formatFragments, const Tuple<TupleParams>& params)
+		{
+			STINGRAYKIT_CHECK((Count(formatFragments) % 2) == 1, "Format mismatch: no corresponding %");
+			for (size_t i = 0; formatFragments.Valid(); ++i, formatFragments.Next())
+			{
+				StringRef fragment = *formatFragments;
+				if (i % 2)
+				{
+					if (fragment.empty())
+						result << "%";
+					else
+					{
+						size_t pos = fragment.find('$');
+						size_t index = FromString<size_t>(fragment.substr(0, pos));
+						STINGRAYKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
+						size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
+						TupleToStringHelper<TupleParams>::ItemToString(result, params, index - 1, width);
+					}
+				}
+				else
+					result << fragment.str();
+			}
+		}
 	}
+
 
 	template<typename TupleParams>
-	static std::string StringFormat(string_ostream & result, const std::string & format, const Tuple<TupleParams> & params)
-	{
-		std::vector<StringRef> substrings;
-		Copy(Split(format, "%"), std::back_inserter(substrings));
+	static void StringFormat(string_ostream & result, const std::string& format, const Tuple<TupleParams>& params)
+	{ Detail::StringFormatImpl(result, Split(format, "%"), params); }
 
-		STINGRAYKIT_CHECK((substrings.size() % 2) == 1, "Format mismatch: no corresponding %");
-		for (size_t i = 0; i != substrings.size(); ++i)
-			if (i % 2)
-			{
-				if (substrings[i].empty())
-					result << "%";
-				else
-				{
-					size_t pos = substrings[i].find('$');
-					size_t index = FromString<size_t>(substrings[i].substr(0, pos));
-					STINGRAYKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
-					size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(substrings[i].substr(pos + 1));
-					Detail::TupleToStringHelper<TupleParams>::ItemToString(result, params, index - 1, width);
-				}
-			}
-			else
-				result << substrings[i].str();
-
-		return result.str();
-	}
 
 #define TY typename
 #define P_(N) const T##N & p##N
