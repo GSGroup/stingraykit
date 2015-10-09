@@ -89,6 +89,26 @@ namespace stingray
 	{ return shared_ptr<T>(ptr.get(), Detail::AttachTokenCustomDeleter<T>(ptr, token)); }
 
 
+	template < typename T >
+	class TokenAttacher
+	{
+	private:
+		shared_ptr<T>	_ptr;
+
+	public:
+		explicit TokenAttacher(const shared_ptr<T>& ptr) : _ptr(ptr) { }
+
+		TokenAttacher& operator % (const Token& token)
+		{
+			_ptr = AttachToken(_ptr, token);
+			return *this;
+		}
+
+		operator shared_ptr<T> () const
+		{ return _ptr; }
+	};
+
+
 	class TokenHolder
 	{
 	private:
