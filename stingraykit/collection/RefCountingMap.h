@@ -48,10 +48,13 @@ namespace stingray
 			Iterator(typename Impl::iterator implIt) : _implIt(implIt)
 			{ }
 
+			Iterator& operator = (const Iterator& other)
+			{ _implIt = other._implIt; _pair.reset(); return *this; }
+
 			typename base::reference dereference() const
 			{
 				if (!_pair)
-					_pair.assign(PairType(_implIt->first, _implIt->second.Value));
+					_pair.emplace(PairType(_implIt->first, _implIt->second.Value));
 				return *_pair;
 			}
 
