@@ -724,6 +724,25 @@ namespace stingray
 	}
 
 
+	optional<SystemStats> PosixThreadEngine::GetSystemStats()
+	{
+		FILE* stat_f = fopen("/proc/stat", "r");
+		if (!stat_f)
+			return null;
+
+		const int statsCount = 10;
+		u64 user, nice, system, idle, iowait, irq, softirq, steal, guest, guestNice;
+		int count = fscanf(stat_f, "cpu  %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld",
+			&user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guestNice);
+		fclose(stat_f);
+
+		if (count != statsCount)
+			return null;
+
+		return SystemStats(user + nice, system + iowait + irq + softirq + steal + guest + guestNice, idle);
+	}
+
+
 	struct SchedulingPolicyMapper : public BaseValueMapper<SchedulingPolicyMapper, ThreadSchedulingPolicy::Enum, int>
 	{
 		typedef TypeList_6<
