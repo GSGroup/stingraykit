@@ -438,6 +438,16 @@ namespace stingray
 		}
 
 
+		template <typename Range_>
+		size_t Count(Range_ range)
+		{
+			size_t result = 0;
+			for (; range.Valid(); ++result, range.Next())
+				;
+			return result;
+		}
+
+
 		template <typename Range_, class Value_>
 		bool Contains(Range_ range, Value_ value)
 		{
