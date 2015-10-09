@@ -106,6 +106,19 @@ namespace stingray
 				reset();
 		}
 
+#define DETAIL_STINGRAYKIT_OPTIONAL_EMPLACE(N_, UserArg_) \
+		STINGRAYKIT_INSERT_IF(N_, template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)>) \
+		void emplace(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
+		{ \
+			reset(); \
+			_value.Ctor(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
+			_initialized = true; \
+		}
+
+		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_OPTIONAL_EMPLACE, ~)
+
+#undef DETAIL_STINGRAYKIT_OPTIONAL_EMPLACE
+
 	private:
 		void CheckInitialized() const				{ STINGRAYKIT_CHECK(is_initialized(), "Not initialized!"); }
 	};
