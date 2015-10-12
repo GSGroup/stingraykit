@@ -212,6 +212,14 @@ namespace stingray
 	struct IsEnumClass { static const bool Value = HasNestedType_Enum<T>::Value; };
 
 
+	template<typename T>
+	struct ImplicitCaster
+	{
+		T operator () (T param) const
+		{ return param; }
+	};
+
+
 	template<typename T> T implicit_cast(T param) { return param; }
 
 
