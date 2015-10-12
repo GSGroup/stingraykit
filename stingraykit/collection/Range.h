@@ -565,6 +565,38 @@ namespace stingray
 					return false;
 			return true;
 		}
+
+
+		namespace Detail
+		{
+			template <typename Range_>
+			struct RangeToValue
+			{
+				typedef typename If<Range_::ReturnsTemporary, typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT, typename Range_::ValueType>::ValueT ValueT;
+			};
+		}
+
+
+		template <typename Range_, class Comparer_>
+		optional<typename Detail::RangeToValue<Range_>::ValueT> MinElement(Range_ range, Comparer_ comparer)
+		{
+			optional<typename Detail::RangeToValue<Range_>::ValueT> result;
+			for (; range.Valid(); range.Next())
+				if (!result || comparer(range.Get(), *result))
+					result = range.Get();
+			return result;
+		}
+
+
+		template <typename Range_, class Comparer_>
+		optional<typename Detail::RangeToValue<Range_>::ValueT> MaxElement(Range_ range, Comparer_ comparer)
+		{
+			optional<typename Detail::RangeToValue<Range_>::ValueT> result;
+			for (; range.Valid(); range.Next())
+				if (!result || comparer(*result, range.Get()))
+					result = range.Get();
+			return result;
+		}
 	}
 
 
