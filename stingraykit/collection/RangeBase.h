@@ -60,6 +60,8 @@ namespace stingray
 			typedef Category_  Category;
 			typedef ValueType_ ValueType;
 
+			static const bool ReturnsTemporary = false;
+
 		public:
 			ValueType      operator *  ()                              { return GetDerived().Get(); }
 			ArrowProxy<ValueType> operator -> ()                       { return GetDerived().Get(); }

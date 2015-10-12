@@ -181,6 +181,9 @@ namespace stingray
 			typedef RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT> base;
 			typedef RangeFilter<Range_, Predicate_> Self;
 
+		public:
+			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
+
 		private:
 			Range_     _impl;
 			Predicate_ _predicate;
@@ -217,6 +220,9 @@ namespace stingray
 		{
 			typedef RangeCaster<Dst_, Range_> Self;
 			typedef RangeBase<RangeCaster<Dst_, Range_>, Dst_, typename Range_::Category> base;
+
+		public:
+			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
 
 		private:
 			Range_         _impl;
@@ -256,6 +262,9 @@ namespace stingray
 			typedef RangeOfType<Dst_, Range_> Self;
 			typedef RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT> base;
 			typedef RefStorage<Dst_> Storage;
+
+		public:
+			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
 
 		private:
 			Range_                      _impl;
@@ -302,6 +311,9 @@ namespace stingray
 			typedef RangeReverser<Range_> Self;
 			typedef RangeBase<RangeReverser<Range_>, typename Range_::ValueType, typename Range_::Category> base;
 
+		public:
+			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
+
 		private:
 			Range_ _impl;
 
@@ -328,6 +340,9 @@ namespace stingray
 		{
 			typedef RangeTransformer<Range_, Functor_> Self;
 			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename GetConstReferenceType<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category> base;
+
+		public:
+			static const bool ReturnsTemporary = true;
 
 		private:
 			Range_                                              _impl;
