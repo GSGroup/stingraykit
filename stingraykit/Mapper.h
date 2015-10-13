@@ -55,7 +55,7 @@ namespace stingray
 			{
 				static bool Fits(Dst val)
 				{
-					CompileTimeAssert<Start_ < End_> ERROR_start_after_end;
+					CompileTimeAssert<(Start_ < End_)> ErrorStartAfterEnd;
 					return Start_ <= val && val < End_;
 				}
 				static Dst GetValue(Src from)	{ return MapBackValue_; }
