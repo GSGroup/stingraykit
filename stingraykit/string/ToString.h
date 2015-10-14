@@ -331,6 +331,11 @@ namespace stingray
 
 
 	template < typename T >
+	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::HasBeginEnd>
+	{ static const bool Value = IsStringRepresentable<typename T::value_type>::Value; };
+
+
+	template < typename T >
 	struct IsStringRepresentable<shared_ptr<T>, Detail::TypeToStringObjectType::Other>
 	{ static const bool Value = IsStringRepresentable<T>::Value; };
 
