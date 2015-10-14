@@ -54,7 +54,7 @@ namespace Detail
 
 }}
 
-#define GENERIC_API_CALL_TRANSPARENT(...) (::stingray::Detail::GenericApiCallGuard(#__VA_ARGS__) ? (__VA_ARGS__) : (__VA_ARGS__))
+#define GENERIC_API_CALL_TRANSPARENT(...) (::stingray::Detail::GenericApiCallGuard(#__VA_ARGS__) ? (__VA_ARGS__) : (STINGRAYKIT_THROW("Should never get here!")))
 
 #endif
 
