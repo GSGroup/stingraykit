@@ -92,17 +92,17 @@ namespace stingray
 	class ExecutionDeferrer
 	{
 	private:
-		size_t						_timeout;
-		Timer&						_timer;
+		size_t		_timeout;
+		Timer&		_timer;
 
-		Token					_connection;
-		Mutex						_connectionMutex;
+		Token		_connection;
+		Mutex		_connectionMutex;
 
-		Token					_doDeferConnection;
-		Mutex 						_doDeferConnectionMutex;
+		Token		_doDeferConnection;
+		Mutex 		_doDeferConnectionMutex;
 
-		Mutex						_mutex;
-		bool						_cancellationActive;
+		Mutex		_mutex;
+		bool		_cancellationActive;
 
 	public:
 		explicit ExecutionDeferrer(Timer& timer, size_t timeoutMilliseconds = 0)
