@@ -409,7 +409,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		ObjectOStream& serialize(const IList<T> & data)
+		ObjectOStream& serialize(const IReadonlyList<T> & data)
 		{
 			std::vector<T> std_vec;
 			std_vec.reserve(data.GetCount());
@@ -441,7 +441,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		typename EnableIf<!InheritsIList<T>::Value && !InheritsIReadonlySet<T>::Value && !InheritsIReadonlyDictionary<T>::Value, ObjectOStream&>::ValueT serialize(const T &obj)
+		typename EnableIf<!InheritsIReadonlyList<T>::Value && !InheritsIReadonlySet<T>::Value && !InheritsIReadonlyDictionary<T>::Value, ObjectOStream&>::ValueT serialize(const T &obj)
 		{
 			CollectionSerializer<T>::Serialize(*this, obj);
 			return *this;
@@ -856,7 +856,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		typename EnableIf<!InheritsIList<T>::Value && !InheritsIReadonlySet<T>::Value && !InheritsIReadonlyDictionary<T>::Value, ObjectIStream&>::ValueT deserialize(T& value)
+		typename EnableIf<!InheritsIList<T>::Value && !InheritsISet<T>::Value && !InheritsIDictionary<T>::Value, ObjectIStream&>::ValueT deserialize(T& value)
 		{ return CollectionDeserializer<T>::Deserialize(_collection, *this, value); }
 
 		template<typename T>
