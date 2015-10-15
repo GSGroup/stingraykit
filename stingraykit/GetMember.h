@@ -29,7 +29,8 @@ namespace stingray
 		public:
 			MemberGetter(MemberPointer member) : _member(member) { }
 
-			T operator()(const C& c) const { return c.*_member; }
+			T operator()(const C& c) const				{ return c.*_member; }
+			T operator()(const shared_ptr<C>& c) const	{ return (*c).*_member; }
 		};
 
 	}
