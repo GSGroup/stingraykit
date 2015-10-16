@@ -8,14 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/MetaProgramming.h>
-#include <stingraykit/signal/signal_connector.h>
 #include <stingraykit/signal/signals.h>
-#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
-
 
 	template < typename T, typename EqualsCmp = comparers::Equals>
 	class ObservableValue
@@ -25,19 +21,21 @@ namespace stingray
 		typedef typename GetParamPassingType<T>::ValueT		ParamPassingType;
 
 	private:
-		T									_val;
-		EqualsCmp							_equalsCmp;
-		signal<void(ParamPassingType)>		_onChanged;
+		T																					_val;
+		EqualsCmp																			_equalsCmp;
+		const shared_ptr<Mutex>																_mutex;
+		signal<void(ParamPassingType), signal_policies::threading::ExternalMutexPointer>	_onChanged;
 
 	public:
 		ObservableValue() :
 			_val(),
-			_onChanged(bind(&ObservableValue::OnChangedPopulator, this, _1))
+			_mutex(new Mutex()),
+			_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableValue::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableValue(ParamPassingType val) :
 			_val(val),
-			_onChanged(bind(&ObservableValue::OnChangedPopulator, this, _1))
+			_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableValue::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableValue& operator= (ParamPassingType val)
@@ -66,6 +64,9 @@ namespace stingray
 			return _val;
 		}
 
+		const Mutex& GetSyncRoot() const
+		{ return *_mutex; }
+
 		signal_connector<void(ParamPassingType)> OnChanged() const
 		{ return _onChanged.connector(); }
 
@@ -73,7 +74,6 @@ namespace stingray
 		void OnChangedPopulator(const function<void(ParamPassingType)>& slot) const
 		{ slot(_val); }
 	};
-
 
 }
 
