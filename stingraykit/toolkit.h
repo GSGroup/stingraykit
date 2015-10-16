@@ -12,6 +12,7 @@
 #include <stingraykit/MetaProgramming.h>
 #include <stingraykit/NullPtrType.h>
 #include <stingraykit/Types.h>
+#include <stingraykit/core/NonCopyable.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
 
 #include <stdexcept>
@@ -72,15 +73,6 @@ namespace stingray
 #	define STINGRAYKIT_DEBUG_ONLY(...)
 #endif
 
-
-#define STINGRAYKIT_NONCOPYABLE(ClassName) \
-	private: \
-		ClassName(const ClassName&); \
-		ClassName& operator= (const ClassName&)
-
-#define STINGRAYKIT_NONASSIGNABLE(ClassName) \
-	private: \
-		ClassName& operator= (const ClassName&)
 
 #define STINGRAYKIT_SIMPLE_ENUM_TO_STRING_BEGIN(EnumType) \
 	std::string ToString(EnumType value) { \
