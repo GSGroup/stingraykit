@@ -1,0 +1,31 @@
+<map id="stingray::Exception" name="stingray::Exception">
+<area shape="rect" id="node3" href="$d9/d2f/structstingray_1_1AccessDeniedException.html" title="stingray::AccessDeniedException" alt="" coords="355,5,565,32"/>
+<area shape="rect" id="node4" href="$d6/d0d/structstingray_1_1ArgumentException.html" title="stingray::ArgumentException" alt="" coords="368,56,552,83"/>
+<area shape="rect" id="node5" href="$de/d2b/structstingray_1_1BrokenPromise.html" title="stingray::BrokenPromise" alt="" coords="380,107,540,133"/>
+<area shape="rect" id="node6" href="$db/d59/structstingray_1_1BufferIsFullException.html" title="stingray::BufferIsFullException" alt="" coords="364,157,556,184"/>
+<area shape="rect" id="node7" href="$d6/dbe/structstingray_1_1BufferUnderrunException.html" title="stingray::BufferUnderrun\lException" alt="" coords="381,209,539,250"/>
+<area shape="rect" id="node8" href="$d7/d78/structstingray_1_1CrcErrorException.html" title="stingray::CrcErrorException" alt="" coords="373,275,547,301"/>
+<area shape="rect" id="node9" href="$d7/d95/structstingray_1_1DeviceBusyException.html" title="stingray::DeviceBusyException" alt="" coords="363,325,557,352"/>
+<area shape="rect" id="node10" href="$de/de5/structstingray_1_1FormatException.html" title="stingray::FormatException" alt="" coords="375,376,545,403"/>
+<area shape="rect" id="node11" href="$de/d44/structstingray_1_1FutureAlreadyRetrieved.html" title="stingray::FutureAlreadyRetrieved" alt="" coords="357,427,563,453"/>
+<area shape="rect" id="node12" href="$d9/def/classstingray_1_1IndexOutOfRangeException.html" title="stingray::IndexOutOfRange\lException" alt="" coords="373,478,547,519"/>
+<area shape="rect" id="node13" href="$d6/dd1/structstingray_1_1InvalidOperationException.html" title="stingray::InvalidOperation\lException" alt="" coords="377,543,543,585"/>
+<area shape="rect" id="node14" href="$dd/d86/structstingray_1_1KeyNotFoundException.html" title="stingray::KeyNotFoundException" alt="" coords="357,609,563,636"/>
+<area shape="rect" id="node15" href="$d0/dff/structstingray_1_1MalformedDataException.html" title="stingray::MalformedDataException" alt="" coords="352,660,568,687"/>
+<area shape="rect" id="node17" href="$d7/ddd/structstingray_1_1MalformedUtf8Exception.html" title="stingray::MalformedUtf8Exception" alt="" coords="353,711,567,737"/>
+<area shape="rect" id="node18" href="$d2/da0/structstingray_1_1NotImplementedException.html" title="stingray::NotImplemented\lException" alt="" coords="377,762,543,803"/>
+<area shape="rect" id="node19" href="$df/de3/structstingray_1_1NotSupportedException.html" title="stingray::NotSupportedException" alt="" coords="357,828,563,855"/>
+<area shape="rect" id="node20" href="$d6/d95/structstingray_1_1NullArgumentException.html" title="stingray::NullArgumentException" alt="" coords="357,879,563,905"/>
+<area shape="rect" id="node21" href="$db/d98/structstingray_1_1NullPointerException.html" title="stingray::NullPointerException" alt="" coords="365,929,555,956"/>
+<area shape="rect" id="node22" href="$d8/d42/structstingray_1_1OperationCanceledException.html" title="stingray::OperationCanceled\lException" alt="" coords="369,981,551,1022"/>
+<area shape="rect" id="node23" href="$db/d73/structstingray_1_1PipeClosedException.html" title="stingray::PipeClosedException" alt="" coords="363,1047,557,1073"/>
+<area shape="rect" id="node24" href="$d1/d93/structstingray_1_1PromiseAlreadySatisfied.html" title="stingray::PromiseAlready\lSatisfied" alt="" coords="379,1098,541,1139"/>
+<area shape="rect" id="node25" href="$df/d18/structstingray_1_1regex__error.html" title="stingray::regex_error" alt="" coords="392,1164,528,1191"/>
+<area shape="rect" id="node26" href="$d0/d99/classstingray_1_1SettingsValueException.html" title="stingray::SettingsValueException" alt="" coords="357,1215,563,1241"/>
+<area shape="rect" id="node27" href="$d1/d22/structstingray_1_1SocketException.html" title="stingray::SocketException" alt="" coords="375,1265,545,1292"/>
+<area shape="rect" id="node28" href="$d5/d94/structstingray_1_1SystemException.html" title="stingray::SystemException" alt="" coords="375,1316,545,1343"/>
+<area shape="rect" id="node29" href="$d3/d6c/structstingray_1_1TimeoutException.html" title="stingray::TimeoutException" alt="" coords="373,1367,547,1393"/>
+<area shape="rect" id="node30" href="$d6/d66/classstingray_1_1UnknownEntityTagException.html" title="stingray::UnknownEntityTag\lException" alt="" coords="371,1418,549,1459"/>
+<area shape="rect" id="node31" href="$dc/dc1/structstingray_1_1VisitorException.html" title="stingray::VisitorException" alt="" coords="379,1484,541,1511"/>
+<area shape="rect" id="node16" href="$dd/d41/structstingray_1_1MalformedJsonException.html" title="stingray::MalformedJsonException" alt="" coords="616,660,832,687"/>
+</map>

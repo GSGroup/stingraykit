@@ -1,0 +1,9 @@
+<map id="stingray::ObservableDictionaryWrapper&lt; Wrapped_ &gt;" name="stingray::ObservableDictionaryWrapper&lt; Wrapped_ &gt;">
+<area shape="rect" id="node3" href="$d5/d1c/structstingray_1_1IObservableDictionary.html" title="stingray::IObservableDictionary\l\&lt; Wrapped_::KeyType, Wrapped\l_::ValueType \&gt;" alt="" coords="1091,56,1296,112"/>
+<area shape="rect" id="node4" href="$d4/d84/structstingray_1_1IDictionary.html" title="stingray::IDictionary\l\&lt; Wrapped_::KeyType,\l Wrapped_::ValueType \&gt;" alt="" coords="859,16,1019,72"/>
+<area shape="rect" id="node5" href="$dc/dd9/structstingray_1_1IReadonlyDictionary.html" title="stingray::IReadonlyDictionary\l\&lt; Wrapped_::KeyType, Wrapped\l_::ValueType \&gt;" alt="" coords="581,56,787,112"/>
+<area shape="rect" id="node9" href="$d7/d76/structstingray_1_1IReadonlyObservableDictionary.html" title="stingray::IReadonlyObservable\lDictionary\&lt; Wrapped_::KeyType,\l Wrapped_::ValueType \&gt;" alt="" coords="835,96,1043,152"/>
+<area shape="rect" id="node6" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; KeyValuePair\&lt; Wrapped\l_::KeyType, Wrapped_::ValueType \&gt; \&gt;" alt="" coords="294,16,533,72"/>
+<area shape="rect" id="node7" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; KeyValuePair\&lt; Wrapped\l_::KeyType, Wrapped_::ValueType \&gt; \&gt;" alt="" coords="6,16,245,72"/>
+<area shape="rect" id="node8" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; KeyValuePair\&lt; Wrapped_::\lKeyType, Wrapped_::ValueType \&gt; \&gt;" alt="" coords="301,96,526,152"/>
+</map>

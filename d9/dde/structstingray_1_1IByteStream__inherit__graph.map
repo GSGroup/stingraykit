@@ -1,0 +1,8 @@
+<map id="stingray::IByteStream" name="stingray::IByteStream">
+<area shape="rect" id="node4" href="$d4/de4/classstingray_1_1BufferedStream.html" title="stingray::BufferedStream" alt="" coords="470,5,631,32"/>
+<area shape="rect" id="node5" href="$d4/de1/classstingray_1_1ByteStreamWithOffset.html" title="stingray::ByteStreamWith\lOffset" alt="" coords="467,57,634,98"/>
+<area shape="rect" id="node6" href="$dc/d74/classstingray_1_1ChunkedMemoryByteStream.html" title="stingray::ChunkedMemoryByte\lStream\&lt; ChunkType, ContainerType \&gt;" alt="" coords="430,122,671,163"/>
+<area shape="rect" id="node7" href="$d4/dd3/classstingray_1_1MemoryByteStream.html" title="stingray::MemoryByteStream\l\&lt; ContainerType \&gt;" alt="" coords="457,187,644,229"/>
+<area shape="rect" id="node2" href="$d6/d5a/structstingray_1_1IInputByteStream.html" title="stingray::IInputByteStream" alt="" coords="11,72,184,99"/>
+<area shape="rect" id="node3" href="$d1/dda/structstingray_1_1IOutputByteStream.html" title="stingray::IOutputByteStream" alt="" coords="6,123,189,149"/>
+</map>

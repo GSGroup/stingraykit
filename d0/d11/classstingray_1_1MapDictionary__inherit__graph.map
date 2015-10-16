@@ -1,0 +1,9 @@
+<map id="stingray::MapDictionary&lt; KeyType_, ValueType_, CompareType_ &gt;" name="stingray::MapDictionary&lt; KeyType_, ValueType_, CompareType_ &gt;">
+<area shape="rect" id="node7" href="$dd/d0e/structstingray_1_1ObservableDictionaryWrapper.html" title="ObservableDictionaryWrapper\l\&lt; MapDictionary\&lt; KeyType\l_, ValueType_, CompareType_ \&gt; \&gt;" alt="" coords="1144,44,1363,100"/>
+<area shape="rect" id="node2" href="$d4/d84/structstingray_1_1IDictionary.html" title="stingray::IDictionary\l\&lt; KeyType_, ValueType_ \&gt;" alt="" coords="715,51,890,93"/>
+<area shape="rect" id="node3" href="$dc/dd9/structstingray_1_1IReadonlyDictionary.html" title="stingray::IReadonlyDictionary\l\&lt; KeyType_, ValueType_ \&gt;" alt="" coords="480,51,667,93"/>
+<area shape="rect" id="node4" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; KeyValuePair\&lt; KeyType\l_, ValueType_ \&gt; \&gt;" alt="" coords="243,4,413,60"/>
+<area shape="rect" id="node5" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; KeyValuePair\&lt; KeyType\l_, ValueType_ \&gt; \&gt;" alt="" coords="5,4,176,60"/>
+<area shape="rect" id="node6" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; KeyValuePair\&lt; KeyType_,\l ValueType_ \&gt; \&gt;" alt="" coords="225,84,431,140"/>
+<area shape="rect" id="node8" href="$d0/df0/classstingray_1_1MapObservableDictionary.html" title="stingray::MapObservableDictionary\l\&lt; KeyType_, ValueType_, CompareType_ \&gt;" alt="" coords="1411,51,1680,93"/>
+</map>

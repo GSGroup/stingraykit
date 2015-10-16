@@ -1,0 +1,3 @@
+<map id="stingray::weak_locker_iterator&lt; WrappedIterator &gt;" name="stingray::weak_locker_iterator&lt; WrappedIterator &gt;">
+<area shape="rect" id="node2" href="$de/d7f/classstingray_1_1iterator__base.html" title="stingray::iterator\l_base\&lt; weak_locker_iterator\l\&lt; WrappedIterator \&gt;, shared\l_ptr\&lt; GetWeakPtrParam\&lt; std\l::iterator_traits\&lt; WrappedIterator\l \&gt;::value_type \&gt;::ValueT \&gt;, std\l::forward_iterator_tag, std::ptrdiff\l_t, const shared_ptr\&lt; GetWeakPtrParam\l\&lt; std::iterator_traits\&lt; WrappedIterator\l \&gt;::value_type \&gt;::ValueT \&gt; *, const shared\l_ptr\&lt; GetWeakPtrParam\&lt; std::iterator_traits\l\&lt; WrappedIterator \&gt;::value_type \&gt;::ValueT \&gt; &amp; \&gt;" alt="" coords="350,5,645,193"/>
+</map>

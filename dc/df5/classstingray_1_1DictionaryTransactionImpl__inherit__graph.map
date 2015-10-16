@@ -1,0 +1,8 @@
+<map id="stingray::DictionaryTransactionImpl&lt; Wrapped_, Comparer &gt;" name="stingray::DictionaryTransactionImpl&lt; Wrapped_, Comparer &gt;">
+<area shape="rect" id="node2" href="$da/d56/structstingray_1_1IDictionaryTransaction.html" title="stingray::IDictionaryTransaction\l\&lt; Wrapped_::KeyType, Wrapped\l_::ValueType \&gt;" alt="" coords="1043,44,1248,100"/>
+<area shape="rect" id="node3" href="$d4/d84/structstingray_1_1IDictionary.html" title="stingray::IDictionary\l\&lt; Wrapped_::KeyType,\l Wrapped_::ValueType \&gt;" alt="" coords="835,44,995,100"/>
+<area shape="rect" id="node4" href="$dc/dd9/structstingray_1_1IReadonlyDictionary.html" title="stingray::IReadonlyDictionary\l\&lt; Wrapped_::KeyType, Wrapped\l_::ValueType \&gt;" alt="" coords="581,44,787,100"/>
+<area shape="rect" id="node5" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; KeyValuePair\&lt; Wrapped\l_::KeyType, Wrapped_::ValueType \&gt; \&gt;" alt="" coords="294,4,533,60"/>
+<area shape="rect" id="node6" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; KeyValuePair\&lt; Wrapped\l_::KeyType, Wrapped_::ValueType \&gt; \&gt;" alt="" coords="6,4,245,60"/>
+<area shape="rect" id="node7" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; KeyValuePair\&lt; Wrapped_::\lKeyType, Wrapped_::ValueType \&gt; \&gt;" alt="" coords="301,84,526,140"/>
+</map>

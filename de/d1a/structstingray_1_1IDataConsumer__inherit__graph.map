@@ -1,0 +1,6 @@
+<map id="stingray::IDataConsumer" name="stingray::IDataConsumer">
+<area shape="rect" id="node2" href="$d2/d24/classstingray_1_1DataBufferBase.html" title="stingray::DataBufferBase" alt="" coords="247,5,409,32"/>
+<area shape="rect" id="node4" href="$db/da7/structstingray_1_1FunctorDataConsumer.html" title="stingray::FunctorDataConsumer\l\&lt; ProcessFunctorType, EodFunctor\lType \&gt;" alt="" coords="216,56,440,112"/>
+<area shape="rect" id="node5" href="$de/df4/structstingray_1_1IDataBuffer.html" title="stingray::IDataBuffer" alt="" coords="260,136,396,163"/>
+<area shape="rect" id="node3" href="$d1/d8e/classstingray_1_1DataBuffer.html" title="stingray::DataBuffer" alt="" coords="489,71,621,97"/>
+</map>

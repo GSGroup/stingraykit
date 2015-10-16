@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; KeyType_ \&gt;" alt="" coords="5,5,149,46"/>
+<area shape="rect" id="node2" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; KeyType_ \&gt;" alt="" coords="235,5,368,46"/>
+<area shape="rect" id="node3" href="$dc/db6/structstingray_1_1IReadonlySet.html" title="stingray::IReadonlySet\l\&lt; KeyType_ \&gt;" alt="" coords="453,38,603,79"/>
+<area shape="rect" id="node4" href="$d1/db9/structstingray_1_1IReadonlyObservableSet.html" title="stingray::IReadonlyObservable\lSet\&lt; KeyType_ \&gt;" alt="" coords="651,5,845,46"/>
+<area shape="rect" id="node6" href="$d7/ded/classstingray_1_1DictionaryKeysSet.html" title="stingray::DictionaryKeys\lSet\&lt; KeyType_, ValueType_ \&gt;" alt="" coords="651,70,845,111"/>
+<area shape="rect" id="node5" href="$d4/d13/classstingray_1_1ObservableDictionaryKeysSet.html" title="stingray::ObservableDictionary\lKeysSet\&lt; KeyType_, ValueType_ \&gt;" alt="" coords="894,5,1117,46"/>
+<area shape="rect" id="node7" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; KeyType_ \&gt;" alt="" coords="198,70,405,111"/>
+</map>

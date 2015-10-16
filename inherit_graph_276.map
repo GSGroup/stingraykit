@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$db/daa/structstingray_1_1ICircularBuffer.html" title="stingray::ICircularBuffer" alt="" coords="6,12,159,39"/>
+<area shape="rect" id="node2" href="$d9/d8c/classstingray_1_1CircularBufferBase.html" title="stingray::CircularBuffer\lBase\&lt; DiscardOnOverflow \&gt;" alt="" coords="209,5,391,46"/>
+<area shape="rect" id="node3" href="$d1/d7e/classstingray_1_1MemoryCircularBuffer.html" title="stingray::MemoryCircular\lBuffer\&lt; DiscardOnOverflow \&gt;" alt="" coords="440,5,627,46"/>
+</map>

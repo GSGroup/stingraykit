@@ -1,0 +1,33 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; ArrayList\&lt; ValueType\l_ \&gt;::ValueType \&gt;" alt="" coords="33,20,188,76"/>
+<area shape="rect" id="node2" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; ArrayList\&lt; ValueType\l_ \&gt;::ValueType \&gt;" alt="" coords="315,20,469,76"/>
+<area shape="rect" id="node3" href="$da/dd6/structstingray_1_1IReadonlyList.html" title="stingray::IReadonlyList\l\&lt; ArrayList\&lt; ValueType\l_ \&gt;::ValueType \&gt;" alt="" coords="596,45,751,101"/>
+<area shape="rect" id="node4" href="$df/d3c/structstingray_1_1IList.html" title="stingray::IList\&lt; ArrayList\l\&lt; ValueType_ \&gt;::ValueType \&gt;" alt="" coords="838,6,1026,47"/>
+<area shape="rect" id="node8" href="$d0/d2d/structstingray_1_1IReadonlyObservableList.html" title="stingray::IReadonlyObservable\lList\&lt; ArrayList\&lt; ValueType\l_ \&gt;::ValueType \&gt;" alt="" coords="835,71,1029,127"/>
+<area shape="rect" id="node5" href="$da/d7e/structstingray_1_1IObservableList.html" title="stingray::IObservableList\l\&lt; ArrayList\&lt; ValueType\l_ \&gt;::ValueType \&gt;" alt="" coords="1111,63,1271,119"/>
+<area shape="rect" id="node6" href="$d9/d0e/structstingray_1_1ObservableListWrapper.html" title="stingray::ObservableList\lWrapper\&lt; ArrayList\&lt; ValueType_ \&gt; \&gt;" alt="" coords="1371,106,1602,147"/>
+<area shape="rect" id="node7" href="$d8/d9c/classstingray_1_1ArrayObservableList.html" title="stingray::ArrayObservable\lList\&lt; ValueType_ \&gt;" alt="" coords="1707,106,1874,147"/>
+<area shape="rect" id="node9" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; SortedSet\&lt; ValueType\l_, CompareType_ \&gt;::ValueType \&gt;" alt="" coords="5,373,216,429"/>
+<area shape="rect" id="node10" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; SortedSet\&lt; ValueType\l_, CompareType_ \&gt;::ValueType \&gt;" alt="" coords="287,373,497,429"/>
+<area shape="rect" id="node11" href="$dc/db6/structstingray_1_1IReadonlySet.html" title="stingray::IReadonlySet\l\&lt; SortedSet\&lt; ValueType\l_, CompareType_ \&gt;::ValueType \&gt;" alt="" coords="568,445,779,501"/>
+<area shape="rect" id="node12" href="$d1/db9/structstingray_1_1IReadonlyObservableSet.html" title="stingray::IReadonlyObservable\lSet\&lt; SortedSet\&lt; ValueType\l_, CompareType_ \&gt;::ValueType \&gt;" alt="" coords="827,401,1037,457"/>
+<area shape="rect" id="node16" href="$d5/d66/structstingray_1_1ISet.html" title="stingray::ISet\&lt; SortedSet\l\&lt; ValueType_, CompareType\l_ \&gt;::ValueType \&gt;" alt="" coords="839,481,1025,537"/>
+<area shape="rect" id="node13" href="$dd/d46/structstingray_1_1IObservableSet.html" title="stingray::IObservableSet\l\&lt; SortedSet\&lt; ValueType\l_, CompareType_ \&gt;::ValueType \&gt;" alt="" coords="1085,403,1296,459"/>
+<area shape="rect" id="node14" href="$d2/d41/structstingray_1_1ObservableSetWrapper.html" title="stingray::ObservableSetWrapper\l\&lt; SortedSet\&lt; ValueType_, CompareType_ \&gt; \&gt;" alt="" coords="1344,341,1629,382"/>
+<area shape="rect" id="node15" href="$df/d58/classstingray_1_1SortedObservableSet.html" title="stingray::SortedObservable\lSet\&lt; ValueType_, CompareType_ \&gt;" alt="" coords="1678,341,1903,382"/>
+<area shape="rect" id="node17" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; ValueType_ \&gt;" alt="" coords="39,209,183,250"/>
+<area shape="rect" id="node18" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; ValueType_ \&gt;" alt="" coords="325,209,459,250"/>
+<area shape="rect" id="node19" href="$da/dd6/structstingray_1_1IReadonlyList.html" title="stingray::IReadonlyList\l\&lt; ValueType_ \&gt;" alt="" coords="599,209,748,250"/>
+<area shape="rect" id="node24" href="$dc/db6/structstingray_1_1IReadonlySet.html" title="stingray::IReadonlySet\l\&lt; ValueType_ \&gt;" alt="" coords="599,274,748,315"/>
+<area shape="rect" id="node20" href="$df/d3c/structstingray_1_1IList.html" title="stingray::IList\&lt; ValueType_ \&gt;" alt="" coords="839,157,1025,184"/>
+<area shape="rect" id="node23" href="$d0/d2d/structstingray_1_1IReadonlyObservableList.html" title="stingray::IReadonlyObservable\lList\&lt; ValueType_ \&gt;" alt="" coords="835,209,1029,250"/>
+<area shape="rect" id="node21" href="$dc/db5/classstingray_1_1ArrayList.html" title="stingray::ArrayList\l\&lt; ValueType_ \&gt;" alt="" coords="1129,142,1252,183"/>
+<area shape="rect" id="node22" href="$da/d7e/structstingray_1_1IObservableList.html" title="stingray::IObservableList\l\&lt; ValueType_ \&gt;" alt="" coords="1111,207,1271,249"/>
+<area shape="rect" id="node25" href="$d5/d66/structstingray_1_1ISet.html" title="stingray::ISet\&lt; ValueType_ \&gt;" alt="" coords="839,281,1025,308"/>
+<area shape="rect" id="node28" href="$d1/db9/structstingray_1_1IReadonlyObservableSet.html" title="stingray::IReadonlyObservable\lSet\&lt; ValueType_ \&gt;" alt="" coords="835,334,1029,375"/>
+<area shape="rect" id="node26" href="$d5/d73/classstingray_1_1SortedSet.html" title="stingray::SortedSet\l\&lt; ValueType_, CompareType_ \&gt;" alt="" coords="1088,273,1293,314"/>
+<area shape="rect" id="node27" href="$dd/d46/structstingray_1_1IObservableSet.html" title="stingray::IObservableSet\l\&lt; ValueType_ \&gt;" alt="" coords="1111,338,1271,379"/>
+<area shape="rect" id="node29" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; ArrayList\&lt; ValueType_ \&gt;\l::ValueType \&gt;" alt="" coords="289,100,495,156"/>
+<area shape="rect" id="node30" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; SortedSet\&lt; ValueType_, CompareType\l_ \&gt;::ValueType \&gt;" alt="" coords="264,453,520,509"/>
+<area shape="rect" id="node31" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; ValueType_ \&gt;" alt="" coords="289,274,495,315"/>
+</map>

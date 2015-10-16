@@ -1,0 +1,5 @@
+<map id="stingray::IPipe" name="stingray::IPipe">
+<area shape="rect" id="node4" href="$d6/d1e/classstingray_1_1BufferedPipe.html" title="stingray::BufferedPipe" alt="" coords="121,155,265,181"/>
+<area shape="rect" id="node2" href="$d6/d5a/structstingray_1_1IInputByteStream.html" title="stingray::IInputByteStream" alt="" coords="5,5,179,32"/>
+<area shape="rect" id="node3" href="$d1/dda/structstingray_1_1IOutputByteStream.html" title="stingray::IOutputByteStream" alt="" coords="203,5,385,32"/>
+</map>

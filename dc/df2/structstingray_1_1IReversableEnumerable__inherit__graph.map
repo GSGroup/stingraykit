@@ -1,0 +1,11 @@
+<map id="stingray::IReversableEnumerable&lt; T &gt;" name="stingray::IReversableEnumerable&lt; T &gt;">
+<area shape="rect" id="node2" href="$da/dd6/structstingray_1_1IReadonlyList.html" title="stingray::IReadonlyList\&lt; T \&gt;" alt="" coords="291,39,469,65"/>
+<area shape="rect" id="node5" href="$dc/db6/structstingray_1_1IReadonlySet.html" title="stingray::IReadonlySet\&lt; T \&gt;" alt="" coords="291,104,469,131"/>
+<area shape="rect" id="node3" href="$df/d3c/structstingray_1_1IList.html" title="stingray::IList\&lt; T \&gt;" alt="" coords="518,9,645,36"/>
+<area shape="rect" id="node4" href="$dc/db5/classstingray_1_1ArrayList.html" title="stingray::ArrayList\&lt; T \&gt;" alt="" coords="715,5,867,32"/>
+<area shape="rect" id="node6" href="$d5/d66/structstingray_1_1ISet.html" title="stingray::ISet\&lt; T \&gt;" alt="" coords="518,111,645,137"/>
+<area shape="rect" id="node7" href="$d2/d90/structstingray_1_1ISetTransaction.html" title="stingray::ISetTransaction\&lt; T \&gt;" alt="" coords="694,56,887,83"/>
+<area shape="rect" id="node9" href="$db/dcf/structstingray_1_1ITransactionalSet.html" title="stingray::ITransactional\lSet\&lt; T \&gt;" alt="" coords="714,107,867,149"/>
+<area shape="rect" id="node11" href="$d5/d73/classstingray_1_1SortedSet.html" title="stingray::SortedSet\&lt; T \&gt;" alt="" coords="711,173,871,200"/>
+<area shape="rect" id="node10" href="$d9/de9/classstingray_1_1TransactionalSet.html" title="stingray::TransactionalSet\&lt; T \&gt;" alt="" coords="951,115,1150,141"/>
+</map>

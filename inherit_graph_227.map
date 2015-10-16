@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d5/df4/structstingray_1_1function__info.html" title="stingray::function\l_info\&lt; void(stingray\l::CollectionOp, KeyType,\l ValueType) \&gt;" alt="" coords="5,13,168,83"/>
+<area shape="rect" id="node2" href="$d6/d76/structstingray_1_1signal.html" title="stingray::signal\&lt; void\l(stingray::CollectionOp,\l KeyType, ValueType), stingray\l::signal_policies::threading\l::ExternalMutexPointer \&gt;" alt="" coords="216,5,413,91"/>
+</map>

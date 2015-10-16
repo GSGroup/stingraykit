@@ -1,0 +1,9 @@
+<map id="stingray::TransformerMarker" name="stingray::TransformerMarker">
+<area shape="rect" id="node2" href="$d6/d22/structstingray_1_1AnyTransformer.html" title="stingray::AnyTransformer" alt="" coords="253,5,416,32"/>
+<area shape="rect" id="node3" href="$d9/d86/structstingray_1_1CastTransformer.html" title="stingray::CastTransformer\l\&lt; Dst_ \&gt;" alt="" coords="251,57,418,98"/>
+<area shape="rect" id="node4" href="$d0/d3c/structstingray_1_1FilterTransformer.html" title="stingray::FilterTransformer\l\&lt; Predicate_ \&gt;" alt="" coords="249,122,420,163"/>
+<area shape="rect" id="node5" href="$d5/d71/structstingray_1_1FirstOrDefaultTransformer.html" title="stingray::FirstOrDefault\lTransformer" alt="" coords="259,187,411,229"/>
+<area shape="rect" id="node6" href="$df/d50/structstingray_1_1OfTypeTransformer.html" title="stingray::OfTypeTransformer\l\&lt; Dst_ \&gt;" alt="" coords="243,253,426,294"/>
+<area shape="rect" id="node7" href="$dd/db1/structstingray_1_1ReverseTransformer.html" title="stingray::ReverseTransformer" alt="" coords="241,319,428,345"/>
+<area shape="rect" id="node8" href="$d7/d83/structstingray_1_1TransformTransformer.html" title="stingray::TransformTransformer\l\&lt; Functor_ \&gt;" alt="" coords="235,370,434,411"/>
+</map>

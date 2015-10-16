@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d8/d49/structstingray_1_1ICreator.html" title="stingray::ICreator\l\&lt; InterfaceType \&gt;" alt="" coords="32,21,155,62"/>
+<area shape="rect" id="node2" href="$d5/d49/structstingray_1_1DefaultConstructorCreator.html" title="stingray::DefaultConstructor\lCreator\&lt; InterfaceType,\l ClassType \&gt;" alt="" coords="229,5,408,61"/>
+<area shape="rect" id="node3" href="$d2/d30/structstingray_1_1SingleInstanceCreator.html" title="stingray::SingleInstance\lCreator\&lt; InterfaceType,\l ClassType \&gt;" alt="" coords="239,85,398,141"/>
+<area shape="rect" id="node4" href="$d4/d72/structstingray_1_1SingleInstanceCreatorBase.html" title="stingray::SingleInstance\lCreatorBase\&lt; ClassType \&gt;" alt="" coords="6,93,181,134"/>
+</map>

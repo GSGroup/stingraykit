@@ -1,0 +1,14 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d5/df4/structstingray_1_1function__info.html" title="stingray::function\l_info\&lt; int, UnspecifiedParam\lTypes \&gt;" alt="" coords="5,229,192,285"/>
+<area shape="rect" id="node2" href="$da/d44/structstingray_1_1comparers_1_1CmpComparerBase.html" title="stingray::comparers\l::CmpComparerBase\&lt; Cmp \&gt;" alt="" coords="261,5,451,46"/>
+<area shape="rect" id="node4" href="$da/d44/structstingray_1_1comparers_1_1CmpComparerBase.html" title="stingray::comparers\l::CmpComparerBase\&lt; Collection\lCmp\&lt; ItemCmp \&gt; \&gt;" alt="" coords="252,69,460,125"/>
+<area shape="rect" id="node6" href="$da/d44/structstingray_1_1comparers_1_1CmpComparerBase.html" title="stingray::comparers\l::CmpComparerBase\&lt; Comparable\lCmp \&gt;" alt="" coords="246,149,466,205"/>
+<area shape="rect" id="node8" href="$da/d44/structstingray_1_1comparers_1_1CmpComparerBase.html" title="stingray::comparers\l::CmpComparerBase\&lt; MemberList\lComparer\&lt; MemberPointerTuple \&gt; \&gt;" alt="" coords="241,229,471,285"/>
+<area shape="rect" id="node10" href="$da/d44/structstingray_1_1comparers_1_1CmpComparerBase.html" title="stingray::comparers\l::CmpComparerBase\&lt; Derived_ \&gt;" alt="" coords="250,309,462,350"/>
+<area shape="rect" id="node11" href="$da/df2/structstingray_1_1comparers_1_1LessToCmp.html" title="stingray::comparers\l::LessToCmp\&lt; LessComparer_ \&gt;" alt="" coords="253,374,459,415"/>
+<area shape="rect" id="node12" href="$df/dff/structstingray_1_1OwnerCmp.html" title="stingray::OwnerCmp" alt="" coords="288,440,424,467"/>
+<area shape="rect" id="node3" href="$db/d10/structstingray_1_1comparers_1_1Cmp.html" title="stingray::comparers::Cmp" alt="" coords="535,12,700,39"/>
+<area shape="rect" id="node5" href="$de/d8d/structstingray_1_1CollectionCmp.html" title="stingray::CollectionCmp\l\&lt; ItemCmp \&gt;" alt="" coords="539,77,695,118"/>
+<area shape="rect" id="node7" href="$d1/d3c/structstingray_1_1ComparableCmp.html" title="stingray::ComparableCmp" alt="" coords="533,164,701,191"/>
+<area shape="rect" id="node9" href="$dc/ddf/structstingray_1_1MemberListComparer.html" title="stingray::MemberListComparer\l\&lt; MemberPointerTuple \&gt;" alt="" coords="520,237,715,278"/>
+</map>

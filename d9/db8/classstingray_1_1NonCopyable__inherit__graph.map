@@ -1,0 +1,15 @@
+<map id="stingray::NonCopyable" name="stingray::NonCopyable">
+<area shape="rect" id="node2" href="$df/d5f/classstingray_1_1atomic.html" title="stingray::atomic\&lt; bool \&gt;" alt="" coords="216,5,373,32"/>
+<area shape="rect" id="node3" href="$df/d5f/classstingray_1_1atomic.html" title="stingray::atomic\&lt; Integer\lType \&gt;" alt="" coords="213,57,376,98"/>
+<area shape="rect" id="node4" href="$df/d5f/classstingray_1_1atomic.html" title="stingray::atomic\&lt; Optional\lLogLevel \&gt;" alt="" coords="209,122,380,163"/>
+<area shape="rect" id="node5" href="$d5/d4e/classstingray_1_1self__counter.html" title="stingray::self_counter\l\&lt; ISignalConnector \&gt;" alt="" coords="223,187,366,229"/>
+<area shape="rect" id="node7" href="$d5/d4e/classstingray_1_1self__counter.html" title="stingray::self_counter\l\&lt; IToken \&gt;" alt="" coords="223,253,366,294"/>
+<area shape="rect" id="node12" href="$d5/d4e/classstingray_1_1self__counter.html" title="stingray::self_counter\l\&lt; SettingsValue \&gt;" alt="" coords="223,318,366,359"/>
+<area shape="rect" id="node14" href="$d5/d4e/classstingray_1_1self__counter.html" title="stingray::self_counter\l\&lt; TaskLifeTokenImpl \&gt;" alt="" coords="217,383,372,425"/>
+<area shape="rect" id="node16" href="$df/d5f/classstingray_1_1atomic.html" title="stingray::atomic\&lt; T \&gt;" alt="" coords="224,449,365,476"/>
+<area shape="rect" id="node21" href="$d5/d4e/classstingray_1_1self__counter.html" title="stingray::self_counter\&lt; T \&gt;" alt="" coords="209,820,381,847"/>
+<area shape="rect" id="node22" href="$d9/dd4/classstingray_1_1Spinlock.html" title="stingray::Spinlock" alt="" coords="233,871,356,897"/>
+<area shape="rect" id="node8" href="$dd/dfe/structstingray_1_1IToken.html" title="stingray::IToken" alt="" coords="459,260,571,287"/>
+<area shape="rect" id="node10" href="$d8/d6d/classstingray_1_1FunctionToken.html" title="stingray::FunctionToken" alt="" coords="649,260,807,287"/>
+<area shape="rect" id="node13" href="$da/d03/classstingray_1_1SettingsValue.html" title="stingray::SettingsValue" alt="" coords="439,325,590,352"/>
+</map>

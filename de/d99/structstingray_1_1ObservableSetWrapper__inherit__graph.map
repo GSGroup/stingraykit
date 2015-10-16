@@ -1,0 +1,9 @@
+<map id="stingray::ObservableSetWrapper&lt; Wrapped_ &gt;" name="stingray::ObservableSetWrapper&lt; Wrapped_ &gt;">
+<area shape="rect" id="node3" href="$dd/d46/structstingray_1_1IObservableSet.html" title="stingray::IObservableSet\l\&lt; Wrapped_::ValueType \&gt;" alt="" coords="936,57,1104,98"/>
+<area shape="rect" id="node4" href="$d5/d66/structstingray_1_1ISet.html" title="stingray::ISet\&lt; Wrapped\l_::ValueType \&gt;" alt="" coords="711,23,870,65"/>
+<area shape="rect" id="node5" href="$dc/db6/structstingray_1_1IReadonlySet.html" title="stingray::IReadonlySet\l\&lt; Wrapped_::ValueType \&gt;" alt="" coords="477,57,645,98"/>
+<area shape="rect" id="node9" href="$d1/db9/structstingray_1_1IReadonlyObservableSet.html" title="stingray::IReadonlyObservable\lSet\&lt; Wrapped_::ValueType \&gt;" alt="" coords="694,89,887,130"/>
+<area shape="rect" id="node6" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; Wrapped_::ValueType \&gt;" alt="" coords="241,23,409,65"/>
+<area shape="rect" id="node7" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; Wrapped_::ValueType \&gt;" alt="" coords="5,23,173,65"/>
+<area shape="rect" id="node8" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; Wrapped_::ValueType \&gt;" alt="" coords="222,89,429,130"/>
+</map>

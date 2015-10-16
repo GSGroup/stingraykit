@@ -1,0 +1,7 @@
+<map id="stingray::IReadonlyObservableDictionary&lt; KeyType_, ValueType_ &gt;" name="stingray::IReadonlyObservableDictionary&lt; KeyType_, ValueType_ &gt;">
+<area shape="rect" id="node6" href="$d5/d1c/structstingray_1_1IObservableDictionary.html" title="stingray::IObservableDictionary\l\&lt; KeyType_, ValueType_ \&gt;" alt="" coords="995,51,1192,93"/>
+<area shape="rect" id="node2" href="$dc/dd9/structstingray_1_1IReadonlyDictionary.html" title="stingray::IReadonlyDictionary\l\&lt; KeyType_, ValueType_ \&gt;" alt="" coords="480,51,667,93"/>
+<area shape="rect" id="node3" href="$dd/d59/structstingray_1_1ICollection.html" title="stingray::ICollection\l\&lt; KeyValuePair\&lt; KeyType\l_, ValueType_ \&gt; \&gt;" alt="" coords="243,4,413,60"/>
+<area shape="rect" id="node4" href="$d9/d53/structstingray_1_1IEnumerable.html" title="stingray::IEnumerable\l\&lt; KeyValuePair\&lt; KeyType\l_, ValueType_ \&gt; \&gt;" alt="" coords="5,4,176,60"/>
+<area shape="rect" id="node5" href="$d3/dcc/structstingray_1_1IReversableEnumerable.html" title="stingray::IReversableEnumerable\l\&lt; KeyValuePair\&lt; KeyType_,\l ValueType_ \&gt; \&gt;" alt="" coords="225,84,431,140"/>
+</map>

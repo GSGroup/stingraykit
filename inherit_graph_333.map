@@ -1,0 +1,11 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d6/d5a/structstingray_1_1IInputByteStream.html" title="stingray::IInputByteStream" alt="" coords="11,143,184,169"/>
+<area shape="rect" id="node2" href="$dc/d02/structstingray_1_1IByteStream.html" title="stingray::IByteStream" alt="" coords="237,143,381,169"/>
+<area shape="rect" id="node7" href="$db/d47/structstingray_1_1IPipe.html" title="stingray::IPipe" alt="" coords="258,193,361,220"/>
+<area shape="rect" id="node3" href="$d4/de4/classstingray_1_1BufferedStream.html" title="stingray::BufferedStream" alt="" coords="470,201,631,228"/>
+<area shape="rect" id="node4" href="$d4/de1/classstingray_1_1ByteStreamWithOffset.html" title="stingray::ByteStreamWith\lOffset" alt="" coords="467,5,634,46"/>
+<area shape="rect" id="node5" href="$dc/d74/classstingray_1_1ChunkedMemoryByteStream.html" title="stingray::ChunkedMemoryByte\lStream\&lt; ChunkType, ContainerType \&gt;" alt="" coords="430,70,671,111"/>
+<area shape="rect" id="node6" href="$d4/dd3/classstingray_1_1MemoryByteStream.html" title="stingray::MemoryByteStream\l\&lt; ContainerType \&gt;" alt="" coords="457,135,644,177"/>
+<area shape="rect" id="node8" href="$d6/d1e/classstingray_1_1BufferedPipe.html" title="stingray::BufferedPipe" alt="" coords="478,252,623,279"/>
+<area shape="rect" id="node9" href="$d1/dda/structstingray_1_1IOutputByteStream.html" title="stingray::IOutputByteStream" alt="" coords="6,193,189,220"/>
+</map>
