@@ -15,13 +15,13 @@
 #include <memory>
 #include <string>
 
-#include <stingraykit/log/Logger.h>
-#include <stingraykit/thread/osplus/OS21ThreadEngine.h>
-#include <stingraykit/thread/osplus/OS21TaskPrivate.h>
-#include <stingraykit/thread/GenericMutexLock.h>
-#include <stingraykit/Atomic.h>
 #include <stingraykit/exception.h>
+#include <stingraykit/log/Logger.h>
 #include <stingraykit/string/ToString.h>
+#include <stingraykit/thread/GenericMutexLock.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
+#include <stingraykit/thread/osplus/OS21TaskPrivate.h>
+#include <stingraykit/thread/osplus/OS21ThreadEngine.h>
 
 
 namespace stingray
@@ -35,7 +35,7 @@ namespace stingray
 
 		struct OS21TLSUserData : public ITLSUserData
 		{
-			static atomic_int_type	s_threadIdGenerator;
+			static AtomicU32::Type	s_threadIdGenerator;
 
 			u32						ThreadId;
 			bool					InterruptRequired;
@@ -43,7 +43,7 @@ namespace stingray
 			OS21Mutex				Mutex;
 
 			OS21TLSUserData(task_t* taskPtr)
-				: ThreadId(Atomic::Inc(s_threadIdGenerator)),
+				: ThreadId(AtomicU32::Inc(s_threadIdGenerator)),
 				  InterruptRequired(false),
 				  DisableInterruptionPoints(0)
 			{ }
@@ -51,7 +51,7 @@ namespace stingray
 			STINGRAYKIT_NONCOPYABLE(OS21TLSUserData);
 		};
 
-		atomic_int_type OS21TLSUserData::s_threadIdGenerator = 0;
+		AtomicU32::Type OS21TLSUserData::s_threadIdGenerator = 0;
 
 
 		struct TLSDataHolder

@@ -62,7 +62,7 @@ namespace stingray
 
 
 	bool CancellationToken::IsCancelled() const
-	{ return _cancelled.load(memory_order_relaxed); }
+	{ return _cancelled.load(MemoryOrderRelaxed); }
 
 
 	bool CancellationToken::TryRegisterCancellationHandler(ICancellationHandler& handler) const

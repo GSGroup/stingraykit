@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/Atomic.h>
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/Dummy.h>
 #include <stingraykit/Macro.h>
@@ -22,6 +21,7 @@
 #include <stingraykit/fatal.h>
 #include <stingraykit/safe_bool.h>
 #include <stingraykit/toolkit.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
 
 #include <sys/types.h>
 
@@ -60,8 +60,8 @@ namespace stingray
 	{
 		struct ISharedPtrData : public TypeErasureBase
 		{
-			atomic_int_type		_strongReferences;
-			atomic_int_type		_weakReferences;
+			AtomicU32::Type _strongReferences;
+			AtomicU32::Type _weakReferences;
 
 			ISharedPtrData() : _strongReferences(1), _weakReferences(1)
 			{ }
@@ -177,7 +177,7 @@ namespace stingray
 			void AddWeakReference()
 			{
 				if (_value.Get())
-					Atomic::Inc(_value.Get()->_weakReferences);
+					AtomicU32::Inc(_value.Get()->_weakReferences);
 			}
 
 			void ReleaseWeakReference()
@@ -185,7 +185,7 @@ namespace stingray
 				if (!_value.Get())
 					return;
 
-				atomic_int_type result = Atomic::Dec(_value.Get()->_weakReferences);
+				u32 result = AtomicU32::Dec(_value.Get()->_weakReferences);
 				if (result == 0)
 				{
 					STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&_value.Get()->_weakReferences);
@@ -197,22 +197,22 @@ namespace stingray
 					STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(&_value.Get()->_weakReferences);
 			}
 
-			atomic_int_type GetStrongReferences() const
-			{ return _value.Get() ? _value.Get()->_strongReferences : 0; }
+			u32 GetStrongReferences() const
+			{ return _value.Get() ? AtomicU32::Load(_value.Get()->_strongReferences) : 0; }
 
-			atomic_int_type AddStrongReference()
+			u32 AddStrongReference()
 			{
 				if (!_value.Get())
 					return 0;
-				return Atomic::Inc(_value.Get()->_strongReferences);
+				return AtomicU32::Inc(_value.Get()->_strongReferences);
 			}
 
-			atomic_int_type ReleaseStrongReference()
+			u32 ReleaseStrongReference()
 			{
 				if (!_value.Get())
 					return 0;
 
-				atomic_int_type result = Atomic::Dec(_value.Get()->_strongReferences);
+				u32 result = AtomicU32::Dec(_value.Get()->_strongReferences);
 				if (result == 0)
 				{
 					STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&_value.Get()->_strongReferences);
@@ -230,7 +230,7 @@ namespace stingray
 				if (!_value.Get())
 					return false;
 
-				atomic_int_type c = Atomic::CompareAndExchange(_value.Get()->_strongReferences, 1, 0);
+				u32 c = AtomicU32::CompareAndExchange(_value.Get()->_strongReferences, 1, 0);
 				if (c != 1)
 					return false;
 
@@ -240,15 +240,15 @@ namespace stingray
 				return true;
 			}
 
-			atomic_int_type TryAddStrongReference()
+			u32 TryAddStrongReference()
 			{
 				if (!_value.Get())
 					return 0;
 
-				atomic_int_type c = Atomic::Load(_value.Get()->_strongReferences);
+				u32 c = AtomicU32::Load(_value.Get()->_strongReferences);
 				while (c != 0)
 				{
-					atomic_int_type newc = Atomic::CompareAndExchange(_value.Get()->_strongReferences, c, c + 1);
+					u32 newc = AtomicU32::CompareAndExchange(_value.Get()->_strongReferences, c, c + 1);
 					if (newc == c)
 						return newc;
 					c = newc;
@@ -269,24 +269,24 @@ namespace stingray
 
 #undef DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE
 
-		void DoLogAddRef(const char* className, atomic_int_type refs, const void* objPtrVal, const void* sharedPtrPtrVal);
-		void DoLogReleaseRef(const char* className, atomic_int_type refs, const void* objPtrVal, const void* sharedPtrPtrVal);
+		void DoLogAddRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal);
+		void DoLogReleaseRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal);
 
 
 		template < typename T, bool DoTrace = shared_ptr_traits<T>::trace_ref_counts >
 		struct SharedPtrRefCounter
 		{
-			static void LogAddRef(atomic_int_type referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)		{ }
-			static void LogReleaseRef(atomic_int_type referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)	{ }
+			static void LogAddRef(u32 referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)		{ }
+			static void LogReleaseRef(u32 referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)	{ }
 		};
 
 		template < typename T >
 		struct SharedPtrRefCounter<T, true>
 		{
-			static void LogAddRef(atomic_int_type referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)
+			static void LogAddRef(u32 referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)
 			{ Detail::DoLogAddRef(shared_ptr_traits<T>::get_trace_class_name(), referencesCount, objPtrVal, sharedPtrPtrVal); }
 
-			static void LogReleaseRef(atomic_int_type referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)
+			static void LogReleaseRef(u32 referencesCount, const void* objPtrVal, const void* sharedPtrPtrVal)
 			{ Detail::DoLogReleaseRef(shared_ptr_traits<T>::get_trace_class_name(), referencesCount, objPtrVal, sharedPtrPtrVal); }
 		};
 	}
@@ -461,14 +461,14 @@ namespace stingray
 		{ }
 
 
-		void LogAddRef(atomic_int_type referencesCount)
+		void LogAddRef(u32 referencesCount)
 		{
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::LogAddRef(referencesCount, _rawPtr, this);
 		}
 
 
-		void LogReleaseRef(atomic_int_type referencesCount)
+		void LogReleaseRef(u32 referencesCount)
 		{
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::LogReleaseRef(referencesCount, _rawPtr, this);
@@ -534,7 +534,7 @@ namespace stingray
 
 		inline shared_ptr<T> lock() const
 		{
-			atomic_int_type sc = _impl.TryAddStrongReference();
+			u32 sc = _impl.TryAddStrongReference();
 			if (sc == 0)
 				return shared_ptr<T>();
 

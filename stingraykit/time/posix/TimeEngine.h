@@ -12,9 +12,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include <stingraykit/thread/Thread.h>
 #include <stingraykit/time/BrokenDownTime.h>
-#include <stingraykit/Atomic.h>
 
 
 namespace stingray {
@@ -23,12 +21,6 @@ namespace posix
 
 	class TimeEngine
 	{
-	private:
-		static atomic_int_type		s_minutesFromUtc;
-#ifndef PLATFORM_EMBEDDED
-		static atomic_int_type		s_deltaMilliseconds;
-#endif
-
 	public:
 		static s64 GetMillisecondsSinceEpoch();
 		static void SetMillisecondsSinceEpoch(s64 milliseconds);

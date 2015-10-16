@@ -264,13 +264,13 @@ namespace stingray
 
 	void Logger::SetLogLevel(LogLevel logLevel)
 	{
-		Atomic::Store(LogLevelHolder::s_logLevel, (u32)logLevel.val(), memory_order_relaxed);
+		AtomicU32::Store(LogLevelHolder::s_logLevel, (u32)logLevel.val(), MemoryOrderRelaxed);
 		Stream(logLevel) << "Log level is " << logLevel;
 	}
 
 
 	LogLevel Logger::GetLogLevel()
-	{ return (LogLevel::Enum)Atomic::Load(LogLevelHolder::s_logLevel, memory_order_relaxed); }
+	{ return (LogLevel::Enum)AtomicU32::Load(LogLevelHolder::s_logLevel, MemoryOrderRelaxed); }
 
 
 	LoggerStream Logger::Stream(LogLevel logLevel, DuplicatingLogsFilter* duplicatingLogsFilter)
@@ -342,14 +342,14 @@ namespace stingray
 
 	LogLevel NamedLogger::GetLogLevel() const
 	{
-		optional<LogLevel> logLevel = OptionalLogLevel::ToLogLevel(_logLevel.load(memory_order_relaxed));
+		optional<LogLevel> logLevel = OptionalLogLevel::ToLogLevel(_logLevel.load(MemoryOrderRelaxed));
 		return logLevel ? *logLevel : Logger::GetLogLevel();
 	}
 
 
 	void NamedLogger::SetLogLevel(optional<LogLevel> logLevel)
 	{
-		_logLevel.store(OptionalLogLevel::FromLogLevel(logLevel), memory_order_relaxed);
+		_logLevel.store(OptionalLogLevel::FromLogLevel(logLevel), MemoryOrderRelaxed);
 		Stream(GetLogLevel()) << "Log level is " << logLevel;
 	}
 

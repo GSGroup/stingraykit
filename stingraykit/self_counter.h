@@ -8,11 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/Atomic.h>
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/Dummy.h>
+#include <stingraykit/core/NonCopyable.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/safe_bool.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
 
 #define STINGRAYKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
 
@@ -102,13 +103,11 @@ namespace stingray
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
 	};
 
-	template<typename T>
-	class self_counter
-	{
-		mutable atomic_int_type	_value;
 
-	private:
-		STINGRAYKIT_NONCOPYABLE(self_counter);
+	template<typename T>
+	class self_counter : private NonCopyable
+	{
+		mutable AtomicS32::Type	_value;
 
 	protected:
 		~self_counter() {}
@@ -125,13 +124,13 @@ namespace stingray
 
 		inline void add_ref() const
 		{
-			atomic_int_type count = Atomic::Inc(_value); (void)count;
+			s32 count = AtomicS32::Inc(_value); (void)count;
 			STINGRAYKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckAddRef(count));
 		}
 
 		inline void release_ref() const
 		{
-			atomic_int_type count = Atomic::Dec(_value);
+			s32 count = AtomicS32::Dec(_value);
 			if (count == 0)
 			{
 				STINGRAYKIT_ANNOTATE_HAPPENS_AFTER(&_value);

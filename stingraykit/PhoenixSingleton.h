@@ -8,8 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/Atomic.h>
 #include <stingraykit/CheckedDelete.h>
+#include <stingraykit/thread/atomic/AtomicFlag.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
+#include <stingraykit/thread/atomic/Spinlock.h>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -26,40 +28,41 @@ namespace stingray
 	class PhoenixSingleton
 	{
 		typedef T InstanceType;
+		typedef BasicAtomicInt<intptr_t> AtomicInstance;
 
 	public:
 		static T& Instance()
 		{
-			InstanceType* instance = reinterpret_cast<InstanceType*>(Atomic::Load(s_instance));
+			InstanceType* instance = reinterpret_cast<InstanceType*>(AtomicInstance::Load(s_instance));
 			if (!instance)
 			{
 				Spinlock l(s_lock);
-				instance = reinterpret_cast<InstanceType*>(Atomic::Load(s_instance));
+				instance = reinterpret_cast<InstanceType*>(AtomicInstance::Load(s_instance));
 				if (instance)
 					return *instance;
 				instance = new InstanceType();
-				Atomic::Store(s_instance, (intptr_t)instance);
+				AtomicInstance::Store(s_instance, (intptr_t)instance);
 				atexit(do_atexit);
 			}
 			return *instance;
 		}
 
 	private:
-		static atomic_int_type	s_lock;
-		static intptr_t			s_instance;
+		static AtomicFlag::Type		s_lock;
+		static AtomicInstance::Type	s_instance;
 
 		static void do_atexit()
 		{
 			Spinlock l(s_lock);
-			InstanceType* instance = reinterpret_cast<InstanceType*>(Atomic::Load(s_instance));
+			InstanceType* instance = reinterpret_cast<InstanceType*>(AtomicInstance::Load(s_instance));
 			assert(instance);
 			CheckedDelete(instance);
-			Atomic::Store(s_instance, (intptr_t)0);
+			AtomicInstance::Store(s_instance, (intptr_t)0);
 		}
 	};
 
-	template <typename T> atomic_int_type PhoenixSingleton<T>::s_lock = 0;
-	template <typename T> intptr_t PhoenixSingleton<T>::s_instance = 0;
+	template <typename T> AtomicFlag::Type PhoenixSingleton<T>::s_lock = 0;
+	template <typename T> BasicAtomicInt<intptr_t>::Type PhoenixSingleton<T>::s_instance = 0;
 
 
 }

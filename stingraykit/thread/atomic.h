@@ -8,9 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/core/NonCopyable.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/toolkit.h>
-#include <stingraykit/Atomic.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
 
 namespace stingray
 {
@@ -19,13 +19,13 @@ namespace stingray
 	{
 		struct AtomicImplType
 		{
-			STINGRAYKIT_ENUM_VALUES(
+			enum Enum
+			{
 				Bool,
 				Integral,
 				EnumClass,
-				Fallback);
-
-			STINGRAYKIT_DECLARE_ENUM_CLASS(AtomicImplType);
+				Fallback
+			};
 		};
 
 
@@ -36,73 +36,60 @@ namespace stingray
 		class AtomicImpl;
 
 
-		template <>
-		class AtomicImpl<bool, AtomicImplType::Bool>
+		template < >
+		class AtomicImpl<bool, AtomicImplType::Bool> : private NonCopyable
 		{
-			STINGRAYKIT_NONCOPYABLE(AtomicImpl);
-
 		private:
-			mutable atomic_int_type _value;
+			mutable AtomicU32::Type _value;
 
 		public:
-			AtomicImpl()											{ }
-			AtomicImpl(bool value) : _value((atomic_int_type)value)	{ }
+			AtomicImpl()								{ }
+			AtomicImpl(bool value) : _value(value)		{ }
 
-			bool load(memory_order order) const			{ return (bool)Atomic::Load(_value, order); }
-			void store(bool value, memory_order order)	{ Atomic::Store(_value, (atomic_int_type)value, order); }
+			bool load(MemoryOrder order) const			{ return AtomicU32::Load(_value, order); }
+			void store(bool value, MemoryOrder order)	{ AtomicU32::Store(_value, value, order); }
 		};
 
 
 		template<typename T>
-		class AtomicImpl<T, AtomicImplType::Integral>
+		class AtomicImpl<T, AtomicImplType::Integral> : private NonCopyable
 		{
-			STINGRAYKIT_NONCOPYABLE(AtomicImpl);
+		private:
+			typedef BasicAtomicInt<T> AtomicType;
 
 		private:
-			typedef atomic_int_type AtomicType;
-			typedef typename EnableIf<sizeof(AtomicType) >= sizeof(T), AtomicType>::ValueT	Value;
-
-		private:
-			mutable Value _value;
+			mutable typename AtomicType::Type _value;
 
 		public:
 			AtomicImpl()							{ }
-			AtomicImpl(T t) : _value((Value)t)		{ }
+			AtomicImpl(T t) : _value(t)				{ }
 
-			T fetch_add(T arg, memory_order order) { return (T)Atomic::Add(_value, (Value)arg, order) - 1; }
-			T fetch_sub(T arg, memory_order order) { return (T)Atomic::Sub(_value, (Value)arg, order) + 1; }
+			T fetch_add(T arg, MemoryOrder order)	{ return AtomicType::Add(_value, arg, order) - 1; }
+			T fetch_sub(T arg, MemoryOrder order)	{ return AtomicType::Sub(_value, arg, order) + 1; }
 
-			T load(memory_order order) const		{ return (T)Atomic::Load(_value, order); }
-			void store(T value, memory_order order)	{ Atomic::Store(_value, (Value)value, order); }
+			T load(MemoryOrder order) const			{ return AtomicType::Load(_value, order); }
+			void store(T value, MemoryOrder order)	{ AtomicType::Store(_value, value, order); }
 		};
 
 
 		template<typename T>
-		class AtomicImpl<T, AtomicImplType::EnumClass>
+		class AtomicImpl<T, AtomicImplType::EnumClass> : private NonCopyable
 		{
-			STINGRAYKIT_NONCOPYABLE(AtomicImpl);
-
 		private:
-			typedef atomic_int_type AtomicType;
-			typedef typename EnableIf<sizeof(AtomicType) >= sizeof(typename T::Enum), AtomicType>::ValueT	Value;
-
-		private:
-			mutable Value _value;
+			mutable AtomicS32::Type _value;
 
 		public:
 			AtomicImpl()							{ }
-			AtomicImpl(T t) : _value((Value)t)		{ }
+			AtomicImpl(T t) : _value((s32)t)		{ }
 
-			T load(memory_order order) const		{ return (typename T::Enum)Atomic::Load(_value, order); }
-			void store(T value, memory_order order)	{ Atomic::Store(_value, (Value)value.val(), order); }
+			T load(MemoryOrder order) const			{ return (typename T::Enum)AtomicS32::Load(_value, order); }
+			void store(T value, MemoryOrder order)	{ AtomicS32::Store(_value, (s32)value.val(), order); }
 		};
 
 
 		template<typename T>
-		class AtomicImpl<T, AtomicImplType::Fallback>
+		class AtomicImpl<T, AtomicImplType::Fallback> : private NonCopyable
 		{
-			STINGRAYKIT_NONCOPYABLE(AtomicImpl);
-
 		private:
 			Mutex	_mutex;
 			T		_value;
@@ -111,38 +98,36 @@ namespace stingray
 			AtomicImpl()							{ }
 			AtomicImpl(T t) : _value(t)				{ }
 
-			T load(memory_order order) const		{ MutexLock l(_mutex); return _value; }
-			void store(T value, memory_order order)	{ MutexLock l(_mutex); _value = value; }
+			T load(MemoryOrder order) const			{ MutexLock l(_mutex); return _value; }
+			void store(T value, MemoryOrder order)	{ MutexLock l(_mutex); _value = value; }
 		};
 	}
 
 
 	template<typename T>
-	class atomic
+	class atomic : private NonCopyable
 	{
-		STINGRAYKIT_NONCOPYABLE(atomic);
-
 	private:
 		Detail::AtomicImpl<T>	_impl;
 
 	public:
-		atomic()														{ }
-		atomic(T t) : _impl(t)											{ }
+		atomic()													{ }
+		atomic(T t) : _impl(t)										{ }
 
-		T load(memory_order order = memory_order_seq_cst) const			{ return _impl.load(order); }
-		void store(T value, memory_order order = memory_order_seq_cst)	{ _impl.store(value, order); }
+		T load(MemoryOrder order = MemoryOrderSeqCst) const			{ return _impl.load(order); }
+		void store(T value, MemoryOrder order = MemoryOrderSeqCst)	{ _impl.store(value, order); }
 
-		T operator= (T value)											{ store(value); return value; }
-		operator T () const												{ return load(); }
+		T operator= (T value)										{ store(value); return value; }
+		operator T () const											{ return load(); }
 
-		T fetch_add(T arg, memory_order order = memory_order_seq_cst)	{ return _impl.fetch_add(arg, order); }
-		T fetch_sub(T arg, memory_order order = memory_order_seq_cst)	{ return _impl.fetch_sub(arg, order); }
+		T fetch_add(T arg, MemoryOrder order = MemoryOrderSeqCst)	{ return _impl.fetch_add(arg, order); }
+		T fetch_sub(T arg, MemoryOrder order = MemoryOrderSeqCst)	{ return _impl.fetch_sub(arg, order); }
 
-		T operator++()													{ return fetch_add(1) + 1; }
-		T operator++(int)												{ return fetch_add(1); }
+		T operator++()												{ return fetch_add(1) + 1; }
+		T operator++(int)											{ return fetch_add(1); }
 
-		T operator--()													{ return fetch_sub(1) - 1; }
-		T operator--(int)												{ return fetch_sub(1); }
+		T operator--()												{ return fetch_sub(1) - 1; }
+		T operator--(int)											{ return fetch_sub(1); }
 	};
 
 }

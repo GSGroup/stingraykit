@@ -7,9 +7,9 @@
 
 #include <stingraykit/time/posix/TimeEngine.h>
 
-#include <stingraykit/exception.h>
 #include <stingraykit/SystemException.h>
-
+#include <stingraykit/exception.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
 
 namespace stingray { namespace posix
 {
@@ -74,10 +74,22 @@ namespace stingray { namespace posix
 
 #endif
 
-	atomic_int_type		TimeEngine::s_minutesFromUtc	= 0;
+	namespace
+	{
+		struct AtomicsHolder
+		{
+			static AtomicS32::Type	s_minutesFromUtc;
 #ifndef PLATFORM_EMBEDDED
-	atomic_int_type		TimeEngine::s_deltaMilliseconds = 0;
+			static AtomicS64::Type	s_deltaMilliseconds;
 #endif
+		};
+
+		AtomicS32::Type		AtomicsHolder::s_minutesFromUtc	= 0;
+#ifndef PLATFORM_EMBEDDED
+		AtomicS64::Type		AtomicsHolder::s_deltaMilliseconds = 0;
+#endif
+	}
+
 
 	void TimeEngine::SetMillisecondsSinceEpoch(s64 milliseconds)
 	{
@@ -93,7 +105,7 @@ namespace stingray { namespace posix
 			STINGRAYKIT_THROW(SystemException("gettimeofday"));
 
 		s64 ms = (s64)tv.tv_sec * 1000 + tv.tv_usec / 1000;
-		Atomic::Store(s_deltaMilliseconds, milliseconds - ms);
+		AtomicS64::Store(AtomicsHolder::s_deltaMilliseconds, milliseconds - ms);
 #endif
 	}
 
@@ -107,15 +119,15 @@ namespace stingray { namespace posix
 #ifdef PLATFORM_EMBEDDED
 		return ms;
 #else
-		return ms + Atomic::Load(s_deltaMilliseconds);
+		return ms + AtomicS64::Load(AtomicsHolder::s_deltaMilliseconds);
 #endif
 	}
 
 	s16 TimeEngine::GetMinutesFromUtc()
-	{ return Atomic::Load(s_minutesFromUtc); }
+	{ return AtomicS32::Load(AtomicsHolder::s_minutesFromUtc); }
 
 	void TimeEngine::SetMinutesFromUtc(s16 minutes)
-	{ Atomic::Store(s_minutesFromUtc, minutes); }
+	{ AtomicS32::Store(AtomicsHolder::s_minutesFromUtc, minutes); }
 
 	s64 TimeEngine::MillisecondsFromBrokenDown(const BrokenDownTime& bdTime)
 	{

@@ -9,10 +9,10 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/log/SystemLogger.h>
-#include <stingraykit/thread/call_once.h>
-#include <stingraykit/Atomic.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/log/SystemLogger.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
+#include <stingraykit/thread/call_once.h>
 
 namespace stingray
 {
@@ -20,18 +20,20 @@ namespace stingray
 	template < typename T >
 	class SafeSingleton
 	{
+		typedef BasicAtomicInt<intptr_t> AtomicInstance;
+
 	private:
 		static STINGRAYKIT_DECLARE_ONCE_FLAG(s_initFlag);
-		static u32		s_refCount;
-		static intptr_t	s_instance;
+		static AtomicU32::Type      s_refCount;
+		static AtomicInstance::Type s_instance;
 
 	private:
 		static bool TryAddReference()
 		{
-			u32 refcount = Atomic::Load(s_refCount);
+			u32 refcount = AtomicU32::Load(s_refCount);
 			while (refcount != 0)
 			{
-				u32 newrefcount = Atomic::CompareAndExchange(s_refCount, refcount, refcount + 1);
+				u32 newrefcount = AtomicU32::CompareAndExchange(s_refCount, refcount, refcount + 1);
 				if (newrefcount == refcount)
 					return true;
 				refcount = newrefcount;
@@ -41,14 +43,14 @@ namespace stingray
 
 		static void RemoveReference()
 		{
-			u32 refcount = Atomic::Dec(s_refCount);
+			u32 refcount = AtomicU32::Dec(s_refCount);
 			if (refcount == 0)
 				CheckedDelete(DoGetInstancePtr());
 		}
 
 		static T* DoGetInstancePtr()
 		{
-			intptr_t ptr = Atomic::Load(s_instance);
+			intptr_t ptr = AtomicInstance::Load(s_instance);
 			return (T*)ptr;
 		}
 
@@ -57,8 +59,8 @@ namespace stingray
 			InstanceHolder()
 			{
 				T* instance = new T();
-				Atomic::Store(s_instance, (intptr_t)instance);
-				Atomic::Store(s_refCount, 1);
+				AtomicInstance::Store(s_instance, (intptr_t)instance);
+				AtomicU32::Store(s_refCount, 1);
 			}
 
 			~InstanceHolder()
@@ -106,11 +108,11 @@ namespace stingray
 
 
 	template < typename T >
-	u32 SafeSingleton<T>::s_refCount = 0;
+	AtomicU32::Type SafeSingleton<T>::s_refCount = 0;
 
 
 	template < typename T >
-	intptr_t SafeSingleton<T>::s_instance = 0;
+	BasicAtomicInt<intptr_t>::Type SafeSingleton<T>::s_instance = 0;
 
 }
 

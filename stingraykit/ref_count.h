@@ -9,9 +9,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/Atomic.h>
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/toolkit.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
 
 #include <assert.h>
 
@@ -24,8 +24,8 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(basic_ref_count_data);
 
 	public:
-		atomic_int_type		Value;
-		atomic_int_type		SelfCount;
+		AtomicU32::Type		Value;
+		AtomicU32::Type		SelfCount;
 		UserDataType		UserData;
 
 		inline basic_ref_count_data(const UserDataType& userData)
@@ -39,8 +39,8 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(basic_ref_count_data);
 
 	public:
-		atomic_int_type		Value;
-		atomic_int_type		SelfCount;
+		AtomicU32::Type		Value;
+		AtomicU32::Type		SelfCount;
 
 		inline basic_ref_count_data()
 			: Value(1), SelfCount(1)
@@ -87,10 +87,10 @@ namespace stingray
 		inline const UserDataType& GetUserData() const { assert(_value); return _value->UserData; }
 		inline bool IsNull() const { return !_value; }
 
-		inline atomic_int_type get() const	{ assert(_value); return _value->Value; }
-		inline atomic_int_type add_ref()	{ assert(_value); return Atomic::Inc(_value->Value); }
-		inline atomic_int_type release()	{ assert(_value); return Atomic::Dec(_value->Value); }
-		inline bool release_if_unique()		{ assert(_value); return Atomic::CompareAndExchange(_value->Value, 1, 0) == 1; }
+		inline u32 get() const				{ assert(_value); return _value->Value; }
+		inline u32 add_ref()				{ assert(_value); return AtomicU32::Inc(_value->Value); }
+		inline u32 release()				{ assert(_value); return AtomicU32::Dec(_value->Value); }
+		inline bool release_if_unique()		{ assert(_value); return AtomicU32::CompareAndExchange(_value->Value, 1, 0) == 1; }
 
 		inline void swap(basic_ref_count& other)
 		{ std::swap(_value, other._value); }
@@ -99,17 +99,17 @@ namespace stingray
 		{ return _value; }
 
 	private:
-		inline atomic_int_type add_ref_self()
+		inline u32 add_ref_self()
 		{
 			assert(_value);
-			atomic_int_type result = Atomic::Inc(_value->SelfCount);
+			u32 result = AtomicU32::Inc(_value->SelfCount);
 			assert(result > 0);
 			return result;
 		}
-		inline atomic_int_type release_self()
+		inline u32 release_self()
 		{
 			assert(_value);
-			atomic_int_type result = Atomic::Dec(_value->SelfCount);
+			u32 result = AtomicU32::Dec(_value->SelfCount);
 			assert(result >= 0);
 			if (result == 0)
 			{
