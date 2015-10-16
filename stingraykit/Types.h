@@ -36,12 +36,14 @@ namespace stingray
 	template <> struct IntTraits<signed NativeType_> \
 	{ \
 		static const size_t BitsCount = sizeof(signed NativeType_) * 8; \
+		static const bool IsSigned = true; \
 		static const signed NativeType_ Min = (signed NativeType_)(-CompileTimeExponent<unsigned NativeType_, 2, BitsCount - 1>::Value); \
 		static const signed NativeType_ Max = (signed NativeType_)( CompileTimeExponent<unsigned NativeType_, 2, BitsCount - 1>::Value - 1); \
 	}; \
 	template <> struct IntTraits<unsigned NativeType_> \
 	{ \
 		static const size_t BitsCount = sizeof(unsigned NativeType_) * 8; \
+		static const bool IsSigned = false; \
 		static const unsigned NativeType_ Min = 0; \
 		static const unsigned NativeType_ Max = ~(unsigned NativeType_)0; \
 	};
