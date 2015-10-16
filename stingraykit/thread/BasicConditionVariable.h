@@ -28,9 +28,9 @@ namespace stingray
 		typedef GenericMutexLock<MutexType>		MutexLockType;
 		typedef GenericMutexUnlock<MutexType>	MutexUnlockType;
 
-		MutexType				_waitersMutex;
-		mutable atomic_int_type	_waitersCount;
-		SemaphoreType			_waiter;
+		MutexType		_waitersMutex;
+		mutable u32		_waitersCount;
+		SemaphoreType	_waiter;
 
 	public:
 		BasicConditionVariable() : _waitersCount(0)
