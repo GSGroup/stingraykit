@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_ATOMIC_H
-#define STINGRAYKIT_ATOMIC_H
+#ifndef STINGRAYKIT_THREAD_ATOMIC_ATOMICINT_H
+#define STINGRAYKIT_THREAD_ATOMIC_ATOMICINT_H
 
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
