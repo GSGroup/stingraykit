@@ -1,5 +1,5 @@
-#ifndef SETTINGS_SETTINGS_VALUE_H__
-#define SETTINGS_SETTINGS_VALUE_H__
+#ifndef STINGRAYKIT_SERIALIZATION_SETTINGSVALUE_H
+#define STINGRAYKIT_SERIALIZATION_SETTINGSVALUE_H
 
 // Copyright (c) 2011 - 2015, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
