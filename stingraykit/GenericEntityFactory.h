@@ -91,7 +91,7 @@ namespace stingray
 	};
 
 
-	template < typename Derived, typename TagType, typename ReturnType >
+	template < typename Derived, typename TagType, typename ReturnType, template < typename > class LeafFunc >
 	class GenericInvoker
 	{
 	protected:
@@ -107,7 +107,7 @@ namespace stingray
 		STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
 		static ReturnType Invoke(typename TagType::Enum tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
 		{ \
-			typedef typename Detail::EnumDrivenInvoker<typename Derived::Registry, TagType, ReturnType, DefaultConstructorLeafFunc>::ValueT Invoker; \
+			typedef typename Detail::EnumDrivenInvoker<typename Derived::Registry, TagType, ReturnType, LeafFunc>::ValueT Invoker; \
 			return Invoker::Process(tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
 		}
 		STINGRAYKIT_REPEAT_NESTING_2(5, DETAIL_STINGRAYKIT_DECLARE_GENERICINVOKER_INVOKE, ~)
