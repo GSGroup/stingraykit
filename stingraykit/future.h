@@ -280,9 +280,9 @@ namespace stingray
 		ResultType get()
 		{
 			check_valid();
-			ResultType result = _impl->get();
+			shared_ptr<ImplType> impl(_impl);
 			_impl.reset();
-			return result;
+			return impl->get();
 		}
 
 		void wait(const ICancellationToken& token = DummyCancellationToken()) const									{ check_valid(); _impl->wait(token); }
