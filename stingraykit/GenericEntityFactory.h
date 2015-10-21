@@ -17,7 +17,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename Registry, typename TagType, typename ReturnType >
+		template < typename Registry, typename TagType, typename ReturnType, template <typename> class LeafFunc >
 		class EnumDrivenInvoker
 		{
 			template < typename Left, typename Right >
@@ -45,7 +45,7 @@ namespace stingray
 #define DETAIL_STINGRAYKIT_DECLARE_LEAFNODE_PROCESS(N_, UserArg_) \
 				STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
 				static ReturnType Process(typename TagType::Enum tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
-				{ return ReturnType(); }
+				{ return LeafFunc<ReturnType>::Do(TagType(tag)); }
 				STINGRAYKIT_REPEAT_NESTING_2(5, DETAIL_STINGRAYKIT_DECLARE_LEAFNODE_PROCESS, ~)
 #undef DETAIL_STINGRAYKIT_DECLARE_LEAFNODE_PROCESS
 			};
@@ -55,6 +55,40 @@ namespace stingray
 		};
 
 	}
+
+
+	class UnknownEntityTagException : public Exception
+	{
+	public:
+		template < typename EntityTagType >
+		UnknownEntityTagException(EntityTagType tag) :
+			Exception("Unknown tag: " + tag.ToString())
+		{ }
+	};
+
+
+	template < typename ReturnType >
+	struct ThrowLeafFunc
+	{
+		template < typename TagType >
+		static ReturnType Do(TagType tag) { throw UnknownEntityTagException(tag); }
+	};
+
+
+	template < typename ReturnType >
+	struct DefaultConstructorLeafFunc
+	{
+		template < typename TagType >
+		static ReturnType Do(TagType tag) { return ReturnType(); }
+	};
+
+
+	template < typename ReturnType >
+	struct NullPtrLeafFunc
+	{
+		template < typename TagType >
+		static ReturnType Do(TagType tag) { return null; }
+	};
 
 
 	template < typename Derived, typename TagType, typename ReturnType >
@@ -73,21 +107,11 @@ namespace stingray
 		STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
 		static ReturnType Invoke(typename TagType::Enum tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
 		{ \
-			typedef typename Detail::EnumDrivenInvoker<typename Derived::Registry, TagType, ReturnType>::ValueT Invoker; \
+			typedef typename Detail::EnumDrivenInvoker<typename Derived::Registry, TagType, ReturnType, DefaultConstructorLeafFunc>::ValueT Invoker; \
 			return Invoker::Process(tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
 		}
 		STINGRAYKIT_REPEAT_NESTING_2(5, DETAIL_STINGRAYKIT_DECLARE_GENERICINVOKER_INVOKE, ~)
 #undef DETAIL_STINGRAYKIT_DECLARE_GENERICINVOKER_INVOKE
-	};
-
-
-	class UnknownEntityTagException : public Exception
-	{
-	public:
-		template < typename EntityTagType >
-		UnknownEntityTagException(EntityTagType tag)
-			: Exception("Unknown tag: " + tag.ToString())
-		{ }
 	};
 
 
@@ -148,7 +172,7 @@ namespace stingray
 		template < typename StreamType >
 		static EntityPtr Create(StreamType& stream)
 		{
-			typedef typename Detail::EnumDrivenInvoker<typename TypeListTransform<typename Derived::Registry, ToEntityCreator>::ValueT, EntityTagType, EntityPtr>::ValueT Registry;
+			typedef typename Detail::EnumDrivenInvoker<typename TypeListTransform<typename Derived::Registry, ToEntityCreator>::ValueT, EntityTagType, EntityPtr, ThrowLeafFunc>::ValueT Registry;
 
 			EntityTagType tag;
 			{
@@ -156,10 +180,7 @@ namespace stingray
 				tag = EntityTagReader::Read(stream);
 			}
 
-			EntityPtr result = Registry::Process(tag, stream);
-			STINGRAYKIT_CHECK(result, UnknownEntityTagException(tag));
-
-			return result;
+			return Registry::Process(tag, stream);
 		}
 	};
 
