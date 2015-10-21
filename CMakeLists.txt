@@ -23,6 +23,8 @@ include(CheckCXXCompilerFlag)
 include(TestBigEndian)
 include(CheckTypeSize)
 
+include(Findlibunwind)
+
 find_package(PkgConfig)
 
 if (DEFINED STINGRAY_INSTALL_PREFIX)
@@ -343,18 +345,26 @@ CHECK_C_SOURCE_COMPILES("#include <time.h>
 	int main(int argc, char *argv[]) { clockid_t x; return 0; }" HAVE_CLOCKID_T)
 
 if (USE_BACKTRACE)
-	if (PLATFORM_GCC)
-		CHECK_C_SOURCE_COMPILES("#include <unwind.h>
-			_Unwind_Reason_Code UnwindFunc(struct _Unwind_Context *ctx, void *bt) { return _URC_NO_REASON; }
-			int main() { _Unwind_Backtrace(&UnwindFunc, (void*)0); return 0; }" HAVE_GCC_UNWIND)
-		if (HAVE_GCC_UNWIND)
-			message(STATUS "Using GCC backtrace")
-			list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_GCC_BACKTRACE=1)
-			list(APPEND stingraykit_SRC
-				stingraykit/diagnostics/gcc/Backtrace.cpp
-			)
-		endif (HAVE_GCC_UNWIND)
-	endif (PLATFORM_GCC)
+	find_package(libunwind)
+	if (LIBUNWIND_FOUND)
+		set(COMMON_FLAGS "${COMMON_FLAGS} -fno-omit-frame-pointer -funwind-tables")
+		list(APPEND STINGRAYKIT_LIBS ${libunwind_LIBRARIES})
+		list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_LIBUNWIND_BACKTRACE=1)
+		list(APPEND stingraykit_SRC stingraykit/diagnostics/LibunwindBacktrace.cpp)
+	else()
+		if (PLATFORM_GCC)
+			CHECK_C_SOURCE_COMPILES("#include <unwind.h>
+				_Unwind_Reason_Code UnwindFunc(struct _Unwind_Context *ctx, void *bt) { return _URC_NO_REASON; }
+				int main() { _Unwind_Backtrace(&UnwindFunc, (void*)0); return 0; }" HAVE_GCC_UNWIND)
+			if (HAVE_GCC_UNWIND)
+				message(STATUS "Using GCC backtrace")
+				list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_GCC_BACKTRACE=1)
+				list(APPEND stingraykit_SRC
+					stingraykit/diagnostics/gcc/Backtrace.cpp
+				)
+			endif (HAVE_GCC_UNWIND)
+		endif (PLATFORM_GCC)
+	endif()
 
 	if (NOT DEFINED HAVE_GCC_UNWIND)
 		check_function_exists("backtrace" HAVE_BACKTRACE)

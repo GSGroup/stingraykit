@@ -13,6 +13,8 @@
 #	include <stingraykit/thread/posix/Backtrace.h>
 #elif defined(USE_GCC_BACKTRACE)
 #	include <stingraykit/diagnostics/gcc/Backtrace.h>
+#elif defined(USE_LIBUNWIND_BACKTRACE)
+#	include <stingraykit/diagnostics/LibunwindBacktrace.h>
 #endif
 
 namespace stingray
@@ -21,6 +23,8 @@ namespace stingray
 	typedef posix::Backtrace Backtrace;
 #elif defined(USE_GCC_BACKTRACE)
 	typedef gcc::Backtrace Backtrace;
+#elif defined(USE_LIBUNWIND_BACKTRACE)
+	typedef LibunwindBacktrace Backtrace;
 #else
 	struct Backtrace
 	{
