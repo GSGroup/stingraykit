@@ -364,27 +364,26 @@ if (USE_BACKTRACE)
 				)
 			endif (HAVE_GCC_UNWIND)
 		endif (PLATFORM_GCC)
+
+		if (NOT DEFINED HAVE_GCC_UNWIND)
+			check_function_exists("backtrace" HAVE_BACKTRACE)
+
+			if (HAVE_BACKTRACE)
+				list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BACKTRACE=1)
+				list(APPEND stingraykit_SRC
+					stingraykit/thread/posix/Backtrace.cpp
+				)
+			endif (HAVE_BACKTRACE)
+		endif (NOT DEFINED HAVE_GCC_UNWIND)
+
+		if (USE_BFD_BACKTRACE)
+			check_include_file(bfd.h HAVE_BFD_H)
+			if (HAVE_BFD_H)
+				list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BFD_BACKTRACE=1)
+			endif (HAVE_BFD_H)
+			list(APPEND STINGRAYKIT_LIBS bfd)
+		endif (USE_BFD_BACKTRACE)
 	endif()
-
-	if (NOT DEFINED HAVE_GCC_UNWIND)
-		check_function_exists("backtrace" HAVE_BACKTRACE)
-
-		if (HAVE_BACKTRACE)
-			list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BACKTRACE=1)
-			list(APPEND stingraykit_SRC
-				stingraykit/thread/posix/Backtrace.cpp
-			)
-		endif (HAVE_BACKTRACE)
-	endif (NOT DEFINED HAVE_GCC_UNWIND)
-
-	if (USE_BFD_BACKTRACE)
-		check_include_file(bfd.h HAVE_BFD_H)
-		if (HAVE_BFD_H)
-			list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BFD_BACKTRACE=1)
-		endif (HAVE_BFD_H)
-		list(APPEND STINGRAYKIT_LIBS bfd)
-	endif (USE_BFD_BACKTRACE)
-
 endif (USE_BACKTRACE)
 
 CHECK_C_SOURCE_COMPILES("#include <pthread.h>
