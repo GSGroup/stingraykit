@@ -26,13 +26,13 @@ namespace stingray
 	};
 
 
-	class CancellationHandlerHolderBase;
+	class CancellationRegistratorBase;
 
 
 	struct ICancellationToken : public safe_bool<ICancellationToken>
 	{
 	private:
-		friend class CancellationHandlerHolderBase;
+		friend class CancellationRegistratorBase;
 
 	protected:
 		virtual ~ICancellationToken() { }
@@ -51,83 +51,6 @@ namespace stingray
 		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const = 0;
 		virtual bool TryUnregisterCancellationHandler() const = 0;
 		virtual bool UnregisterCancellationHandler() const = 0;
-	};
-
-
-	class CancellationHandlerHolderBase
-	{
-	private:
-		const ICancellationToken&	_token;
-		bool						_registered;
-
-	public:
-		bool IsCancelled() const
-		{ return !_registered; }
-
-	protected:
-		CancellationHandlerHolderBase(const ICancellationToken& token) :
-			_token(token), _registered(false)
-		{ }
-
-		~CancellationHandlerHolderBase()
-		{ }
-
-		void Register(ICancellationHandler& handler)
-		{ _registered = _token.TryRegisterCancellationHandler(handler); }
-
-		bool TryUnregister(ICancellationHandler& handler)
-		{
-			if (!_registered)
-				return true;
-
-			_registered = !_token.TryUnregisterCancellationHandler();
-			return !_registered;
-		}
-
-		void Unregister(ICancellationHandler& handler)
-		{
-			if (!_registered)
-				return;
-
-			if (!_token.UnregisterCancellationHandler())
-				handler.Reset();
-			_registered = false;
-		}
-	};
-
-
-	template<typename CancellationHandler_>
-	class CancellationHandlerHolder : public CancellationHandlerHolderBase
-	{
-		STINGRAYKIT_NONCOPYABLE(CancellationHandlerHolder);
-
-	private:
-		CancellationHandler_	_handler;
-
-	public:
-		CancellationHandlerHolder(const ICancellationToken& token) :
-			CancellationHandlerHolderBase(token)
-		{ Register(_handler); }
-
-		template<typename T1>
-		CancellationHandlerHolder(const T1& p1, const ICancellationToken& token) :
-			CancellationHandlerHolderBase(token), _handler(p1)
-		{ Register(_handler); }
-
-		template<typename T1, typename T2>
-		CancellationHandlerHolder(const T1& p1, const T2& p2, const ICancellationToken& token) :
-			CancellationHandlerHolderBase(token), _handler(p1, p2)
-		{ Register(_handler); }
-
-		~CancellationHandlerHolder()
-		{
-			if (STINGRAYKIT_LIKELY(TryUnregister(_handler)))
-				return;
-			Unregister(_handler);
-		}
-
-		CancellationHandler_& GetHandler()
-		{ return _handler; }
 	};
 
 }
