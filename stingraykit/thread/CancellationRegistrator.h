@@ -1,6 +1,7 @@
 #ifndef STINGRAYKIT_THREAD_CANCELLATIONREGISTRATOR_H
 #define STINGRAYKIT_THREAD_CANCELLATIONREGISTRATOR_H
 
+#include <stingraykit/assert.h>
 #include <stingraykit/thread/ICancellationToken.h>
 
 namespace stingray
@@ -22,7 +23,7 @@ namespace stingray
 		{ }
 
 		~CancellationRegistratorBase()
-		{ }
+		{ STINGRAYKIT_ASSERT(!_registered); }
 
 		void Register(ICancellationHandler& handler)
 		{ _registered = _token.TryRegisterCancellationHandler(handler); }
