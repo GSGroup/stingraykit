@@ -398,19 +398,6 @@ namespace stingray
 	typedef BasicStringBuilder<char>	StringBuilder;
 	typedef BasicStringBuilder<wchar_t>	WideStringBuilder;
 
-	class ToStringWrapper
-	{
-		typedef function<std::string()> ToStringFunc;
-
-	private:
-		ToStringFunc		_func;
-
-	public:
-		explicit ToStringWrapper(const ToStringFunc& func) : _func(func) { }
-
-		std::string ToString() const { return _func(); }
-	};
-
 }
 
 
