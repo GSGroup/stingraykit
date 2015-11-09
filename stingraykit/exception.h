@@ -86,10 +86,10 @@ namespace stingray
 	{
 	public:
 		IndexOutOfRangeException() : Exception("Index out of range!") { }
-		IndexOutOfRangeException(size_t index, size_t size) : Exception(BuildErrorMessage(index, size)) { }
+		IndexOutOfRangeException(u64 index, u64 size) : Exception(BuildErrorMessage(index, size)) { }
 
 	private:
-		static std::string BuildErrorMessage(size_t index, size_t size)
+		static std::string BuildErrorMessage(u64 index, u64 size)
 		{
 			string_ostream stream;
 			stream << "Index " << index << " out of range " << size;
