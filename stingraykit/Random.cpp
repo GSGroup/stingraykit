@@ -24,13 +24,7 @@ namespace stingray
 
 	u32 Random::Next(u32 maxValue)
 	{
-		static const u32 MaxRandBits = 16;
-		static const u32 MaxRand = (1 << MaxRandBits);
-
-		u32 next = Next();
-		if (maxValue < MaxRand)
-			next >>= MaxRandBits;
-		return next % maxValue;
+		return ((u64)Next() * maxValue) >> 32;
 	}
 
 	u32 Random::Next()
