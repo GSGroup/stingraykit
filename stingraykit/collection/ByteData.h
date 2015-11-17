@@ -119,6 +119,8 @@ namespace stingray
 		friend class BasicByteArray;
 
 		typedef typename Deconst<T>::ValueT NonConstType;
+
+	public:
 		typedef typename
 			If<
 				IsConst<T>::Value,
@@ -128,6 +130,7 @@ namespace stingray
 
 		typedef shared_ptr<CollectionType>		CollectionTypePtr;
 
+	private:
 		static const size_t NoSizeLimit = ~(size_t)0;
 
 	private:
@@ -144,41 +147,45 @@ namespace stingray
 		typedef std::reverse_iterator<iterator>									reverse_iterator;
 		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
 
-		BasicByteArray()
-			: _data(new CollectionType()), _offset(0), _sizeLimit(NoSizeLimit)
+		BasicByteArray():
+			_data(new CollectionType()), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
-		explicit BasicByteArray(size_t size)
-			: _data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
+		BasicByteArray(const CollectionTypePtr & data):
+			_data(data), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
-		BasicByteArray(const T* data, size_t size)
-			: _data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
+		explicit BasicByteArray(size_t size):
+			_data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
+		{ }
+
+		BasicByteArray(const T* data, size_t size):
+			_data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ std::copy(data, data + size, _data->begin()); }
 
 		template < typename U >
-		explicit BasicByteArray(const U& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<U>::Value, Dummy>::ValueT* dummy = 0)
-			: _data(new CollectionType(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
+		explicit BasicByteArray(const U& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<U>::Value, Dummy>::ValueT* dummy = 0):
+			_data(new CollectionType(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		template < typename InputIterator >
-		BasicByteArray(InputIterator first, InputIterator last)
-			: _data(new CollectionType(first, last)), _offset(0), _sizeLimit(NoSizeLimit)
+		BasicByteArray(InputIterator first, InputIterator last):
+			_data(new CollectionType(first, last)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		template < typename U >
-		BasicByteArray(const BasicByteArray<U>& other)
-			: _data(other.GetData()), _offset(other.GetOffset()), _sizeLimit(other._sizeLimit)
+		BasicByteArray(const BasicByteArray<U>& other):
+			_data(other.GetData()), _offset(other.GetOffset()), _sizeLimit(other._sizeLimit)
 		{ }
 
 		template < typename U >
-		BasicByteArray(const BasicByteArray<U>& other, size_t offset)
-			: _data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
+		BasicByteArray(const BasicByteArray<U>& other, size_t offset):
+			_data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
 		{ STINGRAYKIT_CHECK(_data->size() >= _offset, ArgumentException("offset")); }
 
 		template < typename U >
-		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit)
-			: _data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(sizeLimit)
+		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit):
+			_data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(sizeLimit)
 		{
 			STINGRAYKIT_CHECK(_data->size() >= _offset, ArgumentException("offset"));
 			STINGRAYKIT_CHECK((_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size()) && (_sizeLimit + offset <= other._sizeLimit), ArgumentException("sizeLimit"));
@@ -271,12 +278,7 @@ namespace stingray
 
 		template<typename ObjectOStream>
 		void Serialize(ObjectOStream & ar) const
-		{
-			//why would we store whole array anyway?
-			//ar.Serialize("o", _offset); ar.Serialize("d", *_data);
-			std::vector<u8> data_proxy(data(), data() + size());//fixme: later
-			ar.Serialize("d", data_proxy);
-		}
+		{ ar.Serialize("d", GetByteData()); }
 
 		template<typename ObjectIStream>
 		void Deserialize(ObjectIStream & ar)		{ BasicByteArray data; ar.Deserialize("o", data._offset, 0); ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data)); *this = data; }

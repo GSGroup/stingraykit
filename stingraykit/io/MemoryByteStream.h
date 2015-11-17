@@ -110,6 +110,15 @@ namespace stingray
 	inline IByteStreamPtr CreateMemoryByteStream(ConstByteData data)
 	{ return  make_shared<MemoryByteStream<ConstByteData> >(data); }
 
+	typedef MemoryByteStream<ConstByteArray>	ConstByteArrayByteStream;
+	STINGRAYKIT_DECLARE_PTR(ConstByteArrayByteStream);
+	typedef MemoryByteStream<ByteArray>			ByteArrayByteStream;
+	STINGRAYKIT_DECLARE_PTR(ByteArrayByteStream);
+	typedef MemoryByteStream<ConstByteData>		ConstByteDataByteStream;
+	STINGRAYKIT_DECLARE_PTR(ConstByteDataByteStream);
+	typedef MemoryByteStream<ByteData>			ByteDataByteStream;
+	STINGRAYKIT_DECLARE_PTR(ByteDataByteStream);
+
 }
 
 

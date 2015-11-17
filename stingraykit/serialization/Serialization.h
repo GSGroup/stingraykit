@@ -25,6 +25,7 @@
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/diagnostics/PrivateIncludeGuard.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/io/IByteStream.h>
 #include <stingraykit/reference.h>
 #include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/serialization/SettingsValueException.h>
@@ -179,14 +180,12 @@ namespace stingray
 
 		virtual ~IObjectOStreamPrivate() { }
 
-		typedef std::vector<u8> byte_array;
-
 		virtual void WriteNull() = 0;
 		virtual void Write(bool value) = 0;
 		virtual void Write(double value) = 0;
 		virtual void Write(s64 value) = 0;
 		virtual void Write(const std::string &value) = 0;
-		virtual void Write(const byte_array &value) = 0;
+		virtual void Write(ConstByteData value) = 0;
 
 		virtual void WritePropertyName(const std::string &name) = 0;
 
@@ -202,15 +201,20 @@ namespace stingray
 		template < typename, typename > friend struct TypeWriter;
 		template < typename, typename, SerializationUtils::TypeTraits::Enum > friend struct SerializationUtils::TypeWriterImpl;
 
-		IObjectSerializator	*_collection;
-		FactoryContextPtr	_context;
-		bool				_topLevelMode;
+		IObjectSerializator	*		_collection;
+		FactoryContextPtr			_context;
+		bool						_topLevelMode;
+
+	protected:
+		IOutputByteStreamPtr		_outputStream;
 
 	public:
-		ObjectOStream(IObjectSerializator *collection, const FactoryContextPtr& context, bool topLevelMode = false): _collection(collection), _context(context), _topLevelMode(topLevelMode) {}
-		virtual ~ObjectOStream() {}
+		ObjectOStream(const IOutputByteStreamPtr & outputStream, IObjectSerializator *collection, const FactoryContextPtr& context, bool topLevelMode):
+			_collection(collection), _context(context), _topLevelMode(topLevelMode), _outputStream(outputStream)
+		{ }
+		virtual ~ObjectOStream() { }
 
-		virtual ConstByteArray GetData() const = 0;
+		virtual void Flush() = 0;
 
 		template<typename T>
 		ObjectOStream& Serialize(const T& value)
@@ -358,6 +362,9 @@ namespace stingray
 		}
 
 		ObjectOStream& serialize(const std::vector<u8> & data)
+		{ return serialize(ConstByteData(data.data(), data.size())); }
+
+		ObjectOStream& serialize(ConstByteData data)
 		{
 			Write(data);
 			return *this;
@@ -446,12 +453,6 @@ namespace stingray
 			CollectionSerializer<T>::Serialize(*this, obj);
 			return *this;
 		}
-
-		ObjectOStream& serialize(ConstByteData data)
-		{
-			std::vector<u8> proxy(data.begin(), data.end());
-			return serialize(proxy);
-		}
 	};
 
 
@@ -461,8 +462,6 @@ namespace stingray
 		template < typename, typename, SerializationUtils::TypeTraits::Enum > friend struct SerializationUtils::TypeWriterImpl;
 
 		virtual ~IObjectIStreamPrivate() { }
-
-		typedef std::vector<u8> byte_array;
 
 		virtual SettingsValue* GetRoot() = 0;
 		virtual IObjectSerializator* GetCollection() = 0;
@@ -476,6 +475,8 @@ namespace stingray
 
 	protected:
 		SettingsValue					*_root;
+
+	private:
 		IObjectSerializator				*_collection;
 		FactoryContextPtr				_context;
 		bool							_topLevelMode;
@@ -491,7 +492,7 @@ namespace stingray
 		FactoryContextPtr GetContext() const			{ return _context; }
 
 	public:
-		ObjectIStream(SettingsValue* root, IObjectSerializator *collection, const FactoryContextPtr& context, bool topLevelMode = false):
+		ObjectIStream(SettingsValue* root, IObjectSerializator *collection, const FactoryContextPtr& context = null, bool topLevelMode = false):
 			_root(root), _collection(collection), _context(context), _topLevelMode(topLevelMode) { }
 
 		virtual ~ObjectIStream() {}
@@ -574,7 +575,7 @@ namespace stingray
 		}
 
 	private:
-		static void UnpackBinaryEncoding(byte_array &data, const std::string &str);
+		static void UnpackBinaryEncoding(std::vector<u8> &data, const std::string &str);
 
 		template < typename Ar, typename T >
 		static void call_Deserialize(Ar& ar, T& t)

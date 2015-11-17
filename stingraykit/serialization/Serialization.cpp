@@ -56,13 +56,17 @@ namespace stingray
 
 	void ObjectIStream::deserialize(std::vector<u8> & data)
 	{
-		if (_root->contains<std::vector<u8> >())
-			data = _root->get<std::vector<u8> >();
+		if (_root->contains<ByteArray>())
+		{
+			ConstByteData storage = _root->get<ByteArray>().GetByteData();
+			data.assign(storage.begin(), storage.end());
+		}
 		else if (_root->contains<std::string>())
 			UnpackBinaryEncoding(data, _root->get<std::string>());
 		else
-			STINGRAYKIT_THROW("invalid type for binary data value");
+			STINGRAYKIT_THROW("invalid type for binary data value: " + TypeInfo(_root->type()).ToString());
 	}
+
 
 	static inline u8 xdigit(char c) {
 		if (c >= '0' && c <= '9')
@@ -73,13 +77,13 @@ namespace stingray
 		STINGRAYKIT_THROW(std::runtime_error(std::string("invalid hex digit") + c));
 	}
 
-	void ObjectIStream::UnpackBinaryEncoding(byte_array &data, const std::string& str)
+	void ObjectIStream::UnpackBinaryEncoding(std::vector<u8> & data, const std::string & str)
 	{
 		if (str.size() < 4 || str.compare(0, 4, "hex=") != 0)
 			STINGRAYKIT_THROW(std::runtime_error("invalid binary encoding"));
 
 		data.resize((str.size() - 4) / 2);
-		byte_array::iterator dst = data.begin();
+		std::vector<u8>::iterator dst = data.begin();
 		for(std::string::const_iterator i = str.begin() + 4; i != str.end(); )
 		{
 			u8 h = xdigit(*i++) << 4;
