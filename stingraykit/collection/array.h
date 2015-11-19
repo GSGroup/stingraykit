@@ -8,9 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stddef.h>
+#include <stingraykit/toolkit.h>
+
 #include <algorithm>
 #include <stdexcept>
+
+#include <stddef.h>
 
 namespace stingray
 {
@@ -68,6 +71,14 @@ namespace stingray
 		static bool empty()						{ return N == 0; }
 
 		void swap(array &other)					{ for(size_type i = 0; i < N; ++i) std::swap(_data[i], other._data[i]); }
+
+		bool operator == (const array& other) const { return std::equal(data(), data() + size(), other.data()); }
+		bool operator != (const array& other) const { return !(*this == other); }
+
+		bool operator < (const array& other) const
+		{ return std::lexicographical_compare(data(), data() + size(), other.data(), other.data() + other.size()); }
+
+		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(array);
 
 	private:
 		static void _check_index(size_type off)
