@@ -113,6 +113,7 @@ namespace stingray
 												|| SameType<const char*, ObjectType>::Value
 												|| IsSharedPtr<ObjectType>::Value
 												|| Is1ParamTemplate<optional, ObjectType>::Value
+												|| Is1ParamTemplate<Tuple, ObjectType>::Value
 												|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
 											TypeToStringObjectType::Other :
 											TypeToStringObjectType::ProxyObjToStdStream
@@ -279,6 +280,30 @@ namespace stingray
 					ToString(result, opt.get());
 				else
 					result << "null";
+			}
+		};
+
+
+		template<typename Types_>
+		struct TypeToStringSerializer<Tuple<Types_>, TypeToStringObjectType::Other>
+		{
+			template <int Index>
+			struct Helper
+			{
+				static void Call(string_ostream* result, const Tuple<Types_>* t)
+				{
+					if (Index != 0)
+						*result << ", ";
+
+					ToString(*result, t->template Get<Index>());
+				}
+			};
+
+			static void ToStringImpl(string_ostream & result, const Tuple<Types_>& t)
+			{
+				result << "[ ";
+				For<GetTypeListLength<Types_>::Value, Helper>::Do(&result, &t);
+				result << " ]";
 			}
 		};
 
