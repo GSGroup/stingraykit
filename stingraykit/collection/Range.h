@@ -577,6 +577,16 @@ namespace stingray
 		}
 
 
+		template <typename Range_>
+		typename Detail::RangeToValue<Range_>::ValueT Sum(Range_ range)
+		{
+			typename Detail::RangeToValue<Range_>::ValueT result = 0;
+			for (; range.Valid(); range.Next())
+				result += range.Get();
+			return result;
+		}
+
+
 		template <typename Range_, class Comparer_>
 		optional<typename Detail::RangeToValue<Range_>::ValueT> MinElement(Range_ range, Comparer_ comparer)
 		{
