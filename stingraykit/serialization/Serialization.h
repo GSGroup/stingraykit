@@ -214,8 +214,6 @@ namespace stingray
 		{ }
 		virtual ~ObjectOStream() { }
 
-		virtual void Flush() = 0;
-
 		template<typename T>
 		ObjectOStream& Serialize(const T& value)
 		{
