@@ -363,10 +363,10 @@ namespace stingray
 		{ return serialize(ConstByteData(data.data(), data.size())); }
 
 		ObjectOStream& serialize(ConstByteData data)
-		{
-			Write(data);
-			return *this;
-		}
+		{ Write(data); return *this; }
+
+		ObjectOStream& serialize(ByteData data)
+		{ Write(data); return *this; }
 
 		ObjectOStream& serialize(const std::string & str)
 		{
