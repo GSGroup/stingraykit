@@ -100,7 +100,6 @@ set(stingraykit_SRC
 	stingraykit/io/BithreadCircularBuffer.cpp
 	stingraykit/io/BufferedPipe.cpp
 	stingraykit/io/DataBuffer.cpp
-	stingraykit/io/DataSourceReader.cpp
 	stingraykit/io/PipeDataSource.cpp
 	stingraykit/io/PipeReader.cpp
 
