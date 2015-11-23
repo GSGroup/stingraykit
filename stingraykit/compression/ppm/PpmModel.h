@@ -1,6 +1,7 @@
 #ifndef STINGRAYKIT_COMPRESSION_PPM_PPMMODEL_H
 #define STINGRAYKIT_COMPRESSION_PPM_PPMMODEL_H
 
+#include <stingraykit/collection/Range.h>
 #include <stingraykit/compression/ArithmeticCoder.h>
 #include <stingraykit/compression/ArithmeticDecoder.h>
 #include <stingraykit/exception.h>
@@ -82,15 +83,18 @@ namespace stingray
 
 			void Normalize()
 			{
-				SymbolCount currentScale = Sum(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1)));
+				SymbolCount maxCount = std::max(*Range::MaxElement(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1)), comparers::Less()), _exit);
+				if (maxCount > ModelConfig::Scale)
+				{
+					for (typename Symbols::iterator it = _symbols.begin(); it != _symbols.end(); ++it)
+						it->SetCount((u64)it->GetCount() * ModelConfig::Scale / maxCount);
+					_exit = std::max(SymbolCount(1), SymbolCount(_exit * ModelConfig::Scale / maxCount));
+				}
+				else
+					_exit = std::max(SymbolCount(1), _exit);
+
 				if (ContextSize == 0)
 				{
-					const SymbolCount uniqueSymbols = (SymbolCount)IntTraits<Symbol>::Max - IntTraits<Symbol>::Min + 1;
-					SymbolCount desiredScale = ModelConfig::Scale - (1 + uniqueSymbols - _symbols.size()); // EOF and each missing symbol will have probability of 1 / scale
-
-					for (typename Symbols::iterator it = _symbols.begin(); it != _symbols.end(); ++it)
-						it->SetCount(it->GetCount() * desiredScale / currentScale);
-
 					Symbols replacement;
 					typename Symbols::iterator it = _symbols.begin();
 					Symbol s = IntTraits<Symbol>::Min;
@@ -103,61 +107,53 @@ namespace stingray
 					}
 					while (s++ != IntTraits<Symbol>::Max);
 					_symbols.swap(replacement);
-
-					_exit = ModelConfig::Scale - Sum(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1)));
-					STINGRAYKIT_CHECK(_exit != 0, "Exit shouldn't be zero at this point!");
 				}
 				else
 				{
-					++currentScale; // to make sure exit is non-zero
-					for (typename Symbols::iterator it = _symbols.begin(); it != _symbols.end(); ++it)
-						it->SetCount(it->GetCount() * ModelConfig::Scale / currentScale);
-
-					Symbols s;
-					Copy(Filter(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1)), std::back_inserter(s));
-					_symbols.swap(s);
-
-					_exit = ModelConfig::Scale - Sum(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1)));
-					STINGRAYKIT_CHECK(_exit != 0, "Exit shouldn't be zero at this point!");
+					Symbols replacement;
+					Copy(Filter(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1)), std::back_inserter(replacement));
+					_symbols.swap(replacement);
 				}
 			}
 
 			template <typename Consumer_>
 			bool Predict(optional<Symbol> symbol, const Consumer_& f) const
 			{
+				SymbolCount scale = Sum(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1))) + _exit;
 				if (!symbol)
 				{
-					f(ModelConfig::Scale - _exit, (u32)ModelConfig::Scale, (u32)ModelConfig::Scale);
+					f(scale - _exit, scale, scale);
 					return false;
 				}
 
 				typename Symbols::const_iterator it = std::lower_bound(_symbols.begin(), _symbols.end(), SymbolCounter(*symbol, 0), CompareMembersLess(&SymbolCounter::GetSymbol));
 				if (it == _symbols.end() || it->GetSymbol() != *symbol)
 				{
-					f(ModelConfig::Scale - _exit, (u32)ModelConfig::Scale, (u32)ModelConfig::Scale);
+					f(scale - _exit, scale, scale);
 					return false;
 				}
 				SymbolCount low = Sum(Transform(ToRange(_symbols.begin(), it), bind(&SymbolCounter::GetCount, _1)));
-				f(low, low + it->GetCount(), (u32)ModelConfig::Scale);
+				f(low, low + it->GetCount(), scale);
 				return true;
 			}
 
 			template <typename GetBitFunctor_>
 			optional<Symbol> Decode(ArithmeticDecoder& decoder, const GetBitFunctor_& getBit) const
 			{
+				SymbolCount scale = Sum(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1))) + _exit;
 				u32 low = 0;
-				u32 targetProbability = decoder.GetProbability(ModelConfig::Scale);
+				u32 targetProbability = decoder.GetProbability(scale);
 				for (typename Symbols::const_iterator it = _symbols.begin(); it != _symbols.end(); ++it)
 				{
 					u32 high = low + it->GetCount();
 					if (low <= targetProbability && targetProbability < high)
 					{
-						decoder.SymbolDecoded(low, high, (u32)ModelConfig::Scale, getBit);
+						decoder.SymbolDecoded(low, high, scale, getBit);
 						return it->GetSymbol();
 					}
 					low = high;
 				}
-				decoder.SymbolDecoded(ModelConfig::Scale - _exit, (u32)ModelConfig::Scale, (u32)ModelConfig::Scale, getBit);
+				decoder.SymbolDecoded(scale - _exit, scale, scale, getBit);
 				return null;
 			}
 
