@@ -77,20 +77,19 @@ namespace stingray
 		static const size_t BufferSize = 1024;
 		static const size_t MaxBitsPerSymbol = ModelsCount * 32; // actually, it is ModelsCount * log(MaxProbabilityScale) / log(2), but better be safe
 
-		typedef typename PpmConfig_::Symbol            Symbol;
-		typedef typename PpmConfig_::SymbolCount       SymbolCount;
-		typedef PpmModel<PpmConfig_, ModelConfigList_> Model;
+		typedef PpmImpl<PpmConfig_>                             Impl;
+		typedef typename Impl::template Model<ModelConfigList_> Model;
 
 	private:
-		shared_ptr<const Model>       _model;
-		IDataSourcePtr                _source;
-		std::deque<Symbol>            _context;
-		BytesToBitsBuffer<BufferSize> _bitBuffer;
-		optional<ArithmeticDecoder>   _decoder;
-		bool                          _endOfData;
+		shared_ptr<const Model>           _model;
+		IDataSourcePtr                    _source;
+		std::deque<typename Impl::Symbol> _context;
+		BytesToBitsBuffer<BufferSize>     _bitBuffer;
+		optional<ArithmeticDecoder>       _decoder;
+		bool                              _endOfData;
 
 		// TODO: add proper output buffer
-		optional<u8>                  _outputBuffer;
+		optional<u8>                      _outputBuffer;
 
 	public:
 		PpmDecompressor(const shared_ptr<const Model>& model, const IDataSourcePtr& source) : _model(model), _source(source), _endOfData(false)
@@ -161,7 +160,7 @@ namespace stingray
 			}
 
 			STINGRAYKIT_CHECK(!_endOfData, "Data after EOD!");
-			optional<Symbol> symbol = _model->Decode(_context, *_decoder, bind(&PpmDecompressor::GetBit, this));
+			optional<typename Impl::Symbol> symbol = _model->Decode(_context, *_decoder, bind(&PpmDecompressor::GetBit, this));
 
 			_endOfData = !symbol;
 			if (!symbol)

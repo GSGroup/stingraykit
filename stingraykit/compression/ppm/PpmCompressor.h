@@ -91,16 +91,15 @@ namespace stingray
 		static const size_t BufferSize = 1024;
 		static const size_t MaxBitsPerSymbol = ModelsCount * 32; // actually, it is ModelsCount * log(MaxProbabilityScale) / log(2), but better be safe
 
-		typedef typename PpmConfig_::Symbol            Symbol;
-		typedef typename PpmConfig_::SymbolCount       SymbolCount;
-		typedef PpmModel<PpmConfig_, ModelConfigList_> Model;
+		typedef PpmImpl<PpmConfig_>                             Impl;
+		typedef typename Impl::template Model<ModelConfigList_> Model;
 
 	private:
-		shared_ptr<const Model>       _model;
-		IDataSourcePtr                _source;
-		std::deque<Symbol>            _context;
-		BitsToBytesBuffer<BufferSize> _bitBuffer;
-		ArithmeticCoder               _coder;
+		shared_ptr<const Model>           _model;
+		IDataSourcePtr                    _source;
+		std::deque<typename Impl::Symbol> _context;
+		BitsToBytesBuffer<BufferSize>     _bitBuffer;
+		ArithmeticCoder                   _coder;
 
 	public:
 		PpmCompressor(const shared_ptr<const Model>& model, const IDataSourcePtr& source) : _model(model), _source(source)
@@ -132,7 +131,7 @@ namespace stingray
 			consumer.EndOfData(token);
 		}
 
-		bool Encode(IDataConsumer& consumer, Symbol symbol, const ICancellationToken& token)
+		bool Encode(IDataConsumer& consumer, typename Impl::Symbol symbol, const ICancellationToken& token)
 		{
 			if (!ConsumeData(consumer, token))
 				return false;

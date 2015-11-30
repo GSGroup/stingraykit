@@ -13,9 +13,10 @@ namespace stingray
 	class PpmDictionary : public virtual ICompressionDictionary
 	{
 	public:
-		typedef PpmModel<PpmConfig_, ModelConfigList_>        Model;
-		typedef PpmCompressor<PpmConfig_, ModelConfigList_>   Compressor;
-		typedef PpmDecompressor<PpmConfig_, ModelConfigList_> Decompressor;
+		typedef PpmImpl<PpmConfig_>                             Impl;
+		typedef typename Impl::template Model<ModelConfigList_> Model;
+		typedef PpmCompressor<PpmConfig_, ModelConfigList_>     Compressor;
+		typedef PpmDecompressor<PpmConfig_, ModelConfigList_>   Decompressor;
 
 	private:
 		shared_ptr<const Model>    _model;

@@ -1,6 +1,7 @@
 #ifndef STINGRAYKIT_COMPRESSION_PPM_PPMMODEL_H
 #define STINGRAYKIT_COMPRESSION_PPM_PPMMODEL_H
 
+#include <stingray/parsers/IncrementalParser.h>
 #include <stingraykit/collection/Range.h>
 #include <stingraykit/compression/ArithmeticCoder.h>
 #include <stingraykit/compression/ArithmeticDecoder.h>
@@ -16,21 +17,14 @@
 namespace stingray
 {
 
-	template <typename PpmConfig_, typename ModelConfigList_, typename Enabler = void>
-	class CompactificatorTemplate;
-
-
-	template <typename PpmConfig_, typename ModelConfigList_>
-	class PpmModel
+	template <typename PpmConfig_>
+	struct PpmImpl
 	{
-	public:
-		typedef typename PpmConfig_::Symbol       Symbol;
-		typedef typename PpmConfig_::SymbolCount  SymbolCount;
-		typedef typename ModelConfigList_::ValueT ModelConfig;
+		typedef typename PpmConfig_::Symbol                          Symbol;
+		typedef typename PpmConfig_::SymbolCount                     SymbolCount;
 
-		static const size_t ContextSize = ModelConfig::ContextSize;
 
-		struct SymbolCounter
+		class SymbolCounter
 		{
 		private:
 			Symbol      _symbol;
@@ -42,34 +36,35 @@ namespace stingray
 			{ }
 
 			Symbol GetSymbol() const         { return _symbol; }
+
 			SymbolCount GetCount() const     { return _count; }
 			void SetCount(SymbolCount count) { _count = count; }
-
-			std::string ToString() const     { return StringBuilder() % GetSymbol() % ": " % GetCount(); }
 		};
-		typedef std::vector<SymbolCounter> Symbols;
 
 
-		class PpmContextBuilder
+		class ContextInfoBuilder
 		{
+		public:
+			typedef std::vector<SymbolCounter> Symbols;
+
 		private:
 			SymbolCount _exit;
 			Symbols     _symbols;
 
 		public:
-			PpmContextBuilder() : _exit(0)
+			ContextInfoBuilder() : _exit(0)
 			{ }
 
-			size_t AddSymbol(Symbol symbol, SymbolCount count)
+			bool AddSymbol(Symbol symbol, SymbolCount count)
 			{
-				typename Symbols::iterator it = std::lower_bound(_symbols.begin(), _symbols.end(), SymbolCounter(symbol, 0), CompareMembersLess(&SymbolCounter::GetSymbol));
+				typename Symbols::iterator it = std::lower_bound(_symbols.begin(), _symbols.end(), symbol, CompareMemberLess(&SymbolCounter::GetSymbol));
 				if (it == _symbols.end() || it->GetSymbol() != symbol)
 				{
 					_symbols.insert(it, SymbolCounter(symbol, count));
-					return sizeof(SymbolCounter);
+					return true;
 				}
 				it->SetCount(it->GetCount() + count);
-				return 0;
+				return false;
 			}
 
 			SymbolCount GetTotalCount() const
@@ -78,74 +73,429 @@ namespace stingray
 			const Symbols& GetSymbols() const
 			{ return _symbols; }
 
-			size_t GetTotalSize() const
-			{ return _symbols.size() * sizeof(SymbolCounter); }
+			SymbolCount GetExit() const
+			{ return _exit; }
+		};
 
-			void Normalize()
+
+		template <typename ModelConfigList_, typename Enabler = void>
+		class ModelBuilder
+		{
+		public:
+			typedef typename ModelConfigList_::ValueT             ModelConfig;
+			typedef ModelBuilder<typename ModelConfigList_::Next> ChildModel;
+			typedef typename ModelConfig::Probability             Probability;
+			typedef array<Symbol, ModelConfig::ContextSize>       Context;
+			typedef std::map<Context, ContextInfoBuilder>         ContextBuilders;
+
+			static const size_t ContextSize = ModelConfig::ContextSize;
+			static const size_t ContextInfoBuilderMemorySize = sizeof(typename ContextBuilders::value_type) + sizeof(size_t) * 3;
+
+		private:
+			ContextBuilders _contexts;
+			ChildModel      _childModel;
+
+			size_t          _contextsCount;
+			size_t          _entriesCount;
+
+		public:
+			ModelBuilder() : _contextsCount(0), _entriesCount(0)
+			{ CompileTimeAssert<(ContextSize > ChildModel::ContextSize || SameType<typename ModelConfigList_::Next, TypeListEndNode>::Value)> ModelConfigsMustBeSortedInDescendingOrder; }
+
+			void AddSymbol(const std::deque<Symbol>& context, Symbol symbol, SymbolCount count)
 			{
-				SymbolCount maxCount = std::max(*Range::MaxElement(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1)), comparers::Less()), _exit);
-				if (maxCount > ModelConfig::Scale)
+				if (context.size() < ContextSize)
 				{
-					for (typename Symbols::iterator it = _symbols.begin(); it != _symbols.end(); ++it)
-						it->SetCount((u64)it->GetCount() * ModelConfig::Scale / maxCount);
-					_exit = std::max(SymbolCount(1), SymbolCount(_exit * ModelConfig::Scale / maxCount));
+					_childModel.AddSymbol(context, symbol, count);
+					return;
 				}
-				else
-					_exit = std::max(SymbolCount(1), _exit);
 
-				if (ContextSize == 0)
+				array<Symbol, ContextSize> ctx;
+				std::copy(context.end() - ContextSize, context.end(), ctx.begin());
+				AddSymbol(ctx, symbol, count);
+			}
+
+			void AddSymbol(array<Symbol, ContextSize> context, Symbol symbol, SymbolCount count)
+			{ DoAddSymbol(AddContext(context).first, symbol, count); }
+
+			std::pair<typename ContextBuilders::iterator, bool> AddContext(array<Symbol, ContextSize> context)
+			{
+				std::pair<typename ContextBuilders::iterator, bool> p = _contexts.insert(std::make_pair(context, ContextInfoBuilder()));
+				if (p.second)
+					++_contextsCount;
+				return p;
+			}
+
+			void DoAddSymbol(typename ContextBuilders::iterator it, Symbol symbol, SymbolCount count)
+			{
+				if (it->second.AddSymbol(symbol, count))
+					++_entriesCount;
+			}
+
+			void RemoveContext(typename ContextBuilders::iterator it)
+			{
+				_entriesCount -= it->second.GetSymbols().size();
+				--_contextsCount;
+				_contexts.erase(it);
+			}
+
+			ContextBuilders& GetContexts() { return _contexts; }
+			ChildModel& GetChildModel()    { return _childModel; }
+
+			template <typename Counter_>
+			size_t GetMemoryConsumption(const Counter_& c) const
+			{ return c(this, _contextsCount, _entriesCount) + _childModel.GetMemoryConsumption(c); }
+		};
+
+
+		template <typename ModelConfigList_>
+		class ModelBuilder<ModelConfigList_, typename EnableIf<GetTypeListLength<ModelConfigList_>::Value == 0, void>::ValueT>
+		{
+		public:
+			static const size_t ContextSize = 0;
+
+			void AddSymbol(const std::deque<Symbol>& context, Symbol symbol, SymbolCount count)
+			{ }
+
+			template <typename Counter_>
+			size_t GetMemoryConsumption(const Counter_& c) const
+			{ return 0; }
+		};
+
+
+		struct ModelBuilderMemoryCounter
+		{
+			template <typename ModelConfigList_>
+			size_t operator() (const ModelBuilder<ModelConfigList_>*, size_t contextsCount, size_t entriesCount) const
+			{ return contextsCount * ModelBuilder<ModelConfigList_>::ContextInfoBuilderMemorySize + entriesCount * sizeof(SymbolCounter); }
+		};
+
+
+		template <typename ModelConfigList_, typename Enabler = void>
+		class Compactificator
+		{
+		public:
+			typedef ModelBuilder<ModelConfigList_>                   Model;
+			typedef array<Symbol, Model::ContextSize>                Context;
+			typedef std::map<Context, ContextInfoBuilder>            ContextBuilders;
+			typedef typename ContextInfoBuilder::Symbols             Symbols;
+			typedef Compactificator<typename ModelConfigList_::Next> ChildCompactificator;
+
+			static const size_t ContextSize = Model::ContextSize;
+
+		private:
+			class Entry
+			{
+			private:
+				SymbolCount                        _count;
+				typename ContextBuilders::iterator _it;
+
+			public:
+				Entry(typename ContextBuilders::iterator it) :
+					_count(it->second.GetTotalCount()), _it(it)
+				{ }
+
+				SymbolCount GetCount() const                     { return _count; }
+				typename ContextBuilders::iterator GetIt() const { return _it; }
+
+				const Context& GetContext() const                { return _it->first; }
+				const Symbols& GetSymbols() const                { return _it->second.GetSymbols(); }
+			};
+			typedef std::vector<Entry> Entries;
+
+		private:
+			Model&               _model;
+			Entries              _entries;
+			ChildCompactificator _childCompacificator;
+
+		public:
+			Compactificator(Model& model) : _model(model), _childCompacificator(model.GetChildModel())
+			{
+				for (typename ContextBuilders::iterator it = _model.GetContexts().begin(); it != _model.GetContexts().end(); ++it)
+					_entries.push_back(it);
+				std::sort(_entries.begin(), _entries.end(), CompareMembersGreater(&Entry::GetCount));
+			}
+
+			void AddSymbol(array<Symbol, ContextSize> context, Symbol symbol, SymbolCount count)
+			{
+				std::pair<typename ContextBuilders::iterator, bool> p = _model.AddContext(context);
+				if (!p.second)
 				{
-					Symbols replacement;
-					typename Symbols::iterator it = _symbols.begin();
-					Symbol s = IntTraits<Symbol>::Min;
-					do
-					{
-						if (it != _symbols.end() && it->GetSymbol() == s && it->GetCount() != 0)
-							replacement.push_back(*it++);
-						else
-							replacement.push_back(SymbolCounter(s, 1));
-					}
-					while (s++ != IntTraits<Symbol>::Max);
-					_symbols.swap(replacement);
+					Entry e(p.first);
+					std::pair<typename Entries::iterator, typename Entries::iterator> range = std::equal_range(_entries.begin(), _entries.end(), e, CompareMembersGreater(&Entry::GetCount));
+					typename Entries::iterator it = std::find_if(range.first, range.second, bind(CompareMembersEquals(&Entry::GetContext), e, _1));
+					STINGRAYKIT_CHECK(it != range.second, "Can't find context!");
+					_entries.erase(it);
 				}
+
+				_model.DoAddSymbol(p.first, symbol, count);
+
+				Entry e(p.first);
+				typename Entries::iterator insertionPoint = std::lower_bound(_entries.begin(), _entries.end(), e, CompareMembersGreater(&Entry::GetCount));
+				_entries.insert(insertionPoint, e);
+			}
+
+			optional<SymbolCount> GetMinimalCount() const
+			{
+				optional<SymbolCount> myMinimal = _entries.empty() ? optional<SymbolCount>() : _entries.back().GetCount();
+				optional<SymbolCount> childMinimal = _childCompacificator.GetMinimalCount();
+				if (!myMinimal)
+					return childMinimal;
+				else if (!childMinimal)
+					return myMinimal;
 				else
+					return std::min(*myMinimal, *childMinimal);
+			}
+
+			void Compactify(SymbolCount minimalThreshold)
+			{
+				while (!_entries.empty() && _entries.back().GetCount() <= minimalThreshold)
+					DoPop();
+				_childCompacificator.Compactify(minimalThreshold);
+			}
+
+		private:
+			void DoPop()
+			{
+				Entry e = _entries.back();
+
+				CompileTimeAssert<(ContextSize > ChildCompactificator::ContextSize)> ErrorContextSizeMismatch;
+				array<Symbol, ChildCompactificator::ContextSize> recipientContext;
+				std::copy(e.GetContext().end() - ChildCompactificator::ContextSize, e.GetContext().end(), recipientContext.begin());
+
+				for (typename Symbols::const_iterator it = e.GetSymbols().begin(); it != e.GetSymbols().end(); ++it)
+					_childCompacificator.AddSymbol(recipientContext, it->GetSymbol(), it->GetCount());
+
+				_model.RemoveContext(e.GetIt());
+				_entries.pop_back();
+			}
+		};
+
+
+		template <typename ModelConfigList_>
+		class Compactificator<ModelConfigList_, typename EnableIf<GetTypeListLength<ModelConfigList_>::Value == 1, void>::ValueT>
+		{
+		public:
+			typedef ModelBuilder<ModelConfigList_> Model;
+			static const size_t ContextSize = Model::ContextSize;
+
+		private:
+			Model& _model;
+
+		public:
+			Compactificator(Model& model) : _model(model)
+			{ }
+
+			void AddSymbol(array<Symbol, Model::ContextSize> context, Symbol symbol, SymbolCount count)
+			{ _model.AddSymbol(context, symbol, count); }
+
+			optional<SymbolCount> GetMinimalCount() const
+			{ return null; }
+
+			size_t Compactify(SymbolCount minimalThreshold)
+			{ return 0; }
+		};
+
+
+		template <typename ModelConfigList_, typename Enabler = void>
+		class Model;
+
+
+		struct ModelMemoryCounter
+		{
+			template <typename ModelConfigList_>
+			size_t operator() (const ModelBuilder<ModelConfigList_>*, size_t contextsCount, size_t entriesCount) const
+			{ return contextsCount * Model<ModelConfigList_>::ContextInfoMemorySize + entriesCount * Model<ModelConfigList_>::SymbolProbabilityMemorySize; }
+		};
+
+
+		template <typename ModelConfigList_, typename Enabler>
+		class Model
+		{
+		public:
+			typedef ModelBuilder<ModelConfigList_>             Builder;
+			typedef typename ModelConfigList_::ValueT          ModelConfig;
+			typedef Model<typename ModelConfigList_::Next>     ChildModel;
+			typedef typename ModelConfig::Probability          Probability;
+			typedef array<Symbol, ModelConfig::ContextSize>    Context;
+
+			static const size_t ContextSize = ModelConfig::ContextSize;
+
+		private:
+			class SymbolProbability
+			{
+			private:
+				Symbol      _symbol;
+				Probability _probability;
+
+			public:
+				SymbolProbability(Symbol symbol, Probability probability) :
+					_symbol(symbol), _probability(probability)
+				{ }
+
+				Symbol GetSymbol() const           { return _symbol; }
+				Probability GetProbability() const { return _probability; }
+
+				std::string ToString() const
+				{ return StringBuilder() % _symbol % " => " % _probability; }
+			};
+			typedef std::vector<SymbolProbability> Symbols;
+
+			class ContextInfo
+			{
+			private:
+				Context     _context;
+				Probability _exitProbability;
+				size_t      _offset;
+
+			public:
+				ContextInfo(const Context& context, Probability exitProbability, size_t offset) :
+					_context(context), _exitProbability(exitProbability), _offset(offset)
+				{ }
+
+				Context GetContext() const             { return _context; }
+				Probability GetExitProbability() const { return _exitProbability; }
+				size_t GetOffset() const               { return _offset; }
+			};
+			typedef std::vector<ContextInfo> Contexts;
+
+		public:
+			static const size_t ContextInfoMemorySize = sizeof(ContextInfo);
+			static const size_t SymbolProbabilityMemorySize = sizeof(SymbolProbability);
+
+		private:
+			Symbols    _symbols;
+			Contexts   _contexts;
+			ChildModel _childModel;
+
+		public:
+			Model(ModelBuilder<ModelConfigList_>& modelBuilder) : _childModel(modelBuilder.GetChildModel())
+			{
+				for (typename Builder::ContextBuilders::iterator it = modelBuilder.GetContexts().begin(); it != modelBuilder.GetContexts().end(); ++it)
 				{
-					Symbols replacement;
-					Copy(Filter(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1)), std::back_inserter(replacement));
-					_symbols.swap(replacement);
+					size_t oldOffset = _symbols.size();
+
+					ContextInfoBuilder& contextBuilder(it->second);
+					SymbolCount maxCount = std::max(*Range::MaxElement(Transform(ToRange(contextBuilder.GetSymbols()), bind(&SymbolCounter::GetCount, _1))), contextBuilder.GetExit());
+					if (ContextSize != 0)
+					{
+						for (typename ContextInfoBuilder::Symbols::const_iterator s = contextBuilder.GetSymbols().begin(); s != contextBuilder.GetSymbols().end(); ++s)
+						{
+							Probability p = maxCount > ModelConfig::Scale ? (u64)s->GetCount() * ModelConfig::Scale / maxCount : s->GetCount();
+							if (p != 0)
+								_symbols.push_back(SymbolProbability(s->GetSymbol(), p));
+						}
+					}
+					else
+					{
+						typename ContextInfoBuilder::Symbols::const_iterator s = contextBuilder.GetSymbols().begin();
+						for (s64 symbol = IntTraits<Symbol>::Min; symbol != (s64)IntTraits<Symbol>::Max + 1; ++symbol)
+						{
+							if (s == contextBuilder.GetSymbols().end() || s->GetSymbol() != symbol)
+								_symbols.push_back(SymbolProbability(symbol, Probability(1)));
+							else
+							{
+								Probability p = maxCount > ModelConfig::Scale ? (u64)s->GetCount() * ModelConfig::Scale / maxCount : s->GetCount();
+								_symbols.push_back(SymbolProbability(symbol, std::max(p, Probability(1))));
+								s++;
+							}
+						}
+					}
+
+					if (oldOffset == _symbols.size())
+						continue;
+
+					Probability exit = std::max(SymbolCount(1), SymbolCount(maxCount > ModelConfig::Scale ? contextBuilder.GetExit() * ModelConfig::Scale / maxCount : contextBuilder.GetExit()));
+					_contexts.push_back(ContextInfo(it->first, exit, oldOffset));
 				}
 			}
 
 			template <typename Consumer_>
-			bool Predict(optional<Symbol> symbol, const Consumer_& f) const
+			void Predict(const std::deque<Symbol>& context, optional<Symbol> symbol, const Consumer_& f) const
 			{
-				SymbolCount scale = Sum(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1))) + _exit;
+				if (context.size() < ContextSize)
+				{
+					_childModel.Predict(context, symbol, f);
+					return;
+				}
+
+				Context ctx;
+				std::copy(context.end() - ContextSize, context.end(), ctx.begin());
+				typename Contexts::const_iterator it = std::lower_bound(_contexts.begin(), _contexts.end(), ctx, CompareMemberLess(&ContextInfo::GetContext));
+				if (it == _contexts.end())
+				{
+					_childModel.Predict(context, symbol, f);
+					return;
+				}
+
+				typename Symbols::const_iterator first = _symbols.begin() + it->GetOffset();
+				typename Symbols::const_iterator last = (next(it) != _contexts.end()) ? (_symbols.begin() + next(it)->GetOffset()) : _symbols.end();
+				if (!DoPredict(first, last, it->GetExitProbability(), symbol, f))
+					_childModel.Predict(context, symbol, f);
+			}
+
+			template <typename GetBitFunctor_>
+			optional<Symbol> Decode(const std::deque<Symbol>& context, ArithmeticDecoder& d, const GetBitFunctor_& f) const
+			{
+				if (context.size() < ContextSize)
+					return _childModel.Decode(context, d, f);
+
+				Context ctx;
+				std::copy(context.end() - ContextSize, context.end(), ctx.begin());
+				typename Contexts::const_iterator it = std::lower_bound(_contexts.begin(), _contexts.end(), ctx, CompareMemberLess(&ContextInfo::GetContext));
+				if (it == _contexts.end())
+					return _childModel.Decode(context, d, f);
+
+				typename Symbols::const_iterator first = _symbols.begin() + it->GetOffset();
+				typename Symbols::const_iterator last = (next(it) != _contexts.end()) ? (_symbols.begin() + next(it)->GetOffset()) : _symbols.end();
+				optional<Symbol> s = DoDecode(first, last, it->GetExitProbability(), d, f);
+				return s ? *s : _childModel.Decode(context, d, f);
+			}
+
+			std::string ToString() const
+			{
+				StringBuilder result;
+				result % _childModel;
+				for (typename Contexts::const_iterator it = _contexts.begin(); it != _contexts.end(); ++it)
+				{
+					typename Symbols::const_iterator first = _symbols.begin() + it->GetOffset();
+					typename Symbols::const_iterator last = (next(it) != _contexts.end()) ? (_symbols.begin() + next(it)->GetOffset()) : _symbols.end();
+					result % "Context: " % it->GetContext() % ", exit: " % it->GetExitProbability() % ", symbols: " % ToRange(first, last) % "\n";
+				}
+				return result;
+			}
+
+		private:
+			template <typename Consumer_>
+			bool DoPredict(typename Symbols::const_iterator first, typename Symbols::const_iterator last, Probability exit, optional<Symbol> symbol, const Consumer_& f) const
+			{
+				SymbolCount scale = Sum(Transform(Transform(ToRange(first, last), bind(&SymbolProbability::GetProbability, _1)), ImplicitCaster<SymbolCount>())) + exit;
 				if (!symbol)
 				{
-					f(scale - _exit, scale, scale);
+					f(scale - exit, scale, scale);
 					return false;
 				}
 
-				typename Symbols::const_iterator it = std::lower_bound(_symbols.begin(), _symbols.end(), SymbolCounter(*symbol, 0), CompareMembersLess(&SymbolCounter::GetSymbol));
-				if (it == _symbols.end() || it->GetSymbol() != *symbol)
+				typename Symbols::const_iterator it = std::lower_bound(first, last, *symbol, CompareMemberLess(&SymbolProbability::GetSymbol));
+				if (it == last || it->GetSymbol() != *symbol)
 				{
-					f(scale - _exit, scale, scale);
+					f(scale - exit, scale, scale);
 					return false;
 				}
-				SymbolCount low = Sum(Transform(ToRange(_symbols.begin(), it), bind(&SymbolCounter::GetCount, _1)));
-				f(low, low + it->GetCount(), scale);
+				SymbolCount low = Sum(Transform(ToRange(first, it), bind(&SymbolProbability::GetProbability, _1)));
+				f(low, low + it->GetProbability(), scale);
 				return true;
 			}
 
 			template <typename GetBitFunctor_>
-			optional<Symbol> Decode(ArithmeticDecoder& decoder, const GetBitFunctor_& getBit) const
+			optional<Symbol> DoDecode(typename Symbols::const_iterator first, typename Symbols::const_iterator last, Probability exit, ArithmeticDecoder& decoder, const GetBitFunctor_& getBit) const
 			{
-				SymbolCount scale = Sum(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1))) + _exit;
+				SymbolCount scale = Sum(Transform(Transform(ToRange(first, last), bind(&SymbolProbability::GetProbability, _1)), ImplicitCaster<SymbolCount>())) + exit;
 				u32 low = 0;
 				u32 targetProbability = decoder.GetProbability(scale);
-				for (typename Symbols::const_iterator it = _symbols.begin(); it != _symbols.end(); ++it)
+				for (typename Symbols::const_iterator it = first; it != last; ++it)
 				{
-					u32 high = low + it->GetCount();
+					u32 high = low + it->GetProbability();
 					if (low <= targetProbability && targetProbability < high)
 					{
 						decoder.SymbolDecoded(low, high, scale, getBit);
@@ -153,258 +503,30 @@ namespace stingray
 					}
 					low = high;
 				}
-				decoder.SymbolDecoded(scale - _exit, scale, scale, getBit);
+				decoder.SymbolDecoded(scale - exit, scale, scale, getBit);
 				return null;
 			}
-
-			std::string ToString() const
-			{ return StringBuilder() % _symbols; }
 		};
 
 
-	public:
-		typedef std::map<array<Symbol, ContextSize>, PpmContextBuilder> Contexts;
-		typedef PpmModel<PpmConfig_, typename ModelConfigList_::Next>   ChildModel;
-		typedef CompactificatorTemplate<PpmConfig_, ModelConfigList_>   Compactificator;
-
-		static const size_t EntryMemorySize = sizeof(typename Contexts::value_type) + sizeof(size_t) * 3;
-
-	private:
-		Contexts   _contexts;
-		ChildModel _childModel;
-
-	public:
-		PpmModel()
-		{ CompileTimeAssert<(ContextSize > ChildModel::ContextSize || SameType<typename ModelConfigList_::Next, TypeListEndNode>::Value)> ModelConfigsMustBeSortedInDescendingOrder; }
-
-		size_t AddSymbol(const std::deque<Symbol>& context, Symbol symbol, SymbolCount count)
+		template <typename ModelConfigList_>
+		class Model<ModelConfigList_, typename EnableIf<GetTypeListLength<ModelConfigList_>::Value == 0, void>::ValueT>
 		{
-			if (context.size() < ContextSize)
-				return _childModel.AddSymbol(context, symbol, count);
-
-			array<Symbol, ContextSize> ctx;
-			std::copy(context.end() - ContextSize, context.end(), ctx.begin());
-			return DoAddSymbol(ctx, symbol, count);
-		}
-
-		size_t DoAddSymbol(array<Symbol, ContextSize> context, Symbol symbol, SymbolCount count)
-		{
-			std::pair<typename Contexts::iterator, bool> p = _contexts.insert(std::make_pair(context, PpmContextBuilder()));
-			return p.first->second.AddSymbol(symbol, count) + (p.second ? EntryMemorySize : 0);
-		}
-
-		void Normalize()
-		{
-			for (typename Contexts::iterator it = _contexts.begin(); it != _contexts.end(); ++it)
-				it->second.Normalize();
-			_childModel.Normalize();
-		}
-
-		Contexts& GetContexts()     { return _contexts; }
-		ChildModel& GetChildModel() { return _childModel; }
-
-		template <typename Consumer_>
-		void Predict(const std::deque<Symbol>& context, optional<Symbol> symbol, const Consumer_& f) const
-		{
-			if (context.size() < ContextSize)
-				return _childModel.Predict(context, symbol, f);
-
-			array<Symbol, ContextSize> ctx;
-			std::copy(context.end() - ContextSize, context.end(), ctx.begin());
-			typename Contexts::const_iterator it = _contexts.find(ctx);
-			if (it == _contexts.end() || !it->second.Predict(symbol, f))
-				_childModel.Predict(context, symbol, f);
-		}
-
-		template <typename GetBitFunctor_>
-		optional<Symbol> Decode(const std::deque<Symbol>& context, ArithmeticDecoder& d, const GetBitFunctor_& f) const
-		{
-			if (context.size() < ContextSize)
-				return _childModel.Decode(context, d, f);
-
-			array<Symbol, ContextSize> ctx;
-			std::copy(context.end() - ContextSize, context.end(), ctx.begin());
-			typename Contexts::const_iterator it = _contexts.find(ctx);
-			if (it == _contexts.end())
-				return _childModel.Decode(context, d, f);
-			optional<Symbol> s = it->second.Decode(d, f);
-			return s ? *s : _childModel.Decode(context, d, f);
-		}
-
-		std::string ToString() const
-		{ return StringBuilder() % "PpmModel { order: " % ContextSize % ", contexts: " % _contexts % " }, child: { " % _childModel % " }"; }
-	};
-
-
-	template <typename PpmConfig_>
-	class PpmModel<PpmConfig_, TypeListEndNode>
-	{
-	public:
-		typedef typename PpmConfig_::Symbol       Symbol;
-		typedef typename PpmConfig_::SymbolCount  SymbolCount;
-		static const size_t ContextSize = 0;
-
-		size_t AddSymbol(const std::deque<Symbol>& context, Symbol symbol, SymbolCount count)
-		{ return 0; }
-
-		void Normalize()
-		{ }
-
-		template <typename Consumer_>
-		void Predict(const std::deque<Symbol>& context, optional<Symbol> symbol, const Consumer_& f) const
-		{ STINGRAYKIT_CHECK(!symbol, "Should get here at EOF only!"); }
-
-		template <typename GetBitFunctor_>
-		optional<Symbol> Decode(const std::deque<Symbol>& context, ArithmeticDecoder& d, const GetBitFunctor_& f) const
-		{ return null; }
-
-		std::string ToString() const
-		{ return "{ }"; }
-	};
-
-
-	template <typename PpmConfig_, typename ModelConfigList_, typename Enabler>
-	class CompactificatorTemplate
-	{
-	public:
-		typedef typename PpmConfig_::Symbol                                          Symbol;
-		typedef typename PpmConfig_::SymbolCount                                     SymbolCount;
-		typedef PpmModel<PpmConfig_, ModelConfigList_>                               Model;
-		typedef typename Model::Symbols                                              Symbols;
-		typedef typename Model::Contexts                                             Contexts;
-		typedef CompactificatorTemplate<PpmConfig_, typename ModelConfigList_::Next> ChildCompactificator;
-
-		static const size_t ContextSize = Model::ContextSize;
-
-	private:
-		class Entry
-		{
-		private:
-			SymbolCount                 _count;
-			typename Contexts::iterator _it;
-
 		public:
-			Entry(typename Contexts::iterator it) :
-				_count(it->second.GetTotalCount()), _it(it)
+			Model(ModelBuilder<ModelConfigList_>& modelBuilder)
 			{ }
 
-			SymbolCount GetCount() const                         { return _count; }
-			void SetCount(SymbolCount c)                         { _count = c; }
-			const array<Symbol, ContextSize>& GetContext() const { return _it->first; }
-			const Symbols& GetSymbols() const                    { return _it->second.GetSymbols(); }
+			template <typename Consumer_>
+			void Predict(const std::deque<Symbol>& context, optional<Symbol> symbol, const Consumer_& f) const
+			{ STINGRAYKIT_CHECK(!symbol, "Should get here at EOF only!"); }
 
-			typename Contexts::iterator GetIt() const            { return _it; }
+			template <typename GetBitFunctor_>
+			optional<Symbol> Decode(const std::deque<Symbol>& context, ArithmeticDecoder& d, const GetBitFunctor_& f) const
+			{ return null; }
 
-			std::string ToString() const                         { return StringBuilder() % "{ context: " % GetContext() % ", count: " % GetCount() % " }"; }
+			std::string ToString() const
+			{ return ""; }
 		};
-		typedef std::vector<Entry> Entries;
-
-	private:
-		Model&               _model;
-		Entries              _entries;
-		ChildCompactificator _childCompacificator;
-
-	public:
-		CompactificatorTemplate(Model& model) : _model(model), _childCompacificator(model.GetChildModel())
-		{
-			for (typename Contexts::iterator it = _model.GetContexts().begin(); it != _model.GetContexts().end(); ++it)
-				_entries.push_back(it);
-			std::sort(_entries.begin(), _entries.end(), CompareMembersGreater(&Entry::GetCount));
-		}
-
-		size_t AddSymbol(array<Symbol, ContextSize> context, Symbol symbol, SymbolCount count)
-		{
-			std::pair<typename Contexts::iterator, bool> p = _model.GetContexts().insert(std::make_pair(context, typename Model::PpmContextBuilder()));
-			if (!p.second)
-			{
-				Entry e(p.first);
-				std::pair<typename Entries::iterator, typename Entries::iterator> range = std::equal_range(_entries.begin(), _entries.end(), e, CompareMembersGreater(&Entry::GetCount));
-				typename Entries::iterator it = std::find_if(range.first, range.second, bind(CompareMembersEquals(&Entry::GetContext), e, _1));
-				STINGRAYKIT_CHECK(it != range.second, StringBuilder() % "Can't find context! Entries: " % _entries % ", e: " % e);
-				_entries.erase(it);
-			}
-
-			size_t result = p.first->second.AddSymbol(symbol, count) + (p.second ? Model::EntryMemorySize : 0);
-			DoAdd(p.first);
-			return result;
-		}
-
-		optional<SymbolCount> GetMinimalCount() const
-		{
-			optional<SymbolCount> myMinimal = _entries.empty() ? optional<SymbolCount>() : _entries.back().GetCount();
-			optional<SymbolCount> childMinimal = _childCompacificator.GetMinimalCount();
-			if (!myMinimal)
-				return childMinimal;
-			else if (!childMinimal)
-				return myMinimal;
-			else
-				return std::min(*myMinimal, *childMinimal);
-		}
-
-		size_t Compactify(SymbolCount minimalThreshold)
-		{
-			size_t freedMemory = 0;
-			while (!_entries.empty() && _entries.back().GetCount() <= minimalThreshold)
-				freedMemory += DoPop();
-			return freedMemory + _childCompacificator.Compactify(minimalThreshold);
-		}
-
-	private:
-		void DoAdd(typename Contexts::iterator it)
-		{
-			Entry e(it);
-			typename Entries::iterator insertionPoint = std::lower_bound(_entries.begin(), _entries.end(), e, CompareMembersGreater(&Entry::GetCount));
-			_entries.insert(insertionPoint, e);
-		}
-
-		size_t DoPop()
-		{
-			Entry e = _entries.back();
-
-			CompileTimeAssert<(ContextSize > ChildCompactificator::ContextSize)> ErrorContextSizeMismatch;
-			array<Symbol, ChildCompactificator::ContextSize> recipientContext;
-			std::copy(e.GetContext().end() - ChildCompactificator::ContextSize, e.GetContext().end(), recipientContext.begin());
-
-			size_t consumedMemory = 0;
-			for (typename Symbols::const_iterator it = e.GetSymbols().begin(); it != e.GetSymbols().end(); ++it)
-				consumedMemory += _childCompacificator.AddSymbol(recipientContext, it->GetSymbol(), it->GetCount());
-
-			typename Contexts::iterator it = e.GetIt();
-			size_t freedMemory = it->second.GetTotalSize() + Model::EntryMemorySize;
-			_model.GetContexts().erase(it);
-			_entries.pop_back();
-
-			STINGRAYKIT_CHECK(freedMemory >= consumedMemory, "Popping contexts should free memory, not consume it!");
-			return freedMemory - consumedMemory;
-		}
-	};
-
-
-	template <typename PpmConfig_, typename ModelConfigList_>
-	class CompactificatorTemplate<PpmConfig_, ModelConfigList_, typename EnableIf<GetTypeListLength<ModelConfigList_>::Value == 1, void>::ValueT>
-	{
-	public:
-		typedef typename PpmConfig_::Symbol            Symbol;
-		typedef typename PpmConfig_::SymbolCount       SymbolCount;
-		typedef PpmModel<PpmConfig_, ModelConfigList_> Model;
-
-		static const size_t ContextSize = Model::ContextSize;
-
-	private:
-		Model& _model;
-
-	public:
-		CompactificatorTemplate(Model& model) : _model(model)
-		{ }
-
-		size_t AddSymbol(array<Symbol, Model::ContextSize> context, Symbol symbol, SymbolCount count)
-		{ return _model.DoAddSymbol(context, symbol, count); }
-
-		optional<SymbolCount> GetMinimalCount() const
-		{ return null; }
-
-		size_t Compactify(SymbolCount minimalThreshold)
-		{ return 0; }
 	};
 
 }

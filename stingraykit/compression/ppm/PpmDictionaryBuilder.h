@@ -15,25 +15,24 @@ namespace stingray
 	class PpmDictionaryBuilder : public virtual ICompressionDictionaryBuilder
 	{
 	public:
-		typedef typename PpmConfig_::Symbol                 Symbol;
-		typedef typename PpmConfig_::SymbolCount            SymbolCount;
-		typedef PpmModel<PpmConfig_, ModelConfigList_>      Model;
-		typedef PpmDictionary<PpmConfig_, ModelConfigList_> Dictionary;
+		typedef PpmImpl<PpmConfig_>                                       Impl;
+		typedef typename Impl::template ModelBuilder<ModelConfigList_>    ModelBuilder;
+		typedef typename Impl::template Model<ModelConfigList_>           Model;
+		typedef typename Impl::template Compactificator<ModelConfigList_> Compactificator;
+		typedef PpmDictionary<PpmConfig_, ModelConfigList_>               Dictionary;
 
 	private:
-		const size_t         _lowMemoryThreshold;
-		const size_t         _highMemoryThreshold;
-		const size_t         _finalMemoryThreshold;
-		size_t               _memoryConsumption;
-		shared_ptr<Model>    _model;
-		std::deque<Symbol>   _context;
+		const size_t                      _lowMemoryThreshold;
+		const size_t                      _highMemoryThreshold;
+		const size_t                      _finalMemoryThreshold;
+		optional<ModelBuilder>            _model;
+		std::deque<typename Impl::Symbol> _context;
 
 	public:
 		PpmDictionaryBuilder(size_t lowMemoryThreshold, size_t highMemoryThreshold, size_t finalMemoryThreshold) :
 			_lowMemoryThreshold(lowMemoryThreshold), _highMemoryThreshold(highMemoryThreshold),
-			_finalMemoryThreshold(finalMemoryThreshold), _memoryConsumption(0),
-			_model(make_shared<Model>())
-		{ }
+			_finalMemoryThreshold(finalMemoryThreshold)
+		{ _model.emplace(); }
 
 		virtual void Process(ConstByteData data)
 		{
@@ -43,34 +42,27 @@ namespace stingray
 
 		virtual ICompressionDictionaryPtr Finish()
 		{
-			typename Model::Compactificator compactificator(*_model);
-			while (_memoryConsumption > _finalMemoryThreshold)
-			{
-				optional<SymbolCount> minimalThreshold = compactificator.GetMinimalCount();
-				if (minimalThreshold)
-					_memoryConsumption -= compactificator.Compactify(*minimalThreshold);
-			}
-			Normalize();
-			shared_ptr<Model> model;
-			model.swap(_model);
+			Compactificator compactificator(*_model);
+			while (_model->GetMemoryConsumption(typename Impl::ModelMemoryCounter()) > _finalMemoryThreshold)
+				compactificator.Compactify(*compactificator.GetMinimalCount());
+
+			shared_ptr<Model> model(make_shared<Model>(ref(*_model)));
+			_model.emplace();
 			_context.clear();
 			return make_shared<Dictionary>(model);
 		}
 
-		std::string ToString() const
-		{ return StringBuilder() % _model; }
-
 	private:
-		void AddSymbol(Symbol symbol)
+		void AddSymbol(typename Impl::Symbol symbol)
 		{
-			_memoryConsumption += _model->AddSymbol(_context, symbol, SymbolCount(1));
+			_model->AddSymbol(_context, symbol, typename Impl::SymbolCount(1));
 			UpdateContext(symbol);
 
-			if (_memoryConsumption > _highMemoryThreshold)
+			if (_model->GetMemoryConsumption(typename Impl::ModelBuilderMemoryCounter()) > _highMemoryThreshold)
 				Compactify();
 		}
 
-		void UpdateContext(Symbol symbol)
+		void UpdateContext(typename Impl::Symbol symbol)
 		{
 			_context.push_back(symbol);
 			if (_context.size() > Model::ContextSize)
@@ -79,18 +71,10 @@ namespace stingray
 
 		void Compactify()
 		{
-			typename Model::Compactificator compactificator(*_model);
-
-			while (_memoryConsumption > _lowMemoryThreshold)
-			{
-				optional<SymbolCount> minimalThreshold = compactificator.GetMinimalCount();
-				if (minimalThreshold)
-					_memoryConsumption -= compactificator.Compactify(*minimalThreshold);
-			}
+			Compactificator compactificator(*_model);
+			while (_model->GetMemoryConsumption(typename Impl::ModelBuilderMemoryCounter()) > _lowMemoryThreshold)
+				compactificator.Compactify(*compactificator.GetMinimalCount());
 		}
-
-		void Normalize()
-		{ _model->Normalize(); }
 	};
 
 

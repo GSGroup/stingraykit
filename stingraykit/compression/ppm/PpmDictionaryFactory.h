@@ -15,11 +15,12 @@ namespace stingray
 	};
 
 
-	template <size_t ContextSize_, size_t ProbabilityScale_>
+	template <size_t ContextSize_, typename Probability_>
 	struct PpmModelConfig
 	{
 		static const size_t ContextSize = ContextSize_;
-		static const size_t Scale = ProbabilityScale_;
+		typedef Probability_ Probability;
+		static const size_t Scale = IntTraits<Probability>::Max;
 	};
 
 
