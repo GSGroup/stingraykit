@@ -598,6 +598,11 @@ namespace stingray
 		}
 
 
+		template <typename Range_>
+		optional<typename Detail::RangeToValue<Range_>::ValueT> MinElement(Range_ range)
+		{ return MinElement(range, comparers::Less()); }
+
+
 		template <typename Range_, class Comparer_>
 		optional<typename Detail::RangeToValue<Range_>::ValueT> MaxElement(Range_ range, Comparer_ comparer)
 		{
@@ -607,6 +612,11 @@ namespace stingray
 					result = range.Get();
 			return result;
 		}
+
+
+		template <typename Range_>
+		optional<typename Detail::RangeToValue<Range_>::ValueT> MaxElement(Range_ range)
+		{ return MaxElement(range, comparers::Less()); }
 	}
 
 
