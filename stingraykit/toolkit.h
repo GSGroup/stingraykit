@@ -207,6 +207,8 @@ namespace stingray
 	template<typename T>
 	struct ImplicitCaster
 	{
+		typedef T RetType;
+
 		T operator () (T param) const
 		{ return param; }
 	};
