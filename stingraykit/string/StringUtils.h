@@ -174,7 +174,7 @@ namespace stingray
 
 	class IsAnyOf
 	{
-		std::string _list;
+		const std::string & _list;
 
 	public:
 		IsAnyOf(const std::string & list): _list(list)
