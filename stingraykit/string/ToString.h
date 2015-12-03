@@ -41,8 +41,8 @@ namespace stingray
 		return T::FromString(str);
 	}
 
-	template < typename T >
-	typename EnableIf<!HasMethod_FromString<T>::Value && !SameType<T, std::string>::Value, T>::ValueT FromString(const std::string& str)
+	template < typename T, typename StringType >
+	typename EnableIf<!HasMethod_FromString<T>::Value && !SameType<T, StringType>::Value, T>::ValueT FromString(const StringType & str)
 	{
 		if (str.empty()) //old from string behaved this way.
 			return 0;
@@ -68,8 +68,8 @@ namespace stingray
 		return negative? (T)0 - value: value; //Dima told me to shut compiler up. Sorry.
 	}
 
-	template < typename T >
-	typename EnableIf<SameType<T, std::string>::Value, std::string>::ValueT FromString(const std::string& str)
+	template < typename T, typename StringType >
+	typename EnableIf<SameType<T, StringType>::Value, StringType>::ValueT FromString(const StringType & str)
 	{ return str; }
 
 

@@ -146,17 +146,21 @@ namespace stingray
 				return (p >= _end) ? npos : p - _begin;
 			}
 
-			inline std::string substr(size_type pos = 0, size_type n = npos) const
-			{
-				return pos < size() ? _owner->substr(_begin + pos, std::min(size() - pos, n)) : std::string();
-			}
+			StringRef substr(size_type pos = 0, size_type n = npos) const
+			{ return StringRef(*_owner, _begin + pos, n == npos? _end: _begin + pos + n ); }
 
-			inline std::string str() const { return substr(); }
+			char operator[] (size_type index) const
+			{ return (*_owner)[_begin + index]; }
 
+			inline std::string str() const { return str_substr(); }
 			operator std::string() const   { return str(); }
 
 			bool operator != (const std::string& other) const { return str() != other; }
 			bool operator == (const std::string& other) const { return str() == other; }
+
+		private:
+			std::string str_substr(size_type pos = 0, size_type n = npos) const
+			{ return pos < size() ? _owner->substr(_begin + pos, std::min(size() - pos, n)) : std::string(); }
 		};
 
 		struct DelimiterMatch
