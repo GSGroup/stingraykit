@@ -60,7 +60,7 @@ namespace stingray
 		bool operator < (TimeDuration other) const				{ return _microseconds < other._microseconds; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
 
-		std::string ToString(const std::string& format = "") const;
+		std::string ToString(const std::string& format = std::string()) const;
 		static TimeDuration FromString(const std::string& s);
 
 		static TimeDuration FromMicroseconds(s64 microseconds)	{ return TimeDuration(microseconds, Dummy()); }
@@ -167,7 +167,7 @@ namespace stingray
 		BrokenDownTime BreakDown(TimeKind kind = TimeKind::Local) const;
 		static Time FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind = TimeKind::Local);
 
-		std::string ToString(const std::string& format = "", TimeKind kind = TimeKind::Local) const;
+		std::string ToString(const std::string& format = std::string(), TimeKind kind = TimeKind::Local) const;
 		static Time FromString(const std::string& s, TimeKind kind = TimeKind::Local);
 
 		u64 ToNtpTimestamp() const;

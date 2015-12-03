@@ -44,7 +44,7 @@ namespace stingray
 		BrokenDownTime GetDayStart();
 		int GetMaxDaysInMonth() const;
 		static int GetMaxDaysInMonth(int year, int month);
-		std::string ToString(const std::string& format = "") const;
+		std::string ToString(const std::string& format = std::string()) const;
 	};
 
 	/** @} */
