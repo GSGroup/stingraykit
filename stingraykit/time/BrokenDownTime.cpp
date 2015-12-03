@@ -7,6 +7,8 @@
 
 #include <stingraykit/time/BrokenDownTime.h>
 
+#include <stingraykit/function/bind.h>
+#include <stingraykit/string/AhoCorasick.h>
 #include <stingraykit/string/StringUtils.h>
 #include <stingraykit/string/ToString.h>
 
@@ -36,22 +38,74 @@ namespace stingray
 		return t.GetMaxDaysInMonth();
 	}
 
-
-	std::string BrokenDownTime::ToString(const std::string& format) const
+	class BrokenDownTime::FormatMatcher
 	{
-		std::string result = format.empty() ? "dd/MM/YYYY hh:mm:ss.lll" : format;
+		AhoCorasick _aho;
 
-		// TODO: reimplement
-		ReplaceAll(result, "dd", RightJustify(stingray::ToString(MonthDay), 2, '0'));
-		ReplaceAll(result, "MM", RightJustify(stingray::ToString(Month), 2, '0'));
-		ReplaceAll(result, "Y", "y");
-		ReplaceAll(result, "yyyy", RightJustify(stingray::ToString(Year), 4, '0'));
-		ReplaceAll(result, "hh",  RightJustify(stingray::ToString(Hours), 2, '0'));
-		ReplaceAll(result, "mm", RightJustify(stingray::ToString(Minutes), 2, '0'));
-		ReplaceAll(result, "ss", RightJustify(stingray::ToString(Seconds), 2, '0'));
-		ReplaceAll(result, "lll", RightJustify(stingray::ToString(Milliseconds), 3, '0'));
+	public:
+		FormatMatcher()
+		{
+			_aho.Add("dd");
+			_aho.Add("MM");
+			_aho.Add("YYYY");
+			_aho.Add("yyyy");
+			_aho.Add("hh");
+			_aho.Add("mm");
+			_aho.Add("ss");
+			_aho.Add("lll");
+			_aho.Build();
+		}
 
-		return result;
+		static void OnMatch(const BrokenDownTime & bdt, string_ostream & stream, size_t & lastPosition, const std::string &format, const std::string &pattern, size_t patternIndex, size_t offset)
+		{
+			stream.write(format.data() + lastPosition, offset - lastPosition);
+			switch(patternIndex)
+			{
+				case 0: stream << RightJustify(stingray::ToString(bdt.MonthDay), 2, '0'); break;
+				case 1: stream << RightJustify(stingray::ToString(bdt.Month), 2, '0'); break;
+				case 2:
+				case 3: stream << RightJustify(stingray::ToString(bdt.Year), 4, '0'); break;
+				case 4: stream << RightJustify(stingray::ToString(bdt.Hours), 2, '0'); break;
+				case 5: stream << RightJustify(stingray::ToString(bdt.Minutes), 2, '0'); break;
+				case 6: stream << RightJustify(stingray::ToString(bdt.Seconds), 2, '0'); break;
+				case 7: stream << RightJustify(stingray::ToString(bdt.Milliseconds), 3, '0'); break;
+			}
+			lastPosition = offset + pattern.size();
+		}
+
+		void Search(const std::string & text, const AhoCorasick::CallbackType & callback) const
+		{ _aho.Search(text, callback); }
+	};
+
+	BrokenDownTime::FormatMatcher BrokenDownTime::s_formatMatcher;
+
+	std::string BrokenDownTime::ToString(const std::string & format) const
+	{
+		if (format.empty())
+		{
+#if 0
+			return ToString("dd/MM/YYYY hh:mm:ss.lll");
+#else
+			string_ostream stream;
+			stream << RightJustify(stingray::ToString(MonthDay), 2, '0') << '/'; //fixme: use string_stream for justification
+			stream << RightJustify(stingray::ToString(Month), 2, '0') << '/';
+			stream << RightJustify(stingray::ToString(Year), 4, '0') << ' ';
+			stream << RightJustify(stingray::ToString(Hours), 2, '0') << ':';
+			stream << RightJustify(stingray::ToString(Minutes), 2, '0') << ':';
+			stream << RightJustify(stingray::ToString(Seconds), 2, '0') << '.';
+			stream << RightJustify(stingray::ToString(Milliseconds), 3, '0');
+			return stream.str();
+#endif
+		}
+
+		string_ostream stream;
+		size_t last = 0;
+
+		AhoCorasick::CallbackType callback = bind(&FormatMatcher::OnMatch, ref(*this), ref(stream), ref(last), ref(format), _1, _2, _3);
+		s_formatMatcher.Search(format, callback);
+		stream.write(format.data() + last, format.size() - last);
+
+		return stream.str();
 	}
 
 }

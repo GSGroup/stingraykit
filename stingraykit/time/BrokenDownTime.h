@@ -45,6 +45,11 @@ namespace stingray
 		int GetMaxDaysInMonth() const;
 		static int GetMaxDaysInMonth(int year, int month);
 		std::string ToString(const std::string& format = std::string()) const;
+
+		class FormatMatcher;
+
+	private:
+		static FormatMatcher s_formatMatcher;
 	};
 
 	/** @} */
