@@ -56,26 +56,43 @@ namespace stingray
 			_aho.Build();
 		}
 
-		static void OnMatch(const BrokenDownTime & bdt, string_ostream & stream, size_t & lastPosition, const std::string &format, const std::string &pattern, size_t patternIndex, size_t offset)
-		{
-			stream.write(format.data() + lastPosition, offset - lastPosition);
-			switch(patternIndex)
-			{
-				case 0: stream << RightJustify(stingray::ToString(bdt.MonthDay), 2, '0'); break;
-				case 1: stream << RightJustify(stingray::ToString(bdt.Month), 2, '0'); break;
-				case 2:
-				case 3: stream << RightJustify(stingray::ToString(bdt.Year), 4, '0'); break;
-				case 4: stream << RightJustify(stingray::ToString(bdt.Hours), 2, '0'); break;
-				case 5: stream << RightJustify(stingray::ToString(bdt.Minutes), 2, '0'); break;
-				case 6: stream << RightJustify(stingray::ToString(bdt.Seconds), 2, '0'); break;
-				case 7: stream << RightJustify(stingray::ToString(bdt.Milliseconds), 3, '0'); break;
-			}
-			lastPosition = offset + pattern.size();
-		}
-
-		void Search(const std::string & text, const AhoCorasick::CallbackType & callback) const
+		template<typename CallbackType>
+		void Search(const std::string & text, const CallbackType & callback) const
 		{ _aho.Search(text, callback); }
 	};
+
+	namespace
+	{
+		struct ReplaceContext
+		{
+			const BrokenDownTime &	Bdt;
+			string_ostream &		Stream;
+			mutable size_t			LastPosition;
+			const std::string &		Format;
+
+
+			ReplaceContext(const BrokenDownTime & bdt, string_ostream & stream, const std::string & format):
+				Bdt(bdt), Stream(stream), LastPosition(0), Format(format)
+			{ }
+
+			void operator()(const std::string &pattern, size_t patternIndex, size_t offset) const
+			{
+				Stream.write(Format.data() + LastPosition, offset - LastPosition);
+				switch(patternIndex)
+				{
+					case 0: Stream << RightJustify(stingray::ToString(Bdt.MonthDay), 2, '0'); break;
+					case 1: Stream << RightJustify(stingray::ToString(Bdt.Month), 2, '0'); break;
+					case 2:
+					case 3: Stream << RightJustify(stingray::ToString(Bdt.Year), 4, '0'); break;
+					case 4: Stream << RightJustify(stingray::ToString(Bdt.Hours), 2, '0'); break;
+					case 5: Stream << RightJustify(stingray::ToString(Bdt.Minutes), 2, '0'); break;
+					case 6: Stream << RightJustify(stingray::ToString(Bdt.Seconds), 2, '0'); break;
+					case 7: Stream << RightJustify(stingray::ToString(Bdt.Milliseconds), 3, '0'); break;
+				}
+				LastPosition = offset + pattern.size();
+			}
+		};
+	}
 
 	BrokenDownTime::FormatMatcher BrokenDownTime::s_formatMatcher;
 
@@ -99,11 +116,10 @@ namespace stingray
 		}
 
 		string_ostream stream;
-		size_t last = 0;
+		ReplaceContext context(*this, stream, format);
 
-		AhoCorasick::CallbackType callback = bind(&FormatMatcher::OnMatch, ref(*this), ref(stream), ref(last), ref(format), _1, _2, _3);
-		s_formatMatcher.Search(format, callback);
-		stream.write(format.data() + last, format.size() - last);
+		s_formatMatcher.Search(format, context);
+		stream.write(format.data() + context.LastPosition, format.size() - context.LastPosition);
 
 		return stream.str();
 	}

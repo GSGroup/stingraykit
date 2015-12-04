@@ -3,7 +3,6 @@
 
 #include <stingraykit/Types.h>
 #include <stingraykit/collection/array.h>
-#include <stingraykit/function/function.h>
 #include <stingraykit/optional.h>
 
 #include <algorithm>
@@ -39,8 +38,6 @@ namespace stingray
 		bool								_built;
 
 	public:
-		typedef function<void (const std::string &, size_t, size_t) > CallbackType;
-
 		AhoCorasick() : _built(false)
 		{ _trie.push_back(TrieNode(None, 0)); }
 
@@ -111,7 +108,7 @@ namespace stingray
 			_built = true;
 		}
 
-		template<typename IteratorType>
+		template<typename IteratorType, typename CallbackType>
 		void Search(const IteratorType & begin, const IteratorType & end, const CallbackType & callback) const
 		{
 			STINGRAYKIT_CHECK(_built, "AhoCorasick requires Build() before searching");
@@ -142,8 +139,9 @@ namespace stingray
 			}
 		}
 
-		void Search(const std::string & text, const CallbackType & callback) const
-		{ return Search(text.begin(), text.end(), callback); }
+		template<typename StringType, typename CallbackType>
+		void Search(const StringType & text, const CallbackType & callback) const
+		{ Search(text.begin(), text.end(), callback); }
 	};
 
 }
