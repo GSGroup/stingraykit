@@ -104,7 +104,7 @@ namespace stingray
 			return ToString("dd/MM/YYYY hh:mm:ss.lll");
 #else
 			string_ostream stream;
-			stream << RightJustify(stingray::ToString(MonthDay), 2, '0') << '/'; //fixme: use string_stream for justification
+			stream << RightJustify(stingray::ToString(MonthDay), 2, '0') << '/';
 			stream << RightJustify(stingray::ToString(Month), 2, '0') << '/';
 			stream << RightJustify(stingray::ToString(Year), 4, '0') << ' ';
 			stream << RightJustify(stingray::ToString(Hours), 2, '0') << ':';
