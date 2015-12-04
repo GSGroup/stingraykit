@@ -363,13 +363,48 @@ namespace stingray
 	inline std::string Uncapitalize(const std::string& str)
 	{ return str.empty()? str : ToLower(str.substr(0, 1)) + str.substr(1); }
 
+	namespace Detail
+	{
 
-	inline std::string LeftJustify(const std::string& str, size_t width, char filler = ' ')
-	{ return str + std::string(str.length() < width? width - str.length() : 0, filler); }
+		template<bool Left>
+		struct StringJustificator
+		{
+			const std::string & String;
+			size_t				Width;
+			char				Filler;
 
+			StringJustificator(const std::string &str, size_t width, char ch): String(str), Width(width), Filler(ch) { }
 
-	inline std::string RightJustify(const std::string& str, size_t width, char filler = ' ')
-	{ return std::string(str.length() < width? width - str.length() : 0, filler) + str;  }
+			operator std::string () const
+			{
+				return Left?
+					String + std::string(String.length() < Width? Width - String.length() : 0, Filler):
+					std::string(String.length() < Width? Width - String.length() : 0, Filler) + String;
+			}
+		};
+
+		template<typename StreamType, bool Left>
+		StreamType & operator<< (StreamType & stream, const StringJustificator<Left> & rj)
+		{
+			if (Left)
+				stream << rj.String;
+			if (rj.String.size() < rj.Width)
+			{
+				size_t width = rj.Width - rj.String.size();
+				while(width--)
+					stream << rj.Filler;
+			}
+			if (!Left)
+				stream << rj.String;
+			return stream;
+		}
+	}
+
+	inline Detail::StringJustificator<true> LeftJustify(const std::string& str, size_t width, char filler = ' ')
+	{ return Detail::StringJustificator<true>(str, width, filler); }
+
+	inline Detail::StringJustificator<false> RightJustify(const std::string& str, size_t width, char filler = ' ')
+	{ return Detail::StringJustificator<false>(str, width, filler); }
 
 
 	namespace Detail
