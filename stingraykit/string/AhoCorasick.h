@@ -22,16 +22,12 @@ namespace stingray
 		struct TrieNode
 		{
 			array<size_t, 256>		Next;
-			size_t					Parent;
-			CharType				Char;
 			size_t					Fail;
 
 			optional<size_t>		PatternIndex;
 
-			TrieNode(size_t parent, CharType ch): Parent(parent), Char(ch), Fail(None)
-			{
-				std::fill(Next.begin(), Next.end(), None);
-			}
+			TrieNode(): Fail(None)
+			{ std::fill(Next.begin(), Next.end(), None); }
 		};
 		std::deque<TrieNode>				_trie;
 		std::deque<std::string>				_patterns;
@@ -39,7 +35,7 @@ namespace stingray
 
 	public:
 		AhoCorasick() : _built(false)
-		{ _trie.push_back(TrieNode(None, 0)); }
+		{ _trie.push_back(TrieNode()); }
 
 		size_t Add(const std::string &pattern)
 		{
@@ -53,7 +49,7 @@ namespace stingray
 				if (nextIndex == None)
 				{
 					node.Next[ch] = nextIndex = _trie.size();
-					_trie.push_back(TrieNode(nodeIndex, ch));
+					_trie.push_back(TrieNode());
 				}
 				nodeIndex = nextIndex;
 			}
