@@ -22,7 +22,44 @@ namespace stingray
 	}
 	extern template void string_ostream::Insert(bool);
 
-#define DECLARE_INSERT(VALUE_TYPE, VALUE_FORMAT, VALUE_FORMAT_TYPE) \
+#define DECLARE_INSERT_UNSIGNED(VALUE_TYPE) \
+	template<> \
+	template<> \
+	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
+	{ \
+		if (value == 0) \
+		{ \
+			push_back('0'); \
+			return; \
+		} \
+		char buf[32]; \
+		size_t pos = sizeof(buf); \
+		while(value >= 10) \
+		{ \
+			u8 digit = value % 10; \
+			value /= 10; \
+			buf[--pos] = digit + '0'; \
+		} \
+		buf[--pos] = value + '0'; \
+		write(buf + pos, sizeof(buf) - pos); \
+	}
+
+#define DECLARE_INSERT_SIGNED(VALUE_TYPE, UNSIGNED_TYPE) \
+	template<> \
+	template<> \
+	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
+	{ \
+		if (value < 0) \
+		{ \
+			push_back('-'); \
+			value = -value; \
+		} \
+		Insert<UNSIGNED_TYPE>(static_cast<UNSIGNED_TYPE>(value)); \
+	}
+
+
+
+#define DECLARE_INSERT_PRINTF(VALUE_TYPE, VALUE_FORMAT, VALUE_FORMAT_TYPE) \
 	template<> \
 	template<> \
 	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
@@ -35,18 +72,23 @@ namespace stingray
 	} \
 	extern template void string_ostream::Insert(VALUE_TYPE)
 
-	DECLARE_INSERT(unsigned,			"%u",	unsigned);
-	DECLARE_INSERT(u8,					"%hu",	unsigned short);
-	DECLARE_INSERT(int,					"%d",	int);
-	DECLARE_INSERT(unsigned short,		"%hu",	unsigned short);
-	DECLARE_INSERT(short,				"%hd",	short);
-	DECLARE_INSERT(unsigned long,		"%lu",	unsigned long);
-	DECLARE_INSERT(long,				"%ld",	long);
-	DECLARE_INSERT(unsigned long long,	"%llu",	unsigned long long);
-	DECLARE_INSERT(long long,			"%lld",	long long);
-	DECLARE_INSERT(long double,			"%16.16Lg",long double);
-	DECLARE_INSERT(double,				"%16.16g",	double);
-	DECLARE_INSERT(float,				"%7.7g",	double);
-	DECLARE_INSERT(const void *,		"%p",	const void *);
+	DECLARE_INSERT_UNSIGNED(u8);
+
+	DECLARE_INSERT_UNSIGNED(unsigned short);
+	DECLARE_INSERT_SIGNED(short, unsigned short);
+
+	DECLARE_INSERT_UNSIGNED(unsigned int);
+	DECLARE_INSERT_SIGNED(int, unsigned int);
+
+	DECLARE_INSERT_UNSIGNED(unsigned long);
+	DECLARE_INSERT_SIGNED(long, unsigned long);
+
+	DECLARE_INSERT_UNSIGNED(unsigned long long);
+	DECLARE_INSERT_SIGNED(long long, unsigned long long);
+
+	DECLARE_INSERT_PRINTF(long double,			"%16.16Lg",long double);
+	DECLARE_INSERT_PRINTF(double,				"%16.16g",	double);
+	DECLARE_INSERT_PRINTF(float,				"%7.7g",	double);
+	DECLARE_INSERT_PRINTF(const void *,			"%p",	const void *);
 
 }
