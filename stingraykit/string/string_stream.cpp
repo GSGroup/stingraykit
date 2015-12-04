@@ -22,27 +22,27 @@ namespace stingray
 	}
 	extern template void string_ostream::Insert(bool);
 
+	template<>
+	template<typename T>
+	void basic_string_ostream<char>::InsertIntegral(T value)
+	{
+		char buf[32];
+		size_t pos = sizeof(buf);
+		while(value >= 10)
+		{
+			u8 digit = value % 10;
+			value /= 10;
+			buf[--pos] = digit + '0';
+		}
+		buf[--pos] = value + '0';
+		write(buf + pos, sizeof(buf) - pos);
+	}
+
 #define DECLARE_INSERT_UNSIGNED(VALUE_TYPE) \
 	template<> \
 	template<> \
 	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
-	{ \
-		if (value == 0) \
-		{ \
-			push_back('0'); \
-			return; \
-		} \
-		char buf[32]; \
-		size_t pos = sizeof(buf); \
-		while(value >= 10) \
-		{ \
-			u8 digit = value % 10; \
-			value /= 10; \
-			buf[--pos] = digit + '0'; \
-		} \
-		buf[--pos] = value + '0'; \
-		write(buf + pos, sizeof(buf) - pos); \
-	}
+	{ InsertIntegral<VALUE_TYPE>(value); }
 
 #define DECLARE_INSERT_SIGNED(VALUE_TYPE, UNSIGNED_TYPE) \
 	template<> \
@@ -54,7 +54,7 @@ namespace stingray
 			push_back('-'); \
 			value = -value; \
 		} \
-		Insert<UNSIGNED_TYPE>(static_cast<UNSIGNED_TYPE>(value)); \
+		InsertIntegral<UNSIGNED_TYPE>(static_cast<UNSIGNED_TYPE>(value)); \
 	}
 
 

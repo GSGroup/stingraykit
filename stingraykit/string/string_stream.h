@@ -132,6 +132,9 @@ namespace stingray
 
 		template<typename T>
 		void Insert(T value);
+
+		template<typename T>
+		void InsertIntegral(T value);
 	};
 
 	typedef basic_string_ostream<char> string_ostream;
