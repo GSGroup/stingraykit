@@ -178,7 +178,7 @@ namespace stingray { namespace posix
 
 	std::string Backtrace::Get() const
 	{
-		std::stringstream backtrace;
+		string_ostream backtrace;
 
 		for(size_t i = 0; i < _backtrace.size(); ++i)
 		{

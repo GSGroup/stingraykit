@@ -15,9 +15,9 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/time/ElapsedTime.h>
 #include <stingraykit/string/lexical_cast.h>
+#include <stingraykit/string/string_stream.h>
 
 #include <map>
-#include <sstream>
 
 namespace stingray
 {
@@ -45,7 +45,7 @@ namespace stingray
 
 			SessionInfo(const std::string& id) : Id(id), Time(0) { }
 
-			void ToString(std::stringstream& ss, size_t level, u64 parentTime) const
+			void ToString(string_ostream & ss, size_t level, u64 parentTime) const
 			{
 				size_t nextLevel = level + 1;
 				while (level--)
@@ -53,7 +53,7 @@ namespace stingray
 				ss << Id << ", " << Time << " ms.";
 				if (nextLevel > 1)
 					ss << " (" << (Time ? (Time * 100) / parentTime : 0) << "%)";
-				ss << std::endl;
+				ss << '\n';
 				for (ChildrenMap::const_iterator it = Children.begin(); it != Children.end(); ++it)
 					it->second.ToString(ss, nextLevel, Time);
 			}
@@ -91,7 +91,7 @@ namespace stingray
 
 				if (!_reportToParentToken && _info.Time > _threshold)
 				{
-					std::stringstream ss;
+					string_ostream ss;
 					_info.ToString(ss, 0, 0);
 					Logger::Info() << ss.str();
 				}
