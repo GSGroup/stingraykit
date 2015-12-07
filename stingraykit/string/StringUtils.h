@@ -366,25 +366,25 @@ namespace stingray
 	namespace Detail
 	{
 
-		template<bool Left>
+		template<typename StringType, bool Left>
 		struct StringJustificator
 		{
-			const std::string & String;
+			const StringType &	String;
 			size_t				Width;
 			char				Filler;
 
-			StringJustificator(const std::string &str, size_t width, char ch): String(str), Width(width), Filler(ch) { }
+			StringJustificator(const StringType & str, size_t width, char ch): String(str), Width(width), Filler(ch) { }
 
 			operator std::string () const
 			{
 				return Left?
-					String + std::string(String.length() < Width? Width - String.length() : 0, Filler):
-					std::string(String.length() < Width? Width - String.length() : 0, Filler) + String;
+					(std::string)String + std::string(String.size() < Width? Width - String.size() : 0, Filler):
+					std::string(String.size() < Width? Width - String.size() : 0, Filler) + (std::string)String;
 			}
 		};
 
-		template<typename StreamType, bool Left>
-		StreamType & operator<< (StreamType & stream, const StringJustificator<Left> & rj)
+		template<typename StreamType, typename StringType, bool Left>
+		StreamType & operator<< (StreamType & stream, const StringJustificator<StringType, Left> & rj)
 		{
 			if (Left)
 				stream << rj.String;
@@ -400,11 +400,11 @@ namespace stingray
 		}
 	}
 
-	inline Detail::StringJustificator<true> LeftJustify(const std::string& str, size_t width, char filler = ' ')
-	{ return Detail::StringJustificator<true>(str, width, filler); }
+	inline Detail::StringJustificator<std::string, true> LeftJustify(const std::string& str, size_t width, char filler = ' ')
+	{ return Detail::StringJustificator<std::string, true>(str, width, filler); }
 
-	inline Detail::StringJustificator<false> RightJustify(const std::string& str, size_t width, char filler = ' ')
-	{ return Detail::StringJustificator<false>(str, width, filler); }
+	inline Detail::StringJustificator<std::string, false> RightJustify(const std::string& str, size_t width, char filler = ' ')
+	{ return Detail::StringJustificator<std::string, false>(str, width, filler); }
 
 
 	namespace Detail
