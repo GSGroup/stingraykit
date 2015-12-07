@@ -10,6 +10,7 @@
 
 #include <stingraykit/aligned_storage.h>
 #include <stingraykit/collection/array.h>
+#include <stingraykit/collection/iterator_base.h>
 #include <vector>
 
 namespace stingray
@@ -38,65 +39,51 @@ namespace stingray
 		array<StorageFor<T>, InplaceCapacity>	_staticStorage;
 		std::vector<T>							_dynamicStorage;
 
+	public:
 		template<typename OwnerType, typename ValueType>
-		class base_iterator
+		class inplace_vector_iterator : public iterator_base
+		<
+			inplace_vector_iterator<OwnerType, ValueType>,
+			ValueType,
+			std::random_access_iterator_tag
+		>
 		{
-			typedef OwnerType							owner_type;
+			OwnerType &				_owner;
+			size_t					_offset;
+
+			typedef iterator_base
+			<
+				inplace_vector_iterator<OwnerType, ValueType>,
+				ValueType,
+				std::random_access_iterator_tag
+			> base;
 
 		public:
-			typedef	ValueType							value_type;
-			typedef ptrdiff_t							difference_type;
-			typedef std::random_access_iterator_tag		iterator_category;
-			typedef value_type *						pointer;
-			typedef value_type &						reference;
+			inplace_vector_iterator(OwnerType &owner, size_t offset): _owner(owner), _offset(offset) { }
+			typename base::reference dereference() const
+			{ return _owner.at(_offset); }
 
+			bool equal(const inplace_vector_iterator & other) const
+			{ return _offset == other._offset; }
 
-			owner_type &								_owner;
-			size_t										_pos;
+			void increment()
+			{ ++_offset; }
+			void decrement()
+			{ --_offset; }
+			void advance(const typename base::difference_type & diff)
+			{ _offset += diff; }
 
-		public:
-			base_iterator(owner_type& owner, size_t pos): _owner(owner), _pos(pos) {}
-
-			inline bool operator == (const base_iterator & other) const
-			{ return _pos == other._pos; }
-			inline bool operator != (const base_iterator & other) const
-			{ return !((*this) == other); }
-			inline bool operator < (const base_iterator & other) const
-			{ return _pos < other._pos; }
-
-			inline base_iterator& operator ++ ()
-			{ ++_pos; return *this; }
-			inline base_iterator operator ++ (int)
-			{ base_iterator prev(*this); ++(*this); return prev; }
-			inline base_iterator& operator += (difference_type d)
-			{ _pos += d; return *this; }
-			inline base_iterator operator + (difference_type d) const
-			{ return base_iterator(_owner, _pos + d); }
-
-			inline base_iterator& operator -- ()
-			{ --_pos; return *this; }
-			inline base_iterator operator -- (int)
-			{ base_iterator prev(*this); --(*this); return prev; }
-			inline base_iterator& operator -= (difference_type d)
-			{ _pos -= d; return *this; }
-			inline base_iterator operator - (difference_type d) const
-			{ return base_iterator(_owner, _pos - d); }
-
-			inline difference_type operator -(const base_iterator & other) const
-			{ return _pos - other._pos; }
-
-			inline reference operator [] (difference_type d) const
-			{ return _owner.at(_pos + d); }
-
-			inline reference operator * () const	{ return _owner.at(_pos); }
-			inline pointer operator -> () const		{ return &_owner.at(_pos); }
+			typename base::difference_type distance_to(const inplace_vector_iterator & other) const
+			{ return other._offset - _offset; }
 		};
 
-	public:
-		typedef base_iterator<inplace_vector, value_type>				iterator;
-		typedef base_iterator<const inplace_vector, const value_type>	const_iterator;
+		typedef inplace_vector_iterator<inplace_vector, value_type>					iterator;
+		typedef inplace_vector_iterator<const inplace_vector, const value_type>		const_iterator;
 
-		inline inplace_vector(): _staticStorageSize(0) {}
+		inplace_vector(): _staticStorageSize(0) { }
+
+		size_t capacity() const
+		{ return InplaceCapacity + _dynamicStorage.capacity(); }
 
 		void clear()
 		{
