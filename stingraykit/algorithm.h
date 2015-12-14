@@ -22,6 +22,14 @@ namespace stingray
 		return result;
 	}
 
+	template<typename InputIterator, typename Size, typename OutputIterator>
+	OutputIterator copy_n(InputIterator first, Size count, OutputIterator result)
+	{
+		for (Size i = 0; i < count; ++i, ++first)
+			*result++ = *first;
+		return result;
+	}
+
 
 	template<class InputIterator, class UnaryPredicate>
 	bool any_of (InputIterator first, InputIterator last, UnaryPredicate pred)
