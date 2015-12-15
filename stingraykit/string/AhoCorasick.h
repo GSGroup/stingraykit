@@ -27,7 +27,7 @@ namespace stingray
 			optional<size_t>		PatternIndex;
 
 			TrieNode(): Fail(None)
-			{ std::fill(Next.begin(), Next.end(), None); }
+			{ std::fill(Next.begin(), Next.end(), (size_t)None); }
 		};
 		std::deque<TrieNode>				_trie;
 		std::deque<std::string>				_patterns;
