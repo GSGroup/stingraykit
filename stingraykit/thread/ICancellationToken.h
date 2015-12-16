@@ -18,7 +18,7 @@ namespace stingray
 	struct ICancellationHandler
 	{
 	protected:
-		~ICancellationHandler() { }
+		virtual ~ICancellationHandler() { }
 
 	public:
 		virtual void Cancel() = 0;
