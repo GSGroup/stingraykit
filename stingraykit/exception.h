@@ -59,6 +59,12 @@ namespace stingray
 #define STINGRAYKIT_CHECK(Condition, ExceptionObj) \
 		do { if (STINGRAYKIT_UNLIKELY(!(Condition))) STINGRAYKIT_THROW(ExceptionObj); } while(false)
 
+#define STINGRAYKIT_RETHROW_WITH_MESSAGE(Message, ExceptionObj) \
+		throw stingray::Exception(ToString(Message) + ": " + diagnostic_information(ex))
+
+#define STINGRAYKIT_WRAP_EXCEPTIONS(Message, ...) \
+		do { try { __VA_ARGS__; } catch (const std::exception& ex) { STINGRAYKIT_RETHROW_WITH_MESSAGE(Message, ex); } } while (false)
+
 	struct LogicException : public std::logic_error
 	{
 		LogicException() : std::logic_error("You're doing something wrong!")
