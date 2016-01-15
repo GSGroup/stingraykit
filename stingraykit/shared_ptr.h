@@ -701,6 +701,7 @@ namespace stingray
 	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
 	shared_ptr<ObjType> operator() (STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) const \
 	{ \
+		(void)sizeof(new ObjType(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))); \
 		Detail::SharedPtrImpl impl; \
 		Detail::InplaceSharedPtrData<ObjType>* data = impl.Allocate<Detail::InplaceSharedPtrData<ObjType> >(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
 		shared_ptr<ObjType> result(data->Get(), impl); \
@@ -715,6 +716,7 @@ namespace stingray
 
 		shared_ptr<ObjType> operator() () const
 		{
+			(void)sizeof(new ObjType); // Testing the type for being abstract
 			Detail::SharedPtrImpl impl;
 			Detail::InplaceSharedPtrData<ObjType>* data = impl.Allocate<Detail::InplaceSharedPtrData<ObjType> >();
 			shared_ptr<ObjType> result(data->Get(), impl);
