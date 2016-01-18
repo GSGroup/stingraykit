@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/compare/comparers.h>
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/shared_ptr.h>
 
@@ -33,7 +34,7 @@ namespace stingray
 		typedef T MemberType;
 		typedef C ClassType;
 		typedef MemberType ClassType::*MemberPointer;
-		static MemberType GetValue(const ClassType &obj, MemberPointer ptr) { return obj.*ptr; }
+		static const MemberType& GetValue(const ClassType &obj, MemberPointer ptr) { return obj.*ptr; }
 	};
 
 	struct AllowDereferencing
@@ -75,7 +76,7 @@ namespace stingray
 
 
 
-	template <typename MemberPointer, typename Comparer = std::equal_to<typename MemberExtractor<MemberPointer>::MemberType>, typename DereferencingManager = AllowDereferencing>
+	template <typename MemberPointer, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing>
 	struct MemberExtractorComparer
 	{
 		typedef MemberExtractor<MemberPointer>		Extractor;
@@ -106,7 +107,7 @@ namespace stingray
 		}
 	};
 
-	template <typename MemberPointer, typename Comparer = std::equal_to<typename MemberExtractor<MemberPointer>::MemberType>, typename DereferencingManager = AllowDereferencing>
+	template <typename MemberPointer, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing>
 	struct MemberToValueComparer : public function_info<bool, typename TypeList<const typename MemberExtractor<MemberPointer>::ClassType &>::type>
 	{
 		typedef MemberExtractor<MemberPointer>		Extractor;
@@ -131,32 +132,15 @@ namespace stingray
 
 	template <template<typename> class Comparer, typename MemberPointer, typename ValueType>
 	MemberToValueComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> > CompareMemberToValue(MemberPointer ptr, ValueType value)
-	{
-		return MemberToValueComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> >(ptr, value);
-	}
+	{ return MemberToValueComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> >(ptr, value); }
 
 	template <typename Comparer, typename MemberPointer, typename ValueType>
 	MemberToValueComparer<MemberPointer, Comparer> CompareMemberToValue(MemberPointer ptr, ValueType value, Comparer cmp = Comparer())
 	{ return MemberToValueComparer<MemberPointer, Comparer>(ptr, value, cmp); }
 
-
-	template <template<typename> class Comparer, typename MemberPointer>
-	MemberExtractorComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> > CompareMember(MemberPointer ptr)
-	{
-		return MemberExtractorComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> >(ptr, Comparer<typename MemberExtractor<MemberPointer>::MemberType>());
-	}
-
-	template <template<typename> class Comparer, typename DereferencingManager, typename MemberPointer>
-	MemberExtractorComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType>, DereferencingManager> CompareMember(MemberPointer ptr)
-	{
-		return MemberExtractorComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType>, DereferencingManager >(ptr, Comparer<typename MemberExtractor<MemberPointer>::MemberType>());
-	}
-
 	template <typename MemberPointer>
-	MemberExtractorComparer<MemberPointer, std::less<typename MemberExtractor<MemberPointer>::MemberType>, AllowDereferencing> CompareMemberLess(MemberPointer ptr)
-	{
-		return MemberExtractorComparer<MemberPointer, std::less<typename MemberExtractor<MemberPointer>::MemberType>, AllowDereferencing >(ptr, std::less<typename MemberExtractor<MemberPointer>::MemberType>());
-	}
+	MemberExtractorComparer<MemberPointer, comparers::Less, AllowDereferencing> CompareMemberLess(MemberPointer ptr)
+	{ return MemberExtractorComparer<MemberPointer, comparers::Less, AllowDereferencing >(ptr); }
 
 
 }
