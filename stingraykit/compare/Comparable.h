@@ -28,6 +28,9 @@ namespace stingray
 	{
 		virtual int Compare(const IComparable &other) const
 		{
+			if (this == &other)
+				return 0;
+
 			const std::type_info &my_type = typeid(*this);
 			const std::type_info &other_type = typeid(other);
 
