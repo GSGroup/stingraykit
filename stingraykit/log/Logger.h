@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <map>
 #include <set>
 #include <string>
 
@@ -18,7 +17,6 @@
 #include <stingraykit/log/LogLevel.h>
 #include <stingraykit/log/LoggerStream.h>
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/thread/Thread.h>
 #include <stingraykit/thread/atomic.h>
 #include <stingraykit/time/ElapsedTime.h>
 
