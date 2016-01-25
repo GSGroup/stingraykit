@@ -426,6 +426,19 @@ namespace stingray
 		~variant()
 		{ base::Destruct(); }
 
+		void assign(const variant &other)
+		{
+			base::Destruct();
+			Assign(other);
+		}
+
+		template<typename T>
+		void assign(const T & val)
+		{
+			base::Destruct();
+			AssignVal(val);
+		}
+
 		variant & operator= (const variant& other)
 		{
 			base::Destruct();
