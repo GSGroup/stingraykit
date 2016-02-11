@@ -46,6 +46,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotSupportedException, "The feature is not supported!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(DeviceBusyException, "Device is busy!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(ResourceUnavailableException, "Resource temporarily unavailable!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BrokenPromise, "Promise destroyed before value is set!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PromiseAlreadySatisfied, "Promise value have already been set!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(FutureAlreadyRetrieved, "Future have already been retrieved!");

@@ -44,6 +44,7 @@ namespace stingray
 		case EIO:		STINGRAYKIT_THROW(InputOutputException(MESSAGE)); \
 		case EBUSY:		STINGRAYKIT_THROW(DeviceBusyException(MESSAGE)); \
 		case ENOSPC:	STINGRAYKIT_THROW(NoSpaceLeftException(MESSAGE)); \
+		case EAGAIN:	STINGRAYKIT_THROW(ResourceUnavailableException(MESSAGE)); \
 		default:		STINGRAYKIT_THROW(SystemException(MESSAGE, PATH, ERROR)); \
 		} \
 	} while(false)
