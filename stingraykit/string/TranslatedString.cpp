@@ -72,7 +72,7 @@ namespace stingray
 
 
 	int TranslatedString::DoCompare(const TranslatedString& other) const
-	{ return Enumerable::MakeSequenceCmp(comparers::Equals())(_dictionary, other._dictionary); }
+	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
 
 
 	void TranslatedString::Serialize(ObjectOStream & ar) const

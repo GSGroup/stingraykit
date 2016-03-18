@@ -96,11 +96,19 @@ namespace stingray
 		{
 			template<typename T>
 			typename EnableIf<Detail::HasMethod_Compare<T>::Value, int>::ValueT DoCompare(const T& lhs, const T& rhs) const
-			{ return lhs.Compare(rhs); }
+			{
+				if (&lhs == &rhs)
+					return 0;
+
+				return lhs.Compare(rhs);
+			}
 
 			template<typename T>
 			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, int>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
 			{
+				if (&lhs == &rhs)
+					return 0;
+
 				if (lhs < rhs)
 					return -1;
 				if (rhs < lhs)
@@ -114,11 +122,21 @@ namespace stingray
 		{
 			template<typename T>
 			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
-			{ return lhs.Compare(rhs) < 0; }
+			{
+				if (&lhs == &rhs)
+					return false;
+
+				return lhs.Compare(rhs) < 0;
+			}
 
 			template<typename T>
 			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
-			{ return lhs < rhs; }
+			{
+				if (&lhs == &rhs)
+					return false;
+
+				return lhs < rhs;
+			}
 		};
 
 
@@ -126,11 +144,21 @@ namespace stingray
 		{
 			template<typename T>
 			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
-			{ return lhs.Compare(rhs) == 0; }
+			{
+				if (&lhs == &rhs)
+					return true;
+
+				return lhs.Compare(rhs) == 0;
+			}
 
 			template<typename T>
 			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
-			{ return lhs == rhs; }
+			{
+				if (&lhs == &rhs)
+					return true;
+
+				return lhs == rhs;
+			}
 		};
 
 
@@ -138,11 +166,21 @@ namespace stingray
 		{
 			template<typename T>
 			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
-			{ return lhs.Compare(rhs) > 0; }
+			{
+				if (&lhs == &rhs)
+					return false;
+
+				return lhs.Compare(rhs) > 0;
+			}
 
 			template<typename T>
 			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
-			{ return rhs < lhs; }
+			{
+				if (&lhs == &rhs)
+					return false;
+
+				return rhs < lhs;
+			}
 		};
 
 
