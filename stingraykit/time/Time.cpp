@@ -131,15 +131,12 @@ namespace stingray
 
 		BrokenDownTime bdt = Time::Now().BreakDown();
 		int a, b, c, d, e, f;
-		int components = 0;
-		int otherComponents = 0;
+		int format1 = sscanf(s.c_str(), "%d.%d.%d %d:%d:%d", &a, &b, &c, &d, &e, &f);
+		int format2 = sscanf(s.c_str(), "%d/%d/%d", &a, &b, &c);
 
-		components = sscanf(s.c_str(), "%d.%d.%d %d:%d:%d", &a, &b, &c, &d, &e, &f);
-		otherComponents = sscanf(s.c_str(), "%d/%d/%d", &a, &b, &c);
-
-		if (otherComponents > components)
+		if (format2 > format1)
 		{
-			if (otherComponents == 3)
+			if (format2 == 3)
 			{
 				bdt.MonthDay		= c;
 				bdt.Month			= b;
@@ -155,25 +152,36 @@ namespace stingray
 		}
 		else
 		{
-			if (components >= 3)
+			if (format1 >= 3)
 			{
 				bdt.MonthDay		= a;
 				bdt.Month			= b;
 				bdt.Year			= (c > 100 ? c : (c > 30 ? 1900 + c : 2000 + c));
-				components -= 3;
+				format1 -= 3;
 			}
 			else
-				components = sscanf(s.c_str(), "%d:%d:%d", &d, &e, &f);
+				format1 = sscanf(s.c_str(), "%d:%d:%d", &d, &e, &f);
 
-			if (components >= 2)
+			if (format1 >= 2)
 			{
 				bdt.Hours			= d;
 				bdt.Minutes			= e;
-				bdt.Seconds			= (components == 2) ? 0 : f;
+				bdt.Seconds			= (format1 == 2) ? 0 : f;
 				bdt.Milliseconds	= 0;
 			}
 			else
-				STINGRAYKIT_THROW("Could not parse Time!");
+			{
+				int format3 = sscanf(s.c_str(), "%d-%d-%d %d:%d:%d", &a, &b, &c, &d, &e, &f);
+				STINGRAYKIT_CHECK(format3 == 6, "Could not parse Time!");
+
+				bdt.MonthDay		= a;
+				bdt.Month			= b;
+				bdt.Year			= (c > 100 ? c : (c > 30 ? 1900 + c : 2000 + c));
+				bdt.Hours			= d;
+				bdt.Minutes			= e;
+				bdt.Seconds			= f;
+				bdt.Milliseconds	= 0;
+			}
 		}
 
 		return FromBrokenDownTime(bdt, kind);
