@@ -37,16 +37,16 @@ namespace stingray
 		u64				_pageSize;
 		PagesContainer	_pages;
 		u64				_startOffset, _endOffset, _popOffset;
+		Mutex			_readMutex;
+		Mutex			_writeMutex;
 		Mutex			_mutex;
-		bool			_pushing;
 
 	public:
 		PagedBuffer(u64 pageSize) :
 			_pageSize(pageSize),
 			_startOffset(0),
 			_endOffset(0),
-			_popOffset(0),
-			_pushing(false)
+			_popOffset(0)
 		{ }
 
 		virtual ~PagedBuffer()
@@ -54,15 +54,12 @@ namespace stingray
 
 		void Push(const ConstByteData& data)
 		{
-			{
-				MutexLock l(_mutex);
-				STINGRAYKIT_CHECK(!_pushing, "Previous push has not finished yet!");
-				_pushing = true;
-			}
-			ScopeExitInvoker sei(bind(&PagedBuffer::PushingFinished, this));
+			MutexLock lw(_writeMutex);
 
 			u64 new_end_offset, page_idx = 0, page_write_size, page_offset;
 			{
+				MutexLock l(_mutex);
+
 				page_write_size = std::min(_endOffset, (u64)data.size());
 				page_offset = _endOffset == 0 ? 0 : _pageSize - _endOffset;
 
@@ -71,7 +68,7 @@ namespace stingray
 
 				new_end_offset = _endOffset - data.size();
 			}
-			ScopeExitInvoker sei2(bind(&PagedBuffer::SetEndOffset, this, new_end_offset));
+			ScopeExitInvoker sei(bind(&PagedBuffer::SetEndOffset, this, new_end_offset));
 
 			WriteToPage(page_idx--, page_offset, ConstByteData(data, 0, page_write_size));
 
@@ -84,12 +81,15 @@ namespace stingray
 
 		void Get(const ByteData& data)
 		{
-			MutexLock l(_mutex);
+			MutexLock lr(_readMutex);
 
-			u64 page_idx = _startOffset / _pageSize, page_read_size, page_offset;
+			u64 page_idx, page_read_size, page_offset;
 			{
+				MutexLock l(_mutex);
+
 				STINGRAYKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
 
+				page_idx = _startOffset / _pageSize;
 				page_offset = _startOffset % _pageSize;
 				page_read_size = std::min(_pageSize - _startOffset % _pageSize, (u64)data.size());
 			}
@@ -104,11 +104,15 @@ namespace stingray
 				ReadFromPage(page_idx, 0, ByteData(data, data_offset, page_read_size));
 			}
 
-			_startOffset += data.size();
+			{
+				MutexLock l(_mutex);
+				_startOffset += data.size();
+			}
 		}
 
 		void Seek(u64 offset)
 		{
+			MutexLock lr(_readMutex);
 			MutexLock l(_mutex);
 			STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset - _popOffset, IndexOutOfRangeException(offset, _pageSize * _pages.size() - _endOffset - _popOffset));
 
@@ -117,6 +121,7 @@ namespace stingray
 
 		void Pop(u64 size)
 		{
+			MutexLock lr(_readMutex);
 			MutexLock l(_mutex);
 
 			STINGRAYKIT_CHECK(size <= _pageSize * _pages.size(), IndexOutOfRangeException());
@@ -126,6 +131,7 @@ namespace stingray
 
 		u64 GetSize(bool absolute = false) const
 		{
+			MutexLock lr(_readMutex);
 			MutexLock l(_mutex);
 
 			if (absolute)
@@ -141,12 +147,6 @@ namespace stingray
 		virtual void GCPage(PagePtr page) {}
 
 	private:
-		void PushingFinished()
-		{
-			MutexLock l(_mutex);
-			_pushing = false;
-		}
-
 		void SetEndOffset(u64 newEndOffset)
 		{
 			MutexLock l(_mutex);
