@@ -38,7 +38,7 @@ namespace stingray
 		PagesContainer	_pages;
 		u64				_startOffset, _endOffset, _popOffset;
 		Mutex			_mutex;
-		bool			_pushing, _usingStart;
+		bool			_pushing;
 
 	public:
 		PagedBuffer(u64 pageSize) :
@@ -46,8 +46,7 @@ namespace stingray
 			_startOffset(0),
 			_endOffset(0),
 			_popOffset(0),
-			_pushing(false),
-			_usingStart(false)
+			_pushing(false)
 		{ }
 
 		virtual ~PagedBuffer()
@@ -91,13 +90,9 @@ namespace stingray
 			{
 				STINGRAYKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
 
-				STINGRAYKIT_CHECK(!_usingStart, "End is being used!");
-				_usingStart = true;
-
 				page_offset = _startOffset % _pageSize;
 				page_read_size = std::min(_pageSize - _startOffset % _pageSize, (u64)data.size());
 			}
-			ScopeExitInvoker sei(bind(&PagedBuffer::ReleaseStart, this));
 
 			u64 data_offset = 0;
 			ReadFromPage(page_idx++, page_offset, ByteData(data, data_offset, page_read_size));
@@ -125,7 +120,6 @@ namespace stingray
 			MutexLock l(_mutex);
 
 			STINGRAYKIT_CHECK(size <= _pageSize * _pages.size(), IndexOutOfRangeException());
-			STINGRAYKIT_CHECK(!_usingStart, "End is being used!");
 
 			SetPopOffset(_popOffset + size);
 		}
@@ -157,12 +151,6 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 			_endOffset = newEndOffset;
-		}
-
-		void ReleaseStart()
-		{
-			MutexLock l(_mutex);
-			_usingStart = false;
 		}
 
 		void SetPopOffset(u64 newPopOffset)
