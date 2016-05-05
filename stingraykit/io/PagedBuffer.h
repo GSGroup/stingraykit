@@ -157,13 +157,15 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 			_popOffset = newPopOffset;
+			if (_startOffset < _popOffset)
+				_startOffset = _popOffset;
 
 			for (; _popOffset >= _pageSize; _popOffset -= _pageSize)
 			{
 				GCPage(_pages.front());
 				_pages.pop_front();
 
-				if (_pageSize >= _startOffset)
+				if (_pageSize > _startOffset)
 				{
 					_startOffset = 0;
 					OnDiscontinuity();
