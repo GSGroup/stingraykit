@@ -17,6 +17,7 @@ namespace stingray
 
 	namespace Detail_ParamPassingType
 	{
+
 		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 
 		template < typename T, typename Enabler = void >
@@ -34,14 +35,17 @@ namespace stingray
 		template < typename T >
 		struct PassByRef<T, typename EnableIf<HasNestedType_Enum<T>::Value, void>::ValueT>
 		{ static const bool Value = false; };
+
 	}
 
 
 	template < typename T >
-	struct GetParamPassingType
+	class GetParamPassingType
 	{
 		typedef typename Dereference<typename Deconst<T>::ValueT>::ValueT RawType;
 		typedef typename If<Detail_ParamPassingType::PassByRef<T>::Value, const RawType&, RawType>::ValueT ConstPassingType;
+
+	public:
 		typedef typename If<IsNonConstReference<T>::Value, RawType&, ConstPassingType>::ValueT ValueT;
 	};
 

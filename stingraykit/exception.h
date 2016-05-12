@@ -46,6 +46,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotSupportedException, "The feature is not supported!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(DeviceBusyException, "Device is busy!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(ResourceUnavailableException, "Resource temporarily unavailable!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BrokenPromise, "Promise destroyed before value is set!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PromiseAlreadySatisfied, "Promise value have already been set!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(FutureAlreadyRetrieved, "Future have already been retrieved!");
@@ -60,7 +61,7 @@ namespace stingray
 		do { if (STINGRAYKIT_UNLIKELY(!(Condition))) STINGRAYKIT_THROW(ExceptionObj); } while(false)
 
 #define STINGRAYKIT_RETHROW_WITH_MESSAGE(Message, ExceptionObj) \
-		throw stingray::Exception(ToString(Message) + ": " + diagnostic_information(ex))
+		throw stingray::Exception(stingray::ToString(Message) + ": " + diagnostic_information(ex))
 
 #define STINGRAYKIT_WRAP_EXCEPTIONS(Message, ...) \
 		do { try { __VA_ARGS__; } catch (const std::exception& ex) { STINGRAYKIT_RETHROW_WITH_MESSAGE(Message, ex); } } while (false)

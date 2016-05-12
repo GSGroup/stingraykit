@@ -110,6 +110,7 @@ namespace stingray
 										TypeToStringObjectType::IsException :
 										(
 											SameType<u8, ObjectType>::Value
+												|| SameType<NullPtrType, ObjectType>::Value
 												|| SameType<const char*, ObjectType>::Value
 												|| IsSharedPtr<ObjectType>::Value
 												|| Is1ParamTemplate<optional, ObjectType>::Value
@@ -247,6 +248,14 @@ namespace stingray
 		{
 			static void ToStringImpl(string_ostream & result, const std::string& str)
 			{ result << str; }
+		};
+
+
+		template<>
+		struct TypeToStringSerializer<NullPtrType, TypeToStringObjectType::Other>
+		{
+			static void ToStringImpl(string_ostream & result, NullPtrType ptr)
+			{ result << "null"; }
 		};
 
 

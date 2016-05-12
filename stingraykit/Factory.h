@@ -162,4 +162,8 @@ namespace stingray
 #define STINGRAYKIT_REGISTER_CLASS_EXPLICIT(Class_, ...) STINGRAYKIT_CAT(STINGRAYKIT_REGISTER_CLASS_EXPLICIT_, STINGRAYKIT_NARGS(__VA_ARGS__))(Class_, __VA_ARGS__)
 
 
+#define STINGRAYKIT_REGISTER_MIGRATION_CLASS(Class_, ClassName_) \
+	friend class stingray::FactoryContext::FactoryObjectCreator<Class_>; \
+	virtual std::string GetClassName() const { return ClassName_; }
+
 #endif
