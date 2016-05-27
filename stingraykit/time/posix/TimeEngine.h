@@ -32,6 +32,7 @@ namespace posix
 		static BrokenDownTime BrokenDownFromMilliseconds(s64 milliseconds);
 
 		static u64 GetMonotonicMicroseconds();
+		static u64 GetMonotonicNanoseconds();
 	};
 
 }}
