@@ -173,4 +173,18 @@ namespace stingray { namespace posix
 		return (u64)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
 	}
 
+
+	u64 TimeEngine::GetMonotonicNanoseconds()
+	{
+#if POSIX_HAVE_MONOTONIC_TIMER
+		clockid_t clock = CLOCK_MONOTONIC;
+#else
+		clockid_t clock = CLOCK_REALTIME;
+#endif
+
+		struct timespec ts = { };
+		STINGRAYKIT_CHECK(clock_gettime(clock, &ts) != -1, SystemException("clock_gettime"));
+		return (u64)ts.tv_sec * 1000000000 + ts.tv_nsec;
+	}
+
 }}
