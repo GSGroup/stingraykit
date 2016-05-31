@@ -73,6 +73,8 @@ namespace stingray
 		static void InterruptionPoint();
 		static bool EnableInterruptionPoints(bool enable);
 		static IThread::ThreadId GetCurrentThreadId();
+		static pthread_t GetCurrentPthreadId();
+		static pthread_t GetPthreadIdFromThreadId(IThread::ThreadId tid);
 		static IThreadInfoPtr GetCurrentThreadInfo();
 		static TLSData* GetCurrentThreadData();
 

@@ -650,6 +650,21 @@ namespace stingray
 	{ return gettid(); }
 
 
+	pthread_t PosixThreadEngine::GetCurrentPthreadId()
+	{ return pthread_self(); }
+
+
+	pthread_t PosixThreadEngine::GetPthreadIdFromThreadId(IThread::ThreadId tid)
+	{
+		shared_ptr<ThreadsRegistry> registry = SafeSingleton<ThreadsRegistry>::Instance();
+		STINGRAYKIT_CHECK(registry, NullPointerException("threads registry"));
+		GenericMutexLock<PosixMutex> l(registry->GetSync());
+		ThreadsRegistry::ThreadsMap::iterator it = registry->GetMap().find(tid);
+		STINGRAYKIT_CHECK(it != registry->GetMap().end(), KeyNotFoundException(ToString(tid)));
+		return it->second->GetPthreadId();
+	}
+
+
 	IThreadInfoPtr PosixThreadEngine::GetCurrentThreadInfo()
 	{
 		ThreadDataStoragePtr dataStorage = ThreadDataHolder::Get();
