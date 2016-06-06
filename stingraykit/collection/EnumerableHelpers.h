@@ -670,7 +670,7 @@ namespace stingray
 				{ }
 
 				virtual shared_ptr<IEnumerator<typename base::ItemType> > GetEnumerator() const
-				{ return make_shared<EnumeratorTransformer>(_src->GetEnumerator(), _functor); }
+				{ return make_shared<EnumeratorTransformer<SrcType, FunctorType> >(_src->GetEnumerator(), _functor); }
 			};
 		}
 
@@ -804,7 +804,7 @@ namespace stingray
 	template <typename Enumerable_, typename Functor_>
 	struct TransformTransformerImpl<shared_ptr<Enumerable_>, Functor_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
 	{
-		typedef typename Enumerable_::ItemType ItemType;
+		typedef typename function_info<Functor_>::RetType ItemType;
 		typedef shared_ptr<IEnumerable<ItemType> > ValueT;
 
 		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const TransformTransformer<Functor_>& action)
