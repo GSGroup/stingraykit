@@ -25,7 +25,7 @@ namespace stingray
 	template<typename T, size_t N>
 	class array
 	{
-        T					_data[N];
+		T					_data[N];
 
 	public:
 		static const size_t Size = N;

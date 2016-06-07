@@ -16,7 +16,7 @@ namespace stingray
 	 * @{
 	 */
 
-    template<typename T>
+	template<typename T>
 	class GenericSemaphoreLock
 	{
 		STINGRAYKIT_NONCOPYABLE(GenericSemaphoreLock);

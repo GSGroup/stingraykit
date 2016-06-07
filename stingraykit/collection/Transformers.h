@@ -165,22 +165,22 @@ namespace stingray
 	{ return OfTypeTransformer<Dst_>(); }
 
 
-    template<typename Arg_, typename Enabler = void>
-    struct AnyTransformerImpl;
+	template<typename Arg_, typename Enabler = void>
+	struct AnyTransformerImpl;
 
 
-    struct AnyTransformer : public TransformerMarker
-    {
-        template<typename Arg_>
-        struct Dispatcher
-        {
-            typedef AnyTransformerImpl<Arg_> Impl;
-        };
-    };
+	struct AnyTransformer : public TransformerMarker
+	{
+		template<typename Arg_>
+		struct Dispatcher
+		{
+			typedef AnyTransformerImpl<Arg_> Impl;
+		};
+	};
 
 
-    inline AnyTransformer Any()
-    { return AnyTransformer(); }
+	inline AnyTransformer Any()
+	{ return AnyTransformer(); }
 
 }
 
