@@ -49,6 +49,12 @@ namespace stingray
 		void operator() () const { }
 	};
 
+	template <typename T, typename V = T>
+	struct Assigner : public function_info<void(T&, const V&)>
+	{
+		void operator () (T& t, const V& v) const { t = v; }
+	};
+
 	/** @} */
 
 }
