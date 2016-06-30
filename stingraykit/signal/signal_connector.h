@@ -11,6 +11,7 @@
 
 #include <stingraykit/Token.h>
 #include <stingraykit/function/AsyncFunction.h>
+#include <stingraykit/signal/signal_policies.h>
 #include <stingraykit/thread/ITaskExecutor.h>
 #include <stingraykit/TaskLifeToken.h>
 
@@ -26,7 +27,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		struct ISignalConnector : public self_counter<ISignalConnector>
+		struct ISignalConnector : public self_counter<ISignalConnector>, public virtual signal_policies::connection_policy_control::PolicyInterface
 		{
 			virtual ~ISignalConnector() { }
 
@@ -55,12 +56,14 @@ namespace stingray
 		Token connect(const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
 			TaskLifeToken token(_impl->CreateSyncToken());
+			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
 			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState);
 		}
 
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
 			TaskLifeToken token(_impl->CreateAsyncToken());
+			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
 			return _impl->Connect(function_storage(function<Signature_>(MakeAsyncFunction(worker, slot, token))), null, token, sendCurrentState);
 		}
 	};

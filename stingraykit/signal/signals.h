@@ -345,7 +345,7 @@ namespace stingray
 		\
 	public: \
 		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { } \
-		explicit signal(ConnectionPolicy connectionPolicy) : _impl(new Impl(connectionPolicy)) { } \
+		explicit signal(ConnectionPolicy::Enum connectionPolicy) : _impl(new Impl(ConnectionPolicy(connectionPolicy))) { } \
 		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler) : _impl(new Impl(null, exceptionHandler)) { } \
 		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(new Impl(null, exceptionHandler, connectionPolicy)) { } \
 		signal(const PopulatorFunc& sendCurrentState) : _impl(new Impl(sendCurrentState)) { } \
@@ -366,6 +366,7 @@ namespace stingray
 		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
+			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal"); \
 			TaskLifeToken token(_impl->CreateSyncToken()); \
 			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState); \
 		} \
@@ -373,6 +374,7 @@ namespace stingray
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
+			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal"); \
 			TaskLifeToken token(_impl->CreateAsyncToken()); \
 			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token))), null, token, sendCurrentState); \
 		} \

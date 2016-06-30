@@ -162,12 +162,18 @@ namespace stingray
 
 		namespace connection_policy_control
 		{
-			struct Null
+			struct PolicyInterface
+			{
+				virtual ~PolicyInterface() { }
+				virtual ConnectionPolicy GetConnectionPolicy() const = 0;
+			};
+
+			struct Null: public virtual PolicyInterface
 			{
 				ConnectionPolicy GetConnectionPolicy() const { return ConnectionPolicy::Any; }
 			};
 
-			struct Checked
+			struct Checked: public virtual PolicyInterface
 			{
 				Checked(ConnectionPolicy val = ConnectionPolicy::Any) : _val(val) { }
 
