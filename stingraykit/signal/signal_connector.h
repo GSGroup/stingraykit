@@ -27,7 +27,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		struct ISignalConnector : public self_counter<ISignalConnector>, public virtual signal_policies::connection_policy_control::PolicyInterface
+		struct ISignalConnector : public self_counter<ISignalConnector>
 		{
 			virtual ~ISignalConnector() { }
 
@@ -36,6 +36,8 @@ namespace stingray
 
 			virtual TaskLifeToken CreateSyncToken() const = 0;
 			virtual TaskLifeToken CreateAsyncToken() const = 0;
+
+			virtual ConnectionPolicy GetConnectionPolicy() const = 0;
 		};
 
 	}
