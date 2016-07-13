@@ -46,6 +46,7 @@ namespace stingray
 
 		bool operator < (const TranslatedString& other) const
 		{ return DoCompare(other) < 0; }
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TranslatedString);
 
 	private:
 		std::string DoSelectTranslation(const std::vector<LangCode>& langCodes) const;
