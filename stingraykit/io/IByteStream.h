@@ -55,7 +55,7 @@ namespace stingray
 				break;
 
 			case SeekMode::Current:
-				newPosition = (s64)_stream->Tell() + offset;
+				newPosition = (s64)Tell() + _offset + offset;
 				break;
 
 			case SeekMode::End:
