@@ -94,12 +94,20 @@ namespace stingray
 	public:
 		IndexOutOfRangeException() : Exception("Index out of range!") { }
 		IndexOutOfRangeException(u64 index, u64 size) : Exception(BuildErrorMessage(index, size)) { }
+		IndexOutOfRangeException(u64 index, u64 begin, u64 end) : Exception(BuildErrorMessage(index, begin, end)) { }
 
 	private:
 		static std::string BuildErrorMessage(u64 index, u64 size)
 		{
 			string_ostream stream;
 			stream << "Index " << index << " out of range " << size;
+			return stream.str();
+		}
+
+		static std::string BuildErrorMessage(u64 index, u64 begin, u64 end)
+		{
+			string_ostream stream;
+			stream << "Index " << index << " out of range [" << begin << ", " << (end != 0 ? ToString(end) : "infinite") << ")";
 			return stream.str();
 		}
 	};
