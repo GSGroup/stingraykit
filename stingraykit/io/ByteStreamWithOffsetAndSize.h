@@ -78,6 +78,7 @@ namespace stingray
 		{
 			s64 remaining = _endOffset - _offset - _position;
 			STINGRAYKIT_CHECK(remaining >= 0, IndexOutOfRangeException(remaining, 0, 0));
+			STINGRAYKIT_CHECK(remaining != 0, "no space left in byte stream");
 			_stream->Seek(_offset + _position);
 			u64 written = _stream->Write(ConstByteData(data, 0, (size_t)std::min((s64)data.size(), remaining)), token);
 			_position += (s64)written;
