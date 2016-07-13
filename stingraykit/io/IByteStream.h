@@ -32,7 +32,10 @@ namespace stingray
 
 	public:
 		ByteStreamWithOffset(const IByteStreamPtr & stream, s64 offset) : _stream(stream), _offset(offset)
-		{ _stream->Seek(offset); }
+		{
+			STINGRAYKIT_CHECK(offset >= 0, ArgumentException("offset", offset));
+			_stream->Seek(offset);
+		}
 
 		virtual u64 Tell() const
 		{
@@ -69,6 +72,7 @@ namespace stingray
 				STINGRAYKIT_THROW(NotImplementedException());
 			}
 
+			STINGRAYKIT_CHECK(newPosition >= _offset, IndexOutOfRangeException(newPosition, _offset, 0));
 			_stream->Seek(newPosition);
 		}
 
