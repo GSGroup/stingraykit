@@ -12,6 +12,7 @@
 #include <stingraykit/io/IOutputByteStream.h>
 #include <stingraykit/io/SeekMode.h>
 #include <stingraykit/ICreator.h>
+#include <stingraykit/string/ToString.h>
 
 namespace stingray
 {
@@ -29,19 +30,22 @@ namespace stingray
 	{
 		IByteStreamPtr	_stream;
 		const s64		_offset;
+		s64				_position;
 
 	public:
-		ByteStreamWithOffset(const IByteStreamPtr & stream, s64 offset) : _stream(stream), _offset(offset)
+		ByteStreamWithOffset(const IByteStreamPtr & stream, s64 offset) : _stream(stream), _offset(offset), _position(0)
 		{
 			STINGRAYKIT_CHECK(offset >= 0, ArgumentException("offset", offset));
-			_stream->Seek(offset);
+			_stream->Seek(offset + _position);
 		}
 
 		virtual u64 Tell() const
 		{
 			u64 tell = _stream->Tell();
 			STINGRAYKIT_CHECK(tell >= (u64)_offset, IndexOutOfRangeException(tell, _offset, 0));
-			return tell - _offset;
+			u64 position = tell - _offset;
+			STINGRAYKIT_CHECK(position == (u64)_position, LogicException(StringBuilder() % "real position is " % position % ", our is " % _position));
+			return position;
 		}
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
@@ -74,10 +78,24 @@ namespace stingray
 
 			STINGRAYKIT_CHECK(newPosition >= _offset, IndexOutOfRangeException(newPosition, _offset, 0));
 			_stream->Seek(newPosition);
+			_position = newPosition - _offset;
 		}
 
-		virtual u64 Read(ByteData data, const ICancellationToken& token)						{ return _stream->Read(data, token); }
-		virtual u64 Write(ConstByteData data, const ICancellationToken& token)					{ return _stream->Write(data, token); }
+		virtual u64 Read(ByteData data, const ICancellationToken& token)
+		{
+			_stream->Seek(_offset + _position);
+			u64 readed = _stream->Read(data, token);
+			_position += (s64)readed;
+			return readed;
+		}
+
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
+		{
+			_stream->Seek(_offset + _position);
+			u64 written = _stream->Write(data, token);
+			_position += (s64)written;
+			return written;
+		}
 	};
 
 }
