@@ -28,21 +28,49 @@ namespace stingray
 	class ByteStreamWithOffset : public IByteStream
 	{
 		IByteStreamPtr	_stream;
-		const size_t	_offset;
+		const s64		_offset;
 
 	public:
-		ByteStreamWithOffset(const IByteStreamPtr & stream, size_t offset) : _stream(stream), _offset(offset)
+		ByteStreamWithOffset(const IByteStreamPtr & stream, s64 offset) : _stream(stream), _offset(offset)
 		{ _stream->Seek(offset); }
 
 		virtual u64 Tell() const
 		{
-			size_t tell = _stream->Tell();
-			STINGRAYKIT_CHECK(tell >= _offset, "Wrong ByteStreamWithOffset state");
+			u64 tell = _stream->Tell();
+			STINGRAYKIT_CHECK(tell >= (u64)_offset, IndexOutOfRangeException(tell, _offset, 0));
 			return tell - _offset;
 		}
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
-		{ _stream->Seek(mode == SeekMode::Begin ? static_cast<s64>(_offset) + offset : offset, mode); }
+		{
+			s64 newPosition;
+
+			switch(mode)
+			{
+			case SeekMode::Begin:
+				newPosition = _offset + offset;
+				break;
+
+			case SeekMode::Current:
+				newPosition = (s64)_stream->Tell() + offset;
+				break;
+
+			case SeekMode::End:
+				{
+					s64 oldPosition = (s64)_stream->Tell();
+					_stream->Seek(0, SeekMode::End);
+					s64 size = (s64)_stream->Tell();
+					_stream->Seek(oldPosition);
+					newPosition = size + offset;
+					break;
+				}
+
+			default:
+				STINGRAYKIT_THROW(NotImplementedException());
+			}
+
+			_stream->Seek(newPosition);
+		}
 
 		virtual u64 Read(ByteData data, const ICancellationToken& token)						{ return _stream->Read(data, token); }
 		virtual u64 Write(ConstByteData data, const ICancellationToken& token)					{ return _stream->Write(data, token); }
