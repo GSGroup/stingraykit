@@ -85,6 +85,7 @@ namespace stingray
 			return written;
 		}
 	};
+	STINGRAYKIT_DECLARE_PTR(ByteStreamWithOffset);
 
 }
 
