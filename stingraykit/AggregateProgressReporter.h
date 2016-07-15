@@ -23,15 +23,20 @@ namespace stingray
 	private:
 		ProgressReporterFunc	_progressReporter;
 		size_t 					_actionIndex;
+		size_t 					_actionSize;
 		size_t 					_actionCount;
 
 	public:
 		AggregateProgressReporter(const ProgressReporterFunc& progressReporter, size_t actionIndex, size_t actionCount)
-			: _progressReporter(progressReporter), _actionIndex(actionIndex), _actionCount(actionCount)
+			: _progressReporter(progressReporter), _actionIndex(actionIndex), _actionSize(1), _actionCount(actionCount)
 		{ STINGRAYKIT_CHECK(_actionIndex < _actionCount, IndexOutOfRangeException(_actionIndex, _actionCount)); }
 
+		AggregateProgressReporter(const ProgressReporterFunc& progressReporter, size_t actionIndex, size_t actionSize, size_t actionCount)
+			: _progressReporter(progressReporter), _actionIndex(actionIndex), _actionSize(actionSize), _actionCount(actionCount)
+		{ STINGRAYKIT_CHECK((_actionIndex + _actionSize - 1) < _actionCount, IndexOutOfRangeException(_actionIndex + actionSize, _actionCount)); }
+
 		void operator()(const ProgressValue& actionProgress) const
-		{ _progressReporter(ProgressValue(_actionCount != 0 ? (_actionIndex * 100 + actionProgress.InPercents()) / _actionCount : 0, 100)); }
+		{ _progressReporter(ProgressValue(_actionCount != 0 ? (_actionIndex * 100 + _actionSize * actionProgress.InPercents()) / _actionCount : 0, 100)); }
 	};
 
 }
