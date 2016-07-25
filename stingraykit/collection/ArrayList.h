@@ -88,8 +88,8 @@ namespace stingray
 
 		virtual void Set(int index, const ValueType& value)
 		{
-			CopyOnWrite();
 			STINGRAYKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			CopyOnWrite();
 			(*_items)[index] = value;
 		}
 
@@ -101,8 +101,8 @@ namespace stingray
 
 		virtual void RemoveAt(int index)
 		{
-			CopyOnWrite();
 			STINGRAYKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			CopyOnWrite();
 			_items->erase(_items->begin() + index);
 		}
 
@@ -137,11 +137,15 @@ namespace stingray
 		{ return _items->empty(); }
 
 		virtual void Add(const ValueType& value)
-		{ _items->push_back(value); }
+		{
+			CopyOnWrite();
+			_items->push_back(value);
+		}
 
 		virtual void Insert(int index, const ValueType& value)
 		{
 			STINGRAYKIT_CHECK(index >= 0 && index <= (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			CopyOnWrite();
 
 			typename VectorType::iterator it = _items->begin();
 			std::advance(it, index);
