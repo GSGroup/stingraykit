@@ -537,6 +537,20 @@ namespace stingray
 		}
 
 
+		template < typename Range_, class Value_ >
+		int IndexOf(Range_ range, Value_ value)
+		{
+			int result = 0;
+			for (; range.Valid(); range.Next())
+			{
+				if (range.Get() == value)
+					return result;
+				++result;
+			}
+			return -1;
+		}
+
+
 		template <typename Range_, class Predicate_>
 		bool AnyOf(Range_ range, Predicate_ predicate)
 		{
