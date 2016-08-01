@@ -39,8 +39,6 @@ namespace stingray
 		class CallbackQueue;
 		STINGRAYKIT_DECLARE_PTR(CallbackQueue);
 
-		struct CallbackInfoLess;
-
 	public:
 		typedef function<void(const std::exception&)>	ExceptionHandler;
 

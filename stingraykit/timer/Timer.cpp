@@ -8,6 +8,7 @@
 #include <stingraykit/timer/Timer.h>
 
 #include <list>
+#include <map>
 
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/CancellableFunction.h>
@@ -57,14 +58,15 @@ namespace stingray
 
 	class Timer::CallbackQueue
 	{
-		typedef std::list<CallbackInfoPtr>	Container;
+		typedef std::list<CallbackInfoPtr>					ContainerInternal;
+		typedef std::map<TimeDuration, ContainerInternal>	Container;
 
 	private:
 		Mutex			_mutex;
 		Container		_container;
 
 	public:
-		typedef Container::iterator iterator;
+		typedef ContainerInternal::iterator iterator;
 
 		inline Mutex &Sync()
 		{ return _mutex; }
@@ -75,12 +77,7 @@ namespace stingray
 			return _container.empty();
 		}
 
-		CallbackInfoPtr Top() const
-		{
-			MutexLock l(_mutex);
-			return !_container.empty()? _container.front(): null; //atomically return top element
-		}
-
+		CallbackInfoPtr Top() const;
 		void Push(CallbackInfoPtr ci);
 		void Erase(const iterator & it);
 		CallbackInfoPtr Pop();
@@ -138,34 +135,47 @@ namespace stingray
 		}
 	};
 
-	struct Timer::CallbackInfoLess : std::binary_function<CallbackInfoPtr, CallbackInfoPtr, bool>
+	Timer::CallbackInfoPtr Timer::CallbackQueue::Top() const
 	{
-		bool operator () (const CallbackInfoPtr& left, const CallbackInfoPtr& right) const
-		{ return left->GetTimeToTrigger() < right->GetTimeToTrigger(); } // Callbacks with the least time have the greatest priority
-	};
+		MutexLock l(_mutex);
+		if (!_container.empty())
+		{
+			const ContainerInternal& listForTop = _container.begin()->second;
+			STINGRAYKIT_CHECK(!listForTop.empty(), "try to get callback from empty list");
+			return listForTop.front();
+		}
+		else
+			return null;
+	}
 
 	void Timer::CallbackQueue::Push(CallbackInfoPtr ci)
 	{
 		MutexLock l(_mutex);
-		iterator where = _container.begin();
-		while (where != _container.end() && !CallbackInfoLess()(ci, *where))
-			++where;
-		ci->SetIterator(_container.insert(where, ci));
+		ContainerInternal& listToInsert = _container[ci->GetTimeToTrigger()];
+		ci->SetIterator(listToInsert.insert(listToInsert.end(), ci));
 	}
 
 	void Timer::CallbackQueue::Erase(const iterator & it)
 	{
 		MutexLock l(_mutex);
-		_container.erase(it);
+		TimeDuration keyToErase = (*it)->GetTimeToTrigger();
+		ContainerInternal& listToErase = _container[keyToErase];
+		listToErase.erase(it);
+		if (listToErase.empty())
+			_container.erase(keyToErase);
 	}
 
 	Timer::CallbackInfoPtr Timer::CallbackQueue::Pop()
 	{
 		MutexLock l(_mutex);
-		STINGRAYKIT_CHECK(!_container.empty(), "popping callback from empty list");
+		STINGRAYKIT_CHECK(!_container.empty(), "popping callback from empty map");
+		ContainerInternal& listToPop = _container.begin()->second;
+		STINGRAYKIT_CHECK(!listToPop.empty(), "popping callback from empty list");
 
-		CallbackInfoPtr ci = _container.front();
-		_container.pop_front();
+		CallbackInfoPtr ci = listToPop.front();
+		listToPop.pop_front();
+		if (listToPop.empty())
+			_container.erase(ci->GetTimeToTrigger());
 		ci->ResetIterator();
 		return ci;
 	}
