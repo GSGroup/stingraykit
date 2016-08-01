@@ -10,8 +10,10 @@
 
 #include <stingraykit/exception.h>
 #include <stingraykit/exception_ptr.h>
-#include <stingraykit/shared_ptr.h>
 #include <stingraykit/FunctionToken.h>
+#include <stingraykit/function/bind.h>
+#include <stingraykit/shared_ptr.h>
+#include <stingraykit/TaskLifeToken.h>
 #include <stingraykit/toolkit.h>
 #include <stingraykit/unique_ptr.h>
 #include <stingraykit/thread/ConditionVariable.h>
