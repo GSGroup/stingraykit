@@ -93,8 +93,7 @@ namespace stingray
 
 	private:
 		FuncT						_func;
-		ElapsedTime					_timer;
-		optional<TimeDuration>		_timeout;
+		TimeDuration				_timeToTrigger;
 		optional<TimeDuration>		_period;
 		TaskLifeToken				_token;
 		CallbackQueueWeakPtr		_queue;
@@ -107,28 +106,21 @@ namespace stingray
 		void SetIterator(const CallbackQueue::iterator& it)		{ _iterator = it; _iteratorIsValid = true; }
 		void ResetIterator()									{ _iteratorIsValid = false; }
 
-		TimeDuration GetTimeBeforeTrigger() const
-		{
-			if (_timeout.is_initialized())
-				return _timeout.get();
-			if (_period.is_initialized())
-				return _period.get();
-			STINGRAYKIT_THROW("Timer::CallbackInfo internal error: neither _timeout nor _period is set!");
-		}
-
 	public:
-		CallbackInfo(const FuncT& func, const optional<TimeDuration>& timeout, const optional<TimeDuration>& period, const CallbackQueuePtr& queue)
-			: _func(func), _timeout(timeout), _period(period), _queue(queue), _iteratorIsValid(false)
+		CallbackInfo(const FuncT& func, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const CallbackQueuePtr& queue)
+			: _func(func), _timeToTrigger(timeToTrigger), _period(period), _queue(queue), _iteratorIsValid(false)
 		{ }
 
 		const FuncT& GetFunc() const							{ return _func; }
 		FutureExecutionTester GetExecutionTester() const 		{ return _token.GetExecutionTester(); }
 
 		bool IsPeriodic() const									{ return _period.is_initialized(); }
-		bool Triggered() const									{ return TimeDuration(_timer.ElapsedMilliseconds()) >= GetTimeBeforeTrigger(); }
-		void Restart()											{ _timeout.reset(); _timer.Restart(); }
-		//TimeDuration GetEstimate() const						{ TimeDuration e(_timer.ElapsedMilliseconds()); return std::max(TimeDuration(), GetTimeBeforeTrigger() - e); }
-		TimeDuration GetEstimate() const						{ TimeDuration e(_timer.ElapsedMilliseconds()); return GetTimeBeforeTrigger() > e ? GetTimeBeforeTrigger() - e : TimeDuration(); }
+		void Restart(const TimeDuration& currentTime)
+		{
+			STINGRAYKIT_CHECK(_period, "Timer::CallbackInfo::Restart internal error: _period is set!");
+			_timeToTrigger = currentTime + *_period;
+		}
+		TimeDuration GetTimeToTrigger() const					{ return _timeToTrigger; }
 
 		virtual void Disconnect()
 		{
@@ -146,17 +138,17 @@ namespace stingray
 		}
 	};
 
-	struct Timer::CallbackInfoOrder : std::binary_function<CallbackInfoPtr, CallbackInfoPtr, bool>
+	struct Timer::CallbackInfoLess : std::binary_function<CallbackInfoPtr, CallbackInfoPtr, bool>
 	{
 		bool operator () (const CallbackInfoPtr& left, const CallbackInfoPtr& right) const
-		{ return right->GetEstimate() < left->GetEstimate(); } // Callbacks with the least time have the greatest priority
+		{ return left->GetTimeToTrigger() < right->GetTimeToTrigger(); } // Callbacks with the least time have the greatest priority
 	};
 
 	void Timer::CallbackQueue::Push(CallbackInfoPtr ci)
 	{
 		MutexLock l(_mutex);
 		iterator where = _container.begin();
-		while (where != _container.end() && CallbackInfoOrder()(*where, ci) <= 0)
+		while (where != _container.end() && !CallbackInfoLess()(ci, *where))
 			++where;
 		ci->SetIterator(_container.insert(where, ci));
 	}
@@ -223,7 +215,7 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, timeout, null, _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, _queue);
 		_queue->Push(ci);
 		_cond.Broadcast();
 
@@ -239,7 +231,7 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, timeout, interval, _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, _queue);
 		_queue->Push(ci);
 		_cond.Broadcast();
 
@@ -251,7 +243,7 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), TimeDuration(), null, _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, _queue);
 		_queue->Push(ci);
 		_cond.Broadcast();
 	}
@@ -274,7 +266,8 @@ namespace stingray
 				continue;
 			}
 
-			if (top->Triggered())
+			TimeDuration wait_time = top->GetTimeToTrigger() - _monotonic.Elapsed();
+			if (wait_time.GetMilliseconds() <= 0)
 			{
 				top = _queue->Pop(); //fixme: check that's the same object
 
@@ -288,7 +281,7 @@ namespace stingray
 
 					MutexUnlock ul(l);
 					if (top->IsPeriodic())
-						top->Restart();
+						top->Restart(_monotonic.Elapsed());
 
 					try
 					{
@@ -312,7 +305,7 @@ namespace stingray
 			}
 			else //top timer not triggered
 			{
-				TimeDuration wait_time = top->GetEstimate();
+				TimeDuration wait_time = top->GetTimeToTrigger() - _monotonic.Elapsed();
 				top.reset();
 				if (wait_time.GetMilliseconds() > 0)
 					_cond.TimedWait(_queue->Sync(), wait_time);

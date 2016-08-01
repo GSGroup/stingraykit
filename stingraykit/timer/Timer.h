@@ -39,13 +39,14 @@ namespace stingray
 		class CallbackQueue;
 		STINGRAYKIT_DECLARE_PTR(CallbackQueue);
 
-		struct CallbackInfoOrder;
+		struct CallbackInfoLess;
 
 	public:
 		typedef function<void(const std::exception&)>	ExceptionHandler;
 
 	private:
 		std::string					_timerName;
+		ElapsedTime					_monotonic;
 		ThreadPtr					_worker;
 		ConditionVariable			_cond;
 		bool						_alive;
