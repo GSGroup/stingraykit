@@ -311,6 +311,36 @@ namespace stingray
 					_cond.TimedWait(_queue->Sync(), wait_time);
 			}
 		}
+
+		TimeDuration currentTime = _monotonic.Elapsed();
+		while (!_queue->IsEmpty())
+		{
+			CallbackInfoPtr top = _queue->Pop();
+
+			TimeDuration wait_time = top->GetTimeToTrigger() - currentTime;
+			if (wait_time.GetMilliseconds() <= 0)
+			{
+				LocalExecutionGuard guard(top->GetExecutionTester());
+				if (!guard)
+					continue;
+
+				MutexUnlock ul(l);
+				try
+				{
+					if (_profileCalls)
+					{
+						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(top->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
+						(top->GetFunc())();
+					}
+					else
+						(top->GetFunc())();
+				}
+				catch(const std::exception &ex)
+				{ _exceptionHandler(ex); }
+			}
+			else
+				break;
+		}
 	}
 
 
