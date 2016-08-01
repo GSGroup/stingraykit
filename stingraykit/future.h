@@ -11,12 +11,13 @@
 #include <stingraykit/exception.h>
 #include <stingraykit/exception_ptr.h>
 #include <stingraykit/shared_ptr.h>
+#include <stingraykit/FunctionToken.h>
+#include <stingraykit/toolkit.h>
+#include <stingraykit/unique_ptr.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
 #include <stingraykit/thread/ICancellationToken.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/toolkit.h>
-#include <stingraykit/unique_ptr.h>
 
 namespace stingray
 {
@@ -63,100 +64,99 @@ namespace stingray
 
 
 		template<typename ResultType>
-		class future_impl
+		struct future_callback
+		{
+			typedef function<void()> FunctionType;
+
+		private:
+			FunctionType			_function;
+			FutureExecutionTester	_tester;
+
+		public:
+			future_callback(const FunctionType& function, const FutureExecutionTester& tester) : _function(function), _tester(_tester)
+			{ }
+
+			void invoke()
+			{
+				LocalExecutionGuard guard(_tester);
+
+				if (guard)
+					_function();
+			}
+		};
+
+
+		template<typename T>
+		class future_result
 		{
 		public:
-			typedef typename future_value_holder<ResultType>::ConstructValueT SetType;
-		private:
-			typedef future_value_holder<ResultType> WrappedResultType;
-			typedef unique_ptr<WrappedResultType> ValuePtr;
+			typedef future_value_holder<T> WrappedResultType;
+			typedef optional<WrappedResultType> OptionalValue;
 
-			Mutex				_mutex;
-			ConditionVariable	_condition;
-			ValuePtr			_value;
-			exception_ptr		_exception;
+		private:
+			OptionalValue	_value;
+			exception_ptr	_exception;
 
 		public:
-			future_impl() {}
-			~future_impl() {}
+			future_result() { }
+			future_result(const T& value) : _value(value) { }
+			future_result(const exception_ptr& exception) : _exception(exception) { }
 
-			bool is_ready() const						{ MutexLock l(_mutex); return _value || _exception; }
-			bool has_exception() const					{ MutexLock l(_mutex); return _exception; }
-			bool has_value() const						{ MutexLock l(_mutex); return _value; }
-			void wait(const ICancellationToken& token)	{ MutexLock l(_mutex); do_wait(token); }
+			bool has_exception() const	{ return _exception; }
+			bool has_value() const		{ return _value; }
 
-			future_status wait_for(TimeDuration duration, const ICancellationToken& token)
-			{ MutexLock l(_mutex); return do_timed_wait(duration, token); }
-
-			future_status wait_until(const Time& absTime, const ICancellationToken& token)
-			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now(), token); }
-
-			ResultType get()
+			T get()
 			{
-				MutexLock l(_mutex);
-				do_wait(DummyCancellationToken());
 				if (_exception)
 					rethrow_exception(_exception);
 				STINGRAYKIT_CHECK(_value, OperationCanceledException());
 				return *_value;
 			}
-
-			void set_value(SetType value)
-			{
-				MutexLock l(_mutex);
-				STINGRAYKIT_CHECK(!_value, PromiseAlreadySatisfied());
-				_value.reset(new WrappedResultType(value));
-				_condition.Broadcast();
-			}
-
-			void set_exception(exception_ptr ex)
-			{
-				MutexLock l(_mutex);
-				if (_value || _exception)
-					return;
-				_exception = ex;
-				_condition.Broadcast();
-			}
-
-		private:
-			void do_wait(const ICancellationToken& token)
-			{
-				if(_value || _exception)
-					return;
-				_condition.Wait(_mutex, token);
-			}
-
-			future_status do_timed_wait(TimeDuration duration, const ICancellationToken& token)
-			{
-				if (_value || _exception)
-					return future_status::ready;
-				_condition.TimedWait(_mutex, duration, token);
-				if (_value || _exception)
-					return future_status::ready;
-				return future_status::timeout;
-			}
-
 		};
 
+
 		template<>
-		class future_impl<void>
+		class future_result<void>
+		{
+			bool			_value;
+			exception_ptr	_exception;
+
+		public:
+			future_result() : _value(false) { }
+			future_result(bool value) : _value(value) { }
+			future_result(const exception_ptr& exception) : _value(false), _exception(exception) { }
+
+			bool has_exception() const	{ return _exception; }
+			bool has_value() const		{ return _value; }
+
+			void get()
+			{
+				if (_exception)
+					rethrow_exception(_exception);
+				STINGRAYKIT_CHECK(_value, OperationCanceledException());
+			}
+		};
+
+
+		template<typename T>
+		class future_impl_base
 		{
 		public:
-			typedef void SetType;
+			typedef future_callback<T> Callback;
+			typedef typename Callback::FunctionType CallbackFunction;
 
-		private:
-			Mutex				_mutex;
-			ConditionVariable	_condition;
-			bool				_value;
-			exception_ptr		_exception;
+		protected:
+			typedef future_result<T> ResultType;
+
+			Mutex					_mutex;
+			ConditionVariable		_condition;
+			ResultType				_result;
+			optional<Callback>		_callback;
 
 		public:
-			future_impl() : _value(false) {}
-			~future_impl() {}
-
-			bool is_ready() const						{ MutexLock l(_mutex); return _value || _exception; }
-			bool has_exception() const					{ MutexLock l(_mutex); return _exception; }
-			bool has_value() const						{ MutexLock l(_mutex); return _value; }
+			bool is_ready() const						{ MutexLock l(_mutex); return _result.has_value() || _result.has_exception(); }
+			bool has_exception() const					{ MutexLock l(_mutex); return _result.has_exception(); }
+			bool has_value() const						{ MutexLock l(_mutex); return _result.has_value(); }
 			void wait(const ICancellationToken& token)	{ MutexLock l(_mutex); do_wait(token); }
 
 			future_status wait_for(TimeDuration duration, const ICancellationToken& token)
@@ -165,50 +165,93 @@ namespace stingray
 			future_status wait_until(const Time& absTime, const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now(), token); }
 
-			void get()
+			T get()
 			{
 				MutexLock l(_mutex);
 				do_wait(DummyCancellationToken());
-				if (_exception)
-					rethrow_exception(_exception);
-				STINGRAYKIT_CHECK(_value, OperationCanceledException());
+				return _result.get();
 			}
 
-			void set_value()
+			Token set_callback(const CallbackFunction& callback)
 			{
 				MutexLock l(_mutex);
-				STINGRAYKIT_CHECK(!_value, PromiseAlreadySatisfied());
-				_value = true;
-				_condition.Broadcast();
+
+				TaskLifeToken lifeToken;
+
+				_callback.reset();
+				_callback = Callback(callback, lifeToken.GetExecutionTester());
+
+				 return MakeToken<FunctionToken>(bind(&TaskLifeToken::Release, lifeToken));
 			}
 
 			void set_exception(exception_ptr ex)
 			{
 				MutexLock l(_mutex);
-				if (_value)
+				if (is_ready())
 					return;
-				_exception = ex;
-				_condition.Broadcast();
+
+				_result = ResultType(ex);
+				notify_ready();
 			}
 
-		private:
+		protected:
+			void notify_ready()
+			{
+				_condition.Broadcast();
+				if (_callback)
+					_callback->invoke();
+			}
+
 			void do_wait(const ICancellationToken& token)
 			{
-				if(_value || _exception)
+				if(is_ready())
 					return;
-				_condition.Wait(_mutex, token);
+
+				while (!is_ready() && token)
+					_condition.Wait(_mutex, token);
 			}
 
 			future_status do_timed_wait(TimeDuration duration, const ICancellationToken& token)
 			{
-				if (_value || _exception)
+				if (is_ready())
 					return future_status::ready;
-				_condition.TimedWait(_mutex, duration, token);
-				if (_value || _exception)
-					return future_status::ready;
-				return future_status::timeout;
-			}
 
+				while (!is_ready() && token)
+					if (!_condition.TimedWait(_mutex, duration, token))
+						break;
+
+				return is_ready() ?	future_status::ready : future_status::timeout;
+			}
+		};
+
+
+		template<typename T>
+		class future_impl : public future_impl_base<T>
+		{
+			typedef future_impl_base<T> Base;
+		public:
+			void set_value(typename future_value_holder<T>::ConstructValueT value)
+			{
+				MutexLock l(this->_mutex);
+				STINGRAYKIT_CHECK(!this->is_ready(), PromiseAlreadySatisfied());
+				this->_result = typename Base::ResultType(value);
+				this->notify_ready();
+			}
+		};
+
+
+		template<>
+		class future_impl<void> : public future_impl_base<void>
+		{
+			typedef future_impl_base<void> Base;
+		public:
+			void set_value()
+			{
+				MutexLock l(this->_mutex);
+				STINGRAYKIT_CHECK(!this->is_ready(), PromiseAlreadySatisfied());
+				this->_result = typename Base::ResultType(true);
+				this->notify_ready();
+			}
 		};
 	}
 
@@ -301,7 +344,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(promise);
 
 	public:
-		typedef typename Detail::future_impl<ResultType>::SetType SetType;
+		typedef typename Detail::future_value_holder<ResultType>::ConstructValueT SetType;
 
 	private:
 		typedef Detail::future_impl<ResultType>	FutureImplType;
@@ -343,7 +386,6 @@ namespace stingray
 		bool						_futureRetrieved;
 
 	public:
-
 		promise() : _futureImpl(new FutureImplType), _futureRetrieved(false)
 		{}
 
