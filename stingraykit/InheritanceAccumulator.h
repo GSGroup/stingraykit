@@ -19,7 +19,15 @@ namespace stingray
 		template < typename Current, typename Result >
 		struct AccumulateFunc
 		{
-			struct ValueT : public Current, public Result { }
+			struct ValueT : public Current, public Result
+			{
+#define DETAIL_STINGRAYKIT_DECLARE_VALUET_CTOR(N_, UserArg_) \
+				STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
+				ValueT(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) : Current(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)) { }
+				STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_VALUET_CTOR, ~)
+#undef DETAIL_STINGRAYKIT_DECLARE_VALUET_CTOR
+
+			};
 		};
 
 		typedef typename TypeListAccumulate<typename ToTypeList<TypeList>::ValueT, AccumulateFunc, EndNode>::ValueT ValueT;
