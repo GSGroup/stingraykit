@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/InheritanceAccumulator.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/optional.h>
 
@@ -43,18 +44,6 @@ namespace stingray
 		struct VisitorByPtrBase : public virtual IVisitorByPtrBase<BaseType>
 		{
 			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable) = 0;
-		};
-
-		template < typename TypeList, typename EndNode >
-		struct InheritanceAccumulator
-		{
-			template < typename Current, typename Result >
-			struct AccumulateFunc
-			{
-				struct ValueT : public Current, public Result { };
-			};
-
-			typedef typename TypeListAccumulate<typename ToTypeList<TypeList>::ValueT, AccumulateFunc, EndNode>::ValueT ValueT;
 		};
 
 		template < template < typename, typename, typename > class VisitorType, typename BaseType, typename ValueType >
@@ -183,7 +172,7 @@ namespace stingray
 
 
 	template < typename BaseType, typename DerivedTypes, typename ValueType = void >
-	struct Visitor : public Detail::InheritanceAccumulator<
+	struct Visitor : public InheritanceAccumulator<
 			typename TypeListTransform<
 					typename TypeListAppend<typename ToTypeList<DerivedTypes>::ValueT, BaseType>::ValueT,
 					Detail::ToVisitorImpl<Detail::VisitorImpl, BaseType, ValueType>::template type>::ValueT,
@@ -192,7 +181,7 @@ namespace stingray
 
 
 	template < typename BaseType, typename DerivedTypes, typename ValueType = void >
-	struct VisitorByPtr : public Detail::InheritanceAccumulator<
+	struct VisitorByPtr : public InheritanceAccumulator<
 			typename TypeListTransform<
 					typename TypeListAppend<typename ToTypeList<DerivedTypes>::ValueT, BaseType>::ValueT,
 					Detail::ToVisitorImpl<Detail::VisitorByPtrImpl, BaseType, ValueType>::template type>::ValueT,
