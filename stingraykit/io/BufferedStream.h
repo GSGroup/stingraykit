@@ -12,7 +12,6 @@
 
 namespace stingray
 {
-
 	class BufferedStream : public virtual IByteStream
 	{
 		IByteStreamPtr	_stream;
@@ -29,7 +28,9 @@ namespace stingray
 
 		bool SeekInBuffer(s64 offset)
 		{
-			if (offset >= _currentOffset && offset < _currentOffset + (s64)GetBufferSize()) //offset within buffer
+			if ( _readBufferSize == _readBufferOffset ) //not have valid data in buffer
+				return false;
+			else if (_currentOffset - _readBufferOffset <= offset && offset < _currentOffset + (s64)GetBufferSize()) //offset within buffer
 			{
 				_readBufferOffset += offset - _currentOffset;
 				_currentOffset = offset;
@@ -82,20 +83,24 @@ namespace stingray
 		{
 			switch(mode)
 			{
-				case SeekMode::Begin:
-					if (SeekInBuffer(offset))
-						return;
-					break;
-				case SeekMode::Current:
-					if (SeekInBuffer(_currentOffset + offset))
-						return;
-					break;
-				default:
-					break;
+			case SeekMode::Begin:
+				if (SeekInBuffer(offset))
+					return;
+				_stream->Seek(offset, mode);
+				break;
+
+			case SeekMode::Current:
+				if (SeekInBuffer(_currentOffset + offset))
+					return;
+				_stream->Seek(_currentOffset + offset, SeekMode::Begin);
+				break;
+
+			default:
+				_stream->Seek(offset, mode);
+				break;
 			}
 
-			_stream->Seek(offset, mode);
-			_currentOffset = _stream->Tell();
+			_currentOffset    = _stream->Tell();
 			_readBufferOffset = _readBufferSize = _readBuffer.size();
 		}
 
