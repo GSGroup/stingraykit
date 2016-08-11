@@ -29,9 +29,20 @@ namespace stingray
 		};
 
 
+		template <typename T>
+		struct AtomicIntPredicate
+		{ static const bool Value = (sizeof(T) <= sizeof(void*)); };
+
+		typedef TypeListCopyIf<IntTypes, AtomicIntPredicate>::ValueT AtomicIntTypes;
+
+		template < typename T >
+		struct IsAtomicIntType
+		{ static const bool Value = TypeListContains<AtomicIntTypes, T>::Value; };
+
+
 		template<typename T, AtomicImplType::Enum ImplType =
 			SameType<T, bool>::Value ? AtomicImplType::Bool :
-			IsIntType<T>::Value ? AtomicImplType::Integral :
+			IsAtomicIntType<T>::Value ? AtomicImplType::Integral :
 			IsEnumClass<T>::Value ? AtomicImplType::EnumClass : AtomicImplType::Fallback>
 		class AtomicImpl;
 
