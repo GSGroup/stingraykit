@@ -132,7 +132,7 @@ namespace stingray
 				return false;
 
 			CopyOnWrite();
-			_items->erase(it);
+			_items->erase(value);
 			return true;
 		}
 
