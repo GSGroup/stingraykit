@@ -560,14 +560,7 @@ namespace stingray
 				value = null;
 			else
 			{
-				try
-				{
-					T t;
-					ObjectIStream(property, _collection, _context).Deserialize(t);
-					value = t;
-				}
-				catch(SettingsValueException &ex)
-				{ ex.Append(name); throw; }
+				try { ObjectIStream(property, _collection, _context).Deserialize(value); } catch(SettingsValueException &ex) { ex.Append(name); throw; }
 			}
 			return *this;
 		}
