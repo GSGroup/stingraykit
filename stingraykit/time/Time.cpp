@@ -129,52 +129,70 @@ namespace stingray
 		if (s.size() > 4 && s.substr(0, 4) == "now+")
 			return Time::Now() + TimeDuration::FromString(s.substr(4));
 
-		BrokenDownTime bdt = Time::Now().BreakDown();
-		int a, b, c, d, e, f;
-		int components = 0;
-		int otherComponents = 0;
+		s16 year, month, day;
+		s16 hour, minute, second;
+		bool haveDate = false;
+		bool haveTime = false;
+		bool haveSeconds = false;
 
-		components = sscanf(s.c_str(), "%d.%d.%d %d:%d:%d", &a, &b, &c, &d, &e, &f);
-		otherComponents = sscanf(s.c_str(), "%d/%d/%d", &a, &b, &c);
-
-		if (otherComponents > components)
+		int components = sscanf(s.c_str(), "%hd.%hd.%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
+		if (components >= 3)
 		{
-			if (otherComponents == 3)
-			{
-				bdt.MonthDay		= c;
-				bdt.Month			= b;
-				bdt.Year			= (a > 100 ? a : (a > 30 ? 1900 + a : 2000 + a));
-
-				bdt.Hours			= 0;
-				bdt.Minutes			= 0;
-				bdt.Seconds			= 0;
-				bdt.Milliseconds	= 0;
-			}
-			else
-				STINGRAYKIT_THROW("Could not parse Time!");
+			haveDate = true;
+			if (components >= 5)
+				haveTime = true;
+			if (components >= 6)
+				haveSeconds = true;
 		}
 		else
 		{
+			components = sscanf(s.c_str(), "%hd/%hd/%hd %hd:%hd:%hd", &year, &month, &day, &hour, &minute, &second);
 			if (components >= 3)
 			{
-				bdt.MonthDay		= a;
-				bdt.Month			= b;
-				bdt.Year			= (c > 100 ? c : (c > 30 ? 1900 + c : 2000 + c));
-				components -= 3;
+				haveDate = true;
+				if (components >= 5)
+					haveTime = true;
+				if (components >= 6)
+					haveSeconds = true;
 			}
 			else
-				components = sscanf(s.c_str(), "%d:%d:%d", &d, &e, &f);
-
-			if (components >= 2)
 			{
-				bdt.Hours			= d;
-				bdt.Minutes			= e;
-				bdt.Seconds			= (components == 2) ? 0 : f;
-				bdt.Milliseconds	= 0;
+				components = sscanf(s.c_str(), "%hd:%hd:%hd", &hour, &minute, &second);
+				if (components >= 2)
+				{
+					haveTime = true;
+					if (components >= 3)
+						haveSeconds = true;
+				}
+				else
+					STINGRAYKIT_THROW("Unknown time format!");
 			}
-			else
-				STINGRAYKIT_THROW("Could not parse Time!");
 		}
+		STINGRAYKIT_CHECK((haveDate || haveTime), "Could not parse Time!");
+		STINGRAYKIT_CHECK(!(!haveTime && haveSeconds), "Have seconds without hours and minutes!");
+
+		BrokenDownTime bdt;
+		if (haveDate)
+		{
+			bdt.MonthDay		= day;
+			bdt.Month			= month;
+			bdt.Year			= (year > 100 ? year : (year > 30 ? 1900 + year : 2000 + year));
+		}
+		else
+		{
+			bdt					= Time::Now().BreakDown();
+			bdt.Seconds			= 0;
+			bdt.Milliseconds	= 0;
+		}
+
+		if (haveTime)
+		{
+			bdt.Hours			= hour;
+			bdt.Minutes			= minute;
+		}
+
+		if (haveSeconds)
+			bdt.Seconds			= second;
 
 		return FromBrokenDownTime(bdt, kind);
 	}
