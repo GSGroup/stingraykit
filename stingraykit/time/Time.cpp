@@ -152,7 +152,7 @@ namespace stingray
 		}
 		else
 		{
-			components = sscanf(s.c_str(), "%hd/%hd/%hd %hd:%hd:%hd", &year, &month, &day, &hour, &minute, &second);
+			components = sscanf(s.c_str(), "%hd/%hd/%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
 			if (components >= 3)
 			{
 				haveDate = true;
