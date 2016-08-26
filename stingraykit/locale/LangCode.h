@@ -39,8 +39,10 @@ namespace stingray
 		inline bool operator <  (const LangCode& other) const	{ return _code < other._code; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LangCode);
 
-		static LangCode FromString(const std::string &code)		{ return LangCode(code); }
+		static LangCode FromString(const std::string &code)		{ return code.length() == 2 ? From2Letter(code) : From3Letter(code); }
 		std::string ToString() const;
+		static LangCode From3Letter(const std::string &code);
+		static LangCode From2Letter(const std::string &code);
 
 	private:
 		void ToUpper();

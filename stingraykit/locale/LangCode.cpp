@@ -65,4 +65,22 @@ namespace stingray
 	{
 		return c >= 'a' && c <= 'z'? c - 'a' + 'A': c;
 	}
+
+	LangCode LangCode::From2Letter(const std::string &code)
+	{
+		STINGRAYKIT_CHECK(code.length() >= 2, "invalid language code: " + code);
+
+		if (DoToUpper(code[0]) == 'R' && DoToUpper(code[1]) == 'U')
+			return LangCode("rus");
+
+		if (DoToUpper(code[0]) == 'E' && DoToUpper(code[1]) == 'N')
+			return LangCode("eng");
+
+		return LangCode();
+	}
+
+	LangCode LangCode::From3Letter(const std::string &code)
+	{
+		return LangCode(code);
+	}
 }
