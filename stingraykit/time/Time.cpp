@@ -14,6 +14,7 @@
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/StringUtils.h>
 #include <stingraykit/time/TimeEngine.h>
+#include <stingraykit/log/Logger.h>
 
 namespace stingray
 {
@@ -131,9 +132,14 @@ namespace stingray
 
 		s16 year, month, day;
 		s16 hour, minute, second;
+		char utcSign;
+		s16 utcHour, utcMinute;
 		bool haveDate = false;
 		bool haveTime = false;
 		bool haveSeconds = false;
+		bool haveUtcSign = false;
+		bool haveUtcHours = false;
+		bool haveUtcMinutes = false;
 
 		int components = sscanf(s.c_str(), "%hd.%hd.%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
 		if (components >= 3)
@@ -165,11 +171,33 @@ namespace stingray
 						haveSeconds = true;
 				}
 				else
-					STINGRAYKIT_THROW("Unknown time format!");
+				{
+					components = sscanf(s.c_str(), "%hd-%hd-%hdT%hd:%hd:%hd%c%hd:%hd", &year, &month, &day, &hour, &minute, &second, &utcSign, &utcHour, &utcMinute);
+					if (components >= 3)
+					{
+						haveDate = true;
+						if (components >= 5)
+							haveTime = true;
+						if (components >= 6)
+							haveSeconds = true;
+						if (components >= 7)
+							haveUtcSign = true;
+						if (components >= 8)
+							haveUtcHours = true;
+						if (components >= 9)
+							haveUtcMinutes = true;
+					}
+					else
+						STINGRAYKIT_THROW("Unknown time format!");
+				}
 			}
 		}
 		STINGRAYKIT_CHECK((haveDate || haveTime), "Could not parse Time!");
 		STINGRAYKIT_CHECK(!(!haveTime && haveSeconds), "Have seconds without hours and minutes!");
+		STINGRAYKIT_CHECK(!haveUtcSign || ((utcSign == 'Z' && !haveUtcHours && !haveUtcMinutes) || ((utcSign == '+' || utcSign == '-') && haveUtcHours && !(!haveUtcHours && haveUtcMinutes))), "Malformed UTC suffix");
+
+		if (haveUtcSign)
+			Logger::Debug() << "Time::FromString: time kind parameter will be ignored because time string have UTC sign";
 
 		BrokenDownTime bdt;
 		if (haveDate)
@@ -193,6 +221,21 @@ namespace stingray
 
 		if (haveSeconds)
 			bdt.Seconds			= second;
+
+		if (haveUtcSign)
+		{
+			kind = TimeKind::Utc;
+			if ((utcSign == '+') || (utcSign == '-'))
+			{
+				s16 minutesFromUtc = (haveUtcHours ? (utcHour * MinutesPerHour) : 0) + (haveUtcMinutes ? utcMinute : 0);
+				if (utcSign == '-')
+					bdt.Minutes += minutesFromUtc;
+				else
+					bdt.Minutes -= minutesFromUtc;
+			}
+			else if (utcSign != 'Z')
+				STINGRAYKIT_THROW("Unknown UTC sign!");
+		}
 
 		return FromBrokenDownTime(bdt, kind);
 	}
