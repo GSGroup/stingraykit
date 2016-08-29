@@ -70,10 +70,14 @@ namespace stingray
 	{
 		STINGRAYKIT_CHECK(code.length() >= 2, "invalid language code: " + code);
 
-		if (DoToUpper(code[0]) == 'R' && DoToUpper(code[1]) == 'U')
+		std::string subcode(code, 0, 2);
+
+		std::transform(subcode.begin(), subcode.end(), subcode.begin(), &LangCode::DoToUpper);
+
+		if (subcode == "RU")
 			return LangCode("rus");
 
-		if (DoToUpper(code[0]) == 'E' && DoToUpper(code[1]) == 'N')
+		if (subcode == "EN")
 			return LangCode("eng");
 
 		return LangCode();
