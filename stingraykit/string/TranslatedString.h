@@ -43,6 +43,7 @@ namespace stingray
 		std::string SelectTranslation(LangCode l0) const;
 		std::string SelectTranslation(LangCode l0, LangCode l1) const;
 		std::string SelectTranslation(LangCode l0, LangCode l1, LangCode l2) const;
+		std::string SelectTranslation(const std::vector<LangCode>& langCodes) const;
 
 		bool operator < (const TranslatedString& other) const
 		{ return DoCompare(other) < 0; }

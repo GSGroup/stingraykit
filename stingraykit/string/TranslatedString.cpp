@@ -70,6 +70,14 @@ namespace stingray
 		return "";
 	}
 
+	std::string TranslatedString::SelectTranslation(const std::vector<LangCode>& langCodes) const
+	{
+		for (std::vector<LangCode>::const_iterator it = langCodes.begin(); it != langCodes.end(); ++it)
+			if (HasTranslation(*it))
+				return GetTranslation(*it);
+
+		return GetTranslation(LangCode::Any);
+	}
 
 	int TranslatedString::DoCompare(const TranslatedString& other) const
 	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
