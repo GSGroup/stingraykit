@@ -145,7 +145,7 @@ namespace stingray
 		void Defer(const function<void()>& func, size_t timeout, optional<size_t> interval = null)
 		{
 			MutexLock l(_doDeferConnectionMutex);
-			_doDeferConnection = _timer.SetTimeout(timeout / 2, bind(&ExecutionDeferrer::DoDefer, this, func, timeout / 2, interval));
+			_doDeferConnection = _timer.SetTimeout(0, bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
 		}
 
 		void DeferNoTimeout(const function<void()>& func)					{ Defer(func); }
