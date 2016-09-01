@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/io/IByteStream.h>
+#include <stingraykit/math.h>
 
 namespace stingray
 {
@@ -20,6 +21,7 @@ namespace stingray
 		size_t			_readBufferSize;
 		size_t			_readBufferOffset;
 		s64				_currentOffset;
+		size_t			_alignment;
 
 		bool AtEnd() const
 		{ return _readBufferSize && _readBufferSize < _readBuffer.size() && _readBufferOffset >= _readBufferSize; }
@@ -38,12 +40,22 @@ namespace stingray
 			return false;
 		}
 
+		void SeekStream(s64 offset)
+		{
+			const s64 alignedOffset(AlignDown<s64>(offset, _alignment));
+			_stream->Seek(alignedOffset);
+			_currentOffset = offset;
+			_readBufferSize = 0;
+			_readBufferOffset = offset - alignedOffset;
+		}
+
 	public:
 		static const size_t DefaultBufferSize = 4096;
+		static const size_t DefaultAlignment = 1;
 
-		explicit BufferedStream(const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize) :
-			_stream(stream), _readBuffer(bufferSize), _readBufferSize(0), _readBufferOffset(0), _currentOffset(0)
-		{ }
+		explicit BufferedStream(const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize, size_t alignment = DefaultAlignment) :
+			_stream(stream), _readBuffer(bufferSize), _readBufferSize(0), _readBufferOffset(0), _currentOffset(0), _alignment(alignment)
+		{ STINGRAYKIT_CHECK(bufferSize % alignment == 0, ArgumentException("alignment", alignment)); }
 
 		virtual u64 Read(ByteData data, const ICancellationToken& token)
 		{
@@ -75,10 +87,9 @@ namespace stingray
 		{
 			if (_readBufferOffset != _readBufferSize)
 				_stream->Seek(_currentOffset);
-			_readBufferSize = 0; //flush read buffer
 			u64 r = _stream->Write(data, token);
 			_currentOffset += r;
-			_readBufferOffset += r;
+			SeekStream(_currentOffset);
 			return r;
 		}
 
@@ -87,9 +98,8 @@ namespace stingray
 			switch (mode)
 			{
 			case SeekMode::Begin:
-				if (SeekInBuffer(offset))
-					return;
-				_stream->Seek(offset, mode);
+				if (!SeekInBuffer(offset))
+					SeekStream(offset);
 				break;
 
 			case SeekMode::Current:
@@ -100,9 +110,6 @@ namespace stingray
 				_stream->Seek(offset, mode);
 				break;
 			}
-
-			_currentOffset    = _stream->Tell();
-			_readBufferSize = _readBufferOffset = 0;
 		}
 
 		virtual u64 Tell() const
