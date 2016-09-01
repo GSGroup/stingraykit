@@ -12,6 +12,7 @@
 
 namespace stingray
 {
+
 	class BufferedStream : public virtual IByteStream
 	{
 		IByteStreamPtr	_stream;
@@ -21,43 +22,46 @@ namespace stingray
 		s64				_currentOffset;
 
 		bool AtEnd() const
-		{ return _readBufferSize < _readBuffer.size() && _readBufferOffset >= _readBufferSize; }
+		{ return _readBufferSize && _readBufferSize < _readBuffer.size() && _readBufferOffset >= _readBufferSize; }
 
 		size_t GetBufferSize() const
 		{ return _readBufferSize - _readBufferOffset; }
 
 		bool SeekInBuffer(s64 offset)
 		{
-			if ( _readBufferSize == _readBufferOffset ) //not have valid data in buffer
-				return false;
-			else if (_currentOffset - _readBufferOffset <= offset && offset < _currentOffset + (s64)GetBufferSize()) //offset within buffer
+			if (_readBufferSize && _currentOffset - _readBufferOffset <= offset && offset < _currentOffset + (s64)GetBufferSize()) //offset within buffer
 			{
 				_readBufferOffset += offset - _currentOffset;
 				_currentOffset = offset;
 				return true;
 			}
-			else
-				return false;
+			return false;
 		}
 
 	public:
 		static const size_t DefaultBufferSize = 4096;
 
-		BufferedStream(IByteStreamPtr stream, size_t bufferSize = DefaultBufferSize):
-			_stream(stream), _readBuffer(bufferSize), _readBufferSize(bufferSize), _readBufferOffset(bufferSize), _currentOffset(0) {}
+		explicit BufferedStream(const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize) :
+			_stream(stream), _readBuffer(bufferSize), _readBufferSize(0), _readBufferOffset(0), _currentOffset(0)
+		{ }
 
 		virtual u64 Read(ByteData data, const ICancellationToken& token)
 		{
 			u64 total = 0;
 			u8 *dst = data.data();
-			while(total < data.size() && !AtEnd())
+			while (total < data.size() && !AtEnd())
 			{
 				if (_readBufferOffset >= _readBufferSize)
 				{
+					if (_readBufferSize && _readBufferOffset == _readBufferSize)
+						_readBufferOffset = 0;
 					_readBufferSize = _stream->Read(_readBuffer.GetByteData(), token);
-					_readBufferOffset = 0;
 				}
-				u64 n = std::min<u64>(data.size(), GetBufferSize());
+
+				if (!_readBufferSize)
+					break;
+
+				u64 n = std::min<u64>(data.size() - total, GetBufferSize());
 				std::copy(_readBuffer.data() + _readBufferOffset, _readBuffer.data() + _readBufferOffset + n, dst);
 				_readBufferOffset += n;
 				_currentOffset += n;
@@ -69,19 +73,18 @@ namespace stingray
 
 		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
 		{
-			if (_readBufferOffset < _readBufferSize)
-			{
-				_readBufferOffset = _readBufferSize; //flush read buffer
+			if (_readBufferOffset != _readBufferSize)
 				_stream->Seek(_currentOffset);
-			}
+			_readBufferSize = 0; //flush read buffer
 			u64 r = _stream->Write(data, token);
 			_currentOffset += r;
+			_readBufferOffset += r;
 			return r;
 		}
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{
-			switch(mode)
+			switch (mode)
 			{
 			case SeekMode::Begin:
 				if (SeekInBuffer(offset))
@@ -90,9 +93,7 @@ namespace stingray
 				break;
 
 			case SeekMode::Current:
-				if (SeekInBuffer(_currentOffset + offset))
-					return;
-				_stream->Seek(_currentOffset + offset, SeekMode::Begin);
+				Seek(_currentOffset + offset);
 				break;
 
 			default:
@@ -101,7 +102,7 @@ namespace stingray
 			}
 
 			_currentOffset    = _stream->Tell();
-			_readBufferOffset = _readBufferSize = _readBuffer.size();
+			_readBufferSize = _readBufferOffset = 0;
 		}
 
 		virtual u64 Tell() const
