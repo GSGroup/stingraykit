@@ -109,7 +109,7 @@ namespace stingray
 			case SeekMode::End:
 				_stream->Seek(offset, mode);
 				Seek(_stream->Tell());
-				_stream->Seek(_currentOffset + GetBufferSize());
+				_stream->Seek(_currentOffset - _readBufferOffset);
 				break;
 			}
 		}
