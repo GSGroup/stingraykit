@@ -16,109 +16,100 @@ namespace stingray
 
 	class BufferedStream : public virtual IByteStream
 	{
-		IByteStreamPtr	_stream;
-		ByteArray		_readBuffer;
-		size_t			_readBufferSize;
-		size_t			_readBufferOffset;
-		s64				_currentOffset;
-		size_t			_alignment;
-
-		bool AtEnd() const
-		{ return _readBufferSize && _readBufferSize < _readBuffer.size() && _readBufferOffset >= _readBufferSize; }
-
-		size_t GetBufferSize() const
-		{ return _readBufferSize - _readBufferOffset; }
-
-		bool SeekInBuffer(s64 offset)
-		{
-			if (_readBufferSize && _currentOffset - (s64)_readBufferOffset <= offset && offset < _currentOffset + (s64)GetBufferSize()) //offset within buffer
-			{
-				_readBufferOffset += offset - _currentOffset;
-				_currentOffset = offset;
-				return true;
-			}
-			return false;
-		}
-
-		void SeekStream(s64 offset)
-		{
-			const s64 alignedOffset(AlignDown<s64>(offset, _alignment));
-			_stream->Seek(alignedOffset);
-			_currentOffset = offset;
-			_readBufferSize = 0;
-			_readBufferOffset = offset - alignedOffset;
-		}
-
 	public:
 		static const size_t DefaultBufferSize = 4096;
-		static const size_t DefaultAlignment = 1;
+		static const size_t DefaultAlignment  = 1;
 
-		explicit BufferedStream(const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize, size_t alignment = DefaultAlignment) :
-			_stream(stream), _readBuffer(bufferSize), _readBufferSize(0), _readBufferOffset(0), _currentOffset(0), _alignment(alignment)
+	private:
+		IByteStreamPtr _stream;
+		ByteArray      _buffer;
+		size_t         _bufferSize;
+
+		u64            _bufferOffset;
+		u64            _inBufferOffset;
+
+		size_t         _alignment;
+
+	public:
+		BufferedStream(IByteStreamPtr stream, size_t bufferSize = DefaultBufferSize, size_t alignment = DefaultAlignment):
+			_stream(stream), _buffer(bufferSize), _bufferSize(0), _bufferOffset(0), _inBufferOffset(0), _alignment(alignment)
 		{ STINGRAYKIT_CHECK(bufferSize % alignment == 0, ArgumentException("alignment", alignment)); }
 
 		virtual u64 Read(ByteData data, const ICancellationToken& token)
 		{
+			const size_t dstSize = data.size();
 			u64 total = 0;
-			u8 *dst = data.data();
-			while (total < data.size() && !AtEnd())
+			u8* dst = data.data();
+			u64 n;
+			for (; total < dstSize && token; _inBufferOffset += n, dst += n, total += n)
 			{
-				if (_readBufferOffset >= _readBufferSize)
+				if (!_bufferSize || _inBufferOffset == _bufferSize)
 				{
-					if (_readBufferSize && _readBufferOffset == _readBufferSize)
-						_readBufferOffset = 0;
-					_readBufferSize = _stream->Read(_readBuffer.GetByteData(), token);
+					if (_bufferSize)
+						SeekStream(Tell());
+					_bufferSize = _stream->Read(_buffer.GetByteData(), token);
+					if (!_bufferSize)
+						break;
 				}
-
-				if (!_readBufferSize)
-					break;
-
-				u64 n = std::min<u64>(data.size() - total, GetBufferSize());
-				std::copy(_readBuffer.data() + _readBufferOffset, _readBuffer.data() + _readBufferOffset + n, dst);
-				_readBufferOffset += n;
-				_currentOffset += n;
-				dst += n;
-				total += n;
+				n = std::min<u64>(dstSize - total, _bufferSize - _inBufferOffset);
+				std::copy(_buffer.data() + _inBufferOffset, _buffer.data() + _inBufferOffset + n, dst);
 			}
 			return total;
 		}
 
 		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
 		{
-			if (_readBufferOffset != _readBufferSize)
-				_stream->Seek(_currentOffset);
-			u64 r = _stream->Write(data, token);
-			_currentOffset += r;
-			SeekStream(_currentOffset);
-			return r;
+			if (_inBufferOffset != _bufferSize || _bufferSize)
+				_stream->Seek(Tell());
+			u64 total = _stream->Write(data, token);
+			SeekStream(Tell() + total);
+			return total;
 		}
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{
 			switch (mode)
 			{
-			case SeekMode::Begin:
-				if (!SeekInBuffer(offset))
-					SeekStream(offset);
-				break;
-
 			case SeekMode::Current:
-				Seek(_currentOffset + offset);
-				break;
-
+				offset += Tell();
+			case SeekMode::Begin:
+				if (!SeekInBuffer(static_cast<u64>(offset)))
+					SeekStream(static_cast<u64>(offset));
+				return;
 			case SeekMode::End:
 				_stream->Seek(offset, mode);
-				Seek(_stream->Tell());
-				_stream->Seek(_currentOffset - _readBufferOffset);
-				break;
+				offset = _stream->Tell();
+				if (SeekInBuffer(static_cast<u64>(offset)))
+					_stream->Seek(_bufferOffset);
+				else
+					SeekStream(static_cast<u64>(offset));
 			}
 		}
 
 		virtual u64 Tell() const
-		{ return _currentOffset; }
+		{ return _bufferOffset + _inBufferOffset; }
+
+	private:
+		bool SeekInBuffer(u64 offset)
+		{
+			if (_bufferOffset <= offset && offset - _bufferOffset < _bufferSize)
+			{
+				_inBufferOffset = offset - _bufferOffset;
+				return true;
+			}
+			return false;
+		}
+
+		void SeekStream(u64 offset)
+		{
+			const u64 alignedOffset(AlignDown<u64>(offset, _alignment));
+			_stream->Seek(alignedOffset);
+			_bufferOffset = alignedOffset;
+			_inBufferOffset = offset - alignedOffset;
+			_bufferSize = 0;
+		}
 	};
 	STINGRAYKIT_DECLARE_PTR(BufferedStream);
 
 }
-
 #endif
