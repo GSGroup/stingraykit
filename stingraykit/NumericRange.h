@@ -83,6 +83,20 @@ namespace stingray {
 
 		bool operator== (const DerivedT& rhs) const	{ return _start == rhs._start && _end == rhs._end; }
 		bool operator!= (const DerivedT& rhs) const	{ return !(*this == rhs); }
+
+		template<typename OStream>
+		void Serialize(OStream& ar) const
+		{
+			ar.Serialize("start", _start);
+			ar.Serialize("end", _end);
+		}
+
+		template<typename IStream>
+		void Deserialize(IStream& ar)
+		{
+			ar.Deserialize("start", _start);
+			ar.Deserialize("end", _end);
+		}
 	};
 
 	template< typename T >
