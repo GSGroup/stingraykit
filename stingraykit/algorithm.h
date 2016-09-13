@@ -13,6 +13,17 @@
 namespace stingray
 {
 
+	template<typename Container, typename Pred>
+	void erase_if(Container& cont, Pred pred)
+	{
+		for (typename Container::iterator it = cont.begin(); it != cont.end(); )
+			if (pred(*it))
+				cont.erase(it++);
+			else
+				++it;
+	}
+
+
 	template<typename InputIterator, typename OutputIterator, typename Pred>
 	OutputIterator copy_if(InputIterator first, InputIterator last, OutputIterator result, Pred pred)
 	{
@@ -21,6 +32,7 @@ namespace stingray
 				*result++ = *first;
 		return result;
 	}
+
 
 	template<typename InputIterator, typename Size, typename OutputIterator>
 	OutputIterator copy_n(InputIterator first, Size count, OutputIterator result)
