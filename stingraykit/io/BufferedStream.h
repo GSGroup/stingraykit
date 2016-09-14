@@ -31,7 +31,7 @@ namespace stingray
 
 		bool SeekInBuffer(s64 offset)
 		{
-			if (_readBufferSize && _currentOffset - _readBufferOffset <= offset && offset < _currentOffset + (s64)GetBufferSize()) //offset within buffer
+			if (_readBufferSize && _currentOffset - (s64)_readBufferOffset <= offset && offset < _currentOffset + (s64)GetBufferSize()) //offset within buffer
 			{
 				_readBufferOffset += offset - _currentOffset;
 				_currentOffset = offset;
