@@ -631,6 +631,27 @@ namespace stingray
 		template <typename Range_>
 		optional<typename Detail::RangeToValue<Range_>::ValueT> MaxElement(Range_ range)
 		{ return MaxElement(range, comparers::Less()); }
+
+
+		template <typename Range_, typename Functor_>
+		optional<typename Detail::RangeToValue<Range_>::ValueT> Fold(Range_ range, const Functor_& functor)
+		{
+			optional<typename Detail::RangeToValue<Range_>::ValueT> result;
+			for (; range.Valid(); range.Next())
+				result = result ? functor(*result, range.Get()) : range.Get();
+			return result;
+		}
+
+
+		template <typename Result_, typename Range_, typename Functor_>
+		Result_ Fold(Range_ range, const Result_& initialValue, const Functor_& functor)
+		{
+			Result_ result = initialValue;
+			for (; range.Valid(); range.Next())
+				result = functor(result, range.Get());
+			return result;
+		}
+
 	}
 
 
