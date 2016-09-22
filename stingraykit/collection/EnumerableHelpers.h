@@ -365,6 +365,15 @@ namespace stingray
 		}
 
 
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename U, typename AggregateFunc>), U, Aggregate, MK_PARAM(const U& initialValue, const AggregateFunc& aggregateFunc), MK_PARAM(initialValue, aggregateFunc))
+		{
+			U result = initialValue;
+			for (; enumerator.Valid(); enumerator.Next())
+				result = aggregateFunc(result, enumerator.Get());
+			return result;
+		}
+
+
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), bool, All, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
