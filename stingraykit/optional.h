@@ -19,15 +19,17 @@ namespace stingray
 	template<typename T>
 	struct optional : public safe_bool<optional<T> >
 	{
+		typedef typename Deconst<typename Dereference<T>::ValueT>::ValueT RawType;
+
 	private:
-		StorageFor<T>	_value;
-		bool			_initialized;
+		StorageFor<RawType>	_value;
+		bool				_initialized;
 
 	public:
-		typedef T&			ParamType;
-		typedef const T&	ConstParamType;
-		typedef T*			PtrParamType;
-		typedef const T*	ConstPtrParamType;
+		typedef RawType&		ParamType;
+		typedef const RawType&	ConstParamType;
+		typedef RawType*		PtrParamType;
+		typedef const RawType*	ConstPtrParamType;
 
 
 	public:
