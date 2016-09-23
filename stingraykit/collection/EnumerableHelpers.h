@@ -510,9 +510,13 @@ namespace stingray
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, FirstOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
-			while (enumerator.Valid() && !predicate(enumerator.Get()))
-				enumerator.Next();
-			return enumerator.Valid() ? enumerator.Get() : T();
+			for (; enumerator.Valid(); enumerator.Next())
+			{
+				const T result = enumerator.Get();
+				if (predicate(result))
+					return result;
+			}
+			return T();
 		}
 
 
@@ -529,8 +533,11 @@ namespace stingray
 		{
 			optional<T> result;
 			for (; enumerator.Valid(); enumerator.Next())
-				if (predicate(enumerator.Get()))
-					result = enumerator.Get();
+			{
+				const T value = enumerator.Get();
+				if (predicate(value))
+					result = value;
+			}
 			STINGRAYKIT_CHECK(result, InvalidOperationException());
 			return *result;
 		}
@@ -548,8 +555,11 @@ namespace stingray
 		{
 			optional<T> result;
 			for (; enumerator.Valid(); enumerator.Next())
-				if (predicate(enumerator.Get()))
-					result = enumerator.Get();
+			{
+				const T value = enumerator.Get();
+				if (predicate(value))
+					result = value;
+			}
 			return result ? *result : T();
 		}
 
