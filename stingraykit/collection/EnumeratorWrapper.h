@@ -8,8 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/collection/IEnumerator.h>
+#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -23,9 +23,10 @@ namespace stingray
 		typedef function< DestType (ConstSrcTypeRef) >				Caster;
 
 	private:
-		SrcEnumeratorPtr		_srcEnumerator;
-		Caster					_caster;
-		FilterPredicate			_filterPredicate;
+		SrcEnumeratorPtr			_srcEnumerator;
+		Caster						_caster;
+		FilterPredicate				_filterPredicate;
+		mutable optional<SrcType>	_cache;
 
 	public:
 		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator) :
@@ -44,7 +45,13 @@ namespace stingray
 		{ return _srcEnumerator->Valid(); }
 
 		virtual DestType Get() const
-		{ return _caster(_srcEnumerator->Get()); }
+		{
+			if (!_cache)
+				return _caster(_srcEnumerator->Get());
+			const DestType result = _caster(*_cache);
+			_cache.reset();
+			return result;
+		}
 
 		virtual void Next()
 		{
@@ -53,14 +60,26 @@ namespace stingray
 
 			do {
 				_srcEnumerator->Next();
-			} while (Valid() && !_filterPredicate(_srcEnumerator->Get()));
+				if (!Valid())
+					break;
+
+				const SrcType& cache = _srcEnumerator->Get();
+				if (_filterPredicate(cache))
+					_cache.emplace(cache);
+			} while (!_cache);
 		}
 
 	private:
 		void FindFirst()
 		{
-			while (Valid() && !_filterPredicate(_srcEnumerator->Get()))
-				_srcEnumerator->Next();
+			while (Valid() && !_cache)
+			{
+				const SrcType& cache = _srcEnumerator->Get();
+				if (_filterPredicate(cache))
+					_cache.emplace(cache);
+				else
+					_srcEnumerator->Next();
+			}
 		}
 
 		static DestType DefaultCast(ConstSrcTypeRef src)	{ return DestType(src); }
