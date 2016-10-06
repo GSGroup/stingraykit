@@ -78,7 +78,7 @@ namespace stingray
 			: _mutex(new Mutex())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
-			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::inserter(_items));
+			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::inserter(*_items, _items->end()));
 		}
 
 		SortedSet(shared_ptr<IEnumerable<T> > enumerable)
@@ -86,7 +86,7 @@ namespace stingray
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			shared_ptr<IEnumerator<T> > enumerator(enumerable->GetEnumerator());
-			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::inserter(_items));
+			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::inserter(*_items, _items->end()));
 		}
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
