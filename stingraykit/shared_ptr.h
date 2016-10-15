@@ -532,6 +532,14 @@ namespace stingray
 			return *this;
 		}
 
+		template < typename U >
+		inline weak_ptr& operator = (const shared_ptr<U>& other)
+		{
+			weak_ptr tmp(other);
+			swap(tmp);
+			return *this;
+		}
+
 		inline shared_ptr<T> lock() const
 		{
 			u32 sc = _impl.TryAddStrongReference();
