@@ -222,6 +222,10 @@ namespace stingray
 		ByteDataPacketSource()
 		{}
 
+		ByteDataPacketSource(ConstByteData data)
+			: _data(data)
+		{ }
+
 		void SetData(ConstByteData data)
 		{ _data = data; }
 
