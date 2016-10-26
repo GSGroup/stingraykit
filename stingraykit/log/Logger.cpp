@@ -459,10 +459,10 @@ namespace stingray
 
 
 	void LogException(const std::exception& ex)
-	{ Logger::Error() << diagnostic_information(ex); }
+	{ Logger::Error() << ex; }
 
 
 	void LogExceptionTo(NamedLogger& namedLogger, const std::exception& ex)
-	{ namedLogger.Error() << diagnostic_information(ex); }
+	{ namedLogger.Error() << ex; }
 
 }

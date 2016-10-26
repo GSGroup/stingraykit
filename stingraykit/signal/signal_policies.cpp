@@ -12,6 +12,6 @@ namespace stingray
 {
 
 	void signal_policies::exception_handling::DefaultSignalExceptionHandler(const std::exception &ex)
-	{ Logger::Error() << "Uncaught exception in signal handler: " << diagnostic_information(ex); }
+	{ Logger::Error() << "Uncaught exception in signal handler: " << ex; }
 
 }

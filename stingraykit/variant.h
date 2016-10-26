@@ -23,7 +23,7 @@
 #define STINGRAYKIT_ASSURE_NOTHROW(ErrorMessage_, ...) \
 		do { \
 			try { __VA_ARGS__; } \
-			catch (const std::exception& ex) { STINGRAYKIT_FATAL(StringBuilder() % ErrorMessage_ % ":\n" % stingray::diagnostic_information(ex)); } \
+			catch (const std::exception& ex) { STINGRAYKIT_FATAL(StringBuilder() % ErrorMessage_ % ":\n" % ex); } \
 		} while (0)
 
 
