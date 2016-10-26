@@ -97,6 +97,7 @@ set(stingraykit_SRC
 
 	stingraykit/function/function_name_getter.cpp
 
+	stingraykit/io/AsyncByteStream.cpp
 	stingraykit/io/BithreadCircularBuffer.cpp
 	stingraykit/io/BufferedPipe.cpp
 	stingraykit/io/DataBuffer.cpp
