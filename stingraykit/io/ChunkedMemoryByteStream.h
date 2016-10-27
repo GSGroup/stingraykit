@@ -33,7 +33,7 @@ namespace stingray
 			: _container(container), _chunk(_container->begin()), _chunkOffset(0), _totalSize(TotalSize())
 		{ }
 
-		virtual u64 Read(ByteData data, const ICancellationToken& token)
+		virtual u64 Read(ByteData data, const ICancellationToken& token = DummyCancellationToken())
 		{
 			STINGRAYKIT_CHECK(!_container->empty(), LogicException("reading from empty container"));
 			NormalizePosition();
@@ -55,7 +55,7 @@ namespace stingray
 			return passed;
 		}
 
-		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token = DummyCancellationToken())
 		{
 			STINGRAYKIT_CHECK(data.size() > 0, LogicException("writing empty data"));
 			NormalizePosition();
