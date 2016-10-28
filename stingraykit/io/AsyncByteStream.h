@@ -15,6 +15,7 @@
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/thread/atomic.h>
+#include <stingraykit/optional.h>
 #include <stingraykit/toolkit.h>
 
 #include <queue>
@@ -60,8 +61,8 @@ namespace stingray
 			static StreamOpData Seek(s64 offset, SeekMode mode)
 			{ return StreamOpData(StreamOp::Seek, offset, mode, ConstByteArray(null)); }
 
-			static StreamOpData Write(ConstByteData data)
-			{ return StreamOpData(StreamOp::Write, 0, SeekMode(), ConstByteArray(data)); }
+			static StreamOpData Write(ConstByteArray data)
+			{ return StreamOpData(StreamOp::Write, 0, SeekMode(), data); }
 
 			static StreamOpData Stop()
 			{ return StreamOpData(StreamOp::Stop, 0, SeekMode(), ConstByteArray(null)); }
@@ -121,7 +122,7 @@ namespace stingray
 			STINGRAYKIT_PROFILER(50, _name);
 			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
 			MutexLock l(_streamOpQueueMutex);
-			_streamOpQueue.push(StreamOpData::Write(data));
+			_streamOpQueue.push(StreamOpData::Write(ConstByteArray(data)));
 			_condVar.Broadcast();
 			return data.size();
 		}
@@ -131,6 +132,7 @@ namespace stingray
 		{
 			try
 			{
+				optional<StreamOpData> opDataHolder;
 				MutexLock l(_streamOpQueueMutex);
 				while (true)
 				{
@@ -140,8 +142,12 @@ namespace stingray
 						continue;
 					}
 
-					StreamOpData opData = _streamOpQueue.front();
-					_streamOpQueue.pop();
+					if (!opDataHolder)
+					{
+						opDataHolder.emplace(_streamOpQueue.front());
+						_streamOpQueue.pop();
+					}
+					const StreamOpData& opData = *opDataHolder;
 
 					MutexUnlock ul(l);
 					switch (opData.Op)
@@ -150,15 +156,21 @@ namespace stingray
 						{
 							STINGRAYKIT_PROFILER(1000, "Seek");
 							_stream->Seek(opData.SeekingOffset, opData.SeekingMode);
+							opDataHolder.reset();
 						}
 						break;
 					case StreamOp::Write:
 						{
 							STINGRAYKIT_PROFILER(1000, "Write");
-							_stream->Write(opData.WriteData.GetByteData(), token);
+							size_t written = (size_t)_stream->Write(opData.WriteData.GetByteData(), token);
+							if (written != opData.WriteData.size())
+								opDataHolder.emplace(StreamOpData::Write(ConstByteArray(opData.WriteData, written)));
+							else
+								opDataHolder.reset();
 						}
 						break;
 					case StreamOp::Stop:
+						opDataHolder.reset();
 						return;
 					default:
 						STINGRAYKIT_THROW(NotImplementedException(opData.Op.ToString()));
