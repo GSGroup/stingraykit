@@ -5,13 +5,11 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/signal/signal_policies.h>
-#include <stingraykit/log/Logger.h>
+#include <stingraykit/io/AsyncByteStream.h>
 
 namespace stingray
 {
 
-	void signal_policies::exception_handling::DefaultSignalExceptionHandler(const std::exception &ex)
-	{ Logger::Error() << "Uncaught exception in signal handler: " << ex; }
+    STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncByteStream);
 
 }

@@ -55,7 +55,7 @@ namespace stingray
 			try
 			{ ptr.reset(new InstanceHolderType()); }
 			catch(const std::exception& ex)
-			{ Logger::Error() << "An exception in " << Demangle(typeid(T).name()) << " singleton constructor: " << diagnostic_information(ex); }
+			{ Logger::Error() << "An exception in " << Demangle(typeid(T).name()) << " singleton constructor: " << ex; }
 			ptr.swap(GetInstancePtr());
 		}
 

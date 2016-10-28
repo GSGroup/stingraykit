@@ -79,7 +79,7 @@ namespace stingray
 			catch(const std::exception& ex)
 			{
 				StringBuilder message;
-				message % "An exception in " % Demangle(typeid(T).name()) % " singleton constructor: " % diagnostic_information(ex);
+				message % "An exception in " % Demangle(typeid(T).name()) % " singleton constructor: " % ex;
 				SystemLogger::Log(LoggerMessage(LogLevel::Error, message, false));
 			}
 		}
