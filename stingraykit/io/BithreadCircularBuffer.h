@@ -10,7 +10,7 @@
 
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/collection/BytesOwner.h>
-#include <stingraykit/shared_ptr.h>
+#include <stingraykit/self_counter.h>
 #include <stingraykit/toolkit.h>
 
 namespace stingray
@@ -22,19 +22,19 @@ namespace stingray
 
 	private:
 		struct Impl;
-		STINGRAYKIT_DECLARE_PTR(Impl);
+		STINGRAYKIT_DECLARE_SELF_COUNT_PTR(Impl);
 
-		ImplPtr	_impl;
+		ImplSelfCountPtr	_impl;
 
 	public:
 		struct Reader
 		{
 		private:
-			ImplPtr			_impl;
-			ConstByteData	_data;
+			ImplSelfCountPtr	_impl;
+			ConstByteData		_data;
 
 		public:
-			Reader(const ImplPtr& impl);
+			Reader(const ImplSelfCountPtr& impl);
 			Reader(const Reader&);
 			~Reader();
 
@@ -55,11 +55,11 @@ namespace stingray
 		struct Writer
 		{
 		private:
-			ImplPtr 	_impl;
-			ByteData	_data;
+			ImplSelfCountPtr	_impl;
+			ByteData			_data;
 
 		public:
-			Writer(const ImplPtr& impl);
+			Writer(const ImplSelfCountPtr& impl);
 			Writer(const Writer&);
 			~Writer();
 

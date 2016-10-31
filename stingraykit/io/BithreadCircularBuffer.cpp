@@ -10,10 +10,8 @@
 namespace stingray
 {
 
-	struct BithreadCircularBuffer::Impl
+	struct BithreadCircularBuffer::Impl : public self_counter<BithreadCircularBuffer::Impl>
 	{
-		STINGRAYKIT_NONCOPYABLE(Impl);
-
 		// TODO: finish padding support
 		static const size_t PaddingSize = 8;
 
@@ -95,7 +93,7 @@ namespace stingray
 	};
 
 
-	BithreadCircularBuffer::BithreadCircularBuffer(size_t size) : _impl(make_shared<Impl>(BytesOwner::Create(size)))
+	BithreadCircularBuffer::BithreadCircularBuffer(size_t size) : _impl(new Impl(BytesOwner::Create(size)))
 	{ }
 
 
@@ -131,7 +129,7 @@ namespace stingray
 	{ _impl->Clear(); }
 
 
-	BithreadCircularBuffer::Reader::Reader(const ImplPtr& impl) :
+	BithreadCircularBuffer::Reader::Reader(const ImplSelfCountPtr& impl) :
 		_impl(impl),
 		_data(impl->Read())
 	{ }
@@ -187,7 +185,7 @@ namespace stingray
 	}
 
 
-	BithreadCircularBuffer::Writer::Writer(const ImplPtr& impl) :
+	BithreadCircularBuffer::Writer::Writer(const ImplSelfCountPtr& impl) :
 		_impl(impl),
 		_data(impl->Write())
 	{ }
