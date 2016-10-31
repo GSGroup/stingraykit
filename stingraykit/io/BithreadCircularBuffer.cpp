@@ -18,7 +18,6 @@ namespace stingray
 		static const size_t PaddingSize = 8;
 
 	private:
-		Mutex			_mutex;
 		BytesOwner		_storage;
 		size_t			_writeOffset, _readOffset;
 		bool			_dataIsContiguous;
