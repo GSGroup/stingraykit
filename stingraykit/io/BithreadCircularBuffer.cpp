@@ -7,11 +7,6 @@
 
 #include <stingraykit/io/BithreadCircularBuffer.h>
 
-#include <vector>
-
-#include <stingraykit/thread/Thread.h>
-#include <stingraykit/ObjectToken.h>
-
 namespace stingray
 {
 
