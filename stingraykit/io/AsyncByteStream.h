@@ -36,16 +36,12 @@ namespace stingray
 		{
 		public:
 			const StreamOp			Op;
-
-			const SeekMode			SeekingMode;
-			const s64				SeekingOffset;
-
+			const u64				SeekingOffset;
 			const ConstByteArray	WriteData;
 
 		private:
-			StreamOpData(StreamOp op, s64 seekingOffset, SeekMode seekingMode, const ConstByteArray& writeData)
+			StreamOpData(StreamOp op, u64 seekingOffset, const ConstByteArray& writeData)
 				:	Op(op),
-					SeekingMode(seekingMode),
 					SeekingOffset(seekingOffset),
 					WriteData(writeData)
 			{ }
@@ -53,19 +49,18 @@ namespace stingray
 		public:
 			StreamOpData()
 				:	Op(StreamOp::NoOp),
-					SeekingMode(SeekMode()),
 					SeekingOffset(0),
 					WriteData(null)
 			{ }
 
-			static StreamOpData Seek(s64 offset, SeekMode mode)
-			{ return StreamOpData(StreamOp::Seek, offset, mode, ConstByteArray(null)); }
+			static StreamOpData Seek(u64 offset)
+			{ return StreamOpData(StreamOp::Seek, offset, ConstByteArray(null)); }
 
 			static StreamOpData Write(ConstByteArray data)
-			{ return StreamOpData(StreamOp::Write, 0, SeekMode(), data); }
+			{ return StreamOpData(StreamOp::Write, 0, data); }
 
 			static StreamOpData Stop()
-			{ return StreamOpData(StreamOp::Stop, 0, SeekMode(), ConstByteArray(null)); }
+			{ return StreamOpData(StreamOp::Stop, 0, ConstByteArray(null)); }
 		};
 
 		typedef std::queue<StreamOpData> StreamOpQueue;
@@ -77,6 +72,8 @@ namespace stingray
 
 		atomic<bool>				_wasException;
 
+		u64							_position;
+		u64							_length;
 		StreamOpQueue				_streamOpQueue;
 		Mutex						_streamOpQueueMutex;
 
@@ -88,12 +85,19 @@ namespace stingray
 			:	_name(name),
 				_stream(stream),
 				_wasException(false),
+				_position(stream->Tell()),
+				_length(0),
 				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
-		{ s_logger.Info() << "Created " << _name; }
+		{
+			_stream->Seek(0, SeekMode::End);
+			_length = stream->Tell();
+			_stream->Seek((s64)_position, SeekMode::Begin);
+			s_logger.Info() << "Created " << _name << " [0.." << _position << ".." << _length << "]";
+		}
 
 		~AsyncByteStream()
 		{
-			s_logger.Info() << "Destroying " << _name;
+			s_logger.Info() << "Destroying " << _name << " [0.." << _position << ".." << _length << "]";
 			{
 				MutexLock l(_streamOpQueueMutex);
 				_streamOpQueue.push(StreamOpData::Stop());
@@ -103,15 +107,46 @@ namespace stingray
 		}
 
 		virtual u64 Tell() const
-		{ STINGRAYKIT_THROW(NotImplementedException(_name)); }
+		{
+			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
+			MutexLock l(_streamOpQueueMutex);
+			return _position;
+		}
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
 		{
 			STINGRAYKIT_PROFILER(50, _name);
 			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
+
 			MutexLock l(_streamOpQueueMutex);
-			_streamOpQueue.push(StreamOpData::Seek(offset, mode));
-			_condVar.Broadcast();
+			s64 newPosition;
+
+			switch(mode)
+			{
+			case SeekMode::Begin:
+				newPosition = offset;
+				break;
+
+			case SeekMode::Current:
+				newPosition = (s64)_position + offset;
+				break;
+
+			case SeekMode::End:
+				newPosition = (s64)_length + offset;
+				break;
+
+			default:
+				STINGRAYKIT_THROW(NotImplementedException());
+			}
+
+			if ((u64)newPosition != _position)
+			{
+				STINGRAYKIT_CHECK(newPosition >= 0, IndexOutOfRangeException(newPosition, 0, 0));
+				_streamOpQueue.push(StreamOpData::Seek((u64)newPosition));
+				_position = (u64)newPosition;
+				// _length increases only after writing
+				_condVar.Broadcast();
+			}
 		}
 
 		virtual u64 Read(ByteData data, const ICancellationToken& token)
@@ -121,8 +156,11 @@ namespace stingray
 		{
 			STINGRAYKIT_PROFILER(50, _name);
 			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
+
 			MutexLock l(_streamOpQueueMutex);
 			_streamOpQueue.push(StreamOpData::Write(ConstByteArray(data)));
+			_position += data.size();
+			_length = std::max(_position, _length);
 			_condVar.Broadcast();
 			return data.size();
 		}
@@ -155,7 +193,7 @@ namespace stingray
 					case StreamOp::Seek:
 						{
 							STINGRAYKIT_PROFILER(1000, "Seek");
-							_stream->Seek(opData.SeekingOffset, opData.SeekingMode);
+							_stream->Seek((s64)opData.SeekingOffset, SeekMode::Begin);
 							opDataHolder.reset();
 						}
 						break;
