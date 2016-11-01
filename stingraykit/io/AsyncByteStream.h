@@ -49,12 +49,6 @@ namespace stingray
 			{ }
 
 		public:
-			StreamOpData()
-				:	Op(StreamOp::NoOp),
-					SeekingOffset(0),
-					WriteSize(0)
-			{ }
-
 			static StreamOpData Seek(u64 offset)
 			{ return StreamOpData(StreamOp::Seek, offset, 0); }
 
