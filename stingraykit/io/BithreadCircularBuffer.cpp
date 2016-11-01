@@ -33,7 +33,7 @@ namespace stingray
 
 
 		size_t GetFreeSize() const
-		{ return GetStorageSize() - GetDataSize() - 1; }
+		{ return GetStorageSize() - GetDataSize(); }
 
 
 		size_t GetStorageSize() const
