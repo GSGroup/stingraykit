@@ -10,6 +10,7 @@
 
 #include <stingraykit/diagnostics/Profiler.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/io/BithreadCircularBuffer.h>
 #include <stingraykit/io/IByteStream.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/ConditionVariable.h>
@@ -19,6 +20,7 @@
 #include <stingraykit/toolkit.h>
 
 #include <queue>
+#include <string.h>
 
 namespace stingray
 {
@@ -37,30 +39,30 @@ namespace stingray
 		public:
 			const StreamOp			Op;
 			const u64				SeekingOffset;
-			const ConstByteArray	WriteData;
+			const size_t			WriteSize;
 
 		private:
-			StreamOpData(StreamOp op, u64 seekingOffset, const ConstByteArray& writeData)
+			StreamOpData(StreamOp op, u64 seekingOffset, size_t writeSize)
 				:	Op(op),
 					SeekingOffset(seekingOffset),
-					WriteData(writeData)
+					WriteSize(writeSize)
 			{ }
 
 		public:
 			StreamOpData()
 				:	Op(StreamOp::NoOp),
 					SeekingOffset(0),
-					WriteData(null)
+					WriteSize(0)
 			{ }
 
 			static StreamOpData Seek(u64 offset)
-			{ return StreamOpData(StreamOp::Seek, offset, ConstByteArray(null)); }
+			{ return StreamOpData(StreamOp::Seek, offset, 0); }
 
-			static StreamOpData Write(ConstByteArray data)
-			{ return StreamOpData(StreamOp::Write, 0, data); }
+			static StreamOpData Write(size_t size)
+			{ return StreamOpData(StreamOp::Write, 0, size); }
 
 			static StreamOpData Stop()
-			{ return StreamOpData(StreamOp::Stop, 0, ConstByteArray(null)); }
+			{ return StreamOpData(StreamOp::Stop, 0, 0); }
 		};
 
 		typedef std::queue<StreamOpData> StreamOpQueue;
@@ -74,6 +76,8 @@ namespace stingray
 
 		u64							_position;
 		u64							_length;
+
+		BithreadCircularBuffer		_buffer;
 		StreamOpQueue				_streamOpQueue;
 		Mutex						_streamOpQueueMutex;
 
@@ -81,12 +85,15 @@ namespace stingray
 		ThreadPtr					_thread;
 
 	public:
-		AsyncByteStream(const std::string& name, const IByteStreamPtr& stream)
+		static const size_t DefaultBufferSize = 1 * 1024 * 1024;
+
+		AsyncByteStream(const std::string& name, const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize)
 			:	_name(name),
 				_stream(stream),
 				_wasException(false),
 				_position(stream->Tell()),
 				_length(0),
+				_buffer(bufferSize),
 				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
 		{
 			_stream->Seek(0, SeekMode::End);
@@ -157,12 +164,27 @@ namespace stingray
 			STINGRAYKIT_PROFILER(50, _name);
 			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
 
+			size_t totalWritten = 0;
 			MutexLock l(_streamOpQueueMutex);
-			_streamOpQueue.push(StreamOpData::Write(ConstByteArray(data)));
-			_position += data.size();
+			BithreadCircularBuffer::Writer writer = _buffer.Write();
+
+			while ((totalWritten != data.size()) && (writer.size() != 0) && token)
+			{
+				size_t writeSize = std::min(writer.size(), data.size() - totalWritten);
+				{
+					MutexUnlock ul(_streamOpQueueMutex);
+					::memcpy(writer.data(), data.data() + totalWritten, writeSize);
+				}
+				totalWritten += writeSize;
+				writer.Push(writeSize);
+				writer = _buffer.Write();
+			}
+
+			_streamOpQueue.push(StreamOpData::Write(totalWritten));
+			_position += totalWritten;
 			_length = std::max(_position, _length);
 			_condVar.Broadcast();
-			return data.size();
+			return totalWritten;
 		}
 
 	private:
@@ -187,11 +209,11 @@ namespace stingray
 					}
 					const StreamOpData& opData = *opDataHolder;
 
-					MutexUnlock ul(l);
 					switch (opData.Op)
 					{
 					case StreamOp::Seek:
 						{
+							MutexUnlock ul(l);
 							STINGRAYKIT_PROFILER(1000, "Seek");
 							_stream->Seek((s64)opData.SeekingOffset, SeekMode::Begin);
 							opDataHolder.reset();
@@ -199,10 +221,16 @@ namespace stingray
 						break;
 					case StreamOp::Write:
 						{
-							STINGRAYKIT_PROFILER(1000, "Write");
-							size_t written = (size_t)_stream->Write(opData.WriteData.GetByteData(), token);
-							if (written != opData.WriteData.size())
-								opDataHolder.emplace(StreamOpData::Write(ConstByteArray(opData.WriteData, written)));
+							size_t written = 0;
+							BithreadCircularBuffer::Reader reader = _buffer.Read();
+							{
+								MutexUnlock ul(l);
+								STINGRAYKIT_PROFILER(1000, "Write");
+								written = (size_t)_stream->Write(ConstByteData(reader.GetData(), 0, std::min(opData.WriteSize, reader.size())), token);
+							}
+							reader.Pop(written);
+							if (written != opData.WriteSize)
+								opDataHolder.emplace(StreamOpData::Write(opData.WriteSize - written));
 							else
 								opDataHolder.reset();
 						}
