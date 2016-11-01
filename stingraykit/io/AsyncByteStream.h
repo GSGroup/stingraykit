@@ -19,7 +19,7 @@
 #include <stingraykit/optional.h>
 #include <stingraykit/toolkit.h>
 
-#include <queue>
+#include <deque>
 #include <string.h>
 
 namespace stingray
@@ -59,7 +59,7 @@ namespace stingray
 			{ return StreamOpData(StreamOp::Stop, 0, 0); }
 		};
 
-		typedef std::queue<StreamOpData> StreamOpQueue;
+		typedef std::deque<StreamOpData> StreamOpQueue;
 
 		static NamedLogger			s_logger;
 
@@ -101,7 +101,7 @@ namespace stingray
 			s_logger.Info() << "Destroying " << _name << " [0.." << _position << ".." << _length << "]";
 			{
 				MutexLock l(_streamOpQueueMutex);
-				_streamOpQueue.push(StreamOpData::Stop());
+				_streamOpQueue.push_back(StreamOpData::Stop());
 				_condVar.Broadcast();
 			}
 			_thread.reset();
@@ -143,7 +143,7 @@ namespace stingray
 			if ((u64)newPosition != _position)
 			{
 				STINGRAYKIT_CHECK(newPosition >= 0, IndexOutOfRangeException(newPosition, 0, 0));
-				_streamOpQueue.push(StreamOpData::Seek((u64)newPosition));
+				_streamOpQueue.push_back(StreamOpData::Seek((u64)newPosition));
 				_position = (u64)newPosition;
 				// _length increases only after writing
 				_condVar.Broadcast();
@@ -174,7 +174,7 @@ namespace stingray
 				writer = _buffer.Write();
 			}
 
-			_streamOpQueue.push(StreamOpData::Write(totalWritten));
+			_streamOpQueue.push_back(StreamOpData::Write(totalWritten));
 			_position += totalWritten;
 			_length = std::max(_position, _length);
 			_condVar.Broadcast();
@@ -199,7 +199,7 @@ namespace stingray
 					if (!opDataHolder)
 					{
 						opDataHolder.emplace(_streamOpQueue.front());
-						_streamOpQueue.pop();
+						_streamOpQueue.pop_front();
 					}
 					const StreamOpData& opData = *opDataHolder;
 
