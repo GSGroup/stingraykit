@@ -174,7 +174,15 @@ namespace stingray
 				writer = _buffer.Write();
 			}
 
-			_streamOpQueue.push_back(StreamOpData::Write(totalWritten));
+			if (!_streamOpQueue.empty() && (_streamOpQueue.back().Op == StreamOp::Write))
+			{
+				const size_t prevWriteSize = _streamOpQueue.back().WriteSize;
+				_streamOpQueue.pop_back();
+				_streamOpQueue.push_back(StreamOpData::Write(prevWriteSize + totalWritten));
+			}
+			else
+				_streamOpQueue.push_back(StreamOpData::Write(totalWritten));
+
 			_position += totalWritten;
 			_length = std::max(_position, _length);
 			_condVar.Broadcast();
