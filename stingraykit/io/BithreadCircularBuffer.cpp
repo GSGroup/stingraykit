@@ -55,7 +55,7 @@ namespace stingray
 
 		void Push(size_t pushSize)
 		{
-			STINGRAYKIT_CHECK(_writeOffset + pushSize <= GetStorageSize(), ArgumentException("pushSize", pushSize));
+			STINGRAYKIT_CHECK(_writeOffset + pushSize <= GetStorageSize(), IndexOutOfRangeException(pushSize, _writeOffset, GetStorageSize()));
 			_writeOffset += pushSize;
 
 			if (_writeOffset == GetStorageSize())
@@ -75,7 +75,7 @@ namespace stingray
 
 		void Pop(size_t popSize)
 		{
-			STINGRAYKIT_CHECK(_readOffset + popSize <= GetStorageSize(), ArgumentException("popSize", popSize));
+			STINGRAYKIT_CHECK(_readOffset + popSize <= GetStorageSize(), IndexOutOfRangeException(popSize, _readOffset, GetStorageSize()));
 			_readOffset += popSize;
 
 			if (_readOffset == GetStorageSize())
