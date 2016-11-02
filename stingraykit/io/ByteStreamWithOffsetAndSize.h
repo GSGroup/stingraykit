@@ -30,11 +30,9 @@ namespace stingray
 
 		virtual u64 Tell() const
 		{
-			u64 tell = _stream->Tell();
-			STINGRAYKIT_CHECK(tell >= (u64)_offset && tell <= (u64)_endOffset, IndexOutOfRangeException(tell, _offset, _endOffset + 1));
-			u64 position = tell - _offset;
-			STINGRAYKIT_CHECK(position == (u64)_position, LogicException(StringBuilder() % "real position is " % position % ", our is " % _position));
-			return position;
+			_stream->Tell();//ping underlying stream for errors
+			STINGRAYKIT_CHECK(_position >= 0 && _position <= (_endOffset - _offset), IndexOutOfRangeException(_position, 0, (_endOffset - _offset + 1)));
+			return _position;
 		}
 
 		virtual void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
@@ -48,7 +46,7 @@ namespace stingray
 				break;
 
 			case SeekMode::Current:
-				newPosition = (s64)Tell() + _offset + offset;
+				newPosition = _position + _offset + offset;
 				break;
 
 			case SeekMode::End:
