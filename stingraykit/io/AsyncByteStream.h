@@ -11,7 +11,7 @@
 #include <stingraykit/diagnostics/Profiler.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/io/BithreadCircularBuffer.h>
-#include <stingraykit/io/IByteStream.h>
+#include <stingraykit/io/ISyncableByteStream.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/Thread.h>
@@ -25,12 +25,12 @@
 namespace stingray
 {
 
-	class AsyncByteStream : public IByteStream
+	class AsyncByteStream : public ISyncableByteStream
 	{
 	private:
 		struct StreamOp
 		{
-			STINGRAYKIT_ENUM_VALUES(NoOp, Seek, Write, Stop);
+			STINGRAYKIT_ENUM_VALUES(NoOp, Seek, Write, Stop, Sync);
 			STINGRAYKIT_DECLARE_ENUM_CLASS(StreamOp);
 		};
 
@@ -57,6 +57,9 @@ namespace stingray
 
 			static StreamOpData Stop()
 			{ return StreamOpData(StreamOp::Stop, 0, 0); }
+
+			static StreamOpData Sync(size_t syncIndex)
+			{ return StreamOpData(StreamOp::Sync, 0, syncIndex); }
 		};
 
 		typedef std::deque<StreamOpData> StreamOpQueue;
@@ -75,7 +78,11 @@ namespace stingray
 		StreamOpQueue				_streamOpQueue;
 		Mutex						_streamOpQueueMutex;
 
+		size_t						_syncNext;
+		atomic<size_t>				_syncDone;
+
 		ConditionVariable			_condVar;
+		ConditionVariable			_syncCondVar;
 		ThreadPtr					_thread;
 
 	public:
@@ -88,6 +95,8 @@ namespace stingray
 				_position(stream->Tell()),
 				_length(0),
 				_buffer(bufferSize),
+				_syncNext(1),
+				_syncDone(_syncNext - 1),
 				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
 		{
 			_stream->Seek(0, SeekMode::End);
@@ -189,6 +198,27 @@ namespace stingray
 			return totalWritten;
 		}
 
+		virtual void Sync()
+		{
+			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
+
+			MutexLock l(_streamOpQueueMutex);
+			size_t syncCurrent = _syncNext++;
+			_streamOpQueue.push_back(StreamOpData::Sync(syncCurrent));
+			_condVar.Broadcast();
+
+			while (true)
+			{
+				_syncCondVar.TimedWait(_streamOpQueueMutex, TimeDuration::Second());
+				STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
+				if (((ssize_t)(_syncDone - syncCurrent)) >= 0)
+					break;
+				else
+					s_logger.Info() << _name << ": sync done " << _syncDone << ", current " << syncCurrent;
+			}
+			s_logger.Info() << _name << ": synced";
+		}
+
 	private:
 		void ThreadFunc(const ICancellationToken& token)
 		{
@@ -240,6 +270,21 @@ namespace stingray
 					case StreamOp::Stop:
 						opDataHolder.reset();
 						return;
+					case StreamOp::Sync:
+						if (const ISyncableByteStreamPtr syncableStream = dynamic_caster(_stream))
+						{
+							MutexUnlock ul(l);
+							syncableStream->Sync();
+						}
+						_syncDone = opData.WriteSize;
+						_syncCondVar.Broadcast();
+						opDataHolder.reset();
+						{
+							// wake up _syncCondVar waiters
+							MutexUnlock ul(l);
+							Thread::Yield();
+						}
+						break;
 					default:
 						STINGRAYKIT_THROW(NotImplementedException(opData.Op.ToString()));
 						break;
