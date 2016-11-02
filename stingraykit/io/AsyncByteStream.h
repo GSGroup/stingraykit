@@ -168,9 +168,8 @@ namespace stingray
 			}
 			catch (const std::exception& ex)
 			{
-				s_logger.Warning() << _name << ": was exception while operating: " << ex;
+				s_logger.Error() << _name << ": was exception while operating: " << ex;
 				_wasException = true;
-				throw;
 			}
 			s_logger.Error() << _name << ": should never get here";
 		}
