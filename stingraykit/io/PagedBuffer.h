@@ -12,12 +12,13 @@
 
 #include <stingraykit/ScopeExit.h>
 #include <stingraykit/collection/ByteData.h>
+#include <stingraykit/io/IDataSource.h>
 
 namespace stingray
 {
 
 
-	class PagedBuffer
+	class PagedBuffer : public virtual IDataSource
 	{
 	public:
 		struct IPage
@@ -25,6 +26,7 @@ namespace stingray
 			virtual ~IPage() { }
 
 			virtual size_t Read(u64 offset, ByteData data) = 0;
+			virtual size_t Read(u64 offset, IDataConsumer& consumer, const ICancellationToken& token) = 0;
 			virtual size_t Write(u64 offset, ConstByteData data) = 0;
 		};
 		typedef IPage Page;
@@ -107,6 +109,29 @@ namespace stingray
 			{
 				MutexLock l(_mutex);
 				_startOffset += data.size();
+			}
+		}
+
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		{
+			MutexLock lr(_readMutex);
+
+			u64 page_idx, page_offset;
+			{
+				MutexLock l(_mutex);
+
+				page_idx = _startOffset / _pageSize;
+				page_offset = _startOffset % _pageSize;
+			}
+
+			size_t consumed = ReadFromPage(page_idx, page_offset, consumer, token);
+
+			if (!token)
+				return;
+
+			{
+				MutexLock l(_mutex);
+				_startOffset += consumed;
 			}
 		}
 
@@ -201,6 +226,16 @@ namespace stingray
 			}
 			if (p->Read(offsetInPage, data) != data.size())
 				STINGRAYKIT_THROW("Page read failed!");
+		}
+
+		size_t ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, IDataConsumer& consumer, const ICancellationToken& token) const
+		{
+			PagePtr p;
+			{
+				MutexLock l(_mutex);
+				p = _pages.at(pageIdxFromStart);
+			}
+			return p->Read(offsetInPage, consumer, token);
 		}
 	};
 
