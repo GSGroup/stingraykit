@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/diagnostics/Profiler.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/io/BithreadCircularBuffer.h>
@@ -81,6 +82,8 @@ namespace stingray
 		size_t						_syncNext;
 		atomic<size_t>				_syncDone;
 
+		AsyncProfilerPtr			_profiler;
+
 		ConditionVariable			_condVar;
 		ConditionVariable			_syncCondVar;
 		ThreadPtr					_thread;
@@ -97,7 +100,7 @@ namespace stingray
 				_buffer(bufferSize),
 				_syncNext(1),
 				_syncDone(_syncNext - 1),
-				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
+				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % _name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
 		{
 			_stream->Seek(0, SeekMode::End);
 			_length = stream->Tell();
@@ -207,6 +210,7 @@ namespace stingray
 			_streamOpQueue.push_back(StreamOpData::Sync(syncCurrent));
 			_condVar.Broadcast();
 
+			AsyncProfiler::Session profiler_session((_profiler ? _profiler : (_profiler = make_shared<AsyncProfiler>(StringBuilder() % "AsyncByteStream(" % _name % "):profiler"))), "'Sync'", 5000);
 			while (true)
 			{
 				_syncCondVar.TimedWait(_streamOpQueueMutex, TimeDuration::Second());
