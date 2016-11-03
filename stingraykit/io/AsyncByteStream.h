@@ -54,7 +54,7 @@ namespace stingray
 	private:
 		struct StreamOp
 		{
-			STINGRAYKIT_ENUM_VALUES(NoOp, Seek, Write, Stop, Sync);
+			STINGRAYKIT_ENUM_VALUES(NoOp, Seek, Write, Stop, Sync, PopBuffer);
 			STINGRAYKIT_DECLARE_ENUM_CLASS(StreamOp);
 		};
 
@@ -94,9 +94,13 @@ namespace stingray
 
 			static StreamOpData Sync(size_t syncIndex)
 			{ return StreamOpData(StreamOp::Sync, syncIndex); }
+
+			static StreamOpData PopBuffer()
+			{ return StreamOpData(StreamOp::PopBuffer); }
 		};
 
 		typedef std::deque<StreamOpData> StreamOpQueue;
+		typedef std::deque<BithreadCircularBufferPtr> BuffersQueue;
 
 		static NamedLogger			s_logger;
 
@@ -108,7 +112,7 @@ namespace stingray
 		u64							_position;
 		u64							_length;
 
-		BithreadCircularBuffer		_buffer;
+		BuffersQueue				_buffers;
 		StreamOpQueue				_streamOpQueue;
 		Mutex						_streamOpQueueMutex;
 
@@ -128,7 +132,6 @@ namespace stingray
 				_wasException(false),
 				_position(stream->Tell()),
 				_length(0),
-				_buffer(config.BufferSize()),
 				_syncNext(1),
 				_syncDone(_syncNext - 1),
 				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % _name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
@@ -136,6 +139,7 @@ namespace stingray
 			_stream->Seek(0, SeekMode::End);
 			_length = stream->Tell();
 			_stream->Seek((s64)_position, SeekMode::Begin);
+			Reconfigure(config);
 			s_logger.Info() << "Created " << _name << " [0.." << _position << ".." << _length << "]";
 		}
 
@@ -148,6 +152,20 @@ namespace stingray
 				_condVar.Broadcast();
 			}
 			_thread.reset();
+		}
+
+		void Reconfigure(const Config& config)
+		{
+			s_logger.Info() << "Configuring " << _name << ": " << config;
+			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
+
+			MutexLock l(_streamOpQueueMutex);
+			if (!_buffers.empty())
+			{
+				_streamOpQueue.push_back(StreamOpData::PopBuffer());
+				_condVar.Broadcast();
+			}
+			_buffers.push_front(make_shared<BithreadCircularBuffer>(config.BufferSize()));
 		}
 
 		virtual u64 Tell() const
@@ -203,7 +221,7 @@ namespace stingray
 
 			size_t totalWritten = 0;
 			MutexLock l(_streamOpQueueMutex);
-			BithreadCircularBuffer::Writer writer = _buffer.Write();
+			BithreadCircularBuffer::Writer writer = _buffers.front()->Write();
 
 			while ((totalWritten != data.size()) && (writer.size() != 0) && token)
 			{
@@ -214,7 +232,7 @@ namespace stingray
 				}
 				totalWritten += writeSize;
 				writer.Push(writeSize);
-				writer = _buffer.Write();
+				writer = _buffers.front()->Write();
 			}
 
 			if (!_streamOpQueue.empty() && (_streamOpQueue.back().Op() == StreamOp::Write))
@@ -289,7 +307,7 @@ namespace stingray
 					case StreamOp::Write:
 						{
 							size_t written = 0;
-							BithreadCircularBuffer::Reader reader = _buffer.Read();
+							BithreadCircularBuffer::Reader reader = _buffers.back()->Read();
 							{
 								MutexUnlock ul(l);
 								STINGRAYKIT_PROFILER(1000, "Write");
@@ -319,6 +337,10 @@ namespace stingray
 							MutexUnlock ul(l);
 							Thread::Yield();
 						}
+						break;
+					case StreamOp::PopBuffer:
+						_buffers.pop_back();
+						opDataHolder.reset();
 						break;
 					default:
 						STINGRAYKIT_THROW(NotImplementedException(opData.Op().ToString()));
