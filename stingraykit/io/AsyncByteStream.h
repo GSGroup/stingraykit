@@ -35,10 +35,12 @@ namespace stingray
 		class Config
 		{
 			size_t					_bufferSize;
+			bool					_nonBlockingSync;
 
 		public:
 			Config()
-				:	_bufferSize(DefaultBufferSize)
+				:	_bufferSize(DefaultBufferSize),
+					_nonBlockingSync(false)
 			{ }
 
 			Config& BufferSize(size_t bufferSize)
@@ -47,8 +49,14 @@ namespace stingray
 			size_t BufferSize() const
 			{ return _bufferSize; }
 
+			Config& EnableNonBlockingSync()
+			{ _nonBlockingSync = true; return *this; }
+
+			bool NonBlockingSync() const
+			{ return _nonBlockingSync; }
+
 			std::string ToString() const
-			{ return StringBuilder() % "AsyncByteStream::Config { BufferSize: " % _bufferSize % " }"; }
+			{ return StringBuilder() % "AsyncByteStream::Config { BufferSize: " % _bufferSize % (_nonBlockingSync ? ", NonBlockingSync" : "") % " }"; }
 		};
 
 	private:
@@ -112,6 +120,8 @@ namespace stingray
 		u64							_position;
 		u64							_length;
 
+		Config						_config;
+
 		BuffersQueue				_buffers;
 		StreamOpQueue				_streamOpQueue;
 		Mutex						_streamOpQueueMutex;
@@ -166,6 +176,7 @@ namespace stingray
 				_condVar.Broadcast();
 			}
 			_buffers.push_front(make_shared<BithreadCircularBuffer>(config.BufferSize()));
+			_config = config;
 		}
 
 		virtual u64 Tell() const
@@ -259,7 +270,13 @@ namespace stingray
 			_streamOpQueue.push_back(StreamOpData::Sync(syncCurrent));
 			_condVar.Broadcast();
 
-			AsyncProfiler::Session profiler_session((_profiler ? _profiler : (_profiler = make_shared<AsyncProfiler>(StringBuilder() % "AsyncByteStream(" % _name % "):profiler"))), "'Sync'", 5000);
+			if (_config.NonBlockingSync())
+			{
+				s_logger.Info() << _name << ": sync scheduled";
+				return;
+			}
+
+			AsyncProfiler::Session profiler_session((_profiler ? _profiler : (_profiler = make_shared<AsyncProfiler>(StringBuilder() % "AsyncByteStream(" % _name % "):profiler"))), "'Sync'", 1000);
 			while (true)
 			{
 				_syncCondVar.TimedWait(_streamOpQueueMutex, TimeDuration::Second());
