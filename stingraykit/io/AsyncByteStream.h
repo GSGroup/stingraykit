@@ -38,29 +38,39 @@ namespace stingray
 		class StreamOpData
 		{
 		public:
-			const StreamOp			Op;
-			const u64				SeekingOffset;
-			const size_t			WriteSize;
+			StreamOp				_op;
+			u64						_arg;
 
 		private:
-			StreamOpData(StreamOp op, u64 seekingOffset, size_t writeSize)
-				:	Op(op),
-					SeekingOffset(seekingOffset),
-					WriteSize(writeSize)
+			StreamOpData(StreamOp op, u64 arg = 0)
+				:	_op(op),
+					_arg(arg)
 			{ }
 
 		public:
-			static StreamOpData Seek(u64 offset)
-			{ return StreamOpData(StreamOp::Seek, offset, 0); }
+			StreamOp Op() const
+			{ return _op; }
+
+			s64 SeekingOffset() const
+			{ return (s64)_arg; }
+
+			size_t WriteSize() const
+			{ return (size_t)_arg; }
+
+			size_t SyncDone() const
+			{ return (size_t)_arg; }
+
+			static StreamOpData Seek(s64 offset)
+			{ return StreamOpData(StreamOp::Seek, (u64)offset); }
 
 			static StreamOpData Write(size_t size)
-			{ return StreamOpData(StreamOp::Write, 0, size); }
+			{ return StreamOpData(StreamOp::Write, size); }
 
 			static StreamOpData Stop()
-			{ return StreamOpData(StreamOp::Stop, 0, 0); }
+			{ return StreamOpData(StreamOp::Stop); }
 
 			static StreamOpData Sync(size_t syncIndex)
-			{ return StreamOpData(StreamOp::Sync, 0, syncIndex); }
+			{ return StreamOpData(StreamOp::Sync, syncIndex); }
 		};
 
 		typedef std::deque<StreamOpData> StreamOpQueue;
@@ -155,7 +165,7 @@ namespace stingray
 			if ((u64)newPosition != _position)
 			{
 				STINGRAYKIT_CHECK(newPosition >= 0, IndexOutOfRangeException(newPosition, 0, 0));
-				_streamOpQueue.push_back(StreamOpData::Seek((u64)newPosition));
+				_streamOpQueue.push_back(StreamOpData::Seek(newPosition));
 				_position = (u64)newPosition;
 				// _length increases only after writing
 				_condVar.Broadcast();
@@ -186,9 +196,9 @@ namespace stingray
 				writer = _buffer.Write();
 			}
 
-			if (!_streamOpQueue.empty() && (_streamOpQueue.back().Op == StreamOp::Write))
+			if (!_streamOpQueue.empty() && (_streamOpQueue.back().Op() == StreamOp::Write))
 			{
-				const size_t prevWriteSize = _streamOpQueue.back().WriteSize;
+				const size_t prevWriteSize = _streamOpQueue.back().WriteSize();
 				_streamOpQueue.pop_back();
 				_streamOpQueue.push_back(StreamOpData::Write(prevWriteSize + totalWritten));
 			}
@@ -240,18 +250,18 @@ namespace stingray
 
 					if (!opDataHolder)
 					{
-						opDataHolder.emplace(_streamOpQueue.front());
+						opDataHolder = _streamOpQueue.front();
 						_streamOpQueue.pop_front();
 					}
 					const StreamOpData& opData = *opDataHolder;
 
-					switch (opData.Op)
+					switch (opData.Op())
 					{
 					case StreamOp::Seek:
 						{
 							MutexUnlock ul(l);
 							STINGRAYKIT_PROFILER(1000, "Seek");
-							_stream->Seek((s64)opData.SeekingOffset, SeekMode::Begin);
+							_stream->Seek(opData.SeekingOffset(), SeekMode::Begin);
 							opDataHolder.reset();
 						}
 						break;
@@ -262,11 +272,11 @@ namespace stingray
 							{
 								MutexUnlock ul(l);
 								STINGRAYKIT_PROFILER(1000, "Write");
-								written = (size_t)_stream->Write(ConstByteData(reader.GetData(), 0, std::min(opData.WriteSize, reader.size())), token);
+								written = (size_t)_stream->Write(ConstByteData(reader.GetData(), 0, std::min(opData.WriteSize(), reader.size())), token);
 							}
 							reader.Pop(written);
-							if (written != opData.WriteSize)
-								opDataHolder.emplace(StreamOpData::Write(opData.WriteSize - written));
+							if (written != opData.WriteSize())
+								opDataHolder = StreamOpData::Write(opData.WriteSize() - written);
 							else
 								opDataHolder.reset();
 						}
@@ -280,7 +290,7 @@ namespace stingray
 							MutexUnlock ul(l);
 							syncableStream->Sync();
 						}
-						_syncDone = opData.WriteSize;
+						_syncDone = opData.SyncDone();
 						_syncCondVar.Broadcast();
 						opDataHolder.reset();
 						{
@@ -290,7 +300,7 @@ namespace stingray
 						}
 						break;
 					default:
-						STINGRAYKIT_THROW(NotImplementedException(opData.Op.ToString()));
+						STINGRAYKIT_THROW(NotImplementedException(opData.Op().ToString()));
 						break;
 					}
 				}
