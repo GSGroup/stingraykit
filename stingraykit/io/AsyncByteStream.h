@@ -29,6 +29,29 @@ namespace stingray
 	class AsyncByteStream : public ISyncableByteStream
 	{
 	private:
+		static const size_t DefaultBufferSize = 1 * 1024 * 1024;
+
+	public:
+		class Config
+		{
+			size_t					_bufferSize;
+
+		public:
+			Config()
+				:	_bufferSize(DefaultBufferSize)
+			{ }
+
+			Config& BufferSize(size_t bufferSize)
+			{ STINGRAYKIT_CHECK(bufferSize != 0, "Buffer size can't be zero"); _bufferSize = bufferSize; return *this; }
+
+			size_t BufferSize() const
+			{ return _bufferSize; }
+
+			std::string ToString() const
+			{ return StringBuilder() % "AsyncByteStream::Config { BufferSize: " % _bufferSize % " }"; }
+		};
+
+	private:
 		struct StreamOp
 		{
 			STINGRAYKIT_ENUM_VALUES(NoOp, Seek, Write, Stop, Sync);
@@ -99,15 +122,13 @@ namespace stingray
 		ThreadPtr					_thread;
 
 	public:
-		static const size_t DefaultBufferSize = 1 * 1024 * 1024;
-
-		AsyncByteStream(const std::string& name, const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize)
+		AsyncByteStream(const std::string& name, const IByteStreamPtr& stream, const Config& config = Config())
 			:	_name(name),
 				_stream(stream),
 				_wasException(false),
 				_position(stream->Tell()),
 				_length(0),
-				_buffer(bufferSize),
+				_buffer(config.BufferSize()),
 				_syncNext(1),
 				_syncDone(_syncNext - 1),
 				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % _name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
