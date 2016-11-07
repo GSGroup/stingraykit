@@ -17,7 +17,6 @@
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/thread/atomic.h>
-#include <stingraykit/optional.h>
 #include <stingraykit/toolkit.h>
 
 #include <deque>
@@ -294,7 +293,6 @@ namespace stingray
 		{
 			try
 			{
-				optional<StreamOpData> opDataHolder;
 				MutexLock l(_streamOpQueueMutex);
 				while (true)
 				{
@@ -304,12 +302,8 @@ namespace stingray
 						continue;
 					}
 
-					if (!opDataHolder)
-					{
-						opDataHolder = _streamOpQueue.front();
-						_streamOpQueue.pop_front();
-					}
-					const StreamOpData& opData = *opDataHolder;
+					const StreamOpData opData = _streamOpQueue.front();
+					_streamOpQueue.pop_front();
 
 					switch (opData.Op())
 					{
@@ -318,7 +312,6 @@ namespace stingray
 							MutexUnlock ul(l);
 							STINGRAYKIT_PROFILER(1000, "Seek");
 							_stream->Seek(opData.SeekingOffset(), SeekMode::Begin);
-							opDataHolder.reset();
 						}
 						break;
 					case StreamOp::Write:
@@ -332,13 +325,10 @@ namespace stingray
 							}
 							reader.Pop(written);
 							if (written != opData.WriteSize())
-								opDataHolder = StreamOpData::Write(opData.WriteSize() - written);
-							else
-								opDataHolder.reset();
+								_streamOpQueue.push_front(StreamOpData::Write(opData.WriteSize() - written));
 						}
 						break;
 					case StreamOp::Stop:
-						opDataHolder.reset();
 						return;
 					case StreamOp::Sync:
 						if (const ISyncableByteStreamPtr syncableStream = dynamic_caster(_stream))
@@ -348,7 +338,6 @@ namespace stingray
 						}
 						_syncDone = opData.SyncDone();
 						_syncCondVar.Broadcast();
-						opDataHolder.reset();
 						{
 							// wake up _syncCondVar waiters
 							MutexUnlock ul(l);
@@ -357,7 +346,6 @@ namespace stingray
 						break;
 					case StreamOp::PopBuffer:
 						_buffers.pop_back();
-						opDataHolder.reset();
 						break;
 					default:
 						STINGRAYKIT_THROW(NotImplementedException(opData.Op().ToString()));
