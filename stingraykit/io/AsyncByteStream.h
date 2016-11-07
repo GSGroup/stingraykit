@@ -293,8 +293,9 @@ namespace stingray
 		{
 			try
 			{
+				bool active = true;
 				MutexLock l(_streamOpQueueMutex);
-				while (true)
+				while (active)
 				{
 					if (_streamOpQueue.empty())
 					{
@@ -314,6 +315,7 @@ namespace stingray
 							_stream->Seek(opData.SeekingOffset(), SeekMode::Begin);
 						}
 						break;
+
 					case StreamOp::Write:
 						{
 							size_t written = 0;
@@ -328,8 +330,11 @@ namespace stingray
 								_streamOpQueue.push_front(StreamOpData::Write(opData.WriteSize() - written));
 						}
 						break;
+
 					case StreamOp::Stop:
-						return;
+						active = false;
+						break;
+
 					case StreamOp::Sync:
 						if (const ISyncableByteStreamPtr syncableStream = dynamic_caster(_stream))
 						{
@@ -344,9 +349,11 @@ namespace stingray
 							Thread::Yield();
 						}
 						break;
+
 					case StreamOp::PopBuffer:
 						_buffers.pop_back();
 						break;
+
 					default:
 						STINGRAYKIT_THROW(NotImplementedException(opData.Op().ToString()));
 						break;
@@ -358,7 +365,6 @@ namespace stingray
 				s_logger.Error() << _name << ": was exception while operating: " << ex;
 				_wasException = true;
 			}
-			s_logger.Error() << _name << ": should never get here";
 		}
 	};
 	STINGRAYKIT_DECLARE_PTR(AsyncByteStream);
