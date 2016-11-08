@@ -231,6 +231,8 @@ namespace stingray
 
 			size_t totalWritten = 0;
 			MutexLock l(_streamOpQueueMutex);
+
+			STINGRAYKIT_CHECK(!_buffers.empty(), LogicException(StringBuilder() % _name % ": must be at least one buffer"));
 			BithreadCircularBuffer::Writer writer = _buffers.front()->Write();
 
 			while ((totalWritten != data.size()) && (writer.size() != 0) && token)
@@ -242,6 +244,8 @@ namespace stingray
 				}
 				totalWritten += writeSize;
 				writer.Push(writeSize);
+
+				STINGRAYKIT_CHECK(!_buffers.empty(), LogicException(StringBuilder() % _name % ": must be at least one buffer"));
 				writer = _buffers.front()->Write();
 			}
 
@@ -319,6 +323,7 @@ namespace stingray
 					case StreamOp::Write:
 						{
 							size_t written = 0;
+							STINGRAYKIT_CHECK(!_buffers.empty(), LogicException(StringBuilder() % _name % ": must be at least one buffer"));
 							BithreadCircularBuffer::Reader reader = _buffers.back()->Read();
 							{
 								MutexUnlock ul(l);
