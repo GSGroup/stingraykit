@@ -29,24 +29,68 @@ namespace stingray
 	{
 	private:
 		static const size_t DefaultBufferSize = 1 * 1024 * 1024;
+		static const size_t DefaultPageSize = 4 * 1024;
 
 	public:
 		class Config
 		{
 			size_t					_bufferSize;
+			size_t					_pageSize;
+			size_t					_mergeablePagesHint;
+			size_t					_subStreamsHint;
 			bool					_nonBlockingSync;
 
 		public:
 			Config()
 				:	_bufferSize(DefaultBufferSize),
+					_pageSize(DefaultPageSize),
+					_mergeablePagesHint(16),
+					_subStreamsHint(8),
 					_nonBlockingSync(false)
 			{ }
 
 			Config& BufferSize(size_t bufferSize)
-			{ STINGRAYKIT_CHECK(bufferSize != 0, "Buffer size can't be zero"); _bufferSize = bufferSize; return *this; }
+			{
+				STINGRAYKIT_CHECK((bufferSize / (2 * (_subStreamsHint + 1))) >= (_pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
+				_bufferSize = bufferSize;
+				return *this;
+			}
 
 			size_t BufferSize() const
 			{ return _bufferSize; }
+
+			Config& PageSize(size_t pageSize)
+			{
+				STINGRAYKIT_CHECK(pageSize != 0, "Page size can't be zero!");
+				STINGRAYKIT_CHECK((_bufferSize / (2 * (_subStreamsHint + 1))) >= (pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
+				_pageSize = pageSize;
+				return *this;
+			}
+
+			size_t PageSize() const
+			{ return _pageSize; }
+
+			Config& MergeablePagesHint(size_t mergeablePagesHint)
+			{
+				STINGRAYKIT_CHECK(mergeablePagesHint != 0, "Hint number of mergeable pages can't be zero!");
+				STINGRAYKIT_CHECK((_bufferSize / (2 * (_subStreamsHint + 1))) >= (_pageSize * mergeablePagesHint), "Buffer size is insufficient to work!");
+				_mergeablePagesHint = mergeablePagesHint;
+				return *this;
+			}
+
+			size_t MergeablePagesHint() const
+			{ return _mergeablePagesHint; }
+
+			Config& SubStreamsHint(size_t subStreamsHint)
+			{
+				STINGRAYKIT_CHECK(subStreamsHint != 0, "Hint number of substreams can't be zero!");
+				STINGRAYKIT_CHECK((_bufferSize / (2 * (subStreamsHint + 1))) >= (_pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
+				_subStreamsHint = subStreamsHint;
+				return *this;
+			}
+
+			size_t SubStreamsHint() const
+			{ return _subStreamsHint; }
 
 			Config& EnableNonBlockingSync()
 			{ _nonBlockingSync = true; return *this; }
@@ -55,46 +99,72 @@ namespace stingray
 			{ return _nonBlockingSync; }
 
 			std::string ToString() const
-			{ return StringBuilder() % "AsyncByteStream::Config { BufferSize: " % _bufferSize % (_nonBlockingSync ? ", NonBlockingSync" : "") % " }"; }
+			{ return StringBuilder() % "AsyncByteStream::Config { BufferSize: " % _bufferSize % ", PageSize: " % _pageSize % ", MergeablePagesHint: " % _mergeablePagesHint % ", SubStreamsHint: " % _subStreamsHint % (_nonBlockingSync ? ", NonBlockingSync" : "") % " }"; }
 		};
 
 	private:
 		struct StreamOp
 		{
-			STINGRAYKIT_ENUM_VALUES(NoOp, Seek, Write, Stop, Sync, PopBuffer);
+			STINGRAYKIT_ENUM_VALUES(NoOp, Write, Stop, Sync, PopBuffer);
 			STINGRAYKIT_DECLARE_ENUM_CLASS(StreamOp);
 		};
 
 		class StreamOpData
 		{
-		public:
 			StreamOp				_op;
 			u64						_arg;
+			ByteData				_buffer;
+			size_t					_used;
 
-		private:
-			StreamOpData(StreamOp op, u64 arg = 0)
+			StreamOpData(StreamOp op, u64 arg = 0, ByteData buffer = ByteData())
 				:	_op(op),
-					_arg(arg)
+					_arg(arg),
+					_buffer(buffer),
+					_used(0)
 			{ }
+
+			u64 GetWriteLimitOffset() const
+			{ return _arg + _buffer.size(); }
 
 		public:
 			StreamOp Op() const
 			{ return _op; }
 
-			s64 SeekingOffset() const
-			{ return (s64)_arg; }
+			u64 GetWriteStartOffset() const
+			{ return _arg; }
 
-			size_t WriteSize() const
-			{ return (size_t)_arg; }
+			u64 GetWriteEndOffset() const
+			{ return _arg + _used; }
+
+			bool IsWriteIntersects(const StreamOpData& other) const
+			{ return (GetWriteStartOffset() < other.GetWriteLimitOffset()) && (other.GetWriteStartOffset() < GetWriteLimitOffset()); }
+
+			ConstByteData GetWriteData() const
+			{ return ConstByteData(_buffer, 0, _used); }
+
+			size_t GetWriteFreeSpace() const
+			{ return _buffer.size() - _used; }
+
+			void PopWriteData(size_t size)
+			{
+				_buffer = ByteData(_buffer, size);
+				_arg += size;
+				_used -= size;
+			}
+
+			size_t PushWriteData(ConstByteData data)
+			{
+				const size_t appendableSize = std::min(GetWriteFreeSpace(), data.size());
+				::memcpy(ByteData(_buffer, _used, appendableSize).data(), data.data(), appendableSize);
+				_used += appendableSize;
+				return appendableSize;
+			}
 
 			size_t SyncDone() const
 			{ return (size_t)_arg; }
 
-			static StreamOpData Seek(s64 offset)
-			{ return StreamOpData(StreamOp::Seek, (u64)offset); }
-
-			static StreamOpData Write(size_t size)
-			{ return StreamOpData(StreamOp::Write, size); }
+			static StreamOpData Write(u64 offset, ByteData buffer)
+			{ return StreamOpData(StreamOp::Write, offset, buffer); }
 
 			static StreamOpData Stop()
 			{ return StreamOpData(StreamOp::Stop); }
@@ -120,6 +190,7 @@ namespace stingray
 		u64							_length;
 
 		Config						_config;
+		size_t						_bufferPreallocationSize;
 
 		BuffersQueue				_buffers;
 		StreamOpQueue				_streamOpQueue;
@@ -141,6 +212,7 @@ namespace stingray
 				_wasException(false),
 				_position(stream->Tell()),
 				_length(0),
+				_bufferPreallocationSize(_config.PageSize() * _config.MergeablePagesHint()),
 				_syncNext(1),
 				_syncDone(_syncNext - 1),
 				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % _name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
@@ -176,6 +248,7 @@ namespace stingray
 			}
 			_buffers.push_front(make_shared<BithreadCircularBuffer>(config.BufferSize()));
 			_config = config;
+			_bufferPreallocationSize = _config.PageSize() * _config.MergeablePagesHint();
 		}
 
 		virtual u64 Tell() const
@@ -214,10 +287,8 @@ namespace stingray
 			if ((u64)newPosition != _position)
 			{
 				STINGRAYKIT_CHECK(newPosition >= 0, IndexOutOfRangeException(newPosition, 0, 0));
-				_streamOpQueue.push_back(StreamOpData::Seek(newPosition));
 				_position = (u64)newPosition;
 				// _length increases only after writing
-				_condVar.Broadcast();
 			}
 		}
 
@@ -228,40 +299,60 @@ namespace stingray
 		{
 			STINGRAYKIT_PROFILER(50, _name);
 			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
+			if (data.size() == 0)
+				return 0;
 
-			size_t totalWritten = 0;
 			MutexLock l(_streamOpQueueMutex);
 
 			STINGRAYKIT_CHECK(!_buffers.empty(), LogicException(StringBuilder() % _name % ": must be at least one buffer"));
-			BithreadCircularBuffer::Writer writer = _buffers.front()->Write();
+			if (_buffers.front()->GetFreeSize() == 0)
+				return 0;
 
-			while ((totalWritten != data.size()) && (writer.size() != 0) && token)
+			StreamOpQueue::reverse_iterator targetOpDataIt = _streamOpQueue.rend();
+			for (StreamOpQueue::reverse_iterator ritopq = _streamOpQueue.rbegin(); ritopq != _streamOpQueue.rend(); ++ritopq)
 			{
-				size_t writeSize = std::min(writer.size(), data.size() - totalWritten);
+				const StreamOpData& opData = *ritopq;
+				if (opData.GetWriteEndOffset() == _position)
 				{
-					MutexUnlock ul(_streamOpQueueMutex);
-					::memcpy(writer.data(), data.data() + totalWritten, writeSize);
+					if (opData.GetWriteFreeSpace() > 0)
+						targetOpDataIt = ritopq;
+
+					break;
 				}
-				totalWritten += writeSize;
+			}
+
+			if (targetOpDataIt != _streamOpQueue.rend())
+			{
+				const StreamOpData& opData = *targetOpDataIt;
+				for (StreamOpQueue::iterator itopq = targetOpDataIt.base(); itopq != _streamOpQueue.end(); ++itopq)
+				{
+					if (opData.IsWriteIntersects(*itopq))
+					{
+						targetOpDataIt = _streamOpQueue.rend();
+						break;
+					}
+				}
+			}
+
+			if (targetOpDataIt == _streamOpQueue.rend())
+			{
+				BithreadCircularBuffer::Writer writer = _buffers.front()->Write();
+				size_t writeSize = std::min(writer.size(), std::max(_bufferPreallocationSize, data.size()));
+
+				ByteData writeData(writer.GetData(), 0, writeSize);
 				writer.Push(writeSize);
 
-				STINGRAYKIT_CHECK(!_buffers.empty(), LogicException(StringBuilder() % _name % ": must be at least one buffer"));
-				writer = _buffers.front()->Write();
+				_streamOpQueue.push_back(StreamOpData::Write(_position, writeData));
+				targetOpDataIt = _streamOpQueue.rbegin();
 			}
 
-			if (!_streamOpQueue.empty() && (_streamOpQueue.back().Op() == StreamOp::Write))
-			{
-				const size_t prevWriteSize = _streamOpQueue.back().WriteSize();
-				_streamOpQueue.pop_back();
-				_streamOpQueue.push_back(StreamOpData::Write(prevWriteSize + totalWritten));
-			}
-			else
-				_streamOpQueue.push_back(StreamOpData::Write(totalWritten));
+			StreamOpData& opData = *targetOpDataIt;
+			size_t written = opData.PushWriteData(data);
 
-			_position += totalWritten;
+			_position += written;
 			_length = std::max(_position, _length);
 			_condVar.Broadcast();
-			return totalWritten;
+			return written;
 		}
 
 		virtual void Sync()
@@ -311,32 +402,36 @@ namespace stingray
 						continue;
 					}
 
-					const StreamOpData opData = _streamOpQueue.front();
+					StreamOpData opData = _streamOpQueue.front();
 					_streamOpQueue.pop_front();
 
 					switch (opData.Op())
 					{
-					case StreamOp::Seek:
-						{
-							MutexUnlock ul(l);
-							STINGRAYKIT_PROFILER(1000, "Seek");
-							_stream->Seek(opData.SeekingOffset(), SeekMode::Begin);
-						}
-						break;
-
 					case StreamOp::Write:
 						{
 							size_t written = 0;
+
 							STINGRAYKIT_CHECK(!_buffers.empty(), LogicException(StringBuilder() % _name % ": must be at least one buffer"));
 							BithreadCircularBuffer::Reader reader = _buffers.back()->Read();
+
+							ConstByteData writeData = opData.GetWriteData();
+							STINGRAYKIT_CHECK(writeData.data() == reader.GetData().data(), LogicException(StringBuilder() % _name % ": buffer pointers out of sync: " % writeData.data() % " != " % reader.GetData().data()));
+
 							{
 								MutexUnlock ul(l);
 								STINGRAYKIT_PROFILER(1000, "Write");
-								written = (size_t)_stream->Write(ConstByteData(reader.GetData(), 0, std::min(opData.WriteSize(), reader.size())), token);
+								_stream->Seek((s64)opData.GetWriteStartOffset(), SeekMode::Begin);
+								written = (size_t)_stream->Write(writeData, token);
 							}
-							reader.Pop(written);
-							if (written != opData.WriteSize())
-								_streamOpQueue.push_front(StreamOpData::Write(opData.WriteSize() - written));
+
+							if (written == writeData.size())
+								reader.Pop(written + opData.GetWriteFreeSpace());
+							else
+							{
+								reader.Pop(written);
+								opData.PopWriteData(written);
+								_streamOpQueue.push_front(opData);
+							}
 						}
 						break;
 
