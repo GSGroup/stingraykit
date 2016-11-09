@@ -11,6 +11,8 @@
 
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/Final.h>
+#include <stingraykit/log/Logger.h>
+#include <stingraykit/optional.h>
 #include <stingraykit/self_counter.h>
 
 
@@ -30,6 +32,7 @@ namespace stingray
 		private:
 			Mutex	_sync;
 			bool	_alive;
+			optional<ThreadId>	_threadId;
 
 		public:
 			TaskLifeTokenImpl() : _alive(true)
@@ -39,17 +42,28 @@ namespace stingray
 			{
 				_sync.Lock();
 				if (_alive)
+				{
+					_threadId = ThreadEngine::GetCurrentThreadId();
 					return true;
+				}
 				_sync.Unlock();
 				return false;
 			}
 
 			void FinishExecution()
-			{ _sync.Unlock(); }
+			{
+				_threadId.reset();
+				_sync.Unlock();
+			}
 
 			void Kill()
 			{
 				MutexLock l(_sync);
+				if (_threadId && (*_threadId == ThreadEngine::GetCurrentThreadId()))
+				{
+					std::string backtrace = Backtrace().Get();
+					Logger::Error() << "Resetting token while it is locked in current thread!" << (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace));
+				}
 				_alive = false;
 			}
 		};
