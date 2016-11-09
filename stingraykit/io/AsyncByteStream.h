@@ -303,7 +303,11 @@ namespace stingray
 				{
 					if (_streamOpQueue.empty())
 					{
-						_condVar.Wait(_streamOpQueueMutex);
+						if (token)
+							_condVar.TimedWait(_streamOpQueueMutex, TimeDuration::Second(), token);
+						else
+							STINGRAYKIT_THROW(OperationCanceledException());
+
 						continue;
 					}
 
