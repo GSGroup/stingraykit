@@ -176,6 +176,51 @@ namespace stingray
 			{ return StreamOpData(StreamOp::PopBuffer); }
 		};
 
+		struct Stats
+		{
+			u64						Failed;
+			u64						Appended;
+			u64						NotAppended;
+
+			u64						FoundForMerge;
+			u64						FoundButFull;
+			u64						FoundButIntersects;
+			u64						OpQueueLengthSum;
+			u64						SearchDepthSum;
+
+			u64						NonFully;
+			u64						PushBufUsage;
+
+			u64						Syscalls;
+			u64						TotalWritten;
+
+			Stats()
+				:	Failed(),
+					Appended(),
+					NotAppended(),
+					FoundForMerge(),
+					FoundButFull(),
+					FoundButIntersects(),
+					OpQueueLengthSum(),
+					SearchDepthSum(),
+					NonFully(),
+					PushBufUsage(),
+					Syscalls(),
+					TotalWritten()
+			{ }
+
+			std::string ToString() const
+			{
+				const u64 totalWrites = Failed + Appended + NotAppended;
+				const u64 mergeSearches = Appended + NotAppended;
+				return StringBuilder() % totalWrites % " write calls (" % Appended % " merged, " % NotAppended % " not, " % NonFully % " partial), "
+									   % Failed % " failed, avg. " % ((totalWrites != 0) ? (TotalWritten / totalWrites) : 0) % ", avg. buf " % ((totalWrites != 0) ? (PushBufUsage / totalWrites) : 0) % ", "
+									   % FoundForMerge % " found for merge (" % FoundButIntersects % " intersects), " % FoundButFull % " was full, "
+									   % "avg. queue length " % ((mergeSearches != 0) ? (OpQueueLengthSum / mergeSearches) : 0) % ", avg. search depth " % ((mergeSearches != 0) ? (SearchDepthSum / mergeSearches) : 0) % ", "
+									   % Syscalls % " sys_write calls (totally written " % TotalWritten % ", avg. " % ((Syscalls != 0) ? (TotalWritten / Syscalls) : 0) % ")";
+			}
+		};
+
 		typedef std::deque<StreamOpData> StreamOpQueue;
 		typedef std::deque<BithreadCircularBufferPtr> BuffersQueue;
 
@@ -195,6 +240,8 @@ namespace stingray
 		BuffersQueue				_buffers;
 		StreamOpQueue				_streamOpQueue;
 		Mutex						_streamOpQueueMutex;
+
+		Stats						_stats;
 
 		size_t						_syncNext;
 		atomic<size_t>				_syncDone;
@@ -233,6 +280,7 @@ namespace stingray
 				_condVar.Broadcast();
 			}
 			_thread.reset();
+			s_logger.Info() << "Stats: " << _stats;
 		}
 
 		void Reconfigure(const Config& config)
@@ -306,20 +354,32 @@ namespace stingray
 
 			STINGRAYKIT_CHECK(!_buffers.empty(), LogicException(StringBuilder() % _name % ": must be at least one buffer"));
 			if (_buffers.front()->GetFreeSize() == 0)
+			{
+				_stats.Failed++;
+				_stats.PushBufUsage += _buffers.front()->GetDataSize();
 				return 0;
+			}
 
+			size_t depth = 0;
 			StreamOpQueue::reverse_iterator targetOpDataIt = _streamOpQueue.rend();
-			for (StreamOpQueue::reverse_iterator ritopq = _streamOpQueue.rbegin(); ritopq != _streamOpQueue.rend(); ++ritopq)
+			for (StreamOpQueue::reverse_iterator ritopq = _streamOpQueue.rbegin(); ritopq != _streamOpQueue.rend(); ++ritopq, ++depth)
 			{
 				const StreamOpData& opData = *ritopq;
 				if (opData.GetWriteEndOffset() == _position)
 				{
 					if (opData.GetWriteFreeSpace() > 0)
+					{
 						targetOpDataIt = ritopq;
+						_stats.FoundForMerge++;
+					}
+					else
+						_stats.FoundButFull++;
 
 					break;
 				}
 			}
+			_stats.OpQueueLengthSum += _streamOpQueue.size();
+			_stats.SearchDepthSum += depth;
 
 			if (targetOpDataIt != _streamOpQueue.rend())
 			{
@@ -329,6 +389,7 @@ namespace stingray
 					if (opData.IsWriteIntersects(*itopq))
 					{
 						targetOpDataIt = _streamOpQueue.rend();
+						_stats.FoundButIntersects++;
 						break;
 					}
 				}
@@ -344,10 +405,18 @@ namespace stingray
 
 				_streamOpQueue.push_back(StreamOpData::Write(_position, writeData));
 				targetOpDataIt = _streamOpQueue.rbegin();
+				_stats.NotAppended++;
 			}
+			else
+				_stats.Appended++;
 
 			StreamOpData& opData = *targetOpDataIt;
 			size_t written = opData.PushWriteData(data);
+
+			if (written != data.size())
+				_stats.NonFully++;
+
+			_stats.PushBufUsage += _buffers.front()->GetDataSize();
 
 			_position += written;
 			_length = std::max(_position, _length);
@@ -432,6 +501,9 @@ namespace stingray
 								opData.PopWriteData(written);
 								_streamOpQueue.push_front(opData);
 							}
+
+							_stats.Syscalls++;
+							_stats.TotalWritten += written;
 						}
 						break;
 
