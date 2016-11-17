@@ -8,8 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stingraykit/io/IDataSource.h>
+#include <stingraykit/io/ConsumerProxy.h>
 
 namespace stingray
 {
@@ -17,33 +16,27 @@ namespace stingray
 	class DataPacketer : public virtual IPacketSource<EmptyType>
 	{
 	private:
-		IDataSourcePtr			_source;
+		IDataSourcePtr			_lifeAssurance;
+		IDataSource&			_source;
 		optional<size_t>		_packetSize;
 
 	public:
-		DataPacketer(const IDataSourcePtr& source, size_t packetSize)
-			:	_source(source),
+		DataPacketer(const IDataSourcePtr& source, optional<size_t> packetSize = null)
+			:	_lifeAssurance(source),
+				_source(*_lifeAssurance),
 				_packetSize(packetSize)
 		{ }
 
-		DataPacketer(const IDataSourcePtr& source)
-			:	_source(source)
+		DataPacketer(IDataSource& source, optional<size_t> packetSize = null)
+			:	_lifeAssurance(null),
+				_source(source),
+				_packetSize(packetSize)
 		{ }
 
 		virtual void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token)
 		{
-			_source->ReadToFunction(bind(&DataPacketer::Do, this, ref(consumer), _1, _2),
-									bind(&IPacketConsumer<EmptyType>::EndOfData, &consumer, not_using(_1)),
-									token);
-		}
-
-	private:
-		size_t Do(IPacketConsumer<EmptyType>& consumer, ConstByteData data, const ICancellationToken& token)
-		{
-			const size_t packetSize = _packetSize ? *_packetSize : data.size();
-			ConstByteData packet(data, 0, packetSize);
-
-			return consumer.Process(Packet<EmptyType>(packet), token) ? packetSize : 0;
+			ConsumerPacketer packeter(consumer, _packetSize);
+			_source.Read(packeter, token);
 		}
 	};
 	STINGRAYKIT_DECLARE_PTR(DataPacketer);
@@ -55,34 +48,22 @@ namespace stingray
 		STINGRAYKIT_DECLARE_PTR(PacketSource);
 
 	private:
-		PacketSourcePtr		_source;
-		size_t				_startOffset;
+		PacketSourcePtr		_lifeAssurance;
+		PacketSource&		_source;
 
 	public:
-		DataDepacketer(const PacketSourcePtr& source, size_t startOffset = 0)
-			:	_source(source),
-				_startOffset(startOffset)
+		DataDepacketer(const PacketSourcePtr& source)
+			:	_lifeAssurance(source),
+				_source(*_lifeAssurance)
 		{ }
 
-		void SetStartOffset(size_t offset)
-		{ _startOffset = offset; }
+		DataDepacketer(PacketSource& source)
+			:	_lifeAssurance(null),
+				_source(source)
+		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{
-			_source->ReadToFunction(bind(&DataDepacketer::Do, this, ref(consumer), _1, _2),
-									bind(&IDataConsumer::EndOfData, &consumer, ref(token)),
-									token);
-		}
-
-	private:
-		bool Do(IDataConsumer& consumer, const Packet<EmptyType>& packet, const ICancellationToken& token)
-		{
-			size_t offset = _startOffset;
-			while (token && offset < packet.GetSize())
-				offset += consumer.Process(ConstByteData(packet.GetData(), offset), token);
-
-			return true;
-		}
+		{ ConsumerDepacketer depacketer(consumer); _source.Read(depacketer, token); }
 	};
 	STINGRAYKIT_DECLARE_PTR(DataDepacketer);
 
