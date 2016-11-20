@@ -1,5 +1,8 @@
 #include <stingraykit/io/ByteDataConsumer.h>
 
+#include <string.h>
+
+
 namespace stingray
 {
 
@@ -15,7 +18,7 @@ namespace stingray
 
 		STINGRAYKIT_CHECK(size <= _consumer.size(), IndexOutOfRangeException(size, _consumer.size()));
 
-		std::copy(data.data(), data.data() + size, _consumer.data());
+		memcpy(_consumer.data(), data.data(), size);
 		_consumer = ByteData(_consumer, size);
 
 		return size;
