@@ -104,6 +104,7 @@ set(stingraykit_SRC
 	stingraykit/io/DataSourceReader.cpp
 	stingraykit/io/PipeDataSource.cpp
 	stingraykit/io/PipeReader.cpp
+	stingraykit/io/ByteDataConsumer.cpp
 
 	stingraykit/locale/LangCode.cpp
 	stingraykit/locale/LocaleString.cpp

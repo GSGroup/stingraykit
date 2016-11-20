@@ -241,34 +241,6 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ByteDataPacketSource);
 
 
-	struct ByteDataConsumer : public virtual IDataConsumer
-	{
-	private:
-		ByteData			_consumer;
-		size_t				_offset;
-
-	public:
-		ByteDataConsumer(ByteData comsumer)
-			:	_consumer(comsumer),
-				_offset(0)
-		{}
-
-		virtual size_t Process(ConstByteData data, const ICancellationToken&)
-		{
-			const size_t newOffset = _offset + data.size();
-			STINGRAYKIT_CHECK(newOffset <= _consumer.size(), IndexOutOfRangeException(newOffset, _consumer.size()));
-
-			std::copy(data.data(), data.data() + data.size(), _consumer.data() + _offset);
-			_offset = newOffset;
-
-			return data.size();
-		}
-
-		virtual void EndOfData(const ICancellationToken&) {}
-	};
-	STINGRAYKIT_DECLARE_PTR(ByteDataConsumer);
-
-
 	inline void ConsumeAll(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 	{
 		size_t offset = 0;
