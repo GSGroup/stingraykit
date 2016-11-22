@@ -13,6 +13,8 @@
 #include <stingraykit/ScopeExit.h>
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/io/IDataSource.h>
+#include <stingraykit/io/ByteDataConsumer.h>
+#include <stingraykit/thread/DummyCancellationToken.h>
 
 namespace stingray
 {
@@ -25,7 +27,6 @@ namespace stingray
 		{
 			virtual ~IPage() { }
 
-			virtual size_t Read(u64 offset, ByteData data) = 0;
 			virtual size_t Read(u64 offset, IDataConsumer& consumer, const ICancellationToken& token) = 0;
 			virtual size_t Write(u64 offset, ConstByteData data) = 0;
 		};
@@ -224,7 +225,8 @@ namespace stingray
 				MutexLock l(_mutex);
 				p = _pages.at(pageIdxFromStart);
 			}
-			if (p->Read(offsetInPage, data) != data.size())
+			ByteDataConsumer consumer(data);
+			if (p->Read(offsetInPage, consumer, DummyCancellationToken()) != data.size())
 				STINGRAYKIT_THROW("Page read failed!");
 		}
 
