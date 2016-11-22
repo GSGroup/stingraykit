@@ -191,6 +191,7 @@ namespace stingray
 			u64						SearchDepthSum;
 
 			u64						NonFully;
+			u64						NotSignaled;
 			u64						PushBufUsage;
 
 			u64						Syscalls;
@@ -206,6 +207,7 @@ namespace stingray
 					OpQueueLengthSum(),
 					SearchDepthSum(),
 					NonFully(),
+					NotSignaled(),
 					PushBufUsage(),
 					Syscalls(),
 					TotalWritten()
@@ -215,7 +217,7 @@ namespace stingray
 			{
 				const u64 totalWrites = Failed + Appended + NotAppended;
 				const u64 mergeSearches = Appended + NotAppended;
-				return StringBuilder() % totalWrites % " write calls (" % Appended % " merged, " % NotAppended % " not, " % NonFully % " partial), "
+				return StringBuilder() % totalWrites % " write calls (" % Appended % " merged, " % NotAppended % " not, " % NonFully % " partial, " % NotSignaled % " not signaled), "
 									   % Failed % " failed, avg. " % ((totalWrites != 0) ? (TotalWritten / totalWrites) : 0) % ", avg. buf " % ((totalWrites != 0) ? (PushBufUsage / totalWrites) : 0) % ", "
 									   % FoundForMerge % " found for merge (" % FoundButIntersects % " intersects), " % FoundButFull % " was full, "
 									   % "avg. queue length " % ((mergeSearches != 0) ? (OpQueueLengthSum / mergeSearches) : 0) % ", avg. search depth " % ((mergeSearches != 0) ? (SearchDepthSum / mergeSearches) : 0) % ", "
@@ -238,6 +240,7 @@ namespace stingray
 
 		Config						_config;
 		size_t						_bufferPreallocationSize;
+		size_t						_bufferLowWater;
 
 		BuffersQueue				_buffers;
 		StreamOpQueue				_streamOpQueue;
@@ -263,6 +266,7 @@ namespace stingray
 				_position(stream->Tell()),
 				_length(0),
 				_bufferPreallocationSize(_config.PageSize() * _config.MergeablePagesHint()),
+				_bufferLowWater(0),
 				_lastStatsDump(0),
 				_syncNext(1),
 				_syncDone(_syncNext - 1),
@@ -301,6 +305,7 @@ namespace stingray
 			_buffers.push_front(make_shared<BithreadCircularBuffer>(config.BufferSize()));
 			_config = config;
 			_bufferPreallocationSize = _config.PageSize() * _config.MergeablePagesHint();
+			_bufferLowWater = std::max(_config.BufferSize() / 10, std::min(_config.BufferSize() / 2, _bufferPreallocationSize * 2));
 		}
 
 		virtual u64 Tell() const
@@ -418,11 +423,17 @@ namespace stingray
 			if (written != data.size())
 				_stats.NonFully++;
 
-			_stats.PushBufUsage += _buffers.front()->GetDataSize();
+			const size_t bufUsed = _buffers.front()->GetDataSize();
+			_stats.PushBufUsage += bufUsed;
 
 			_position += written;
 			_length = std::max(_position, _length);
-			_condVar.Broadcast();
+
+			if (bufUsed >= _bufferLowWater)
+				_condVar.Broadcast();
+			else
+				_stats.NotSignaled++;
+
 			return written;
 		}
 
