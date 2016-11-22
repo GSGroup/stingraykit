@@ -306,7 +306,6 @@ namespace stingray
 		virtual u64 Tell() const
 		{
 			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
-			MutexLock l(_streamOpQueueMutex);
 			return _position;
 		}
 
@@ -315,7 +314,6 @@ namespace stingray
 			STINGRAYKIT_PROFILER(50, _name);
 			STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
 
-			MutexLock l(_streamOpQueueMutex);
 			s64 newPosition;
 
 			switch(mode)
