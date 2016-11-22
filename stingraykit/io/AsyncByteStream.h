@@ -31,6 +31,8 @@ namespace stingray
 		static const size_t DefaultBufferSize = 1 * 1024 * 1024;
 		static const size_t DefaultPageSize = 4 * 1024;
 
+		static const u64 StatsDumpPeriod = 64 * 1024 * 1024;
+
 	public:
 		class Config
 		{
@@ -242,6 +244,7 @@ namespace stingray
 		Mutex						_streamOpQueueMutex;
 
 		Stats						_stats;
+		u64							_lastStatsDump;
 
 		size_t						_syncNext;
 		atomic<size_t>				_syncDone;
@@ -260,6 +263,7 @@ namespace stingray
 				_position(stream->Tell()),
 				_length(0),
 				_bufferPreallocationSize(_config.PageSize() * _config.MergeablePagesHint()),
+				_lastStatsDump(0),
 				_syncNext(1),
 				_syncDone(_syncNext - 1),
 				_thread(new Thread(StringBuilder() % "AsyncByteStream(" % _name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
@@ -533,6 +537,12 @@ namespace stingray
 					default:
 						STINGRAYKIT_THROW(NotImplementedException(opData.Op().ToString()));
 						break;
+					}
+
+					if ((_stats.TotalWritten - _lastStatsDump) >= StatsDumpPeriod)
+					{
+						s_logger.Info() << _name << " stats: " << _stats;
+						_lastStatsDump = _stats.TotalWritten;
 					}
 				}
 			}
