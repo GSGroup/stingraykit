@@ -243,8 +243,7 @@ namespace stingray
 
 	inline void ConsumeAll(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 	{
-		size_t offset = 0;
-		while (token && (offset < data.size()))
+		for (size_t offset = 0; token && offset < data.size();)
 			offset += consumer.Process(ConstByteData(data, offset), token);
 	}
 
