@@ -16,7 +16,6 @@
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/collection/IList.h>
-#include <stingraykit/collection/StlEnumeratorAdapter.h>
 #include <stingraykit/function/bind.h>
 
 
