@@ -11,10 +11,10 @@
 #include <algorithm>
 #include <set>
 
+#include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/collection/ISet.h>
-#include <stingraykit/collection/StlEnumeratorAdapter.h>
 #include <stingraykit/thread/Thread.h>
 
 
@@ -78,15 +78,14 @@ namespace stingray
 			: _mutex(new Mutex()), _items(new SetType)
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
-			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::inserter(*_items, _items->end()));
+			Enumerable::ForEach(enumerator, bind(&SortedSet::Add, this, _1));
 		}
 
 		SortedSet(shared_ptr<IEnumerable<T> > enumerable)
 			: _mutex(new Mutex()), _items(new SetType)
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
-			shared_ptr<IEnumerator<T> > enumerator(enumerable->GetEnumerator());
-			std::copy(Wrap(enumerator), WrapEnd(enumerator), std::inserter(*_items, _items->end()));
+			Enumerable::ForEach(enumerable, bind(&SortedSet::Add, this, _1));
 		}
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
