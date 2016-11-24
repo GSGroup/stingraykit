@@ -32,9 +32,6 @@ namespace stingray
 		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
 
 		virtual const Mutex& GetSyncRoot() const = 0;
-
-	protected:
-		virtual void InvokeOnChanged(CollectionOp, const ValueType_&) = 0;
 	};
 
 
@@ -49,66 +46,91 @@ namespace stingray
 		:	public Wrapped_,
 			public virtual IObservableSet<typename Wrapped_::ValueType>
 	{
+		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+
+	public:
 		typedef typename Wrapped_::ValueType					ValueType;
+		typedef IObservableSet<ValueType>						ObservableInterface;
+
+	private:
+		shared_ptr<Mutex>													_mutex;
+		signal<void(CollectionOp, const ValueType&), ExternalMutexPointer>	_onChanged;
+
+	public:
+		ObservableSetWrapper()
+			: _mutex(new Mutex()), _onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+		{ }
+
+		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
+
+		virtual signal_connector<void(CollectionOp, const ValueType&)>	OnChanged() const
+		{ return _onChanged.connector(); }
 
 		virtual int GetCount() const
 		{
-			MutexLock l(this->GetSyncRoot());
+			signal_locker l(_onChanged);
 			return Wrapped_::GetCount();
 		}
 
 		virtual void Add(const ValueType& value)
 		{
-			MutexLock l(this->GetSyncRoot());
+			signal_locker l(_onChanged);
 			bool signal = !Wrapped_::Contains(value);
 			Wrapped_::Add(value);
 			if (signal)
-				this->InvokeOnChanged(CollectionOp::Added, value);
+				_onChanged(CollectionOp::Added, value);
 		}
 
 		virtual void Remove(const ValueType& value)
 		{
-			MutexLock l(this->GetSyncRoot());
+			signal_locker l(_onChanged);
 			bool signal = Wrapped_::Contains(value);
 			Wrapped_::Remove(value);
 			if (signal)
-				this->InvokeOnChanged(CollectionOp::Removed, value);
+				_onChanged(CollectionOp::Removed, value);
 		}
 
 		virtual bool TryRemove(const ValueType& value)
 		{
-			MutexLock l(this->GetSyncRoot());
+			signal_locker l(_onChanged);
 			if (!Wrapped_::TryRemove(value))
 				return false;
 
-			this->InvokeOnChanged(CollectionOp::Removed, value);
+			_onChanged(CollectionOp::Removed, value);
 			return true;
 		}
 
 		virtual bool Contains(const ValueType& value) const
 		{
-			MutexLock l(this->GetSyncRoot());
+			signal_locker l(_onChanged);
 			return Wrapped_::Contains(value);
 		}
 
 		virtual void Clear()
 		{
-			MutexLock l(this->GetSyncRoot());
+			signal_locker l(_onChanged);
 			FOR_EACH(ValueType v IN this->GetEnumerator())
-				this->InvokeOnChanged(CollectionOp::Removed, v);
+				_onChanged(CollectionOp::Removed, v);
 			Wrapped_::Clear();
 		}
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{
-			MutexLock l(this->GetSyncRoot());
+			signal_locker l(_onChanged);
 			return Wrapped_::GetEnumerator();
 		}
 
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
 		{
-			MutexLock l(this->GetSyncRoot());
+			signal_locker l(_onChanged);
 			return Wrapped_::Reverse();
+		}
+
+	private:
+		void OnChangedPopulator(const function<void(CollectionOp, const ValueType&)>& slot)
+		{
+			FOR_EACH(ValueType v IN this->GetEnumerator())
+				slot(CollectionOp::Added, v);
 		}
 	};
 
