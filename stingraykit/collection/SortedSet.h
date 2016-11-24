@@ -54,17 +54,14 @@ namespace stingray
 		};
 
 	private:
-		shared_ptr<Mutex>		_mutex;
 		SetTypePtr				_items;
 		mutable HolderWeakPtr	_itemsEnumeratorHolder;
 
 	public:
-		SortedSet()
-			: _mutex(new Mutex()), _items(new SetType)
+		SortedSet() : _items(new SetType)
 		{ }
 
-		SortedSet(const SortedSet& other)
-			: _mutex(new Mutex()), _items(make_shared<SetType>(*other._items))
+		SortedSet(const SortedSet& other) : _items(make_shared<SetType>(*other._items))
 		{ }
 
 		SortedSet& operator = (const SortedSet& other)
@@ -74,15 +71,13 @@ namespace stingray
 			return *this;
 		}
 
-		SortedSet(shared_ptr<IEnumerator<T> > enumerator)
-			: _mutex(new Mutex()), _items(new SetType)
+		SortedSet(shared_ptr<IEnumerator<T> > enumerator) : _items(new SetType)
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			Enumerable::ForEach(enumerator, bind(&SortedSet::Add, this, _1));
 		}
 
-		SortedSet(shared_ptr<IEnumerable<T> > enumerable)
-			: _mutex(new Mutex()), _items(new SetType)
+		SortedSet(shared_ptr<IEnumerable<T> > enumerable) : _items(new SetType)
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			Enumerable::ForEach(enumerable, bind(&SortedSet::Add, this, _1));
@@ -134,10 +129,6 @@ namespace stingray
 			_items->erase(value);
 			return true;
 		}
-
-	protected:
-		shared_ptr<Mutex> GetMutexPointer() const
-		{ return _mutex; }
 
 	private:
 		void CopyOnWrite()
