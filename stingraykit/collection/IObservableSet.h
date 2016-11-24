@@ -72,6 +72,12 @@ namespace stingray
 			return Wrapped_::GetCount();
 		}
 
+		virtual bool IsEmpty() const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::IsEmpty();
+		}
+
 		virtual void Add(const ValueType& value)
 		{
 			signal_locker l(_onChanged);
