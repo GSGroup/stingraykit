@@ -11,6 +11,8 @@
 #include <stingraykit/io/IByteStream.h>
 #include <stingraykit/math.h>
 
+#include <string.h>
+
 namespace stingray
 {
 
@@ -39,9 +41,8 @@ namespace stingray
 		{
 			const size_t dstSize = data.size();
 			size_t total = 0;
-			u8* dst = data.data();
-			size_t n;
-			for (; total < dstSize && token; _inBufferOffset += n, dst += n, total += n)
+			size_t readable;
+			for (; total < dstSize && token; _inBufferOffset += readable, total += readable)
 			{
 				if (!_bufferSize)
 					_bufferSize = _stream->Read(_buffer.GetByteData(), token);
@@ -54,8 +55,8 @@ namespace stingray
 				if (!_bufferSize)
 					break;
 
-				n = std::min(dstSize - total, _bufferSize - _inBufferOffset);
-				std::copy(_buffer.data() + _inBufferOffset, _buffer.data() + _inBufferOffset + n, dst);
+				readable = std::min(dstSize - total, _bufferSize - _inBufferOffset);
+				::memcpy(ByteData(data, total, readable).data(), ConstByteData(_buffer, _inBufferOffset, readable).data(), readable);
 			}
 			return total;
 		}
