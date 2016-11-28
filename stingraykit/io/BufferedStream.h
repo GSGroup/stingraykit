@@ -40,10 +40,13 @@ namespace stingray
 		virtual u64 Read(ByteData data, const ICancellationToken& token)
 		{
 			const size_t dstSize = data.size();
+			if (dstSize == 0)
+				return 0;
+
 			size_t total = 0;
-			size_t readable;
-			for (; total < dstSize && token; _inBufferOffset += readable, total += readable)
-			{
+			size_t readable = 0;
+
+			do {
 				if (!_bufferSize)
 					_bufferSize = _stream->Read(_buffer.GetByteData(), token);
 				else if (_inBufferOffset == _bufferSize)
@@ -57,7 +60,11 @@ namespace stingray
 
 				readable = std::min(dstSize - total, _bufferSize - _inBufferOffset);
 				::memcpy(ByteData(data, total, readable).data(), ConstByteData(_buffer, _inBufferOffset, readable).data(), readable);
-			}
+
+				_inBufferOffset += readable;
+				total += readable;
+			} while ((total < dstSize) && (readable != 0) && token);
+
 			return total;
 		}
 
