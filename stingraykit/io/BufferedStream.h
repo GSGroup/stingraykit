@@ -26,7 +26,7 @@ namespace stingray
 		size_t         _bufferSize;
 
 		u64            _bufferOffset;
-		u64            _inBufferOffset;
+		size_t         _inBufferOffset;
 
 		size_t         _alignment;
 
@@ -38,12 +38,12 @@ namespace stingray
 		virtual u64 Read(ByteData data, const ICancellationToken& token)
 		{
 			const size_t dstSize = data.size();
-			u64 total = 0;
+			size_t total = 0;
 			u8* dst = data.data();
-			u64 n;
+			size_t n;
 			for (; total < dstSize && token; _inBufferOffset += n, dst += n, total += n)
 			{
-				if (!_bufferSize || _inBufferOffset == _bufferSize)
+				if (!_bufferSize || (_inBufferOffset == _bufferSize))
 				{
 					if (_bufferSize)
 						SeekStream(Tell());
@@ -51,7 +51,7 @@ namespace stingray
 					if (!_bufferSize)
 						break;
 				}
-				n = std::min<u64>(dstSize - total, _bufferSize - _inBufferOffset);
+				n = std::min(dstSize - total, _bufferSize - _inBufferOffset);
 				std::copy(_buffer.data() + _inBufferOffset, _buffer.data() + _inBufferOffset + n, dst);
 			}
 			return total;
@@ -59,7 +59,7 @@ namespace stingray
 
 		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
 		{
-			if (_inBufferOffset != _bufferSize || _bufferSize)
+			if ((_inBufferOffset != _bufferSize) || _bufferSize)
 				_stream->Seek(Tell());
 			u64 total = _stream->Write(data, token);
 			SeekStream(Tell() + total);
@@ -92,9 +92,9 @@ namespace stingray
 	private:
 		bool SeekInBuffer(u64 offset)
 		{
-			if (_bufferOffset <= offset && offset - _bufferOffset < _bufferSize)
+			if ((_bufferOffset <= offset) && ((offset - _bufferOffset) < (u64)_bufferSize))
 			{
-				_inBufferOffset = offset - _bufferOffset;
+				_inBufferOffset = (size_t)(offset - _bufferOffset);
 				return true;
 			}
 			return false;
@@ -105,7 +105,7 @@ namespace stingray
 			const u64 alignedOffset(AlignDown<u64>(offset, _alignment));
 			_stream->Seek(alignedOffset);
 			_bufferOffset = alignedOffset;
-			_inBufferOffset = offset - alignedOffset;
+			_inBufferOffset = (size_t)(offset - alignedOffset);
 			_bufferSize = 0;
 		}
 	};
