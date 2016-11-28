@@ -241,16 +241,19 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ByteDataPacketSource);
 
 
-	inline void ConsumeAll(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
+	inline size_t ConsumeAll(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 	{
-		for (size_t offset = 0; token && offset < data.size();)
+		size_t offset = 0;
+		while (token && offset < data.size())
 			offset += consumer.Process(ConstByteData(data, offset), token);
+
+		return offset;
 	}
 
 
 	template <typename Metadata>
 	void ConsumeAll(IPacketConsumer<Metadata>& consumer, Packet<Metadata> packet, const ICancellationToken& token)
-	{ while (!consumer.Process(packet, token)); }
+	{ while (token && !consumer.Process(packet, token)); }
 
 
 }
