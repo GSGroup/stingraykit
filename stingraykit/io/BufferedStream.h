@@ -43,14 +43,17 @@ namespace stingray
 			size_t n;
 			for (; total < dstSize && token; _inBufferOffset += n, dst += n, total += n)
 			{
-				if (!_bufferSize || (_inBufferOffset == _bufferSize))
-				{
-					if (_bufferSize)
-						SeekStream(Tell());
+				if (!_bufferSize)
 					_bufferSize = _stream->Read(_buffer.GetByteData(), token);
-					if (!_bufferSize)
-						break;
+				else if (_inBufferOffset == _bufferSize)
+				{
+					SeekStream(Tell());
+					_bufferSize = _stream->Read(_buffer.GetByteData(), token);
 				}
+
+				if (!_bufferSize)
+					break;
+
 				n = std::min(dstSize - total, _bufferSize - _inBufferOffset);
 				std::copy(_buffer.data() + _inBufferOffset, _buffer.data() + _inBufferOffset + n, dst);
 			}
