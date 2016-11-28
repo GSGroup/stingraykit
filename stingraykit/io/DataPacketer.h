@@ -8,10 +8,79 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/io/ConsumerProxy.h>
+#include <stingraykit/io/IDataSource.h>
+#include <stingraykit/thread/DummyCancellationToken.h>
 
 namespace stingray
 {
+
+
+	class ConsumerDepacketer : public virtual IPacketConsumer<EmptyType>
+	{
+	private:
+		IDataConsumerPtr	_lifeAssurance;
+		IDataConsumer&		_consumer;
+
+	public:
+		ConsumerDepacketer(const IDataConsumerPtr& consumer)
+			:	_lifeAssurance(consumer),
+				_consumer(*_lifeAssurance)
+		{}
+
+
+		ConsumerDepacketer(IDataConsumer& consumer)
+			:	_lifeAssurance(null),
+				_consumer(consumer)
+		{}
+
+
+		virtual bool Process(const Packet<EmptyType>& packet, const ICancellationToken& token)
+		{ return _consumer.Process(packet.GetData(), token); }
+
+
+		virtual void EndOfData()
+		{ _consumer.EndOfData(DummyCancellationToken()); }
+	};
+	STINGRAYKIT_DECLARE_PTR(ConsumerDepacketer);
+
+
+	class ConsumerPacketer : public virtual IDataConsumer
+	{
+		typedef IPacketConsumer<EmptyType> PacketConsumer;
+		STINGRAYKIT_DECLARE_PTR(PacketConsumer);
+
+	private:
+		PacketConsumerPtr	_lifeAssurance;
+		PacketConsumer&		_consumer;
+		optional<size_t>	_packetSize;
+
+	public:
+		ConsumerPacketer(const PacketConsumerPtr& consumer, optional<size_t> packetSize = null)
+			:	_lifeAssurance(consumer),
+				_consumer(*_lifeAssurance),
+				_packetSize(packetSize)
+		{}
+
+
+		ConsumerPacketer(PacketConsumer& consumer, optional<size_t> packetSize = null)
+			:	_lifeAssurance(null),
+				_consumer(consumer),
+				_packetSize(packetSize)
+		{}
+
+
+		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
+		{
+			ConstByteData packetData(data, 0, (_packetSize ? *_packetSize : data.size()));
+			return _consumer.Process(Packet<EmptyType>(packetData), token) ? packetData.size() : 0;
+		}
+
+
+		virtual void EndOfData(const ICancellationToken&)
+		{ _consumer.EndOfData(); }
+	};
+	STINGRAYKIT_DECLARE_PTR(ConsumerPacketer);
+
 
 	class DataPacketer : public virtual IPacketSource<EmptyType>
 	{
