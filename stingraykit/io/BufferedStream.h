@@ -42,7 +42,7 @@ namespace stingray
 			const size_t dstSize = data.size();
 			size_t total = 0;
 			u8* dst = data.data();
-			for (u64 n = 0; total < dstSize && token; _inBufferOffset += n, dst += n, total += n)
+			for (size_t toCopy = 0; total < dstSize && token; _inBufferOffset += toCopy, dst += toCopy, total += toCopy)
 			{
 				if (!_bufferSize || _inBufferOffset == _bufferSize)
 				{
@@ -52,8 +52,8 @@ namespace stingray
 					if (!_bufferSize || _inBufferOffset == _bufferSize)
 						break;
 				}
-				n = std::min(dstSize - total, _bufferSize - _inBufferOffset);
-				std::copy(_buffer.data() + _inBufferOffset, _buffer.data() + _inBufferOffset + n, dst);
+				toCopy = std::min(dstSize - total, _bufferSize - _inBufferOffset);
+				std::copy(_buffer.data() + _inBufferOffset, _buffer.data() + _inBufferOffset + toCopy, dst);
 			}
 			return total;
 		}
