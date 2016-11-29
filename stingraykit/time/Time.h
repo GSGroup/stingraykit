@@ -13,6 +13,8 @@
 #include <stingraykit/time/BrokenDownTime.h>
 #include <stingraykit/toolkit.h>
 
+#include <limits>
+
 namespace stingray
 {
 
@@ -75,6 +77,9 @@ namespace stingray
 		static TimeDuration FromMinutes(int minutes)			{ return Minute() * minutes; }
 		static TimeDuration FromHours(int hours)				{ return Hour() * hours; }
 		static TimeDuration FromDays(int days)					{ return Day() * days; }
+
+		static TimeDuration Min() { return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::min()); }
+		static TimeDuration Max() { return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::max()); }
 	};
 
 
