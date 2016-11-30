@@ -53,7 +53,7 @@ namespace stingray
 						break;
 				}
 				toCopy = std::min(dstSize - total, _bufferSize - _inBufferOffset);
-				std::copy(_buffer.data() + _inBufferOffset, _buffer.data() + _inBufferOffset + toCopy, dst);
+				::memcpy(dst, _buffer.data() + _inBufferOffset, toCopy);
 			}
 			return total;
 		}
