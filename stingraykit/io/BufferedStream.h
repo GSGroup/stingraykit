@@ -40,37 +40,27 @@ namespace stingray
 		virtual u64 Read(ByteData data, const ICancellationToken& token)
 		{
 			const size_t dstSize = data.size();
-			if (dstSize == 0)
-				return 0;
-
 			size_t total = 0;
-			size_t readable = 0;
-
-			do {
-				if (!_bufferSize)
-					_bufferSize = _stream->Read(_buffer.GetByteData(), token);
-				else if (_inBufferOffset == _bufferSize)
+			u8* dst = data.data();
+			for (size_t toCopy = 0; total < dstSize && token; _inBufferOffset += toCopy, dst += toCopy, total += toCopy)
+			{
+				if (!_bufferSize || _inBufferOffset == _bufferSize)
 				{
-					SeekStream(Tell());
+					if (_bufferSize)
+						SeekStream(Tell());
 					_bufferSize = _stream->Read(_buffer.GetByteData(), token);
+					if (!_bufferSize || _inBufferOffset == _bufferSize)
+						break;
 				}
-
-				if (!_bufferSize)
-					break;
-
-				readable = std::min(dstSize - total, _bufferSize - _inBufferOffset);
-				::memcpy(ByteData(data, total, readable).data(), ConstByteData(_buffer, _inBufferOffset, readable).data(), readable);
-
-				_inBufferOffset += readable;
-				total += readable;
-			} while ((total < dstSize) && (readable != 0) && token);
-
+				toCopy = std::min(dstSize - total, _bufferSize - _inBufferOffset);
+				::memcpy(dst, _buffer.data() + _inBufferOffset, toCopy);
+			}
 			return total;
 		}
 
 		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
 		{
-			if ((_inBufferOffset != _bufferSize) || _bufferSize)
+			if (_inBufferOffset != _bufferSize || _bufferSize)
 				_stream->Seek(Tell());
 			u64 total = _stream->Write(data, token);
 			SeekStream(Tell() + total);
@@ -103,9 +93,9 @@ namespace stingray
 	private:
 		bool SeekInBuffer(u64 offset)
 		{
-			if ((_bufferOffset <= offset) && ((offset - _bufferOffset) < (u64)_bufferSize))
+			if (_bufferOffset <= offset && offset - _bufferOffset < static_cast<u64>(_bufferSize))
 			{
-				_inBufferOffset = (size_t)(offset - _bufferOffset);
+				_inBufferOffset = static_cast<size_t>(offset - _bufferOffset);
 				return true;
 			}
 			return false;
@@ -116,7 +106,7 @@ namespace stingray
 			const u64 alignedOffset(AlignDown<u64>(offset, _alignment));
 			_stream->Seek(alignedOffset);
 			_bufferOffset = alignedOffset;
-			_inBufferOffset = (size_t)(offset - alignedOffset);
+			_inBufferOffset = static_cast<size_t>(offset - alignedOffset);
 			_bufferSize = 0;
 		}
 	};
