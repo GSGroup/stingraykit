@@ -35,7 +35,10 @@ namespace stingray
 
 
 		virtual bool Process(const Packet<EmptyType>& packet, const ICancellationToken& token)
-		{ return _consumer.Process(packet.GetData(), token); }
+		{
+			ConsumeAll(_consumer, packet.GetData(), token);
+			return true;
+		}
 
 
 		virtual void EndOfData()
