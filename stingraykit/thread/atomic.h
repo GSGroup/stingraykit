@@ -75,8 +75,8 @@ namespace stingray
 			AtomicImpl()							{ }
 			AtomicImpl(T t) : _value(t)				{ }
 
-			T fetch_add(T arg, MemoryOrder order)	{ return AtomicType::Add(_value, arg, order) - 1; }
-			T fetch_sub(T arg, MemoryOrder order)	{ return AtomicType::Sub(_value, arg, order) + 1; }
+			T fetch_add(T arg, MemoryOrder order)	{ return AtomicType::Add(_value, arg, order) - arg; }
+			T fetch_sub(T arg, MemoryOrder order)	{ return AtomicType::Sub(_value, arg, order) + arg; }
 
 			T load(MemoryOrder order) const			{ return AtomicType::Load(_value, order); }
 			void store(T value, MemoryOrder order)	{ AtomicType::Store(_value, value, order); }
