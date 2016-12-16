@@ -43,7 +43,7 @@ namespace stingray
 	{ typedef TypeListNode<T1, TypeList_0> type; };
 
 
-#define MAX_TYPELIST_LEN 50
+#define MAX_TYPELIST_LEN 55
 
 #define DETAIL_TYPELIST_PARAMS_DECL(Index_, Default_) STINGRAYKIT_COMMA_IF(Index_) typename STINGRAYKIT_CAT(T, Index_) Default_
 #define DETAIL_TYPELIST_PARAMS_USAGE(Index_, Shift_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(T, STINGRAYKIT_ADD(Index_, Shift_))
