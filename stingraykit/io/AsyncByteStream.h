@@ -53,7 +53,7 @@ namespace stingray
 
 			Config& BufferSize(size_t bufferSize)
 			{
-				STINGRAYKIT_CHECK((bufferSize / (2 * (_subStreamsHint + 1))) >= (_pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
+				STINGRAYKIT_CHECK((bufferSize / (2 * _subStreamsHint)) >= (_pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
 				_bufferSize = bufferSize;
 				return *this;
 			}
@@ -64,7 +64,7 @@ namespace stingray
 			Config& PageSize(size_t pageSize)
 			{
 				STINGRAYKIT_CHECK(pageSize != 0, "Page size can't be zero!");
-				STINGRAYKIT_CHECK((_bufferSize / (2 * (_subStreamsHint + 1))) >= (pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
+				STINGRAYKIT_CHECK((_bufferSize / (2 * _subStreamsHint)) >= (pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
 				_pageSize = pageSize;
 				return *this;
 			}
@@ -75,7 +75,7 @@ namespace stingray
 			Config& MergeablePagesHint(size_t mergeablePagesHint)
 			{
 				STINGRAYKIT_CHECK(mergeablePagesHint != 0, "Hint number of mergeable pages can't be zero!");
-				STINGRAYKIT_CHECK((_bufferSize / (2 * (_subStreamsHint + 1))) >= (_pageSize * mergeablePagesHint), "Buffer size is insufficient to work!");
+				STINGRAYKIT_CHECK((_bufferSize / (2 * _subStreamsHint)) >= (_pageSize * mergeablePagesHint), "Buffer size is insufficient to work!");
 				_mergeablePagesHint = mergeablePagesHint;
 				return *this;
 			}
@@ -86,7 +86,7 @@ namespace stingray
 			Config& SubStreamsHint(size_t subStreamsHint)
 			{
 				STINGRAYKIT_CHECK(subStreamsHint != 0, "Hint number of substreams can't be zero!");
-				STINGRAYKIT_CHECK((_bufferSize / (2 * (subStreamsHint + 1))) >= (_pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
+				STINGRAYKIT_CHECK((_bufferSize / (2 * subStreamsHint)) >= (_pageSize * _mergeablePagesHint), "Buffer size is insufficient to work!");
 				_subStreamsHint = subStreamsHint;
 				return *this;
 			}
