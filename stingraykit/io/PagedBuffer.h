@@ -150,7 +150,8 @@ namespace stingray
 			MutexLock lr(_readMutex);
 			MutexLock l(_mutex);
 
-			STINGRAYKIT_CHECK(size <= _pageSize * _pages.size(), IndexOutOfRangeException());
+			const u64 absoluteSize = _pageSize * _pages.size() - _endOffset - _popOffset;
+			STINGRAYKIT_CHECK(size <= absoluteSize, IndexOutOfRangeException(size, absoluteSize));
 
 			SetPopOffset(_popOffset + size);
 		}
