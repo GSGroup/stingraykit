@@ -650,7 +650,7 @@ namespace stingray
 		void deserialize(std::string &str);
 		void deserialize(bool &value);
 		void deserialize(double &value);
-		void deserialize(float &value) { double v = value; deserialize(v); value = v; }
+		void deserialize(float &value) { double v; deserialize(v); value = (float)v; }
 		void deserialize(std::vector<u8> & data);
 
 		void for_each(const function<void (SettingsValue&)>& func);
