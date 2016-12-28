@@ -455,9 +455,7 @@ namespace stingray
 		{
 			PTELogger.Warning() << "Interrupting thread " << _name << ", backtrace: " << Backtrace();
 			RequestThreadBacktrace();
-#ifdef PLATFORM_NP6
-#	warning Thread interruptions disabled
-#else
+
 			int ret = pthread_cancel(_data->GetPthreadId());
 			if (ret != 0)
 			{
@@ -469,7 +467,6 @@ namespace stingray
 
 				STINGRAYKIT_FATAL("pthread_cancel: " + SystemException::GetErrorMessage(ret));
 			}
-#endif
 		}
 
 		virtual ThreadId GetId()

@@ -187,9 +187,8 @@ namespace stingray
 		ERRNO_STR(EOWNERDEAD);
 		ERRNO_STR(ENOTRECOVERABLE);
 
-#ifndef PLATFORM_NP6
 		ERRNO_STR(ERFKILL);
-#endif
+
 		default:
 			return ToString(e);
 		};
