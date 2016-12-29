@@ -76,6 +76,8 @@ namespace stingray {
 			return DerivedT(start, end);
 		}
 
+		T Clamp(T t) const { return std::max(_start, std::min(t, _end)); }
+
 		std::string ToString() const
 		{
 			return StringBuilder() % "["  % _start % " - " % _end  % "]";
