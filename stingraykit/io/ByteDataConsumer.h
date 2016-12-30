@@ -10,13 +10,17 @@ namespace stingray
 	class ByteDataConsumer : public virtual IDataConsumer
 	{
 	private:
-		ByteData			_consumer;
+		ByteData			_destination;
+		bool				_eod;
 
 	public:
-		ByteDataConsumer(ByteData consumer);
+		ByteDataConsumer(ByteData destination);
+
+		bool IsFull() { return _destination.empty(); }
+		bool IsEndOfData() { return _eod; }
 
 		virtual size_t Process(ConstByteData data, const ICancellationToken&);
-		virtual void EndOfData(const ICancellationToken&) { }
+		virtual void EndOfData(const ICancellationToken&) { _eod = true; }
 	};
 	STINGRAYKIT_DECLARE_PTR(ByteDataConsumer);
 

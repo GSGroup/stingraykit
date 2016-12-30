@@ -7,21 +7,19 @@ namespace stingray
 {
 
 
-	ByteDataConsumer::ByteDataConsumer(ByteData consumer)
-		:	_consumer(consumer)
+	ByteDataConsumer::ByteDataConsumer(ByteData destination)
+		:	_destination(destination),
+			_eod(false)
 	{ }
 
 
 	size_t ByteDataConsumer::Process(ConstByteData data, const ICancellationToken&)
 	{
-		const size_t size = data.size();
+		const size_t size = std::min(data.size(), _destination.size());
+		memcpy(_destination.data(), data.data(), size);
+		_destination = ByteData(_destination, size);
 
-		STINGRAYKIT_CHECK(size <= _consumer.size(), IndexOutOfRangeException(size, _consumer.size()));
-
-		memcpy(_consumer.data(), data.data(), size);
-		_consumer = ByteData(_consumer, size);
-
-		return size;
+		return data.size();
 	}
 
 
