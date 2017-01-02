@@ -438,6 +438,43 @@ namespace stingray
 	typedef BasicStringBuilder<char>	StringBuilder;
 	typedef BasicStringBuilder<wchar_t>	WideStringBuilder;
 
+
+	class StringJoiner
+	{
+	private:
+		StringBuilder	_builder;
+
+		std::string		_separator;
+
+		std::string		_prefix;
+		std::string		_suffix;
+
+	public:
+		explicit StringJoiner(const std::string& separator)
+			: _separator(separator)
+		{ }
+
+		StringJoiner(const std::string& separator, const std::string& prefix, const std::string& suffix)
+			: _separator(separator), _prefix(prefix), _suffix(suffix)
+		{ }
+
+		template < typename T >
+		StringJoiner& operator% (const T& value)
+		{
+			if (!_builder.empty())
+				_builder % _separator;
+			_builder % value;
+			return *this;
+		}
+
+		operator std::string() const { return ToString(); }
+
+		std::string ToString() const
+		{
+			return _prefix + _builder.ToString() + _suffix;
+		}
+	};
+
 }
 
 
