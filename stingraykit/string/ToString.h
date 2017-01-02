@@ -425,6 +425,8 @@ namespace stingray
 			return *this;
 		}
 
+		bool empty() const { return _stream.empty(); }
+
 		operator StringType() const
 		{ return _stream.str(); }
 
