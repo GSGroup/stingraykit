@@ -128,6 +128,7 @@ namespace stingray
 		}
 
 		inline size_t size() const { return _staticStorageSize + _dynamicStorage.size(); }
+		inline bool empty() const { return _staticStorageSize == 0; }
 
 		void reserve(size_t capacity)
 		{
