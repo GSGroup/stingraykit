@@ -80,7 +80,9 @@ namespace stingray
 		typedef inplace_vector_iterator<inplace_vector, value_type>					iterator;
 		typedef inplace_vector_iterator<const inplace_vector, const value_type>		const_iterator;
 
-		inplace_vector(): _staticStorageSize(0) { }
+		inplace_vector()
+			: _staticStorageSize(0)
+		{ CompileTimeAssert<InplaceCapacity_ != 0> ERROR_invalid_inplace_capacity; }
 
 		size_t capacity() const
 		{ return InplaceCapacity + _dynamicStorage.capacity(); }
