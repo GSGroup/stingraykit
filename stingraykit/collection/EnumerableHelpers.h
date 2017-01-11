@@ -861,6 +861,16 @@ namespace stingray
 		{ return Enumerable::Any(enumerable); }
 	};
 
+
+	template <typename Enumerable_>
+	struct CountTransformerImpl<shared_ptr<Enumerable_>, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+	{
+		typedef size_t ValueT;
+
+		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const CountTransformer& action)
+		{ return Enumerable::Count(enumerable); }
+	};
+
 	/** @} */
 
 }
