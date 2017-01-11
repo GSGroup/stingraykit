@@ -45,6 +45,12 @@ namespace stingray
 	template < typename Signature_ >
 	class signal_connector
 	{
+	public:
+		typedef Signature_										Signature;
+
+		typedef void											RetType;
+		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+
 	private:
 		self_count_ptr<Detail::ISignalConnector>	_impl;
 
