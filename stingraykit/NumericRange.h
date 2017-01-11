@@ -114,6 +114,8 @@ namespace stingray {
 
 		SimpleNumericRange(T start, T end) : base(start, end)
 		{}
+
+		T Distance() const { return base::GetEnd() - base::GetStart(); }
 	};
 
 
