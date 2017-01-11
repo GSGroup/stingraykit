@@ -182,6 +182,24 @@ namespace stingray
 	inline AnyTransformer Any()
 	{ return AnyTransformer(); }
 
+
+	template <typename Arg_, typename Enabler = void>
+	struct CountTransformerImpl;
+
+
+	struct CountTransformer : public TransformerMarker
+	{
+		template <typename Arg_>
+		struct Dispatcher
+		{
+			typedef CountTransformerImpl<Arg_> Impl;
+		};
+	};
+
+
+	inline CountTransformer Count()
+	{ return CountTransformer(); }
+
 }
 
 #endif
