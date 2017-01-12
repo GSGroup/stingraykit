@@ -764,6 +764,26 @@ namespace stingray
 		{ return ValueT(range); }
 	};
 
+
+	template <typename Range_>
+	struct AnyTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
+	{
+		typedef bool ValueT;
+
+		static ValueT Do(const Range_& range, const AnyTransformer& action)
+		{ return range.Valid(); }
+	};
+
+
+	template <typename Range_>
+	struct CountTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
+	{
+		typedef size_t ValueT;
+
+		static ValueT Do(const Range_& range, const CountTransformer& action)
+		{ return Range::Count(range); }
+	};
+
 }
 
 #endif
