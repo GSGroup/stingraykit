@@ -9,19 +9,33 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/metaprogramming/YesNo.h>
+#include <stingraykit/metaprogramming/IntegralConstant.h>
 
 namespace stingray
 {
 
-	template < typename Derived, typename Base>
-	class Inherits
-	{
-	private:
-		static YesType TestInheritance(const Base*);
-		static NoType TestInheritance(...);
+	template <typename T, typename U> struct SameType { static const bool Value = false; };
+	template <typename T> struct SameType<T, T> { static const bool Value = true; };
 
-	public:
-		static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) );
+	namespace Detail
+	{
+		template <typename Derived, typename Base>
+		class InheritsImpl
+		{
+		private:
+			static YesType TestInheritance(const Base*);
+			static NoType TestInheritance(...);
+
+		public:
+			static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) ) && (sizeof(Derived) == sizeof(Derived));
+		};
+	}
+
+	template <typename Derived, typename Base>
+	struct Inherits
+	{
+		typedef typename If<SameType<Derived, Base>::Value, integral_constant<bool, true>, Detail::InheritsImpl<Derived, Base> >::ValueT ValueT;
+		static const bool Value = ValueT::Value;
 	};
 
 	template < typename Derived, template <typename> class Base>
@@ -58,9 +72,6 @@ namespace stingray
 		static const bool Value = sizeof(Test(*((const T*)0))) == sizeof(YesType);
 	};
 
-
-	template < typename T, typename U > struct SameType { static const bool Value = false; };
-	template < typename T > struct SameType<T, T> { static const bool Value = true; };
 
 	template < template <typename> class Template, typename U >
 	struct Is1ParamTemplate { static const bool Value = false; };
