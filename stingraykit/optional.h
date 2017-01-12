@@ -127,6 +127,11 @@ namespace stingray
 		void CheckInitialized() const				{ STINGRAYKIT_CHECK(is_initialized(), "Not initialized!"); }
 	};
 
+
+	template <typename T>
+	optional<T> make_optional(const T& t)
+	{ return t; }
+
 }
 
 
