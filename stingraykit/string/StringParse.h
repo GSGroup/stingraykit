@@ -97,6 +97,16 @@ namespace stingray
 			return true;
 		}
 
+		template <typename T>
+		bool TryRead(const std::string& string, optional<T>& value)
+		{
+			T val;
+			const bool result = TryRead(string, val);
+			if (result)
+				value = val;
+			return result;
+		}
+
 		struct ArgumentReader
 		{
 			template < typename Arguments >
