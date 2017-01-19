@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <ctype.h>
+#include <limits>
 #include <string>
 
 namespace std
@@ -34,6 +35,35 @@ namespace stingray
 {
 
 	STINGRAYKIT_DECLARE_METHOD_CHECK(FromString);
+
+	namespace Detail
+	{
+
+		template < typename T >
+		typename EnableIf<!std::numeric_limits<T>::is_specialized, T>::ValueT EvaluateHelper(const char c, const T& value, bool)
+		{ return value * 10 + (c - '0'); }
+
+		template < typename T >
+		typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_signed, T>::ValueT EvaluateHelper(const char c, const T& value, bool negative)
+		{
+			s64 newValue = value * (s64) 10 + (c - '0');
+			if (negative)
+				STINGRAYKIT_CHECK(((0 - newValue) >= (s64) std::numeric_limits<T>::min()), IndexOutOfRangeException(0 - newValue, std::numeric_limits<T>::min()));
+			else
+				STINGRAYKIT_CHECK((newValue <= (s64) std::numeric_limits<T>::max()), IndexOutOfRangeException(newValue, std::numeric_limits<T>::max()));
+			return value * 10 + (c - '0');
+		}
+
+		template < typename T >
+		typename EnableIf<std::numeric_limits<T>::is_specialized && !std::numeric_limits<T>::is_signed, T>::ValueT EvaluateHelper(const char c, const T& value, bool negative)
+		{
+			STINGRAYKIT_CHECK(!negative, "Value cannot be negative!");
+			u64 newValue = value * (u64) 10 + (c - '0');
+			STINGRAYKIT_CHECK(newValue <= (u64) std::numeric_limits<T>::max(), IndexOutOfRangeException(newValue, std::numeric_limits<T>::max()));
+			return value * 10 + (c - '0');
+		}
+
+	}
 
 	template < typename T >
 	typename EnableIf<HasMethod_FromString<T>::Value, T>::ValueT FromString(const std::string& str)
@@ -53,14 +83,13 @@ namespace stingray
 		size_t i = 0;
 		negative = str[0] == '-';
 		if (str[0] == '+' || negative)
-		{
-			++i; //skip first + or -
-		}
+			++i;
+
 		for(; i < str.size(); ++i)
 		{
 			char c = str[i];
 			if (c >= '0' && c <= '9')
-				value = value * 10 + (c - '0');
+				value = Detail::EvaluateHelper(c, value, negative);
 			else
 				STINGRAYKIT_THROW(ArgumentException("str", str));
 		}
