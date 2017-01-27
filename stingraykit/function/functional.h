@@ -56,6 +56,22 @@ namespace stingray
 		void operator () (T& t, const V& v) const { t = v; }
 	};
 
+
+	template < typename T >
+	class Identity : public function_info<T ()>
+	{
+	private:
+		T _value;
+
+	public:
+		explicit Identity(const T& value) : _value(value) { }
+
+		T operator()() const { return _value; }
+	};
+
+	template < typename T >
+	Identity<T> make_identity(const T& value) { return Identity<T>(value); }
+
 	/** @} */
 
 }
