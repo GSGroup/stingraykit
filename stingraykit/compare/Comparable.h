@@ -63,6 +63,10 @@ namespace stingray
 		bool DoCompare(const IComparable& l, const IComparable& r) const	{ return l.Compare(r) < 0; }
 	};
 
+	struct ComparableGreater: public comparers::GreaterComparerBase<ComparableGreater>
+	{
+		bool DoCompare(const IComparable& l, const IComparable& r) const	{ return l.Compare(r) > 0; }
+	};
 
 	struct ComparableEquals : public comparers::EqualsComparerBase<ComparableEquals>
 	{
