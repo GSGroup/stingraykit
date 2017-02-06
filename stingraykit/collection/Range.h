@@ -454,6 +454,11 @@ namespace stingray
 		}
 
 
+		template <typename Range_>
+		typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT FirstOrDefault(Range_ range)
+		{ return range.Valid() ? range.Get() : typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT(); }
+
+
 		template <typename SrcRange_, typename Predicate_>
 		RangeFilter<SrcRange_, Predicate_> Filter(const SrcRange_& src, const Predicate_& predicate)
 		{ return RangeFilter<SrcRange_, Predicate_>(src, predicate); }
@@ -713,6 +718,16 @@ namespace stingray
 	template <typename It_>
 	Range::IteratorRange<It_> ToRange(It_ begin, It_ end)
 	{ return Range::IteratorRange<It_>(begin, begin, end); }
+
+
+	template <typename Range_>
+	struct FirstOrDefaultTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
+	{
+		typedef typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT ValueT;
+
+		static ValueT Do(const Range_& range, const FirstOrDefaultTransformer& action)
+		{ return Range::FirstOrDefault(range); }
+	};
 
 
 	template <typename Range_, typename Predicate_>
