@@ -465,7 +465,7 @@ namespace stingray
 			for (; enumerator.Valid(); enumerator.Next(), ++current)
 				if (index == current)
 					return enumerator.Get();
-			STINGRAYKIT_THROW(IndexOutOfRangeException());
+			STINGRAYKIT_THROW(IndexOutOfRangeException(index, current));
 		}
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), T, ElementAtOrDefault, MK_PARAM(size_t index), MK_PARAM(index))
