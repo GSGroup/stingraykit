@@ -131,7 +131,7 @@ namespace stingray
 			virtual TaskLifeToken CreateSyncToken() const	{ return IsThreadsafe ? TaskLifeToken() : TaskLifeToken::CreateDummyTaskToken(); }
 			virtual TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 
-			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState);
+			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState);
 
 			virtual void SendCurrentState(const function_storage& slot) const
 			{
@@ -176,8 +176,8 @@ namespace stingray
 			TaskLifeToken		_token;
 
 		public:
-			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken) :
-				_signalImpl(signalImpl), _handler(FuncType(func, invokeToken)), _token(connectionToken)
+			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken) :
+				_signalImpl(signalImpl), _handler(FuncType(func, invokeTester)), _token(connectionToken)
 			{ _signalImpl->AddHandler(_handler); }
 
 			virtual ~Connection()
@@ -189,7 +189,7 @@ namespace stingray
 
 
 		template < bool IsThreadsafe >
-		Token SignalImplBase<IsThreadsafe>::Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState)
+		Token SignalImplBase<IsThreadsafe>::Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState)
 		{
 			LockType l(DoGetSync());
 			if (sendCurrentState)
@@ -199,7 +199,7 @@ namespace stingray
 			typename Connection::ImplPtr impl(this);
 			this->add_ref();
 
-			return MakeToken<Connection>(impl, func, invokeToken, connectionToken);
+			return MakeToken<Connection>(impl, func, invokeTester, connectionToken);
 		}
 
 

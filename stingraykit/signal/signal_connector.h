@@ -31,7 +31,7 @@ namespace stingray
 		{
 			virtual ~ISignalConnector() { }
 
-			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeToken, const TaskLifeToken& connectionToken, bool sendCurrentState) = 0;
+			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState) = 0;
 			virtual void SendCurrentState(const function_storage& slot) const = 0;
 
 			virtual TaskLifeToken CreateSyncToken() const = 0;
