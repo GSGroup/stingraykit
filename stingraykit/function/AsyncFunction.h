@@ -33,17 +33,17 @@ namespace stingray
 			typedef typename function_info<FunctorType>::ParamTypes	ParamTypes;
 
 		protected:
-			ITaskExecutorPtr	_executor;
-			FunctorType			_func;
-			TaskLifeToken		_token;
+			ITaskExecutorPtr		_executor;
+			FunctorType				_func;
+			FutureExecutionTester	_tester;
 
 		protected:
 			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func) :
-				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func)
+				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(null)
 			{ }
 
-			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func, const TaskLifeToken& token) :
-				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _token(token)
+			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester) :
+				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
 
 			~AsyncFunctionBase()
@@ -51,7 +51,7 @@ namespace stingray
 
 			template <typename BoundFunctor>
 			RetType DoAddTask(const BoundFunctor& func) const
-			{ _executor->AddTask(func, _token.GetExecutionTester()); }
+			{ _executor->AddTask(func, _tester); }
 		};
 
 
@@ -67,9 +67,9 @@ namespace stingray
 			typedef typename function_info<FunctorType>::ParamTypes		ParamTypes;
 
 		protected:
-			ITaskExecutorPtr	_executor;
-			FunctorType			_func;
-			TaskLifeToken		_token;
+			ITaskExecutorPtr		_executor;
+			FunctorType				_func;
+			TaskLifeToken			_token;
 
 		protected:
 			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func) :
@@ -111,8 +111,8 @@ namespace stingray
 			base(executor, func)
 		{ }
 
-		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const TaskLifeToken& token) :
-			base(executor, func, token)
+		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester) :
+			base(executor, func, tester)
 		{ }
 
 		TaskLifeToken GetToken() const { return this->_token; }
@@ -135,8 +135,8 @@ namespace stingray
 
 
 	template <typename FunctorType>
-	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const TaskLifeToken& token)
-	{ return AsyncFunction<FunctorType>(executor, func, token); }
+	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
+	{ return AsyncFunction<FunctorType>(executor, func, tester); }
 
 	/** @} */
 

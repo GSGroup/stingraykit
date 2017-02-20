@@ -72,7 +72,7 @@ namespace stingray
 		{
 			TaskLifeToken token(_impl->CreateAsyncToken());
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
-			return _impl->Connect(function_storage(function<Signature_>(MakeAsyncFunction(worker, slot, token))), null, token, sendCurrentState);
+			return _impl->Connect(function_storage(function<Signature_>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState);
 		}
 	};
 

@@ -378,7 +378,7 @@ namespace stingray
 			CreationPolicy_::template LazyCreate(_impl); \
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal"); \
 			TaskLifeToken token(_impl->CreateAsyncToken()); \
-			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token))), null, token, sendCurrentState); \
+			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState); \
 		} \
 		\
 		signal_connector<Signature> connector() const { CreationPolicy_::template LazyCreate(_impl); return signal_connector<Signature>(_impl); } \
