@@ -8,12 +8,17 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/ScopeExit.h>
 #include <stingraykit/string/ToString.h>
+#include <stingraykit/Holder.h>
 
+#include <cstdio>
 #include <string>
 
-#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 
 namespace stingray
 {
@@ -87,10 +92,66 @@ namespace stingray
 			return ss.str();
 		}
 
-
-		static bool ReadCpuTimeFromStat(FILE* stat, Stat& s)
+		static bool GetThreadStats(u64 gid, u64 id, Stat& stat)
 		{
-			int count = fscanf(stat, "%lld (%1024[^)]) %c %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %llu %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld",
+#ifndef PLATFORM_STAPI
+			std::string filename = StringBuilder() % "/proc/" % gid % "/task/" % id % "/stat";
+#else
+			// Looks like in ST linux correct CPU usage for thread 123 is accessible at /proc/123/task/123/stat
+			std::string filename = StringBuilder() % "/proc/" % id % "/task/" % id % "/stat";
+#endif
+
+			int stat_f = open(filename.c_str(), O_RDONLY);
+			if (stat_f != -1)
+			{
+				ScopedHolder<int> holder(stat_f, &close);
+				return ReadCpuTimeFromStat(stat_f, stat);
+			}
+
+			filename = StringBuilder() % "/proc/" % id % "/stat";
+
+			stat_f = open(filename.c_str(), O_RDONLY);
+			if (stat_f != -1)
+			{
+				ScopedHolder<int> holder(stat_f, &close);
+				return ReadCpuTimeFromStat(stat_f, stat);
+			}
+
+			return false;
+		}
+
+	private:
+		static optional<std::string> ConsumeFile(int fd)
+		{
+			static const size_t IncrementSize = 1024;
+			std::string buffer(IncrementSize, 0);
+
+			size_t read_total = 0;
+			while (true)
+			{
+				const ssize_t ret = read(fd, &buffer[read_total], buffer.size() - read_total);
+				if (ret < 0)
+					return null;
+
+				if (!ret)
+					break;
+
+				read_total += ret;
+				if (read_total == buffer.size())
+					buffer.resize(buffer.size() + IncrementSize);
+			}
+
+			buffer.resize(read_total);
+			return buffer;
+		}
+
+		static bool ReadCpuTimeFromStat(int fd, Stat& s)
+		{
+			optional<std::string> result = ConsumeFile(fd);
+			if (!result)
+				return false;
+
+			int count = sscanf(result->c_str(), "%lld (%1024[^)]) %c %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %llu %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld",
 			// 0
 			&s.pid,
 			s.tcomm,
@@ -145,36 +206,7 @@ namespace stingray
 			static const int ArgsCount = 41;
 			return count == ArgsCount;
 		}
-
-
-		static bool GetThreadStats(u64 gid, u64 id, Stat& stat)
-		{
-#ifndef PLATFORM_STAPI
-			std::string filename = StringBuilder() % "/proc/" % gid % "/task/" % id % "/stat";
-#else
-			// Looks like in ST linux correct CPU usage for thread 123 is accessible at /proc/123/task/123/stat
-			std::string filename = StringBuilder() % "/proc/" % id % "/task/" % id % "/stat";
-#endif
-
-			FILE* stat_f = fopen(filename.c_str(), "r");
-			if (stat_f)
-			{
-				ScopeExitInvoker sei(bind(&fclose, stat_f));
-				return ReadCpuTimeFromStat(stat_f, stat);
-			}
-			else
-			{
-				filename = StringBuilder() % "/proc/" % id % "/stat";
-				stat_f = fopen(filename.c_str(), "r");
-				if (!stat_f)
-					return false;
-
-				ScopeExitInvoker sei(bind(&fclose, stat_f));
-				return ReadCpuTimeFromStat(stat_f, stat);
-			}
-		}
 	};
-
 
 }
 
