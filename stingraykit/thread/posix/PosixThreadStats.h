@@ -92,7 +92,34 @@ namespace stingray
 			return ss.str();
 		}
 
+		static bool GetThreadStats(u64 gid, u64 id, Stat& stat)
+		{
+#ifndef PLATFORM_STAPI
+			std::string filename = StringBuilder() % "/proc/" % gid % "/task/" % id % "/stat";
+#else
+			// Looks like in ST linux correct CPU usage for thread 123 is accessible at /proc/123/task/123/stat
+			std::string filename = StringBuilder() % "/proc/" % id % "/task/" % id % "/stat";
+#endif
 
+			int stat_f = open(filename.c_str(), O_RDONLY);
+			if (stat_f != -1)
+			{
+				ScopedHolder<int> holder(stat_f, &close);
+				return ReadCpuTimeFromStat(stat_f, stat);
+			}
+			else
+			{
+				filename = StringBuilder() % "/proc/" % id % "/stat";
+				stat_f = open(filename.c_str(), O_RDONLY);
+				if (stat_f == -1)
+					return false;
+
+				ScopedHolder<int> holder(stat_f, &close);
+				return ReadCpuTimeFromStat(stat_f, stat);
+			}
+		}
+
+	private:
 		static optional<std::string> ConsumeFile(int fd)
 		{
 			static const size_t IncrementSize = 1024;
@@ -116,7 +143,6 @@ namespace stingray
 			buffer.resize(read_total);
 			return buffer;
 		}
-
 
 		static bool ReadCpuTimeFromStat(int fd, Stat& s)
 		{
@@ -178,34 +204,6 @@ namespace stingray
 
 			static const int ArgsCount = 41;
 			return count == ArgsCount;
-		}
-
-
-		static bool GetThreadStats(u64 gid, u64 id, Stat& stat)
-		{
-#ifndef PLATFORM_STAPI
-			std::string filename = StringBuilder() % "/proc/" % gid % "/task/" % id % "/stat";
-#else
-			// Looks like in ST linux correct CPU usage for thread 123 is accessible at /proc/123/task/123/stat
-			std::string filename = StringBuilder() % "/proc/" % id % "/task/" % id % "/stat";
-#endif
-
-			int stat_f = open(filename.c_str(), O_RDONLY);
-			if (stat_f != -1)
-			{
-				ScopedHolder<int> holder(stat_f, &close);
-				return ReadCpuTimeFromStat(stat_f, stat);
-			}
-			else
-			{
-				filename = StringBuilder() % "/proc/" % id % "/stat";
-				stat_f = open(filename.c_str(), O_RDONLY);
-				if (stat_f == -1)
-					return false;
-
-				ScopedHolder<int> holder(stat_f, &close);
-				return ReadCpuTimeFromStat(stat_f, stat);
-			}
 		}
 	};
 
