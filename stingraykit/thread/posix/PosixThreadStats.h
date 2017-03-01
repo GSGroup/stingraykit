@@ -8,8 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/ScopeExit.h>
 #include <stingraykit/string/ToString.h>
+#include <stingraykit/Holder.h>
 
 #include <cstdio>
 #include <string>
@@ -193,7 +193,7 @@ namespace stingray
 			int stat_f = open(filename.c_str(), O_RDONLY);
 			if (stat_f != -1)
 			{
-				ScopeExitInvoker sei(bind(&close, stat_f));
+				ScopedHolder<int> holder(stat_f, &close);
 				return ReadCpuTimeFromStat(stat_f, stat);
 			}
 			else
@@ -203,7 +203,7 @@ namespace stingray
 				if (stat_f == -1)
 					return false;
 
-				ScopeExitInvoker sei(bind(&close, stat_f));
+				ScopedHolder<int> holder(stat_f, &close);
 				return ReadCpuTimeFromStat(stat_f, stat);
 			}
 		}
