@@ -107,16 +107,17 @@ namespace stingray
 				ScopedHolder<int> holder(stat_f, &close);
 				return ReadCpuTimeFromStat(stat_f, stat);
 			}
-			else
-			{
-				filename = StringBuilder() % "/proc/" % id % "/stat";
-				stat_f = open(filename.c_str(), O_RDONLY);
-				if (stat_f == -1)
-					return false;
 
+			filename = StringBuilder() % "/proc/" % id % "/stat";
+
+			stat_f = open(filename.c_str(), O_RDONLY);
+			if (stat_f != -1)
+			{
 				ScopedHolder<int> holder(stat_f, &close);
 				return ReadCpuTimeFromStat(stat_f, stat);
 			}
+
+			return false;
 		}
 
 	private:
