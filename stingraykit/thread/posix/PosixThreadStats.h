@@ -11,9 +11,14 @@
 #include <stingraykit/ScopeExit.h>
 #include <stingraykit/string/ToString.h>
 
+#include <cstdio>
 #include <string>
 
-#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 
 namespace stingray
 {
@@ -88,9 +93,38 @@ namespace stingray
 		}
 
 
-		static bool ReadCpuTimeFromStat(FILE* stat, Stat& s)
+		static optional<std::string> ConsumeFile(int fd)
 		{
-			int count = fscanf(stat, "%lld (%1024[^)]) %c %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %llu %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld",
+			static const size_t IncrementSize = 1024;
+			std::string buffer(IncrementSize, 0);
+
+			size_t read_total = 0;
+			while (true)
+			{
+				const ssize_t ret = read(fd, &buffer[read_total], buffer.size() - read_total);
+				if (ret < 0)
+					return null;
+
+				if (!ret)
+					break;
+
+				read_total += ret;
+				if (read_total == buffer.size())
+					buffer.resize(buffer.size() + IncrementSize);
+			}
+
+			buffer.resize(read_total);
+			return buffer;
+		}
+
+
+		static bool ReadCpuTimeFromStat(int fd, Stat& s)
+		{
+			optional<std::string> result = ConsumeFile(fd);
+			if (!result)
+				return false;
+
+			int count = sscanf(result->c_str(), "%lld (%1024[^)]) %c %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %llu %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld",
 			// 0
 			&s.pid,
 			s.tcomm,
@@ -156,25 +190,24 @@ namespace stingray
 			std::string filename = StringBuilder() % "/proc/" % id % "/task/" % id % "/stat";
 #endif
 
-			FILE* stat_f = fopen(filename.c_str(), "r");
-			if (stat_f)
+			int stat_f = open(filename.c_str(), O_RDONLY);
+			if (stat_f != -1)
 			{
-				ScopeExitInvoker sei(bind(&fclose, stat_f));
+				ScopeExitInvoker sei(bind(&close, stat_f));
 				return ReadCpuTimeFromStat(stat_f, stat);
 			}
 			else
 			{
 				filename = StringBuilder() % "/proc/" % id % "/stat";
-				stat_f = fopen(filename.c_str(), "r");
-				if (!stat_f)
+				stat_f = open(filename.c_str(), O_RDONLY);
+				if (stat_f == -1)
 					return false;
 
-				ScopeExitInvoker sei(bind(&fclose, stat_f));
+				ScopeExitInvoker sei(bind(&close, stat_f));
 				return ReadCpuTimeFromStat(stat_f, stat);
 			}
 		}
 	};
-
 
 }
 
