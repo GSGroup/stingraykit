@@ -19,20 +19,19 @@ namespace stingray
 	class Version
 	{
 	private:
-		unsigned	_major;
-		unsigned	_minor;
-		unsigned	_build;
+		unsigned           _major;
+		unsigned           _minor;
+		optional<unsigned> _build;
 
 	public:
 		Version() : _major(), _minor(), _build() { }
-		Version(unsigned major, unsigned minor, unsigned build)
+		Version(unsigned major, unsigned minor, optional<unsigned> build = null)
 			: _major(major), _minor(minor), _build(build)
 		{ }
 
 		static Version FromString(const std::string& version);
 
-		std::string ToString() const
-		{ return StringBuilder() % _major % '.' % _minor % '.' % _build; }
+		std::string ToString() const;
 
 		bool operator < (const Version& other) const
 		{ return CompareMembersLess(&Version::_major, &Version::_minor, &Version::_build)(*this, other); }
