@@ -419,7 +419,32 @@ namespace stingray
 			pthread_t id;
 			int ret = pthread_create(&id, &PosixThreadAttr::Get()->Get(), &PosixThread::ThreadFuncStatic, this);
 			if (ret != 0)
+			{
+				std::vector<ThreadStats> stats = Thread::GetStats();
+				Logger::Info() << "Thread stats: ";
+				{
+					Logger::Info() << StringBuilder() %
+						LeftJustify("ID", 12, '.') %
+						LeftJustify("NAME", 40, '.') %
+						LeftJustify("UTIME", 8, '.') %
+						LeftJustify("STIME", 8, '.') %
+						LeftJustify("C_UTIME", 8, '.') %
+						LeftJustify("C_STIME", 8, '.') %
+						LeftJustify("PARENT", 8, '.');
+				}
+				for (std::vector<ThreadStats>::const_iterator it = stats.begin(); it != stats.end(); ++it)
+				{
+					Logger::Info() << StringBuilder() %
+						LeftJustify(ToString(it->GetThreadId()), 12) %
+						LeftJustify(it->GetThreadName(), 40) %
+						LeftJustify(ToString(it->GetCpuStats().GetUserTime().GetMilliseconds()), 8) %
+						LeftJustify(ToString(it->GetCpuStats().GetSystemTime().GetMilliseconds()), 8) %
+						LeftJustify(ToString(it->GetChildrenCpuStats().GetUserTime().GetMilliseconds()), 8) %
+						LeftJustify(ToString(it->GetChildrenCpuStats().GetSystemTime().GetMilliseconds()), 8) %
+						LeftJustify(ToString(it->GetParentId()), 8);
+				}
 				STINGRAYKIT_FATAL("pthread_create: ret = " + ToString(ret) + ", " + SystemException::GetErrorMessage(ret));
+			}
 
 			{
 				GenericMutexLock<PosixMutex> l(_mutex);
