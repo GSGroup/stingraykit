@@ -20,12 +20,4 @@ namespace stingray
 		return Version(major, minor, parsed == 3 ? build : optional<unsigned>());
 	}
 
-	std::string Version::ToString() const
-	{
-		StringBuilder builder = StringBuilder() % _major % '.' % _minor;
-		if (_build)
-			builder % '.' % *_build;
-		return builder;
-	}
-
 }
