@@ -31,8 +31,7 @@ namespace stingray
 
 		static Version FromString(const std::string& version);
 
-		std::string ToString() const
-		{ return StringBuilder() % _major % '.' % _minor % (_build ? (StringBuilder() % '.' % _build) : std::string()); }
+		std::string ToString() const;
 
 		bool operator < (const Version& other) const
 		{ return CompareMembersLess(&Version::_major, &Version::_minor, &Version::_build)(*this, other); }
