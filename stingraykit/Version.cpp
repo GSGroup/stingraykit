@@ -7,17 +7,18 @@
 
 #include <stingraykit/Version.h>
 
-#include <stdio.h>
+#include <stingraykit/string/StringParse.h>
+
 
 namespace stingray
 {
 
 	Version Version::FromString(const std::string& version)
 	{
-		unsigned major, minor, build;
-		const int parsed = sscanf(version.c_str(), "%u.%u.%u", &major, &minor, &build);
-		STINGRAYKIT_CHECK(parsed == 3 || parsed == 2, FormatException(version));
-		return Version(major, minor, parsed == 3 ? build : optional<unsigned>());
+		unsigned major, minor;
+		optional<unsigned> build;
+		STINGRAYKIT_CHECK(StringParse(version, "%1%.%2%.%3%", major, minor, build) || StringParse(version, "%1%.%2%", major, minor), FormatException(version));
+		return Version(major, minor, build);
 	}
 
 }
