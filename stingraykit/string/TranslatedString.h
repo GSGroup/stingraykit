@@ -21,6 +21,8 @@ namespace stingray
 		typedef IDictionary<LangCode, std::string>	Dictionary;
 		typedef shared_ptr<Dictionary> DictionaryPtr;
 
+		class Builder;
+
 	private:
 		DictionaryPtr	_dictionary;
 
@@ -52,6 +54,23 @@ namespace stingray
 	private:
 		std::string DoSelectTranslation(const std::vector<LangCode>& langCodes) const;
 		int DoCompare(const TranslatedString& other) const;
+	};
+
+
+	class TranslatedString::Builder
+	{
+		TranslatedString _str;
+
+	public:
+		template <typename T>
+		Builder& operator %(const std::pair<LangCode, T>& translation)
+		{
+			_str.AddTranslation(translation.first, translation.second);
+			return *this;
+		}
+
+		operator TranslatedString() const
+		{ return _str; }
 	};
 
 }
