@@ -229,6 +229,9 @@ namespace stingray
 			return Serialize(null);
 		}
 
+		ObjectOStream& Serialize(const EmptyType& value)
+		{ return *this; }
+
 		template<typename T>
 		ObjectOStream& Serialize(const std::string& name, const T& value)
 		{
@@ -243,6 +246,9 @@ namespace stingray
 				return Serialize(name, *value);
 			return *this;
 		}
+
+		ObjectOStream& Serialize(const std::string& name, const EmptyType& value)
+		{ return *this; }
 
 		IObjectOStreamPrivate *GetRawObjectStream() { return this; }
 
@@ -519,6 +525,9 @@ namespace stingray
 			return *this;
 		}
 
+		ObjectIStream& Deserialize(EmptyType& value)
+		{ return *this; }
+
 		template<typename T>
 		ObjectIStream& Deserialize(const std::string& name, T& value)
 		{
@@ -547,6 +556,9 @@ namespace stingray
 			{ value = defaultValue; }
 			return *this;
 		}
+
+		ObjectIStream& Deserialize(const std::string& name, EmptyType& value)
+		{ return *this; }
 
 		template<typename T>
 		ObjectIStream& Deserialize(const std::string& name, reference<T> value)
