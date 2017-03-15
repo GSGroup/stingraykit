@@ -10,6 +10,7 @@
 
 
 #include <stingraykit/function/function.h>
+#include <stingraykit/PerfectForwarding.h>
 
 
 namespace stingray
