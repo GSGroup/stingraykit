@@ -15,6 +15,9 @@ namespace stingray
 {
 	const LangCode::AnyType LangCode::Any = {};
 
+	LangCode LangCode::Eng() { return LangCode("eng"); }
+	LangCode LangCode::Rus() { return LangCode("rus"); }
+
 	LangCode::LangCode(u32 code) : _code(code)
 	{
 		if (code & 0xff000000u)

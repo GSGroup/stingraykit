@@ -29,6 +29,9 @@ namespace stingray
 		struct AnyType {};
 		static const AnyType Any;
 
+		static LangCode Eng();
+		static LangCode Rus();
+
 		inline LangCode() : _code(0) { }
 		inline LangCode(AnyType) : _code(0) { }
 
