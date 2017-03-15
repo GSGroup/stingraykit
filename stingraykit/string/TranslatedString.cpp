@@ -24,8 +24,11 @@ namespace stingray
 	{ }
 
 
-	void TranslatedString::AddTranslation(LangCode lang, const std::string& str)
-	{ _dictionary->Set(lang, str); }
+	TranslatedString& TranslatedString::AddTranslation(LangCode lang, const std::string& str)
+	{
+		_dictionary->Set(lang, str);
+		return *this;
+	}
 
 
 	bool TranslatedString::HasTranslation(LangCode lang) const

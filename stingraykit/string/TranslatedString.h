@@ -28,7 +28,7 @@ namespace stingray
 		TranslatedString();
 		~TranslatedString();
 
-		void AddTranslation(LangCode lang, const std::string& str);
+		TranslatedString& AddTranslation(LangCode lang, const std::string& str);
 
 		bool HasTranslation(LangCode lang) const;
 		std::string GetTranslation(LangCode lang) const;
