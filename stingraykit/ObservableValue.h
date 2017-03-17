@@ -31,7 +31,7 @@ namespace stingray
 	public:
 		explicit ObservableValue(ParamPassingType val = T()) :
 			_val(val),
-			_mutex(new Mutex()),
+			_mutex(make_shared<Mutex>()),
 			_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableValue::OnChangedPopulator, this, _1))
 		{ }
 
