@@ -29,13 +29,7 @@ namespace stingray
 		signal<void(ParamPassingType), signal_policies::threading::ExternalMutexPointer>	_onChanged;
 
 	public:
-		ObservableValue() :
-			_val(),
-			_mutex(new Mutex()),
-			_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableValue::OnChangedPopulator, this, _1))
-		{ }
-
-		ObservableValue(ParamPassingType val) :
+		explicit ObservableValue(ParamPassingType val = T()) :
 			_val(val),
 			_mutex(new Mutex()),
 			_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableValue::OnChangedPopulator, this, _1))
@@ -48,9 +42,7 @@ namespace stingray
 		}
 
 		operator T() const
-		{
-			return Get();
-		}
+		{ return Get(); }
 
 		void Set(ParamPassingType val)
 		{
