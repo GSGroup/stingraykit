@@ -30,7 +30,7 @@ namespace stingray
 	bool TestBit(Integer number)
 	{
 		STINGRAYKIT_MUST_HAVE_FIXED_WIDTH(Integer);
-		return number & (1 << Index);
+		return number & ((Integer)1 << Index);
 	}
 
 
@@ -38,7 +38,7 @@ namespace stingray
 	Integer SetBit(Integer number)
 	{
 		STINGRAYKIT_MUST_HAVE_FIXED_WIDTH(Integer);
-		return number | (1 << Index);
+		return number | ((Integer)1 << Index);
 	}
 
 
@@ -46,7 +46,7 @@ namespace stingray
 	Integer ResetBit(Integer number)
 	{
 		STINGRAYKIT_MUST_HAVE_FIXED_WIDTH(Integer);
-		return number & ~(1 << Index);
+		return number & ~((Integer)1 << Index);
 	}
 
 
@@ -54,7 +54,7 @@ namespace stingray
 	Integer FlipBit(Integer number)
 	{
 		STINGRAYKIT_MUST_HAVE_FIXED_WIDTH(Integer);
-		return number ^ (1 << Index);
+		return number ^ ((Integer)1 << Index);
 	}
 
 	/** @} */
