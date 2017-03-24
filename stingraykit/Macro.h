@@ -921,6 +921,8 @@
 #define STINGRAYKIT_REPEAT_NESTING_3(RepetitionsCount, MacroName, ...) STINGRAYKIT_CAT(DETAIL_REPEAT_IMPL_3_, RepetitionsCount)(MK_PARAM(MacroName), MK_PARAM(__VA_ARGS__))
 #define STINGRAYKIT_REPEAT_NESTING_4(RepetitionsCount, MacroName, ...) STINGRAYKIT_CAT(DETAIL_REPEAT_IMPL_4_, RepetitionsCount)(MK_PARAM(MacroName), MK_PARAM(__VA_ARGS__))
 
+#define STINGRAYKIT_MACRODISPATCH(Macro_, ...) STINGRAYKIT_CAT(Macro_, STINGRAYKIT_NARGS(__VA_ARGS__))(__VA_ARGS__)
+
 /** @} */
 
 #endif
