@@ -596,10 +596,32 @@ namespace stingray
 		}
 
 
-		template <typename Range_>
-		typename Detail::RangeToValue<Range_>::ValueT Sum(Range_ range)
+		template < typename Range_>
+		typename Detail::RangeToValue<Range_>::ValueT ElementAt(Range_ range, size_t index)
 		{
-			typename Detail::RangeToValue<Range_>::ValueT result = 0;
+			size_t current = 0;
+			for (; range.Valid(); range.Next(), ++current)
+				if (index == current)
+					return range.Get();
+			STINGRAYKIT_THROW(IndexOutOfRangeException(index, current));
+		}
+
+
+		template < typename Range_>
+		typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT ElementAtOrDefault(Range_ range, size_t index)
+		{
+			size_t current = 0;
+			for (; range.Valid(); range.Next(), ++current)
+				if (index == current)
+					return range.Get();
+			return typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT();
+		}
+
+
+		template <typename Range_>
+		typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT Sum(Range_ range)
+		{
+			typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT result = 0;
 			for (; range.Valid(); range.Next())
 				result += range.Get();
 			return result;
