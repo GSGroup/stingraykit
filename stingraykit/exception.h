@@ -112,6 +112,16 @@ namespace stingray
 		}
 	};
 
+#define DETAIL_STINGRAYKIT_CHECK_RANGE_2(Index, Size) \
+	STINGRAYKIT_CHECK((Index) < (Size), stingray::IndexOutOfRangeException(Index, Size))
+
+#define DETAIL_STINGRAYKIT_CHECK_RANGE_3(Index, Begin, End) \
+	STINGRAYKIT_CHECK((Index) >= (Begin) && (Index) < (End), stingray::IndexOutOfRangeException(Index, Begin, End))
+
+#define STINGRAYKIT_CHECK_RANGE(...) \
+		STINGRAYKIT_MACRODISPATCH(DETAIL_STINGRAYKIT_CHECK_RANGE_, __VA_ARGS__)
+
+
 	struct FormatException : public Exception
 	{
 		FormatException() : Exception("Invalid format!") { }
