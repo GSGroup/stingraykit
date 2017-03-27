@@ -119,7 +119,7 @@ namespace stingray
 	STINGRAYKIT_CHECK((Index) >= (Begin) && (Index) < (End), stingray::IndexOutOfRangeException(Index, Begin, End))
 
 #define STINGRAYKIT_CHECK_RANGE(...) \
-		STINGRAYKIT_MACRODISPATCH(DETAIL_STINGRAYKIT_CHECK_RANGE_, __VA_ARGS__)
+	STINGRAYKIT_MACRODISPATCH(DETAIL_STINGRAYKIT_CHECK_RANGE_, __VA_ARGS__)
 
 
 	struct FormatException : public Exception
