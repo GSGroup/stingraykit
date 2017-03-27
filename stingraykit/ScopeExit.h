@@ -9,9 +9,10 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/toolkit.h>
+#include <stingraykit/log/Logger.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/Macro.h>
+#include <stingraykit/toolkit.h>
 
 
 namespace stingray
@@ -48,7 +49,9 @@ namespace stingray
 		{ \
 		public: \
 			STINGRAYKIT_CAT(__ScopeExitFunc, __LINE__) (STINGRAYKIT_CAT(__ScopeExitArgs, __LINE__) args) : STINGRAYKIT_CAT(__ScopeExitArgs, __LINE__)(args) { } \
-			~STINGRAYKIT_CAT(__ScopeExitFunc, __LINE__) () {
+			~STINGRAYKIT_CAT(__ScopeExitFunc, __LINE__) () { STINGRAYKIT_TRY("Unhandled exception in " TO_STRING(STINGRAYKIT_CAT(__ScopeExitFunc, __LINE__)), Dtor()); } \
+			\
+			void Dtor() {
 
 	/** @brief End of the code that should be executed at the scope exit */
 #define STINGRAYKIT_SCOPE_EXIT_END \
@@ -71,7 +74,7 @@ namespace stingray
 		{ }
 
 		~ScopeExitInvoker()
-		{ _func(); }
+		{ STINGRAYKIT_TRY("Unhandled exception in ScopeExitInvoker!", _func()); }
 	};
 
 	/** @} */
