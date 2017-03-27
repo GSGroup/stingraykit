@@ -249,7 +249,7 @@ namespace stingray
 
 	TimeZone::TimeZone(s16 minutes)
 		: _minutesFromUtc(minutes)
-	{ STINGRAYKIT_CHECK_RANGE(_minutesFromUtc, -12 * MinutesPerHour, 14 * MinutesPerHour + 1); }
+	{ STINGRAYKIT_CHECK(minutes >= -12 * MinutesPerHour && minutes <= 14 * MinutesPerHour, ArgumentException("minutes", minutes)); }
 
 	TimeZone TimeZone::Current()
 	{ return TimeZone(TimeEngine::GetMinutesFromUtc()); }
