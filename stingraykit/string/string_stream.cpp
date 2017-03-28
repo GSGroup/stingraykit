@@ -66,7 +66,7 @@ namespace stingray
 	{ \
 		char buf[32]; \
 		int r = snprintf(buf, sizeof(buf), VALUE_FORMAT, static_cast<VALUE_FORMAT_TYPE>(value)); \
-		if (r == -1) \
+		if (r < 0) \
 			STINGRAYKIT_THROW("snprintf failed"); \
 		write(buf, r); \
 	} \
