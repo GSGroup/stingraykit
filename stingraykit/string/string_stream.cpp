@@ -57,6 +57,10 @@ namespace stingray
 		InsertIntegral<unsigned VALUE_TYPE>(static_cast<unsigned VALUE_TYPE>(value)); \
 	}
 
+#define DECLARE_INTEGRAL_INSERT(VALUE_TYPE) \
+	DECLARE_INSERT_UNSIGNED(VALUE_TYPE) \
+	DECLARE_INSERT_SIGNED(VALUE_TYPE)
+
 
 
 #define DECLARE_INSERT_PRINTF(VALUE_TYPE, VALUE_FORMAT, VALUE_FORMAT_TYPE) \
@@ -73,18 +77,10 @@ namespace stingray
 	extern template void string_ostream::Insert(VALUE_TYPE)
 
 	DECLARE_INSERT_UNSIGNED(char);
-
-	DECLARE_INSERT_UNSIGNED(short);
-	DECLARE_INSERT_SIGNED(short);
-
-	DECLARE_INSERT_UNSIGNED(int);
-	DECLARE_INSERT_SIGNED(int);
-
-	DECLARE_INSERT_UNSIGNED(long);
-	DECLARE_INSERT_SIGNED(long);
-
-	DECLARE_INSERT_UNSIGNED(long long);
-	DECLARE_INSERT_SIGNED(long long);
+	DECLARE_INTEGRAL_INSERT(short);
+	DECLARE_INTEGRAL_INSERT(int);
+	DECLARE_INTEGRAL_INSERT(long);
+	DECLARE_INTEGRAL_INSERT(long long);
 
 	DECLARE_INSERT_PRINTF(long double,			"%.16Lg",long double);
 	DECLARE_INSERT_PRINTF(double,				"%.16g",	double);
