@@ -86,9 +86,9 @@ namespace stingray
 	DECLARE_INSERT_UNSIGNED(unsigned long long);
 	DECLARE_INSERT_SIGNED(long long, unsigned long long);
 
-	DECLARE_INSERT_PRINTF(long double,			"%16.16Lg",long double);
-	DECLARE_INSERT_PRINTF(double,				"%16.16g",	double);
-	DECLARE_INSERT_PRINTF(float,				"%7.7g",	double);
+	DECLARE_INSERT_PRINTF(long double,			"%.16Lg",long double);
+	DECLARE_INSERT_PRINTF(double,				"%.16g",	double);
+	DECLARE_INSERT_PRINTF(float,				"%.7g",	double);
 	DECLARE_INSERT_PRINTF(const void *,			"%p",	const void *);
 
 }
