@@ -42,7 +42,8 @@ namespace stingray
 	template<> \
 	template<> \
 	void basic_string_ostream<char>::Insert(unsigned VALUE_TYPE value) \
-	{ InsertIntegral<unsigned VALUE_TYPE>(value); }
+	{ InsertIntegral<unsigned VALUE_TYPE>(value); } \
+	extern template void string_ostream::Insert(unsigned VALUE_TYPE)
 
 #define DECLARE_INSERT_SIGNED(VALUE_TYPE) \
 	template<> \
@@ -55,10 +56,11 @@ namespace stingray
 			value = -value; \
 		} \
 		InsertIntegral<unsigned VALUE_TYPE>(static_cast<unsigned VALUE_TYPE>(value)); \
-	}
+	} \
+	extern template void string_ostream::Insert(VALUE_TYPE)
 
 #define DECLARE_INTEGRAL_INSERT(VALUE_TYPE) \
-	DECLARE_INSERT_UNSIGNED(VALUE_TYPE) \
+	DECLARE_INSERT_UNSIGNED(VALUE_TYPE); \
 	DECLARE_INSERT_SIGNED(VALUE_TYPE)
 
 
