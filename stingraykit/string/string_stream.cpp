@@ -41,10 +41,10 @@ namespace stingray
 #define DECLARE_INSERT_UNSIGNED(VALUE_TYPE) \
 	template<> \
 	template<> \
-	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
-	{ InsertIntegral<VALUE_TYPE>(value); }
+	void basic_string_ostream<char>::Insert(unsigned VALUE_TYPE value) \
+	{ InsertIntegral<unsigned VALUE_TYPE>(value); }
 
-#define DECLARE_INSERT_SIGNED(VALUE_TYPE, UNSIGNED_TYPE) \
+#define DECLARE_INSERT_SIGNED(VALUE_TYPE) \
 	template<> \
 	template<> \
 	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
@@ -54,7 +54,7 @@ namespace stingray
 			push_back('-'); \
 			value = -value; \
 		} \
-		InsertIntegral<UNSIGNED_TYPE>(static_cast<UNSIGNED_TYPE>(value)); \
+		InsertIntegral<unsigned VALUE_TYPE>(static_cast<unsigned VALUE_TYPE>(value)); \
 	}
 
 
@@ -72,19 +72,19 @@ namespace stingray
 	} \
 	extern template void string_ostream::Insert(VALUE_TYPE)
 
-	DECLARE_INSERT_UNSIGNED(u8);
+	DECLARE_INSERT_UNSIGNED(char);
 
-	DECLARE_INSERT_UNSIGNED(unsigned short);
-	DECLARE_INSERT_SIGNED(short, unsigned short);
+	DECLARE_INSERT_UNSIGNED(short);
+	DECLARE_INSERT_SIGNED(short);
 
-	DECLARE_INSERT_UNSIGNED(unsigned int);
-	DECLARE_INSERT_SIGNED(int, unsigned int);
+	DECLARE_INSERT_UNSIGNED(int);
+	DECLARE_INSERT_SIGNED(int);
 
-	DECLARE_INSERT_UNSIGNED(unsigned long);
-	DECLARE_INSERT_SIGNED(long, unsigned long);
+	DECLARE_INSERT_UNSIGNED(long);
+	DECLARE_INSERT_SIGNED(long);
 
-	DECLARE_INSERT_UNSIGNED(unsigned long long);
-	DECLARE_INSERT_SIGNED(long long, unsigned long long);
+	DECLARE_INSERT_UNSIGNED(long long);
+	DECLARE_INSERT_SIGNED(long long);
 
 	DECLARE_INSERT_PRINTF(long double,			"%.16Lg",long double);
 	DECLARE_INSERT_PRINTF(double,				"%.16g",	double);
