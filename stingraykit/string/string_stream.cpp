@@ -41,10 +41,11 @@ namespace stingray
 #define DECLARE_INSERT_UNSIGNED(VALUE_TYPE) \
 	template<> \
 	template<> \
-	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
-	{ InsertIntegral<VALUE_TYPE>(value); }
+	void basic_string_ostream<char>::Insert(unsigned VALUE_TYPE value) \
+	{ InsertIntegral<unsigned VALUE_TYPE>(value); } \
+	extern template void string_ostream::Insert(unsigned VALUE_TYPE)
 
-#define DECLARE_INSERT_SIGNED(VALUE_TYPE, UNSIGNED_TYPE) \
+#define DECLARE_INSERT_SIGNED(VALUE_TYPE) \
 	template<> \
 	template<> \
 	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
@@ -54,9 +55,13 @@ namespace stingray
 			push_back('-'); \
 			value = -value; \
 		} \
-		InsertIntegral<UNSIGNED_TYPE>(static_cast<UNSIGNED_TYPE>(value)); \
-	}
+		InsertIntegral<unsigned VALUE_TYPE>(static_cast<unsigned VALUE_TYPE>(value)); \
+	} \
+	extern template void string_ostream::Insert(VALUE_TYPE)
 
+#define DECLARE_INTEGRAL_INSERT(VALUE_TYPE) \
+	DECLARE_INSERT_UNSIGNED(VALUE_TYPE); \
+	DECLARE_INSERT_SIGNED(VALUE_TYPE)
 
 
 #define DECLARE_INSERT_PRINTF(VALUE_TYPE, VALUE_FORMAT, VALUE_FORMAT_TYPE) \
@@ -66,29 +71,22 @@ namespace stingray
 	{ \
 		char buf[32]; \
 		int r = snprintf(buf, sizeof(buf), VALUE_FORMAT, static_cast<VALUE_FORMAT_TYPE>(value)); \
-		if (r == -1) \
+		if (r < 0) \
 			STINGRAYKIT_THROW("snprintf failed"); \
 		write(buf, r); \
 	} \
 	extern template void string_ostream::Insert(VALUE_TYPE)
 
-	DECLARE_INSERT_UNSIGNED(u8);
 
-	DECLARE_INSERT_UNSIGNED(unsigned short);
-	DECLARE_INSERT_SIGNED(short, unsigned short);
+DECLARE_INSERT_UNSIGNED(char);
+DECLARE_INTEGRAL_INSERT(short);
+DECLARE_INTEGRAL_INSERT(int);
+DECLARE_INTEGRAL_INSERT(long);
+DECLARE_INTEGRAL_INSERT(long long);
 
-	DECLARE_INSERT_UNSIGNED(unsigned int);
-	DECLARE_INSERT_SIGNED(int, unsigned int);
-
-	DECLARE_INSERT_UNSIGNED(unsigned long);
-	DECLARE_INSERT_SIGNED(long, unsigned long);
-
-	DECLARE_INSERT_UNSIGNED(unsigned long long);
-	DECLARE_INSERT_SIGNED(long long, unsigned long long);
-
-	DECLARE_INSERT_PRINTF(long double,			"%16.16Lg",long double);
-	DECLARE_INSERT_PRINTF(double,				"%16.16g",	double);
-	DECLARE_INSERT_PRINTF(float,				"%7.7g",	double);
-	DECLARE_INSERT_PRINTF(const void *,			"%p",	const void *);
+DECLARE_INSERT_PRINTF(long double,	"%.16Lg",	long double);
+DECLARE_INSERT_PRINTF(double,		"%.16g",	double);
+DECLARE_INSERT_PRINTF(float,		"%.7g",		double);
+DECLARE_INSERT_PRINTF(const void *,	"%p",		const void *);
 
 }

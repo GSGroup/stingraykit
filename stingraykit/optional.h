@@ -132,8 +132,21 @@ namespace stingray
 	optional<T> make_optional(const T& t)
 	{ return t; }
 
+
+	template < typename CompareFunc >
+	class OptionalCmp : public function_info<int, UnspecifiedParamTypes>
+	{
+	private:
+		const CompareFunc	_compareFunc;
+
+	public:
+		OptionalCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc) { }
+
+		template < typename T >
+		int operator() (const optional<T>& lhs, const optional<T>& rhs) const
+		{ return (lhs && rhs) ? _compareFunc(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0)); }
+	};
+
 }
 
-
 #endif
-
