@@ -28,8 +28,8 @@ namespace stingray
 		PosixConditionVariable();
 		~PosixConditionVariable();
 
-		void Wait(PosixMutex& mutex, const ICancellationToken& token);
-		bool TimedWait(PosixMutex& mutex, TimeDuration interval, const ICancellationToken& token);
+		void Wait(const PosixMutex& mutex, const ICancellationToken& token);
+		bool TimedWait(const PosixMutex& mutex, TimeDuration interval, const ICancellationToken& token);
 
 		void Wait(const PosixMutex& mutex) const;
 		bool TimedWait(const PosixMutex& mutex, TimeDuration interval) const;

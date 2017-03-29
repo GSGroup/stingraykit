@@ -24,11 +24,11 @@ namespace stingray
 		struct CancellationHandler : public ICancellationHandler
 		{
 		private:
-			PosixMutex&				_mutex;
+			const PosixMutex&		_mutex;
 			PosixConditionVariable&	_cond;
 
 		public:
-			CancellationHandler(PosixMutex& mutex, PosixConditionVariable& cond) : _mutex(mutex), _cond(cond)
+			CancellationHandler(const PosixMutex& mutex, PosixConditionVariable& cond) : _mutex(mutex), _cond(cond)
 			{ }
 
 			virtual ~CancellationHandler()
@@ -40,7 +40,7 @@ namespace stingray
 				_cond.Broadcast();
 			}
 
-			PosixMutex& GetMutex() const
+			const PosixMutex& GetMutex() const
 			{ return _mutex; }
 		};
 
@@ -48,7 +48,7 @@ namespace stingray
 		CancellationHandler	_handler;
 
 	public:
-		CancellationHolder(PosixMutex& mutex, PosixConditionVariable& cond, const ICancellationToken& token) :
+		CancellationHolder(const PosixMutex& mutex, PosixConditionVariable& cond, const ICancellationToken& token) :
 			CancellationRegistratorBase(token), _handler(mutex, cond)
 		{ Register(_handler); }
 
@@ -98,7 +98,7 @@ namespace stingray
 	}
 
 
-	void PosixConditionVariable::Wait(PosixMutex& mutex, const ICancellationToken& token)
+	void PosixConditionVariable::Wait(const PosixMutex& mutex, const ICancellationToken& token)
 	{
 		CancellationHolder holder(mutex, *this, token);
 		if (holder.IsCancelled())
@@ -107,7 +107,7 @@ namespace stingray
 	}
 
 
-	bool PosixConditionVariable::TimedWait(PosixMutex& mutex, TimeDuration interval, const ICancellationToken& token)
+	bool PosixConditionVariable::TimedWait(const PosixMutex& mutex, TimeDuration interval, const ICancellationToken& token)
 	{
 		CancellationHolder holder(mutex, *this, token);
 		if (holder.IsCancelled())
