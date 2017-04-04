@@ -52,7 +52,7 @@ namespace stingray
 	{ value = _root->get<bool>(); }
 
 	void ObjectIStream::deserialize(double &value)
-	{ value = _root->get<double>(); }
+	{ value = _root->contains<double>() ? _root->get<double>() : GetInt(); }
 
 	void ObjectIStream::deserialize(std::vector<u8> & data)
 	{
