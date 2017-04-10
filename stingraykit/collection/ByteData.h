@@ -227,6 +227,12 @@ namespace stingray
 			_data->insert(_data->end(), first, last);
 		}
 
+		template < typename U >
+		void append(const BasicByteArray<U>& other)
+		{
+			append(other.data(), other.data() + other.size());
+		}
+
 		void reserve(size_t n)
 		{ _data->reserve(_offset + n); }
 
