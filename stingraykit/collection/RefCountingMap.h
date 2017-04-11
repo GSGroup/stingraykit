@@ -29,8 +29,6 @@ namespace stingray
 		};
 
 		typedef std::map<Key_, ValueHolder, Comparer_>		Impl;
-		typedef function<Value_(const Key_&)>				AddFunc;
-		typedef function<void(const Key_&, const Value_&)>	RemoveFunc;
 
 		struct Iterator : public iterator_base<Iterator, std::pair<const Key_&, Value_&>, std::bidirectional_iterator_tag>
 		{
