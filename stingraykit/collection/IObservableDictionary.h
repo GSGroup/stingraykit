@@ -27,7 +27,12 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	struct IReadonlyObservableDictionary : public virtual IReadonlyDictionary<KeyType_, ValueType_>
 	{
-		virtual signal_connector<void(CollectionOp, KeyType_, ValueType_)>	OnChanged() const = 0;
+		typedef typename GetParamPassingType<KeyType_>::ValueT		KeyPassingType;
+		typedef typename GetParamPassingType<ValueType_>::ValueT	ValuePassingType;
+		typedef void OnChangedSignature(CollectionOp, KeyPassingType, ValuePassingType);
+
+	public:
+		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
 
 		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
 
@@ -48,14 +53,15 @@ namespace stingray
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 	public:
-		typedef typename Wrapped_::KeyType						KeyType;
-		typedef typename Wrapped_::ValueType					ValueType;
-		typedef typename Wrapped_::PairType						PairType;
-		typedef IObservableDictionary<KeyType, ValueType>		ObservableInterface;
+		typedef typename Wrapped_::KeyType							KeyType;
+		typedef typename Wrapped_::ValueType						ValueType;
+		typedef typename Wrapped_::PairType							PairType;
+		typedef IObservableDictionary<KeyType, ValueType>			ObservableInterface;
+		typedef typename ObservableInterface::OnChangedSignature	OnChangedSignature;
 
 	private:
-		shared_ptr<Mutex>														_mutex;
-		signal<void(CollectionOp, KeyType, ValueType), ExternalMutexPointer>	_onChanged;
+		shared_ptr<Mutex>									_mutex;
+		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 
 	public:
 		ObservableDictionaryWrapper()
@@ -64,7 +70,7 @@ namespace stingray
 
 		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
 
-		virtual signal_connector<void(CollectionOp, KeyType, ValueType)>	OnChanged() const
+		virtual signal_connector<OnChangedSignature> OnChanged() const
 		{ return _onChanged.connector(); }
 
 		virtual int GetCount() const
@@ -146,7 +152,7 @@ namespace stingray
 		}
 
 	private:
-		void OnChangedPopulator(const function<void(CollectionOp, KeyType, ValueType)>& slot) const
+		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{
 			FOR_EACH(PairType p IN this->GetEnumerator())
 				slot(CollectionOp::Added, p.Key, p.Value);
