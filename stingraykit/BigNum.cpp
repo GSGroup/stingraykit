@@ -153,7 +153,7 @@ namespace stingray
 			if (carryIn)
 			{
 				++temp;
-				carryOut |= (temp == 0);
+				carryOut = carryOut || (temp == 0);
 			}
 			_units[index] = temp;
 			carryIn = carryOut;
@@ -205,7 +205,7 @@ namespace stingray
 			bool borrowOut = (temp > minuend._units[index]);
 			if (borrowIn)
 			{
-				borrowOut |= (temp == 0);
+				borrowOut = borrowOut || (temp == 0);
 				--temp;
 			}
 			_units[index] = temp;
@@ -287,7 +287,7 @@ namespace stingray
 					if (carryIn)
 					{
 						++temp;
-						carryOut |= (temp == 0);
+						carryOut = carryOut || (temp == 0);
 					}
 					_units[k] = temp;
 					carryIn = carryOut;
@@ -417,7 +417,7 @@ namespace stingray
 					bool borrowOut = (temp > _units[k]);
 					if (borrowIn)
 					{
-						borrowOut |= (temp == 0);
+						borrowOut = borrowOut || (temp == 0);
 						--temp;
 					}
 					subtractBuffer[k] = temp;

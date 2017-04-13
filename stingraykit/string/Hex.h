@@ -67,7 +67,7 @@ namespace stingray
 		for(size_t i = 0; i < max_width; ++i)
 		{
 			char c = (value >> ((max_width - i - 1) * 4)) & 0x0f;
-			seen_non_zero |= c;
+			seen_non_zero = seen_non_zero || c;
 			if (seen_non_zero || i >= start || i == max_width - 1)
 				r << ((char)(c > 9? c + (capital? 'A': 'a') - 10: c + '0'));
 		}
