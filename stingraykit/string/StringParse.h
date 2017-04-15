@@ -73,12 +73,13 @@ namespace stingray
 
 
 		template < typename T >
-		bool TryRead(const std::string& string, T& value)
+		typename EnableIf<!IsIntType<T>::Value, bool>::ValueT TryRead(const std::string& string, T& value)
 		{ return FromStringImpl<T>::Do(string, value); }
 
-		inline bool TryRead(const std::string& string, u8& value)
+		template < typename T >
+		typename EnableIf<IsIntType<T>::Value, bool>::ValueT TryRead(const std::string& string, T& value)
 		{
-			try { value = FromString<u8>(string); }
+			try { value = FromString<T>(string); }
 			catch (const std::exception&) { return false; }
 			return true;
 		}
