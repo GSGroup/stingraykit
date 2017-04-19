@@ -198,28 +198,18 @@ namespace stingray
 
 	}
 
-	inline bool StringParse(const std::string& string, const std::string& format)
-	{ return Detail::StringParseImpl(string, format, Tuple<TypeList_0>()); }
 
-#define DETAIL_DEFINE_STRING_PARSE(N_, TypesDecl_, TypesUsage_, ArgumentsDecl_, ArgumentsUsage_) \
-	template < TypesDecl_ > \
-	bool StringParse(const std::string& string, const std::string& format, ArgumentsDecl_) \
-	{ return Detail::StringParseImpl(string, format, Tuple<TypeList_##N_<TypesUsage_> >(ArgumentsUsage_)); }
+#	define DETAIL_DEFINE_STRING_PARSE(N_, UserArg_) \
+		STINGRAYKIT_INSERT_IF(N_, template <STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)>) \
+		inline bool StringParse(const std::string& string, const std::string& format STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYREF, T)) \
+		{ \
+			typedef typename TypeList<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE_BYREF, T)>::type Arguments; \
+			return Detail::StringParseImpl(string, format, Tuple<Arguments>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T))); \
+		}
 
-#define TY typename
+	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DEFINE_STRING_PARSE, ~)
 
-	DETAIL_DEFINE_STRING_PARSE(1, TY T1, T1&, T1& p1, p1)
-	DETAIL_DEFINE_STRING_PARSE(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1&, T2&), MK_PARAM(T1& a1, T2& a2), MK_PARAM(a1, a2))
-	DETAIL_DEFINE_STRING_PARSE(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1&, T2&, T3&), MK_PARAM(T1& a1, T2& a2, T3& a3), MK_PARAM(a1, a2, a3))
-	DETAIL_DEFINE_STRING_PARSE(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1&, T2&, T3&, T4&), MK_PARAM(T1& a1, T2& a2, T3& a3, T4& a4), MK_PARAM(a1, a2, a3, a4))
-	DETAIL_DEFINE_STRING_PARSE(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1&, T2&, T3&, T4&, T5&), MK_PARAM(T1& a1, T2& a2, T3& a3, T4& a4, T5& a5), MK_PARAM(a1, a2, a3, a4, a5))
-	DETAIL_DEFINE_STRING_PARSE(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1&, T2&, T3&, T4&, T5&, T6&), MK_PARAM(T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6), MK_PARAM(a1, a2, a3, a4, a5, a6))
-	DETAIL_DEFINE_STRING_PARSE(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1&, T2&, T3&, T4&, T5&, T6&, T7&), MK_PARAM(T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7), MK_PARAM(a1, a2, a3, a4, a5, a6, a7))
-
-
-#undef TY
-
-#undef DETAIL_DEFINE_STRING_PARSE
+#	undef DETAIL_DEFINE_STRING_PARSE
 
 
 	template < typename ConverterType, typename ValueType >
