@@ -190,6 +190,15 @@ namespace stingray
 		int DaysTo(const Time& endTime);
 	};
 
+
+	namespace TimeUtility
+	{
+
+		std::string ToIso8601(const Time& time);
+		Time FromIso8601(const std::string& format);
+
+	}
+
 	/** @} */
 
 }

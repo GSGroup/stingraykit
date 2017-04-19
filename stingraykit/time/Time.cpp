@@ -12,6 +12,7 @@
 #include <stingraykit/exception.h>
 #include <stingraykit/serialization/Serialization.h>
 #include <stingraykit/string/StringFormat.h>
+#include <stingraykit/string/StringParse.h>
 #include <stingraykit/string/StringUtils.h>
 #include <stingraykit/time/TimeEngine.h>
 #include <stingraykit/log/Logger.h>
@@ -319,6 +320,69 @@ namespace stingray
 	int Time::DaysTo(const Time& endTime)
 	{
 		return (Time::FromBrokenDownTime((*this).BreakDown().GetDayStart()).GetMilliseconds() - Time::FromBrokenDownTime(endTime.BreakDown().GetDayStart()).GetMilliseconds()) / 86400000;	// 1000 * 60 * 60 * 24 = 86400000
+	}
+
+
+	namespace TimeUtility
+	{
+
+		std::string ToIso8601(const Time& time)
+		{ return time.BreakDown(TimeKind::Utc).ToString("YYYY-MM-ddThh:mm:ss.lllZ"); }
+
+
+		Time FromIso8601(const std::string& format)
+		{
+			const std::string uppercase = ToUpper(format); // Rfc3339 5.6 NOTE
+
+			s16 year;
+			s16 month;
+			s16 day;
+			s16 hours;
+			s16 minutes;
+			double seconds;
+			TimeDuration offset;
+
+			if (EndsWith(uppercase, "Z"))
+				STINGRAYKIT_CHECK(StringParse(uppercase, "%1%-%2%-%3%T%4%:%5%:%6%Z",
+					year,
+					month,
+					day,
+					hours,
+					minutes,
+					seconds),
+				FormatException(uppercase));
+			else
+			{
+				const size_t SignPosFromEnd = 5;
+				STINGRAYKIT_CHECK(uppercase.size() > SignPosFromEnd, FormatException(uppercase));
+				const char sign = uppercase[uppercase.size() - 1 - SignPosFromEnd];
+
+				const s8 multiplier = sign == '+' ? 1 : (sign == '-' ? -1 : 0);
+				STINGRAYKIT_CHECK(multiplier, FormatException(uppercase));
+
+				s16 offsetHours;
+				s16 offsetMinutes;
+				STINGRAYKIT_CHECK(StringParse(uppercase, StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
+					year,
+					month,
+					day,
+					hours,
+					minutes,
+					seconds,
+					offsetHours,
+					offsetMinutes),
+				FormatException(uppercase));
+
+				offset = TimeDuration::FromHours(offsetHours) + TimeDuration::FromMinutes(offsetMinutes);
+				offset *= multiplier;
+			}
+
+			const s16 milliseconds = (seconds - double(s16(seconds))) * 1000.;
+			const BrokenDownTime brokenDown(milliseconds, (s16)seconds, minutes, hours, 0, day, month, 0, year);
+			const Time local = Time::FromBrokenDownTime(brokenDown, TimeKind::Utc);
+			return local - offset;
+		}
+
 	}
 
 }
