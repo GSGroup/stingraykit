@@ -507,9 +507,4 @@ namespace stingray
 }
 
 
-template<typename T>
-std::string _(const T& val)
-{ return stingray::ToString(val); }
-
-
 #endif
