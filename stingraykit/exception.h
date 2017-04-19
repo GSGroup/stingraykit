@@ -168,6 +168,14 @@ namespace stingray
 		virtual ~KeyNotFoundException() throw() { }
 	};
 
+	struct FileNotFoundException : public Exception
+	{
+		FileNotFoundException() : Exception("File not found!") { }
+		FileNotFoundException(const std::string& path) : Exception("File '" + path + "' not found!") { }
+	};
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NoSpaceLeftException, "No space left on device!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InputOutputException, "Input/output error on storage!");
+
 
 #define STINGRAYKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, STINGRAYKIT_WHERE)
 
