@@ -229,15 +229,11 @@ namespace stingray
 
 		template < typename Range >
 		void append(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0)
-		{
-			append(range.begin(), range.end());
-		}
+		{ append(range.begin(), range.end()); }
 
 		template < typename U >
 		void append(const BasicByteArray<U>& other)
-		{
-			append(other.data(), other.data() + other.size());
-		}
+		{ append(other.data(), other.data() + other.size()); }
 
 		void reserve(size_t n)
 		{ _data->reserve(_offset + n); }
