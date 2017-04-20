@@ -227,6 +227,12 @@ namespace stingray
 			_data->insert(_data->end(), first, last);
 		}
 
+		template < typename Range >
+		void append(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0)
+		{
+			append(range.begin(), range.end());
+		}
+
 		template < typename U >
 		void append(const BasicByteArray<U>& other)
 		{
