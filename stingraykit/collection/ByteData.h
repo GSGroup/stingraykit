@@ -163,8 +163,8 @@ namespace stingray
 			_data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ std::copy(data, data + size, _data->begin()); }
 
-		template < typename U >
-		explicit BasicByteArray(const U& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<U>::Value, Dummy>::ValueT* dummy = 0):
+		template < typename Range >
+		explicit BasicByteArray(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0):
 			_data(new CollectionType(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
