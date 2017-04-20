@@ -163,8 +163,8 @@ namespace stingray
 			_data(new CollectionType(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ std::copy(data, data + size, _data->begin()); }
 
-		template < typename U >
-		explicit BasicByteArray(const U& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<U>::Value, Dummy>::ValueT* dummy = 0):
+		template < typename Range >
+		explicit BasicByteArray(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0):
 			_data(new CollectionType(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
@@ -227,11 +227,13 @@ namespace stingray
 			_data->insert(_data->end(), first, last);
 		}
 
+		template < typename Range >
+		void append(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0)
+		{ append(range.begin(), range.end()); }
+
 		template < typename U >
 		void append(const BasicByteArray<U>& other)
-		{
-			append(other.data(), other.data() + other.size());
-		}
+		{ append(other.data(), other.data() + other.size()); }
 
 		void reserve(size_t n)
 		{ _data->reserve(_offset + n); }
