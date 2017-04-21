@@ -1,7 +1,6 @@
 #ifndef STINGRAYKIT_COMPRESSION_PPM_PPMMODEL_H
 #define STINGRAYKIT_COMPRESSION_PPM_PPMMODEL_H
 
-#include <stingray/parsers/IncrementalParser.h>
 #include <stingraykit/collection/Range.h>
 #include <stingraykit/compression/ArithmeticCoder.h>
 #include <stingraykit/compression/ArithmeticDecoder.h>
