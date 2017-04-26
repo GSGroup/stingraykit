@@ -397,10 +397,8 @@ namespace stingray
 
 	private:
 		function<void (const ICancellationToken&)>	_func;
-		std::string									_initialName;
+		std::string									_name;
 		ThreadDataStoragePtr						_parent;
-
-		const std::string							_name;
 
 		PosixMutex									_mutex;
 		PosixConditionVariable						_cv;
@@ -414,7 +412,7 @@ namespace stingray
 
 	public:
 		PosixThread(const function<void (const ICancellationToken&)>& func, const std::string& name, const ThreadDataStoragePtr& parent) :
-			_func(func), _initialName(name), _parent(parent), _started(false), _exited(false)
+			_func(func), _name(name), _parent(parent), _started(false), _exited(false)
 		{
 			pthread_t id;
 			int ret = pthread_create(&id, &PosixThreadAttr::Get()->Get(), &PosixThread::ThreadFuncStatic, this);
@@ -556,20 +554,20 @@ namespace stingray
 				return;
 
 #ifdef HAVE_PTHREAD_SETNAME
-			pthread_setname_np(pthread_self(), _initialName.c_str());
+			pthread_setname_np(pthread_self(), _name.c_str());
 #endif
 
 			// PR_SET_NAME requires string of 16 bytes maximum
-			std::string cropped_name(_initialName.substr(0, 16));
+			std::string cropped_name(_name.substr(0, 16));
 			prctl(PR_SET_NAME, cropped_name.c_str());
 
 #ifdef HACK_THROW_FROM_PTHREAD_CLEANUP_HANDLER
 			pthread_cleanup_push(&InterruptException::Throw, NULL);
 #endif
 
-			_data = make_shared<ThreadDataStorage>(gettid(), pthread_self(), _initialName, _parent, _lifeToken.GetExecutionTester());
+			_data = make_shared<ThreadDataStorage>(gettid(), pthread_self(), _name, _parent, _lifeToken.GetExecutionTester());
 			ThreadDataHolder::Get() = _data;
-			ThreadNameAccessor::Set(_initialName);
+			ThreadNameAccessor::Set(_name);
 			ThreadFuncStarted();
 
 			TLSDataPtr tlsData = make_shared<TLSData>();
