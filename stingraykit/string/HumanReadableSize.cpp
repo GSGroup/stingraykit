@@ -46,11 +46,10 @@ namespace stingray
 		catch (const std::exception &) { }
 
 		smatch m;
-		std::string suffix;
 		if (regex_search(str, m, regex(std::string("^(\\d+)") + "([" + Suffixes + "])$")))
 		{
 			num = FromString<u64>(m[1]);
-			suffix = FromString<std::string>(m[2]);
+			const std::string suffix = FromString<std::string>(m[2]);
 
 			for (size_t i = 0; i < Suffixes.size(); ++i)
 				if (suffix[0] == Suffixes[i])
