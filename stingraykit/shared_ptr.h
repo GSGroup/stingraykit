@@ -669,7 +669,10 @@ namespace stingray
 		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<IsSharedPtr<SrcPtr_>::Value && IsSharedPtr<DstPtr_>::Value, void>::ValueT>
 		{
 			static DstPtr_ Do(const SrcPtr_& src)
-			{ return DstPtr_(src, PointersCaster<typename SrcPtr_::ValueType, typename DstPtr_::ValueType>::Do(src.get())); }
+			{
+				typename DstPtr_::ValueType* dst = PointersCaster<typename SrcPtr_::ValueType, typename DstPtr_::ValueType>::Do(src.get());
+				return dst ? DstPtr_(src, dst) : DstPtr_();
+			}
 		};
 
 
