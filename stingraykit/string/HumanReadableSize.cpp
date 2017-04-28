@@ -2,7 +2,6 @@
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/string/regex.h>
 
-
 namespace stingray
 {
 
