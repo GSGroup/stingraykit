@@ -113,6 +113,10 @@ namespace stingray
 	{ return str.length() >= suffix.length() && ExtractSuffix(str, suffix.length()) == suffix; }
 
 
+	inline bool Contains(const std::string& str, const std::string& substr)
+	{ return str.find(substr) != std::string::npos; }
+
+
 	namespace Detail
 	{
 
