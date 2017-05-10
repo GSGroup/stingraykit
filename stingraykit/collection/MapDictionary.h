@@ -8,16 +8,15 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <map>
-#include <vector>
-#include <algorithm>
-
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/EnumeratorWrapper.h>
+#include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 
+#include <algorithm>
+#include <map>
+#include <vector>
 
 namespace stingray
 {
@@ -67,6 +66,20 @@ namespace stingray
 
 		MapDictionary(const MapDictionary& other) : _map(new MapType(*other._map))
 		{ }
+
+		MapDictionary(shared_ptr<IEnumerable<PairType> > enumerable) : _map(new MapType)
+		{
+			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
+			FOR_EACH(const PairType p IN enumerable)
+				Set(p.Key, p.Value);
+		}
+
+		MapDictionary(shared_ptr<IEnumerator<PairType> > enumerator) : _map(new MapType)
+		{
+			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
+			FOR_EACH(const PairType p IN enumerator)
+				Set(p.Key, p.Value);
+		}
 
 		MapDictionary& operator =(const MapDictionary& other)
 		{ _map.reset(new MapType(*other._map)); return *this; }
