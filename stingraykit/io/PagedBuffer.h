@@ -14,6 +14,7 @@
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/io/IDataSource.h>
 #include <stingraykit/io/ByteDataConsumer.h>
+#include <stingraykit/signal/signals.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
 
 namespace stingray
