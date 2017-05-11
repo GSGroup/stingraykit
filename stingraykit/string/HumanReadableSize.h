@@ -8,7 +8,7 @@
 namespace stingray
 {
 
-	std::string ToHumanReadableSize(u64 size);
+	std::string ToHumanReadableSize(u64 size, float allowedErrorFactor = 0.01);
 
 	u64 FromHumanReadableSize(const std::string& str);
 

@@ -8,30 +8,35 @@ namespace stingray
 	namespace
 	{
 
-		const std::string Suffixes("kMGTPEZ");
+		const std::string Suffixes("kMGTPE");
 
 	}
 
 
-	std::string ToHumanReadableSize(u64 size)
+	std::string ToHumanReadableSize(u64 size, float allowedErrorFactor)
 	{
-		for (size_t i = 0; i < Suffixes.size(); ++i)
+		STINGRAYKIT_CHECK(allowedErrorFactor <= 0.2, LogicException("Unreasonable allowedErrorFactor"));
+
+		if (size == 0)
+			return "0";
+
+		for (int i = Suffixes.size(); i >= 0; --i)
 		{
-			u64 classToCompare = (u64)1 << 10 * (i + 1);
-			u64 remainder = size % classToCompare;
-			size_t classModifier = remainder > 0 ? 1 : 0;
-			size_t roundModifier = remainder >= classToCompare / 2 ? 1 : 0;
-			if (size < (u64)1 << 10 * (i + 1 + classModifier))
+			u64 measUnit = (u64)1 << (10 * i);
+			u64 roundedInUnits = size / measUnit + (measUnit > 1 && size % measUnit >= measUnit / 2);
+			u64 rounded = roundedInUnits * measUnit;
+			u64 delta = size * allowedErrorFactor;
+
+			if (rounded >= size - delta && rounded <= size + delta)
 			{
-				u64 result = size / ((u64)1 << 10 * i) + roundModifier;
 				if (i > 0)
-					return ToString(result) + Suffixes[i - 1];
+					return ToString(roundedInUnits) + Suffixes[i - 1];
 				else
-					return ToString(result);
+					return ToString(roundedInUnits);
 			}
 		}
 
-		return ToString(size);
+		STINGRAYKIT_THROW(LogicException("Conversion failed"));
 	}
 
 
