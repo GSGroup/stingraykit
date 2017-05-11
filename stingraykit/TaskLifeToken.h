@@ -161,6 +161,34 @@ namespace stingray
 	};
 	STINGRAYKIT_DECLARE_PTR(TaskLifeToken);
 
+
+	class TaskLifeHolder
+	{
+		STINGRAYKIT_NONCOPYABLE(TaskLifeHolder);
+
+	private:
+		Detail::TaskLifeTokenImplSelfCountPtr _impl;
+
+	public:
+		TaskLifeHolder() : _impl(new Detail::TaskLifeTokenImpl()) { }
+
+		~TaskLifeHolder()
+		{ Release(); }
+
+		void Release()
+		{ _impl->Kill(); }
+
+		TaskLifeHolder& Reset()
+		{
+			Release();
+			_impl.reset(new Detail::TaskLifeTokenImpl());
+			return *this;
+		}
+
+		FutureExecutionTester GetExecutionTester() const
+		{ return FutureExecutionTester(_impl); }
+	};
+
 	/** @} */
 
 }
