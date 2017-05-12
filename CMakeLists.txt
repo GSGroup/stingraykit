@@ -120,6 +120,7 @@ set(stingraykit_SRC
 
 	stingraykit/signal/signal_policies.cpp
 
+	stingraykit/string/HumanReadableSize.cpp
 	stingraykit/string/TranslatedString.cpp
 	stingraykit/string/Unicode.cpp
 	stingraykit/string/regex.cpp
