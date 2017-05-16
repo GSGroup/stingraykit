@@ -187,7 +187,7 @@ namespace stingray
 		void Serialize(ObjectOStream & ar) const;
 		void Deserialize(ObjectIStream & ar);
 
-		int DaysTo(const Time& endTime);
+		int DaysTo(const Time& endTime) const;
 	};
 
 

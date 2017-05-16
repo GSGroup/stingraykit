@@ -317,7 +317,7 @@ namespace stingray
 		return (bcdEncode(bdt.Hours) << 16) + (bcdEncode(bdt.Minutes) << 8) + bcdEncode(bdt.Seconds);
 	}
 
-	int Time::DaysTo(const Time& endTime)
+	int Time::DaysTo(const Time& endTime) const
 	{
 		return (Time::FromBrokenDownTime((*this).BreakDown().GetDayStart()).GetMilliseconds() - Time::FromBrokenDownTime(endTime.BreakDown().GetDayStart()).GetMilliseconds()) / 86400000;	// 1000 * 60 * 60 * 24 = 86400000
 	}
