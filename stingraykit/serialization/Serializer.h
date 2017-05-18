@@ -21,7 +21,7 @@ namespace stingray
 	template < typename SerializationTag, typename T >
 	struct Serializer
 	{
-		const T		Object;
+		const T&	Object;
 
 		explicit Serializer(const T& object) : Object(object) { }
 	};
@@ -29,7 +29,7 @@ namespace stingray
 	template < typename SerializationTag, typename T >
 	struct Serializer<SerializationTag, optional<T> >
 	{
-		optional<T>		Object;
+		const optional<T>&		Object;
 
 		explicit Serializer(const optional<T>& object) : Object(object) { }
 
