@@ -68,7 +68,7 @@ namespace stingray
 			void DeserializeAsValue(ObjectIStream& ar)
 			{
 				T object;
-				ar.Deserialize(Deserializer_(object).GetReference());
+				ar.Deserialize(*Deserializer_(object));
 				Object = object;
 			}
 		};
@@ -83,7 +83,7 @@ namespace stingray
 
 		explicit Deserializer(T& object) : Object(object) { }
 
-		Deserializer& GetReference() { return *this; }
+		Deserializer& operator * () { return *this; }
 	};
 
 	template < typename SerializationTag, typename T >
@@ -96,7 +96,7 @@ namespace stingray
 	public:
 		explicit Deserializer(optional<T>& object) : _helper(DeserializationHelper(object)) { }
 
-		optional<DeserializationHelper>& GetReference() { return _helper; }
+		optional<DeserializationHelper>& operator * () { return _helper; }
 	};
 
 	template < typename SerializationTag, typename T >
