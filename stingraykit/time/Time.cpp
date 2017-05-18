@@ -55,7 +55,7 @@ namespace stingray
 			result.insert(0, "-");
 
 		std::string hours_placeholder = "hh";
-		bool has_hours = std::search(format.begin(), format.end(), hours_placeholder.begin(), hours_placeholder.end()) != format.end();
+		bool has_hours = std::search(result.begin(), result.end(), hours_placeholder.begin(), hours_placeholder.end()) != result.end();
 
 		s64 abs_ms = Absolute().GetMilliseconds();
 		s64 hours = has_hours ? abs_ms / Hour().GetMilliseconds() : 0;
