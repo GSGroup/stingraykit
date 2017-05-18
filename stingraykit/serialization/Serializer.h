@@ -38,7 +38,7 @@ namespace stingray
 			if (Object)
 				ar.Serialize(Serializer<SerializationTag, T>(*Object));
 			else
-				ar.Serialize(null);
+				ar.Serialize(optional<T>());
 		}
 	};
 
