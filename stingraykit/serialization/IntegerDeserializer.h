@@ -1,7 +1,7 @@
 #ifndef STINGRAYKIT_SERIALIZATION_INTEGERDESERIALIZER_H
 #define STINGRAYKIT_SERIALIZATION_INTEGERDESERIALIZER_H
 
-#include <stingraykit/exception.h>
+#include <stingraykit/serialization/Serializer.h>
 
 namespace stingray
 {
@@ -22,60 +22,48 @@ namespace stingray
 			}
 		};
 
-
-		template < typename Wrapped_ >
-		struct IntegerDeserializerBase
-		{
-			Wrapped_ Wrapped;
-
-		public:
-			IntegerDeserializerBase()
-				:	Wrapped()
-			{ }
-
-			operator Wrapped_() const { return Wrapped; }
-		};
-
-
-		template < typename Integer_ >
-		struct CheckedIntegerDeserializer : public IntegerDeserializerBase<Integer_>
-		{
-			typedef s64 Container;
-
-			template < typename OStream_ >
-			void Deserialize(OStream_& ar)
-			{
-				Container container;
-				ar.Deserialize(container);
-				this->Wrapped = CheckedIntegerCaster<Integer_>()(container);
-			}
-		};
-
-
-		template < typename Integer_ >
-		struct SimpleIntegerDeserializer : public IntegerDeserializerBase<Integer_>
-		{
-			template < typename OStream_ >
-			void Deserialize(OStream_& ar)
-			{ ar.Deserialize(this->Wrapped); }
-		};
-
 	}
 
 
+	struct IntegerSerializationTag;
+
+
 	template < typename Integer_ >
-	struct IntegerDeserializer : public Detail::CheckedIntegerDeserializer<Integer_>
-	{ };
+	struct Serialization<IntegerSerializationTag, Integer_>
+	{
+		typedef s64 Container;
+
+		template < typename IStream_ >
+		static void Deserialize(IStream_& ar, Integer_& integer)
+		{
+			Container container;
+			ar.Deserialize(container);
+			integer = Detail::CheckedIntegerCaster<Integer_>()(container);
+		}
+	};
 
 
 	template < >
-	struct IntegerDeserializer<s64> : public Detail::SimpleIntegerDeserializer<s64>
-	{ };
+	struct Serialization<IntegerSerializationTag, s64>
+	{
+		template < typename IStream_ >
+		static void Deserialize(IStream_& ar, s64& integer)
+		{ ar.Deserialize(integer); }
+	};
 
 
 	template < >
-	struct IntegerDeserializer<u64> : public Detail::SimpleIntegerDeserializer<u64>
-	{ };
+	struct Serialization<IntegerSerializationTag, u64>
+	{
+		template < typename IStream_ >
+		static void Deserialize(IStream_& ar, u64& integer)
+		{ ar.Deserialize(integer); }
+	};
+
+
+	template < typename Integer_ >
+	Deserializer<IntegerSerializationTag, Integer_> MakeIntegerDeserializer(Integer_& integer)
+	{ return MakeDeserializer<IntegerSerializationTag>(integer); }
 
 }
 
