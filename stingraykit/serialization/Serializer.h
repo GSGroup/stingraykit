@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/serialization/Serialization.h>
+#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -28,7 +28,8 @@ namespace stingray
 
 		explicit Serializer(const T& object) : Object(object) { }
 
-		void Serialize(ObjectOStream& ar) const
+		template < typename OStream_ >
+		void Serialize(OStream_& ar) const
 		{ Serialization<SerializationTag, T>::Serialize(ar, Object); }
 	};
 
@@ -39,7 +40,8 @@ namespace stingray
 
 		explicit Serializer(const optional<T>& object) : Object(object) { }
 
-		void SerializeAsValue(ObjectOStream& ar) const
+		template < typename OStream_ >
+		void SerializeAsValue(OStream_& ar) const
 		{
 			if (Object)
 				ar.Serialize(Serializer<SerializationTag, T>(*Object));
@@ -71,7 +73,8 @@ namespace stingray
 				return *this;
 			}
 
-			void DeserializeAsValue(ObjectIStream& ar)
+			template < typename IStream_ >
+			void DeserializeAsValue(IStream_& ar)
 			{
 				T object;
 				ar.Deserialize(*Deserializer_(object));
@@ -89,7 +92,8 @@ namespace stingray
 
 		explicit Deserializer(T& object) : Object(object) { }
 
-		void Deserialize(ObjectIStream& ar)
+		template < typename IStream_ >
+		void Deserialize(IStream_& ar)
 		{ Serialization<SerializationTag, T>::Deserialize(ar, Object); }
 
 		Deserializer& operator * () { return *this; }
