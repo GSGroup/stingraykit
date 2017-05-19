@@ -18,12 +18,18 @@ namespace stingray
 	 * @{
 	 */
 
+	template < typename Tag, typename T >
+	struct Serialization;
+
 	template < typename SerializationTag, typename T >
 	struct Serializer
 	{
 		const T&	Object;
 
 		explicit Serializer(const T& object) : Object(object) { }
+
+		void Serialize(ObjectOStream& ar) const
+		{ Serialization<SerializationTag, T>::Serialize(ar, Object); }
 	};
 
 	template < typename SerializationTag, typename T >
@@ -82,6 +88,9 @@ namespace stingray
 		T&		Object;
 
 		explicit Deserializer(T& object) : Object(object) { }
+
+		void Deserialize(ObjectIStream& ar)
+		{ Serialization<SerializationTag, T>::Deserialize(ar, Object); }
 
 		Deserializer& operator * () { return *this; }
 	};
