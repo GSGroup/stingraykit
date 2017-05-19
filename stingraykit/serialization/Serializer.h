@@ -21,7 +21,7 @@ namespace stingray
 	template < typename Tag, typename T >
 	struct Serialization;
 
-	template < typename SerializationTag, typename T >
+	template < typename Tag, typename T >
 	struct Serializer
 	{
 		const T&	Object;
@@ -30,11 +30,11 @@ namespace stingray
 
 		template < typename OStream_ >
 		void Serialize(OStream_& ar) const
-		{ Serialization<SerializationTag, T>::Serialize(ar, Object); }
+		{ Serialization<Tag, T>::Serialize(ar, Object); }
 	};
 
-	template < typename SerializationTag, typename T >
-	struct Serializer<SerializationTag, optional<T> >
+	template < typename Tag, typename T >
+	struct Serializer<Tag, optional<T> >
 	{
 		const optional<T>&		Object;
 
@@ -44,14 +44,14 @@ namespace stingray
 		void SerializeAsValue(OStream_& ar) const
 		{
 			if (Object)
-				ar.Serialize(Serializer<SerializationTag, T>(*Object));
+				ar.Serialize(Serializer<Tag, T>(*Object));
 			else
 				ar.Serialize(optional<T>());
 		}
 	};
 
-	template < typename SerializationTag, typename T >
-	Serializer<SerializationTag, T> MakeSerializer(const T& object) { return Serializer<SerializationTag, T>(object); }
+	template < typename Tag, typename T >
+	Serializer<Tag, T> MakeSerializer(const T& object) { return Serializer<Tag, T>(object); }
 
 
 	namespace Detail
@@ -85,7 +85,7 @@ namespace stingray
 	}
 
 
-	template < typename SerializationTag, typename T >
+	template < typename Tag, typename T >
 	struct Deserializer
 	{
 		T&		Object;
@@ -94,15 +94,15 @@ namespace stingray
 
 		template < typename IStream_ >
 		void Deserialize(IStream_& ar)
-		{ Serialization<SerializationTag, T>::Deserialize(ar, Object); }
+		{ Serialization<Tag, T>::Deserialize(ar, Object); }
 
 		Deserializer& operator * () { return *this; }
 	};
 
-	template < typename SerializationTag, typename T >
-	class Deserializer<SerializationTag, optional<T> >
+	template < typename Tag, typename T >
+	class Deserializer<Tag, optional<T> >
 	{
-		typedef Detail::OptionalDeserializationHelper<T, Deserializer<SerializationTag, T> > DeserializationHelper;
+		typedef Detail::OptionalDeserializationHelper<T, Deserializer<Tag, T> > DeserializationHelper;
 
 		optional<DeserializationHelper>		_helper;
 
@@ -112,8 +112,8 @@ namespace stingray
 		optional<DeserializationHelper>& operator * () { return _helper; }
 	};
 
-	template < typename SerializationTag, typename T >
-	Deserializer<SerializationTag, T> MakeDeserializer(T& object) { return Deserializer<SerializationTag, T>(object); }
+	template < typename Tag, typename T >
+	Deserializer<Tag, T> MakeDeserializer(T& object) { return Deserializer<Tag, T>(object); }
 
 	/** @} */
 
