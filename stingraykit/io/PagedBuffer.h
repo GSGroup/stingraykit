@@ -214,7 +214,7 @@ namespace stingray
 				p = _pages.at(_pages.size() - pageIdxFromEnd - 1);
 			}
 			if (p->Write(offsetInPage, data) != data.size())
-				STINGRAYKIT_THROW("Page write failed!");
+				STINGRAYKIT_THROW(InputOutputException("Page write failed!"));
 		}
 
 		void ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, ByteData data) const
@@ -229,7 +229,7 @@ namespace stingray
 			}
 			ByteDataConsumer consumer(data);
 			if (p->Read(offsetInPage, consumer, DummyCancellationToken()) != data.size())
-				STINGRAYKIT_THROW("Page read failed!");
+				STINGRAYKIT_THROW(InputOutputException("Page read failed!"));
 		}
 
 		size_t ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, IDataConsumer& consumer, const ICancellationToken& token) const
