@@ -326,62 +326,74 @@ namespace stingray
 	namespace TimeUtility
 	{
 
+		struct FromIso8601Impl
+		{
+			Time operator()(const std::string& format) const
+			{
+				const std::string uppercase = ToUpper(format); // Rfc3339 5.6 NOTE
+
+				s16 year(0);
+				s16 month(0);
+				s16 day(0);
+				s16 hours(0);
+				s16 minutes(0);
+				double seconds(0);
+				TimeDuration offset(0);
+
+				if (!TryFromDateTime(uppercase, year, month, day, hours, minutes, seconds))
+					if (!TryFromDateTimeWithOffset(uppercase, year, month, day, hours, minutes, seconds, offset))
+						STINGRAYKIT_THROW(FormatException(uppercase));
+
+				const s16 milliseconds = (seconds - double(s16(seconds))) * 1000.;
+				const BrokenDownTime brokenDown(milliseconds, (s16)seconds, minutes, hours, 0, day, month, 0, year);
+				const Time local = Time::FromBrokenDownTime(brokenDown, TimeKind::Utc);
+
+				return local - offset;
+			}
+
+		private:
+			bool TryFromDateTime(const std::string& format, s16& year, s16& month, s16& day, s16& hours, s16& minutes, double& seconds) const
+			{ return StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%Z", year, month, day, hours, minutes, seconds); }
+
+			bool TryFromDateTimeWithOffset(const std::string& format, s16& year, s16& month, s16& day, s16& hours, s16& minutes, double& seconds, TimeDuration& offset) const
+			{
+				const size_t SignPosFromEnd = 5;
+				if (format.size() <= SignPosFromEnd)
+					return false;
+
+				const char sign = format[format.size() - 1 - SignPosFromEnd];
+				const s8 multiplier = sign == '+' ? 1 : (sign == '-' ? -1 : 0);
+				if (multiplier == 0)
+					return false;
+
+				s16 offsetHours;
+				s16 offsetMinutes;
+				const bool success = StringParse(format, StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
+										year,
+										month,
+										day,
+										hours,
+										minutes,
+										seconds,
+										offsetHours,
+										offsetMinutes);
+				if (!success)
+					return false;
+
+				offset = TimeDuration::FromHours(offsetHours) + TimeDuration::FromMinutes(offsetMinutes);
+				offset *= multiplier;
+
+				return true;
+			}
+		};
+
+
 		std::string ToIso8601(const Time& time)
 		{ return time.BreakDown(TimeKind::Utc).ToString("YYYY-MM-ddThh:mm:ss.lllZ"); }
 
 
 		Time FromIso8601(const std::string& format)
-		{
-			const std::string uppercase = ToUpper(format); // Rfc3339 5.6 NOTE
-
-			s16 year;
-			s16 month;
-			s16 day;
-			s16 hours;
-			s16 minutes;
-			double seconds;
-			TimeDuration offset;
-
-			if (EndsWith(uppercase, "Z"))
-				STINGRAYKIT_CHECK(StringParse(uppercase, "%1%-%2%-%3%T%4%:%5%:%6%Z",
-					year,
-					month,
-					day,
-					hours,
-					minutes,
-					seconds),
-				FormatException(uppercase));
-			else
-			{
-				const size_t SignPosFromEnd = 5;
-				STINGRAYKIT_CHECK(uppercase.size() > SignPosFromEnd, FormatException(uppercase));
-				const char sign = uppercase[uppercase.size() - 1 - SignPosFromEnd];
-
-				const s8 multiplier = sign == '+' ? 1 : (sign == '-' ? -1 : 0);
-				STINGRAYKIT_CHECK(multiplier, FormatException(uppercase));
-
-				s16 offsetHours;
-				s16 offsetMinutes;
-				STINGRAYKIT_CHECK(StringParse(uppercase, StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
-					year,
-					month,
-					day,
-					hours,
-					minutes,
-					seconds,
-					offsetHours,
-					offsetMinutes),
-				FormatException(uppercase));
-
-				offset = TimeDuration::FromHours(offsetHours) + TimeDuration::FromMinutes(offsetMinutes);
-				offset *= multiplier;
-			}
-
-			const s16 milliseconds = (seconds - double(s16(seconds))) * 1000.;
-			const BrokenDownTime brokenDown(milliseconds, (s16)seconds, minutes, hours, 0, day, month, 0, year);
-			const Time local = Time::FromBrokenDownTime(brokenDown, TimeKind::Utc);
-			return local - offset;
-		}
+		{ return FromIso8601Impl()(format); }
 
 	}
 
