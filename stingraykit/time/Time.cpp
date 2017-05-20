@@ -328,62 +328,84 @@ namespace stingray
 
 		struct FromIso8601Impl
 		{
+			struct ParseResult
+			{
+				s16 Year;
+				s16 Month;
+				s16 Day;
+				s16 Hours;
+				s16 Minutes;
+				double Seconds;
+				TimeDuration Offset;
+
+				ParseResult()
+					:	Year(),
+						Month(),
+						Day(),
+						Hours(),
+						Minutes(),
+						Seconds(),
+						Offset()
+				{ }
+			};
+
 			Time operator()(const std::string& format) const
 			{
 				const std::string uppercase = ToUpper(format); // Rfc3339 5.6 NOTE
 
-				s16 year(0);
-				s16 month(0);
-				s16 day(0);
-				s16 hours(0);
-				s16 minutes(0);
-				double seconds(0);
-				TimeDuration offset(0);
-
-				if (!TryFromDateTime(uppercase, year, month, day, hours, minutes, seconds))
-					if (!TryFromDateTimeWithOffset(uppercase, year, month, day, hours, minutes, seconds, offset))
+				optional<ParseResult> result;
+				if (!(result = TryFromDateTime(uppercase)))
+					if (!(result = TryFromDateTimeWithOffset(uppercase)))
 						STINGRAYKIT_THROW(FormatException(uppercase));
 
-				const s16 milliseconds = (seconds - double(s16(seconds))) * 1000.;
-				const BrokenDownTime brokenDown(milliseconds, (s16)seconds, minutes, hours, 0, day, month, 0, year);
+				const s16 milliseconds = (result->Seconds - double(s16(result->Seconds))) * 1000.;
+				const BrokenDownTime brokenDown(milliseconds, (s16)result->Seconds, result->Minutes, result->Hours, 0, result->Day, result->Month, 0, result->Year);
 				const Time local = Time::FromBrokenDownTime(brokenDown, TimeKind::Utc);
 
-				return local - offset;
+				return local - result->Offset;
 			}
 
 		private:
-			bool TryFromDateTime(const std::string& format, s16& year, s16& month, s16& day, s16& hours, s16& minutes, double& seconds) const
-			{ return StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%Z", year, month, day, hours, minutes, seconds); }
-
-			bool TryFromDateTimeWithOffset(const std::string& format, s16& year, s16& month, s16& day, s16& hours, s16& minutes, double& seconds, TimeDuration& offset) const
+			optional<ParseResult> TryFromDateTime(const std::string& format) const
 			{
+				ParseResult result;
+				if (!StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%Z", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
+					return null;
+
+				return result;
+			}
+
+			optional<ParseResult> TryFromDateTimeWithOffset(const std::string& format) const
+			{
+				ParseResult result;
+
 				const size_t SignPosFromEnd = 5;
 				if (format.size() <= SignPosFromEnd)
-					return false;
+					return null;
 
 				const char sign = format[format.size() - 1 - SignPosFromEnd];
 				const s8 multiplier = sign == '+' ? 1 : (sign == '-' ? -1 : 0);
 				if (multiplier == 0)
-					return false;
+					return null;
 
 				s16 offsetHours;
 				s16 offsetMinutes;
 				const bool success = StringParse(format, StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
-										year,
-										month,
-										day,
-										hours,
-										minutes,
-										seconds,
+										result.Year,
+										result.Month,
+										result.Day,
+										result.Hours,
+										result.Minutes,
+										result.Seconds,
 										offsetHours,
 										offsetMinutes);
 				if (!success)
-					return false;
+					return null;
 
-				offset = TimeDuration::FromHours(offsetHours) + TimeDuration::FromMinutes(offsetMinutes);
-				offset *= multiplier;
+				result.Offset = TimeDuration::FromHours(offsetHours) + TimeDuration::FromMinutes(offsetMinutes);
+				result.Offset *= multiplier;
 
-				return true;
+				return result;
 			}
 		};
 
