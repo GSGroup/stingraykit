@@ -356,7 +356,8 @@ namespace stingray
 				optional<ParseResult> result;
 				if (!(result = TryFromDateTime(uppercase)))
 					if (!(result = TryFromDateTimeWithOffset(uppercase)))
-						STINGRAYKIT_THROW(FormatException(uppercase));
+						if (!(result = TryFromDate(uppercase)))
+							STINGRAYKIT_THROW(FormatException(uppercase));
 
 				const s16 milliseconds = (result->Seconds - double(s16(result->Seconds))) * 1000.;
 				const BrokenDownTime brokenDown(milliseconds, (s16)result->Seconds, result->Minutes, result->Hours, 0, result->Day, result->Month, 0, result->Year);
@@ -404,6 +405,15 @@ namespace stingray
 
 				result.Offset = TimeDuration::FromHours(offsetHours) + TimeDuration::FromMinutes(offsetMinutes);
 				result.Offset *= multiplier;
+
+				return result;
+			}
+
+			optional<ParseResult> TryFromDate(const std::string& format) const
+			{
+				ParseResult result;
+				if (!StringParse(format, "%1%-%2%-%3%", result.Year, result.Month, result.Day))
+					return null;
 
 				return result;
 			}
