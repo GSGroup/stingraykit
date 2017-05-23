@@ -27,6 +27,8 @@ namespace stingray
 
 	class ThreadTaskExecutor : STINGRAYKIT_FINAL(ThreadTaskExecutor), public virtual ITaskExecutor
 	{
+		STINGRAYKIT_NONCOPYABLE(ThreadTaskExecutor);
+
 		typedef function<void()>										TaskType;
 		typedef function<void(const std::exception&)>					ExceptionHandlerType;
 		typedef std::pair<TaskType, FutureExecutionTester>				TaskPair;
@@ -34,9 +36,9 @@ namespace stingray
 
 	private:
 		std::string				_name;
-		bool					_working;
+		bool					_working;	// TODO: get rid of it
 		bool					_paused;
-		ThreadPtr				_worker;
+		ThreadPtr				_worker;	// TODO: store it by value
 		Mutex					_syncRoot;
 		ConditionVariable		_condVar;
 		QueueType				_queue;
@@ -44,7 +46,8 @@ namespace stingray
 		bool					_profileCalls;
 
 	public:
-		explicit ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls = true);
+		ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls = true);
+		explicit ThreadTaskExecutor(const std::string& name, bool profileCalls = true);
 		~ThreadTaskExecutor();
 
 		virtual void AddTask(const TaskType& task);
@@ -52,7 +55,10 @@ namespace stingray
 		virtual void Pause(bool pause);
 
 	private:
+		static void DefaultExceptionHandler(const std::exception& ex);
+
 		std::string GetProfilerMessage(const function<void()>& func);
+
 		void ThreadFunc();
 	};
 	STINGRAYKIT_DECLARE_PTR(ThreadTaskExecutor);

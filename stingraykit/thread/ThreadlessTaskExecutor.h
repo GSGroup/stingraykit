@@ -36,7 +36,7 @@ namespace stingray
 		ExceptionHandlerType	_exceptionHandler;
 
 	public:
-		explicit ThreadlessTaskExecutor(const ExceptionHandlerType& exceptionHandler = &ITaskExecutor::DefaultExceptionHandler)
+		explicit ThreadlessTaskExecutor(const ExceptionHandlerType& exceptionHandler = &ThreadlessTaskExecutor::DefaultExceptionHandler)
 			: _exceptionHandler(exceptionHandler)
 		{ }
 
@@ -81,6 +81,10 @@ namespace stingray
 
 		std::string GetProfilerMessage(const function<void()>& func)
 		{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
+
+	private:
+		static void DefaultExceptionHandler(const std::exception& ex)
+		{ Logger::Error() << "Uncaught exception in ThreadlessTaskExecutor: " << ex; }
 	};
 
 	STINGRAYKIT_DECLARE_PTR(ThreadlessTaskExecutor);

@@ -8,11 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
+#include <stingraykit/TaskLifeToken.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/shared_ptr.h>
-#include <stingraykit/TaskLifeToken.h>
-
 
 namespace stingray
 {
@@ -24,21 +22,18 @@ namespace stingray
 
 	struct ITaskExecutor
 	{
+		virtual ~ITaskExecutor() { }
+
 		virtual void AddTask(const function<void()>& task) = 0;
 		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester) = 0;
-		virtual ~ITaskExecutor() {}
 
 		static shared_ptr<ITaskExecutor> Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler, bool profileCalls = true);
-		static shared_ptr<ITaskExecutor> Create(const std::string& name, bool profileCalls = true)
-		{ return Create(name, &DefaultExceptionHandler, profileCalls); }
-
-		static void DefaultExceptionHandler(const std::exception& ex);
+		static shared_ptr<ITaskExecutor> Create(const std::string& name, bool profileCalls = true);
 	};
 	STINGRAYKIT_DECLARE_PTR(ITaskExecutor);
 
 	/** @} */
 
 }
-
 
 #endif
