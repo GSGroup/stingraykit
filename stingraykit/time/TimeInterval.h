@@ -28,7 +28,6 @@ namespace stingray
 		{ }
 
 		TimeDuration GetDuration() const	{ return GetEnd() - GetStart(); }
-		static TimeInterval CreateEmpty()	{ return TimeInterval(); }
 	};
 
 }
