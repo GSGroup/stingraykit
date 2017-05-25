@@ -94,7 +94,8 @@ namespace stingray
 		virtual const Mutex& GetSyncRoot() const { return _dict->GetSyncRoot(); }
 
 	protected:
-		virtual void InvokeOnChanged(CollectionOp op, const ValueType& val) { _onChanged(op, val); }
+		virtual void InvokeOnChanged(CollectionOp op, const ValueType& val)
+		{ if (op != CollectionOp::Updated) _onChanged(op, val); }
 
 	private:
 		virtual void OnChangedPopulator(const function<void(CollectionOp, const ValueType&)> slot) const
