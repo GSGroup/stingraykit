@@ -76,10 +76,10 @@ namespace stingray
 		{ _connections.Release(); }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
-		{ return make_shared<EnumeratorWrapper<typename DictionaryType::PairType, ValueType> >(_dict->GetEnumerator(), bind(&DictionaryType::PairType::GetKey, _1)); }
+		{ return KeysEnumerator(_dict->GetEnumerator()); }
 
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
-		{ return make_shared<EnumerableWrapper<typename DictionaryType::PairType, ValueType> >(_dict->Reverse(), bind(&DictionaryType::PairType::GetKey, _1)); }
+		{ return KeysEnumerable(_dict->Reverse()); }
 
 		virtual int GetCount() const
 		{ return _dict->GetCount(); }
@@ -93,11 +93,10 @@ namespace stingray
 		virtual signal_connector<void(CollectionOp, const ValueType&)>	OnChanged() const { return _onChanged.connector(); }
 		virtual const Mutex& GetSyncRoot() const { return _dict->GetSyncRoot(); }
 
-	protected:
+	private:
 		virtual void InvokeOnChanged(CollectionOp op, const ValueType& val)
 		{ if (op != CollectionOp::Updated) _onChanged(op, val); }
 
-	private:
 		virtual void OnChangedPopulator(const function<void(CollectionOp, const ValueType&)> slot) const
 		{ _dict->OnChanged().SendCurrentState(bind(slot, _1, _2, not_using(_3))); }
 	};
