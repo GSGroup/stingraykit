@@ -27,7 +27,9 @@ namespace stingray
 	template < typename ValueType_ >
 	struct IReadonlyObservableSet : public virtual IReadonlySet<ValueType_>
 	{
-		virtual signal_connector<void(CollectionOp, const ValueType_&)>	OnChanged() const = 0;
+		typedef void OnChangedSignature(CollectionOp, const ValueType_&);
+
+		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
 
 		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
 
@@ -42,19 +44,20 @@ namespace stingray
 
 
 	template < typename Wrapped_ >
-	struct ObservableSetWrapper
+	class ObservableSetWrapper
 		:	public Wrapped_,
 			public virtual IObservableSet<typename Wrapped_::ValueType>
 	{
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 	public:
-		typedef typename Wrapped_::ValueType					ValueType;
-		typedef IObservableSet<ValueType>						ObservableInterface;
+		typedef typename Wrapped_::ValueType						ValueType;
+		typedef IObservableSet<ValueType>							ObservableInterface;
+		typedef typename ObservableInterface::OnChangedSignature	OnChangedSignature;
 
 	private:
-		shared_ptr<Mutex>													_mutex;
-		signal<void(CollectionOp, const ValueType&), ExternalMutexPointer>	_onChanged;
+		shared_ptr<Mutex>										_mutex;
+		signal<OnChangedSignature, ExternalMutexPointer>		_onChanged;
 
 	public:
 		ObservableSetWrapper()
@@ -63,7 +66,7 @@ namespace stingray
 
 		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
 
-		virtual signal_connector<void(CollectionOp, const ValueType&)>	OnChanged() const
+		virtual signal_connector<OnChangedSignature> OnChanged() const
 		{ return _onChanged.connector(); }
 
 		virtual int GetCount() const
@@ -133,7 +136,7 @@ namespace stingray
 		}
 
 	private:
-		void OnChangedPopulator(const function<void(CollectionOp, const ValueType&)>& slot)
+		void OnChangedPopulator(const function<OnChangedSignature>& slot)
 		{
 			FOR_EACH(ValueType v IN this->GetEnumerator())
 				slot(CollectionOp::Added, v);
