@@ -22,11 +22,14 @@ namespace stingray
 
 		typedef typename GetParamPassingType<T>::ValueT		ParamPassingType;
 
+	public:
+		typedef void OnChangedSignature(ParamPassingType);
+
 	private:
-		T																					_val;
-		EqualsCmp																			_equalsCmp;
-		const shared_ptr<Mutex>																_mutex;
-		signal<void(ParamPassingType), signal_policies::threading::ExternalMutexPointer>	_onChanged;
+		T																				_val;
+		EqualsCmp																		_equalsCmp;
+		const shared_ptr<Mutex>															_mutex;
+		signal<OnChangedSignature, signal_policies::threading::ExternalMutexPointer>	_onChanged;
 
 	public:
 		explicit ObservableValue(ParamPassingType val = T()) :
@@ -62,11 +65,11 @@ namespace stingray
 		const Mutex& GetSyncRoot() const
 		{ return *_mutex; }
 
-		signal_connector<void(ParamPassingType)> OnChanged() const
+		signal_connector<OnChangedSignature> OnChanged() const
 		{ return _onChanged.connector(); }
 
 	private:
-		void OnChangedPopulator(const function<void(ParamPassingType)>& slot) const
+		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{ slot(_val); }
 	};
 
