@@ -131,9 +131,9 @@ namespace stingray
 	}
 
 	template<typename EnumerableType>
-	shared_ptr<IEnumerable<typename EnumerableType::PairType::KeyType> > KeysEnumerable(const shared_ptr<EnumerableType>& enumerable)
+	shared_ptr<IEnumerable<typename EnumerableType::ItemType::KeyType> > KeysEnumerable(const shared_ptr<EnumerableType>& enumerable)
 	{
-		typedef typename EnumerableType::PairType PairType;
+		typedef typename EnumerableType::ItemType PairType;
 		return WrapEnumerable(enumerable, &PairType::GetKey);
 	}
 
@@ -145,9 +145,9 @@ namespace stingray
 	}
 
 	template<typename EnumerableType>
-	shared_ptr<IEnumerable<typename EnumerableType::PairType::ValueType> > ValuesEnumerable(const shared_ptr<EnumerableType>& enumerable)
+	shared_ptr<IEnumerable<typename EnumerableType::ItemType::ValueType> > ValuesEnumerable(const shared_ptr<EnumerableType>& enumerable)
 	{
-		typedef typename EnumerableType::PairType PairType;
+		typedef typename EnumerableType::ItemType PairType;
 		return WrapEnumerable(enumerable, &PairType::GetValue);
 	}
 	/** @} */
