@@ -17,8 +17,14 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class DictionaryValuesSet : public virtual ISet<ValueType_>
 	{
-		typedef shared_ptr<IDictionary<KeyType_, ValueType_> >		SrcDictionaryPtr;
-		typedef typename GetConstReferenceType<ValueType_>::ValueT	ConstValueTypeRef;
+		typedef KeyType_											KeyType;
+		typedef ValueType_											ValueType;
+		typedef typename GetConstReferenceType<ValueType>::ValueT	ConstValueTypeRef;
+
+		typedef IDictionary<KeyType_, ValueType_>					SrcDictionary;
+		typedef typename SrcDictionary::PairType					PairType;
+		typedef shared_ptr<SrcDictionary>							SrcDictionaryPtr;
+
 		typedef function< KeyType_ (ConstValueTypeRef) >			Converter;
 
 	private:
@@ -34,14 +40,14 @@ namespace stingray
 		virtual ~DictionaryValuesSet()
 		{ }
 
-		virtual shared_ptr<IEnumerator<ValueType_> > GetEnumerator() const
+		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{ return ValuesEnumerator(_dict->GetEnumerator()); }
 
-		virtual shared_ptr<IEnumerable<ValueType_> > Reverse() const
-		{ STINGRAYKIT_THROW(NotImplementedException()); }
+		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		{ return ValuesEnumerable(_dict->Reverse()); }
 
-		virtual bool Contains(const ValueType_& value) const
-		{ STINGRAYKIT_THROW(NotImplementedException()); }
+		virtual bool Contains(const ValueType& value) const
+		{ return _dict->ContainsKey(_converter(value)); }
 
 		virtual int GetCount() const
 		{ return _dict->GetCount(); }
@@ -49,17 +55,17 @@ namespace stingray
 		virtual bool IsEmpty() const
 		{ return _dict->IsEmpty(); }
 
-		virtual void Add(const ValueType_& value)
+		virtual void Add(const ValueType& value)
 		{ _dict->Set(_converter(value), value); }
 
 		virtual void Clear()
 		{ _dict->Clear(); }
 
-		virtual void Remove(const ValueType_& value)
-		{ STINGRAYKIT_THROW(NotImplementedException()); }
+		virtual void Remove(const ValueType& value)
+		{ TryRemove(value); }
 
-		virtual bool TryRemove(const ValueType_& value)
-		{ STINGRAYKIT_THROW(NotImplementedException()); }
+		virtual bool TryRemove(const ValueType& value)
+		{ return _dict->TryRemove(_converter(value)); }
 	};
 
 
