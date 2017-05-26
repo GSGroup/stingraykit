@@ -117,12 +117,7 @@ namespace stingray
 		}
 
 		virtual void Remove(const KeyType& key)
-		{
-			CopyOnWrite();
-			typename MapType::iterator it = _map->find(key);
-			STINGRAYKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
-			_map->erase(it);
-		}
+		{ CopyOnWrite(); _map->erase(key); }
 
 		virtual bool ContainsKey(const KeyType& key) const
 		{ return _map->find(key) != _map->end(); }
