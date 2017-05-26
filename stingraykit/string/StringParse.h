@@ -24,18 +24,20 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename ConverterType, typename ValueType >
+		template < typename T, typename ConvertFunc >
 		class ParseProxy
 		{
 		private:
-			ValueType&		_target;
+			T&				_value;
+			ConvertFunc		_convert;
 
 		public:
-			ParseProxy(ValueType& target) : _target(target) { }
+			ParseProxy(T& value, const ConvertFunc& convert) : _value(value), _convert(convert) { }
 
-			ParseProxy& GetReference()		{ return *this; }
+			ParseProxy& operator * () { return *this; }
 
-			void Parse(const std::string& str)	{ _target = ConverterType::Interpret(str); }
+			void Parse(const std::string& str)
+			{ _value = _convert(str); }
 		};
 
 
@@ -60,10 +62,10 @@ namespace stingray
 			}
 		};
 
-		template < typename ConverterType, typename ValueType >
-		struct FromStringImpl<ParseProxy<ConverterType, ValueType>, false>
+		template < typename T, typename ConvertFunc >
+		struct FromStringImpl<ParseProxy<T, ConvertFunc>, false>
 		{
-			static bool Do(const std::string& str, ParseProxy<ConverterType, ValueType>& adapter)
+			static bool Do(const std::string& str, ParseProxy<T, ConvertFunc>& adapter)
 			{
 				try { adapter.Parse(str); }
 				catch (const std::exception& ex) { return false; }
@@ -212,9 +214,9 @@ namespace stingray
 #	undef DETAIL_DEFINE_STRING_PARSE
 
 
-	template < typename ConverterType, typename ValueType >
-	Detail::ParseProxy<ConverterType, ValueType> MakeParseProxy(ValueType& value)
-	{ return Detail::ParseProxy<ConverterType, ValueType>(value); }
+	template < typename T, typename ConvertFunc >
+	Detail::ParseProxy<T, ConvertFunc> MakeParseProxy(T& value, const ConvertFunc& convert)
+	{ return Detail::ParseProxy<T, ConvertFunc>(value, convert); }
 
 }
 
