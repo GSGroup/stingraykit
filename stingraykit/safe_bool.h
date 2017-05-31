@@ -38,6 +38,10 @@ namespace stingray
 
 	protected:
 		inline ~safe_bool() {}
+
+	private:
+		inline bool operator == (const safe_bool& other) const { return this == &other; }
+		inline bool operator != (const safe_bool& other) const { return !(*this == other); }
 	};
 
 }
