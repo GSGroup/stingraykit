@@ -36,14 +36,14 @@ namespace stingray
 		shared_ptr<IEnumerable<ItemType> > Get() const
 		{ return EnumerableFromStlContainer(*_container, _container); }
 
-		void Add(ItemType val)
+		void Add(const ItemType& val)
 		{ _container->push_back(val); }
 
 		template <typename Iter>
 		void Add(Iter first, Iter last)
 		{ std::copy(first, last, std::back_inserter(_container)); }
 
-		EnumerableBuilder& operator % (ItemType val)
+		EnumerableBuilder& operator % (const ItemType& val)
 		{ Add(val); return *this; }
 	};
 
