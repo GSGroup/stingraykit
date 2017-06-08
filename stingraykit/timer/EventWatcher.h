@@ -29,7 +29,7 @@ namespace stingray
 		size_t					_count;
 
 	public:
-		EventWatcher(Timer& timer, size_t timeout, size_t frequency);
+		EventWatcher(Timer& timer, TimeDuration timeout, size_t frequency);
 		~EventWatcher();
 
 		void Touch();
@@ -51,7 +51,7 @@ namespace stingray
 		TokenPool			_tokens;
 
 	public:
-		EventWatcherWithTimer(const std::string& name, size_t timeout, size_t frequency);
+		EventWatcherWithTimer(const std::string& name, TimeDuration timeout, size_t frequency);
 		~EventWatcherWithTimer();
 
 		void Touch();

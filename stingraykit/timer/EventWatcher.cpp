@@ -11,8 +11,8 @@
 namespace stingray
 {
 
-	EventWatcher::EventWatcher(Timer& timer, size_t timeout, size_t frequency)
-		: _deferrer(new ExecutionDeferrer(timer, TimeDuration(timeout))), _frequency(frequency), _count(0)
+	EventWatcher::EventWatcher(Timer& timer, TimeDuration timeout, size_t frequency)
+		: _deferrer(new ExecutionDeferrer(timer, timeout)), _frequency(frequency), _count(0)
 	{
 		STINGRAYKIT_CHECK(frequency, ArgumentException("frequency"));
 		_deferrer->Defer(bind(&EventWatcher::Timeout, this));
@@ -43,7 +43,7 @@ namespace stingray
 	}
 
 
-	EventWatcherWithTimer::EventWatcherWithTimer(const std::string& name, size_t timeout, size_t frequency)
+	EventWatcherWithTimer::EventWatcherWithTimer(const std::string& name, TimeDuration timeout, size_t frequency)
 		: _timer(name)
 	{
 		_impl.reset(new EventWatcher(_timer, timeout, frequency));
