@@ -52,7 +52,7 @@ namespace stingray
 		{ }
 
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc, size_t deferTimeoutMs)
-			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", deferTimeoutMs))
+			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", TimeDuration(deferTimeoutMs)))
 		{ }
 
 		~AsyncAction()
@@ -126,7 +126,7 @@ namespace stingray
 		{ }
 
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc, size_t deferTimeoutMs)
-			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", deferTimeoutMs))
+			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", TimeDuration(deferTimeoutMs)))
 		{ }
 
 		~AsyncAction()
@@ -199,7 +199,7 @@ namespace stingray
 		{ }
 
 		AsyncAction(const ITaskExecutorPtr& worker, const ReachStateFunc& reachStateFunc, size_t deferTimeoutMs)
-			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", deferTimeoutMs))
+			: _worker(worker), _reachStateFunc(reachStateFunc), _deferrer(new ExecutionDeferrerWithTimer("asyncActionDeferrer", TimeDuration(deferTimeoutMs)))
 		{ }
 
 		~AsyncAction()

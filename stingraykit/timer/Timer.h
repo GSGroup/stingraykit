@@ -91,28 +91,28 @@ namespace stingray
 	class ExecutionDeferrer
 	{
 	private:
-		size_t		_timeout;
-		Timer&		_timer;
+		TimeDuration	_timeout;
+		Timer&			_timer;
 
-		Token		_connection;
-		Mutex		_connectionMutex;
+		Token			_connection;
+		Mutex			_connectionMutex;
 
-		Token		_doDeferConnection;
-		Mutex 		_doDeferConnectionMutex;
+		Token			_doDeferConnection;
+		Mutex 			_doDeferConnectionMutex;
 
-		Mutex		_mutex;
-		bool		_cancellationActive;
+		Mutex			_mutex;
+		bool			_cancellationActive;
 
 	public:
-		explicit ExecutionDeferrer(Timer& timer, size_t timeoutMilliseconds = 0)
-			: _timeout(timeoutMilliseconds), _timer(timer), _cancellationActive(false)
+		explicit ExecutionDeferrer(Timer& timer, TimeDuration timeout = TimeDuration())
+			: _timeout(timeout), _timer(timer), _cancellationActive(false)
 		{ }
 
 		~ExecutionDeferrer()
 		{ Cancel(); }
 
-		size_t GetTimeout() const		{ return _timeout; }
-		void SetTimeout(size_t timeout)	{ _timeout = timeout; }
+		TimeDuration GetTimeout() const			{ return _timeout; }
+		void SetTimeout(TimeDuration timeout)	{ _timeout = timeout; }
 		void Cancel()
 		{
 			{
@@ -137,22 +137,22 @@ namespace stingray
 		// we shouldn't call Defer from deferred function!
 		void Defer(const function<void()>& func)
 		{
-			STINGRAYKIT_CHECK(_timeout != 0, Exception("Invalid timeout!"));
+			STINGRAYKIT_CHECK(_timeout != TimeDuration(), Exception("Invalid timeout!"));
 			Defer(func, _timeout);
 		}
 
 		// custom timeout version - doesn't change "default" timeout value stored in deferrer - passed timeout value corresponds to the very deferring
-		void Defer(const function<void()>& func, size_t timeout, optional<size_t> interval = null)
+		void Defer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval = null)
 		{
 			MutexLock l(_doDeferConnectionMutex);
 			_doDeferConnection = _timer.SetTimeout(0, bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
 		}
 
-		void DeferNoTimeout(const function<void()>& func)					{ Defer(func); }
-		void DeferWithTimeout(const function<void()>& func, size_t timeout)	{ Defer(func, timeout); }
+		void DeferNoTimeout(const function<void()>& func)							{ Defer(func); }
+		void DeferWithTimeout(const function<void()>& func, TimeDuration timeout)	{ Defer(func, timeout); }
 
 	private:
-		void DoDefer(const function<void()>& func, size_t timeout, optional<size_t> interval)
+		void DoDefer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval)
 		{
 			MutexLock l(_connectionMutex);
 			if (interval)
@@ -177,20 +177,20 @@ namespace stingray
 		ExecutionDeferrerPtr	_impl;
 
 	public:
-		explicit ExecutionDeferrerWithTimer(const std::string& timerName, size_t timeout = 0)
+		explicit ExecutionDeferrerWithTimer(const std::string& timerName, TimeDuration timeout = TimeDuration())
 			: _timer(timerName)
 		{ _impl.reset(new ExecutionDeferrer(_timer, timeout)); }
 
 		~ExecutionDeferrerWithTimer()
 		{ _impl.reset(); }
 
-		size_t GetTimeout() const											{ return _impl->GetTimeout(); }
-		void SetTimeout(size_t timeout)										{ _impl->SetTimeout(timeout); }
-		void Cancel()														{ _impl->Cancel(); }
-		void Defer(const function<void()>& func)							{ _impl->Defer(func); }
-		void Defer(const function<void()>& func, size_t timeout)			{ _impl->Defer(func, timeout); }
-		void DeferNoTimeout(const function<void()>& func)					{ Defer(func); }
-		void DeferWithTimeout(const function<void()>& func, size_t timeout)	{ Defer(func, timeout); }
+		TimeDuration GetTimeout() const												{ return _impl->GetTimeout(); }
+		void SetTimeout(TimeDuration timeout)										{ _impl->SetTimeout(timeout); }
+		void Cancel()																{ _impl->Cancel(); }
+		void Defer(const function<void()>& func)									{ _impl->Defer(func); }
+		void Defer(const function<void()>& func, TimeDuration timeout)				{ _impl->Defer(func, timeout); }
+		void DeferNoTimeout(const function<void()>& func)							{ Defer(func); }
+		void DeferWithTimeout(const function<void()>& func, TimeDuration timeout)	{ Defer(func, timeout); }
 	};
 	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
 
