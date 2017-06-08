@@ -67,18 +67,6 @@ namespace stingray
 
 		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
 
-		/** @deprecated */
-		Token SetTimeout(size_t timeoutMilliseconds, const function<void()>& func)
-		{ return SetTimeout(TimeDuration(timeoutMilliseconds), func); }
-
-		/** @deprecated */
-		Token SetTimer(size_t intervalMilliseconds, const function<void()>& func)
-		{ return SetTimer(TimeDuration(intervalMilliseconds), func); }
-
-		/** @deprecated */
-		Token SetTimer(size_t timeoutMilliseconds, size_t intervalMilliseconds, const function<void()>& func)
-		{ return SetTimer(TimeDuration(timeoutMilliseconds), TimeDuration(intervalMilliseconds), func); }
-
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
@@ -145,7 +133,7 @@ namespace stingray
 		void Defer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval = null)
 		{
 			MutexLock l(_doDeferConnectionMutex);
-			_doDeferConnection = _timer.SetTimeout(0, bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
+			_doDeferConnection = _timer.SetTimeout(TimeDuration(), bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
 		}
 
 		void DeferNoTimeout(const function<void()>& func)							{ Defer(func); }

@@ -31,7 +31,7 @@ namespace stingray
 	public:
 		BandwidthReporter(const IDataSourcePtr& source, const std::string& timerName) :
 			_source(source), _dataTotal(0), _dataSinceLastReport(0), _timer(timerName)
-		{ _connection = _timer.SetTimer(ReportBandwidthTimeout, bind(&BandwidthReporter::Report, this)); }
+		{ _connection = _timer.SetTimer(TimeDuration(ReportBandwidthTimeout), bind(&BandwidthReporter::Report, this)); }
 
 		virtual ~BandwidthReporter()
 		{ _connection.Reset(); }
