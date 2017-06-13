@@ -296,6 +296,10 @@ namespace stingray
 		bool operator == (const BasicByteArray& other) const
 		{ return size() == other.size() && std::equal(data(), data() + size(), other.data()); }
 
+		template < typename U >
+		bool operator == (const BasicByteArray<U>& other) const
+		{ return size() == other.size() && std::equal(data(), data() + size(), other.data()); }
+
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicByteArray);
 
 		bool operator < (const BasicByteArray& other) const
