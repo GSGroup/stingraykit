@@ -45,10 +45,16 @@ namespace stingray
 	Detail::NotFunc<F> not_(const F& f) { return Detail::NotFunc<F>(f); }
 
 
-	struct NopFunctor : public function_info<void()>
+	class NopFunctor : public function_info<void, UnspecifiedParamTypes>
 	{
-		void operator() () const { }
+	public:
+		STINGRAYKIT_PERFECT_FORWARDING(void, operator (), Do)
+
+	private:
+		template< typename ParamTypeList >
+		void Do(const Tuple<ParamTypeList>&) const { }
 	};
+
 
 	template <typename T, typename V = T>
 	struct Assigner : public function_info<void(T&, const V&)>
