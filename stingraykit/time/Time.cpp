@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include <stingraykit/exception.h>
+#include <stingraykit/math.h>
 #include <stingraykit/serialization/Serialization.h>
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/StringParse.h>
@@ -257,8 +258,8 @@ namespace stingray
 
 	std::string TimeZone::ToString() const
 	{
-		const std::string sign = _minutesFromUtc > 0? "+" : _minutesFromUtc < 0? "-" : "";
-		return StringBuilder() % sign % (_minutesFromUtc / MinutesPerHour) % ":" % (_minutesFromUtc % MinutesPerHour);
+		const std::string sign = _minutesFromUtc > 0 ? "+" : (_minutesFromUtc < 0 ? "-" : "");
+		return StringBuilder() % sign % (Abs(_minutesFromUtc) / MinutesPerHour) % ":" % (Abs(_minutesFromUtc) % MinutesPerHour);
 	}
 
 	TimeZone TimeZone::FromString(const std::string& str)
