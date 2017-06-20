@@ -54,10 +54,8 @@ namespace stingray {
 
 		DerivedT Intersect(const DerivedT& other) const
 		{
-			if (IsEmpty())
-				return other;
-			if (other.IsEmpty())
-				return *static_cast<const DerivedT*>(this);
+			if (IsEmpty() || other.IsEmpty())
+				return CreateEmpty();
 			T start = std::max(_start, other._start);
 			T end = std::min(_end, other._end);
 			if (start >= end)
