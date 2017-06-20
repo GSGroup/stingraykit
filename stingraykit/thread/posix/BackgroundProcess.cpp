@@ -90,7 +90,7 @@ namespace stingray { namespace posix
 			if (execvp(file, &_argv[0]) == -1)
 				perror("execvp");
 
-			exit(-1);
+			_exit(-1);
 		}
 		else
 			_pid = pid;
