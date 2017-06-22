@@ -56,7 +56,7 @@ namespace stingray
 		mutable HolderWeakPtr	_itemsEnumeratorHolder;
 
 	public:
-		SortedSet() : _items(new SetType)
+		SortedSet() : _items(make_shared<SetType>())
 		{ }
 
 		SortedSet(const SortedSet& other) : _items(make_shared<SetType>(*other._items))
@@ -69,13 +69,13 @@ namespace stingray
 			return *this;
 		}
 
-		SortedSet(shared_ptr<IEnumerator<T> > enumerator) : _items(new SetType)
+		SortedSet(shared_ptr<IEnumerator<T> > enumerator) : _items(make_shared<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			Enumerable::ForEach(enumerator, bind(&SortedSet::Add, this, _1));
 		}
 
-		SortedSet(shared_ptr<IEnumerable<T> > enumerable) : _items(new SetType)
+		SortedSet(shared_ptr<IEnumerable<T> > enumerable) : _items(make_shared<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			Enumerable::ForEach(enumerable, bind(&SortedSet::Add, this, _1));
@@ -133,7 +133,7 @@ namespace stingray
 		{
 			if (_itemsEnumeratorHolder.lock())
 			{
-				_items.reset(new SetType(*_items));
+				_items = make_shared<SetType>(*_items);
 				_itemsEnumeratorHolder.reset();
 			}
 		}
