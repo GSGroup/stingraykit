@@ -246,6 +246,9 @@ namespace stingray
 			std::swap(_sizeLimit, other._sizeLimit);
 		}
 
+		void clear()
+		{ _data->clear(); }
+
 		iterator begin()
 		{
 			T* data = this->data();
