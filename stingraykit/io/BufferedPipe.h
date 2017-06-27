@@ -28,9 +28,10 @@ namespace stingray
 	public:
 		explicit BufferedPipe(const IPipePtr& pipe, size_t bufferSize = DefaultBufferSize);
 
-		virtual u64 Read(ByteData data, const ICancellationToken& token);
-		virtual u64 Write(ConstByteData data, const ICancellationToken& token)
-		{ return _pipe->Write(data, token); }
+		virtual u64 Read(ByteData data, const ICancellationToken& token, const optional<TimeDuration>& timeout);
+
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token, const optional<TimeDuration>& timeout)
+		{ return _pipe->Write(data, token, timeout); }
 	};
 
 }

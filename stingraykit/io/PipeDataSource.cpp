@@ -15,11 +15,11 @@ namespace stingray
 	{ }
 
 
-	void PipeDataSource::Read(IDataConsumer& consumer, const ICancellationToken& token)
+	void PipeDataSource::Read(IDataConsumer& consumer, const ICancellationToken& token, const optional<TimeDuration>& timeout)
 	{
 		try
 		{
-			const size_t read = _pipe->Read(_buffer.GetByteData(), token);
+			const size_t read = _pipe->Read(_buffer.GetByteData(), token, timeout);
 			if (read == 0)
 				return;
 

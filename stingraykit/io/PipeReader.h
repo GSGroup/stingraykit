@@ -21,13 +21,13 @@ namespace stingray
 	public:
 		explicit PipeReader(const IPipePtr& pipe);
 
-		size_t Read(ByteData data, const ICancellationToken& token)
-		{ return _pipe->Read(data, token); }
+		size_t Read(ByteData data, const ICancellationToken& token, const optional<TimeDuration>& timeout = null)
+		{ return _pipe->Read(data, token, timeout); }
 
-		u8 ReadByte(const ICancellationToken& token);
+		u8 ReadByte(const ICancellationToken& token, const optional<TimeDuration>& timeout = null);
 
 		/** Only \n and \r\n line endings are supported */
-		std::string ReadLine(const ICancellationToken& token);
+		std::string ReadLine(const ICancellationToken& token, const optional<TimeDuration>& timeout = null);
 	};
 	STINGRAYKIT_DECLARE_PTR(PipeReader);
 

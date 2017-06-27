@@ -15,11 +15,11 @@ namespace stingray
 	{ }
 
 
-	u64 BufferedPipe::Read(ByteData data, const ICancellationToken& token)
+	u64 BufferedPipe::Read(ByteData data, const ICancellationToken& token, const optional<TimeDuration>& timeout)
 	{
 		if (_bufferOffset == _bufferSize)
 		{
-			const size_t size = _pipe->Read(_buffer.GetByteData(), token);
+			const size_t size = _pipe->Read(_buffer.GetByteData(), token, timeout);
 			if (size == 0)
 				return 0;
 

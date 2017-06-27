@@ -26,7 +26,7 @@ namespace stingray
 	public:
 		explicit PipeDataSource(const IPipePtr& pipe, size_t bufferSize = DefaultBufferSize);
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token);
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token, const optional<TimeDuration>& timeout = null);
 	};
 
 }

@@ -10,17 +10,25 @@
 
 #include <stingraykit/io/IInputByteStream.h>
 #include <stingraykit/io/IOutputByteStream.h>
+#include <stingraykit/optional.h>
+#include <stingraykit/time/Time.h>
 
 namespace stingray
 {
 
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PipeClosedException, "Pipe has been closed!");
 
+
 	struct IPipe : public virtual IInputByteStream, public virtual IOutputByteStream
-	{ };
+	{
+		virtual u64 Read(ByteData data, const ICancellationToken& token) { return Read(data, token, null); }
+		virtual u64 Read(ByteData data, const ICancellationToken& token, const optional<TimeDuration>& timeout) = 0;
+
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token) { return Write(data, token, null); }
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token, const optional<TimeDuration>& timeout) = 0;
+	};
 	STINGRAYKIT_DECLARE_PTR(IPipe);
 
 }
-
 
 #endif

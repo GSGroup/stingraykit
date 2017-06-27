@@ -13,10 +13,10 @@ namespace stingray
 	PipeReader::PipeReader(const IPipePtr& pipe) : _pipe(pipe) { }
 
 
-	u8 PipeReader::ReadByte(const ICancellationToken& token)
+	u8 PipeReader::ReadByte(const ICancellationToken& token, const optional<TimeDuration>& timeout)
 	{
 		u8 result;
-		if (Read(ByteData(&result, sizeof(result)), token) != sizeof(result))
+		if (Read(ByteData(&result, sizeof(result)), token, timeout) != sizeof(result))
 		{
 			STINGRAYKIT_CHECK(!token, "Abnormal behaviour!");
 			STINGRAYKIT_THROW(OperationCancelledException());
@@ -25,20 +25,20 @@ namespace stingray
 	}
 
 
-	std::string PipeReader::ReadLine(const ICancellationToken& token)
+	std::string PipeReader::ReadLine(const ICancellationToken& token, const optional<TimeDuration>& timeout)
 	{
 		std::string result;
 
 		try
 		{
-			for (u8 byte = ReadByte(token); ; byte = ReadByte(token))
+			for (u8 byte = ReadByte(token, timeout); ; byte = ReadByte(token, timeout))
 			{
 				if (byte == '\n')
 					return result;
 
 				if (byte == '\r')
 				{
-					const u8 next = ReadByte(token);
+					const u8 next = ReadByte(token, timeout);
 					if (next == '\n')
 						return result;
 					STINGRAYKIT_THROW(NotSupportedException());
