@@ -16,7 +16,7 @@ namespace stingray
 {
 
 	TranslatedString::TranslatedString() :
-		_dictionary(new MapDictionary<LangCode, std::string>())
+		_dictionary(make_shared<MapDictionary<LangCode, std::string> >())
 	{ }
 
 
