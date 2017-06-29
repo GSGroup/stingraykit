@@ -276,8 +276,7 @@ namespace stingray
 			}
 
 			CallbackInfoPtr top = _queue->Top();
-			TimeDuration wait_time = top->GetTimeToTrigger() - _monotonic.Elapsed();
-			if (wait_time.GetMilliseconds() <= 0)
+			if (top->GetTimeToTrigger() <= _monotonic.Elapsed())
 			{
 				_queue->Pop();
 
@@ -315,20 +314,19 @@ namespace stingray
 			}
 			else //top timer not triggered
 			{
-				TimeDuration wait_time = top->GetTimeToTrigger() - _monotonic.Elapsed();
+				const TimeDuration waitTime = top->GetTimeToTrigger() - _monotonic.Elapsed();
 				top.reset();
-				if (wait_time.GetMilliseconds() > 0)
-					_cond.TimedWait(_queue->Sync(), wait_time);
+				if (waitTime > TimeDuration())
+					_cond.TimedWait(_queue->Sync(), waitTime);
 			}
 		}
 
-		TimeDuration currentTime = _monotonic.Elapsed();
+		const TimeDuration currentTime = _monotonic.Elapsed();
 		while (!_queue->IsEmpty())
 		{
 			CallbackInfoPtr top = _queue->Pop();
 
-			TimeDuration wait_time = top->GetTimeToTrigger() - currentTime;
-			if (wait_time.GetMilliseconds() <= 0)
+			if (top->GetTimeToTrigger() <= currentTime)
 			{
 				LocalExecutionGuard guard(top->GetExecutionTester());
 				if (!guard)
