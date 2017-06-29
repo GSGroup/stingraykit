@@ -332,7 +332,10 @@ namespace stingray
 			MutexUnlock ul(l);
 			LocalExecutionGuard guard(top->GetExecutionTester());
 			if (!guard)
+			{
+				top.reset();
 				continue;
+			}
 
 			try
 			{
@@ -346,6 +349,8 @@ namespace stingray
 			}
 			catch(const std::exception &ex)
 			{ _exceptionHandler(ex); }
+
+			top.reset();
 		}
 	}
 
