@@ -269,17 +269,17 @@ namespace stingray
 
 		while (_alive)
 		{
-			CallbackInfoPtr top = _queue->Top();
-			if (!top)
+			if (_queue->IsEmpty())
 			{
 				_cond.Wait(_queue->Sync());
 				continue;
 			}
 
+			CallbackInfoPtr top = _queue->Top();
 			TimeDuration wait_time = top->GetTimeToTrigger() - _monotonic.Elapsed();
 			if (wait_time.GetMilliseconds() <= 0)
 			{
-				top = _queue->Pop(); //fixme: check that's the same object
+				_queue->Pop();
 
 				{
 					LocalExecutionGuard guard(top->GetExecutionTester());
