@@ -193,19 +193,21 @@ namespace stingray
 	private:
 		u64 _user;
 		u64 _system;
+		u64 _iowait;
 		u64 _idle;
 
 	public:
-		SystemStats(u64 user, u64 system, u64 idle) :
-			_user(user), _system(system), _idle(idle)
+		SystemStats(u64 user, u64 system, u64 iowait, u64 idle) :
+			_user(user), _system(system), _iowait(iowait), _idle(idle)
 		{ }
 
-		u64 GetUser() const		{ return _user; }
+		u64 GetUser() const	{ return _user; }
 		u64 GetSystem() const	{ return _system; }
-		u64 GetIdle() const		{ return _idle; }
+		u64 GetIoWait() const	{ return _iowait; }
+		u64 GetIdle() const	{ return _idle; }
 
 		std::string ToString() const
-		{ return StringBuilder() % "{ user: " % _user % " ticks, system: " % _system % " ticks, idle: " % _idle % " }"; }
+		{ return StringBuilder() % "{ user: " % _user % " ticks, system: " % _system % " ticks, iowait: " % _iowait % " ticks, idle: " % _idle % " }"; }
 	};
 
 	/** @} */

@@ -777,7 +777,7 @@ namespace stingray
 		if (count != statsCount)
 			return null;
 
-		return SystemStats(user + nice, system + iowait + irq + softirq + steal + guest + guestNice, idle);
+		return SystemStats(user + nice, system + irq + softirq + steal + guest + guestNice, iowait, idle);
 	}
 
 
