@@ -327,27 +327,25 @@ namespace stingray
 			CallbackInfoPtr top = _queue->Pop();
 
 			if (top->GetTimeToTrigger() <= currentTime)
-			{
-				LocalExecutionGuard guard(top->GetExecutionTester());
-				if (!guard)
-					continue;
-
-				MutexUnlock ul(l);
-				try
-				{
-					if (_profileCalls)
-					{
-						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(top->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
-						(top->GetFunc())();
-					}
-					else
-						(top->GetFunc())();
-				}
-				catch(const std::exception &ex)
-				{ _exceptionHandler(ex); }
-			}
-			else
 				break;
+
+			LocalExecutionGuard guard(top->GetExecutionTester());
+			if (!guard)
+				continue;
+
+			MutexUnlock ul(l);
+			try
+			{
+				if (_profileCalls)
+				{
+					AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(top->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
+					(top->GetFunc())();
+				}
+				else
+					(top->GetFunc())();
+			}
+			catch(const std::exception &ex)
+			{ _exceptionHandler(ex); }
 		}
 	}
 
