@@ -104,8 +104,13 @@ namespace stingray
 		void ResetIterator()									{ _iteratorIsValid = false; }
 
 	public:
-		CallbackInfo(const FuncT& func, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const CallbackQueuePtr& queue)
-			: _func(func), _timeToTrigger(timeToTrigger), _period(period), _queue(queue), _iteratorIsValid(false)
+		CallbackInfo(const FuncT& func, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const TaskLifeToken& token, const CallbackQueuePtr& queue)
+			:	_func(func),
+				_timeToTrigger(timeToTrigger),
+				_period(period),
+				_token(token),
+				_queue(queue),
+				_iteratorIsValid(false)
 		{ }
 
 		const FuncT& GetFunc() const							{ return _func; }
@@ -224,7 +229,7 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken(), _queue);
 		_queue->Push(ci);
 		_cond.Broadcast();
 
@@ -240,7 +245,7 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken(), _queue);
 		_queue->Push(ci);
 		_cond.Broadcast();
 
@@ -252,7 +257,7 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken(), _queue);
 		_queue->Push(ci);
 		_cond.Broadcast();
 	}
