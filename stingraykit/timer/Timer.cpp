@@ -114,7 +114,7 @@ namespace stingray
 		bool IsPeriodic() const									{ return _period.is_initialized(); }
 		void Restart(const TimeDuration& currentTime)
 		{
-			STINGRAYKIT_CHECK(_period, "Timer::CallbackInfo::Restart internal error: _period is set!");
+			STINGRAYKIT_CHECK(_period, "CallbackInfo::Restart internal error: _period is set!");
 			_timeToTrigger = currentTime + *_period;
 		}
 		TimeDuration GetTimeToTrigger() const					{ return _timeToTrigger; }
