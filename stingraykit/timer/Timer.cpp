@@ -61,6 +61,8 @@ namespace stingray
 		TimeDuration				_timeToTrigger;
 		optional<TimeDuration>		_period;
 		TaskLifeToken				_token;
+
+		bool						_erased;
 		optional<QueueIterator>		_iterator;
 
 	private:
@@ -68,13 +70,16 @@ namespace stingray
 
 		void SetIterator(const optional<QueueIterator>& it)		{ _iterator = it; }
 		const optional<QueueIterator>& GetIterator() const		{ return _iterator; }
+		void SetErased()										{ _erased = true; }
+		bool IsErased() const									{ return _erased; }
 
 	public:
 		CallbackInfo(const FuncT& func, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const TaskLifeToken& token)
 			:	_func(func),
 				_timeToTrigger(timeToTrigger),
 				_period(period),
-				_token(token)
+				_token(token),
+				_erased(false)
 		{ }
 
 		const FuncT& GetFunc() const							{ return _func; }
@@ -106,6 +111,9 @@ namespace stingray
 	void Timer::CallbackQueue::Push(const CallbackInfoPtr& ci)
 	{
 		MutexLock l(_mutex);
+		if (ci->IsErased())
+			return;
+
 		ContainerInternal& listToInsert = _container[ci->GetTimeToTrigger()];
 		ci->SetIterator(listToInsert.insert(listToInsert.end(), ci));
 	}
@@ -113,6 +121,8 @@ namespace stingray
 	void Timer::CallbackQueue::Erase(const CallbackInfoPtr& ci)
 	{
 		MutexLock l(_mutex);
+		ci->SetErased();
+
 		const optional<iterator>& it = ci->GetIterator();
 		if (!it)
 			return;
