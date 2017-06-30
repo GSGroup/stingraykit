@@ -71,6 +71,8 @@ namespace stingray
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
+		static void RemoveTask(const CallbackQueuePtr& queue, const CallbackInfoPtr& ci);
+
 		std::string GetProfilerMessage(const function<void()>& func);
 		void ThreadFunc();
 	};

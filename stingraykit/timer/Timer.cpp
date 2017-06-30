@@ -7,54 +7,20 @@
 
 #include <stingraykit/timer/Timer.h>
 
-#include <list>
-#include <map>
-
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/CancellableFunction.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/function/function_name_getter.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/time/ElapsedTime.h>
+#include <stingraykit/FunctionToken.h>
 #include <stingraykit/TaskLifeToken.h>
 
+#include <list>
+#include <map>
 
 namespace stingray
 {
-
-	namespace Detail
-	{
-		struct ITimerConnectionImpl
-		{
-			virtual ~ITimerConnectionImpl() { }
-
-			virtual void Disconnect() = 0;
-		};
-		STINGRAYKIT_DECLARE_PTR(ITimerConnectionImpl);
-	}
-
-
-	class TimerConnectionToken : public virtual IToken
-	{
-		friend class Timer;
-
-	private:
-		Detail::ITimerConnectionImplPtr		_impl;
-
-	public:
-		TimerConnectionToken(const Detail::ITimerConnectionImplPtr& impl) : _impl(impl)
-		{ }
-
-		~TimerConnectionToken()
-		{
-			if (_impl)
-			{
-				_impl->Disconnect();
-				_impl.reset();
-			}
-		}
-	};
-
 
 	class Timer::CallbackQueue
 	{
@@ -79,11 +45,11 @@ namespace stingray
 
 		CallbackInfoPtr Top() const;
 		void Push(const CallbackInfoPtr& ci);
-		void Erase(const iterator& it);
+		void Erase(const CallbackInfoPtr& ci);
 		CallbackInfoPtr Pop();
 	};
 
-	class Timer::CallbackInfo : public virtual Detail::ITimerConnectionImpl
+	class Timer::CallbackInfo
 	{
 		STINGRAYKIT_NONCOPYABLE(CallbackInfo);
 
@@ -95,25 +61,25 @@ namespace stingray
 		TimeDuration				_timeToTrigger;
 		optional<TimeDuration>		_period;
 		TaskLifeToken				_token;
-		CallbackQueueWeakPtr		_queue;
 		optional<QueueIterator>		_iterator;
 
 	private:
 		friend class CallbackQueue;
 
 		void SetIterator(const optional<QueueIterator>& it)		{ _iterator = it; }
+		const optional<QueueIterator>& GetIterator() const		{ return _iterator; }
 
 	public:
-		CallbackInfo(const FuncT& func, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const TaskLifeToken& token, const CallbackQueuePtr& queue)
+		CallbackInfo(const FuncT& func, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const TaskLifeToken& token)
 			:	_func(func),
 				_timeToTrigger(timeToTrigger),
 				_period(period),
-				_token(token),
-				_queue(queue)
+				_token(token)
 		{ }
 
 		const FuncT& GetFunc() const							{ return _func; }
 		FutureExecutionTester GetExecutionTester() const 		{ return _token.GetExecutionTester(); }
+		void Release()											{ _token.Release(); }
 
 		bool IsPeriodic() const									{ return _period.is_initialized(); }
 		void Restart(const TimeDuration& currentTime)
@@ -122,21 +88,6 @@ namespace stingray
 			_timeToTrigger = currentTime + *_period;
 		}
 		TimeDuration GetTimeToTrigger() const					{ return _timeToTrigger; }
-
-		virtual void Disconnect()
-		{
-			CallbackQueuePtr qm = _queue.lock();
-			if (qm)
-			{
-				MutexLock l(qm->Sync());
-				if (_iterator)
-				{
-					qm->Erase(*_iterator);
-					_iterator.reset();
-				}
-			}
-			_token.Release();
-		}
 	};
 
 	Timer::CallbackInfoPtr Timer::CallbackQueue::Top() const
@@ -159,14 +110,19 @@ namespace stingray
 		ci->SetIterator(listToInsert.insert(listToInsert.end(), ci));
 	}
 
-	void Timer::CallbackQueue::Erase(const iterator& it)
+	void Timer::CallbackQueue::Erase(const CallbackInfoPtr& ci)
 	{
 		MutexLock l(_mutex);
-		TimeDuration keyToErase = (*it)->GetTimeToTrigger();
+		const optional<iterator>& it = ci->GetIterator();
+		if (!it)
+			return;
+
+		TimeDuration keyToErase = ci->GetTimeToTrigger();
 		ContainerInternal& listToErase = _container[keyToErase];
-		listToErase.erase(it);
+		listToErase.erase(*it);
 		if (listToErase.empty())
 			_container.erase(keyToErase);
+		ci->SetIterator(null);
 	}
 
 	Timer::CallbackInfoPtr Timer::CallbackQueue::Pop()
@@ -228,11 +184,11 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken(), _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
 		_queue->Push(ci);
 		_cond.Broadcast();
 
-		return MakeToken<TimerConnectionToken>(ci);
+		return MakeToken<FunctionToken>(bind(&Timer::RemoveTask, _queue, ci));
 	}
 
 
@@ -244,11 +200,11 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken(), _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
 		_queue->Push(ci);
 		_cond.Broadcast();
 
-		return MakeToken<TimerConnectionToken>(ci);
+		return MakeToken<FunctionToken>(bind(&Timer::RemoveTask, _queue, ci));
 	}
 
 
@@ -256,9 +212,19 @@ namespace stingray
 	{
 		MutexLock l(_queue->Sync());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken(), _queue);
+		CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
 		_queue->Push(ci);
 		_cond.Broadcast();
+	}
+
+
+	void Timer::RemoveTask(const CallbackQueuePtr& queue, const CallbackInfoPtr& ci)
+	{
+		{
+			MutexLock l(queue->Sync());
+			queue->Erase(ci);
+		}
+		ci->Release();
 	}
 
 
