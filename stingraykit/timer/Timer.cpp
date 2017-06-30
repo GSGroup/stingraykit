@@ -202,20 +202,16 @@ namespace stingray
 		}
 		_worker.reset();
 
-		bool has_tasks = false;
 		while(!_queue->IsEmpty())
 		{
-			CallbackInfoPtr i = _queue->Pop();
-			LocalExecutionGuard guard(i->GetExecutionTester());
+			CallbackInfoPtr top = _queue->Pop();
+			LocalExecutionGuard guard(top->GetExecutionTester());
 			if (guard)
 			{
-				has_tasks = true;
+				s_logger.Warning() << "killing timer " << _timerName << " which still has some functions to execute";
 				break;
 			}
 		}
-
-		if (has_tasks)
-			Logger::Warning() << "[Timer] Killing timer " << _timerName << " which still has some functions to execute";
 	}
 
 
