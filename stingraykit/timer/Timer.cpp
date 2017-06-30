@@ -173,19 +173,14 @@ namespace stingray
 		_worker.reset();
 
 		MutexLock l(_queue->Sync());
+		if (!_queue->IsEmpty())
+			s_logger.Warning() << "killing timer " << _timerName << " which still has some functions to execute";
+
 		while(!_queue->IsEmpty())
 		{
 			CallbackInfoPtr top = _queue->Pop();
-
 			MutexUnlock ul(l);
-			LocalExecutionGuard guard(top->GetExecutionTester());
-
 			top.reset();
-			if (guard)
-			{
-				s_logger.Warning() << "killing timer " << _timerName << " which still has some functions to execute";
-				break;
-			}
 		}
 	}
 
