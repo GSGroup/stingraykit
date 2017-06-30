@@ -192,11 +192,12 @@ namespace stingray
 
 	Token Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
 	{
-		MutexLock l(_queue->Sync());
-
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
-		_queue->Push(ci);
-		_cond.Broadcast();
+		const CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
+		{
+			MutexLock l(_queue->Sync());
+			_queue->Push(ci);
+			_cond.Broadcast();
+		}
 
 		return MakeToken<FunctionToken>(bind(&Timer::RemoveTask, _queue, ci));
 	}
@@ -208,11 +209,13 @@ namespace stingray
 
 	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
 	{
-		MutexLock l(_queue->Sync());
+		const CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
-		_queue->Push(ci);
-		_cond.Broadcast();
+		{
+			MutexLock l(_queue->Sync());
+			_queue->Push(ci);
+			_cond.Broadcast();
+		}
 
 		return MakeToken<FunctionToken>(bind(&Timer::RemoveTask, _queue, ci));
 	}
@@ -220,9 +223,9 @@ namespace stingray
 
 	void Timer::AddTask(const function<void()>& task, const FutureExecutionTester& tester)
 	{
-		MutexLock l(_queue->Sync());
+		const CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
 
-		CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
+		MutexLock l(_queue->Sync());
 		_queue->Push(ci);
 		_cond.Broadcast();
 	}
