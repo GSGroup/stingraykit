@@ -57,9 +57,7 @@ namespace stingray
 
 	public:
 		Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler = &Timer::DefaultExceptionHandler, bool profileCalls = true);
-		~Timer();
-
-		void Shutdown();
+		virtual ~Timer();
 
 		Token SetTimeout(const TimeDuration& timeout, const function<void()>& func);
 		Token SetTimer(const TimeDuration& interval, const function<void()>& func);

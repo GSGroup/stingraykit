@@ -195,7 +195,12 @@ namespace stingray
 
 	Timer::~Timer()
 	{
-		Shutdown();
+		{
+			MutexLock l(_queue->Sync());
+			_alive = false;
+			_cond.Broadcast();
+		}
+		_worker.reset();
 
 		bool has_tasks = false;
 		while(!_queue->IsEmpty())
@@ -211,17 +216,6 @@ namespace stingray
 
 		if (has_tasks)
 			Logger::Warning() << "[Timer] Killing timer " << _timerName << " which still has some functions to execute";
-	}
-
-
-	void Timer::Shutdown()
-	{
-		{
-			MutexLock l(_queue->Sync());
-			_alive = false;
-			_cond.Broadcast();
-		}
-		_worker.reset();
 	}
 
 
