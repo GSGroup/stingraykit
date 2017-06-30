@@ -68,7 +68,7 @@ namespace stingray
 	public:
 		typedef ContainerInternal::iterator iterator;
 
-		inline Mutex &Sync()
+		inline Mutex& Sync()
 		{ return _mutex; }
 
 		inline bool IsEmpty() const
@@ -78,15 +78,17 @@ namespace stingray
 		}
 
 		CallbackInfoPtr Top() const;
-		void Push(CallbackInfoPtr ci);
-		void Erase(const iterator & it);
+		void Push(const CallbackInfoPtr& ci);
+		void Erase(const iterator& it);
 		CallbackInfoPtr Pop();
 	};
 
 	class Timer::CallbackInfo : public virtual Detail::ITimerConnectionImpl
 	{
 		STINGRAYKIT_NONCOPYABLE(CallbackInfo);
-		typedef function<void()>		FuncT;
+
+		typedef function<void()>			FuncT;
+		typedef CallbackQueue::iterator		QueueIterator;
 
 	private:
 		FuncT						_func;
@@ -94,14 +96,12 @@ namespace stingray
 		optional<TimeDuration>		_period;
 		TaskLifeToken				_token;
 		CallbackQueueWeakPtr		_queue;
-		CallbackQueue::iterator		_iterator;
-		bool						_iteratorIsValid;
+		optional<QueueIterator>		_iterator;
 
 	private:
 		friend class CallbackQueue;
 
-		void SetIterator(const CallbackQueue::iterator& it)		{ _iterator = it; _iteratorIsValid = true; }
-		void ResetIterator()									{ _iteratorIsValid = false; }
+		void SetIterator(const optional<QueueIterator>& it)		{ _iterator = it; }
 
 	public:
 		CallbackInfo(const FuncT& func, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const TaskLifeToken& token, const CallbackQueuePtr& queue)
@@ -109,8 +109,7 @@ namespace stingray
 				_timeToTrigger(timeToTrigger),
 				_period(period),
 				_token(token),
-				_queue(queue),
-				_iteratorIsValid(false)
+				_queue(queue)
 		{ }
 
 		const FuncT& GetFunc() const							{ return _func; }
@@ -130,10 +129,10 @@ namespace stingray
 			if (qm)
 			{
 				MutexLock l(qm->Sync());
-				if (_iteratorIsValid)
+				if (_iterator)
 				{
-					qm->Erase(_iterator);
-					ResetIterator();
+					qm->Erase(*_iterator);
+					_iterator.reset();
 				}
 			}
 			_token.Release();
@@ -153,14 +152,14 @@ namespace stingray
 			return null;
 	}
 
-	void Timer::CallbackQueue::Push(CallbackInfoPtr ci)
+	void Timer::CallbackQueue::Push(const CallbackInfoPtr& ci)
 	{
 		MutexLock l(_mutex);
 		ContainerInternal& listToInsert = _container[ci->GetTimeToTrigger()];
 		ci->SetIterator(listToInsert.insert(listToInsert.end(), ci));
 	}
 
-	void Timer::CallbackQueue::Erase(const iterator & it)
+	void Timer::CallbackQueue::Erase(const iterator& it)
 	{
 		MutexLock l(_mutex);
 		TimeDuration keyToErase = (*it)->GetTimeToTrigger();
@@ -181,7 +180,7 @@ namespace stingray
 		listToPop.pop_front();
 		if (listToPop.empty())
 			_container.erase(ci->GetTimeToTrigger());
-		ci->ResetIterator();
+		ci->SetIterator(null);
 		return ci;
 	}
 
