@@ -44,13 +44,16 @@ namespace stingray
 
 	private:
 		std::string					_timerName;
-		ElapsedTime					_monotonic;
-		ThreadPtr					_worker;
-		ConditionVariable			_cond;
-		bool						_alive;
-		CallbackQueuePtr			_queue;
 		ExceptionHandler			_exceptionHandler;
 		bool						_profileCalls;
+
+		ElapsedTime					_monotonic;
+		bool						_alive;
+
+		CallbackQueuePtr			_queue;
+		ConditionVariable			_cond;
+
+		ThreadPtr					_worker;
 
 	public:
 		Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler = &Timer::DefaultExceptionHandler, bool profileCalls = true);

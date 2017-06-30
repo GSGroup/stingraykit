@@ -180,13 +180,17 @@ namespace stingray
 		return ci;
 	}
 
+
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(Timer);
 
-	Timer::Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler, bool profileCalls) :
-		_timerName(timerName), _alive(true), _queue(new CallbackQueue), _exceptionHandler(exceptionHandler), _profileCalls(profileCalls)
-	{
-		_worker.reset(new Thread(timerName, bind(&Timer::ThreadFunc, this, not_using(_1))));
-	}
+	Timer::Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler, bool profileCalls)
+		:	_timerName(timerName),
+			_exceptionHandler(exceptionHandler),
+			_profileCalls(profileCalls),
+			_alive(true),
+			_queue(make_shared<CallbackQueue>()),
+			_worker(make_shared<Thread>(timerName, bind(&Timer::ThreadFunc, this, not_using(_1))))
+	{ }
 
 
 	Timer::~Timer()
