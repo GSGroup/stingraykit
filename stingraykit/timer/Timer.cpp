@@ -281,6 +281,7 @@ namespace stingray
 				_queue->Pop();
 
 				{
+					MutexUnlock ul(l);
 					LocalExecutionGuard guard(top->GetExecutionTester());
 					if (!guard)
 					{
@@ -288,7 +289,6 @@ namespace stingray
 						continue;
 					}
 
-					MutexUnlock ul(l);
 					if (top->IsPeriodic())
 						top->Restart(_monotonic.Elapsed());
 
@@ -329,11 +329,11 @@ namespace stingray
 			if (top->GetTimeToTrigger() <= currentTime)
 				break;
 
+			MutexUnlock ul(l);
 			LocalExecutionGuard guard(top->GetExecutionTester());
 			if (!guard)
 				continue;
 
-			MutexUnlock ul(l);
 			try
 			{
 				if (_profileCalls)
