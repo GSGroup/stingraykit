@@ -8,29 +8,26 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <typeinfo>
-
-#include <stingraykit/shared_ptr.h>
-
+#include <stingraykit/compare/comparers.h>
 
 namespace stingray
 {
 
 	struct IFuzzyEquatable
 	{
-		virtual ~IFuzzyEquatable() {}
-		virtual bool FuzzyEquals(const IFuzzyEquatable &other) const = 0;
+		virtual ~IFuzzyEquatable() { }
+
+		virtual bool FuzzyEquals(const IFuzzyEquatable& other) const = 0;
 	};
 
 
 	template<typename T>
 	struct FuzzyEquatable : public virtual IFuzzyEquatable
 	{
-		virtual bool FuzzyEquals(const IFuzzyEquatable &other) const
+		virtual bool FuzzyEquals(const IFuzzyEquatable& other) const
 		{
-			const std::type_info &my_type = typeid(*this);
-			const std::type_info &other_type = typeid(other);
-
+			const std::type_info& my_type = typeid(*this);
+			const std::type_info& other_type = typeid(other);
 			if (my_type != other_type)
 				return false;
 
@@ -45,19 +42,22 @@ namespace stingray
 		}
 
 	protected:
-		virtual bool DoFuzzyEquals(const T &other) const = 0;
+		virtual bool DoFuzzyEquals(const T& other) const = 0;
 	};
 
 
-	struct FuzzyEqualityComparer : std::binary_function<const shared_ptr<const IFuzzyEquatable> &, const shared_ptr<const IFuzzyEquatable> &, bool>
+	struct FuzzyEquals : public comparers::EqualsComparerBase<FuzzyEquals>
 	{
-		typedef const shared_ptr<const IFuzzyEquatable> & PointerType;
+		STINGRAYKIT_DECLARE_METHOD_CHECK(FuzzyEquals);
 
-		inline bool operator()(PointerType l, PointerType r) const								{ return FuzzyEquals(l, r); }
-		inline bool operator()(const IFuzzyEquatable& l, const IFuzzyEquatable& r) const		{ return FuzzyEquals(l, r); }
+		template<typename T>
+		typename EnableIf<HasMethod_FuzzyEquals<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
+		{
+			if (&lhs == &rhs)
+				return true;
 
-		static inline bool FuzzyEquals(PointerType l, PointerType r)							{ return (!l && !r) || FuzzyEquals(*l, *r); }
-		static inline bool FuzzyEquals(const IFuzzyEquatable& l, const IFuzzyEquatable& r)		{ return l.FuzzyEquals(r); }
+			return lhs.FuzzyEquals(rhs);
+		}
 	};
 
 }
