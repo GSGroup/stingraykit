@@ -31,7 +31,7 @@ namespace stingray
 		StlEnumeratorAdapter() // This means the end of a collection
 		{ }
 
-		StlEnumeratorAdapter(shared_ptr<IEnumerator<T> > enumerator)
+		StlEnumeratorAdapter(const shared_ptr<IEnumerator<T> >& enumerator)
 			: _enumerator(enumerator)
 		{ }
 
@@ -49,7 +49,7 @@ namespace stingray
 			return _enumerator->Get();
 		}
 
-		bool operator != (const StlEnumeratorAdapter& other)
+		bool operator != (const StlEnumeratorAdapter& other) const
 		{
 			if (other._enumerator != NULL)
 				STINGRAYKIT_THROW(NotImplementedException());

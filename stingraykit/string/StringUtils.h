@@ -304,25 +304,34 @@ namespace stingray
 	{ return Detail::IsAnyOfSplitStringRange(search, string, limit); }
 
 
-	template < typename InputIterator, typename UnaryOperator >
-	std::string Join(const std::string& separator, InputIterator first, InputIterator last, UnaryOperator op)
+	template < typename Range, typename UnaryOperator >
+	std::string Join(const std::string& separator, Range range, UnaryOperator op)
 	{
 		std::string result;
-		while (first != last)
+		for (; range.Valid(); range.Next())
 		{
 			if (!result.empty())
 				result.append(separator);
 
-			result.append(op(*first));
-			++first;
+			result.append(op(range.Get()));
 		}
 		return result;
 	}
 
 
+	template < typename Range >
+	inline std::string Join(const std::string& separator, Range range)
+	{ return Join(separator, range, lexical_cast<std::string, typename Range::ValueType>); }
+
+
+	template < typename InputIterator, typename UnaryOperator >
+	inline std::string Join(const std::string& separator, InputIterator first, InputIterator last, UnaryOperator op)
+	{ return Join(separator, ToRange(first, last), op); }
+
+
 	template < typename InputIterator >
-	std::string Join(const std::string& separator, InputIterator first, InputIterator last)
-	{ return Join(separator, first, last, lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
+	inline std::string Join(const std::string& separator, InputIterator first, InputIterator last)
+	{ return Join(separator, ToRange(first, last), lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
 
 
 	inline std::string RightStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
