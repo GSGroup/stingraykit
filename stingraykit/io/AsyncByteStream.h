@@ -479,7 +479,7 @@ namespace stingray
 						if (token)
 							_condVar.TimedWait(_streamOpQueueMutex, TimeDuration::Second(), token);
 						else
-							STINGRAYKIT_THROW(OperationCanceledException());
+							STINGRAYKIT_THROW(OperationCancelledException());
 
 						continue;
 					}

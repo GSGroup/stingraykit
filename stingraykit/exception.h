@@ -53,7 +53,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(CrcErrorException, "CRC mismatch!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(TimeoutException, "Timed out!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InvalidOperationException, "Invalid operation!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(OperationCanceledException, "Operation has been canceled!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(OperationCancelledException, "Operation has been cancelled!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(SocketException, "Socket error!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(AccessDeniedException, "Access denied!");
 

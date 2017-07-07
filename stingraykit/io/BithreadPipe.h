@@ -24,7 +24,7 @@ namespace stingray
 
 			while (!_data && token)
 				_full.Wait(_guard, token);
-			STINGRAYKIT_CHECK(token, OperationCanceledException());
+			STINGRAYKIT_CHECK(token, OperationCancelledException());
 			const size_t size = std::min(data.size(), _data->size());
 			std::copy(_data->begin(), _data->begin() + size, data.data());
 			_data = size == _data->size() ? null : optional<ConstByteData>(ConstByteData(*_data, size));
@@ -41,7 +41,7 @@ namespace stingray
 			_full.Broadcast();
 			while (_data && token)
 				_empty.Wait(_guard, token);
-			STINGRAYKIT_CHECK(token, OperationCanceledException());
+			STINGRAYKIT_CHECK(token, OperationCancelledException());
 			return data.size();
 		}
 	};

@@ -18,7 +18,7 @@ namespace stingray
 	u8 PipeReader::ReadByte(const ICancellationToken& token)
 	{
 		u8 result;
-		STINGRAYKIT_CHECK(Read(ByteData(&result, sizeof(result)), token) == sizeof(result), OperationCanceledException());
+		STINGRAYKIT_CHECK(Read(ByteData(&result, sizeof(result)), token) == sizeof(result), OperationCancelledException());
 		return result;
 	}
 

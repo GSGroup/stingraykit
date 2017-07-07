@@ -111,7 +111,7 @@ namespace stingray
 			{
 				if (_exception)
 					rethrow_exception(_exception);
-				STINGRAYKIT_CHECK(_value, OperationCanceledException());
+				STINGRAYKIT_CHECK(_value, OperationCancelledException());
 				return *_value;
 			}
 		};
@@ -135,7 +135,7 @@ namespace stingray
 			{
 				if (_exception)
 					rethrow_exception(_exception);
-				STINGRAYKIT_CHECK(_value, OperationCanceledException());
+				STINGRAYKIT_CHECK(_value, OperationCancelledException());
 			}
 		};
 
