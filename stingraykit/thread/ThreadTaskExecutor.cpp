@@ -5,14 +5,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#if !HAVE_TASK_EXECUTOR
-
-#include <stingraykit/log/Logger.h>
-#include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/thread/ThreadTaskExecutor.h>
+
+#include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/function/function_name_getter.h>
-
+#include <stingraykit/log/Logger.h>
 
 namespace stingray
 {
@@ -110,5 +108,3 @@ namespace stingray
 	}
 
 }
-
-#endif
