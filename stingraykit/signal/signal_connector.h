@@ -87,6 +87,23 @@ namespace stingray
 		}
 	};
 
+
+	namespace Detail
+	{
+
+		struct DummySignalConnectorProxy
+		{
+			template < typename Signature_ >
+			operator signal_connector<Signature_>() const
+			{ return signal_connector<Signature_>(); }
+		};
+
+	}
+
+
+	Detail::DummySignalConnectorProxy make_dummy_signal_connector()
+	{ return Detail::DummySignalConnectorProxy(); }
+
 	/** @} */
 
 }
