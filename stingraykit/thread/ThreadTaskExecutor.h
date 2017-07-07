@@ -63,7 +63,7 @@ namespace stingray
 	private:
 		static void DefaultExceptionHandler(const std::exception& ex);
 
-		std::string GetProfilerMessage(const function<void()>& func);
+		std::string GetProfilerMessage(const function<void()>& func) const;
 
 		void ThreadFunc();
 	};

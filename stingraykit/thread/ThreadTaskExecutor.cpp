@@ -72,7 +72,7 @@ namespace stingray
 	{ Logger::Error() << "Uncaught exception in ThreadTaskExecutor: " << ex; }
 
 
-	std::string ThreadTaskExecutor::GetProfilerMessage(const function<void()>& func)
+	std::string ThreadTaskExecutor::GetProfilerMessage(const function<void()>& func) const
 	{ return StringBuilder() % get_function_name(func) % " in ThreadTaskExecutor '" % _name % "'"; }
 
 
