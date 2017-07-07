@@ -76,6 +76,7 @@ namespace stingray
 		std::string GetProfilerMessage(const function<void()>& func) const;
 
 		void ThreadFunc();
+		void ExecuteTask(const CallbackInfoPtr& ci) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(Timer);
 

@@ -263,30 +263,14 @@ namespace stingray
 
 				{
 					MutexUnlock ul(l);
-					LocalExecutionGuard guard(top->GetExecutionTester());
-					if (!guard)
-					{
-						top.reset();
-						continue;
-					}
 
-					if (top->IsPeriodic())
-						top->Restart(_monotonic.Elapsed());
+					const optional<TimeDuration> monotonic = top->IsPeriodic() ? _monotonic.Elapsed() : optional<TimeDuration>();
 
-					try
-					{
-						if (_profileCalls)
-						{
-							AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(top->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
-							(top->GetFunc())();
-						}
-						else
-							(top->GetFunc())();
-					}
-					catch(const std::exception &ex)
-					{ _exceptionHandler(ex); }
+					ExecuteTask(top);
 
-					if (!top->IsPeriodic())
+					if (monotonic)
+						top->Restart(*monotonic);
+					else
 						top.reset();
 				}
 
@@ -311,28 +295,31 @@ namespace stingray
 				break;
 
 			MutexUnlock ul(l);
-			LocalExecutionGuard guard(top->GetExecutionTester());
-			if (!guard)
-			{
-				top.reset();
-				continue;
-			}
 
-			try
-			{
-				if (_profileCalls)
-				{
-					AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(top->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
-					(top->GetFunc())();
-				}
-				else
-					(top->GetFunc())();
-			}
-			catch(const std::exception &ex)
-			{ _exceptionHandler(ex); }
-
+			ExecuteTask(top);
 			top.reset();
 		}
+	}
+
+
+	void Timer::ExecuteTask(const CallbackInfoPtr& ci) const
+	{
+		LocalExecutionGuard guard(ci->GetExecutionTester());
+		if (!guard)
+			return;
+
+		try
+		{
+			if (_profileCalls)
+			{
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(ci->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
+				ci->GetFunc()();
+			}
+			else
+				ci->GetFunc()();
+		}
+		catch(const std::exception &ex)
+		{ _exceptionHandler(ex); }
 	}
 
 }
