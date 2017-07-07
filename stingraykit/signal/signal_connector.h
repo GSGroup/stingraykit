@@ -54,13 +54,23 @@ namespace stingray
 		self_count_ptr<Detail::ISignalConnector>	_impl;
 
 	public:
+		signal_connector() { }
+
 		signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl) { }
 
 		void SendCurrentState(const function<Signature_>& slot) const
-		{ _impl->SendCurrentState(function_storage(slot)); }
+		{
+			if (STINGRAYKIT_UNLIKELY(!_impl))
+				return;
+
+			_impl->SendCurrentState(function_storage(slot));
+		}
 
 		Token connect(const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
+			if (STINGRAYKIT_UNLIKELY(!_impl))
+				return Token();
+
 			TaskLifeToken token(_impl->CreateSyncToken());
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
 			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState);
@@ -68,6 +78,9 @@ namespace stingray
 
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
+			if (STINGRAYKIT_UNLIKELY(!_impl))
+				return Token();
+
 			TaskLifeToken token(_impl->CreateAsyncToken());
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
 			return _impl->Connect(function_storage(function<Signature_>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState);
