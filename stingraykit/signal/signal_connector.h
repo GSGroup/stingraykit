@@ -8,13 +8,11 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stingraykit/Token.h>
 #include <stingraykit/function/AsyncFunction.h>
 #include <stingraykit/signal/signal_policies.h>
 #include <stingraykit/thread/ITaskExecutor.h>
 #include <stingraykit/TaskLifeToken.h>
-
+#include <stingraykit/Token.h>
 
 namespace stingray
 {
@@ -42,6 +40,7 @@ namespace stingray
 
 	}
 
+
 	template < typename Signature_ >
 	class signal_connector
 	{
@@ -55,8 +54,7 @@ namespace stingray
 		self_count_ptr<Detail::ISignalConnector>	_impl;
 
 	public:
-		signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl)
-		{ }
+		signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl) { }
 
 		void SendCurrentState(const function<Signature_>& slot) const
 		{ _impl->SendCurrentState(function_storage(slot)); }
