@@ -86,7 +86,7 @@ namespace stingray
 		FutureExecutionTester GetExecutionTester() const 		{ return _token.GetExecutionTester(); }
 		void Release()											{ _token.Release(); }
 
-		bool IsPeriodic() const									{ return _period.is_initialized(); }
+		bool IsPeriodic() const									{ return _period; }
 		void Restart(const TimeDuration& currentTime)
 		{
 			STINGRAYKIT_CHECK(_period, "CallbackInfo::Restart internal error: _period is set!");
@@ -236,7 +236,11 @@ namespace stingray
 	}
 
 
-	std::string Timer::GetProfilerMessage(const function<void()>& func)
+	void Timer::DefaultExceptionHandler(const std::exception& ex)
+	{ s_logger.Error() << "Timer func exception: " << ex; }
+
+
+	std::string Timer::GetProfilerMessage(const function<void()>& func) const
 	{ return StringBuilder() % get_function_name(func) % " in Timer '" % _timerName % "'"; }
 
 
@@ -330,9 +334,5 @@ namespace stingray
 			top.reset();
 		}
 	}
-
-
-	void Timer::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Timer func exception: " << ex; }
 
 }

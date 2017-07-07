@@ -73,7 +73,8 @@ namespace stingray
 	private:
 		static void RemoveTask(const CallbackQueuePtr& queue, const CallbackInfoPtr& ci);
 
-		std::string GetProfilerMessage(const function<void()>& func);
+		std::string GetProfilerMessage(const function<void()>& func) const;
+
 		void ThreadFunc();
 	};
 	STINGRAYKIT_DECLARE_PTR(Timer);
