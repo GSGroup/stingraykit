@@ -95,24 +95,30 @@ namespace stingray
 
 			MutexUnlock ul(l);
 
-			LocalExecutionGuard guard(top->second);
-			if (guard)
-			{
-				try
-				{
-					if (_profileCalls)
-					{
-						AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, ref(top->first)), 10000, AsyncProfiler::Session::NameGetterTag());
-						top->first();
-					}
-					else
-						top->first();
-				}
-				catch(const std::exception& ex)
-				{ _exceptionHandler(ex); }
-			}
+			ExecuteTask(*top);
 			top.reset(); // destroy object with unlocked mutex to keep lock order correct
 		}
+	}
+
+
+	void ThreadTaskExecutor::ExecuteTask(const TaskPair& task) const
+	{
+		LocalExecutionGuard guard(task.second);
+		if (!guard)
+			return;
+
+		try
+		{
+			if (_profileCalls)
+			{
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, ref(task.first)), 10000, AsyncProfiler::Session::NameGetterTag());
+				task.first();
+			}
+			else
+				task.first();
+		}
+		catch(const std::exception& ex)
+		{ _exceptionHandler(ex); }
 	}
 
 }
