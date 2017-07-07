@@ -56,10 +56,6 @@ namespace stingray
 	}
 
 
-	void ThreadTaskExecutor::AddTask(const TaskType& task)
-	{ AddTask(task, null); }
-
-
 	void ThreadTaskExecutor::Pause(bool pause)
 	{
 		MutexLock l(_syncRoot);

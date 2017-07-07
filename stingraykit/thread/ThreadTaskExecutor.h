@@ -53,9 +53,12 @@ namespace stingray
 		explicit ThreadTaskExecutor(const std::string& name, bool profileCalls = true);
 		virtual ~ThreadTaskExecutor();
 
-		virtual void AddTask(const TaskType& task);
+		virtual void AddTask(const TaskType& task)
+		{ AddTask(task, null); }
+
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester);
-		virtual void Pause(bool pause);
+
+		void Pause(bool pause);
 
 	private:
 		static void DefaultExceptionHandler(const std::exception& ex);
