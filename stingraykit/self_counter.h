@@ -145,6 +145,18 @@ namespace stingray
 		inline int value() const		{ return _value; }
 	};
 
+
+	template < typename T >
+	struct ToPointerType<self_count_ptr<T> >
+	{ typedef T* ValueT; };
+
+	template < typename T >
+	inline T* to_pointer(const self_count_ptr<T>& ptr) { return ptr.get(); }
+
+	template < typename T >
+	inline T* to_pointer(self_count_ptr<T>& ptr) { return ptr.get(); }
+
+
 	template<typename T>
 	struct self_count_less;
 

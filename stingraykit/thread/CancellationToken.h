@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/ICancellationToken.h>
 #include <stingraykit/thread/Thread.h>
@@ -21,19 +20,41 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(CancellationToken);
 
-	private:
-		Mutex							_mutex;
-		ConditionVariable				_cond;
-		atomic<bool>					_cancelled;
-		bool							_cancelDone;
-		mutable ICancellationHandler*	_cancelHandler;
+		class Impl : public self_counter<Impl>
+		{
+			STINGRAYKIT_NONCOPYABLE(Impl);
+
+			Mutex							_mutex;
+			ConditionVariable				_cond;
+			atomic<bool>					_cancelled;
+			bool							_cancelDone;
+			mutable ICancellationHandler*	_cancelHandler;
+
+		public:
+			Impl();
+
+			void Cancel();
+			void Reset();
+
+			void Sleep(TimeDuration duration) const;
+
+			bool IsCancelled() const;
+
+			bool TryRegisterCancellationHandler(ICancellationHandler& handler) const;
+			bool TryUnregisterCancellationHandler() const;
+			bool UnregisterCancellationHandler() const;
+		};
+		typedef self_count_ptr<Impl>	ImplPtr;
+
+		ImplPtr							_impl;
 
 	public:
 		CancellationToken();
-		virtual ~CancellationToken();
 
 		virtual void Cancel();
 		virtual void Reset();
+
+		virtual Token GetCancellator() const;
 
 		virtual void Sleep(TimeDuration duration) const;
 
@@ -46,6 +67,5 @@ namespace stingray
 	};
 
 }
-
 
 #endif

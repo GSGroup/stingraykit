@@ -7,19 +7,20 @@
 
 #include <stingraykit/thread/CancellationToken.h>
 
+#include <stingraykit/function/bind.h>
+#include <stingraykit/FunctionToken.h>
 
 namespace stingray
 {
 
-	CancellationToken::CancellationToken() : _cancelled(false), _cancelDone(false), _cancelHandler(null)
+	CancellationToken::Impl::Impl()
+		:	_cancelled(false),
+			_cancelDone(false),
+			_cancelHandler(null)
 	{ }
 
 
-	CancellationToken::~CancellationToken()
-	{ }
-
-
-	void CancellationToken::Cancel()
+	void CancellationToken::Impl::Cancel()
 	{
 		ICancellationHandler* cancelHandler = null;
 		{
@@ -42,7 +43,7 @@ namespace stingray
 	}
 
 
-	void CancellationToken::Reset()
+	void CancellationToken::Impl::Reset()
 	{
 		MutexLock l(_mutex);
 		STINGRAYKIT_CHECK(!_cancelHandler && (_cancelled == _cancelDone), LogicException("CancellationToken is in use!"));
@@ -51,7 +52,7 @@ namespace stingray
 	}
 
 
-	void CancellationToken::Sleep(TimeDuration duration) const
+	void CancellationToken::Impl::Sleep(TimeDuration duration) const
 	{
 		MutexLock l(_mutex);
 		if (_cancelled)
@@ -61,11 +62,11 @@ namespace stingray
 	}
 
 
-	bool CancellationToken::IsCancelled() const
+	bool CancellationToken::Impl::IsCancelled() const
 	{ return _cancelled.load(MemoryOrderRelaxed); }
 
 
-	bool CancellationToken::TryRegisterCancellationHandler(ICancellationHandler& handler) const
+	bool CancellationToken::Impl::TryRegisterCancellationHandler(ICancellationHandler& handler) const
 	{
 		MutexLock l(_mutex);
 		if (_cancelled)
@@ -77,7 +78,7 @@ namespace stingray
 	}
 
 
-	bool CancellationToken::TryUnregisterCancellationHandler() const
+	bool CancellationToken::Impl::TryUnregisterCancellationHandler() const
 	{
 		MutexLock l(_mutex);
 		_cancelHandler = null;
@@ -86,7 +87,7 @@ namespace stingray
 	}
 
 
-	bool CancellationToken::UnregisterCancellationHandler() const
+	bool CancellationToken::Impl::UnregisterCancellationHandler() const
 	{
 		MutexLock l(_mutex);
 		_cancelHandler = null;
@@ -98,5 +99,42 @@ namespace stingray
 			_cond.Wait(_mutex);
 		return false;
 	}
+
+
+	CancellationToken::CancellationToken()
+		:	_impl(new Impl())
+	{ }
+
+
+	void CancellationToken::Cancel()
+	{ return _impl->Cancel(); }
+
+
+	void CancellationToken::Reset()
+	{ _impl->Reset(); }
+
+
+	Token CancellationToken::GetCancellator() const
+	{ return MakeToken<FunctionToken>(bind(&Impl::Cancel, _impl)); }
+
+
+	void CancellationToken::Sleep(TimeDuration duration) const
+	{ _impl->Sleep(duration); }
+
+
+	bool CancellationToken::IsCancelled() const
+	{ return _impl->IsCancelled(); }
+
+
+	bool CancellationToken::TryRegisterCancellationHandler(ICancellationHandler& handler) const
+	{ return _impl->TryRegisterCancellationHandler(handler); }
+
+
+	bool CancellationToken::TryUnregisterCancellationHandler() const
+	{ return _impl->TryUnregisterCancellationHandler(); }
+
+
+	bool CancellationToken::UnregisterCancellationHandler() const
+	{ return _impl->UnregisterCancellationHandler(); }
 
 }
