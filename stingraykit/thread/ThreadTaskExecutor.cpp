@@ -18,12 +18,20 @@ namespace stingray
 	static const size_t TaskCountLimit = 1024;
 
 	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls)
-		: _name(name), _working(true), _paused(false), _exceptionHandler(exceptionHandler), _profileCalls(profileCalls)
+		:	_name(name),
+			_exceptionHandler(exceptionHandler),
+			_profileCalls(profileCalls),
+			_working(true),
+			_paused(false)
 	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, not_using(_1))); }
 
 
 	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, bool profileCalls)
-		: _name(name), _working(true), _paused(false), _exceptionHandler(&ThreadTaskExecutor::DefaultExceptionHandler), _profileCalls(profileCalls)
+		:	_name(name),
+			_exceptionHandler(&ThreadTaskExecutor::DefaultExceptionHandler),
+			_profileCalls(profileCalls),
+			_working(true),
+			_paused(false)
 	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, not_using(_1))); }
 
 
@@ -63,8 +71,10 @@ namespace stingray
 			_condVar.Broadcast();
 	}
 
+
 	void ThreadTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
 	{ Logger::Error() << "Uncaught exception in ThreadTaskExecutor: " << ex; }
+
 
 	std::string ThreadTaskExecutor::GetProfilerMessage(const function<void()>& func)
 	{ return StringBuilder() % get_function_name(func) % " in ThreadTaskExecutor '" % _name % "'"; }

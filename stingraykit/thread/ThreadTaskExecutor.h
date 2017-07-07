@@ -8,14 +8,13 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <queue>
-#include <list>
-
 #include <stingraykit/thread/ConditionVariable.h>
+#include <stingraykit/thread/ITaskExecutor.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/Final.h>
-#include <stingraykit/thread/ITaskExecutor.h>
 
+#include <queue>
+#include <list>
 
 namespace stingray
 {
@@ -31,24 +30,28 @@ namespace stingray
 
 		typedef function<void()>										TaskType;
 		typedef function<void(const std::exception&)>					ExceptionHandlerType;
+
 		typedef std::pair<TaskType, FutureExecutionTester>				TaskPair;
 		typedef std::queue<TaskPair, std::list<TaskPair> >				QueueType;
 
 	private:
 		std::string				_name;
-		bool					_working;	// TODO: get rid of it
-		bool					_paused;
-		ThreadPtr				_worker;	// TODO: store it by value
-		Mutex					_syncRoot;
-		ConditionVariable		_condVar;
-		QueueType				_queue;
 		ExceptionHandlerType	_exceptionHandler;
 		bool					_profileCalls;
+
+		Mutex					_syncRoot;
+		QueueType				_queue;
+
+		ConditionVariable		_condVar;
+		bool					_working;	// TODO: get rid of it
+		bool					_paused;
+
+		ThreadPtr				_worker;	// TODO: store it by value
 
 	public:
 		ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls = true);
 		explicit ThreadTaskExecutor(const std::string& name, bool profileCalls = true);
-		~ThreadTaskExecutor();
+		virtual ~ThreadTaskExecutor();
 
 		virtual void AddTask(const TaskType& task);
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester);
@@ -66,6 +69,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
