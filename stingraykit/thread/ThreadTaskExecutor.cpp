@@ -92,11 +92,13 @@ namespace stingray
 
 			optional<TaskPair> top = _queue.front();
 			_queue.pop();
-			try
+
+			MutexUnlock ul(l);
+
+			LocalExecutionGuard guard(top->second);
+			if (guard)
 			{
-				MutexUnlock ul(l);
-				LocalExecutionGuard guard(top->second);
-				if (guard)
+				try
 				{
 					if (_profileCalls)
 					{
@@ -106,10 +108,10 @@ namespace stingray
 					else
 						top->first();
 				}
-				top.reset(); // destroy object with unlocked mutex to keep lock order correct
+				catch(const std::exception& ex)
+				{ _exceptionHandler(ex); }
 			}
-			catch(const std::exception& ex)
-			{ _exceptionHandler(ex); }
+			top.reset(); // destroy object with unlocked mutex to keep lock order correct
 		}
 	}
 
