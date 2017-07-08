@@ -14,7 +14,6 @@
 #include <stingraykit/Final.h>
 
 #include <queue>
-#include <list>
 
 namespace stingray
 {
@@ -32,7 +31,7 @@ namespace stingray
 		typedef function<void(const std::exception&)>					ExceptionHandlerType;
 
 		typedef std::pair<TaskType, FutureExecutionTester>				TaskPair;
-		typedef std::queue<TaskPair, std::list<TaskPair> >				QueueType;
+		typedef std::queue<TaskPair, std::deque<TaskPair> >				QueueType;
 
 	private:
 		std::string				_name;
