@@ -101,7 +101,7 @@ namespace stingray
 	}
 
 
-	Detail::DummySignalConnectorProxy make_dummy_signal_connector()
+	inline Detail::DummySignalConnectorProxy make_dummy_signal_connector()
 	{ return Detail::DummySignalConnectorProxy(); }
 
 	/** @} */
