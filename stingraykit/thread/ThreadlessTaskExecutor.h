@@ -8,16 +8,14 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/diagnostics/AsyncProfiler.h>
+#include <stingraykit/diagnostics/ExecutorsProfiler.h>
+#include <stingraykit/thread/ITaskExecutor.h>
+#include <stingraykit/thread/Thread.h>
+#include <stingraykit/Final.h>
 
 #include <queue>
 #include <list>
-
-#include <stingraykit/diagnostics/AsyncProfiler.h>
-#include <stingraykit/diagnostics/ExecutorsProfiler.h>
-#include <stingraykit/Final.h>
-#include <stingraykit/thread/ITaskExecutor.h>
-#include <stingraykit/thread/Thread.h>
-
 
 namespace stingray
 {
@@ -27,6 +25,7 @@ namespace stingray
 	{
 		typedef function<void()>							TaskType;
 		typedef function<void(const std::exception&)>		ExceptionHandlerType;
+
 		typedef std::pair<TaskType, FutureExecutionTester>	TaskPair;
 		typedef std::queue<TaskPair, std::list<TaskPair> >	QueueType;
 
@@ -48,8 +47,6 @@ namespace stingray
 
 		virtual void AddTask(const TaskType& task)
 		{ AddTask(task, null); }
-
-		virtual void Pause(bool pause) { STINGRAYKIT_THROW(NotSupportedException()); }
 
 		void ExecuteTasks()
 		{
@@ -79,18 +76,15 @@ namespace stingray
 			}
 		}
 
-		std::string GetProfilerMessage(const function<void()>& func)
+		std::string GetProfilerMessage(const function<void()>& func) const
 		{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
 
 	private:
 		static void DefaultExceptionHandler(const std::exception& ex)
 		{ Logger::Error() << "Uncaught exception in ThreadlessTaskExecutor: " << ex; }
 	};
-
 	STINGRAYKIT_DECLARE_PTR(ThreadlessTaskExecutor);
 
 }
-
-
 
 #endif
