@@ -7,6 +7,8 @@
 
 #include <stingraykit/diagnostics/AsyncProfiler.h>
 
+#include <stingraykit/function/bind.h>
+
 namespace stingray
 {
 

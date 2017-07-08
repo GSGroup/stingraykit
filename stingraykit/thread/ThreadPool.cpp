@@ -8,6 +8,7 @@
 #include <stingraykit/thread/ThreadPool.h>
 
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
+#include <stingraykit/function/bind.h>
 
 namespace stingray
 {
