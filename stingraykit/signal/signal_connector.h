@@ -8,13 +8,11 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stingraykit/Token.h>
 #include <stingraykit/function/AsyncFunction.h>
 #include <stingraykit/signal/signal_policies.h>
 #include <stingraykit/thread/ITaskExecutor.h>
 #include <stingraykit/TaskLifeToken.h>
-
+#include <stingraykit/Token.h>
 
 namespace stingray
 {
@@ -42,6 +40,7 @@ namespace stingray
 
 	}
 
+
 	template < typename Signature_ >
 	class signal_connector
 	{
@@ -55,14 +54,23 @@ namespace stingray
 		self_count_ptr<Detail::ISignalConnector>	_impl;
 
 	public:
-		signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl)
-		{ }
+		signal_connector() { }
+
+		signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl) { }
 
 		void SendCurrentState(const function<Signature_>& slot) const
-		{ _impl->SendCurrentState(function_storage(slot)); }
+		{
+			if (STINGRAYKIT_UNLIKELY(!_impl))
+				return;
+
+			_impl->SendCurrentState(function_storage(slot));
+		}
 
 		Token connect(const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
+			if (STINGRAYKIT_UNLIKELY(!_impl))
+				return Token();
+
 			TaskLifeToken token(_impl->CreateSyncToken());
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
 			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState);
@@ -70,11 +78,31 @@ namespace stingray
 
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
+			if (STINGRAYKIT_UNLIKELY(!_impl))
+				return Token();
+
 			TaskLifeToken token(_impl->CreateAsyncToken());
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
 			return _impl->Connect(function_storage(function<Signature_>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState);
 		}
 	};
+
+
+	namespace Detail
+	{
+
+		struct DummySignalConnectorProxy
+		{
+			template < typename Signature_ >
+			operator signal_connector<Signature_>() const
+			{ return signal_connector<Signature_>(); }
+		};
+
+	}
+
+
+	Detail::DummySignalConnectorProxy make_dummy_signal_connector()
+	{ return Detail::DummySignalConnectorProxy(); }
 
 	/** @} */
 
