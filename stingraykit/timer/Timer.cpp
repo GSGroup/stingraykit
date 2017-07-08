@@ -303,7 +303,7 @@ namespace stingray
 		{
 			CallbackInfoPtr top = _queue->Pop();
 
-			if (top->GetTimeToTrigger() <= currentTime)
+			if (top->GetTimeToTrigger() > currentTime)
 				break;
 
 			MutexUnlock ul(l);
