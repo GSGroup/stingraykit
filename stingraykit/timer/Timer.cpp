@@ -264,21 +264,19 @@ namespace stingray
 			{
 				_queue->Pop();
 
+				MutexUnlock ul(l);
+
+				const optional<TimeDuration> monotonic = top->IsPeriodic() ? _monotonic.Elapsed() : optional<TimeDuration>();
+
+				ExecuteTask(top);
+
+				if (monotonic)
 				{
-					MutexUnlock ul(l);
-
-					const optional<TimeDuration> monotonic = top->IsPeriodic() ? _monotonic.Elapsed() : optional<TimeDuration>();
-
-					ExecuteTask(top);
-
-					if (monotonic)
-					{
-						top->Restart(*monotonic);
-						_queue->Push(top);
-					}
-
-					top.reset();
+					top->Restart(*monotonic);
+					_queue->Push(top);
 				}
+
+				top.reset();
 			}
 			else //top timer not triggered
 			{
