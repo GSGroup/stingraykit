@@ -272,13 +272,13 @@ namespace stingray
 					ExecuteTask(top);
 
 					if (monotonic)
+					{
 						top->Restart(*monotonic);
-					else
-						top.reset();
-				}
+						_queue->Push(top);
+					}
 
-				if (top)
-					_queue->Push(top);
+					top.reset();
+				}
 			}
 			else //top timer not triggered
 			{
