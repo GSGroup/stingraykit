@@ -461,7 +461,7 @@ else (PLATFORM_POSIX)
 	message("Not using posix stuff")
 endif (PLATFORM_POSIX)
 
-set_source_files_properties(${stingraykit_SRC} PROPERTIES COMPILE_FLAGS "${COMMON_SOURCES_FLAGS} ${STINGRAY_NO_ASM_CODE_FLAGS} -DSTINGRAY_LIB_SOURCE")
+set_source_files_properties(${stingraykit_SRC} PROPERTIES COMPILE_FLAGS "${COMMON_SOURCES_FLAGS} ${STINGRAY_NO_ASM_CODE_FLAGS} -Werror -Wno-error=cpp -DSTINGRAY_LIB_SOURCE")
 
 add_library(stingraykit STATIC ${stingraykit_SRC})
 
