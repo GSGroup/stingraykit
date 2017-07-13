@@ -68,7 +68,7 @@ namespace stingray
 				page_offset = _endOffset == 0 ? 0 : _pageSize - _endOffset;
 
 				for (; data.size() > _endOffset; _endOffset += _pageSize, ++page_idx)
-					_pages.push_back(CreatePage(_pageSize));
+					_pages.push_back(CreatePage());
 
 				new_end_offset = _endOffset - data.size();
 			}
@@ -171,7 +171,7 @@ namespace stingray
 		signal<void()> OnDiscontinuity;
 
 	protected:
-		virtual PagePtr CreatePage(u64 size) = 0;
+		virtual PagePtr CreatePage() = 0;
 		virtual void GCPage(PagePtr page) {}
 
 	private:
