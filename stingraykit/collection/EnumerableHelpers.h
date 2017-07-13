@@ -761,13 +761,13 @@ namespace stingray
 				for (; l->Valid(); l->Next(), r->Next())
 				{
 					if (!r->Valid())
-						return -1;
+						return 1;
 
 					int item_result = _compareFunc(l->Get(), r->Get());
 					if (item_result != 0)
 						return item_result;
 				}
-				return r->Valid() ? 1 : 0;
+				return r->Valid() ? -1 : 0;
 			}
 		};
 

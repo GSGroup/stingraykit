@@ -32,13 +32,13 @@ namespace stingray
 			for (; lhs; ++lhs, ++rhs)
 			{
 				if (!rhs)
-					return -1;
+					return 1;
 
 				int item_result = ItemCmp()(*lhs, *rhs);
 				if (item_result != 0)
 					return item_result;
 			}
-			return rhs ? 1 : 0;
+			return rhs ? -1 : 0;
 		}
 	};
 
