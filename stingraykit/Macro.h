@@ -12,6 +12,7 @@
 #include <stingraykit/preprocessor/CropImpl.h>
 #include <stingraykit/preprocessor/DecImpl.h>
 #include <stingraykit/preprocessor/PrependImpl.h>
+#include <stingraykit/preprocessor/NotEqualImpl.h>
 #include <stingraykit/preprocessor/WhileImpl.h>
 
 
@@ -185,6 +186,13 @@
 #define STINGRAYKIT_SUB(A, B) STINGRAYKIT_FIRST_ARG(STINGRAYKIT_WHILE(DETAIL_SUB_PREDICATE, DETAIL_SUB_OP, MK_PARAM(A, B)))
 #define STINGRAYKIT_DEC(A) STINGRAYKIT_CAT(DETAIL_DEC_IMPL_, A)
 
+
+#define STINGRAYKIT_NOT_EQUAL(A, B) STINGRAYKIT_CAT(DETAIL_NOT_EQUAL_CHECK_, DETAIL_NOT_EQUAL_##A(0, DETAIL_NOT_EQUAL_##B))
+#define STINGRAYKIT_EQUAL(A, B) STINGRAYKIT_NOT(STINGRAYKIT_NOT_EQUAL(A, B))
+#define STINGRAYKIT_LESS_EQUAL(x, y) STINGRAYKIT_NOT(STINGRAYKIT_SUB(x, y))
+#define STINGRAYKIT_GREATER_EQUAL(x, y) STINGRAYKIT_LESS_EQUAL(y, x)
+#define STINGRAYKIT_LESS(x, y) STINGRAYKIT_AND(STINGRAYKIT_NOT_EQUAL(x, y), STINGRAYKIT_LESS_EQUAL(x, y))
+#define STINGRAYKIT_GREATER(x, y) STINGRAYKIT_LESS(y, x)
 
 
 #define DETAIL_REPEAT_IMPL_1_0(MacroName, ...)
