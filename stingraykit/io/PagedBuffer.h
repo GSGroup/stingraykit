@@ -170,11 +170,10 @@ namespace stingray
 
 		signal<void()> OnDiscontinuity;
 
-	protected:
+	private:
 		virtual PagePtr CreatePage() = 0;
 		virtual void GCPage(PagePtr page) {}
 
-	private:
 		void SetEndOffset(u64 newEndOffset)
 		{
 			MutexLock l(_mutex);
