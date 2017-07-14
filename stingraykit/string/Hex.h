@@ -46,6 +46,31 @@ namespace stingray
 			}
 			r |= c << ((n - i - 1) * 4);
 		}
+
+		return r;
+	}
+
+
+	template < >
+	inline ByteArray FromHex<ByteArray>(const std::string& str)
+	{
+		const std::string::size_type n = str.size();
+		const ByteArray::CollectionTypePtr r = make_shared<ByteArray::CollectionType>();
+		std::string::size_type i = 0;
+
+		const std::string prefix("0x");
+		if (n >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0)
+			i += prefix.size();
+
+		if ((n - i) % 2 == 1)
+		{
+			r->push_back(FromHex<ByteArray::value_type>(str.substr(i, 1)));
+			++i;
+		}
+
+		for (; i < n; i += 2)
+			r->push_back(FromHex<ByteArray::value_type>(str.substr(i, 2)));
+
 		return r;
 	}
 
