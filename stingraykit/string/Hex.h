@@ -42,7 +42,7 @@ namespace stingray
 				if (c >= 'A' && c <= 'F')
 					c = c - 'A' + 10;
 				else
-					throw std::runtime_error(std::string("invalid char '") + str[i] + "' in hex string");
+					STINGRAYKIT_THROW(FormatException(std::string("invalid char '") + str[i] + "' in hex string"));
 			}
 			r |= c << ((n - i - 1) * 4);
 		}
