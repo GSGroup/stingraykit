@@ -8,14 +8,14 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <limits>
-#include <string>
-#include <vector>
-
+#include <stingraykit/collection/array.h>
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/MetaProgramming.h>
 #include <stingraykit/Types.h>
-#include <stingraykit/collection/array.h>
+
+#include <limits>
+#include <string>
+#include <vector>
 
 namespace stingray
 {
@@ -26,11 +26,12 @@ namespace stingray
 	 */
 
 	template < typename T>
-	T FromHex(const std::string &str)
+	T FromHex(const std::string& str)
 	{
-		size_t n = str.size();
+		const size_t n = str.size();
 		T r = T();
-		for(size_t i = 0; i < n; ++i)
+
+		for (size_t i = 0; i < n; ++i)
 		{
 			char c = str[i];
 			if (c >= '0' && c <= '9')
@@ -41,22 +42,47 @@ namespace stingray
 				if (c >= 'A' && c <= 'F')
 					c = c - 'A' + 10;
 				else
-					throw std::runtime_error(std::string("invalid char '") + str[i] + "' in hex string");
+					STINGRAYKIT_THROW(FormatException(std::string("invalid char '") + str[i] + "' in hex string"));
 			}
 			r |= c << ((n - i - 1) * 4);
 		}
+
+		return r;
+	}
+
+
+	template < >
+	inline ByteArray FromHex<ByteArray>(const std::string& str)
+	{
+		const std::string::size_type n = str.size();
+		const ByteArray::CollectionTypePtr r = make_shared<ByteArray::CollectionType>();
+		std::string::size_type i = 0;
+
+		const std::string prefix("0x");
+		if (n >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0)
+			i += prefix.size();
+
+		if ((n - i) % 2 == 1)
+		{
+			r->push_back(FromHex<ByteArray::value_type>(str.substr(i, 1)));
+			++i;
+		}
+
+		for (; i < n; i += 2)
+			r->push_back(FromHex<ByteArray::value_type>(str.substr(i, 2)));
+
 		return r;
 	}
 
 
 	template<typename T>
-	void ToHexImpl(string_ostream &r, T value, size_t width = 0, bool capital = false)
+	void ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
 	{
 		static const size_t max_width = sizeof(T) * 2;
 		size_t start;
 		if (width > max_width)
 		{
-			for(size_t i = max_width; i < width; ++i)
+			for (size_t i = max_width; i < width; ++i)
 				r << "0";
 			start = 0;
 		}
@@ -64,7 +90,7 @@ namespace stingray
 			start = max_width - width;
 
 		bool seen_non_zero = false;
-		for(size_t i = 0; i < max_width; ++i)
+		for (size_t i = 0; i < max_width; ++i)
 		{
 			char c = (value >> ((max_width - i - 1) * 4)) & 0x0f;
 			seen_non_zero = seen_non_zero || c;
@@ -116,12 +142,16 @@ namespace stingray
 	{ return HexFormatter<T>(val, width); }
 
 
-	struct ShortHexDumpFormatter
+	class ShortHexDumpFormatter
 	{
+	private:
 		const u8*	data;
 		size_t		size;
 		size_t		sizeLimit;
-		ShortHexDumpFormatter(const void *data, size_t size, size_t sizeLimit = 16) : data(reinterpret_cast<const u8*>(data)), size(size), sizeLimit(sizeLimit)
+
+	public:
+		ShortHexDumpFormatter(const void* data, size_t size, size_t sizeLimit = 16)
+			: data(reinterpret_cast<const u8*>(data)), size(size), sizeLimit(sizeLimit)
 		{ }
 
 		std::string ToString() const
@@ -130,7 +160,7 @@ namespace stingray
 			string_ostream ss;
 			ss << "{ ";
 			size_t n = std::min(size, sizeLimit);
-			for(size_t i = 0; i < n; ++i)
+			for (size_t i = 0; i < n; ++i)
 			{
 				ToHexImpl(ss, (unsigned)src[i], 2);
 				ss << " ";
@@ -143,19 +173,23 @@ namespace stingray
 	};
 
 
-	struct HexDumpFormatter
+	class HexDumpFormatter
 	{
+	private:
 		const u8*	data;
 		size_t		size;
 		size_t		width;
-		HexDumpFormatter(const void *data, size_t size, size_t width = 16) : data(reinterpret_cast<const u8*>(data)), size(size), width(width)
+
+	public:
+		HexDumpFormatter(const void *data, size_t size, size_t width = 16)
+			: data(reinterpret_cast<const u8*>(data)), size(size), width(width)
 		{ }
 
 		std::string ToString() const
 		{
 			const u8 *src = data;
 			string_ostream ss;
-			for(size_t offset = 0; offset < size; offset += width, src += width)
+			for (size_t offset = 0; offset < size; offset += width, src += width)
 			{
 				ToHexImpl(ss, offset, 8);
 				ss << ": ";
@@ -164,7 +198,7 @@ namespace stingray
 					n = width;
 
 				size_t i;
-				for(i = 0; i < n; ++i)
+				for (i = 0; i < n; ++i)
 				{
 					ToHexImpl(ss, (unsigned)src[i], 2);
 					ss << " ";
@@ -172,7 +206,7 @@ namespace stingray
 				if (i < width) {
 					ss << std::string((width - i) * 3, ' ');
 				}
-				for(size_t i = 0; i < n; ++i)
+				for (size_t i = 0; i < n; ++i)
 				{
 					ss << ((src[i] >= 0x20 && src[i] < 0x7f)? (char)src[i]: '.');
 				}
@@ -184,7 +218,8 @@ namespace stingray
 	};
 
 
-	inline HexDumpFormatter HexDump(const void* data, size_t size, size_t width = 16) { return HexDumpFormatter(data, size, width); }
+	inline HexDumpFormatter HexDump(const void* data, size_t size, size_t width = 16)
+	{ return HexDumpFormatter(data, size, width); }
 
 	template < typename T >
 	inline HexDumpFormatter HexDump(const std::vector<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
