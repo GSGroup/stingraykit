@@ -35,7 +35,7 @@ namespace stingray
 			optional<ThreadId>	_threadId;
 
 		public:
-			TaskLifeTokenImpl() : _alive(true)
+			TaskLifeTokenImpl(bool alive = true) : _alive(alive)
 			{ }
 
 			bool TryStartExecution()
@@ -154,6 +154,9 @@ namespace stingray
 
 		static TaskLifeToken CreateDummyTaskToken()
 		{ return TaskLifeToken(null); }
+
+		static TaskLifeToken CreateDeadTaskToken()
+		{ return TaskLifeToken(make_self_count_ptr<Detail::TaskLifeTokenImpl>(false)); }
 
 	private:
 		TaskLifeToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl) : _impl(impl)
