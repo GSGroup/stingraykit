@@ -25,7 +25,7 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T>
+	template < typename T >
 	T FromHex(const std::string& str)
 	{
 		const size_t n = str.size();
@@ -75,32 +75,32 @@ namespace stingray
 	}
 
 
-	template<typename T>
+	template < typename T >
 	void ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
 	{
-		static const size_t max_width = sizeof(T) * 2;
+		static const size_t maxWidth = sizeof(T) * 2;
 		size_t start;
-		if (width > max_width)
+		if (width > maxWidth)
 		{
-			for (size_t i = max_width; i < width; ++i)
+			for (size_t i = maxWidth; i < width; ++i)
 				r << "0";
 			start = 0;
 		}
 		else
-			start = max_width - width;
+			start = maxWidth - width;
 
-		bool seen_non_zero = false;
-		for (size_t i = 0; i < max_width; ++i)
+		bool seenNonZero = false;
+		for (size_t i = 0; i < maxWidth; ++i)
 		{
-			char c = (value >> ((max_width - i - 1) * 4)) & 0x0f;
-			seen_non_zero = seen_non_zero || c;
-			if (seen_non_zero || i >= start || i == max_width - 1)
-				r << ((char)(c > 9? c + (capital? 'A': 'a') - 10: c + '0'));
+			char c = (value >> ((maxWidth - i - 1) * 4)) & 0x0f;
+			seenNonZero = seenNonZero || c;
+			if (seenNonZero || i >= start || i == maxWidth - 1)
+				r << ((char)(c > 9 ? c + (capital? 'A' : 'a') - 10 : c + '0'));
 		}
 	}
 
 
-	template<typename T>
+	template < typename T >
 	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
 	{
 		string_ostream result;
@@ -225,7 +225,7 @@ namespace stingray
 	inline HexDumpFormatter HexDump(const std::vector<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
 	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
-	template < typename T, size_t N>
+	template < typename T, size_t N >
 	inline HexDumpFormatter HexDump(const array<T, N>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
 	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
@@ -245,7 +245,7 @@ namespace stingray
 	inline ShortHexDumpFormatter ShortHexDump(const std::vector<T>& data, size_t sizeLimit = 16)
 	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
-	template < typename T, size_t N>
+	template < typename T, size_t N >
 	inline ShortHexDumpFormatter ShortHexDump(const array<T, N>& data, size_t sizeLimit = 16)
 	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
