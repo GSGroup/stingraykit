@@ -100,6 +100,18 @@ namespace stingray
 	}
 
 
+	template < >
+	inline void ToHexImpl(string_ostream& r, ConstByteData value, size_t width, bool capital)
+	{
+		const size_t maxWidth = value.size() * sizeof(ConstByteData::value_type) * 2;
+		for (size_t i = maxWidth; i < width; ++i)
+			r << "0";
+
+		for (ConstByteData::const_iterator it = value.begin(); it != value.end(); ++it)
+			ToHexImpl(r, *it, sizeof(ConstByteData::value_type) * 2, capital);
+	}
+
+
 	template < typename T >
 	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
 	{
