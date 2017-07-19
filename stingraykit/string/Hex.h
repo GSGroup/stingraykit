@@ -76,7 +76,7 @@ namespace stingray
 
 
 	template < typename T >
-	void ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
+	typename EnableIf<!CanCast<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
 	{
 		static const size_t maxWidth = sizeof(T) * 2;
 		size_t start;
@@ -100,14 +100,15 @@ namespace stingray
 	}
 
 
-	template < >
-	inline void ToHexImpl(string_ostream& r, ConstByteData value, size_t width, bool capital)
+	template < typename T >
+	typename EnableIf<CanCast<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
 	{
-		const size_t maxWidth = value.size() * sizeof(ConstByteData::value_type) * 2;
+		ConstByteData data(value);
+		const size_t maxWidth = data.size() * sizeof(ConstByteData::value_type) * 2;
 		for (size_t i = maxWidth; i < width; ++i)
 			r << "0";
 
-		for (ConstByteData::const_iterator it = value.begin(); it != value.end(); ++it)
+		for (ConstByteData::const_iterator it = data.begin(); it != data.end(); ++it)
 			ToHexImpl(r, *it, sizeof(ConstByteData::value_type) * 2, capital);
 	}
 
