@@ -99,7 +99,7 @@ namespace stingray
 			return make_shared<ReverseEnumerable>(vector_enumerator_holder);
 		}
 
-		virtual int GetCount() const
+		virtual size_t GetCount() const
 		{ return _items->size(); }
 
 		virtual void Clear()

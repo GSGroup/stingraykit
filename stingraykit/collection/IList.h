@@ -42,7 +42,7 @@ namespace stingray
 
 		virtual bool TryGet(int index, ValueType& value) const
 		{
-			if (index >= 0 && index < this->GetCount())
+			if (index >= 0 && index < (int)this->GetCount())
 			{
 				value = Get(index);
 				return true;

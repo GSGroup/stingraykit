@@ -41,7 +41,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
 		{ return make_shared<EnumerableWrapper<typename DictionaryType::PairType, ValueType> >(_dict->Reverse(), bind(&DictionaryType::PairType::GetKey, _1)); }
 
-		virtual int GetCount() const
+		virtual size_t GetCount() const
 		{ return _dict->GetCount(); }
 
 		virtual bool IsEmpty() const
@@ -81,7 +81,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
 		{ return KeysEnumerable(_dict->Reverse()); }
 
-		virtual int GetCount() const
+		virtual size_t GetCount() const
 		{ return _dict->GetCount(); }
 
 		virtual bool IsEmpty() const

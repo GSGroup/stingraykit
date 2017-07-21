@@ -52,7 +52,7 @@ namespace stingray
 				Logger::Warning() << "Reverting DictionaryTransactionImpl!";
 		}
 
-		virtual int GetCount() const
+		virtual size_t GetCount() const
 		{ return GetCopy()->GetCount(); }
 
 		virtual bool IsEmpty() const
@@ -186,7 +186,7 @@ namespace stingray
 		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
 		{ return _onChanged.connector(); }
 
-		virtual int GetCount() const
+		virtual size_t GetCount() const
 		{
 			signal_locker l(_onChanged);
 			return _wrapped->GetCount();

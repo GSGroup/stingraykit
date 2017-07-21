@@ -73,7 +73,7 @@ namespace stingray
 		virtual signal_connector<OnChangedSignature> OnChanged() const
 		{ return _onChanged.connector(); }
 
-		virtual int GetCount() const
+		virtual size_t GetCount() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::GetCount();

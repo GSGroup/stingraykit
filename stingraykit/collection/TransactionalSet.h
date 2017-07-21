@@ -174,7 +174,7 @@ namespace stingray
 			virtual ~SetTransaction()
 			{ _setImpl->GetTransactionFlag() = false; }
 
-			virtual int GetCount() const
+			virtual size_t GetCount() const
 			{ return GetContainer().size() + GetAdded().size() - GetRemoved().size(); }
 
 			virtual bool IsEmpty() const
@@ -369,7 +369,7 @@ namespace stingray
 		virtual const Mutex& GetSyncRoot() const                             { return _setImpl->GetStateMutex(); }
 		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const { return _setImpl->OnChanged(); }
 
-		virtual int GetCount() const                                         { MutexLock l(GetSyncRoot()); return GetContainer().size(); }
+		virtual size_t GetCount() const                                      { MutexLock l(GetSyncRoot()); return GetContainer().size(); }
 		virtual bool IsEmpty() const                                         { MutexLock l(GetSyncRoot()); return GetContainer().empty(); }
 
 		virtual bool Contains(const T& value) const                          { MutexLock l(GetSyncRoot()); return GetContainer().find(value) != GetContainer().end(); }

@@ -67,7 +67,7 @@ namespace stingray
 
 		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
 
-		virtual int GetCount() const
+		virtual size_t GetCount() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::GetCount();

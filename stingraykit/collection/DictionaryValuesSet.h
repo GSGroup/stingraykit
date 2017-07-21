@@ -49,7 +49,7 @@ namespace stingray
 		virtual bool Contains(const ValueType& value) const
 		{ return _dict->ContainsKey(_converter(value)); }
 
-		virtual int GetCount() const
+		virtual size_t GetCount() const
 		{ return _dict->GetCount(); }
 
 		virtual bool IsEmpty() const
