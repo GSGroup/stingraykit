@@ -308,8 +308,8 @@ namespace stingray
 
 		template <typename T> void ForEach(const EnumerableOrEnumerator<T> src, const function<void(const T&)>& func);
 
-		template <typename T> int IndexOf(const EnumerableOrEnumerator<T> src, const T& val);
-		template <typename T> int IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const T& val);
+		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
 		template < typename T > EnumerableOrEnumerator<T> DefaultIfEmpty(const EnumerableOrEnumerator<T>& src, const T& value = T());
 
@@ -443,19 +443,19 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), int, IndexOf, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), optional<size_t>, IndexOf, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
-			int result = 0;
+			size_t result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
 			{
 				if (predicate(enumerator.Get()))
 					return result;
 				++result;
 			}
-			return -1;
+			return null;
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), int, IndexOf, MK_PARAM(const T& val), MK_PARAM(val))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), optional<size_t>, IndexOf, MK_PARAM(const T& val), MK_PARAM(val))
 		{ return IndexOf(enumerator, bind(std::equal_to<T>(), val, _1)); }
 
 
