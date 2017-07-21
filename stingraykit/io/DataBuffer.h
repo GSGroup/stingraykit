@@ -35,6 +35,7 @@ namespace stingray
 		ConditionVariable		_bufferEmpty;
 		ConditionVariable		_bufferFull;
 		bool					_eod;
+		signal<void(size_t)>	_onOverflow;
 
 	protected:
 		DataBufferBase(bool discardOnOverflow, size_t size, size_t inputPacketSize) :
@@ -84,7 +85,7 @@ namespace stingray
 			{
 				if (_discardOnOverflow)
 				{
-					OnOverflow(data.size());
+					_onOverflow(data.size());
 					return data.size();
 				}
 
@@ -111,7 +112,8 @@ namespace stingray
 			_bufferEmpty.Broadcast();
 		}
 
-		signal<void(size_t)> OnOverflow;
+		signal_connector<void(size_t)> OnOverflow() const
+		{ return _onOverflow.connector(); }
 	};
 
 
