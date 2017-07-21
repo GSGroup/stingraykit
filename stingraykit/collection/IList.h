@@ -30,7 +30,7 @@ namespace stingray
 
 		virtual ~IReadonlyList() { }
 
-		virtual ValueType Get(int index) const = 0;
+		virtual ValueType Get(size_t index) const = 0;
 		virtual int IndexOf(const ValueType& value) const = 0;
 
 		virtual bool Contains(const ValueType& value) const
@@ -38,9 +38,9 @@ namespace stingray
 			return IndexOf(value) != -1;
 		}
 
-		virtual bool TryGet(int index, ValueType& value) const
+		virtual bool TryGet(size_t index, ValueType& value) const
 		{
-			if (index >= 0 && index < (int)this->GetCount())
+			if (index < this->GetCount())
 			{
 				value = Get(index);
 				return true;

@@ -79,9 +79,9 @@ namespace stingray
 			return *this;
 		}
 
-		virtual ValueType Get(int index) const
+		virtual ValueType Get(size_t index) const
 		{
-			STINGRAYKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			return (*_items)[index];
 		}
 

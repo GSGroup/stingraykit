@@ -80,7 +80,7 @@ namespace stingray
 			_onChanged(CollectionOp::Added, Wrapped_::GetCount() - 1, value);
 		}
 
-		virtual ValueType Get(int index) const
+		virtual ValueType Get(size_t index) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Get(index);
@@ -128,7 +128,7 @@ namespace stingray
 			return Wrapped_::Contains(value);
 		}
 
-		virtual bool TryGet(int index, ValueType& value) const
+		virtual bool TryGet(size_t index, ValueType& value) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::TryGet(index, value);
