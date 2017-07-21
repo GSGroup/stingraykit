@@ -31,12 +31,10 @@ namespace stingray
 		virtual ~IReadonlyList() { }
 
 		virtual ValueType Get(size_t index) const = 0;
-		virtual int IndexOf(const ValueType& value) const = 0;
+		virtual optional<size_t> IndexOf(const ValueType& value) const = 0;
 
 		virtual bool Contains(const ValueType& value) const
-		{
-			return IndexOf(value) != -1;
-		}
+		{ return IndexOf(value); }
 
 		virtual bool TryGet(size_t index, ValueType& value) const
 		{
@@ -70,9 +68,8 @@ namespace stingray
 
 		virtual void Remove(const ValueType& value)
 		{
-			int index = this->IndexOf(value);
-			if (index != -1)
-				RemoveAt(index);
+			if (const optional<size_t> index = this->IndexOf(value))
+				RemoveAt(*index);
 		}
 
 		virtual void Clear() = 0;

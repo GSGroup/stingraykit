@@ -93,7 +93,7 @@ namespace stingray
 			_onChanged(CollectionOp::Updated, index, value);
 		}
 
-		virtual int IndexOf(const ValueType& obj) const
+		virtual optional<size_t> IndexOf(const ValueType& obj) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::IndexOf(obj);
@@ -117,9 +117,8 @@ namespace stingray
 		virtual void Remove(const ValueType& value)
 		{
 			signal_locker l(_onChanged);
-			int index = Wrapped_::IndexOf(value);
-			if (index != -1)
-				RemoveAt(index);
+			if (const optional<size_t> index = Wrapped_::IndexOf(value))
+				RemoveAt(*index);
 		}
 
 		virtual bool Contains(const ValueType& value) const

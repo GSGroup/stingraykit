@@ -92,10 +92,10 @@ namespace stingray
 			(*_items)[index] = value;
 		}
 
-		virtual int IndexOf(const ValueType& value) const
+		virtual optional<size_t> IndexOf(const ValueType& value) const
 		{
-			typename VectorType::const_iterator it = std::find(_items->begin(), _items->end(), value);
-			return it == _items->end() ? -1 : (it - _items->begin());
+			const typename VectorType::const_iterator it = std::find(_items->begin(), _items->end(), value);
+			return it == _items->end() ? null : optional<size_t>(it - _items->begin());
 		}
 
 		virtual void RemoveAt(size_t index)
