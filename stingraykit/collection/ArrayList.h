@@ -85,9 +85,9 @@ namespace stingray
 			return (*_items)[index];
 		}
 
-		virtual void Set(int index, const ValueType& value)
+		virtual void Set(size_t index, const ValueType& value)
 		{
-			STINGRAYKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
 			(*_items)[index] = value;
 		}

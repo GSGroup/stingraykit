@@ -8,9 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/collection/ICollection.h>
-
 
 #define STINGRAYKIT_DECLARE_LIST(ClassName) \
 		typedef stingray::IList<ClassName>				ClassName##List; \
@@ -66,7 +64,7 @@ namespace stingray
 		virtual ~IList() { }
 
 		virtual void Add(const ValueType& value) = 0;
-		virtual void Set(int index, const ValueType& value) = 0;
+		virtual void Set(size_t index, const ValueType& value) = 0;
 		virtual void Insert(int index, const ValueType& value) = 0;
 		virtual void RemoveAt(int index) = 0;
 
@@ -88,6 +86,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif

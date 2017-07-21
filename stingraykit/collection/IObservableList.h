@@ -86,7 +86,7 @@ namespace stingray
 			return Wrapped_::Get(index);
 		}
 
-		virtual void Set(int index, const ValueType& value)
+		virtual void Set(size_t index, const ValueType& value)
 		{
 			signal_locker l(_onChanged);
 			Wrapped_::Set(index, value);
