@@ -99,7 +99,7 @@ namespace stingray
 			return Wrapped_::IndexOf(obj);
 		}
 
-		virtual void Insert(int index, const ValueType& value)
+		virtual void Insert(size_t index, const ValueType& value)
 		{
 			signal_locker l(_onChanged);
 			Wrapped_::Insert(index, value);

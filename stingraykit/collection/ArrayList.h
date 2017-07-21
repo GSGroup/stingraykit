@@ -141,9 +141,9 @@ namespace stingray
 			_items->push_back(value);
 		}
 
-		virtual void Insert(int index, const ValueType& value)
+		virtual void Insert(size_t index, const ValueType& value)
 		{
-			STINGRAYKIT_CHECK(index >= 0 && index <= (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			STINGRAYKIT_CHECK(index <= _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
 
 			typename VectorType::iterator it = _items->begin();
