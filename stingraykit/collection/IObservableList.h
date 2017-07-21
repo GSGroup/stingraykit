@@ -106,7 +106,7 @@ namespace stingray
 			_onChanged(CollectionOp::Added, index, value);
 		}
 
-		virtual void RemoveAt(int index)
+		virtual void RemoveAt(size_t index)
 		{
 			signal_locker l(_onChanged);
 			ValueType value = Get(index);

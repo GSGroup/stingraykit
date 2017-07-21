@@ -98,9 +98,9 @@ namespace stingray
 			return it == _items->end() ? -1 : (it - _items->begin());
 		}
 
-		virtual void RemoveAt(int index)
+		virtual void RemoveAt(size_t index)
 		{
-			STINGRAYKIT_CHECK(index >= 0 && index < (int)_items->size(), IndexOutOfRangeException(index, _items->size()));
+			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
 			_items->erase(_items->begin() + index);
 		}

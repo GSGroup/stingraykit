@@ -66,7 +66,7 @@ namespace stingray
 		virtual void Add(const ValueType& value) = 0;
 		virtual void Set(size_t index, const ValueType& value) = 0;
 		virtual void Insert(size_t index, const ValueType& value) = 0;
-		virtual void RemoveAt(int index) = 0;
+		virtual void RemoveAt(size_t index) = 0;
 
 		virtual void Remove(const ValueType& value)
 		{
