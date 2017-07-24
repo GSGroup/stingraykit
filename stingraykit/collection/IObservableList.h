@@ -11,8 +11,6 @@
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IList.h>
 #include <stingraykit/collection/ObservableCollectionLocker.h>
-#include <stingraykit/signal/signals.h>
-#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
@@ -136,6 +134,25 @@ namespace stingray
 			signal_locker l(_onChanged);
 			while (!this->IsEmpty())
 				RemoveAt(0);
+		}
+
+		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
+		{
+			signal_locker l(_onChanged);
+			size_t count = GetCount();
+			size_t ret = 0;
+			for (size_t index = 0; index < count; ++index)
+			{
+				const size_t realIndex = index - ret;
+				const ValueType value = Get(realIndex);
+				if (!pred(value))
+					continue;
+
+				Wrapped_::RemoveAt(realIndex);
+				_onChanged(CollectionOp::Removed, realIndex, value);
+				++ret;
+			}
+			return ret;
 		}
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const

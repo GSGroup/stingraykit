@@ -72,6 +72,8 @@ namespace stingray
 				RemoveAt(*index);
 		}
 
+		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred) = 0;
+
 		virtual void Clear() = 0;
 	};
 

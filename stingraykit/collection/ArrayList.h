@@ -8,16 +8,13 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <algorithm>
-#include <vector>
-
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/EnumerableHelpers.h>
-#include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/collection/IList.h>
 #include <stingraykit/function/bind.h>
 
+#include <algorithm>
+#include <vector>
 
 namespace stingray
 {
@@ -151,6 +148,15 @@ namespace stingray
 			_items->insert(it, value);
 		}
 
+		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
+		{
+			CopyOnWrite();
+			const typename VectorType::iterator it = std::remove_if(_items->begin(), _items->end(), pred);
+			const size_t ret = std::distance(it, _items->end());
+			_items->erase(it, _items->end());
+			return ret;
+		}
+
 	private:
 		void CopyOnWrite()
 		{
@@ -165,6 +171,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
