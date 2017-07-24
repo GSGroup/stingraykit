@@ -11,7 +11,6 @@
 
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/io/IDataSource.h>
-#include <stingraykit/io/DataBuffer.h>
 
 namespace stingray
 {
@@ -21,13 +20,13 @@ namespace stingray
 	private:
 		static NamedLogger		s_logger;
 		IDataSourcePtr			_source;
-		IDataBufferPtr			_buffer;
+		IDataMediatorPtr		_mediator;
 
 		ThreadPtr				_worker;
 
 	public:
-		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataBufferPtr& buffer) :
-			_source(source), _buffer(buffer)
+		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataMediatorPtr& mediator)
+			: _source(source), _mediator(mediator)
 		{
 			_worker.reset(new Thread(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this, _1)));
 		}
@@ -36,13 +35,13 @@ namespace stingray
 		{ _worker.reset(); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ return _buffer->Read(consumer, token); }
+		{ return _mediator->Read(consumer, token); }
 
 	private:
 		void ThreadFunc(const ICancellationToken& token)
 		{
 			while (token)
-				_source->Read(*_buffer, token);
+				_source->Read(*_mediator, token);
 		}
 	};
 	STINGRAYKIT_DECLARE_PTR(IntermediateDataBuffer);

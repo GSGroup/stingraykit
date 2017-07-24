@@ -12,6 +12,7 @@
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/reference.h>
+#include <stingraykit/signal/signal_connector.h>
 #include <stingraykit/thread/ICancellationToken.h>
 #include <stingraykit/thread/atomic.h>
 
@@ -68,8 +69,21 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(IDataSource);
 
 
-	struct IDataBuffer : public virtual IDataConsumer, public virtual IDataSource
+	struct IDataMediator : public virtual IDataConsumer, public virtual IDataSource
 	{ };
+	STINGRAYKIT_DECLARE_PTR(IDataMediator);
+
+
+	struct IDataBuffer : public virtual IDataMediator
+	{
+		virtual size_t GetDataSize() const = 0;
+		virtual size_t GetFreeSize() const = 0;
+		virtual size_t GetStorageSize() const = 0;
+
+		virtual void Clear() = 0;
+
+		virtual signal_connector<void(size_t)> OnOverflow() const = 0;
+	};
 	STINGRAYKIT_DECLARE_PTR(IDataBuffer);
 
 

@@ -11,7 +11,7 @@
 namespace stingray
 {
 
-	STINGRAYKIT_DEFINE_NAMED_LOGGER(DataBufferBase);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(DataConsumerBase);
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(DataBuffer);
 
