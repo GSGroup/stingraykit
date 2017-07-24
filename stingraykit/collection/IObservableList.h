@@ -8,13 +8,11 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IList.h>
 #include <stingraykit/collection/ObservableCollectionLocker.h>
 #include <stingraykit/signal/signals.h>
 #include <stingraykit/toolkit.h>
-
 
 namespace stingray
 {
@@ -27,7 +25,7 @@ namespace stingray
 	template < typename ValueType_ >
 	struct IReadonlyObservableList : public virtual IReadonlyList<ValueType_>
 	{
-		typedef void OnChangedSignature(CollectionOp, int, const ValueType_&);
+		typedef void OnChangedSignature(CollectionOp, size_t, const ValueType_&);
 
 		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
 
@@ -155,7 +153,7 @@ namespace stingray
 	private:
 		virtual void OnChangedPopulator(const function<OnChangedSignature>& slot)
 		{
-			int i = 0;
+			size_t i = 0;
 			FOR_EACH(ValueType v IN this->GetEnumerator())
 				slot(CollectionOp::Added, i++, v);
 		}
@@ -164,6 +162,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
