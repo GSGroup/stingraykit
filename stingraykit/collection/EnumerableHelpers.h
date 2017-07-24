@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/RefStorage.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/EnumeratorWrapper.h>
@@ -21,7 +20,6 @@
 #include <stingraykit/optional.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/toolkit.h>
-
 
 namespace stingray
 {
@@ -303,8 +301,8 @@ namespace stingray
 		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const T& value);
 		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const T& value, const function<bool(const T&, const T&)>& equalPredicate);
 
-		template <typename T> int Count(const EnumerableOrEnumerator<T> src);
-		template <typename T> int Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template <typename T> size_t Count(const EnumerableOrEnumerator<T> src);
+		template <typename T> size_t Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
 		template <typename T> void ForEach(const EnumerableOrEnumerator<T> src, const function<void(const T&)>& func);
 
@@ -418,17 +416,17 @@ namespace stingray
 		{ return Contains(enumerator, value, std::equal_to<T>()); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), int, Count)
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), size_t, Count)
 		{
-			int result = 0;
+			size_t result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
 				++result;
 			return result;
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), int, Count, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), size_t, Count, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
-			int result = 0;
+			size_t result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
 				if (predicate(enumerator.Get()))
 					++result;
