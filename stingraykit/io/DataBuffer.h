@@ -20,7 +20,7 @@
 namespace stingray
 {
 
-	class DataConsumerBase : public virtual IDataConsumer
+	class BufferedDataConsumerBase : public virtual IDataConsumer
 	{
 	protected:
 		static NamedLogger		s_logger;
@@ -38,7 +38,7 @@ namespace stingray
 		signal<void(size_t)>	_onOverflow;
 
 	protected:
-		DataConsumerBase(bool discardOnOverflow, size_t size, size_t inputPacketSize) :
+		BufferedDataConsumerBase(bool discardOnOverflow, size_t size, size_t inputPacketSize) :
 			_discardOnOverflow(discardOnOverflow), _buffer(size),
 			_inputPacketSize(inputPacketSize), _eod(false)
 		{
@@ -46,7 +46,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(size % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
 		}
 
-		DataConsumerBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize) :
+		BufferedDataConsumerBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize) :
 			_discardOnOverflow(discardOnOverflow), _buffer(storage),
 			_inputPacketSize(inputPacketSize), _eod(false)
 		{
@@ -117,23 +117,23 @@ namespace stingray
 	};
 
 
-	struct DataBufferBase : public virtual IDataBuffer, public DataConsumerBase
+	struct DataBufferBase : public virtual IDataBuffer, public BufferedDataConsumerBase
 	{
 		DataBufferBase(bool discardOnOverflow, size_t size, size_t inputPacketSize)
-			: DataConsumerBase(discardOnOverflow, size, inputPacketSize)
+			: BufferedDataConsumerBase(discardOnOverflow, size, inputPacketSize)
 		{ }
 
 		DataBufferBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize)
-			: DataConsumerBase(discardOnOverflow, storage, inputPacketSize)
+			: BufferedDataConsumerBase(discardOnOverflow, storage, inputPacketSize)
 		{ }
 
-		virtual size_t GetDataSize() const                            { return DataConsumerBase::GetDataSize(); }
-		virtual size_t GetFreeSize() const                            { return DataConsumerBase::GetFreeSize(); }
-		virtual size_t GetStorageSize() const                         { return DataConsumerBase::GetStorageSize(); }
+		virtual size_t GetDataSize() const                            { return BufferedDataConsumerBase::GetDataSize(); }
+		virtual size_t GetFreeSize() const                            { return BufferedDataConsumerBase::GetFreeSize(); }
+		virtual size_t GetStorageSize() const                         { return BufferedDataConsumerBase::GetStorageSize(); }
 
-		virtual void Clear()                                          { DataConsumerBase::Clear(); }
+		virtual void Clear()                                          { BufferedDataConsumerBase::Clear(); }
 
-		virtual signal_connector<void(size_t)> OnOverflow() const     { return DataConsumerBase::OnOverflow(); }
+		virtual signal_connector<void(size_t)> OnOverflow() const     { return BufferedDataConsumerBase::OnOverflow(); }
 	};
 
 
