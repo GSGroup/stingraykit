@@ -8,13 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/ISet.h>
 #include <stingraykit/collection/ObservableCollectionLocker.h>
-#include <stingraykit/signal/signals.h>
-#include <stingraykit/toolkit.h>
-
 
 namespace stingray
 {
@@ -123,6 +119,19 @@ namespace stingray
 			Wrapped_::Clear();
 		}
 
+		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
+		{
+			signal_locker l(_onChanged);
+			bool ret = 0;
+			FOR_EACH(ValueType v IN this->GetEnumerator() WHERE pred(v))
+			{
+				Wrapped_::Remove(v);
+				_onChanged(CollectionOp::Removed, v);
+				++ret;
+			}
+			return ret;
+		}
+
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{
 			signal_locker l(_onChanged);
@@ -146,6 +155,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif

@@ -12,7 +12,6 @@
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ITransactionalSet.h>
 
-
 namespace stingray
 {
 
@@ -236,6 +235,34 @@ namespace stingray
 				return GetRemoved().insert(*it).second;
 			}
 
+			virtual size_t RemoveWhere(const function<bool (const T&)>& pred)
+			{
+				_transactionImpl->GetStamp()++;
+				size_t ret = 0;
+
+				for (typename Container::iterator it = GetAdded().begin(); it != GetAdded().end(); )
+				{
+					const typename Container::iterator cur = it++;
+					if (!pred(*cur))
+						continue;
+
+					GetAdded().erase(cur);
+					++ret;
+				}
+
+				for (typename Container::iterator it = GetContainer().begin(); it != GetContainer().end(); )
+				{
+					const typename Container::iterator cur = it++;
+					if (!pred(*cur))
+						continue;
+
+					if (GetRemoved().insert(*cur).second)
+						++ret;
+				}
+
+				return ret;
+			}
+
 			virtual typename base::DiffTypePtr Diff() const
 			{
 				typedef typename base::DiffEntryType DiffEntryType;
@@ -415,6 +442,34 @@ namespace stingray
 			_setImpl->InvokeOnChanged(diff.Get());
 			_setImpl->GetStamp()++;
 			return true;
+		}
+
+		virtual size_t RemoveWhere(const function<bool (const T&)>& pred)
+		{
+			MutexLock l(GetSyncRoot());
+			TransactionToken token(_setImpl);
+
+			size_t ret = 0;
+
+			EnumerableBuilder<DiffEntryType> diff;
+			for (typename Container::iterator it = GetContainer().begin(); it != GetContainer().end(); )
+			{
+				const typename Container::iterator cur = it++;
+				if (!pred(*cur))
+					continue;
+
+				diff % DiffEntryType(*cur, CollectionOp::Removed);
+				GetContainer().erase(cur);
+				++ret;
+			}
+
+			if (ret != 0)
+			{
+				_setImpl->InvokeOnChanged(diff.Get());
+				_setImpl->GetStamp()++;
+			}
+
+			return ret;
 		}
 
 		virtual void Clear()

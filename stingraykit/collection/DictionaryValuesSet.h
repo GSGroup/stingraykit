@@ -66,6 +66,17 @@ namespace stingray
 
 		virtual bool TryRemove(const ValueType& value)
 		{ return _dict->TryRemove(_converter(value)); }
+
+		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
+		{
+			size_t ret = 0;
+			FOR_EACH(PairType pair IN _dict WHERE pred(pair.Value))
+			{
+				_dict->Remove(pair.Key);
+				++ret;
+			}
+			return ret;
+		}
 	};
 
 

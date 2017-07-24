@@ -8,9 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/collection/ICollection.h>
-
 
 #define STINGRAYKIT_DECLARE_SET(ClassName) \
 		typedef stingray::ISet<ClassName> ClassName##Set; \
@@ -52,6 +50,7 @@ namespace stingray
 		virtual void Clear() = 0;
 		virtual void Remove(const ValueType& value) = 0;
 		virtual bool TryRemove(const ValueType& value) = 0;
+		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred) = 0;
 	};
 
 
@@ -62,6 +61,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
