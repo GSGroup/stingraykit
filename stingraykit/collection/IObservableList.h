@@ -139,7 +139,7 @@ namespace stingray
 		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
 		{
 			signal_locker l(_onChanged);
-			size_t count = GetCount();
+			const size_t count = GetCount();
 			size_t ret = 0;
 			for (size_t index = 0; index < count; ++index)
 			{
