@@ -543,17 +543,12 @@ namespace stingray
 		ObjectIStream& Deserialize(const std::string& name, T& value, const U& defaultValue)
 		{
 			SettingsValue *property = Get(name);
-			try
+			if (!property)
+				value = defaultValue;
+			else
 			{
-				if (!property)
-					value = defaultValue;
-				else
-				{
-					try { ObjectIStream(property, _collection, _context).Deserialize(value); } catch(SettingsValueException &ex) { ex.Append(name); throw; }
-				}
+				try { ObjectIStream(property, _collection, _context).Deserialize(value); } catch(SettingsValueException &ex) { ex.Append(name); throw; }
 			}
-			catch (const std::exception&)
-			{ value = defaultValue; }
 			return *this;
 		}
 
