@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_IO_DATABUFFER_H
-#define STINGRAYKIT_IO_DATABUFFER_H
+#ifndef STINGRAYKIT_IO_PACKETBUFFER_H
+#define STINGRAYKIT_IO_PACKETBUFFER_H
 
 // Copyright (c) 2011 - 2017, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
