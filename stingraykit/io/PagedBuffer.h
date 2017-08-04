@@ -168,11 +168,8 @@ namespace stingray
 			return _pageSize * _pages.size() - _startOffset - _endOffset;
 		}
 
-		signal<void()> OnDiscontinuity;
-
 	private:
 		virtual PagePtr CreatePage() = 0;
-		virtual void GCPage(PagePtr page) {}
 
 		void SetEndOffset(u64 newEndOffset)
 		{
@@ -191,7 +188,6 @@ namespace stingray
 			{
 				STINGRAYKIT_CHECK(_startOffset >= _pageSize, StringBuilder() % "Internal error: _startOffset is less than _pageSize while popping. _startOffset: " % _startOffset % ", _pageSize: " % _pageSize % ".");
 
-				GCPage(_pages.front());
 				_pages.pop_front();
 			}
 		}
