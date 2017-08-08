@@ -11,7 +11,6 @@
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/IList.h>
-#include <stingraykit/function/bind.h>
 
 #include <algorithm>
 #include <vector>
@@ -57,16 +56,19 @@ namespace stingray
 
 	public:
 		ArrayList()
-			: _items(new VectorType)
+			:	_items(make_shared<VectorType>())
 		{ }
 
-		ArrayList(shared_ptr<IEnumerator<T> > enumerator) : _items(new VectorType)
+		ArrayList(shared_ptr<IEnumerator<ValueType> > enumerator)
+			:	_items(make_shared<VectorType>())
 		{ Enumerable::ForEach(enumerator, bind(&ArrayList::Add, this, _1)); }
 
-		ArrayList(shared_ptr<IEnumerable<T> > enumerable) : _items(new VectorType)
+		ArrayList(shared_ptr<IEnumerable<ValueType> > enumerable)
+			:	_items(make_shared<VectorType>())
 		{ Enumerable::ForEach(enumerable, bind(&ArrayList::Add, this, _1)); }
 
-		ArrayList(const ArrayList& other) : _items(new VectorType(*other._items))
+		ArrayList(const ArrayList& other)
+			:	_items(make_shared<VectorType>(*other._items))
 		{ }
 
 		ArrayList& operator = (const ArrayList& other)
@@ -162,7 +164,7 @@ namespace stingray
 		{
 			if (_itemsEnumeratorHolder.lock())
 			{
-				_items.reset(new VectorType(*_items));
+				_items = make_shared<VectorType>(*_items);
 				_itemsEnumeratorHolder.reset();
 			}
 		}
