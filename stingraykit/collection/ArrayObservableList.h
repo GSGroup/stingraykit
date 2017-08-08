@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/ArrayList.h>
-#include <stingraykit/collection/IObservableList.h>
+#include <stingraykit/collection/ObservableListWrapper.h>
 
 namespace stingray
 {
@@ -20,7 +20,8 @@ namespace stingray
 	 */
 
 	template < typename ValueType_ >
-	struct ArrayObservableList : public ObservableListWrapper<ArrayList<ValueType_> >
+	struct ArrayObservableList
+		:	public ObservableListWrapper<ArrayList<ValueType_> >
 	{
 		typedef ObservableListWrapper<ArrayList<ValueType_> > base;
 
@@ -32,6 +33,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
