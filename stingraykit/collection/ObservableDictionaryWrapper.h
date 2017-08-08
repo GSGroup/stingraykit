@@ -89,12 +89,7 @@ namespace stingray
 		}
 
 		virtual void Remove(const KeyType& key)
-		{
-			signal_locker l(_onChanged);
-			ValueType value = Get(key);
-			Wrapped_::Remove(key);
-			_onChanged(CollectionOp::Removed, key, value);
-		}
+		{ TryRemove(key); }
 
 		virtual bool ContainsKey(const KeyType& key) const
 		{
