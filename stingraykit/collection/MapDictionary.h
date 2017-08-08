@@ -123,6 +123,17 @@ namespace stingray
 				_map->insert(std::make_pair(key, value));
 		}
 
+		virtual bool TryRemove(const KeyType& key)
+		{
+			typename MapType::iterator it = _map->find(key);
+			if (it == _map->end())
+				return false;
+
+			CopyOnWrite();
+			_map->erase(key);
+			return true;
+		}
+
 		virtual void Remove(const KeyType& key)
 		{ CopyOnWrite(); _map->erase(key); }
 
