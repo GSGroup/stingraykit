@@ -77,13 +77,7 @@ namespace stingray
 
 		virtual bool ContainsKey(const KeyType& key) const = 0;
 
-		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-		{
-			if (!ContainsKey(key))
-				return false;
-			outValue = Get(key);
-			return true;
-		}
+		virtual bool TryGet(const KeyType& key, ValueType& outValue) const = 0;
 	};
 
 
@@ -106,13 +100,7 @@ namespace stingray
 
 		virtual void Remove(const KeyType& key) = 0;
 
-		virtual bool TryRemove(const KeyType& key)
-		{
-			if (!this->ContainsKey(key))
-				return false;
-			Remove(key);
-			return true;
-		}
+		virtual bool TryRemove(const KeyType& key) = 0;
 
 		virtual void Clear() = 0;
 	};
