@@ -115,8 +115,8 @@ namespace stingray
 			if (!TryGet(key, value))
 				return false;
 
-			_onChanged(CollectionOp::Removed, key, value);
 			Wrapped_::Remove(key);
+			_onChanged(CollectionOp::Removed, key, value);
 			return true;
 		}
 
@@ -124,8 +124,10 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			FOR_EACH(PairType v IN this->GetEnumerator())
+			{
+				Wrapped_::Remove(v.Key);
 				_onChanged(CollectionOp::Removed, v.Key, v.Value);
-			Wrapped_::Clear();
+			}
 		}
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
