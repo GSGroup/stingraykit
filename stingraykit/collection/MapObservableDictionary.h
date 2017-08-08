@@ -19,7 +19,7 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename KeyType_, typename ValueType_, typename CompareType_ = std::less<KeyType_> >
+	template < typename KeyType_, typename ValueType_, typename CompareType_ = comparers::Less >
 	struct MapObservableDictionary : public ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_> >
 	{
 		typedef ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_> > base;

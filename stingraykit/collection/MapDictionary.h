@@ -13,6 +13,7 @@
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
+#include <stingraykit/compare/comparers.h>
 
 #include <map>
 
@@ -24,7 +25,7 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename KeyType_, typename ValueType_ , typename CompareType_ = std::less<KeyType_> >
+	template < typename KeyType_, typename ValueType_ , typename CompareType_ = comparers::Less >
 	class MapDictionary : public virtual IDictionary<KeyType_, ValueType_>
 	{
 	public:
