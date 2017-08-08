@@ -11,6 +11,7 @@
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/ISet.h>
 #include <stingraykit/collection/ObservableCollectionLocker.h>
+#include <stingraykit/signal/signals.h>
 
 namespace stingray
 {
@@ -57,7 +58,21 @@ namespace stingray
 
 	public:
 		ObservableSetWrapper()
-			: _mutex(new Mutex()), _onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+			:	Wrapped_(),
+				_mutex(make_shared<Mutex>()),
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+		{ }
+
+		ObservableSetWrapper(shared_ptr<IEnumerator<ValueType> > enumerator)
+			:	Wrapped_(enumerator),
+				_mutex(make_shared<Mutex>()),
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+		{ }
+
+		ObservableSetWrapper(shared_ptr<IEnumerable<ValueType> > enumerable)
+			:	Wrapped_(enumerable),
+				_mutex(make_shared<Mutex>()),
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual const Mutex& GetSyncRoot() const { return *_mutex; }

@@ -8,10 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IObservableSet.h>
 #include <stingraykit/collection/SortedSet.h>
-#include <stingraykit/compare/comparers.h>
 
 namespace stingray
 {
@@ -22,8 +20,14 @@ namespace stingray
 	 */
 
 	template < typename ValueType_ , typename CompareType_ = comparers::Less >
-	class SortedObservableSet : public ObservableSetWrapper<SortedSet<ValueType_, CompareType_> >
-	{ };
+	struct SortedObservableSet : public ObservableSetWrapper<SortedSet<ValueType_, CompareType_> >
+	{
+		typedef ObservableSetWrapper<SortedSet<ValueType_, CompareType_> > base;
+
+		SortedObservableSet() : base() { }
+		SortedObservableSet(shared_ptr<IEnumerable<typename base::ValueType> > enumerable) : base(enumerable) { }
+		SortedObservableSet(shared_ptr<IEnumerator<typename base::ValueType> > enumerator) : base(enumerator) { }
+	};
 
 	/** @} */
 
