@@ -13,7 +13,6 @@
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/collection/ISet.h>
 
-#include <algorithm>
 #include <set>
 
 namespace stingray
@@ -56,29 +55,33 @@ namespace stingray
 		mutable HolderWeakPtr	_itemsEnumeratorHolder;
 
 	public:
-		SortedSet() : _items(make_shared<SetType>())
+		SortedSet()
+			:	_items(make_shared<SetType>())
 		{ }
 
-		SortedSet(const SortedSet& other) : _items(make_shared<SetType>(*other._items))
+		SortedSet(const SortedSet& other)
+			:	_items(make_shared<SetType>(*other._items))
 		{ }
+
+		SortedSet(shared_ptr<IEnumerator<ValueType> > enumerator)
+			:	_items(make_shared<SetType>())
+		{
+			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
+			Enumerable::ForEach(enumerator, bind(&SortedSet::Add, this, _1));
+		}
+
+		SortedSet(shared_ptr<IEnumerable<ValueType> > enumerable)
+			:	_items(make_shared<SetType>())
+		{
+			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
+			Enumerable::ForEach(enumerable, bind(&SortedSet::Add, this, _1));
+		}
 
 		SortedSet& operator = (const SortedSet& other)
 		{
 			_items = make_shared<SetType>(*other._items);
 			_itemsEnumeratorHolder.reset();
 			return *this;
-		}
-
-		SortedSet(shared_ptr<IEnumerator<T> > enumerator) : _items(make_shared<SetType>())
-		{
-			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
-			Enumerable::ForEach(enumerator, bind(&SortedSet::Add, this, _1));
-		}
-
-		SortedSet(shared_ptr<IEnumerable<T> > enumerable) : _items(make_shared<SetType>())
-		{
-			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
-			Enumerable::ForEach(enumerable, bind(&SortedSet::Add, this, _1));
 		}
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
