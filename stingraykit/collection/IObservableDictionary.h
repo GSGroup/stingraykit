@@ -8,13 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/ObservableCollectionLocker.h>
 #include <stingraykit/signal/signals.h>
-#include <stingraykit/toolkit.h>
-
 
 namespace stingray
 {
@@ -65,7 +62,21 @@ namespace stingray
 
 	public:
 		ObservableDictionaryWrapper()
-			: _mutex(new Mutex()), _onChanged(ExternalMutexPointer(_mutex), bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
+			:	Wrapped_(),
+				_mutex(make_shared<Mutex>()),
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
+		{ }
+
+		ObservableDictionaryWrapper(shared_ptr<IEnumerable<PairType> > enumerable)
+			:	Wrapped_(enumerable),
+				_mutex(make_shared<Mutex>()),
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
+		{ }
+
+		ObservableDictionaryWrapper(shared_ptr<IEnumerator<PairType> > enumerator)
+			:	Wrapped_(enumerator),
+				_mutex(make_shared<Mutex>()),
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
