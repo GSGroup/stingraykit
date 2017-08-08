@@ -110,8 +110,10 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			FOR_EACH(ValueType v IN this->GetEnumerator())
+			{
+				Wrapped_::Remove(v);
 				_onChanged(CollectionOp::Removed, v);
-			Wrapped_::Clear();
+			}
 		}
 
 		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
