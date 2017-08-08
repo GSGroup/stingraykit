@@ -14,9 +14,7 @@
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 
-#include <algorithm>
 #include <map>
-#include <vector>
 
 namespace stingray
 {
@@ -61,20 +59,24 @@ namespace stingray
 		mutable HolderWeakPtr	_mapEnumeratorHolder;
 
 	public:
-		MapDictionary() : _map(new MapType)
+		MapDictionary()
+			:	_map(make_shared<MapType>())
 		{ }
 
-		MapDictionary(const MapDictionary& other) : _map(new MapType(*other._map))
+		MapDictionary(const MapDictionary& other)
+			:	_map(make_shared<MapType>(*other._map))
 		{ }
 
-		MapDictionary(shared_ptr<IEnumerable<PairType> > enumerable) : _map(new MapType)
+		MapDictionary(shared_ptr<IEnumerable<PairType> > enumerable)
+			:	_map(make_shared<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			FOR_EACH(const PairType p IN enumerable)
 				Set(p.Key, p.Value);
 		}
 
-		MapDictionary(shared_ptr<IEnumerator<PairType> > enumerator) : _map(new MapType)
+		MapDictionary(shared_ptr<IEnumerator<PairType> > enumerator)
+			:	_map(make_shared<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			FOR_EACH(const PairType p IN enumerator)
@@ -82,7 +84,11 @@ namespace stingray
 		}
 
 		MapDictionary& operator =(const MapDictionary& other)
-		{ _map.reset(new MapType(*other._map)); return *this; }
+		{
+			_map = make_shared<MapType>(*other._map);
+			_mapEnumeratorHolder.reset();
+			return *this;
+		}
 
 		virtual size_t GetCount() const { return _map->size(); }
 		virtual bool IsEmpty() const { return _map->empty(); }
@@ -152,7 +158,7 @@ namespace stingray
 		{
 			if (_mapEnumeratorHolder.lock())
 			{
-				_map.reset(new MapType(*_map));
+				_map = make_shared<MapType>(*_map);
 				_mapEnumeratorHolder.reset();
 			}
 		}
