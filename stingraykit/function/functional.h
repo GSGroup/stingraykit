@@ -45,6 +45,32 @@ namespace stingray
 	Detail::NotFunc<F> not_(const F& f) { return Detail::NotFunc<F>(f); }
 
 
+	namespace Detail
+	{
+		template < typename F >
+		class NegateFunc : public function_info<F>
+		{
+			typedef typename function_info<F>::RetType		Ret;
+
+			F	_f;
+
+		public:
+			NegateFunc(const F& f) : _f(f)
+			{ }
+
+			STINGRAYKIT_PERFECT_FORWARDING(Ret, operator (), Do)
+
+		private:
+			template< typename ParamTypeList >
+			Ret Do(const Tuple<ParamTypeList>& params) const
+			{ return -FunctorInvoker::Invoke(_f, params); }
+		};
+	}
+
+	template < typename F >
+	Detail::NegateFunc<F> negate(const F& f) { return Detail::NegateFunc<F>(f); }
+
+
 	class NopFunctor : public function_info<void, UnspecifiedParamTypes>
 	{
 	public:
