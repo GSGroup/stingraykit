@@ -8,12 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/Macro.h>
-#include <stingraykit/toolkit.h>
-
+#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -63,18 +61,27 @@ namespace stingray
 	/** @brief a helper class that invokes a function in its destructor */
 	class ScopeExitInvoker
 	{
-	private:
 		STINGRAYKIT_NONCOPYABLE(ScopeExitInvoker);
-		function<void()>	_func;
+
+	private:
+		typedef function<void ()>	FuncType;
+
+		optional<FuncType>			_func;
 
 	public:
 		/** @param[in] func Function that should be invoked from the ScopeExitInvoker destructor */
-		ScopeExitInvoker(const function<void()>& func)
-			: _func(func)
+		ScopeExitInvoker(const FuncType& func)
+			:	_func(func)
 		{ }
 
 		~ScopeExitInvoker()
-		{ STINGRAYKIT_TRY("Unhandled exception in ScopeExitInvoker!", _func()); }
+		{
+			if (_func)
+				STINGRAYKIT_TRY("Unhandled exception in ScopeExitInvoker!", (*_func)());
+		}
+
+		void Cancel()
+		{ _func.reset(); }
 	};
 
 	/** @} */
