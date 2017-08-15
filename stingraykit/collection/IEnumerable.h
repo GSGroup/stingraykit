@@ -78,18 +78,18 @@ namespace stingray
 			typedef EnumerableToRange<Enumerable_> Self;
 
 		private:
-			const Enumerable_&                                       _enumerable;
-			shared_ptr<IEnumerator<typename Enumerable_::ItemType> > _enumerator;
+			const Enumerable_&											_enumerable;
+			shared_ptr<IEnumerator<typename Enumerable_::ItemType> >	_enumerator;
 
 		public:
 			EnumerableToRange(const Enumerable_& e) : _enumerable(e)
 			{ First(); }
 
-			bool Valid() const             { return _enumerator->Valid(); }
-			typename base::ValueType Get() { return _enumerator->Get(); }
+			bool Valid() const				{ return _enumerator->Valid(); }
+			typename base::ValueType Get()	{ return _enumerator->Get(); }
 
-			Self& First()                  { _enumerator = _enumerable.GetEnumerator(); return *this; }
-			Self& Next()                   { _enumerator->Next(); return *this; }
+			Self& First()					{ _enumerator = _enumerable.GetEnumerator(); return *this; }
+			Self& Next()					{ _enumerator->Next(); return *this; }
 		};
 
 
