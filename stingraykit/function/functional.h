@@ -98,7 +98,11 @@ namespace stingray
 	public:
 		explicit Identity(const T& value) : _value(value) { }
 
-		T operator()() const { return _value; }
+		STINGRAYKIT_PERFECT_FORWARDING(T, operator (), Do)
+
+	private:
+		template < typename Params_ >
+		T Do(const Tuple<Params_>&) const { return _value; }
 	};
 
 	template < typename T >
