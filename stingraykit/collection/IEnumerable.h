@@ -77,19 +77,25 @@ namespace stingray
 			typedef Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag> base;
 			typedef EnumerableToRange<Enumerable_> Self;
 
+			typedef shared_ptr<IEnumerator<typename Enumerable_::ItemType> > Enumerator;
+
 		private:
-			const Enumerable_&											_enumerable;
-			shared_ptr<IEnumerator<typename Enumerable_::ItemType> >	_enumerator;
+			const Enumerable_&				_enumerable;
+			Enumerator						_enumerator;
+			size_t							_index;
 
 		public:
-			EnumerableToRange(const Enumerable_& e) : _enumerable(e)
+			EnumerableToRange(const Enumerable_& enumerable) : _enumerable(enumerable)
 			{ First(); }
 
 			bool Valid() const				{ return _enumerator->Valid(); }
 			typename base::ValueType Get()	{ return _enumerator->Get(); }
 
-			Self& First()					{ _enumerator = _enumerable.GetEnumerator(); return *this; }
-			Self& Next()					{ _enumerator->Next(); return *this; }
+			bool Equals(const Self& other) const
+			{ return &_enumerable == &other._enumerable && _index == other._index; }
+
+			Self& First()					{ _enumerator = _enumerable.GetEnumerator(); _index = 0; return *this; }
+			Self& Next()					{ _enumerator->Next(); ++_index; return *this; }
 		};
 
 
