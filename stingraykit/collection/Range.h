@@ -100,19 +100,19 @@ namespace stingray
 			typedef RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category> base;
 
 		private:
-			const It_     _begin;
-			optional<It_> _it;
-			const It_     _end;
+			const It_		_begin;
+			It_				_it;
+			const It_		_end;
 
 		public:
 			IteratorRange(const It_& begin, const It_& it, const It_& end) : _begin(begin), _it(it), _end(end)
 			{ }
 
 			bool Valid() const
-			{ return _it && *_it != _end; }
+			{ return _it != _end; }
 
 			typename base::ValueType Get()
-			{ return **_it; }
+			{ STINGRAYKIT_CHECK(Valid(), "Get() behind last element"); return *_it; }
 
 			bool Equals(const IteratorRange& other) const
 			{ return _begin == other._begin && _it == other._it && _end == other._end; }
@@ -121,44 +121,24 @@ namespace stingray
 			{ _it = _begin; return *this; }
 
 			Self& Next()
-			{
-				if (!_it)
-					_it = _begin;
-				else
-					++*_it;
-				return *this;
-			}
+			{ STINGRAYKIT_CHECK(Valid(), "Next() behind last element"); ++_it; return *this; }
 
 			Self& Last()
-			{
-				if (_begin != _end)
-				{
-					_it = _end;
-					--*_it;
-				}
-				else
-					_it.reset();
-				return *this;
-			}
+			{ _it = _end; if (_it != _begin) --_it; return *this; }
 
 			Self& Prev()
-			{
-				if (_it == _begin)
-					_it.reset();
-				else
-					--*_it;
-				return *this;
-			}
+			{ STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element"); --_it; return *this; }
 
 			int GetPosition() const
-			{ return _it ? *_it - _begin : -1; }
+			{ return _it - _begin; }
 
 			size_t GetSize() const
 			{ return _end - _begin; }
 
 			Self& Move(int distance)
 			{
-				_it = _it ? *_it + distance : _begin + distance - 1;
+				STINGRAYKIT_CHECK((GetPosition() + distance >= 0) && (GetPosition() + distance < GetSize()), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
+				_it = _it + distance;
 				return *this;
 			}
 		};
