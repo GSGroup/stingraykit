@@ -315,23 +315,62 @@ namespace stingray
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
 
 		private:
-			Range_ _impl;
+			Range_		_impl;
+			bool		_implBeforeBegin;
 
 		public:
 			RangeReverser(const Range_& impl) : _impl(impl)
 			{ First(); }
 
-			bool Valid() const                            { return _impl.Valid(); }
-			typename base::ValueType Get()                { return _impl.Get(); }
-			bool Equals(const RangeReverser& other) const { return _impl == other._impl; }
-			Self& First()                                 { _impl.Last(); return *this; }
-			Self& Next()                                  { _impl.Prev(); return *this; }
-			Self& Last()                                  { _impl.First(); return *this; }
-			Self& Prev()                                  { _impl.Next(); return *this; }
+			bool Valid() const
+			{ return !_implBeforeBegin && _impl.Valid(); }
 
-			int GetPosition() const                       { return static_cast<int>(_impl.GetSize()) - static_cast<int>(_impl.GetPosition()) - 1; }
-			size_t GetSize() const                        { return _impl.GetSize(); }
-			Self& Move(int distance)                      { _impl.Move(-distance); return *this; }
+			typename base::ValueType Get()
+			{ STINGRAYKIT_CHECK(!_implBeforeBegin, "range at the end!"); return _impl.Get(); }
+
+			bool Equals(const RangeReverser& other) const
+			{ return _impl == other._impl && _implBeforeBegin == other._implBeforeBegin; }
+
+			Self& First()
+			{
+				_impl.Last();
+				_implBeforeBegin = false;
+				return *this;
+			}
+
+			Self& Next()
+			{
+				if (_impl != Range_(_impl).First())
+					_impl.Prev();
+				else
+					_implBeforeBegin = true;
+				return *this;
+			}
+
+			Self& Last()
+			{
+				_impl.First();
+				_implBeforeBegin = false;
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				if (_implBeforeBegin)
+					_implBeforeBegin = false;
+				else
+					_impl.Next();
+				return *this;
+			}
+
+			int GetPosition() const
+			{ return static_cast<int>(_impl.GetSize()) - static_cast<int>(_impl.GetPosition()) - (_implBeforeBegin ? 0 : 1); }
+
+			size_t GetSize() const
+			{ return _impl.GetSize(); }
+
+			Self& Move(int distance)
+			{ _impl.Move(-distance); return *this; }
 		};
 
 
