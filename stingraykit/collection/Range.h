@@ -130,15 +130,15 @@ namespace stingray
 			{ STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element"); --_it; return *this; }
 
 			size_t GetPosition() const
-			{ return _it - _begin; }
+			{ return std::distance(_begin, _it); }
 
 			size_t GetSize() const
-			{ return _end - _begin; }
+			{ return std::distance(_begin, _end); }
 
 			Self& Move(int distance)
 			{
 				STINGRAYKIT_CHECK(GetPosition() + distance < GetSize(), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
-				_it = _it + distance;
+				std::advance(_it, distance);
 				return *this;
 			}
 		};
