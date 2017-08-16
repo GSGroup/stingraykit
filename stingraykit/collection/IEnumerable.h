@@ -74,6 +74,8 @@ namespace stingray
 		template <typename Enumerable_>
 		class EnumerableToRange : public Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag>
 		{
+			STINGRAYKIT_NONASSIGNABLE(EnumerableToRange);
+
 			typedef Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag> base;
 			typedef EnumerableToRange<Enumerable_> Self;
 
@@ -87,6 +89,13 @@ namespace stingray
 		public:
 			EnumerableToRange(const Enumerable_& enumerable) : _enumerable(enumerable)
 			{ First(); }
+
+			EnumerableToRange(const EnumerableToRange& range) : _enumerable(range._enumerable)
+			{
+				First();
+				while (_index != range._index)
+					Next();
+			}
 
 			bool Valid() const				{ return _enumerator->Valid(); }
 			typename base::ValueType Get()	{ return _enumerator->Get(); }
