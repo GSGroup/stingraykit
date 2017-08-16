@@ -455,6 +455,14 @@ namespace stingray
 
 
 		template <typename Range_>
+		typename Range_::ValueType First(const Range_& range)
+		{
+			STINGRAYKIT_CHECK(range.Valid(), "Range is not valid!");
+			return range.Get();
+		}
+
+
+		template <typename Range_>
 		typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT FirstOrDefault(Range_ range)
 		{ return range.Valid() ? range.Get() : typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT(); }
 
@@ -740,6 +748,16 @@ namespace stingray
 	template <typename It_>
 	Range::IteratorRange<It_> ToRange(It_ begin, It_ end)
 	{ return Range::IteratorRange<It_>(begin, begin, end); }
+
+
+	template <typename Range_>
+	struct FirstTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
+	{
+		typedef typename Range_::ValueType ValueT;
+
+		static ValueT Do(const Range_& range)
+		{ return Range::First(range); }
+	};
 
 
 	template <typename Range_>
