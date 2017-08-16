@@ -83,7 +83,7 @@ namespace stingray
 			std::ptrdiff_t operator -  (const Derived& other) const    { return GetDerived().GetPosition() - other.GetPosition(); }
 
 			Derived begin() const                                      { Derived r(GetDerived()); return r.First(); }
-			Derived end() const                                        { Derived r(GetDerived()); r.Last(); return r.Next(); }
+			Derived end() const                                        { Derived r(GetDerived()); r.Last(); return r.Valid() ? r.Next() : r; }
 
 			bool boolean_test() const                                  { return GetDerived().Valid(); }
 
