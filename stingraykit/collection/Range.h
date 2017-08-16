@@ -331,7 +331,7 @@ namespace stingray
 
 			int GetPosition() const                       { return static_cast<int>(_impl.GetSize()) - static_cast<int>(_impl.GetPosition()) - 1; }
 			size_t GetSize() const                        { return _impl.GetSize(); }
-			Self& Move(int distance)                      { _impl.Move(distance); return *this; }
+			Self& Move(int distance)                      { _impl.Move(-distance); return *this; }
 		};
 
 
