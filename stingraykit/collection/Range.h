@@ -129,7 +129,7 @@ namespace stingray
 			Self& Prev()
 			{ STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element"); --_it; return *this; }
 
-			int GetPosition() const
+			size_t GetPosition() const
 			{ return _it - _begin; }
 
 			size_t GetSize() const
@@ -137,7 +137,7 @@ namespace stingray
 
 			Self& Move(int distance)
 			{
-				STINGRAYKIT_CHECK((GetPosition() + distance >= 0) && (GetPosition() + distance < GetSize()), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
+				STINGRAYKIT_CHECK(GetPosition() + distance < GetSize(), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
 				_it = _it + distance;
 				return *this;
 			}
@@ -220,7 +220,7 @@ namespace stingray
 			Self& Last()                                { _impl.Last(); _cache.reset(); return *this; }
 			Self& Prev()                                { _impl.Prev(); _cache.reset(); return *this; }
 
-			int GetPosition() const                     { return _impl.GetPosition(); }
+			size_t GetPosition() const                  { return _impl.GetPosition(); }
 			size_t GetSize() const                      { return _impl.GetSize(); }
 			Self& Move(int distance)                    { _impl.Move(distance); _cache.reset(); return *this; }
 
@@ -343,7 +343,7 @@ namespace stingray
 				return *this;
 			}
 
-			int GetPosition() const
+			size_t GetPosition() const
 			{ return static_cast<int>(_impl.GetSize()) - static_cast<int>(_impl.GetPosition()) - (_implBeforeBegin ? 0 : 1); }
 
 			size_t GetSize() const
@@ -380,7 +380,7 @@ namespace stingray
 			Self& Last()                                     { _impl.Last(); _cache.reset(); return *this; }
 			Self& Prev()                                     { _impl.Prev(); _cache.reset(); return *this; }
 
-			int GetPosition() const                          { return _impl.GetPosition(); }
+			size_t GetPosition() const                       { return _impl.GetPosition(); }
 			size_t GetSize() const                           { return _impl.GetSize(); }
 			Self& Move(int distance)                         { _impl.Move(distance); _cache.reset(); return *this; }
 
