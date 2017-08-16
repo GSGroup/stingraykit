@@ -105,6 +105,23 @@ namespace stingray
 
 			Self& First()					{ _enumerator = _enumerable.GetEnumerator(); _index = 0; return *this; }
 			Self& Next()					{ _enumerator->Next(); ++_index; return *this; }
+
+			Self& Last()
+			{
+				First();
+				Self prev(*this);
+
+				while (Valid())
+				{
+					Next();
+					if (Valid())
+						prev.Next();
+				}
+
+				_enumerator = prev._enumerator;
+				_index = prev._index;
+				return *this;
+			}
 		};
 
 
