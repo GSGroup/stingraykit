@@ -97,59 +97,14 @@ namespace stingray
 					Next();
 			}
 
-			bool Valid() const
-			{ return _enumerator && _enumerator->Valid(); }
-
-			typename base::ValueType Get()
-			{
-				STINGRAYKIT_CHECK(_enumerator, "Enumerable range is at the end!");
-				return _enumerator->Get();
-			}
+			bool Valid() const				{ return _enumerator->Valid(); }
+			typename base::ValueType Get()	{ return _enumerator->Get(); }
 
 			bool Equals(const Self& other) const
 			{ return &_enumerable == &other._enumerable && _index == other._index; }
 
-			Self& First()
-			{
-				_enumerator = _enumerable.GetEnumerator();
-				_index = 0;
-				return *this;
-			}
-
-			Self& Next()
-			{
-				STINGRAYKIT_CHECK(_enumerator, "Enumerable range is at the end!");
-
-				if (_enumerator->Valid())
-				{
-					_enumerator->Next();
-					++_index;
-				}
-				else
-					_enumerator.reset();
-
-				return *this;
-			}
-
-			Self& Last()
-			{
-				First();
-				Self prev(*this);
-
-				bool valid = Valid();
-				while (valid)
-				{
-					Next();
-
-					valid = Valid();
-					if (valid)
-						prev.Next();
-				}
-
-				_enumerator = prev._enumerator;
-				_index = prev._index;
-				return *this;
-			}
+			Self& First()					{ _enumerator = _enumerable.GetEnumerator(); _index = 0; return *this; }
+			Self& Next()					{ _enumerator->Next(); ++_index; return *this; }
 		};
 
 
