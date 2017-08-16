@@ -35,6 +35,8 @@ namespace stingray
 
 		u32 Get() const
 		{
+			STINGRAYKIT_CHECK(_it != _end, "Get() behind last element");
+
 			IteratorType it = _it;
 			u8 c0 = (u8)*it++;
 			if (c0 <= 0x7f)
@@ -74,11 +76,11 @@ namespace stingray
 		{ _it = _begin; return *this; }
 
 		Self & Last()
-		{ _it = _end; --_it; return *this; }
+		{ _it = _end; if (_it != _begin) --_it; return *this; }
 
 		Self & Next()
 		{
-			STINGRAYKIT_CHECK(_it != _end, "incrementing iterator at last element");
+			STINGRAYKIT_CHECK(_it != _end, "Next() behind last element");
 			++_it;
 			while ( (_it != _end) && (((u8)(*_it) & 0xc0) == 0x80) )
 				++_it;
@@ -87,7 +89,7 @@ namespace stingray
 
 		Self & Prev()
 		{
-			STINGRAYKIT_CHECK(_it != _begin, "decrementing iterator at first element");
+			STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
 			--_it;
 			while ( (_it != _begin) && (((u8)(*_it) & 0xc0) == 0x80) )
 				--_it;
