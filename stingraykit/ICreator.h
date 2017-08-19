@@ -80,7 +80,7 @@ namespace stingray
 	protected:
 		shared_ptr<ClassType> GetInstance() const
 		{
-			static shared_ptr<ClassType> instance(new ClassType);
+			static shared_ptr<ClassType> instance(make_shared<ClassType>());
 			return instance;
 		}
 	};
