@@ -8,9 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/shared_ptr.h>
-
 
 namespace stingray
 {
@@ -33,34 +31,22 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ISerializable);
 
 
-	namespace Detail
-	{
-
-		struct IObjectCache
-		{
-			virtual ~IObjectCache() { }
-
-			virtual void Flush() = 0;
-		};
-
-	}
-
-
 	typedef int PrimaryKeyType;
 
 	struct IObjectSerializator
 	{
-
 		virtual ~IObjectSerializator() { }
 
 		virtual PrimaryKeyType GetKey(const std::string& classname, const ISerializablePtr& value) const = 0;
 		virtual ISerializablePtr GetObject(const std::string& classname, PrimaryKeyType key) const = 0;
+
 		virtual void ReleaseRef(const std::string& classname, PrimaryKeyType key) const = 0;
+
+		virtual void Flush() = 0;
 	};
 
 	/** @} */
 
 }
-
 
 #endif
