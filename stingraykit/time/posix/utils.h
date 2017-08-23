@@ -13,7 +13,6 @@
 #include <stingraykit/time/Time.h>
 #include <stingraykit/SystemException.h>
 
-
 namespace stingray {
 namespace posix
 {
@@ -34,7 +33,13 @@ namespace posix
 			t->tv_sec += t->tv_nsec / 1000000000;
 			t->tv_nsec %= 1000000000;
 		}
+		else if (t->tv_nsec < 0)
+		{
+			t->tv_sec += t->tv_nsec / 1000000000 - 1;
+			t->tv_nsec = 1000000000 - t->tv_nsec % 1000000000;
+		}
 	}
+
 
 	inline void timespec_add(timespec* t, const timespec* summand)
 	{
@@ -43,6 +48,7 @@ namespace posix
 		for (; t->tv_nsec >= 1000000000; t->tv_nsec -= 1000000000)
 			++t->tv_sec;
 	}
+
 
 	inline void timespec_sub(timespec* minuend, const timespec* subtrahend)
 	{
@@ -55,10 +61,10 @@ namespace posix
 		minuend->tv_nsec -= subtrahend->tv_nsec;
 	}
 
+
 	inline void timespec_now(clockid_t clockId, timespec* t)
 	{ STINGRAYKIT_CHECK(clock_gettime(clockId, t) == 0, SystemException("clock_gettime")); }
 
 }}
-
 
 #endif
