@@ -56,6 +56,8 @@ namespace stingray
 	public:
 		explicit SyncValue(ParamPassingType value = T()) : _value(value) { }
 
+		T Get() const									{ return ConstLock(*this); }
+
 		Lock operator -> ()								{ return Lock(*this); }
 		ConstLock operator -> () const					{ return ConstLock(*this); }
 		Lock operator * ()								{ return Lock(*this); }
