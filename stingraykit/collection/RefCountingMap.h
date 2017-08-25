@@ -32,19 +32,26 @@ namespace stingray
 
 		typedef std::map<Key_, ValueHolder, Comparer_>		Impl;
 
-		struct Iterator : public iterator_base<Iterator, std::pair<const Key_&, Value_&>, std::bidirectional_iterator_tag>
+		template < bool Const >
+		struct Iterator : public iterator_base<Iterator<Const>, std::pair<const Key_&, typename If<Const, const Value_&, Value_&>::ValueT>, std::bidirectional_iterator_tag>
 		{
-			typedef iterator_base<Iterator, std::pair<const Key_&, Value_&>, std::bidirectional_iterator_tag>	base;
-			typedef std::pair<const Key_&, Value_&>																PairType;
+			typedef std::pair<const Key_&, typename If<Const, const Value_&, Value_&>::ValueT>			PairType;
+			typedef iterator_base<Iterator, PairType, std::bidirectional_iterator_tag>					base;
+
+			typedef typename If<Const, typename Impl::const_iterator, typename Impl::iterator>::ValueT	ImplIterator;
 
 		private:
-			typename Impl::iterator		_implIt;
+			ImplIterator				_implIt;
 			mutable optional<PairType>	_pair;
 
 		public:
 			Iterator() { }
 
-			Iterator(typename Impl::iterator implIt) : _implIt(implIt) { }
+			template < typename ImplIt >
+			Iterator(const ImplIt& implIt) : _implIt(implIt) { }
+
+			template < bool Const_ >
+			Iterator(const Iterator<Const_>& it) : _implIt(it.GetImpl()) { }
 
 			Iterator& operator = (const Iterator& other)
 			{ _implIt = other._implIt; _pair.reset(); return *this; }
@@ -56,7 +63,8 @@ namespace stingray
 				return *_pair;
 			}
 
-			bool equal(const Iterator& other) const
+			template < bool Const_>
+			bool equal(const Iterator<Const_>& other) const
 			{ return _implIt == other._implIt; }
 
 			void increment()
@@ -65,26 +73,29 @@ namespace stingray
 				_pair.reset();
 			}
 
-			typename Impl::iterator GetImpl() const
+			ImplIterator GetImpl() const
 			{ return _implIt; }
 		};
 
 	public:
-		typedef Iterator iterator;
-		typedef Iterator const_iterator;
+		typedef Iterator<false>		iterator;
+		typedef Iterator<true>		const_iterator;
 
 	private:
 		Impl		_impl;
 
 	public:
+		bool empty() const							{ return _impl.empty(); }
+		size_t size() const							{ return _impl.size(); }
 
-		bool empty() const				{ return _impl.empty(); }
-		size_t size() const				{ return _impl.size(); }
+		iterator begin()							{ return _impl.begin(); }
+		iterator end()								{ return _impl.end(); }
 
-		iterator begin()				{ return _impl.begin(); }
-		iterator end()					{ return _impl.end(); }
+		const_iterator begin() const				{ return _impl.begin(); }
+		const_iterator end() const 					{ return _impl.end(); }
 
-		iterator find(const Key_& key)	{ return _impl.find(key); }
+		iterator find(const Key_& key)				{ return _impl.find(key); }
+		const_iterator find(const Key_& key) const	{ return _impl.find(key); }
 
 		template < typename DoAddFunc >
 		iterator add(const Key_& key, const DoAddFunc& doAddFunc)
