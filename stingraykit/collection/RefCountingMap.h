@@ -8,8 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/compare/comparers.h>
 #include <stingraykit/collection/iterator_base.h>
+#include <stingraykit/compare/comparers.h>
 #include <stingraykit/optional.h>
 
 #include <map>
@@ -17,7 +17,7 @@
 namespace stingray
 {
 
-	template<typename Key_, typename Value_, typename Comparer_ = comparers::Less>
+	template < typename Key_, typename Value_, typename Comparer_ = comparers::Less >
 	class RefCountingMap
 	{
 		struct ValueHolder
@@ -25,8 +25,8 @@ namespace stingray
 			size_t	References;
 			Value_	Value;
 
-			ValueHolder(size_t references, const Value_& value) :
-				References(references), Value(value)
+			ValueHolder(size_t references, const Value_& value)
+				:	References(references), Value(value)
 			{ }
 		};
 
@@ -42,11 +42,9 @@ namespace stingray
 			mutable optional<PairType>	_pair;
 
 		public:
-			Iterator()
-			{ }
+			Iterator() { }
 
-			Iterator(typename Impl::iterator implIt) : _implIt(implIt)
-			{ }
+			Iterator(typename Impl::iterator implIt) : _implIt(implIt) { }
 
 			Iterator& operator = (const Iterator& other)
 			{ _implIt = other._implIt; _pair.reset(); return *this; }
@@ -58,7 +56,7 @@ namespace stingray
 				return *_pair;
 			}
 
-			bool equal(const Iterator &other) const
+			bool equal(const Iterator& other) const
 			{ return _implIt == other._implIt; }
 
 			void increment()
@@ -79,8 +77,6 @@ namespace stingray
 		Impl		_impl;
 
 	public:
-		RefCountingMap()
-		{ }
 
 		bool empty() const				{ return _impl.empty(); }
 		size_t size() const				{ return _impl.size(); }
@@ -90,7 +86,7 @@ namespace stingray
 
 		iterator find(const Key_& key)	{ return _impl.find(key); }
 
-		template<typename DoAddFunc>
+		template < typename DoAddFunc >
 		iterator add(const Key_& key, const DoAddFunc& doAddFunc)
 		{
 			typename Impl::iterator it = _impl.find(key);
@@ -103,7 +99,7 @@ namespace stingray
 			return _impl.insert(std::make_pair(key, ValueHolder(1, doAddFunc(key)))).first;
 		}
 
-		template<typename DoRemoveFunc>
+		template < typename DoRemoveFunc >
 		size_t erase(const Key_& key, const DoRemoveFunc& doRemoveFunc)
 		{
 			typename Impl::iterator implIt = _impl.find(key);
@@ -118,7 +114,7 @@ namespace stingray
 			return 1;
 		}
 
-		template<typename DoRemoveFunc>
+		template < typename DoRemoveFunc >
 		void erase(iterator it, const DoRemoveFunc& doRemoveFunc)
 		{
 			typename Impl::iterator implIt = it.GetImpl();
@@ -129,7 +125,7 @@ namespace stingray
 			_impl.erase(implIt);
 		}
 
-		template<typename DoRemoveFunc>
+		template < typename DoRemoveFunc >
 		void clear(const DoRemoveFunc& doRemoveFunc)
 		{
 			for (typename Impl::iterator it = _impl.begin(); it != _impl.end(); ++it)
