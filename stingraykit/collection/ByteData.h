@@ -48,11 +48,11 @@ namespace stingray
 		explicit ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
 			: _ptr(ptr)
 			, _begin(begin), _end(end)
-		{ if (_ptr < _begin || _ptr > _end) STINGRAYKIT_THROW(IndexOutOfRangeException()); }
+		{ STINGRAYKIT_CHECK(_ptr >= _begin && _ptr <= _end, IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end)); }
 
 		reference dereference() const
 		{
-			if (_ptr < _begin || _ptr >= _end) STINGRAYKIT_THROW(IndexOutOfRangeException());
+			STINGRAYKIT_CHECK(_ptr >= _begin && _ptr < _end, IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end));
 			return *_ptr;
 		}
 		bool equal(const ByteDataIterator &other) const						{ return _ptr == other._ptr; }
@@ -209,8 +209,7 @@ namespace stingray
 
 		inline T& operator[](size_t index) const
 		{
-			if (index >= size())
-				STINGRAYKIT_THROW(IndexOutOfRangeException(index, size()));
+			STINGRAYKIT_CHECK(index < size(), IndexOutOfRangeException(index, size()));
 			return (*_data)[index + _offset];
 		}
 
@@ -405,8 +404,7 @@ namespace stingray
 
 		inline T& operator[](size_t index) const
 		{
-			if (index >= _size)
-				STINGRAYKIT_THROW(IndexOutOfRangeException(index, _size));
+			STINGRAYKIT_CHECK(index < _size, IndexOutOfRangeException(index, _size));
 			return _data[index];
 		}
 
