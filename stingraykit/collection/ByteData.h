@@ -181,14 +181,15 @@ namespace stingray
 		template < typename U >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset):
 			_data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
-		{ STINGRAYKIT_CHECK(_data->size() >= _offset, ArgumentException("offset")); }
+		{ STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size())); }
 
 		template < typename U >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit):
 			_data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(sizeLimit)
 		{
-			STINGRAYKIT_CHECK(_data->size() >= _offset, ArgumentException("offset"));
-			STINGRAYKIT_CHECK((_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size()) && (_sizeLimit + offset <= other._sizeLimit), ArgumentException("sizeLimit"));
+			STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size()));
+			STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size(), IndexOutOfRangeException(_sizeLimit + offset, offset, _data->size()));
+			STINGRAYKIT_CHECK(_sizeLimit + offset <= other._sizeLimit, IndexOutOfRangeException(_sizeLimit + offset, offset, other._sizeLimit));
 		}
 
 		inline size_t GetOffset() const { return _offset; }
