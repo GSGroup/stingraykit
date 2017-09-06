@@ -10,15 +10,17 @@
 namespace stingray
 {
 
-	PipeReader::PipeReader(const IPipePtr& pipe)
-		: _pipe(pipe)
-	{ }
+	PipeReader::PipeReader(const IPipePtr& pipe) : _pipe(pipe) { }
 
 
 	u8 PipeReader::ReadByte(const ICancellationToken& token)
 	{
 		u8 result;
-		STINGRAYKIT_CHECK(Read(ByteData(&result, sizeof(result)), token) == sizeof(result), OperationCancelledException());
+		if (Read(ByteData(&result, sizeof(result)), token) != sizeof(result))
+		{
+			STINGRAYKIT_CHECK(!token, "Abnormal behaviour!");
+			STINGRAYKIT_THROW(OperationCancelledException());
+		}
 		return result;
 	}
 

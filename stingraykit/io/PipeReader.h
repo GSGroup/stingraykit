@@ -16,7 +16,7 @@ namespace stingray
 	class PipeReader
 	{
 	private:
-		IPipePtr				_pipe;
+		IPipePtr	_pipe;
 
 	public:
 		explicit PipeReader(const IPipePtr& pipe);
