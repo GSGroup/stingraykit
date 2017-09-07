@@ -520,19 +520,19 @@ namespace stingray
 
 		typedef std::string Str;
 
-		HandlerInserter<Tuple<TypeList_1<Str>::type > > Handler(const Str& s1)
+		HandlerInserter<Tuple<TypeList<Str>::type> > Handler(const Str& s1)
 		{ return HandlerImpl(MakeTuple(s1)); }
 
-		HandlerInserter<Tuple<TypeList_2<Str, Str>::type > > Handler(const Str& s1, const Str& s2)
+		HandlerInserter<Tuple<TypeList<Str, Str>::type> > Handler(const Str& s1, const Str& s2)
 		{ return HandlerImpl(MakeTuple(s1, s2)); }
 
-		HandlerInserter<Tuple<TypeList_3<Str, Str, Str>::type > > Handler(const Str& s1, const Str& s2, const Str& s3)
+		HandlerInserter<Tuple<TypeList<Str, Str, Str>::type> > Handler(const Str& s1, const Str& s2, const Str& s3)
 		{ return HandlerImpl(MakeTuple(s1, s2, s3)); }
 
-		HandlerInserter<Tuple<TypeList_4<Str, Str, Str, Str>::type > > Handler(const Str& s1, const Str& s2, const Str& s3, const Str& s4)
+		HandlerInserter<Tuple<TypeList<Str, Str, Str, Str>::type> > Handler(const Str& s1, const Str& s2, const Str& s3, const Str& s4)
 		{ return HandlerImpl(MakeTuple(s1, s2, s3, s4)); }
 
-		HandlerInserter<Tuple<TypeList_5<Str, Str, Str, Str, Str>::type > > Handler(const Str& s1, const Str& s2, const Str& s3, const Str& s4, const Str& s5)
+		HandlerInserter<Tuple<TypeList<Str, Str, Str, Str, Str>::type> > Handler(const Str& s1, const Str& s2, const Str& s3, const Str& s4, const Str& s5)
 		{ return HandlerImpl(MakeTuple(s1, s2, s3, s4, s5)); }
 
 	private:

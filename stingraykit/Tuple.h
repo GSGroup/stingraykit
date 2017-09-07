@@ -214,8 +214,8 @@ namespace stingray
 	{ return Detail::TupleItemGetter<Tuple_, Index>::Get(tuple); }
 
 
-	inline Tuple<TypeList_0> MakeTuple()
-	{ return Tuple<TypeList_0>(); }
+	inline Tuple<TypeList<>::type> MakeTuple()
+	{ return Tuple<TypeList<>::type>(); }
 
 
 #undef P_
@@ -223,8 +223,8 @@ namespace stingray
 
 #define DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 	template < TypesDecl_ > \
-	Tuple<typename TypeList_##N_<TypesUsage_>::type> MakeTuple(ParamsDecl_) \
-	{ return Tuple<typename TypeList_##N_<TypesUsage_>::type>(ParamsUsage_); }
+	Tuple<typename TypeList<TypesUsage_>::type> MakeTuple(ParamsDecl_) \
+	{ return Tuple<typename TypeList<TypesUsage_>::type>(ParamsUsage_); }
 
 	DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
 	DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2));
