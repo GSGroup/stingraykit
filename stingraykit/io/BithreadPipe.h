@@ -19,7 +19,7 @@ namespace stingray
 		optional<ConstByteData>	_data;
 
 	public:
-		virtual u64 Read(ByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout = null)
+		virtual u64 Read(ByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout)
 		{
 			MutexLock l(_guard);
 
@@ -44,7 +44,7 @@ namespace stingray
 			return size;
 		}
 
-		virtual u64 Write(ConstByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout = null)
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout)
 		{
 			MutexLock l(_guard);
 
