@@ -108,6 +108,25 @@ namespace stingray
 	template < typename T >
 	Identity<T> make_identity(const T& value) { return Identity<T>(value); }
 
+
+	template < typename FuncType >
+	struct Invoker
+	{
+	private:
+		FuncType	_func;
+
+	public:
+		Invoker(const FuncType& func) : _func(func) { }
+
+		template < typename TupleType >
+		typename FuncType::RetType operator() (const TupleType& params) const
+		{ return FunctorInvoker::Invoke(_func, params); }
+	};
+
+	template < typename FuncType >
+	Invoker<FuncType> make_invoker(const FuncType& func)
+	{ return Invoker<FuncType>(func); }
+
 	/** @} */
 
 }
