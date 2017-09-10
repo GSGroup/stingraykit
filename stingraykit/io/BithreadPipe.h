@@ -19,20 +19,19 @@ namespace stingray
 		optional<ConstByteData>	_data;
 
 	public:
-		virtual u64 Read(ByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout)
+		virtual u64 Read(ByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout = null)
 		{
 			MutexLock l(_guard);
 
 			ElapsedTime et;
-			while (!_data && token && (!timeout || et.Elapsed() < *timeout))
+			while (!_data && token)
 			{
-				if (timeout)
-					_full.TimedWait(_guard, *timeout - et.Elapsed(), token);
-				else
+				if (!timeout)
 					_full.Wait(_guard, token);
+				else
+					STINGRAYKIT_CHECK(_full.TimedWait(_guard, *timeout - et.Elapsed(), token) || _data, TimeoutException());
 			}
 			STINGRAYKIT_CHECK(token, OperationCancelledException());
-			STINGRAYKIT_CHECK(!timeout || et.Elapsed() < *timeout, TimeoutException());
 
 			const size_t size = std::min(data.size(), _data->size());
 			std::copy(_data->begin(), _data->begin() + size, data.data());
@@ -44,23 +43,30 @@ namespace stingray
 			return size;
 		}
 
-		virtual u64 Write(ConstByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout)
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout = null)
 		{
 			MutexLock l(_guard);
 
 			_data = data;
 			_full.Broadcast();
 
-			ElapsedTime et;
-			while (_data && token && (!timeout || et.Elapsed() < *timeout))
+			try
 			{
-				if (timeout)
-					_empty.TimedWait(_guard, *timeout - et.Elapsed(), token);
-				else
-					_empty.Wait(_guard, token);
+				ElapsedTime et;
+				while (_data && token)
+				{
+					if (!timeout)
+						_empty.Wait(_guard, token);
+					else
+						STINGRAYKIT_CHECK(_empty.TimedWait(_guard, *timeout - et.Elapsed(), token) || !_data, TimeoutException());
+				}
+				STINGRAYKIT_CHECK(token, OperationCancelledException());
 			}
-			STINGRAYKIT_CHECK(token, OperationCancelledException());
-			STINGRAYKIT_CHECK(!timeout || et.Elapsed() < *timeout, TimeoutException());
+			catch (const std::exception&)
+			{
+				_data = null;
+				throw;
+			}
 
 			return data.size();
 		}
