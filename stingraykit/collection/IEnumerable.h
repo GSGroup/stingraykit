@@ -49,15 +49,7 @@ namespace stingray
 
 	template < typename T >
 	struct IsEnumerable
-	{
-	private:
-		template < typename U >
-		static YesType GetIsEnumerable(const IEnumerable<U>*);
-		static NoType GetIsEnumerable(...);
-
-	public:
-		static const bool Value = sizeof(GetIsEnumerable((const T*)0)) == sizeof(YesType);
-	};
+	{ static const bool Value = Inherits1ParamTemplate<T, IEnumerable>::Value; };
 
 
 	namespace Detail
