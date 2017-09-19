@@ -8,17 +8,14 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
+#include <stingraykit/function/function.h>
+#include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/Macro.h>
 #include <stingraykit/MetaProgramming.h>
 #include <stingraykit/PerfectForwarding.h>
-#include <stingraykit/Tuple.h>
-#include <stingraykit/TypeList.h>
-#include <stingraykit/function/FunctorInvoker.h>
-#include <stingraykit/function/function.h>
 #include <stingraykit/reference.h>
 #include <stingraykit/shared_ptr.h>
-
+#include <stingraykit/TypeList.h>
 
 namespace stingray
 {
@@ -286,6 +283,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
