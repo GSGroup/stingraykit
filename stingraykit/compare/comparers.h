@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/exception.h>
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/shared_ptr.h>
@@ -18,6 +17,7 @@ namespace stingray
 
 	namespace comparers
 	{
+
 		template<typename Derived_>
 		struct CmpComparerBase : public function_info<int, UnspecifiedParamTypes>
 		{
@@ -310,7 +310,28 @@ namespace stingray
 	};
 	STINGRAYKIT_DECLARE_COMPARERS(Owner);
 
-}
 
+	template < typename CompareFunc >
+	class TupleCmp : public function_info<int, UnspecifiedParamTypes>
+	{
+	private:
+		CompareFunc		_compareFunc;
+
+	public:
+		explicit TupleCmp(const CompareFunc& compareFunc = comparers::Cmp()) : _compareFunc(compareFunc) { }
+
+		int operator () (const Tuple<TypeList<>::type>&, const Tuple<TypeList<>::type>&) const
+		{ return 0; }
+
+		template < typename T >
+		int operator () (const Tuple<T>& lhs, const Tuple<T>& rhs) const
+		{
+			if (const int result = _compareFunc(lhs.GetHead(), rhs.GetHead()))
+				return result;
+			return TupleCmp<CompareFunc>(_compareFunc)(lhs.GetTail(), rhs.GetTail());
+		}
+	};
+
+}
 
 #endif
