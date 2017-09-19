@@ -80,50 +80,55 @@ namespace stingray
 	};
 
 
-	template <typename T, typename V = T>
-	struct Assigner : public function_info<void(T&, const V&)>
+	template < typename T, typename V = T >
+	struct Assigner : public function_info<void (T&, const V&)>
 	{
 		void operator () (T& t, const V& v) const { t = v; }
 	};
 
 
-	template < typename T >
-	class Identity : public function_info<T ()>
+	namespace Detail
 	{
-	private:
-		T _value;
+		template < typename T >
+		class Identity : public function_info<T ()>
+		{
+		private:
+			T	_value;
 
-	public:
-		explicit Identity(const T& value) : _value(value) { }
+		public:
+			explicit Identity(const T& value) : _value(value) { }
 
-		STINGRAYKIT_PERFECT_FORWARDING(T, operator (), Do)
+			STINGRAYKIT_PERFECT_FORWARDING(T, operator (), Do)
 
-	private:
-		template < typename Params_ >
-		T Do(const Tuple<Params_>&) const { return _value; }
-	};
+		private:
+			template < typename Params_ >
+			T Do(const Tuple<Params_>&) const { return _value; }
+		};
+	}
 
 	template < typename T >
-	Identity<T> make_identity(const T& value) { return Identity<T>(value); }
+	Detail::Identity<T> make_identity(const T& value) { return Detail::Identity<T>(value); }
 
+
+	namespace Detail
+	{
+		template < typename FuncType >
+		class Invoker : public function_info<typename FuncType::RetType, UnspecifiedParamTypes>
+		{
+		private:
+			FuncType	_func;
+
+		public:
+			Invoker(const FuncType& func) : _func(func) { }
+
+			template < typename Params >
+			typename FuncType::RetType operator() (const Tuple<Params>& params) const
+			{ return FunctorInvoker::Invoke(_func, params); }
+		};
+	}
 
 	template < typename FuncType >
-	class Invoker : public function_info<typename FuncType::RetType, UnspecifiedParamTypes>
-	{
-	private:
-		FuncType	_func;
-
-	public:
-		Invoker(const FuncType& func) : _func(func) { }
-
-		template < typename TupleType >
-		typename FuncType::RetType operator() (const TupleType& params) const
-		{ return FunctorInvoker::Invoke(_func, params); }
-	};
-
-	template < typename FuncType >
-	Invoker<FuncType> make_invoker(const FuncType& func)
-	{ return Invoker<FuncType>(func); }
+	Detail::Invoker<FuncType> make_invoker(const FuncType& func) { return Detail::Invoker<FuncType>(func); }
 
 	/** @} */
 
