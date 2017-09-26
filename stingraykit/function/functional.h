@@ -124,6 +124,10 @@ namespace stingray
 			template < typename Params >
 			typename FuncType::RetType operator() (const Tuple<Params>& params) const
 			{ return FunctorInvoker::Invoke(_func, params); }
+
+			template < typename Key, typename Value >
+			typename FuncType::RetType operator() (const std::pair<Key, Value>& pair) const
+			{ return _func(pair.first, pair.second); }
 		};
 	}
 
