@@ -13,12 +13,14 @@ namespace stingray
 	}
 
 
-	std::string ToHumanReadableSize(u64 size, float allowedErrorFactor)
+	std::string ToHumanReadableSize(u64 size, float allowedErrorFactor, bool whitespaceBeforeSuffix)
 	{
 		STINGRAYKIT_CHECK(allowedErrorFactor <= 0.2, LogicException("Unreasonable allowedErrorFactor"));
 
+		const std::string whitespace = whitespaceBeforeSuffix ? " " : std::string();
+
 		if (size == 0)
-			return "0";
+			return "0" + whitespace;
 
 		for (int i = Suffixes.size(); i >= 0; --i)
 		{
@@ -29,10 +31,8 @@ namespace stingray
 
 			if (rounded >= size - delta && rounded <= size + delta)
 			{
-				if (i > 0)
-					return ToString(roundedInUnits) + Suffixes[i - 1];
-				else
-					return ToString(roundedInUnits);
+				const std::string sizeString = ToString(roundedInUnits) + whitespace;
+				return i > 0 ? sizeString + Suffixes[i - 1] : sizeString;
 			}
 		}
 
