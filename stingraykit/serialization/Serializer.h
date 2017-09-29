@@ -115,6 +115,21 @@ namespace stingray
 	template < typename Tag, typename T >
 	Deserializer<Tag, T> MakeDeserializer(T& object) { return Deserializer<Tag, T>(object); }
 
+
+	struct DefaultSerializationTag;
+
+	template < typename Object >
+	struct Serialization<DefaultSerializationTag, Object>
+	{
+		template < typename OStream >
+		static void Serialize(OStream& ar, const Object& object)
+		{ ar.Serialize(object); }
+
+		template < typename IStream >
+		static void Deserialize(IStream& ar, Object& object)
+		{ ar.Deserialize(object); }
+	};
+
 	/** @} */
 
 }
