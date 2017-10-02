@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/preprocessor/Cat.h>
+#include <stingraykit/preprocessor/Bool.h>
 #include <stingraykit/preprocessor/CropImpl.h>
 #include <stingraykit/preprocessor/MkParam.h>
 #include <stingraykit/preprocessor/PrependImpl.h>
@@ -42,26 +42,11 @@
 
 
 #define DETAIL_FIRST_ARG(_0, ...) _0
-#define DETAIL_SECOND_ARG(_0, _1, ...) _1
 
 #define STINGRAYKIT_FIRST_ARG(...) STINGRAYKIT_EXPAND(STINGRAYKIT_DEFER(DETAIL_FIRST_ARG))(__VA_ARGS__)
 
 
-#define DETAIL_NOT_IMPL(...) DETAIL_SECOND_ARG(__VA_ARGS__, 0, Dummy_)
-#define DETAIL_NOT_0 ~, 1
-
-#define STINGRAYKIT_NOT(A) DETAIL_NOT_IMPL(STINGRAYKIT_CAT(DETAIL_NOT_, A))
-
 #define STINGRAYKIT_COMMA ,
-
-#define DETAIL_COMPL_0 1
-#define DETAIL_COMPL_1 0
-
-#define STINGRAYKIT_COMPL(A) STINGRAYKIT_CAT(DETAIL_COMPL_, A)
-
-
-#define STINGRAYKIT_BOOL(A) STINGRAYKIT_COMPL(STINGRAYKIT_NOT(A))
-
 
 #define DETAIL_INSERT_IF_0(...)
 #define DETAIL_INSERT_IF_1(...) __VA_ARGS__
