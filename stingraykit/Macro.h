@@ -10,6 +10,7 @@
 
 
 #include <stingraykit/preprocessor/CropImpl.h>
+#include <stingraykit/preprocessor/MkParam.h>
 #include <stingraykit/preprocessor/PrependImpl.h>
 
 
@@ -17,8 +18,6 @@
  * @addtogroup toolkit_macro
  * @{
  */
-
-#define MK_PARAM(...)	__VA_ARGS__
 
 #define STINGRAYKIT_EMPTY()
 #define STINGRAYKIT_DEFER(A) A STINGRAYKIT_EMPTY()
