@@ -11,9 +11,6 @@
 #if PLATFORM_POSIX
 #	include <stingraykit/thread/posix/PosixCallOnce.h>
 	namespace stingray { typedef PosixCallOnce	CallOnce; }
-#elif PLATFORM_OSPLUS
-#	include <stingraykit/thread/osplus/OS21CallOnce.h>
-	namespace stingray { typedef OS21CallOnce	CallOnce; }
 #else
 #	error Threads not configured
 #endif

@@ -31,15 +31,6 @@
 		typedef PosixThreadEngine		ThreadEngine;
 		/** @} */
 	}
-#elif PLATFORM_OSPLUS
-#	include <stingraykit/thread/osplus/OS21ThreadEngine.h>
-#if PROFILE_MUTEX_LOCK_TIMINGS
-	namespace stingray { typedef MutexProfilerWrapper<OS21Mutex>	Mutex; }
-#else
-	namespace stingray { typedef OS21Mutex				Mutex; }
-#endif
-	namespace stingray { typedef OS21Semaphore			Semaphore; }
-	namespace stingray { typedef OS21ThreadEngine		ThreadEngine; }
 #else
 #	error Threads not configured
 #endif

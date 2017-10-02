@@ -9,9 +9,7 @@ SET(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-if (NOT DEFINED PLATFORM_OSPLUS)
-	include(FindThreads)
-endif (NOT DEFINED PLATFORM_OSPLUS)
+include(FindThreads)
 
 include(CheckIncludeFile)
 include(CheckIncludeFiles)
@@ -148,17 +146,6 @@ set(stingraykit_SRC
 
 if (PLATFORM_STAPI)
 	list(APPEND STINGRAYKIT_DEFINITIONS -DPLATFORM_STAPI=1)
-
-	if (PLATFORM_OSPLUS)
-		list(APPEND STINGRAYKIT_DEFINITIONS -DPLATFORM_OSPLUS=1)
-
-		list(APPEND stingraykit_SRC
-			stingraykit/thread/osplus/OS21CallOnce.cpp
-			stingraykit/thread/osplus/OS21TaskExecutor.cpp
-			stingraykit/thread/osplus/OS21ThreadEngine.cpp
-			stingraykit/time/osplus/TimeEngine.cpp
-		)
-	endif (PLATFORM_OSPLUS)
 endif (PLATFORM_STAPI)
 
 

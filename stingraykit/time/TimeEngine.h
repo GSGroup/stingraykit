@@ -10,8 +10,6 @@
 
 #if defined(PLATFORM_POSIX)
 #	include <stingraykit/time/posix/TimeEngine.h>
-#elif defined(PLATFORM_STAPI)
-#	include <stingraykit/time/osplus/TimeEngine.h>
 #endif
 
 namespace stingray
@@ -24,8 +22,6 @@ namespace stingray
 	 */
 	typedef posix::TimeEngine		TimeEngine;
 	/** @} */
-#elif defined(PLATFORM_STAPI)
-	typedef osplus::TimeEngine		TimeEngine;
 #else
 #	error Time engine not configured
 #endif
