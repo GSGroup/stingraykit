@@ -9,9 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stingraykit/preprocessor/Bool.h>
 #include <stingraykit/preprocessor/CropImpl.h>
-#include <stingraykit/preprocessor/MkParam.h>
+#include <stingraykit/preprocessor/If.h>
 #include <stingraykit/preprocessor/PrependImpl.h>
 
 
@@ -47,12 +46,6 @@
 
 
 #define STINGRAYKIT_COMMA ,
-
-#define DETAIL_INSERT_IF_0(...)
-#define DETAIL_INSERT_IF_1(...) __VA_ARGS__
-
-#define STINGRAYKIT_INSERT_IF(Predicate_, ...) STINGRAYKIT_CAT(DETAIL_INSERT_IF_, STINGRAYKIT_BOOL(Predicate_))(MK_PARAM(__VA_ARGS__))
-#define STINGRAYKIT_IF_ELSE(Predicate_, If_, Else_) STINGRAYKIT_INSERT_IF(Predicate_, MK_PARAM(If_)) STINGRAYKIT_INSERT_IF(STINGRAYKIT_NOT(Predicate_), MK_PARAM(Else_))
 
 
 #define DETAIL_COMMA_IF_0
