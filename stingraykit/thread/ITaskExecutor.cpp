@@ -12,11 +12,7 @@
 namespace stingray
 {
 
-	ITaskExecutorPtr ITaskExecutor::Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler, bool profileCalls)
-	{ return make_shared<ThreadTaskExecutor>(name, exceptionHandler, profileCalls); }
-
-
-	ITaskExecutorPtr ITaskExecutor::Create(const std::string& name, bool profileCalls)
-	{ return make_shared<ThreadTaskExecutor>(name, profileCalls); }
+	ITaskExecutorPtr ITaskExecutor::Create(const std::string& name)
+	{ return make_shared<ThreadTaskExecutor>(name); }
 
 }

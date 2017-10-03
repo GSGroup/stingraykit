@@ -28,9 +28,7 @@ namespace stingray
 		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester) = 0;
 
 		/** @deprecated instead, create ThreadTaskExecutor directly */
-		static shared_ptr<ITaskExecutor> Create(const std::string& name, const function<void(const std::exception&)>& exceptionHandler, bool profileCalls = true);
-		/** @deprecated instead, create ThreadTaskExecutor directly */
-		static shared_ptr<ITaskExecutor> Create(const std::string& name, bool profileCalls = true);
+		static shared_ptr<ITaskExecutor> Create(const std::string& name);
 	};
 	STINGRAYKIT_DECLARE_PTR(ITaskExecutor);
 
