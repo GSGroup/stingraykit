@@ -21,15 +21,9 @@ namespace stingray
 	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls)
 		:	_name(name),
 			_exceptionHandler(exceptionHandler),
-			_profileCalls(profileCalls)
-	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, _1)); }
-
-
-	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, bool profileCalls)
-		:	_name(name),
-			_exceptionHandler(&ThreadTaskExecutor::DefaultExceptionHandler),
-			_profileCalls(profileCalls)
-	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, _1)); }
+			_profileCalls(profileCalls),
+			_worker(make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, _1)))
+	{ }
 
 
 	void ThreadTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)

@@ -48,8 +48,7 @@ namespace stingray
 		ThreadPtr				_worker;
 
 	public:
-		ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls = true);
-		explicit ThreadTaskExecutor(const std::string& name, bool profileCalls = true);
+		explicit ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler = &ThreadTaskExecutor::DefaultExceptionHandler, bool profileCalls = true);
 
 		virtual void AddTask(const TaskType& task)
 		{ AddTask(task, null); }
