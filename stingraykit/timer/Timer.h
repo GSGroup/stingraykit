@@ -40,12 +40,14 @@ namespace stingray
 	public:
 		typedef function<void(const std::exception&)>	ExceptionHandler;
 
+		static const TimeDuration DefaultProfileTimeout;
+
 	private:
 		static NamedLogger			s_logger;
 
 		std::string					_timerName;
+		optional<TimeDuration>		_profileTimeout;
 		ExceptionHandler			_exceptionHandler;
-		bool						_profileCalls;
 
 		ElapsedTime					_monotonic;
 		CallbackQueuePtr			_queue;
@@ -54,7 +56,7 @@ namespace stingray
 		ThreadPtr					_worker;
 
 	public:
-		explicit Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler = &Timer::DefaultExceptionHandler, bool profileCalls = true);
+		explicit Timer(const std::string& timerName, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 		virtual ~Timer();
 
 		Token SetTimeout(const TimeDuration& timeout, const function<void()>& func);

@@ -153,10 +153,12 @@ namespace stingray
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(Timer);
 
-	Timer::Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler, bool profileCalls)
+	const TimeDuration Timer::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+
+	Timer::Timer(const std::string& timerName, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
 		:	_timerName(timerName),
+			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
-			_profileCalls(profileCalls),
 			_queue(make_shared<CallbackQueue>()),
 			_worker(make_shared<Thread>(timerName, bind(&Timer::ThreadFunc, this, _1)))
 	{ }
@@ -305,9 +307,9 @@ namespace stingray
 
 		try
 		{
-			if (_profileCalls)
+			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(ci->GetFunc())), 10000, AsyncProfiler::Session::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(ci->GetFunc())), _profileTimeout->GetMilliseconds(), AsyncProfiler::Session::NameGetterTag());
 				ci->GetFunc()();
 			}
 			else
