@@ -43,16 +43,13 @@ namespace stingray
 
 		Mutex					_syncRoot;
 		QueueType				_queue;
-
 		ConditionVariable		_condVar;
-		bool					_working;	// TODO: get rid of it
 
-		ThreadPtr				_worker;	// TODO: store it by value
+		ThreadPtr				_worker;
 
 	public:
 		ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls = true);
 		explicit ThreadTaskExecutor(const std::string& name, bool profileCalls = true);
-		virtual ~ThreadTaskExecutor();
 
 		virtual void AddTask(const TaskType& task)
 		{ AddTask(task, null); }
@@ -64,7 +61,7 @@ namespace stingray
 
 		std::string GetProfilerMessage(const function<void()>& func) const;
 
-		void ThreadFunc();
+		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const TaskPair& task) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(ThreadTaskExecutor);

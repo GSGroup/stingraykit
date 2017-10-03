@@ -21,28 +21,15 @@ namespace stingray
 	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls)
 		:	_name(name),
 			_exceptionHandler(exceptionHandler),
-			_profileCalls(profileCalls),
-			_working(true)
-	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, not_using(_1))); }
+			_profileCalls(profileCalls)
+	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, _1)); }
 
 
 	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, bool profileCalls)
 		:	_name(name),
 			_exceptionHandler(&ThreadTaskExecutor::DefaultExceptionHandler),
-			_profileCalls(profileCalls),
-			_working(true)
-	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, not_using(_1))); }
-
-
-	ThreadTaskExecutor::~ThreadTaskExecutor()
-	{
-		{
-			MutexLock l(_syncRoot);
-			_working = false;
-			_condVar.Broadcast();
-		}
-		_worker.reset();
-	}
+			_profileCalls(profileCalls)
+	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, _1)); }
 
 
 	void ThreadTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
@@ -64,17 +51,15 @@ namespace stingray
 	{ return StringBuilder() % get_function_name(func) % " in ThreadTaskExecutor '" % _name % "'"; }
 
 
-	void ThreadTaskExecutor::ThreadFunc()
+	void ThreadTaskExecutor::ThreadFunc(const ICancellationToken& token)
 	{
 		MutexLock l(_syncRoot);
-		while (true)
-		{
-			if (!_working && _queue.empty())
-				return;
 
+		while (token || !_queue.empty())
+		{
 			if (_queue.empty())
 			{
-				_condVar.Wait(_syncRoot);
+				_condVar.Wait(_syncRoot, token);
 				continue;
 			}
 
