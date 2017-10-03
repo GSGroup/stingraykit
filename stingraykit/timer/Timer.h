@@ -56,7 +56,7 @@ namespace stingray
 		ThreadPtr					_worker;
 
 	public:
-		Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler = &Timer::DefaultExceptionHandler, bool profileCalls = true);
+		explicit Timer(const std::string& timerName, const ExceptionHandler& exceptionHandler = &Timer::DefaultExceptionHandler, bool profileCalls = true);
 		virtual ~Timer();
 
 		Token SetTimeout(const TimeDuration& timeout, const function<void()>& func);
