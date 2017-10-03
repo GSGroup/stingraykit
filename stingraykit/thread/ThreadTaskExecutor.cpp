@@ -16,7 +16,7 @@ namespace stingray
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadTaskExecutor);
 
-	static const size_t TaskCountLimit = 1024;
+	static const size_t TaskCountLimit = 256 * 4;
 
 	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls)
 		:	_name(name),
@@ -49,9 +49,10 @@ namespace stingray
 	{
 		MutexLock l(_syncRoot);
 		_queue.push(std::make_pair(task, tester));
-		if (_queue.size() > TaskCountLimit)
-			s_logger.Error() << "Task queue size limit is exceeded for executor '" << _name << "': " << _queue.size();
 		_condVar.Broadcast();
+
+		if (_queue.size() > TaskCountLimit && _queue.size() % (TaskCountLimit / 4) == 0)
+			s_logger.Error() << "Task queue size limit is exceeded for executor '" << _name << "': " << _queue.size();
 	}
 
 
