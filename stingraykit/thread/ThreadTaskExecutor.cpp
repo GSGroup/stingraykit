@@ -16,12 +16,13 @@ namespace stingray
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadTaskExecutor);
 
-	static const size_t TaskCountLimit = 256 * 4;
+	const TimeDuration ThreadTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+	const size_t ThreadTaskExecutor::TaskCountLimit = 256 * 4;
 
-	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler, bool profileCalls)
+	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandlerType& exceptionHandler)
 		:	_name(name),
+			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
-			_profileCalls(profileCalls),
 			_worker(make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, _1)))
 	{ }
 
@@ -76,9 +77,9 @@ namespace stingray
 
 		try
 		{
-			if (_profileCalls)
+			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, ref(task.first)), 10000, AsyncProfiler::Session::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, ref(task.first)), _profileTimeout->GetMilliseconds(), AsyncProfiler::Session::NameGetterTag());
 				task.first();
 			}
 			else

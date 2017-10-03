@@ -28,18 +28,26 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(ThreadTaskExecutor);
 
+	public:
 		typedef function<void()>										TaskType;
 		typedef function<void(const std::exception&)>					ExceptionHandlerType;
 
+	private:
 		typedef std::pair<TaskType, FutureExecutionTester>				TaskPair;
 		typedef std::queue<TaskPair, std::deque<TaskPair> >				QueueType;
+
+	public:
+		static const TimeDuration DefaultProfileTimeout;
+
+	private:
+		static const size_t TaskCountLimit;
 
 	private:
 		static NamedLogger		s_logger;
 
 		std::string				_name;
+		optional<TimeDuration>	_profileTimeout;
 		ExceptionHandlerType	_exceptionHandler;
-		bool					_profileCalls;
 
 		Mutex					_syncRoot;
 		QueueType				_queue;
@@ -48,16 +56,16 @@ namespace stingray
 		ThreadPtr				_worker;
 
 	public:
-		explicit ThreadTaskExecutor(const std::string& name, const ExceptionHandlerType& exceptionHandler = &ThreadTaskExecutor::DefaultExceptionHandler, bool profileCalls = true);
+		explicit ThreadTaskExecutor(const std::string& name, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DefaultExceptionHandler);
 
 		virtual void AddTask(const TaskType& task)
 		{ AddTask(task, null); }
 
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester);
 
-	private:
 		static void DefaultExceptionHandler(const std::exception& ex);
 
+	private:
 		std::string GetProfilerMessage(const function<void()>& func) const;
 
 		void ThreadFunc(const ICancellationToken& token);
