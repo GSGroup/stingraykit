@@ -157,19 +157,13 @@ namespace stingray
 		:	_timerName(timerName),
 			_exceptionHandler(exceptionHandler),
 			_profileCalls(profileCalls),
-			_alive(true),
 			_queue(make_shared<CallbackQueue>()),
-			_worker(make_shared<Thread>(timerName, bind(&Timer::ThreadFunc, this, not_using(_1))))
+			_worker(make_shared<Thread>(timerName, bind(&Timer::ThreadFunc, this, _1)))
 	{ }
 
 
 	Timer::~Timer()
 	{
-		{
-			MutexLock l(_queue->Sync());
-			_alive = false;
-			_cond.Broadcast();
-		}
 		_worker.reset();
 
 		MutexLock l(_queue->Sync());
@@ -247,15 +241,15 @@ namespace stingray
 	{ return StringBuilder() % get_function_name(func) % " in Timer '" % _timerName % "'"; }
 
 
-	void Timer::ThreadFunc()
+	void Timer::ThreadFunc(const ICancellationToken& token)
 	{
 		MutexLock l(_queue->Sync());
 
-		while (_alive)
+		while (token)
 		{
 			if (_queue->IsEmpty())
 			{
-				_cond.Wait(_queue->Sync());
+				_cond.Wait(_queue->Sync(), token);
 				continue;
 			}
 
@@ -283,7 +277,7 @@ namespace stingray
 				const TimeDuration waitTime = top->GetTimeToTrigger() - _monotonic.Elapsed();
 				top.reset();
 				if (waitTime > TimeDuration())
-					_cond.TimedWait(_queue->Sync(), waitTime);
+					_cond.TimedWait(_queue->Sync(), waitTime, token);
 			}
 		}
 

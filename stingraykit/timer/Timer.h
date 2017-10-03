@@ -31,8 +31,6 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(Timer);
 
-		static NamedLogger			s_logger;
-
 		class CallbackInfo;
 		STINGRAYKIT_DECLARE_PTR(CallbackInfo);
 
@@ -43,13 +41,13 @@ namespace stingray
 		typedef function<void(const std::exception&)>	ExceptionHandler;
 
 	private:
+		static NamedLogger			s_logger;
+
 		std::string					_timerName;
 		ExceptionHandler			_exceptionHandler;
 		bool						_profileCalls;
 
 		ElapsedTime					_monotonic;
-		bool						_alive;
-
 		CallbackQueuePtr			_queue;
 		ConditionVariable			_cond;
 
@@ -75,7 +73,7 @@ namespace stingray
 
 		std::string GetProfilerMessage(const function<void()>& func) const;
 
-		void ThreadFunc();
+		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const CallbackInfoPtr& ci) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(Timer);
