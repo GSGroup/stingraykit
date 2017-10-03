@@ -43,7 +43,6 @@ namespace stingray
 
 		ConditionVariable		_condVar;
 		bool					_working;	// TODO: get rid of it
-		bool					_paused;
 
 		ThreadPtr				_worker;	// TODO: store it by value
 
@@ -56,8 +55,6 @@ namespace stingray
 		{ AddTask(task, null); }
 
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester);
-
-		void Pause(bool pause);
 
 	private:
 		static void DefaultExceptionHandler(const std::exception& ex);

@@ -21,8 +21,7 @@ namespace stingray
 		:	_name(name),
 			_exceptionHandler(exceptionHandler),
 			_profileCalls(profileCalls),
-			_working(true),
-			_paused(false)
+			_working(true)
 	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, not_using(_1))); }
 
 
@@ -30,8 +29,7 @@ namespace stingray
 		:	_name(name),
 			_exceptionHandler(&ThreadTaskExecutor::DefaultExceptionHandler),
 			_profileCalls(profileCalls),
-			_working(true),
-			_paused(false)
+			_working(true)
 	{ _worker = make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, not_using(_1))); }
 
 
@@ -56,18 +54,6 @@ namespace stingray
 	}
 
 
-	void ThreadTaskExecutor::Pause(bool pause)
-	{
-		MutexLock l(_syncRoot);
-		if (_paused == pause)
-			return;
-
-		_paused = pause;
-		if (!_paused)
-			_condVar.Broadcast();
-	}
-
-
 	void ThreadTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
 	{ Logger::Error() << "Uncaught exception in ThreadTaskExecutor: " << ex; }
 
@@ -84,7 +70,7 @@ namespace stingray
 			if (!_working && _queue.empty())
 				return;
 
-			if (_paused || _queue.empty())
+			if (_queue.empty())
 			{
 				_condVar.Wait(_syncRoot);
 				continue;
