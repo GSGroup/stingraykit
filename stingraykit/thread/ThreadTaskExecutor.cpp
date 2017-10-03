@@ -10,10 +10,11 @@
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/function/function_name_getter.h>
-#include <stingraykit/log/Logger.h>
 
 namespace stingray
 {
+
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadTaskExecutor);
 
 	static const size_t TaskCountLimit = 1024;
 
@@ -49,13 +50,13 @@ namespace stingray
 		MutexLock l(_syncRoot);
 		_queue.push(std::make_pair(task, tester));
 		if (_queue.size() > TaskCountLimit)
-			Logger::Error() << "[ThreadTaskExecutor] Task queue size limit exceeded for executor '" << _name << "': " << _queue.size();
+			s_logger.Error() << "Task queue size limit is exceeded for executor '" << _name << "': " << _queue.size();
 		_condVar.Broadcast();
 	}
 
 
 	void ThreadTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ Logger::Error() << "Uncaught exception in ThreadTaskExecutor: " << ex; }
+	{ s_logger.Error() << "Executor func exception: " << ex; }
 
 
 	std::string ThreadTaskExecutor::GetProfilerMessage(const function<void()>& func) const
