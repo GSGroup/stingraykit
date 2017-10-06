@@ -285,16 +285,24 @@ namespace stingray
 		const_reverse_iterator rend() const
 		{ return const_reverse_iterator(begin()); }
 
-		inline T* data() const						{ return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
+		inline T* data() const
+		{ return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
 
 		template<typename ObjectOStream>
 		void Serialize(ObjectOStream & ar) const
 		{ ar.Serialize("d", GetByteData()); }
 
 		template<typename ObjectIStream>
-		void Deserialize(ObjectIStream & ar)		{ BasicByteArray data; ar.Deserialize("o", data._offset, 0); ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data)); *this = data; }
+		void Deserialize(ObjectIStream & ar)
+		{
+			BasicByteArray data;
+			ar.Deserialize("o", data._offset, 0);
+			ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data));
+			*this = data;
+		}
 
-		std::string ToString() const				{ return "BasicByteArray<" + TypeInfo(typeid(T)).GetName() + "> { size : " + stingray::ToString(_data->size()) + " }"; }
+		std::string ToString() const
+		{ return "BasicByteArray<" + TypeInfo(typeid(T)).GetName() + "> { size : " + stingray::ToString(_data->size()) + " }"; }
 
 		template < typename U >
 		bool operator == (const BasicByteArray<U>& other) const
