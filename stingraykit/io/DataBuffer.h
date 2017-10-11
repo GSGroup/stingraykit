@@ -16,12 +16,12 @@ namespace stingray
 
 	struct DataBufferBase : public virtual IDataBuffer, public BufferedDataConsumerBase
 	{
-		DataBufferBase(bool discardOnOverflow, size_t size, size_t inputPacketSize)
-			: BufferedDataConsumerBase(discardOnOverflow, size, inputPacketSize)
+		DataBufferBase(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t requiredFreeSpace)
+			: BufferedDataConsumerBase(discardOnOverflow, size, inputPacketSize, requiredFreeSpace)
 		{ }
 
-		DataBufferBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize)
-			: BufferedDataConsumerBase(discardOnOverflow, storage, inputPacketSize)
+		DataBufferBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize, size_t requiredFreeSpace)
+			: BufferedDataConsumerBase(discardOnOverflow, storage, inputPacketSize, requiredFreeSpace)
 		{ }
 
 		virtual size_t GetDataSize() const                            { return BufferedDataConsumerBase::GetDataSize(); }
@@ -36,31 +36,39 @@ namespace stingray
 
 	class DataBuffer : public DataBufferBase
 	{
+	public:
+		struct Parameters
+		{
+			size_t		InputPacketSize;
+			size_t		OutputPacketSize;
+			size_t		RequiredFreeSpace;
+
+			explicit Parameters(size_t inputOutputPacketSize = 1)
+				: InputPacketSize(inputOutputPacketSize), OutputPacketSize(inputOutputPacketSize), RequiredFreeSpace(0)
+			{ }
+
+			Parameters& SetInputPacketSize(size_t inputPacketSize)		{ InputPacketSize = inputPacketSize; return *this; }
+			Parameters& SetOutputPacketSize(size_t outputPacketSize)	{ OutputPacketSize = outputPacketSize; return *this; }
+			Parameters& SetRequiredFreeSpace(size_t requiredFreeSpace)	{ RequiredFreeSpace = requiredFreeSpace; return *this; }
+		};
+
 	private:
 		static NamedLogger		s_logger;
 		const size_t			_outputPacketSize;
 
 	public:
-		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize = 1) :
-			DataBufferBase(discardOnOverflow, size, inputPacketSize), _outputPacketSize(inputPacketSize)
-		{ }
-
-		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t outputPacketSize) :
-			DataBufferBase(discardOnOverflow, size, inputPacketSize), _outputPacketSize(outputPacketSize)
+		DataBuffer(bool discardOnOverflow, size_t size, Parameters parameters = Parameters())
+			: DataBufferBase(discardOnOverflow, size, parameters.InputPacketSize, parameters.RequiredFreeSpace), _outputPacketSize(parameters.OutputPacketSize)
 		{
-			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
-			STINGRAYKIT_CHECK(size % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+			STINGRAYKIT_CHECK(parameters.OutputPacketSize != 0, ArgumentException("parameters.OutputPacketSize", parameters.OutputPacketSize));
+			STINGRAYKIT_CHECK(size % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
-		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize = 1) :
-			DataBufferBase(discardOnOverflow, storage, inputPacketSize), _outputPacketSize(inputPacketSize)
-		{ }
-
-		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize, size_t outputPacketSize) :
-			DataBufferBase(discardOnOverflow, storage, inputPacketSize), _outputPacketSize(outputPacketSize)
+		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, Parameters parameters = Parameters())
+			: DataBufferBase(discardOnOverflow, storage, parameters.InputPacketSize, parameters.RequiredFreeSpace), _outputPacketSize(parameters.OutputPacketSize)
 		{
-			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
-			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+			STINGRAYKIT_CHECK(parameters.OutputPacketSize != 0, ArgumentException("parameters.OutputPacketSize", parameters.OutputPacketSize));
+			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
