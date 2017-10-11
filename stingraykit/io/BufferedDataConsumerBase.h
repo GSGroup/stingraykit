@@ -27,6 +27,7 @@ namespace stingray
 		bool					_discardOnOverflow;
 		BithreadCircularBuffer	_buffer;
 		const size_t			_inputPacketSize;
+		size_t					_requiredFreeSpace;
 
 		Mutex					_bufferMutex;
 		Mutex					_writeMutex;
@@ -37,18 +38,20 @@ namespace stingray
 		signal<void(size_t)>	_onOverflow;
 
 	protected:
-		BufferedDataConsumerBase(bool discardOnOverflow, size_t size, size_t inputPacketSize)
-			: _discardOnOverflow(discardOnOverflow), _buffer(size), _inputPacketSize(inputPacketSize), _eod(false)
+		BufferedDataConsumerBase(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t requiredFreeSpace = 0)
+			: _discardOnOverflow(discardOnOverflow), _buffer(size), _inputPacketSize(inputPacketSize), _requiredFreeSpace(requiredFreeSpace), _eod(false)
 		{
 			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
 			STINGRAYKIT_CHECK(size % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
+			STINGRAYKIT_CHECK(size >= requiredFreeSpace, "Buffer size less then required free space!");
 		}
 
-		BufferedDataConsumerBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize)
-			: _discardOnOverflow(discardOnOverflow), _buffer(storage), _inputPacketSize(inputPacketSize), _eod(false)
+		BufferedDataConsumerBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize, size_t requiredFreeSpace = 0)
+			: _discardOnOverflow(discardOnOverflow), _buffer(storage), _inputPacketSize(inputPacketSize), _requiredFreeSpace(requiredFreeSpace), _eod(false)
 		{
 			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
 			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
+			STINGRAYKIT_CHECK(_buffer.GetTotalSize() >= requiredFreeSpace, "Buffer size less then required free space!");
 		}
 
 	public:
@@ -78,7 +81,7 @@ namespace stingray
 			MutexLock l2(_bufferMutex);
 			BithreadCircularBuffer::Writer w = _buffer.Write();
 			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
-			if (packetized_size == 0)
+			if (packetized_size == 0 || GetFreeSize() < _requiredFreeSpace)
 			{
 				if (_discardOnOverflow)
 				{
