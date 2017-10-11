@@ -41,23 +41,23 @@ namespace stingray
 		const size_t			_outputPacketSize;
 
 	public:
-		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize = 1) :
-			DataBufferBase(discardOnOverflow, size, inputPacketSize), _outputPacketSize(inputPacketSize)
+		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize = 1)
+			: DataBufferBase(discardOnOverflow, size, inputPacketSize), _outputPacketSize(inputPacketSize)
 		{ }
 
-		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t outputPacketSize) :
-			DataBufferBase(discardOnOverflow, size, inputPacketSize), _outputPacketSize(outputPacketSize)
+		DataBuffer(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t outputPacketSize)
+			: DataBufferBase(discardOnOverflow, size, inputPacketSize), _outputPacketSize(outputPacketSize)
 		{
 			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
 			STINGRAYKIT_CHECK(size % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
-		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize = 1) :
-			DataBufferBase(discardOnOverflow, storage, inputPacketSize), _outputPacketSize(inputPacketSize)
+		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize = 1)
+			: DataBufferBase(discardOnOverflow, storage, inputPacketSize), _outputPacketSize(inputPacketSize)
 		{ }
 
-		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize, size_t outputPacketSize) :
-			DataBufferBase(discardOnOverflow, storage, inputPacketSize), _outputPacketSize(outputPacketSize)
+		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize, size_t outputPacketSize)
+			: DataBufferBase(discardOnOverflow, storage, inputPacketSize), _outputPacketSize(outputPacketSize)
 		{
 			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
 			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
