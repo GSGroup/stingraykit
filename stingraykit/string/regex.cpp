@@ -207,7 +207,7 @@ namespace stingray
 
 
 	regex::regex(const std::string& str)
-		: _impl(new Impl(str))
+		: _impl(make_shared<Impl>(str))
 	{ }
 
 
