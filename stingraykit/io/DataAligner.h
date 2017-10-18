@@ -46,8 +46,10 @@ namespace stingray
 
 			if (_buffer.size() == _alignment)
 			{
-				STINGRAYKIT_CHECK(ConsumeAll(consumer, _buffer, token) == _alignment, "Could not process buffer");
+				const size_t processed = ConsumeAll(consumer, _buffer, token);
 				_buffer.clear();
+				if (!token)
+					return processed;
 			}
 
 			return offset;
