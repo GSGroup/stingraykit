@@ -91,7 +91,7 @@ namespace stingray
 		ImplPtr		_impl;
 
 	public:
-		regex(const std::string& str);
+		explicit regex(const std::string& str);
 
 		std::string ToString() const;
 	};
