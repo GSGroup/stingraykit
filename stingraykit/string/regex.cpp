@@ -7,17 +7,15 @@
 
 #include <stingraykit/string/regex.h>
 
+#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
+#include <stingraykit/variant.h>
+
 #ifdef PLATFORM_POSIX
 #	include <regex.h>
 #else
 #	warning No regex support on nonposix systems!
 #endif
-
-#include <stingraykit/exception.h>
-#include <stingraykit/string/StringUtils.h>
-#include <stingraykit/string/ToString.h>
-#include <stingraykit/variant.h>
-
 
 namespace stingray
 {
