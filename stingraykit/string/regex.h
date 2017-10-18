@@ -92,6 +92,8 @@ namespace stingray
 
 	public:
 		regex(const std::string& str);
+
+		std::string ToString() const;
 	};
 
 
