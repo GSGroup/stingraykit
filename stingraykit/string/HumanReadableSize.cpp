@@ -9,6 +9,7 @@ namespace stingray
 	{
 
 		const std::string Suffixes("kMGTPE");
+		const regex FromHumanRegexp(std::string("^(\\d+)") + "([" + Suffixes + "])$");
 
 	}
 
@@ -51,7 +52,7 @@ namespace stingray
 		catch (const std::exception &) { }
 
 		smatch m;
-		if (regex_search(str, m, regex(std::string("^(\\d+)") + "([" + Suffixes + "])$")))
+		if (regex_search(str, m, FromHumanRegexp))
 		{
 			num = FromString<u64>(m[1]);
 			const std::string suffix = FromString<std::string>(m[2]);
