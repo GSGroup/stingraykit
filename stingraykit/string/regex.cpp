@@ -7,17 +7,15 @@
 
 #include <stingraykit/string/regex.h>
 
+#include <stingraykit/string/StringUtils.h>
+#include <stingraykit/string/ToString.h>
+#include <stingraykit/variant.h>
+
 #ifdef PLATFORM_POSIX
 #	include <regex.h>
 #else
 #	warning No regex support on nonposix systems!
 #endif
-
-#include <stingraykit/exception.h>
-#include <stingraykit/string/StringUtils.h>
-#include <stingraykit/string/ToString.h>
-#include <stingraykit/variant.h>
-
 
 namespace stingray
 {
@@ -189,6 +187,9 @@ namespace stingray
 			return true;
 		}
 
+		std::string ToString() const
+		{ return _str; }
+
 	private:
 		static std::string GetRegexError(const regex_t& regex, int errCode)
 		{
@@ -209,21 +210,12 @@ namespace stingray
 
 
 	regex::regex(const std::string& str)
-		: _impl(new Impl(str))
+		: _impl(make_shared<Impl>(str))
 	{ }
 
-	regex::regex(const regex& other)
-		: _impl(other._impl)
-	{ }
 
-	regex::~regex()
-	{ }
-
-	regex& regex::operator = (const regex& other)
-	{
-		_impl = other._impl;
-		return *this;
-	}
+	std::string regex::ToString() const
+	{ return _impl->ToString(); }
 
 
 	bool regex_search(const std::string& str, smatch& m, const regex& re, regex_constants::match_flag_type flags)

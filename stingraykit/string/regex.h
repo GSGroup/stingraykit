@@ -8,13 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/shared_ptr.h>
 
 #include <numeric>
-#include <string>
 #include <vector>
-
-#include <stingraykit/exception.h>
-#include <stingraykit/shared_ptr.h>
 
 /*
  * 	.			Match any character
@@ -40,7 +37,6 @@
  * 	[a-z]		Any of characters in the range
  * 	[a-zA-Z]	Any of characters in the ranges
  */
-
 
 namespace stingray
 {
@@ -95,11 +91,9 @@ namespace stingray
 		ImplPtr		_impl;
 
 	public:
-		regex(const std::string& str);
-		regex(const regex& other);
-		~regex();
+		explicit regex(const std::string& str);
 
-		regex& operator = (const regex& other);
+		std::string ToString() const;
 	};
 
 
