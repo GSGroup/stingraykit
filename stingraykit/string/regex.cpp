@@ -210,19 +210,6 @@ namespace stingray
 		: _impl(new Impl(str))
 	{ }
 
-	regex::regex(const regex& other)
-		: _impl(other._impl)
-	{ }
-
-	regex::~regex()
-	{ }
-
-	regex& regex::operator = (const regex& other)
-	{
-		_impl = other._impl;
-		return *this;
-	}
-
 
 	bool regex_search(const std::string& str, smatch& m, const regex& re, regex_constants::match_flag_type flags)
 	{

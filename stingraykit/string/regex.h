@@ -92,10 +92,6 @@ namespace stingray
 
 	public:
 		regex(const std::string& str);
-		regex(const regex& other);
-		~regex();
-
-		regex& operator = (const regex& other);
 	};
 
 
