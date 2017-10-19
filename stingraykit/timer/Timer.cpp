@@ -290,10 +290,12 @@ namespace stingray
 		const TimeDuration currentTime = _monotonic.Elapsed();
 		while (!_queue->IsEmpty())
 		{
-			CallbackInfoPtr top = _queue->Pop();
+			CallbackInfoPtr top = _queue->Top();
 
 			if (top->GetTimeToTrigger() > currentTime)
 				break;
+
+			_queue->Pop();
 
 			MutexUnlock ul(l);
 
