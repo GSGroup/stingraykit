@@ -248,6 +248,10 @@ namespace stingray
 				Write<ElementSize>(*first);
 		}
 
+		template < int ElementSize, typename Range >
+		void WriteArray(const Range& range)
+		{ WriteArray<ElementSize>(range.begin(), range.end()); }
+
 		template < int Size, typename T >
 		void Write(T value)
 		{
