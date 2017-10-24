@@ -100,17 +100,17 @@ namespace stingray
 			{
 				if (!copy->Valid())
 				{
-					diff->push_back(MakeDiffEntry(old->Get(), CollectionOp::Removed));
+					diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
 					old->Next();
 				}
 				else if (!old->Valid() || old->Get().Key > copy->Get().Key)
 				{
-					diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Added));
+					diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
 					copy->Next();
 				}
 				else if (old->Get().Key < copy->Get().Key)
 				{
-					diff->push_back(MakeDiffEntry(old->Get(), CollectionOp::Removed));
+					diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
 					old->Next();
 				}
 				else // old->Get().Key == copy->Get().Key
@@ -118,9 +118,9 @@ namespace stingray
 					if (!_comparer(old->Get().Value, copy->Get().Value))
 					{
 						// TODO: fix Updated handling
-						//diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Updated));
-						diff->push_back(MakeDiffEntry(old->Get(), CollectionOp::Removed));
-						diff->push_back(MakeDiffEntry(copy->Get(), CollectionOp::Added));
+						//diff->push_back(MakeDiffEntry(CollectionOp::Updated, copy->Get()));
+						diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
+						diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
 					}
 					old->Next();
 					copy->Next();
@@ -244,7 +244,7 @@ namespace stingray
 		{
 			shared_ptr<IList<DiffEntryType> > diff(new ArrayList<DiffEntryType>);
 			FOR_EACH(PairType p IN GetEnumerator())
-				diff->Add(DiffEntryType(p, CollectionOp::Added));
+				diff->Add(DiffEntryType(CollectionOp::Added, p));
 			slot(diff);
 		}
 	};

@@ -54,7 +54,7 @@ namespace stingray
 			{
 				EnumerableBuilder<DiffEntryType> diff;
 				for (typename Container::const_iterator it = _container.begin(); it != _container.end(); ++it)
-					diff % DiffEntryType(*it, CollectionOp::Added);
+					diff % DiffEntryType(CollectionOp::Added, *it);
 				slot(diff.Get());
 			}
 		};
@@ -268,9 +268,9 @@ namespace stingray
 				typedef typename base::DiffEntryType DiffEntryType;
 				EnumerableBuilder<DiffEntryType> diff;
 				for (typename Container::const_iterator it = GetRemoved().begin(); it != GetRemoved().end(); ++it)
-					diff % DiffEntryType(*it, CollectionOp::Removed);
+					diff % DiffEntryType(CollectionOp::Removed, *it);
 				for (typename Container::const_iterator it = GetAdded().begin(); it != GetAdded().end(); ++it)
-					diff % DiffEntryType(*it, CollectionOp::Added);
+					diff % DiffEntryType(CollectionOp::Added, *it);
 				return diff.Get();
 			}
 
@@ -408,7 +408,7 @@ namespace stingray
 
 			STINGRAYKIT_CHECK(GetContainer().insert(value).second, "Value already exists!");
 
-			_setImpl->InvokeOnChanged(MakeOneItemEnumerable(DiffEntryType(value, CollectionOp::Added)));
+			_setImpl->InvokeOnChanged(MakeOneItemEnumerable(DiffEntryType(CollectionOp::Added, value)));
 			_setImpl->GetStamp()++;
 		}
 
@@ -420,7 +420,7 @@ namespace stingray
 			EnumerableBuilder<DiffEntryType> diff;
 			typename Container::iterator it = GetContainer().find(value);
 			STINGRAYKIT_CHECK(it != GetContainer().end(), "Removing non-existing element!");
-			diff % DiffEntryType(*it, CollectionOp::Removed);
+			diff % DiffEntryType(CollectionOp::Removed, *it);
 			GetContainer().erase(it);
 
 			_setImpl->InvokeOnChanged(diff.Get());
@@ -436,7 +436,7 @@ namespace stingray
 			typename Container::iterator it = GetContainer().find(value);
 			if (it == GetContainer().end())
 				return false;
-			diff % DiffEntryType(*it, CollectionOp::Removed);
+			diff % DiffEntryType(CollectionOp::Removed, *it);
 			GetContainer().erase(it);
 
 			_setImpl->InvokeOnChanged(diff.Get());
@@ -458,7 +458,7 @@ namespace stingray
 				if (!pred(*cur))
 					continue;
 
-				diff % DiffEntryType(*cur, CollectionOp::Removed);
+				diff % DiffEntryType(CollectionOp::Removed, *cur);
 				GetContainer().erase(cur);
 				++ret;
 			}
@@ -482,7 +482,7 @@ namespace stingray
 
 			EnumerableBuilder<DiffEntryType> diff;
 			for (typename Container::const_iterator it = GetContainer().begin(); it != GetContainer().end(); ++it)
-				diff % DiffEntryType(*it, CollectionOp::Removed);
+				diff % DiffEntryType(CollectionOp::Removed, *it);
 			GetContainer().clear();
 
 			_setImpl->InvokeOnChanged(diff.Get());

@@ -9,37 +9,36 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
-
 
 	template< typename T >
 	struct DiffEntry
 	{
 		typedef T ItemType;
 
-		ItemType		Item;
 		CollectionOp	Op;
+		ItemType		Item;
 
-		DiffEntry(const T &t, CollectionOp op) : Item(t), Op(op)
-		{}
+		DiffEntry(CollectionOp op, const ItemType& item)
+			: Op(op), Item(item)
+		{ }
 
-		bool operator == (const DiffEntry& other) const { return Item == other.Item && Op == other.Op; }
+		bool operator == (const DiffEntry& other) const { return Op == other.Op && Item == other.Item; }
 		bool operator != (const DiffEntry& other) const { return !(*this == other); }
 
-		std::string ToString() const { return StringBuilder() % "DiffEntry { op: " % Op % ", item: " % Item % " }"; }
+		std::string ToString() const
+		{ return StringBuilder() % "DiffEntry { op: " % Op % ", item: " % Item % " }"; }
 	};
 
 
 	template< typename T >
-	DiffEntry<T> MakeDiffEntry(const T& t, CollectionOp op)
-	{ return DiffEntry<T>(t, op); }
+	DiffEntry<T> MakeDiffEntry(CollectionOp op, const T& item)
+	{ return DiffEntry<T>(op, item); }
 
 
 }
-
 
 #endif
 
