@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/compare/MemberListComparer.h>
 #include <stingraykit/string/ToString.h>
 
 namespace stingray
@@ -25,8 +26,8 @@ namespace stingray
 			: Op(op), Item(item)
 		{ }
 
-		bool operator == (const DiffEntry& other) const { return Op == other.Op && Item == other.Item; }
-		bool operator != (const DiffEntry& other) const { return !(*this == other); }
+		int Compare(const DiffEntry& other) const
+		{ return CompareMembersCmp(&DiffEntry::Op, &DiffEntry::Item)(*this, other); }
 
 		std::string ToString() const
 		{ return StringBuilder() % "DiffEntry { op: " % Op % ", item: " % Item % " }"; }
