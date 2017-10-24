@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/ArrayList.h>
+#include <stingraykit/collection/EnumerableBuilder.h>
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/IList.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
@@ -242,10 +242,10 @@ namespace stingray
 	private:
 		void OnChangedPopulator(const function<void(const DiffTypePtr&)>& slot) const
 		{
-			shared_ptr<IList<DiffEntryType> > diff(new ArrayList<DiffEntryType>);
+			EnumerableBuilder<DiffEntryType> diff;
 			FOR_EACH(PairType p IN GetEnumerator())
-				diff->Add(DiffEntryType(CollectionOp::Added, p));
-			slot(diff);
+				diff.Add(DiffEntryType(CollectionOp::Added, p));
+			slot(diff.Get());
 		}
 	};
 
