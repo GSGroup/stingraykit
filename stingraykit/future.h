@@ -330,9 +330,9 @@ namespace stingray
 			return impl->get();
 		}
 
-		void wait(const ICancellationToken& token = DummyCancellationToken()) const									{ check_valid(); _impl->wait(token); }
-		future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken())	{ check_valid(); return _impl->wait_for(duration, token); }
-		future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken())	{ check_valid(); return _impl->wait_until(absTime, token); }
+		void wait(const ICancellationToken& token = DummyCancellationToken()) const                                     { check_valid(); _impl->wait(token); }
+		future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken()) const { check_valid(); return _impl->wait_for(duration, token); }
+		future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken()) const { check_valid(); return _impl->wait_until(absTime, token); }
 
 	private:
 		future(const ImplTypePtr& impl) : _impl(impl) {}
