@@ -33,10 +33,10 @@ namespace stingray
 		{ }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
-		{ return make_shared<EnumeratorWrapper<typename DictionaryType::PairType, ValueType> >(_dict->GetEnumerator(), bind(&DictionaryType::PairType::GetKey, _1)); }
+		{ return KeysEnumerator(_dict->GetEnumerator()); }
 
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
-		{ return make_shared<EnumerableWrapper<typename DictionaryType::PairType, ValueType> >(_dict->Reverse(), bind(&DictionaryType::PairType::GetKey, _1)); }
+		{ return KeysEnumerable(_dict->Reverse()); }
 
 		virtual size_t GetCount() const
 		{ return _dict->GetCount(); }
