@@ -105,26 +105,20 @@ namespace stingray
 		virtual size_t GetCount() const
 		{ return _items->size(); }
 
-		virtual void Clear()
-		{ CopyOnWrite(); _items->clear(); }
-
 		virtual bool IsEmpty() const
 		{ return _items->empty(); }
-
-		virtual void Add(const ValueType& value)
-		{ CopyOnWrite(); _items->insert(value); }
-
-		virtual void Remove(const ValueType& value)
-		{ TryRemove(value); }
-
-		virtual void RemoveAll(const ValueType& value)
-		{ CopyOnWrite(); _items->erase(value); }
 
 		virtual bool Contains(const ValueType& value) const
 		{ return _items->find(value) != _items->end(); }
 
 		virtual int Count(const ValueType& value) const
 		{ return _items->count(value); }
+
+		virtual void Add(const ValueType& value)
+		{ CopyOnWrite(); _items->insert(value); }
+
+		virtual void Remove(const ValueType& value)
+		{ TryRemove(value); }
 
 		virtual bool TryRemove(const ValueType& value)
 		{
@@ -136,6 +130,12 @@ namespace stingray
 			_items->erase(_items->find(value));
 			return true;
 		}
+
+		virtual void RemoveAll(const ValueType& value)
+		{ CopyOnWrite(); _items->erase(value); }
+
+		virtual void Clear()
+		{ CopyOnWrite(); _items->clear(); }
 
 	private:
 		void CopyOnWrite()
