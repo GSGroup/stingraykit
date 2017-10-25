@@ -20,6 +20,8 @@ namespace stingray
 		template < typename T, typename Comparer >
 		class TransactionalSetImpl
 		{
+			typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+
 		public:
 			typedef T                          ValueType;
 			typedef std::set<T, Comparer>      Container;
@@ -31,14 +33,16 @@ namespace stingray
 			shared_ptr<Mutex>                                                                  _mutex;
 			Mutex                                                                              _transactionMutex;
 			Container                                                                          _container;
-			signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutexPointer> _onChanged;
+			signal<void(const DiffTypePtr&), ExternalMutexPointer>                             _onChanged;
 			u64                                                                                _stamp;
 			bool                                                                               _transactionFlag;
 
 		public:
-			TransactionalSetImpl() : _mutex(new Mutex()),
-				_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&TransactionalSetImpl::OnChangedPopulator, this, _1)),
-				_stamp(0), _transactionFlag(false)
+			TransactionalSetImpl()
+				:	_mutex(make_shared<Mutex>()),
+					_onChanged(ExternalMutexPointer(_mutex), bind(&TransactionalSetImpl::OnChangedPopulator, this, _1)),
+					_stamp(0),
+					_transactionFlag(false)
 			{ }
 
 			const Mutex& GetStateMutex() const                           { return *_mutex; }
