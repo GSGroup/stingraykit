@@ -31,6 +31,9 @@ namespace stingray
 		virtual ~IReadonlySet() { }
 
 		virtual bool Contains(const ValueType& value) const = 0;
+
+		virtual shared_ptr<IEnumerator<T> > Find(const T& value) const = 0;
+		virtual shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const = 0;
 	};
 
 

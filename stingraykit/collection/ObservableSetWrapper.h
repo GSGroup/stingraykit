@@ -85,6 +85,18 @@ namespace stingray
 			return Wrapped_::Contains(value);
 		}
 
+		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::Find(value);
+		}
+
+		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::ReverseFind(value);
+		}
+
 		virtual void Add(const ValueType& value)
 		{
 			signal_locker l(_onChanged);

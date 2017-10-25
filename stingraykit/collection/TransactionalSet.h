@@ -183,6 +183,12 @@ namespace stingray
 			virtual shared_ptr<IEnumerable<T> > Reverse() const
 			{ STINGRAYKIT_THROW(NotImplementedException()); }
 
+			virtual shared_ptr<IEnumerator<T> > Find(const T& value) const
+			{ STINGRAYKIT_THROW(NotImplementedException()); }
+
+			virtual shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const
+			{ STINGRAYKIT_THROW(NotImplementedException()); }
+
 			virtual size_t GetCount() const
 			{ return GetContainer().size() + GetAdded().size() - GetRemoved().size(); }
 
@@ -401,6 +407,12 @@ namespace stingray
 		{ return make_shared<Detail::SetEnumerator<T, Comparer> >(_setImpl); }
 
 		virtual shared_ptr<IEnumerable<T> > Reverse() const
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
+
+		virtual shared_ptr<IEnumerator<T> > Find(const T& value) const
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
+
+		virtual shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const
 		{ STINGRAYKIT_THROW(NotImplementedException()); }
 
 		virtual size_t GetCount() const

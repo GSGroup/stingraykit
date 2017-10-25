@@ -94,6 +94,26 @@ namespace stingray
 		virtual bool Contains(const ValueType& value) const
 		{ return _items->find(value) != _items->end(); }
 
+		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
+		{
+			typename SetType::const_iterator it = _items->find(value);
+			if (it == _items->end())
+				return MakeEmptyEnumerator();
+
+			return EnumeratorFromStlIterators(it, _items->end(), GetItemsHolder());
+		}
+
+		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
+		{
+			typedef typename SetType::const_reverse_iterator cri;
+
+			typename SetType::const_iterator it = _items->find(value);
+			if (it == _items->end())
+				return MakeEmptyEnumerator();
+
+			return EnumeratorFromStlIterators(cri(++it), _items->rend(), GetItemsHolder());
+		}
+
 		virtual void Add(const ValueType& value)
 		{ CopyOnWrite(); _items->insert(value); }
 

@@ -46,6 +46,12 @@ namespace stingray
 
 		virtual bool Contains(const ValueType& value) const
 		{ return _dict->ContainsKey(value); }
+
+		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
+
+		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
 	};
 
 
@@ -83,6 +89,12 @@ namespace stingray
 
 		virtual bool Contains(const ValueType& value) const
 		{ return _dict->ContainsKey(value); }
+
+		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
+
+		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
 
 		virtual signal_connector<void(CollectionOp, const ValueType&)> OnChanged() const
 		{ return _onChanged.connector(); }
