@@ -161,6 +161,22 @@ namespace stingray
 			return true;
 		}
 
+		virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred)
+		{
+			CopyOnWrite();
+			size_t ret = 0;
+			for (typename MapType::iterator it = _map->begin(); it != _map->end(); )
+			{
+				const typename MapType::iterator cur = it++;
+				if (!pred(cur->first, cur->second))
+					continue;
+
+				_map->erase(cur);
+				++ret;
+			}
+			return ret;
+		}
+
 		virtual void Clear()
 		{
 			CopyOnWrite();

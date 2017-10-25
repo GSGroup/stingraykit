@@ -85,6 +85,9 @@ namespace stingray
 		virtual bool TryRemove(const KeyType& key)
 		{ return GetCopy()->TryRemove(key); }
 
+		virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred)
+		{ return GetCopy()->RemoveWhere(pred); }
+
 		virtual void Clear()
 		{ GetCopy()->Clear(); }
 

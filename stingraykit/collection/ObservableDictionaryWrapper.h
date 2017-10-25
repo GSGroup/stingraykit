@@ -122,10 +122,23 @@ namespace stingray
 			return true;
 		}
 
+		virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred)
+		{
+			signal_locker l(_onChanged);
+			size_t ret = 0;
+			FOR_EACH(PairType v IN GetEnumerator() WHERE pred(v.Key, v.Value))
+			{
+				Wrapped_::Remove(v.Key);
+				_onChanged(CollectionOp::Removed, v.Key, v.Value);
+				++ret;
+			}
+			return ret;
+		}
+
 		virtual void Clear()
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(PairType v IN this->GetEnumerator())
+			FOR_EACH(PairType v IN GetEnumerator())
 			{
 				Wrapped_::Remove(v.Key);
 				_onChanged(CollectionOp::Removed, v.Key, v.Value);
