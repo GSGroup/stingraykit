@@ -52,12 +52,12 @@ namespace stingray
 			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-			{ return make_shared<EnumeratorWrapper<typename MapType::value_type, PairType> >(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
+			{ return WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
 		};
 
 	private:
 		MapTypePtr				_map;
-		mutable HolderWeakPtr	_mapEnumeratorHolder;
+		mutable HolderWeakPtr	_mapHolder;
 
 	public:
 		MapDictionary()
@@ -65,8 +65,7 @@ namespace stingray
 		{ }
 
 		MapDictionary(const MapDictionary& other)
-			:	_map(make_shared<MapType>(*other._map))
-		{ }
+		{ CopyMap(other._map); }
 
 		MapDictionary(shared_ptr<IEnumerable<PairType> > enumerable)
 			:	_map(make_shared<MapType>())
@@ -85,29 +84,13 @@ namespace stingray
 		}
 
 		MapDictionary& operator =(const MapDictionary& other)
-		{
-			_map = make_shared<MapType>(*other._map);
-			_mapEnumeratorHolder.reset();
-			return *this;
-		}
+		{ CopyMap(other._map); return *this; }
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-		{
-			shared_ptr<Holder> map_enumerator_holder = _mapEnumeratorHolder.lock();
-			if (!map_enumerator_holder)
-				_mapEnumeratorHolder = (map_enumerator_holder = make_shared<Holder>(_map));
-
-			return make_shared<EnumeratorWrapper<typename MapType::value_type, PairType> >(EnumeratorFromStlContainer(*_map, map_enumerator_holder));
-		}
+		{ return WrapMapEnumerator(EnumeratorFromStlContainer(*_map, GetMapHolder())); }
 
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-		{
-			shared_ptr<Holder> map_enumerator_holder = _mapEnumeratorHolder.lock();
-			if (!map_enumerator_holder)
-				_mapEnumeratorHolder = (map_enumerator_holder = make_shared<Holder>(_map));
-
-			return make_shared<ReverseEnumerable>(map_enumerator_holder);
-		}
+		{ return make_shared<ReverseEnumerable>(GetMapHolder()); }
 
 		virtual size_t GetCount() const
 		{ return _map->size(); }
@@ -184,14 +167,30 @@ namespace stingray
 		}
 
 	private:
+		void CopyMap(const MapTypePtr& map)
+		{
+			_map = make_shared<MapType>(*map);
+			_mapHolder.reset();
+		}
+
+		HolderPtr GetMapHolder() const
+		{
+			HolderPtr mapHolder = _mapHolder.lock();
+
+			if (!mapHolder)
+				_mapHolder = (mapHolder = make_shared<Holder>(_map));
+
+			return mapHolder;
+		}
+
 		void CopyOnWrite()
 		{
-			if (_mapEnumeratorHolder.lock())
-			{
-				_map = make_shared<MapType>(*_map);
-				_mapEnumeratorHolder.reset();
-			}
+			if (_mapHolder.lock())
+				CopyMap(_map);
 		}
+
+		static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
+		{ return make_shared<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
 	};
 
 	/** @} */
