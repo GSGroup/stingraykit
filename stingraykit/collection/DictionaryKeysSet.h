@@ -52,19 +52,21 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class ObservableDictionaryKeysSet : public virtual IReadonlyObservableSet<KeyType_>
 	{
+		typedef signal_policies::threading::ExternalMutex ExternalMutex;
+
 		typedef IObservableDictionary<KeyType_, ValueType_> DictionaryType;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
 		typedef KeyType_	ValueType; // Dictionary KeyType is ValueType for set
 
 	private:
-		DictionaryTypePtr																		_dict;
-		signal<void(CollectionOp, const ValueType&), signal_policies::threading::ExternalMutex>	_onChanged;
-		Token																					_connection;
+		DictionaryTypePtr											_dict;
+		signal<void(CollectionOp, const ValueType&), ExternalMutex>	_onChanged;
+		Token														_connection;
 
 	public:
 		ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
-			: _dict(dict), _onChanged(signal_policies::threading::ExternalMutex(_dict->GetSyncRoot()), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1))
+			: _dict(dict), _onChanged(ExternalMutex(_dict->GetSyncRoot()), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1))
 		{ _connection = _dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))); }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
