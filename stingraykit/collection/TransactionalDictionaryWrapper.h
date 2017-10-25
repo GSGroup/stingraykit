@@ -55,6 +55,12 @@ namespace stingray
 				Logger::Warning() << "Reverting DictionaryTransactionImpl!";
 		}
 
+		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+		{ return GetCopy()->GetEnumerator(); }
+
+		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		{ return GetCopy()->Reverse(); }
+
 		virtual size_t GetCount() const
 		{ return GetCopy()->GetCount(); }
 
@@ -67,14 +73,14 @@ namespace stingray
 		virtual ValueType Get(const KeyType& key) const
 		{ return GetCopy()->Get(key); }
 
+		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+		{ return GetCopy()->TryGet(key, outValue); }
+
 		virtual void Set(const KeyType& key, const ValueType& value)
 		{ GetCopy()->Set(key, value); }
 
 		virtual void Remove(const KeyType& key)
 		{ GetCopy()->Remove(key); }
-
-		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-		{ return GetCopy()->TryGet(key, outValue); }
 
 		virtual bool TryRemove(const KeyType& key)
 		{ return GetCopy()->TryRemove(key); }
@@ -82,11 +88,19 @@ namespace stingray
 		virtual void Clear()
 		{ GetCopy()->Clear(); }
 
-		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-		{ return GetCopy()->GetEnumerator(); }
+		virtual void Commit()
+		{
+			if (!_copy)
+				return;
 
-		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-		{ return GetCopy()->Reverse(); }
+			signal_locker l(_onChanged);
+			_onChanged(Diff());
+			_wrapped = _copy;
+			_copy.reset();
+		}
+
+		virtual void Revert()
+		{ _copy.reset(); }
 
 		virtual DiffTypePtr Diff() const
 		{
@@ -132,20 +146,6 @@ namespace stingray
 			return EnumerableFromStlContainer(*diff, diff);
 		}
 
-		virtual void Commit()
-		{
-			if (!_copy)
-				return;
-
-			signal_locker l(_onChanged);
-			_onChanged(Diff());
-			_wrapped = _copy;
-			_copy.reset();
-		}
-
-		virtual void Revert()
-		{ _copy.reset(); }
-
 	private:
 		WrappedPtr GetCopy() const
 		{
@@ -186,11 +186,17 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), bind(&TransactionalDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual const Mutex& GetSyncRoot() const
-		{ return *_mutex; }
+		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+		{
+			signal_locker l(_onChanged);
+			return _wrapped->GetEnumerator();
+		}
 
-		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
-		{ return _onChanged.connector(); }
+		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		{
+			signal_locker l(_onChanged);
+			return _wrapped->Reverse();
+		}
 
 		virtual size_t GetCount() const
 		{
@@ -204,16 +210,16 @@ namespace stingray
 			return _wrapped->IsEmpty();
 		}
 
-		virtual ValueType Get(const KeyType& key) const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->Get(key);
-		}
-
 		virtual bool ContainsKey(const KeyType& key) const
 		{
 			signal_locker l(_onChanged);
 			return _wrapped->ContainsKey(key);
+		}
+
+		virtual ValueType Get(const KeyType& key) const
+		{
+			signal_locker l(_onChanged);
+			return _wrapped->Get(key);
 		}
 
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
@@ -221,20 +227,6 @@ namespace stingray
 			signal_locker l(_onChanged);
 			return _wrapped->TryGet(key, outValue);
 		}
-
-		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->GetEnumerator();
-		}
-
-		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->Reverse();
-		}
-
-		ObservableCollectionLockerPtr Lock() const { return make_shared<ObservableCollectionLocker>(*this); }
 
 		virtual typename TransactionalInterface::TransactionTypePtr StartTransaction()
 		{
@@ -244,6 +236,15 @@ namespace stingray
 			_transaction = tr;
 			return tr;
 		}
+
+		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
+		{ return _onChanged.connector(); }
+
+		virtual const Mutex& GetSyncRoot() const
+		{ return *_mutex; }
+
+		ObservableCollectionLockerPtr Lock() const
+		{ return make_shared<ObservableCollectionLocker>(*this); }
 
 	private:
 		void OnChangedPopulator(const function<void(const DiffTypePtr&)>& slot) const
