@@ -55,10 +55,17 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
+		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::GetEnumerator();
+		}
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
-		{ return _onChanged.connector(); }
+		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::Reverse();
+		}
 
 		virtual size_t GetCount() const
 		{
@@ -70,6 +77,12 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::IsEmpty();
+		}
+
+		virtual bool Contains(const ValueType& value) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::Contains(value);
 		}
 
 		virtual void Add(const ValueType& value)
@@ -94,27 +107,11 @@ namespace stingray
 			return true;
 		}
 
-		virtual bool Contains(const ValueType& value) const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::Contains(value);
-		}
-
-		virtual void Clear()
-		{
-			signal_locker l(_onChanged);
-			FOR_EACH(ValueType v IN this->GetEnumerator())
-			{
-				Wrapped_::Remove(v);
-				_onChanged(CollectionOp::Removed, v);
-			}
-		}
-
 		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
 		{
 			signal_locker l(_onChanged);
 			size_t ret = 0;
-			FOR_EACH(ValueType v IN this->GetEnumerator() WHERE pred(v))
+			FOR_EACH(ValueType v IN GetEnumerator() WHERE pred(v))
 			{
 				Wrapped_::Remove(v);
 				_onChanged(CollectionOp::Removed, v);
@@ -123,22 +120,26 @@ namespace stingray
 			return ret;
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		virtual void Clear()
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::GetEnumerator();
+			FOR_EACH(ValueType v IN GetEnumerator())
+			{
+				Wrapped_::Remove(v);
+				_onChanged(CollectionOp::Removed, v);
+			}
 		}
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::Reverse();
-		}
+		virtual signal_connector<OnChangedSignature> OnChanged() const
+		{ return _onChanged.connector(); }
+
+		virtual const Mutex& GetSyncRoot() const
+		{ return *_mutex; }
 
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot)
 		{
-			FOR_EACH(ValueType v IN this->GetEnumerator())
+			FOR_EACH(ValueType v IN GetEnumerator())
 				slot(CollectionOp::Added, v);
 		}
 	};
