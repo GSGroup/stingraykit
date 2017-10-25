@@ -25,32 +25,34 @@ namespace stingray
 		:	public Wrapped_,
 			public virtual IObservableList<typename Wrapped_::ValueType>
 	{
+		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+
 	public:
 		typedef typename Wrapped_::ValueType						ValueType;
 		typedef IObservableList<ValueType>							ObservableInterface;
 		typedef typename ObservableInterface::OnChangedSignature	OnChangedSignature;
 
 	private:
-		shared_ptr<Mutex>																_mutex;
-		signal<OnChangedSignature, signal_policies::threading::ExternalMutexPointer>	_onChanged;
+		shared_ptr<Mutex>									_mutex;
+		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 
 	public:
 		ObservableListWrapper()
 			:	Wrapped_(),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableListWrapper(shared_ptr<IEnumerator<ValueType> > enumerator)
 			:	Wrapped_(enumerator),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableListWrapper(shared_ptr<IEnumerable<ValueType> > enumerable)
 			:	Wrapped_(enumerable),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual signal_connector<OnChangedSignature> OnChanged() const
