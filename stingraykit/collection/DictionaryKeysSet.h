@@ -19,8 +19,6 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class DictionaryKeysSet : public virtual IReadonlySet<KeyType_>
 	{
-		STINGRAYKIT_NONCOPYABLE(DictionaryKeysSet);
-
 		typedef IDictionary<KeyType_, ValueType_> DictionaryType;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
@@ -54,8 +52,6 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class ObservableDictionaryKeysSet : public virtual IReadonlyObservableSet<KeyType_>
 	{
-		STINGRAYKIT_NONCOPYABLE(ObservableDictionaryKeysSet);
-
 		typedef IObservableDictionary<KeyType_, ValueType_> DictionaryType;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
