@@ -24,6 +24,8 @@ namespace stingray
 	template < typename Wrapped_, typename Comparer >
 	class DictionaryTransactionImpl : public virtual IDictionaryTransaction<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
+		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+
 		typedef IDictionaryTransaction<typename Wrapped_::KeyType, typename Wrapped_::ValueType> base;
 		typedef typename base::KeyType					KeyType;
 		typedef typename base::ValueType				ValueType;
@@ -33,17 +35,18 @@ namespace stingray
 
 		typedef shared_ptr<Wrapped_>					WrappedPtr;
 
-		typedef signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutexPointer> OnChangedSignalType;
+		typedef signal<void(const DiffTypePtr&), ExternalMutexPointer> OnChangedSignalType;
 
 	private:
-		WrappedPtr						&_wrapped;
+		WrappedPtr&						_wrapped;
 		mutable WrappedPtr				_copy;
-		const OnChangedSignalType		&_onChanged;
+		const OnChangedSignalType&		_onChanged;
 		Comparer						_comparer;
 
 	public:
-		DictionaryTransactionImpl(WrappedPtr &wrapped, const OnChangedSignalType& onChanged) :
-			_wrapped(wrapped), _onChanged(onChanged)
+		DictionaryTransactionImpl(WrappedPtr& wrapped, const OnChangedSignalType& onChanged)
+			:	_wrapped(wrapped),
+				_onChanged(onChanged)
 		{ }
 
 		virtual ~DictionaryTransactionImpl()
@@ -91,7 +94,7 @@ namespace stingray
 				return MakeEmptyEnumerable();
 
 			typedef std::vector<DiffEntryType> OutDiffContainer;
-			shared_ptr<OutDiffContainer> diff(new OutDiffContainer());
+			shared_ptr<OutDiffContainer> diff = make_shared<OutDiffContainer>();
 
 			signal_locker l(_onChanged);
 			shared_ptr<IEnumerator<PairType> > old = _wrapped->GetEnumerator();
@@ -149,7 +152,7 @@ namespace stingray
 			if (!_copy)
 			{
 				signal_locker l(_onChanged);
-				_copy.reset(new Wrapped_(*_wrapped));
+				_copy = make_shared<Wrapped_>(*_wrapped);
 			}
 			return _copy;
 		}
@@ -160,6 +163,8 @@ namespace stingray
 	class TransactionalDictionaryWrapper :
 		public virtual ITransactionalDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
+		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+
 	public:
 		typedef typename Wrapped_::KeyType						KeyType;
 		typedef typename Wrapped_::ValueType					ValueType;
@@ -169,16 +174,17 @@ namespace stingray
 		typedef typename TransactionalInterface::DiffTypePtr	DiffTypePtr;
 
 	private:
-		shared_ptr<Mutex>																	_mutex;
-		shared_ptr<Wrapped_>																_wrapped;
-		typename TransactionalInterface::TransactionTypeWeakPtr								_transaction;
-		signal<void(const DiffTypePtr&), signal_policies::threading::ExternalMutexPointer>	_onChanged;
+		shared_ptr<Mutex>											_mutex;
+		shared_ptr<Wrapped_>										_wrapped;
+		typename TransactionalInterface::TransactionTypeWeakPtr		_transaction;
+		signal<void(const DiffTypePtr&), ExternalMutexPointer>		_onChanged;
 
 	public:
-		TransactionalDictionaryWrapper() :
-			_mutex(new Mutex()), _wrapped(new Wrapped_()),
-			_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&TransactionalDictionaryWrapper::OnChangedPopulator, this, _1))
-		{}
+		TransactionalDictionaryWrapper()
+			:	_mutex(make_shared<Mutex>()),
+				_wrapped(make_shared<Wrapped_>()),
+				_onChanged(ExternalMutexPointer(_mutex), bind(&TransactionalDictionaryWrapper::OnChangedPopulator, this, _1))
+		{ }
 
 		virtual const Mutex& GetSyncRoot() const
 		{ return *_mutex; }
@@ -234,7 +240,7 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			STINGRAYKIT_CHECK(!_transaction.lock(), "Another transaction exist!");
-			typename TransactionalInterface::TransactionTypePtr tr(new DictionaryTransactionImpl<Wrapped_, Comparer>(_wrapped, _onChanged));
+			typename TransactionalInterface::TransactionTypePtr tr = make_shared<DictionaryTransactionImpl<Wrapped_, Comparer> >(ref(_wrapped), _onChanged);
 			_transaction = tr;
 			return tr;
 		}
