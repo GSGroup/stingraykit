@@ -52,7 +52,7 @@ namespace stingray
 
 	private:
 		SetTypePtr				_items;
-		mutable HolderWeakPtr	_itemsEnumeratorHolder;
+		mutable HolderWeakPtr	_itemsHolder;
 
 	public:
 		SortedSet()
@@ -60,8 +60,7 @@ namespace stingray
 		{ }
 
 		SortedSet(const SortedSet& other)
-			:	_items(make_shared<SetType>(*other._items))
-		{ }
+		{ CopyItems(other._items); }
 
 		SortedSet(shared_ptr<IEnumerator<ValueType> > enumerator)
 			:	_items(make_shared<SetType>())
@@ -78,29 +77,13 @@ namespace stingray
 		}
 
 		SortedSet& operator = (const SortedSet& other)
-		{
-			_items = make_shared<SetType>(*other._items);
-			_itemsEnumeratorHolder.reset();
-			return *this;
-		}
+		{ CopyItems(other._items); return *this; }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
-		{
-			shared_ptr<Holder> vector_enumerator_holder = _itemsEnumeratorHolder.lock();
-			if (!vector_enumerator_holder)
-				_itemsEnumeratorHolder = (vector_enumerator_holder = make_shared<Holder>(_items));
-
-			return EnumeratorFromStlContainer(*_items, vector_enumerator_holder);
-		}
+		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
-		{
-			shared_ptr<Holder> vector_enumerator_holder = _itemsEnumeratorHolder.lock();
-			if (!vector_enumerator_holder)
-				_itemsEnumeratorHolder = (vector_enumerator_holder = make_shared<Holder>(_items));
-
-			return make_shared<ReverseEnumerable>(vector_enumerator_holder);
-		}
+		{ return make_shared<ReverseEnumerable>(GetItemsHolder()); }
 
 		virtual size_t GetCount() const
 		{ return _items->size(); }
@@ -148,13 +131,26 @@ namespace stingray
 		{ CopyOnWrite(); _items->clear(); }
 
 	private:
+		void CopyItems(const SetTypePtr& items)
+		{
+			_items = make_shared<SetType>(*items);
+			_itemsHolder.reset();
+		}
+
+		HolderPtr GetItemsHolder() const
+		{
+			HolderPtr itemsHolder = _itemsHolder.lock();
+
+			if (!itemsHolder)
+				_itemsHolder = (itemsHolder = make_shared<Holder>(_items));
+
+			return itemsHolder;
+		}
+
 		void CopyOnWrite()
 		{
-			if (_itemsEnumeratorHolder.lock())
-			{
-				_items = make_shared<SetType>(*_items);
-				_itemsEnumeratorHolder.reset();
-			}
+			if (_itemsHolder.lock())
+				CopyItems(_items);
 		}
 	};
 
