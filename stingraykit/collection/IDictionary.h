@@ -34,10 +34,9 @@ namespace stingray
 
 		virtual ~IReadonlyDictionary() { }
 
-		virtual ValueType Get(const KeyType& key) const = 0;
-
 		virtual bool ContainsKey(const KeyType& key) const = 0;
 
+		virtual ValueType Get(const KeyType& key) const = 0;
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const = 0;
 	};
 
@@ -60,7 +59,6 @@ namespace stingray
 		virtual void Set(const KeyType& key, const ValueType& value) = 0;
 
 		virtual void Remove(const KeyType& key) = 0;
-
 		virtual bool TryRemove(const KeyType& key) = 0;
 
 		virtual void Clear() = 0;

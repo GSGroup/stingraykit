@@ -57,10 +57,17 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
+		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::GetEnumerator();
+		}
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
-		{ return _onChanged.connector(); }
+		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::Reverse();
+		}
 
 		virtual size_t GetCount() const
 		{
@@ -74,10 +81,22 @@ namespace stingray
 			return Wrapped_::IsEmpty();
 		}
 
+		virtual bool ContainsKey(const KeyType& key) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::ContainsKey(key);
+		}
+
 		virtual ValueType Get(const KeyType& key) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Get(key);
+		}
+
+		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::TryGet(key, outValue);
 		}
 
 		virtual void Set(const KeyType& key, const ValueType& value)
@@ -90,18 +109,6 @@ namespace stingray
 
 		virtual void Remove(const KeyType& key)
 		{ TryRemove(key); }
-
-		virtual bool ContainsKey(const KeyType& key) const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::ContainsKey(key);
-		}
-
-		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::TryGet(key, outValue);
-		}
 
 		virtual bool TryRemove(const KeyType& key)
 		{
@@ -125,17 +132,11 @@ namespace stingray
 			}
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::GetEnumerator();
-		}
+		virtual signal_connector<OnChangedSignature> OnChanged() const
+		{ return _onChanged.connector(); }
 
-		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::Reverse();
-		}
+		virtual const Mutex& GetSyncRoot() const
+		{ return *_mutex; }
 
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const

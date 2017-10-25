@@ -91,55 +91,6 @@ namespace stingray
 			return *this;
 		}
 
-		virtual size_t GetCount() const { return _map->size(); }
-		virtual bool IsEmpty() const { return _map->empty(); }
-
-		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-		{
-			typename MapType::const_iterator it = _map->find(key);
-			if (it != _map->end())
-			{
-				outValue = it->second;
-				return true;
-			}
-			else
-				return false;
-		}
-
-		virtual ValueType Get(const KeyType& key) const
-		{
-			typename MapType::const_iterator it = _map->find(key);
-			STINGRAYKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
-			return it->second;
-		}
-
-		virtual void Set(const KeyType& key, const ValueType& value)
-		{
-			CopyOnWrite();
-			typename MapType::iterator it = _map->find(key);
-			if (it != _map->end())
-				it->second = value;
-			else
-				_map->insert(std::make_pair(key, value));
-		}
-
-		virtual bool TryRemove(const KeyType& key)
-		{
-			typename MapType::iterator it = _map->find(key);
-			if (it == _map->end())
-				return false;
-
-			CopyOnWrite();
-			_map->erase(key);
-			return true;
-		}
-
-		virtual void Remove(const KeyType& key)
-		{ CopyOnWrite(); _map->erase(key); }
-
-		virtual bool ContainsKey(const KeyType& key) const
-		{ return _map->find(key) != _map->end(); }
-
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 		{
 			shared_ptr<Holder> map_enumerator_holder = _mapEnumeratorHolder.lock();
@@ -158,12 +109,63 @@ namespace stingray
 			return make_shared<ReverseEnumerable>(map_enumerator_holder);
 		}
 
+		virtual size_t GetCount() const
+		{ return _map->size(); }
+
+		virtual bool IsEmpty() const
+		{ return _map->empty(); }
+
+		virtual bool ContainsKey(const KeyType& key) const
+		{ return _map->find(key) != _map->end(); }
+
+		virtual ValueType Get(const KeyType& key) const
+		{
+			typename MapType::const_iterator it = _map->find(key);
+			STINGRAYKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
+			return it->second;
+		}
+
+		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+		{
+			typename MapType::const_iterator it = _map->find(key);
+			if (it != _map->end())
+			{
+				outValue = it->second;
+				return true;
+			}
+			else
+				return false;
+		}
+
+		virtual void Set(const KeyType& key, const ValueType& value)
+		{
+			CopyOnWrite();
+			typename MapType::iterator it = _map->find(key);
+			if (it != _map->end())
+				it->second = value;
+			else
+				_map->insert(std::make_pair(key, value));
+		}
+
+		virtual void Remove(const KeyType& key)
+		{ CopyOnWrite(); _map->erase(key); }
+
+		virtual bool TryRemove(const KeyType& key)
+		{
+			typename MapType::iterator it = _map->find(key);
+			if (it == _map->end())
+				return false;
+
+			CopyOnWrite();
+			_map->erase(key);
+			return true;
+		}
+
 		virtual void Clear()
 		{
 			CopyOnWrite();
 			_map->clear();
 		}
-
 
 	private:
 		void CopyOnWrite()
@@ -179,6 +181,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
