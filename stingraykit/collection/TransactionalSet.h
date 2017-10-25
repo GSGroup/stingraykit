@@ -173,6 +173,12 @@ namespace stingray
 			virtual ~SetTransaction()
 			{ _setImpl->GetTransactionFlag() = false; }
 
+			virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
+			{ return make_shared<SetTransactionEnumerator<T, Comparer> >(_transactionImpl); }
+
+			virtual shared_ptr<IEnumerable<T> > Reverse() const
+			{ STINGRAYKIT_THROW(NotImplementedException()); }
+
 			virtual size_t GetCount() const
 			{ return GetContainer().size() + GetAdded().size() - GetRemoved().size(); }
 
@@ -209,14 +215,6 @@ namespace stingray
 				it = GetContainer().find(value);
 				STINGRAYKIT_CHECK(it != GetContainer().end(), "No such value!");
 				STINGRAYKIT_CHECK(GetRemoved().insert(*it).second, "No such value!");
-			}
-
-			virtual void Clear()
-			{
-				_transactionImpl->GetStamp()++;
-
-				GetAdded().clear();
-				GetRemoved() = GetContainer();
 			}
 
 			virtual bool TryRemove(const T& value)
@@ -263,15 +261,12 @@ namespace stingray
 				return ret;
 			}
 
-			virtual typename base::DiffTypePtr Diff() const
+			virtual void Clear()
 			{
-				typedef typename base::DiffEntryType DiffEntryType;
-				EnumerableBuilder<DiffEntryType> diff;
-				for (typename Container::const_iterator it = GetRemoved().begin(); it != GetRemoved().end(); ++it)
-					diff % DiffEntryType(CollectionOp::Removed, *it);
-				for (typename Container::const_iterator it = GetAdded().begin(); it != GetAdded().end(); ++it)
-					diff % DiffEntryType(CollectionOp::Added, *it);
-				return diff.Get();
+				_transactionImpl->GetStamp()++;
+
+				GetAdded().clear();
+				GetRemoved() = GetContainer();
 			}
 
 			virtual void Commit()
@@ -302,11 +297,16 @@ namespace stingray
 				GetRemoved().clear();
 			}
 
-			virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-			{ return make_shared<SetTransactionEnumerator<T, Comparer> >(_transactionImpl); }
-
-			virtual shared_ptr<IEnumerable<T> > Reverse() const
-			{ STINGRAYKIT_THROW(NotImplementedException()); }
+			virtual typename base::DiffTypePtr Diff() const
+			{
+				typedef typename base::DiffEntryType DiffEntryType;
+				EnumerableBuilder<DiffEntryType> diff;
+				for (typename Container::const_iterator it = GetRemoved().begin(); it != GetRemoved().end(); ++it)
+					diff % DiffEntryType(CollectionOp::Removed, *it);
+				for (typename Container::const_iterator it = GetAdded().begin(); it != GetAdded().end(); ++it)
+					diff % DiffEntryType(CollectionOp::Added, *it);
+				return diff.Get();
+			}
 
 		private:
 			Container& GetAdded()                 { return _transactionImpl->GetAdded(); }
@@ -393,13 +393,20 @@ namespace stingray
 		TransactionalSet() : _setImpl(make_shared<SetImpl>())
 		{ }
 
-		virtual const Mutex& GetSyncRoot() const                             { return _setImpl->GetStateMutex(); }
-		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const { return _setImpl->OnChanged(); }
+		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
+		{ return make_shared<Detail::SetEnumerator<T, Comparer> >(_setImpl); }
 
-		virtual size_t GetCount() const                                      { MutexLock l(GetSyncRoot()); return GetContainer().size(); }
-		virtual bool IsEmpty() const                                         { MutexLock l(GetSyncRoot()); return GetContainer().empty(); }
+		virtual shared_ptr<IEnumerable<T> > Reverse() const
+		{ STINGRAYKIT_THROW(NotImplementedException()); }
 
-		virtual bool Contains(const T& value) const                          { MutexLock l(GetSyncRoot()); return GetContainer().find(value) != GetContainer().end(); }
+		virtual size_t GetCount() const
+		{ MutexLock l(GetSyncRoot()); return GetContainer().size(); }
+
+		virtual bool IsEmpty() const
+		{ MutexLock l(GetSyncRoot()); return GetContainer().empty(); }
+
+		virtual bool Contains(const T& value) const
+		{ MutexLock l(GetSyncRoot()); return GetContainer().find(value) != GetContainer().end(); }
 
 		virtual void Add(const T& value)
 		{
@@ -489,14 +496,14 @@ namespace stingray
 			_setImpl->GetStamp()++;
 		}
 
-		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-		{ return make_shared<Detail::SetEnumerator<T, Comparer> >(_setImpl); }
-
-		virtual shared_ptr<IEnumerable<T> > Reverse() const
-		{ STINGRAYKIT_THROW(NotImplementedException()); }
-
 		virtual typename base::TransactionTypePtr StartTransaction()
 		{ return make_shared<Detail::SetTransaction<T, Comparer> >(_setImpl); }
+
+		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
+		{ return _setImpl->OnChanged(); }
+
+		virtual const Mutex& GetSyncRoot() const
+		{ return _setImpl->GetStateMutex(); }
 
 	private:
 		Container& GetContainer()             { return _setImpl->GetContainer(); }

@@ -30,6 +30,9 @@ namespace stingray
 		typedef IEnumerable<DiffEntryType>	DiffType;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
+		virtual void Commit() = 0;
+		virtual void Revert() = 0;
+
 		virtual DiffTypePtr Diff() const = 0;
 
 		void Apply(const DiffEntryType& entry)
@@ -47,9 +50,6 @@ namespace stingray
 				STINGRAYKIT_THROW(StringBuilder() % "Not supported CollectionOp: " % entry.Op);
 			}
 		}
-
-		virtual void Commit() = 0;
-		virtual void Revert() = 0;
 	};
 
 
@@ -65,10 +65,10 @@ namespace stingray
 		typedef ISetTransaction<T>			TransactionType;
 		STINGRAYKIT_DECLARE_PTR(TransactionType);
 
-		virtual const Mutex& GetSyncRoot() const = 0;
-		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const = 0;
-
 		virtual TransactionTypePtr StartTransaction() = 0;
+
+		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const = 0;
+		virtual const Mutex& GetSyncRoot() const = 0;
 	};
 
 	/** @} */
