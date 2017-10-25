@@ -64,15 +64,12 @@ namespace stingray
 	private:
 		DictionaryTypePtr																		_dict;
 		signal<void(CollectionOp, const ValueType&), signal_policies::threading::ExternalMutex>	_onChanged;
-		TokenPool																				_connections;
+		Token																					_connection;
 
 	public:
 		ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
 			: _dict(dict), _onChanged(signal_policies::threading::ExternalMutex(_dict->GetSyncRoot()), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1))
-		{ _connections += _dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))); }
-
-		~ObservableDictionaryKeysSet()
-		{ _connections.Release(); }
+		{ _connection = _dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))); }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{ return KeysEnumerator(_dict->GetEnumerator()); }
