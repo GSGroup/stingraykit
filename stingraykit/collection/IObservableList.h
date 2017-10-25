@@ -27,11 +27,10 @@ namespace stingray
 		typedef void OnChangedSignature(CollectionOp, size_t, const ValueType_&);
 
 		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
+		virtual const Mutex& GetSyncRoot() const = 0;
 
 		ObservableCollectionLockerPtr Lock() const
 		{ return make_shared<ObservableCollectionLocker>(*this); }
-
-		virtual const Mutex& GetSyncRoot() const = 0;
 	};
 
 

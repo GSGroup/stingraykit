@@ -55,15 +55,46 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
-		{ return _onChanged.connector(); }
+		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::GetEnumerator();
+		}
 
-		virtual const Mutex& GetSyncRoot() const { return *_mutex; }
+		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::Reverse();
+		}
 
 		virtual size_t GetCount() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::GetCount();
+		}
+
+		virtual bool Contains(const ValueType& value) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::Contains(value);
+		}
+
+		virtual optional<size_t> IndexOf(const ValueType& obj) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::IndexOf(obj);
+		}
+
+		virtual ValueType Get(size_t index) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::Get(index);
+		}
+
+		virtual bool TryGet(size_t index, ValueType& value) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::TryGet(index, value);
 		}
 
 		virtual void Add(const ValueType& value)
@@ -73,23 +104,11 @@ namespace stingray
 			_onChanged(CollectionOp::Added, Wrapped_::GetCount() - 1, value);
 		}
 
-		virtual ValueType Get(size_t index) const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::Get(index);
-		}
-
 		virtual void Set(size_t index, const ValueType& value)
 		{
 			signal_locker l(_onChanged);
 			Wrapped_::Set(index, value);
 			_onChanged(CollectionOp::Updated, index, value);
-		}
-
-		virtual optional<size_t> IndexOf(const ValueType& obj) const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::IndexOf(obj);
 		}
 
 		virtual void Insert(size_t index, const ValueType& value)
@@ -99,14 +118,6 @@ namespace stingray
 			_onChanged(CollectionOp::Added, index, value);
 		}
 
-		virtual void RemoveAt(size_t index)
-		{
-			signal_locker l(_onChanged);
-			ValueType value = Get(index);
-			Wrapped_::RemoveAt(index);
-			_onChanged(CollectionOp::Removed, index, value);
-		}
-
 		virtual void Remove(const ValueType& value)
 		{
 			signal_locker l(_onChanged);
@@ -114,23 +125,12 @@ namespace stingray
 				RemoveAt(*index);
 		}
 
-		virtual bool Contains(const ValueType& value) const
+		virtual void RemoveAt(size_t index)
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Contains(value);
-		}
-
-		virtual bool TryGet(size_t index, ValueType& value) const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::TryGet(index, value);
-		}
-
-		virtual void Clear()
-		{
-			signal_locker l(_onChanged);
-			while (!this->IsEmpty())
-				RemoveAt(0);
+			ValueType value = Get(index);
+			Wrapped_::RemoveAt(index);
+			_onChanged(CollectionOp::Removed, index, value);
 		}
 
 		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
@@ -152,17 +152,18 @@ namespace stingray
 			return ret;
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		virtual void Clear()
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::GetEnumerator();
+			while (!this->IsEmpty())
+				RemoveAt(0);
 		}
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
-		{
-			signal_locker l(_onChanged);
-			return Wrapped_::Reverse();
-		}
+		virtual signal_connector<OnChangedSignature> OnChanged() const
+		{ return _onChanged.connector(); }
+
+		virtual const Mutex& GetSyncRoot() const
+		{ return *_mutex; }
 
 	private:
 		virtual void OnChangedPopulator(const function<OnChangedSignature>& slot)
