@@ -50,10 +50,10 @@ namespace stingray
 		{ return _dict->ContainsKey(_converter(value)); }
 
 		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
-		{ STINGRAYKIT_THROW(NotImplementedException()); }
+		{ return ValuesEnumerator(_dict->Find(_converter(value))); }
 
 		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
-		{ STINGRAYKIT_THROW(NotImplementedException()); }
+		{ return ValuesEnumerator(_dict->ReverseFind(_converter(value))); }
 
 		virtual size_t GetCount() const
 		{ return _dict->GetCount(); }

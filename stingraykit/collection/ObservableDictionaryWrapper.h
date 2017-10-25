@@ -87,6 +87,18 @@ namespace stingray
 			return Wrapped_::ContainsKey(key);
 		}
 
+		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::Find(key);
+		}
+
+		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+		{
+			signal_locker l(_onChanged);
+			return Wrapped_::ReverseFind(key);
+		}
+
 		virtual ValueType Get(const KeyType& key) const
 		{
 			signal_locker l(_onChanged);

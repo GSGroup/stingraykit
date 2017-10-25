@@ -36,6 +36,9 @@ namespace stingray
 
 		virtual bool ContainsKey(const KeyType& key) const = 0;
 
+		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const = 0;
+		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const = 0;
+
 		virtual ValueType Get(const KeyType& key) const = 0;
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const = 0;
 	};

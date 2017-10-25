@@ -70,6 +70,12 @@ namespace stingray
 		virtual bool ContainsKey(const KeyType& key) const
 		{ return GetCopy()->ContainsKey(key); }
 
+		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+		{ return GetCopy()->Find(key); }
+
+		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+		{ return GetCopy()->ReverseFind(key); }
+
 		virtual ValueType Get(const KeyType& key) const
 		{ return GetCopy()->Get(key); }
 
@@ -217,6 +223,18 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			return _wrapped->ContainsKey(key);
+		}
+
+		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+		{
+			signal_locker l(_onChanged);
+			return _wrapped->Find(key);
+		}
+
+		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+		{
+			signal_locker l(_onChanged);
+			return _wrapped->ReverseFind(key);
 		}
 
 		virtual ValueType Get(const KeyType& key) const

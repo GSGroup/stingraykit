@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/ForEach.h>
@@ -100,6 +101,28 @@ namespace stingray
 
 		virtual bool ContainsKey(const KeyType& key) const
 		{ return _map->find(key) != _map->end(); }
+
+		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+		{
+			typedef typename MapType::const_iterator cit;
+
+			cit it = _map->find(key);
+			if (it == _map->end())
+				return MakeEmptyEnumerator();
+
+			return WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_map->end()), GetMapHolder()));
+		}
+
+		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+		{
+			typedef typename MapType::const_reverse_iterator cri;
+
+			typename MapType::const_iterator it = _map->find(key);
+			if (it == _map->end())
+				return MakeEmptyEnumerator();
+
+			return WrapMapEnumerator(EnumeratorFromStlIterators(cri(++it), cri(_map->rend()), GetMapHolder()));
+		}
 
 		virtual ValueType Get(const KeyType& key) const
 		{
