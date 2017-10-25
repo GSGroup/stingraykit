@@ -89,8 +89,11 @@ namespace stingray
 		virtual bool Contains(const ValueType& value) const
 		{ return _dict->ContainsKey(value); }
 
-		virtual signal_connector<void(CollectionOp, const ValueType&)>	OnChanged() const { return _onChanged.connector(); }
-		virtual const Mutex& GetSyncRoot() const { return _dict->GetSyncRoot(); }
+		virtual signal_connector<void(CollectionOp, const ValueType&)> OnChanged() const
+		{ return _onChanged.connector(); }
+
+		virtual const Mutex& GetSyncRoot() const
+		{ return _dict->GetSyncRoot(); }
 
 	private:
 		virtual void InvokeOnChanged(CollectionOp op, const ValueType& val)
