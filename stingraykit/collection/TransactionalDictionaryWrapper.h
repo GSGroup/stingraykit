@@ -168,7 +168,7 @@ namespace stingray
 	};
 
 
-	template < typename Wrapped_, typename Comparer = std::equal_to<typename Wrapped_::ValueType> >
+	template < typename Wrapped_, typename Comparer = comparers::Equals >
 	class TransactionalDictionaryWrapper :
 		public virtual ITransactionalDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
