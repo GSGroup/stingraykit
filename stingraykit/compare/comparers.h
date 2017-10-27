@@ -332,6 +332,21 @@ namespace stingray
 		}
 	};
 
+
+	struct TupleEquals : public function_info<bool, UnspecifiedParamTypes>
+	{
+		bool operator () (const Tuple<TypeList<>::type>&, const Tuple<TypeList<>::type>&) const
+		{ return true; }
+
+		template < typename T >
+		bool operator () (const Tuple<T>& lhs, const Tuple<T>& rhs) const
+		{
+			if (lhs.GetHead() != rhs.GetHead())
+				return false;
+			return TupleEquals()(lhs.GetTail(), rhs.GetTail());
+		}
+	};
+
 }
 
 #endif
