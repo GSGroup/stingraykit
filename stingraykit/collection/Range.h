@@ -455,6 +455,123 @@ namespace stingray
 		};
 
 
+		template < typename FuncType_, typename RangeTypes_ >
+		class RangeZipper : public Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag>
+		{
+			typedef RangeZipper<FuncType_, RangeTypes_> Self;
+			typedef Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag> base;
+
+			static const size_t RangeCount = GetTypeListLength<RangeTypes_>::Value;
+
+			template < int Index_ >
+			struct CallValid
+			{
+				static bool Call(const Tuple<RangeTypes_>& ranges)
+				{ return ranges.template Get<Index_>().Valid(); }
+			};
+
+			template < int Index_ >
+			struct CallFirst
+			{
+				static void Call(Tuple<RangeTypes_>& ranges)
+				{ ranges.template Get<Index_>().First(); }
+			};
+
+			template < int Index_ >
+			struct CallNext
+			{
+				static void Call(Tuple<RangeTypes_>& ranges)
+				{ ranges.template Get<Index_>().Next(); }
+			};
+
+			template < int Index_ >
+			struct CallPrev
+			{
+				static void Call(Tuple<RangeTypes_>& ranges)
+				{ ranges.template Get<Index_>().Prev(); }
+			};
+
+			class ValuesGetter
+			{
+				template < typename Range_ >
+				struct GetValueType
+				{ typedef typename Range_::ValueType ValueT; };
+
+			public:
+				typedef typename TypeListTransform<RangeTypes_, GetValueType>::ValueT TypeList;
+
+			private:
+				Tuple<RangeTypes_>&	_ranges;
+
+			public:
+				explicit ValuesGetter(Tuple<RangeTypes_>& ranges) : _ranges(ranges) { }
+
+				template < int Index_ >
+				typename GetTypeListItem<TypeList, Index_>::ValueT Get() const
+				{ return _ranges.template Get<Index_>().Get(); }
+			};
+
+		private:
+			FuncType_							_func;
+			Tuple<RangeTypes_>					_ranges;
+			optional<typename base::ValueType>	_value;
+
+		public:
+			RangeZipper(const FuncType_& func, const Tuple<RangeTypes_>& ranges) : _func(func), _ranges(ranges) { }
+
+			bool Valid() const
+			{ return ForIf<RangeCount, CallValid>::Do(_ranges); }
+
+			typename base::ValueType Get()
+			{
+				if (!_value)
+					_value.emplace(FunctorInvoker::Invoke(_func, Tuple<typename ValuesGetter::TypeList>(TupleConstructorTag(), ValuesGetter(_ranges))));
+				return *_value;
+			}
+
+			bool Equals(const RangeZipper& other) const
+			{ return TupleEquals()(_ranges, other._ranges); }
+
+			Self& First()
+			{
+				For<RangeCount, CallFirst>::Do(ref(_ranges));
+				_value.reset();
+				return *this;
+			}
+
+			Self& Next()
+			{
+				For<RangeCount, CallNext>::Do(ref(_ranges));
+				_value.reset();
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				For<RangeCount, CallPrev>::Do(ref(_ranges));
+				_value.reset();
+				return *this;
+			}
+
+			Self& Last()
+			{
+				First();
+				bool empty = true;
+				while (Valid())
+				{
+					Next();
+					empty = false;
+				}
+
+				if (!empty)
+					Prev();
+
+				_value.reset();
+				return *this;
+			}
+		};
+
+
 		template <typename SrcRange_, typename DstRange_>
 		typename EnableIf<IsRange<DstRange_>::Value, DstRange_>::ValueT Copy(SrcRange_ src, DstRange_ dst)
 		{
