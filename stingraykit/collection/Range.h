@@ -388,7 +388,7 @@ namespace stingray
 			void DoTransform()
 			{
 				if (!_cache)
-					_cache = _functor(_impl.Get());
+					_cache.emplace(_functor(_impl.Get()));
 			}
 		};
 
