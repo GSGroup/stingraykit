@@ -410,6 +410,9 @@ namespace stingray
 			bool Valid() const             { return true; }
 			typename base::ValueType Get() { return _impl.Get(); }
 
+			bool Equals(const RangeCycler& other) const
+			{ return _impl == other._impl; }
+
 			Self& First()
 			{
 				_impl.First();
