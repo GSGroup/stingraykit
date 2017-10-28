@@ -27,8 +27,6 @@ namespace stingray
 
 	class CancellationRegistratorBase;
 
-	class Token;
-
 
 	struct ICancellationToken : public safe_bool<ICancellationToken>
 	{
@@ -39,11 +37,6 @@ namespace stingray
 		virtual ~ICancellationToken() { }
 
 	public:
-		virtual void Cancel() = 0;
-		virtual void Reset() = 0;
-
-		virtual Token GetCancellator() const = 0;
-
 		virtual void Sleep(TimeDuration duration) const = 0;
 
 		virtual bool IsCancelled() const = 0;

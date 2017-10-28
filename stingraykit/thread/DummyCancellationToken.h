@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/thread/ICancellationToken.h>
-#include <stingraykit/Token.h>
 
 namespace stingray
 {
@@ -17,11 +16,6 @@ namespace stingray
 	struct DummyCancellationToken : public ICancellationToken
 	{
 	public:
-		virtual void Cancel()							{ }
-		virtual void Reset()							{ }
-
-		virtual Token GetCancellator() const			{ return null; }
-
 		virtual void Sleep(TimeDuration duration) const;
 
 		virtual bool IsCancelled() const				{ return false; }

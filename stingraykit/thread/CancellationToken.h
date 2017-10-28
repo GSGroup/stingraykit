@@ -12,6 +12,7 @@
 #include <stingraykit/thread/ICancellationToken.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/thread/atomic.h>
+#include <stingraykit/Token.h>
 
 namespace stingray
 {
@@ -51,10 +52,10 @@ namespace stingray
 	public:
 		CancellationToken();
 
-		virtual void Cancel();
-		virtual void Reset();
+		void Cancel();
+		void Reset();
 
-		virtual Token GetCancellator() const;
+		Token GetCancellator() const;
 
 		virtual void Sleep(TimeDuration duration) const;
 
