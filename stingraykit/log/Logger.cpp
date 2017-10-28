@@ -7,19 +7,20 @@
 
 #include <stingraykit/log/Logger.h>
 
+#include <stingraykit/collection/iterators.h>
+#include <stingraykit/diagnostics/Backtrace.h>
+#include <stingraykit/log/SystemLogger.h>
+#include <stingraykit/string/StringFormat.h>
+#include <stingraykit/time/TimeEngine.h>
+#include <stingraykit/FunctionToken.h>
+#include <stingraykit/PhoenixSingleton.h>
+#include <stingraykit/SafeSingleton.h>
+
 #include <cstdio>
 #include <cstring>
 
 #include <map>
 #include <sstream>
-
-#include <stingraykit/log/SystemLogger.h>
-#include <stingraykit/diagnostics/Backtrace.h>
-#include <stingraykit/FunctionToken.h>
-#include <stingraykit/PhoenixSingleton.h>
-#include <stingraykit/SafeSingleton.h>
-#include <stingraykit/string/StringFormat.h>
-#include <stingraykit/collection/iterators.h>
 
 namespace stingray
 {

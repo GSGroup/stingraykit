@@ -13,6 +13,7 @@
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/time/ElapsedTime.h>
+#include <stingraykit/time/TimeEngine.h>
 #include <stingraykit/shared_ptr.h>
 
 #include <string>
