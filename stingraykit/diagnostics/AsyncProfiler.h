@@ -13,7 +13,6 @@
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/time/ElapsedTime.h>
-#include <stingraykit/time/TimeEngine.h>
 #include <stingraykit/shared_ptr.h>
 
 #include <string>
@@ -64,18 +63,8 @@ namespace stingray
 			u64							_timeoutTime;
 
 		public:
-			SessionImpl(const char* name) :
-				_name(name),
-				_threadInfo(Thread::GetCurrentThreadInfo()),
-				_startTime(TimeEngine::GetMonotonicMicroseconds())
-			{ }
-
-			SessionImpl(const optional<NameGetterFunc>& nameGetter) :
-				_name(null),
-				_nameGetter(nameGetter),
-				_threadInfo(Thread::GetCurrentThreadInfo()),
-				_startTime(TimeEngine::GetMonotonicMicroseconds())
-			{ }
+			SessionImpl(const char* name);
+			SessionImpl(const optional<NameGetterFunc>& nameGetter);
 
 			std::string GetName()
 			{

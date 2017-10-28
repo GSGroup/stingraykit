@@ -8,11 +8,28 @@
 #include <stingraykit/diagnostics/AsyncProfiler.h>
 
 #include <stingraykit/function/bind.h>
+#include <stingraykit/time/TimeEngine.h>
 
 namespace stingray
 {
 
+	AsyncProfiler::SessionImpl::SessionImpl(const char* name) :
+		_name(name),
+		_threadInfo(Thread::GetCurrentThreadInfo()),
+		_startTime(TimeEngine::GetMonotonicMicroseconds())
+	{ }
+
+	AsyncProfiler::SessionImpl::SessionImpl(const optional<NameGetterFunc>& nameGetter) :
+		_name(null),
+		_nameGetter(nameGetter),
+		_threadInfo(Thread::GetCurrentThreadInfo()),
+		_startTime(TimeEngine::GetMonotonicMicroseconds())
+	{ }
+
+
+
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler::Session);
+
 
 	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const char* name, size_t criticalMs) :
 		_asyncProfiler(asyncProfiler),
