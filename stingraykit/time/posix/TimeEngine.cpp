@@ -7,11 +7,15 @@
 
 #include <stingraykit/time/posix/TimeEngine.h>
 
-#include <stingraykit/SystemException.h>
-#include <stingraykit/exception.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
+#include <stingraykit/exception.h>
+#include <stingraykit/SystemException.h>
 
-namespace stingray { namespace posix
+#include <time.h>
+#include <sys/time.h>
+
+namespace stingray {
+namespace posix
 {
 
 #ifdef STINGRAYKIT_32_BIT_TIME_T
