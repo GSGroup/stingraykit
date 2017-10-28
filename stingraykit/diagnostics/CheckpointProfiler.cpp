@@ -52,7 +52,7 @@ namespace stingray
 			return;
 
 		std::string name = checkpointName.empty() ? "#" + ToString(_checkpointTimes.size()) : checkpointName;
-		_checkpointTimes.push_back(std::make_pair(name, TimeDuration(_elapsedTime->ElapsedMilliseconds())));
+		_checkpointTimes.push_back(std::make_pair(name, _elapsedTime->Elapsed()));
 	}
 
 
