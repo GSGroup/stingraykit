@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
+#include <stingraykit/collection/flat_set.h>
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/collection/ISet.h>
 
@@ -23,14 +24,19 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T , typename CompareType_ = comparers::Less >
+	template <
+			typename T,
+			typename CompareType_ = comparers::Less,
+			template <class, class, class> class SetType_ = std::set,
+			typename AllocatorType_ = std::allocator<T>
+			>
 	class SortedSet : public virtual ISet<T>
 	{
 	public:
 		typedef typename ISet<T>::ValueType				ValueType;
 
 	private:
-		typedef std::set<ValueType, CompareType_>		SetType;
+		typedef SetType_<ValueType, CompareType_, AllocatorType_>		SetType;
 		STINGRAYKIT_DECLARE_PTR(SetType);
 
 		struct Holder
@@ -173,6 +179,14 @@ namespace stingray
 				CopyItems(_items);
 		}
 	};
+
+	template <
+			typename T,
+			typename CompareType = comparers::Less,
+			typename AllocatorType = typename flat_set<T, CompareType>::allocator_type
+			>
+	struct FlatSortedSet
+	{ typedef SortedSet<T, CompareType, flat_set, AllocatorType>		Type; };
 
 	/** @} */
 
