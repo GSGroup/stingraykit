@@ -11,6 +11,7 @@
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/EnumeratorWrapper.h>
+#include <stingraykit/collection/flat_map.h>
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
@@ -26,16 +27,23 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename KeyType_, typename ValueType_ , typename CompareType_ = comparers::Less >
+	template <
+			typename KeyType_,
+			typename ValueType_,
+			typename CompareType_ = comparers::Less,
+			template <class, class, class, class> class MapType_ = std::map,
+			typename AllocatorType_ = std::allocator<std::pair<const KeyType_, ValueType_> >
+			>
 	class MapDictionary : public virtual IDictionary<KeyType_, ValueType_>
 	{
 	public:
 		typedef KeyType_									KeyType;
 		typedef ValueType_									ValueType;
 		typedef CompareType_								CompareType;
+		typedef AllocatorType_								AllocatorType;
 
-		typedef KeyValuePair<KeyType, ValueType>			PairType;
-		typedef std::map<KeyType, ValueType, CompareType>	MapType;
+		typedef KeyValuePair<KeyType, ValueType>							PairType;
+		typedef MapType_<KeyType, ValueType, CompareType, AllocatorType>	MapType;
 		STINGRAYKIT_DECLARE_PTR(MapType);
 
 	private:
@@ -215,6 +223,15 @@ namespace stingray
 		static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
 		{ return make_shared<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
 	};
+
+	template <
+			typename KeyType,
+			typename ValueType,
+			typename CompareType = comparers::Less,
+			typename AllocatorType = typename flat_map<KeyType, ValueType, CompareType>::allocator_type
+			>
+	struct FlatMapDictionary
+	{ typedef MapDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>		Type; };
 
 	/** @} */
 
