@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/time/Time.h>
-#include <stingraykit/safe_bool.h>
+#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -40,6 +40,8 @@ namespace stingray
 		virtual void Sleep(TimeDuration duration) const = 0;
 
 		virtual bool IsCancelled() const = 0;
+
+		virtual optional<TimeDuration> GetTimeout() const = 0;
 
 		bool boolean_test() const { return !IsCancelled(); }
 

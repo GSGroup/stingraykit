@@ -18,12 +18,14 @@ namespace stingray
 	public:
 		virtual void Sleep(TimeDuration duration) const;
 
-		virtual bool IsCancelled() const				{ return false; }
+		virtual bool IsCancelled() const					{ return false; }
+
+		virtual optional<TimeDuration> GetTimeout() const	{ return null; }
 
 	protected:
 		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const	{ return true; }
-		virtual bool TryUnregisterCancellationHandler() const							{ return true; }
-		virtual bool UnregisterCancellationHandler() const								{ return true; }
+		virtual bool TryUnregisterCancellationHandler() const								{ return true; }
+		virtual bool UnregisterCancellationHandler() const									{ return true; }
 	};
 
 }

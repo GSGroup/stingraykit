@@ -61,6 +61,8 @@ namespace stingray
 
 		virtual bool IsCancelled() const;
 
+		virtual optional<TimeDuration> GetTimeout() const { return null; }
+
 	protected:
 		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const;
 		virtual bool TryUnregisterCancellationHandler() const;
