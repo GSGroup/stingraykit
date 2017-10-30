@@ -93,6 +93,7 @@ namespace stingray
 		{
 			_container = other._container;
 			_cmp = other._cmp;
+			return *this;
 		}
 
 		allocator_type get_allocator() const	{ return _container.get_allocator(); }
