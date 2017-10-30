@@ -25,9 +25,8 @@ namespace stingray
 
 		virtual ValueType_ Get() const = 0;
 
-		virtual const Mutex& GetSyncRoot() const = 0;
-
 		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
+		virtual const Mutex& GetSyncRoot() const = 0;
 	};
 
 

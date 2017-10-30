@@ -64,11 +64,11 @@ namespace stingray
 			return _val;
 		}
 
-		virtual const Mutex& GetSyncRoot() const
-		{ return *_mutex; }
-
 		virtual signal_connector<OnChangedSignature> OnChanged() const
 		{ return _onChanged.connector(); }
+
+		virtual const Mutex& GetSyncRoot() const
+		{ return *_mutex; }
 
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
