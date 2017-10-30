@@ -11,19 +11,21 @@
 #include <stingraykit/compare/comparers.h>
 #include <stingraykit/core/NonCopyable.h>
 #include <stingraykit/signal/signals.h>
+#include <stingraykit/IObservableValue.h>
 
 namespace stingray
 {
 
 	template < typename T, typename EqualsCmp = comparers::Equals>
-	class ObservableValue
+	class ObservableValue : public virtual IObservableValue<T>
 	{
 		STINGRAYKIT_NONASSIGNABLE(ObservableValue);
 
-		typedef typename GetParamPassingType<T>::ValueT		ParamPassingType;
+		typedef IObservableValue<T> Base;
 
 	public:
-		typedef void OnChangedSignature(ParamPassingType);
+		typedef typename Base::ParamPassingType ParamPassingType;
+		typedef typename Base::OnChangedSignature OnChangedSignature;
 
 	private:
 		T																				_val;
@@ -47,7 +49,7 @@ namespace stingray
 		operator T() const
 		{ return Get(); }
 
-		void Set(ParamPassingType val)
+		virtual void Set(ParamPassingType val)
 		{
 			signal_locker l(_onChanged);
 			if (_equalsCmp(_val, val))
@@ -56,16 +58,16 @@ namespace stingray
 			_onChanged(_val);
 		}
 
-		T Get() const
+		virtual T Get() const
 		{
 			signal_locker l(_onChanged);
 			return _val;
 		}
 
-		const Mutex& GetSyncRoot() const
+		virtual const Mutex& GetSyncRoot() const
 		{ return *_mutex; }
 
-		signal_connector<OnChangedSignature> OnChanged() const
+		virtual signal_connector<OnChangedSignature> OnChanged() const
 		{ return _onChanged.connector(); }
 
 	private:
