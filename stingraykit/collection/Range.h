@@ -14,6 +14,7 @@
 #include <stingraykit/collection/Transformers.h>
 #include <stingraykit/collection/iterators.h>
 #include <stingraykit/dynamic_caster.h>
+#include <stingraykit/math.h>
 #include <stingraykit/optional.h>
 
 namespace stingray
@@ -452,6 +453,76 @@ namespace stingray
 		protected:
 			void CheckValid() const
 			{ STINGRAYKIT_CHECK(_impl.Valid(), LogicException("Something is terribly wrong with internal range!")); }
+		};
+
+
+		template < typename It_ >
+		class RangeSplitter : public Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag>
+		{
+			typedef RangeSplitter<It_> Self;
+			typedef Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag> base;
+
+			typedef typename std::iterator_traits<It_>::difference_type DiffType;
+
+		private:
+			const It_							_begin;
+			const It_							_end;
+			const DiffType						_maxFragmentSize;
+			It_									_it;
+			optional<typename base::ValueType>	_value;
+
+		public:
+			RangeSplitter(const It_& begin, const It_& end, DiffType maxFragmentSize)
+				: _begin(begin), _end(end), _maxFragmentSize(maxFragmentSize), _it(_begin)
+			{ }
+
+			bool Valid() const
+			{ return _it != _end; }
+
+			typename base::ValueType Get()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
+				if (!_value)
+					_value.emplace(_it, _it, next(_it, GetSize()));
+				return *_value;
+			}
+
+			bool Equals(const RangeSplitter& other) const
+			{ return _begin == other._begin && _end == other._end && _it == other._it && _maxFragmentSize == other._maxFragmentSize; }
+
+			Self& First()
+			{
+				_it = _begin;
+				_value.reset();
+				return *this;
+			}
+
+			Self& Next()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
+				std::advance(_it, GetSize());
+				_value.reset();
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
+				_it = next(_begin, AlignDown(std::distance(_begin, _it) - 1, _maxFragmentSize));
+				_value.reset();
+				return *this;
+			}
+
+			Self& Last()
+			{
+				_it = next(_begin, AlignDown(std::distance(_begin, _end), _maxFragmentSize));
+				_value.reset();
+				return *this;
+			}
+
+		private:
+			DiffType GetSize() const
+			{ return std::min<DiffType>(_maxFragmentSize, std::distance(_it, _end)); }
 		};
 
 
