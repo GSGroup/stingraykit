@@ -23,21 +23,23 @@ namespace stingray
 
 		typedef IObservableValue<T> Base;
 
+		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+
 	public:
 		typedef typename Base::ParamPassingType ParamPassingType;
 		typedef typename Base::OnChangedSignature OnChangedSignature;
 
 	private:
-		T																				_val;
-		EqualsCmp																		_equalsCmp;
-		const shared_ptr<Mutex>															_mutex;
-		signal<OnChangedSignature, signal_policies::threading::ExternalMutexPointer>	_onChanged;
+		T													_val;
+		EqualsCmp											_equalsCmp;
+		const shared_ptr<Mutex>								_mutex;
+		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 
 	public:
 		explicit ObservableValue(ParamPassingType val = T()) :
 			_val(val),
 			_mutex(make_shared<Mutex>()),
-			_onChanged(signal_policies::threading::ExternalMutexPointer(_mutex), bind(&ObservableValue::OnChangedPopulator, this, _1))
+			_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableValue::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableValue& operator= (ParamPassingType val)
