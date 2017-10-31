@@ -898,6 +898,16 @@ namespace stingray
 		}
 
 
+		template < typename Collection_ >
+		RangeSplitter<typename Collection_::const_iterator> Split(const Collection_& collection, size_t maxFragmentSize)
+		{ return RangeSplitter<typename Collection_::const_iterator>(collection.begin(), collection.end(), maxFragmentSize); }
+
+
+		template < typename It_ >
+		RangeSplitter<It_> Split(const It_& begin, const It_& end, size_t maxFragmentSize)
+		{ return RangeSplitter<It_>(begin, end, maxFragmentSize); }
+
+
 #define DETAIL_STINGRAYKIT_DECLARE_RANGEZIPPER(N_, UserArg_) \
 		template < typename FuncType STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
 		RangeZipper<FuncType, typename TypeList<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE, T)>::type> Zip(const FuncType& func STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
