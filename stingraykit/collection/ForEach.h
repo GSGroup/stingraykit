@@ -145,11 +145,11 @@ namespace stingray
 #define WHERE ,
 #define FOR_EACH__IMPL(ItemDecl_, SomethingToEnumerate_, ...) \
 		for (bool __broken__ = false; !__broken__; __broken__ = true) \
-			for (::stingray::Detail::ItemEnumeratorPtr<void(*)(ItemDecl_)> en(::stingray::GetEnumeratorCaster(SomethingToEnumerate_)); \
-				 en && en->Valid() && !__broken__; \
-				 en->Next()) \
+			for (::stingray::Detail::ItemEnumeratorPtr<void(*)(ItemDecl_)> __en__(::stingray::GetEnumeratorCaster(SomethingToEnumerate_)); \
+				 __en__ && __en__->Valid() && !__broken__; \
+				 __en__->Next()) \
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \
-					 for (ItemDecl_ = en->Get(); (__dummy_bool__ && ((__dummy_bool__ = false) == false) && ::stingray::Detail::ForEach_ItemFilter(true, ##__VA_ARGS__) && (__broken__ = true)); __broken__ = false)
+					 for (ItemDecl_ = __en__->Get(); (__dummy_bool__ && ((__dummy_bool__ = false) == false) && ::stingray::Detail::ForEach_ItemFilter(true, ##__VA_ARGS__) && (__broken__ = true)); __broken__ = false)
 
 	/** @} */
 
