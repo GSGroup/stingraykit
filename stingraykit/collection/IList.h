@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/ICollection.h>
+#include <stingraykit/optional.h>
 
 #define STINGRAYKIT_DECLARE_LIST(ClassName) \
 		typedef stingray::IList<ClassName>				ClassName##List; \
