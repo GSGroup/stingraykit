@@ -101,15 +101,15 @@ namespace stingray
 
 #define STINGRAYKIT_PROFILER(Milliseconds_, Message_) \
 	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), STINGRAYKIT_WHERE, Milliseconds_);
+	stingray::Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), STINGRAYKIT_WHERE, Milliseconds_);
 
 #define STINGRAYKIT_PROFILER_DEBUG(Milliseconds_, Message_) \
 	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, LogLevel::Debug, (Message_), STINGRAYKIT_WHERE, Milliseconds_);
+	stingray::Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, LogLevel::Debug, (Message_), STINGRAYKIT_WHERE, Milliseconds_);
 
 #define STINGRAYKIT_PROFILER_NO_WHERE(Milliseconds_, Message_) \
 	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-	Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), Milliseconds_);
+	stingray::Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), Milliseconds_);
 
 #define STINGRAYKIT_PROFILE(Milliseconds_, Call_) \
 	do { \
