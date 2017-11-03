@@ -55,6 +55,13 @@ namespace stingray
 	}
 
 
+	void ThreadlessTaskExecutor::ClearTasks()
+	{
+		MutexLock l(_syncRoot);
+		_queue.clear();
+	}
+
+
 	std::string ThreadlessTaskExecutor::GetProfilerMessage(const function<void()>& func) const
 	{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
 

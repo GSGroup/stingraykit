@@ -35,6 +35,7 @@ namespace stingray
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
 
 		void ExecuteTasks();
+		void ClearTasks();
 
 	private:
 		std::string GetProfilerMessage(const function<void()>& func) const;
