@@ -45,12 +45,12 @@ namespace stingray
 					AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(top->first)), 10000, AsyncProfiler::Session::NameGetterTag());
 					top->first();
 				}
-				Thread::InterruptionPoint();
 			}
 			catch(const std::exception& ex)
 			{ _exceptionHandler(ex); }
 
 			top.reset(); // destroy object with unlocked mutex to keep lock order correct
+			Thread::InterruptionPoint();
 		}
 	}
 
