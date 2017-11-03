@@ -37,10 +37,10 @@ namespace stingray
 		void ExecuteTasks();
 		void ClearTasks();
 
+		static void DefaultExceptionHandler(const std::exception& ex);
+
 	private:
 		std::string GetProfilerMessage(const function<void()>& func) const;
-
-		static void DefaultExceptionHandler(const std::exception& ex);
 	};
 	STINGRAYKIT_DECLARE_PTR(ThreadlessTaskExecutor);
 

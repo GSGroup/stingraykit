@@ -61,11 +61,11 @@ namespace stingray
 	}
 
 
+	void ThreadlessTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
+	{ Logger::Error() << "ThreadlessTaskExecutor func exception: " << ex; }
+
+
 	std::string ThreadlessTaskExecutor::GetProfilerMessage(const function<void()>& func) const
 	{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
-
-
-	void ThreadlessTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ Logger::Error() << "Uncaught exception in ThreadlessTaskExecutor: " << ex; }
 
 }
