@@ -71,12 +71,12 @@ namespace stingray
 
 	void ThreadTaskExecutor::ExecuteTask(const TaskPair& task) const
 	{
-		LocalExecutionGuard guard(task.second);
-		if (!guard)
-			return;
-
 		try
 		{
+			LocalExecutionGuard guard(task.second);
+			if (!guard)
+				return;
+
 			if (_profileTimeout)
 			{
 				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, ref(task.first)), _profileTimeout->GetMilliseconds(), AsyncProfiler::Session::NameGetterTag());
