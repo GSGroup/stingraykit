@@ -22,7 +22,7 @@ namespace stingray
 		typedef function<void(const std::exception&)>		ExceptionHandlerType;
 
 		typedef std::pair<TaskType, FutureExecutionTester>	TaskPair;
-		typedef std::queue<TaskPair, std::deque<TaskPair> >	QueueType;
+		typedef std::deque<TaskPair>						QueueType;
 
 	private:
 		Mutex					_syncRoot;
