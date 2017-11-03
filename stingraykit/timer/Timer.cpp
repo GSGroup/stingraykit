@@ -303,12 +303,12 @@ namespace stingray
 
 	void Timer::ExecuteTask(const CallbackInfoPtr& ci) const
 	{
-		LocalExecutionGuard guard(ci->GetExecutionTester());
-		if (!guard)
-			return;
-
 		try
 		{
+			LocalExecutionGuard guard(ci->GetExecutionTester());
+			if (!guard)
+				return;
+
 			if (_profileTimeout)
 			{
 				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(ci->GetFunc())), _profileTimeout->GetMilliseconds(), AsyncProfiler::Session::NameGetterTag());
