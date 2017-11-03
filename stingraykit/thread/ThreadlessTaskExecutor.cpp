@@ -36,19 +36,9 @@ namespace stingray
 
 			MutexUnlock ul(l);
 
-			try
-			{
-				LocalExecutionGuard guard(top->second);
-				if (guard)
-				{
-					AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(top->first)), 10000, AsyncProfiler::Session::NameGetterTag());
-					top->first();
-				}
-			}
-			catch(const std::exception& ex)
-			{ _exceptionHandler(ex); }
-
+			ExecuteTask(*top);
 			top.reset(); // destroy object with unlocked mutex to keep lock order correct
+
 			Thread::InterruptionPoint();
 		}
 	}
@@ -67,5 +57,21 @@ namespace stingray
 
 	std::string ThreadlessTaskExecutor::GetProfilerMessage(const function<void()>& func) const
 	{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
+
+
+	void ThreadlessTaskExecutor::ExecuteTask(const TaskPair& task) const
+	{
+		try
+		{
+			LocalExecutionGuard guard(task.second);
+			if (!guard)
+				return;
+
+			AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(task.first)), 10000, AsyncProfiler::Session::NameGetterTag());
+			task.first();
+		}
+		catch(const std::exception& ex)
+		{ _exceptionHandler(ex); }
+	}
 
 }

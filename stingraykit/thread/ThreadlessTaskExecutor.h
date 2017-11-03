@@ -41,6 +41,8 @@ namespace stingray
 
 	private:
 		std::string GetProfilerMessage(const function<void()>& func) const;
+
+		void ExecuteTask(const TaskPair& task) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(ThreadlessTaskExecutor);
 
