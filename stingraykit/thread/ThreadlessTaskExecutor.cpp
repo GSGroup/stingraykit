@@ -38,7 +38,6 @@ namespace stingray
 
 			try
 			{
-				//Tracer tracer("ThreadlessTaskExecutor::ExecuteTasks: executing pending task"); //fixme: dependency to log/
 				LocalExecutionGuard guard(top->second);
 				if (guard)
 				{
