@@ -63,10 +63,7 @@ namespace stingray
 		Token SetTimer(const TimeDuration& interval, const function<void()>& func);
 		Token SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func);
 
-		virtual void AddTask(const function<void()>& task)
-		{ AddTask(task, null); }
-
-		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester);
+		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester = null);
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 

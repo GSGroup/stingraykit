@@ -32,10 +32,7 @@ namespace stingray
 	public:
 		explicit ThreadlessTaskExecutor(const ExceptionHandlerType& exceptionHandler = &ThreadlessTaskExecutor::DefaultExceptionHandler);
 
-		virtual void AddTask(const TaskType& task)
-		{ AddTask(task, null); }
-
-		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester);
+		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
 
 		void ExecuteTasks();
 

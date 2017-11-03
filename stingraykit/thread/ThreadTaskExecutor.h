@@ -58,10 +58,7 @@ namespace stingray
 	public:
 		explicit ThreadTaskExecutor(const std::string& name, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DefaultExceptionHandler);
 
-		virtual void AddTask(const TaskType& task)
-		{ AddTask(task, null); }
-
-		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester);
+		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
