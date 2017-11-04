@@ -15,6 +15,8 @@
 namespace stingray
 {
 
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadlessTaskExecutor);
+
 	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const ExceptionHandlerType& exceptionHandler)
 		: _exceptionHandler(exceptionHandler)
 	{ }
@@ -33,7 +35,7 @@ namespace stingray
 
 		if (_activeExecutor)
 		{
-			Logger::Warning() << "ThreadlessTaskExecutor::ExecuteTasks: already running tasks in thread " << _activeExecutor;
+			s_logger.Warning() << "Already running tasks in thread " << _activeExecutor;
 			return;
 		}
 
@@ -63,7 +65,7 @@ namespace stingray
 
 
 	void ThreadlessTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ Logger::Error() << "ThreadlessTaskExecutor func exception: " << ex; }
+	{ s_logger.Error() << "Executor func exception: " << ex; }
 
 
 	std::string ThreadlessTaskExecutor::GetProfilerMessage(const function<void()>& func) const
