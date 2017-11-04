@@ -10,6 +10,7 @@
 #include <stingraykit/diagnostics/AsyncProfiler.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/ScopeExit.h>
 
 namespace stingray
 {
@@ -29,6 +30,16 @@ namespace stingray
 	void ThreadlessTaskExecutor::ExecuteTasks()
 	{
 		MutexLock l(_syncRoot);
+
+		if (_activeExecutor)
+		{
+			Logger::Warning() << "ThreadlessTaskExecutor::ExecuteTasks: already running tasks in thread " << _activeExecutor;
+			return;
+		}
+
+		const ScopeExitInvoker sei(bind(&optional<std::string>::reset, ref(_activeExecutor)));
+		_activeExecutor = Thread::GetCurrentThreadName();
+
 		while (!_queue.empty())
 		{
 			optional<TaskPair> top = _queue.front();

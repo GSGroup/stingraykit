@@ -27,6 +27,7 @@ namespace stingray
 	private:
 		Mutex					_syncRoot;
 		QueueType				_queue;
+		optional<std::string>	_activeExecutor;
 		ExceptionHandlerType	_exceptionHandler;
 
 	public:
