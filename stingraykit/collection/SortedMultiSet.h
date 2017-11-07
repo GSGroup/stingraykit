@@ -117,17 +117,17 @@ namespace stingray
 		virtual void Add(const ValueType& value)
 		{ CopyOnWrite(); _items->insert(value); }
 
-		virtual void Remove(const ValueType& value)
-		{ TryRemove(value); }
+		virtual void RemoveFirst(const ValueType& value)
+		{ TryRemoveFirst(value); }
 
-		virtual bool TryRemove(const ValueType& value)
+		virtual bool TryRemoveFirst(const ValueType& value)
 		{
-			typename SetType::iterator it = _items->find(value);
-			if (it == _items->end())
+			typename SetType::iterator it = _items->lower_bound(value);
+			if (it == _items->end() || CompareType_()(value, *it))
 				return false;
 
 			CopyOnWrite();
-			_items->erase(_items->find(value));
+			_items->erase(_items->lower_bound(value));
 			return true;
 		}
 

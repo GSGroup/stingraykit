@@ -51,8 +51,8 @@ namespace stingray
 
 		virtual void Add(const ValueType& value) = 0;
 
-		virtual void Remove(const ValueType& value) = 0;
-		virtual bool TryRemove(const ValueType& value) = 0;
+		virtual void RemoveFirst(const ValueType& value) = 0;
+		virtual bool TryRemoveFirst(const ValueType& value) = 0;
 
 		virtual void RemoveAll(const ValueType& value) = 0;
 
