@@ -109,6 +109,14 @@ namespace stingray
 			return true;
 		}
 
+		virtual void Clear()
+		{
+			_size = 0;
+			_queue.clear();
+			_dictionary.clear();
+			_monotonic = 0;
+		}
+
 		virtual size_t GetSize() const
 		{ return _size; }
 

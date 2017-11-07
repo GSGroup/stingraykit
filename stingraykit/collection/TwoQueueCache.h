@@ -69,6 +69,13 @@ namespace stingray
 		virtual bool TryRemove(KeyPassingType key)
 		{ return _hotCache.TryRemove(key) || _outQueue.TryRemove(key) || _inQueue.TryRemove(key); }
 
+		virtual void Clear()
+		{
+			_hotCache.Clear();
+			_outQueue.Clear();
+			_inQueue.Clear();
+		}
+
 		virtual size_t GetSize() const
 		{ return _hotCache.GetSize() + _inQueue.GetSize() + _outQueue.GetSize(); }
 

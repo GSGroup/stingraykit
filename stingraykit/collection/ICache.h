@@ -29,6 +29,8 @@ namespace stingray
 		virtual void Set(KeyPassingType key, ValuePassingType value) = 0;
 		virtual bool TryRemove(KeyPassingType key) = 0;
 
+		virtual void Clear() = 0;
+
 		virtual size_t GetSize() const = 0;
 
 		virtual signal_connector<OnEvictedSignature> OnEvicted() const = 0;
