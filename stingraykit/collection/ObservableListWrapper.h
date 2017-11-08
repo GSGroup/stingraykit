@@ -134,7 +134,7 @@ namespace stingray
 		virtual void RemoveAt(size_t index)
 		{
 			signal_locker l(_onChanged);
-			ValueType value = Get(index);
+			ValueType value = Wrapped_::Get(index);
 			Wrapped_::RemoveAt(index);
 			_onChanged(CollectionOp::Removed, index, value);
 		}
@@ -142,12 +142,12 @@ namespace stingray
 		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
 		{
 			signal_locker l(_onChanged);
-			const size_t count = GetCount();
+			const size_t count = Wrapped_::GetCount();
 			size_t ret = 0;
 			for (size_t index = 0; index < count; ++index)
 			{
 				const size_t realIndex = index - ret;
-				const ValueType value = Get(realIndex);
+				const ValueType value = Wrapped_::Get(realIndex);
 				if (!pred(value))
 					continue;
 
@@ -161,7 +161,7 @@ namespace stingray
 		virtual void Clear()
 		{
 			signal_locker l(_onChanged);
-			while (!this->IsEmpty())
+			while (!Wrapped_::IsEmpty())
 				RemoveAt(0);
 		}
 
@@ -175,7 +175,7 @@ namespace stingray
 		virtual void OnChangedPopulator(const function<OnChangedSignature>& slot)
 		{
 			size_t i = 0;
-			FOR_EACH(ValueType v IN this->GetEnumerator())
+			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator())
 				slot(CollectionOp::Added, i++, v);
 		}
 	};
