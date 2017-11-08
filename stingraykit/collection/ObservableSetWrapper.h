@@ -123,7 +123,7 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			size_t ret = 0;
-			FOR_EACH(ValueType v IN GetEnumerator() WHERE pred(v))
+			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator() WHERE pred(v))
 			{
 				Wrapped_::Remove(v);
 				_onChanged(CollectionOp::Removed, v);
@@ -135,7 +135,7 @@ namespace stingray
 		virtual void Clear()
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(ValueType v IN GetEnumerator())
+			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator())
 			{
 				Wrapped_::Remove(v);
 				_onChanged(CollectionOp::Removed, v);
@@ -151,7 +151,7 @@ namespace stingray
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot)
 		{
-			FOR_EACH(ValueType v IN GetEnumerator())
+			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator())
 				slot(CollectionOp::Added, v);
 		}
 	};
