@@ -114,7 +114,7 @@ namespace stingray
 		virtual void Set(const KeyType& key, const ValueType& value)
 		{
 			signal_locker l(_onChanged);
-			bool update = ContainsKey(key);
+			bool update = Wrapped_::ContainsKey(key);
 			Wrapped_::Set(key, value);
 			_onChanged(update ? CollectionOp::Updated : CollectionOp::Added, key, value);
 		}
@@ -126,7 +126,7 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			ValueType value;
-			if (!TryGet(key, value))
+			if (!Wrapped_::TryGet(key, value))
 				return false;
 
 			Wrapped_::Remove(key);
@@ -138,7 +138,7 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			size_t ret = 0;
-			FOR_EACH(PairType v IN GetEnumerator() WHERE pred(v.Key, v.Value))
+			FOR_EACH(PairType v IN Wrapped_::GetEnumerator() WHERE pred(v.Key, v.Value))
 			{
 				Wrapped_::Remove(v.Key);
 				_onChanged(CollectionOp::Removed, v.Key, v.Value);
@@ -150,7 +150,7 @@ namespace stingray
 		virtual void Clear()
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(PairType v IN GetEnumerator())
+			FOR_EACH(PairType v IN Wrapped_::GetEnumerator())
 			{
 				Wrapped_::Remove(v.Key);
 				_onChanged(CollectionOp::Removed, v.Key, v.Value);
@@ -166,7 +166,7 @@ namespace stingray
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{
-			FOR_EACH(PairType p IN this->GetEnumerator())
+			FOR_EACH(PairType p IN Wrapped_::GetEnumerator())
 				slot(CollectionOp::Added, p.Key, p.Value);
 		}
 	};
