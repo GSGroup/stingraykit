@@ -117,6 +117,22 @@ namespace stingray
 		virtual void RemoveAll(const ValueType& value)
 		{ CopyOnWrite(); _items->erase(value); }
 
+		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
+		{
+			CopyOnWrite();
+			size_t ret = 0;
+			for (typename SetType::iterator it = _items->begin(); it != _items->end(); )
+			{
+				const typename SetType::iterator cur = it++;
+				if (!pred(*cur))
+					continue;
+
+				_items->erase(cur);
+				++ret;
+			}
+			return ret;
+		}
+
 		virtual void Clear()
 		{ CopyOnWrite(); _items->clear(); }
 

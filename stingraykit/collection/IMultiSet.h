@@ -56,6 +56,8 @@ namespace stingray
 
 		virtual void RemoveAll(const ValueType& value) = 0;
 
+		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred) = 0;
+
 		virtual void Clear() = 0;
 	};
 
