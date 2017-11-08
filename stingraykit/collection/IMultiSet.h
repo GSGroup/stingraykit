@@ -57,7 +57,7 @@ namespace stingray
 		virtual void RemoveFirst(const ValueType& value) = 0;
 		virtual bool TryRemoveFirst(const ValueType& value) = 0;
 
-		virtual void RemoveAll(const ValueType& value) = 0;
+		virtual size_t RemoveAll(const ValueType& value) = 0;
 
 		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred) = 0;
 

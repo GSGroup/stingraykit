@@ -126,8 +126,11 @@ namespace stingray
 		virtual bool TryRemoveFirst(const ValueType& value)
 		{ return DoRemoveFirst(value); }
 
-		virtual void RemoveAll(const ValueType& value)
-		{ CopyOnWrite(); _items->erase(value); }
+		virtual size_t RemoveAll(const ValueType& value)
+		{
+			CopyOnWrite();
+			return _items->erase(value);
+		}
 
 		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
 		{
