@@ -121,18 +121,10 @@ namespace stingray
 		{ CopyOnWrite(); _items->insert(value); }
 
 		virtual void RemoveFirst(const ValueType& value)
-		{ TryRemoveFirst(value); }
+		{ DoRemoveFirst(value); }
 
 		virtual bool TryRemoveFirst(const ValueType& value)
-		{
-			typename SetType::iterator it = _items->lower_bound(value);
-			if (it == _items->end() || CompareType_()(value, *it))
-				return false;
-
-			CopyOnWrite();
-			_items->erase(_items->lower_bound(value));
-			return true;
-		}
+		{ return DoRemoveFirst(value); }
 
 		virtual void RemoveAll(const ValueType& value)
 		{ CopyOnWrite(); _items->erase(value); }
@@ -157,6 +149,17 @@ namespace stingray
 		{ CopyOnWrite(); _items->clear(); }
 
 	private:
+		bool DoRemoveFirst(const ValueType& value)
+		{
+			typename SetType::iterator it = _items->lower_bound(value);
+			if (it == _items->end() || CompareType_()(value, *it))
+				return false;
+
+			CopyOnWrite();
+			_items->erase(_items->lower_bound(value));
+			return true;
+		}
+
 		void CopyItems(const SetTypePtr& items)
 		{
 			_items = make_shared<SetType>(*items);
