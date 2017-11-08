@@ -62,7 +62,9 @@ namespace stingray
 
 		virtual void Set(KeyPassingType key, ValuePassingType value)
 		{
-			TryRemove(key);
+			if (!_hotCache.TryRemove(key))
+				_outQueue.TryRemove(key);
+
 			_inQueue.Set(key, value);
 		}
 
