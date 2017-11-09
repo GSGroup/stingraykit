@@ -94,7 +94,7 @@ namespace stingray
 		virtual bool Contains(const ValueType& value) const
 		{ return _items->find(value) != _items->end(); }
 
-		virtual int Count(const ValueType& value) const
+		virtual size_t Count(const ValueType& value) const
 		{ return _items->count(value); }
 
 		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
