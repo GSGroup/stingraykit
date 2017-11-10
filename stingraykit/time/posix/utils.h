@@ -36,7 +36,7 @@ namespace posix
 		else if (t->tv_nsec < 0)
 		{
 			t->tv_sec += t->tv_nsec / 1000000000 - 1;
-			t->tv_nsec = 1000000000 - t->tv_nsec % 1000000000;
+			t->tv_nsec = 1000000000 + t->tv_nsec % 1000000000;
 		}
 	}
 
