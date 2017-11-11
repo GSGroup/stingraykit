@@ -24,7 +24,7 @@ namespace stingray
 	template < typename ValueType_, typename CompareType_ = comparers::Less >
 	struct SortedObservableMultiSet
 		:	public SortedMultiSet<ValueType_, CompareType_>,
-			public virtual IObservableMultiSet<typename SortedMultiSet<ValueType_, CompareType_>::ValueType>
+			public virtual IObservableMultiSet<ValueType_>
 	{
 		typedef SortedMultiSet<ValueType_, CompareType_> Wrapped;
 
