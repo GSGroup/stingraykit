@@ -114,7 +114,7 @@ namespace stingray
 		}
 
 		virtual void RemoveFirst(const ValueType& value)
-		{ TryRemoveFirst(value); }
+		{ SortedObservableMultiSet::TryRemoveFirst(value); }
 
 		virtual bool TryRemoveFirst(const ValueType& value)
 		{
@@ -137,7 +137,7 @@ namespace stingray
 				if (CompareType_()(v, value) || CompareType_()(value, v))
 					break;
 
-				Wrapped::TryRemoveFirst(v);
+				Wrapped::RemoveFirst(v);
 				_onChanged(CollectionOp::Removed, v);
 				++ret;
 			}
