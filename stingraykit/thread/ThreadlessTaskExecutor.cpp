@@ -17,8 +17,10 @@ namespace stingray
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadlessTaskExecutor);
 
-	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const ExceptionHandlerType& exceptionHandler)
-		: _exceptionHandler(exceptionHandler)
+	const TimeDuration ThreadlessTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+
+	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const optional<TimeDuration>& profileTimeout, const ExceptionHandlerType& exceptionHandler)
+		: _profileTimeout(profileTimeout), _exceptionHandler(exceptionHandler)
 	{ }
 
 
@@ -80,8 +82,17 @@ namespace stingray
 			if (!guard)
 				return;
 
-			AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(task.first)), 10000, AsyncProfiler::Session::NameGetterTag());
-			task.first();
+			if (_profileTimeout)
+			{
+				AsyncProfiler::Session profiler_session(
+						ExecutorsProfiler::Instance().GetProfiler(),
+						bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(task.first)),
+						_profileTimeout->GetMilliseconds(),
+						AsyncProfiler::Session::NameGetterTag());
+				task.first();
+			}
+			else
+				task.first();
 		}
 		catch(const std::exception& ex)
 		{ _exceptionHandler(ex); }

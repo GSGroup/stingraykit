@@ -25,16 +25,20 @@ namespace stingray
 		typedef std::pair<TaskType, FutureExecutionTester>	TaskPair;
 		typedef std::deque<TaskPair>						QueueType;
 
+	public:
+		static const TimeDuration DefaultProfileTimeout;
+
 	private:
 		static NamedLogger		s_logger;
 
 		Mutex					_syncRoot;
 		QueueType				_queue;
 		optional<std::string>	_activeExecutor;
+		optional<TimeDuration>	_profileTimeout;
 		ExceptionHandlerType	_exceptionHandler;
 
 	public:
-		explicit ThreadlessTaskExecutor(const ExceptionHandlerType& exceptionHandler = &ThreadlessTaskExecutor::DefaultExceptionHandler);
+		explicit ThreadlessTaskExecutor(const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &ThreadlessTaskExecutor::DefaultExceptionHandler);
 
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
 
