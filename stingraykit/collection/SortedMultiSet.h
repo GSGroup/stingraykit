@@ -111,7 +111,7 @@ namespace stingray
 			typedef typename SetType::const_reverse_iterator cri;
 
 			typename SetType::const_iterator it = _items->upper_bound(value);
-			if (it == _items->end())
+			if (it == _items->end() || CompareType_()(*cri(it), value))
 				return MakeEmptyEnumerator();
 
 			return EnumeratorFromStlIterators(cri(it), _items->rend(), GetItemsHolder());
