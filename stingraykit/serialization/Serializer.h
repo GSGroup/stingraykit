@@ -18,11 +18,24 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename Tag, typename T >
-	struct Serialization;
+	namespace Detail
+	{
+
+		STINGRAYKIT_DECLARE_METHOD_CHECK(Serialize);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(SerializeAsValue);
+
+	}
+
 
 	template < typename Tag, typename T >
-	struct Serializer
+	struct Serialization { };
+
+
+	template < typename Tag, typename T, typename Enabler = void >
+	struct Serializer;
+
+	template < typename Tag, typename T >
+	struct Serializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && Detail::HasMethod_Serialize<Serialization<Tag, T> >::Value, void>::ValueT>
 	{
 		const T&	Object;
 
@@ -34,7 +47,19 @@ namespace stingray
 	};
 
 	template < typename Tag, typename T >
-	struct Serializer<Tag, optional<T> >
+	struct Serializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && Detail::HasMethod_SerializeAsValue<Serialization<Tag, T> >::Value, void>::ValueT>
+	{
+		const T&	Object;
+
+		explicit Serializer(const T& object) : Object(object) { }
+
+		template < typename OStream_ >
+		void SerializeAsValue(OStream_& ar) const
+		{ Serialization<Tag, T>::SerializeAsValue(ar, Object); }
+	};
+
+	template < typename Tag, typename T >
+	struct Serializer<Tag, optional<T>, void >
 	{
 		const optional<T>&		Object;
 
