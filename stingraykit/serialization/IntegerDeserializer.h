@@ -41,7 +41,7 @@ namespace stingray
 
 
 	template < typename Integer_ >
-	struct Serialization<IntegerSerializationTag, Integer_>
+	struct Serialization<IntegerSerializationTag, Integer_, void>
 	{
 		typedef s64 Container;
 
@@ -56,7 +56,7 @@ namespace stingray
 
 
 	template < >
-	struct Serialization<IntegerSerializationTag, s64>
+	struct Serialization<IntegerSerializationTag, s64, void>
 	{
 		template < typename IStream_ >
 		static void DeserializeAsValue(IStream_& ar, s64& integer)
@@ -65,7 +65,7 @@ namespace stingray
 
 
 	template < >
-	struct Serialization<IntegerSerializationTag, u64>
+	struct Serialization<IntegerSerializationTag, u64, void>
 	{
 		template < typename IStream_ >
 		static void DeserializeAsValue(IStream_& ar, u64& integer)

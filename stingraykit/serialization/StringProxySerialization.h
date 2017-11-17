@@ -22,7 +22,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct Serialization<StringProxySerializationTag, T>
+	struct Serialization<StringProxySerializationTag, T, void>
 	{
 		template < typename OStream_ >
 		static void SerializeAsValue(OStream_& ar, const T& object)
