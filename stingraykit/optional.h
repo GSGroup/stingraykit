@@ -147,6 +147,15 @@ namespace stingray
 		{ return (lhs && rhs) ? _compareFunc(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0)); }
 	};
 
+
+	template < typename T >
+	struct IsOptional
+	{ static const bool Value = false; };
+
+	template < typename T >
+	struct IsOptional<optional<T> >
+	{ static const bool Value = true; };
+
 }
 
 #endif
