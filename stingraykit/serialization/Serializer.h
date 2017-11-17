@@ -24,6 +24,9 @@ namespace stingray
 		STINGRAYKIT_DECLARE_METHOD_CHECK(Serialize);
 		STINGRAYKIT_DECLARE_METHOD_CHECK(SerializeAsValue);
 
+		STINGRAYKIT_DECLARE_METHOD_CHECK(Deserialize);
+		STINGRAYKIT_DECLARE_METHOD_CHECK(DeserializeAsValue);
+
 	}
 
 
@@ -110,8 +113,11 @@ namespace stingray
 	}
 
 
+	template < typename Tag, typename T, typename Enabler = void >
+	struct Deserializer;
+
 	template < typename Tag, typename T >
-	struct Deserializer
+	struct Deserializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && Detail::HasMethod_Deserialize<Serialization<Tag, T> >::Value, void>::ValueT>
 	{
 		T&		Object;
 
@@ -125,7 +131,21 @@ namespace stingray
 	};
 
 	template < typename Tag, typename T >
-	class Deserializer<Tag, optional<T> >
+	struct Deserializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && Detail::HasMethod_DeserializeAsValue<Serialization<Tag, T> >::Value, void>::ValueT>
+	{
+		T&		Object;
+
+		explicit Deserializer(T& object) : Object(object) { }
+
+		template < typename IStream_ >
+		void DeserializeAsValue(IStream_& ar)
+		{ Serialization<Tag, T>::DeserializeAsValue(ar, Object); }
+
+		Deserializer& operator * () { return *this; }
+	};
+
+	template < typename Tag, typename T >
+	class Deserializer<Tag, optional<T>, void>
 	{
 		typedef Detail::OptionalDeserializationHelper<T, Deserializer<Tag, T> > DeserializationHelper;
 
