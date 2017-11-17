@@ -18,7 +18,7 @@ namespace stingray
 	 * @{
 	 */
 
-	namespace Detail
+	namespace SerializerUtils
 	{
 
 		STINGRAYKIT_DECLARE_METHOD_CHECK(Serialize);
@@ -38,7 +38,7 @@ namespace stingray
 	struct Serializer;
 
 	template < typename Tag, typename T >
-	struct Serializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && Detail::HasMethod_Serialize<Serialization<Tag, T, void> >::Value, void>::ValueT>
+	struct Serializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && SerializerUtils::HasMethod_Serialize<Serialization<Tag, T, void> >::Value, void>::ValueT>
 	{
 		const T&	Object;
 
@@ -50,7 +50,7 @@ namespace stingray
 	};
 
 	template < typename Tag, typename T >
-	struct Serializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && Detail::HasMethod_SerializeAsValue<Serialization<Tag, T, void> >::Value, void>::ValueT>
+	struct Serializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && SerializerUtils::HasMethod_SerializeAsValue<Serialization<Tag, T, void> >::Value, void>::ValueT>
 	{
 		const T&	Object;
 
@@ -117,7 +117,7 @@ namespace stingray
 	struct Deserializer;
 
 	template < typename Tag, typename T >
-	struct Deserializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && Detail::HasMethod_Deserialize<Serialization<Tag, T, void> >::Value, void>::ValueT>
+	struct Deserializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && SerializerUtils::HasMethod_Deserialize<Serialization<Tag, T, void> >::Value, void>::ValueT>
 	{
 		T&		Object;
 
@@ -131,7 +131,7 @@ namespace stingray
 	};
 
 	template < typename Tag, typename T >
-	struct Deserializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && Detail::HasMethod_DeserializeAsValue<Serialization<Tag, T, void> >::Value, void>::ValueT>
+	struct Deserializer<Tag, T, typename EnableIf<!IsOptional<T>::Value && SerializerUtils::HasMethod_DeserializeAsValue<Serialization<Tag, T, void> >::Value, void>::ValueT>
 	{
 		T&		Object;
 
