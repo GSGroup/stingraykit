@@ -45,7 +45,7 @@ namespace stingray
 		explicit Serializer(const T& object) : Object(object) { }
 
 		template < typename OStream_ >
-		void SerializeAsValue(OStream_& ar) const
+		void Serialize(OStream_& ar) const
 		{ Serialization<Tag, T>::Serialize(ar, Object); }
 	};
 
@@ -124,7 +124,7 @@ namespace stingray
 		explicit Deserializer(T& object) : Object(object) { }
 
 		template < typename IStream_ >
-		void DeserializeAsValue(IStream_& ar)
+		void Deserialize(IStream_& ar)
 		{ Serialization<Tag, T>::Deserialize(ar, Object); }
 
 		Deserializer& operator * () { return *this; }
