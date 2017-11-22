@@ -81,11 +81,26 @@ namespace stingray
 	};
 
 
-	template < typename T, typename V = T >
-	struct Assigner : public function_info<void (T&, const V&)>
+	namespace Detail
 	{
-		void operator () (T& t, const V& v) const { t = v; }
-	};
+
+		template < typename T >
+		struct Assigner : public function_info<void, UnspecifiedParamTypes>
+		{
+		private:
+			T&	_ref;
+
+		public:
+			explicit Assigner(T& ref) : _ref(ref) { }
+
+			template < typename V >
+			void operator () (const V& v) const { _ref = v; }
+		};
+
+	}
+
+	template < typename T >
+	Detail::Assigner<T> make_assigner(T& ref) { return Detail::Assigner<T>(ref); }
 
 
 	namespace Detail
