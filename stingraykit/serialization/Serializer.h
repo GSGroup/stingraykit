@@ -167,11 +167,11 @@ namespace stingray
 	struct Serialization<DefaultSerializationTag, Object, void>
 	{
 		template < typename OStream >
-		static void Serialize(OStream& ar, const Object& object)
+		static void SerializeAsValue(OStream& ar, const Object& object)
 		{ ar.Serialize(object); }
 
 		template < typename IStream >
-		static void Deserialize(IStream& ar, Object& object)
+		static void DeserializeAsValue(IStream& ar, Object& object)
 		{ ar.Deserialize(object); }
 	};
 
