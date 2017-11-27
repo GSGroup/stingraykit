@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/IEnumerable.h>
-#include <stingraykit/shared_ptr.h>
 
 #include <vector>
 
@@ -20,6 +19,8 @@ namespace stingray
 	template<typename ItemType>
 	class EnumerableBuilder
 	{
+		typedef shared_ptr<IEnumerable<ItemType> > EnumerablePtr;
+
 		typedef typename GetParamPassingType<ItemType>::ValueT ItemPassingType;
 		typedef std::vector<ItemType> Container;
 
@@ -34,7 +35,10 @@ namespace stingray
 		EnumerableBuilder(Iter first, Iter last) : _container(make_shared<Container>(first, last))
 		{ }
 
-		shared_ptr<IEnumerable<ItemType> > Get() const
+		operator EnumerablePtr () const
+		{ return Get(); }
+
+		EnumerablePtr Get() const
 		{ return EnumerableFromStlContainer(*_container, _container); }
 
 		EnumerableBuilder& Add(ItemPassingType val)
