@@ -7,28 +7,26 @@
 
 #include <stingraykit/thread/posix/PosixConditionVariable.h>
 
-#include <stingraykit/ScopeExit.h>
-#include <stingraykit/Singleton.h>
-#include <stingraykit/reference.h>
 #include <stingraykit/thread/CancellationRegistrator.h>
-#include <stingraykit/time/posix/TimeEngine.h>
 #include <stingraykit/time/posix/utils.h>
+#include <stingraykit/Singleton.h>
 
 #include <errno.h>
 
 namespace stingray
 {
 
-	struct CancellationHolder : public CancellationRegistratorBase
+	class CancellationHolder : public CancellationRegistratorBase
 	{
-		struct CancellationHandler : public ICancellationHandler
+		class CancellationHandler : public ICancellationHandler
 		{
 		private:
 			const PosixMutex&		_mutex;
 			PosixConditionVariable&	_cond;
 
 		public:
-			CancellationHandler(const PosixMutex& mutex, PosixConditionVariable& cond) : _mutex(mutex), _cond(cond)
+			CancellationHandler(const PosixMutex& mutex, PosixConditionVariable& cond)
+				: _mutex(mutex), _cond(cond)
 			{ }
 
 			virtual ~CancellationHandler()
@@ -48,8 +46,8 @@ namespace stingray
 		CancellationHandler	_handler;
 
 	public:
-		CancellationHolder(const PosixMutex& mutex, PosixConditionVariable& cond, const ICancellationToken& token) :
-			CancellationRegistratorBase(token), _handler(mutex, cond)
+		CancellationHolder(const PosixMutex& mutex, PosixConditionVariable& cond, const ICancellationToken& token)
+			: CancellationRegistratorBase(token), _handler(mutex, cond)
 		{ Register(_handler); }
 
 		~CancellationHolder()
