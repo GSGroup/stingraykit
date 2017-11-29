@@ -119,8 +119,7 @@ namespace stingray
 	void PosixConditionVariable::Wait(const PosixMutex& mutex) const
 	{
 		int ret = pthread_cond_wait(&_cond, &mutex._rawMutex);
-		if (ret != 0)
-			STINGRAYKIT_THROW(SystemException("pthread_cond_wait", ret));
+		STINGRAYKIT_CHECK(ret == 0, SystemException("pthread_cond_wait", ret));
 	}
 
 
@@ -130,8 +129,7 @@ namespace stingray
 		posix::timespec_now(CLOCK_MONOTONIC, &t);
 		posix::timespec_add(&t, interval);
 		int ret = pthread_cond_timedwait(&_cond, &mutex._rawMutex, &t);
-		if (ret != 0 && ret != ETIMEDOUT)
-			STINGRAYKIT_THROW(SystemException("pthread_cond_timedwait", ret));
+		STINGRAYKIT_CHECK(ret == 0 || ret == ETIMEDOUT, SystemException("pthread_cond_timedwait", ret));
 
 		return ret != ETIMEDOUT;
 	}
@@ -140,8 +138,7 @@ namespace stingray
 	void PosixConditionVariable::Broadcast()
 	{
 		int ret = pthread_cond_broadcast(&_cond);
-		if (ret != 0)
-			STINGRAYKIT_THROW(SystemException("pthread_cond_broadcast", ret));
+		STINGRAYKIT_CHECK(ret == 0, SystemException("pthread_cond_broadcast", ret));
 	}
 
 }
