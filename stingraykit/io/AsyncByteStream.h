@@ -16,6 +16,7 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/Thread.h>
+#include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/thread/atomic.h>
 #include <stingraykit/toolkit.h>
 
@@ -455,7 +456,7 @@ namespace stingray
 			AsyncProfiler::Session profiler_session((_profiler ? _profiler : (_profiler = make_shared<AsyncProfiler>(StringBuilder() % "AsyncByteStream(" % _name % "):profiler"))), "'Sync'", 1000);
 			while (true)
 			{
-				_syncCondVar.TimedWait(_streamOpQueueMutex, TimeDuration::Second());
+				_syncCondVar.Wait(_streamOpQueueMutex, TimedCancellationToken(TimeDuration::Second()));
 				STINGRAYKIT_CHECK(!_wasException, StringBuilder() % _name % ": was exception while previous operation");
 				if (((ssize_t)(_syncDone - syncCurrent)) >= 0)
 					break;
@@ -477,7 +478,7 @@ namespace stingray
 					if (_streamOpQueue.empty())
 					{
 						if (token)
-							_condVar.TimedWait(_streamOpQueueMutex, TimeDuration::Second(), token);
+							_condVar.Wait(_streamOpQueueMutex, TimedCancellationToken(token, TimeDuration::Second()));
 						else
 							STINGRAYKIT_THROW(OperationCancelledException());
 
