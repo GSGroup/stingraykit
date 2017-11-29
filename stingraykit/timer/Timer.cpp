@@ -12,6 +12,7 @@
 #include <stingraykit/function/bind.h>
 #include <stingraykit/function/function_name_getter.h>
 #include <stingraykit/log/Logger.h>
+#include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/time/ElapsedTime.h>
 #include <stingraykit/FunctionToken.h>
 #include <stingraykit/TaskLifeToken.h>
@@ -279,7 +280,7 @@ namespace stingray
 				const TimeDuration waitTime = top->GetTimeToTrigger() - _monotonic.Elapsed();
 				top.reset();
 				if (waitTime > TimeDuration())
-					_cond.TimedWait(_queue->Sync(), waitTime, token);
+					_cond.Wait(_queue->Sync(), TimedCancellationToken(token, waitTime));
 			}
 		}
 
