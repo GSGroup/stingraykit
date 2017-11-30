@@ -842,8 +842,7 @@ namespace stingray
 	template <typename Enumerable_, typename Dst_>
 	struct CastTransformerImpl<shared_ptr<Enumerable_>, Dst_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
 	{
-		typedef typename Enumerable_::ItemType ItemType;
-		typedef shared_ptr<IEnumerable<ItemType> > ValueT;
+		typedef shared_ptr<IEnumerable<Dst_> > ValueT;
 
 		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const CastTransformer<Dst_>& action)
 		{ return Enumerable::Cast<Dst_>(enumerable); }
