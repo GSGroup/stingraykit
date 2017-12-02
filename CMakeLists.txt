@@ -133,6 +133,7 @@ set(stingraykit_SRC
 	stingraykit/thread/ThreadOperation.cpp
 	stingraykit/thread/ThreadPool.cpp
 	stingraykit/thread/ThreadTaskExecutor.cpp
+	stingraykit/thread/TimedCancellationToken.cpp
 
 	stingraykit/time/BrokenDownTime.cpp
 	stingraykit/time/ElapsedTime.cpp
