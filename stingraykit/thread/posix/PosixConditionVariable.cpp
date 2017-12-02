@@ -101,7 +101,11 @@ namespace stingray
 		CancellationHolder holder(mutex, *this, token);
 		if (holder.IsCancelled())
 			return;
-		Wait(mutex);
+
+		if (const optional<TimeDuration> timeout = token.GetTimeout())
+			TimedWait(mutex, *timeout);
+		else
+			Wait(mutex);
 	}
 
 
