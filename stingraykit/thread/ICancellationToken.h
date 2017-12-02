@@ -40,10 +40,11 @@ namespace stingray
 		virtual void Sleep(TimeDuration duration) const = 0;
 
 		virtual bool IsCancelled() const = 0;
+		virtual bool IsTimedOut() const = 0;
 
 		virtual optional<TimeDuration> GetTimeout() const = 0;
 
-		bool boolean_test() const { return !IsCancelled(); }
+		bool boolean_test() const { return !IsCancelled() && !IsTimedOut(); }
 
 	protected:
 		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const = 0;

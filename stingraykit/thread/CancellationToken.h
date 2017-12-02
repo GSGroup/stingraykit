@@ -60,6 +60,7 @@ namespace stingray
 		virtual void Sleep(TimeDuration duration) const;
 
 		virtual bool IsCancelled() const;
+		virtual bool IsTimedOut() const { return false; }
 
 		virtual optional<TimeDuration> GetTimeout() const { return null; }
 
