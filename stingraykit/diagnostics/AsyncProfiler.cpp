@@ -8,6 +8,7 @@
 #include <stingraykit/diagnostics/AsyncProfiler.h>
 
 #include <stingraykit/function/bind.h>
+#include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/time/TimeEngine.h>
 
 namespace stingray
@@ -97,7 +98,7 @@ namespace stingray
 			u64 timeNow = TimeEngine::GetMonotonicMicroseconds();
 			if (timeNow < top.GetAbsoluteTimeout())
 			{
-				_condition.TimedWait(_mutex, TimeDuration::FromMicroseconds(top.GetAbsoluteTimeout() - timeNow));
+				_condition.Wait(_mutex, TimedCancellationToken(TimeDuration::FromMicroseconds(top.GetAbsoluteTimeout() - timeNow)));
 				continue;
 			}
 
