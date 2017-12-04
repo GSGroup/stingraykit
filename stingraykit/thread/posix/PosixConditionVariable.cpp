@@ -58,6 +58,9 @@ namespace stingray
 			MutexUnlock ul(_handler.GetMutex());
 			Unregister(_handler);
 		}
+
+		bool Release()
+		{ return TryUnregister(_handler); }
 	};
 
 
@@ -96,16 +99,22 @@ namespace stingray
 	}
 
 
-	void PosixConditionVariable::Wait(const PosixMutex& mutex, const ICancellationToken& token)
+	ConditionWaitResult PosixConditionVariable::Wait(const PosixMutex& mutex, const ICancellationToken& token)
 	{
 		CancellationHolder holder(mutex, *this, token);
 		if (holder.IsCancelled())
-			return;
+			return ConditionWaitResult::Cancelled;
 
-		if (const optional<TimeDuration> timeout = token.GetTimeout())
-			TimedWait(mutex, *timeout);
-		else
+		const optional<TimeDuration> timeout = token.GetTimeout();
+		if (!timeout)
 			Wait(mutex);
+		else if (!TimedWait(mutex, *timeout))
+			return ConditionWaitResult::TimedOut;
+
+		if (!holder.Release())
+			return ConditionWaitResult::Cancelled;
+
+		return ConditionWaitResult::Broadcasted;
 	}
 
 

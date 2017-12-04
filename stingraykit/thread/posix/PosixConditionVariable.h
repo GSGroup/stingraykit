@@ -8,14 +8,27 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <pthread.h>
-
 #include <stingraykit/thread/posix/PosixThreadEngine.h>
 #include <stingraykit/thread/ICancellationToken.h>
 #include <stingraykit/time/Time.h>
 
+#include <pthread.h>
+
 namespace stingray
 {
+
+	struct ConditionWaitResult
+	{
+		STINGRAYKIT_ENUM_VALUES
+		(
+			Broadcasted,
+			Cancelled,
+			TimedOut
+		);
+
+		STINGRAYKIT_DECLARE_ENUM_CLASS(ConditionWaitResult);
+	};
+
 
 	class PosixConditionVariable
 	{
@@ -28,7 +41,7 @@ namespace stingray
 		PosixConditionVariable();
 		~PosixConditionVariable();
 
-		void Wait(const PosixMutex& mutex, const ICancellationToken& token);
+		ConditionWaitResult Wait(const PosixMutex& mutex, const ICancellationToken& token);
 		bool TimedWait(const PosixMutex& mutex, TimeDuration interval, const ICancellationToken& token);
 
 		void Wait(const PosixMutex& mutex) const;
@@ -38,6 +51,5 @@ namespace stingray
 	};
 
 }
-
 
 #endif
