@@ -372,7 +372,8 @@ namespace stingray
 			{
 				ParseResult result;
 				if (!StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%Z", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
-					return null;
+					if (!StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
+						return null;
 
 				return result;
 			}
