@@ -164,9 +164,6 @@ namespace stingray
 			future_status wait(const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_wait(token); }
 
-			future_status wait_for(TimeDuration duration, const ICancellationToken& token)
-			{ MutexLock l(_mutex); return do_timed_wait(duration, token); }
-
 			future_status wait_until(const Time& absTime, const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_timed_wait(absTime - Time::Now(), token); }
 
@@ -295,7 +292,6 @@ namespace stingray
 		ResultType get() const			{ check_valid(); return _impl->get(); }
 
 		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const							{ check_valid(); return _impl->wait(token); }
-		future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken()) const	{ check_valid(); return _impl->wait_for(duration, token); }
 		future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken()) const	{ check_valid(); return _impl->wait_until(absTime, token); }
 
 	private:
@@ -338,7 +334,6 @@ namespace stingray
 		}
 
 		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const							{ check_valid(); return _impl->wait(token); }
-		future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken()) const { check_valid(); return _impl->wait_for(duration, token); }
 		future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken()) const { check_valid(); return _impl->wait_until(absTime, token); }
 
 	private:
