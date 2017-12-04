@@ -33,7 +33,8 @@ namespace stingray
 	{
 		STINGRAYKIT_ENUM_VALUES(
 			ready,
-			timeout
+			timeout,
+			cancelled
 		);
 		STINGRAYKIT_DECLARE_ENUM_CLASS(future_status);
 	};
@@ -159,7 +160,9 @@ namespace stingray
 			bool is_ready() const						{ MutexLock l(_mutex); return _result.has_value() || _result.has_exception(); }
 			bool has_exception() const					{ MutexLock l(_mutex); return _result.has_exception(); }
 			bool has_value() const						{ MutexLock l(_mutex); return _result.has_value(); }
-			void wait(const ICancellationToken& token)	{ MutexLock l(_mutex); do_wait(token); }
+
+			future_status wait(const ICancellationToken& token)
+			{ MutexLock l(_mutex); return do_wait(token); }
 
 			future_status wait_for(TimeDuration duration, const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_timed_wait(duration, token); }
@@ -204,13 +207,17 @@ namespace stingray
 					_callback->invoke();
 			}
 
-			void do_wait(const ICancellationToken& token)
+			future_status do_wait(const ICancellationToken& token)
 			{
-				if(is_ready())
-					return;
+				while (!_result.has_value() && !_result.has_exception())
+					switch (_condition.Wait(_mutex, token))
+					{
+					case ConditionWaitResult::Broadcasted:	continue;
+					case ConditionWaitResult::Cancelled:	return future_status::cancelled;
+					case ConditionWaitResult::TimedOut:		return future_status::timeout;
+					}
 
-				while (!is_ready() && token)
-					_condition.Wait(_mutex, token);
+				return future_status::ready;
 			}
 
 			future_status do_timed_wait(TimeDuration duration, const ICancellationToken& token)
@@ -287,7 +294,7 @@ namespace stingray
 
 		ResultType get() const			{ check_valid(); return _impl->get(); }
 
-		void wait(const ICancellationToken& token = DummyCancellationToken()) const										{ check_valid(); _impl->wait(token); }
+		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const							{ check_valid(); return _impl->wait(token); }
 		future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken()) const	{ check_valid(); return _impl->wait_for(duration, token); }
 		future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken()) const	{ check_valid(); return _impl->wait_until(absTime, token); }
 
@@ -330,7 +337,7 @@ namespace stingray
 			return impl->get();
 		}
 
-		void wait(const ICancellationToken& token = DummyCancellationToken()) const                                     { check_valid(); _impl->wait(token); }
+		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const							{ check_valid(); return _impl->wait(token); }
 		future_status wait_for(TimeDuration duration, const ICancellationToken& token = DummyCancellationToken()) const { check_valid(); return _impl->wait_for(duration, token); }
 		future_status wait_until(const Time& absTime, const ICancellationToken& token = DummyCancellationToken()) const { check_valid(); return _impl->wait_until(absTime, token); }
 
