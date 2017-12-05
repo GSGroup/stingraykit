@@ -5,7 +5,7 @@
 #include <stingraykit/function/functional.h>
 #include <stingraykit/io/IPipe.h>
 #include <stingraykit/thread/ConditionVariable.h>
-#include <stingraykit/time/ElapsedTime.h>
+#include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/ScopeExit.h>
 
 namespace stingray
@@ -26,15 +26,15 @@ namespace stingray
 		{
 			MutexLock l(_guard);
 
-			ElapsedTime et;
-			while (!_data && token)
-			{
-				if (!timeout)
-					_full.Wait(_guard, token);
-				else
-					STINGRAYKIT_CHECK(_full.TimedWait(_guard, *timeout - et.Elapsed(), token) || _data, TimeoutException());
-			}
-			STINGRAYKIT_CHECK(token, OperationCancelledException());
+			const ICancellationToken& timedToken = timeout ? (const ICancellationToken&)TimedCancellationToken(token, *timeout) : token;
+
+			while (!_data)
+				switch (_full.Wait(_guard, timedToken))
+				{
+				case ConditionWaitResult::Broadcasted:	continue;
+				case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
+				case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
+				}
 
 			const size_t size = std::min(data.size(), _data->size());
 			std::copy(_data->begin(), _data->begin() + size, data.data());
@@ -55,15 +55,15 @@ namespace stingray
 
 			ScopeExitInvoker sei(bind(make_assigner(_data), null));
 
-			ElapsedTime et;
-			while (_data && token)
-			{
-				if (!timeout)
-					_empty.Wait(_guard, token);
-				else
-					STINGRAYKIT_CHECK(_empty.TimedWait(_guard, *timeout - et.Elapsed(), token) || !_data, TimeoutException());
-			}
-			STINGRAYKIT_CHECK(token, OperationCancelledException());
+			const ICancellationToken& timedToken = timeout ? (const ICancellationToken&)TimedCancellationToken(token, *timeout) : token;
+
+			while (_data)
+				switch (_empty.Wait(_guard, timedToken))
+				{
+				case ConditionWaitResult::Broadcasted:	continue;
+				case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
+				case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
+				}
 
 			sei.Cancel();
 
