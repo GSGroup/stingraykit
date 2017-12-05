@@ -1,9 +1,12 @@
 #ifndef STINGRAYKIT_IO_BITHREADPIPE_H
 #define STINGRAYKIT_IO_BITHREADPIPE_H
 
+#include <stingraykit/function/bind.h>
+#include <stingraykit/function/functional.h>
 #include <stingraykit/io/IPipe.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/time/ElapsedTime.h>
+#include <stingraykit/ScopeExit.h>
 
 namespace stingray
 {
@@ -50,23 +53,19 @@ namespace stingray
 			_data = data;
 			_full.Broadcast();
 
-			try
+			ScopeExitInvoker sei(bind(make_assigner(_data), null));
+
+			ElapsedTime et;
+			while (_data && token)
 			{
-				ElapsedTime et;
-				while (_data && token)
-				{
-					if (!timeout)
-						_empty.Wait(_guard, token);
-					else
-						STINGRAYKIT_CHECK(_empty.TimedWait(_guard, *timeout - et.Elapsed(), token) || !_data, TimeoutException());
-				}
-				STINGRAYKIT_CHECK(token, OperationCancelledException());
+				if (!timeout)
+					_empty.Wait(_guard, token);
+				else
+					STINGRAYKIT_CHECK(_empty.TimedWait(_guard, *timeout - et.Elapsed(), token) || !_data, TimeoutException());
 			}
-			catch (const std::exception&)
-			{
-				_data = null;
-				throw;
-			}
+			STINGRAYKIT_CHECK(token, OperationCancelledException());
+
+			sei.Cancel();
 
 			return data.size();
 		}
