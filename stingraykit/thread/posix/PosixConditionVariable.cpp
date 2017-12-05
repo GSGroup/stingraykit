@@ -118,15 +118,6 @@ namespace stingray
 	}
 
 
-	bool PosixConditionVariable::TimedWait(const PosixMutex& mutex, TimeDuration interval, const ICancellationToken& token)
-	{
-		CancellationHolder holder(mutex, *this, token);
-		if (holder.IsCancelled())
-			return true;
-		return TimedWait(mutex, interval);
-	}
-
-
 	void PosixConditionVariable::Wait(const PosixMutex& mutex) const
 	{
 		int ret = pthread_cond_wait(&_cond, &mutex._rawMutex);
