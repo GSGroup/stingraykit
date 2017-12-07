@@ -16,7 +16,7 @@ namespace stingray
 	struct DummyCancellationToken : public ICancellationToken
 	{
 	public:
-		virtual bool Sleep(TimeDuration duration) const;
+		virtual bool Sleep(optional<TimeDuration> duration) const;
 
 		virtual bool IsCancelled() const					{ return false; }
 		virtual bool IsTimedOut() const 					{ return false; }

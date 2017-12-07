@@ -37,7 +37,7 @@ namespace stingray
 		virtual ~ICancellationToken() { }
 
 	public:
-		virtual bool Sleep(TimeDuration duration) const = 0;
+		virtual bool Sleep(optional<TimeDuration> duration) const = 0;
 
 		virtual bool IsCancelled() const = 0;
 		virtual bool IsTimedOut() const = 0;

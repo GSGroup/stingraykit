@@ -33,4 +33,18 @@ namespace stingray
 			_registrator(_token)
 	{ }
 
+
+	bool TimedCancellationToken::Sleep(optional<TimeDuration> duration) const
+	{
+		const TimeDuration remaining = _remaining.Remaining();
+
+		if (!duration || remaining < *duration)
+		{
+			_token.Sleep(remaining);
+			return false;
+		}
+
+		return _token.Sleep(duration);
+	}
+
 }

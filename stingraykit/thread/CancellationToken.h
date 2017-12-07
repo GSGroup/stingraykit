@@ -37,7 +37,7 @@ namespace stingray
 			void Cancel();
 			void Reset();
 
-			bool Sleep(TimeDuration duration) const;
+			bool Sleep(optional<TimeDuration> duration) const;
 
 			bool IsCancelled() const;
 
@@ -57,7 +57,7 @@ namespace stingray
 
 		Token GetCancellator() const;
 
-		virtual bool Sleep(TimeDuration duration) const;
+		virtual bool Sleep(optional<TimeDuration> duration) const;
 
 		virtual bool IsCancelled() const;
 		virtual bool IsTimedOut() const { return false; }

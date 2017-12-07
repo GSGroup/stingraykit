@@ -54,7 +54,7 @@ namespace stingray
 
 		virtual ~TimedCancellationToken() { }
 
-		virtual bool Sleep(TimeDuration duration) const			{ return _token.Sleep(std::min(_remaining.Remaining(), duration)); }
+		virtual bool Sleep(optional<TimeDuration> duration) const;
 
 		virtual bool IsCancelled() const						{ return _token.IsCancelled(); }
 		virtual bool IsTimedOut() const							{ return _remaining.Expired(); }

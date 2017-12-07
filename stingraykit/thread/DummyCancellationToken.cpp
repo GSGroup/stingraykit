@@ -13,9 +13,10 @@
 namespace stingray
 {
 
-	bool DummyCancellationToken::Sleep(TimeDuration duration) const
+	bool DummyCancellationToken::Sleep(optional<TimeDuration> duration) const
 	{
-		Thread::Sleep(duration);
+		STINGRAYKIT_CHECK(duration, ArgumentException("duration", duration));
+		Thread::Sleep(*duration);
 		return true;
 	}
 
