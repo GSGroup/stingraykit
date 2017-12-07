@@ -52,13 +52,13 @@ namespace stingray
 	}
 
 
-	void CancellationToken::Impl::Sleep(TimeDuration duration) const
+	bool CancellationToken::Impl::Sleep(TimeDuration duration) const
 	{
 		MutexLock l(_mutex);
 		if (_cancelled)
-			return;
+			return false;
 
-		_cond.TimedWait(_mutex, duration);
+		return !_cond.TimedWait(_mutex, duration);
 	}
 
 
@@ -118,8 +118,8 @@ namespace stingray
 	{ return MakeToken<FunctionToken>(bind(&Impl::Cancel, _impl)); }
 
 
-	void CancellationToken::Sleep(TimeDuration duration) const
-	{ _impl->Sleep(duration); }
+	bool CancellationToken::Sleep(TimeDuration duration) const
+	{ return _impl->Sleep(duration); }
 
 
 	bool CancellationToken::IsCancelled() const
