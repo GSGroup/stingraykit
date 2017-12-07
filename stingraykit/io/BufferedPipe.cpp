@@ -6,7 +6,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/io/BufferedPipe.h>
-#include <stingraykit/thread/TimedCancellationToken.h>
 
 namespace stingray
 {
@@ -16,11 +15,11 @@ namespace stingray
 	{ }
 
 
-	u64 BufferedPipe::Read(ByteData data, const ICancellationToken& token, const optional<TimeDuration>& timeout)
+	u64 BufferedPipe::Read(ByteData data, const ICancellationToken& token)
 	{
 		if (_bufferOffset == _bufferSize)
 		{
-			const size_t size = _pipe->Read(_buffer.GetByteData(), timeout ? const_ref(TimedCancellationToken(token, *timeout)) : token);
+			const size_t size = _pipe->Read(_buffer.GetByteData(), token);
 			if (size == 0)
 				return 0;
 
@@ -36,7 +35,7 @@ namespace stingray
 	}
 
 
-	u64 BufferedPipe::Write(ConstByteData data, const ICancellationToken& token, const optional<TimeDuration>& timeout)
-	{ return _pipe->Write(data, timeout ? const_ref(TimedCancellationToken(token, *timeout)) : token); }
+	u64 BufferedPipe::Write(ConstByteData data, const ICancellationToken& token)
+	{ return _pipe->Write(data, token); }
 
 }

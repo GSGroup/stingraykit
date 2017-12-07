@@ -5,7 +5,6 @@
 #include <stingraykit/function/functional.h>
 #include <stingraykit/io/IPipe.h>
 #include <stingraykit/thread/ConditionVariable.h>
-#include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/ScopeExit.h>
 
 namespace stingray
@@ -22,14 +21,12 @@ namespace stingray
 		optional<ConstByteData>	_data;
 
 	public:
-		virtual u64 Read(ByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout = null)
+		virtual u64 Read(ByteData data, const ICancellationToken& token = DummyCancellationToken())
 		{
 			MutexLock l(_guard);
 
-			const ICancellationToken& timedToken = timeout ? (const ICancellationToken&)TimedCancellationToken(token, *timeout) : token;
-
 			while (!_data)
-				switch (_full.Wait(_guard, timedToken))
+				switch (_full.Wait(_guard, token))
 				{
 				case ConditionWaitResult::Broadcasted:	continue;
 				case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
@@ -46,7 +43,7 @@ namespace stingray
 			return size;
 		}
 
-		virtual u64 Write(ConstByteData data, const ICancellationToken& token = DummyCancellationToken(), const optional<TimeDuration>& timeout = null)
+		virtual u64 Write(ConstByteData data, const ICancellationToken& token = DummyCancellationToken())
 		{
 			MutexLock l(_guard);
 
@@ -55,10 +52,8 @@ namespace stingray
 
 			ScopeExitInvoker sei(bind(make_assigner(_data), null));
 
-			const ICancellationToken& timedToken = timeout ? (const ICancellationToken&)TimedCancellationToken(token, *timeout) : token;
-
 			while (_data)
-				switch (_empty.Wait(_guard, timedToken))
+				switch (_empty.Wait(_guard, token))
 				{
 				case ConditionWaitResult::Broadcasted:	continue;
 				case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());

@@ -22,7 +22,7 @@ namespace stingray
 		explicit PipeReader(const IPipePtr& pipe);
 
 		size_t Read(ByteData data, const ICancellationToken& token)
-		{ return _pipe->Read(data, token, token.GetTimeout()); }
+		{ return _pipe->Read(data, token); }
 
 		u8 ReadByte(const ICancellationToken& token);
 
