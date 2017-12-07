@@ -36,8 +36,8 @@ namespace stingray
 
 	////////////////////////////////////////
 
-	Thread::Thread(const std::string& name, const FuncType& threadFunc)
-	{ _thread = ThreadEngine::BeginThread(threadFunc, name); }
+	Thread::Thread(const std::string& name, const FuncType& threadFunc, optional<TimeDuration> timeout)
+	{ _thread = ThreadEngine::BeginThread(threadFunc, name, timeout); }
 
 
 	Thread::~Thread()

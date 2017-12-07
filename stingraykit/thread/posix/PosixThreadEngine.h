@@ -65,7 +65,7 @@ namespace stingray
 		typedef PosixCallOnce::OnceNativeType				OnceNativeType;
 
 	public:
-		static IThreadPtr BeginThread(const FuncType& func, const std::string& name);
+		static IThreadPtr BeginThread(const FuncType& func, const std::string& name, optional<TimeDuration> timeout = null);
 		static void Yield();
 		static inline void Sleep(u32 milliseconds)
 		{ SleepMicroseconds(1000u * (u64)milliseconds); }

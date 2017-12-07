@@ -121,7 +121,7 @@ namespace stingray
 		IThreadPtr		_thread;
 
 	public:
-		explicit Thread(const std::string& name, const FuncType& threadFunc);
+		explicit Thread(const std::string& name, const FuncType& threadFunc, optional<TimeDuration> timeout = null);
 		~Thread();
 
 		void Interrupt();

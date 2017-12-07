@@ -28,6 +28,7 @@
 #include <stingraykit/thread/posix/PosixThreadStats.h>
 #include <stingraykit/thread/posix/SignalHandler.h>
 #include <stingraykit/thread/posix/ThreadLocal.h>
+#include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/time/posix/utils.h>
 #include <stingraykit/unique_ptr.h>
 
@@ -399,6 +400,7 @@ namespace stingray
 		function<void (const ICancellationToken&)>	_func;
 		std::string									_name;
 		ThreadDataStoragePtr						_parent;
+		optional<TimeDuration>						_timeout;
 
 		PosixMutex									_mutex;
 		PosixConditionVariable						_cv;
@@ -411,8 +413,8 @@ namespace stingray
 		TaskLifeToken								_lifeToken;
 
 	public:
-		PosixThread(const function<void (const ICancellationToken&)>& func, const std::string& name, const ThreadDataStoragePtr& parent) :
-			_func(func), _name(name), _parent(parent), _started(false), _exited(false)
+		PosixThread(const function<void (const ICancellationToken&)>& func, const std::string& name, const ThreadDataStoragePtr& parent, optional<TimeDuration> timeout)
+			: _func(func), _name(name), _parent(parent), _timeout(timeout), _started(false), _exited(false)
 		{
 			pthread_t id;
 			int ret = pthread_create(&id, &PosixThreadAttr::Get()->Get(), &PosixThread::ThreadFuncStatic, this);
@@ -578,7 +580,7 @@ namespace stingray
 				PTELogger.Debug() << "Entered threadfunc of thread '" << _data->GetThreadName() << "' with tid = " << GetKernelId();
 				ScopeExitInvoker sei(bind(&PosixThread::ThreadFuncExited, this));
 
-				_func(_token); // Execute!
+				_timeout ? _func(TimedCancellationToken(_token, *_timeout)) : _func(_token);
 			}
 			catch (const std::exception& ex)
 			{
@@ -617,10 +619,10 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(PosixThread);
 
 
-	IThreadPtr PosixThreadEngine::BeginThread(const FuncType& func, const std::string& name)
+	IThreadPtr PosixThreadEngine::BeginThread(const FuncType& func, const std::string& name, optional<TimeDuration> timeout)
 	{
 		ThreadDataStoragePtr parent = ThreadDataHolder::Get();
-		return make_shared<PosixThread>(func, name, parent);
+		return make_shared<PosixThread>(func, name, parent, timeout);
 	}
 
 
