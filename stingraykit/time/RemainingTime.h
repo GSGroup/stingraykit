@@ -17,8 +17,13 @@ namespace stingray
 
 		void Restart()					{ _elapsed.Restart(); }
 
-		TimeDuration Remaining() const	{ return _timeout - _elapsed.Elapsed(); }
-		bool Expired() const			{ return Remaining() <= TimeDuration(); }
+		TimeDuration Remaining() const
+		{
+			const TimeDuration elapsed = _elapsed.Elapsed();
+			return _timeout > elapsed ? _timeout - elapsed : TimeDuration();
+		}
+
+		bool Expired() const			{ return _timeout <= _elapsed.Elapsed(); }
 	};
 
 }
