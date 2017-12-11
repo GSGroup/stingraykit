@@ -59,14 +59,6 @@ namespace stingray
 	{ static const bool Value = true; };
 
 
-	template < typename T >
-	struct GetPointedType;
-
-	template < typename T >
-	struct GetPointedType<T *>
-	{ typedef T ValueT; };
-
-
 	template <typename T>
 	struct StaticAssertCompleteType : CompileTimeAssert<sizeof(T) == sizeof(T)>
 	{ };
