@@ -73,10 +73,6 @@ namespace stingray
 	struct AddConstReference<T&>
 	{ typedef const T&	ValueT; };
 
-	template < typename T >
-	struct AddConstReference<const T&>
-	{ typedef const T&	ValueT; };
-
 
 	template < typename T >
 	struct AddConstPointer
