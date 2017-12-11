@@ -37,7 +37,7 @@ namespace stingray
 			bool UnregisterCancellationHandler()
 			{
 				Unregister(*_handler);
-				return !IsCancelled();
+				return true;
 			}
 		};
 
