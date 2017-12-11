@@ -28,6 +28,8 @@ namespace stingray
 	template < typename T > struct RemovePointer					{ typedef T ValueT; };
 	template < typename T > struct RemovePointer<T*>				{ typedef T ValueT; };
 	template < typename T > struct RemovePointer<T* const>			{ typedef T ValueT; };
+	template < typename T > struct RemovePointer<T* volatile>		{ typedef T ValueT; };
+	template < typename T > struct RemovePointer<T* const volatile>	{ typedef T ValueT; };
 
 // Array
 	template < typename T > struct RemoveExtent						{ typedef T ValueT; };
