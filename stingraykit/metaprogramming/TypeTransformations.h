@@ -17,66 +17,28 @@ namespace stingray
 {
 
 // Const-volatile
-	template<typename T>
-	struct RemoveConst
-	{ typedef T ValueT; };
-
-	template<typename T>
-	struct RemoveConst<const T>
-	{ typedef T ValueT; };
-
+	template < typename T > struct RemoveConst						{ typedef T ValueT; };
+	template < typename T > struct RemoveConst<const T>				{ typedef T ValueT; };
 
 // Reference
-	template < typename T >
-	struct RemoveReference
-	{ typedef T	ValueT; };
-
-	template < typename T >
-	struct RemoveReference<T&>
-	{ typedef T	ValueT; };
-
+	template < typename T > struct RemoveReference					{ typedef T ValueT; };
+	template < typename T > struct RemoveReference<T&>				{ typedef T ValueT; };
 
 // Pointer
-	template < typename T >
-	struct RemovePointer
-	{ typedef T	ValueT; };
-
-	template < typename T >
-	struct RemovePointer<T*>
-	{ typedef T	ValueT; };
-
-	template < typename T >
-	struct RemovePointer<T* const>
-	{ typedef T	ValueT; };
-
+	template < typename T > struct RemovePointer					{ typedef T ValueT; };
+	template < typename T > struct RemovePointer<T*>				{ typedef T ValueT; };
+	template < typename T > struct RemovePointer<T* const>			{ typedef T ValueT; };
 
 // Array
-	template <typename T>
-	struct RemoveExtent
-	{ typedef T ValueT; };
-
-	template <typename T>
-	struct RemoveExtent<T[]>
-	{ typedef T ValueT; };
-
-	template <typename T, size_t N>
-	struct RemoveExtent<T[N]>
-	{ typedef T ValueT; };
-
+	template < typename T > struct RemoveExtent						{ typedef T ValueT; };
+	template < typename T > struct RemoveExtent<T[]>				{ typedef T ValueT; };
+	template < typename T, size_t N> struct RemoveExtent<T[N]>		{ typedef T ValueT; };
 
 // Miscellaneous transformations
-	template < typename T >
-	struct AddConstReference
-	{ typedef const T&	ValueT; };
+	template < typename T > struct AddConstReference				{ typedef const T& ValueT; };
+	template < typename T > struct AddConstReference<T&>			{ typedef const T& ValueT; };
 
-	template < typename T >
-	struct AddConstReference<T&>
-	{ typedef const T&	ValueT; };
-
-
-	template < typename T >
-	struct AddConstPointer
-	{ typedef const T*	ValueT; };
+	template < typename T > struct AddConstPointer					{ typedef const T* ValueT; };
 
 }
 
