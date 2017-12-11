@@ -61,7 +61,7 @@ namespace stingray
 		typedef DataJoinerIterator<ContainersTypeList> MyType;
 		typedef iterator_base<DataJoinerIterator<ContainersTypeList>, const u8, std::random_access_iterator_tag> base;
 
-		typedef typename TypeListTransform<ContainersTypeList, GetConstPointerType>::ValueT ConstContainersPtr;
+		typedef typename TypeListTransform<ContainersTypeList, AddConstPointer>::ValueT ConstContainersPtr;
 
 		typedef typename TypeListTransform<ContainersTypeList, Detail::ConstIteratorGetter>::ValueT IteratorsList;
 		typedef typename Detail::TypeListIndexer<IteratorsList>::ValueT IndexedIterators;
@@ -209,7 +209,7 @@ namespace stingray
 	struct DataJoiner
 	{
 	private:
-		typedef typename TypeListTransform<ContainersTypeList, GetConstPointerType>::ValueT ConstContainersPtr;
+		typedef typename TypeListTransform<ContainersTypeList, AddConstPointer>::ValueT ConstContainersPtr;
 
 		static const size_t ContainersCount = GetTypeListLength<ContainersTypeList>::Value;
 

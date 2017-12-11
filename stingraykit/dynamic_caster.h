@@ -49,7 +49,7 @@ namespace stingray
 		{
 			static DstReference_ Do(Src_& src)
 			{
-				typedef typename Dereference<DstReference_>::ValueT Dst_;
+				typedef typename RemoveReference<DstReference_>::ValueT Dst_;
 				Dst_* dst = PointersCaster<Src_, Dst_>::Do(&src);
 				STINGRAYKIT_CHECK(dst, InvalidCastException(TypeInfo(src).GetName(), TypeInfo(typeid(Dst_)).GetName()));
 				return *dst;
@@ -61,7 +61,7 @@ namespace stingray
 		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<IsPointer<SrcPtr_>::Value && IsPointer<DstPtr_>::Value, void>::ValueT>
 		{
 			static DstPtr_ Do(SrcPtr_ src)
-			{ return PointersCaster<typename Depointer<SrcPtr_>::ValueT, typename Depointer<DstPtr_>::ValueT>::Do(src); }
+			{ return PointersCaster<typename RemovePointer<SrcPtr_>::ValueT, typename RemovePointer<DstPtr_>::ValueT>::Do(src); }
 		};
 
 

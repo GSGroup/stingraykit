@@ -250,7 +250,7 @@ namespace stingray
 	template < typename BaseType, typename DerivedType, typename ValueType >
 	ValueType ApplyVisitor(IVisitor<BaseType, ValueType>& visitor, DerivedType& visitable)
 	{
-		typedef typename Deconst<BaseType>::ValueT RawBaseType;
+		typedef typename RemoveConst<BaseType>::ValueT RawBaseType;
 		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
 
 		static_cast<IVisitableBaseType&>(visitable).Accept(visitor);
@@ -261,7 +261,7 @@ namespace stingray
 	template < typename BaseType, typename DerivedType, typename ValueType >
 	ValueType ApplyVisitor(IVisitorByPtr<BaseType, ValueType>& visitor, const shared_ptr<DerivedType>& visitable)
 	{
-		typedef typename Deconst<BaseType>::ValueT RawBaseType;
+		typedef typename RemoveConst<BaseType>::ValueT RawBaseType;
 		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
 
 		STINGRAYKIT_CHECK(visitable, NullArgumentException("visitable"));

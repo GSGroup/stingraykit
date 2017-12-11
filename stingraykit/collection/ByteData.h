@@ -118,7 +118,7 @@ namespace stingray
 		template < typename U >
 		friend class BasicByteArray;
 
-		typedef typename Deconst<T>::ValueT NonConstType;
+		typedef typename RemoveConst<T>::ValueT NonConstType;
 
 	public:
 		typedef typename

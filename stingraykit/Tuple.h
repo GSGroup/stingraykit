@@ -91,8 +91,8 @@ namespace stingray
 
 
 		typename GetParamPassingType<ValueType>::ValueT GetHead() const { return _val; }
-		typename Dereference<ValueType>::ValueT& GetHead() { return _val; }
-		void SetHead(typename GetConstReferenceType<ValueType>::ValueT val) { _val = val; }
+		typename RemoveReference<ValueType>::ValueT& GetHead() { return _val; }
+		void SetHead(typename AddConstReference<ValueType>::ValueT val) { _val = val; }
 		const Tail& GetTail() const { return _tail; }
 		Tail& GetTail() { return _tail; }
 
@@ -121,7 +121,7 @@ namespace stingray
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(*this); }
 
 		template < size_t Index >
-		void Set(typename GetConstReferenceType<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT val)
+		void Set(typename AddConstReference<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT val)
 		{ Detail::TupleItemGetter<Tuple, Index>::Set(*this, val); }
 	};
 
@@ -184,11 +184,11 @@ namespace stingray
 			Get(const Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
-			static typename Dereference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT&
+			static typename RemoveReference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT&
 			Get(Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
-			static void Set(Tuple_& tuple, typename GetConstReferenceType<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT val)
+			static void Set(Tuple_& tuple, typename AddConstReference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT val)
 			{ TupleItemGetter<typename Tuple_::Tail, Index - 1>::Set(tuple.GetTail(), val); }
 		};
 
@@ -199,11 +199,11 @@ namespace stingray
 			Get(const Tuple_& tuple)
 			{ return tuple.GetHead(); }
 
-			static typename Dereference<typename Tuple_::ValueType>::ValueT&
+			static typename RemoveReference<typename Tuple_::ValueType>::ValueT&
 			Get(Tuple_& tuple)
 			{ return tuple.GetHead(); }
 
-			static void Set(Tuple_& tuple, typename GetConstReferenceType<typename Tuple_::ValueType>::ValueT val)
+			static void Set(Tuple_& tuple, typename AddConstReference<typename Tuple_::ValueType>::ValueT val)
 			{ tuple.SetHead(val); }
 		};
 	}

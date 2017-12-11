@@ -19,7 +19,7 @@ namespace stingray
 	{
 		typedef KeyType_											KeyType;
 		typedef ValueType_											ValueType;
-		typedef typename GetConstReferenceType<ValueType>::ValueT	ConstValueTypeRef;
+		typedef typename AddConstReference<ValueType>::ValueT		ConstValueTypeRef;
 
 		typedef IDictionary<KeyType_, ValueType_>					SrcDictionary;
 		typedef typename SrcDictionary::PairType					PairType;

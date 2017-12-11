@@ -125,7 +125,7 @@ namespace stingray
 	private:
 		template< typename ParamTypeList >
 		typename base::RetType Do(const Tuple<ParamTypeList>& params) const
-		{ return base::DoAddTask(Detail::Binder<typename TypeListTransform<ParamTypeList, Dereference>::ValueT, FunctorType>(this->_func, params)); }
+		{ return base::DoAddTask(Detail::Binder<typename TypeListTransform<ParamTypeList, RemoveReference>::ValueT, FunctorType>(this->_func, params)); }
 	};
 
 

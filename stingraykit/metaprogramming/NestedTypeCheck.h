@@ -21,7 +21,7 @@ namespace stingray
 	template < typename T > \
 	class HasNestedType_##NestedType_ \
 	{ \
-		template < typename U > static YesType deduce(IntToType<sizeof(typename Dereference<typename U::NestedType_>::ValueT*)>*); \
+		template < typename U > static YesType deduce(IntToType<sizeof(typename RemoveReference<typename U::NestedType_>::ValueT*)>*); \
 		template < typename U > static NoType deduce(...); \
 		\
 	public: \

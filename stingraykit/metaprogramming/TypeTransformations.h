@@ -17,41 +17,48 @@ namespace stingray
 {
 
 	template < typename T >
-	struct GetConstReferenceType
+	struct AddConstReference
 	{ typedef const T&	ValueT; };
 
 	template < typename T >
-	struct GetConstReferenceType<T&>
+	struct AddConstReference<T&>
 	{ typedef const T&	ValueT; };
 
 	template < typename T >
-	struct GetConstReferenceType<const T&>
+	struct AddConstReference<const T&>
 	{ typedef const T&	ValueT; };
 
 	template < typename T >
-	struct GetConstPointerType
+	struct AddConstPointer
 	{ typedef const T*	ValueT; };
 
 	template < typename T >
-	struct Dereference { typedef T	ValueT; };
+	struct RemoveReference
+	{ typedef T	ValueT; };
 
 	template < typename T >
-	struct Dereference<T&> { typedef T	ValueT; };
+	struct RemoveReference<T&>
+	{ typedef T	ValueT; };
 
 	template < typename T >
-	struct Depointer { typedef T	ValueT; };
+	struct RemovePointer
+	{ typedef T	ValueT; };
 
 	template < typename T >
-	struct Depointer<T*> { typedef T	ValueT; };
+	struct RemovePointer<T*>
+	{ typedef T	ValueT; };
 
 	template < typename T >
-	struct Depointer<T* const> { typedef T	ValueT; };
+	struct RemovePointer<T* const>
+	{ typedef T	ValueT; };
 
 	template<typename T>
-	struct Deconst { typedef T ValueT; };
+	struct RemoveConst
+	{ typedef T ValueT; };
 
 	template<typename T>
-	struct Deconst<const T> { typedef T ValueT; };
+	struct RemoveConst<const T>
+	{ typedef T ValueT; };
 
 
 	template <typename T>

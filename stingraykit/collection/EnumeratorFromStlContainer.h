@@ -28,7 +28,7 @@ namespace stingray
 	{
 		template < typename IteratorType >
 		struct ValueTypeFromIteratorType
-		{ typedef typename Deconst<typename std::iterator_traits<IteratorType>::value_type>::ValueT	ValueT; };
+		{ typedef typename RemoveConst<typename std::iterator_traits<IteratorType>::value_type>::ValueT	ValueT; };
 
 		template < typename IteratorType >
 		struct EnumeratorTypeFromIteratorType

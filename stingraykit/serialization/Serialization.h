@@ -630,11 +630,11 @@ namespace stingray
 
 		template<typename T>
 		struct ValueTypeDeconstHelper
-		{ typedef typename Deconst<T>::ValueT ValueT; };
+		{ typedef typename RemoveConst<T>::ValueT ValueT; };
 
 		template<typename K, typename V>
 		struct ValueTypeDeconstHelper<std::pair<K, V> >
-		{ typedef std::pair<typename Deconst<K>::ValueT, typename Deconst<V>::ValueT> ValueT; };
+		{ typedef std::pair<typename RemoveConst<K>::ValueT, typename RemoveConst<V>::ValueT> ValueT; };
 
 		template< typename CollectionType>
 		struct CollectionDeserializer<CollectionType, 3 /*insert*/>
@@ -754,7 +754,7 @@ namespace stingray
 		template<typename K, typename V>
 		void deserialize_pair(IObjectSerializator *owner, std::map<K, V> & collection, SettingsValue& src)
 		{
-			typedef std::pair<typename Deconst<K>::ValueT, typename Deconst<V>::ValueT> value_type;
+			typedef std::pair<typename RemoveConst<K>::ValueT, typename RemoveConst<V>::ValueT> value_type;
 			value_type value;
 			ObjectIStream(&src, owner, _context).Deserialize(value);
 			collection.insert(value);
@@ -861,7 +861,7 @@ namespace stingray
 		template<typename T>
 		ObjectIStream& deserialize(BasicBytesOwner<T>& data)
 		{
-			std::vector<typename Deconst<T>::ValueT> proxy(data.begin(), data.end());
+			std::vector<typename RemoveConst<T>::ValueT> proxy(data.begin(), data.end());
 			deserialize(proxy);
 			data = BasicBytesOwner<T>::Create(proxy);
 			return *this;

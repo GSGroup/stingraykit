@@ -230,11 +230,11 @@ namespace stingray
 			template<typename R>
 			operator typename EnableIf
 			<
-				IsIntType<typename Deconst<typename Dereference<R>::ValueT>::ValueT>::Value,
-				typename Deconst<typename Dereference<R>::ValueT>::ValueT
+				IsIntType<typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT>::Value,
+				typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT
 			>::ValueT () const
 			{
-				typedef typename Deconst<typename Dereference<R>::ValueT>::ValueT ValueType;
+				typedef typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT ValueType;
 				return FromString<ValueType>(_ref.str());
 			}
 */
@@ -435,7 +435,7 @@ namespace stingray
 				{
 					STINGRAYKIT_CHECK(range->Valid(), "not enough data to fill output range");
 					Type ptr = tuple.template Get<Index>();
-					*ptr = lexical_cast<typename Depointer<Type>::ValueT>(range->Get());
+					*ptr = lexical_cast<typename RemovePointer<Type>::ValueT>(range->Get());
 					range->Next();
 				}
 			};

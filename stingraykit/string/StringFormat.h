@@ -88,14 +88,14 @@ namespace stingray
 	template < TypesDecl_ > \
 	static void StringFormat(string_ostream & ss, const std::string& format, ParamsDecl_) \
 	{ \
-		typedef typename TypeListTransform<TypeList_##N_<TypesUsage_>, GetConstReferenceType>::ValueT TupleParams; \
+		typedef typename TypeListTransform<TypeList_##N_<TypesUsage_>, AddConstReference>::ValueT TupleParams; \
 		StringFormat(ss, format, Tuple<TupleParams>(ParamsUsage_)); \
 	} \
 	template < TypesDecl_ > \
 	static std::string StringFormat(const std::string& format, ParamsDecl_) \
 	{ \
 		string_ostream ss; \
-		typedef typename TypeListTransform<TypeList_##N_<TypesUsage_>, GetConstReferenceType>::ValueT TupleParams; \
+		typedef typename TypeListTransform<TypeList_##N_<TypesUsage_>, AddConstReference>::ValueT TupleParams; \
 		StringFormat(ss, format, Tuple<TupleParams>(ParamsUsage_)); \
 		return ss.str(); \
 	}

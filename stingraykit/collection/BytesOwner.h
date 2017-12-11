@@ -32,7 +32,7 @@ namespace stingray
 		};
 
 		typedef BasicByteData<T>							DataType;
-		typedef typename Deconst<T>::ValueT					DeconstT;
+		typedef typename RemoveConst<T>::ValueT				DeconstT;
 
 	public:
 		typedef T											value_type;

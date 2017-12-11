@@ -43,7 +43,7 @@ namespace stingray
 	template < typename T >
 	class GetParamPassingType
 	{
-		typedef typename Dereference<typename Deconst<T>::ValueT>::ValueT RawType;
+		typedef typename RemoveReference<typename RemoveConst<T>::ValueT>::ValueT RawType;
 		typedef typename If<Detail_ParamPassingType::PassByRef<T>::Value, const RawType&, RawType>::ValueT ConstPassingType;
 
 	public:

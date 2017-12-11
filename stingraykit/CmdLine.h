@@ -488,8 +488,8 @@ namespace stingray
 			template < typename HandlerFunc >
 			CustomCompleteFuncSetter operator = (const HandlerFunc& handlerFunc)
 			{
-				typedef typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, Dereference>::ValueT	DerefedParams;
-				typedef typename TypeListTransform<DerefedParams, Deconst>::ValueT											DeconstedDerefedParams;
+				typedef typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, RemoveReference>::ValueT	DerefedParams;
+				typedef typename TypeListTransform<DerefedParams, RemoveConst>::ValueT											DeconstedDerefedParams;
 				ICommandHandlerPtr ch = make_shared<CmdHandler<StringsTuple, DeconstedDerefedParams> >(_strings, handlerFunc);
 				_inst->_commands.push_back(ch);
 				return CustomCompleteFuncSetter(ch);

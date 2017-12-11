@@ -356,10 +356,10 @@ namespace stingray
 
 
 		template <typename Range_, typename Functor_>
-		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename GetConstReferenceType<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category>
+		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstReference<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category>
 		{
 			typedef RangeTransformer<Range_, Functor_> Self;
-			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename GetConstReferenceType<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category> base;
+			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstReference<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category> base;
 
 		public:
 			static const bool ReturnsTemporary = true;
@@ -673,8 +673,8 @@ namespace stingray
 
 
 		template <typename Range_>
-		typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT FirstOrDefault(Range_ range)
-		{ return range.Valid() ? range.Get() : typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT(); }
+		typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT FirstOrDefault(Range_ range)
+		{ return range.Valid() ? range.Get() : typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT(); }
 
 
 		template <typename SrcRange_, typename Predicate_>
@@ -702,7 +702,7 @@ namespace stingray
 			template <typename Src_>
 			struct MapKeysFunctor
 			{
-				typedef typename Dereference<Src_>::ValueT::first_type RetType;
+				typedef typename RemoveReference<Src_>::ValueT::first_type RetType;
 				RetType operator() (const Src_& src) const
 				{ return src.first; }
 			};
@@ -710,7 +710,7 @@ namespace stingray
 			template <typename Src_>
 			struct MapValuesFunctor
 			{
-				typedef typename Dereference<Src_>::ValueT::second_type RetType;
+				typedef typename RemoveReference<Src_>::ValueT::second_type RetType;
 				RetType operator() (const Src_& src) const
 				{ return src.second; }
 			};
@@ -809,7 +809,7 @@ namespace stingray
 			template <typename Range_>
 			struct RangeToValue
 			{
-				typedef typename If<Range_::ReturnsTemporary, typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT, typename Range_::ValueType>::ValueT ValueT;
+				typedef typename If<Range_::ReturnsTemporary, typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT, typename Range_::ValueType>::ValueT ValueT;
 			};
 		}
 
@@ -826,20 +826,20 @@ namespace stingray
 
 
 		template < typename Range_>
-		typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT ElementAtOrDefault(Range_ range, size_t index)
+		typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT ElementAtOrDefault(Range_ range, size_t index)
 		{
 			size_t current = 0;
 			for (; range.Valid(); range.Next(), ++current)
 				if (index == current)
 					return range.Get();
-			return typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT();
+			return typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT();
 		}
 
 
 		template <typename Range_>
-		typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT Sum(Range_ range)
+		typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT Sum(Range_ range)
 		{
-			typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT result = 0;
+			typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT result = 0;
 			for (; range.Valid(); range.Next())
 				result += range.Get();
 			return result;
@@ -992,7 +992,7 @@ namespace stingray
 	template <typename Range_>
 	struct FirstOrDefaultTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef typename Deconst<typename Dereference<typename Range_::ValueType>::ValueT>::ValueT ValueT;
+		typedef typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT ValueT;
 
 		static ValueT Do(const Range_& range, const FirstOrDefaultTransformer& action)
 		{ return Range::FirstOrDefault(range); }

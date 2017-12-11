@@ -54,7 +54,7 @@ namespace stingray
 		class EnumeratorCaster
 		{
 			typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
-			typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
+			typedef typename AddConstReference<SrcType>::ValueT			ConstSrcTypeRef;
 
 
 			class Proxy : public EnumeratorWrapper<SrcType, SrcType>

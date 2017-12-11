@@ -18,7 +18,7 @@ namespace stingray
 	class EnumeratorWrapper : public IEnumerator<DestType>
 	{
 		typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
-		typedef typename GetConstReferenceType<SrcType>::ValueT		ConstSrcTypeRef;
+		typedef typename AddConstReference<SrcType>::ValueT			ConstSrcTypeRef;
 		typedef function< bool(ConstSrcTypeRef) >					FilterPredicate;
 		typedef function< DestType (ConstSrcTypeRef) >				Caster;
 
