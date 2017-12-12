@@ -97,6 +97,12 @@ namespace stingray
 		iterator find(const Key_& key)				{ return _impl.find(key); }
 		const_iterator find(const Key_& key) const	{ return _impl.find(key); }
 
+		size_t count(const Key_& key)
+		{
+			typename Impl::const_iterator it = _impl.find(key);
+			return it != _impl.end() ? it->second.References : 0;
+		}
+
 		template < typename DoAddFunc >
 		iterator add(const Key_& key, const DoAddFunc& doAddFunc)
 		{
