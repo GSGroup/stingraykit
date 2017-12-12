@@ -34,12 +34,17 @@ namespace stingray
 	template < typename T > struct RemoveReference					{ typedef T ValueT; };
 	template < typename T > struct RemoveReference<T&>				{ typedef T ValueT; };
 
+	template < typename T > struct AddReference						{ typedef T& ValueT; };
+	template < typename T > struct AddReference<T&>					{ typedef T& ValueT; };
+
 // Pointer
 	template < typename T > struct RemovePointer					{ typedef T ValueT; };
 	template < typename T > struct RemovePointer<T*>				{ typedef T ValueT; };
 	template < typename T > struct RemovePointer<T* const>			{ typedef T ValueT; };
 	template < typename T > struct RemovePointer<T* volatile>		{ typedef T ValueT; };
 	template < typename T > struct RemovePointer<T* const volatile>	{ typedef T ValueT; };
+
+	template < typename T > struct AddPointer						{ typedef typename RemoveReference<T>::ValueT* ValueT; };
 
 // Array
 	template < typename T > struct RemoveExtent						{ typedef T ValueT; };
