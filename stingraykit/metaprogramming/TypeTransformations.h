@@ -20,10 +20,15 @@ namespace stingray
 	template < typename T > struct RemoveConst						{ typedef T ValueT; };
 	template < typename T > struct RemoveConst<const T>				{ typedef T ValueT; };
 
+	template < typename T > struct AddConst							{ typedef const T ValueT; };
+
 	template < typename T > struct RemoveVolatile					{ typedef T ValueT; };
 	template < typename T > struct RemoveVolatile<volatile T>		{ typedef T ValueT; };
 
+	template < typename T > struct AddVolatile						{ typedef volatile T ValueT; };
+
 	template < typename T > struct RemoveCV							{ typedef typename RemoveVolatile<typename RemoveConst<T>::ValueT>::ValueT ValueT; };
+	template < typename T > struct AddCV							{ typedef const volatile T ValueT; };
 
 // Reference
 	template < typename T > struct RemoveReference					{ typedef T ValueT; };
