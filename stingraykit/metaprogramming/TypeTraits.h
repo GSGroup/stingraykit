@@ -99,7 +99,7 @@ namespace stingray
 #endif
 
 	template < typename T, typename MemberPointerDetector = void > struct IsClass	{ static const bool Value = false; };
-	template < typename T > struct IsClass<T, typename ToVoid<int T::*>::ValueT>	{ static const bool Value = true; };
+	template < typename T > struct IsClass<T, typename ToVoid<int T::*>::ValueT>	{ static const bool Value = !IsUnion<T>::Value; };
 
 	template < typename T > struct StaticAssertCompleteType : CompileTimeAssert<sizeof(T) == sizeof(T)> { };
 
