@@ -92,6 +92,12 @@ namespace stingray
 		typedef typename If<IsArray<_T>::Value, typename RemoveExtent<_T>::ValueT*, typename RemoveCV<_T>::ValueT>::ValueT ValueT;
 	};
 
+#if defined(__GNUC__) || defined(__clang__)
+	template < typename T > struct IsUnion											{ static const bool Value = __is_union(typename RemoveCV<T>::ValueT); };
+#else
+	template < typename T > struct IsUnion											{ static const bool Value = false };
+#endif
+
 	template < typename T, typename MemberPointerDetector = void > struct IsClass	{ static const bool Value = false; };
 	template < typename T > struct IsClass<T, typename ToVoid<int T::*>::ValueT>	{ static const bool Value = true; };
 
