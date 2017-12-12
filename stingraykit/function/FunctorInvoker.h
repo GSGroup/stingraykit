@@ -20,13 +20,6 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T >
-	struct ToPointerType<T*>
-	{ typedef T* ValueT; };
-
-	template < typename T > T* to_pointer(T* ptr) { return ptr; }
-
-
 	namespace Detail
 	{
 
