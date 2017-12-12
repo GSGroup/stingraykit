@@ -11,7 +11,6 @@
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/IntToType.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
-#include <stingraykit/metaprogramming/TypeTransformations.h>
 #include <stingraykit/metaprogramming/YesNo.h>
 
 namespace stingray

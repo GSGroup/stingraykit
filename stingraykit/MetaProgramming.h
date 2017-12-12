@@ -22,7 +22,6 @@
 #include <stingraykit/metaprogramming/ToVoid.h>
 #include <stingraykit/metaprogramming/TypeRelationships.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
-#include <stingraykit/metaprogramming/TypeTransformations.h>
 #include <stingraykit/metaprogramming/YesNo.h>
 
 #endif
