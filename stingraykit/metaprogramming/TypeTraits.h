@@ -68,6 +68,9 @@ namespace stingray
 	template < typename T > struct ToPointer										{ typedef T* ValueT; };
 	template < typename T > struct ToPointer<T&>									{ typedef T* ValueT; };
 	template < typename T > struct ToPointer<T*>									{ typedef T* ValueT; };
+	template < typename T > struct ToPointer<T* const>								{ typedef T* ValueT; };
+	template < typename T > struct ToPointer<T* volatile>							{ typedef T* ValueT; };
+	template < typename T > struct ToPointer<T* const volatile>						{ typedef T* ValueT; };
 
 // Array
 	template < typename T > struct IsArray											{ static const bool Value = false; };
