@@ -147,7 +147,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct ToPointerType<self_count_ptr<T> >
+	struct ToPointer<self_count_ptr<T> >
 	{ typedef T* ValueT; };
 
 	template < typename T >

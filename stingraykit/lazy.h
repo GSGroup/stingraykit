@@ -41,11 +41,11 @@ namespace stingray
 	{ return LazyVal<typename function_info<FuncType>::RetType>(func); }
 
 	template < typename T >
-	struct ToPointerType<LazyVal<T> >
-	{ typedef typename ToPointerType<T>::ValueT ValueT; };
+	struct ToPointer<LazyVal<T> >
+	{ typedef typename ToPointer<T>::ValueT ValueT; };
 
 	template < typename T >
-	inline typename ToPointerType<LazyVal<T> >::ValueT to_pointer(const LazyVal<T>& lazyPtr) { return to_pointer((T)lazyPtr); }
+	inline typename ToPointer<LazyVal<T> >::ValueT to_pointer(const LazyVal<T>& lazyPtr) { return to_pointer((T)lazyPtr); }
 
 	/** @} */
 }

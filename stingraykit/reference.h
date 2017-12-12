@@ -42,7 +42,7 @@ namespace stingray
 	{ return reference<const T>(obj); }
 
 	template < typename T >
-	struct ToPointerType<reference<T> >
+	struct ToPointer<reference<T> >
 	{ typedef T* ValueT; };
 
 	template < typename T >

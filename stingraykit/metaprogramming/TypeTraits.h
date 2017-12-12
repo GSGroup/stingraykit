@@ -65,9 +65,9 @@ namespace stingray
 
 	template < typename T > struct AddPointer										{ typedef typename RemoveReference<T>::ValueT* ValueT; };
 
-	template < typename T > struct ToPointerType;
-	template < typename T > struct ToPointerType<T&>								{ typedef T* ValueT; };
-	template < typename T > struct ToPointerType<T*>								{ typedef T* ValueT; };
+	template < typename T > struct ToPointer
+	template < typename T > struct ToPointer<T&>									{ typedef T* ValueT; };
+	template < typename T > struct ToPointer<T*>									{ typedef T* ValueT; };
 
 // Array
 	template < typename T > struct IsArray											{ static const bool Value = false; };

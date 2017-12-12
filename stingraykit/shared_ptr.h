@@ -627,7 +627,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct ToPointerType<shared_ptr<T> >
+	struct ToPointer<shared_ptr<T> >
 	{ typedef T* ValueT; };
 
 	template < typename T >
@@ -656,7 +656,7 @@ namespace stingray
 	}
 
 	template < typename T >
-	struct ToPointerType<weak_ptr<T> >
+	struct ToPointer<weak_ptr<T> >
 	{ typedef Detail::WeakPtrToPointerProxy<T> ValueT; };
 
 	template < typename T >

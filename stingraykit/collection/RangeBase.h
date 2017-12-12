@@ -42,7 +42,7 @@ namespace stingray
 			ArrowProxy(T val) : _val(val)
 			{ }
 
-			typename ToPointerType<T>::ValueT operator -> ()
+			typename ToPointer<T>::ValueT operator -> ()
 			{ return to_pointer(_val); }
 		};
 
