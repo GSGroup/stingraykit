@@ -71,15 +71,11 @@ namespace stingray
 	template < typename T, size_t N> struct RemoveExtent<T[N]>						{ typedef T ValueT; };
 
 // Miscellaneous
-	template < typename T > struct IsConstReference									{ static const bool Value = false; };
-	template < typename T > struct IsConstReference<const T&>						{ static const bool Value = true; };
-
-	template < typename T > struct AddConstReference								{ typedef const T& ValueT; };
-	template < typename T > struct AddConstReference<T&>							{ typedef const T& ValueT; };
-
+	template < typename T > struct IsConstReference									{ static const bool Value = IsReference<T>::Value && IsConst<typename RemoveReference<T>::ValueT>::Value; };
 	template < typename T > struct IsNonConstReference								{ static const bool Value = IsReference<T>::Value && !IsConstReference<T>::Value; };
 
-	template < typename T > struct AddConstPointer									{ typedef const T* ValueT; };
+	template < typename T > struct AddConstReference								{ typedef typename AddReference<typename AddConst<T>::ValueT>::ValueT ValueT; };
+	template < typename T > struct AddConstPointer									{ typedef typename AddPointer<typename AddConst<T>::ValueT>::ValueT ValueT; };
 
 	template < typename T > struct RemoveCVReference								{ typedef typename RemoveCV<typename RemoveReference<T>::ValueT>::ValueT ValueT; };
 
