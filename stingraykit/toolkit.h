@@ -181,17 +181,6 @@ namespace stingray
 namespace stingray
 {
 
-	template < typename >
-	struct ToPointerType;
-
-	template < typename T >
-	struct ToPointerType<T&>
-	{ typedef T* ValueT; };
-
-	template < typename T >
-	struct ToPointerType<T*>
-	{ typedef T* ValueT; };
-
 	template < typename T > T* to_pointer(T& val) { return &val; }
 	template < typename T > T* to_pointer(T* ptr) { return ptr; }
 
