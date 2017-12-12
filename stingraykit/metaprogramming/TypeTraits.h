@@ -21,6 +21,9 @@ namespace stingray
 	template < typename T > struct IsConst											{ static const bool Value = false; };
 	template < typename T > struct IsConst<const T>									{ static const bool Value = true; };
 
+	template < typename T > struct IsVolatile										{ static const bool value = false; };
+	template < typename T > struct IsVolatile<volatile T>							{ static const bool value = true; };
+
 	template < typename T > struct RemoveConst										{ typedef T ValueT; };
 	template < typename T > struct RemoveConst<const T>								{ typedef T ValueT; };
 
