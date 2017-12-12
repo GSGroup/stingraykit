@@ -67,6 +67,7 @@ namespace stingray
 
 // Array
 	template < typename T > struct IsArray											{ static const bool Value = false; };
+	template < typename T > struct IsArray<T[]>										{ static const bool Value = true; };
 	template < typename T, size_t N > struct IsArray<T[N]>							{ static const bool Value = true; };
 
 	template < typename T > struct RemoveExtent										{ typedef T ValueT; };
