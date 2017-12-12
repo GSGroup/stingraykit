@@ -45,9 +45,14 @@ namespace stingray
 	template < typename T > struct AddReference<T&>									{ typedef T& ValueT; };
 
 // Pointer
-	template < typename T > struct IsPointer										{ static const bool Value = false; };
-	template < typename T > struct IsPointer<T*>									{ static const bool Value = true; };
-	template < typename T > struct IsPointer<T* const>								{ static const bool Value = true; };
+	namespace Detail
+	{
+
+		template < typename T > struct IsPointerImpl								{ static const bool Value = false; };
+		template < typename T > struct IsPointerImpl<T*>							{ static const bool Value = true; };
+
+	}
+	template < typename T > struct IsPointer : Detail::IsPointerImpl<typename RemoveCV<T>::ValueT> { };
 
 	template < typename T > struct RemovePointer									{ typedef T ValueT; };
 	template < typename T > struct RemovePointer<T*>								{ typedef T ValueT; };
