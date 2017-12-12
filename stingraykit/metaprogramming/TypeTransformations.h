@@ -57,6 +57,16 @@ namespace stingray
 
 	template < typename T > struct AddConstPointer					{ typedef const T* ValueT; };
 
+	template < typename T > struct RemoveCVReference				{ typedef typename RemoveCV<typename RemoveReference<T>::ValueT>::ValueT ValueT; };
+
+	template < typename T > struct Decay
+	{
+	private:
+		typedef typename RemoveReference<T>::ValueT _T;
+
+	public:
+		typedef typename If<IsArray<_T>::Value, typename RemoveExtent<_T>::ValueT*, typename RemoveCV<_T>::ValueT>::ValueT ValueT;
+	};
 }
 
 #endif
