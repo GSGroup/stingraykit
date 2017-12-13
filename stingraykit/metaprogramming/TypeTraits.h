@@ -10,6 +10,7 @@
 
 #include <stingraykit/metaprogramming/CompileTimeAssert.h>
 #include <stingraykit/metaprogramming/If.h>
+#include <stingraykit/metaprogramming/IntegralConstant.h>
 #include <stingraykit/metaprogramming/YesNo.h>
 
 #include <stddef.h>
@@ -18,11 +19,11 @@ namespace stingray
 {
 
 // Const-volatile
-	template < typename T > struct IsConst											{ static const bool Value = false; };
-	template < typename T > struct IsConst<const T>									{ static const bool Value = true; };
+	template < typename T > struct IsConst											: FalseType	{ };
+	template < typename T > struct IsConst<const T>									: TrueType	{ };
 
-	template < typename T > struct IsVolatile										{ static const bool value = false; };
-	template < typename T > struct IsVolatile<volatile T>							{ static const bool value = true; };
+	template < typename T > struct IsVolatile										: FalseType	{ };
+	template < typename T > struct IsVolatile<volatile T>							: TrueType	{ };
 
 	template < typename T > struct RemoveConst										{ typedef T ValueT; };
 	template < typename T > struct RemoveConst<const T>								{ typedef T ValueT; };
@@ -38,8 +39,8 @@ namespace stingray
 	template < typename T > struct AddCV											{ typedef const volatile T ValueT; };
 
 // Reference
-	template < typename T > struct IsReference										{ static const bool Value = false; };
-	template < typename T > struct IsReference<T&>									{ static const bool Value = true; };
+	template < typename T > struct IsReference										: FalseType	{ };
+	template < typename T > struct IsReference<T&>									: TrueType	{ };
 
 	template < typename T > struct RemoveReference									{ typedef T ValueT; };
 	template < typename T > struct RemoveReference<T&>								{ typedef T ValueT; };
@@ -51,11 +52,11 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename T > struct IsPointerImpl								{ static const bool Value = false; };
-		template < typename T > struct IsPointerImpl<T*>							{ static const bool Value = true; };
+		template < typename T > struct IsPointerImpl								: FalseType	{ };
+		template < typename T > struct IsPointerImpl<T*>							: TrueType	{ };
 
 	}
-	template < typename T > struct IsPointer : Detail::IsPointerImpl<typename RemoveCV<T>::ValueT> { };
+	template < typename T > struct IsPointer										: Detail::IsPointerImpl<typename RemoveCV<T>::ValueT> { };
 
 	template < typename T > struct RemovePointer									{ typedef T ValueT; };
 	template < typename T > struct RemovePointer<T*>								{ typedef T ValueT; };
@@ -73,17 +74,17 @@ namespace stingray
 	template < typename T > struct ToPointer<T* const volatile>						{ typedef T* ValueT; };
 
 // Array
-	template < typename T > struct IsArray											{ static const bool Value = false; };
-	template < typename T > struct IsArray<T[]>										{ static const bool Value = true; };
-	template < typename T, size_t N > struct IsArray<T[N]>							{ static const bool Value = true; };
+	template < typename T > struct IsArray											: FalseType	{ };
+	template < typename T > struct IsArray<T[]>										: TrueType	{ };
+	template < typename T, size_t N > struct IsArray<T[N]>							: TrueType	{ };
 
 	template < typename T > struct RemoveExtent										{ typedef T ValueT; };
 	template < typename T > struct RemoveExtent<T[]>								{ typedef T ValueT; };
 	template < typename T, size_t N> struct RemoveExtent<T[N]>						{ typedef T ValueT; };
 
 // Miscellaneous
-	template < typename T > struct IsConstReference									{ static const bool Value = IsReference<T>::Value && IsConst<typename RemoveReference<T>::ValueT>::Value; };
-	template < typename T > struct IsNonConstReference								{ static const bool Value = IsReference<T>::Value && !IsConstReference<T>::Value; };
+	template < typename T > struct IsConstReference									: integral_constant<bool, IsReference<T>::Value && IsConst<typename RemoveReference<T>::ValueT>::Value> { };
+	template < typename T > struct IsNonConstReference								: integral_constant<bool, IsReference<T>::Value && !IsConstReference<T>::Value> { };
 
 	template < typename T > struct AddConstReference								{ typedef typename AddReference<typename AddConst<T>::ValueT>::ValueT ValueT; };
 	template < typename T > struct AddConstPointer									{ typedef typename AddPointer<typename AddConst<T>::ValueT>::ValueT ValueT; };
@@ -100,22 +101,21 @@ namespace stingray
 	};
 
 #if defined(__GNUC__) || defined(__clang__)
-	template < typename T > struct IsUnion											{ static const bool Value = __is_union(typename RemoveCV<T>::ValueT); };
+	template < typename T > struct IsUnion											: integral_constant<bool, __is_union(typename RemoveCV<T>::ValueT)> { };
 #else
-	template < typename T > struct IsUnion											{ static const bool Value = false };
+	template < typename T > struct IsUnion											: FalseType { };
 #endif
 
-	template < typename T > struct IsClass
+	namespace Detail
 	{
-	private:
-		template < typename U > static YesType TestClass(int U::*);
-		template < typename U > static NoType TestClass(...);
 
-	public:
-		static const bool Value = ( sizeof(TestClass<T>(0)) == sizeof(YesType) ) && !IsUnion<T>::Value;
-	};
+		template < typename T > YesType	TestIsClass(int T::*);
+		template < typename T > NoType	TestIsClass(...);
 
-	template < typename T > struct IsComplete										{ static const bool Value = sizeof(T) == sizeof(T); };
+	}
+	template < typename T > struct IsClass											: integral_constant<bool, ( sizeof(Detail::TestIsClass<T>(0)) == sizeof(YesType) ) && !IsUnion<T>::Value> { };
+
+	template < typename T > struct IsComplete										: integral_constant<bool, sizeof(T) == sizeof(T)> { };
 
 }
 

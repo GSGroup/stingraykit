@@ -8,15 +8,13 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/metaprogramming/IntegralConstant.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
-#include <stingraykit/metaprogramming/YesNo.h>
 
 namespace stingray
 {
 
-	template <typename T, typename U> struct IsSame { static const bool Value = false; };
-	template <typename T> struct IsSame<T, T> { static const bool Value = true; };
+	template <typename T, typename U> struct IsSame	: FalseType	{ };
+	template <typename T> struct IsSame<T, T>		: TrueType	{ };
 
 	namespace Detail
 	{
@@ -71,14 +69,16 @@ namespace stingray
 
 
 	template < template <typename> class Template, typename U >
-	struct Is1ParamTemplate { static const bool Value = false; };
+	struct Is1ParamTemplate : FalseType { };
+
 	template < template <typename> class Template, typename T >
-	struct Is1ParamTemplate<Template, Template<T> > { static const bool Value = true; };
+	struct Is1ParamTemplate<Template, Template<T> > : TrueType { };
 
 	template < template <typename, typename> class Template, typename U >
-	struct Is2ParamTemplate { static const bool Value = false; };
+	struct Is2ParamTemplate : FalseType { };
+
 	template < template <typename, typename> class Template, typename T, typename U >
-	struct Is2ParamTemplate<Template, Template<T, U> > { static const bool Value = true; };
+	struct Is2ParamTemplate<Template, Template<T, U> > : TrueType { };
 
 }
 

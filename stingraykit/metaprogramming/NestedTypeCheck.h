@@ -29,8 +29,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		struct DoesNotHaveAnyNestedTypes
-		{ static const bool Value = false; };
+		struct DoesNotHaveAnyNestedTypes : FalseType { };
 	}
 
 #define STINGRAYKIT_DECLARE_METHOD_CHECK(Method_) \

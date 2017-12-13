@@ -18,6 +18,9 @@ namespace stingray
 		static const ValueT Value = Value_;
 	};
 
+	typedef integral_constant<bool, true>	TrueType;
+	typedef integral_constant<bool, false>	FalseType;
+
 	template<typename Val1, typename Val2>
 	struct integral_constant_less
 	{ static const bool Value = Val1::Value < Val2::Value; };

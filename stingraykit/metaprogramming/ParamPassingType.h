@@ -22,20 +22,16 @@ namespace stingray
 		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 
 		template < typename T, typename Enabler = void >
-		struct PassByRef
-		{ static const bool Value = true; };
+		struct PassByRef : TrueType { };
 
 		template < typename T >
-		struct PassByRef<T, typename EnableIf<IsBuiltinType<T>::Value, void>::ValueT>
-		{ static const bool Value = false; };
+		struct PassByRef<T, typename EnableIf<IsBuiltinType<T>::Value, void>::ValueT> : FalseType { };
 
 		template < typename T >
-		struct PassByRef<T, typename EnableIf<IsPointer<T>::Value, void>::ValueT>
-		{ static const bool Value = false; };
+		struct PassByRef<T, typename EnableIf<IsPointer<T>::Value, void>::ValueT> : FalseType { };
 
 		template < typename T >
-		struct PassByRef<T, typename EnableIf<HasNestedType_Enum<T>::Value, void>::ValueT>
-		{ static const bool Value = false; };
+		struct PassByRef<T, typename EnableIf<HasNestedType_Enum<T>::Value, void>::ValueT> : FalseType { };
 
 	}
 
