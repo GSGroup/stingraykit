@@ -33,11 +33,7 @@ namespace stingray
 	}
 
 	template <typename Derived, typename Base>
-	struct Inherits
-	{
-		typedef typename If<SameType<Derived, Base>::Value, integral_constant<bool, true>, Detail::InheritsImpl<Derived, Base> >::ValueT ValueT;
-		static const bool Value = ValueT::Value;
-	};
+	struct Inherits : If<SameType<Derived, Base>::Value, integral_constant<bool, true>, Detail::InheritsImpl<Derived, Base> >::ValueT { };
 
 	template < typename Derived, template <typename> class Base>
 	class Inherits1ParamTemplate
