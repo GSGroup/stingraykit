@@ -370,11 +370,11 @@ namespace stingray
 
 
 	inline std::string Capitalize(const std::string& str)
-	{ return str.empty()? str : ToUpper(str.substr(0, 1)) + str.substr(1); }
+	{ return str.empty() ? str : std::string(str).replace(0, 1, 1, ::toupper(str[0])); }
 
 
 	inline std::string Uncapitalize(const std::string& str)
-	{ return str.empty()? str : ToLower(str.substr(0, 1)) + str.substr(1); }
+	{ return str.empty() ? str : std::string(str).replace(0, 1, 1, ::tolower(str[0])); }
 
 	namespace Detail
 	{
