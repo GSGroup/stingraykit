@@ -10,7 +10,6 @@
 
 #include <stingraykit/metaprogramming/CompileTimeAssert.h>
 #include <stingraykit/metaprogramming/If.h>
-#include <stingraykit/metaprogramming/ToVoid.h>
 #include <stingraykit/metaprogramming/YesNo.h>
 
 #include <stddef.h>
