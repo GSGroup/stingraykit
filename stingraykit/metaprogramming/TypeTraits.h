@@ -11,6 +11,7 @@
 #include <stingraykit/metaprogramming/CompileTimeAssert.h>
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/ToVoid.h>
+#include <stingraykit/metaprogramming/YesNo.h>
 
 #include <stddef.h>
 
@@ -105,8 +106,15 @@ namespace stingray
 	template < typename T > struct IsUnion											{ static const bool Value = false };
 #endif
 
-	template < typename T, typename MemberPointerDetector = void > struct IsClass	{ static const bool Value = false; };
-	template < typename T > struct IsClass<T, typename ToVoid<int T::*>::ValueT>	{ static const bool Value = !IsUnion<T>::Value; };
+	template < typename T > struct IsClass
+	{
+	private:
+		template < typename U > static YesType TestClass(int U::*);
+		template < typename U > static NoType TestClass(...);
+
+	public:
+		static const bool Value = ( sizeof(TestClass<T>(0)) == sizeof(YesType) ) && !IsUnion<T>::Value;
+	};
 
 	template < typename T > struct IsComplete										{ static const bool Value = sizeof(T) == sizeof(T); };
 
