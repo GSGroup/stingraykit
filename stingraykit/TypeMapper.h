@@ -38,8 +38,7 @@ namespace stingray
 		struct Map
 		{
 			template < typename Entry >
-			struct SrcFit
-			{ static const bool Value = IsSame<typename Entry::SrcType, Src>::Value; };
+			struct SrcFit : IsSame<typename Entry::SrcType, Src> { };
 
 			typedef typename MappingChecker<typename TypeListFindIf<typename Derived::MappingsList, SrcFit>::ValueT>::ValueT::DstType ValueT;
 		};
@@ -48,8 +47,7 @@ namespace stingray
 		struct Unmap
 		{
 			template < typename Entry >
-			struct DstFit
-			{ static const bool Value = IsSame<typename Entry::DstType, Dst>::Value; };
+			struct DstFit : IsSame<typename Entry::DstType, Dst> { };
 
 			typedef typename MappingChecker<typename TypeListFindIf<typename Derived::MappingsList, DstFit>::ValueT>::ValueT::SrcType ValueT;
 		};

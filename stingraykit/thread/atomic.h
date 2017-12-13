@@ -30,14 +30,12 @@ namespace stingray
 
 
 		template <typename T>
-		struct AtomicIntPredicate
-		{ static const bool Value = (sizeof(T) <= sizeof(void*)); };
+		struct AtomicIntPredicate : integral_constant<bool, (sizeof(T) <= sizeof(void*))> { };
 
 		typedef TypeListCopyIf<IntTypes, AtomicIntPredicate>::ValueT AtomicIntTypes;
 
 		template < typename T >
-		struct IsAtomicIntType
-		{ static const bool Value = TypeListContains<AtomicIntTypes, T>::Value; };
+		struct IsAtomicIntType : TypeListContains<AtomicIntTypes, T> { };
 
 
 		template<typename T, AtomicImplType::Enum ImplType =

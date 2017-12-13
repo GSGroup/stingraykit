@@ -8,14 +8,16 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/metaprogramming/IntegralConstant.h>
+
 namespace stingray
 {
 
 	template<typename ResultT, ResultT Base, unsigned int Exponent>
-	struct CompileTimeExponent { static const ResultT Value = Base * CompileTimeExponent<ResultT, Base, Exponent - 1>::Value; };
+	struct CompileTimeExponent : integral_constant<ResultT, Base * CompileTimeExponent<ResultT, Base, Exponent - 1>::Value> { };
 
 	template<typename ResultT, ResultT Base>
-	struct CompileTimeExponent<ResultT, Base, 0> { static const ResultT Value = 1; };
+	struct CompileTimeExponent<ResultT, Base, 0> : integral_constant<ResultT, 1> { };
 
 
 	template <unsigned int Val, unsigned int Boundary>

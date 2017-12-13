@@ -157,12 +157,10 @@ namespace stingray
 		};
 
 		template < typename T, bool IsPtr = IsSharedPtr<T>::Value >
-		struct IsPtrToISerializable
-		{ static const bool Value = false; };
+		struct IsPtrToISerializable : FalseType { };
 
 		template < typename T >
-		struct IsPtrToISerializable<T, true>
-		{ static const bool Value = IsInherited<typename GetSharedPtrParam<T>::ValueT, ISerializable>::Value; };
+		struct IsPtrToISerializable<T, true> : IsInherited<typename GetSharedPtrParam<T>::ValueT, ISerializable> { };
 
 		template < typename T, bool PtrToISerializable = IsPtrToISerializable<T>::Value >
 		struct CppTypeToAnyUnionType

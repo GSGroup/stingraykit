@@ -98,20 +98,16 @@ namespace stingray
 	typedef TypeListMerge<TypeList_2<IntTypes, TypeList<float, double, bool> > >::ValueT BuiltinTypes;
 
 	template < typename T >
-	struct IsSigned
-	{ static const bool Value = (~(T)0) < ((T)0); };
+	struct IsSigned : integral_constant<bool, (~(T)0) < ((T)0)> { };
 
 	template < typename T >
-	struct IsIntType
-	{ static const bool Value = TypeListContains<IntTypes, T>::Value; };
+	struct IsIntType : TypeListContains<IntTypes, T> { };
 
 	template < typename T >
-	struct IsFixedWidthIntType
-	{ static const bool Value = TypeListContains<FixedWidthIntTypes, T>::Value; };
+	struct IsFixedWidthIntType : TypeListContains<FixedWidthIntTypes, T> { };
 
 	template < typename T >
-	struct IsBuiltinType
-	{ static const bool Value = TypeListContains<BuiltinTypes, T>::Value; };
+	struct IsBuiltinType : TypeListContains<BuiltinTypes, T> { };
 
 }
 

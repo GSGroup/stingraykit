@@ -233,13 +233,10 @@ namespace stingray
 	};
 
 	template < typename TypeList, typename T >
-	struct TypeListContains
-	{
-		static const bool Value = IndexOfTypeListItem<TypeList, T>::Value != -1;
-	};
+	struct TypeListContains : integral_constant<bool, IndexOfTypeListItem<TypeList, T>::Value != -1> { };
 
 	template < typename T, size_t Index_ >
-	struct IndexOfTypeListItem<TypeListEndNode, T, Index_> { static const int Value = -1; };
+	struct IndexOfTypeListItem<TypeListEndNode, T, Index_> : integral_constant<int, -1> { };
 
 	template < typename TypeList, size_t Index_ >
 	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, Index_>
@@ -251,16 +248,14 @@ namespace stingray
 	};
 
 	template < typename TypeList >
-	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, 0> { static const int Value = 0; };
+	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, 0> : integral_constant<int, 0> { };
 
 
 	template < typename TypeList, template<typename> class Predicate >
-	struct EvaluateTypeListItem
-	{ static const bool Value = Predicate<typename TypeList::ValueT>::Value; };
+	struct EvaluateTypeListItem : integral_constant<bool, Predicate<typename TypeList::ValueT>::Value> { };
 
 	template < template<typename> class Predicate >
-	struct EvaluateTypeListItem<TypeListEndNode, Predicate>
-	{ static const bool Value = false; };
+	struct EvaluateTypeListItem<TypeListEndNode, Predicate> : FalseType { };
 
 	template
 		<

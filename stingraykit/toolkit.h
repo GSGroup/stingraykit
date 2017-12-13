@@ -193,7 +193,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 
 	template < typename T >
-	struct IsEnumClass { static const bool Value = HasNestedType_Enum<T>::Value; };
+	struct IsEnumClass : HasNestedType_Enum<T> { };
 
 
 	template<typename T>

@@ -26,8 +26,7 @@ namespace stingray
 
 
 	template<typename T>
-	struct IsRange
-	{ static const bool Value = IsInherited<T, RangeMarker>::Value; };
+	struct IsRange : IsInherited<T, RangeMarker> { };
 
 
 	namespace Range

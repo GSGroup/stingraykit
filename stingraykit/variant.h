@@ -53,8 +53,7 @@ namespace stingray
 		struct InheritanceTester
 		{
 			template<typename Derived>
-			struct Predicate
-			{ static const bool Value = IsInherited<Derived, Base>::Value; };
+			struct Predicate : IsInherited<Derived, Base> { };
 		};
 
 		template<typename TypeList, typename Type>

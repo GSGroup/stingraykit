@@ -149,12 +149,10 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsOptional
-	{ static const bool Value = false; };
+	struct IsOptional : FalseType { };
 
 	template < typename T >
-	struct IsOptional<optional<T> >
-	{ static const bool Value = true; };
+	struct IsOptional<optional<T> > : TrueType { };
 
 }
 

@@ -42,22 +42,14 @@ namespace stingray
 		template < size_t N > struct Chomper
 		{ static const size_t Index = N; };
 
-		template < typename T > struct IsPlaceholder							{ static const bool Value = false; };
-		template < size_t N > struct IsPlaceholder<BindPlaceholder<N>(*)() >	{ static const bool Value = true; };
-		template < size_t N > struct IsPlaceholder<Chomper<N> >					{ static const bool Value = true; };
+		template < typename T > struct IsPlaceholder							: FalseType	{ };
+		template < size_t N > struct IsPlaceholder<BindPlaceholder<N>(*)() >	: TrueType	{ };
+		template < size_t N > struct IsPlaceholder<Chomper<N> >					: TrueType	{ };
 
 
-		template < typename T >
-		struct GetPlaceholderIndex
-		{ static const int Value = -1; };
-
-		template < size_t N >
-		struct GetPlaceholderIndex<BindPlaceholder<N>(*)() >
-		{ static const int Value = N; };
-
-		template < size_t N >
-		struct GetPlaceholderIndex<Chomper<N> >
-		{ static const int Value = N; };
+		template < typename T > struct GetPlaceholderIndex							: integral_constant<int, -1> { };
+		template < size_t N > struct GetPlaceholderIndex<BindPlaceholder<N>(*)() >	: integral_constant<int, N> { };
+		template < size_t N > struct GetPlaceholderIndex<Chomper<N> >				: integral_constant<int, N> { };
 
 		template < typename AllParameters >
 		struct GetBinderParamsCount
@@ -188,12 +180,10 @@ namespace stingray
 		};
 
 		template<typename T>
-		struct IsNotChomped
-		{ static const bool Value = true; };
+		struct IsNotChomped : TrueType { };
 
 		template<size_t N>
-		struct IsNotChomped<Chomper<N> >
-		{ static const bool Value = false; };
+		struct IsNotChomped<Chomper<N> > : FalseType { };
 
 		template < typename AllParameters, typename FunctorType >
 		class Binder

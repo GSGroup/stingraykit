@@ -18,67 +18,41 @@ namespace stingray
 
 	namespace Detail
 	{
-		template <typename Derived, typename Base>
-		class IsInheritedImpl
-		{
-		private:
-			static YesType TestInheritance(const Base*);
-			static NoType TestInheritance(...);
 
-		public:
-			static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) ) && IsComplete<Derived>::Value;
-		};
+		template < typename Base > YesType	TestIsInherited(const Base*);
+		template < typename Base > NoType	TestIsInherited(...);
+
+		template < typename Derived, typename Base > struct IsInheritedImpl : integral_constant<bool, ( sizeof(TestIsInherited<Base>((const Derived*)0)) == sizeof(YesType) ) && IsComplete<Derived>::Value> { };
+
+
+		template < template <typename> class Base, typename T >	YesType	TestIsInherited1ParamTemplate(const Base<T>*);
+		template < template <typename> class Base>				NoType	TestIsInherited1ParamTemplate(...);
+
+
+		template < template <typename, typename> class Base, typename T1, typename T2 >	YesType	TestIsInherited2ParamTemplate(const Base<T1, T2>*);
+		template < template <typename, typename> class Base >							NoType	TestIsInherited2ParamTemplate(...);
+
+
+		template < typename T > YesType	TestIsConvertible(T);
+		template < typename T > NoType	TestIsConvertible(...);
+
 	}
 
-	template <typename Derived, typename Base>
-	struct IsInherited : If<IsSame<Derived, Base>::Value, integral_constant<bool, true>, Detail::IsInheritedImpl<Derived, Base> >::ValueT { };
-
-	template < typename Derived, template <typename> class Base>
-	class IsInherited1ParamTemplate
-	{
-	private:
-		template < typename T >
-		static YesType TestInheritance(const Base<T>*);
-		static NoType TestInheritance(...);
-
-	public:
-		static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) );
-	};
-
-	template < typename Derived, template <typename, typename> class Base>
-	class IsInherited2ParamTemplate
-	{
-	private:
-		template < typename T1, typename T2 >
-		static YesType TestInheritance(const Base<T1, T2>*);
-		static NoType TestInheritance(...);
-
-	public:
-		static const bool Value = ( sizeof(TestInheritance((const Derived*)0)) == sizeof(YesType) );
-	};
+	template < typename Derived, typename Base > struct IsInherited : If<IsSame<Derived, Base>::Value, integral_constant<bool, true>, Detail::IsInheritedImpl<Derived, Base> >::ValueT { };
 
 
-	template < typename From, typename To>
-	struct IsConvertible
-	{
-		static YesType Test(To);
-		static NoType Test(...);
-
-		static const bool Value = sizeof(Test(*((const From*)0))) == sizeof(YesType);
-	};
+	template < typename Derived, template <typename > class Base>			struct IsInherited1ParamTemplate : integral_constant<bool, sizeof(Detail::TestIsInherited1ParamTemplate<Base>((const Derived*)0)) == sizeof(YesType)> { };
+	template < typename Derived, template <typename, typename > class Base>	struct IsInherited2ParamTemplate : integral_constant<bool, sizeof(Detail::TestIsInherited2ParamTemplate<Base>((const Derived*)0)) == sizeof(YesType)> { };
 
 
-	template < template <typename> class Template, typename U >
-	struct Is1ParamTemplate : FalseType { };
+	template < typename From, typename To > struct IsConvertible : integral_constant<bool, sizeof(Detail::TestIsConvertible<To>(*((const From*)0))) == sizeof(YesType)> { };
 
-	template < template <typename> class Template, typename T >
-	struct Is1ParamTemplate<Template, Template<T> > : TrueType { };
 
-	template < template <typename, typename> class Template, typename U >
-	struct Is2ParamTemplate : FalseType { };
+	template < template <typename> class Template, typename U > struct Is1ParamTemplate							: FalseType { };
+	template < template <typename> class Template, typename T > struct Is1ParamTemplate<Template, Template<T> >	: TrueType { };
 
-	template < template <typename, typename> class Template, typename T, typename U >
-	struct Is2ParamTemplate<Template, Template<T, U> > : TrueType { };
+	template < template <typename, typename> class Template, typename U > struct Is2ParamTemplate											: FalseType { };
+	template < template <typename, typename> class Template, typename T, typename U > struct Is2ParamTemplate<Template, Template<T, U> >	: TrueType { };
 
 }
 

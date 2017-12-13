@@ -585,16 +585,13 @@ namespace stingray
 
 
 	template < typename SharedPtrT >
-	struct IsSharedPtr
-	{ static const bool Value = false; };
+	struct IsSharedPtr : FalseType { };
 
 	template < typename T >
-	struct IsSharedPtr<shared_ptr<T> >
-	{ static const bool Value = true; };
+	struct IsSharedPtr<shared_ptr<T> > : TrueType { };
 
 	template < typename T >
-	struct IsSharedPtr<const shared_ptr<T> >
-	{ static const bool Value = true; };
+	struct IsSharedPtr<const shared_ptr<T> > : TrueType { };
 
 
 	template < typename SharedPtrT >

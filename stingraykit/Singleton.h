@@ -95,14 +95,13 @@ namespace stingray
 	STINGRAYKIT_DEFINE_ONCE_FLAG(Singleton<T>::s_initFlag);
 
 
-	template < typename T >
-	struct IsSingleton
+	namespace Detail
 	{
-		template < typename U >
-		static YesType Test(const Singleton<U>*);
-		static NoType Test(...);
-		static const bool Value = sizeof(Test((T*)0)) == sizeof(YesType);
-	};
+		template < typename T >
+		YesType	TestIsSingleton(const Singleton<T>*);
+		NoType	TestIsSingleton(...);
+	}
+	template < typename T > struct IsSingleton : integral_constant<bool, sizeof(Detail::TestIsSingleton((T*)0)) == sizeof(YesType)> { };
 
 }
 

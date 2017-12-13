@@ -393,38 +393,31 @@ namespace stingray
 
 
 	template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
-	struct IsStringRepresentable
-	{ static const bool Value = true; };
+	struct IsStringRepresentable : TrueType { };
 
 
 	template < typename T >
-	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::Enumerable>
-	{ static const bool Value = IsStringRepresentable<typename T::ItemType>::Value; };
+	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::Enumerable> : IsStringRepresentable<typename T::ItemType> { };
 
 
 	template < typename T >
-	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::HasBeginEnd>
-	{ static const bool Value = IsStringRepresentable<typename T::value_type>::Value; };
+	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::HasBeginEnd> : IsStringRepresentable<typename T::value_type> { };
 
 
 	template < typename T >
-	struct IsStringRepresentable<shared_ptr<T>, Detail::TypeToStringObjectType::Other>
-	{ static const bool Value = IsStringRepresentable<T>::Value; };
+	struct IsStringRepresentable<shared_ptr<T>, Detail::TypeToStringObjectType::Other> : IsStringRepresentable<T> { };
 
 
 	template < typename T >
-	struct IsStringRepresentable<optional<T>, Detail::TypeToStringObjectType::Other>
-	{ static const bool Value = IsStringRepresentable<T>::Value; };
+	struct IsStringRepresentable<optional<T>, Detail::TypeToStringObjectType::Other> : IsStringRepresentable<T> { };
 
 
 	template < typename T, typename U >
-	struct IsStringRepresentable<std::pair<T, U>, Detail::TypeToStringObjectType::Other>
-	{ static const bool Value = IsStringRepresentable<T>::Value && IsStringRepresentable<U>::Value; };
+	struct IsStringRepresentable<std::pair<T, U>, Detail::TypeToStringObjectType::Other> : integral_constant<bool, IsStringRepresentable<T>::Value && IsStringRepresentable<U>::Value> { };
 
 
 	template < typename T >
-	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::ProxyObjToStdStream >
-	{ static const bool Value = TypeListContains<BuiltinTypes, T>::Value; }; // TODO: Is this enough?
+	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::ProxyObjToStdStream > : TypeListContains<BuiltinTypes, T> { }; // TODO: Is this enough?
 
 
 	template< typename CharType >

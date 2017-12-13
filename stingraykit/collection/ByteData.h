@@ -102,10 +102,7 @@ namespace stingray
 		STINGRAYKIT_DECLARE_METHOD_CHECK(end);
 
 		template < typename T >
-		struct HasBeginEndMethods
-		{
-			static const bool Value = HasMethod_begin<T>::Value && HasMethod_end<T>::Value;
-		};
+		struct HasBeginEndMethods : integral_constant<bool, HasMethod_begin<T>::Value && HasMethod_end<T>::Value> { };
 
 	}
 

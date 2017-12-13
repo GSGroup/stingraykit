@@ -21,8 +21,7 @@ namespace stingray
 		class EnumDrivenInvoker
 		{
 			template < typename Left, typename Right >
-			struct RegistryEntryLess
-			{ static const bool Value = Left::Tag < Right::Tag; };
+			struct RegistryEntryLess : integral_constant<bool, Left::Tag < Right::Tag> { };
 
 			template < typename Entry, typename LeftNode, typename RightNode >
 			struct BranchNode
