@@ -106,11 +106,11 @@ namespace stingray
 
 
 	inline bool BeginsWith(const std::string& str, const std::string& prefix)
-	{ return str.length() >= prefix.length() && ExtractPrefix(str, prefix.length()) == prefix; }
+	{ return str.size() >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0; }
 
 
 	inline bool EndsWith(const std::string& str, const std::string& suffix)
-	{ return str.length() >= suffix.length() && ExtractSuffix(str, suffix.length()) == suffix; }
+	{ return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0; }
 
 
 	inline bool Contains(const std::string& str, const std::string& substr)
