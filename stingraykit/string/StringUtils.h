@@ -117,55 +117,56 @@ namespace stingray
 	{ return str.find(substr) != std::string::npos; }
 
 
+	class StringRef
+	{
+	public:
+		typedef std::string::size_type	size_type;
+
+		static const size_type npos = std::string::npos;
+
+	private:
+		const std::string *		_owner;
+		std::string::size_type	_begin;
+		std::string::size_type	_end;
+
+	public:
+		inline StringRef(const std::string& owner, size_t begin = 0, size_t end = npos) : _owner(&owner), _begin(begin), _end(end != npos ? end : owner.size()) { }
+
+		inline bool empty() const		{ return _begin >= _end; }
+		inline size_type size() const	{ return _end >= _begin ? _end - _begin : 0; }
+
+		inline size_type find(const char c, size_type pos = 0) const
+		{
+			size_type p = _owner->find(c, pos + _begin);
+			return (p >= _end) ? npos : p - _begin;
+		}
+
+		inline size_type find(const std::string& str, size_type pos = 0) const
+		{
+			size_type p = _owner->find(str, pos + _begin);
+			return (p >= _end) ? npos : p - _begin;
+		}
+
+		StringRef substr(size_type pos = 0, size_type n = npos) const
+		{ return StringRef(*_owner, _begin + pos, n == npos? _end: _begin + pos + n ); }
+
+		char operator[] (size_type index) const
+		{ return (*_owner)[_begin + index]; }
+
+		inline std::string str() const { return str_substr(); }
+		operator std::string() const   { return str(); }
+
+		bool operator != (const std::string& other) const { return str() != other; }
+		bool operator == (const std::string& other) const { return str() == other; }
+
+	private:
+		std::string str_substr(size_type pos = 0, size_type n = npos) const
+		{ return pos < size() ? _owner->substr(_begin + pos, std::min(size() - pos, n)) : std::string(); }
+	};
+
+
 	namespace Detail
 	{
-
-		class StringRef
-		{
-		public:
-			typedef std::string::size_type	size_type;
-
-			static const size_type npos = std::string::npos;
-
-		private:
-			const std::string *		_owner;
-			std::string::size_type	_begin;
-			std::string::size_type	_end;
-
-		public:
-			inline StringRef(const std::string& owner, size_t begin = 0, size_t end = npos) : _owner(&owner), _begin(begin), _end(end != npos ? end : owner.size()) { }
-
-			inline bool empty() const		{ return _begin >= _end; }
-			inline size_type size() const	{ return _end >= _begin ? _end - _begin : 0; }
-
-			inline size_type find(const char c, size_type pos = 0) const
-			{
-				size_type p = _owner->find(c, pos + _begin);
-				return (p >= _end) ? npos : p - _begin;
-			}
-
-			inline size_type find(const std::string& str, size_type pos = 0) const
-			{
-				size_type p = _owner->find(str, pos + _begin);
-				return (p >= _end) ? npos : p - _begin;
-			}
-
-			StringRef substr(size_type pos = 0, size_type n = npos) const
-			{ return StringRef(*_owner, _begin + pos, n == npos? _end: _begin + pos + n ); }
-
-			char operator[] (size_type index) const
-			{ return (*_owner)[_begin + index]; }
-
-			inline std::string str() const { return str_substr(); }
-			operator std::string() const   { return str(); }
-
-			bool operator != (const std::string& other) const { return str() != other; }
-			bool operator == (const std::string& other) const { return str() == other; }
-
-		private:
-			std::string str_substr(size_type pos = 0, size_type n = npos) const
-			{ return pos < size() ? _owner->substr(_begin + pos, std::min(size() - pos, n)) : std::string(); }
-		};
 
 		struct DelimiterMatch
 		{
@@ -175,10 +176,9 @@ namespace stingray
 			DelimiterMatch() : Position(std::string::npos), Size() { }
 			DelimiterMatch(size_t pos, size_t size): Position(pos), Size(size) { }
 		};
+
 	}
 
-
-	typedef Detail::StringRef	StringRef;
 
 	class IsAnyOf
 	{
