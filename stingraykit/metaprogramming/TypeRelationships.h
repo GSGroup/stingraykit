@@ -60,13 +60,13 @@ namespace stingray
 	};
 
 
-	template < typename T, typename U>
+	template < typename From, typename To>
 	struct IsConvertible
 	{
-		static YesType Test(U);
+		static YesType Test(To);
 		static NoType Test(...);
 
-		static const bool Value = sizeof(Test(*((const T*)0))) == sizeof(YesType);
+		static const bool Value = sizeof(Test(*((const From*)0))) == sizeof(YesType);
 	};
 
 
