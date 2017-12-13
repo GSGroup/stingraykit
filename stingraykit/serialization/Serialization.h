@@ -71,7 +71,7 @@ namespace stingray
 			STINGRAYKIT_DECLARE_ENUM_CLASS(TypeTraits);
 		};
 		template<typename Type, typename Stream, TypeTraits::Enum Traits =
-			SameType<Type, NullPtrType>::Value? TypeTraits::NullType:
+			IsSame<Type, NullPtrType>::Value? TypeTraits::NullType:
 				TypeListContains<UnsignedTypes, Type>::Value? TypeTraits::UnsignedInt:
 					(TypeListContains<SignedTypes, Type>::Value? TypeTraits::SignedInt:
 						(IsStringRepresentable<Type>::Value ? TypeTraits::StringRepresentableClass : TypeTraits::Other))
@@ -300,7 +300,7 @@ namespace stingray
 		};
 
 		template<typename T>
-		ObjectOStream& serialize(const shared_ptr<T>& value, typename EnableIf<Inherits<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
+		ObjectOStream& serialize(const shared_ptr<T>& value, typename EnableIf<IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
 		{
 			if (!value)
 			{
@@ -319,7 +319,7 @@ namespace stingray
 
 
 		template<typename T>
-		ObjectOStream& serialize(const shared_ptr<T>& value, typename EnableIf<!Inherits<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
+		ObjectOStream& serialize(const shared_ptr<T>& value, typename EnableIf<!IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
 		{
 			if (!value)
 			{
@@ -452,7 +452,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		typename EnableIf<!InheritsIReadonlyList<T>::Value && !InheritsIReadonlySet<T>::Value && !InheritsIReadonlyDictionary<T>::Value, ObjectOStream&>::ValueT serialize(const T &obj)
+		typename EnableIf<!IsInheritedIReadonlyList<T>::Value && !IsInheritedIReadonlySet<T>::Value && !IsInheritedIReadonlyDictionary<T>::Value, ObjectOStream&>::ValueT serialize(const T &obj)
 		{
 			CollectionSerializer<T>::Serialize(*this, obj);
 			return *this;
@@ -667,7 +667,7 @@ namespace stingray
 		bool is_array() const;
 
 		template<typename T>
-		void deserialize(shared_ptr<T>& value, typename EnableIf<Inherits<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
+		void deserialize(shared_ptr<T>& value, typename EnableIf<IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
 		{
 			value.reset();
 			if (is_null())
@@ -678,7 +678,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		void deserialize(shared_ptr<T>& value, typename EnableIf<!Inherits<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
+		void deserialize(shared_ptr<T>& value, typename EnableIf<!IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
 		{
 			value.reset();
 			if (is_null())
@@ -855,7 +855,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		typename EnableIf<!InheritsIList<T>::Value && !InheritsISet<T>::Value && !InheritsIDictionary<T>::Value, ObjectIStream&>::ValueT deserialize(T& value)
+		typename EnableIf<!IsInheritedIList<T>::Value && !IsInheritedISet<T>::Value && !IsInheritedIDictionary<T>::Value, ObjectIStream&>::ValueT deserialize(T& value)
 		{ return CollectionDeserializer<T>::Deserialize(_collection, *this, value); }
 
 		template<typename T>

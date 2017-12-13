@@ -243,7 +243,7 @@ namespace stingray
 		static void Check()
 		{
 			typedef BaseValueMapper<Derived, SrcT, DstT> ThisT;
-			CompileTimeAssert<Inherits<Derived, ThisT>::Value> ERR_DerivedDoesntInherit_BaseValueMapper;
+			CompileTimeAssert<IsInherited<Derived, ThisT>::Value> ERR_DerivedDoesntInherit_BaseValueMapper;
 		}
 	};
 

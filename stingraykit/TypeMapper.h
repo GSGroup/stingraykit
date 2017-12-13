@@ -22,7 +22,7 @@ namespace stingray
 		template < typename Entry >
 		struct MappingChecker
 		{
-			CompileTimeAssert<!SameType<Entry, TypeListEndNode>::Value> ERROR_no_mapping;
+			CompileTimeAssert<!IsSame<Entry, TypeListEndNode>::Value> ERROR_no_mapping;
 			typedef Entry ValueT;
 		};
 
@@ -39,7 +39,7 @@ namespace stingray
 		{
 			template < typename Entry >
 			struct SrcFit
-			{ static const bool Value = SameType<typename Entry::SrcType, Src>::Value; };
+			{ static const bool Value = IsSame<typename Entry::SrcType, Src>::Value; };
 
 			typedef typename MappingChecker<typename TypeListFindIf<typename Derived::MappingsList, SrcFit>::ValueT>::ValueT::DstType ValueT;
 		};
@@ -49,7 +49,7 @@ namespace stingray
 		{
 			template < typename Entry >
 			struct DstFit
-			{ static const bool Value = SameType<typename Entry::DstType, Dst>::Value; };
+			{ static const bool Value = IsSame<typename Entry::DstType, Dst>::Value; };
 
 			typedef typename MappingChecker<typename TypeListFindIf<typename Derived::MappingsList, DstFit>::ValueT>::ValueT::SrcType ValueT;
 		};

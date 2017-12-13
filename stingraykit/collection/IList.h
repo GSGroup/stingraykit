@@ -52,7 +52,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct InheritsIReadonlyList : public Inherits1ParamTemplate<T, IReadonlyList>
+	struct IsInheritedIReadonlyList : public IsInherited1ParamTemplate<T, IReadonlyList>
 	{ };
 
 
@@ -81,7 +81,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct InheritsIList : public Inherits1ParamTemplate<T, IList>
+	struct IsInheritedIList : public IsInherited1ParamTemplate<T, IList>
 	{ };
 
 	/** @} */

@@ -33,7 +33,7 @@ namespace stingray
 
 
 		template <typename Src_, typename Dst_>
-		struct PointersCaster<Src_, Dst_, typename EnableIf<Inherits<Src_, Dst_>::Value, void>::ValueT>
+		struct PointersCaster<Src_, Dst_, typename EnableIf<IsInherited<Src_, Dst_>::Value, void>::ValueT>
 		{
 			static Dst_* Do(Src_* src)
 			{ return src; }

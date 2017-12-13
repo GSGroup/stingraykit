@@ -15,13 +15,13 @@
 namespace stingray
 {
 
-	template <typename T, typename U> struct SameType { static const bool Value = false; };
-	template <typename T> struct SameType<T, T> { static const bool Value = true; };
+	template <typename T, typename U> struct IsSame { static const bool Value = false; };
+	template <typename T> struct IsSame<T, T> { static const bool Value = true; };
 
 	namespace Detail
 	{
 		template <typename Derived, typename Base>
-		class InheritsImpl
+		class IsInheritedImpl
 		{
 		private:
 			static YesType TestInheritance(const Base*);
@@ -33,10 +33,10 @@ namespace stingray
 	}
 
 	template <typename Derived, typename Base>
-	struct Inherits : If<SameType<Derived, Base>::Value, integral_constant<bool, true>, Detail::InheritsImpl<Derived, Base> >::ValueT { };
+	struct IsInherited : If<IsSame<Derived, Base>::Value, integral_constant<bool, true>, Detail::IsInheritedImpl<Derived, Base> >::ValueT { };
 
 	template < typename Derived, template <typename> class Base>
-	class Inherits1ParamTemplate
+	class IsInherited1ParamTemplate
 	{
 	private:
 		template < typename T >
@@ -48,7 +48,7 @@ namespace stingray
 	};
 
 	template < typename Derived, template <typename, typename> class Base>
-	class Inherits2ParamTemplate
+	class IsInherited2ParamTemplate
 	{
 	private:
 		template < typename T1, typename T2 >
@@ -61,7 +61,7 @@ namespace stingray
 
 
 	template < typename T, typename U>
-	struct CanCast
+	struct IsConvertible
 	{
 		static YesType Test(U);
 		static NoType Test(...);

@@ -54,7 +54,7 @@ namespace stingray
 		{ if (_rawPtr) _rawPtr->add_ref(); }
 
 		template<typename U>
-		inline self_count_ptr(const self_count_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0)
+		inline self_count_ptr(const self_count_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr)
 		{ if (_rawPtr) _rawPtr->add_ref(); }
 

@@ -49,7 +49,7 @@ namespace stingray
 
 	template < typename T >
 	struct IsEnumerable
-	{ static const bool Value = Inherits1ParamTemplate<T, IEnumerable>::Value; };
+	{ static const bool Value = IsInherited1ParamTemplate<T, IEnumerable>::Value; };
 
 
 	namespace Detail

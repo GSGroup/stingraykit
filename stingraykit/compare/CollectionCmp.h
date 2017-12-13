@@ -20,7 +20,7 @@ namespace stingray
 		template < typename T >
 		int DoCompare(const T& lhs, const T& rhs) const
 		{
-			CompileTimeAssert<SameType<typename function_info<ItemCmp>::RetType, int>::Value> ErrorExpectedCmpComparer;
+			CompileTimeAssert<IsSame<typename function_info<ItemCmp>::RetType, int>::Value> ErrorExpectedCmpComparer;
 			(void)ErrorExpectedCmpComparer;
 			return DoCompareRanges(ToRange(lhs), ToRange(rhs));
 		}

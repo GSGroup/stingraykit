@@ -68,7 +68,7 @@ namespace stingray
 		};
 
 
-		template < typename Signature, typename FunctorType, bool HasReturnType = !SameType<typename function_info<Signature>::RetType, void>::Value >
+		template < typename Signature, typename FunctorType, bool HasReturnType = !IsSame<typename function_info<Signature>::RetType, void>::Value >
 		class Invokable : public IInvokable<Signature>
 		{
 			STINGRAYKIT_NONCOPYABLE(Invokable);

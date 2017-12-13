@@ -72,7 +72,7 @@ namespace stingray
 	}
 
 	template < typename T, typename StringType >
-	typename EnableIf<!HasMethod_FromString<T>::Value && !SameType<T, StringType>::Value, T>::ValueT FromString(const StringType & str)
+	typename EnableIf<!HasMethod_FromString<T>::Value && !IsSame<T, StringType>::Value, T>::ValueT FromString(const StringType & str)
 	{
 		if (str.empty()) //old from string behaved this way.
 			return 0;
@@ -98,7 +98,7 @@ namespace stingray
 	}
 
 	template < typename T, typename StringType >
-	typename EnableIf<SameType<T, StringType>::Value, StringType>::ValueT FromString(const StringType & str)
+	typename EnableIf<IsSame<T, StringType>::Value, StringType>::ValueT FromString(const StringType & str)
 	{ return str; }
 
 
@@ -135,12 +135,12 @@ namespace stingray
 								TypeToStringObjectType::Enumerable :
 								(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ?
 									TypeToStringObjectType::HasBeginEnd :
-									(Inherits<ObjectType, std::exception>::Value ?
+									(IsInherited<ObjectType, std::exception>::Value ?
 										TypeToStringObjectType::IsException :
 										(
-											SameType<u8, ObjectType>::Value
-												|| SameType<NullPtrType, ObjectType>::Value
-												|| SameType<const char*, ObjectType>::Value
+											IsSame<u8, ObjectType>::Value
+												|| IsSame<NullPtrType, ObjectType>::Value
+												|| IsSame<const char*, ObjectType>::Value
 												|| IsSharedPtr<ObjectType>::Value
 												|| Is1ParamTemplate<optional, ObjectType>::Value
 												|| Is1ParamTemplate<Tuple, ObjectType>::Value

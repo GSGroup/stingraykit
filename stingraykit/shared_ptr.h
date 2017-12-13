@@ -362,7 +362,7 @@ namespace stingray
 
 
 		template < typename U >
-		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<Inherits<U, T>::Value, Dummy>::ValueT* = 0) :
+		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0) :
 			_rawPtr(other._rawPtr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
 

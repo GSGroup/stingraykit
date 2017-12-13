@@ -162,7 +162,7 @@ namespace stingray
 
 		template < typename T >
 		struct IsPtrToISerializable<T, true>
-		{ static const bool Value = Inherits<typename GetSharedPtrParam<T>::ValueT, ISerializable>::Value; };
+		{ static const bool Value = IsInherited<typename GetSharedPtrParam<T>::ValueT, ISerializable>::Value; };
 
 		template < typename T, bool PtrToISerializable = IsPtrToISerializable<T>::Value >
 		struct CppTypeToAnyUnionType

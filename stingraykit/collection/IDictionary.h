@@ -42,7 +42,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct InheritsIReadonlyDictionary : public Inherits2ParamTemplate<T, IReadonlyDictionary>
+	struct IsInheritedIReadonlyDictionary : public IsInherited2ParamTemplate<T, IReadonlyDictionary>
 	{ };
 
 
@@ -68,7 +68,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct InheritsIDictionary : public Inherits2ParamTemplate<T, IDictionary>
+	struct IsInheritedIDictionary : public IsInherited2ParamTemplate<T, IDictionary>
 	{ };
 
 

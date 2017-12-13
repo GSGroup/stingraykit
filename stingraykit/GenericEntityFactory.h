@@ -161,7 +161,7 @@ namespace stingray
 				{ return FactoryType::Create(stream); }
 			};
 
-			typedef RegistryEntry<Entry::Tag, typename If<Inherits<typename Entry::Type, BaseEntityType>::Value,
+			typedef RegistryEntry<Entry::Tag, typename If<IsInherited<typename Entry::Type, BaseEntityType>::Value,
 					DefaultEntityCreator<typename Entry::Type>,
 					FactoryEntityCreator<typename Entry::Type>
 			>::ValueT> ValueT;

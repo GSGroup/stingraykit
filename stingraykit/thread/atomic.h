@@ -41,7 +41,7 @@ namespace stingray
 
 
 		template<typename T, AtomicImplType::Enum ImplType =
-			SameType<T, bool>::Value ? AtomicImplType::Bool :
+			IsSame<T, bool>::Value ? AtomicImplType::Bool :
 			IsAtomicIntType<T>::Value ? AtomicImplType::Integral :
 			IsEnumClass<T>::Value ? AtomicImplType::EnumClass : AtomicImplType::Fallback>
 		class AtomicImpl;

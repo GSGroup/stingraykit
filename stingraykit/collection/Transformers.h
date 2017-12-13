@@ -21,7 +21,7 @@ namespace stingray
 
 	template<typename T>
 	struct IsTransformer
-	{ static const bool Value = Inherits<T, TransformerMarker>::Value; };
+	{ static const bool Value = IsInherited<T, TransformerMarker>::Value; };
 
 
 	template <typename Arg_, typename Enabler = void>

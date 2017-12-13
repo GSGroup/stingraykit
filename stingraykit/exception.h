@@ -227,9 +227,9 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename BaseException >
-		inline typename EnableIf<Inherits<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, ToolkitWhere where)
+		inline typename EnableIf<IsInherited<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, ToolkitWhere where)
 		{
-			CompileTimeAssert<Inherits<BaseException, std::exception>::Value > ERROR_invalid_exception;
+			CompileTimeAssert<IsInherited<BaseException, std::exception>::Value > ERROR_invalid_exception;
 			(void)ERROR_invalid_exception;
 			return ExceptionWrapper<BaseException>(ex, where);
 		}
@@ -244,7 +244,7 @@ namespace stingray
 			return MakeException(Exception(message), where);
 		}
 
-		template < typename T, bool CanCastToBool = CanCast<T, bool>::Value >
+		template < typename T, bool CanCastToBool = IsConvertible<T, bool>::Value >
 		struct NullTester;
 
 		template < typename T >

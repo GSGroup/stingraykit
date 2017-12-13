@@ -123,7 +123,7 @@ namespace stingray
 			template < typename T >
 			inline operator T() const
 			{
-				CompileTimeAssert<!SameType<T, BitsGetterProxy>::Value >	ERROR__old_gcc_bug;
+				CompileTimeAssert<!IsSame<T, BitsGetterProxy>::Value >	ERROR__old_gcc_bug;
 				(void)ERROR__old_gcc_bug;
 				CompileTimeAssert<SizeBits <= 64>();
 
@@ -179,7 +179,7 @@ namespace stingray
 			template < typename T >
 			inline operator T() const
 			{
-				CompileTimeAssert<!SameType<T, BitsGetterProxy>::Value >	ERROR__old_gcc_bug;
+				CompileTimeAssert<!IsSame<T, BitsGetterProxy>::Value >	ERROR__old_gcc_bug;
 				(void)ERROR__old_gcc_bug;
 
 				// In case of negative SizeBits or OffsetBits index check can pass due to overflow

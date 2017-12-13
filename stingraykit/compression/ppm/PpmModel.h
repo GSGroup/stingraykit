@@ -99,7 +99,7 @@ namespace stingray
 
 		public:
 			ModelBuilder() : _contextsCount(0), _entriesCount(0)
-			{ CompileTimeAssert<(ContextSize > ChildModel::ContextSize || SameType<typename ModelConfigList_::Next, TypeListEndNode>::Value)> ModelConfigsMustBeSortedInDescendingOrder; }
+			{ CompileTimeAssert<(ContextSize > ChildModel::ContextSize || IsSame<typename ModelConfigList_::Next, TypeListEndNode>::Value)> ModelConfigsMustBeSortedInDescendingOrder; }
 
 			void AddSymbol(const std::deque<Symbol>& context, Symbol symbol, SymbolCount count)
 			{

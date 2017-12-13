@@ -200,7 +200,7 @@ namespace stingray
 			template <typename Lhs, typename Rhs>
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{
-				CompileTimeAssert<SameType<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
+				CompileTimeAssert<IsSame<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
 				(void)ErrorExpectedCmpComparer;
 
 				return _comparer(lhs, rhs) < 0;
@@ -224,7 +224,7 @@ namespace stingray
 			template <typename Lhs, typename Rhs>
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{
-				CompileTimeAssert<SameType<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
+				CompileTimeAssert<IsSame<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
 				(void)ErrorExpectedCmpComparer;
 
 				return _comparer(lhs, rhs) > 0;
@@ -248,7 +248,7 @@ namespace stingray
 			template <typename Lhs, typename Rhs>
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{
-				CompileTimeAssert<SameType<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
+				CompileTimeAssert<IsSame<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
 				(void)ErrorExpectedCmpComparer;
 
 				return _comparer(lhs, rhs) == 0;

@@ -606,17 +606,17 @@ namespace stingray
 
 
 		template <typename TResult, typename SrcEnumerator>
-		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<Inherits1ParamTemplate<SrcEnumerator, IEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<IsInherited1ParamTemplate<SrcEnumerator, IEnumerator>::Value, int>::ValueT dummy = 0)
 		{ return make_shared<Detail::EnumeratorOfType<TResult, shared_ptr<SrcEnumerator> > >(enumerator); }
 
 
 		template <typename TResult, typename SrcEnumerable>
-		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<Inherits1ParamTemplate<SrcEnumerable, IEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsInherited1ParamTemplate<SrcEnumerable, IEnumerable>::Value, int>::ValueT dummy = 0)
 		{ return MakeSimpleEnumerable(bind(MakeShared<Detail::EnumeratorOfType<TResult, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType> > > >(), lazy(bind(&SrcEnumerable::GetEnumerator, enumerable)))); }
 
 
 		template < typename CollectionType >
-		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerator, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerator, typename EnableIf<IsInherited1ParamTemplate<CollectionType, IEnumerator>::Value, int>::ValueT dummy = 0)
 		{
 			shared_ptr<std::vector<typename CollectionType::ItemType> > result(new std::vector<typename CollectionType::ItemType>);
 			for (; enumerator.Valid(); enumerator.Next())
@@ -625,7 +625,7 @@ namespace stingray
 		}
 
 		template < typename CollectionType >
-		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0, typename EnableIf<!Inherits1ParamTemplate<CollectionType, IReversableEnumerable>::Value, int>::ValueT dummy2 = 0)
+		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<IsInherited1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0, typename EnableIf<!IsInherited1ParamTemplate<CollectionType, IReversableEnumerable>::Value, int>::ValueT dummy2 = 0)
 		{
 			shared_ptr<std::vector<typename CollectionType::ItemType> > result(new std::vector<typename CollectionType::ItemType>);
 			for (shared_ptr<IEnumerator<typename CollectionType::ItemType> > enumerator = enumerable->GetEnumerator(); enumerator->Valid(); enumerator->Next())
@@ -634,7 +634,7 @@ namespace stingray
 		}
 
 		template < typename CollectionType >
-		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0, typename EnableIf<Inherits1ParamTemplate<CollectionType, IReversableEnumerable>::Value, int>::ValueT dummy2 = 0)
+		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<IsInherited1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0, typename EnableIf<IsInherited1ParamTemplate<CollectionType, IReversableEnumerable>::Value, int>::ValueT dummy2 = 0)
 		{ return enumerable->Reverse(); }
 
 
@@ -703,14 +703,14 @@ namespace stingray
 
 
 		template < typename CollectionType, typename PredicateFunc >
-		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerator, const PredicateFunc& predicate, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerator, const PredicateFunc& predicate, typename EnableIf<IsInherited1ParamTemplate<CollectionType, IEnumerator>::Value, int>::ValueT dummy = 0)
 		{
 			typedef typename CollectionType::ItemType T;
 			return make_shared<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, predicate);
 		}
 
 		template < typename CollectionType, typename PredicateFunc >
-		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerable, const PredicateFunc& predicate, typename EnableIf<Inherits1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerable, const PredicateFunc& predicate, typename EnableIf<IsInherited1ParamTemplate<CollectionType, IEnumerable>::Value, int>::ValueT dummy = 0)
 		{
 			typedef typename CollectionType::ItemType T;
 			return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate);

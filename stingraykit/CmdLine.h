@@ -167,7 +167,7 @@ namespace stingray
 		size_t ReadCmdArg(const char* str, size_t len, T& val)
 		{ return CmdArgReader<T>::Read(str, len, val); }
 
-		template < typename T, size_t N, bool TIsUnknownType = !IsEnumClass<T>::Value && !SameType<bool, T>::Value >
+		template < typename T, size_t N, bool TIsUnknownType = !IsEnumClass<T>::Value && !IsSame<bool, T>::Value >
 		struct CmdArgCompleter
 		{
 			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete)

@@ -25,7 +25,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template <typename FunctorType, bool HasReturnType = !SameType<typename function_info<FunctorType>::RetType, void>::Value>
+		template <typename FunctorType, bool HasReturnType = !IsSame<typename function_info<FunctorType>::RetType, void>::Value>
 		class AsyncFunctionBase : public function_info<FunctorType>
 		{
 		public:

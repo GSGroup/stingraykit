@@ -50,21 +50,21 @@ namespace stingray
 	namespace Detail
 	{
 	    template<typename Base>
-		struct InheritsTester
+		struct InheritanceTester
 		{
 			template<typename Derived>
 			struct Predicate
-			{ static const bool Value = Inherits<Derived, Base>::Value; };
+			{ static const bool Value = IsInherited<Derived, Base>::Value; };
 		};
 
 		template<typename TypeList, typename Type>
 		struct TypeListFilterInheritedTypes
 		{
-			typedef typename TypeListCopyIf<TypeList, InheritsTester<Type>::template Predicate>::ValueT ValueT;
+			typedef typename TypeListCopyIf<TypeList, InheritanceTester<Type>::template Predicate>::ValueT ValueT;
 			static const bool IsEmpty = GetTypeListLength<ValueT>::Value == 0;
 		};
 
-		template<typename Visitor, typename Variant, bool HasRetType = !SameType<typename Visitor::RetType, void>::Value>
+		template<typename Visitor, typename Variant, bool HasRetType = !IsSame<typename Visitor::RetType, void>::Value>
 		struct VariantFunctorApplier
 		{
 			template<int Index>
@@ -239,11 +239,11 @@ namespace stingray
 			struct GetPointerVisitor : static_visitor<DesiredType *>
 			{
 				template<typename Type>
-				typename EnableIf<Inherits<Type, DesiredType>::Value, DesiredType *>::ValueT operator()(Type &value)
+				typename EnableIf<IsInherited<Type, DesiredType>::Value, DesiredType *>::ValueT operator()(Type &value)
 				{ return &value; }
 
 				template<typename Type>
-				typename EnableIf<!Inherits<Type, DesiredType>::Value, DesiredType *>::ValueT operator()(Type &value)
+				typename EnableIf<!IsInherited<Type, DesiredType>::Value, DesiredType *>::ValueT operator()(Type &value)
 				{ return NULL; }
 			};
 
