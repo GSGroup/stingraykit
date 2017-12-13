@@ -16,8 +16,7 @@ namespace stingray
 	template <typename T>
 	inline void CheckedDelete(T* t)
 	{
-		StaticAssertCompleteType<T> ErrorTypeIsIncomplete;
-		(void)ErrorTypeIsIncomplete;
+		(void)IsComplete<T>::Value;
 		delete t;
 	}
 
@@ -25,8 +24,7 @@ namespace stingray
 	template <typename T>
 	inline void CheckedArrayDelete(T* t)
 	{
-		StaticAssertCompleteType<T> ErrorTypeIsIncomplete;
-		(void)ErrorTypeIsIncomplete;
+		(void)IsComplete<T>::Value;
 		delete[] t;
 	}
 
