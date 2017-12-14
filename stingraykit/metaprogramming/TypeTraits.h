@@ -119,9 +119,6 @@ namespace stingray
 	template < typename T > struct IsComplete										: integral_constant<bool, sizeof(T) == sizeof(T)> { };
 
 
-	template < typename T > struct IsSigned											: integral_constant<bool, (~(T)0) < ((T)0)> { };
-
-
 	typedef TypeList<u8, s8, u16, s16, u32, s32, u64, s64>::type																	FixedWidthIntTypes;
 	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TypeList<unsigned, unsigned long, size_t, int, long, off_t> > >::ValueT	IntTypes;
 	typedef TypeListMerge<TypeList_2<IntTypes, TypeList<float, double, bool> > >::ValueT											BuiltinTypes;
@@ -129,6 +126,16 @@ namespace stingray
 	template < typename T > struct IsInt											: TypeListContains<IntTypes, T> { };
 	template < typename T > struct IsFixedWidthInt									: TypeListContains<FixedWidthIntTypes, T> { };
 	template < typename T > struct IsBuiltin										: TypeListContains<BuiltinTypes, T> { };
+
+	namespace Detail
+	{
+
+		template < typename T, bool = IsInt<T>::Value > struct IsSignedImpl			: integral_constant<bool, ~T(0) < T(0)> { };
+		template < typename T > struct IsSignedImpl<T, false>						: FalseType { };
+
+	}
+	template < typename T > struct IsSigned											: Detail::IsSignedImpl<T> { };
+
 }
 
 #endif
