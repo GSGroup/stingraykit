@@ -70,7 +70,7 @@ namespace stingray
 		};
 
 		template < >
-		struct CmdArgReader<bool, false, false>
+		struct CmdArgReader<bool, false, true>
 		{
 			static size_t Read(const char* str, size_t len, bool& val)
 			{
