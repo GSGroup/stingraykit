@@ -120,7 +120,7 @@ namespace stingray
 
 
 	typedef TypeList<u8, s8, u16, s16, u32, s32, u64, s64>::type																	FixedWidthIntTypes;
-	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TypeList<long, unsigned long, size_t, off_t> > >::ValueT					IntTypes;
+	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TypeList<char, long, unsigned long, size_t, off_t> > >::ValueT				IntTypes;
 	typedef TypeList<float, double, long double>::type																				FloatTypes;
 	typedef TypeListMerge<TypeList_3<IntTypes, FloatTypes, TypeList<bool> > >::ValueT												BuiltinTypes;
 
