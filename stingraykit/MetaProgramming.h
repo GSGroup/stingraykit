@@ -19,6 +19,7 @@
 #include <stingraykit/metaprogramming/Math.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/metaprogramming/NullType.h>
+#include <stingraykit/metaprogramming/TypeList.h>
 #include <stingraykit/metaprogramming/TypeRelationships.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
 #include <stingraykit/metaprogramming/YesNo.h>

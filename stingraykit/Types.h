@@ -11,7 +11,8 @@
 
 #include <stdint.h>
 
-#include <stingraykit/TypeList.h>
+#include <stingraykit/metaprogramming/Math.h>
+#include <stingraykit/metaprogramming/TypeList.h>
 
 
 namespace stingray

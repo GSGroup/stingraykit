@@ -11,7 +11,6 @@
 
 #include <stingraykit/Macro.h>
 #include <stingraykit/toolkit.h>
-#include <stingraykit/TypeList.h>
 
 
 namespace stingray

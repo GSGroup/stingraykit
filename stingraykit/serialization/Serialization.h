@@ -12,7 +12,6 @@
 #include <stingraykit/Factory.h>
 #include <stingraykit/Final.h>
 #include <stingraykit/MetaProgramming.h>
-#include <stingraykit/TypeList.h>
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/collection/BytesOwner.h>
 #include <stingraykit/collection/ForEach.h>

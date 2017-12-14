@@ -10,7 +10,6 @@
 
 
 #include <stingraykit/aligned_storage.h>
-#include <stingraykit/TypeList.h>
 
 namespace stingray
 {

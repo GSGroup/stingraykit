@@ -10,7 +10,6 @@
 
 #include <stingraykit/Dummy.h>
 #include <stingraykit/Tuple.h>
-#include <stingraykit/TypeList.h>
 #include <stingraykit/signal/signals.h>
 
 namespace stingray {

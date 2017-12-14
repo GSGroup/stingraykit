@@ -15,7 +15,6 @@
 #include <stingraykit/PerfectForwarding.h>
 #include <stingraykit/reference.h>
 #include <stingraykit/shared_ptr.h>
-#include <stingraykit/TypeList.h>
 
 namespace stingray
 {

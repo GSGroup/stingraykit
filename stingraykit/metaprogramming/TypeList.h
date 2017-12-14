@@ -12,7 +12,9 @@
 #include <sys/types.h>
 
 #include <stingraykit/Macro.h>
-#include <stingraykit/MetaProgramming.h>
+#include <stingraykit/metaprogramming/Functional.h>
+#include <stingraykit/metaprogramming/If.h>
+#include <stingraykit/metaprogramming/YesNo.h>
 
 
 namespace stingray

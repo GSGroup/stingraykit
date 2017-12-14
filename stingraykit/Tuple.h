@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/Dummy.h>
-#include <stingraykit/TypeList.h>
 #include <stingraykit/Types.h>
 #include <stingraykit/metaprogramming/ParamPassingType.h>
 
