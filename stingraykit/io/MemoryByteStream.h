@@ -11,7 +11,6 @@
 
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/io/IByteStream.h>
-#include <stingraykit/MetaProgramming.h>
 
 
 namespace stingray

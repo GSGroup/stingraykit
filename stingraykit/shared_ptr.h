@@ -20,7 +20,6 @@
 #include <stingraykit/exception.h>
 #include <stingraykit/fatal.h>
 #include <stingraykit/safe_bool.h>
-#include <stingraykit/toolkit.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
 
 #include <sys/types.h>

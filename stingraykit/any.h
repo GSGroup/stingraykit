@@ -13,7 +13,6 @@
 
 #include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/Factory.h>
-#include <stingraykit/MetaProgramming.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/aligned_storage.h>
 #include <stingraykit/exception.h>

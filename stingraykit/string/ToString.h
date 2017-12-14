@@ -10,12 +10,10 @@
 
 #include <stingraykit/Dummy.h>
 #include <stingraykit/Macro.h>
-#include <stingraykit/Types.h>
 #include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/collection/RangeBase.h>
 #include <stingraykit/exception.h>
-#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/string/string_stream.h>

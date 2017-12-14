@@ -11,7 +11,6 @@
 
 #include <typeinfo>
 
-#include <stingraykit/MetaProgramming.h>
 #include <stingraykit/MultiStorageFor.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/exception.h>

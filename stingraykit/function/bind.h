@@ -10,8 +10,6 @@
 
 #include <stingraykit/function/function.h>
 #include <stingraykit/function/FunctorInvoker.h>
-#include <stingraykit/Macro.h>
-#include <stingraykit/MetaProgramming.h>
 #include <stingraykit/PerfectForwarding.h>
 #include <stingraykit/reference.h>
 #include <stingraykit/shared_ptr.h>

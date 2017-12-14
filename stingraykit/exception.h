@@ -14,7 +14,6 @@
 #include <string>
 
 
-#include <stingraykit/MetaProgramming.h>
 #include <stingraykit/diagnostics/Backtrace.h>
 #include <stingraykit/string/string_stream.h>
 #include <stingraykit/toolkit.h>

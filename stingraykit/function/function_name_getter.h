@@ -10,7 +10,6 @@
 
 #include <stingraykit/TypeInfo.h>
 #include <stingraykit/function/function_info.h>
-#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 
 namespace stingray
 {

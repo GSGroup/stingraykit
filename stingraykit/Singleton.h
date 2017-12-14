@@ -12,7 +12,6 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/call_once.h>
 #include <stingraykit/unique_ptr.h>
-#include <stingraykit/toolkit.h>
 
 
 #define STINGRAYKIT_SINGLETON(ClassName) \

@@ -13,7 +13,6 @@
 #include <stingraykit/NullPtrType.h>
 #include <stingraykit/Types.h>
 #include <stingraykit/core/NonCopyable.h>
-#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 
 #include <stdexcept>
 

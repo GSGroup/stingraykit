@@ -13,7 +13,6 @@
 
 #include <string>
 
-#include <stingraykit/MetaProgramming.h>
 #include <stingraykit/Types.h>
 #include <stingraykit/collection/array.h>
 #include <stingraykit/exception.h>
