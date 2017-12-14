@@ -14,7 +14,7 @@
 namespace stingray
 {
 
-	namespace Detail_ParamPassingType
+	namespace Detail
 	{
 
 		template < typename T, typename Enabler = void > struct PassByRef									: TrueType { };
@@ -29,7 +29,7 @@ namespace stingray
 	class GetParamPassingType
 	{
 		typedef typename RemoveReference<typename RemoveConst<T>::ValueT>::ValueT RawType;
-		typedef typename If<Detail_ParamPassingType::PassByRef<T>::Value, typename AddConstReference<RawType>::ValueT, RawType>::ValueT ConstPassingType;
+		typedef typename If<Detail::PassByRef<T>::Value, typename AddConstReference<RawType>::ValueT, RawType>::ValueT ConstPassingType;
 
 	public:
 		typedef typename If<IsNonConstReference<T>::Value, typename AddReference<RawType>::ValueT, ConstPassingType>::ValueT ValueT;
