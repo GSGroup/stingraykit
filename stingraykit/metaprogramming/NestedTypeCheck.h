@@ -27,10 +27,6 @@ namespace stingray
 		static const bool Value = sizeof(deduce<T>(0)) == sizeof(stingray::YesType); \
 	}
 
-	namespace Detail
-	{
-		struct DoesNotHaveAnyNestedTypes : FalseType { };
-	}
 
 #define STINGRAYKIT_DECLARE_METHOD_CHECK(Method_) \
 	template < typename T > \
@@ -57,7 +53,7 @@ namespace stingray
 			stingray::If< \
 					stingray::IsClass<T>::Value, \
 					Impl<T>, \
-					stingray::Detail::DoesNotHaveAnyNestedTypes \
+					stingray::FalseType \
 				>::ValueT::Value; \
 	}
 
