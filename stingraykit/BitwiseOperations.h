@@ -13,7 +13,7 @@
 
 
 #define STINGRAYKIT_MUST_HAVE_FIXED_WIDTH(...) \
-	CompileTimeAssert< IsFixedWidthIntType<__VA_ARGS__>::Value > ERROR_Integer_Must_Have_Fixed_Width;
+	CompileTimeAssert< IsFixedWidthInt<__VA_ARGS__>::Value > ERROR_Integer_Must_Have_Fixed_Width;
 
 
 namespace stingray

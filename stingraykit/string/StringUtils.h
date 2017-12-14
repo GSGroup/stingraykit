@@ -228,7 +228,7 @@ namespace stingray
 			template<typename R>
 			operator typename EnableIf
 			<
-				IsIntType<typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT>::Value,
+				IsInt<typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT>::Value,
 				typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT
 			>::ValueT () const
 			{

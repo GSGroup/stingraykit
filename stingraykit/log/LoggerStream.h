@@ -96,7 +96,7 @@ namespace stingray
 		~LoggerStream();
 
 		template < typename T >
-		typename EnableIf<!IsIntType<T>::Value, LoggerStream&>::ValueT operator << (const T& val)
+		typename EnableIf<!IsInt<T>::Value, LoggerStream&>::ValueT operator << (const T& val)
 		{
 			if (_streamLogLevel < _loggerLogLevel)
 				return *this;
@@ -108,7 +108,7 @@ namespace stingray
 		}
 
 		template < typename T >
-		typename EnableIf<IsIntType<T>::Value, LoggerStream&>::ValueT operator << (T val)
+		typename EnableIf<IsInt<T>::Value, LoggerStream&>::ValueT operator << (T val)
 		{
 			if (_streamLogLevel < _loggerLogLevel)
 				return *this;

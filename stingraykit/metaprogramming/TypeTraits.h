@@ -126,9 +126,9 @@ namespace stingray
 	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TypeList<unsigned, unsigned long, size_t, int, long, off_t> > >::ValueT	IntTypes;
 	typedef TypeListMerge<TypeList_2<IntTypes, TypeList<float, double, bool> > >::ValueT											BuiltinTypes;
 
-	template < typename T > struct IsIntType										: TypeListContains<IntTypes, T> { };
-	template < typename T > struct IsFixedWidthIntType								: TypeListContains<FixedWidthIntTypes, T> { };
-	template < typename T > struct IsBuiltinType									: TypeListContains<BuiltinTypes, T> { };
+	template < typename T > struct IsInt											: TypeListContains<IntTypes, T> { };
+	template < typename T > struct IsFixedWidthInt									: TypeListContains<FixedWidthIntTypes, T> { };
+	template < typename T > struct IsBuiltin										: TypeListContains<BuiltinTypes, T> { };
 }
 
 #endif

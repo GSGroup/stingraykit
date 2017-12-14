@@ -432,14 +432,14 @@ namespace stingray
 		{ }
 
 		template<typename ObjectType>
-		typename EnableIf<!IsIntType<ObjectType>::Value, BasicStringBuilder&>::ValueT operator % (const ObjectType& object)
+		typename EnableIf<!IsInt<ObjectType>::Value, BasicStringBuilder&>::ValueT operator % (const ObjectType& object)
 		{
 			stingray::ToString(_stream, object);
 			return *this;
 		}
 
 		template<typename T>
-		typename EnableIf<IsIntType<T>::Value, BasicStringBuilder&>::ValueT operator % (T object)
+		typename EnableIf<IsInt<T>::Value, BasicStringBuilder&>::ValueT operator % (T object)
 		{
 			stingray::ToString(_stream, object);
 			return *this;

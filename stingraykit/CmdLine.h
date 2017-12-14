@@ -21,7 +21,7 @@ namespace stingray
 		typedef shared_ptr<CustomCompleteFunc>							CustomCompleteFuncPtr;
 		typedef std::map<size_t, CustomCompleteFuncPtr>					CustomCompleteFuncsMap;
 
-		template < typename T, bool THasFromString = HasMethod_FromString<T>::Value, bool TIsIntType = IsIntType<T>::Value >
+		template < typename T, bool THasFromString = HasMethod_FromString<T>::Value, bool TIsIntType = IsInt<T>::Value >
 		struct CmdArgReader;
 
 

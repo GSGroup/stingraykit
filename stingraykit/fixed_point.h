@@ -40,11 +40,11 @@ namespace stingray
 		inline fixed_point operator- () const				{ return fixed_point(-_value, false); }
 
 		template<typename T>
-		inline typename EnableIf<IsIntType<T>::Value, fixed_point>::ValueT operator* (T value) const
+		inline typename EnableIf<IsInt<T>::Value, fixed_point>::ValueT operator* (T value) const
 		{ fixed_point res(*this); return res *= value; }
 
 		template<typename T>
-		inline typename EnableIf<IsIntType<T>::Value, fixed_point>::ValueT operator/ (T value) const
+		inline typename EnableIf<IsInt<T>::Value, fixed_point>::ValueT operator/ (T value) const
 		{ fixed_point res(*this); return res /= value; }
 
 		inline fixed_point operator<<(int shift) const		{ fixed_point res(*this); return res <<= shift; }
@@ -61,11 +61,11 @@ namespace stingray
 
 
 		template<typename T>
-		inline typename EnableIf<IsIntType<T>::Value, fixed_point&>::ValueT operator*= (T value)
+		inline typename EnableIf<IsInt<T>::Value, fixed_point&>::ValueT operator*= (T value)
 		{ _value *= value; return *this; }
 
 		template<typename T>
-		inline typename EnableIf<IsIntType<T>::Value, fixed_point&>::ValueT operator/= (T value)
+		inline typename EnableIf<IsInt<T>::Value, fixed_point&>::ValueT operator/= (T value)
 		{ _value /= value; return *this; }
 
 		inline fixed_point& operator<<=(int shift)			{ _value <<= shift; return *this; }

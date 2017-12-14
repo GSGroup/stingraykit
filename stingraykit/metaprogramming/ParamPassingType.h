@@ -24,7 +24,7 @@ namespace stingray
 		struct PassByRef : TrueType { };
 
 		template < typename T >
-		struct PassByRef<T, typename EnableIf<IsBuiltinType<T>::Value, void>::ValueT> : FalseType { };
+		struct PassByRef<T, typename EnableIf<IsBuiltin<T>::Value, void>::ValueT> : FalseType { };
 
 		template < typename T >
 		struct PassByRef<T, typename EnableIf<IsPointer<T>::Value, void>::ValueT> : FalseType { };
