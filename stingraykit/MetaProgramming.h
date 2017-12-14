@@ -14,6 +14,7 @@
 #include <stingraykit/metaprogramming/ForIf.h>
 #include <stingraykit/metaprogramming/Functional.h>
 #include <stingraykit/metaprogramming/If.h>
+#include <stingraykit/metaprogramming/InheritanceAccumulator.h>
 #include <stingraykit/metaprogramming/IntToType.h>
 #include <stingraykit/metaprogramming/IntegralConstant.h>
 #include <stingraykit/metaprogramming/Math.h>
