@@ -133,7 +133,7 @@ namespace stingray
 		template < typename T, bool = IsInt<T>::Value > struct IsSignedImpl			: integral_constant<bool, ~T(0) < T(0)> { };
 		template < typename T > struct IsSignedImpl<T, false>						: FalseType { };
 
-		template < typename T, bool = IsInt<T>::Value > struct IsUnsignedImpl		: integral_constant<bool, T(0) < ~T(0)> { };
+		template < typename T, bool = IsInt<T>::Value > struct IsUnsignedImpl		: integral_constant<bool, T(0) <~ T(0)> { };
 		template < typename T > struct IsUnsignedImpl<T, false>						: FalseType { };
 
 	}
