@@ -34,7 +34,7 @@ namespace stingray
 
 #define STINGRAYKIT_DECLARE_METHOD_CHECK(Method_) \
 	template < typename T > \
-	struct HasMethod_##Method_ \
+	class HasMethod_##Method_ \
 	{ \
 		template <typename Type_> \
 		class Impl \
@@ -51,6 +51,8 @@ namespace stingray
 		public: \
 			static const bool Value = (sizeof(stingray::YesType) == sizeof(deduce((Base*)0))); \
 		}; \
+		\
+	public: \
 		static const bool Value = \
 			stingray::If< \
 					stingray::IsClass<T>::Value, \
