@@ -17,17 +17,10 @@ namespace stingray
 	namespace Detail_ParamPassingType
 	{
 
-		template < typename T, typename Enabler = void >
-		struct PassByRef : TrueType { };
-
-		template < typename T >
-		struct PassByRef<T, typename EnableIf<IsBuiltin<T>::Value, void>::ValueT> : FalseType { };
-
-		template < typename T >
-		struct PassByRef<T, typename EnableIf<IsPointer<T>::Value, void>::ValueT> : FalseType { };
-
-		template < typename T >
-		struct PassByRef<T, typename EnableIf<IsEnumClass<T>::Value, void>::ValueT> : FalseType { };
+		template < typename T, typename Enabler = void > struct PassByRef									: TrueType { };
+		template < typename T > struct PassByRef<T, typename EnableIf<IsBuiltin<T>::Value, void>::ValueT>	: FalseType { };
+		template < typename T > struct PassByRef<T, typename EnableIf<IsPointer<T>::Value, void>::ValueT>	: FalseType { };
+		template < typename T > struct PassByRef<T, typename EnableIf<IsEnumClass<T>::Value, void>::ValueT>	: FalseType { };
 
 	}
 
