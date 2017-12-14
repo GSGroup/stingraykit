@@ -228,11 +228,11 @@ namespace stingray
 			template<typename R>
 			operator typename EnableIf
 			<
-				IsInt<typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT>::Value,
-				typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT
+				IsInt<typename Decay<R>::ValueT>::Value,
+				typename Decay<R>::ValueT
 			>::ValueT () const
 			{
-				typedef typename RemoveConst<typename RemoveReference<R>::ValueT>::ValueT ValueType;
+				typedef typename Decay<R>::ValueT ValueType;
 				return FromString<ValueType>(_ref.str());
 			}
 */

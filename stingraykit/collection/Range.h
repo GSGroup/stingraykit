@@ -673,8 +673,8 @@ namespace stingray
 
 
 		template <typename Range_>
-		typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT FirstOrDefault(Range_ range)
-		{ return range.Valid() ? range.Get() : typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT(); }
+		typename Decay<typename Range_::ValueType>::ValueT FirstOrDefault(Range_ range)
+		{ return range.Valid() ? range.Get() : typename Decay<typename Range_::ValueType>::ValueT(); }
 
 
 		template <typename SrcRange_, typename Predicate_>
@@ -809,7 +809,7 @@ namespace stingray
 			template <typename Range_>
 			struct RangeToValue
 			{
-				typedef typename If<Range_::ReturnsTemporary, typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT, typename Range_::ValueType>::ValueT ValueT;
+				typedef typename If<Range_::ReturnsTemporary, typename Decay<typename Range_::ValueType>::ValueT, typename Range_::ValueType>::ValueT ValueT;
 			};
 		}
 
@@ -826,20 +826,20 @@ namespace stingray
 
 
 		template < typename Range_>
-		typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT ElementAtOrDefault(Range_ range, size_t index)
+		typename Decay<typename Range_::ValueType>::ValueT ElementAtOrDefault(Range_ range, size_t index)
 		{
 			size_t current = 0;
 			for (; range.Valid(); range.Next(), ++current)
 				if (index == current)
 					return range.Get();
-			return typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT();
+			return typename Decay<typename Range_::ValueType>::ValueT();
 		}
 
 
 		template <typename Range_>
-		typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT Sum(Range_ range)
+		typename Decay<typename Range_::ValueType>::ValueT Sum(Range_ range)
 		{
-			typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT result = 0;
+			typename Decay<typename Range_::ValueType>::ValueT result = 0;
 			for (; range.Valid(); range.Next())
 				result += range.Get();
 			return result;
@@ -992,7 +992,7 @@ namespace stingray
 	template <typename Range_>
 	struct FirstOrDefaultTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef typename RemoveConst<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT ValueT;
+		typedef typename Decay<typename Range_::ValueType>::ValueT ValueT;
 
 		static ValueT Do(const Range_& range, const FirstOrDefaultTransformer& action)
 		{ return Range::FirstOrDefault(range); }

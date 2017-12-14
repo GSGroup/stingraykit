@@ -19,7 +19,7 @@ namespace stingray
 	template<typename T>
 	struct optional : public safe_bool<optional<T> >
 	{
-		typedef typename RemoveConst<typename RemoveReference<T>::ValueT>::ValueT RawType;
+		typedef typename Decay<T>::ValueT RawType;
 
 	private:
 		StorageFor<RawType>	_value;
