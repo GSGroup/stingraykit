@@ -9,10 +9,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <stdint.h>
+#include <sys/types.h>
 
 #include <stingraykit/metaprogramming/Math.h>
-#include <stingraykit/metaprogramming/TypeList.h>
 
 
 namespace stingray
@@ -93,22 +92,6 @@ namespace stingray
 	DETAIL_STINGRAYKIT_DECLARE_INT_TYPE(long long,	64);
 
 	DETAIL_STINGRAYKIT_DECLARE_INT_TRAITS(long int);
-
-	typedef TypeList<u8, s8, u16, s16, u32, s32, u64, s64>::type FixedWidthIntTypes;
-	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TypeList<unsigned, unsigned long, size_t, int, long, off_t> > >::ValueT IntTypes;
-	typedef TypeListMerge<TypeList_2<IntTypes, TypeList<float, double, bool> > >::ValueT BuiltinTypes;
-
-	template < typename T >
-	struct IsSigned : integral_constant<bool, (~(T)0) < ((T)0)> { };
-
-	template < typename T >
-	struct IsIntType : TypeListContains<IntTypes, T> { };
-
-	template < typename T >
-	struct IsFixedWidthIntType : TypeListContains<FixedWidthIntTypes, T> { };
-
-	template < typename T >
-	struct IsBuiltinType : TypeListContains<BuiltinTypes, T> { };
 
 }
 

@@ -11,7 +11,6 @@
 #include <stingraykit/metaprogramming/EnableIf.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
-#include <stingraykit/Types.h>
 
 namespace stingray
 {

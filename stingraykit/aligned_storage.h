@@ -12,6 +12,7 @@
 #include <stddef.h>
 
 #include <stingraykit/Types.h>
+#include <stingraykit/metaprogramming/TypeList.h>
 
 namespace stingray
 {

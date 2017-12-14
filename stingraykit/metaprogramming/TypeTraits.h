@@ -10,7 +10,9 @@
 
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/IntegralConstant.h>
+#include <stingraykit/metaprogramming/TypeList.h>
 #include <stingraykit/metaprogramming/YesNo.h>
+#include <stingraykit/Types.h>
 
 #include <stddef.h>
 
@@ -116,6 +118,17 @@ namespace stingray
 
 	template < typename T > struct IsComplete										: integral_constant<bool, sizeof(T) == sizeof(T)> { };
 
+
+	template < typename T > struct IsSigned											: integral_constant<bool, (~(T)0) < ((T)0)> { };
+
+
+	typedef TypeList<u8, s8, u16, s16, u32, s32, u64, s64>::type																	FixedWidthIntTypes;
+	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TypeList<unsigned, unsigned long, size_t, int, long, off_t> > >::ValueT	IntTypes;
+	typedef TypeListMerge<TypeList_2<IntTypes, TypeList<float, double, bool> > >::ValueT											BuiltinTypes;
+
+	template < typename T > struct IsIntType										: TypeListContains<IntTypes, T> { };
+	template < typename T > struct IsFixedWidthIntType								: TypeListContains<FixedWidthIntTypes, T> { };
+	template < typename T > struct IsBuiltinType									: TypeListContains<BuiltinTypes, T> { };
 }
 
 #endif
