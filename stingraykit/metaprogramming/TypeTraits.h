@@ -8,82 +8,20 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/metaprogramming/ArrayTraits.h>
+#include <stingraykit/metaprogramming/CVTraits.h>
+#include <stingraykit/metaprogramming/PointerTraits.h>
+#include <stingraykit/metaprogramming/ReferenceTraits.h>
+
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/IntegralConstant.h>
 #include <stingraykit/metaprogramming/TypeList.h>
 #include <stingraykit/metaprogramming/YesNo.h>
 #include <stingraykit/Types.h>
 
-#include <stddef.h>
-
 namespace stingray
 {
 
-// Const-volatile
-	template < typename T > struct IsConst											: FalseType	{ };
-	template < typename T > struct IsConst<const T>									: TrueType	{ };
-
-	template < typename T > struct IsVolatile										: FalseType	{ };
-	template < typename T > struct IsVolatile<volatile T>							: TrueType	{ };
-
-	template < typename T > struct RemoveConst										{ typedef T ValueT; };
-	template < typename T > struct RemoveConst<const T>								{ typedef T ValueT; };
-
-	template < typename T > struct AddConst											{ typedef const T ValueT; };
-
-	template < typename T > struct RemoveVolatile									{ typedef T ValueT; };
-	template < typename T > struct RemoveVolatile<volatile T>						{ typedef T ValueT; };
-
-	template < typename T > struct AddVolatile										{ typedef volatile T ValueT; };
-
-	template < typename T > struct RemoveCV											{ typedef typename RemoveVolatile<typename RemoveConst<T>::ValueT>::ValueT ValueT; };
-	template < typename T > struct AddCV											{ typedef const volatile T ValueT; };
-
-// Reference
-	template < typename T > struct IsReference										: FalseType	{ };
-	template < typename T > struct IsReference<T&>									: TrueType	{ };
-
-	template < typename T > struct RemoveReference									{ typedef T ValueT; };
-	template < typename T > struct RemoveReference<T&>								{ typedef T ValueT; };
-
-	template < typename T > struct AddReference										{ typedef T& ValueT; };
-	template < typename T > struct AddReference<T&>									{ typedef T& ValueT; };
-
-// Pointer
-	namespace Detail
-	{
-
-		template < typename T > struct IsPointerImpl								: FalseType	{ };
-		template < typename T > struct IsPointerImpl<T*>							: TrueType	{ };
-
-	}
-	template < typename T > struct IsPointer										: Detail::IsPointerImpl<typename RemoveCV<T>::ValueT> { };
-
-	template < typename T > struct RemovePointer									{ typedef T ValueT; };
-	template < typename T > struct RemovePointer<T*>								{ typedef T ValueT; };
-	template < typename T > struct RemovePointer<T* const>							{ typedef T ValueT; };
-	template < typename T > struct RemovePointer<T* volatile>						{ typedef T ValueT; };
-	template < typename T > struct RemovePointer<T* const volatile>					{ typedef T ValueT; };
-
-	template < typename T > struct AddPointer										{ typedef typename RemoveReference<T>::ValueT* ValueT; };
-
-	template < typename T > struct ToPointer										{ typedef T* ValueT; };
-	template < typename T > struct ToPointer<T&>									{ typedef T* ValueT; };
-	template < typename T > struct ToPointer<T*>									{ typedef T* ValueT; };
-	template < typename T > struct ToPointer<T* const>								{ typedef T* ValueT; };
-	template < typename T > struct ToPointer<T* volatile>							{ typedef T* ValueT; };
-	template < typename T > struct ToPointer<T* const volatile>						{ typedef T* ValueT; };
-
-// Array
-	template < typename T > struct IsArray											: FalseType	{ };
-	template < typename T > struct IsArray<T[]>										: TrueType	{ };
-	template < typename T, size_t N > struct IsArray<T[N]>							: TrueType	{ };
-
-	template < typename T > struct RemoveExtent										{ typedef T ValueT; };
-	template < typename T > struct RemoveExtent<T[]>								{ typedef T ValueT; };
-	template < typename T, size_t N> struct RemoveExtent<T[N]>						{ typedef T ValueT; };
-
-// Miscellaneous
 	template < typename T > struct IsConstReference									: integral_constant<bool, IsReference<T>::Value && IsConst<typename RemoveReference<T>::ValueT>::Value> { };
 	template < typename T > struct IsNonConstReference								: integral_constant<bool, IsReference<T>::Value && !IsConstReference<T>::Value> { };
 
