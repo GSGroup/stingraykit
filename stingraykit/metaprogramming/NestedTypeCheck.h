@@ -8,9 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/IntToType.h>
-#include <stingraykit/metaprogramming/TypeTraits.h>
+#include <stingraykit/metaprogramming/ReferenceTraits.h>
 #include <stingraykit/metaprogramming/YesNo.h>
 
 namespace stingray
@@ -25,36 +24,6 @@ namespace stingray
 		\
 	public: \
 		static const bool Value = sizeof(deduce<T>(0)) == sizeof(stingray::YesType); \
-	}
-
-
-#define STINGRAYKIT_DECLARE_METHOD_CHECK(Method_) \
-	template < typename T > \
-	class HasMethod_##Method_ \
-	{ \
-		template <typename Type_> \
-		class Impl \
-		{ \
-			struct BaseMixin { void Method_() { } }; \
-			struct Base : public Type_, public BaseMixin { Base(); }; \
-			\
-			template < typename V, V t > class Helper { }; \
-			\
-			template < typename U > \
-			static stingray::NoType	deduce(U*, Helper<void (BaseMixin::*)(), &U::Method_>* = 0); \
-			static stingray::YesType deduce(...); \
-			\
-		public: \
-			static const bool Value = (sizeof(stingray::YesType) == sizeof(deduce((Base*)0))); \
-		}; \
-		\
-	public: \
-		static const bool Value = \
-			stingray::If< \
-					stingray::IsClass<T>::Value, \
-					Impl<T>, \
-					stingray::FalseType \
-				>::ValueT::Value; \
 	}
 
 }

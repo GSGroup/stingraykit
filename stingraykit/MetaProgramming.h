@@ -18,6 +18,7 @@
 #include <stingraykit/metaprogramming/IntToType.h>
 #include <stingraykit/metaprogramming/IntegralConstant.h>
 #include <stingraykit/metaprogramming/Math.h>
+#include <stingraykit/metaprogramming/MethodCheck.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/metaprogramming/NullType.h>
 #include <stingraykit/metaprogramming/TypeList.h>
