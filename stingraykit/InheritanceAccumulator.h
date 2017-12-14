@@ -14,7 +14,7 @@ namespace stingray
 {
 
 	template < typename TypeList, typename EndNode >
-	struct InheritanceAccumulator
+	class InheritanceAccumulator
 	{
 		template < typename Current, typename Result >
 		struct AccumulateFunc
@@ -30,6 +30,7 @@ namespace stingray
 			};
 		};
 
+	public:
 		typedef typename TypeListAccumulate<typename ToTypeList<TypeList>::ValueT, AccumulateFunc, EndNode>::ValueT ValueT;
 	};
 
