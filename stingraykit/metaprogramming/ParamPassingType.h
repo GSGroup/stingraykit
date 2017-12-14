@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/metaprogramming/EnableIf.h>
-#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
 
 namespace stingray
@@ -17,8 +16,6 @@ namespace stingray
 
 	namespace Detail_ParamPassingType
 	{
-
-		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 
 		template < typename T, typename Enabler = void >
 		struct PassByRef : TrueType { };
@@ -30,7 +27,7 @@ namespace stingray
 		struct PassByRef<T, typename EnableIf<IsPointer<T>::Value, void>::ValueT> : FalseType { };
 
 		template < typename T >
-		struct PassByRef<T, typename EnableIf<HasNestedType_Enum<T>::Value, void>::ValueT> : FalseType { };
+		struct PassByRef<T, typename EnableIf<IsEnumClass<T>::Value, void>::ValueT> : FalseType { };
 
 	}
 

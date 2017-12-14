@@ -14,9 +14,8 @@
 #include <stingraykit/metaprogramming/ReferenceTraits.h>
 
 #include <stingraykit/metaprogramming/If.h>
-#include <stingraykit/metaprogramming/IntegralConstant.h>
+#include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/metaprogramming/TypeList.h>
-#include <stingraykit/metaprogramming/YesNo.h>
 #include <stingraykit/Types.h>
 
 namespace stingray
@@ -53,6 +52,9 @@ namespace stingray
 
 	}
 	template < typename T > struct IsClass											: integral_constant<bool, ( sizeof(Detail::TestIsClass<T>(0)) == sizeof(YesType) ) && !IsUnion<T>::Value> { };
+
+	STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
+	template < typename T > struct IsEnumClass										: HasNestedType_Enum<T> { };
 
 	template < typename T > struct IsComplete										: integral_constant<bool, sizeof(T) == sizeof(T)> { };
 
