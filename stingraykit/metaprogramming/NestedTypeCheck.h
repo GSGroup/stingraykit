@@ -20,11 +20,11 @@ namespace stingray
 	template < typename T > \
 	class HasNestedType_##NestedType_ \
 	{ \
-		template < typename U > static YesType deduce(IntToType<sizeof(typename RemoveReference<typename U::NestedType_>::ValueT*)>*); \
-		template < typename U > static NoType deduce(...); \
+		template < typename U > static stingray::YesType deduce(stingray::IntToType<sizeof(typename stingray::RemoveReference<typename U::NestedType_>::ValueT*)>*); \
+		template < typename U > static stingray::NoType deduce(...); \
 		\
 	public: \
-		static const bool Value = sizeof(deduce<T>(0)) == sizeof(YesType); \
+		static const bool Value = sizeof(deduce<T>(0)) == sizeof(stingray::YesType); \
 	}
 
 	namespace Detail
@@ -39,20 +39,21 @@ namespace stingray
 		template <typename Type_> \
 		class Impl \
 		{ \
-			struct BaseMixin { void Method_(){} }; \
+			struct BaseMixin { void Method_() { } }; \
 			struct Base : public Type_, public BaseMixin { Base(); }; \
 			\
-			template <typename V, V t>    class Helper{}; \
+			template < typename V, V t > class Helper { }; \
 			\
-			template <typename U> static NoType deduce(U*, Helper<void (BaseMixin::*)(), &U::Method_>* = 0); \
-			static YesType deduce(...); \
+			template < typename U > \
+			static stingray::NoType	deduce(U*, Helper<void (BaseMixin::*)(), &U::Method_>* = 0); \
+			static stingray::YesType deduce(...); \
 			\
 		public: \
-			static const bool Value = (sizeof(YesType) == sizeof(deduce((Base*)(0)))); \
+			static const bool Value = (sizeof(stingray::YesType) == sizeof(deduce((Base*)0))); \
 		}; \
 		static const bool Value = \
-			If	< \
-					IsClass<T>::Value, \
+			stingray::If< \
+					stingray::IsClass<T>::Value, \
 					Impl<T>, \
 					stingray::Detail::DoesNotHaveAnyNestedTypes \
 				>::ValueT::Value; \
