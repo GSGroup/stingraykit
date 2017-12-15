@@ -13,8 +13,8 @@
 namespace stingray
 {
 
-	struct YesType { char dummy; };
-	struct NoType { YesType dummy[2]; };
+	typedef char (&YesType)[1];
+	typedef char (&NoType)[2];
 
 	namespace
 	{ CompileTimeAssert< sizeof(YesType) != sizeof(NoType) >	ERROR__yes_and_no_types_do_not_work; }
