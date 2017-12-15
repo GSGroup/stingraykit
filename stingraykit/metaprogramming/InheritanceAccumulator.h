@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_INHERITANCEACCUMULATOR_H
-#define STINGRAYKIT_INHERITANCEACCUMULATOR_H
+#ifndef STINGRAYKIT_METAPROGRAMMING_INHERITANCEACCUMULATOR_H
+#define STINGRAYKIT_METAPROGRAMMING_INHERITANCEACCUMULATOR_H
 
 // Copyright (c) 2011 - 2017, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
