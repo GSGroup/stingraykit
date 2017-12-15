@@ -66,7 +66,9 @@ namespace stingray
 		// TODO: Add support of pointers
 		// TODO: Add support of classes
 
-		template < typename T1, typename T2 > struct CommonTypeImpl			: CommonBuiltinType<T1, T2> { };
+		struct NoCommonType													{ typedef void ValueT; };
+
+		template < typename T1, typename T2 > struct CommonTypeImpl			: If<IsBuiltin<T1>::Value && IsBuiltin<T2>::Value, CommonBuiltinType<T1, T2>, NoCommonType>::ValueT { };
 		template < typename T > struct CommonTypeImpl<T, T>					{ typedef T ValueT; };
 
 	}
