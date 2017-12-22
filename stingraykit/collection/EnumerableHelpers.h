@@ -692,14 +692,14 @@ namespace stingray
 		}
 
 
-		template < typename T, typename FunctorType >
-		shared_ptr<IEnumerator<typename FunctorType::RetType> > Transform(const shared_ptr<IEnumerator<T> >& src, const FunctorType& f)
-		{ return make_shared<Detail::EnumeratorTransformer<T, FunctorType> >(src, f); }
+		template < typename SrcEnumerator, typename FunctorType >
+		shared_ptr<IEnumerator<typename FunctorType::RetType> > Transform(const shared_ptr<SrcEnumerator>& enumerator, const FunctorType& functor, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		{ return make_shared<Detail::EnumeratorTransformer<typename SrcEnumerator::ItemType, FunctorType> >(enumerator, functor); }
 
 
-		template < typename T, typename FunctorType >
-		shared_ptr<IEnumerable<typename FunctorType::RetType> > Transform(const shared_ptr<IEnumerable<T> >& src, const FunctorType& f)
-		{ return make_shared<Detail::EnumerableTransformer<T, FunctorType> >(src, f); }
+		template < typename SrcEnumerable, typename FunctorType >
+		shared_ptr<IEnumerable<typename FunctorType::RetType> > Transform(const shared_ptr<SrcEnumerable>& enumerable, const FunctorType& functor, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		{ return make_shared<Detail::EnumerableTransformer<typename SrcEnumerable::ItemType, FunctorType> >(enumerable, functor); }
 
 
 		template < typename CollectionType, typename PredicateFunc >
