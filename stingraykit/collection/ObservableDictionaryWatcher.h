@@ -10,6 +10,8 @@
 
 #include <stingraykit/collection/IObservableDictionary.h>
 
+#include <stingraykit/FunctionToken.h>
+
 namespace stingray
 {
 
