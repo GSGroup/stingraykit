@@ -8,8 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/exception.h>
 #include <stingraykit/fatal.h>
-#include <stingraykit/string/ToString.h>
 
 namespace stingray
 {
@@ -41,7 +41,7 @@ namespace stingray
 			try
 			{ _mutex.Unlock(); }
 			catch(const std::exception& ex)
-			{ STINGRAYKIT_FATAL(StringBuilder() % "Couldn't unlock mutex in ~MutexLock()\n" % ex); }
+			{ STINGRAYKIT_FATAL("Couldn't unlock mutex in ~MutexLock()\n" + diagnostic_information(ex)); }
 		}
 	};
 
