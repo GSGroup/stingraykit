@@ -9,9 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/exception_ptr.h>
-#include <stingraykit/FunctionToken.h>
-#include <stingraykit/function/bind.h>
-#include <stingraykit/TaskLifeToken.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
 
@@ -57,29 +54,6 @@ namespace stingray
 		public:
 			future_value_holder(ValueT& value) : _value(&value) {}
 			operator ValueT&() { return *_value; }
-		};
-
-
-		template<typename ResultType>
-		struct future_callback
-		{
-			typedef function<void()> FunctionType;
-
-		private:
-			FunctionType			_function;
-			FutureExecutionTester	_tester;
-
-		public:
-			future_callback(const FunctionType& function, const FutureExecutionTester& tester) : _function(function), _tester(_tester)
-			{ }
-
-			void invoke()
-			{
-				LocalExecutionGuard guard(_tester);
-
-				if (guard)
-					_function();
-			}
 		};
 
 
@@ -138,17 +112,12 @@ namespace stingray
 		template<typename T>
 		class future_impl_base
 		{
-		public:
-			typedef future_callback<T> Callback;
-			typedef typename Callback::FunctionType CallbackFunction;
-
 		protected:
 			typedef future_result<T> ResultType;
 
 			Mutex					_mutex;
 			ConditionVariable		_condition;
 			ResultType				_result;
-			optional<Callback>		_callback;
 
 		public:
 			bool is_ready() const						{ MutexLock l(_mutex); return _result.has_value() || _result.has_exception(); }
@@ -165,18 +134,6 @@ namespace stingray
 				return _result.get();
 			}
 
-			Token set_callback(const CallbackFunction& callback)
-			{
-				MutexLock l(_mutex);
-
-				TaskLifeToken lifeToken;
-
-				_callback.reset();
-				_callback = Callback(callback, lifeToken.GetExecutionTester());
-
-				 return MakeToken<FunctionToken>(bind(&TaskLifeToken::Release, lifeToken));
-			}
-
 			void set_exception(exception_ptr ex)
 			{
 				MutexLock l(_mutex);
@@ -189,11 +146,7 @@ namespace stingray
 
 		protected:
 			void notify_ready()
-			{
-				_condition.Broadcast();
-				if (_callback)
-					_callback->invoke();
-			}
+			{ _condition.Broadcast(); }
 
 			future_status do_wait(const ICancellationToken& token)
 			{
