@@ -13,9 +13,6 @@
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/time/ElapsedTime.h>
-#include <stingraykit/shared_ptr.h>
-
-#include <string>
 
 namespace stingray
 {
@@ -59,8 +56,8 @@ namespace stingray
 			optional<NameGetterFunc>	_nameGetter;
 			Backtrace					_backtrace;
 			IThreadInfoPtr				_threadInfo;
-			u64							_startTime;
-			u64							_timeoutTime;
+			TimeDuration				_startTime;
+			TimeDuration				_timeoutTime;
 
 		public:
 			SessionImpl(const char* name);
@@ -79,33 +76,33 @@ namespace stingray
 			std::string GetBacktrace() const
 			{ return _backtrace.Get(); }
 
-			u64 GetStartTime() const
+			TimeDuration GetStartTime() const
 			{ return _startTime; }
 
-			u64 GetAbsoluteTimeout() const
+			TimeDuration GetAbsoluteTimeout() const
 			{ return _timeoutTime; }
 
-			void SetAbsoluteTimeout(u64 timeout)
+			void SetAbsoluteTimeout(TimeDuration timeout)
 			{ _timeoutTime = timeout; }
 		};
 
 	public:
+		struct NameGetterTag { };
+
 		class Session
 		{
-		public:
-			struct NameGetterTag { };
-
 		private:
 			static NamedLogger	s_logger;
+
 			AsyncProfilerPtr	_asyncProfiler;
 			MessageHolder		_nameHolder;
-			u64					_thresholdMs;
+			TimeDuration		_threshold;
 			SessionImpl			_impl;
 
 		public:
-			Session(const AsyncProfilerPtr& profiler, const char* name, size_t criticalMs);
-			Session(const AsyncProfilerPtr& profiler, const std::string& name, size_t criticalMs);
-			Session(const AsyncProfilerPtr& profiler, const NameGetterFunc& nameGetter, size_t criticalMs, const NameGetterTag&);
+			Session(const AsyncProfilerPtr& profiler, const char* name, TimeDuration threshold);
+			Session(const AsyncProfilerPtr& profiler, const std::string& name, TimeDuration threshold);
+			Session(const AsyncProfilerPtr& profiler, const NameGetterFunc& nameGetter, TimeDuration threshold, const NameGetterTag&);
 			~Session();
 		};
 
@@ -114,11 +111,12 @@ namespace stingray
 
 	private:
 		static NamedLogger s_logger;
-		const u64          _timeoutMicroseconds;
-		Mutex              _mutex;
-		ConditionVariable  _condition;
-		Sessions           _sessions;
-		IThreadPtr         _thread;
+
+		const TimeDuration	_timeout;
+		Mutex				_mutex;
+		ConditionVariable	_condition;
+		Sessions			_sessions;
+		IThreadPtr			_thread;
 
 	public:
 		AsyncProfiler(const std::string& threadName);
@@ -126,6 +124,7 @@ namespace stingray
 
 	private:
 		void ThreadFunc(const ICancellationToken& token);
+
 		void AddSession(SessionImpl& session);
 		void RemoveSession(SessionImpl& session);
 	};
@@ -141,6 +140,4 @@ namespace stingray
 
 }
 
-
 #endif
-

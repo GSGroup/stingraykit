@@ -56,7 +56,7 @@ namespace stingray
 					MutexUnlock ul(l);
 					if (_profileCalls)
 					{
-						AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % get_function_name(*_task) % " in ThreadPool worker", 10000);
+						AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % get_function_name(*_task) % " in ThreadPool worker", TimeDuration::FromSeconds(10));
 						(*_task)(token);
 					}
 					else

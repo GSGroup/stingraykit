@@ -312,7 +312,7 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(ci->GetFunc())), _profileTimeout->GetMilliseconds(), AsyncProfiler::Session::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, ref(ci->GetFunc())), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				ci->GetFunc()();
 			}
 			else

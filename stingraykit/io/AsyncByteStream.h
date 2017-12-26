@@ -453,7 +453,7 @@ namespace stingray
 				return;
 			}
 
-			AsyncProfiler::Session profiler_session((_profiler ? _profiler : (_profiler = make_shared<AsyncProfiler>(StringBuilder() % "AsyncByteStream(" % _name % "):profiler"))), "'Sync'", 1000);
+			AsyncProfiler::Session profiler_session((_profiler ? _profiler : (_profiler = make_shared<AsyncProfiler>(StringBuilder() % "AsyncByteStream(" % _name % "):profiler"))), "'Sync'", TimeDuration::Second());
 			while (true)
 			{
 				_syncCondVar.Wait(_streamOpQueueMutex, TimedCancellationToken(TimeDuration::Second()));

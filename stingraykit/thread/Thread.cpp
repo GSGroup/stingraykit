@@ -42,8 +42,7 @@ namespace stingray
 
 	Thread::~Thread()
 	{
-		const u64 ThresholdMs = 10000;
-		AsyncProfiler::Session profile_session(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % "Thread " % _thread->GetThreadInfo()->GetName() % " destructor", ThresholdMs);
+		AsyncProfiler::Session profile_session(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % "Thread " % _thread->GetThreadInfo()->GetName() % " destructor", TimeDuration::FromSeconds(10));
 
 		_thread.reset();
 	}

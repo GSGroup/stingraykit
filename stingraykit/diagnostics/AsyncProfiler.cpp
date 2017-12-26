@@ -14,45 +14,52 @@
 namespace stingray
 {
 
-	AsyncProfiler::SessionImpl::SessionImpl(const char* name) :
-		_name(name),
-		_threadInfo(Thread::GetCurrentThreadInfo()),
-		_startTime(TimeEngine::GetMonotonicMicroseconds())
+	namespace
+	{
+
+		TimeDuration GetMonotonic()
+		{ return TimeDuration::FromMicroseconds(TimeEngine::GetMonotonicMicroseconds()); }
+
+	}
+
+
+	AsyncProfiler::SessionImpl::SessionImpl(const char* name)
+		:	_name(name),
+			_threadInfo(Thread::GetCurrentThreadInfo()),
+			_startTime(GetMonotonic())
 	{ }
 
-	AsyncProfiler::SessionImpl::SessionImpl(const optional<NameGetterFunc>& nameGetter) :
-		_name(null),
-		_nameGetter(nameGetter),
-		_threadInfo(Thread::GetCurrentThreadInfo()),
-		_startTime(TimeEngine::GetMonotonicMicroseconds())
+	AsyncProfiler::SessionImpl::SessionImpl(const optional<NameGetterFunc>& nameGetter)
+		:	_name(null),
+			_nameGetter(nameGetter),
+			_threadInfo(Thread::GetCurrentThreadInfo()),
+			_startTime(GetMonotonic())
 	{ }
-
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler::Session);
 
-
-	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const char* name, size_t criticalMs) :
-		_asyncProfiler(asyncProfiler),
-		_nameHolder(name),
-		_thresholdMs(criticalMs),
-		_impl(_nameHolder.Get())
+	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const char* name, TimeDuration threshold)
+		:	_asyncProfiler(asyncProfiler),
+			_nameHolder(name),
+			_threshold(threshold),
+			_impl(_nameHolder.Get())
 	{ _asyncProfiler->AddSession(_impl); }
 
 
-	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const std::string& name, size_t criticalMs) :
-		_asyncProfiler(asyncProfiler),
-		_nameHolder(name),
-		_thresholdMs(criticalMs),
-		_impl(_nameHolder.Get())
+	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const std::string& name, TimeDuration threshold)
+		:	_asyncProfiler(asyncProfiler),
+			_nameHolder(name),
+			_threshold(threshold),
+			_impl(_nameHolder.Get())
 	{ _asyncProfiler->AddSession(_impl); }
 
 
-	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const NameGetterFunc& nameGetter, size_t criticalMs, const NameGetterTag&) :
-		_asyncProfiler(asyncProfiler),
-		_nameHolder(null),
-		_thresholdMs(criticalMs),
-		_impl(nameGetter)
+	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const NameGetterFunc& nameGetter, TimeDuration threshold, const NameGetterTag&)
+		:	_asyncProfiler(asyncProfiler),
+			_nameHolder(null),
+			_threshold(threshold),
+			_impl(nameGetter)
 	{ _asyncProfiler->AddSession(_impl); }
 
 
@@ -62,20 +69,20 @@ namespace stingray
 
 		try
 		{
-			TimeDuration duration(TimeDuration::FromMicroseconds(TimeEngine::GetMonotonicMicroseconds() - _impl.GetStartTime()));
-			if (duration > TimeDuration::FromMilliseconds(_thresholdMs))
+			const TimeDuration duration = GetMonotonic() - _impl.GetStartTime();
+			if (duration > _threshold)
 				s_logger.Warning() << _impl.GetName() << " took " << duration;
 		}
 		catch (const std::exception& ex)
-		{ s_logger.Error() << ex; }
+		{ s_logger.Error() << "Can't report total execution time: " << ex; }
 	}
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler);
 
-	AsyncProfiler::AsyncProfiler(const std::string& threadName) :
-		_timeoutMicroseconds(30 * 1000 * 1000),
-		_thread(ThreadEngine::BeginThread(bind(&AsyncProfiler::ThreadFunc, this, _1), threadName))
+	AsyncProfiler::AsyncProfiler(const std::string& threadName)
+		:	_timeout(TimeDuration::FromSeconds(30)),
+			_thread(ThreadEngine::BeginThread(bind(&AsyncProfiler::ThreadFunc, this, _1), threadName))
 	{ }
 
 
@@ -95,25 +102,26 @@ namespace stingray
 			}
 
 			SessionImpl& top = *_sessions.begin();
-			u64 timeNow = TimeEngine::GetMonotonicMicroseconds();
+
+			TimeDuration timeNow = GetMonotonic();
 			if (timeNow < top.GetAbsoluteTimeout())
 			{
-				_condition.Wait(_mutex, TimedCancellationToken(TimeDuration::FromMicroseconds(top.GetAbsoluteTimeout() - timeNow)));
+				_condition.Wait(_mutex, TimedCancellationToken(top.GetAbsoluteTimeout() - timeNow));
 				continue;
 			}
 
 			_sessions.erase(top);
-			top.SetAbsoluteTimeout(TimeEngine::GetMonotonicMicroseconds() + _timeoutMicroseconds);
+			top.SetAbsoluteTimeout(GetMonotonic() + _timeout);
 			_sessions.push_back(top);
 
 			// copy all necessary data before releasing mutex
 			std::string name(top.GetName());
 			std::string tname(top.GetThreadName());
-			u64 startTime = top.GetStartTime();
+			TimeDuration startTime = top.GetStartTime();
 			std::string backtrace(top.GetBacktrace());
 
 			MutexUnlock ul(l);
-			s_logger.Error() << "Task " << name << " in thread " << tname << " is being executed for more than " << TimeDuration::FromMicroseconds(timeNow - startTime) << " invoked from: " << backtrace;
+			s_logger.Error() << "Task " << name << " in thread " << tname << " is being executed for more than " << (timeNow - startTime) << " invoked from: " << backtrace;
 		}
 	}
 
@@ -121,7 +129,7 @@ namespace stingray
 	void AsyncProfiler::AddSession(SessionImpl& session)
 	{
 		MutexLock l(_mutex);
-		session.SetAbsoluteTimeout(TimeEngine::GetMonotonicMicroseconds() + _timeoutMicroseconds);
+		session.SetAbsoluteTimeout(GetMonotonic() + _timeout);
 		_sessions.push_back(session);
 		if (&*_sessions.begin() == &session)
 			_condition.Broadcast();
