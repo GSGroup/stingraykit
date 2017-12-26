@@ -86,10 +86,6 @@ namespace stingray
 	{ }
 
 
-	AsyncProfiler::~AsyncProfiler()
-	{ _thread.reset(); }
-
-
 	void AsyncProfiler::ThreadFunc(const ICancellationToken& token)
 	{
 		MutexLock l(_mutex);
@@ -103,7 +99,7 @@ namespace stingray
 
 			SessionImpl& top = *_sessions.begin();
 
-			TimeDuration timeNow = GetMonotonic();
+			const TimeDuration timeNow = GetMonotonic();
 			if (timeNow < top.GetAbsoluteTimeout())
 			{
 				_condition.Wait(_mutex, TimedCancellationToken(top.GetAbsoluteTimeout() - timeNow));
@@ -115,10 +111,10 @@ namespace stingray
 			_sessions.push_back(top);
 
 			// copy all necessary data before releasing mutex
-			std::string name(top.GetName());
-			std::string tname(top.GetThreadName());
-			TimeDuration startTime = top.GetStartTime();
-			std::string backtrace(top.GetBacktrace());
+			const std::string name(top.GetName());
+			const std::string tname(top.GetThreadName());
+			const TimeDuration startTime = top.GetStartTime();
+			const std::string backtrace(top.GetBacktrace());
 
 			MutexUnlock ul(l);
 			s_logger.Error() << "Task " << name << " in thread " << tname << " is being executed for more than " << (timeNow - startTime) << " invoked from: " << backtrace;

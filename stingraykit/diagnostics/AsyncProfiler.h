@@ -120,7 +120,6 @@ namespace stingray
 
 	public:
 		AsyncProfiler(const std::string& threadName);
-		~AsyncProfiler();
 
 	private:
 		void ThreadFunc(const ICancellationToken& token);
