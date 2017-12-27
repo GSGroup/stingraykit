@@ -351,7 +351,6 @@ namespace stingray
 		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler) : _impl(new Impl(null, exceptionHandler)) { } \
 		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(new Impl(null, exceptionHandler, connectionPolicy)) { } \
 		signal(const PopulatorFunc& sendCurrentState) : _impl(new Impl(sendCurrentState)) { } \
-		signal(const PopulatorFunc& sendCurrentState, const NullPtrType&) : _impl(new Impl(sendCurrentState)) { } \
 		signal(const PopulatorFunc& sendCurrentState, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(new Impl(sendCurrentState, connectionPolicy)) { } \
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(new Impl(sendCurrentState, exceptionHandler)) { } \
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(new Impl(sendCurrentState, exceptionHandler, connectionPolicy)) { } \
