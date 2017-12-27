@@ -250,8 +250,16 @@ namespace stingray
 				: ThreadingPolicy_(threadingPolicy)
 			{ }
 
+			SignalImpl(const ThreadingPolicy_& threadingPolicy, ConnectionPolicy connectionPolicy)
+				: ThreadingPolicy_(threadingPolicy), ConnectionPolicyControl_(connectionPolicy)
+			{ }
+
 			SignalImpl(const ThreadingPolicy_& threadingPolicy, const PopulatorFunc& sendCurrentState)
 				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState)
+			{ }
+
+			SignalImpl(const ThreadingPolicy_& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
+				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState), ConnectionPolicyControl_(connectionPolicy)
 			{ }
 
 			void InvokeAll(const Tuple<ParamTypes>& p) const
@@ -355,7 +363,9 @@ namespace stingray
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(new Impl(sendCurrentState, exceptionHandler)) { } \
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(new Impl(sendCurrentState, exceptionHandler, connectionPolicy)) { } \
 		signal(const ThreadingPolicy& threadingPolicy) : _impl(new Impl(threadingPolicy)) { } \
+		signal(const ThreadingPolicy& threadingPolicy, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(new Impl(threadingPolicy, connectionPolicy)) { } \
 		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(new Impl(threadingPolicy, sendCurrentState)) { } \
+		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(new Impl(threadingPolicy, sendCurrentState, connectionPolicy)) { } \
 		\
 		void SendCurrentState(const function<Signature>& slot) const \
 		{ \
