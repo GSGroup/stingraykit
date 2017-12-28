@@ -64,26 +64,36 @@ namespace stingray
 	template < typename Tag, typename T >
 	struct Serializer<Tag, optional<T>, void >
 	{
-		const optional<T>&		Object;
+		const T&		Object;
 
-		explicit Serializer(const optional<T>& object) : Object(object) { }
+		explicit Serializer(const T& object) : Object(object) { }
 
 		template < typename OStream_ >
 		void SerializeAsValue(OStream_& ar) const
-		{
-			if (Object)
-				ar.Serialize(Serializer<Tag, T>(*Object));
-			else
-				ar.Serialize(optional<T>());
-		}
+		{ ar.Serialize(Serializer<Tag, T>(Object)); }
 	};
-
-	template < typename Tag, typename T >
-	Serializer<Tag, T> MakeSerializer(const T& object) { return Serializer<Tag, T>(object); }
 
 
 	namespace Detail
 	{
+
+		template < typename Tag, typename T >
+		struct SerializerCreator
+		{
+			static optional<Serializer<Tag, T> > Create(const T& object)
+			{ return Serializer<Tag, T>(object); }
+		};
+
+		template < typename Tag, typename T >
+		struct SerializerCreator<Tag, optional<T> >
+		{
+			static optional<Serializer<Tag, optional<T> > > Create(const optional<T>& object)
+			{
+				if (!object)
+					return null;
+				return Serializer<Tag, optional<T> >(*object);
+			}
+		};
 
 		template < typename T, typename Deserializer_ >
 		struct OptionalDeserializationHelper
@@ -111,6 +121,11 @@ namespace stingray
 		};
 
 	}
+
+
+	template < typename Tag, typename T >
+	optional<Serializer<Tag, T> > MakeSerializer(const T& object)
+	{ return Detail::SerializerCreator<Tag, T>::Create(object); }
 
 
 	template < typename Tag, typename T, typename Enabler = void >

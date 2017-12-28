@@ -38,7 +38,7 @@ namespace stingray
 	};
 
 	template < typename T >
-	Serializer<StringProxySerializationTag, T> MakeStringProxySerializer(const T& object)
+	optional<Serializer<StringProxySerializationTag, T> > MakeStringProxySerializer(const T& object)
 	{ return MakeSerializer<StringProxySerializationTag, T>(object); };
 
 
