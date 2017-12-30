@@ -55,7 +55,7 @@ namespace stingray
 			const char*					_name;
 			optional<NameGetterFunc>	_nameGetter;
 			Backtrace					_backtrace;
-			IThreadInfoPtr				_threadInfo;
+			std::string					_threadName;
 			TimeDuration				_startTime;
 			TimeDuration				_timeoutTime;
 
@@ -71,7 +71,7 @@ namespace stingray
 			}
 
 			std::string GetThreadName() const
-			{ return _threadInfo->GetName(); }
+			{ return _threadName; }
 
 			std::string GetBacktrace() const
 			{ return _backtrace.Get(); }

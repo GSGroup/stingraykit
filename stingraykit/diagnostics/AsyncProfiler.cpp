@@ -20,19 +20,27 @@ namespace stingray
 		TimeDuration GetMonotonic()
 		{ return TimeDuration::FromMicroseconds(TimeEngine::GetMonotonicMicroseconds()); }
 
+
+		std::string DeduceCurrentThreadName()
+		{
+			if (const IThreadInfoPtr threadInfo = Thread::GetCurrentThreadInfo())
+				return threadInfo->GetName();
+			return "__undefined__";
+		}
+
 	}
 
 
 	AsyncProfiler::SessionImpl::SessionImpl(const char* name)
 		:	_name(name),
-			_threadInfo(Thread::GetCurrentThreadInfo()),
+			_threadName(DeduceCurrentThreadName()),
 			_startTime(GetMonotonic())
 	{ }
 
 	AsyncProfiler::SessionImpl::SessionImpl(const optional<NameGetterFunc>& nameGetter)
 		:	_name(null),
 			_nameGetter(nameGetter),
-			_threadInfo(Thread::GetCurrentThreadInfo()),
+			_threadName(DeduceCurrentThreadName()),
 			_startTime(GetMonotonic())
 	{ }
 
