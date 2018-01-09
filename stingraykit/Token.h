@@ -35,8 +35,6 @@ namespace stingray
 		Token(const self_count_ptr<T>& token) : _token(token)
 		{ }
 
-		Token& operator = (const Token& token)		{ Set(token); return *this; }
-
 		void Set(const Token& token)				{ _token = token._token; }
 		void Reset()								{ Set(null); }
 
