@@ -147,19 +147,13 @@ namespace stingray
 
 	public:
 		ThreadlessTokenPool()									{ }
-		~ThreadlessTokenPool()									{ Release(); }
 
 		bool Empty() const										{ return _tokens.empty(); }
 
 		void Add(const Token& token)							{ _tokens.push_back(token); }
 		ThreadlessTokenPool& operator+= (const Token& token)	{ Add(token); return *this; }
 
-		void Release()
-		{
-			while (!Empty())
-				_tokens.pop_back();
-			Tokens().swap(_tokens);
-		}
+		void Release()											{ Tokens().swap(_tokens); }
 	};
 
 
