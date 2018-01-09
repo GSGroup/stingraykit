@@ -233,22 +233,20 @@ namespace stingray
 		void release(const Key& key)
 		{
 			std::vector<Token> tokens;
-			{
-				MutexLock l(_mutex);
-				std::pair<typename Tokens::iterator, typename Tokens::iterator> range = _tokens.equal_range(key);
-				for (typename Tokens::iterator it = range.first; it != range.second; ++it)
-					tokens.push_back(it->second);
-				_tokens.erase(range.first, range.second);
-			}
+
+			MutexLock l(_mutex);
+			std::pair<typename Tokens::iterator, typename Tokens::iterator> range = _tokens.equal_range(key);
+			for (typename Tokens::iterator it = range.first; it != range.second; ++it)
+				tokens.push_back(it->second);
+			_tokens.erase(range.first, range.second);
 		}
 
 		void release_all()
 		{
 			Tokens tokens;
-			{
-				MutexLock l(_mutex);
-				_tokens.swap(tokens);
-			}
+
+			MutexLock l(_mutex);
+			_tokens.swap(tokens);
 		}
 	};
 
