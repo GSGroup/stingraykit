@@ -188,6 +188,49 @@ namespace stingray
 
 
 	template < typename Key, typename Compare = comparers::Less >
+	class ThreadlessTokenMap
+	{
+		STINGRAYKIT_NONCOPYABLE(ThreadlessTokenMap);
+
+		typedef std::multimap<Key, Token, Compare> Tokens;
+
+		class BracketsOperatorProxy
+		{
+		private:
+			Key			_key;
+			Tokens*		_tokens;
+
+		public:
+			BracketsOperatorProxy(const Key& key, Tokens& tokens)
+				: _key(key), _tokens(&tokens)
+			{ }
+
+			BracketsOperatorProxy& operator+= (const Token& token)
+			{ _tokens->insert(std::make_pair(_key, token)); return *this; }
+		};
+
+	private:
+		Tokens		_tokens;
+
+	public:
+		ThreadlessTokenMap()
+		{ }
+
+		bool contains(const Key& key) const
+		{ return _tokens.find(key) != _tokens.end(); }
+
+		BracketsOperatorProxy operator[] (const Key& key)
+		{ return BracketsOperatorProxy(key, _tokens); }
+
+		void release(const Key& key)
+		{ _tokens.erase(key); }
+
+		void release_all()
+		{ _tokens.clear(); }
+	};
+
+
+	template < typename Key, typename Compare = comparers::Less >
 	class TokenMap
 	{
 		STINGRAYKIT_NONCOPYABLE(TokenMap);
