@@ -187,7 +187,7 @@ namespace stingray
 	};
 
 
-	template < typename Key, typename Compare = std::less<Key> >
+	template < typename Key, typename Compare = comparers::Less >
 	class TokenMap
 	{
 		STINGRAYKIT_NONCOPYABLE(TokenMap);
