@@ -221,7 +221,6 @@ namespace stingray
 
 	public:
 		TokenMap() { }
-		~TokenMap() { release_all(); }
 
 		bool contains(const Key& key) const
 		{
