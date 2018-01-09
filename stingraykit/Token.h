@@ -29,11 +29,12 @@ namespace stingray
 		Token()
 		{ }
 
-		Token(const NullPtrType& token)
+		Token(const NullPtrType&)
 		{ }
 
 		template<typename T>
-		Token(const self_count_ptr<T>& token) : _token(token)
+		Token(const self_count_ptr<T>& token)
+			: _token(token)
 		{ }
 
 		void Set(const Token& token)				{ _token = token._token; }
@@ -66,11 +67,11 @@ namespace stingray
 			Token         _token;
 
 		public:
-			AttachTokenCustomDeleter(const shared_ptr<T>& ptr, const Token& token) :
-				_ptr(ptr), _token(token)
+			AttachTokenCustomDeleter(const shared_ptr<T>& ptr, const Token& token)
+				: _ptr(ptr), _token(token)
 			{ }
 
-			void operator() (T* ptr)
+			void operator() (T*)
 			{
 				_token.Reset();
 				_ptr.reset();
@@ -91,13 +92,12 @@ namespace stingray
 		shared_ptr<T>	_ptr;
 
 	public:
-		explicit TokenAttacher(const shared_ptr<T>& ptr) : _ptr(ptr) { }
+		explicit TokenAttacher(const shared_ptr<T>& ptr)
+			: _ptr(ptr)
+		{ }
 
 		TokenAttacher& operator % (const Token& token)
-		{
-			_ptr = AttachToken(_ptr, token);
-			return *this;
-		}
+		{ _ptr = AttachToken(_ptr, token); return *this; }
 
 		operator shared_ptr<T> () const
 		{ return _ptr; }
@@ -114,26 +114,23 @@ namespace stingray
 		TokenHolder()
 		{ }
 
-		TokenHolder(const Token& token) : _token(token)
+		TokenHolder(const Token& token)
+			: _token(token)
 		{ }
 
-		void Set(const Token& token)
+		void Set(const Token& token_)
 		{
-			Token local_copy = token;
-			{
-				MutexLock l(_mutex);
-				std::swap(local_copy, _token);
-			}
+			Token token = token_;
+
+			MutexLock l(_mutex);
+			std::swap(token, _token);
 		}
 
 		void Reset()
 		{ Set(null); }
 
 		TokenHolder& operator = (const Token& token)
-		{
-			Set(token);
-			return *this;
-		}
+		{ Set(token); return *this; }
 	};
 
 
@@ -147,7 +144,8 @@ namespace stingray
 		Tokens	_tokens;
 
 	public:
-		ThreadlessTokenPool()									{ }
+		ThreadlessTokenPool()
+		{ }
 
 		bool Empty() const										{ return _tokens.empty(); }
 
@@ -205,7 +203,9 @@ namespace stingray
 			Tokens*		_tokens;
 
 		public:
-			BracketsOperatorProxy(Mutex& mutex, const Key& key, Tokens& tokens) : _mutex(mutex), _key(key), _tokens(&tokens) { }
+			BracketsOperatorProxy(Mutex& mutex, const Key& key, Tokens& tokens)
+				: _mutex(mutex), _key(key), _tokens(&tokens)
+			{ }
 
 			BracketsOperatorProxy& operator+= (const Token& token)
 			{
@@ -220,15 +220,14 @@ namespace stingray
 		Tokens		_tokens;
 
 	public:
-		TokenMap() { }
+		TokenMap()
+		{ }
 
 		bool contains(const Key& key) const
-		{
-			MutexLock l(_mutex);
-			return _tokens.find(key) != _tokens.end();
-		}
+		{ MutexLock l(_mutex); return _tokens.find(key) != _tokens.end(); }
 
-		BracketsOperatorProxy operator[] (const Key& key) { return BracketsOperatorProxy(_mutex, key, _tokens); }
+		BracketsOperatorProxy operator[] (const Key& key)
+		{ return BracketsOperatorProxy(_mutex, key, _tokens); }
 
 		void release(const Key& key)
 		{
@@ -250,6 +249,5 @@ namespace stingray
 	};
 
 }
-
 
 #endif
