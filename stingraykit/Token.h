@@ -163,8 +163,8 @@ namespace stingray
 		typedef std::vector<Token> Tokens;
 
 	private:
-		Tokens		_tokens;
 		Mutex		_mutex;
+		Tokens		_tokens;
 
 	public:
 		TokenPool()									{ }
