@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/collection/iterators.h>
 #include <stingraykit/thread/Thread.h>
 
 namespace stingray
@@ -236,8 +237,7 @@ namespace stingray
 
 			MutexLock l(_mutex);
 			std::pair<typename Tokens::iterator, typename Tokens::iterator> range = _tokens.equal_range(key);
-			for (typename Tokens::iterator it = range.first; it != range.second; ++it)
-				tokens.push_back(it->second);
+			tokens.assign(values_iterator(range.first), values_iterator(range.second));
 			_tokens.erase(range.first, range.second);
 		}
 
