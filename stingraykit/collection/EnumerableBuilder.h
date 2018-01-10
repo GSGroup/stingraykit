@@ -46,7 +46,7 @@ namespace stingray
 
 		template <typename Iter>
 		EnumerableBuilder& Add(Iter first, Iter last)
-		{ std::copy(first, last, std::back_inserter(_container)); return *this; }
+		{ std::copy(first, last, std::back_inserter(*_container)); return *this; }
 
 		EnumerableBuilder& operator % (ItemPassingType val)
 		{ Add(val); return *this; }
