@@ -61,6 +61,8 @@ namespace stingray
 		TimeDuration& operator /= (int divisor)					{ _microseconds /= divisor; return *this; }
 		TimeDuration operator / (int divisor) const				{ TimeDuration result(*this); return result /= divisor; }
 
+		TimeDuration& operator %= (TimeDuration divisor)		{ _microseconds %= divisor._microseconds; return *this; }
+		TimeDuration operator % (TimeDuration divisor) const	{ TimeDuration result(*this); return result %= divisor; }
 
 		bool operator < (TimeDuration other) const				{ return _microseconds < other._microseconds; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
