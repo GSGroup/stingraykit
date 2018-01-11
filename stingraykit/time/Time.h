@@ -48,18 +48,18 @@ namespace stingray
 		void Serialize(ObjectOStream & ar) const;
 		void Deserialize(ObjectIStream & ar);
 
-		TimeDuration operator+=(TimeDuration other)				{ _microseconds += other._microseconds; return *this; }
-		TimeDuration operator+(TimeDuration other) const 		{ TimeDuration result(*this); return result += other; }
+		TimeDuration& operator += (TimeDuration other)			{ _microseconds += other._microseconds; return *this; }
+		TimeDuration operator + (TimeDuration other) const		{ TimeDuration result(*this); return result += other; }
 
-		TimeDuration operator-=(TimeDuration other)				{ _microseconds -= other._microseconds; return *this; }
-		TimeDuration operator-(TimeDuration other) const 		{ TimeDuration result(*this); return result -= other; }
-		TimeDuration operator-() const 							{ return TimeDuration(-GetMilliseconds()); }
+		TimeDuration& operator -= (TimeDuration other)			{ _microseconds -= other._microseconds; return *this; }
+		TimeDuration operator - (TimeDuration other) const		{ TimeDuration result(*this); return result -= other; }
+		TimeDuration operator - () const						{ return TimeDuration(-GetMilliseconds()); }
 
-		TimeDuration operator*=(int multiplier)					{ _microseconds *= multiplier; return *this; }
-		TimeDuration operator*(int multiplier) const			{ TimeDuration result(*this); return result *= multiplier; }
+		TimeDuration& operator *= (int multiplier)				{ _microseconds *= multiplier; return *this; }
+		TimeDuration operator * (int multiplier) const			{ TimeDuration result(*this); return result *= multiplier; }
 
-		TimeDuration operator/=(int divisor)					{ _microseconds /= divisor; return *this; }
-		TimeDuration operator/(int divisor) const				{ TimeDuration result(*this); return result /= divisor; }
+		TimeDuration& operator /= (int divisor)					{ _microseconds /= divisor; return *this; }
+		TimeDuration operator / (int divisor) const				{ TimeDuration result(*this); return result /= divisor; }
 
 
 		bool operator < (TimeDuration other) const				{ return _microseconds < other._microseconds; }
