@@ -33,7 +33,7 @@ namespace stingray
 		size_t         _alignment;
 
 	public:
-		BufferedStream(IByteStreamPtr stream, size_t bufferSize = DefaultBufferSize, size_t alignment = DefaultAlignment):
+		BufferedStream(const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize, size_t alignment = DefaultAlignment):
 			_stream(stream), _buffer(bufferSize), _bufferSize(0), _bufferOffset(0), _inBufferOffset(0), _alignment(alignment)
 		{ STINGRAYKIT_CHECK(bufferSize % alignment == 0, ArgumentException("alignment", alignment)); }
 
