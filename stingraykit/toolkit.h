@@ -106,11 +106,11 @@ namespace stingray
 		operator Enum () const { return _enumVal; } \
 		Enum val() const { return _enumVal; } \
 		template<typename T> inline bool operator<(T other) const { \
-			stingray::CompileTimeAssert<stingray::IsSame<ClassName, T>::Value> ERROR_invalid_enum_used; \
+			stingray::CompileTimeAssert<stingray::IsSame<Enum, typename T::Enum>::Value> ERROR_invalid_enum_used; \
 			return _enumVal < other._enumVal; \
 		} \
 		template<typename T> inline bool operator==(T other) const { \
-			stingray::CompileTimeAssert<stingray::IsSame<ClassName, T>::Value> ERROR_invalid_enum_used; \
+			stingray::CompileTimeAssert<stingray::IsSame<Enum, typename T::Enum>::Value> ERROR_invalid_enum_used; \
 			return _enumVal == other._enumVal; \
 		} \
 		inline bool operator==(Enum value) const { return _enumVal == value; } \
