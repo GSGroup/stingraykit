@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
+#include <stingraykit/io/IDataSource.h>
 #include <stingraykit/timer/Timer.h>
 
 namespace stingray
@@ -25,16 +25,17 @@ namespace stingray
 		u64						_dataTotal;
 		u64						_dataSinceLastReport;
 		ElapsedTime				_timeSinceLastReport;
+
 		Timer					_timer;
-		TokenHolder	_connection;
+		Token					_connection;
 
 	public:
-		BandwidthReporter(const IDataSourcePtr& source, const std::string& timerName) :
-			_source(source), _dataTotal(0), _dataSinceLastReport(0), _timer(timerName)
+		BandwidthReporter(const IDataSourcePtr& source, const std::string& timerName)
+			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
+				_dataTotal(0),
+				_dataSinceLastReport(0),
+				_timer(timerName)
 		{ _connection = _timer.SetTimer(TimeDuration(ReportBandwidthTimeout), bind(&BandwidthReporter::Report, this)); }
-
-		virtual ~BandwidthReporter()
-		{ _connection.Reset(); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{ _source->ReadToFunction(bind(&BandwidthReporter::DoPush, this, ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, ref(consumer), _1), token); }
