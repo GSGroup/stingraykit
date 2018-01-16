@@ -8,8 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stingraykit/thread/Thread.h>
 #include <stingraykit/io/IDataSource.h>
 
 namespace stingray
@@ -18,7 +16,6 @@ namespace stingray
 	class IntermediateDataBuffer : public virtual IDataSource
 	{
 	private:
-		static NamedLogger		s_logger;
 		IDataSourcePtr			_source;
 		IDataMediatorPtr		_mediator;
 
@@ -26,13 +23,10 @@ namespace stingray
 
 	public:
 		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataMediatorPtr& mediator)
-			: _source(source), _mediator(mediator)
-		{
-			_worker.reset(new Thread(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this, _1)));
-		}
-
-		~IntermediateDataBuffer()
-		{ _worker.reset(); }
+			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
+				_mediator(STINGRAYKIT_REQUIRE_NOT_NULL(mediator)),
+				_worker(make_shared<Thread>(threadName, bind(&IntermediateDataBuffer::ThreadFunc, this, _1)))
+		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{ return _mediator->Read(consumer, token); }
