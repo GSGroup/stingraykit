@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/log/Logger.h>
+#include <stingraykit/thread/DummyCancellationToken.h>
 #include <stingraykit/thread/ITaskExecutor.h>
 #include <stingraykit/Final.h>
 
@@ -42,7 +43,7 @@ namespace stingray
 
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
 
-		void ExecuteTasks();
+		void ExecuteTasks(const ICancellationToken& token = DummyCancellationToken());
 		void ClearTasks();
 
 		static void DefaultExceptionHandler(const std::exception& ex);

@@ -31,7 +31,7 @@ namespace stingray
 	}
 
 
-	void ThreadlessTaskExecutor::ExecuteTasks()
+	void ThreadlessTaskExecutor::ExecuteTasks(const ICancellationToken& token)
 	{
 		MutexLock l(_syncRoot);
 
@@ -44,7 +44,7 @@ namespace stingray
 		const ScopeExitInvoker sei(bind(&optional<std::string>::reset, ref(_activeExecutor)));
 		_activeExecutor = Thread::GetCurrentThreadName();
 
-		while (!_queue.empty())
+		while (!_queue.empty() && token)
 		{
 			optional<TaskPair> top = _queue.front();
 			_queue.pop_front();
