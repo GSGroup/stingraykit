@@ -156,8 +156,8 @@ namespace stingray
 		{ }
 
 		BasicByteArray(const T* data, size_t size):
-			_data(make_shared<CollectionType>(size)), _offset(0), _sizeLimit(NoSizeLimit)
-		{ std::copy(data, data + size, _data->begin()); }
+			_data(make_shared<CollectionType>(data, data + size)), _offset(0), _sizeLimit(NoSizeLimit)
+		{ }
 
 		template < typename Range >
 		explicit BasicByteArray(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0):
