@@ -91,10 +91,10 @@ namespace stingray
 		}
 
 	private:
-		void OnIdlePopulator(const function<void (bool)> & slot)
+		void OnIdlePopulator(const function<void (bool)>& slot) const
 		{ slot(_idle); }
 
-		void OnProgressPopulator(const function<void (ProgressValue)> & slot)
+		void OnProgressPopulator(const function<void (ProgressValue)>& slot) const
 		{ slot(_progress); }
 
 		void SetIdle(MutexLock &lock, bool idle)

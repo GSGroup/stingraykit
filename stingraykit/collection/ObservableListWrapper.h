@@ -172,7 +172,7 @@ namespace stingray
 		{ return *_mutex; }
 
 	private:
-		virtual void OnChangedPopulator(const function<OnChangedSignature>& slot)
+		virtual void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{
 			size_t i = 0;
 			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator())
