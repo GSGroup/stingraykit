@@ -12,13 +12,11 @@
 #include <sstream>
 #include <string>
 
-
 namespace stingray
 {
 
 	class StringReader
 	{
-
 		class StreamPeeker
 		{
 		private:
@@ -66,10 +64,15 @@ namespace stingray
 			return result;
 		}
 
+		std::string::value_type Peek()
+		{
+			STINGRAYKIT_CHECK(!IsEndOfString(), InvalidOperationException("EOF"));
+			return _stream.peek();
+		}
+
 		bool IsEndOfString() const { return _stream.eof(); }
 	};
 
 }
-
 
 #endif
