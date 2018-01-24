@@ -64,6 +64,14 @@ namespace stingray
 			_logger(logger), _logLevel(LogLevel::Info), _message(message), _thresholdMs(thresholdMs)
 		{ }
 
+		Profiler(const Detail::NamedLoggerAccessor& logger, LogLevel logLevel, const char* message, u64 thresholdMs) :
+			_logger(logger), _logLevel(logLevel), _message(message), _thresholdMs(thresholdMs)
+		{ }
+
+		Profiler(const Detail::NamedLoggerAccessor& logger, LogLevel logLevel, const std::string& message, u64 thresholdMs) :
+			_logger(logger), _logLevel(logLevel), _message(message), _thresholdMs(thresholdMs)
+		{ }
+
 		Profiler(const Detail::NamedLoggerAccessor& logger, const char* message, ToolkitWhere where, u64 thresholdMs) :
 			_logger(logger), _logLevel(LogLevel::Info), _message(message), _where(where), _thresholdMs(thresholdMs)
 		{ }
@@ -110,6 +118,10 @@ namespace stingray
 #define STINGRAYKIT_PROFILER_NO_WHERE(Milliseconds_, Message_) \
 	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
 	stingray::Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, (Message_), Milliseconds_);
+
+#define STINGRAYKIT_PROFILER_DEBUG_NO_WHERE(Milliseconds_, Message_) \
+	DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
+	stingray::Profiler STINGRAYKIT_CAT(detail_profiler, __LINE__)(STINGRAYKIT_STATIC_LOGGER, LogLevel::Debug, (Message_), Milliseconds_);
 
 #define STINGRAYKIT_PROFILE(Milliseconds_, Call_) \
 	do { \
