@@ -544,6 +544,25 @@ namespace stingray
 	{ return v.ApplyVisitor(visitor); }
 
 
+	template < typename Visitor >
+	class VisitorApplier : public function_info<void, UnspecifiedParamTypes>
+	{
+	private:
+		Visitor		_visitor;
+
+	public:
+		explicit VisitorApplier(const Visitor& visitor) : _visitor(visitor) { }
+
+		template < typename Variant >
+		void operator() (const Variant& v) const { apply_visitor(_visitor, v); }
+	};
+
+
+	template < typename Visitor >
+	VisitorApplier<Visitor> make_visitor_applier(const Visitor& visitor)
+	{ return VisitorApplier<Visitor>(visitor); }
+
+
 #define STINGRAYKIT_DECLARE_FORWARD_VISITOR(MemberFunctionName_) \
 	template < typename TargetType_ > \
 	class Detail_ForwardVisitor_##MemberFunctionName_ : public static_visitor<void> \
