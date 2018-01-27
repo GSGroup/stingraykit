@@ -331,8 +331,6 @@ namespace stingray
 			_cancellationActive = true;
 		}
 
-		ScopeExitInvoker sei(bind(&ExecutionDeferrer::ResetCancellationState, this));
-
 		{
 			MutexLock l(_doDeferConnectionMutex);
 			_doDeferConnection.Reset();
@@ -341,6 +339,9 @@ namespace stingray
 			MutexLock l(_connectionMutex);
 			_connection.Reset();
 		}
+
+		MutexLock l(_mutex);
+		_cancellationActive = false;
 	}
 
 

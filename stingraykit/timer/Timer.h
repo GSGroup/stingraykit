@@ -104,9 +104,6 @@ namespace stingray
 
 	private:
 		void DoDefer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval);
-
-		void ResetCancellationState()
-		{ MutexLock l(_mutex); _cancellationActive = false; }
 	};
 	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrer);
 
