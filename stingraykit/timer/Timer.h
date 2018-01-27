@@ -98,8 +98,6 @@ namespace stingray
 			: _timer(timer), _timeout(timeout), _cancellationActive(false)
 		{ }
 
-		TimeDuration GetTimeout() const			{ return _timeout; }
-		void SetTimeout(TimeDuration timeout)	{ _timeout = timeout; }
 		void Cancel()
 		{
 			{
@@ -165,11 +163,11 @@ namespace stingray
 			: _timer(timerName)
 		{ _impl = make_shared<ExecutionDeferrer>(ref(_timer), timeout); }
 
-		TimeDuration GetTimeout() const												{ return _impl->GetTimeout(); }
-		void SetTimeout(TimeDuration timeout)										{ _impl->SetTimeout(timeout); }
 		void Cancel()																{ _impl->Cancel(); }
+
 		void Defer(const function<void()>& func)									{ _impl->Defer(func); }
 		void Defer(const function<void()>& func, TimeDuration timeout)				{ _impl->Defer(func, timeout); }
+
 		void DeferNoTimeout(const function<void()>& func)							{ Defer(func); }
 		void DeferWithTimeout(const function<void()>& func, TimeDuration timeout)	{ Defer(func, timeout); }
 	};
