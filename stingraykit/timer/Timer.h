@@ -168,9 +168,6 @@ namespace stingray
 			: _timer(timerName)
 		{ _impl = make_shared<ExecutionDeferrer>(ref(_timer), timeout); }
 
-		~ExecutionDeferrerWithTimer()
-		{ _impl.reset(); }
-
 		TimeDuration GetTimeout() const												{ return _impl->GetTimeout(); }
 		void SetTimeout(TimeDuration timeout)										{ _impl->SetTimeout(timeout); }
 		void Cancel()																{ _impl->Cancel(); }
