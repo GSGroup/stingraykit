@@ -8,15 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stingraykit/Final.h>
-#include <stingraykit/ScopeExit.h>
-#include <stingraykit/function/bind.h>
-#include <stingraykit/function/function.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/ITaskExecutor.h>
-#include <stingraykit/thread/Thread.h>
 
 namespace stingray
 {
@@ -25,7 +19,6 @@ namespace stingray
 	 * @addtogroup toolkit_timer
 	 * @{
 	 */
-
 
 	class Timer : STINGRAYKIT_FINAL(Timer), public virtual ITaskExecutor
 	{
@@ -98,53 +91,19 @@ namespace stingray
 			: _timer(timer), _timeout(timeout), _cancellationActive(false)
 		{ }
 
-		void Cancel()
-		{
-			{
-				MutexLock l(_mutex);
-				if (_cancellationActive)
-					return;
-				_cancellationActive = true;
-			}
-
-			ScopeExitInvoker sei(bind(&ExecutionDeferrer::ResetCancellationState, this));
-
-			{
-				MutexLock l(_doDeferConnectionMutex);
-				_doDeferConnection.Reset();
-			}
-			{
-				MutexLock l(_connectionMutex);
-				_connection.Reset();
-			}
-		}
+		void Cancel();
 
 		// we shouldn't call Defer from deferred function!
-		void Defer(const function<void()>& func)
-		{
-			STINGRAYKIT_CHECK(_timeout != TimeDuration(), Exception("Invalid timeout!"));
-			Defer(func, _timeout);
-		}
+		void Defer(const function<void()>& func);
 
 		// custom timeout version - doesn't change "default" timeout value stored in deferrer - passed timeout value corresponds to the very deferring
-		void Defer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval = null)
-		{
-			MutexLock l(_doDeferConnectionMutex);
-			_doDeferConnection = _timer.SetTimeout(TimeDuration(), bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
-		}
+		void Defer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval = null);
 
 		void DeferNoTimeout(const function<void()>& func)							{ Defer(func); }
 		void DeferWithTimeout(const function<void()>& func, TimeDuration timeout)	{ Defer(func, timeout); }
 
 	private:
-		void DoDefer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval)
-		{
-			MutexLock l(_connectionMutex);
-			if (interval)
-				_connection = _timer.SetTimer(timeout, *interval, func);
-			else
-				_connection = _timer.SetTimeout(timeout, func);
-		}
+		void DoDefer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval);
 
 		void ResetCancellationState()
 		{ MutexLock l(_mutex); _cancellationActive = false; }

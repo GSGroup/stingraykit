@@ -10,15 +10,11 @@
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/CancellableFunction.h>
 #include <stingraykit/function/bind.h>
-#include <stingraykit/function/function_name_getter.h>
-#include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/TimedCancellationToken.h>
-#include <stingraykit/time/ElapsedTime.h>
 #include <stingraykit/FunctionToken.h>
-#include <stingraykit/TaskLifeToken.h>
+#include <stingraykit/ScopeExit.h>
 
 #include <list>
-#include <map>
 
 namespace stingray
 {
@@ -320,6 +316,55 @@ namespace stingray
 		}
 		catch(const std::exception &ex)
 		{ _exceptionHandler(ex); }
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	void ExecutionDeferrer::Cancel()
+	{
+		{
+			MutexLock l(_mutex);
+			if (_cancellationActive)
+				return;
+			_cancellationActive = true;
+		}
+
+		ScopeExitInvoker sei(bind(&ExecutionDeferrer::ResetCancellationState, this));
+
+		{
+			MutexLock l(_doDeferConnectionMutex);
+			_doDeferConnection.Reset();
+		}
+		{
+			MutexLock l(_connectionMutex);
+			_connection.Reset();
+		}
+	}
+
+
+	void ExecutionDeferrer::Defer(const function<void()>& func)
+	{
+		STINGRAYKIT_CHECK(_timeout != TimeDuration(), Exception("Invalid timeout!"));
+		Defer(func, _timeout);
+	}
+
+
+	void ExecutionDeferrer::Defer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval)
+	{
+		MutexLock l(_doDeferConnectionMutex);
+		_doDeferConnection = _timer.SetTimeout(TimeDuration(), bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
+	}
+
+
+	void ExecutionDeferrer::DoDefer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval)
+	{
+		MutexLock l(_connectionMutex);
+		if (interval)
+			_connection = _timer.SetTimer(timeout, *interval, func);
+		else
+			_connection = _timer.SetTimeout(timeout, func);
 	}
 
 }
