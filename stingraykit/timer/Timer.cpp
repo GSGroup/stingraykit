@@ -12,7 +12,6 @@
 #include <stingraykit/function/bind.h>
 #include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/FunctionToken.h>
-#include <stingraykit/ScopeExit.h>
 
 #include <list>
 
