@@ -107,12 +107,12 @@ namespace stingray
 		{
 			{
 				MutexLock l(_mutex);
-				if (IsCancellationActive())
+				if (_cancellationActive)
 					return;
-				SetCancellationState(true);
+				_cancellationActive = true;
 			}
 
-			ScopeExitInvoker sei(bind(&ExecutionDeferrer::SetCancellationState, this, false));
+			ScopeExitInvoker sei(bind(&ExecutionDeferrer::ResetCancellationState, this));
 
 			{
 				MutexLock l(_doDeferConnectionMutex);
@@ -151,11 +151,8 @@ namespace stingray
 				_connection = _timer.SetTimeout(timeout, func);
 		}
 
-		void SetCancellationState(bool active)
-		{ MutexLock l(_mutex); _cancellationActive = active; }
-
-		bool IsCancellationActive() const
-		{ MutexLock l(_mutex); return _cancellationActive; }
+		void ResetCancellationState()
+		{ MutexLock l(_mutex); _cancellationActive = false; }
 	};
 	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrer);
 
