@@ -81,25 +81,22 @@ namespace stingray
 	class ExecutionDeferrer
 	{
 	private:
-		TimeDuration	_timeout;
 		Timer&			_timer;
-
-		Token			_connection;
-		Mutex			_connectionMutex;
-
-		Token			_doDeferConnection;
-		Mutex 			_doDeferConnectionMutex;
+		TimeDuration	_timeout;
 
 		Mutex			_mutex;
 		bool			_cancellationActive;
 
+		Mutex			_connectionMutex;
+		Token			_connection;
+
+		Mutex 			_doDeferConnectionMutex;
+		Token			_doDeferConnection;
+
 	public:
 		explicit ExecutionDeferrer(Timer& timer, TimeDuration timeout = TimeDuration())
-			: _timeout(timeout), _timer(timer), _cancellationActive(false)
+			: _timer(timer), _timeout(timeout), _cancellationActive(false)
 		{ }
-
-		~ExecutionDeferrer()
-		{ Cancel(); }
 
 		TimeDuration GetTimeout() const			{ return _timeout; }
 		void SetTimeout(TimeDuration timeout)	{ _timeout = timeout; }
