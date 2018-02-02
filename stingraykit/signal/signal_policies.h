@@ -99,10 +99,10 @@ namespace stingray
 				static const bool IsThreadsafe = true;
 
 			private:
-				shared_ptr<Mutex>	_mutex;
+				shared_ptr<const Mutex>	_mutex;
 
 			public:
-				explicit ExternalMutexPointer(const shared_ptr<Mutex>& mutex) : _mutex(mutex) { }
+				explicit ExternalMutexPointer(const shared_ptr<const Mutex>& mutex) : _mutex(mutex) { }
 
 				const Mutex& GetSync() const { return *_mutex; }
 			};
