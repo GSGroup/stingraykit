@@ -11,7 +11,6 @@
 #include <stingraykit/function/function.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/TaskLifeToken.h>
 
 namespace stingray
 {
