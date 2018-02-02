@@ -54,6 +54,10 @@ namespace stingray
 	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECL_MAKE_TOKEN, STINGRAYKIT_EMPTY())
 
 
+	template < >
+	struct IsNullable<Token> : public TrueType { };
+
+
 #undef DETAIL_DECL_MAKE_TOKEN
 
 
