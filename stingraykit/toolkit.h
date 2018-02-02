@@ -276,6 +276,10 @@ namespace stingray
 
 	std::string Demangle(const std::string& s);
 
+
+	template < typename T >
+	struct IsNullable : public FalseType { };
+
 }
 
 
