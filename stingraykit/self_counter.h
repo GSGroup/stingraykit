@@ -183,6 +183,10 @@ namespace stingray
 #undef DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES
 #undef DETAIL_DECL_MAKE_SELF_COUNT_PTR
 
+
+	template < typename T >
+	struct IsNullable<self_count_ptr<T> > : public TrueType { };
+
 }
 
 #endif
