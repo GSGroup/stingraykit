@@ -154,6 +154,10 @@ namespace stingray
 	template < typename T >
 	struct IsOptional<optional<T> > : TrueType { };
 
+
+	template < typename T >
+	struct IsNullable<optional<T> > : TrueType { };
+
 }
 
 #endif
