@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/Dummy.h>
 #include <stingraykit/Macro.h>
@@ -792,7 +791,13 @@ namespace stingray
 		bool operator()(const shared_ptr<T>& t1, const weak_ptr<T>& t2) const	{ return t1.owner_before(t2); }
 	};
 
-}
 
+	template < typename T >
+	struct IsNullable<shared_ptr<T> > : public TrueType { };
+
+	template < typename T >
+	struct IsNullable<weak_ptr<T> > : public TrueType { };
+
+}
 
 #endif
