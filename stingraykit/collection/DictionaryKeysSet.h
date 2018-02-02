@@ -21,13 +21,13 @@ namespace stingray
 		typedef IDictionary<KeyType_, ValueType_> DictionaryType;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
-		typedef KeyType_	ValueType; // Dictionary KeyType is ValueType for set
+		typedef KeyType_ ValueType;
 
 	private:
 		DictionaryTypePtr	_dict;
 
 	public:
-		DictionaryKeysSet(const DictionaryTypePtr& dict)
+		explicit DictionaryKeysSet(const DictionaryTypePtr& dict)
 			: _dict(dict)
 		{ }
 
@@ -62,7 +62,7 @@ namespace stingray
 		typedef IObservableDictionary<KeyType_, ValueType_> DictionaryType;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
-		typedef KeyType_	ValueType; // Dictionary KeyType is ValueType for set
+		typedef KeyType_ ValueType;
 
 	private:
 		DictionaryTypePtr											_dict;
@@ -70,9 +70,11 @@ namespace stingray
 		Token														_connection;
 
 	public:
-		ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
-			: _dict(dict), _onChanged(ExternalMutex(_dict->GetSyncRoot()), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1))
-		{ _connection = _dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))); }
+		explicit ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
+			:	_dict(dict),
+				_onChanged(ExternalMutex(_dict->GetSyncRoot()), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1)),
+				_connection(_dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))))
+		{ }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{ return KeysEnumerator(_dict->GetEnumerator()); }
