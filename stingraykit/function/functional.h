@@ -85,7 +85,7 @@ namespace stingray
 	{
 
 		template < typename T >
-		struct Assigner : public function_info<void, UnspecifiedParamTypes>
+		struct Assigner : public function_info<T&, UnspecifiedParamTypes>
 		{
 		private:
 			T&	_ref;
@@ -94,7 +94,7 @@ namespace stingray
 			explicit Assigner(T& ref) : _ref(ref) { }
 
 			template < typename V >
-			void operator () (const V& v) const { _ref = v; }
+			T& operator () (const V& v) const { return _ref = v; }
 		};
 
 	}
