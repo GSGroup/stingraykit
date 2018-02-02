@@ -57,7 +57,7 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class ObservableDictionaryKeysSet : public virtual IReadonlyObservableSet<KeyType_>
 	{
-		typedef signal_policies::threading::ExternalMutex ExternalMutex;
+		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 		typedef IObservableDictionary<KeyType_, ValueType_> DictionaryType;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
@@ -65,14 +65,14 @@ namespace stingray
 		typedef KeyType_ ValueType;
 
 	private:
-		DictionaryTypePtr											_dict;
-		signal<void(CollectionOp, const ValueType&), ExternalMutex>	_onChanged;
-		Token														_connection;
+		DictionaryTypePtr													_dict;
+		signal<void (CollectionOp, const ValueType&), ExternalMutexPointer>	_onChanged;
+		Token																_connection;
 
 	public:
 		explicit ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
 			:	_dict(STINGRAYKIT_REQUIRE_NOT_NULL(dict)),
-				_onChanged(ExternalMutex(_dict->GetSyncRoot()), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1)),
+				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_dict, &_dict->GetSyncRoot())), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1)),
 				_connection(_dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))))
 		{ }
 
