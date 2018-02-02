@@ -27,32 +27,35 @@ namespace stingray
 
 		namespace creation
 		{
+
 			struct Default
 			{
-				template <typename ImplType>
+				template < typename ImplType >
 				static self_count_ptr<ImplType> CtorCreate()
 				{ return self_count_ptr<ImplType>(new ImplType()); }
 
-				template <typename ImplType>
+				template < typename ImplType >
 				static void LazyCreate(self_count_ptr<ImplType>& impl)
 				{ }
 			};
 
 			struct Lazy
 			{
-				template <typename ImplType>
+				template < typename ImplType >
 				static self_count_ptr<ImplType> CtorCreate()
 				{ return null; }
 
-				template <typename ImplType>
+				template < typename ImplType >
 				static void LazyCreate(self_count_ptr<ImplType>& impl)
 				{ if (!impl) impl.reset(new ImplType()); }
 			};
+
 		}
 
 
 		namespace threading
 		{
+
 			struct DummyMutex
 			{
 				void Lock() const { }
@@ -68,14 +71,14 @@ namespace stingray
 				Mutex	_mutex;
 
 			public:
-				const Mutex& GetSync() const			{ return _mutex; }
+				const Mutex& GetSync() const { return _mutex; }
 			};
 
 			struct Threadless
 			{
 				static const bool IsThreadsafe = false;
 
-				DummyMutex GetSync() const				{ return DummyMutex(); }
+				DummyMutex GetSync() const { return DummyMutex(); }
 			};
 
 			struct ExternalMutex
@@ -86,10 +89,9 @@ namespace stingray
 				const Mutex&	_mutex;
 
 			public:
-				ExternalMutex(const Mutex& mutex) : _mutex(mutex)
-				{ }
+				explicit ExternalMutex(const Mutex& mutex) : _mutex(mutex) { }
 
-				const Mutex& GetSync() const			{ return _mutex; }
+				const Mutex& GetSync() const { return _mutex; }
 			};
 
 			struct ExternalMutexPointer
@@ -100,51 +102,60 @@ namespace stingray
 				shared_ptr<Mutex>	_mutex;
 
 			public:
-				ExternalMutexPointer(const shared_ptr<Mutex>& mutex) : _mutex(mutex)
-				{ }
+				explicit ExternalMutexPointer(const shared_ptr<Mutex>& mutex) : _mutex(mutex) { }
 
-				const Mutex& GetSync() const			{ return *_mutex; }
+				const Mutex& GetSync() const { return *_mutex; }
 			};
+
 		}
 
 
 		namespace exception_handling
 		{
-			typedef function<void(const std::exception&)>	ExceptionHandlerFunc;
 
-			void DefaultSignalExceptionHandler(const std::exception &ex);
+			typedef function<void (const std::exception&)>	ExceptionHandlerFunc;
 
-			struct Configurable
+			void DefaultSignalExceptionHandler(const std::exception& ex);
+
+			class Configurable
 			{
-				Configurable() : _exceptionHandler(&DefaultSignalExceptionHandler)		{}
-				Configurable(const ExceptionHandlerFunc &ehf) : _exceptionHandler(ehf)	{}
-				const ExceptionHandlerFunc& GetExceptionHandler() const					{ return _exceptionHandler; }
-
 			private:
-				ExceptionHandlerFunc							_exceptionHandler;
+				ExceptionHandlerFunc	_exceptionHandler;
+
+			public:
+				Configurable() : _exceptionHandler(&DefaultSignalExceptionHandler) { }
+				explicit Configurable(const ExceptionHandlerFunc& ehf) : _exceptionHandler(ehf) { }
+
+				const ExceptionHandlerFunc& GetExceptionHandler() const { return _exceptionHandler; }
 			};
 
 			struct Null
 			{
 				ExceptionHandlerFunc GetExceptionHandler() const { return &DefaultSignalExceptionHandler; }
 			};
+
 		}
 
 
 		namespace populators
 		{
+
 			struct Null
 			{
 				template < typename Signature_ >
 				void SendCurrentStateImpl(const function<Signature_>& slot) const { }
 			};
 
-			struct Configurable
+			class Configurable
 			{
+			private:
+				optional<function_storage>		_sendCurrentState;
+
+			public:
 				Configurable() { }
 
 				template < typename Signature_ >
-				Configurable(const function<void(const function<Signature_>&)>& func) : _sendCurrentState(function_storage(func)) { }
+				explicit Configurable(const function<void(const function<Signature_>&)>& func) : _sendCurrentState(function_storage(func)) { }
 
 				template < typename Signature_ >
 				void SendCurrentStateImpl(const function<Signature_>& slot) const
@@ -152,15 +163,14 @@ namespace stingray
 					if (_sendCurrentState)
 						_sendCurrentState->ToFunction<void(const function<Signature_>&)>()(slot);
 				}
-
-			private:
-				optional<function_storage>		_sendCurrentState;
 			};
+
 		}
 
 
 		namespace connection_policy_control
 		{
+
 			struct Null
 			{
 				ConnectionPolicy DoGetConnectionPolicy() const { return ConnectionPolicy::Any; }
@@ -168,13 +178,15 @@ namespace stingray
 
 			struct Checked
 			{
-				Checked(ConnectionPolicy val = ConnectionPolicy::Any) : _val(val) { }
-
-				ConnectionPolicy DoGetConnectionPolicy() const { return _val; }
-
 			private:
 				ConnectionPolicy	_val;
+
+			public:
+				explicit Checked(ConnectionPolicy val = ConnectionPolicy::Any) : _val(val) { }
+
+				ConnectionPolicy DoGetConnectionPolicy() const { return _val; }
 			};
+
 		};
 
 	}
