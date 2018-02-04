@@ -28,7 +28,7 @@ namespace stingray
 
 	public:
 		explicit DictionaryKeysSet(const DictionaryTypePtr& dict)
-			: _dict(dict)
+			: _dict(STINGRAYKIT_REQUIRE_NOT_NULL(dict))
 		{ }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
@@ -71,7 +71,7 @@ namespace stingray
 
 	public:
 		explicit ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
-			:	_dict(dict),
+			:	_dict(STINGRAYKIT_REQUIRE_NOT_NULL(dict)),
 				_onChanged(ExternalMutex(_dict->GetSyncRoot()), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1)),
 				_connection(_dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))))
 		{ }
