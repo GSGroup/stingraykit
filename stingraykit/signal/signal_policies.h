@@ -81,19 +81,6 @@ namespace stingray
 				DummyMutex GetSync() const { return DummyMutex(); }
 			};
 
-			struct ExternalMutex
-			{
-				static const bool IsThreadsafe = true;
-
-			private:
-				const Mutex&	_mutex;
-
-			public:
-				explicit ExternalMutex(const Mutex& mutex) : _mutex(mutex) { }
-
-				const Mutex& GetSync() const { return _mutex; }
-			};
-
 			struct ExternalMutexPointer
 			{
 				static const bool IsThreadsafe = true;
