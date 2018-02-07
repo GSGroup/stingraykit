@@ -11,7 +11,6 @@
 #include <stingraykit/diagnostics/ExternalAPIGuard.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/time/Time.h>
-#include <stingraykit/shared_ptr.h>
 
 namespace stingray
 {
@@ -211,6 +210,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif

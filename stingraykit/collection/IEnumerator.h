@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/ToEnumerator.h>
-#include <stingraykit/function/function.h>
 #include <stingraykit/shared_ptr.h>
 
 #define STINGRAYKIT_DECLARE_ENUMERATOR(ClassName) \
