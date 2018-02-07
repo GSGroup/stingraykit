@@ -140,7 +140,6 @@ set(stingraykit_SRC
 	stingraykit/time/NtpTimestamp.cpp
 	stingraykit/time/Time.cpp
 
-	stingraykit/timer/EventWatcher.cpp
 	stingraykit/timer/Timer.cpp
 )
 
