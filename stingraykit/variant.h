@@ -545,7 +545,7 @@ namespace stingray
 
 
 	template < typename Visitor >
-	class VisitorApplier : public function_info<void, UnspecifiedParamTypes>
+	class VisitorApplier : public function_info<typename Visitor::RetType, UnspecifiedParamTypes>
 	{
 	private:
 		Visitor		_visitor;
@@ -554,7 +554,7 @@ namespace stingray
 		explicit VisitorApplier(const Visitor& visitor) : _visitor(visitor) { }
 
 		template < typename Variant >
-		void operator() (const Variant& v) const { apply_visitor(_visitor, v); }
+		typename Visitor::RetType operator () (const Variant& v) const { return apply_visitor(_visitor, v); }
 	};
 
 
