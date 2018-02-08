@@ -264,9 +264,38 @@ namespace stingray
 		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
 
 		STINGRAYKIT_CHECK(visitable, NullArgumentException("visitable"));
-		static_cast<IVisitableBaseType*>(visitable.get())->Accept(visitor, visitable);
+		static_cast<IVisitableBaseType&>(*visitable).Accept(visitor, visitable);
 		return visitor.GetValue();
 	}
+
+
+	template < template < typename, typename > class VisitorType, typename BaseType, typename ValueType >
+	class VisitorApplyHelper : public function_info<ValueType, UnspecifiedParamTypes>
+	{
+	private:
+		VisitorType<BaseType, ValueType>&	_visitor;
+
+	public:
+		explicit VisitorApplyHelper(VisitorType<BaseType, ValueType>& visitor) : _visitor(visitor) { }
+
+		template < typename DerivedType >
+		ValueType operator () (const DerivedType& visitable) const
+		{ return ApplyVisitor(_visitor, visitable); }
+
+		template < typename DerivedType >
+		ValueType operator () (const shared_ptr<DerivedType>& visitable) const
+		{ return ApplyVisitor(_visitor, visitable); }
+	};
+
+
+	template < typename BaseType, typename ValueType >
+	VisitorApplyHelper<IVisitorByPtr, BaseType, ValueType> MakeVisitorApplier(IVisitorByPtr<BaseType, ValueType>& visitor)
+	{ return VisitorApplyHelper<IVisitorByPtr, BaseType, ValueType>(visitor); }
+
+
+	template < typename BaseType, typename ValueType >
+	VisitorApplyHelper<IVisitor, BaseType, ValueType> MakeVisitorApplier(IVisitor<BaseType, ValueType>& visitor)
+	{ return VisitorApplyHelper<IVisitor, BaseType, ValueType>(visitor); }
 
 }
 
