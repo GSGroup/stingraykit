@@ -8,34 +8,21 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stingraykit/Factory.h>
-#include <stingraykit/Final.h>
-#include <stingraykit/collection/ByteData.h>
 #include <stingraykit/collection/BytesOwner.h>
 #include <stingraykit/collection/ForEach.h>
-#include <stingraykit/collection/IDictionary.h>
-#include <stingraykit/collection/IList.h>
 #include <stingraykit/collection/IObservableDictionary.h>
 #include <stingraykit/collection/IObservableList.h>
 #include <stingraykit/collection/IObservableSet.h>
-#include <stingraykit/collection/ISet.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/diagnostics/PrivateIncludeGuard.h>
-#include <stingraykit/function/bind.h>
-#include <stingraykit/io/IByteStream.h>
-#include <stingraykit/reference.h>
+#include <stingraykit/io/IOutputByteStream.h>
 #include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/serialization/SettingsValueException.h>
 #include <stingraykit/serialization/SettingsValueForward.h>
-#include <stingraykit/shared_ptr.h>
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/toolkit.h>
+#include <stingraykit/Factory.h>
+#include <stingraykit/reference.h>
 #include <stingraykit/variant.h>
-
-#include <map>
-#include <string>
-#include <vector>
 
 namespace stingray
 {

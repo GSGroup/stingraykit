@@ -11,8 +11,6 @@
 #include <stingraykit/serialization/SettingsValueForward.h>
 #include <stingraykit/serialization/SettingsValueException.h>
 #include <stingraykit/collection/ByteData.h>
-#include <stingraykit/self_counter.h>
-#include <stingraykit/toolkit.h>
 #include <stingraykit/variant.h>
 
 namespace stingray

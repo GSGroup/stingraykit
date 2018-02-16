@@ -7,7 +7,6 @@
 
 #include <stingraykit/serialization/Serialization.h>
 #include <stingraykit/serialization/SettingsValue.h>
-#include <queue>
 
 namespace stingray
 {
