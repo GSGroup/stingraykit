@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <string>
 #include <stingraykit/exception.h>
 
 namespace stingray
@@ -21,13 +20,16 @@ namespace stingray
 
 	class SettingsValueException : public Exception
 	{
+	private:
 		std::string _backtrace;
-	public:
-		SettingsValueException(const std::string &msg): Exception(std::string()), _backtrace(msg) {}
-		~SettingsValueException() throw() {}
 
-		void Append(const std::string &property) { _backtrace = property + "->" + _backtrace; }
-		const char *what() const throw() { return _backtrace.c_str(); }
+	public:
+		SettingsValueException(const std::string& msg) : Exception(std::string()), _backtrace(msg) { }
+		virtual ~SettingsValueException() throw() { }
+
+		virtual const char *what() const throw() { return _backtrace.c_str(); }
+
+		void Append(const std::string& property) { _backtrace = property + "->" + _backtrace; }
 	};
 
 	/** @} */
