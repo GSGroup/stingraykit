@@ -21,7 +21,7 @@ namespace stingray
 
 	struct IDataConsumer
 	{
-		virtual ~IDataConsumer() {}
+		virtual ~IDataConsumer() { }
 
 		virtual size_t Process(ConstByteData data, const ICancellationToken& token) = 0;
 		virtual void EndOfData(const ICancellationToken& token) = 0;
@@ -38,7 +38,7 @@ namespace stingray
 
 	public:
 		FunctorDataConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
-		{}
+		{ }
 
 		virtual size_t Process(ConstByteData data, const ICancellationToken& token)	{ return _processFunc(data, token); }
 		virtual void EndOfData(const ICancellationToken& token)						{ _eodFunc(token); }
@@ -47,7 +47,7 @@ namespace stingray
 
 	struct IDataSource
 	{
-		virtual ~IDataSource() {}
+		virtual ~IDataSource() { }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token) = 0;
 
@@ -82,7 +82,7 @@ namespace stingray
 
 		virtual void Clear() = 0;
 
-		virtual signal_connector<void(size_t)> OnOverflow() const = 0;
+		virtual signal_connector<void (size_t)> OnOverflow() const = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(IDataBuffer);
 
@@ -98,9 +98,9 @@ namespace stingray
 		EodFunctionType	_eod;
 
 	public:
-		DataInterceptor(const IDataSourcePtr& source, const FunctionType& func, const EodFunctionType& eod) :
-			_source(source), _func(func), _eod(eod)
-		{}
+		DataInterceptor(const IDataSourcePtr& source, const FunctionType& func, const EodFunctionType& eod)
+			: _source(source), _func(func), _eod(eod)
+		{ }
 
 		virtual void Read(IDataConsumer& c, const ICancellationToken& token)
 		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(c), _1, _2), bind(&DataInterceptor::Eod, this, ref(c), _1), token); }
@@ -167,8 +167,8 @@ namespace stingray
 		MetadataType	_metadata;
 
 	public:
-		explicit Packet(ConstByteData data, const MetadataType& metadata = MetadataType()) :
-			_data(data), _metadata(metadata)
+		explicit Packet(ConstByteData data, const MetadataType& metadata = MetadataType())
+			: _data(data), _metadata(metadata)
 		{ }
 
 		ConstByteData GetData() const		{ return _data; }
@@ -180,7 +180,7 @@ namespace stingray
 	template<typename MetadataType>
 	struct IPacketConsumer
 	{
-		virtual ~IPacketConsumer() {}
+		virtual ~IPacketConsumer() { }
 
 		virtual bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) = 0;
 		virtual void EndOfData() = 0;
@@ -196,7 +196,7 @@ namespace stingray
 
 	public:
 		FunctorPacketConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
-		{}
+		{ }
 
 		virtual bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token)	{ return _processFunc(packet, token); }
 		virtual void EndOfData()																	{ _eodFunc(); }
@@ -206,7 +206,7 @@ namespace stingray
 	template<typename MetadataType>
 	struct IPacketSource
 	{
-		virtual ~IPacketSource() {}
+		virtual ~IPacketSource() { }
 
 		virtual void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token) = 0;
 
@@ -234,7 +234,7 @@ namespace stingray
 
 	public:
 		ByteDataPacketSource()
-		{}
+		{ }
 
 		ByteDataPacketSource(ConstByteData data)
 			: _data(data)
@@ -274,7 +274,6 @@ namespace stingray
 
 		return processed;
 	}
-
 
 }
 
