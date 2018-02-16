@@ -10,8 +10,6 @@
 
 #include <stingraykit/function/AsyncFunction.h>
 #include <stingraykit/signal/signal_policies.h>
-#include <stingraykit/thread/ITaskExecutor.h>
-#include <stingraykit/TaskLifeToken.h>
 #include <stingraykit/Token.h>
 
 namespace stingray

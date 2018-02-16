@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/function/function.h>
-#include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/PerfectForwarding.h>
 #include <stingraykit/reference.h>
 #include <stingraykit/shared_ptr.h>

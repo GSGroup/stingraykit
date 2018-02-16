@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/KeyValuePair.h>
-#include <stingraykit/function/function.h>
+#include <stingraykit/function/function_info.h>
 #include <stingraykit/PerfectForwarding.h>
 
 namespace stingray
