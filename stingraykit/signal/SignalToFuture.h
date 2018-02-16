@@ -20,17 +20,15 @@ namespace stingray {
 	template<typename ParamType>
 	class SignalToFutureWrapper
 	{
-		TokenHolder						_connection;
+	private:
 		promise<ParamType>				_promise;
 		shared_future<ParamType>		_future;
+		Token							_connection;
 
 	public:
 		template<typename SignalSignature>
 		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& s)
 		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this, _1)); }
-
-		~SignalToFutureWrapper()
-		{ _connection.Reset(); }
 
 		shared_future<ParamType> GetFuture()
 		{
@@ -47,17 +45,15 @@ namespace stingray {
 	template<>
 	class SignalToFutureWrapper<void>
 	{
-		TokenHolder					_connection;
+	private:
 		promise<void>				_promise;
 		shared_future<void>			_future;
+		Token						_connection;
 
 	public:
 		template<typename SignalSignature>
 		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& s)
 		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this)); }
-
-		~SignalToFutureWrapper()
-		{ _connection.Reset(); }
 
 		shared_future<void> GetFuture()
 		{
