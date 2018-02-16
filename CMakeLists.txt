@@ -80,6 +80,7 @@ set(stingraykit_SRC
 	stingraykit/ProgressValue.cpp
 	stingraykit/Random.cpp
 	stingraykit/SystemException.cpp
+	stingraykit/TaskLifeToken.cpp
 	stingraykit/TypeInfo.cpp
 	stingraykit/UUID.cpp
 	stingraykit/Version.cpp
