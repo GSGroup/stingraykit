@@ -9,10 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/EnumerableHelpers.h>
-#include <stingraykit/collection/EnumeratorFromStlContainer.h>
-#include <stingraykit/collection/flat_set.h>
-#include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/collection/ISet.h>
+#include <stingraykit/collection/flat_set.h>
 
 #include <set>
 

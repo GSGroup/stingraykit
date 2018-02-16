@@ -10,8 +10,6 @@
 
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 
-#include <vector>
-
 namespace stingray
 {
 

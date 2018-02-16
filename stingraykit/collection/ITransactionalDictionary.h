@@ -11,8 +11,7 @@
 #include <stingraykit/collection/DiffEntry.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/ObservableCollectionLocker.h>
-#include <stingraykit/signal/signals.h>
-#include <stingraykit/toolkit.h>
+#include <stingraykit/signal/signal_connector.h>
 
 namespace stingray
 {

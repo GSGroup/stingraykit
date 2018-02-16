@@ -11,6 +11,7 @@
 #include <stingraykit/collection/EnumerableBuilder.h>
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ITransactionalSet.h>
+#include <stingraykit/signal/signals.h>
 
 namespace stingray
 {

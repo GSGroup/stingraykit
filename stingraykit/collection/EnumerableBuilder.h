@@ -11,8 +11,6 @@
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/IEnumerable.h>
 
-#include <vector>
-
 namespace stingray
 {
 

@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/ICollection.h>
-#include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/collection/KeyValuePair.h>
 #include <stingraykit/optional.h>
 

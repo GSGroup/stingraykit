@@ -10,8 +10,8 @@
 
 #include <stingraykit/collection/EnumerableBuilder.h>
 #include <stingraykit/collection/EnumerableHelpers.h>
-#include <stingraykit/collection/IList.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
+#include <stingraykit/signal/signals.h>
 
 namespace stingray
 {
