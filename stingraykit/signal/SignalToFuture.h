@@ -27,8 +27,8 @@ namespace stingray {
 
 	public:
 		template<typename SignalSignature>
-		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& s)
-		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this, _1)); }
+		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& connector)
+		{ _connection = connector.connect(bind(&promise<ParamType>::set_value, ref(_promise), _1)); }
 
 		shared_future<ParamType> GetFuture()
 		{
@@ -36,9 +36,6 @@ namespace stingray {
 				_future = _promise.get_future().share();
 			return _future;
 		}
-
-		void operator()(const ParamType& p)
-		{ _promise.set_value(p); }
 	};
 
 
@@ -52,8 +49,8 @@ namespace stingray {
 
 	public:
 		template<typename SignalSignature>
-		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& s)
-		{ _connection = s.connect(bind(&SignalToFutureWrapper::operator(), this)); }
+		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& connector)
+		{ _connection = connector.connect(bind(&promise<void>::set_value, ref(_promise))); }
 
 		shared_future<void> GetFuture()
 		{
@@ -61,9 +58,6 @@ namespace stingray {
 				_future = _promise.get_future().share();
 			return _future;
 		}
-
-		void operator()()
-		{ _promise.set_value(); }
 	};
 
 	/** @} */
