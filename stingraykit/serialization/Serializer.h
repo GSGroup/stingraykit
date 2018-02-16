@@ -160,8 +160,9 @@ namespace stingray
 	};
 
 	template < typename Tag, typename T >
-	class Deserializer<Tag, optional<T>, void>
+	struct Deserializer<Tag, optional<T>, void>
 	{
+	private:
 		typedef Detail::OptionalDeserializationHelper<T, Deserializer<Tag, T> > DeserializationHelper;
 
 		optional<DeserializationHelper>		_helper;
