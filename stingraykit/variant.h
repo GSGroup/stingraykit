@@ -8,16 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <typeinfo>
-
 #include <stingraykit/MultiStorageFor.h>
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/exception.h>
 #include <stingraykit/fatal.h>
-#include <stingraykit/reference.h>
 #include <stingraykit/static_visitor.h>
 
+#include <typeinfo>
 
 #define STINGRAYKIT_ASSURE_NOTHROW(ErrorMessage_, ...) \
 		do { \

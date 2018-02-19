@@ -21,7 +21,6 @@
 #include <stingraykit/serialization/SettingsValueForward.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/Factory.h>
-#include <stingraykit/reference.h>
 #include <stingraykit/variant.h>
 
 namespace stingray
