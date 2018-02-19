@@ -44,7 +44,6 @@ namespace stingray
 	};
 
 
-	struct LocalExecutionGuard;
 	struct FutureExecutionTester
 	{
 		friend struct LocalExecutionGuard;
