@@ -10,14 +10,11 @@
 
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/Dummy.h>
-#include <stingraykit/Macro.h>
 #include <stingraykit/TypeErasure.h>
 #include <stingraykit/TypeInfo.h>
 #include <stingraykit/aligned_storage.h>
-#include <stingraykit/assert.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/exception.h>
-#include <stingraykit/fatal.h>
 #include <stingraykit/safe_bool.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
 

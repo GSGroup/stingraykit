@@ -11,7 +11,6 @@
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/signal/signal_connector.h>
 #include <stingraykit/thread/atomic.h>
-#include <stingraykit/reference.h>
 
 namespace stingray
 {
