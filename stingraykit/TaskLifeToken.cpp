@@ -46,10 +46,7 @@ namespace stingray
 			MutexLock l(_sync);
 
 			if (_threadId && (*_threadId == ThreadEngine::GetCurrentThreadId()))
-			{
-				std::string backtrace = Backtrace().Get();
-				Logger::Error() << "Resetting token while it is locked in current thread!" << (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace));
-			}
+				Logger::Error() << "Resetting token while it is locked in current thread!\nbacktrace: " << Backtrace();
 
 			_alive = false;
 		}
