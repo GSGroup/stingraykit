@@ -13,6 +13,8 @@
 #include <stingraykit/collection/ITransactionalSet.h>
 #include <stingraykit/signal/signals.h>
 
+#include <set>
+
 namespace stingray
 {
 
