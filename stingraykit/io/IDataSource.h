@@ -262,7 +262,7 @@ namespace stingray
 
 
 	template <typename Metadata>
-	inline bool ConsumeAll(IPacketConsumer<Metadata>& consumer, Packet<Metadata> packet, const ICancellationToken& token)
+	inline bool ConsumeAll(IPacketConsumer<Metadata>& consumer, const Packet<Metadata>& packet, const ICancellationToken& token)
 	{
 		bool processed = false;
 		while (token && !processed)
