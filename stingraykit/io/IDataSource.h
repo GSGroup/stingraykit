@@ -271,6 +271,31 @@ namespace stingray
 		return processed;
 	}
 
+
+	class DataConsumeAll : public function_info<size_t (ConstByteData, const ICancellationToken&)>
+	{
+		IDataConsumer& _consumer;
+
+	public:
+		explicit DataConsumeAll(IDataConsumer& consumer) : _consumer(consumer) { }
+
+		size_t operator () (ConstByteData data, const ICancellationToken& token) const
+		{ return ConsumeAll(_consumer, data, token); }
+	};
+
+
+	template <typename Metadata>
+	struct PacketConsumeAll : public function_info<bool (const Packet<Metadata>&, const ICancellationToken&)>
+	{
+		IPacketConsumer<Metadata>& _consumer;
+
+	public:
+		explicit PacketConsumeAll(IPacketConsumer<Metadata>& consumer) : _consumer(consumer) { }
+
+		bool operator () (const Packet<Metadata>& packet, const ICancellationToken& token) const
+		{ return ConsumeAll(_consumer, packet, token); }
+	};
+
 }
 
 #endif
