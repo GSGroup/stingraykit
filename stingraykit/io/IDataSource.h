@@ -223,34 +223,6 @@ namespace stingray
 	};
 
 
-	struct ByteDataPacketSource : public virtual IPacketSource<EmptyType>
-	{
-	private:
-		optional<ConstByteData> _data;
-
-	public:
-		ByteDataPacketSource()
-		{ }
-
-		ByteDataPacketSource(ConstByteData data)
-			: _data(data)
-		{ }
-
-		void SetData(ConstByteData data)
-		{ _data = data; }
-
-		virtual void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token)
-		{
-			if (_data)
-			{
-				consumer.Process(Packet<EmptyType>(*_data), token);
-				_data.reset();
-			}
-		}
-	};
-	STINGRAYKIT_DECLARE_PTR(ByteDataPacketSource);
-
-
 	inline size_t ConsumeAll(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 	{
 		size_t offset = 0;
