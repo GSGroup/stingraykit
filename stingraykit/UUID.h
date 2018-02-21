@@ -19,13 +19,16 @@ namespace stingray
 	public:
 		static const std::string Format;
 
-	private:
 		typedef array<u8, 16> DataType;
 
 	private:
 		DataType _data;
 
 	public:
+		UUID() { }
+
+		explicit UUID(const DataType& data) : _data(data) { }
+
 		bool operator< (const UUID& other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(UUID);
 
