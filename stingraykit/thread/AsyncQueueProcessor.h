@@ -10,10 +10,9 @@
 
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/CancellationToken.h>
-#include <stingraykit/thread/Thread.h>
-#include <stingraykit/function/function.h>
 #include <stingraykit/signal/signals.h>
 #include <stingraykit/ProgressValue.h>
+
 #include <list>
 
 namespace stingray
