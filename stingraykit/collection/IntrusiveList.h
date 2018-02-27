@@ -76,7 +76,7 @@ namespace stingray
 
 	public:
 		typedef T						ValueType;
-		typedef IntrusiveListNodeData	NodeDataType;
+		typedef IntrusiveListNodeData	NodeType;
 
 	public:
 		class iterator : public iterator_base<iterator, ValueType, std::bidirectional_iterator_tag>
@@ -84,10 +84,10 @@ namespace stingray
 			typedef iterator_base<iterator, ValueType, std::bidirectional_iterator_tag>	base;
 
 		private:
-			IntrusiveListNodeData*	_current;
+			NodeType*	_current;
 
 		public:
-			iterator(IntrusiveListNodeData* current)
+			iterator(NodeType* current)
 				:	_current(current)
 			{ }
 
@@ -103,10 +103,10 @@ namespace stingray
 			typedef iterator_base<const_iterator, const ValueType, std::bidirectional_iterator_tag>	base;
 
 		private:
-			const IntrusiveListNodeData*	_current;
+			const NodeType*	_current;
 
 		public:
-			const_iterator(const IntrusiveListNodeData* current)
+			const_iterator(const NodeType* current)
 				:	_current(current)
 			{ }
 
@@ -118,10 +118,10 @@ namespace stingray
 		};
 
 	private:
-		IntrusiveListNodeData	_root;
+		NodeType	_root;
 
-		static NodeDataType* get_next(const NodeDataType* n)	{ return n->_next; }
-		static NodeDataType* get_prev(const NodeDataType* n)	{ return n->_prev; }
+		static NodeType* get_next(const NodeType* n)	{ return n->_next; }
+		static NodeType* get_prev(const NodeType* n)	{ return n->_prev; }
 
 	public:
 		IntrusiveList()
