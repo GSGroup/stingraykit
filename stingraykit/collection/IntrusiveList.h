@@ -33,8 +33,9 @@ namespace stingray
 		IntrusiveListNodeData	*_prev, *_next;
 
 	protected:
-		inline IntrusiveListNodeData() :
-			_prev(this), _next(this)
+		inline IntrusiveListNodeData()
+			:	_prev(this),
+				_next(this)
 		{ }
 
 		~IntrusiveListNodeData()
@@ -50,7 +51,7 @@ namespace stingray
 
 		inline bool unlinked() const { return _next == this; }
 
-		inline void insert_before(IntrusiveListNodeData *node)
+		inline void insert_before(IntrusiveListNodeData* node)
 		{
 			_prev = node->_prev;
 			_next = node;
@@ -58,7 +59,7 @@ namespace stingray
 			_next->_prev = _prev->_next = this;
 		}
 
-		inline void insert_after(IntrusiveListNodeData *node)
+		inline void insert_after(IntrusiveListNodeData* node)
 		{
 			_prev = node;
 			_next = node->_next;
@@ -86,11 +87,13 @@ namespace stingray
 			IntrusiveListNodeData*	_current;
 
 		public:
-			iterator(IntrusiveListNodeData* current) : _current(current)
+			iterator(IntrusiveListNodeData* current)
+				:	_current(current)
 			{ }
 
 			typename base::reference dereference() const	{ return *static_cast<ValueType*>(_current); }
 			bool equal(const iterator &other) const			{ return _current == other._current; }
+
 			void increment()								{ _current = get_next(_current); }
 			void decrement()								{ _current = get_prev(_current); }
 		};
@@ -103,11 +106,13 @@ namespace stingray
 			const IntrusiveListNodeData*	_current;
 
 		public:
-			const_iterator(const IntrusiveListNodeData* current) : _current(current)
+			const_iterator(const IntrusiveListNodeData* current)
+				:	_current(current)
 			{ }
 
 			typename base::reference dereference() const	{ return *static_cast<const ValueType*>(_current); }
 			bool equal(const const_iterator &other) const	{ return _current == other._current; }
+
 			void increment()								{ _current = get_next(_current); }
 			void decrement()								{ _current = get_prev(_current); }
 		};
@@ -119,21 +124,21 @@ namespace stingray
 		static NodeDataType* get_prev(const NodeDataType* n)	{ return n->_prev; }
 
 	public:
-		IntrusiveList() : _root()
+		IntrusiveList()
+			:	_root()
 		{ }
 
 		~IntrusiveList()
 		{ STINGRAYKIT_ASSERT(empty()); }
 
-		iterator begin()				{ return iterator(_root._next); }
-		iterator end()					{ return iterator(&_root); }
+		iterator begin()					{ return iterator(_root._next); }
+		iterator end()						{ return iterator(&_root); }
 
-		// Sorry. =)
-		const_iterator begin() const	{ return const_iterator(_root._next); }
-		const_iterator end() const		{ return const_iterator(&_root); }
+		const_iterator begin() const		{ return const_iterator(_root._next); }
+		const_iterator end() const			{ return const_iterator(&_root); }
 
-		inline bool empty() const		{ return _root.unlinked(); }
-		size_t size() const				{ return std::distance(begin(), end()); }
+		inline bool empty() const			{ return _root.unlinked(); }
+		size_t size() const					{ return std::distance(begin(), end()); }
 
 		void push_back(ValueType& value)	{ value.insert_before(&_root); }
 		void erase(ValueType& value)		{ value.unlink(); }
