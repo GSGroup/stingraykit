@@ -74,13 +74,13 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(IntrusiveList);
 
 	public:
-		typedef T						value_type;
+		typedef T						ValueType;
 		typedef IntrusiveListNodeData	NodeDataType;
 
 	public:
-		class iterator : public iterator_base<iterator, T, std::bidirectional_iterator_tag>
+		class iterator : public iterator_base<iterator, ValueType, std::bidirectional_iterator_tag>
 		{
-			typedef iterator_base<iterator, T, std::bidirectional_iterator_tag>	base;
+			typedef iterator_base<iterator, ValueType, std::bidirectional_iterator_tag>	base;
 
 		private:
 			IntrusiveListNodeData*	_current;
@@ -89,15 +89,15 @@ namespace stingray
 			iterator(IntrusiveListNodeData* current) : _current(current)
 			{ }
 
-			typename base::reference dereference() const	{ return *static_cast<T*>(_current); }
+			typename base::reference dereference() const	{ return *static_cast<ValueType*>(_current); }
 			bool equal(const iterator &other) const			{ return _current == other._current; }
 			void increment()								{ _current = get_next(_current); }
 			void decrement()								{ _current = get_prev(_current); }
 		};
 
-		class const_iterator : public iterator_base<const_iterator, const T, std::bidirectional_iterator_tag>
+		class const_iterator : public iterator_base<const_iterator, const ValueType, std::bidirectional_iterator_tag>
 		{
-			typedef iterator_base<const_iterator, const T, std::bidirectional_iterator_tag>	base;
+			typedef iterator_base<const_iterator, const ValueType, std::bidirectional_iterator_tag>	base;
 
 		private:
 			const IntrusiveListNodeData*	_current;
@@ -106,7 +106,7 @@ namespace stingray
 			const_iterator(const IntrusiveListNodeData* current) : _current(current)
 			{ }
 
-			typename base::reference dereference() const	{ return *static_cast<const T*>(_current); }
+			typename base::reference dereference() const	{ return *static_cast<const ValueType*>(_current); }
 			bool equal(const const_iterator &other) const	{ return _current == other._current; }
 			void increment()								{ _current = get_next(_current); }
 			void decrement()								{ _current = get_prev(_current); }
@@ -135,8 +135,8 @@ namespace stingray
 		inline bool empty() const		{ return _root.unlinked(); }
 		size_t size() const				{ return std::distance(begin(), end()); }
 
-		void push_back(T& value)		{ value.insert_before(&_root); }
-		void erase(T& value)			{ value.unlink(); }
+		void push_back(ValueType& value)	{ value.insert_before(&_root); }
+		void erase(ValueType& value)		{ value.unlink(); }
 	};
 
 	/** @} */
