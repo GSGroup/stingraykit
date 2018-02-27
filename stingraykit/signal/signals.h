@@ -25,7 +25,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		struct CancellableStorage : public IntrusiveListNodeData
+		struct CancellableStorage : public IntrusiveListNodeData<CancellableStorage>
 		{
 		private:
 			function_storage		_functionStorage;
@@ -46,7 +46,7 @@ namespace stingray
 		};
 
 
-		struct ThreadlessStorage : public IntrusiveListNodeData
+		struct ThreadlessStorage : public IntrusiveListNodeData<ThreadlessStorage>
 		{
 		private:
 			function_storage		_functionStorage;

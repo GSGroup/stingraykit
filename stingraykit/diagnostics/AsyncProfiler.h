@@ -47,7 +47,7 @@ namespace stingray
 
 		typedef function<std::string()>	NameGetterFunc;
 
-		class SessionImpl : public IntrusiveListNodeData
+		class SessionImpl : public IntrusiveListNodeData<SessionImpl>
 		{
 			STINGRAYKIT_NONCOPYABLE(SessionImpl);
 
