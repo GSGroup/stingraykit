@@ -26,21 +26,21 @@ namespace stingray
 
 
 	template <typename T>
-	class IntrusiveListNodeData
+	class IntrusiveListNode
 	{
 		typedef T	ValueType;
 
 		friend class IntrusiveList<ValueType>;
 
-		IntrusiveListNodeData	*_prev, *_next;
+		IntrusiveListNode	*_prev, *_next;
 
 	protected:
-		IntrusiveListNodeData()
+		IntrusiveListNode()
 			:	_prev(this),
 				_next(this)
 		{ }
 
-		~IntrusiveListNodeData()
+		~IntrusiveListNode()
 		{ }
 
 	private:
@@ -53,7 +53,7 @@ namespace stingray
 
 		bool unlinked() const { return _next == this; }
 
-		void insert_before(IntrusiveListNodeData* node)
+		void insert_before(IntrusiveListNode* node)
 		{
 			_prev = node->_prev;
 			_next = node;
@@ -61,7 +61,7 @@ namespace stingray
 			_next->_prev = _prev->_next = this;
 		}
 
-		void insert_after(IntrusiveListNodeData* node)
+		void insert_after(IntrusiveListNode* node)
 		{
 			_prev = node;
 			_next = node->_next;
@@ -77,8 +77,8 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(IntrusiveList);
 
 	public:
-		typedef T									ValueType;
-		typedef IntrusiveListNodeData<ValueType>	NodeType;
+		typedef T								ValueType;
+		typedef IntrusiveListNode<ValueType>	NodeType;
 
 	public:
 		class iterator : public iterator_base<iterator, ValueType, std::bidirectional_iterator_tag>
