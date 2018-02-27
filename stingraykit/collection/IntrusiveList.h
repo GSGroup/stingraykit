@@ -77,7 +77,8 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(IntrusiveList);
 
 	public:
-		typedef T								ValueType;
+		typedef T								value_type;
+		typedef value_type						ValueType;
 		typedef IntrusiveListNode<ValueType>	NodeType;
 
 	public:
