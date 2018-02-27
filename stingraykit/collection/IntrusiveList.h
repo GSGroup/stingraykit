@@ -33,7 +33,7 @@ namespace stingray
 		IntrusiveListNodeData	*_prev, *_next;
 
 	protected:
-		inline IntrusiveListNodeData()
+		IntrusiveListNodeData()
 			:	_prev(this),
 				_next(this)
 		{ }
@@ -42,16 +42,16 @@ namespace stingray
 		{ }
 
 	private:
-		inline void unlink()
+		void unlink()
 		{
 			_next->_prev = _prev;
 			_prev->_next = _next;
 			_prev = _next = this;
 		}
 
-		inline bool unlinked() const { return _next == this; }
+		bool unlinked() const { return _next == this; }
 
-		inline void insert_before(IntrusiveListNodeData* node)
+		void insert_before(IntrusiveListNodeData* node)
 		{
 			_prev = node->_prev;
 			_next = node;
@@ -59,7 +59,7 @@ namespace stingray
 			_next->_prev = _prev->_next = this;
 		}
 
-		inline void insert_after(IntrusiveListNodeData* node)
+		void insert_after(IntrusiveListNodeData* node)
 		{
 			_prev = node;
 			_next = node->_next;
@@ -137,7 +137,7 @@ namespace stingray
 		const_iterator begin() const		{ return const_iterator(_root._next); }
 		const_iterator end() const			{ return const_iterator(&_root); }
 
-		inline bool empty() const			{ return _root.unlinked(); }
+		bool empty() const					{ return _root.unlinked(); }
 		size_t size() const					{ return std::distance(begin(), end()); }
 
 		void push_back(ValueType& value)	{ value.insert_before(&_root); }
