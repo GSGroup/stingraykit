@@ -182,11 +182,9 @@ namespace stingray
 		void Release()
 		{
 			Tokens tokens;
-			{
-				MutexLock l(_mutex);
-				tokens.swap(_tokens);
-			}
-			std::random_shuffle(tokens.begin(), tokens.end());
+
+			MutexLock l(_mutex);
+			tokens.swap(_tokens);
 		}
 	};
 
