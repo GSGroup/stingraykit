@@ -80,19 +80,6 @@ namespace stingray
 	optional<SystemStats> Thread::GetSystemStats()
 	{ return ThreadEngine::GetSystemStats(); }
 
-	void Thread::SetCancellationToken(const ICancellationToken& token)
-	{ ThreadEngine::GetCurrentThreadData()->SetCancellationToken(&token); }
-
-	void Thread::ResetCancellationToken()
-	{ ThreadEngine::GetCurrentThreadData()->SetCancellationToken(NULL); }
-
-	const ICancellationToken& Thread::GetCancellationToken()
-	{
-		const ICancellationToken* token = ThreadEngine::GetCurrentThreadData()->GetCancellationToken();
-		STINGRAYKIT_CHECK(token, InvalidOperationException());
-		return *token;
-	}
-
 
 	Thread::PrioritySetter::PrioritySetter()
 	{ }

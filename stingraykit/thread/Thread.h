@@ -142,27 +142,11 @@ namespace stingray
 		static ThreadStatsVec GetStats();
 
 		static optional<SystemStats> GetSystemStats();
-
-		static void SetCancellationToken(const ICancellationToken& token);
-		static void ResetCancellationToken();
-		static const ICancellationToken& GetCancellationToken();
 	};
 	STINGRAYKIT_DECLARE_PTR(Thread);
-
-
-	class ThreadCancellationTokenSetter
-	{
-	public:
-		ThreadCancellationTokenSetter(const ICancellationToken& token)
-		{ Thread::SetCancellationToken(token); }
-
-		~ThreadCancellationTokenSetter()
-		{ Thread::ResetCancellationToken(); }
-	};
 
 	/** @} */
 
 }
-
 
 #endif
