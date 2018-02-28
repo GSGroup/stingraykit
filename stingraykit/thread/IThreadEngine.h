@@ -61,7 +61,6 @@ namespace stingray
 	class TLSData
 	{
 	private:
-		const ICancellationToken*	_token;
 		ExternalAPIGuardStack		_externalApiGuardStack;
 		ITLSUserDataPtr				_userData;
 		int							_syncPrimitiveCodeCounter;
@@ -69,7 +68,7 @@ namespace stingray
 
 	public:
 		explicit TLSData(const ITLSUserDataPtr& userData = null)
-			: _token(NULL), _userData(userData), _syncPrimitiveCodeCounter(0), _disableCancellationCounter(0)
+			: _userData(userData), _syncPrimitiveCodeCounter(0), _disableCancellationCounter(0)
 		{ }
 
 		ExternalAPIGuardStack& GetExternalAPIGuardStack()				{ return _externalApiGuardStack; }
@@ -84,9 +83,6 @@ namespace stingray
 		void EnableThreadCancellation()				{ --_disableCancellationCounter; }
 
 		ITLSUserDataPtr GetUserData() const			{ return _userData; }
-
-		void SetCancellationToken(const ICancellationToken* token)	{ STINGRAYKIT_CHECK(!token || (token && !_token), InvalidOperationException()); _token = token; }
-		const ICancellationToken* GetCancellationToken()			{ return _token; }
 
 		class DisableThreadCancellationToken
 		{
