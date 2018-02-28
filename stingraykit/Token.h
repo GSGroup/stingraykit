@@ -182,10 +182,9 @@ namespace stingray
 		void Release()
 		{
 			Tokens tokens;
-			{
-				MutexLock l(_mutex);
-				tokens.swap(_tokens);
-			}
+
+			MutexLock l(_mutex);
+			tokens.swap(_tokens);
 		}
 	};
 
