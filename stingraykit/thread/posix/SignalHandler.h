@@ -8,13 +8,13 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/thread/Thread.h>
+#include <stingraykit/SystemException.h>
 
 #include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <stingraykit/SystemException.h>
 
 #ifdef __GNU_LIBRARY__
 #	ifndef SIGCANCEL
@@ -23,7 +23,6 @@
 #else
 #	error please mask cancellation signal if thread cancellation was implemented via tgkill (which is true for linux/nptl)
 #endif
-
 
 namespace stingray {
 namespace posix
