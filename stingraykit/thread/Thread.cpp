@@ -7,10 +7,8 @@
 
 #include <stingraykit/thread/Thread.h>
 
-#include <stingraykit/function/bind.h>
 #include <stingraykit/diagnostics/AsyncProfiler.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
-
 
 namespace stingray
 {
@@ -37,7 +35,8 @@ namespace stingray
 	////////////////////////////////////////
 
 	Thread::Thread(const std::string& name, const FuncType& threadFunc, optional<TimeDuration> timeout)
-	{ _thread = ThreadEngine::BeginThread(threadFunc, name, timeout); }
+		: _thread(ThreadEngine::BeginThread(threadFunc, name, timeout))
+	{ }
 
 
 	Thread::~Thread()
