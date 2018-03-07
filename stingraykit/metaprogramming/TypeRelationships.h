@@ -22,7 +22,7 @@ namespace stingray
 		template < typename Base > YesType	TestIsInherited(const Base*);
 		template < typename Base > NoType	TestIsInherited(...);
 
-		template < typename Derived, typename Base > struct IsInheritedImpl : integral_constant<bool, ( sizeof(TestIsInherited<Base>((const Derived*)0)) == sizeof(YesType) ) && IsComplete<Derived>::Value> { };
+		template < typename Derived, typename Base > struct IsInheritedImpl : integral_constant<bool, ( sizeof(TestIsInherited<Base>((const typename StaticAssertCompleteType<Derived>::ValueT*)0)) == sizeof(YesType) )> { };
 
 
 		template < template <typename> class Base, typename T >	YesType	TestIsInherited1ParamTemplate(const Base<T>*);
