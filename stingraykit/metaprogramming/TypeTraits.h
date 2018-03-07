@@ -15,6 +15,7 @@
 
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
+#include <stingraykit/metaprogramming/TypeCompleteness.h>
 #include <stingraykit/metaprogramming/TypeList.h>
 #include <stingraykit/Types.h>
 
@@ -55,8 +56,6 @@ namespace stingray
 
 	STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 	template < typename T > struct IsEnumClass										: HasNestedType_Enum<T> { };
-
-	template < typename T > struct IsComplete										: integral_constant<bool, sizeof(T) == sizeof(T)> { };
 
 
 	typedef TypeList<u8, s8, u16, s16, u32, s32, u64, s64>::type																	FixedWidthIntTypes;
