@@ -12,7 +12,7 @@
 
 namespace stingray
 {
-	template < typename T > struct IsComplete : integral_constant<bool, sizeof(T) == sizeof(T)> { };
+	template < typename T > struct IsComplete : integral_constant<bool, sizeof(T)> { };
 }
 
 #endif
