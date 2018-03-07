@@ -12,7 +12,9 @@
 
 namespace stingray
 {
-	template < typename T > struct StaticAssertCompleteType : CompileTimeAssert<sizeof(T)> { typedef T	ValueT; };
+
+	template < typename T > struct StaticAssertCompleteType : CompileTimeAssert<sizeof(T) == sizeof(T)> { typedef T	ValueT; };
+
 }
 
 #endif
