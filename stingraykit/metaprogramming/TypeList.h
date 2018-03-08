@@ -292,6 +292,24 @@ namespace stingray
 	{ typedef InitialValue	ValueT; };
 
 
+	template < typename TypeList, template <typename> class Predicate >
+	struct TypeListAllOf
+	{ typedef typename If<Predicate<typename TypeList::ValueT>::Value, typename TypeListAllOf<typename TypeList::Next, Predicate>::ValueT, FalseType>::ValueT	ValueT; };
+
+	template < template <typename> class Predicate >
+	struct TypeListAllOf<TypeListEndNode, Predicate>
+	{ typedef TrueType	ValueT; };
+
+
+	template < typename TypeList, template <typename> class Predicate >
+	struct TypeListAnyOf
+	{ typedef typename If<Predicate<typename TypeList::ValueT>::Value, TrueType, typename TypeListAnyOf<typename TypeList::Next, Predicate>::ValueT>::ValueT	ValueT; };
+
+	template < template <typename> class Predicate >
+	struct TypeListAnyOf<TypeListEndNode, Predicate>
+	{ typedef FalseType	ValueT; };
+
+
 	template < typename TypeList, template <typename> class TransformFunc >
 	struct TypeListTransform
 	{ typedef TypeListNode<typename TransformFunc<typename TypeList::ValueT>::ValueT, typename TypeListTransform<typename TypeList::Next, TransformFunc>::ValueT> ValueT; };
