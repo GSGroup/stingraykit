@@ -124,6 +124,7 @@ namespace stingray
 										TypeToStringObjectType::IsException :
 										(
 											IsSame<u8, ObjectType>::Value
+												|| IsSame<EmptyType, ObjectType>::Value
 												|| IsSame<NullPtrType, ObjectType>::Value
 												|| IsSame<const char*, ObjectType>::Value
 												|| IsSharedPtr<ObjectType>::Value
@@ -266,6 +267,14 @@ namespace stingray
 
 
 		template<>
+		struct TypeToStringSerializer<EmptyType, TypeToStringObjectType::Other>
+		{
+			static void ToStringImpl(string_ostream & result, EmptyType val)
+			{ }
+		};
+
+
+		template<>
 		struct TypeToStringSerializer<NullPtrType, TypeToStringObjectType::Other>
 		{
 			static void ToStringImpl(string_ostream & result, NullPtrType ptr)
@@ -373,10 +382,6 @@ namespace stingray
 	{ string_ostream result; ToString(result, val); return result.str(); }
 
 
-	inline std::string ToString(const EmptyType &)
-	{ return std::string(); }
-
-
 	template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
 	struct IsStringRepresentable : TrueType { };
 
@@ -387,6 +392,10 @@ namespace stingray
 
 	template < typename T >
 	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::HasBeginEnd> : IsStringRepresentable<typename T::value_type> { };
+
+
+	template < >
+	struct IsStringRepresentable<EmptyType, Detail::TypeToStringObjectType::Other> : TrueType { };
 
 
 	template < typename T >
