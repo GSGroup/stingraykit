@@ -194,9 +194,6 @@ namespace stingray
 				return GetPtr<T>();
 			}
 
-			std::string ToString() const
-			{ return ApplyVisitor(ToStringVisitor()); }
-
 		protected:
 			template<typename Visitor>
 			typename Visitor::RetType ApplyFunctor(const Visitor& v)
@@ -282,12 +279,6 @@ namespace stingray
 				const std::type_info* operator()(const T& t) const { return &typeid(T); }
 			};
 
-			struct ToStringVisitor : static_visitor<std::string>
-			{
-				template<typename T>
-				std::string operator()(const T& t) const { return stingray::ToString(t); }
-			};
-
 			template<typename VariantType, template <typename> class ComparerType>
 			struct ComparerVisitor : static_visitor<bool>
 			{
@@ -302,11 +293,31 @@ namespace stingray
 				bool operator()(const T& t) const { return ComparerType<T>()(t, _rhs.template get<T>()); }
 			};
 		};
+
+
+		template <typename TypeList_, bool StringableTypeList = TypeListAllOf<TypeList_, IsStringRepresentable>::ValueT::Value>
+		struct StringRepresentableVariant : public VariantBase<TypeList_>
+		{
+		private:
+			struct ToStringVisitor : static_visitor<std::string>
+			{
+				template<typename T>
+				std::string operator()(const T& t) const { return stingray::ToString(t); }
+			};
+
+		public:
+			std::string ToString() const
+			{ return this->ApplyVisitor(ToStringVisitor()); }
+		};
+
+		template <typename TypeList_>
+		struct StringRepresentableVariant<TypeList_, false> : public VariantBase<TypeList_>
+		{ };
 	}
 
 
 	template <typename TypeList, bool CanBeEmpty = TypeListContains<TypeList, EmptyType>::Value>
-	class variant : public Detail::VariantBase<TypeList>
+	class variant : public Detail::StringRepresentableVariant<TypeList>
 	{
 		typedef Detail::VariantBase<TypeList>	base;
 		typedef variant<TypeList, CanBeEmpty>	MyType;
@@ -400,7 +411,7 @@ namespace stingray
 
 
 	template <typename TypeList>
-	class variant<TypeList, true> : public Detail::VariantBase<TypeList>
+	class variant<TypeList, true> : public Detail::StringRepresentableVariant<TypeList>
 	{
 		typedef Detail::VariantBase<TypeList>	base;
 		typedef variant<TypeList, true>			MyType;
