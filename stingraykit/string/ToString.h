@@ -369,6 +369,38 @@ namespace stingray
 			{ result << object.ToString(); }
 		};
 
+
+		template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
+		struct IsStringRepresentableImpl : TrueType { };
+
+
+		template < typename T >
+		struct IsStringRepresentableImpl<T, Detail::TypeToStringObjectType::Enumerable> : IsStringRepresentableImpl<typename T::ItemType> { };
+
+
+		template < typename T >
+		struct IsStringRepresentableImpl<T, Detail::TypeToStringObjectType::HasBeginEnd> : IsStringRepresentableImpl<typename T::value_type> { };
+
+
+		template < >
+		struct IsStringRepresentableImpl<EmptyType, Detail::TypeToStringObjectType::Other> : TrueType { };
+
+
+		template < typename T >
+		struct IsStringRepresentableImpl<shared_ptr<T>, Detail::TypeToStringObjectType::Other> : IsStringRepresentableImpl<T> { };
+
+
+		template < typename T >
+		struct IsStringRepresentableImpl<optional<T>, Detail::TypeToStringObjectType::Other> : IsStringRepresentableImpl<T> { };
+
+
+		template < typename T, typename U >
+		struct IsStringRepresentableImpl<std::pair<T, U>, Detail::TypeToStringObjectType::Other> : integral_constant<bool, IsStringRepresentableImpl<T>::Value && IsStringRepresentableImpl<U>::Value> { };
+
+
+		template < typename T >
+		struct IsStringRepresentableImpl<T, Detail::TypeToStringObjectType::ProxyObjToStdStream > : TypeListContains<BuiltinTypes, T> { }; // TODO: Is this enough?
+
 	}
 
 
@@ -382,36 +414,8 @@ namespace stingray
 	{ string_ostream result; ToString(result, val); return result.str(); }
 
 
-	template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
-	struct IsStringRepresentable : TrueType { };
-
-
 	template < typename T >
-	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::Enumerable> : IsStringRepresentable<typename T::ItemType> { };
-
-
-	template < typename T >
-	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::HasBeginEnd> : IsStringRepresentable<typename T::value_type> { };
-
-
-	template < >
-	struct IsStringRepresentable<EmptyType, Detail::TypeToStringObjectType::Other> : TrueType { };
-
-
-	template < typename T >
-	struct IsStringRepresentable<shared_ptr<T>, Detail::TypeToStringObjectType::Other> : IsStringRepresentable<T> { };
-
-
-	template < typename T >
-	struct IsStringRepresentable<optional<T>, Detail::TypeToStringObjectType::Other> : IsStringRepresentable<T> { };
-
-
-	template < typename T, typename U >
-	struct IsStringRepresentable<std::pair<T, U>, Detail::TypeToStringObjectType::Other> : integral_constant<bool, IsStringRepresentable<T>::Value && IsStringRepresentable<U>::Value> { };
-
-
-	template < typename T >
-	struct IsStringRepresentable<T, Detail::TypeToStringObjectType::ProxyObjToStdStream > : TypeListContains<BuiltinTypes, T> { }; // TODO: Is this enough?
+	struct IsStringRepresentable : Detail::IsStringRepresentableImpl<T> { };
 
 
 	template< typename CharType >
