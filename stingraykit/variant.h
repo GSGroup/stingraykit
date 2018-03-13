@@ -385,6 +385,19 @@ namespace stingray
 
 		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
 
+#define DETAIL_STINGRAYKIT_VARIANT_EMPLACE(N_, UserArg_) \
+		template<typename T STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
+		void emplace(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
+		{ \
+			base::Destruct(); \
+			STINGRAYKIT_ASSURE_NOTHROW("Ctor of never-empty variant item threw an exception", this->_storage.template Ctor<T>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))); \
+			this->_type = IndexOfTypeListItem<TypeList, T>::Value; \
+		}
+
+		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_VARIANT_EMPLACE, ~)
+
+#undef DETAIL_STINGRAYKIT_VARIANT_EMPLACE
+
 	private:
 		template <typename T>
 		void AssignVal(const T& val)
@@ -480,6 +493,23 @@ namespace stingray
 		}
 
 		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
+
+#define DETAIL_STINGRAYKIT_VARIANT_EMPLACE(N_, UserArg_) \
+		template<typename T STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
+		void emplace(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
+		{ \
+			try \
+			{ \
+				base::Destruct(); \
+				this->_storage.template Ctor<T>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
+				this->_type = IndexOfTypeListItem<TypeList, T>::Value; \
+			} catch (const std::exception& ex) \
+			{ AssignDefault(); throw; } \
+		}
+
+		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_VARIANT_EMPLACE, ~)
+
+#undef DETAIL_STINGRAYKIT_VARIANT_EMPLACE
 
 	private:
 		template <typename T>
