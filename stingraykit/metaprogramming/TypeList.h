@@ -293,21 +293,17 @@ namespace stingray
 
 
 	template < typename TypeList, template <typename> class Predicate >
-	struct TypeListAllOf
-	{ typedef typename If<Predicate<typename TypeList::ValueT>::Value, typename TypeListAllOf<typename TypeList::Next, Predicate>::ValueT, FalseType>::ValueT	ValueT; };
+	struct TypeListAllOf : integral_constant<bool, Predicate<typename TypeList::ValueT>::Value ? TypeListAllOf<typename TypeList::Next, Predicate>::Value : false> { };
 
 	template < template <typename> class Predicate >
-	struct TypeListAllOf<TypeListEndNode, Predicate>
-	{ typedef TrueType	ValueT; };
+	struct TypeListAllOf<TypeListEndNode, Predicate> : TrueType { };
 
 
 	template < typename TypeList, template <typename> class Predicate >
-	struct TypeListAnyOf
-	{ typedef typename If<Predicate<typename TypeList::ValueT>::Value, TrueType, typename TypeListAnyOf<typename TypeList::Next, Predicate>::ValueT>::ValueT	ValueT; };
+	struct TypeListAnyOf : integral_constant<bool, Predicate<typename TypeList::ValueT>::Value ? true : TypeListAnyOf<typename TypeList::Next, Predicate>::Value> { };
 
 	template < template <typename> class Predicate >
-	struct TypeListAnyOf<TypeListEndNode, Predicate>
-	{ typedef FalseType	ValueT; };
+	struct TypeListAnyOf<TypeListEndNode, Predicate> : FalseType { };
 
 
 	template < typename TypeList, template <typename> class TransformFunc >

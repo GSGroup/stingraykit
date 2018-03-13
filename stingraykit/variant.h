@@ -295,7 +295,7 @@ namespace stingray
 		};
 
 
-		template <typename TypeList_, bool StringableTypeList = TypeListAllOf<TypeList_, IsStringRepresentable>::ValueT::Value>
+		template <typename TypeList_, bool StringableTypeList = TypeListAllOf<TypeList_, IsStringRepresentable>::Value>
 		struct StringRepresentableVariant : public VariantBase<TypeList_>
 		{
 		private:
