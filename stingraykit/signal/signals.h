@@ -267,6 +267,8 @@ namespace stingray
 					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature_>(p); );
 			}
 
+			virtual ConnectionPolicy GetConnectionPolicy() const { return this->DoGetConnectionPolicy(); }
+
 		private:
 			virtual typename base::MutexRefType DoGetSync() const
 			{ return this->GetSync(); }
@@ -276,8 +278,6 @@ namespace stingray
 				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrapped_slot(storage.ToFunction<Signature_>(), this->GetExceptionHandler());
 				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentStateImpl<Signature_>(wrapped_slot); );
 			}
-
-			virtual ConnectionPolicy GetConnectionPolicy() const { return this->DoGetConnectionPolicy(); }
 		};
 	}
 
