@@ -22,7 +22,7 @@ namespace gcc
 	typedef unsigned long _Unwind_Word;
 	typedef uintptr_t _Unwind_Ptr;
 
-#	if __clang_major__ < 3 || __clang_minor__ < 4
+#	if __clang_major__ < 3 && __clang_minor__ < 4
 		static inline _Unwind_Word _Unwind_GetCFA(struct _Unwind_Context *) { return 0; }
 #	endif
 #endif
