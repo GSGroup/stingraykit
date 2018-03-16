@@ -187,7 +187,7 @@ namespace stingray
 			{
 				MutexLock l(this->_mutex);
 				STINGRAYKIT_CHECK(!this->is_ready(), PromiseAlreadySatisfied());
-				this->_result = typename Base::ResultType(true);
+				this->_result = Base::ResultType(true);
 				this->notify_ready();
 			}
 		};

@@ -45,7 +45,7 @@ namespace stingray
 	{
 		typedef Detail::PointerTupleBuilder<TypeList_0> BaseType;
 
-		PointerTupleBuilder() : BaseType(typename BaseType::ValueType())
+		PointerTupleBuilder() : BaseType(BaseType::ValueType())
 		{ }
 	};
 
