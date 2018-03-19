@@ -59,7 +59,7 @@ namespace stingray
 
 			for (size_t i = 0; i < Suffixes.size(); ++i)
 				if (suffix[0] == Suffixes[i])
-					return num * ((u64)1 << 10 * (i + 1));
+					return num * ((u64)1 << (10 * (i + 1)));
 		}
 
 		STINGRAYKIT_THROW(FormatException(str));
