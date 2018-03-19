@@ -85,7 +85,7 @@ namespace stingray
 
 		public:
 			SetTransactionImpl(const SetImplPtr& setImpl) :
-				_setImpl(setImpl), _mutexLock(setImpl->GetTransactionMutex())
+				_setImpl(setImpl), _mutexLock(setImpl->GetTransactionMutex()), _stamp(0)
 			{ }
 
 			Container& GetAdded()     { return _added; }
