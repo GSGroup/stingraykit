@@ -109,7 +109,6 @@ namespace stingray
 
 	public:
 		MapValuesIterator(const MapIterator& wrapped) : _wrapped(wrapped) { }
-		MapValuesIterator& operator =(const MapIterator& w)	{ _wrapped = w; return *this; }
 
 		typename BaseType::reference dereference() const	{ return _wrapped->second; }
 		bool equal(const MapValuesIterator& other) const	{ return _wrapped == other._wrapped; }
