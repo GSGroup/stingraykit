@@ -85,11 +85,17 @@ namespace stingray
 	{
 		typedef iterator_base<MapKeysIterator<MapIterator>, typename Detail::GetMapKeysIteratorPointedType<MapIterator>::ValueT, std::bidirectional_iterator_tag>	BaseType;
 
+		template < typename OtherMapIterator >
+		friend class MapKeysIterator;
+
 	private:
 		MapIterator		_wrapped;
 
 	public:
 		MapKeysIterator(const MapIterator& wrapped) : _wrapped(wrapped) { }
+
+		template < typename OtherMapIterator >
+		MapKeysIterator(const MapKeysIterator<OtherMapIterator>& other) : _wrapped(other._wrapped) { }
 
 		typename BaseType::reference dereference() const	{ return _wrapped->first; }
 		bool equal(const MapKeysIterator& other) const		{ return _wrapped == other._wrapped; }
@@ -104,11 +110,17 @@ namespace stingray
 	{
 		typedef iterator_base<MapValuesIterator<MapIterator>, typename Detail::GetMapValuesIteratorPointedType<MapIterator>::ValueT, std::bidirectional_iterator_tag>	BaseType;
 
+		template < typename OtherMapIterator >
+		friend class MapValuesIterator;
+
 	private:
 		MapIterator		_wrapped;
 
 	public:
 		MapValuesIterator(const MapIterator& wrapped) : _wrapped(wrapped) { }
+
+		template < typename OtherMapIterator >
+		MapValuesIterator(const MapValuesIterator<OtherMapIterator>& other) : _wrapped(other._wrapped) { }
 
 		typename BaseType::reference dereference() const	{ return _wrapped->second; }
 		bool equal(const MapValuesIterator& other) const	{ return _wrapped == other._wrapped; }
