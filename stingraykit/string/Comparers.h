@@ -27,32 +27,24 @@ namespace stingray
 				: _comparer(comparer)
 			{ }
 
-			bool operator()(char first, char second) const
-			{
-				return _comparer(std::tolower(first), std::tolower(second));
-			}
+			bool operator () (char first, char second) const
+			{ return _comparer(std::tolower(first), std::tolower(second)); }
 		};
 
 	}
 
 
-	class CaseInsensitiveLess
+	struct CaseInsensitiveLess : public function_info<bool (const std::string&, const std::string&)>
 	{
-	public:
 		bool operator()(const std::string& first, const std::string& second) const
-		{
-			return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), Detail::CaseInsensitiveCompare<comparers::Less>());
-		}
+		{ return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), Detail::CaseInsensitiveCompare<comparers::Less>()); }
 	};
 
 
-	class CaseInsensitiveEquals
+	struct CaseInsensitiveEquals : public function_info<bool (const std::string&, const std::string&)>
 	{
-	public:
 		bool operator()(const std::string& first, const std::string& second) const
-		{
-			return first.length() == second.length() && std::equal(first.begin(), first.end(), second.begin(), Detail::CaseInsensitiveCompare<comparers::Equals>());
-		}
+		{ return first.length() == second.length() && std::equal(first.begin(), first.end(), second.begin(), Detail::CaseInsensitiveCompare<comparers::Equals>()); }
 	};
 
 }
