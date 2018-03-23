@@ -444,11 +444,10 @@ namespace stingray
 
 			Self& Prev()
 			{
-				_impl.Prev();
-				if (_impl.Valid())
-					return *this;
-
-				_impl.Last();
+				if (_impl == Range_(_impl).First())
+					_impl.Last();
+				else
+					_impl.Prev();
 				CheckValid();
 				return *this;
 			}
