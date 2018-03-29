@@ -100,10 +100,19 @@ namespace stingray
 		virtual void Set(const ParamPassingType& value)
 		{
 			if (value)
-				_dict->Set(_key, value);
+				DoSet<ValueType_>(value);
 			else
 				_dict->TryRemove(_key);
 		}
+
+	private:
+		template < typename ValueType >
+		void DoSet(const typename EnableIf<IsNullable<ValueType>::Value, ParamPassingType>::ValueT& value)
+		{ _dict->Set(_key, value); }
+
+		template < typename ValueType >
+		void DoSet(const typename EnableIf<!IsNullable<ValueType>::Value, ParamPassingType>::ValueT& value)
+		{ _dict->Set(_key, *value); }
 	};
 
 
