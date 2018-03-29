@@ -50,9 +50,8 @@ namespace stingray
 
 		virtual ValueType Get() const
 		{
-			ValueType value;
-			_dict->TryGet(_key, value);
-			return value;
+			ValueType_ value;
+			return _dict->TryGet(_key, value) ? ValueType(value) : null;
 		}
 
 		virtual signal_connector<OnChangedSignature> OnChanged() const
@@ -65,7 +64,7 @@ namespace stingray
 		void InvokeOnChanged(CollectionOp op, const KeyType_& key, const ValueType_& value)
 		{
 			if (EqualsCmp_()(_key, key))
-				_onChanged(op == CollectionOp::Removed ? null : value);
+				_onChanged(op == CollectionOp::Removed ? null : ValueType(value));
 		}
 
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
@@ -109,12 +108,12 @@ namespace stingray
 
 
 	template < typename KeyType, typename ValueType, typename EqualsCmp >
-	shared_ptr<IReadonlyObservableValue<ValueType> > GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key, const EqualsCmp& equalsCmp)
+	shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> > GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key, const EqualsCmp& equalsCmp)
 	{ return make_shared<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> >(dict, key); }
 
 
 	template < typename KeyType, typename ValueType, typename EqualsCmp >
-	shared_ptr<IObservableValue<ValueType> > GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key, const EqualsCmp& equalsCmp)
+	shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> > GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key, const EqualsCmp& equalsCmp)
 	{ return make_shared<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> >(dict, key); }
 
 }
