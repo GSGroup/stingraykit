@@ -13,16 +13,18 @@
 namespace stingray
 {
 
-	template < typename NativeType >
+	template < typename ValueType >
 	class ScopedHolder
 	{
 		STINGRAYKIT_NONCOPYABLE(ScopedHolder);
 
+		typedef typename GetParamPassingType<ValueType>::ValueT ValuePassingType;
+
 	public:
-		typedef function<void(NativeType&)>		CleanupFuncType;
+		typedef function<void (ValuePassingType)> CleanupFuncType;
 
 	private:
-		NativeType		_handle;
+		ValueType		_handle;
 		CleanupFuncType	_cleanupFunc;
 		bool			_valid;
 
@@ -31,20 +33,20 @@ namespace stingray
 			: _cleanupFunc(cleanupFunc), _valid(false)
 		{ }
 
-		ScopedHolder(const NativeType& handle, const CleanupFuncType& cleanupFunc)
+		ScopedHolder(ValuePassingType handle, const CleanupFuncType& cleanupFunc)
 			: _handle(handle), _cleanupFunc(cleanupFunc), _valid(true)
 		{ }
 
 		~ScopedHolder()					{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
 
 		bool Valid() const				{ return _valid; }
-		const NativeType& Get() const	{ Check();					return _handle; }
-		NativeType Release()			{ Check(); _valid = false;	return _handle; }
+		ValuePassingType Get() const	{ Check();					return _handle; }
+		ValueType Release()				{ Check(); _valid = false;	return _handle; }
 
 		void Clear()
 		{ Cleanup(); }
 
-		void Set(const NativeType& handle)
+		void Set(ValuePassingType handle)
 		{
 			Cleanup();
 			_handle = handle;
