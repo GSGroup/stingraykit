@@ -38,13 +38,6 @@ namespace stingray
 
 #define TY typename
 
-	typedef TypeListEndNode TypeList_0;
-
-	template < TY T1 >
-	struct TypeList_1 : public TypeListNode<T1, TypeList_0>
-	{ typedef TypeListNode<T1, TypeList_0> type; };
-
-
 #define MAX_TYPELIST_LEN 60
 
 #define DETAIL_TYPELIST_PARAMS_DECL(Index_, Default_) STINGRAYKIT_COMMA_IF(Index_) typename STINGRAYKIT_CAT(T, Index_) Default_
@@ -72,79 +65,9 @@ namespace stingray
 		typedef typename Detail::TypeListCreatorImpl< STINGRAYKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_USAGE, 0) >::ValueT type;
 	};
 
-#define DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(Size_) \
-	template< STINGRAYKIT_REPEAT(Size_, DETAIL_TYPELIST_PARAMS_DECL, STINGRAYKIT_EMPTY()) > \
-	struct TypeList_##Size_ : \
-		public TypeListNode<T0, STINGRAYKIT_CAT(TypeList_, STINGRAYKIT_DEC(Size_)) <STINGRAYKIT_REPEAT(STINGRAYKIT_DEC(Size_), DETAIL_TYPELIST_PARAMS_USAGE, 1)> > \
-	{ typedef TypeListNode<T0, STINGRAYKIT_CAT(TypeList_, STINGRAYKIT_DEC(Size_)) <STINGRAYKIT_REPEAT(STINGRAYKIT_DEC(Size_), DETAIL_TYPELIST_PARAMS_USAGE, 1)> > type; };
-
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(2)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(3)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(4)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(5)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(6)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(7)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(8)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(9)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(10)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(11)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(12)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(13)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(14)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(15)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(16)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(17)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(18)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(19)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(20)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(21)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(22)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(23)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(24)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(25)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(26)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(27)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(28)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(29)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(30)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(31)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(32)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(33)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(34)
-	DETAIL_DETAIL_STINGRAYKIT_DECLARE_TYPELIST(35)
-
 #undef DETAIL_TYPELISTENDNODE
 #undef DETAIL_TYPELIST_PARAMS_USAGE
 #undef DETAIL_TYPELIST_PARAMS_DECL
-
-/*
-	template < TY T1, TY T2 >
-	struct TypeList_2 : public TypeListNode<T1, TypeList_1<T2> > { };
-
-	template < TY T1, TY T2, TY T3 >
-	struct TypeList_3 : public TypeListNode<T1, TypeList_2<T2, T3> > { };
-
-	template < TY T1, TY T2, TY T3, TY T4 >
-	struct TypeList_4 : public TypeListNode<T1, TypeList_3<T2, T3, T4> > { };
-
-	template < TY T1, TY T2, TY T3, TY T4, TY T5 >
-	struct TypeList_5 : public TypeListNode<T1, TypeList_4<T2, T3, T4, T5> > { };
-
-	template < TY T1, TY T2, TY T3, TY T4, TY T5, TY T6 >
-	struct TypeList_6 : public TypeListNode<T1, TypeList_5<T2, T3, T4, T5, T6> > { };
-
-	template < TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7 >
-	struct TypeList_7 : public TypeListNode<T1, TypeList_6<T2, T3, T4, T5, T6, T7> > { };
-
-	template < TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8 >
-	struct TypeList_8 : public TypeListNode<T1, TypeList_7<T2, T3, T4, T5, T6, T7, T8> > { };
-
-	template < TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9 >
-	struct TypeList_9 : public TypeListNode<T1, TypeList_8<T2, T3, T4, T5, T6, T7, T8, T9> > { };
-
-	template < TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10 >
-	struct TypeList_10 : public TypeListNode<T1, TypeList_9<T2, T3, T4, T5, T6, T7, T8, T9, T10> > { };
-*/
 
 
 	//////////////////////////////////////////////////////////////////////
@@ -372,13 +295,13 @@ namespace stingray
 	{ typedef typename TypeList::ValueT ValueT; };
 
 
-	template <typename TypeList, template<typename, typename> class LessPredicate>
+	template <typename TypeList_, template<typename, typename> class LessPredicate>
 	struct TypeListSort
 	{
-		typedef typename TypeListMerge<TypeList_3<
-				typename TypeListSort<typename TypeListCopyIf<typename TypeList::Next, BindRight<LessPredicate, typename TypeList::ValueT>::template ValueT>::ValueT, LessPredicate>::ValueT,
-				TypeList_1<typename TypeList::ValueT>,
-				typename TypeListSort<typename TypeListCopyIf<typename TypeList::Next, Not<BindRight<LessPredicate, typename TypeList::ValueT>::template ValueT>::template ValueT>::ValueT, LessPredicate>::ValueT> >::ValueT ValueT;
+		typedef typename TypeListMerge<TypeList<
+				typename TypeListSort<typename TypeListCopyIf<typename TypeList_::Next, BindRight<LessPredicate, typename TypeList_::ValueT>::template ValueT>::ValueT, LessPredicate>::ValueT,
+				TypeList<typename TypeList_::ValueT>,
+				typename TypeListSort<typename TypeListCopyIf<typename TypeList_::Next, Not<BindRight<LessPredicate, typename TypeList_::ValueT>::template ValueT>::template ValueT>::ValueT, LessPredicate>::ValueT> >::ValueT ValueT;
 	};
 
 	template <template<typename, typename> class LessPredicate>
@@ -461,7 +384,7 @@ namespace stingray
 		struct ToTypeListImpl { typedef T	ValueT; };
 
 		template < typename T >
-		struct ToTypeListImpl<T, false> { typedef TypeList_1<T>	ValueT; };
+		struct ToTypeListImpl<T, false> { typedef TypeList<T> ValueT; };
 
 	}
 
