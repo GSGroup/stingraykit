@@ -70,7 +70,7 @@ namespace stingray
 			template<> struct type_with_alignment<16> { typedef AlignedTypes::a16 type; };
 			template<> struct type_with_alignment<32> { typedef AlignedTypes::a32 type; };
 
-			typedef TypeList_6<
+			typedef TypeList<
 				integral_constant<size_t, 1>,
 				integral_constant<size_t, 2>,
 				integral_constant<size_t, 4>,
@@ -91,7 +91,7 @@ namespace stingray
 			template<> struct type_with_alignment<8>	{ typedef a8 type; };
 			template<> struct type_with_alignment<16>	{ typedef a16 type; };
 
-			typedef TypeList_5<
+			typedef TypeList<
 				integral_constant<size_t, 1>,
 				integral_constant<size_t, 2>,
 				integral_constant<size_t, 4>,

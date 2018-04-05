@@ -41,9 +41,9 @@ namespace stingray
 	}
 
 
-	struct PointerTupleBuilder : Detail::PointerTupleBuilder<TypeList_0>
+	struct PointerTupleBuilder : Detail::PointerTupleBuilder<TypeList<>::type>
 	{
-		typedef Detail::PointerTupleBuilder<TypeList_0> BaseType;
+		typedef Detail::PointerTupleBuilder<TypeList<>::type> BaseType;
 
 		PointerTupleBuilder() : BaseType(BaseType::ValueType())
 		{ }

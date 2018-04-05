@@ -20,7 +20,7 @@ namespace stingray
 	 * @addtogroup core_settings
 	 * @{
 	 */
-	typedef TypeList_8<EmptyType, bool, s64, double, std::string, ByteArray, SettingsValueList, SettingsValueMap> SettingsValueTypes;
+	typedef TypeList<EmptyType, bool, s64, double, std::string, ByteArray, SettingsValueList, SettingsValueMap> SettingsValueTypes;
 
 	class SettingsValue : public self_counter<SettingsValue>, public variant<SettingsValueTypes>
 	{

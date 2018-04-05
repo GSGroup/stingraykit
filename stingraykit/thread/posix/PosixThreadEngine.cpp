@@ -785,12 +785,12 @@ namespace stingray
 
 	struct SchedulingPolicyMapper : public BaseValueMapper<SchedulingPolicyMapper, ThreadSchedulingPolicy::Enum, int>
 	{
-		typedef TypeList_6<
+		typedef TypeList<
 			Src::Value<ThreadSchedulingPolicy::NonRealtime>,		Dst::Value<SCHED_OTHER>,
 			Src::Value<ThreadSchedulingPolicy::RealtimeRoundRobin>,	Dst::Value<SCHED_RR>,
 			Src::Value<ThreadSchedulingPolicy::RealtimeFIFO>,		Dst::Value<SCHED_FIFO> > MappingsList;
 
-		typedef TypeList_2<Src::Fail, Dst::Fail > DefaultMapping;
+		typedef TypeList<Src::Fail, Dst::Fail > DefaultMapping;
 	};
 
 

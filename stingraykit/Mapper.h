@@ -198,7 +198,7 @@ namespace stingray
 	{
 		typedef SrcT SrcType;
 		typedef DstT DstType;
-		typedef stingray::Detail::Mappings<DstType, SrcType> Src; // Short names are used for sake of mapping list readability: TypeList_2<Src::Value<123>, Dst::Range<1, 2, 3> >
+		typedef stingray::Detail::Mappings<DstType, SrcType> Src; // Short names are used for sake of mapping list readability: TypeList<Src::Value<123>, Dst::Range<1, 2, 3> >
 		typedef stingray::Detail::Mappings<SrcType, DstType> Dst;
 
 		static DstType Map(SrcType val)

@@ -198,7 +198,7 @@ namespace stingray
 
 		inline R operator ()() const
 		{
-			Tuple<TypeList_0> p;
+			Tuple<TypeList<>::type> p;
 			return this->Invoke(p);
 		}
 

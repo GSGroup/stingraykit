@@ -58,10 +58,10 @@ namespace stingray
 	template < typename T > struct IsEnumClass										: HasNestedType_Enum<T> { };
 
 
-	typedef TypeList<u8, s8, u16, s16, u32, s32, u64, s64>::type																	FixedWidthIntTypes;
-	typedef TypeListMerge<TypeList_2<FixedWidthIntTypes, TypeList<bool, char, long, unsigned long, size_t, off_t> > >::ValueT		IntTypes;
-	typedef TypeList<float, double, long double>::type																				FloatTypes;
-	typedef TypeListMerge<TypeList_2<IntTypes, FloatTypes> >::ValueT																BuiltinTypes;
+	typedef TypeList<u8, s8, u16, s16, u32, s32, u64, s64>																			FixedWidthIntTypes;
+	typedef TypeListMerge<TypeList<FixedWidthIntTypes, TypeList<bool, char, long, unsigned long, size_t, off_t> > >::ValueT			IntTypes;
+	typedef TypeList<float, double, long double>																					FloatTypes;
+	typedef TypeListMerge<TypeList<IntTypes, FloatTypes> >::ValueT																	BuiltinTypes;
 
 	template < typename T > struct IsInt											: TypeListContains<IntTypes, T> { };
 	template < typename T > struct IsFixedWidthInt									: TypeListContains<FixedWidthIntTypes, T> { };

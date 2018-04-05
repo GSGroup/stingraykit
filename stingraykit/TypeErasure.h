@@ -48,7 +48,7 @@ namespace stingray
 
 	namespace Concepts
 	{
-		struct Destructor : public function_info<void, TypeList_0>
+		struct Destructor : public function_info<void, TypeList<>::type>
 		{ };
 	}
 

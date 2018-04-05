@@ -65,15 +65,15 @@ namespace stingray
 	template < typename R >
 	struct function_info<R(), NullType> : public function_type<R()>
 	{
-		typedef R			RetType;
-		typedef TypeList_0	ParamTypes;
+		typedef R					RetType;
+		typedef TypeList<>::type	ParamTypes;
 		typedef R Signature();
 	};
 	template < typename R >
 	struct function_info<R(*)(), NullType> : public function_type<R(*)()>
 	{
-		typedef R			RetType;
-		typedef TypeList_0	ParamTypes;
+		typedef R					RetType;
+		typedef TypeList<>::type	ParamTypes;
 		typedef R Signature();
 	};
 	template < typename C, typename R >

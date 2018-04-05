@@ -77,17 +77,17 @@ namespace stingray
 #define P_(N) const T##N& p##N
 #define DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 	template < TypesDecl_ > \
-	MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > CompareMembersCmp(ParamsDecl_) \
-	{ return MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
+	MemberListComparer<Tuple<TypeList<TypesUsage_> > > CompareMembersCmp(ParamsDecl_) \
+	{ return MemberListComparer<Tuple<TypeList<TypesUsage_> > >(Tuple<TypeList<TypesUsage_> >(ParamsUsage_)); } \
 	template <TypesDecl_> \
-	comparers::CmpToLess<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > > CompareMembersLess(ParamsDecl_) \
-	{ return comparers::CmpToLess<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
+	comparers::CmpToLess<MemberListComparer<Tuple<TypeList<TypesUsage_> > > > CompareMembersLess(ParamsDecl_) \
+	{ return comparers::CmpToLess<MemberListComparer<Tuple<TypeList<TypesUsage_> > > >(Tuple<TypeList<TypesUsage_> >(ParamsUsage_)); } \
 	template <TypesDecl_> \
-	comparers::CmpToGreater<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > > CompareMembersGreater(ParamsDecl_) \
-	{ return comparers::CmpToGreater<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); } \
+	comparers::CmpToGreater<MemberListComparer<Tuple<TypeList<TypesUsage_> > > > CompareMembersGreater(ParamsDecl_) \
+	{ return comparers::CmpToGreater<MemberListComparer<Tuple<TypeList<TypesUsage_> > > >(Tuple<TypeList<TypesUsage_> >(ParamsUsage_)); } \
 	template <TypesDecl_> \
-	comparers::CmpToEquals<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > > CompareMembersEquals(ParamsDecl_) \
-	{ return comparers::CmpToEquals<MemberListComparer<Tuple<TypeList_##N_<TypesUsage_> > > >(Tuple<TypeList_##N_<TypesUsage_> >(ParamsUsage_)); }
+	comparers::CmpToEquals<MemberListComparer<Tuple<TypeList<TypesUsage_> > > > CompareMembersEquals(ParamsDecl_) \
+	{ return comparers::CmpToEquals<MemberListComparer<Tuple<TypeList<TypesUsage_> > > >(Tuple<TypeList<TypesUsage_> >(ParamsUsage_)); }
 
 
 	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));

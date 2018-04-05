@@ -132,7 +132,7 @@ namespace stingray
 #undef DETAIL_STINGRAYKIT_INPLACEDATA_CTOR
 
 
-		struct DisposeConcept : public function_info<void, TypeList_0>
+		struct DisposeConcept : public function_info<void, TypeList<>::type>
 		{
 			template<typename T>
 			static void Apply(T& t)
