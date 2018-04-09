@@ -88,10 +88,10 @@ namespace stingray
 		iterator end()										{ return _container.end(); }
 		const_iterator end() const							{ return _container.end(); }
 
-		iterator rbegin()									{ return _container.rbegin(); }
-		const_iterator rbegin() const						{ return _container.rbegin(); }
-		iterator rend()										{ return _container.rend(); }
-		const_iterator rend() const							{ return _container.rend(); }
+		reverse_iterator rbegin()									{ return _container.rbegin(); }
+		const_reverse_iterator rbegin() const						{ return _container.rbegin(); }
+		reverse_iterator rend()										{ return _container.rend(); }
+		const_reverse_iterator rend() const							{ return _container.rend(); }
 
 		size_t size() const									{ return _container.size(); }
 		bool empty() const									{ return _container.empty(); }
