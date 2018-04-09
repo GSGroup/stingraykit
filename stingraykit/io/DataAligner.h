@@ -28,13 +28,13 @@ namespace stingray
 		{
 			if (_buffer.empty())
 			{
-				const size_t processed = consumer.Process(ConstByteData(data, 0, AlignDown(data.size(), _alignment)), token);
+				size_t processed = ConsumeAll(consumer, ConstByteData(data, 0, AlignDown(data.size(), _alignment)), token);
 
 				const size_t remainder = data.size() - processed;
-				if (remainder && remainder < _alignment)
+				if (token && remainder)
 				{
 					_buffer.append(ConstByteData(data, processed, remainder));
-					return processed + remainder;
+					processed += remainder;
 				}
 
 				return processed;
