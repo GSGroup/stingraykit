@@ -203,12 +203,8 @@ if ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")
 		list(GET GCC_VERSION_COMPONENTS 1 GCC_MINOR)
 	endif ()
 
-	if ((GCC_MAJOR MATCHES "4") AND ((GCC_MINOR MATCHES "5") OR (GCC_MINOR MATCHES "7")))
-		set(COMMON_FLAGS "${COMMON_FLAGS} -fno-strict-aliasing") #gcc-4.5,4.7 has known issues with strict aliasing mode
-		message(STATUS "strict aliasing was turned off [frequent crashes on mips/sh4, v8 crash(4.5)]")
-	else ()
-		set(COMMON_FLAGS "${COMMON_FLAGS} -fstrict-aliasing")
-	endif ()
+	set(COMMON_FLAGS "${COMMON_FLAGS} -fno-strict-aliasing")
+	message(STATUS "strict aliasing was turned off [frequent crashes on mips/sh4, v8 crash]")
 
 	if (CMAKE_C_COMPILER_ID MATCHES "Clang")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments -Wno-overloaded-virtual -Wno-shift-count-overflow")
