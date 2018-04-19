@@ -586,16 +586,6 @@ namespace stingray
 							return;
 					}
 				}
-
-				void FindPrev()
-				{
-					for ( ; _srcEnumerator->Valid(); _srcEnumerator->Prev())
-					{
-						_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_srcEnumerator->Get()));
-						if (_dst)
-							return;
-					}
-				}
 			};
 		}
 
