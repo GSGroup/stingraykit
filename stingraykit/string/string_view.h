@@ -81,15 +81,8 @@ namespace stingray
 			std::swap(_size, other._size);
 		}
 
-		size_type copy(CharT* dest, size_type count, size_type pos = 0) const
-		{
-			STINGRAYKIT_CHECK_RANGE(pos, size());
-
-			count = std::min(size() - pos, count);
-
-			::memcpy(dest, _data + pos, count);
-			return count;
-		}
+		std::basic_string<CharT, Traits> copy() const
+		{ return std::basic_string<CharT, Traits>(_data, size()); }
 
 		basic_string_view substr(size_type pos = 0, size_type count = npos) const
 		{
