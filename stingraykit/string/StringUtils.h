@@ -208,37 +208,6 @@ namespace stingray
 			{ return _delimiter.size(); }
 		};
 
-		class SplitStringValueProxy
-		{
-			StringRef						_ref;
-
-		public:
-			SplitStringValueProxy(const StringRef &ref) : _ref(ref) { }
-
-			std::string ToString() const
-			{ return _ref.str(); }
-
-			operator std::string () const
-			{ return _ref.str(); }
-
-			operator const StringRef & () const
-			{ return _ref; }
-
-/* fixme: make me work
-			template<typename R>
-			operator typename EnableIf
-			<
-				IsInt<typename Decay<R>::ValueT>::Value,
-				typename Decay<R>::ValueT
-			>::ValueT () const
-			{
-				typedef typename Decay<R>::ValueT ValueType;
-				return FromString<ValueType>(_ref.str());
-			}
-*/
-		};
-
-
 		template<typename StringSearchType>
 		class SplitStringRange :
 			public Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>
