@@ -253,21 +253,16 @@ namespace stingray
 		size_type find_last_not_of(CharT c, size_type pos = npos) const						{ return find_last_not_of(basic_string_view(&c, 1), pos); }
 		size_type find_last_not_of(const CharT* s, size_type pos, size_type count) const	{ return find_last_not_of(basic_string_view(s, count), pos); }
 		size_type find_last_not_of(const CharT* s, size_type pos = npos) const				{ return find_last_not_of(basic_string_view(s), pos); }
+
+		bool operator == (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) == 0; }
+		bool operator != (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) != 0; }
+		bool operator <  (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) < 0; }
+		bool operator <= (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) <= 0; }
+		bool operator >  (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) > 0; }
+		bool operator >= (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) >= 0; }
 	};
 
 
-	template < class CharT, class Traits >
-	bool operator == (basic_string_view<CharT,Traits> lhs, basic_string_view<CharT,Traits> rhs)	{ return lhs.compare(rhs) == 0; }
-	template < class CharT, class Traits >
-	bool operator != (basic_string_view<CharT,Traits> lhs, basic_string_view<CharT,Traits> rhs)	{ return lhs.compare(rhs) != 0; }
-	template < class CharT, class Traits >
-	bool operator < (basic_string_view<CharT,Traits> lhs, basic_string_view<CharT,Traits> rhs)	{ return lhs.compare(rhs) < 0; }
-	template < class CharT, class Traits >
-	bool operator <= (basic_string_view<CharT,Traits> lhs, basic_string_view<CharT,Traits> rhs)	{ return lhs.compare(rhs) <= 0; }
-	template < class CharT, class Traits >
-	bool operator > (basic_string_view<CharT,Traits> lhs, basic_string_view<CharT,Traits> rhs)	{ return lhs.compare(rhs) > 0; }
-	template < class CharT, class Traits >
-	bool operator >= (basic_string_view<CharT,Traits> lhs, basic_string_view<CharT,Traits> rhs)	{ return lhs.compare(rhs) >= 0; }
 
 
 	template < typename CharT, typename Traits >
