@@ -204,12 +204,15 @@ namespace stingray
 	{
 	private:
 		NamedLogger*	_namedLogger;
+		LogLevel		_logLevel;
 		std::string		_action;
 		ElapsedTime		_elapsedTime;
 
 	public:
 		ActionLogger(const std::string& action);
+		ActionLogger(LogLevel logLevel, const std::string& action);
 		ActionLogger(NamedLogger& namedLogger, const std::string& action);
+		ActionLogger(NamedLogger& namedLogger, LogLevel logLevel, const std::string& action);
 		~ActionLogger();
 	};
 

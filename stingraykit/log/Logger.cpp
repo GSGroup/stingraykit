@@ -410,13 +410,23 @@ namespace stingray
 
 
 	ActionLogger::ActionLogger(const std::string& action)
-		: _namedLogger(NULL), _action(action)
+		: _namedLogger(NULL), _logLevel(LogLevel::Info), _action(action)
 	{ Logger::Info() << _action << "..."; }
 
 
+	ActionLogger::ActionLogger(LogLevel logLevel, const std::string& action)
+		: _namedLogger(NULL), _logLevel(logLevel), _action(action)
+	{ Logger::Stream(logLevel) << _action << "..."; }
+
+
 	ActionLogger::ActionLogger(NamedLogger& namedLogger, const std::string& action)
-		: _namedLogger(&namedLogger), _action(action)
+		: _namedLogger(&namedLogger), _logLevel(LogLevel::Info), _action(action)
 	{ _namedLogger->Info() << _action << "..."; }
+
+
+	ActionLogger::ActionLogger(NamedLogger& namedLogger, LogLevel logLevel, const std::string& action)
+		: _namedLogger(&namedLogger), _logLevel(logLevel), _action(action)
+	{ _namedLogger->Stream(logLevel) << _action << "..."; }
 
 
 	ActionLogger::~ActionLogger()
@@ -426,9 +436,9 @@ namespace stingray
 			try
 			{
 				if (_namedLogger)
-					_namedLogger->Info() << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
+					_namedLogger->Stream(_logLevel) << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 				else
-					Logger::Info() << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
+					Logger::Stream(_logLevel) << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 			}
 			catch (const std::exception&)
 			{ return; }
@@ -436,9 +446,9 @@ namespace stingray
 		else
 		{
 			if (_namedLogger)
-				_namedLogger->Info() << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
+				_namedLogger->Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 			else
-				Logger::Info() << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
+				Logger::Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 		}
 	}
 
