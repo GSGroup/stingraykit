@@ -383,6 +383,31 @@ namespace stingray
 
 	/////////////////////////////////////////////////////////////////
 
+	namespace
+	{
+
+		class ElapsedMillisecondsToString
+		{
+		private:
+			const ElapsedTime&	_elapsed;
+
+		public:
+			explicit ElapsedMillisecondsToString(const ElapsedTime& elapsed) : _elapsed(elapsed) { }
+
+			std::string ToString() const
+			{
+				s64 ms = 0;
+				int mms = 0;
+
+				try { s64 e = _elapsed.ElapsedMicroseconds(); ms = e / 1000; mms = e % 1000; }
+				catch (const std::exception&) { }
+
+				return StringBuilder() % ms % "." % mms;
+			}
+		};
+
+	}
+
 
 	ActionLogger::ActionLogger(const std::string& action)
 		: _namedLogger(NULL), _action(action)
@@ -396,17 +421,14 @@ namespace stingray
 
 	ActionLogger::~ActionLogger()
 	{
-		s64 ms = 0;
-		int mms = 0;
-		try { s64 e = _elapsedTime.ElapsedMicroseconds(); ms = e / 1000; mms = e % 1000; } catch(const std::exception&) { }
 		if (std::uncaught_exception())
 		{
 			try
 			{
 				if (_namedLogger)
-					_namedLogger->Info() << _action << " completed with exception in " << ms << "." << mms << " ms";
+					_namedLogger->Info() << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 				else
-					Logger::Info() << _action << " completed with exception in " << ms << "." << mms << " ms";
+					Logger::Info() << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 			}
 			catch (const std::exception&)
 			{ return; }
@@ -414,9 +436,9 @@ namespace stingray
 		else
 		{
 			if (_namedLogger)
-				_namedLogger->Info() << _action << " completed in " << ms << "." << mms << " ms";
+				_namedLogger->Info() << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 			else
-				Logger::Info() << _action << " completed in " << ms << "." << mms << " ms";
+				Logger::Info() << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 		}
 	}
 
