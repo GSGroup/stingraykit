@@ -36,7 +36,8 @@ namespace stingray
 			const IPipePtr pipe = _pipe;
 			_pipe = null;
 
-			const ScopeExitInvoker sei(bind(make_assigner(_pipe), pipe));
+			const ScopeExitInvoker sei1(bind(&ConditionVariable::Broadcast, ref(_cv)));
+			const ScopeExitInvoker sei2(bind(make_assigner(_pipe), pipe));
 
 			MutexUnlock ul(l);
 			CheckedWriteAll(*pipe, data, token);
