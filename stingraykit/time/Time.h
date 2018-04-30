@@ -94,11 +94,9 @@ namespace stingray
 		s16		_minutesFromUtc;
 
 	public:
-		TimeZone();
-		explicit TimeZone(s16 minutes);
+		explicit TimeZone(s16 minutes = 0);
 
 		s16 GetMinutesFromUtc() const { return _minutesFromUtc; }
-		void SetMinutesFromUtc(s16 minutes) { _minutesFromUtc = minutes; }
 
 		static TimeZone Current();
 
@@ -126,8 +124,7 @@ namespace stingray
 		s64		_milliseconds;
 
 	public:
-		Time();
-		explicit Time(s64 milliseconds);
+		explicit Time(s64 milliseconds = 0);
 
 		static Time FromTimeT(time_t t)
 		{ return Time((s64)t * 1000); }

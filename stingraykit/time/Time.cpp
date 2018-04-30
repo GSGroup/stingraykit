@@ -100,10 +100,6 @@ namespace stingray
 	}
 
 
-	Time::Time()
-		: _milliseconds(0)
-	{ }
-
 	Time::Time(s64 milliseconds)
 		: _milliseconds(milliseconds)
 	{ }
@@ -244,10 +240,6 @@ namespace stingray
 
 	void Time::Serialize(ObjectOStream & ar) const	{ ar.Serialize("ms", _milliseconds); }
 	void Time::Deserialize(ObjectIStream & ar)		{ ar.Deserialize("ms", _milliseconds); }
-
-	TimeZone::TimeZone()
-		: _minutesFromUtc()
-	{ }
 
 	TimeZone::TimeZone(s16 minutes)
 		: _minutesFromUtc(minutes)
