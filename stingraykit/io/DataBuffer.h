@@ -75,6 +75,7 @@ namespace stingray
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{
 			MutexLock l(_bufferMutex);
+			ReadLock rl(*this);
 
 			BithreadCircularBuffer::Reader r = _buffer.Read();
 

@@ -21,6 +21,37 @@ namespace stingray
 
 	class BufferedDataConsumerBase : public virtual IDataConsumer
 	{
+	protected:
+		class ReadLock
+		{
+		private:
+			BufferedDataConsumerBase&	_parent;
+
+		public:
+			ReadLock(BufferedDataConsumerBase& parent) : _parent(parent)
+			{
+				STINGRAYKIT_CHECK(!_parent._activeRead, InvalidOperationException("Simultaneous Read()!"));
+				_parent._activeRead = true;
+			}
+
+			~ReadLock()
+			{ _parent._activeRead = false; }
+		};
+
+	private:
+		class WriteLock
+		{
+		private:
+			BufferedDataConsumerBase&	_parent;
+
+		public:
+			WriteLock(BufferedDataConsumerBase& parent) : _parent(parent)
+			{ ++_parent._activeWrites; }
+
+			~WriteLock()
+			{ --_parent._activeWrites; }
+		};
+
 	private:
 		static NamedLogger		s_logger;
 
@@ -29,6 +60,9 @@ namespace stingray
 
 		const size_t			_inputPacketSize;
 		size_t					_requiredFreeSpace;
+
+		bool					_activeRead;
+		size_t					_activeWrites;
 
 		Mutex					_writeMutex;
 
@@ -45,6 +79,8 @@ namespace stingray
 			:	_discardOnOverflow(discardOnOverflow),
 				_inputPacketSize(inputPacketSize),
 				_requiredFreeSpace(requiredFreeSpace),
+				_activeRead(false),
+				_activeWrites(0),
 				_buffer(size),
 				_eod(false)
 		{
@@ -57,6 +93,8 @@ namespace stingray
 			:	_discardOnOverflow(discardOnOverflow),
 				_inputPacketSize(inputPacketSize),
 				_requiredFreeSpace(requiredFreeSpace),
+				_activeRead(false),
+				_activeWrites(0),
 				_buffer(storage),
 				_eod(false)
 		{
@@ -74,6 +112,9 @@ namespace stingray
 		void Clear()
 		{
 			MutexLock l(_bufferMutex);
+			STINGRAYKIT_CHECK(!_activeRead, InvalidOperationException("Simultaneous Read() and Clear()!"));
+			STINGRAYKIT_CHECK(_activeWrites == 0, InvalidOperationException("Simultaneous Process() and Clear()!"));
+
 			_buffer.Clear();
 			_eod = false;
 
@@ -90,6 +131,8 @@ namespace stingray
 
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 			MutexLock l2(_bufferMutex);
+			WriteLock wl(*this);
+
 			BithreadCircularBuffer::Writer w = _buffer.Write();
 			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
 			if (packetized_size == 0 || GetFreeSize() < _requiredFreeSpace)
