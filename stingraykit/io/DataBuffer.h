@@ -54,6 +54,7 @@ namespace stingray
 
 	private:
 		static NamedLogger		s_logger;
+
 		const size_t			_outputPacketSize;
 
 	public:
@@ -83,7 +84,8 @@ namespace stingray
 				if (_eod)
 				{
 					if (r.size() != 0)
-						Logger::Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
+						s_logger.Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
+
 					consumer.EndOfData(token);
 					return;
 				}
