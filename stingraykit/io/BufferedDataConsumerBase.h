@@ -21,25 +21,32 @@ namespace stingray
 
 	class BufferedDataConsumerBase : public virtual IDataConsumer
 	{
-	protected:
+	private:
 		static NamedLogger		s_logger;
 
 		bool					_discardOnOverflow;
-		BithreadCircularBuffer	_buffer;
+		signal<void(size_t)>	_onOverflow;
+
 		const size_t			_inputPacketSize;
 		size_t					_requiredFreeSpace;
 
-		Mutex					_bufferMutex;
 		Mutex					_writeMutex;
 
+	protected:
+		BithreadCircularBuffer	_buffer;
+		bool					_eod;
+
+		Mutex					_bufferMutex;
 		ConditionVariable		_bufferEmpty;
 		ConditionVariable		_bufferFull;
-		bool					_eod;
-		signal<void(size_t)>	_onOverflow;
 
 	protected:
 		BufferedDataConsumerBase(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t requiredFreeSpace = 0)
-			: _discardOnOverflow(discardOnOverflow), _buffer(size), _inputPacketSize(inputPacketSize), _requiredFreeSpace(requiredFreeSpace), _eod(false)
+			:	_discardOnOverflow(discardOnOverflow),
+				_inputPacketSize(inputPacketSize),
+				_requiredFreeSpace(requiredFreeSpace),
+				_buffer(size),
+				_eod(false)
 		{
 			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
 			STINGRAYKIT_CHECK(size % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
@@ -47,7 +54,11 @@ namespace stingray
 		}
 
 		BufferedDataConsumerBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize, size_t requiredFreeSpace = 0)
-			: _discardOnOverflow(discardOnOverflow), _buffer(storage), _inputPacketSize(inputPacketSize), _requiredFreeSpace(requiredFreeSpace), _eod(false)
+			:	_discardOnOverflow(discardOnOverflow),
+				_inputPacketSize(inputPacketSize),
+				_requiredFreeSpace(requiredFreeSpace),
+				_buffer(storage),
+				_eod(false)
 		{
 			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
 			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
