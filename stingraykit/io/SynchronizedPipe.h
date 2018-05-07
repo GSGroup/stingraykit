@@ -1,7 +1,6 @@
 #ifndef STINGRAYKIT_IO_SYNCHRONIZEDPIPE_H
 #define STINGRAYKIT_IO_SYNCHRONIZEDPIPE_H
 
-#include <stingraykit/function/functional.h>
 #include <stingraykit/io/IPipe.h>
 #include <stingraykit/ScopeExit.h>
 #include <stingraykit/thread/ConditionVariable.h>
@@ -33,11 +32,11 @@ namespace stingray
 				case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
 				}
 
-			const IPipePtr pipe = _pipe;
-			_pipe = null;
+			IPipePtr pipe;
+			_pipe.swap(pipe);
 
 			const ScopeExitInvoker sei1(bind(&ConditionVariable::Broadcast, ref(_cv)));
-			const ScopeExitInvoker sei2(bind(make_assigner(_pipe), pipe));
+			const ScopeExitInvoker sei2(bind(&IPipePtr::swap, ref(_pipe), ref(pipe)));
 
 			MutexUnlock ul(l);
 			CheckedWriteAll(*pipe, data, token);
