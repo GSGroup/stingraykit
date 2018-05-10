@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_SERIALIZATION_SETTINGSVALUE_H
-#define STINGRAYKIT_SERIALIZATION_SETTINGSVALUE_H
+#ifndef STINGRAYKIT_SERIALIZATION_FLOATSTRING_H
+#define STINGRAYKIT_SERIALIZATION_FLOATSTRING_H
 
 // Copyright (c) 2011 - 2017, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -8,11 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/serialization/FloatString.h>
-#include <stingraykit/serialization/SettingsValueForward.h>
-#include <stingraykit/serialization/SettingsValueException.h>
-#include <stingraykit/collection/ByteData.h>
-#include <stingraykit/variant.h>
+#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
@@ -21,19 +17,25 @@ namespace stingray
 	 * @addtogroup core_settings
 	 * @{
 	 */
-	typedef TypeList<EmptyType, bool, s64, FloatString, std::string, ByteArray, SettingsValueList, SettingsValueMap> SettingsValueTypes;
 
-	class SettingsValue : public self_counter<SettingsValue>, public variant<SettingsValueTypes>
+	class FloatString
 	{
-		STINGRAYKIT_NONCOPYABLE(SettingsValue);
+	private:
+		std::string		_str;
 
 	public:
-		SettingsValue()
+		explicit FloatString(const std::string& str)
+			:	_str(str)
 		{ }
 
-		template < typename T >
-		SettingsValue(const T &val): variant<SettingsValueTypes>(val)
-		{ }
+		explicit FloatString(double value = 0.0);
+		// TODO: add explicit FloatString(const CustomDoubleClass& value)
+
+		std::string ToString() const
+		{ return _str; }
+
+		double ToDouble() const;
+		// TODO: add ToCustomDoubleClass()
 	};
 
 	/** @} */
@@ -41,4 +43,3 @@ namespace stingray
 }
 
 #endif
-

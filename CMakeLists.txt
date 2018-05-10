@@ -116,6 +116,7 @@ set(stingraykit_SRC
 	stingraykit/log/LoggerStream.cpp
 	stingraykit/log/SystemLogger.cpp
 
+	stingraykit/serialization/FloatString.cpp
 	stingraykit/serialization/Serialization.cpp
 
 	stingraykit/signal/signal_policies.cpp

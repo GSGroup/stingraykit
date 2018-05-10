@@ -1,6 +1,3 @@
-#ifndef STINGRAYKIT_SERIALIZATION_SETTINGSVALUE_H
-#define STINGRAYKIT_SERIALIZATION_SETTINGSVALUE_H
-
 // Copyright (c) 2011 - 2017, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
 // provided that the above copyright notice and this permission notice appear in all copies.
@@ -9,36 +6,29 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/serialization/FloatString.h>
-#include <stingraykit/serialization/SettingsValueForward.h>
-#include <stingraykit/serialization/SettingsValueException.h>
-#include <stingraykit/collection/ByteData.h>
-#include <stingraykit/variant.h>
+
+#include <stingraykit/SystemException.h>
+
+#include <stdio.h>
 
 namespace stingray
 {
 
-	/**
-	 * @addtogroup core_settings
-	 * @{
-	 */
-	typedef TypeList<EmptyType, bool, s64, FloatString, std::string, ByteArray, SettingsValueList, SettingsValueMap> SettingsValueTypes;
-
-	class SettingsValue : public self_counter<SettingsValue>, public variant<SettingsValueTypes>
+	FloatString::FloatString(double value)
 	{
-		STINGRAYKIT_NONCOPYABLE(SettingsValue);
+		char buf[32];
+		int r = snprintf(buf, sizeof(buf), "%lg", value);
+		STINGRAYKIT_CHECK(r > 0, "cannot serialize double value");
 
-	public:
-		SettingsValue()
-		{ }
+		_str = buf;
+	}
 
-		template < typename T >
-		SettingsValue(const T &val): variant<SettingsValueTypes>(val)
-		{ }
-	};
 
-	/** @} */
+	double FloatString::ToDouble() const
+	{
+		double value;
+		STINGRAYKIT_CHECK(sscanf(_str.c_str(), "%lg", &value) == 1, SystemException("cannot parse double value " + _str));
+		return value;
+	}
 
 }
-
-#endif
-

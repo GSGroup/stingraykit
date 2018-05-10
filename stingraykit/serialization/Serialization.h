@@ -16,6 +16,7 @@
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/diagnostics/PrivateIncludeGuard.h>
 #include <stingraykit/io/IOutputByteStream.h>
+#include <stingraykit/serialization/FloatString.h>
 #include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/serialization/SettingsValueException.h>
 #include <stingraykit/serialization/SettingsValueForward.h>
@@ -166,7 +167,7 @@ namespace stingray
 
 		virtual void WriteNull() = 0;
 		virtual void Write(bool value) = 0;
-		virtual void Write(double value) = 0;
+		virtual void Write(const FloatString& value) = 0;
 		virtual void Write(s64 value) = 0;
 		virtual void Write(const std::string &value) = 0;
 		virtual void Write(ConstByteData value) = 0;
@@ -372,15 +373,17 @@ namespace stingray
 
 		ObjectOStream& serialize(float value)
 		{
-			Write((double)value);
+			serialize((double)value);
 			return *this;
 		}
 
 		ObjectOStream& serialize(double value)
 		{
-			Write(value);
+			Write(FloatString(value));
 			return *this;
 		}
+
+		// TODO: add serialize(CustomDoubleClass &value)
 
 		template<typename Iterator>
 		inline void serialize(Iterator begin, const Iterator &end)
@@ -642,6 +645,7 @@ namespace stingray
 		void deserialize(bool &value);
 		void deserialize(double &value);
 		void deserialize(float &value) { double v; deserialize(v); value = (float)v; }
+		// TODO: add deserialize(CustomDoubleClass &value)
 		void deserialize(std::vector<u8> & data);
 
 		void for_each(const function<void (SettingsValue&)>& func);
