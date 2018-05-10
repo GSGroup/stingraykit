@@ -52,7 +52,7 @@ namespace stingray
 			mutable AtomicU32::Type _value;
 
 		public:
-			AtomicImpl()								{ }
+			AtomicImpl() : _value()						{ }
 			AtomicImpl(bool value) : _value(value)		{ }
 
 			bool load(MemoryOrder order) const			{ return AtomicU32::Load(_value, order); }
@@ -70,7 +70,7 @@ namespace stingray
 			mutable typename AtomicType::Type _value;
 
 		public:
-			AtomicImpl()							{ }
+			AtomicImpl() : _value()					{ }
 			AtomicImpl(T t) : _value(t)				{ }
 
 			T fetch_add(T arg, MemoryOrder order)	{ return AtomicType::Add(_value, arg, order) - arg; }
@@ -88,7 +88,7 @@ namespace stingray
 			mutable AtomicS32::Type _value;
 
 		public:
-			AtomicImpl()							{ }
+			AtomicImpl() : _value()					{ }
 			AtomicImpl(T t) : _value((s32)t)		{ }
 
 			T load(MemoryOrder order) const			{ return (typename T::Enum)AtomicS32::Load(_value, order); }
@@ -104,7 +104,7 @@ namespace stingray
 			T		_value;
 
 		public:
-			AtomicImpl()							{ }
+			AtomicImpl() : _value()					{ }
 			AtomicImpl(T t) : _value(t)				{ }
 
 			T load(MemoryOrder order) const			{ MutexLock l(_mutex); return _value; }
