@@ -53,6 +53,9 @@ namespace stingray
 	void ObjectIStream::deserialize(double &value)
 	{ value = _root->contains<FloatString>() ? _root->get<FloatString>().ToDouble() : GetInt(); }
 
+	void ObjectIStream::deserialize(FloatString &value)
+	{ value = _root->contains<FloatString>() ? _root->get<FloatString>() : FloatString(GetInt()); }
+
 	void ObjectIStream::deserialize(std::vector<u8> & data)
 	{
 		if (_root->contains<ByteArray>())

@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/toolkit.h>
+#include <string>
 
 namespace stingray
 {
@@ -29,13 +29,11 @@ namespace stingray
 		{ }
 
 		explicit FloatString(double value = 0.0);
-		// TODO: add explicit FloatString(const CustomDoubleClass& value)
 
 		std::string ToString() const
 		{ return _str; }
 
 		double ToDouble() const;
-		// TODO: add ToCustomDoubleClass()
 	};
 
 	/** @} */

@@ -379,11 +379,15 @@ namespace stingray
 
 		ObjectOStream& serialize(double value)
 		{
-			Write(FloatString(value));
+			serialize(FloatString(value));
 			return *this;
 		}
 
-		// TODO: add serialize(CustomDoubleClass &value)
+		ObjectOStream& serialize(const FloatString& value)
+		{
+			Write(value);
+			return *this;
+		}
 
 		template<typename Iterator>
 		inline void serialize(Iterator begin, const Iterator &end)
@@ -645,7 +649,7 @@ namespace stingray
 		void deserialize(bool &value);
 		void deserialize(double &value);
 		void deserialize(float &value) { double v; deserialize(v); value = (float)v; }
-		// TODO: add deserialize(CustomDoubleClass &value)
+		void deserialize(FloatString &value);
 		void deserialize(std::vector<u8> & data);
 
 		void for_each(const function<void (SettingsValue&)>& func);
