@@ -25,38 +25,25 @@ namespace stingray
 			virtual void InvokeVisit(BaseType& visitable) = 0;
 		};
 
+		template < typename BaseType >
+		struct IVisitorBase<shared_ptr<BaseType> >
+		{
+			virtual ~IVisitorBase() { }
+
+			virtual void InvokeVisit(const shared_ptr<BaseType>& visitable) = 0;
+		};
+
 		template < typename BaseType, typename DerivedType >
 		struct VisitorBase : public virtual IVisitorBase<BaseType>
 		{
 			virtual void InvokeVisit(DerivedType& visitable) = 0;
 		};
 
-		template < typename BaseType >
-		struct IVisitorByPtrBase
-		{
-			virtual ~IVisitorByPtrBase() { }
-
-			virtual void InvokeVisit(const shared_ptr<BaseType>& visitable) = 0;
-		};
-
 		template < typename BaseType, typename DerivedType >
-		struct VisitorByPtrBase : public virtual IVisitorByPtrBase<BaseType>
+		struct VisitorBase<shared_ptr<BaseType>, shared_ptr<DerivedType> > : public virtual IVisitorBase<shared_ptr<BaseType> >
 		{
 			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable) = 0;
 		};
-
-		template < template < typename, typename, typename > class VisitorType, typename BaseType, typename ValueType >
-		struct ToVisitorImpl
-		{
-			template < typename DerivedType >
-			struct type
-			{
-				typedef VisitorType<BaseType, DerivedType, ValueType> ValueT;
-			};
-		};
-
-		template < typename BaseType >
-		struct EndNode { };
 
 	}
 
@@ -93,29 +80,6 @@ namespace stingray
 	};
 
 
-	template < typename BaseType, typename ValueType >
-	class IVisitorByPtr : public Detail::IVisitorByPtrBase<BaseType>
-	{
-	private:
-		optional<ValueType>		_value;
-
-	public:
-		ValueType GetValue() const							{ return *_value; }
-		void SetValue(const ValueType& value)				{ _value = value; }
-
-		IVisitorByPtr<BaseType, ValueType>& GetReference()	{ return *this; }
-	};
-
-
-	template < typename BaseType >
-	struct IVisitorByPtr<BaseType, void> : public Detail::IVisitorByPtrBase<BaseType>
-	{
-		void GetValue() const								{ }
-
-		IVisitorByPtr<BaseType, void>& GetReference()		{ return *this; }
-	};
-
-
 	namespace Detail
 	{
 
@@ -144,28 +108,41 @@ namespace stingray
 		};
 
 		template < typename BaseType, typename DerivedType, typename ValueType >
-		struct VisitorByPtrImplBase : public VisitorByPtrBase<BaseType, DerivedType>
+		struct VisitorImplBase<shared_ptr<BaseType>, shared_ptr<DerivedType>, ValueType> : public VisitorBase<shared_ptr<BaseType>, shared_ptr<DerivedType> >
 		{
 			virtual ValueType Visit(const shared_ptr<DerivedType>& visitable) = 0;
 		};
 
 		template < typename BaseType, typename ValueType >
-		struct VisitorByPtrImplBase<BaseType, BaseType, ValueType> : public virtual IVisitorByPtrBase<BaseType>
+		struct VisitorImplBase<shared_ptr<BaseType>, shared_ptr<BaseType>, ValueType> : public virtual IVisitorBase<shared_ptr<BaseType> >
 		{
 			virtual ValueType Visit(const shared_ptr<BaseType>& visitable)		{ STINGRAYKIT_THROW(VisitorException(*this, *visitable)); }
 		};
 
 		template < typename BaseType, typename DerivedType, typename ValueType >
-		struct VisitorByPtrImpl : public virtual IVisitorByPtr<BaseType, ValueType>, public VisitorByPtrImplBase<BaseType, DerivedType, ValueType>
+		struct VisitorImpl<shared_ptr<BaseType>, shared_ptr<DerivedType>, ValueType> : public virtual IVisitor<shared_ptr<BaseType>, ValueType>, public VisitorImplBase<shared_ptr<BaseType>, shared_ptr<DerivedType>, ValueType>
 		{
 			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ this->SetValue(this->Visit(visitable)); }
 		};
 
 		template < typename BaseType, typename DerivedType >
-		struct VisitorByPtrImpl<BaseType, DerivedType, void> : public virtual IVisitorByPtr<BaseType, void>, public VisitorByPtrImplBase<BaseType, DerivedType, void>
+		struct VisitorImpl<shared_ptr<BaseType>, shared_ptr<DerivedType>, void> : public virtual IVisitor<shared_ptr<BaseType>, void>, public VisitorImplBase<shared_ptr<BaseType>, shared_ptr<DerivedType>, void>
 		{
 			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ this->Visit(visitable); }
 		};
+
+		template < typename BaseType, typename ValueType >
+		struct ToVisitorImpl
+		{
+			template < typename DerivedType >
+			struct type
+			{
+				typedef VisitorImpl<BaseType, DerivedType, ValueType> ValueT;
+			};
+		};
+
+		template < typename BaseType >
+		struct EndNode { };
 
 	}
 
@@ -174,16 +151,7 @@ namespace stingray
 	struct Visitor : public InheritanceAccumulator<
 			typename TypeListTransform<
 					typename TypeListAppend<typename ToTypeList<DerivedTypes>::ValueT, BaseType>::ValueT,
-					Detail::ToVisitorImpl<Detail::VisitorImpl, BaseType, ValueType>::template type>::ValueT,
-			Detail::EndNode<BaseType> >::ValueT
-	{ };
-
-
-	template < typename BaseType, typename DerivedTypes, typename ValueType = void >
-	struct VisitorByPtr : public InheritanceAccumulator<
-			typename TypeListTransform<
-					typename TypeListAppend<typename ToTypeList<DerivedTypes>::ValueT, BaseType>::ValueT,
-					Detail::ToVisitorImpl<Detail::VisitorByPtrImpl, BaseType, ValueType>::template type>::ValueT,
+					Detail::ToVisitorImpl<BaseType, ValueType>::template type>::ValueT,
 			Detail::EndNode<BaseType> >::ValueT
 	{ };
 
@@ -196,8 +164,8 @@ namespace stingray
 		virtual void Accept(Detail::IVisitorBase<BaseType>& visitor) = 0;
 		virtual void Accept(Detail::IVisitorBase<const BaseType>& visitor) const = 0;
 
-		virtual void Accept(Detail::IVisitorByPtrBase<BaseType>& visitor, const shared_ptr<BaseType>& thisptr) = 0;
-		virtual void Accept(Detail::IVisitorByPtrBase<const BaseType>& visitor, const shared_ptr<const BaseType>& thisptr) const = 0;
+		virtual void Accept(Detail::IVisitorBase<shared_ptr<BaseType> >& visitor, const shared_ptr<BaseType>& thisptr) = 0;
+		virtual void Accept(Detail::IVisitorBase<shared_ptr<const BaseType> >& visitor, const shared_ptr<const BaseType>& thisptr) const = 0;
 	};
 
 
@@ -224,20 +192,20 @@ namespace stingray
 				visitor.InvokeVisit(*static_cast<const BaseType*>(derivedThis));
 		}
 
-		virtual void Accept(Detail::IVisitorByPtrBase<BaseType>& visitor, const shared_ptr<BaseType>& thisptr)
+		virtual void Accept(Detail::IVisitorBase<shared_ptr<BaseType> >& visitor, const shared_ptr<BaseType>& thisptr)
 		{
 			DerivedType* derivedThis = static_cast<DerivedType*>(this);
-			Detail::VisitorByPtrBase<BaseType, DerivedType>* derivedVisitor = dynamic_caster(&visitor);
+			Detail::VisitorBase<shared_ptr<BaseType>, shared_ptr<DerivedType> >* derivedVisitor = dynamic_caster(&visitor);
 			if (derivedVisitor)
 				derivedVisitor->InvokeVisit(shared_ptr<DerivedType>(thisptr, derivedThis));
 			else
 				visitor.InvokeVisit(thisptr);
 		}
 
-		virtual void Accept(Detail::IVisitorByPtrBase<const BaseType>& visitor, const shared_ptr<const BaseType>& thisptr) const
+		virtual void Accept(Detail::IVisitorBase<shared_ptr<const BaseType> >& visitor, const shared_ptr<const BaseType>& thisptr) const
 		{
 			const DerivedType* derivedThis = static_cast<const DerivedType*>(this);
-			Detail::VisitorByPtrBase<const BaseType, const DerivedType>* derivedVisitor = dynamic_caster(&visitor);
+			Detail::VisitorBase<shared_ptr<const BaseType>, shared_ptr<const DerivedType> >* derivedVisitor = dynamic_caster(&visitor);
 			if (derivedVisitor)
 				derivedVisitor->InvokeVisit(shared_ptr<const DerivedType>(thisptr, derivedThis));
 			else
@@ -247,7 +215,7 @@ namespace stingray
 
 
 	template < typename BaseType, typename DerivedType, typename ValueType >
-	ValueType ApplyVisitor(IVisitor<BaseType, ValueType>& visitor, DerivedType& visitable)
+	typename EnableIf<!IsSharedPtr<BaseType>::Value, ValueType>::ValueT ApplyVisitor(IVisitor<BaseType, ValueType>& visitor, DerivedType& visitable)
 	{
 		typedef typename RemoveConst<BaseType>::ValueT RawBaseType;
 		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
@@ -258,7 +226,7 @@ namespace stingray
 
 
 	template < typename BaseType, typename DerivedType, typename ValueType >
-	ValueType ApplyVisitor(IVisitorByPtr<BaseType, ValueType>& visitor, const shared_ptr<DerivedType>& visitable)
+	ValueType ApplyVisitor(IVisitor<shared_ptr<BaseType> , ValueType>& visitor, const shared_ptr<DerivedType>& visitable)
 	{
 		typedef typename RemoveConst<BaseType>::ValueT RawBaseType;
 		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
@@ -269,14 +237,14 @@ namespace stingray
 	}
 
 
-	template < template < typename, typename > class VisitorType, typename BaseType, typename ValueType >
+	template < typename BaseType, typename ValueType >
 	class VisitorApplyHelper : public function_info<ValueType, UnspecifiedParamTypes>
 	{
 	private:
-		VisitorType<BaseType, ValueType>&	_visitor;
+		IVisitor<BaseType, ValueType>&	_visitor;
 
 	public:
-		explicit VisitorApplyHelper(VisitorType<BaseType, ValueType>& visitor) : _visitor(visitor) { }
+		explicit VisitorApplyHelper(IVisitor<BaseType, ValueType>& visitor) : _visitor(visitor) { }
 
 		template < typename DerivedType >
 		ValueType operator () (const DerivedType& visitable) const
@@ -289,13 +257,8 @@ namespace stingray
 
 
 	template < typename BaseType, typename ValueType >
-	VisitorApplyHelper<IVisitorByPtr, BaseType, ValueType> MakeVisitorApplier(IVisitorByPtr<BaseType, ValueType>& visitor)
-	{ return VisitorApplyHelper<IVisitorByPtr, BaseType, ValueType>(visitor); }
-
-
-	template < typename BaseType, typename ValueType >
-	VisitorApplyHelper<IVisitor, BaseType, ValueType> MakeVisitorApplier(IVisitor<BaseType, ValueType>& visitor)
-	{ return VisitorApplyHelper<IVisitor, BaseType, ValueType>(visitor); }
+	VisitorApplyHelper<BaseType, ValueType> MakeVisitorApplier(IVisitor<BaseType, ValueType>& visitor)
+	{ return VisitorApplyHelper<BaseType, ValueType>(visitor); }
 
 }
 
