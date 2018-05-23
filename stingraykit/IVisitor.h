@@ -45,8 +45,6 @@ namespace stingray
 		virtual ~IVisitor() { }
 
 		virtual ValueType Visit(typename Detail::GetVisitablePassingType<BaseType>::ValueT& visitable) const = 0;
-
-		IVisitor<BaseType, ValueType>& GetReference() { return *this; }
 	};
 
 
@@ -182,13 +180,15 @@ namespace stingray
 
 
 	template < typename BaseType, typename DerivedTypes, typename ValueType >
-	class VisitorBase : public InheritanceAccumulator<
+	struct VisitorBase : public InheritanceAccumulator<
 			typename TypeListTransform<
 					typename TypeListAppend<typename ToTypeList<DerivedTypes>::ValueT, BaseType>::ValueT,
 					Detail::ToVisitorImpl<BaseType, ValueType>::template type
 			>::ValueT,
 			Detail::EndNode<BaseType> >::ValueT
-	{ };
+	{
+		typedef ValueType RetType;
+	};
 
 
 	template < typename BaseType >
@@ -267,32 +267,32 @@ namespace stingray
 	};
 
 
-	template < typename BaseType, typename ValueType >
-	class VisitorApplyFunc : public function_info<ValueType, UnspecifiedParamTypes>
+	template < typename VisitorType >
+	class VisitorApplyFunc : public function_info<typename VisitorType::RetType, UnspecifiedParamTypes>
 	{
 	private:
-		IVisitor<BaseType, ValueType>&		_visitor;
+		VisitorType		_visitor;
 
 	public:
-		explicit VisitorApplyFunc(IVisitor<BaseType, ValueType>& visitor) : _visitor(visitor) { }
+		explicit VisitorApplyFunc(const VisitorType& visitor) : _visitor(visitor) { }
 
 		template < typename DerivedType >
-		ValueType operator () (DerivedType& visitable) const
+		typename VisitorType::RetType operator () (DerivedType& visitable) const
 		{
-			Detail::VisitContext<ValueType> context;
+			Detail::VisitContext<typename VisitorType::RetType> context;
 			_visitor.InvokeVisit(visitable, context);
 			return *context;
 		}
 	};
 
 
-	template < typename BaseType, typename ValueType >
-	VisitorApplyFunc<BaseType, ValueType> MakeVisitorApplier(IVisitor<BaseType, ValueType>& visitor)
-	{ return VisitorApplyFunc<BaseType, ValueType>(visitor); }
+	template < typename VisitorType >
+	VisitorApplyFunc<VisitorType> MakeVisitorApplier(const VisitorType& visitor)
+	{ return VisitorApplyFunc<VisitorType>(visitor); }
 
 
-	template < typename BaseType, typename DerivedType, typename ValueType >
-	ValueType ApplyVisitor(IVisitor<BaseType, ValueType>& visitor, DerivedType& visitable)
+	template < typename VisitorType, typename DerivedType >
+	typename VisitorType::RetType ApplyVisitor(const VisitorType& visitor, DerivedType& visitable)
 	{ return MakeVisitorApplier(visitor)(visitable); }
 
 }
