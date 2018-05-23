@@ -17,32 +17,26 @@ namespace stingray
 	namespace Detail
 	{
 
+		template < typename T >
+		struct GetVisitablePassingType
+		{ typedef T ValueT; };
+
+		template < typename T >
+		struct GetVisitablePassingType<shared_ptr<T> >
+		{ typedef const shared_ptr<T> ValueT; };
+
 		template < typename BaseType >
 		struct IVisitorBase
 		{
 			virtual ~IVisitorBase() { }
 
-			virtual void InvokeVisit(BaseType& visitable) = 0;
-		};
-
-		template < typename BaseType >
-		struct IVisitorBase<shared_ptr<BaseType> >
-		{
-			virtual ~IVisitorBase() { }
-
-			virtual void InvokeVisit(const shared_ptr<BaseType>& visitable) = 0;
+			virtual void InvokeVisit(typename GetVisitablePassingType<BaseType>::ValueT& visitable) = 0;
 		};
 
 		template < typename BaseType, typename DerivedType >
 		struct VisitorBase : public virtual IVisitorBase<BaseType>
 		{
-			virtual void InvokeVisit(DerivedType& visitable) = 0;
-		};
-
-		template < typename BaseType, typename DerivedType >
-		struct VisitorBase<shared_ptr<BaseType>, shared_ptr<DerivedType> > : public virtual IVisitorBase<shared_ptr<BaseType> >
-		{
-			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable) = 0;
+			virtual void InvokeVisit(typename GetVisitablePassingType<DerivedType>::ValueT& visitable) = 0;
 		};
 
 	}
@@ -86,49 +80,28 @@ namespace stingray
 		template < typename BaseType, typename DerivedType, typename ValueType >
 		struct VisitorImplBase : public VisitorBase<BaseType, DerivedType>
 		{
-			virtual ValueType Visit(DerivedType& visitable) = 0;
+			virtual ValueType Visit(typename GetVisitablePassingType<DerivedType>::ValueT& visitable) = 0;
 		};
 
 		template < typename BaseType, typename ValueType >
 		struct VisitorImplBase<BaseType, BaseType, ValueType> : public virtual IVisitorBase<BaseType>
 		{
-			virtual ValueType Visit(BaseType& visitable) 		{ STINGRAYKIT_THROW(VisitorException(*this, visitable)); }
+			virtual ValueType Visit(typename GetVisitablePassingType<BaseType>::ValueT& visitable)
+			{ STINGRAYKIT_THROW(VisitorException(*this, visitable)); }
 		};
 
 		template < typename BaseType, typename DerivedType, typename ValueType >
 		struct VisitorImpl : public virtual IVisitor<BaseType, ValueType>, public VisitorImplBase<BaseType, DerivedType, ValueType>
 		{
-			virtual void InvokeVisit(DerivedType& visitable)	{ this->SetValue(this->Visit(visitable)); }
+			virtual void InvokeVisit(typename GetVisitablePassingType<DerivedType>::ValueT& visitable)
+			{ this->SetValue(this->Visit(visitable)); }
 		};
 
 		template < typename BaseType, typename DerivedType >
 		struct VisitorImpl<BaseType, DerivedType, void> : public virtual IVisitor<BaseType, void>, public VisitorImplBase<BaseType, DerivedType, void>
 		{
-			virtual void InvokeVisit(DerivedType& visitable)	{ this->Visit(visitable); }
-		};
-
-		template < typename BaseType, typename DerivedType, typename ValueType >
-		struct VisitorImplBase<shared_ptr<BaseType>, shared_ptr<DerivedType>, ValueType> : public VisitorBase<shared_ptr<BaseType>, shared_ptr<DerivedType> >
-		{
-			virtual ValueType Visit(const shared_ptr<DerivedType>& visitable) = 0;
-		};
-
-		template < typename BaseType, typename ValueType >
-		struct VisitorImplBase<shared_ptr<BaseType>, shared_ptr<BaseType>, ValueType> : public virtual IVisitorBase<shared_ptr<BaseType> >
-		{
-			virtual ValueType Visit(const shared_ptr<BaseType>& visitable)		{ STINGRAYKIT_THROW(VisitorException(*this, *visitable)); }
-		};
-
-		template < typename BaseType, typename DerivedType, typename ValueType >
-		struct VisitorImpl<shared_ptr<BaseType>, shared_ptr<DerivedType>, ValueType> : public virtual IVisitor<shared_ptr<BaseType>, ValueType>, public VisitorImplBase<shared_ptr<BaseType>, shared_ptr<DerivedType>, ValueType>
-		{
-			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ this->SetValue(this->Visit(visitable)); }
-		};
-
-		template < typename BaseType, typename DerivedType >
-		struct VisitorImpl<shared_ptr<BaseType>, shared_ptr<DerivedType>, void> : public virtual IVisitor<shared_ptr<BaseType>, void>, public VisitorImplBase<shared_ptr<BaseType>, shared_ptr<DerivedType>, void>
-		{
-			virtual void InvokeVisit(const shared_ptr<DerivedType>& visitable)	{ this->Visit(visitable); }
+			virtual void InvokeVisit(typename GetVisitablePassingType<DerivedType>::ValueT& visitable)
+			{ this->Visit(visitable); }
 		};
 
 		template < typename BaseType, typename ValueType >
