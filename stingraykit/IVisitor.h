@@ -33,7 +33,7 @@ namespace stingray
 		{
 			virtual ~IVisitorBase() { }
 
-			virtual void InvokeVisit(typename GetVisitablePassingType<BaseType>::ValueT& visitable, VisitContext<ValueType>& context) = 0;
+			virtual void InvokeVisit(typename GetVisitablePassingType<BaseType>::ValueT& visitable, VisitContext<ValueType>& context) const = 0;
 		};
 
 	}
@@ -44,7 +44,7 @@ namespace stingray
 	{
 		virtual ~IVisitor() { }
 
-		virtual ValueType Visit(typename Detail::GetVisitablePassingType<BaseType>::ValueT& visitable) = 0;
+		virtual ValueType Visit(typename Detail::GetVisitablePassingType<BaseType>::ValueT& visitable) const = 0;
 
 		IVisitor<BaseType, ValueType>& GetReference() { return *this; }
 	};
@@ -69,13 +69,13 @@ namespace stingray
 		template < typename BaseType, typename DerivedType, typename ValueType >
 		struct VisitorImpl : public virtual IVisitor<BaseType, ValueType>
 		{
-			virtual ValueType Visit(typename GetVisitablePassingType<DerivedType>::ValueT& visitable) = 0;
+			virtual ValueType Visit(typename GetVisitablePassingType<DerivedType>::ValueT& visitable) const = 0;
 		};
 
 		template < typename BaseType, typename ValueType >
 		struct VisitorImpl<BaseType, BaseType, ValueType> : public virtual IVisitor<BaseType, ValueType>
 		{
-			virtual ValueType Visit(typename GetVisitablePassingType<BaseType>::ValueT& visitable)
+			virtual ValueType Visit(typename GetVisitablePassingType<BaseType>::ValueT& visitable) const
 			{ STINGRAYKIT_THROW(VisitorException(*this, visitable)); }
 		};
 
@@ -98,7 +98,7 @@ namespace stingray
 			{ return *_value; }
 
 			template < typename BaseType, typename DerivedType >
-			void Accept(VisitorImpl<BaseType, DerivedType, ValueType>& visitor, typename GetVisitablePassingType<DerivedType>::ValueT& visitable)
+			void Accept(const VisitorImpl<BaseType, DerivedType, ValueType>& visitor, typename GetVisitablePassingType<DerivedType>::ValueT& visitable)
 			{ _value.emplace(visitor.Visit(visitable)); }
 		};
 
@@ -110,7 +110,7 @@ namespace stingray
 			{ }
 
 			template < typename BaseType, typename DerivedType >
-			void Accept(VisitorImpl<BaseType, DerivedType, void>& visitor, typename GetVisitablePassingType<DerivedType>::ValueT& visitable)
+			void Accept(const VisitorImpl<BaseType, DerivedType, void>& visitor, typename GetVisitablePassingType<DerivedType>::ValueT& visitable)
 			{ visitor.Visit(visitable); }
 		};
 
@@ -135,11 +135,11 @@ namespace stingray
 		class VisitorWrapperImpl : public VisitorWrapperBase<BaseType, DerivedType>
 		{
 		private:
-			VisitorImpl<BaseType, DerivedType, ValueType>&	_visitor;
-			VisitContext<ValueType>&						_context;
+			const VisitorImpl<BaseType, DerivedType, ValueType>&	_visitor;
+			VisitContext<ValueType>&								_context;
 
 		public:
-			VisitorWrapperImpl(VisitorImpl<BaseType, DerivedType, ValueType>& visitor, VisitContext<ValueType>& context) : _visitor(visitor), _context(context) { }
+			VisitorWrapperImpl(const VisitorImpl<BaseType, DerivedType, ValueType>& visitor, VisitContext<ValueType>& context) : _visitor(visitor), _context(context) { }
 
 			virtual void VisitWrapped(typename GetVisitablePassingType<DerivedType>::ValueT& visitable) const
 			{ _context.Accept(_visitor, visitable); }
@@ -156,7 +156,7 @@ namespace stingray
 		template < typename BaseType, typename ValueType >
 		struct WrapperEndNode
 		{
-			WrapperEndNode(IVisitor<BaseType, ValueType>& visitor, VisitContext<ValueType>& context) { }
+			WrapperEndNode(const IVisitor<BaseType, ValueType>& visitor, VisitContext<ValueType>& context) { }
 		};
 
 		template < typename BaseType, typename DerivedTypes, typename ValueType >
@@ -173,7 +173,7 @@ namespace stingray
 		template < typename BaseType, typename DerivedTypes, typename ValueType >
 		struct VisitorWrapper : public GetVisitorWrapperBase<BaseType, DerivedTypes, ValueType>::ValueT
 		{
-			VisitorWrapper(Visitor<BaseType, DerivedTypes, ValueType>& visitor, VisitContext<ValueType>& context)
+			VisitorWrapper(const Visitor<BaseType, DerivedTypes, ValueType>& visitor, VisitContext<ValueType>& context)
 				:	GetVisitorWrapperBase<BaseType, DerivedTypes, ValueType>::ValueT(visitor, context)
 			{ }
 		};
@@ -254,7 +254,7 @@ namespace stingray
 	template < typename BaseType, typename DerivedTypes, typename ValueType >
 	struct Visitor : public VisitorBase<BaseType, DerivedTypes, ValueType>
 	{
-		virtual void InvokeVisit(BaseType& visitable, Detail::VisitContext<ValueType>& context)
+		virtual void InvokeVisit(BaseType& visitable, Detail::VisitContext<ValueType>& context) const
 		{ static_cast<typename If<IsConst<BaseType>::Value, const IVisitable<BaseType>, IVisitable<BaseType> >::ValueT&>(visitable).Accept(Detail::VisitorWrapper<BaseType, DerivedTypes, ValueType>(*this, context), visitable); }
 	};
 
@@ -262,7 +262,7 @@ namespace stingray
 	template < typename BaseType, typename DerivedTypes, typename ValueType >
 	struct Visitor<shared_ptr<BaseType>, DerivedTypes, ValueType> : public VisitorBase<shared_ptr<BaseType>, DerivedTypes, ValueType>
 	{
-		virtual void InvokeVisit(const shared_ptr<BaseType>& visitable, Detail::VisitContext<ValueType>& context)
+		virtual void InvokeVisit(const shared_ptr<BaseType>& visitable, Detail::VisitContext<ValueType>& context) const
 		{ static_cast<typename If<IsConst<BaseType>::Value, const IVisitable<BaseType>, IVisitable<BaseType> >::ValueT&>(*visitable).Accept(Detail::VisitorWrapper<shared_ptr<BaseType>, DerivedTypes, ValueType>(*this, context), visitable); }
 	};
 
