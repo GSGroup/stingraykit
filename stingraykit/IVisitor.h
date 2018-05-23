@@ -134,8 +134,8 @@ namespace stingray
 	{
 		virtual ~IVisitable() { }
 
-		virtual void Accept(Detail::IVisitorBase<BaseType>& visitor) = 0;
-		virtual void Accept(Detail::IVisitorBase<const BaseType>& visitor) const = 0;
+		virtual void Accept(Detail::IVisitorBase<BaseType>& visitor, BaseType& baseThis) = 0;
+		virtual void Accept(Detail::IVisitorBase<const BaseType>& visitor, const BaseType& baseThis) const = 0;
 
 		virtual void Accept(Detail::IVisitorBase<shared_ptr<BaseType> >& visitor, const shared_ptr<BaseType>& thisptr) = 0;
 		virtual void Accept(Detail::IVisitorBase<shared_ptr<const BaseType> >& visitor, const shared_ptr<const BaseType>& thisptr) const = 0;
@@ -145,44 +145,36 @@ namespace stingray
 	template < typename BaseType, typename DerivedType >
 	struct Visitable : public virtual IVisitable<BaseType>
 	{
-		virtual void Accept(Detail::IVisitorBase<BaseType>& visitor)
+		virtual void Accept(Detail::IVisitorBase<BaseType>& visitor, BaseType& baseThis)
 		{
-			DerivedType* derivedThis = static_cast<DerivedType*>(this);
-			Detail::VisitorBase<BaseType, DerivedType>* derivedVisitor = dynamic_caster(&visitor);
-			if (derivedVisitor)
-				derivedVisitor->InvokeVisit(*derivedThis);
+			if (Detail::VisitorBase<BaseType, DerivedType>* const derivedVisitor = dynamic_caster(&visitor))
+				derivedVisitor->InvokeVisit(*static_cast<DerivedType*>(this));
 			else
-				visitor.InvokeVisit(*static_cast<BaseType*>(derivedThis));
+				visitor.InvokeVisit(baseThis);
 		}
 
-		virtual void Accept(Detail::IVisitorBase<const BaseType>& visitor) const
+		virtual void Accept(Detail::IVisitorBase<const BaseType>& visitor, const BaseType& baseThis) const
 		{
-			const DerivedType* derivedThis = static_cast<const DerivedType*>(this);
-			Detail::VisitorBase<const BaseType, const DerivedType>* derivedVisitor = dynamic_caster(&visitor);
-			if (derivedVisitor)
-				derivedVisitor->InvokeVisit(*derivedThis);
+			if (Detail::VisitorBase<const BaseType, const DerivedType>* const derivedVisitor = dynamic_caster(&visitor))
+				derivedVisitor->InvokeVisit(*static_cast<const DerivedType*>(this));
 			else
-				visitor.InvokeVisit(*static_cast<const BaseType*>(derivedThis));
+				visitor.InvokeVisit(baseThis);
 		}
 
-		virtual void Accept(Detail::IVisitorBase<shared_ptr<BaseType> >& visitor, const shared_ptr<BaseType>& thisptr)
+		virtual void Accept(Detail::IVisitorBase<shared_ptr<BaseType> >& visitor, const shared_ptr<BaseType>& baseThis)
 		{
-			DerivedType* derivedThis = static_cast<DerivedType*>(this);
-			Detail::VisitorBase<shared_ptr<BaseType>, shared_ptr<DerivedType> >* derivedVisitor = dynamic_caster(&visitor);
-			if (derivedVisitor)
-				derivedVisitor->InvokeVisit(shared_ptr<DerivedType>(thisptr, derivedThis));
+			if (Detail::VisitorBase<shared_ptr<BaseType>, shared_ptr<DerivedType> >* const derivedVisitor = dynamic_caster(&visitor))
+				derivedVisitor->InvokeVisit(shared_ptr<DerivedType>(baseThis, static_cast<DerivedType*>(this)));
 			else
-				visitor.InvokeVisit(thisptr);
+				visitor.InvokeVisit(baseThis);
 		}
 
-		virtual void Accept(Detail::IVisitorBase<shared_ptr<const BaseType> >& visitor, const shared_ptr<const BaseType>& thisptr) const
+		virtual void Accept(Detail::IVisitorBase<shared_ptr<const BaseType> >& visitor, const shared_ptr<const BaseType>& baseThis) const
 		{
-			const DerivedType* derivedThis = static_cast<const DerivedType*>(this);
-			Detail::VisitorBase<shared_ptr<const BaseType>, shared_ptr<const DerivedType> >* derivedVisitor = dynamic_caster(&visitor);
-			if (derivedVisitor)
-				derivedVisitor->InvokeVisit(shared_ptr<const DerivedType>(thisptr, derivedThis));
+			if (Detail::VisitorBase<shared_ptr<const BaseType>, shared_ptr<const DerivedType> >* const derivedVisitor = dynamic_caster(&visitor))
+				derivedVisitor->InvokeVisit(shared_ptr<const DerivedType>(baseThis, static_cast<const DerivedType*>(this)));
 			else
-				visitor.InvokeVisit(thisptr);
+				visitor.InvokeVisit(baseThis);
 		}
 	};
 
@@ -193,7 +185,7 @@ namespace stingray
 		typedef typename RemoveConst<BaseType>::ValueT RawBaseType;
 		typedef typename If<IsConst<DerivedType>::Value, const IVisitable<const RawBaseType>, IVisitable<RawBaseType> >::ValueT IVisitableBaseType;
 
-		static_cast<IVisitableBaseType&>(visitable).Accept(visitor);
+		static_cast<IVisitableBaseType&>(visitable).Accept(visitor, visitable);
 		return visitor.GetValue();
 	}
 
