@@ -103,9 +103,10 @@ namespace stingray
 				return;
 
 			signal_locker l(_onChanged);
-			_onChanged(Diff());
+			const DiffTypePtr diff = Diff();
 			_wrapped = _copy;
 			_copy.reset();
+			_onChanged(diff);
 		}
 
 		virtual void Revert()
