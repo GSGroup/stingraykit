@@ -41,7 +41,7 @@ namespace stingray
 		iterator find(const Key_& key)				{ return keys_iterator(_impl.find(key)); }
 		const_iterator find(const Key_& key) const	{ return keys_iterator(_impl.find(key)); }
 
-		size_t count(const Key_& key)
+		size_t count(const Key_& key) const
 		{
 			typename Impl::const_iterator it = _impl.find(key);
 			return it != _impl.end() ? it->second : 0;
