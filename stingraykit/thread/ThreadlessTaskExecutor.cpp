@@ -19,8 +19,10 @@ namespace stingray
 
 	const TimeDuration ThreadlessTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 
-	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const optional<TimeDuration>& profileTimeout, const ExceptionHandlerType& exceptionHandler)
-		: _profileTimeout(profileTimeout), _exceptionHandler(exceptionHandler)
+	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandlerType& exceptionHandler)
+		:	_name(name),
+			_profileTimeout(profileTimeout),
+			_exceptionHandler(exceptionHandler)
 	{ }
 
 
@@ -37,7 +39,7 @@ namespace stingray
 
 		if (_activeExecutor)
 		{
-			s_logger.Warning() << "Already running tasks in thread " << _activeExecutor;
+			s_logger.Warning() << "[" << _name << "] Already running tasks in thread " << _activeExecutor;
 			return;
 		}
 
@@ -71,7 +73,7 @@ namespace stingray
 
 
 	std::string ThreadlessTaskExecutor::GetProfilerMessage(const function<void()>& func) const
-	{ return StringBuilder() % get_function_name(func) % " in some ThreadlessTaskExecutor"; }
+	{ return StringBuilder() % get_function_name(func) % " in ThreadlessTaskExecutor '" % _name % "'"; }
 
 
 	void ThreadlessTaskExecutor::ExecuteTask(const TaskPair& task) const
