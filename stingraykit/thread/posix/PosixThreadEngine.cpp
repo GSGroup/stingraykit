@@ -173,7 +173,7 @@ namespace stingray
 
 		const PosixThreadInfoPtr				_threadInfo;
 
-		Mutex									_mutex;
+		PosixMutex								_mutex;
 		std::string								_name;
 		ThreadCpuStats							_childrenStats;
 
@@ -233,9 +233,10 @@ namespace stingray
 		{
 			ThreadLocalHolder::Get() = str;
 			ThreadDataStoragePtr& data = ThreadDataHolder::Get();
-			if (!data)
-				data = make_shared<ThreadDataStorage>(gettid(), pthread_self(), std::string(), null, null);
-			data->SetThreadName(str);
+			if (data)
+				data->SetThreadName(str);
+			else
+				data = make_shared<ThreadDataStorage>(gettid(), pthread_self(), str, null, null);
 		}
 	};
 	STINGRAYKIT_DEFINE_THREAD_LOCAL(std::string, ThreadNameAccessor::ThreadLocalHolder);
