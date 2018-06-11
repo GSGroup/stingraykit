@@ -113,6 +113,7 @@ namespace stingray
 	{
 	private:
 		pthread_t					_threadHandle;
+		PosixMutex					_mutex;
 		std::string					_name;
 		FutureExecutionTester		_threadGuard;
 
@@ -128,7 +129,8 @@ namespace stingray
 				posix::SendSignal(_threadHandle, g_threadBacktracePrinter.GetSignalNum());
 		}
 
-		virtual std::string GetName() const { return _name; }
+		virtual std::string GetName() const { GenericMutexLock<PosixMutex> l(_mutex); return _name; }
+		void SetName(const std::string& name) { GenericMutexLock<PosixMutex> l(_mutex); _name = name; }
 	};
 	STINGRAYKIT_DECLARE_PTR(PosixThreadInfo);
 
@@ -174,7 +176,6 @@ namespace stingray
 		const PosixThreadInfoPtr				_threadInfo;
 
 		PosixMutex								_mutex;
-		std::string								_name;
 		ThreadCpuStats							_childrenStats;
 
 		shared_ptr<ThreadsRegistry>				_registry;
@@ -186,7 +187,6 @@ namespace stingray
 			_pthreadId(pthreadId),
 			_parent(parent),
 			_threadInfo(make_shared<PosixThreadInfo>(pthreadId, name, executionTester)),
-			_name(name),
 			_registry(SafeSingleton<ThreadsRegistry>::Instance())
 		{
 			if (!_registry)
@@ -210,8 +210,8 @@ namespace stingray
 		PosixThreadInfoPtr GetThreadInfo() const					{ return _threadInfo; }
 		ThreadDataStoragePtr GetParentThread() const				{ return _parent; }
 
-		std::string GetThreadName() const							{ GenericMutexLock<PosixMutex> l(_mutex); return _name; }
-		void SetThreadName(const std::string& name)					{ GenericMutexLock<PosixMutex> l(_mutex); _name = name; }
+		std::string GetThreadName() const							{ return _threadInfo->GetName(); }
+		void SetThreadName(const std::string& name)					{ _threadInfo->SetName(name); }
 
 		void StoreChildStats(ThreadCpuStats childStats) 			{ GenericMutexLock<PosixMutex> l(_mutex); _childrenStats += childStats; }
 		ThreadCpuStats GetChildrenStats() const						{ GenericMutexLock<PosixMutex> l(_mutex); return _childrenStats; }
