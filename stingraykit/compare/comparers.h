@@ -311,6 +311,15 @@ namespace stingray
 	STINGRAYKIT_DECLARE_COMPARERS(Owner);
 
 
+	struct PointerCmp : public function_info<int, UnspecifiedParamTypes>
+	{
+		template < typename Lhs, typename Rhs >
+		int operator () (const shared_ptr<Lhs>& lhs, const shared_ptr<Rhs>& rhs) const
+		{ return comparers::Cmp()(lhs.get(), rhs.get()); }
+	};
+	STINGRAYKIT_DECLARE_COMPARERS(Pointer);
+
+
 	template < typename CompareFunc >
 	class TupleCmp : public function_info<int, UnspecifiedParamTypes>
 	{
