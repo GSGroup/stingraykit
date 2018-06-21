@@ -304,14 +304,14 @@ namespace stingray
 	inline std::string RightStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
 	{
 		const size_t pos = str.find_last_not_of(chars);
-		return pos == std::string::npos? "" : str.substr(0, pos + 1);
+		return pos == std::string::npos ? "" : str.substr(0, pos + 1);
 	}
 
 
 	inline std::string LeftStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
 	{
 		const size_t pos = str.find_first_not_of(chars);
-		return pos == std::string::npos? "" : str.substr(pos);
+		return pos == std::string::npos ? "" : str.substr(pos);
 	}
 
 
