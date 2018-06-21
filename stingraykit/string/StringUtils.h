@@ -417,6 +417,9 @@ namespace stingray
 		return inputRange;
 	}
 
+
+	std::string::size_type EditDistance(const std::string& s1, const std::string& s2);
+
 }
 
 
