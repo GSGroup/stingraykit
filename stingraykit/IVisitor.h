@@ -113,9 +113,6 @@ namespace stingray
 		};
 
 		template < typename BaseType >
-		struct EndNode { };
-
-		template < typename BaseType >
 		struct IVisitorWrapper
 		{
 			virtual ~IVisitorWrapper() { }
@@ -151,12 +148,6 @@ namespace stingray
 			{ typedef VisitorWrapperImpl<BaseType, DerivedType, ValueType> ValueT; };
 		};
 
-		template < typename BaseType, typename ValueType >
-		struct WrapperEndNode
-		{
-			WrapperEndNode(const IVisitor<BaseType, ValueType>& visitor, VisitContext<ValueType>& context) { }
-		};
-
 		template < typename BaseType, typename DerivedTypes, typename ValueType >
 		struct GetVisitorWrapperBase
 		{
@@ -164,8 +155,7 @@ namespace stingray
 					typename TypeListTransform<
 							typename TypeListAppend<typename ToTypeList<DerivedTypes>::ValueT, BaseType>::ValueT,
 							Detail::ToVisitorWrapperImpl<BaseType, ValueType>::template type
-					>::ValueT,
-					WrapperEndNode<BaseType, ValueType> >::ValueT ValueT;
+					>::ValueT>::ValueT ValueT;
 		};
 
 		template < typename BaseType, typename DerivedTypes, typename ValueType >
@@ -184,8 +174,7 @@ namespace stingray
 			typename TypeListTransform<
 					typename TypeListAppend<typename ToTypeList<DerivedTypes>::ValueT, BaseType>::ValueT,
 					Detail::ToVisitorImpl<BaseType, ValueType>::template type
-			>::ValueT,
-			Detail::EndNode<BaseType> >::ValueT
+			>::ValueT>::ValueT
 	{
 		typedef ValueType RetType;
 	};
