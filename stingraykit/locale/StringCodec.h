@@ -10,8 +10,8 @@
 
 
 #include <string>
-#include <stingraykit/locale/Encoding.h>
 #include <stingraykit/locale/LocaleString.h>
+#include <stingraykit/string/string_view.h>
 
 
 namespace stingray
@@ -32,7 +32,7 @@ namespace stingray
 		static std::string ToCodePage(const LocaleString &src, unsigned code_page);
 		static LocaleString FromCodePage(const std::string &src, unsigned code_page, u32 invalid_char_replacement = '?');
 
-		typedef u32 (*UnpackFunc)(std::string::const_iterator &i, const std::string::const_iterator &end);
+		typedef u32 (*UnpackFunc)(string_view::const_iterator &i, const string_view::const_iterator &end);
 		typedef void (*PackFunc)(std::string &str, u32 unicode, char invalid_char_replacement);
 		///example for(it = str.begin(); it != str.end(); ) { u32 ucs_char = (*unpack)(it, str.end()); }
 		///\return pointer to unpack function, null for unsupported encoding.
