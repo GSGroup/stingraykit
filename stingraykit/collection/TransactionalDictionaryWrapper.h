@@ -97,6 +97,22 @@ namespace stingray
 		virtual void Clear()
 		{ GetCopy()->Clear(); }
 
+		virtual void Apply(const DiffEntryType& entry)
+		{
+			switch (entry.Op)
+			{
+			case CollectionOp::Added:
+				Set(entry.Item.Key, entry.Item.Value);
+				break;
+			case CollectionOp::Updated:
+				Set(entry.Item.Key, entry.Item.Value);
+				break;
+			case CollectionOp::Removed:
+				Remove(entry.Item.Key);
+				break;
+			}
+		}
+
 		virtual void Commit()
 		{
 			if (!_copy)

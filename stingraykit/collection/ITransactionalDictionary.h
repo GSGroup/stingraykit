@@ -29,28 +29,12 @@ namespace stingray
 		typedef IEnumerable<DiffEntryType>					DiffType;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
-		virtual void Commit() = 0;
-		virtual void Revert() = 0;
+		virtual void Apply(const DiffEntryType& entry) = 0;
 
 		virtual DiffTypePtr Diff() const = 0;
 
-		void Apply(const DiffEntryType& entry)
-		{
-			switch (entry.Op)
-			{
-			case CollectionOp::Added:
-				this->Set(entry.Item.Key, entry.Item.Value);
-				break;
-			case CollectionOp::Updated:
-				this->Set(entry.Item.Key, entry.Item.Value);
-				break;
-			case CollectionOp::Removed:
-				this->Remove(entry.Item.Key); // gcc loses his mind over this line without this
-				break;
-			default:
-				STINGRAYKIT_THROW("Not supported CollectionOp");
-			}
-		}
+		virtual void Commit() = 0;
+		virtual void Revert() = 0;
 	};
 
 
