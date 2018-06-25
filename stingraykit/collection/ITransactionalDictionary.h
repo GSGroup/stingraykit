@@ -75,10 +75,6 @@ namespace stingray
 
 		ObservableCollectionLockerPtr Lock() const
 		{ return make_shared<ObservableCollectionLocker>(*this); }
-
-	protected:
-		ITransactionalDictionary()
-		{ }
 	};
 
 	/** @} */
