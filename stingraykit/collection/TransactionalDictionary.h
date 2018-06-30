@@ -35,6 +35,7 @@ namespace stingray
 
 		typedef typename base::DiffEntryType					DiffEntryType;
 		typedef typename base::DiffTypePtr						DiffTypePtr;
+		typedef typename base::TransactionTypePtr				TransactionTypePtr;
 
 		typedef KeyLessComparer_								KeyLessComparer;
 		typedef ValueEqualsComparer_							ValueEqualsComparer;
@@ -43,27 +44,176 @@ namespace stingray
 		STINGRAYKIT_DECLARE_PTR(DictionaryImpl);
 
 	private:
-		class Transaction : public virtual IDictionaryTransaction<KeyType, ValueType>
+		class Impl
 		{
-		public:
-			typedef signal<void(const DiffTypePtr&), ExternalMutexPointer> OnChangedSignalType;
-
 		private:
-			DictionaryImplPtr&				_wrapped;
-			mutable DictionaryImplPtr		_newMap;
-			const OnChangedSignalType&		_onChanged;
+			shared_ptr<Mutex>											_mutex;
+			DictionaryImplPtr											_map;
+			bool														_hasTransaction;
+			signal<void (const DiffTypePtr&), ExternalMutexPointer>		_onChanged;
 
 		public:
-			Transaction(DictionaryImplPtr& wrapped, const OnChangedSignalType& onChanged)
-				:	_wrapped(wrapped),
-					_onChanged(onChanged)
+			Impl()
+				:	_mutex(make_shared<Mutex>()),
+					_map(make_shared<DictionaryImpl>()),
+					_hasTransaction(false),
+					_onChanged(ExternalMutexPointer(_mutex), bind(&Impl::OnChangedPopulator, this, _1))
 			{ }
 
-			virtual ~Transaction()
+			shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 			{
-				if (_newMap)
-					Logger::Warning() << "Reverting Transaction!";
+				MutexLock l(*_mutex);
+				return _map->GetEnumerator();
 			}
+
+			shared_ptr<IEnumerable<PairType> > Reverse() const
+			{
+				MutexLock l(*_mutex);
+				return _map->Reverse();
+			}
+
+			size_t GetCount() const
+			{
+				MutexLock l(*_mutex);
+				return _map->GetCount();
+			}
+
+			bool IsEmpty() const
+			{
+				MutexLock l(*_mutex);
+				return _map->IsEmpty();
+			}
+
+			bool ContainsKey(const KeyType& key) const
+			{
+				MutexLock l(*_mutex);
+				return _map->ContainsKey(key);
+			}
+
+			shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+			{
+				MutexLock l(*_mutex);
+				return _map->Find(key);
+			}
+
+			shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+			{
+				MutexLock l(*_mutex);
+				return _map->ReverseFind(key);
+			}
+
+			ValueType Get(const KeyType& key) const
+			{
+				MutexLock l(*_mutex);
+				return _map->Get(key);
+			}
+
+			bool TryGet(const KeyType& key, ValueType& outValue) const
+			{
+				MutexLock l(*_mutex);
+				return _map->TryGet(key, outValue);
+			}
+
+			void BeginTransaction()
+			{
+				MutexLock l(*_mutex);
+				STINGRAYKIT_CHECK(!_hasTransaction, "Another transaction exist!");
+				_hasTransaction = true;
+			}
+
+			void EndTransaction()
+			{
+				MutexLock l(*_mutex);
+				_hasTransaction = false;
+			}
+
+			DictionaryImplPtr GetCopy() const
+			{
+				MutexLock l(*_mutex);
+				return make_shared<DictionaryImpl>(*_map);
+			}
+
+			void Apply(const DictionaryImplPtr& newMap)
+			{
+				STINGRAYKIT_CHECK(newMap, NullArgumentException("newMap"));
+
+				MutexLock l(*_mutex);
+				STINGRAYKIT_CHECK(_hasTransaction, InvalidOperationException("No transaction"));
+
+				const DiffTypePtr diff = Diff(newMap);
+				_map = newMap;
+				_onChanged(diff);
+			}
+
+			DiffTypePtr Diff(const DictionaryImplPtr& newMap)
+			{
+				STINGRAYKIT_CHECK(newMap, NullArgumentException("newMap"));
+
+				typedef std::vector<DiffEntryType> OutDiffContainer;
+				shared_ptr<OutDiffContainer> diff = make_shared<OutDiffContainer>();
+
+				MutexLock l(*_mutex);
+				shared_ptr<IEnumerator<PairType> > old = _map->GetEnumerator();
+				shared_ptr<IEnumerator<PairType> > copy = newMap->GetEnumerator();
+				while (old->Valid() || copy->Valid())
+				{
+					if (!copy->Valid())
+					{
+						diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
+						old->Next();
+					}
+					else if (!old->Valid() || KeyLessComparer()(copy->Get().Key, old->Get().Key))
+					{
+						diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
+						copy->Next();
+					}
+					else if (KeyLessComparer()(old->Get().Key, copy->Get().Key))
+					{
+						diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
+						old->Next();
+					}
+					else // old->Get().Key == copy->Get().Key
+					{
+						if (!ValueEqualsComparer()(old->Get().Value, copy->Get().Value))
+						{
+							// TODO: fix Updated handling
+							//diff->push_back(MakeDiffEntry(CollectionOp::Updated, copy->Get()));
+							diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
+							diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
+						}
+						old->Next();
+						copy->Next();
+					}
+				}
+				return EnumerableFromStlContainer(*diff, diff);
+			}
+
+			signal_connector<void (const DiffTypePtr&)> OnChanged() const
+			{ return _onChanged.connector(); }
+
+			const Mutex& GetSyncRoot() const
+			{ return *_mutex; }
+
+		private:
+			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
+			{ slot(WrapEnumerable(_map, bind(&MakeDiffEntry<PairType>, CollectionOp::Added, _1))); }
+		};
+		STINGRAYKIT_DECLARE_PTR(Impl);
+
+	private:
+		class Transaction : public virtual IDictionaryTransaction<KeyType, ValueType>
+		{
+		private:
+			ImplPtr							_impl;
+			mutable DictionaryImplPtr		_newMap;
+
+		public:
+			explicit Transaction(const ImplPtr& impl)
+				:	_impl(STINGRAYKIT_REQUIRE_NOT_NULL(impl))
+			{ _impl->BeginTransaction(); }
+
+			virtual ~Transaction()
+			{ _impl->EndTransaction(); }
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 			{ return GetCopy()->GetEnumerator(); }
@@ -125,164 +275,70 @@ namespace stingray
 
 			virtual void Commit()
 			{
-				if (!_newMap)
-					return;
+				if (_newMap)
+					_impl->Apply(_newMap);
 
-				signal_locker l(_onChanged);
-				const DiffTypePtr diff = Diff();
-				_wrapped = _newMap;
 				_newMap.reset();
-				_onChanged(diff);
 			}
 
 			virtual void Revert()
 			{ _newMap.reset(); }
 
 			virtual DiffTypePtr Diff() const
-			{
-				if (!_newMap)
-					return MakeEmptyEnumerable();
-
-				typedef std::vector<DiffEntryType> OutDiffContainer;
-				shared_ptr<OutDiffContainer> diff = make_shared<OutDiffContainer>();
-
-				signal_locker l(_onChanged);
-				shared_ptr<IEnumerator<PairType> > old = _wrapped->GetEnumerator();
-				shared_ptr<IEnumerator<PairType> > copy = _newMap->GetEnumerator();
-				while (old->Valid() || copy->Valid())
-				{
-					if (!copy->Valid())
-					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
-						old->Next();
-					}
-					else if (!old->Valid() || KeyLessComparer()(copy->Get().Key, old->Get().Key))
-					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
-						copy->Next();
-					}
-					else if (KeyLessComparer()(old->Get().Key, copy->Get().Key))
-					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
-						old->Next();
-					}
-					else // old->Get().Key == copy->Get().Key
-					{
-						if (!ValueEqualsComparer()(old->Get().Value, copy->Get().Value))
-						{
-							// TODO: fix Updated handling
-							//diff->push_back(MakeDiffEntry(CollectionOp::Updated, copy->Get()));
-							diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
-							diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
-						}
-						old->Next();
-						copy->Next();
-					}
-				}
-				return EnumerableFromStlContainer(*diff, diff);
-			}
+			{ return _newMap ? _impl->Diff(_newMap) : MakeEmptyEnumerable(); }
 
 		private:
 			DictionaryImplPtr GetCopy() const
-			{
-				if (!_newMap)
-				{
-					signal_locker l(_onChanged);
-					_newMap = make_shared<DictionaryImpl>(*_wrapped);
-				}
-				return _newMap;
-			}
+			{ return _newMap ? _newMap : _newMap = _impl->GetCopy(); }
 		};
 		STINGRAYKIT_DECLARE_PTR(Transaction);
 
 	private:
-		shared_ptr<Mutex>											_mutex;
-		DictionaryImplPtr											_wrapped;
-		TransactionWeakPtr											_transaction;
-		signal<void (const DiffTypePtr&), ExternalMutexPointer>		_onChanged;
+		ImplPtr							_impl;
 
 	public:
 		TransactionalDictionary()
-			:	_mutex(make_shared<Mutex>()),
-				_wrapped(make_shared<DictionaryImpl>()),
-				_onChanged(ExternalMutexPointer(_mutex), bind(&TransactionalDictionary::OnChangedPopulator, this, _1))
+			:	_impl(make_shared<Impl>())
 		{ }
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->GetEnumerator();
-		}
+		{ return _impl->GetEnumerator(); }
 
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->Reverse();
-		}
+		{ return _impl->Reverse(); }
 
 		virtual size_t GetCount() const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->GetCount();
-		}
+		{ return _impl->GetCount(); }
 
 		virtual bool IsEmpty() const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->IsEmpty();
-		}
+		{ return _impl->IsEmpty(); }
 
 		virtual bool ContainsKey(const KeyType& key) const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->ContainsKey(key);
-		}
+		{ return _impl->ContainsKey(key); }
 
 		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->Find(key);
-		}
+		{ return _impl->Find(key); }
 
 		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->ReverseFind(key);
-		}
+		{ return _impl->ReverseFind(key); }
 
 		virtual ValueType Get(const KeyType& key) const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->Get(key);
-		}
+		{ return _impl->Get(key); }
 
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-		{
-			signal_locker l(_onChanged);
-			return _wrapped->TryGet(key, outValue);
-		}
+		{ return _impl->TryGet(key, outValue); }
 
-		virtual typename base::TransactionTypePtr StartTransaction()
-		{
-			signal_locker l(_onChanged);
-			STINGRAYKIT_CHECK(_transaction.expired(), "Another transaction exist!");
-			const TransactionPtr tr = make_shared<Transaction>(ref(_wrapped), _onChanged);
-			_transaction = tr;
-			return tr;
-		}
+		virtual TransactionTypePtr StartTransaction()
+		{ return make_shared<Transaction>(_impl); }
 
 		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const
-		{ return _onChanged.connector(); }
+		{ return _impl->OnChanged(); }
 
 		virtual const Mutex& GetSyncRoot() const
-		{ return *_mutex; }
+		{ return _impl->GetSyncRoot(); }
 
 		ObservableCollectionLockerPtr Lock() const
 		{ return make_shared<ObservableCollectionLocker>(*this); }
-
-	private:
-		void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
-		{ slot(WrapEnumerable(_wrapped, bind(&MakeDiffEntry<PairType>, CollectionOp::Added, _1))); }
 	};
 
 	/** @} */
