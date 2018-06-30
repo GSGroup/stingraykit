@@ -9,8 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/EnumerableBuilder.h>
-#include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
+#include <stingraykit/collection/MapDictionary.h>
 #include <stingraykit/signal/signals.h>
 
 namespace stingray
@@ -21,30 +21,37 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename Wrapped_, typename Comparer >
-	class DictionaryTransactionImpl : public virtual IDictionaryTransaction<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
+	template < typename KeyType_, typename ValueType_, typename KeyLessComparer_ = comparers::Less, typename ValueEqualsComparer_ = comparers::Equals >
+	class DictionaryTransactionImpl : public virtual IDictionaryTransaction<KeyType_, ValueType_>
 	{
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
-		typedef IDictionaryTransaction<typename Wrapped_::KeyType, typename Wrapped_::ValueType> base;
-		typedef typename base::KeyType					KeyType;
-		typedef typename base::ValueType				ValueType;
-		typedef typename base::PairType					PairType;
-		typedef typename base::DiffEntryType			DiffEntryType;
-		typedef typename base::DiffTypePtr				DiffTypePtr;
+	public:
+		typedef IDictionaryTransaction<KeyType_, ValueType_>	base;
 
-		typedef shared_ptr<Wrapped_>					WrappedPtr;
+		typedef typename base::KeyType							KeyType;
+		typedef typename base::ValueType						ValueType;
+		typedef typename base::PairType							PairType;
+
+		typedef typename base::DiffEntryType					DiffEntryType;
+		typedef typename base::DiffTypePtr						DiffTypePtr;
+
+		typedef KeyLessComparer_								KeyLessComparer;
+		typedef ValueEqualsComparer_							ValueEqualsComparer;
+
+		typedef MapDictionary<KeyType, ValueType, KeyLessComparer>	 DictionaryImpl;
+		STINGRAYKIT_DECLARE_PTR(DictionaryImpl);
 
 		typedef signal<void(const DiffTypePtr&), ExternalMutexPointer> OnChangedSignalType;
 
 	private:
-		WrappedPtr&						_wrapped;
-		mutable WrappedPtr				_copy;
+		DictionaryImplPtr&				_wrapped;
+		mutable DictionaryImplPtr		_copy;
 		const OnChangedSignalType&		_onChanged;
-		Comparer						_comparer;
+		ValueEqualsComparer				_comparer;
 
 	public:
-		DictionaryTransactionImpl(WrappedPtr& wrapped, const OnChangedSignalType& onChanged)
+		DictionaryTransactionImpl(DictionaryImplPtr& wrapped, const OnChangedSignalType& onChanged)
 			:	_wrapped(wrapped),
 				_onChanged(onChanged)
 		{ }
@@ -173,42 +180,49 @@ namespace stingray
 		}
 
 	private:
-		WrappedPtr GetCopy() const
+		DictionaryImplPtr GetCopy() const
 		{
 			if (!_copy)
 			{
 				signal_locker l(_onChanged);
-				_copy = make_shared<Wrapped_>(*_wrapped);
+				_copy = make_shared<DictionaryImpl>(*_wrapped);
 			}
 			return _copy;
 		}
 	};
 
 
-	template < typename Wrapped_, typename Comparer = comparers::Equals >
-	class TransactionalDictionaryWrapper :
-		public virtual ITransactionalDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
+	template < typename KeyType_, typename ValueType_, typename KeyLessComparer_ = comparers::Less, typename ValueEqualsComparer_ = comparers::Equals >
+	class TransactionalDictionaryWrapper : public virtual ITransactionalDictionary<KeyType_, ValueType_>
 	{
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 	public:
-		typedef typename Wrapped_::KeyType						KeyType;
-		typedef typename Wrapped_::ValueType					ValueType;
-		typedef typename Wrapped_::PairType						PairType;
-		typedef ITransactionalDictionary<KeyType, ValueType>	TransactionalInterface;
-		typedef typename TransactionalInterface::DiffEntryType	DiffEntryType;
-		typedef typename TransactionalInterface::DiffTypePtr	DiffTypePtr;
+		typedef ITransactionalDictionary<KeyType_, ValueType_>	base;
+
+		typedef typename base::KeyType							KeyType;
+		typedef typename base::ValueType						ValueType;
+		typedef typename base::PairType							PairType;
+
+		typedef typename base::DiffEntryType					DiffEntryType;
+		typedef typename base::DiffTypePtr						DiffTypePtr;
+
+		typedef KeyLessComparer_								KeyLessComparer;
+		typedef ValueEqualsComparer_							ValueEqualsComparer;
+
+		typedef MapDictionary<KeyType, ValueType, KeyLessComparer>	 DictionaryImpl;
+		STINGRAYKIT_DECLARE_PTR(DictionaryImpl);
 
 	private:
 		shared_ptr<Mutex>											_mutex;
-		shared_ptr<Wrapped_>										_wrapped;
-		typename TransactionalInterface::TransactionTypeWeakPtr		_transaction;
-		signal<void(const DiffTypePtr&), ExternalMutexPointer>		_onChanged;
+		DictionaryImplPtr											_wrapped;
+		typename base::TransactionTypeWeakPtr						_transaction;
+		signal<void (const DiffTypePtr&), ExternalMutexPointer>		_onChanged;
 
 	public:
 		TransactionalDictionaryWrapper()
 			:	_mutex(make_shared<Mutex>()),
-				_wrapped(make_shared<Wrapped_>()),
+				_wrapped(make_shared<DictionaryImpl>()),
 				_onChanged(ExternalMutexPointer(_mutex), bind(&TransactionalDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
@@ -266,16 +280,16 @@ namespace stingray
 			return _wrapped->TryGet(key, outValue);
 		}
 
-		virtual typename TransactionalInterface::TransactionTypePtr StartTransaction()
+		virtual typename base::TransactionTypePtr StartTransaction()
 		{
 			signal_locker l(_onChanged);
-			STINGRAYKIT_CHECK(!_transaction.lock(), "Another transaction exist!");
-			typename TransactionalInterface::TransactionTypePtr tr = make_shared<DictionaryTransactionImpl<Wrapped_, Comparer> >(ref(_wrapped), _onChanged);
+			STINGRAYKIT_CHECK(_transaction.expired(), "Another transaction exist!");
+			typename base::TransactionTypePtr tr = make_shared<DictionaryTransactionImpl<KeyType, ValueType, KeyLessComparer, ValueEqualsComparer> >(ref(_wrapped), _onChanged);
 			_transaction = tr;
 			return tr;
 		}
 
-		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
+		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const
 		{ return _onChanged.connector(); }
 
 		virtual const Mutex& GetSyncRoot() const
@@ -285,10 +299,10 @@ namespace stingray
 		{ return make_shared<ObservableCollectionLocker>(*this); }
 
 	private:
-		void OnChangedPopulator(const function<void(const DiffTypePtr&)>& slot) const
+		void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
 		{
 			EnumerableBuilder<DiffEntryType> diff;
-			FOR_EACH(PairType p IN GetEnumerator())
+			FOR_EACH(PairType p IN _wrapped->GetEnumerator())
 				diff.Add(DiffEntryType(CollectionOp::Added, p));
 			slot(diff.Get());
 		}
