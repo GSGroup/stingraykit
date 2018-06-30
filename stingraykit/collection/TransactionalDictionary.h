@@ -205,7 +205,7 @@ namespace stingray
 		{
 		private:
 			ImplPtr							_impl;
-			mutable DictionaryImplPtr		_newMap;
+			DictionaryImplPtr				_newMap;
 
 		public:
 			explicit Transaction(const ImplPtr& impl)
@@ -216,50 +216,50 @@ namespace stingray
 			{ _impl->EndTransaction(); }
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-			{ return GetCopy()->GetEnumerator(); }
+			{ return _newMap ? _newMap->GetEnumerator() : _impl->GetEnumerator(); }
 
 			virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-			{ return GetCopy()->Reverse(); }
+			{ return _newMap ? _newMap->Reverse() : _impl->Reverse(); }
 
 			virtual size_t GetCount() const
-			{ return GetCopy()->GetCount(); }
+			{ return _newMap ? _newMap->GetCount() : _impl->GetCount(); }
 
 			virtual bool IsEmpty() const
-			{ return GetCopy()->IsEmpty(); }
+			{ return _newMap ? _newMap->IsEmpty() : _impl->IsEmpty(); }
 
 			virtual bool ContainsKey(const KeyType& key) const
-			{ return GetCopy()->ContainsKey(key); }
+			{ return _newMap ? _newMap->ContainsKey(key) : _impl->ContainsKey(key); }
 
 			virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
-			{ return GetCopy()->Find(key); }
+			{ return _newMap ? _newMap->Find(key) : _impl->Find(key); }
 
 			virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
-			{ return GetCopy()->ReverseFind(key); }
+			{ return _newMap ? _newMap->ReverseFind(key) : _impl->ReverseFind(key); }
 
 			virtual ValueType Get(const KeyType& key) const
-			{ return GetCopy()->Get(key); }
+			{ return _newMap ? _newMap->Get(key) : _impl->Get(key); }
 
 			virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-			{ return GetCopy()->TryGet(key, outValue); }
+			{ return _newMap ? _newMap->TryGet(key, outValue) : _impl->TryGet(key, outValue); }
 
 			virtual void Set(const KeyType& key, const ValueType& value)
-			{ GetCopy()->Set(key, value); }
+			{ CopyOnWrite(); _newMap->Set(key, value); }
 
 			virtual void Remove(const KeyType& key)
-			{ GetCopy()->Remove(key); }
+			{ CopyOnWrite(); _newMap->Remove(key); }
 
 			virtual bool TryRemove(const KeyType& key)
-			{ return GetCopy()->TryRemove(key); }
+			{ CopyOnWrite(); return _newMap->TryRemove(key); }
 
 			virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred)
-			{ return GetCopy()->RemoveWhere(pred); }
+			{ CopyOnWrite(); return _newMap->RemoveWhere(pred); }
 
 			virtual void Clear()
 			{
-				if (_copy)
-					_copy->Clear();
+				if (_newMap)
+					_newMap->Clear();
 				else
-					_copy = make_shared<DictionaryImpl>();
+					_newMap = make_shared<DictionaryImpl>();
 			}
 
 			virtual void Apply(const DiffEntryType& entry)
@@ -293,8 +293,11 @@ namespace stingray
 			{ return _newMap ? _impl->Diff(_newMap) : MakeEmptyEnumerable(); }
 
 		private:
-			DictionaryImplPtr GetCopy() const
-			{ return _newMap ? _newMap : _newMap = _impl->GetCopy(); }
+			void CopyOnWrite()
+			{
+				if (!_newMap)
+					_newMap = _impl->GetCopy();
+			}
 		};
 		STINGRAYKIT_DECLARE_PTR(Transaction);
 
