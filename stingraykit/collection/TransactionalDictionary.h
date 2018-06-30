@@ -11,6 +11,7 @@
 #include <stingraykit/collection/EnumerableBuilder.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/collection/MapDictionary.h>
+#include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/signal/signals.h>
 
@@ -118,6 +119,8 @@ namespace stingray
 
 			void BeginTransaction()
 			{
+				AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), &GetProfilerMessage, TimeDuration::Second(), AsyncProfiler::NameGetterTag());
+
 				MutexLock l(*_mutex);
 
 				while (_hasTransaction)
@@ -210,6 +213,9 @@ namespace stingray
 		private:
 			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
 			{ slot(WrapEnumerable(_map, bind(&MakeDiffEntry<PairType>, CollectionOp::Added, _1))); }
+
+			static std::string GetProfilerMessage()
+			{ return StringBuilder() % "Starting transaction on " % TypeInfo(typeid(TransactionalDictionary)).GetClassName(); }
 		};
 		STINGRAYKIT_DECLARE_PTR(Impl);
 
