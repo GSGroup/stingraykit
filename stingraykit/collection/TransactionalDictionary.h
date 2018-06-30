@@ -299,12 +299,7 @@ namespace stingray
 
 	private:
 		void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
-		{
-			EnumerableBuilder<DiffEntryType> diff;
-			FOR_EACH(PairType p IN _wrapped->GetEnumerator())
-				diff.Add(DiffEntryType(CollectionOp::Added, p));
-			slot(diff.Get());
-		}
+		{ slot(WrapEnumerable(_wrapped, bind(&MakeDiffEntry<PairType>, CollectionOp::Added, _1))); }
 	};
 
 	/** @} */
