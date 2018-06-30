@@ -255,7 +255,12 @@ namespace stingray
 			{ return GetCopy()->RemoveWhere(pred); }
 
 			virtual void Clear()
-			{ GetCopy()->Clear(); }
+			{
+				if (_copy)
+					_copy->Clear();
+				else
+					_copy = make_shared<DictionaryImpl>();
+			}
 
 			virtual void Apply(const DiffEntryType& entry)
 			{
