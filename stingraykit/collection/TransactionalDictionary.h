@@ -48,7 +48,6 @@ namespace stingray
 		DictionaryImplPtr&				_wrapped;
 		mutable DictionaryImplPtr		_copy;
 		const OnChangedSignalType&		_onChanged;
-		ValueEqualsComparer				_comparer;
 
 	public:
 		DictionaryTransactionImpl(DictionaryImplPtr& wrapped, const OnChangedSignalType& onChanged)
@@ -153,19 +152,19 @@ namespace stingray
 					diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
 					old->Next();
 				}
-				else if (!old->Valid() || old->Get().Key > copy->Get().Key)
+				else if (!old->Valid() || KeyLessComparer()(copy->Get().Key, old->Get().Key))
 				{
 					diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
 					copy->Next();
 				}
-				else if (old->Get().Key < copy->Get().Key)
+				else if (KeyLessComparer()(old->Get().Key, copy->Get().Key))
 				{
 					diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
 					old->Next();
 				}
 				else // old->Get().Key == copy->Get().Key
 				{
-					if (!_comparer(old->Get().Value, copy->Get().Value))
+					if (!ValueEqualsComparer()(old->Get().Value, copy->Get().Value))
 					{
 						// TODO: fix Updated handling
 						//diff->push_back(MakeDiffEntry(CollectionOp::Updated, copy->Get()));
