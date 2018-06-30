@@ -179,7 +179,7 @@ namespace stingray
 
 		void CopyOnWrite()
 		{
-			if (_itemsHolder.lock())
+			if (!_itemsHolder.expired())
 				CopyItems(_items);
 		}
 	};

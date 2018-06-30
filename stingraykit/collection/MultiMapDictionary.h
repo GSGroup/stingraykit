@@ -221,7 +221,7 @@ namespace stingray
 
 		void CopyOnWrite()
 		{
-			if (_mapHolder.lock())
+			if (!_mapHolder.expired())
 				CopyMap(_map);
 		}
 
