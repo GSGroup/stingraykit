@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_COLLECTION_TRANSACTIONALDICTIONARYWRAPPER_H
-#define STINGRAYKIT_COLLECTION_TRANSACTIONALDICTIONARYWRAPPER_H
+#ifndef STINGRAYKIT_COLLECTION_TRANSACTIONALDICTIONARY_H
+#define STINGRAYKIT_COLLECTION_TRANSACTIONALDICTIONARY_H
 
 // Copyright (c) 2011 - 2017, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -193,7 +193,7 @@ namespace stingray
 
 
 	template < typename KeyType_, typename ValueType_, typename KeyLessComparer_ = comparers::Less, typename ValueEqualsComparer_ = comparers::Equals >
-	class TransactionalDictionaryWrapper : public virtual ITransactionalDictionary<KeyType_, ValueType_>
+	class TransactionalDictionary : public virtual ITransactionalDictionary<KeyType_, ValueType_>
 	{
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
@@ -220,10 +220,10 @@ namespace stingray
 		signal<void (const DiffTypePtr&), ExternalMutexPointer>		_onChanged;
 
 	public:
-		TransactionalDictionaryWrapper()
+		TransactionalDictionary()
 			:	_mutex(make_shared<Mutex>()),
 				_wrapped(make_shared<DictionaryImpl>()),
-				_onChanged(ExternalMutexPointer(_mutex), bind(&TransactionalDictionaryWrapper::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), bind(&TransactionalDictionary::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
