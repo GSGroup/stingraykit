@@ -39,32 +39,32 @@ namespace stingray
 
 
 	template < typename KeyType_, typename ValueType_ >
-	struct ITransactionalDictionary :
-		public virtual IReadonlyDictionary<KeyType_, ValueType_>
+	struct IReadonlyTransactionalDictionary : public virtual IReadonlyDictionary<KeyType_, ValueType_>
 	{
 		typedef IReadonlyDictionary<KeyType_, ValueType_>	base;
-		typedef typename base::PairType						PairType;
-
-		typedef DiffEntry<PairType>							DiffEntryType;
+		typedef DiffEntry<typename base::PairType>			DiffEntryType;
 		typedef IEnumerable<DiffEntryType>					DiffType;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
-		typedef IDictionaryTransaction<KeyType_, ValueType_> TransactionType;
-		STINGRAYKIT_DECLARE_PTR(TransactionType);
-
-		virtual TransactionTypePtr StartTransaction() = 0;
-
-		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const = 0;
+		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const = 0;
 		virtual const Mutex& GetSyncRoot() const = 0;
 
 		ObservableCollectionLockerPtr Lock() const
 		{ return make_shared<ObservableCollectionLocker>(*this); }
 	};
 
+
+	template < typename KeyType_, typename ValueType_ >
+	struct ITransactionalDictionary : public virtual IReadonlyTransactionalDictionary<KeyType_, ValueType_>
+	{
+		typedef IDictionaryTransaction<KeyType_, ValueType_> TransactionType;
+		STINGRAYKIT_DECLARE_PTR(TransactionType);
+
+		virtual TransactionTypePtr StartTransaction() = 0;
+	};
+
 	/** @} */
 
 }
 
-
 #endif
-
