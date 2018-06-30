@@ -11,6 +11,7 @@
 #include <stingraykit/collection/EnumerableBuilder.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/collection/MapDictionary.h>
+#include <stingraykit/log/Logger.h>
 #include <stingraykit/signal/signals.h>
 
 namespace stingray
@@ -50,6 +51,7 @@ namespace stingray
 			shared_ptr<Mutex>											_mutex;
 			DictionaryImplPtr											_map;
 			bool														_hasTransaction;
+			ConditionVariable											_transactionCompleted;
 			signal<void (const DiffTypePtr&), ExternalMutexPointer>		_onChanged;
 
 		public:
@@ -117,7 +119,17 @@ namespace stingray
 			void BeginTransaction()
 			{
 				MutexLock l(*_mutex);
-				STINGRAYKIT_CHECK(!_hasTransaction, "Another transaction exist!");
+
+				while (_hasTransaction)
+				{
+					switch (_transactionCompleted.Wait(*_mutex, DummyCancellationToken()))
+					{
+					case ConditionWaitResult::Broadcasted:	continue;
+					case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
+					case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
+					}
+				}
+
 				_hasTransaction = true;
 			}
 
@@ -125,6 +137,7 @@ namespace stingray
 			{
 				MutexLock l(*_mutex);
 				_hasTransaction = false;
+				_transactionCompleted.Broadcast();
 			}
 
 			DictionaryImplPtr GetCopy() const
@@ -213,7 +226,7 @@ namespace stingray
 			{ _impl->BeginTransaction(); }
 
 			virtual ~Transaction()
-			{ _impl->EndTransaction(); }
+			{ STINGRAYKIT_TRY_NO_MESSAGE(_impl->EndTransaction()); }
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 			{ return _newMap ? _newMap->GetEnumerator() : _impl->GetEnumerator(); }
