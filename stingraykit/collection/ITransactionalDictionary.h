@@ -60,7 +60,7 @@ namespace stingray
 		typedef IDictionaryTransaction<KeyType_, ValueType_> TransactionType;
 		STINGRAYKIT_DECLARE_PTR(TransactionType);
 
-		virtual TransactionTypePtr StartTransaction() = 0;
+		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) = 0;
 	};
 
 	/** @} */

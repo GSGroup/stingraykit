@@ -117,7 +117,7 @@ namespace stingray
 				return _map->TryGet(key, outValue);
 			}
 
-			void BeginTransaction()
+			void BeginTransaction(const ICancellationToken& token)
 			{
 				AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), &GetProfilerMessage, TimeDuration::Second(), AsyncProfiler::NameGetterTag());
 
@@ -125,7 +125,7 @@ namespace stingray
 
 				while (_hasTransaction)
 				{
-					switch (_transactionCompleted.Wait(*_mutex, DummyCancellationToken()))
+					switch (_transactionCompleted.Wait(*_mutex, token))
 					{
 					case ConditionWaitResult::Broadcasted:	continue;
 					case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
@@ -227,9 +227,9 @@ namespace stingray
 			DictionaryImplPtr				_newMap;
 
 		public:
-			explicit Transaction(const ImplPtr& impl)
+			Transaction(const ImplPtr& impl, const ICancellationToken& token)
 				:	_impl(STINGRAYKIT_REQUIRE_NOT_NULL(impl))
-			{ _impl->BeginTransaction(); }
+			{ _impl->BeginTransaction(token); }
 
 			virtual ~Transaction()
 			{ STINGRAYKIT_TRY_NO_MESSAGE(_impl->EndTransaction()); }
@@ -355,8 +355,8 @@ namespace stingray
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
 		{ return _impl->TryGet(key, outValue); }
 
-		virtual TransactionTypePtr StartTransaction()
-		{ return make_shared<Transaction>(_impl); }
+		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken())
+		{ return make_shared<Transaction>(_impl, token); }
 
 		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const
 		{ return _impl->OnChanged(); }
