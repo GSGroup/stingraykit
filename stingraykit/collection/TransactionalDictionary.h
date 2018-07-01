@@ -117,7 +117,7 @@ namespace stingray
 				return _map->TryGet(key, outValue);
 			}
 
-			void BeginTransaction(const ICancellationToken& token)
+			DictionaryImplPtr BeginTransaction(const ICancellationToken& token)
 			{
 				AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), &GetProfilerMessage, TimeDuration::Second(), AsyncProfiler::NameGetterTag());
 
@@ -134,6 +134,7 @@ namespace stingray
 				}
 
 				_hasTransaction = true;
+				return _map;
 			}
 
 			void EndTransaction()
@@ -141,12 +142,6 @@ namespace stingray
 				MutexLock l(*_mutex);
 				_hasTransaction = false;
 				_transactionCompleted.Broadcast();
-			}
-
-			DictionaryImplPtr GetCopy() const
-			{
-				MutexLock l(*_mutex);
-				return make_shared<DictionaryImpl>(*_map);
 			}
 
 			void Apply(const DictionaryImplPtr& newMap)
@@ -224,42 +219,44 @@ namespace stingray
 		{
 		private:
 			ImplPtr							_impl;
+			DictionaryImplPtr				_oldMap;
 			DictionaryImplPtr				_newMap;
 
 		public:
 			Transaction(const ImplPtr& impl, const ICancellationToken& token)
-				:	_impl(STINGRAYKIT_REQUIRE_NOT_NULL(impl))
-			{ _impl->BeginTransaction(token); }
+				:	_impl(STINGRAYKIT_REQUIRE_NOT_NULL(impl)),
+					_oldMap(_impl->BeginTransaction(token))
+			{ }
 
 			virtual ~Transaction()
 			{ STINGRAYKIT_TRY_NO_MESSAGE(_impl->EndTransaction()); }
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-			{ return _newMap ? _newMap->GetEnumerator() : _impl->GetEnumerator(); }
+			{ return _newMap ? _newMap->GetEnumerator() : _oldMap->GetEnumerator(); }
 
 			virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-			{ return _newMap ? _newMap->Reverse() : _impl->Reverse(); }
+			{ return _newMap ? _newMap->Reverse() : _oldMap->Reverse(); }
 
 			virtual size_t GetCount() const
-			{ return _newMap ? _newMap->GetCount() : _impl->GetCount(); }
+			{ return _newMap ? _newMap->GetCount() : _oldMap->GetCount(); }
 
 			virtual bool IsEmpty() const
-			{ return _newMap ? _newMap->IsEmpty() : _impl->IsEmpty(); }
+			{ return _newMap ? _newMap->IsEmpty() : _oldMap->IsEmpty(); }
 
 			virtual bool ContainsKey(const KeyType& key) const
-			{ return _newMap ? _newMap->ContainsKey(key) : _impl->ContainsKey(key); }
+			{ return _newMap ? _newMap->ContainsKey(key) : _oldMap->ContainsKey(key); }
 
 			virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
-			{ return _newMap ? _newMap->Find(key) : _impl->Find(key); }
+			{ return _newMap ? _newMap->Find(key) : _oldMap->Find(key); }
 
 			virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
-			{ return _newMap ? _newMap->ReverseFind(key) : _impl->ReverseFind(key); }
+			{ return _newMap ? _newMap->ReverseFind(key) : _oldMap->ReverseFind(key); }
 
 			virtual ValueType Get(const KeyType& key) const
-			{ return _newMap ? _newMap->Get(key) : _impl->Get(key); }
+			{ return _newMap ? _newMap->Get(key) : _oldMap->Get(key); }
 
 			virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-			{ return _newMap ? _newMap->TryGet(key, outValue) : _impl->TryGet(key, outValue); }
+			{ return _newMap ? _newMap->TryGet(key, outValue) : _oldMap->TryGet(key, outValue); }
 
 			virtual void Set(const KeyType& key, const ValueType& value)
 			{ CopyOnWrite(); _newMap->Set(key, value); }
@@ -315,7 +312,7 @@ namespace stingray
 			void CopyOnWrite()
 			{
 				if (!_newMap)
-					_newMap = _impl->GetCopy();
+					_newMap = make_shared<DictionaryImpl>(*_oldMap);
 			}
 		};
 		STINGRAYKIT_DECLARE_PTR(Transaction);
