@@ -46,6 +46,54 @@ namespace stingray
 		STINGRAYKIT_DECLARE_PTR(DictionaryImpl);
 
 	private:
+		struct Utils
+		{
+			static DiffTypePtr Diff(const DictionaryImplPtr& oldMap, const DictionaryImplPtr& newMap)
+			{
+				STINGRAYKIT_CHECK(oldMap, NullArgumentException("oldMap"));
+				STINGRAYKIT_CHECK(newMap, NullArgumentException("newMap"));
+
+				const shared_ptr<std::vector<DiffEntryType> > diff = make_shared<std::vector<DiffEntryType> >();
+
+				const shared_ptr<IEnumerator<PairType> > oldEn = oldMap->GetEnumerator();
+				const shared_ptr<IEnumerator<PairType> > newEn = newMap->GetEnumerator();
+
+				while (oldEn->Valid() || newEn->Valid())
+				{
+					if (!newEn->Valid())
+					{
+						diff->push_back(MakeDiffEntry(CollectionOp::Removed, oldEn->Get()));
+						oldEn->Next();
+					}
+					else if (!oldEn->Valid() || KeyLessComparer()(newEn->Get().Key, oldEn->Get().Key))
+					{
+						diff->push_back(MakeDiffEntry(CollectionOp::Added, newEn->Get()));
+						newEn->Next();
+					}
+					else if (KeyLessComparer()(oldEn->Get().Key, newEn->Get().Key))
+					{
+						diff->push_back(MakeDiffEntry(CollectionOp::Removed, oldEn->Get()));
+						oldEn->Next();
+					}
+					else // oldEn->Get().Key == newEn->Get().Key
+					{
+						if (!ValueEqualsComparer()(oldEn->Get().Value, newEn->Get().Value))
+						{
+							// TODO: fix Updated handling
+							//diff->push_back(MakeDiffEntry(CollectionOp::Updated, newEn->Get()));
+							diff->push_back(MakeDiffEntry(CollectionOp::Removed, oldEn->Get()));
+							diff->push_back(MakeDiffEntry(CollectionOp::Added, newEn->Get()));
+						}
+						oldEn->Next();
+						newEn->Next();
+					}
+				}
+
+				return EnumerableFromStlContainer(*diff, diff);
+			}
+		};
+
+	private:
 		class Impl
 		{
 		private:
@@ -151,52 +199,9 @@ namespace stingray
 				MutexLock l(*_mutex);
 				STINGRAYKIT_CHECK(_hasTransaction, InvalidOperationException("No transaction"));
 
-				const DiffTypePtr diff = Diff(newMap);
+				const DiffTypePtr diff = Utils::Diff(_map, newMap);
 				_map = newMap;
 				_onChanged(diff);
-			}
-
-			DiffTypePtr Diff(const DictionaryImplPtr& newMap)
-			{
-				STINGRAYKIT_CHECK(newMap, NullArgumentException("newMap"));
-
-				typedef std::vector<DiffEntryType> OutDiffContainer;
-				shared_ptr<OutDiffContainer> diff = make_shared<OutDiffContainer>();
-
-				MutexLock l(*_mutex);
-				shared_ptr<IEnumerator<PairType> > old = _map->GetEnumerator();
-				shared_ptr<IEnumerator<PairType> > copy = newMap->GetEnumerator();
-				while (old->Valid() || copy->Valid())
-				{
-					if (!copy->Valid())
-					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
-						old->Next();
-					}
-					else if (!old->Valid() || KeyLessComparer()(copy->Get().Key, old->Get().Key))
-					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
-						copy->Next();
-					}
-					else if (KeyLessComparer()(old->Get().Key, copy->Get().Key))
-					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
-						old->Next();
-					}
-					else // old->Get().Key == copy->Get().Key
-					{
-						if (!ValueEqualsComparer()(old->Get().Value, copy->Get().Value))
-						{
-							// TODO: fix Updated handling
-							//diff->push_back(MakeDiffEntry(CollectionOp::Updated, copy->Get()));
-							diff->push_back(MakeDiffEntry(CollectionOp::Removed, old->Get()));
-							diff->push_back(MakeDiffEntry(CollectionOp::Added, copy->Get()));
-						}
-						old->Next();
-						copy->Next();
-					}
-				}
-				return EnumerableFromStlContainer(*diff, diff);
 			}
 
 			signal_connector<void (const DiffTypePtr&)> OnChanged() const
@@ -306,7 +311,7 @@ namespace stingray
 			{ _newMap.reset(); }
 
 			virtual DiffTypePtr Diff() const
-			{ return _newMap ? _impl->Diff(_newMap) : MakeEmptyEnumerable(); }
+			{ return _newMap ? Utils::Diff(_oldMap, _newMap) : MakeEmptyEnumerable(); }
 
 		private:
 			void CopyOnWrite()
