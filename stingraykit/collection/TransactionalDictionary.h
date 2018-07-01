@@ -192,14 +192,14 @@ namespace stingray
 				_transactionCompleted.Broadcast();
 			}
 
-			void Apply(const DictionaryImplPtr& newMap)
+			void Apply(const DictionaryImplPtr& newMap, const DiffTypePtr& diff)
 			{
 				STINGRAYKIT_CHECK(newMap, NullArgumentException("newMap"));
+				STINGRAYKIT_CHECK(diff, NullArgumentException("diff"));
 
 				MutexLock l(*_mutex);
 				STINGRAYKIT_CHECK(_hasTransaction, InvalidOperationException("No transaction"));
 
-				const DiffTypePtr diff = Utils::Diff(_map, newMap);
 				_map = newMap;
 				_onChanged(diff);
 			}
@@ -226,6 +226,7 @@ namespace stingray
 			ImplPtr							_impl;
 			DictionaryImplPtr				_oldMap;
 			DictionaryImplPtr				_newMap;
+			mutable DiffTypePtr				_cachedDiff;
 
 		public:
 			Transaction(const ImplPtr& impl, const ICancellationToken& token)
@@ -277,6 +278,8 @@ namespace stingray
 
 			virtual void Clear()
 			{
+				_cachedDiff.reset();
+
 				if (_newMap)
 					_newMap->Clear();
 				else
@@ -302,20 +305,31 @@ namespace stingray
 			virtual void Commit()
 			{
 				if (_newMap)
-					_impl->Apply(_newMap);
+					_impl->Apply(_newMap, _cachedDiff ? _cachedDiff : Utils::Diff(_oldMap, _newMap));
 
+				_cachedDiff.reset();
 				_newMap.reset();
 			}
 
 			virtual void Revert()
-			{ _newMap.reset(); }
+			{
+				_cachedDiff.reset();
+				_newMap.reset();
+			}
 
 			virtual DiffTypePtr Diff() const
-			{ return _newMap ? Utils::Diff(_oldMap, _newMap) : MakeEmptyEnumerable(); }
+			{
+				if (_cachedDiff)
+					return _cachedDiff;
+
+				return _newMap ? _cachedDiff = Utils::Diff(_oldMap, _newMap) : MakeEmptyEnumerable();
+			}
 
 		private:
 			void CopyOnWrite()
 			{
+				_cachedDiff.reset();
+
 				if (!_newMap)
 					_newMap = make_shared<DictionaryImpl>(*_oldMap);
 			}
