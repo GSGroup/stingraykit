@@ -97,9 +97,24 @@ namespace stingray
 		class Impl
 		{
 		private:
+			class Waiter
+			{
+			private:
+				Impl&	_parent;
+
+			public:
+				Waiter(Impl& parent) : _parent(parent)
+				{ ++_parent._transactionWaiters; }
+
+				~Waiter()
+				{ --_parent._transactionWaiters; }
+			};
+
+		private:
 			shared_ptr<Mutex>											_mutex;
 			DictionaryImplPtr											_map;
 			bool														_hasTransaction;
+			size_t														_transactionWaiters;
 			ConditionVariable											_transactionCompleted;
 			signal<void (const DiffTypePtr&), ExternalMutexPointer>		_onChanged;
 
@@ -108,6 +123,7 @@ namespace stingray
 				:	_mutex(make_shared<Mutex>()),
 					_map(make_shared<DictionaryImpl>()),
 					_hasTransaction(false),
+					_transactionWaiters(0),
 					_onChanged(ExternalMutexPointer(_mutex), bind(&Impl::OnChangedPopulator, this, _1))
 			{ }
 
@@ -173,6 +189,8 @@ namespace stingray
 
 				while (_hasTransaction)
 				{
+					Waiter waiter(*this);
+
 					switch (_transactionCompleted.Wait(*_mutex, token))
 					{
 					case ConditionWaitResult::Broadcasted:	continue;
@@ -189,7 +207,8 @@ namespace stingray
 			{
 				MutexLock l(*_mutex);
 				_hasTransaction = false;
-				_transactionCompleted.Broadcast();
+				if (_transactionWaiters != 0)
+					_transactionCompleted.Broadcast();
 			}
 
 			void Apply(const DictionaryImplPtr& newMap, const DiffTypePtr& diff)
