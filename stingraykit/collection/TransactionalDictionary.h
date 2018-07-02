@@ -183,12 +183,15 @@ namespace stingray
 
 			DictionaryImplPtr BeginTransaction(const ICancellationToken& token)
 			{
-				AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), &GetProfilerMessage, TimeDuration::Second(), AsyncProfiler::NameGetterTag());
+				optional<AsyncProfiler::Session> profilerSession;
 
 				MutexLock l(*_mutex);
 
 				while (_hasTransaction)
 				{
+					if (!profilerSession)
+						profilerSession.emplace(ExecutorsProfiler::Instance().GetProfiler(), &GetProfilerMessage, TimeDuration::Second(), AsyncProfiler::NameGetterTag());
+
 					Waiter waiter(*this);
 
 					switch (_transactionCompleted.Wait(*_mutex, token))
