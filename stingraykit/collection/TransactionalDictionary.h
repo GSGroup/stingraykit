@@ -91,6 +91,9 @@ namespace stingray
 
 				return EnumerableFromStlContainer(*diff, diff);
 			}
+
+			static std::string GetProfilerMessage()
+			{ return StringBuilder() % "Starting transaction on " % TypeInfo(typeid(TransactionalDictionary)).GetClassName(); }
 		};
 
 	private:
@@ -110,54 +113,9 @@ namespace stingray
 					OnChanged(ExternalMutexPointer(Guard), bind(&ImplData::OnChangedPopulator, this, _1))
 			{ }
 
-			DictionaryImplPtr BeginTransaction(const ICancellationToken& token)
-			{
-				optional<AsyncProfiler::Session> profilerSession;
-
-				MutexLock l(*Guard);
-
-				while (HasTransaction)
-				{
-					if (!profilerSession)
-						profilerSession.emplace(ExecutorsProfiler::Instance().GetProfiler(), &GetProfilerMessage, TimeDuration::Second(), AsyncProfiler::NameGetterTag());
-
-					switch (TransactionCompleted.Wait(*Guard, token))
-					{
-					case ConditionWaitResult::Broadcasted:	continue;
-					case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
-					case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
-					}
-				}
-
-				HasTransaction = true;
-				return Map;
-			}
-
-			void EndTransaction()
-			{
-				MutexLock l(*Guard);
-				HasTransaction = false;
-				TransactionCompleted.Broadcast();
-			}
-
-			void Apply(const DictionaryImplPtr& newMap, const DiffTypePtr& diff)
-			{
-				STINGRAYKIT_CHECK(newMap, NullArgumentException("newMap"));
-				STINGRAYKIT_CHECK(diff, NullArgumentException("diff"));
-
-				MutexLock l(*Guard);
-				STINGRAYKIT_CHECK(HasTransaction, InvalidOperationException("No transaction"));
-
-				Map = newMap;
-				OnChanged(diff);
-			}
-
 		private:
 			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
 			{ slot(WrapEnumerable(Map, bind(&MakeDiffEntry<PairType>, CollectionOp::Added, _1))); }
-
-			static std::string GetProfilerMessage()
-			{ return StringBuilder() % "Starting transaction on " % TypeInfo(typeid(TransactionalDictionary)).GetClassName(); }
 		};
 		STINGRAYKIT_DECLARE_PTR(ImplData);
 
@@ -172,12 +130,35 @@ namespace stingray
 
 		public:
 			Transaction(const ImplDataPtr& impl, const ICancellationToken& token)
-				:	_impl(STINGRAYKIT_REQUIRE_NOT_NULL(impl)),
-					_oldMap(_impl->BeginTransaction(token))
-			{ }
+				:	_impl(STINGRAYKIT_REQUIRE_NOT_NULL(impl))
+			{
+				optional<AsyncProfiler::Session> profilerSession;
+
+				MutexLock l(*_impl->Guard);
+
+				while (_impl->HasTransaction)
+				{
+					if (!profilerSession)
+						profilerSession.emplace(ExecutorsProfiler::Instance().GetProfiler(), &Utils::GetProfilerMessage, TimeDuration::Second(), AsyncProfiler::NameGetterTag());
+
+					switch (_impl->TransactionCompleted.Wait(*_impl->Guard, token))
+					{
+					case ConditionWaitResult::Broadcasted:	continue;
+					case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
+					case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
+					}
+				}
+
+				_impl->HasTransaction = true;
+				_oldMap = _impl->Map;
+			}
 
 			virtual ~Transaction()
-			{ STINGRAYKIT_TRY_NO_MESSAGE(_impl->EndTransaction()); }
+			{
+				MutexLock l(*_impl->Guard);
+				_impl->HasTransaction = false;
+				STINGRAYKIT_TRY_NO_MESSAGE(_impl->TransactionCompleted.Broadcast());
+			}
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 			{ return _newMap ? _newMap->GetEnumerator() : _oldMap->GetEnumerator(); }
@@ -247,7 +228,13 @@ namespace stingray
 			virtual void Commit()
 			{
 				if (_newMap)
-					_impl->Apply(_newMap, _cachedDiff ? _cachedDiff : Utils::Diff(_oldMap, _newMap));
+				{
+					const DiffTypePtr diff = _cachedDiff ? _cachedDiff : Utils::Diff(_oldMap, _newMap);
+
+					MutexLock l(*_impl->Guard);
+					_impl->Map = _newMap;
+					_impl->OnChanged(diff);
+				}
 
 				_cachedDiff.reset();
 				_newMap.reset();
