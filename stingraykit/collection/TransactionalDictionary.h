@@ -8,9 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/EnumerableBuilder.h>
+#include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
-#include <stingraykit/collection/MapDictionary.h>
+#include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/signal/signals.h>
@@ -42,50 +42,58 @@ namespace stingray
 		typedef KeyLessComparer_								KeyLessComparer;
 		typedef ValueEqualsComparer_							ValueEqualsComparer;
 
-		typedef MapDictionary<KeyType, ValueType, KeyLessComparer>	 DictionaryImpl;
-		STINGRAYKIT_DECLARE_PTR(DictionaryImpl);
-
 	private:
+		typedef std::map<KeyType, ValueType, KeyLessComparer>	MapType;
+		STINGRAYKIT_DECLARE_PTR(MapType);
+
 		struct Utils
 		{
-			static DiffTypePtr Diff(const DictionaryImplPtr& oldMap, const DictionaryImplPtr& newMap)
+			static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
+			{ return make_shared<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
+
+			static DiffEntryType MakeDiffEntry(CollectionOp op, const typename MapType::value_type& pair)
+			{ return stingray::MakeDiffEntry(op, PairType(pair)); }
+
+			static DiffTypePtr MakeDiff(const MapTypePtr& oldMap, const MapTypePtr& newMap)
 			{
-				STINGRAYKIT_CHECK(oldMap, NullArgumentException("oldMap"));
-				STINGRAYKIT_CHECK(newMap, NullArgumentException("newMap"));
+				typedef typename MapType::const_iterator cit;
 
 				const shared_ptr<std::vector<DiffEntryType> > diff = make_shared<std::vector<DiffEntryType> >();
 
-				const shared_ptr<IEnumerator<PairType> > oldEn = oldMap->GetEnumerator();
-				const shared_ptr<IEnumerator<PairType> > newEn = newMap->GetEnumerator();
+				const cit oldEnd = oldMap->end();
+				const cit newEnd = newMap->end();
 
-				while (oldEn->Valid() || newEn->Valid())
+				cit oldIt = oldMap->begin();
+				cit newIt = newMap->begin();
+
+				while (oldIt != oldEnd || newIt != newEnd)
 				{
-					if (!newEn->Valid())
+					if (newIt == newEnd)
 					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Removed, oldEn->Get()));
-						oldEn->Next();
+						diff->push_back(MakeDiffEntry(CollectionOp::Removed, *oldIt));
+						++oldIt;
 					}
-					else if (!oldEn->Valid() || KeyLessComparer()(newEn->Get().Key, oldEn->Get().Key))
+					else if (oldIt == oldEnd || KeyLessComparer()(newIt->first, oldIt->first))
 					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Added, newEn->Get()));
-						newEn->Next();
+						diff->push_back(MakeDiffEntry(CollectionOp::Added, *newIt));
+						++newIt;
 					}
-					else if (KeyLessComparer()(oldEn->Get().Key, newEn->Get().Key))
+					else if (KeyLessComparer()(oldIt->first, newIt->first))
 					{
-						diff->push_back(MakeDiffEntry(CollectionOp::Removed, oldEn->Get()));
-						oldEn->Next();
+						diff->push_back(MakeDiffEntry(CollectionOp::Removed, *oldIt));
+						++oldIt;
 					}
-					else // oldEn->Get().Key == newEn->Get().Key
+					else // oldIt->first == newIt->first
 					{
-						if (!ValueEqualsComparer()(oldEn->Get().Value, newEn->Get().Value))
+						if (!ValueEqualsComparer()(oldIt->second, newIt->second))
 						{
 							// TODO: fix Updated handling
-							//diff->push_back(MakeDiffEntry(CollectionOp::Updated, newEn->Get()));
-							diff->push_back(MakeDiffEntry(CollectionOp::Removed, oldEn->Get()));
-							diff->push_back(MakeDiffEntry(CollectionOp::Added, newEn->Get()));
+							//diff->push_back(MakeDiffEntry(CollectionOp::Updated, *newIt));
+							diff->push_back(MakeDiffEntry(CollectionOp::Removed, *oldIt));
+							diff->push_back(MakeDiffEntry(CollectionOp::Added, *newIt));
 						}
-						oldEn->Next();
-						newEn->Next();
+						++oldIt;
+						++newIt;
 					}
 				}
 
@@ -96,11 +104,27 @@ namespace stingray
 			{ return StringBuilder() % "Starting transaction on " % TypeInfo(typeid(TransactionalDictionary)).GetClassName(); }
 		};
 
-	private:
+		struct Holder
+		{
+			MapTypePtr		Map;
+			Holder(const MapTypePtr& map) : Map(map) { }
+		};
+		STINGRAYKIT_DECLARE_PTR(Holder);
+
+		struct ReverseEnumerable : public virtual IEnumerable<PairType>
+		{
+			HolderPtr		_holder;
+
+			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
+
+			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+			{ return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
+		};
+
 		struct ImplData
 		{
 			shared_ptr<Mutex>											Guard;
-			DictionaryImplPtr											Map;
+			MapTypePtr													Map;
 			bool														HasTransaction;
 			ConditionVariable											TransactionCompleted;
 			signal<void (const DiffTypePtr&), ExternalMutexPointer>		OnChanged;
@@ -108,24 +132,24 @@ namespace stingray
 		public:
 			ImplData()
 				:	Guard(make_shared<Mutex>()),
-					Map(make_shared<DictionaryImpl>()),
+					Map(make_shared<MapType>()),
 					HasTransaction(false),
 					OnChanged(ExternalMutexPointer(Guard), bind(&ImplData::OnChangedPopulator, this, _1))
 			{ }
 
 		private:
 			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
-			{ slot(WrapEnumerable(Map, bind(&MakeDiffEntry<PairType>, CollectionOp::Added, _1))); }
+			{ slot(WrapEnumerable(EnumerableFromStlContainer(*Map, Map), bind(&Utils::MakeDiffEntry, CollectionOp::Added, _1))); }
 		};
 		STINGRAYKIT_DECLARE_PTR(ImplData);
 
-	private:
 		class Transaction : public virtual IDictionaryTransaction<KeyType, ValueType>
 		{
 		private:
 			ImplDataPtr						_impl;
-			DictionaryImplPtr				_oldMap;
-			DictionaryImplPtr				_newMap;
+			MapTypePtr						_oldMap;
+			MapTypePtr						_newMap;
+			mutable HolderWeakPtr			_newMapHolder;
 			mutable DiffTypePtr				_cachedDiff;
 
 		public:
@@ -161,52 +185,128 @@ namespace stingray
 			}
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
-			{ return _newMap ? _newMap->GetEnumerator() : _oldMap->GetEnumerator(); }
+			{
+				const HolderPtr holder = GetMapHolder();
+				return Utils::WrapMapEnumerator(EnumeratorFromStlContainer(*holder->Map, holder));
+			}
 
 			virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-			{ return _newMap ? _newMap->Reverse() : _oldMap->Reverse(); }
+			{ return make_shared<ReverseEnumerable>(GetMapHolder()); }
 
 			virtual size_t GetCount() const
-			{ return _newMap ? _newMap->GetCount() : _oldMap->GetCount(); }
+			{ return _newMap ? _newMap->size() : _oldMap->size(); }
 
 			virtual bool IsEmpty() const
-			{ return _newMap ? _newMap->IsEmpty() : _oldMap->IsEmpty(); }
+			{ return _newMap ? _newMap->empty() : _oldMap->empty(); }
 
 			virtual bool ContainsKey(const KeyType& key) const
-			{ return _newMap ? _newMap->ContainsKey(key) : _oldMap->ContainsKey(key); }
+			{
+				const MapType& map = _newMap ? *_newMap : *_oldMap;
+				return map.find(key) != map.end();
+			}
 
 			virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
-			{ return _newMap ? _newMap->Find(key) : _oldMap->Find(key); }
+			{
+				typedef typename MapType::const_iterator cit;
+
+				const HolderPtr holder = GetMapHolder();
+
+				const cit it = holder->Map->find(key);
+				if (it == holder->Map->end())
+					return MakeEmptyEnumerator();
+
+				return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(holder->Map->end()), holder));
+			}
 
 			virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
-			{ return _newMap ? _newMap->ReverseFind(key) : _oldMap->ReverseFind(key); }
+			{
+				typedef typename MapType::const_reverse_iterator cri;
+
+				const HolderPtr holder = GetMapHolder();
+
+				typename MapType::const_iterator it = holder->Map->find(key);
+				if (it == holder->Map->end())
+					return MakeEmptyEnumerator();
+
+				return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(cri(++it), cri(holder->Map->rend()), holder));
+			}
 
 			virtual ValueType Get(const KeyType& key) const
-			{ return _newMap ? _newMap->Get(key) : _oldMap->Get(key); }
+			{
+				const MapType& map = _newMap ? *_newMap : *_oldMap;
+
+				const typename MapType::const_iterator it = map.find(key);
+				STINGRAYKIT_CHECK(it != map.end(), CreateKeyNotFoundException(key));
+
+				return it->second;
+			}
 
 			virtual bool TryGet(const KeyType& key, ValueType& outValue) const
-			{ return _newMap ? _newMap->TryGet(key, outValue) : _oldMap->TryGet(key, outValue); }
+			{
+				const MapType& map = _newMap ? *_newMap : *_oldMap;
+
+				const typename MapType::const_iterator it = map.find(key);
+				if (it == map.end())
+					return false;
+
+				outValue = it->second;
+				return true;
+			}
 
 			virtual void Set(const KeyType& key, const ValueType& value)
-			{ CopyOnWrite(); _newMap->Set(key, value); }
+			{
+				CopyOnWrite();
+
+				const typename MapType::iterator it = _newMap->find(key);
+				if (it != _newMap->end())
+					it->second = value;
+				else
+					_newMap->insert(std::make_pair(key, value));
+			}
 
 			virtual void Remove(const KeyType& key)
-			{ CopyOnWrite(); _newMap->Remove(key); }
+			{ CopyOnWrite(); _newMap->erase(key); }
 
 			virtual bool TryRemove(const KeyType& key)
-			{ CopyOnWrite(); return _newMap->TryRemove(key); }
+			{
+				const MapType& map = _newMap ? *_newMap : *_oldMap;
+
+				const typename MapType::const_iterator it = map.find(key);
+				if (it == map.end())
+					return false;
+
+				CopyOnWrite();
+				_newMap->erase(key);
+				return true;
+			}
 
 			virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred)
-			{ CopyOnWrite(); return _newMap->RemoveWhere(pred); }
+			{
+				CopyOnWrite();
+				size_t ret = 0;
+				for (typename MapType::iterator it = _newMap->begin(); it != _newMap->end(); )
+				{
+					const typename MapType::iterator cur = it++;
+					if (!pred(cur->first, cur->second))
+						continue;
+
+					_newMap->erase(cur);
+					++ret;
+				}
+				return ret;
+			}
 
 			virtual void Clear()
 			{
 				_cachedDiff.reset();
 
-				if (_newMap)
-					_newMap->Clear();
+				if (_newMap && _newMapHolder.expired())
+					_newMap->clear();
 				else
-					_newMap = make_shared<DictionaryImpl>();
+				{
+					_newMap = make_shared<MapType>();
+					_newMapHolder.reset();
+				}
 			}
 
 			virtual void Apply(const DiffEntryType& entry)
@@ -229,7 +329,7 @@ namespace stingray
 			{
 				if (_newMap)
 				{
-					const DiffTypePtr diff = _cachedDiff ? _cachedDiff : Utils::Diff(_oldMap, _newMap);
+					const DiffTypePtr diff = _cachedDiff ? _cachedDiff : Utils::MakeDiff(_oldMap, _newMap);
 
 					{
 						MutexLock l(*_impl->Guard);
@@ -242,12 +342,14 @@ namespace stingray
 
 				_cachedDiff.reset();
 				_newMap.reset();
+				_newMapHolder.reset();
 			}
 
 			virtual void Revert()
 			{
 				_cachedDiff.reset();
 				_newMap.reset();
+				_newMapHolder.reset();
 			}
 
 			virtual DiffTypePtr Diff() const
@@ -255,16 +357,34 @@ namespace stingray
 				if (_cachedDiff)
 					return _cachedDiff;
 
-				return _newMap ? _cachedDiff = Utils::Diff(_oldMap, _newMap) : MakeEmptyEnumerable();
+				return _newMap ? _cachedDiff = Utils::MakeDiff(_oldMap, _newMap) : MakeEmptyEnumerable();
 			}
 
 		private:
+			HolderPtr GetMapHolder() const
+			{
+				if (!_newMap)
+					return make_shared<Holder>(_oldMap);
+
+				HolderPtr newMapHolder = _newMapHolder.lock();
+
+				if (!newMapHolder)
+					_newMapHolder = (newMapHolder = make_shared<Holder>(_newMap));
+
+				return newMapHolder;
+			}
+
 			void CopyOnWrite()
 			{
 				_cachedDiff.reset();
 
 				if (!_newMap)
-					_newMap = make_shared<DictionaryImpl>(*_oldMap);
+					_newMap = make_shared<MapType>(*_oldMap);
+				else if (!_newMapHolder.expired())
+				{
+					_newMap = make_shared<MapType>(*_newMap);
+					_newMapHolder.reset();
+				}
 			}
 		};
 		STINGRAYKIT_DECLARE_PTR(Transaction);
@@ -280,55 +400,79 @@ namespace stingray
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 		{
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->GetEnumerator();
+			return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(_impl->Map->begin(), _impl->Map->end(), _impl->Map));
 		}
 
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
 		{
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->Reverse();
+			return make_shared<ReverseEnumerable>(make_shared<Holder>(_impl->Map));
 		}
 
 		virtual size_t GetCount() const
 		{
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->GetCount();
+			return _impl->Map->size();
 		}
 
 		virtual bool IsEmpty() const
 		{
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->IsEmpty();
+			return _impl->Map->empty();
 		}
 
 		virtual bool ContainsKey(const KeyType& key) const
 		{
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->ContainsKey(key);
+			return _impl->Map->find(key) != _impl->Map->end();
 		}
 
 		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
 		{
+			typedef typename MapType::const_iterator cit;
+
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->Find(key);
+
+			const cit it = _impl->Map->find(key);
+			if (it == _impl->Map->end())
+				return MakeEmptyEnumerator();
+
+			return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_impl->Map->end()), _impl->Map));
 		}
 
 		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
 		{
+			typedef typename MapType::const_reverse_iterator cri;
+
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->ReverseFind(key);
+
+			typename MapType::const_iterator it = _impl->Map->find(key);
+			if (it == _impl->Map->end())
+				return MakeEmptyEnumerator();
+
+			return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(cri(++it), cri(_impl->Map->rend()), _impl->Map));
 		}
 
 		virtual ValueType Get(const KeyType& key) const
 		{
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->Get(key);
+
+			const typename MapType::const_iterator it = _impl->Map->find(key);
+			STINGRAYKIT_CHECK(it != _impl->Map->end(), CreateKeyNotFoundException(key));
+
+			return it->second;
 		}
 
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
 		{
 			MutexLock l(*_impl->Guard);
-			return _impl->Map->TryGet(key, outValue);
+
+			const typename MapType::const_iterator it = _impl->Map->find(key);
+			if (it == _impl->Map->end())
+				return false;
+
+			outValue = it->second;
+			return true;
 		}
 
 		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken())
