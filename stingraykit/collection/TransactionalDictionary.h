@@ -45,6 +45,7 @@ namespace stingray
 	private:
 		typedef std::map<KeyType, ValueType, KeyLessComparer>	MapType;
 		STINGRAYKIT_DECLARE_PTR(MapType);
+		STINGRAYKIT_DECLARE_CONST_PTR(MapType);
 
 		struct Utils
 		{
@@ -54,7 +55,7 @@ namespace stingray
 			static DiffEntryType MakeDiffEntry(CollectionOp op, const typename MapType::value_type& pair)
 			{ return stingray::MakeDiffEntry(op, PairType(pair)); }
 
-			static DiffTypePtr MakeDiff(const MapTypePtr& oldMap, const MapTypePtr& newMap)
+			static DiffTypePtr MakeDiff(const MapTypeConstPtr& oldMap, const MapTypeConstPtr& newMap)
 			{
 				typedef typename MapType::const_iterator cit;
 
@@ -106,8 +107,8 @@ namespace stingray
 
 		struct Holder
 		{
-			MapTypePtr		Map;
-			Holder(const MapTypePtr& map) : Map(map) { }
+			MapTypeConstPtr		Map;
+			Holder(const MapTypeConstPtr& map) : Map(map) { }
 		};
 		STINGRAYKIT_DECLARE_PTR(Holder);
 
@@ -124,7 +125,7 @@ namespace stingray
 		struct ImplData
 		{
 			shared_ptr<Mutex>											Guard;
-			MapTypePtr													Map;
+			MapTypeConstPtr												Map;
 			bool														HasTransaction;
 			ConditionVariable											TransactionCompleted;
 			signal<void (const DiffTypePtr&), ExternalMutexPointer>		OnChanged;
@@ -147,7 +148,7 @@ namespace stingray
 		{
 		private:
 			ImplDataPtr						_impl;
-			MapTypePtr						_oldMap;
+			MapTypeConstPtr					_oldMap;
 			MapTypePtr						_newMap;
 			mutable HolderWeakPtr			_newMapHolder;
 			mutable DiffTypePtr				_cachedDiff;
@@ -207,15 +208,13 @@ namespace stingray
 
 			virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
 			{
-				typedef typename MapType::const_iterator cit;
-
 				const HolderPtr holder = GetMapHolder();
 
-				const cit it = holder->Map->find(key);
+				const typename MapType::const_iterator it = holder->Map->find(key);
 				if (it == holder->Map->end())
 					return MakeEmptyEnumerator();
 
-				return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(holder->Map->end()), holder));
+				return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(it, holder->Map->end(), holder));
 			}
 
 			virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
@@ -429,15 +428,13 @@ namespace stingray
 
 		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
 		{
-			typedef typename MapType::const_iterator cit;
-
 			MutexLock l(*_impl->Guard);
 
-			const cit it = _impl->Map->find(key);
+			const typename MapType::const_iterator it = _impl->Map->find(key);
 			if (it == _impl->Map->end())
 				return MakeEmptyEnumerator();
 
-			return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_impl->Map->end()), _impl->Map));
+			return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(it, _impl->Map->end(), _impl->Map));
 		}
 
 		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
