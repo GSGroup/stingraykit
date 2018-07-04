@@ -84,6 +84,9 @@ namespace stingray
 		virtual bool IsEmpty() const
 		{ return _items->empty(); }
 
+		virtual bool Contains(const ValueType& value) const
+		{ return std::find(_items->begin(), _items->end(), value) != _items->end(); }
+
 		virtual optional<size_t> IndexOf(const ValueType& value) const
 		{
 			const typename VectorType::const_iterator it = std::find(_items->begin(), _items->end(), value);
@@ -94,6 +97,15 @@ namespace stingray
 		{
 			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			return (*_items)[index];
+		}
+
+		virtual bool TryGet(size_t index, ValueType& value) const
+		{
+			if (index >= _items->size())
+				return false;
+
+			value = (*_items)[index];
+			return true;
 		}
 
 		virtual void Add(const ValueType& value)
@@ -122,6 +134,18 @@ namespace stingray
 		virtual void RemoveAt(size_t index)
 		{
 			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
+			CopyOnWrite();
+			_items->erase(_items->begin() + index);
+		}
+
+		virtual void Remove(const ValueType& value)
+		{
+			const typename VectorType::const_iterator it = std::find(_items->begin(), _items->end(), value);
+			if (it == _items->end())
+				return;
+
+			const size_t index = it - _items->begin();
+
 			CopyOnWrite();
 			_items->erase(_items->begin() + index);
 		}

@@ -31,23 +31,11 @@ namespace stingray
 
 		virtual ~IReadonlyList() { }
 
-		virtual bool Contains(const ValueType& value) const
-		{ return IndexOf(value); }
-
+		virtual bool Contains(const ValueType& value) const = 0;
 		virtual optional<size_t> IndexOf(const ValueType& value) const = 0;
 
 		virtual ValueType Get(size_t index) const = 0;
-
-		virtual bool TryGet(size_t index, ValueType& value) const
-		{
-			if (index < this->GetCount())
-			{
-				value = Get(index);
-				return true;
-			}
-
-			return false;
-		}
+		virtual bool TryGet(size_t index, ValueType& value) const = 0;
 	};
 
 
@@ -67,13 +55,8 @@ namespace stingray
 		virtual void Set(size_t index, const ValueType& value) = 0;
 		virtual void Insert(size_t index, const ValueType& value) = 0;
 
-		virtual void Remove(const ValueType& value)
-		{
-			if (const optional<size_t> index = this->IndexOf(value))
-				RemoveAt(*index);
-		}
-
 		virtual void RemoveAt(size_t index) = 0;
+		virtual void Remove(const ValueType& value) = 0;
 		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred) = 0;
 
 		virtual void Clear() = 0;
