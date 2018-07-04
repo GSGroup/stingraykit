@@ -231,9 +231,13 @@ namespace stingray
 				{
 					const DiffTypePtr diff = _cachedDiff ? _cachedDiff : Utils::Diff(_oldMap, _newMap);
 
-					MutexLock l(*_impl->Guard);
-					_impl->Map = _newMap;
-					_impl->OnChanged(diff);
+					{
+						MutexLock l(*_impl->Guard);
+						_impl->Map = _newMap;
+						_impl->OnChanged(diff);
+					}
+
+					_oldMap = _newMap;
 				}
 
 				_cachedDiff.reset();
