@@ -138,16 +138,17 @@ namespace stingray
 			_items->erase(_items->begin() + index);
 		}
 
-		virtual void Remove(const ValueType& value)
+		virtual bool TryRemove(const ValueType& value)
 		{
 			const typename VectorType::const_iterator it = std::find(_items->begin(), _items->end(), value);
 			if (it == _items->end())
-				return;
+				return false;
 
 			const size_t index = it - _items->begin();
 
 			CopyOnWrite();
 			_items->erase(_items->begin() + index);
+			return true;
 		}
 
 		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)

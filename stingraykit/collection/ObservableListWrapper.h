@@ -124,19 +124,23 @@ namespace stingray
 			_onChanged(CollectionOp::Added, index, value);
 		}
 
-		virtual void Remove(const ValueType& value)
-		{
-			signal_locker l(_onChanged);
-			if (const optional<size_t> index = Wrapped_::IndexOf(value))
-				RemoveAt(*index);
-		}
-
 		virtual void RemoveAt(size_t index)
 		{
 			signal_locker l(_onChanged);
 			ValueType value = Wrapped_::Get(index);
 			Wrapped_::RemoveAt(index);
 			_onChanged(CollectionOp::Removed, index, value);
+		}
+
+		virtual bool TryRemove(const ValueType& value)
+		{
+			signal_locker l(_onChanged);
+			if (const optional<size_t> index = Wrapped_::IndexOf(value))
+			{
+				RemoveAt(*index);
+				return true;
+			}
+			return false;
 		}
 
 		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
