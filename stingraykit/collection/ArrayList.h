@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/IList.h>
+#include <stingraykit/collection/iterators.h>
 
 #include <algorithm>
 #include <vector>
@@ -89,8 +90,10 @@ namespace stingray
 
 		virtual optional<size_t> IndexOf(const ValueType& value) const
 		{
-			const typename VectorType::const_iterator it = std::find(_items->begin(), _items->end(), value);
-			return it == _items->end() ? null : optional<size_t>(it - _items->begin());
+			typedef typename VectorType::const_iterator cit;
+
+			const cit it = std::find(_items->begin(), _items->end(), value);
+			return it == _items->end() ? optional<size_t>() : std::distance(cit(_items->begin()), it);
 		}
 
 		virtual ValueType Get(size_t index) const
@@ -125,29 +128,28 @@ namespace stingray
 		{
 			STINGRAYKIT_CHECK(index <= _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
-
-			typename VectorType::iterator it = _items->begin();
-			std::advance(it, index);
-			_items->insert(it, value);
+			_items->insert(next(_items->begin(), index), value);
 		}
 
 		virtual void RemoveAt(size_t index)
 		{
 			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
-			_items->erase(_items->begin() + index);
+			_items->erase(next(_items->begin(), index));
 		}
 
 		virtual bool TryRemove(const ValueType& value)
 		{
-			const typename VectorType::const_iterator it = std::find(_items->begin(), _items->end(), value);
+			typedef typename VectorType::const_iterator cit;
+
+			const cit it = std::find(_items->begin(), _items->end(), value);
 			if (it == _items->end())
 				return false;
 
-			const size_t index = it - _items->begin();
+			const size_t index = std::distance(cit(_items->begin()), it);
 
 			CopyOnWrite();
-			_items->erase(_items->begin() + index);
+			_items->erase(next(_items->begin(), index));
 			return true;
 		}
 
