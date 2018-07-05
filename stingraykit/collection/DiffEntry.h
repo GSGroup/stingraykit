@@ -30,7 +30,7 @@ namespace stingray
 		{ return CompareMembersCmp(&DiffEntry::Op, &DiffEntry::Item)(*this, other); }
 
 		std::string ToString() const
-		{ return StringBuilder() % "DiffEntry { op: " % Op % ", item: " % Item % " }"; }
+		{ return StringBuilder() % "{ " % Op % ": " % Item % " }"; }
 	};
 
 
