@@ -112,10 +112,12 @@ namespace stingray
 		};
 		STINGRAYKIT_DECLARE_PTR(Holder);
 
-		struct ReverseEnumerable : public virtual IEnumerable<PairType>
+		class ReverseEnumerable : public virtual IEnumerable<PairType>
 		{
+		private:
 			HolderPtr		_holder;
 
+		public:
 			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
@@ -386,7 +388,6 @@ namespace stingray
 				}
 			}
 		};
-		STINGRAYKIT_DECLARE_PTR(Transaction);
 
 	private:
 		ImplDataPtr							_impl;
