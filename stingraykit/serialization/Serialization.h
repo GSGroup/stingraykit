@@ -14,6 +14,7 @@
 #include <stingraykit/collection/IObservableList.h>
 #include <stingraykit/collection/IObservableSet.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
+#include <stingraykit/collection/ITransactionalList.h>
 #include <stingraykit/diagnostics/PrivateIncludeGuard.h>
 #include <stingraykit/io/IOutputByteStream.h>
 #include <stingraykit/serialization/FloatString.h>
@@ -843,6 +844,19 @@ namespace stingray
 			deserialize(std_vec);
 			for (typename std::vector<T>::const_iterator it = std_vec.begin(); it != std_vec.end(); ++it)
 				data.Add(*it);
+			return *this;
+		}
+
+		template<typename T>
+		ObjectIStream& deserialize(ITransactionalList<T> & data)
+		{
+			std::vector<T> std_vec;
+			deserialize(std_vec);
+			typename ITransactionalList<T>::TransactionTypePtr trans = data.StartTransaction();
+			trans->Clear();
+			for (typename std::vector<T>::const_iterator it = std_vec.begin(); it != std_vec.end(); ++it)
+				trans->Add(*it);
+			trans->Commit();
 			return *this;
 		}
 
