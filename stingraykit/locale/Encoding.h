@@ -24,6 +24,7 @@ namespace stingray
 	{
 		STINGRAYKIT_ENUM_VALUES
 		(
+			CP1251,
 			ISO_8859_1,
 			ISO_8859_2,
 			ISO_8859_3,
