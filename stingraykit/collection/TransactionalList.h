@@ -326,17 +326,11 @@ namespace stingray
 					_oldItems = _newItems;
 				}
 
-				_cachedDiff.reset();
-				_newItems.reset();
-				_newItemsHolder.reset();
+				ResetWrite();
 			}
 
 			virtual void Revert()
-			{
-				_cachedDiff.reset();
-				_newItems.reset();
-				_newItemsHolder.reset();
-			}
+			{ ResetWrite(); }
 
 			virtual DiffTypePtr Diff() const
 			{
@@ -371,6 +365,13 @@ namespace stingray
 					_newItems = make_shared<VectorType>(*_newItems);
 					_newItemsHolder.reset();
 				}
+			}
+
+			void ResetWrite()
+			{
+				_cachedDiff.reset();
+				_newItems.reset();
+				_newItemsHolder.reset();
 			}
 		};
 
