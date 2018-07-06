@@ -322,6 +322,11 @@ namespace stingray
 				if (_newItems)
 				{
 					const DiffTypePtr diff = _cachedDiff ? _cachedDiff : Utils::MakeDiff(_oldItems, _newItems);
+					if (!Enumerable::Any(diff))
+					{
+						ResetWrite();
+						return;
+					}
 
 					{
 						MutexLock l(*_impl->Guard);
