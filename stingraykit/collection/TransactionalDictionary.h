@@ -335,6 +335,11 @@ namespace stingray
 				if (_newMap)
 				{
 					const DiffTypePtr diff = _cachedDiff ? _cachedDiff : Utils::MakeDiff(_oldMap, _newMap);
+					if (!Enumerable::Any(diff))
+					{
+						ResetWrite();
+						return;
+					}
 
 					{
 						MutexLock l(*_impl->Guard);
