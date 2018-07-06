@@ -341,17 +341,11 @@ namespace stingray
 					_oldMap = _newMap;
 				}
 
-				_cachedDiff.reset();
-				_newMap.reset();
-				_newMapHolder.reset();
+				ResetWrite();
 			}
 
 			virtual void Revert()
-			{
-				_cachedDiff.reset();
-				_newMap.reset();
-				_newMapHolder.reset();
-			}
+			{ ResetWrite(); }
 
 			virtual DiffTypePtr Diff() const
 			{
@@ -386,6 +380,13 @@ namespace stingray
 					_newMap = make_shared<MapType>(*_newMap);
 					_newMapHolder.reset();
 				}
+			}
+
+			void ResetWrite()
+			{
+				_cachedDiff.reset();
+				_newMap.reset();
+				_newMapHolder.reset();
 			}
 		};
 
