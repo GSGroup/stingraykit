@@ -29,7 +29,7 @@ namespace stingray
 		bool			_valid;
 
 	public:
-		ScopedHolder(const CleanupFuncType& cleanupFunc)
+		explicit ScopedHolder(const CleanupFuncType& cleanupFunc)
 			: _cleanupFunc(cleanupFunc), _valid(false)
 		{ }
 
@@ -77,7 +77,7 @@ namespace stingray
 		bool			_valid;
 
 	public:
-		ScopedHolder(const CleanupFuncType& cleanupFunc, bool valid = false)
+		explicit ScopedHolder(const CleanupFuncType& cleanupFunc, bool valid = false)
 			: _cleanupFunc(cleanupFunc), _valid(valid)
 		{ }
 
@@ -107,7 +107,7 @@ namespace stingray
 		SharedHolder()
 		{ }
 
-		SharedHolder(const CleanupFuncType& cleanupFunc)
+		explicit SharedHolder(const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared<Impl>(cleanupFunc))
 		{ }
 
@@ -144,7 +144,7 @@ namespace stingray
 		SharedHolder()
 		{ }
 
-		SharedHolder(const CleanupFuncType& cleanupFunc)
+		explicit SharedHolder(const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared<Impl>(cleanupFunc))
 		{ }
 
@@ -160,6 +160,71 @@ namespace stingray
 			SharedHolder<void> result(cleanupFunc);
 			result.Set();
 			return result;
+		}
+	};
+
+
+	template < typename SourceType, typename SinkType >
+	class ScopedConnection
+	{
+		STINGRAYKIT_NONCOPYABLE(ScopedConnection);
+
+		typedef typename GetParamPassingType<SourceType>::ValueT SourcePassingType;
+		typedef typename GetParamPassingType<SinkType>::ValueT SinkPassingType;
+
+	public:
+		typedef function<void (SourcePassingType, SinkPassingType)> CleanupFuncType;
+
+	private:
+		SourceType		_source;
+		SinkType		_sink;
+		CleanupFuncType	_cleanupFunc;
+		bool			_valid;
+
+	public:
+		explicit ScopedConnection(const CleanupFuncType& cleanupFunc)
+			: _cleanupFunc(cleanupFunc), _valid(false)
+		{ }
+
+		ScopedConnection(SourcePassingType source, SinkPassingType sink, const CleanupFuncType& cleanupFunc)
+			: _source(source), _sink(sink), _cleanupFunc(cleanupFunc), _valid(true)
+		{ }
+
+		~ScopedConnection()
+		{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
+
+		bool Valid() const
+		{ return _valid; }
+
+		SourcePassingType GetSource() const
+		{ Check(); return _source; }
+
+		SinkPassingType GetSink() const
+		{ Check(); return _sink; }
+
+		std::pair<SourceType, SinkType> Release()
+		{ Check(); _valid = false; return std::make_pair(_source, _sink); }
+
+		void Clear()
+		{ Cleanup(); }
+
+		void Set(SourcePassingType source, SinkPassingType sink)
+		{
+			Cleanup();
+			_source = source;
+			_sink = sink;
+			_valid = true;
+		}
+
+	private:
+		void Check() const
+		{ STINGRAYKIT_CHECK(_valid, LogicException("ScopedHolder is not valid!")); }
+
+		void Cleanup()
+		{
+			if (_valid)
+				_cleanupFunc(_source, _sink);
+			_valid = false;
 		}
 	};
 
