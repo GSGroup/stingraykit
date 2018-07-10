@@ -26,6 +26,8 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_, typename KeyLessComparer_ = comparers::Less, typename ValueEqualsComparer_ = comparers::Equals >
 	class TransactionalDictionary : public virtual ITransactionalDictionary<KeyType_, ValueType_>
 	{
+		STINGRAYKIT_NONCOPYABLE(TransactionalDictionary);
+
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 	public:
@@ -148,6 +150,8 @@ namespace stingray
 
 		class Transaction : public virtual IDictionaryTransaction<KeyType, ValueType>
 		{
+			STINGRAYKIT_NONCOPYABLE(Transaction);
+
 		private:
 			ImplDataPtr						_impl;
 			MapTypeConstPtr					_oldMap;
