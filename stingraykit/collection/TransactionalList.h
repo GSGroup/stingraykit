@@ -25,6 +25,8 @@ namespace stingray
 	template < typename ValueType_, typename ValueEqualsComparer_ >
 	class TransactionalList : public virtual ITransactionalList<ValueType_>
 	{
+		STINGRAYKIT_NONCOPYABLE(TransactionalList);
+
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 	public:
@@ -96,6 +98,8 @@ namespace stingray
 
 		class PopulatorEnumerator : public virtual IEnumerator<DiffEntryType>
 		{
+			STINGRAYKIT_NONCOPYABLE(PopulatorEnumerator);
+
 			typedef typename VectorType::const_iterator cit;
 
 		private:
@@ -138,6 +142,8 @@ namespace stingray
 
 		class Transaction : public virtual IListTransaction<ValueType>
 		{
+			STINGRAYKIT_NONCOPYABLE(Transaction);
+
 		private:
 			ImplDataPtr						_impl;
 			VectorTypeConstPtr				_oldItems;
