@@ -24,7 +24,6 @@ namespace stingray
 	{
 		STINGRAYKIT_ENUM_VALUES
 		(
-			CP1251,
 			ISO_8859_1,
 			ISO_8859_2,
 			ISO_8859_3,
@@ -47,7 +46,8 @@ namespace stingray
 			ISO_10646_big5,
 			ISO_10646_utf8,
 			ISO_10646_utf16LE,
-			ISO_10646_utf16BE
+			ISO_10646_utf16BE,
+			CP1251
 		);
 
 		const char* GetName() const
@@ -77,6 +77,7 @@ namespace stingray
 				case ISO_10646_utf8:	return "UTF-8";
 				case ISO_10646_utf16LE:	return "UTF-16LE";
 				case ISO_10646_utf16BE:	return "UTF-16BE";
+				case CP1251:			return "CP1251";
 				default:				return "Unknown";
 			}
 		}
