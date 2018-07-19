@@ -364,6 +364,9 @@ namespace stingray
 				return _newMap ? _cachedDiff = Utils::MakeDiff(_oldMap, _newMap) : MakeEmptyEnumerable();
 			}
 
+			virtual bool IsDirty() const
+			{ return _newMap; }
+
 		private:
 			HolderPtr GetMapHolder() const
 			{

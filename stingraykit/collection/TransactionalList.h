@@ -351,6 +351,9 @@ namespace stingray
 				return _newItems ? _cachedDiff = Utils::MakeDiff(_oldItems, _newItems) : MakeEmptyEnumerable();
 			}
 
+			virtual bool IsDirty() const
+			{ return _newItems; }
+
 		private:
 			HolderPtr GetItemsHolder() const
 			{

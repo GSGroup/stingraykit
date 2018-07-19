@@ -32,6 +32,7 @@ namespace stingray
 		virtual void Apply(const DiffEntryType& entry) = 0;
 
 		virtual DiffTypePtr Diff() const = 0;
+		virtual bool IsDirty() const = 0;
 
 		virtual void Commit() = 0;
 		virtual void Revert() = 0;
