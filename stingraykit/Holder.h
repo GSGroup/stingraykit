@@ -29,7 +29,7 @@ namespace stingray
 		bool			_valid;
 
 	public:
-		ScopedHolder(const CleanupFuncType& cleanupFunc)
+		explicit ScopedHolder(const CleanupFuncType& cleanupFunc)
 			: _cleanupFunc(cleanupFunc), _valid(false)
 		{ }
 
@@ -77,7 +77,7 @@ namespace stingray
 		bool			_valid;
 
 	public:
-		ScopedHolder(const CleanupFuncType& cleanupFunc, bool valid = false)
+		explicit ScopedHolder(const CleanupFuncType& cleanupFunc, bool valid = false)
 			: _cleanupFunc(cleanupFunc), _valid(valid)
 		{ }
 
@@ -107,7 +107,7 @@ namespace stingray
 		SharedHolder()
 		{ }
 
-		SharedHolder(const CleanupFuncType& cleanupFunc)
+		explicit SharedHolder(const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared<Impl>(cleanupFunc))
 		{ }
 
@@ -144,7 +144,7 @@ namespace stingray
 		SharedHolder()
 		{ }
 
-		SharedHolder(const CleanupFuncType& cleanupFunc)
+		explicit SharedHolder(const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared<Impl>(cleanupFunc))
 		{ }
 
