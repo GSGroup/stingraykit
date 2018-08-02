@@ -140,12 +140,17 @@ namespace stingray
 		const CompareFunc	_compareFunc;
 
 	public:
-		OptionalCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc) { }
+		explicit OptionalCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc) { }
 
 		template < typename T >
 		int operator() (const optional<T>& lhs, const optional<T>& rhs) const
 		{ return (lhs && rhs) ? _compareFunc(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0)); }
 	};
+
+
+	template < typename CompareFunc >
+	OptionalCmp<CompareFunc> MakeOptionalCmp(const CompareFunc& compareFunc)
+	{ return OptionalCmp<CompareFunc>(compareFunc); }
 
 
 	template < typename T >
