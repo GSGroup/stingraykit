@@ -274,15 +274,15 @@ namespace stingray
 	template < typename Range, typename UnaryOperator >
 	std::string Join(const std::string& separator, Range range, UnaryOperator op)
 	{
-		std::string result;
+		StringBuilder sb;
 		for (; range.Valid(); range.Next())
 		{
-			if (!result.empty())
-				result.append(separator);
+			if (!sb.empty())
+				sb % separator;
 
-			result.append(op(range.Get()));
+			sb % op(range.Get());
 		}
-		return result;
+		return sb;
 	}
 
 
