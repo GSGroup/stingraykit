@@ -164,8 +164,13 @@ namespace stingray
 
 		virtual void Clear()
 		{
-			CopyOnWrite();
-			_items->clear();
+			if (_itemsHolder.expired())
+				_items->clear();
+			else
+			{
+				_items = make_shared<VectorType>();
+				_itemsHolder.reset();
+			}
 		}
 
 	private:

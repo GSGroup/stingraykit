@@ -152,7 +152,15 @@ namespace stingray
 		}
 
 		virtual void Clear()
-		{ CopyOnWrite(); _items->clear(); }
+		{
+			if (_itemsHolder.expired())
+				_items->clear();
+			else
+			{
+				_items = make_shared<SetType>();
+				_itemsHolder.reset();
+			}
+		}
 
 	private:
 		void CopyItems(const SetTypePtr& items)

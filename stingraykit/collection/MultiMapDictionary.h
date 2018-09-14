@@ -184,7 +184,15 @@ namespace stingray
 		}
 
 		virtual void Clear()
-		{ CopyOnWrite(); _map->clear(); }
+		{
+			if (_mapHolder.expired())
+				_map->clear();
+			else
+			{
+				_map = make_shared<MapType>();
+				_mapHolder.reset();
+			}
+		}
 
 	private:
 		bool DoRemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
