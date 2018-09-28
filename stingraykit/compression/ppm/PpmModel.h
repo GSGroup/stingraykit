@@ -352,8 +352,8 @@ namespace stingray
 					_context(context), _exitProbability(exitProbability), _offset(offset)
 				{ }
 
-				Context GetContext() const             { return _context; }
-				Probability GetExitProbability() const { return _exitProbability; }
+				const Context& GetContext() const             { return _context; }
+				const Probability& GetExitProbability() const { return _exitProbability; }
 				size_t GetOffset() const               { return _offset; }
 			};
 			typedef std::vector<ContextInfo> Contexts;
