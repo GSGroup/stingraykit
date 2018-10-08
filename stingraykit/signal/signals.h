@@ -315,7 +315,6 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(signal); \
 		\
 		friend class signal_locker; \
-		template < typename Signature2_ > friend class signal_connector; \
 		\
 	public: \
 		typedef void Signature(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)); \
