@@ -64,6 +64,10 @@ namespace stingray
 	void ThreadlessTaskExecutor::ClearTasks()
 	{
 		MutexLock l(_syncRoot);
+
+		if (!_queue.empty())
+			s_logger.Warning() << "[" << _name << "] Clear " << _queue.size() << " tasks";
+
 		_queue.clear();
 	}
 
