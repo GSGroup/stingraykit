@@ -106,7 +106,7 @@ namespace stingray
 		static std::string BuildErrorMessage(u64 index, u64 begin, u64 end)
 		{
 			string_ostream stream;
-			stream << "Index " << index << " out of range [" << begin << ", " << (end != 0 ? ToString(end) : "infinite") << ")";
+			stream << "Index " << index << " out of range [" << begin << ", " << end << ")";
 			return stream.str();
 		}
 	};
