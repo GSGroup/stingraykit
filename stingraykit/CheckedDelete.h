@@ -13,12 +13,19 @@
 namespace stingray
 {
 
+#define ASSERT_FAILED_FREE() stingray::AssertFailedFree(STINGRAYKIT_WHERE)
+
+	struct ToolkitWhere;
+	void AssertFailedFree(const ToolkitWhere& where);
+	void AssertFailedFree(const char* file, int line, const char* functionName);
+
 	template <typename T>
 	inline void CheckedDelete(T* t)
 	{
 		StaticAssertCompleteType<T> ERROR__type_is_incomplete;
 		(void)ERROR__type_is_incomplete;
 		delete t;
+		AssertFailedFree(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 
 
@@ -28,6 +35,7 @@ namespace stingray
 		StaticAssertCompleteType<T> ERROR__type_is_incomplete;
 		(void)ERROR__type_is_incomplete;
 		delete[] t;
+		AssertFailedFree(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 
 }

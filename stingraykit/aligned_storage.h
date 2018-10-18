@@ -13,6 +13,7 @@
 
 #include <stingraykit/Types.h>
 #include <stingraykit/metaprogramming/TypeList.h>
+#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
@@ -166,7 +167,7 @@ namespace stingray
 		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(10)
 
 		void Dtor()
-		{ Ref().~T(); }
+		{ Ref().~T(); ASSERT_FAILED_FREE(); }
 
 		T& Ref()				{ return *static_cast<T*>(static_cast<void*>(&_value)); }
 		const T& Ref() const	{ return *static_cast<const T*>(static_cast<const void*>(&_value)); }

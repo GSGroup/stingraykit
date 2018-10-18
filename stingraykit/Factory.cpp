@@ -23,7 +23,10 @@ namespace stingray
 		STINGRAYKIT_TRY("Clean failed",
 			MutexLock l(_guard);
 			for (ObjectCreatorsRegistry::iterator i = _objectCreators.begin(); i != _objectCreators.end(); ++i)
+			{
 				delete i->second;
+				ASSERT_FAILED_FREE();
+			}
 		);
 	}
 

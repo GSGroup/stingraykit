@@ -44,10 +44,18 @@ namespace stingray
 		explicit ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
 			: _ptr(ptr)
 			, _begin(begin), _end(end)
-		{ STINGRAYKIT_CHECK(_ptr >= _begin && _ptr <= _end, IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end)); }
+		{
+			if (!(_ptr >= _begin && _ptr <= _end))
+				STINGRAYKIT_FATAL(IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end).what());
+
+			STINGRAYKIT_CHECK(_ptr >= _begin && _ptr <= _end, IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end));
+		}
 
 		reference dereference() const
 		{
+			if (!(_ptr >= _begin && _ptr < _end))
+				STINGRAYKIT_FATAL(IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end).what());
+
 			STINGRAYKIT_CHECK(_ptr >= _begin && _ptr < _end, IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end));
 			return *_ptr;
 		}
@@ -61,7 +69,7 @@ namespace stingray
 
 	namespace Detail
 	{
-#if !defined(PRODUCTION_BUILD)
+#if !defined(PRODUCTION_BUILD) || 1
 		template<typename T>
 		struct ByteDataIteratorSelector
 		{

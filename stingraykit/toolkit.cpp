@@ -17,13 +17,41 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/diagnostics/Backtrace.h>
 #include <stingraykit/ScopeExit.h>
+#include <stingraykit/string/Hex.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/collection/array.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/math.h>
+
+extern "C"
+{
+extern int get_failed_free_flag(void);
+extern const char* get_failed_free_msg(void);
+extern void* get_failed_free_ptr(void);
+}
 
 namespace stingray
 {
 
+	bool failedHandled = false;
+
+	void AssertFailedFree(const char* file, int line, const char* functionName)
+	{
+		AssertFailedFree(ToolkitWhere(file, line, functionName));
+	}
+
+	void AssertFailedFree(const ToolkitWhere& where)
+	{
+#ifdef PLATFORM_MSTAR_K5CN
+		if (STINGRAYKIT_UNLIKELY(get_failed_free_flag() != 0 && !failedHandled))
+		{
+			failedHandled = true;
+			void* ptr = get_failed_free_ptr();
+			Logger::Error() << "CORRUPTED HEAP: " << where << " : " << get_failed_free_msg() << "\nbacktrace: " << Backtrace() << "\ndump " << ptr << "\n" << HexDump((void*)AlignDown((uintptr_t)ptr, (uintptr_t)0x1000), 0x1000);
+			std::terminate();
+		}
+#endif
+	}
 
 	std::string ToolkitWhere::ToString() const
 	{ return StringBuilder() % _functionName % " (" % _file % ":" % _line % ")"; }
