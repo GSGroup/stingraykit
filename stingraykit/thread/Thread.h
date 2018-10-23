@@ -131,10 +131,13 @@ namespace stingray
 		static inline void Sleep(u32 milliseconds)		{ SleepMicroseconds(1000u * (u64)milliseconds); }
 		static inline void Sleep(TimeDuration duration)	{ SleepMicroseconds(1000u * duration.GetMilliseconds()); }
 		static void SleepMicroseconds(u64 microseconds);
+
 		static ThreadId GetCurrentThreadId();
 		static void SetCurrentThreadName(const std::string& name);
 		static const std::string& GetCurrentThreadName();
 		static IThreadInfoPtr GetCurrentThreadInfo();
+
+		static ThreadSchedulingParams GetCurrentThreadPriority();
 
 		typedef std::vector<ThreadStats> ThreadStatsVec;
 		static ThreadStatsVec GetStats();

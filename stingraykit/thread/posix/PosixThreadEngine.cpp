@@ -39,6 +39,7 @@
 #include <pthread.h>
 #include <stingraykit/TaskLifeToken.h>
 #include <sys/prctl.h>
+#include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -788,6 +789,8 @@ namespace stingray
 	{
 		typedef TypeList<
 			Src::Value<ThreadSchedulingPolicy::NonRealtime>,		Dst::Value<SCHED_OTHER>,
+			Src::Value<ThreadSchedulingPolicy::BackgroundBatch>,		Dst::Value<SCHED_BATCH>,
+			Src::Value<ThreadSchedulingPolicy::BackgroundIdle>,		Dst::Value<SCHED_IDLE>,
 			Src::Value<ThreadSchedulingPolicy::RealtimeRoundRobin>,	Dst::Value<SCHED_RR>,
 			Src::Value<ThreadSchedulingPolicy::RealtimeFIFO>,		Dst::Value<SCHED_FIFO> > MappingsList;
 
@@ -795,23 +798,54 @@ namespace stingray
 	};
 
 
+	ThreadSchedulingParams PosixThreadEngine::GetCurrentThreadPriority()
+	{
+		int policy = SCHED_OTHER;
+		struct sched_param schedParams = { };
+		int res = pthread_getschedparam(pthread_self(), &policy, &schedParams);
+		STINGRAYKIT_CHECK(res == 0, SystemException("pthread_getschedparam", res));
+		int priority = schedParams.sched_priority;
+		switch (policy)
+		{
+		case SCHED_OTHER:
+		case SCHED_BATCH:
+		case SCHED_IDLE:
+			priority = getpriority(PRIO_PROCESS, GetCurrentThreadId());
+		case SCHED_RR:
+		case SCHED_FIFO:
+		default:
+			break;
+		}
+		return ThreadSchedulingParams(SchedulingPolicyMapper::Unmap(policy), priority);
+	}
+
+
 	ThreadSchedulingParams PosixThreadEngine::SetCurrentThreadPriority(ThreadSchedulingParams params)
 	{
-		int old_policy = SCHED_OTHER;
-		struct sched_param old_scheduler_params = {};
-		int res = pthread_getschedparam(pthread_self(), &old_policy, &old_scheduler_params);
-		STINGRAYKIT_CHECK(res == 0, SystemException("pthread_getschedparam", res));
+		ThreadSchedulingParams oldSched = GetCurrentThreadPriority();
 
 		int policy = SchedulingPolicyMapper::Map(params.GetPolicy());
 		int min_priority = sched_get_priority_min(policy);
 		int max_priority = sched_get_priority_max(policy);
-		struct sched_param scheduler_params = {};
-		scheduler_params.sched_priority = std::min(std::max(params.GetPriority(), min_priority), max_priority);
+		struct sched_param scheduler_params = { };
 
-		res = pthread_setschedparam(pthread_self(), policy, &scheduler_params);
+		scheduler_params.sched_priority = std::min(std::max(params.GetPriority(), min_priority), max_priority);
+		int res = pthread_setschedparam(pthread_self(), policy, &scheduler_params);
 		STINGRAYKIT_CHECK(res == 0, SystemException("pthread_setschedparam", res));
 
-		return ThreadSchedulingParams(SchedulingPolicyMapper::Unmap(old_policy), old_scheduler_params.sched_priority);
+		switch (policy)
+		{
+		case SCHED_OTHER:
+		case SCHED_BATCH:
+		case SCHED_IDLE:
+			STINGRAYKIT_CHECK(setpriority(PRIO_PROCESS, GetCurrentThreadId(), params.GetPriority()), SystemException("setpriority"));
+		case SCHED_RR:
+		case SCHED_FIFO:
+		default:
+			break;
+		}
+
+		return oldSched;
 	}
 
 }

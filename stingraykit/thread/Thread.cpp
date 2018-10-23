@@ -73,6 +73,9 @@ namespace stingray
 	IThreadInfoPtr Thread::GetCurrentThreadInfo()
 	{ return ThreadEngine::GetCurrentThreadInfo(); }
 
+	ThreadSchedulingParams GetCurrentThreadPriority()
+	{ return ThreadEngine::GetCurrentThreadPriority(); }
+
 	Thread::ThreadStatsVec Thread::GetStats()
 	{ return ThreadEngine::GetThreadsStats(); }
 

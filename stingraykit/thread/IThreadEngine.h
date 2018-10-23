@@ -25,6 +25,8 @@ namespace stingray
 		STINGRAYKIT_ENUM_VALUES
 		(
 			NonRealtime,
+			BackgroundBatch,
+			BackgroundIdle,
 			RealtimeRoundRobin,
 			RealtimeFIFO
 		);
@@ -45,6 +47,20 @@ namespace stingray
 
 		ThreadSchedulingPolicy GetPolicy() const	{ return _policy; }
 		int GetPriority() const						{ return _priority; }
+
+		std::string ToString() const
+		{ return StringBuilder() % "{ policy: " % _policy % ", priority: " % _priority % " }"; }
+
+		/**
+		 * WARNING @param veryHigh = true could make vendor drivers unstable.
+		 */
+		static ThreadSchedulingParams High(bool veryHigh = false)
+		{ return ThreadSchedulingParams(veryHigh ? ThreadSchedulingPolicy::RealtimeRoundRobin : ThreadSchedulingPolicy::RealtimeFIFO, veryHigh ? 99 : 1); }
+		/**
+		 * WARNING @param onlyIdle = true means freeze under heavy system load.
+		 */
+		static ThreadSchedulingParams Background(bool onlyIdle = false)
+		{ return ThreadSchedulingParams(onlyIdle ? ThreadSchedulingPolicy::BackgroundIdle : ThreadSchedulingPolicy::BackgroundBatch, onlyIdle ? 0 : 19); }
 	};
 
 
