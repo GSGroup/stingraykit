@@ -1,5 +1,5 @@
-#ifndef STINGRAY_STINGRAYKIT_STINGRAYKIT_COLLECTION_OBSERVABLESETENTRY_H
-#define STINGRAY_STINGRAYKIT_STINGRAYKIT_COLLECTION_OBSERVABLESETENTRY_H
+#ifndef STINGRAYKIT_COLLECTION_OBSERVABLESETENTRY_H
+#define STINGRAYKIT_COLLECTION_OBSERVABLESETENTRY_H
 
 // Copyright (c) 2011 - 2018, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
