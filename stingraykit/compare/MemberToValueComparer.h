@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/compare/comparers.h>
+#include <stingraykit/self_counter.h>
 
 namespace stingray
 {
@@ -40,6 +41,8 @@ namespace stingray
 		template <typename T> static const T& Process(const T& t)					{ return t; }
 		template <typename T> static const T& Process(const shared_ptr<T>& t)		{ return *t; }
 		template <typename T> static const T& Process(const shared_ptr<const T>& t)	{ return *t; }
+		template <typename T> static const T& Process(const self_count_ptr<T>& t)		{ return *t; }
+		template <typename T> static const T& Process(const self_count_ptr<const T>& t)	{ return *t; }
 	};
 
 	struct NoDereferencing
