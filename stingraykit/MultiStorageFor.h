@@ -37,7 +37,7 @@ namespace stingray
 		void Ctor(const P1& p1, const P2& p2, const P3& p3)	{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1, p2, p3); (void)ptr; assert(ptr == &Ref<T>()); }
 
 		template<typename T>
-		void Dtor()											{ CheckCanContain<T>(); Ref<T>().~T(); ASSERT_FAILED_FREE(); }
+		void Dtor()											{ CheckCanContain<T>(); Ref<T>().~T(); }
 
 		template<typename T>
 		T& Ref()											{ CheckCanContain<T>(); return *static_cast<T*>(static_cast<void*>(&_value)); }

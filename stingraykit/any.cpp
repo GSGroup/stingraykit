@@ -61,7 +61,7 @@ namespace stingray
 		switch (_type)
 		{
 		case Type::String:	_data.String.Dtor();	break;
-		case Type::Object:	delete _data.Object; ASSERT_FAILED_FREE();	break;
+		case Type::Object:	delete _data.Object;	break;
 		default:			break;
 		}
 

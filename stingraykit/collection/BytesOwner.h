@@ -28,7 +28,7 @@ namespace stingray
 			{ }
 
 			virtual ~Storage()
-			{ delete[] _data; ASSERT_FAILED_FREE(); }
+			{ delete[] _data; }
 		};
 
 		typedef BasicByteData<T>							DataType;
