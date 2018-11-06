@@ -26,15 +26,10 @@ namespace stingray
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{
-			if (_processed == _data.size())
-			{
+			if (_processed < _data.size())
+				_processed += consumer.Process(ConstByteData(_data, _processed), token);
+			else
 				consumer.EndOfData(token);
-				return;
-			}
-
-			const ConstByteData chunk(_data, _processed);
-
-			_processed += consumer.Process(chunk, token);
 		}
 	};
 
