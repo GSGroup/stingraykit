@@ -16,36 +16,27 @@ namespace stingray
 
 	class ByteStreamDataSource : public virtual IDataSource
 	{
-		static const size_t	DefaultReadSize = 128 * 1024;
+		static const size_t	DefaultBufferSize = 128 * 1024;
 
 	private:
 		IByteStreamPtr		_stream;
-		size_t				_readSize;
-		ConstByteArray		_data;
+
+		ByteArray			_buffer;
 
 	public:
-		explicit ByteStreamDataSource(const IByteStreamPtr& stream, size_t readSize = DefaultReadSize)
-			: _stream(stream), _readSize(readSize)
+		explicit ByteStreamDataSource(const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize)
+			: _stream(STINGRAYKIT_REQUIRE_NOT_NULL(stream)), _buffer(bufferSize)
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{
-			if (_data.empty()) //fixme: replace by something more smart, like circular buffer
-			{
-				const ByteArray data(_readSize);
-				const size_t s = _stream->Read(data.GetByteData());
-				if (s == 0)
-				{
-					consumer.EndOfData(token);
-					return;
-				}
-				_data = ConstByteArray(data, 0, s);
-			}
-			const size_t processed = consumer.Process(_data.GetByteData(), token);
-			if (processed < _data.size())
-				_data = ConstByteArray(_data, processed, _data.size() - processed);
-			else
-				_data = ConstByteArray(); //all data have been processed
+			const size_t read = ReadAll(*_stream, _buffer, token);
+
+			if (read != 0)
+				ConsumeAll(consumer, ConstByteData(_buffer, 0, read), token);
+
+			if (read != _buffer.size())
+				consumer.EndOfData(token);
 		}
 	};
 
