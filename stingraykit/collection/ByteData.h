@@ -30,6 +30,9 @@ namespace stingray
 	{
 		typedef iterator_base<ByteDataIterator, T, std::random_access_iterator_tag>		base;
 
+		template < typename U >
+		friend class ByteDataIterator;
+
 	public:
 		typedef typename base::pointer													pointer;
 		typedef typename base::reference												reference;
@@ -41,9 +44,17 @@ namespace stingray
 
 
 	public:
-		explicit ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
-			: _ptr(ptr)
-			, _begin(begin), _end(end)
+		ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
+			:	_ptr(ptr),
+				_begin(begin),
+				_end(end)
+		{ STINGRAYKIT_CHECK(_ptr >= _begin && _ptr <= _end, IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end)); }
+
+		template < typename U >
+		ByteDataIterator(const ByteDataIterator<U>& other)
+			:	_ptr(other._ptr),
+				_begin(other._begin),
+				_end(other._end)
 		{ STINGRAYKIT_CHECK(_ptr >= _begin && _ptr <= _end, IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end)); }
 
 		reference dereference() const
@@ -51,6 +62,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(_ptr >= _begin && _ptr < _end, IndexOutOfRangeException((u64)_ptr, (u64)_begin, (u64)_end));
 			return *_ptr;
 		}
+
 		bool equal(const ByteDataIterator &other) const						{ return _ptr == other._ptr; }
 		void increment()													{ ++_ptr; }
 		void decrement()													{ --_ptr; }
