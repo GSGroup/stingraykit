@@ -35,6 +35,9 @@ namespace stingray
 
 		DictionaryPtr GetTranslations() const;
 
+		bool IsEmpty() const
+		{ return _dictionary->IsEmpty(); }
+
 		void Serialize(ObjectOStream &ar) const;
 		void Deserialize(ObjectIStream &ar);
 
