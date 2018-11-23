@@ -391,11 +391,11 @@ namespace stingray
 		}
 
 		template<typename Iterator>
-		inline void serialize(Iterator begin, const Iterator &end)
+		inline void serialize(const Iterator &begin, const Iterator &end)
 		{
 			BeginList();
-			for(; begin != end; ++begin)
-				Serialize(implicit_cast<const typename Iterator::value_type&>(*begin));
+			for(Iterator it = begin; it != end; ++it)
+				Serialize(implicit_cast<const typename Iterator::value_type&>(*it));
 			EndList();
 		}
 
