@@ -487,6 +487,8 @@ namespace stingray
 			return *this;
 		}
 
+		bool empty() const { return _builder.empty(); }
+
 		operator std::string() const { return ToString(); }
 
 		std::string ToString() const
