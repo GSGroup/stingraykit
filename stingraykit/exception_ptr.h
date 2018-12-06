@@ -31,7 +31,7 @@ namespace stingray
 	typedef shared_ptr<rethrown_exception> exception_ptr;
 
 	inline exception_ptr make_exception_ptr(const std::exception &ex)
-	{ return exception_ptr(new rethrown_exception(ex)); }
+	{ return make_shared<rethrown_exception>(ex); }
 
 	inline void rethrow_exception(const exception_ptr& ex)
 	{ if (ex) throw *ex; }

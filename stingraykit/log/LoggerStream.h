@@ -125,7 +125,7 @@ namespace stingray
 				_duplicatingLogsFilter = val.Filter;
 
 			if (_duplicatingLogsFilter)
-				_hideDuplicatingLogs.reset(new Detail::HideDuplicatingLogs(val));
+				_hideDuplicatingLogs = make_shared<Detail::HideDuplicatingLogs>(val);
 
 			return *this;
 		}

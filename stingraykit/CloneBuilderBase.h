@@ -31,7 +31,7 @@ namespace stingray
 		operator TPtr() const	{ return MakeShared(); }
 
 	protected:
-		CloneBuilderBase(const T& inst) : _instPtr(new T(inst)) { }
+		CloneBuilderBase(const T& inst) : _instPtr(make_shared<T>(inst)) { }
 		~CloneBuilderBase() { }
 
 		T& GetInst() { return *_instPtr; }
