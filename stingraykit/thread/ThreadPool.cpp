@@ -22,11 +22,11 @@ namespace stingray
 		optional<Task>		_task;
 		ConditionVariable	_cond;
 
-		const ThreadPtr		_worker;
+		Thread				_worker;
 
 	public:
-		explicit WorkerWrapper(const std::string& name, bool profileCalls = true) :
-			_profileCalls(profileCalls), _worker(new Thread(name, bind(&WorkerWrapper::ThreadFunc, this, _1)))
+		explicit WorkerWrapper(const std::string& name, bool profileCalls = true)
+			: _profileCalls(profileCalls), _worker(name, bind(&WorkerWrapper::ThreadFunc, this, _1))
 		{ }
 
 		bool TryAddTask(const Task& task)
@@ -68,8 +68,8 @@ namespace stingray
 	};
 
 
-	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls) :
-		_name(name), _maxThreads(maxThreads), _profileCalls(profileCalls)
+	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls)
+		: _name(name), _maxThreads(maxThreads), _profileCalls(profileCalls)
 	{ }
 
 
