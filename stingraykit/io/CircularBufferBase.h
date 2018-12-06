@@ -119,7 +119,7 @@ namespace stingray
 
 		shared_ptr<std::vector<u8> > GetAllData() const
 		{
-			shared_ptr<std::vector<u8> > result(new std::vector<u8>);
+			shared_ptr<std::vector<u8> > result = make_shared<std::vector<u8> >();
 			result->reserve(GetSize());
 
 			if (_writeOffset >= _readOffset)

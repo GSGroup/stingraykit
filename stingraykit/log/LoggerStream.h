@@ -102,7 +102,7 @@ namespace stingray
 				return *this;
 
 			if (!_stream)
-				_stream.reset(new StreamType);
+				_stream = make_shared<StreamType>();
 			ToString(*_stream, val);
 			return *this;
 		}
@@ -114,7 +114,7 @@ namespace stingray
 				return *this;
 
 			if (!_stream)
-				_stream.reset(new StreamType);
+				_stream = make_shared<StreamType>();
 			ToString(*_stream, val);
 			return *this;
 		}

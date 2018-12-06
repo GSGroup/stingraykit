@@ -603,7 +603,7 @@ namespace stingray
 		template < typename CollectionType >
 		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerator, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT dummy = 0)
 		{
-			shared_ptr<std::vector<typename CollectionType::ItemType> > result(new std::vector<typename CollectionType::ItemType>);
+			const shared_ptr<std::vector<typename CollectionType::ItemType> > result = make_shared<std::vector<typename CollectionType::ItemType> >();
 			for (; enumerator.Valid(); enumerator.Next())
 				result->push_back(enumerator.Get());
 			return EnumeratorFromStlIterators(result->rbegin(), result->rend(), result);
@@ -612,7 +612,7 @@ namespace stingray
 		template < typename CollectionType >
 		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<IsEnumerable<CollectionType>::Value, int>::ValueT dummy = 0, typename EnableIf<!IsInherited1ParamTemplate<CollectionType, IReversableEnumerable>::Value, int>::ValueT dummy2 = 0)
 		{
-			shared_ptr<std::vector<typename CollectionType::ItemType> > result(new std::vector<typename CollectionType::ItemType>);
+			const shared_ptr<std::vector<typename CollectionType::ItemType> > result = make_shared<std::vector<typename CollectionType::ItemType> >();
 			for (shared_ptr<IEnumerator<typename CollectionType::ItemType> > enumerator = enumerable->GetEnumerator(); enumerator->Valid(); enumerator->Next())
 				result->push_back(enumerator->Get());
 			return EnumerableFromStlIterators(result->rbegin(), result->rend(), result);

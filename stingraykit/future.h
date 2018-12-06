@@ -290,7 +290,7 @@ namespace stingray
 
 	public:
 
-		promise() : _futureImpl(new FutureImplType), _futureRetrieved(false)
+		promise() : _futureImpl(make_shared<FutureImplType>()), _futureRetrieved(false)
 		{}
 
 		~promise()
@@ -322,7 +322,7 @@ namespace stingray
 		bool						_futureRetrieved;
 
 	public:
-		promise() : _futureImpl(new FutureImplType), _futureRetrieved(false)
+		promise() : _futureImpl(make_shared<FutureImplType>()), _futureRetrieved(false)
 		{}
 
 		~promise()

@@ -113,7 +113,7 @@ namespace stingray
 
 
 	AutoCheckpointProfiler::AutoCheckpointProfiler(const std::string& name, bool enabled)
-		: _profilerHolder(new CheckpointProfilerHolder(name, enabled))
+		: _profilerHolder(make_shared<CheckpointProfilerHolder>(name, enabled))
 	{ }
 
 

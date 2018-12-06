@@ -80,7 +80,7 @@ namespace stingray
 			template <typename BoundFunctor>
 			RetType DoAddTask(const BoundFunctor& func) const
 			{
-				PromiseTypePtr promise(new PromiseType);
+				const PromiseTypePtr promise = make_shared<PromiseType>();
 				_executor->AddTask(bind(&AsyncFunctionBase::FuncWrapper<BoundFunctor>, func, promise), _token.GetExecutionTester());
 				return promise->get_future();
 			}

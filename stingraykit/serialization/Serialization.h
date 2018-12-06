@@ -666,7 +666,7 @@ namespace stingray
 			if (is_null())
 				return;
 
-			value.reset(new T);
+			value = make_shared<T>();
 			value->Deserialize(*this);
 		}
 

@@ -100,7 +100,7 @@ namespace stingray
 
 		public:
 			Factory()
-				: _rootContext(new FactoryContext())
+				: _rootContext(make_shared<FactoryContext>())
 			{ }
 
 			FactoryContextPtr GetRootContext() const { return _rootContext; }
