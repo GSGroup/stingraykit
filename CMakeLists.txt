@@ -210,6 +210,11 @@ if ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")
 		if (GCC_MAJOR LESS 5)
 			list(GET GCC_VERSION_COMPONENTS 1 GCC_MINOR)
 		endif (GCC_MAJOR LESS 5)
+
+		if (GCC_MAJOR GREATER 4)
+			set(COMMON_FLAGS "${COMMON_FLAGS} -fno-expensive-optimizations")
+			message(STATUS "expensive optimizations was turned off [buggy codegeneration on sh4]")
+		endif (GCC_MAJOR GREATER 4)
 	endif (CMAKE_C_COMPILER_ID MATCHES "GNU")
 
 	if (CMAKE_C_COMPILER_ID MATCHES "Clang")
