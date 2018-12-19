@@ -186,7 +186,7 @@ message(STATUS "Compiler identification: ${CMAKE_C_COMPILER_ID}")
 
 if ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang"))
 	set(PLATFORM_GCC TRUE)
-	set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Werror=return-type -Wsign-compare -Wno-unused-variable -Wdisabled-optimization")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Werror=return-type -Wsign-compare -Wno-unused-variable -Wno-unused-function -Wdisabled-optimization -Wno-unused-local-typedefs")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++98 -Wnon-virtual-dtor")
 
 	if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
