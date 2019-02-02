@@ -64,14 +64,14 @@ namespace stingray
 
 		void remove_prefix(size_type n)
 		{
-			STINGRAYKIT_CHECK_RANGE(n, size());
+			STINGRAYKIT_CHECK_RANGE(n, size() + 1);
 			_data += n;
 			_size -= n;
 		}
 
 		void remove_suffix(size_type n)
 		{
-			STINGRAYKIT_CHECK_RANGE(n, size());
+			STINGRAYKIT_CHECK_RANGE(n, size() + 1);
 			_size -= n;
 		}
 
@@ -86,7 +86,7 @@ namespace stingray
 
 		basic_string_view substr(size_type pos = 0, size_type count = npos) const
 		{
-			STINGRAYKIT_CHECK_RANGE(pos, size());
+			STINGRAYKIT_CHECK_RANGE(pos, size() + 1);
 			return basic_string_view(_data + pos, std::min(count, size() - pos));
 		}
 
