@@ -17,6 +17,8 @@
 #include <stingraykit/toolkit.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/Dummy.h>
+#include <stingraykit/metaprogramming/If.h>
+#include <stingraykit/metaprogramming/TypeTraits.h>
 
 
 namespace stingray
@@ -36,12 +38,26 @@ namespace stingray
 		template < >
 		struct ShiftableType<bool> { typedef u32 ValueT; };
 
-		template<size_t SizeBits>
+		template < size_t SizeBits, bool IsSigned = false >
 		struct MinimalTypeSelector
 		{
 			static const size_t SizeBytes								= (SizeBits + 7) / 8;
 			static const size_t AlignedSize								= (SizeBytes > 4? 8: (SizeBytes > 2? 4: (SizeBytes > 1? 2: 1)));
-			typedef typename IntType<AlignedSize * 8, false>::ValueT	ValueT;
+			typedef typename IntType<AlignedSize * 8, IsSigned>::ValueT	ValueT;
+		};
+
+		template < size_t SizeBits, typename T >
+		class WidestTypeSelector
+		{
+			typedef typename Detail::MinimalTypeSelector<SizeBits, IsSigned<T>::Value>::ValueT MinimalT;
+		public:
+			typedef typename If<(sizeof(T) >= sizeof(MinimalT)), T, MinimalT>::ValueT ValueT;
+		};
+
+		template < size_t SizeBits >
+		struct WidestTypeSelector<SizeBits, bool>
+		{
+			typedef typename Detail::MinimalTypeSelector<SizeBits>::ValueT ValueT;
 		};
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -207,8 +223,15 @@ namespace stingray
 		};
 
 #define DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(Op_) \
-		template < typename T, typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks > T operator Op_ (BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, UseMasks> bgp, T val) { return static_cast<T>(bgp) Op_ val; } \
-		template < typename T, typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks > T operator Op_ (T val, BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, UseMasks> bgp) { return val Op_ static_cast<T>(bgp); }
+		template < typename T, typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks > \
+		typename Detail::WidestTypeSelector<SizeBits, T>::ValueT \
+		operator Op_ (BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, UseMasks> bgp, T val) \
+		{ return static_cast<typename Detail::WidestTypeSelector<SizeBits, T>::ValueT>(bgp) Op_ val; } \
+		template < typename T, typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks > \
+		typename Detail::WidestTypeSelector<SizeBits, T>::ValueT \
+		operator Op_ (T val, BitsGetterProxy<ByteDataType_, BigEndian, OffsetBits, SizeBits, UseMasks> bgp) \
+		{ return val Op_ static_cast<typename Detail::WidestTypeSelector<SizeBits, T>::ValueT>(bgp); }																																	\
+
 
 	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(+)
 	DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR(-)
