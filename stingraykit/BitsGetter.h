@@ -377,12 +377,12 @@ namespace stingray
 		{ return Detail::BitsGetterProxy<ByteDataType, BigEndian,  OffsetBits, SizeBits>(_buf); }
 
 		template < size_t OffsetBits, typename PodType >
-		Detail::BitsGetterProxy<ByteDataType, BigEndian, OffsetBits, 8 * sizeof(PodType)> Get(const Dummy& dummy = Dummy()) const
-		{ return Get<OffsetBits, 8 * sizeof(PodType)>(); }
+		typename EnableIf<IsFixedWidthInt<PodType>::Value, PodType>::ValueT Get(const Dummy& dummy = Dummy()) const
+		{ return static_cast<PodType>(Get<OffsetBits, 8 * sizeof(PodType)>()); }
 
 		template < typename PodType >
-		Detail::BitsGetterProxy<ByteDataType, BigEndian, 0, 8 * sizeof(PodType)> Get(const Dummy& dummy = Dummy(), const Dummy& dummy2 = Dummy()) const
-		{ return Get<0, 8 * sizeof(PodType)>(); }
+		typename EnableIf<IsFixedWidthInt<PodType>::Value, PodType>::ValueT Get(const Dummy& dummy = Dummy(), const Dummy& dummy2 = Dummy()) const
+		{ return static_cast<PodType>(Get<0, 8 * sizeof(PodType)>()); }
 	};
 
 	template < typename ByteDataType_ , bool BigEndian = true >
