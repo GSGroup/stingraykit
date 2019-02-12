@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/array.h>
+#include <stingraykit/string/string_view.h>
 #include <stingraykit/toolkit.h>
 
 namespace stingray
@@ -17,8 +18,6 @@ namespace stingray
 	class UUID
 	{
 	public:
-		static const std::string Format;
-
 		typedef array<u8, 16> DataType;
 
 	private:
@@ -26,25 +25,21 @@ namespace stingray
 
 	public:
 		UUID() { }
-
 		explicit UUID(const DataType& data) : _data(data) { }
 
-		bool operator< (const UUID& other) const;
+		bool operator< (const UUID& other) const
+		{ return std::lexicographical_compare(_data.begin(), _data.end(), other._data.begin(), other._data.end()); }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(UUID);
 
 		static UUID Generate()
-		{
-			UUID result;
-			GenerateImpl(result);
-			return result;
-		}
+		{ UUID uuid; std::generate(uuid._data.begin(), uuid._data.end(), std::rand); return uuid; }
 
-		static UUID FromString(const std::string& str);
+		static UUID FromString(string_view str);
+
+		static string_view GetRepresentation();
 
 		std::string ToString() const;
 
-	private:
-		static void GenerateImpl(UUID& uuid);
 	};
 
 }
