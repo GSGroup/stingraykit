@@ -22,8 +22,8 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T >
-	T FromHex(const std::string& str)
+	template < typename T, typename StringType >
+	typename EnableIf<!IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
 	{
 		const size_t n = str.size();
 		T r = T();
@@ -48,8 +48,8 @@ namespace stingray
 	}
 
 
-	template < >
-	inline ByteArray FromHex<ByteArray>(const std::string& str)
+	template < typename T, typename StringType >
+	inline typename EnableIf<IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
 	{
 		const std::string::size_type n = str.size();
 		const ByteArray::CollectionTypePtr r = make_shared<ByteArray::CollectionType>();
