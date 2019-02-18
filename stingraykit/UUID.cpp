@@ -6,37 +6,43 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/UUID.h>
-#include <stingraykit/string/Hex.h>
 
-#include <stdlib.h>
+#include <stingraykit/string/Hex.h>
+#include <stingraykit/string/ToString.h>
+
 #include <algorithm>
+#include <cstdlib>
 
 namespace stingray
 {
 
-	const std::string UUID::Format = "XXXX-XX-XX-XX-XXXXXX";
-
-
-	bool UUID::operator<(const UUID& other) const
+	namespace
 	{
-		return std::lexicographical_compare(_data.begin(), _data.end(), other._data.begin(), other._data.end());
+
+		const char FormatStr[] = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+
+		const string_view Format(FormatStr);
+
 	}
 
 
-	UUID UUID::FromString(const std::string& str)
+	UUID UUID::FromString(string_view str)
 	{
-		STINGRAYKIT_CHECK(str.size() == static_cast<std::string::size_type>(2 * std::count(Format.begin(), Format.end(), 'X') + std::count(Format.begin(), Format.end(), '-')), "Invalid format");
+		STINGRAYKIT_CHECK(str.length() == Format.length(), FormatException("invalid length!"));
 
 		UUID result;
 
-		DataType::iterator data_it = result._data.begin();
-		for (std::string::const_iterator format_it = Format.begin(), str_it = str.begin(); format_it != Format.end(); ++format_it)
+		DataType::iterator res_it = result._data.begin();
+		string_view::const_pointer str_it = str.data();
+		for (string_view::const_iterator fmt_it = Format.begin(), end = Format.end(); fmt_it != end; ++fmt_it, ++str_it)
 		{
-			if (*format_it == 'X')
-				*data_it++ = FromHex<u8>(std::string((str_it++).base(), 2 * sizeof(u8)));
+			if (*fmt_it == 'X')
+			{
+				*res_it++ = FromHex<u8>(string_view(str_it++, 2));
+				++fmt_it;
+			}
 			else
-				STINGRAYKIT_CHECK(*str_it == '-', "Expected '-'");
-			++str_it;
+				STINGRAYKIT_CHECK(*str_it == *fmt_it, FormatException(StringBuilder() % "expected '" % *fmt_it % "'!"));
 		}
 
 		return result;
@@ -46,22 +52,23 @@ namespace stingray
 	std::string UUID::ToString() const
 	{
 		std::string result;
+		result.reserve(Format.length());
 
 		DataType::const_iterator data_it = _data.begin();
-		for (std::string::const_iterator format_it = Format.begin(); format_it != Format.end(); ++format_it)
-			if (*format_it == 'X')
-				result += ToHex(*data_it++, 2 * sizeof(u8));
+		for (string_view::const_iterator fmt_it = Format.begin(), end = Format.end(); fmt_it != end; ++fmt_it)
+			if (*fmt_it == 'X')
+			{
+				result += ToHex(*data_it++, 2);
+				++fmt_it;
+			}
 			else
-				result += *format_it;
+				result += *fmt_it;
 
 		return result;
 	}
 
 
-	void UUID::GenerateImpl(UUID& uuid)
-	{
-		for (DataType::iterator it = uuid._data.begin(); it != uuid._data.end(); ++it)
-			*it = rand();
-	}
+	string_view UUID::GetRepresentation()
+	{ return Format; }
 
 }
