@@ -76,6 +76,27 @@ namespace stingray
 		bool HasValue() const { return *_val; }
 	};
 
+
+	template < >
+	class ValueFromSignalObtainer<void> : public function_info<void()>
+	{
+		typedef shared_ptr<bool>	TPtrPtr;
+
+	private:
+		TPtrPtr	_val;
+
+	public:
+		ValueFromSignalObtainer() : _val(make_shared<bool>()) { }
+
+		void operator() () const
+		{
+			STINGRAYKIT_CHECK(!*_val, "Value already set!");
+			*_val = true;
+		}
+
+		bool HasValue() const { return *_val; }
+	};
+
 	/** @} */
 
 }
