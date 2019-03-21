@@ -130,6 +130,17 @@ namespace stingray
 		inline ClassName_::Enum operator & (ClassName_::Enum l, ClassName_::Enum r) \
 		{ ClassName_ result(l); return result &= r; }
 
+#define STINGRAYKIT_DECLARE_ENUM_CLASS_MEMBER_BIT_OPERATORS(ClassName_) \
+	public: \
+		inline ClassName_& operator |= (ClassName_::Enum r) \
+		{ return *this = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(val()) | static_cast<int>(r))); } \
+		inline ClassName_& operator &= (ClassName_::Enum r) \
+		{ return *this = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(val()) & static_cast<int>(r))); } \
+		inline ClassName_::Enum operator | (ClassName_::Enum r) \
+		{ ClassName_ result(*this); return result |= r; } \
+		inline ClassName_::Enum operator & (ClassName_::Enum r) \
+		{ ClassName_ result(*this); return result &= r; }
+
 #define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
 		inline bool operator > (const ClassName& other) const \
 		{ return other < (*this); } \
