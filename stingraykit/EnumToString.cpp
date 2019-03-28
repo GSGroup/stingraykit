@@ -172,7 +172,7 @@ namespace stingray
 		{}
 
 		EnumToStringMapBase::~EnumToStringMapBase()
-		{}
+		{ CheckedDelete(_impl); }
 
 		void EnumToStringMapBase::DoInit(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const char* str)
 		{ _impl->Init(valuesBegin, valuesEnd, str); }

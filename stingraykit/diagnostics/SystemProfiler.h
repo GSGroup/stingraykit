@@ -12,6 +12,7 @@
 #include <memory>
 #include <string>
 #include <stingraykit/toolkit.h>
+#include <stingraykit/unique_ptr.h>
 
 
 namespace stingray
@@ -28,7 +29,7 @@ namespace stingray
 
 		class Impl;
 
-		std::auto_ptr<Impl>		_impl;
+		unique_ptr<Impl>		_impl;
 		std::string				_message;
 		s64						_thresholdMs;
 		s64						_criticalMs;

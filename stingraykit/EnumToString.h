@@ -39,7 +39,7 @@ namespace stingray
 
 		private:
 			struct Impl;
-			std::auto_ptr<Impl>	_impl;
+			Impl*	_impl;
 
 			EnumToStringMapBase(const EnumToStringMapBase&);
 			EnumToStringMapBase& operator = (const EnumToStringMapBase&);
