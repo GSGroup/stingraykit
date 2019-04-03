@@ -270,7 +270,7 @@ namespace stingray
 		static DetypedFunctionPtr VTableFuncImpl(size_t functionIndex)
 		{
 			DetypedFunctionPtr result = NULL;
-			if (!Detail::RuntimeImplSelector<VTableHelper, GetTypeListLength<Concepts>::Value>::Do(functionIndex, ref(result)))
+			if (!Detail::RuntimeImplSelector<VTableHelper, GetTypeListLength<Concepts>::Value>::Do(functionIndex, wrap_ref(result)))
 				Detail::TypeErasureHelper::Terminate();
 			return result;
 		}

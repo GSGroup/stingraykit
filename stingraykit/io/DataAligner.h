@@ -21,7 +21,7 @@ namespace stingray
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&DataAligner::Align, this, ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, ref(consumer), _1), token); }
+		{ _source->ReadToFunction(bind(&DataAligner::Align, this, wrap_ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, wrap_ref(consumer), _1), token); }
 
 	private:
 		size_t Align(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)

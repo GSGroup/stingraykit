@@ -43,7 +43,7 @@ namespace stingray
 			return;
 		}
 
-		const ScopeExitInvoker sei(bind(&optional<std::string>::reset, ref(_activeExecutor)));
+		const ScopeExitInvoker sei(bind(&optional<std::string>::reset, wrap_ref(_activeExecutor)));
 		_activeExecutor = Thread::GetCurrentThreadName();
 
 		while (!_queue.empty() && token)
@@ -90,7 +90,7 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, wrap_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				task.first();
 			}
 			else

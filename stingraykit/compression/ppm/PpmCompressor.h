@@ -106,7 +106,7 @@ namespace stingray
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&PpmCompressor::DoProcess, this, ref(consumer), _1, _2), bind(&PpmCompressor::DoEndOfData, this, ref(consumer), _1), token); }
+		{ _source->ReadToFunction(bind(&PpmCompressor::DoProcess, this, wrap_ref(consumer), _1, _2), bind(&PpmCompressor::DoEndOfData, this, wrap_ref(consumer), _1), token); }
 
 	private:
 		size_t DoProcess(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
@@ -126,7 +126,7 @@ namespace stingray
 			_model->Predict(_context, null, bind(&PpmCompressor::DoEncode, this, _1, _2, _3));
 
 			_coder.EndOfData(bind(&PpmCompressor::AddBit, this, _1));
-			if (!_bitBuffer.EndOfData(bind(&IDataConsumer::Process, &consumer, _1, ref(token))))
+			if (!_bitBuffer.EndOfData(bind(&IDataConsumer::Process, &consumer, _1, wrap_ref(token))))
 				return;
 			consumer.EndOfData(token);
 		}
@@ -153,7 +153,7 @@ namespace stingray
 		bool ConsumeData(IDataConsumer& consumer, const ICancellationToken& token)
 		{
 			while (_bitBuffer.GetFreeSizeBits() < MaxBitsPerSymbol)
-				if (!_bitBuffer.ConsumeBytes(bind(&IDataConsumer::Process, &consumer, _1, ref(token))))
+				if (!_bitBuffer.ConsumeBytes(bind(&IDataConsumer::Process, &consumer, _1, wrap_ref(token))))
 					return false;
 			return true;
 		}

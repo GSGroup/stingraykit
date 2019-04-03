@@ -96,7 +96,7 @@ namespace stingray
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&PpmDecompressor::DoProcess, this, ref(consumer), _1, _2), bind(&PpmDecompressor::DoEndOfData, this, ref(consumer), _1), token); }
+		{ _source->ReadToFunction(bind(&PpmDecompressor::DoProcess, this, wrap_ref(consumer), _1, _2), bind(&PpmDecompressor::DoEndOfData, this, wrap_ref(consumer), _1), token); }
 
 	private:
 		size_t DoProcess(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)

@@ -432,9 +432,9 @@ namespace stingray
 				size_t tail_len = cmd.size();
 
 				Tuple<ParamsList> args;
-				if (!ForIf<GetTypeListLength<typename StringsTuple::TypeList>::Value, StringsParser>::Do(ref(_strings), ref(cmd_str), ref(tail_len)))
+				if (!ForIf<GetTypeListLength<typename StringsTuple::TypeList>::Value, StringsParser>::Do(wrap_ref(_strings), wrap_ref(cmd_str), wrap_ref(tail_len)))
 					return false;
-				if (!ForIf<GetTypeListLength<ParamsList>::Value, ArgsParser>::Do(ref(args), ref(cmd_str), ref(tail_len)))
+				if (!ForIf<GetTypeListLength<ParamsList>::Value, ArgsParser>::Do(wrap_ref(args), wrap_ref(cmd_str), wrap_ref(tail_len)))
 					return false;
 
 				if (tail_len != 0)
@@ -448,9 +448,9 @@ namespace stingray
 			virtual void Complete(const std::string& cmd, CompletionResults& results)
 			{
 				std::string local(cmd);
-				if (!ForIf<GetTypeListLength<typename StringsTuple::TypeList>::Value, StringsCompleter>::Do(ref(_strings), ref(local), ref(results)))
+				if (!ForIf<GetTypeListLength<typename StringsTuple::TypeList>::Value, StringsCompleter>::Do(wrap_ref(_strings), wrap_ref(local), wrap_ref(results)))
 					return;
-				ForIf<GetTypeListLength<ParamsList>::Value, ArgsCompleter>::Do(ref(local), ref(results), const_ref(_customComplete));
+				ForIf<GetTypeListLength<ParamsList>::Value, ArgsCompleter>::Do(wrap_ref(local), wrap_ref(results), wrap_const_ref(_customComplete));
 			}
 		};
 

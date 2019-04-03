@@ -615,7 +615,7 @@ namespace stingray
 			static ObjectIStream& Deserialize(IObjectSerializator *owner, ObjectIStream& dst, CollectionType &collection)
 			{
 				collection.clear();
-				dst.for_each(bind(&DeserializeAndPushBack, dst, owner, ref(collection), _1));
+				dst.for_each(bind(&DeserializeAndPushBack, dst, owner, wrap_ref(collection), _1));
 				return dst;
 			}
 		};
@@ -641,7 +641,7 @@ namespace stingray
 			static ObjectIStream& Deserialize(IObjectSerializator *owner, ObjectIStream& dst, CollectionType &collection)
 			{
 				collection.clear();
-				dst.for_each(bind(&DeserializeAndInsert, dst, owner, ref(collection), _1));
+				dst.for_each(bind(&DeserializeAndInsert, dst, owner, wrap_ref(collection), _1));
 				return dst;
 			}
 		};
@@ -698,7 +698,7 @@ namespace stingray
 		{
 			int index = 0;
 			Deserialize("index", index);
-			For<GetTypeListLength<Types_>::Value, SerializationUtils::VariantObjectCreator<Types_>::template CreatorFunc>::Do(index, ref(v));
+			For<GetTypeListLength<Types_>::Value, SerializationUtils::VariantObjectCreator<Types_>::template CreatorFunc>::Do(index, wrap_ref(v));
 			apply_visitor(SerializationUtils::VariantDeserializeVisitor<ObjectIStream>(*this), v);
 		}
 
@@ -762,7 +762,7 @@ namespace stingray
 
 			//human readable "key": "value" maps
 			data.clear();
-			for_each_kv(bind(&ObjectIStream::deserialize_name_value<V>, this, _collection, ref(data), _1, _2));
+			for_each_kv(bind(&ObjectIStream::deserialize_name_value<V>, this, _collection, wrap_ref(data), _1, _2));
 			return *this;
 		}
 
@@ -770,7 +770,7 @@ namespace stingray
 		ObjectIStream& deserializeMap(std::map<K, V> & data)
 		{
 			data.clear();
-			for_each(bind(&ObjectIStream::deserialize_pair<K, V>, this, _collection, ref(data), _1));
+			for_each(bind(&ObjectIStream::deserialize_pair<K, V>, this, _collection, wrap_ref(data), _1));
 			return *this;
 		}
 

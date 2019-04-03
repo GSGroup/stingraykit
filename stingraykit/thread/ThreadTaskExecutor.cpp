@@ -79,7 +79,7 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, wrap_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				task.first();
 			}
 			else

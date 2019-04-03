@@ -607,21 +607,21 @@ namespace stingray
 
 			Self& First()
 			{
-				For<RangeCount, CallFirst>::Do(ref(_ranges));
+				For<RangeCount, CallFirst>::Do(wrap_ref(_ranges));
 				_value.reset();
 				return *this;
 			}
 
 			Self& Next()
 			{
-				For<RangeCount, CallNext>::Do(ref(_ranges));
+				For<RangeCount, CallNext>::Do(wrap_ref(_ranges));
 				_value.reset();
 				return *this;
 			}
 
 			Self& Prev()
 			{
-				For<RangeCount, CallPrev>::Do(ref(_ranges));
+				For<RangeCount, CallPrev>::Do(wrap_ref(_ranges));
 				_value.reset();
 				return *this;
 			}

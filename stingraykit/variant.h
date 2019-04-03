@@ -77,7 +77,7 @@ namespace stingray
 			{
 				typedef typename Visitor::RetType RetType;
 				optional<RetType> result;
-				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var), ref(result)))
+				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, wrap_ref(var), wrap_ref(result)))
 					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 				return *result;
 			}
@@ -100,7 +100,7 @@ namespace stingray
 
 			static void Apply(const Visitor& v, Variant& var)
 			{
-				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, ref(var)))
+				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, wrap_ref(var)))
 					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 			}
 		};
@@ -197,7 +197,7 @@ namespace stingray
 		protected:
 			template<typename Visitor>
 			typename Visitor::RetType ApplyFunctor(const Visitor& v)
-			{ return Detail::VariantFunctorApplier<Visitor, MyType>::Apply(v, ref(*this)); }
+			{ return Detail::VariantFunctorApplier<Visitor, MyType>::Apply(v, wrap_ref(*this)); }
 
 			template<typename Visitor>
 			typename Visitor::RetType ApplyFunctor(const Visitor& v) const

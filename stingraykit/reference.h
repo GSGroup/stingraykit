@@ -34,11 +34,11 @@ namespace stingray
 
 
 	template < typename T>
-	reference<T> ref(T& obj)
+	reference<T> wrap_ref(T& obj)
 	{ return reference<T>(obj); }
 
 	template < typename T>
-	reference<const T> const_ref(const T& obj)
+	reference<const T> wrap_const_ref(const T& obj)
 	{ return reference<const T>(obj); }
 
 	template < typename T >

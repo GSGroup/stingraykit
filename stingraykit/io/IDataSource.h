@@ -99,7 +99,7 @@ namespace stingray
 		{ }
 
 		virtual void Read(IDataConsumer& c, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, ref(c), _1, _2), bind(&DataInterceptor::Eod, this, ref(c), _1), token); }
+		{ _source->ReadToFunction(bind(&DataInterceptor::DoPush, this, wrap_ref(c), _1, _2), bind(&DataInterceptor::Eod, this, wrap_ref(c), _1), token); }
 
 	private:
 		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)

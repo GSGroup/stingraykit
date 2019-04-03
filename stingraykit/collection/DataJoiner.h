@@ -112,7 +112,7 @@ namespace stingray
 		static void ApplyToIntervals(DataJoinerIterator from, DataJoinerIterator to, VisitorType& visitor)
 		{
 			STINGRAYKIT_CHECK(from._containers == to._containers, "Iterators are from different containers!");
-			For<ContainersCount, IntervalsFunctor<VisitorType>::template Func>::Do(from, to, ref(visitor));
+			For<ContainersCount, IntervalsFunctor<VisitorType>::template Func>::Do(from, to, wrap_ref(visitor));
 		}
 
 	private:
@@ -166,7 +166,7 @@ namespace stingray
 		difference_type GetDistanceFromBegin() const
 		{
 			difference_type result = 0;
-			if (ForIf<ContainersCount, DistanceFunctor>::Do(_containers, _iterator, ref(result)))
+			if (ForIf<ContainersCount, DistanceFunctor>::Do(_containers, _iterator, wrap_ref(result)))
 				STINGRAYKIT_THROW("Unknown index!");
 			return result;
 		}
@@ -193,7 +193,7 @@ namespace stingray
 
 		void SetDistanceFromBegin(size_t offset)
 		{
-			if (ForIf<ContainersCount, AdvanceFunctor>::Do(_containers, ref(offset), ref(_iterator)))
+			if (ForIf<ContainersCount, AdvanceFunctor>::Do(_containers, wrap_ref(offset), wrap_ref(_iterator)))
 			{
 				STINGRAYKIT_CHECK(offset == 0, "Offset is too big!");
 				typedef typename GetTypeListItem<IndexedIterators, ContainersCount - 1>::ValueT IterType;
@@ -230,7 +230,7 @@ namespace stingray
 		size_t size() const
 		{
 			size_t result = 0;
-			For<GetTypeListLength<ContainersTypeList>::Value, SizeFunctor>::Do(&_containers, ref(result));
+			For<GetTypeListLength<ContainersTypeList>::Value, SizeFunctor>::Do(&_containers, wrap_ref(result));
 			return result;
 		}
 

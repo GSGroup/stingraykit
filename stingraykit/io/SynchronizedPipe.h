@@ -35,8 +35,8 @@ namespace stingray
 			IPipePtr pipe;
 			_pipe.swap(pipe);
 
-			const ScopeExitInvoker sei1(bind(&ConditionVariable::Broadcast, ref(_cv)));
-			const ScopeExitInvoker sei2(bind(&IPipePtr::swap, ref(_pipe), ref(pipe)));
+			const ScopeExitInvoker sei1(bind(&ConditionVariable::Broadcast, wrap_ref(_cv)));
+			const ScopeExitInvoker sei2(bind(&IPipePtr::swap, wrap_ref(_pipe), wrap_ref(pipe)));
 
 			MutexUnlock ul(l);
 			CheckedWriteAll(*pipe, data, token);

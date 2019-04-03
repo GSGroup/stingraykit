@@ -147,7 +147,7 @@ namespace stingray
 				typedef typename GetTypeListItem<Default, 1>::ValueT DefaultValue;
 
 				DstT result = static_cast<DstT>(0);
-				if (ForIf<GetTypeListLength<List>::Value / 2, MapFunctor>::Do(val, ref(result)))
+				if (ForIf<GetTypeListLength<List>::Value / 2, MapFunctor>::Do(val, wrap_ref(result)))
 					return DefaultValue::GetValue(val);
 				return result;
 			}
@@ -158,7 +158,7 @@ namespace stingray
 				typedef typename GetTypeListItem<Default, 0>::ValueT DefaultValue;
 
 				SrcT result = static_cast<SrcT>(0);
-				if (ForIf<GetTypeListLength<List>::Value / 2, UnmapFunctor>::Do(val, ref(result)))
+				if (ForIf<GetTypeListLength<List>::Value / 2, UnmapFunctor>::Do(val, wrap_ref(result)))
 					return DefaultValue::GetValue(val);
 				return result;
 			}
@@ -169,7 +169,7 @@ namespace stingray
 				typedef typename GetTypeListItem<Default, 1>::ValueT DefaultValue;
 
 				bool result = false;
-				if (ForIf<GetTypeListLength<List>::Value / 2, HasMappingFunctor>::Do(val, ref(result)))
+				if (ForIf<GetTypeListLength<List>::Value / 2, HasMappingFunctor>::Do(val, wrap_ref(result)))
 					result = DefaultValue::HasValue(val);
 				return result;
 			}
@@ -180,7 +180,7 @@ namespace stingray
 				typedef typename GetTypeListItem<Default, 0>::ValueT DefaultValue;
 
 				bool result = false;
-				if (ForIf<GetTypeListLength<List>::Value / 2, HasBackMappingFunctor>::Do(val, ref(result)))
+				if (ForIf<GetTypeListLength<List>::Value / 2, HasBackMappingFunctor>::Do(val, wrap_ref(result)))
 					result = DefaultValue::HasValue(val);
 				return result;
 			}
