@@ -41,7 +41,7 @@ namespace stingray
 		{ }
 
 		virtual ICompressionDictionaryBuilderPtr CreateBuilder() const
-		{ return make_shared<DictionaryBuilder>(_lowMemoryThreshold, _highMemoryThreshold, _finalMemoryThreshold); }
+		{ return make_shared_ptr<DictionaryBuilder>(_lowMemoryThreshold, _highMemoryThreshold, _finalMemoryThreshold); }
 	};
 
 }

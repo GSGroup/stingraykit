@@ -32,7 +32,7 @@ namespace stingray
 		BuilderPtr	_val;
 
 	public:
-		ValuesFromSignalCollector() : _val(make_shared<Builder>()) { }
+		ValuesFromSignalCollector() : _val(make_shared_ptr<Builder>()) { }
 
 		void operator() (const ValueType& val) const { (*_val) % val; }
 		void operator() (CollectionOp op, const ValueType& val) const { STINGRAYKIT_CHECK(op == CollectionOp::Added, "Invalid CollectionOp!"); (*_val) % val; }
@@ -57,7 +57,7 @@ namespace stingray
 		TPtrPtr	_val;
 
 	public:
-		ValueFromSignalObtainer() : _val(make_shared<TPtr>()) { }
+		ValueFromSignalObtainer() : _val(make_shared_ptr<TPtr>()) { }
 
 		void operator() (const T& val) const
 		{
@@ -86,7 +86,7 @@ namespace stingray
 		TPtrPtr	_val;
 
 	public:
-		ValueFromSignalObtainer() : _val(make_shared<bool>()) { }
+		ValueFromSignalObtainer() : _val(make_shared_ptr<bool>()) { }
 
 		void operator() () const
 		{

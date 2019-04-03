@@ -13,6 +13,6 @@ namespace stingray
 {
 
 	ITaskExecutorPtr ITaskExecutor::Create(const std::string& name)
-	{ return make_shared<ThreadTaskExecutor>(name); }
+	{ return make_shared_ptr<ThreadTaskExecutor>(name); }
 
 }

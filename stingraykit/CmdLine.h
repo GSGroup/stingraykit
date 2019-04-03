@@ -423,7 +423,7 @@ namespace stingray
 				Detail::CustomCompleteFuncsMap::const_iterator it = _customComplete.find(customComplete.N);
 				if (it != _customComplete.end())
 					STINGRAYKIT_THROW("Custom complete func for argument #" + stingray::ToString(customComplete.N) + " already registered!");
-				_customComplete[customComplete.N] = make_shared<Detail::CustomCompleteFunc>(customComplete.Func);
+				_customComplete[customComplete.N] = make_shared_ptr<Detail::CustomCompleteFunc>(customComplete.Func);
 			}
 
 			virtual bool Execute(const std::string& cmd)
@@ -489,7 +489,7 @@ namespace stingray
 			CustomCompleteFuncSetter operator = (const HandlerFunc& handlerFunc)
 			{
 				typedef typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, Decay>::ValueT	DecayedParams;
-				ICommandHandlerPtr ch = make_shared<CmdHandler<StringsTuple, DecayedParams> >(_strings, handlerFunc);
+				ICommandHandlerPtr ch = make_shared_ptr<CmdHandler<StringsTuple, DecayedParams> >(_strings, handlerFunc);
 				_inst->_commands.push_back(ch);
 				return CustomCompleteFuncSetter(ch);
 			}

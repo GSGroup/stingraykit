@@ -52,7 +52,7 @@ namespace stingray
 	inline typename EnableIf<IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
 	{
 		const std::string::size_type n = str.size();
-		const ByteArray::CollectionTypePtr r = make_shared<ByteArray::CollectionType>();
+		const ByteArray::CollectionTypePtr r = make_shared_ptr<ByteArray::CollectionType>();
 		std::string::size_type i = 0;
 
 		const std::string prefix("0x");

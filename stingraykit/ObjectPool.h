@@ -49,7 +49,7 @@ namespace stingray
 
 		template < typename T >
 		void AddObject(const shared_ptr<T>& obj)
-		{ MutexLock l(_mutex); _objects.push_back(make_shared<ObjectHolder<T> >(obj)); }
+		{ MutexLock l(_mutex); _objects.push_back(make_shared_ptr<ObjectHolder<T> >(obj)); }
 
 		void CollectGarbage()
 		{

@@ -25,13 +25,13 @@ namespace stingray
 
 	public:
 		T Make() const			{ return *_instPtr; }
-		TPtr MakeShared() const	{ return make_shared<T>(*_instPtr); }
+		TPtr MakeShared() const	{ return make_shared_ptr<T>(*_instPtr); }
 
 		operator T() const		{ return Make(); }
 		operator TPtr() const	{ return MakeShared(); }
 
 	protected:
-		CloneBuilderBase(const T& inst) : _instPtr(make_shared<T>(inst)) { }
+		CloneBuilderBase(const T& inst) : _instPtr(make_shared_ptr<T>(inst)) { }
 		~CloneBuilderBase() { }
 
 		T& GetInst() { return *_instPtr; }

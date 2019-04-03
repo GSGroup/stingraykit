@@ -81,7 +81,7 @@ namespace stingray
 				return;
 
 		STINGRAYKIT_CHECK(_workers.size() < _maxThreads, "Thread limit exceeded");
-		_workers.push_back(make_shared<WorkerWrapper>(StringBuilder() % _name % "_" % _workers.size(), _profileCalls));
+		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % _workers.size(), _profileCalls));
 
 		STINGRAYKIT_CHECK(_workers.back()->TryAddTask(task), "Internal ThreadPool error!");
 	}

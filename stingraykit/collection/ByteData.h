@@ -153,7 +153,7 @@ namespace stingray
 		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
 
 		BasicByteArray():
-			_data(make_shared<CollectionType>()), _offset(0), _sizeLimit(NoSizeLimit)
+			_data(make_shared_ptr<CollectionType>()), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		BasicByteArray(const CollectionTypePtr & data):
@@ -161,21 +161,21 @@ namespace stingray
 		{ }
 
 		explicit BasicByteArray(size_t size):
-			_data(make_shared<CollectionType>(size)), _offset(0), _sizeLimit(NoSizeLimit)
+			_data(make_shared_ptr<CollectionType>(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		BasicByteArray(const T* data, size_t size):
-			_data(make_shared<CollectionType>(data, data + size)), _offset(0), _sizeLimit(NoSizeLimit)
+			_data(make_shared_ptr<CollectionType>(data, data + size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		template < typename Range >
 		explicit BasicByteArray(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0):
-			_data(make_shared<CollectionType>(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
+			_data(make_shared_ptr<CollectionType>(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		template < typename InputIterator >
 		BasicByteArray(InputIterator first, InputIterator last):
-			_data(make_shared<CollectionType>(first, last)), _offset(0), _sizeLimit(NoSizeLimit)
+			_data(make_shared_ptr<CollectionType>(first, last)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		template < typename U >

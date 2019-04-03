@@ -63,7 +63,7 @@
 			{ \
 				KeyHolderPtr key = stingray::SafeSingleton<KeyHolder>::Instance(); \
 				if (!key) \
-					key = stingray::make_shared<KeyHolder>(); \
+					key = stingray::make_shared_ptr<KeyHolder>(); \
 				stingray::unique_ptr<ValueHolder> valPtr(new ValueHolder(key)); \
 				int res = pthread_setspecific(key->GetKey(), valPtr.get()); \
 				STINGRAYKIT_CHECK(res == 0, stingray::SystemException("pthread_setspecific", res)); \

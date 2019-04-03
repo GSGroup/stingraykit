@@ -118,7 +118,7 @@ namespace stingray
 
 	template < typename KeyType, typename ValueType, typename EqualsCmp >
 	shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> > GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key, const EqualsCmp& equalsCmp)
-	{ return make_shared<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> >(dict, key); }
+	{ return make_shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> >(dict, key); }
 
 
 	template < typename KeyType, typename ValueType >
@@ -128,7 +128,7 @@ namespace stingray
 
 	template < typename KeyType, typename ValueType, typename EqualsCmp >
 	shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> > GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key, const EqualsCmp& equalsCmp)
-	{ return make_shared<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> >(dict, key); }
+	{ return make_shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> >(dict, key); }
 
 
 	template < typename KeyType, typename ValueType >

@@ -26,11 +26,11 @@ namespace stingray
 		shared_ptr<Container> _container;
 
 	public:
-		EnumerableBuilder() : _container(make_shared<Container>())
+		EnumerableBuilder() : _container(make_shared_ptr<Container>())
 		{ }
 
 		template <typename Iter>
-		EnumerableBuilder(Iter first, Iter last) : _container(make_shared<Container>(first, last))
+		EnumerableBuilder(Iter first, Iter last) : _container(make_shared_ptr<Container>(first, last))
 		{ }
 
 		operator EnumerablePtr () const

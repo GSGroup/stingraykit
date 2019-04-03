@@ -108,11 +108,11 @@ namespace stingray
 		{ }
 
 		explicit SharedHolder(const CleanupFuncType& cleanupFunc)
-			: _impl(make_shared<Impl>(cleanupFunc))
+			: _impl(make_shared_ptr<Impl>(cleanupFunc))
 		{ }
 
 		SharedHolder(NativeType handle, const CleanupFuncType& cleanupFunc)
-			: _impl(make_shared<Impl>(handle, cleanupFunc))
+			: _impl(make_shared_ptr<Impl>(handle, cleanupFunc))
 		{ }
 
 		~SharedHolder()
@@ -145,7 +145,7 @@ namespace stingray
 		{ }
 
 		explicit SharedHolder(const CleanupFuncType& cleanupFunc)
-			: _impl(make_shared<Impl>(cleanupFunc))
+			: _impl(make_shared_ptr<Impl>(cleanupFunc))
 		{ }
 
 		~SharedHolder()

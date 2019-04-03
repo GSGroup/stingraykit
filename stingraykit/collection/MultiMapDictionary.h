@@ -60,14 +60,14 @@ namespace stingray
 
 	public:
 		MultiMapDictionary()
-			:	_map(make_shared<MapType>())
+			:	_map(make_shared_ptr<MapType>())
 		{ }
 
 		MultiMapDictionary(const MultiMapDictionary& other)
 		{ CopyMap(other._map); }
 
 		MultiMapDictionary(shared_ptr<IEnumerable<PairType> > enumerable)
-			:	_map(make_shared<MapType>())
+			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			FOR_EACH(const PairType p IN enumerable)
@@ -75,7 +75,7 @@ namespace stingray
 		}
 
 		MultiMapDictionary(shared_ptr<IEnumerator<PairType> > enumerator)
-			:	_map(make_shared<MapType>())
+			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			FOR_EACH(const PairType p IN enumerator)
@@ -89,7 +89,7 @@ namespace stingray
 		{ return WrapMapEnumerator(EnumeratorFromStlContainer(*_map, GetMapHolder())); }
 
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-		{ return make_shared<ReverseEnumerable>(GetMapHolder()); }
+		{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
 
 		virtual size_t GetCount() const
 		{ return _map->size(); }
@@ -189,7 +189,7 @@ namespace stingray
 				_map->clear();
 			else
 			{
-				_map = make_shared<MapType>();
+				_map = make_shared_ptr<MapType>();
 				_mapHolder.reset();
 			}
 		}
@@ -213,7 +213,7 @@ namespace stingray
 
 		void CopyMap(const MapTypePtr& map)
 		{
-			_map = make_shared<MapType>(*map);
+			_map = make_shared_ptr<MapType>(*map);
 			_mapHolder.reset();
 		}
 
@@ -222,7 +222,7 @@ namespace stingray
 			HolderPtr mapHolder = _mapHolder.lock();
 
 			if (!mapHolder)
-				_mapHolder = (mapHolder = make_shared<Holder>(_map));
+				_mapHolder = (mapHolder = make_shared_ptr<Holder>(_map));
 
 			return mapHolder;
 		}
@@ -234,7 +234,7 @@ namespace stingray
 		}
 
 		static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
-		{ return make_shared<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
+		{ return make_shared_ptr<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
 	};
 
 	/** @} */

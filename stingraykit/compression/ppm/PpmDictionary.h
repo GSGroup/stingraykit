@@ -26,10 +26,10 @@ namespace stingray
 		{ }
 
 		virtual ICompressorPtr Compress(const IDataSourcePtr& source) const
-		{ return make_shared<Compressor>(_model, source); }
+		{ return make_shared_ptr<Compressor>(_model, source); }
 
 		virtual IDecompressorPtr Decompress(const IDataSourcePtr& source) const
-		{ return make_shared<Decompressor>(_model, source); }
+		{ return make_shared_ptr<Decompressor>(_model, source); }
 
 		virtual std::string ToString() const
 		{ return StringBuilder() % _model; }

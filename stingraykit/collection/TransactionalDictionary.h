@@ -52,7 +52,7 @@ namespace stingray
 		struct Utils
 		{
 			static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
-			{ return make_shared<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
+			{ return make_shared_ptr<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
 
 			static DiffEntryType MakeDiffEntry(CollectionOp op, const typename MapType::value_type& pair)
 			{ return stingray::MakeDiffEntry(op, PairType(pair)); }
@@ -61,7 +61,7 @@ namespace stingray
 			{
 				typedef typename MapType::const_iterator cit;
 
-				const shared_ptr<std::vector<DiffEntryType> > diff = make_shared<std::vector<DiffEntryType> >();
+				const shared_ptr<std::vector<DiffEntryType> > diff = make_shared_ptr<std::vector<DiffEntryType> >();
 
 				const cit oldEnd = oldMap->end();
 				const cit newEnd = newMap->end();
@@ -136,8 +136,8 @@ namespace stingray
 
 		public:
 			ImplData()
-				:	Guard(make_shared<Mutex>()),
-					Map(make_shared<MapType>()),
+				:	Guard(make_shared_ptr<Mutex>()),
+					Map(make_shared_ptr<MapType>()),
 					HasTransaction(false),
 					OnChanged(ExternalMutexPointer(Guard), Bind(&ImplData::OnChangedPopulator, this, _1))
 			{ }
@@ -198,7 +198,7 @@ namespace stingray
 			}
 
 			virtual shared_ptr<IEnumerable<PairType> > Reverse() const
-			{ return make_shared<ReverseEnumerable>(GetMapHolder()); }
+			{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
 
 			virtual size_t GetCount() const
 			{ return _newMap ? _newMap->size() : _oldMap->size(); }
@@ -309,7 +309,7 @@ namespace stingray
 					_newMap->clear();
 				else
 				{
-					_newMap = make_shared<MapType>();
+					_newMap = make_shared_ptr<MapType>();
 					_newMapHolder.reset();
 				}
 			}
@@ -371,12 +371,12 @@ namespace stingray
 			HolderPtr GetMapHolder() const
 			{
 				if (!_newMap)
-					return make_shared<Holder>(_oldMap);
+					return make_shared_ptr<Holder>(_oldMap);
 
 				HolderPtr newMapHolder = _newMapHolder.lock();
 
 				if (!newMapHolder)
-					_newMapHolder = (newMapHolder = make_shared<Holder>(_newMap));
+					_newMapHolder = (newMapHolder = make_shared_ptr<Holder>(_newMap));
 
 				return newMapHolder;
 			}
@@ -386,10 +386,10 @@ namespace stingray
 				_cachedDiff.reset();
 
 				if (!_newMap)
-					_newMap = make_shared<MapType>(*_oldMap);
+					_newMap = make_shared_ptr<MapType>(*_oldMap);
 				else if (!_newMapHolder.expired())
 				{
-					_newMap = make_shared<MapType>(*_newMap);
+					_newMap = make_shared_ptr<MapType>(*_newMap);
 					_newMapHolder.reset();
 				}
 			}
@@ -407,7 +407,7 @@ namespace stingray
 
 	public:
 		TransactionalDictionary()
-			:	_impl(make_shared<ImplData>())
+			:	_impl(make_shared_ptr<ImplData>())
 		{ }
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
@@ -419,7 +419,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
 		{
 			MutexLock l(*_impl->Guard);
-			return make_shared<ReverseEnumerable>(make_shared<Holder>(_impl->Map));
+			return make_shared_ptr<ReverseEnumerable>(make_shared_ptr<Holder>(_impl->Map));
 		}
 
 		virtual size_t GetCount() const
@@ -487,7 +487,7 @@ namespace stingray
 		}
 
 		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken())
-		{ return make_shared<Transaction>(_impl, token); }
+		{ return make_shared_ptr<Transaction>(_impl, token); }
 
 		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const
 		{ return _impl->OnChanged.connector(); }
@@ -496,7 +496,7 @@ namespace stingray
 		{ return *_impl->Guard; }
 
 		ObservableCollectionLockerPtr Lock() const
-		{ return make_shared<ObservableCollectionLocker>(*this); }
+		{ return make_shared_ptr<ObservableCollectionLocker>(*this); }
 	};
 
 	/** @} */

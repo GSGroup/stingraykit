@@ -137,7 +137,7 @@ namespace stingray
 			_lastStatsDump(0),
 			_syncNext(1),
 			_syncDone(_syncNext - 1),
-			_thread(make_shared<Thread>(StringBuilder() % "asyncByteStream(" % _name % ")", Bind(&AsyncByteStream::ThreadFunc, this, _1)))
+			_thread(make_shared_ptr<Thread>(StringBuilder() % "asyncByteStream(" % _name % ")", Bind(&AsyncByteStream::ThreadFunc, this, _1)))
 	{
 		_stream->Seek(0, SeekMode::End);
 		_length = stream->Tell();
@@ -304,7 +304,7 @@ namespace stingray
 			return;
 		}
 
-		AsyncProfiler::Session profiler_session((_profiler ? _profiler : (_profiler = make_shared<AsyncProfiler>(StringBuilder() % "AsyncByteStream(" % _name % "):profiler"))), "'Sync'", TimeDuration::Second());
+		AsyncProfiler::Session profiler_session((_profiler ? _profiler : (_profiler = make_shared_ptr<AsyncProfiler>(StringBuilder() % "AsyncByteStream(" % _name % "):profiler"))), "'Sync'", TimeDuration::Second());
 		while (true)
 		{
 			_syncCondVar.Wait(_streamOpQueueMutex, TimedCancellationToken(TimeDuration::Second()));
@@ -329,7 +329,7 @@ namespace stingray
 			_streamOpQueue.push_back(StreamOpData::PopBuffer());
 			_condVar.Broadcast();
 		}
-		_buffers.push_front(make_shared<BithreadCircularBuffer>(config.BufferSize()));
+		_buffers.push_front(make_shared_ptr<BithreadCircularBuffer>(config.BufferSize()));
 		_config = config;
 		_bufferPreallocationSize = _config.PageSize() * _config.MergeablePagesHint();
 		_bufferLowWater = std::max(_config.BufferSize() / 10, std::min(_config.BufferSize() / 2, _bufferPreallocationSize * 2));

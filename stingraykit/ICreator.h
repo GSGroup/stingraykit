@@ -36,11 +36,11 @@ namespace stingray
 		ParamMembersDecl_ \
 	public: \
 		ConstructorCreator##N_(CtorParamsDecl_) : CtorParamsInit_ { } \
-		virtual shared_ptr<InterfaceType> Create() const { return make_shared<ClassType>(CtorParams_); } \
+		virtual shared_ptr<InterfaceType> Create() const { return make_shared_ptr<ClassType>(CtorParams_); } \
 	}; \
 	template < typename InterfaceType, typename ClassType, ParamTypesDecl_ > \
 	shared_ptr<ConstructorCreator##N_<InterfaceType, ClassType, ParamTypes_> > MakeConstructorCreator(CtorParamsDecl_) \
-	{ return make_shared<ConstructorCreator##N_<InterfaceType, ClassType, ParamTypes_> >(CtorParams_); }
+	{ return make_shared_ptr<ConstructorCreator##N_<InterfaceType, ClassType, ParamTypes_> >(CtorParams_); }
 
 #define PTD(I_) typename T##I_
 #define PT(I_) T##I_
@@ -67,12 +67,12 @@ namespace stingray
 	template < typename InterfaceType, typename ClassType >
 	struct DefaultConstructorCreator : public virtual ICreator<InterfaceType>
 	{
-		virtual shared_ptr<InterfaceType> Create() const { return make_shared<ClassType>(); }
+		virtual shared_ptr<InterfaceType> Create() const { return make_shared_ptr<ClassType>(); }
 	};
 
 	template < typename InterfaceType, typename ClassType >
 	shared_ptr<DefaultConstructorCreator<InterfaceType, ClassType> > MakeConstructorCreator()
-	{ return make_shared<DefaultConstructorCreator<InterfaceType, ClassType> >(); }
+	{ return make_shared_ptr<DefaultConstructorCreator<InterfaceType, ClassType> >(); }
 
 	template <typename ClassType >
 	struct SingleInstanceCreatorBase
@@ -80,7 +80,7 @@ namespace stingray
 	protected:
 		shared_ptr<ClassType> GetInstance() const
 		{
-			static shared_ptr<ClassType> instance(make_shared<ClassType>());
+			static shared_ptr<ClassType> instance(make_shared_ptr<ClassType>());
 			return instance;
 		}
 	};

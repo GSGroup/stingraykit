@@ -90,12 +90,12 @@ namespace stingray
 
 	template<typename SrcType, typename CasterType>
 	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<IEnumerator<SrcType> >& src, const CasterType& caster)
-	{ return make_shared<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster); }
+	{ return make_shared_ptr<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster); }
 
 
 	template<typename SrcType, typename CasterType, typename FilterPredicate>
 	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<IEnumerator<SrcType> >& src, const CasterType& caster, const FilterPredicate& filterPredicate)
-	{ return make_shared<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
+	{ return make_shared_ptr<EnumeratorWrapper<SrcType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
 
 }
 

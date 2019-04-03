@@ -102,7 +102,7 @@ namespace stingray
 				return *this;
 
 			if (!_stream)
-				_stream = make_shared<StreamType>();
+				_stream = make_shared_ptr<StreamType>();
 			ToString(*_stream, val);
 			return *this;
 		}
@@ -114,7 +114,7 @@ namespace stingray
 				return *this;
 
 			if (!_stream)
-				_stream = make_shared<StreamType>();
+				_stream = make_shared_ptr<StreamType>();
 			ToString(*_stream, val);
 			return *this;
 		}
@@ -125,7 +125,7 @@ namespace stingray
 				_duplicatingLogsFilter = val.Filter;
 
 			if (_duplicatingLogsFilter)
-				_hideDuplicatingLogs = make_shared<Detail::HideDuplicatingLogs>(val);
+				_hideDuplicatingLogs = make_shared_ptr<Detail::HideDuplicatingLogs>(val);
 
 			return *this;
 		}

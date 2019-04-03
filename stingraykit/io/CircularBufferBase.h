@@ -119,7 +119,7 @@ namespace stingray
 
 		shared_ptr<std::vector<u8> > GetAllData() const
 		{
-			shared_ptr<std::vector<u8> > result = make_shared<std::vector<u8> >();
+			shared_ptr<std::vector<u8> > result = make_shared_ptr<std::vector<u8> >();
 			result->reserve(GetSize());
 
 			if (_writeOffset >= _readOffset)
@@ -175,7 +175,7 @@ namespace stingray
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 				s_logger.Warning() << "Pop finished";
 			}
-			return make_shared<CircularDataReserver>(ReadStorage(_readOffset, result_size), Bind(&CircularBufferBase::ReleaseData, this, _1));
+			return make_shared_ptr<CircularDataReserver>(ReadStorage(_readOffset, result_size), Bind(&CircularBufferBase::ReleaseData, this, _1));
 		}
 
 		void Push(const ConstByteData &data)

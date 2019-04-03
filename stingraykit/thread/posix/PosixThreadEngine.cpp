@@ -187,7 +187,7 @@ namespace stingray
 			_kernelId(kernelId),
 			_pthreadId(pthreadId),
 			_parent(parent),
-			_threadInfo(make_shared<PosixThreadInfo>(pthreadId, name, executionTester)),
+			_threadInfo(make_shared_ptr<PosixThreadInfo>(pthreadId, name, executionTester)),
 			_registry(SafeSingleton<ThreadsRegistry>::Instance())
 		{
 			if (!_registry)
@@ -237,7 +237,7 @@ namespace stingray
 			if (data)
 				data->SetThreadName(str);
 			else
-				data = make_shared<ThreadDataStorage>(gettid(), pthread_self(), str, null, null);
+				data = make_shared_ptr<ThreadDataStorage>(gettid(), pthread_self(), str, null, null);
 		}
 	};
 	STINGRAYKIT_DEFINE_THREAD_LOCAL(std::string, ThreadNameAccessor::ThreadLocalHolder);
@@ -380,7 +380,7 @@ namespace stingray
 		static ImplPtr Get()
 		{
 			ImplPtr result = SafeSingleton<Impl>::Instance();
-			return result ? result : make_shared<Impl>();
+			return result ? result : make_shared_ptr<Impl>();
 		}
 	};
 
@@ -569,12 +569,12 @@ namespace stingray
 			pthread_cleanup_push(&InterruptException::Throw, NULL);
 #endif
 
-			_data = make_shared<ThreadDataStorage>(gettid(), pthread_self(), _name, _parent, _lifeToken.GetExecutionTester());
+			_data = make_shared_ptr<ThreadDataStorage>(gettid(), pthread_self(), _name, _parent, _lifeToken.GetExecutionTester());
 			ThreadDataHolder::Get() = _data;
 			ThreadNameAccessor::Set(_name);
 			ThreadFuncStarted();
 
-			TLSDataPtr tlsData = make_shared<TLSData>();
+			TLSDataPtr tlsData = make_shared_ptr<TLSData>();
 			TLSDataHolder::Get() = tlsData;
 
 			try
@@ -624,7 +624,7 @@ namespace stingray
 	IThreadPtr PosixThreadEngine::BeginThread(const FuncType& func, const std::string& name, optional<TimeDuration> timeout)
 	{
 		ThreadDataStoragePtr parent = ThreadDataHolder::Get();
-		return make_shared<PosixThread>(func, name, parent, timeout);
+		return make_shared_ptr<PosixThread>(func, name, parent, timeout);
 	}
 
 
@@ -702,7 +702,7 @@ namespace stingray
 	TLSData* PosixThreadEngine::GetCurrentThreadData()
 	{
 		if (!TLSDataHolder::Get())
-			TLSDataHolder::Get() = make_shared<TLSData>();
+			TLSDataHolder::Get() = make_shared_ptr<TLSData>();
 		return TLSDataHolder::Get().get();
 	}
 

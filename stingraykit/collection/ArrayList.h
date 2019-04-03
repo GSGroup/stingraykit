@@ -56,15 +56,15 @@ namespace stingray
 
 	public:
 		ArrayList()
-			:	_items(make_shared<VectorType>())
+			:	_items(make_shared_ptr<VectorType>())
 		{ }
 
 		ArrayList(shared_ptr<IEnumerator<ValueType> > enumerator)
-			:	_items(make_shared<VectorType>())
+			:	_items(make_shared_ptr<VectorType>())
 		{ Enumerable::ForEach(enumerator, Bind(&ArrayList::Add, this, _1)); }
 
 		ArrayList(shared_ptr<IEnumerable<ValueType> > enumerable)
-			:	_items(make_shared<VectorType>())
+			:	_items(make_shared_ptr<VectorType>())
 		{ Enumerable::ForEach(enumerable, Bind(&ArrayList::Add, this, _1)); }
 
 		ArrayList(const ArrayList& other)
@@ -77,7 +77,7 @@ namespace stingray
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
-		{ return make_shared<ReverseEnumerable>(GetItemsHolder()); }
+		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
 		virtual size_t GetCount() const
 		{ return _items->size(); }
@@ -168,7 +168,7 @@ namespace stingray
 				_items->clear();
 			else
 			{
-				_items = make_shared<VectorType>();
+				_items = make_shared_ptr<VectorType>();
 				_itemsHolder.reset();
 			}
 		}
@@ -176,7 +176,7 @@ namespace stingray
 	private:
 		void CopyItems(const VectorTypePtr& items)
 		{
-			_items = make_shared<VectorType>(*items);
+			_items = make_shared_ptr<VectorType>(*items);
 			_itemsHolder.reset();
 		}
 
@@ -185,7 +185,7 @@ namespace stingray
 			HolderPtr itemsHolder = _itemsHolder.lock();
 
 			if (!itemsHolder)
-				_itemsHolder = (itemsHolder = make_shared<Holder>(_items));
+				_itemsHolder = (itemsHolder = make_shared_ptr<Holder>(_items));
 
 			return itemsHolder;
 		}

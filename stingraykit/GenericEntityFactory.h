@@ -148,7 +148,7 @@ namespace stingray
 			{
 				template < typename StreamType >
 				static EntityPtr Do(StreamType& stream)
-				{ return make_shared<EntityType>(); }
+				{ return make_shared_ptr<EntityType>(); }
 			};
 
 			template < typename FactoryType >

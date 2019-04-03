@@ -90,22 +90,22 @@ namespace stingray
 
 	template < typename T, typename EqualsCmp >
 	shared_ptr<ReadonlyObservableSetEntry<T, EqualsCmp> > GetSetEntry(const shared_ptr<IReadonlyObservableSet<T> >& set, const T& key, const EqualsCmp& equalsCmp)
-	{ return make_shared<ReadonlyObservableSetEntry<T, EqualsCmp> >(set, key); }
+	{ return make_shared_ptr<ReadonlyObservableSetEntry<T, EqualsCmp> >(set, key); }
 
 
 	template < typename T >
 	shared_ptr<ReadonlyObservableSetEntry<T, comparers::Equals> > GetSetEntry(const shared_ptr<IReadonlyObservableSet<T> >& set, const T& key)
-	{ return make_shared<ReadonlyObservableSetEntry<T, comparers::Equals> >(set, key); }
+	{ return make_shared_ptr<ReadonlyObservableSetEntry<T, comparers::Equals> >(set, key); }
 
 
 	template < typename T, typename EqualsCmp >
 	shared_ptr<ObservableSetEntry<T, EqualsCmp> > GetSetEntry(const shared_ptr<IObservableSet<T> >& set, const T& key, const EqualsCmp& equalsCmp)
-	{ return make_shared<ObservableSetEntry<T, EqualsCmp> >(set, key); }
+	{ return make_shared_ptr<ObservableSetEntry<T, EqualsCmp> >(set, key); }
 
 
 	template < typename T >
 	shared_ptr<ObservableSetEntry<T, comparers::Equals> > GetSetEntry(const shared_ptr<IObservableSet<T> >& set, const T& key)
-	{ return make_shared<ObservableSetEntry<T, comparers::Equals> >(set, key); }
+	{ return make_shared_ptr<ObservableSetEntry<T, comparers::Equals> >(set, key); }
 
 }
 

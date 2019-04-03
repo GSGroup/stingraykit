@@ -104,10 +104,10 @@ namespace stingray
 
 	template < typename ContainerType >
 	IByteStreamPtr CreateMemoryByteStream(const ContainerType& data)
-	{ return make_shared<MemoryByteStream<ContainerType> >(data); }
+	{ return make_shared_ptr<MemoryByteStream<ContainerType> >(data); }
 
 	inline IByteStreamPtr CreateMemoryByteStream(ConstByteData data)
-	{ return  make_shared<MemoryByteStream<ConstByteData> >(data); }
+	{ return  make_shared_ptr<MemoryByteStream<ConstByteData> >(data); }
 
 	typedef MemoryByteStream<ConstByteArray>	ConstByteArrayByteStream;
 	STINGRAYKIT_DECLARE_PTR(ConstByteArrayByteStream);

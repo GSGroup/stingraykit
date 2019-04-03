@@ -88,7 +88,7 @@ namespace stingray
 
 	template < typename DictionaryType, typename Converter >
 	shared_ptr<DictionaryValuesSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType> > GetDictionaryValuesSet(const shared_ptr<DictionaryType>& dict, const Converter& converter)
-	{ return make_shared<DictionaryValuesSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType> >(dict, converter); }
+	{ return make_shared_ptr<DictionaryValuesSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType> >(dict, converter); }
 
 }
 

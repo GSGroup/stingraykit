@@ -155,8 +155,8 @@ namespace stingray
 		:	_timerName(timerName),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
-			_queue(make_shared<CallbackQueue>()),
-			_worker(make_shared<Thread>(timerName, Bind(&Timer::ThreadFunc, this, _1)))
+			_queue(make_shared_ptr<CallbackQueue>()),
+			_worker(make_shared_ptr<Thread>(timerName, Bind(&Timer::ThreadFunc, this, _1)))
 	{ }
 
 
@@ -179,7 +179,7 @@ namespace stingray
 
 	Token Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
 	{
-		const CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
 		const Token token = MakeToken<FunctionToken>(Bind(&Timer::RemoveTask, _queue, ci));
 
 		{
@@ -198,7 +198,7 @@ namespace stingray
 
 	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
 	{
-		const CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
 		const Token token = MakeToken<FunctionToken>(Bind(&Timer::RemoveTask, _queue, ci));
 
 		{
@@ -213,7 +213,7 @@ namespace stingray
 
 	void Timer::AddTask(const function<void()>& task, const FutureExecutionTester& tester)
 	{
-		const CallbackInfoPtr ci = make_shared<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
 
 		MutexLock l(_queue->Sync());
 		_queue->Push(ci);

@@ -60,21 +60,21 @@ namespace stingray
 
 	public:
 		SortedSet()
-			:	_items(make_shared<SetType>())
+			:	_items(make_shared_ptr<SetType>())
 		{ }
 
 		SortedSet(const SortedSet& other)
 		{ CopyItems(other._items); }
 
 		SortedSet(shared_ptr<IEnumerator<ValueType> > enumerator)
-			:	_items(make_shared<SetType>())
+			:	_items(make_shared_ptr<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			Enumerable::ForEach(enumerator, Bind(&SortedSet::Add, this, _1));
 		}
 
 		SortedSet(shared_ptr<IEnumerable<ValueType> > enumerable)
-			:	_items(make_shared<SetType>())
+			:	_items(make_shared_ptr<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			Enumerable::ForEach(enumerable, Bind(&SortedSet::Add, this, _1));
@@ -87,7 +87,7 @@ namespace stingray
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
-		{ return make_shared<ReverseEnumerable>(GetItemsHolder()); }
+		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
 		virtual size_t GetCount() const
 		{ return _items->size(); }
@@ -157,7 +157,7 @@ namespace stingray
 				_items->clear();
 			else
 			{
-				_items = make_shared<SetType>();
+				_items = make_shared_ptr<SetType>();
 				_itemsHolder.reset();
 			}
 		}
@@ -165,7 +165,7 @@ namespace stingray
 	private:
 		void CopyItems(const SetTypePtr& items)
 		{
-			_items = make_shared<SetType>(*items);
+			_items = make_shared_ptr<SetType>(*items);
 			_itemsHolder.reset();
 		}
 
@@ -174,7 +174,7 @@ namespace stingray
 			HolderPtr itemsHolder = _itemsHolder.lock();
 
 			if (!itemsHolder)
-				_itemsHolder = (itemsHolder = make_shared<Holder>(_items));
+				_itemsHolder = (itemsHolder = make_shared_ptr<Holder>(_items));
 
 			return itemsHolder;
 		}

@@ -117,7 +117,7 @@ namespace stingray
 	public:
 		explicit ExecutionDeferrerWithTimer(const std::string& timerName, TimeDuration timeout = TimeDuration())
 			: _timer(timerName)
-		{ _impl = make_shared<ExecutionDeferrer>(wrap_ref(_timer), timeout); }
+		{ _impl = make_shared_ptr<ExecutionDeferrer>(wrap_ref(_timer), timeout); }
 
 		void Cancel()																{ _impl->Cancel(); }
 

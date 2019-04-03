@@ -54,7 +54,7 @@ namespace stingray
 			_idle(true),
 			OnIdle(Bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
 			OnProgress(Bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1))
-		{ _thread = make_shared<Thread>(name, Bind(&AsyncQueueProcessor::ThreadFunc, this, _1)); }
+		{ _thread = make_shared_ptr<Thread>(name, Bind(&AsyncQueueProcessor::ThreadFunc, this, _1)); }
 
 		~AsyncQueueProcessor()
 		{

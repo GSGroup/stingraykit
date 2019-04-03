@@ -42,7 +42,7 @@ namespace stingray
 
 		public:
 			TransactionalSetImpl()
-				:	_mutex(make_shared<Mutex>()),
+				:	_mutex(make_shared_ptr<Mutex>()),
 					_onChanged(ExternalMutexPointer(_mutex), Bind(&TransactionalSetImpl::OnChangedPopulator, this, _1)),
 					_stamp(0),
 					_transactionFlag(false)
@@ -174,14 +174,14 @@ namespace stingray
 		public:
 			SetTransaction(const SetImplPtr& setImpl) :
 				_setImpl(setImpl),
-				_transactionImpl(make_shared<TransactionImpl>(setImpl))
+				_transactionImpl(make_shared_ptr<TransactionImpl>(setImpl))
 			{ STINGRAYKIT_CHECK(!_setImpl->GetTransactionFlag(), "Another transaction exist!"); _setImpl->GetTransactionFlag() = true; }
 
 			virtual ~SetTransaction()
 			{ _setImpl->GetTransactionFlag() = false; }
 
 			virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-			{ return make_shared<SetTransactionEnumerator<T, Comparer> >(_transactionImpl); }
+			{ return make_shared_ptr<SetTransactionEnumerator<T, Comparer> >(_transactionImpl); }
 
 			virtual shared_ptr<IEnumerable<T> > Reverse() const
 			{ STINGRAYKIT_THROW(NotImplementedException()); }
@@ -403,11 +403,11 @@ namespace stingray
 		SetImplPtr    _setImpl;
 
 	public:
-		TransactionalSet() : _setImpl(make_shared<SetImpl>())
+		TransactionalSet() : _setImpl(make_shared_ptr<SetImpl>())
 		{ }
 
 		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-		{ return make_shared<Detail::SetEnumerator<T, Comparer> >(_setImpl); }
+		{ return make_shared_ptr<Detail::SetEnumerator<T, Comparer> >(_setImpl); }
 
 		virtual shared_ptr<IEnumerable<T> > Reverse() const
 		{ STINGRAYKIT_THROW(NotImplementedException()); }
@@ -516,7 +516,7 @@ namespace stingray
 		}
 
 		virtual typename base::TransactionTypePtr StartTransaction()
-		{ return make_shared<Detail::SetTransaction<T, Comparer> >(_setImpl); }
+		{ return make_shared_ptr<Detail::SetTransaction<T, Comparer> >(_setImpl); }
 
 		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
 		{ return _setImpl->OnChanged(); }

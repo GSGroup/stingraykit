@@ -162,12 +162,12 @@ namespace stingray
 
 	template<typename SrcEnumerableType, typename CasterType>
 	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster)
-	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
+	{ return make_shared_ptr<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
 
 
 	template<typename SrcEnumerableType, typename CasterType, typename FilterPredicate>
 	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster, const FilterPredicate& filterPredicate)
-	{ return make_shared<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
+	{ return make_shared_ptr<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
 
 
 	namespace Detail
@@ -200,7 +200,7 @@ namespace stingray
 
 			template < typename DestType >
 			operator shared_ptr<IEnumerable<DestType> > () const
-			{ return make_shared<CastProxy<DestType> >(_srcEnumerable); }
+			{ return make_shared_ptr<CastProxy<DestType> >(_srcEnumerable); }
 		};
 	}
 

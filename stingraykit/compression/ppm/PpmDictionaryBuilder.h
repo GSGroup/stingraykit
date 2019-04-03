@@ -46,10 +46,10 @@ namespace stingray
 			while (_model->GetMemoryConsumption(typename Impl::ModelMemoryCounter()) > _finalMemoryThreshold)
 				compactificator.Compactify(*compactificator.GetMinimalCount());
 
-			shared_ptr<Model> model(make_shared<Model>(wrap_ref(*_model)));
+			shared_ptr<Model> model(make_shared_ptr<Model>(wrap_ref(*_model)));
 			_model.emplace();
 			_context.clear();
-			return make_shared<Dictionary>(model);
+			return make_shared_ptr<Dictionary>(model);
 		}
 
 	private:

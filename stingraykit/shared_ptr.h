@@ -742,12 +742,12 @@ namespace stingray
 
 
 	template < typename ObjType >
-	shared_ptr<ObjType> make_shared() { return MakeShared<ObjType>()(); }
+	shared_ptr<ObjType> make_shared_ptr() { return MakeShared<ObjType>()(); }
 
 
 #define DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
 	template < typename ObjType, Typenames_ > \
-	shared_ptr<ObjType> make_shared(ParamsDecl_) { return MakeShared<ObjType>()(Params_); }
+	shared_ptr<ObjType> make_shared_ptr(ParamsDecl_) { return MakeShared<ObjType>()(Params_); }
 
 
 #define TY typename

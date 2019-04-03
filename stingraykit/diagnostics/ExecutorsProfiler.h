@@ -28,7 +28,7 @@ namespace stingray
 
 	private:
 		ExecutorsProfiler()
-			: _profiler(make_shared<AsyncProfiler>("executorsProfiler"))
+			: _profiler(make_shared_ptr<AsyncProfiler>("executorsProfiler"))
 		{ }
 
 	public:

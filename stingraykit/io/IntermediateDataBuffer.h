@@ -25,7 +25,7 @@ namespace stingray
 		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataMediatorPtr& mediator)
 			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
 				_mediator(STINGRAYKIT_REQUIRE_NOT_NULL(mediator)),
-				_worker(make_shared<Thread>(threadName, Bind(&IntermediateDataBuffer::ThreadFunc, this, _1)))
+				_worker(make_shared_ptr<Thread>(threadName, Bind(&IntermediateDataBuffer::ThreadFunc, this, _1)))
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)

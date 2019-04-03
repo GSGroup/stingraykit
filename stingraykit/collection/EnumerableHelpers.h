@@ -38,7 +38,7 @@ namespace stingray
 	public:
 		template< typename U >
 		operator shared_ptr<IEnumerator<U> >() const
-		{ return make_shared<EmptyEnumerator<U> >(); }
+		{ return make_shared_ptr<EmptyEnumerator<U> >(); }
 	};
 
 
@@ -83,7 +83,7 @@ namespace stingray
 
 		template< typename U >
 		operator shared_ptr<IEnumerator<U> >() const
-		{ return make_shared<OneItemEnumerator<U> >(_item); }
+		{ return make_shared_ptr<OneItemEnumerator<U> >(_item); }
 	};
 
 
@@ -125,7 +125,7 @@ namespace stingray
 
 	template<typename EnumeratedT>
 	shared_ptr<IEnumerator<EnumeratedT> > JoinEnumerators(const shared_ptr<IEnumerator<EnumeratedT> >& first, const shared_ptr<IEnumerator<EnumeratedT> >& second)
-	{ return make_shared<Detail::JoiningEnumerator<EnumeratedT> >(first, second); }
+	{ return make_shared_ptr<Detail::JoiningEnumerator<EnumeratedT> >(first, second); }
 
 	template<typename EnumeratedT>
 	class EnumeratorJoiner
@@ -152,7 +152,7 @@ namespace stingray
 	struct EmptyEnumerable : public virtual IEnumerable<T>
 	{
 		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-		{ return make_shared<EmptyEnumerator<T> >(); }
+		{ return make_shared_ptr<EmptyEnumerator<T> >(); }
 	};
 
 
@@ -161,7 +161,7 @@ namespace stingray
 	public:
 		template< typename U >
 		operator shared_ptr<IEnumerable<U> >() const
-		{ return make_shared<EmptyEnumerable<U> >(); }
+		{ return make_shared_ptr<EmptyEnumerable<U> >(); }
 	};
 
 
@@ -181,7 +181,7 @@ namespace stingray
 		{ }
 
 		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-		{ return make_shared<OneItemEnumerator<T> >(_value); }
+		{ return make_shared_ptr<OneItemEnumerator<T> >(_value); }
 	};
 
 
@@ -198,7 +198,7 @@ namespace stingray
 
 		template< typename U >
 		operator shared_ptr<IEnumerable<U> >() const
-		{ return make_shared<OneItemEnumerable<U> >(_item); }
+		{ return make_shared_ptr<OneItemEnumerable<U> >(_item); }
 	};
 
 
@@ -230,7 +230,7 @@ namespace stingray
 
 	template<typename EnumeratedT>
 	shared_ptr<IEnumerable<EnumeratedT> > JoinEnumerables(const shared_ptr<IEnumerable<EnumeratedT> >& first, const shared_ptr<IEnumerable<EnumeratedT> >& second)
-	{ return make_shared<Detail::JoiningEnumerable<EnumeratedT> >(first, second); }
+	{ return make_shared_ptr<Detail::JoiningEnumerable<EnumeratedT> >(first, second); }
 
 
 	template<typename EnumeratedT>
@@ -274,7 +274,7 @@ namespace stingray
 
 	template <typename Functor_>
 	shared_ptr<SimpleEnumerable<Functor_> > MakeSimpleEnumerable(const Functor_& functor)
-	{ return make_shared<SimpleEnumerable<Functor_> >(functor); }
+	{ return make_shared_ptr<SimpleEnumerable<Functor_> >(functor); }
 
 
 	namespace Enumerable
@@ -390,7 +390,7 @@ namespace stingray
 
 		template < typename T >
 		shared_ptr<IEnumerable<T> > Concat(const shared_ptr<IEnumerable<T> >& first, const shared_ptr<IEnumerable<T> >& second)
-		{ return make_shared<Detail::JoiningEnumerable<T> >(first, second); }
+		{ return make_shared_ptr<Detail::JoiningEnumerable<T> >(first, second); }
 
 
 		template < typename CastTo, typename T >
@@ -592,7 +592,7 @@ namespace stingray
 
 		template <typename TResult, typename SrcEnumerator>
 		shared_ptr<IEnumerator<TResult> > OfType(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
-		{ return make_shared<Detail::EnumeratorOfType<TResult, shared_ptr<SrcEnumerator> > >(enumerator); }
+		{ return make_shared_ptr<Detail::EnumeratorOfType<TResult, shared_ptr<SrcEnumerator> > >(enumerator); }
 
 
 		template <typename TResult, typename SrcEnumerable>
@@ -603,7 +603,7 @@ namespace stingray
 		template < typename CollectionType >
 		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerator, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT dummy = 0)
 		{
-			const shared_ptr<std::vector<typename CollectionType::ItemType> > result = make_shared<std::vector<typename CollectionType::ItemType> >();
+			const shared_ptr<std::vector<typename CollectionType::ItemType> > result = make_shared_ptr<std::vector<typename CollectionType::ItemType> >();
 			for (; enumerator.Valid(); enumerator.Next())
 				result->push_back(enumerator.Get());
 			return EnumeratorFromStlIterators(result->rbegin(), result->rend(), result);
@@ -612,7 +612,7 @@ namespace stingray
 		template < typename CollectionType >
 		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<IsEnumerable<CollectionType>::Value, int>::ValueT dummy = 0, typename EnableIf<!IsInherited1ParamTemplate<CollectionType, IReversableEnumerable>::Value, int>::ValueT dummy2 = 0)
 		{
-			const shared_ptr<std::vector<typename CollectionType::ItemType> > result = make_shared<std::vector<typename CollectionType::ItemType> >();
+			const shared_ptr<std::vector<typename CollectionType::ItemType> > result = make_shared_ptr<std::vector<typename CollectionType::ItemType> >();
 			for (shared_ptr<IEnumerator<typename CollectionType::ItemType> > enumerator = enumerable->GetEnumerator(); enumerator->Valid(); enumerator->Next())
 				result->push_back(enumerator->Get());
 			return EnumerableFromStlIterators(result->rbegin(), result->rend(), result);
@@ -672,33 +672,33 @@ namespace stingray
 				{ }
 
 				virtual shared_ptr<IEnumerator<typename base::ItemType> > GetEnumerator() const
-				{ return make_shared<EnumeratorTransformer<SrcType, FunctorType> >(_src->GetEnumerator(), _functor); }
+				{ return make_shared_ptr<EnumeratorTransformer<SrcType, FunctorType> >(_src->GetEnumerator(), _functor); }
 			};
 		}
 
 
 		template < typename SrcEnumerator, typename FunctorType >
 		shared_ptr<IEnumerator<typename FunctorType::RetType> > Transform(const shared_ptr<SrcEnumerator>& enumerator, const FunctorType& functor, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
-		{ return make_shared<Detail::EnumeratorTransformer<typename SrcEnumerator::ItemType, FunctorType> >(enumerator, functor); }
+		{ return make_shared_ptr<Detail::EnumeratorTransformer<typename SrcEnumerator::ItemType, FunctorType> >(enumerator, functor); }
 
 
 		template < typename SrcEnumerable, typename FunctorType >
 		shared_ptr<IEnumerable<typename FunctorType::RetType> > Transform(const shared_ptr<SrcEnumerable>& enumerable, const FunctorType& functor, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
-		{ return make_shared<Detail::EnumerableTransformer<typename SrcEnumerable::ItemType, FunctorType> >(enumerable, functor); }
+		{ return make_shared_ptr<Detail::EnumerableTransformer<typename SrcEnumerable::ItemType, FunctorType> >(enumerable, functor); }
 
 
 		template < typename CollectionType, typename PredicateFunc >
 		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerator, const PredicateFunc& predicate, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT dummy = 0)
 		{
 			typedef typename CollectionType::ItemType T;
-			return make_shared<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, predicate);
+			return make_shared_ptr<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, predicate);
 		}
 
 		template < typename CollectionType, typename PredicateFunc >
 		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerable, const PredicateFunc& predicate, typename EnableIf<IsEnumerable<CollectionType>::Value, int>::ValueT dummy = 0)
 		{
 			typedef typename CollectionType::ItemType T;
-			return make_shared<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate);
+			return make_shared_ptr<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate);
 		}
 
 

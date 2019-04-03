@@ -41,19 +41,19 @@ namespace stingray
 	public:
 		ObservableDictionaryWrapper()
 			:	Wrapped_(),
-				_mutex(make_shared<Mutex>()),
+				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableDictionaryWrapper(shared_ptr<IEnumerable<PairType> > enumerable)
 			:	Wrapped_(enumerable),
-				_mutex(make_shared<Mutex>()),
+				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableDictionaryWrapper(shared_ptr<IEnumerator<PairType> > enumerator)
 			:	Wrapped_(enumerator),
-				_mutex(make_shared<Mutex>()),
+				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 

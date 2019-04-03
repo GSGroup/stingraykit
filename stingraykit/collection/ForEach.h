@@ -95,11 +95,11 @@ namespace stingray
 			{ }
 
 			operator SrcEnumeratorPtr() const
-			{ return make_shared<Proxy>(_srcEnumerator, _assurance); }
+			{ return make_shared_ptr<Proxy>(_srcEnumerator, _assurance); }
 
 			template < typename DestType >
 			operator shared_ptr<IEnumerator<DestType> > () const
-			{ return make_shared<CastProxy<DestType> >(_srcEnumerator, _assurance); }
+			{ return make_shared_ptr<CastProxy<DestType> >(_srcEnumerator, _assurance); }
 		};
 
 

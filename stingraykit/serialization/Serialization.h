@@ -666,7 +666,7 @@ namespace stingray
 			if (is_null())
 				return;
 
-			value = make_shared<T>();
+			value = make_shared_ptr<T>();
 			value->Deserialize(*this);
 		}
 
@@ -805,7 +805,7 @@ namespace stingray
 			shared_ptr<MutexLock> l;
 			IObservableSet<T>* observable = dynamic_caster(&data);
 			if (observable)
-				l = make_shared<MutexLock>(observable->GetSyncRoot());
+				l = make_shared_ptr<MutexLock>(observable->GetSyncRoot());
 
 			data.Clear();
 			std::vector<T> std_vec;

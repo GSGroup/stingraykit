@@ -50,7 +50,7 @@ namespace stingray
 		{
 			static DiffTypePtr MakeDiff(const VectorTypeConstPtr& oldItems, const VectorTypeConstPtr& newItems)
 			{
-				const shared_ptr<std::vector<DiffEntryType> > diff = make_shared<std::vector<DiffEntryType> >();
+				const shared_ptr<std::vector<DiffEntryType> > diff = make_shared_ptr<std::vector<DiffEntryType> >();
 
 				const size_t oldSize = oldItems->size();
 				const size_t newSize = newItems->size();
@@ -128,8 +128,8 @@ namespace stingray
 
 		public:
 			ImplData()
-				:	Guard(make_shared<Mutex>()),
-					Items(make_shared<VectorType>()),
+				:	Guard(make_shared_ptr<Mutex>()),
+					Items(make_shared_ptr<VectorType>()),
 					HasTransaction(false),
 					OnChanged(ExternalMutexPointer(Guard), Bind(&ImplData::OnChangedPopulator, this, _1))
 			{ }
@@ -190,7 +190,7 @@ namespace stingray
 			}
 
 			virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
-			{ return make_shared<ReverseEnumerable>(GetItemsHolder()); }
+			{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
 			virtual size_t GetCount() const
 			{ return _newItems ? _newItems->size() : _oldItems->size(); }
@@ -296,7 +296,7 @@ namespace stingray
 					_newItems->clear();
 				else
 				{
-					_newItems = make_shared<VectorType>();
+					_newItems = make_shared_ptr<VectorType>();
 					_newItemsHolder.reset();
 				}
 			}
@@ -358,12 +358,12 @@ namespace stingray
 			HolderPtr GetItemsHolder() const
 			{
 				if (!_newItems)
-					return make_shared<Holder>(_oldItems);
+					return make_shared_ptr<Holder>(_oldItems);
 
 				HolderPtr newItemsHolder = _newItemsHolder.lock();
 
 				if (!newItemsHolder)
-					_newItemsHolder = (newItemsHolder = make_shared<Holder>(_newItems));
+					_newItemsHolder = (newItemsHolder = make_shared_ptr<Holder>(_newItems));
 
 				return newItemsHolder;
 			}
@@ -373,10 +373,10 @@ namespace stingray
 				_cachedDiff.reset();
 
 				if (!_newItems)
-					_newItems = make_shared<VectorType>(*_oldItems);
+					_newItems = make_shared_ptr<VectorType>(*_oldItems);
 				else if (!_newItemsHolder.expired())
 				{
-					_newItems = make_shared<VectorType>(*_newItems);
+					_newItems = make_shared_ptr<VectorType>(*_newItems);
 					_newItemsHolder.reset();
 				}
 			}
@@ -394,7 +394,7 @@ namespace stingray
 
 	public:
 		TransactionalList()
-			:	_impl(make_shared<ImplData>())
+			:	_impl(make_shared_ptr<ImplData>())
 		{ }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
@@ -406,7 +406,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
 		{
 			MutexLock l(*_impl->Guard);
-			return make_shared<ReverseEnumerable>(make_shared<Holder>(_impl->Items));
+			return make_shared_ptr<ReverseEnumerable>(make_shared_ptr<Holder>(_impl->Items));
 		}
 
 		virtual size_t GetCount() const
@@ -455,7 +455,7 @@ namespace stingray
 		}
 
 		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken())
-		{ return make_shared<Transaction>(_impl, token); }
+		{ return make_shared_ptr<Transaction>(_impl, token); }
 
 		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const
 		{ return _impl->OnChanged.connector(); }
@@ -464,7 +464,7 @@ namespace stingray
 		{ return *_impl->Guard; }
 
 		ObservableCollectionLockerPtr Lock() const
-		{ return make_shared<ObservableCollectionLocker>(*this); }
+		{ return make_shared_ptr<ObservableCollectionLocker>(*this); }
 	};
 
 	/** @} */
