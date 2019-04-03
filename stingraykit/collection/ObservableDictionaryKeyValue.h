@@ -44,8 +44,8 @@ namespace stingray
 		ReadonlyObservableDictionaryKeyValue(const DictionaryTypePtr& dict, const KeyType_& key)
 			:	_dict(STINGRAYKIT_REQUIRE_NOT_NULL(dict)),
 				_key(key),
-				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_dict, &_dict->GetSyncRoot())), bind(&Self::OnChangedPopulator, this, _1)),
-				_connection(_dict->OnChanged().connect(bind(&Self::InvokeOnChanged, this, _1, _2, _3), false))
+				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_dict, &_dict->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
+				_connection(_dict->OnChanged().connect(Bind(&Self::InvokeOnChanged, this, _1, _2, _3), false))
 		{ }
 
 		virtual ValueType Get() const

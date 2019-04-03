@@ -35,10 +35,10 @@ namespace stingray
 				_dataTotal(0),
 				_dataSinceLastReport(0),
 				_timer(timerName)
-		{ _connection = _timer.SetTimer(TimeDuration(ReportBandwidthTimeout), bind(&BandwidthReporter::Report, this)); }
+		{ _connection = _timer.SetTimer(TimeDuration(ReportBandwidthTimeout), Bind(&BandwidthReporter::Report, this)); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&BandwidthReporter::DoPush, this, wrap_ref(consumer), _1, _2), bind(&IDataConsumer::EndOfData, wrap_ref(consumer), _1), token); }
+		{ _source->ReadToFunction(Bind(&BandwidthReporter::DoPush, this, wrap_ref(consumer), _1, _2), Bind(&IDataConsumer::EndOfData, wrap_ref(consumer), _1), token); }
 
 	private:
 		void Report()

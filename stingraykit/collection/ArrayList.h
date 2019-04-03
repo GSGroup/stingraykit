@@ -61,11 +61,11 @@ namespace stingray
 
 		ArrayList(shared_ptr<IEnumerator<ValueType> > enumerator)
 			:	_items(make_shared<VectorType>())
-		{ Enumerable::ForEach(enumerator, bind(&ArrayList::Add, this, _1)); }
+		{ Enumerable::ForEach(enumerator, Bind(&ArrayList::Add, this, _1)); }
 
 		ArrayList(shared_ptr<IEnumerable<ValueType> > enumerable)
 			:	_items(make_shared<VectorType>())
-		{ Enumerable::ForEach(enumerable, bind(&ArrayList::Add, this, _1)); }
+		{ Enumerable::ForEach(enumerable, Bind(&ArrayList::Add, this, _1)); }
 
 		ArrayList(const ArrayList& other)
 		{ CopyItems(other._items); }

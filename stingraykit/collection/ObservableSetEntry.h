@@ -36,8 +36,8 @@ namespace stingray
 		ReadonlyObservableSetEntry(const SetTypePtr& set, const T& key)
 			:	_set(set),
 				_key(key),
-				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_set, &_set->GetSyncRoot())), bind(&Self::OnChangedPopulator, this, _1)),
-				_connection(_set->OnChanged().connect(bind(&Self::InvokeOnChanged, this, _1, _2), false))
+				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_set, &_set->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
+				_connection(_set->OnChanged().connect(Bind(&Self::InvokeOnChanged, this, _1, _2), false))
 		{ }
 
 		virtual bool Get() const

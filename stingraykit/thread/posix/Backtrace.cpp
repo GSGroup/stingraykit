@@ -149,7 +149,7 @@ namespace stingray { namespace posix
 #if BACKTRACE_DEMANGLE
 							int status;
 							char *buf = abi::__cxa_demangle(functionname, 0, 0, &status);
-							ScopeExitInvoker sei(bind(&free, buf));
+							ScopeExitInvoker sei(Bind(&free, buf));
 							if (buf && status == 0)
 								backtrace << buf;
 							else

@@ -467,7 +467,7 @@ namespace stingray
 			_lifeToken.Release();
 
 			bool prev = PosixThreadEngine::EnableInterruptionPoints(false);
-			ScopeExitInvoker sei(bind(&PosixThreadEngine::EnableInterruptionPoints, prev));
+			ScopeExitInvoker sei(Bind(&PosixThreadEngine::EnableInterruptionPoints, prev));
 
 			int result = pthread_join(_data->GetPthreadId(), NULL);
 			if (result)
@@ -549,7 +549,7 @@ namespace stingray
 
 		void ThreadFunc()
 		{
-			ScopeExitInvoker sei(bind(&PosixThread::ThreadFuncStarted, this)); // in case something throws an exception
+			ScopeExitInvoker sei(Bind(&PosixThread::ThreadFuncStarted, this)); // in case something throws an exception
 
 			int old_state = 0, old_type = 0;
 			if (pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &old_type) != 0)
@@ -580,7 +580,7 @@ namespace stingray
 			try
 			{
 				PTELogger.Debug() << "Entered threadfunc of thread '" << _data->GetThreadName() << "' with tid = " << GetKernelId();
-				ScopeExitInvoker sei(bind(&PosixThread::ThreadFuncExited, this));
+				ScopeExitInvoker sei(Bind(&PosixThread::ThreadFuncExited, this));
 
 				_timeout ? _func(TimedCancellationToken(_token, *_timeout)) : _func(_token);
 			}

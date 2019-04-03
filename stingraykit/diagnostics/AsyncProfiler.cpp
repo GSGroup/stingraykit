@@ -82,7 +82,7 @@ namespace stingray
 
 	AsyncProfiler::AsyncProfiler(const std::string& threadName)
 		:	_timeout(TimeDuration::FromSeconds(30)),
-			_thread(ThreadEngine::BeginThread(bind(&AsyncProfiler::ThreadFunc, this, _1), threadName))
+			_thread(ThreadEngine::BeginThread(Bind(&AsyncProfiler::ThreadFunc, this, _1), threadName))
 	{ }
 
 

@@ -428,7 +428,7 @@ namespace stingray
 	 *
 	 * public:
 	 *     MyCollection()
-	 *         : OnChanged(bind(&MyCollection::OnChangedPopulator, this, _1))
+	 *         : OnChanged(Bind(&MyCollection::OnChangedPopulator, this, _1))
 	 *     { }
 	 *
 	 *     signal<void(CollectionOp op, const T& item)>		OnChanged;

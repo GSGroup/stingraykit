@@ -96,7 +96,7 @@ namespace stingray
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&PpmDecompressor::DoProcess, this, wrap_ref(consumer), _1, _2), bind(&PpmDecompressor::DoEndOfData, this, wrap_ref(consumer), _1), token); }
+		{ _source->ReadToFunction(Bind(&PpmDecompressor::DoProcess, this, wrap_ref(consumer), _1, _2), Bind(&PpmDecompressor::DoEndOfData, this, wrap_ref(consumer), _1), token); }
 
 	private:
 		size_t DoProcess(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
@@ -155,12 +155,12 @@ namespace stingray
 		{
 			if (!_decoder)
 			{
-				_decoder.emplace(bind(&PpmDecompressor::GetBit, this));
+				_decoder.emplace(Bind(&PpmDecompressor::GetBit, this));
 				return;
 			}
 
 			STINGRAYKIT_CHECK(!_endOfData, "Data after EOD!");
-			optional<typename Impl::Symbol> symbol = _model->Decode(_context, *_decoder, bind(&PpmDecompressor::GetBit, this));
+			optional<typename Impl::Symbol> symbol = _model->Decode(_context, *_decoder, Bind(&PpmDecompressor::GetBit, this));
 
 			_endOfData = !symbol;
 			if (!symbol)

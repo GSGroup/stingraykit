@@ -242,7 +242,7 @@ namespace stingray
 		if (logger)
 		{
 			NamedLoggerRegistryPtr r(logger, &(logger->GetRegistry()));
-			_token = MakeToken<FunctionToken>(bind(&NamedLoggerRegistry::Unregister, r, r->Register(_params.GetName(), this)));
+			_token = MakeToken<FunctionToken>(Bind(&NamedLoggerRegistry::Unregister, r, r->Register(_params.GetName(), this)));
 		}
 	}
 
@@ -317,7 +317,7 @@ namespace stingray
 			return null;
 
 		logger->AddSink(sink);
-		return MakeToken<FunctionToken>(bind(&LoggerImpl::RemoveSink, logger, sink));
+		return MakeToken<FunctionToken>(Bind(&LoggerImpl::RemoveSink, logger, sink));
 	}
 
 

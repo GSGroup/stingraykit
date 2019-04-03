@@ -43,7 +43,7 @@ namespace stingray
 		public:
 			TransactionalSetImpl()
 				:	_mutex(make_shared<Mutex>()),
-					_onChanged(ExternalMutexPointer(_mutex), bind(&TransactionalSetImpl::OnChangedPopulator, this, _1)),
+					_onChanged(ExternalMutexPointer(_mutex), Bind(&TransactionalSetImpl::OnChangedPopulator, this, _1)),
 					_stamp(0),
 					_transactionFlag(false)
 			{ }

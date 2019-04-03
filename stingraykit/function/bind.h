@@ -242,7 +242,7 @@ namespace stingray
 #define DETAIL_STINGRAYKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
 	template < typename FunctorType, TemplateBindParams_ > \
 	Detail::Binder<typename TypeList<BindParamTypes_>::type, FunctorType> \
-		bind(const FunctorType& func, BindParamsDecl_) \
+		Bind(const FunctorType& func, BindParamsDecl_) \
 	{ \
 		typedef typename TypeList<BindParamTypes_>::type		AllParams; \
 		Tuple<AllParams> all_params(BindParamsUsage_); \

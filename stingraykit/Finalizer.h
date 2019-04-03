@@ -27,7 +27,7 @@ namespace stingray
 
 		template< typename T >
 		void operator () (T* t)
-		{ _executor->AddTask(bind(&Finalizer::DoDelete<T>, t)); }
+		{ _executor->AddTask(Bind(&Finalizer::DoDelete<T>, t)); }
 
 	private:
 		template< typename T >

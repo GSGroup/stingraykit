@@ -26,7 +26,7 @@ namespace stingray
 
 	public:
 		explicit WorkerWrapper(const std::string& name, bool profileCalls = true)
-			: _profileCalls(profileCalls), _worker(name, bind(&WorkerWrapper::ThreadFunc, this, _1))
+			: _profileCalls(profileCalls), _worker(name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
 		{ }
 
 		bool TryAddTask(const Task& task)

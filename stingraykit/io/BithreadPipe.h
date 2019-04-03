@@ -50,7 +50,7 @@ namespace stingray
 			_data = data;
 			_full.Broadcast();
 
-			ScopeExitInvoker sei(bind(make_assigner(_data), null));
+			ScopeExitInvoker sei(Bind(make_assigner(_data), null));
 
 			while (_data)
 				switch (_empty.Wait(_guard, token))

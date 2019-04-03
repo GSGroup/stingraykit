@@ -106,7 +106,7 @@ namespace stingray
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ _source->ReadToFunction(bind(&PpmCompressor::DoProcess, this, wrap_ref(consumer), _1, _2), bind(&PpmCompressor::DoEndOfData, this, wrap_ref(consumer), _1), token); }
+		{ _source->ReadToFunction(Bind(&PpmCompressor::DoProcess, this, wrap_ref(consumer), _1, _2), Bind(&PpmCompressor::DoEndOfData, this, wrap_ref(consumer), _1), token); }
 
 	private:
 		size_t DoProcess(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
@@ -123,10 +123,10 @@ namespace stingray
 			if (!ConsumeData(consumer, token))
 				return;
 
-			_model->Predict(_context, null, bind(&PpmCompressor::DoEncode, this, _1, _2, _3));
+			_model->Predict(_context, null, Bind(&PpmCompressor::DoEncode, this, _1, _2, _3));
 
-			_coder.EndOfData(bind(&PpmCompressor::AddBit, this, _1));
-			if (!_bitBuffer.EndOfData(bind(&IDataConsumer::Process, &consumer, _1, wrap_ref(token))))
+			_coder.EndOfData(Bind(&PpmCompressor::AddBit, this, _1));
+			if (!_bitBuffer.EndOfData(Bind(&IDataConsumer::Process, &consumer, _1, wrap_ref(token))))
 				return;
 			consumer.EndOfData(token);
 		}
@@ -136,7 +136,7 @@ namespace stingray
 			if (!ConsumeData(consumer, token))
 				return false;
 
-			_model->Predict(_context, symbol, bind(&PpmCompressor::DoEncode, this, _1, _2, _3));
+			_model->Predict(_context, symbol, Bind(&PpmCompressor::DoEncode, this, _1, _2, _3));
 
 			_context.push_back(symbol);
 			if (_context.size() > Model::ContextSize)
@@ -145,7 +145,7 @@ namespace stingray
 		}
 
 		void DoEncode(u32 symbolLow, u32 symbolHigh, u32 scale)
-		{ _coder.Encode(symbolLow, symbolHigh, scale, bind(&PpmCompressor::AddBit, this, _1)); }
+		{ _coder.Encode(symbolLow, symbolHigh, scale, Bind(&PpmCompressor::AddBit, this, _1)); }
 
 		void AddBit(bool bit)
 		{ _bitBuffer.AddBit(bit); }
@@ -153,7 +153,7 @@ namespace stingray
 		bool ConsumeData(IDataConsumer& consumer, const ICancellationToken& token)
 		{
 			while (_bitBuffer.GetFreeSizeBits() < MaxBitsPerSymbol)
-				if (!_bitBuffer.ConsumeBytes(bind(&IDataConsumer::Process, &consumer, _1, wrap_ref(token))))
+				if (!_bitBuffer.ConsumeBytes(Bind(&IDataConsumer::Process, &consumer, _1, wrap_ref(token))))
 					return false;
 			return true;
 		}

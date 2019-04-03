@@ -137,7 +137,7 @@ namespace stingray
 			_lastStatsDump(0),
 			_syncNext(1),
 			_syncDone(_syncNext - 1),
-			_thread(make_shared<Thread>(StringBuilder() % "asyncByteStream(" % _name % ")", bind(&AsyncByteStream::ThreadFunc, this, _1)))
+			_thread(make_shared<Thread>(StringBuilder() % "asyncByteStream(" % _name % ")", Bind(&AsyncByteStream::ThreadFunc, this, _1)))
 	{
 		_stream->Seek(0, SeekMode::End);
 		_length = stream->Tell();

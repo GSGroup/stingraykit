@@ -98,7 +98,7 @@ namespace stingray
 				return null;
 			}
 
-			return shared_ptr<T>(instance, bind(&RemoveReference, not_using(_1)));
+			return shared_ptr<T>(instance, Bind(&RemoveReference, not_using(_1)));
 		}
 	};
 

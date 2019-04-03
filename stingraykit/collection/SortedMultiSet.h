@@ -64,14 +64,14 @@ namespace stingray
 			:	_items(make_shared<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
-			Enumerable::ForEach(enumerator, bind(&SortedMultiSet::Add, this, _1));
+			Enumerable::ForEach(enumerator, Bind(&SortedMultiSet::Add, this, _1));
 		}
 
 		SortedMultiSet(shared_ptr<IEnumerable<T> > enumerable)
 			:	_items(make_shared<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
-			Enumerable::ForEach(enumerable, bind(&SortedMultiSet::Add, this, _1));
+			Enumerable::ForEach(enumerable, Bind(&SortedMultiSet::Add, this, _1));
 		}
 
 		SortedMultiSet& operator = (const SortedMultiSet& other)

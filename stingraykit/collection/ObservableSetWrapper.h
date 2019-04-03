@@ -40,19 +40,19 @@ namespace stingray
 		ObservableSetWrapper()
 			:	Wrapped_(),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableSetWrapper(shared_ptr<IEnumerator<ValueType> > enumerator)
 			:	Wrapped_(enumerator),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		ObservableSetWrapper(shared_ptr<IEnumerable<ValueType> > enumerable)
 			:	Wrapped_(enumerable),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const

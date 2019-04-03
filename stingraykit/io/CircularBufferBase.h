@@ -175,7 +175,7 @@ namespace stingray
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 				s_logger.Warning() << "Pop finished";
 			}
-			return make_shared<CircularDataReserver>(ReadStorage(_readOffset, result_size), bind(&CircularBufferBase::ReleaseData, this, _1));
+			return make_shared<CircularDataReserver>(ReadStorage(_readOffset, result_size), Bind(&CircularBufferBase::ReleaseData, this, _1));
 		}
 
 		void Push(const ConstByteData &data)

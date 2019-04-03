@@ -72,8 +72,8 @@ namespace stingray
 	public:
 		explicit ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
 			:	_dict(STINGRAYKIT_REQUIRE_NOT_NULL(dict)),
-				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_dict, &_dict->GetSyncRoot())), bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1)),
-				_connection(_dict->OnChanged().connect(bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))))
+				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_dict, &_dict->GetSyncRoot())), Bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1)),
+				_connection(_dict->OnChanged().connect(Bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2, not_using(_3))))
 		{ }
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
@@ -108,7 +108,7 @@ namespace stingray
 		{ if (op != CollectionOp::Updated) _onChanged(op, val); }
 
 		virtual void OnChangedPopulator(const function<void(CollectionOp, const ValueType&)> slot) const
-		{ _dict->OnChanged().SendCurrentState(bind(slot, _1, _2, not_using(_3))); }
+		{ _dict->OnChanged().SendCurrentState(Bind(slot, _1, _2, not_using(_3))); }
 	};
 
 

@@ -44,19 +44,19 @@ namespace stingray
 		MultiMapObservableDictionary()
 			:	Wrapped(),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 
 		MultiMapObservableDictionary(shared_ptr<IEnumerable<PairType> > enumerable)
 			:	Wrapped(enumerable),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 
 		MultiMapObservableDictionary(shared_ptr<IEnumerator<PairType> > enumerator)
 			:	Wrapped(enumerator),
 				_mutex(make_shared<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const

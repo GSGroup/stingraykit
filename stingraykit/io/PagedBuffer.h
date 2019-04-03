@@ -72,7 +72,7 @@ namespace stingray
 
 				new_end_offset = _endOffset - data.size();
 			}
-			ScopeExitInvoker sei(bind(&PagedBuffer::SetEndOffset, this, new_end_offset));
+			ScopeExitInvoker sei(Bind(&PagedBuffer::SetEndOffset, this, new_end_offset));
 
 			WriteToPage(page_idx--, page_offset, ConstByteData(data, 0, page_write_size));
 

@@ -48,7 +48,7 @@ namespace stingray { namespace posix
 
 		_argv.push_back(0);
 
-		_monitor = make_shared<Thread>("monitor: " + name, bind(&BackgroundProcess::Monitor, this, _1));
+		_monitor = make_shared<Thread>("monitor: " + name, Bind(&BackgroundProcess::Monitor, this, _1));
 	}
 
 	void BackgroundProcess::Convert(ArgHolder &dst, const std::string &src)

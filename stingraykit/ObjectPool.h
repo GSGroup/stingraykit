@@ -54,7 +54,7 @@ namespace stingray
 		void CollectGarbage()
 		{
 			MutexLock l(_mutex);
-			_objects.erase(std::remove_if(_objects.begin(), _objects.end(), bind(&IObjectHolder::TryRemove, _1)), _objects.end());
+			_objects.erase(std::remove_if(_objects.begin(), _objects.end(), Bind(&IObjectHolder::TryRemove, _1)), _objects.end());
 		}
 	};
 

@@ -131,12 +131,12 @@ namespace stingray
 				:	Guard(make_shared<Mutex>()),
 					Items(make_shared<VectorType>()),
 					HasTransaction(false),
-					OnChanged(ExternalMutexPointer(Guard), bind(&ImplData::OnChangedPopulator, this, _1))
+					OnChanged(ExternalMutexPointer(Guard), Bind(&ImplData::OnChangedPopulator, this, _1))
 			{ }
 
 		private:
 			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
-			{ slot(MakeSimpleEnumerable(bind(MakeShared<PopulatorEnumerator>(), Items))); }
+			{ slot(MakeSimpleEnumerable(Bind(MakeShared<PopulatorEnumerator>(), Items))); }
 		};
 		STINGRAYKIT_DECLARE_PTR(ImplData);
 

@@ -67,7 +67,7 @@ namespace stingray
 			}
 
 			SymbolCount GetTotalCount() const
-			{ return Sum(Transform(ToRange(_symbols), bind(&SymbolCounter::GetCount, _1))); }
+			{ return Sum(Transform(ToRange(_symbols), Bind(&SymbolCounter::GetCount, _1))); }
 
 			const Symbols& GetSymbols() const
 			{ return _symbols; }
@@ -222,7 +222,7 @@ namespace stingray
 				{
 					Entry e(p.first);
 					std::pair<typename Entries::iterator, typename Entries::iterator> range = std::equal_range(_entries.begin(), _entries.end(), e, CompareMembersGreater(&Entry::GetCount));
-					typename Entries::iterator it = std::find_if(range.first, range.second, bind(CompareMembersEquals(&Entry::GetContext), e, _1));
+					typename Entries::iterator it = std::find_if(range.first, range.second, Bind(CompareMembersEquals(&Entry::GetContext), e, _1));
 					STINGRAYKIT_CHECK(it != range.second, "Can't find context!");
 					_entries.erase(it);
 				}
@@ -375,7 +375,7 @@ namespace stingray
 					size_t oldOffset = _symbols.size();
 
 					ContextInfoBuilder& contextBuilder(it->second);
-					SymbolCount maxCount = std::max(*Range::MaxElement(Transform(ToRange(contextBuilder.GetSymbols()), bind(&SymbolCounter::GetCount, _1))), contextBuilder.GetExit());
+					SymbolCount maxCount = std::max(*Range::MaxElement(Transform(ToRange(contextBuilder.GetSymbols()), Bind(&SymbolCounter::GetCount, _1))), contextBuilder.GetExit());
 					if (ContextSize != 0)
 					{
 						for (typename ContextInfoBuilder::Symbols::const_iterator s = contextBuilder.GetSymbols().begin(); s != contextBuilder.GetSymbols().end(); ++s)
@@ -468,7 +468,7 @@ namespace stingray
 			template <typename Consumer_>
 			bool DoPredict(typename Symbols::const_iterator first, typename Symbols::const_iterator last, Probability exit, optional<Symbol> symbol, const Consumer_& f) const
 			{
-				SymbolCount scale = Sum(Transform(Transform(ToRange(first, last), bind(&SymbolProbability::GetProbability, _1)), ImplicitCaster<SymbolCount>())) + exit;
+				SymbolCount scale = Sum(Transform(Transform(ToRange(first, last), Bind(&SymbolProbability::GetProbability, _1)), ImplicitCaster<SymbolCount>())) + exit;
 				if (!symbol)
 				{
 					f(scale - exit, scale, scale);
@@ -481,7 +481,7 @@ namespace stingray
 					f(scale - exit, scale, scale);
 					return false;
 				}
-				SymbolCount low = Sum(Transform(ToRange(first, it), bind(&SymbolProbability::GetProbability, _1)));
+				SymbolCount low = Sum(Transform(ToRange(first, it), Bind(&SymbolProbability::GetProbability, _1)));
 				f(low, low + it->GetProbability(), scale);
 				return true;
 			}
@@ -489,7 +489,7 @@ namespace stingray
 			template <typename GetBitFunctor_>
 			optional<Symbol> DoDecode(typename Symbols::const_iterator first, typename Symbols::const_iterator last, Probability exit, ArithmeticDecoder& decoder, const GetBitFunctor_& getBit) const
 			{
-				SymbolCount scale = Sum(Transform(Transform(ToRange(first, last), bind(&SymbolProbability::GetProbability, _1)), ImplicitCaster<SymbolCount>())) + exit;
+				SymbolCount scale = Sum(Transform(Transform(ToRange(first, last), Bind(&SymbolProbability::GetProbability, _1)), ImplicitCaster<SymbolCount>())) + exit;
 				u32 low = 0;
 				u32 targetProbability = decoder.GetProbability(scale);
 				for (typename Symbols::const_iterator it = first; it != last; ++it)

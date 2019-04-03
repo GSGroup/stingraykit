@@ -156,7 +156,7 @@ namespace stingray
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
 			_queue(make_shared<CallbackQueue>()),
-			_worker(make_shared<Thread>(timerName, bind(&Timer::ThreadFunc, this, _1)))
+			_worker(make_shared<Thread>(timerName, Bind(&Timer::ThreadFunc, this, _1)))
 	{ }
 
 
@@ -180,7 +180,7 @@ namespace stingray
 	Token Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
 	{
 		const CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
-		const Token token = MakeToken<FunctionToken>(bind(&Timer::RemoveTask, _queue, ci));
+		const Token token = MakeToken<FunctionToken>(Bind(&Timer::RemoveTask, _queue, ci));
 
 		{
 			MutexLock l(_queue->Sync());
@@ -199,7 +199,7 @@ namespace stingray
 	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
 	{
 		const CallbackInfoPtr ci = make_shared<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
-		const Token token = MakeToken<FunctionToken>(bind(&Timer::RemoveTask, _queue, ci));
+		const Token token = MakeToken<FunctionToken>(Bind(&Timer::RemoveTask, _queue, ci));
 
 		{
 			MutexLock l(_queue->Sync());
@@ -307,7 +307,7 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&Timer::GetProfilerMessage, this, wrap_ref(ci->GetFunc())), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&Timer::GetProfilerMessage, this, wrap_ref(ci->GetFunc())), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				ci->GetFunc()();
 			}
 			else
@@ -354,7 +354,7 @@ namespace stingray
 	void ExecutionDeferrer::Defer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval)
 	{
 		MutexLock l(_doDeferConnectionMutex);
-		_doDeferConnection = _timer.SetTimeout(TimeDuration(), bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
+		_doDeferConnection = _timer.SetTimeout(TimeDuration(), Bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
 	}
 
 

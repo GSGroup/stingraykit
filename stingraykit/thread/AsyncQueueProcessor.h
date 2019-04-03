@@ -52,9 +52,9 @@ namespace stingray
 		AsyncQueueProcessor(const std::string &name, const FunctorType &processor):
 			_processor(processor),
 			_idle(true),
-			OnIdle(bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
-			OnProgress(bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1))
-		{ _thread = make_shared<Thread>(name, bind(&AsyncQueueProcessor::ThreadFunc, this, _1)); }
+			OnIdle(Bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
+			OnProgress(Bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1))
+		{ _thread = make_shared<Thread>(name, Bind(&AsyncQueueProcessor::ThreadFunc, this, _1)); }
 
 		~AsyncQueueProcessor()
 		{

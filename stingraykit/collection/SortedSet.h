@@ -70,14 +70,14 @@ namespace stingray
 			:	_items(make_shared<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
-			Enumerable::ForEach(enumerator, bind(&SortedSet::Add, this, _1));
+			Enumerable::ForEach(enumerator, Bind(&SortedSet::Add, this, _1));
 		}
 
 		SortedSet(shared_ptr<IEnumerable<ValueType> > enumerable)
 			:	_items(make_shared<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
-			Enumerable::ForEach(enumerable, bind(&SortedSet::Add, this, _1));
+			Enumerable::ForEach(enumerable, Bind(&SortedSet::Add, this, _1));
 		}
 
 		SortedSet& operator = (const SortedSet& other)

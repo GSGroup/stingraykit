@@ -23,7 +23,7 @@ namespace stingray
 		:	_name(name),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
-			_worker(make_shared<Thread>(name, bind(&ThreadTaskExecutor::ThreadFunc, this, _1)))
+			_worker(make_shared<Thread>(name, Bind(&ThreadTaskExecutor::ThreadFunc, this, _1)))
 	{ }
 
 
@@ -79,7 +79,7 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), bind(&ThreadTaskExecutor::GetProfilerMessage, this, wrap_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&ThreadTaskExecutor::GetProfilerMessage, this, wrap_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				task.first();
 			}
 			else

@@ -48,14 +48,14 @@ namespace stingray {
 
 			template <typename InputType, typename Consumer>
 			static RetType Process(StagesTuple& stages, const InputType& input, const Consumer& consumer)
-			{ return stages.GetHead().Process(input, bind(&NextStage::template Process<OutputType, Consumer>, wrap_ref(stages.GetTail()), _1, wrap_ref(consumer))); }
+			{ return stages.GetHead().Process(input, Bind(&NextStage::template Process<OutputType, Consumer>, wrap_ref(stages.GetTail()), _1, wrap_ref(consumer))); }
 
 			template <typename Consumer, typename EodFunc>
 			static RetType EndOfData(StagesTuple& stages, const Consumer& consumer, const EodFunc& eod)
 			{
 				return stages.GetHead().EndOfData(
-					bind(&NextStage::template Process<OutputType, Consumer>, wrap_ref(stages.GetTail()), wrap_ref(consumer), _1),
-					bind(&NextStage::template EndOfData<Consumer, EodFunc>, wrap_ref(stages.GetTail()), wrap_ref(consumer), wrap_ref(eod)));
+					Bind(&NextStage::template Process<OutputType, Consumer>, wrap_ref(stages.GetTail()), wrap_ref(consumer), _1),
+					Bind(&NextStage::template EndOfData<Consumer, EodFunc>, wrap_ref(stages.GetTail()), wrap_ref(consumer), wrap_ref(eod)));
 			}
 
 			static void Reset(StagesTuple& stages)

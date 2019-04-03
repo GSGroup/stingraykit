@@ -449,7 +449,7 @@ namespace stingray
 		}
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), optional<size_t>, IndexOf, MK_PARAM(const T& val), MK_PARAM(val))
-		{ return IndexOf(enumerator, bind(std::equal_to<T>(), val, _1)); }
+		{ return IndexOf(enumerator, Bind(std::equal_to<T>(), val, _1)); }
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), T, ElementAt, MK_PARAM(size_t index), MK_PARAM(index))
@@ -597,7 +597,7 @@ namespace stingray
 
 		template <typename TResult, typename SrcEnumerable>
 		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
-		{ return MakeSimpleEnumerable(bind(MakeShared<Detail::EnumeratorOfType<TResult, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType> > > >(), lazy(bind(&SrcEnumerable::GetEnumerator, enumerable)))); }
+		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorOfType<TResult, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType> > > >(), lazy(Bind(&SrcEnumerable::GetEnumerator, enumerable)))); }
 
 
 		template < typename CollectionType >

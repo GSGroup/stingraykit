@@ -41,7 +41,7 @@ namespace stingray
 				_outQueue(outQueueCapacity),
 				_hotCache(hotCacheCapacity)
 		{
-			_connections += _inQueue.OnEvicted().connect(bind(&Queue::Set, wrap_ref(_outQueue), _1, _2));
+			_connections += _inQueue.OnEvicted().connect(Bind(&Queue::Set, wrap_ref(_outQueue), _1, _2));
 			_connections += _outQueue.OnEvicted().connect(_onEvicted.invoker());
 			_connections += _hotCache.OnEvicted().connect(_onEvicted.invoker());
 		}

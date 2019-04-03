@@ -139,12 +139,12 @@ namespace stingray
 				:	Guard(make_shared<Mutex>()),
 					Map(make_shared<MapType>()),
 					HasTransaction(false),
-					OnChanged(ExternalMutexPointer(Guard), bind(&ImplData::OnChangedPopulator, this, _1))
+					OnChanged(ExternalMutexPointer(Guard), Bind(&ImplData::OnChangedPopulator, this, _1))
 			{ }
 
 		private:
 			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
-			{ slot(WrapEnumerable(EnumerableFromStlContainer(*Map, Map), bind(&Utils::MakeDiffEntry, CollectionOp::Added, _1))); }
+			{ slot(WrapEnumerable(EnumerableFromStlContainer(*Map, Map), Bind(&Utils::MakeDiffEntry, CollectionOp::Added, _1))); }
 		};
 		STINGRAYKIT_DECLARE_PTR(ImplData);
 
