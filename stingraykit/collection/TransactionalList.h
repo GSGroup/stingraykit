@@ -252,7 +252,7 @@ namespace stingray
 				STINGRAYKIT_CHECK(index <= items.size(), IndexOutOfRangeException(index, items.size()));
 
 				CopyOnWrite();
-				_newItems->insert(next(_newItems->begin(), index), value);
+				_newItems->insert(next_iterator(_newItems->begin(), index), value);
 			}
 
 			virtual void RemoveAt(size_t index)
@@ -261,7 +261,7 @@ namespace stingray
 				STINGRAYKIT_CHECK(index < items.size(), IndexOutOfRangeException(index, items.size()));
 
 				CopyOnWrite();
-				_newItems->erase(next(_newItems->begin(), index));
+				_newItems->erase(next_iterator(_newItems->begin(), index));
 			}
 
 			virtual bool TryRemove(const ValueType& value)
@@ -275,7 +275,7 @@ namespace stingray
 				const size_t index = std::distance(items.begin(), it);
 
 				CopyOnWrite();
-				_newItems->erase(next(_newItems->begin(), index));
+				_newItems->erase(next_iterator(_newItems->begin(), index));
 				return true;
 			}
 

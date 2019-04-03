@@ -428,7 +428,7 @@ namespace stingray
 				}
 
 				typename Symbols::const_iterator first = _symbols.begin() + it->GetOffset();
-				typename Symbols::const_iterator last = (next(it) != _contexts.end()) ? (_symbols.begin() + next(it)->GetOffset()) : _symbols.end();
+				typename Symbols::const_iterator last = (next_iterator(it) != _contexts.end()) ? (_symbols.begin() + next_iterator(it)->GetOffset()) : _symbols.end();
 				if (!DoPredict(first, last, it->GetExitProbability(), symbol, f))
 					_childModel.Predict(context, symbol, f);
 			}
@@ -446,7 +446,7 @@ namespace stingray
 					return _childModel.Decode(context, d, f);
 
 				typename Symbols::const_iterator first = _symbols.begin() + it->GetOffset();
-				typename Symbols::const_iterator last = (next(it) != _contexts.end()) ? (_symbols.begin() + next(it)->GetOffset()) : _symbols.end();
+				typename Symbols::const_iterator last = (next_iterator(it) != _contexts.end()) ? (_symbols.begin() + next_iterator(it)->GetOffset()) : _symbols.end();
 				optional<Symbol> s = DoDecode(first, last, it->GetExitProbability(), d, f);
 				return s ? *s : _childModel.Decode(context, d, f);
 			}
@@ -458,7 +458,7 @@ namespace stingray
 				for (typename Contexts::const_iterator it = _contexts.begin(); it != _contexts.end(); ++it)
 				{
 					typename Symbols::const_iterator first = _symbols.begin() + it->GetOffset();
-					typename Symbols::const_iterator last = (next(it) != _contexts.end()) ? (_symbols.begin() + next(it)->GetOffset()) : _symbols.end();
+					typename Symbols::const_iterator last = (next_iterator(it) != _contexts.end()) ? (_symbols.begin() + next_iterator(it)->GetOffset()) : _symbols.end();
 					result % "Context: " % it->GetContext() % ", exit: " % it->GetExitProbability() % ", symbols: " % ToRange(first, last) % "\n";
 				}
 				return result;

@@ -185,7 +185,7 @@ namespace stingray
 				}
 
 				typedef typename GetTypeListItem<IndexedIterators, ContainerIndex>::ValueT IterType;
-				IterType it(next(container->begin(), diff));
+				IterType it(next_iterator(container->begin(), diff));
 				iter = it;
 				return false;
 			}
