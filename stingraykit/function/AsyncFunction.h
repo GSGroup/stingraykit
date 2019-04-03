@@ -92,7 +92,7 @@ namespace stingray
 				try
 				{ promise->set_value(func()); }
 				catch (const std::exception& ex)
-				{ promise->set_exception(make_exception_ptr(ex)); }
+				{ promise->set_exception(MakeExceptionPtr(ex)); }
 			}
 		};
 	}

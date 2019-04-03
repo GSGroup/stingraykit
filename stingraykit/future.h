@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/exception_ptr.h>
+#include <stingraykit/ExceptionPtr.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
 
@@ -66,12 +66,12 @@ namespace stingray
 
 		private:
 			OptionalValue	_value;
-			exception_ptr	_exception;
+			ExceptionPtr	_exception;
 
 		public:
 			future_result() { }
 			future_result(const T& value) : _value(value) { }
-			future_result(const exception_ptr& exception) : _exception(exception) { }
+			future_result(const ExceptionPtr& exception) : _exception(exception) { }
 
 			bool has_exception() const	{ return _exception; }
 			bool has_value() const		{ return _value; }
@@ -79,7 +79,7 @@ namespace stingray
 			T get()
 			{
 				if (_exception)
-					rethrow_exception(_exception);
+					RethrowException(_exception);
 				STINGRAYKIT_CHECK(_value, OperationCancelledException());
 				return *_value;
 			}
@@ -90,12 +90,12 @@ namespace stingray
 		class future_result<void>
 		{
 			bool			_value;
-			exception_ptr	_exception;
+			ExceptionPtr	_exception;
 
 		public:
 			future_result() : _value(false) { }
 			future_result(bool value) : _value(value) { }
-			future_result(const exception_ptr& exception) : _value(false), _exception(exception) { }
+			future_result(const ExceptionPtr& exception) : _value(false), _exception(exception) { }
 
 			bool has_exception() const	{ return _exception; }
 			bool has_value() const		{ return _value; }
@@ -103,7 +103,7 @@ namespace stingray
 			void get()
 			{
 				if (_exception)
-					rethrow_exception(_exception);
+					RethrowException(_exception);
 				STINGRAYKIT_CHECK(_value, OperationCancelledException());
 			}
 		};
@@ -134,7 +134,7 @@ namespace stingray
 				return _result.get();
 			}
 
-			void set_exception(exception_ptr ex)
+			void set_exception(ExceptionPtr ex)
 			{
 				MutexLock l(_mutex);
 				if (is_ready())
@@ -294,7 +294,7 @@ namespace stingray
 		{}
 
 		~promise()
-		{ _futureImpl->set_exception(make_exception_ptr(BrokenPromise())); }
+		{ _futureImpl->set_exception(MakeExceptionPtr(BrokenPromise())); }
 
 		void swap(promise& other)
 		{ _futureImpl.swap(other._futureImpl); }
@@ -305,7 +305,7 @@ namespace stingray
 		void set_value(SetType result)
 		{ _futureImpl->set_value(result); }
 
-		void set_exception(exception_ptr ex)
+		void set_exception(ExceptionPtr ex)
 		{ _futureImpl->set_exception(ex); }
 	};
 
@@ -326,7 +326,7 @@ namespace stingray
 		{}
 
 		~promise()
-		{ _futureImpl->set_exception(make_exception_ptr(BrokenPromise())); }
+		{ _futureImpl->set_exception(MakeExceptionPtr(BrokenPromise())); }
 
 		void swap(promise& other)
 		{ _futureImpl.swap(other._futureImpl); }
@@ -337,7 +337,7 @@ namespace stingray
 		void set_value()
 		{ _futureImpl->set_value(); }
 
-		void set_exception(exception_ptr ex)
+		void set_exception(ExceptionPtr ex)
 		{ _futureImpl->set_exception(ex); }
 
 	};
