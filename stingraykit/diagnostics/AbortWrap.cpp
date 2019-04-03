@@ -9,7 +9,7 @@
 #include <stingraykit/diagnostics/Backtrace.h>
 
 
-extern "C" typeof(abort) __real_abort;
+extern "C" __typeof__(abort) __real_abort;
 
 extern "C" void __wrap_abort(ssize_t size)
 {
