@@ -35,6 +35,10 @@ namespace stingray
 
 	inline size_t Lcm(size_t a, size_t b) { return a / Gcd(a, b) * b; }
 
+	template<typename T> inline T Max(T a, T b) { return std::max<T>(a, b); }
+
+	template<typename T> inline T Min(T a, T b) { return std::min<T>(a, b); }
+
 }
 
 #endif
