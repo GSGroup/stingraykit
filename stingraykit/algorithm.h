@@ -55,7 +55,7 @@ namespace stingray
 
 	template<class It1, class It2>
 	bool equal(It1 first1, It1 last1, It2 first2, It2 last2)
-	{ return equal(first1, last1, first2, last2, comparers::Equals()); }
+	{ return stingray::equal(first1, last1, first2, last2, comparers::Equals()); }
 
 }
 
