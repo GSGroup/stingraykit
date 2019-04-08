@@ -190,7 +190,7 @@ namespace stingray
 		{
 			iterator result = find(key);
 			if (result == end())
-				result = insert(std::make_pair<Key, Value>(key, Value())).first;
+				result = insert(std::make_pair(key, Value())).first;
 			return result->second;
 		}
 
