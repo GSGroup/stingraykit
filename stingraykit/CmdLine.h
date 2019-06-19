@@ -218,12 +218,9 @@ namespace stingray
 		{
 			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete)
 			{
-				if (!customComplete.empty())
-				{
-					CustomCompleteFuncsMap::const_iterator it = customComplete.find(N);
-					if (it != customComplete.end())
-						return CmdArgCompleter<T, N, true>::Complete(input, results, customComplete);
-				}
+				if (customComplete.find(N) != customComplete.end())
+					return CmdArgCompleter<T, N, true>::Complete(input, results, customComplete);
+
 				std::string str_val;
 				size_t read_size = CmdArgReader<std::string, false>::Read(input.c_str(), input.size(), str_val);
 				bool got_exact_match = false;
@@ -253,12 +250,8 @@ namespace stingray
 		{
 			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete)
 			{
-				if (!customComplete.empty())
-				{
-					CustomCompleteFuncsMap::const_iterator it = customComplete.find(N);
-					if (it != customComplete.end())
-						return CmdArgCompleter<bool, N, true>::Complete(input, results, customComplete);
-				}
+				if (customComplete.find(N) != customComplete.end())
+					return CmdArgCompleter<bool, N, true>::Complete(input, results, customComplete);
 
 				std::string value;
 				const size_t size = CmdArgReader<std::string, false>::Read(input.c_str(), input.size(), value);
