@@ -177,7 +177,16 @@ namespace stingray
 
 				CustomCompleteFuncsMap::const_iterator it = customComplete.find(N);
 				if (it == customComplete.end())
+				{
+					std::string str_val;
+					size_t read_size = CmdArgReader<std::string, false>::Read(input.c_str(), input.size(), str_val);
+					if (input.size() > read_size)
+					{
+						input.erase(0, read_size + 1);
+						return true;
+					}
 					return false;
+				}
 
 				const CustomCompleteFunc& complete_func = *(it->second);
 				std::set<std::string> pre_complete_list = complete_func();
