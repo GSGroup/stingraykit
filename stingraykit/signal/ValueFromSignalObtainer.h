@@ -47,6 +47,20 @@ namespace stingray
 	{ };
 
 
+	template < typename CollectionType, typename T >
+	CollectionType GetValuesFromSignal(const signal_connector<void (CollectionOp, T)>& connector)
+	{
+		ValuesFromSignalCollector<CollectionType> collector;
+		connector.SendCurrentState(collector);
+		return collector.GetValues();
+	}
+
+
+	template < typename T >
+	std::vector<typename Decay<T>::ValueT> GetVectorFromSignal(const signal_connector<void (CollectionOp, T)>& connector)
+	{ return GetValuesFromSignal<std::vector<typename Decay<T>::ValueT> >(connector); }
+
+
 	template < typename T >
 	class ValueFromSignalObtainer : public function_info<void(const T&)>
 	{
@@ -96,6 +110,32 @@ namespace stingray
 
 		bool HasValue() const { return *_val; }
 	};
+
+
+	template < typename T >
+	optional<typename Decay<T>::ValueT> GetValueFromSignal(const signal_connector<void (T)>& connector)
+	{
+		ValueFromSignalObtainer<typename Decay<T>::ValueT> obtainer;
+		connector.SendCurrentState(obtainer);
+		return obtainer.HasValue() ? make_optional(obtainer.GetValue()) : null;
+	}
+
+
+	template < typename T >
+	bool HasValueInSignal(const signal_connector<void (T)>& connector)
+	{
+		ValueFromSignalObtainer<typename Decay<T>::ValueT> obtainer;
+		connector.SendCurrentState(obtainer);
+		return obtainer.HasValue();
+	}
+
+
+	inline bool HasValueInSignal(const signal_connector<void ()>& connector)
+	{
+		ValueFromSignalObtainer<void> obtainer;
+		connector.SendCurrentState(obtainer);
+		return obtainer.HasValue();
+	}
 
 	/** @} */
 
