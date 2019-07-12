@@ -83,70 +83,134 @@
 #define STINGRAYKIT_AND(A, B) STINGRAYKIT_CAT(STINGRAYKIT_CAT(STINGRAYKIT_CAT(DETAIL_AND_, STINGRAYKIT_BOOL(A)), _), STINGRAYKIT_BOOL(B))
 
 
-#define DETAIL_TO_BINARY_0  0, 0, 0, 0, 0, 0
-#define DETAIL_TO_BINARY_1  1, 0, 0, 0, 0, 0
-#define DETAIL_TO_BINARY_2  0, 1, 0, 0, 0, 0
-#define DETAIL_TO_BINARY_3  1, 1, 0, 0, 0, 0
-#define DETAIL_TO_BINARY_4  0, 0, 1, 0, 0, 0
-#define DETAIL_TO_BINARY_5  1, 0, 1, 0, 0, 0
-#define DETAIL_TO_BINARY_6  0, 1, 1, 0, 0, 0
-#define DETAIL_TO_BINARY_7  1, 1, 1, 0, 0, 0
-#define DETAIL_TO_BINARY_8  0, 0, 0, 1, 0, 0
-#define DETAIL_TO_BINARY_9  1, 0, 0, 1, 0, 0
-#define DETAIL_TO_BINARY_10 0, 1, 0, 1, 0, 0
-#define DETAIL_TO_BINARY_11 1, 1, 0, 1, 0, 0
-#define DETAIL_TO_BINARY_12 0, 0, 1, 1, 0, 0
-#define DETAIL_TO_BINARY_13 1, 0, 1, 1, 0, 0
-#define DETAIL_TO_BINARY_14 0, 1, 1, 1, 0, 0
-#define DETAIL_TO_BINARY_15 1, 1, 1, 1, 0, 0
-#define DETAIL_TO_BINARY_16 0, 0, 0, 0, 1, 0
-#define DETAIL_TO_BINARY_17 1, 0, 0, 0, 1, 0
-#define DETAIL_TO_BINARY_18 0, 1, 0, 0, 1, 0
-#define DETAIL_TO_BINARY_19 1, 1, 0, 0, 1, 0
-#define DETAIL_TO_BINARY_20 0, 0, 1, 0, 1, 0
-#define DETAIL_TO_BINARY_21 1, 0, 1, 0, 1, 0
-#define DETAIL_TO_BINARY_22 0, 1, 1, 0, 1, 0
-#define DETAIL_TO_BINARY_23 1, 1, 1, 0, 1, 0
-#define DETAIL_TO_BINARY_24 0, 0, 0, 1, 1, 0
-#define DETAIL_TO_BINARY_25 1, 0, 0, 1, 1, 0
-#define DETAIL_TO_BINARY_26 0, 1, 0, 1, 1, 0
-#define DETAIL_TO_BINARY_27 1, 1, 0, 1, 1, 0
-#define DETAIL_TO_BINARY_28 0, 0, 1, 1, 1, 0
-#define DETAIL_TO_BINARY_29 1, 0, 1, 1, 1, 0
-#define DETAIL_TO_BINARY_30 0, 1, 1, 1, 1, 0
-#define DETAIL_TO_BINARY_31 1, 1, 1, 1, 1, 0
-#define DETAIL_TO_BINARY_32 0, 0, 0, 0, 0, 1
-#define DETAIL_TO_BINARY_33 1, 0, 0, 0, 0, 1
-#define DETAIL_TO_BINARY_34 0, 1, 0, 0, 0, 1
-#define DETAIL_TO_BINARY_35 1, 1, 0, 0, 0, 1
-#define DETAIL_TO_BINARY_36 0, 0, 1, 0, 0, 1
-#define DETAIL_TO_BINARY_37 1, 0, 1, 0, 0, 1
-#define DETAIL_TO_BINARY_38 0, 1, 1, 0, 0, 1
-#define DETAIL_TO_BINARY_39 1, 1, 1, 0, 0, 1
-#define DETAIL_TO_BINARY_40 0, 0, 0, 1, 0, 1
-#define DETAIL_TO_BINARY_41 1, 0, 0, 1, 0, 1
-#define DETAIL_TO_BINARY_42 0, 1, 0, 1, 0, 1
-#define DETAIL_TO_BINARY_43 1, 1, 0, 1, 0, 1
-#define DETAIL_TO_BINARY_44 0, 0, 1, 1, 0, 1
-#define DETAIL_TO_BINARY_45 1, 0, 1, 1, 0, 1
-#define DETAIL_TO_BINARY_46 0, 1, 1, 1, 0, 1
-#define DETAIL_TO_BINARY_47 1, 1, 1, 1, 0, 1
-#define DETAIL_TO_BINARY_48 0, 0, 0, 0, 1, 1
-#define DETAIL_TO_BINARY_49 1, 0, 0, 0, 1, 1
-#define DETAIL_TO_BINARY_50 0, 1, 0, 0, 1, 1
-#define DETAIL_TO_BINARY_51 1, 1, 0, 0, 1, 1
-#define DETAIL_TO_BINARY_52 0, 0, 1, 0, 1, 1
-#define DETAIL_TO_BINARY_53 1, 0, 1, 0, 1, 1
-#define DETAIL_TO_BINARY_54 0, 1, 1, 0, 1, 1
-#define DETAIL_TO_BINARY_55 1, 1, 1, 0, 1, 1
-#define DETAIL_TO_BINARY_56 0, 0, 0, 1, 1, 1
-#define DETAIL_TO_BINARY_57 1, 0, 0, 1, 1, 1
-#define DETAIL_TO_BINARY_58 0, 1, 0, 1, 1, 1
-#define DETAIL_TO_BINARY_59 1, 1, 0, 1, 1, 1
-#define DETAIL_TO_BINARY_60 0, 0, 1, 1, 1, 1
-#define DETAIL_TO_BINARY_61 1, 0, 1, 1, 1, 1
-#define DETAIL_TO_BINARY_62 0, 1, 1, 1, 1, 1
-#define DETAIL_TO_BINARY_63 1, 1, 1, 1, 1, 1
+#define DETAIL_TO_BINARY_0   0, 0, 0, 0, 0, 0, 0
+#define DETAIL_TO_BINARY_1   1, 0, 0, 0, 0, 0, 0
+#define DETAIL_TO_BINARY_2   0, 1, 0, 0, 0, 0, 0
+#define DETAIL_TO_BINARY_3   1, 1, 0, 0, 0, 0, 0
+#define DETAIL_TO_BINARY_4   0, 0, 1, 0, 0, 0, 0
+#define DETAIL_TO_BINARY_5   1, 0, 1, 0, 0, 0, 0
+#define DETAIL_TO_BINARY_6   0, 1, 1, 0, 0, 0, 0
+#define DETAIL_TO_BINARY_7   1, 1, 1, 0, 0, 0, 0
+#define DETAIL_TO_BINARY_8   0, 0, 0, 1, 0, 0, 0
+#define DETAIL_TO_BINARY_9   1, 0, 0, 1, 0, 0, 0
+#define DETAIL_TO_BINARY_10  0, 1, 0, 1, 0, 0, 0
+#define DETAIL_TO_BINARY_11  1, 1, 0, 1, 0, 0, 0
+#define DETAIL_TO_BINARY_12  0, 0, 1, 1, 0, 0, 0
+#define DETAIL_TO_BINARY_13  1, 0, 1, 1, 0, 0, 0
+#define DETAIL_TO_BINARY_14  0, 1, 1, 1, 0, 0, 0
+#define DETAIL_TO_BINARY_15  1, 1, 1, 1, 0, 0, 0
+#define DETAIL_TO_BINARY_16  0, 0, 0, 0, 1, 0, 0
+#define DETAIL_TO_BINARY_17  1, 0, 0, 0, 1, 0, 0
+#define DETAIL_TO_BINARY_18  0, 1, 0, 0, 1, 0, 0
+#define DETAIL_TO_BINARY_19  1, 1, 0, 0, 1, 0, 0
+#define DETAIL_TO_BINARY_20  0, 0, 1, 0, 1, 0, 0
+#define DETAIL_TO_BINARY_21  1, 0, 1, 0, 1, 0, 0
+#define DETAIL_TO_BINARY_22  0, 1, 1, 0, 1, 0, 0
+#define DETAIL_TO_BINARY_23  1, 1, 1, 0, 1, 0, 0
+#define DETAIL_TO_BINARY_24  0, 0, 0, 1, 1, 0, 0
+#define DETAIL_TO_BINARY_25  1, 0, 0, 1, 1, 0, 0
+#define DETAIL_TO_BINARY_26  0, 1, 0, 1, 1, 0, 0
+#define DETAIL_TO_BINARY_27  1, 1, 0, 1, 1, 0, 0
+#define DETAIL_TO_BINARY_28  0, 0, 1, 1, 1, 0, 0
+#define DETAIL_TO_BINARY_29  1, 0, 1, 1, 1, 0, 0
+#define DETAIL_TO_BINARY_30  0, 1, 1, 1, 1, 0, 0
+#define DETAIL_TO_BINARY_31  1, 1, 1, 1, 1, 0, 0
+#define DETAIL_TO_BINARY_32  0, 0, 0, 0, 0, 1, 0
+#define DETAIL_TO_BINARY_33  1, 0, 0, 0, 0, 1, 0
+#define DETAIL_TO_BINARY_34  0, 1, 0, 0, 0, 1, 0
+#define DETAIL_TO_BINARY_35  1, 1, 0, 0, 0, 1, 0
+#define DETAIL_TO_BINARY_36  0, 0, 1, 0, 0, 1, 0
+#define DETAIL_TO_BINARY_37  1, 0, 1, 0, 0, 1, 0
+#define DETAIL_TO_BINARY_38  0, 1, 1, 0, 0, 1, 0
+#define DETAIL_TO_BINARY_39  1, 1, 1, 0, 0, 1, 0
+#define DETAIL_TO_BINARY_40  0, 0, 0, 1, 0, 1, 0
+#define DETAIL_TO_BINARY_41  1, 0, 0, 1, 0, 1, 0
+#define DETAIL_TO_BINARY_42  0, 1, 0, 1, 0, 1, 0
+#define DETAIL_TO_BINARY_43  1, 1, 0, 1, 0, 1, 0
+#define DETAIL_TO_BINARY_44  0, 0, 1, 1, 0, 1, 0
+#define DETAIL_TO_BINARY_45  1, 0, 1, 1, 0, 1, 0
+#define DETAIL_TO_BINARY_46  0, 1, 1, 1, 0, 1, 0
+#define DETAIL_TO_BINARY_47  1, 1, 1, 1, 0, 1, 0
+#define DETAIL_TO_BINARY_48  0, 0, 0, 0, 1, 1, 0
+#define DETAIL_TO_BINARY_49  1, 0, 0, 0, 1, 1, 0
+#define DETAIL_TO_BINARY_50  0, 1, 0, 0, 1, 1, 0
+#define DETAIL_TO_BINARY_51  1, 1, 0, 0, 1, 1, 0
+#define DETAIL_TO_BINARY_52  0, 0, 1, 0, 1, 1, 0
+#define DETAIL_TO_BINARY_53  1, 0, 1, 0, 1, 1, 0
+#define DETAIL_TO_BINARY_54  0, 1, 1, 0, 1, 1, 0
+#define DETAIL_TO_BINARY_55  1, 1, 1, 0, 1, 1, 0
+#define DETAIL_TO_BINARY_56  0, 0, 0, 1, 1, 1, 0
+#define DETAIL_TO_BINARY_57  1, 0, 0, 1, 1, 1, 0
+#define DETAIL_TO_BINARY_58  0, 1, 0, 1, 1, 1, 0
+#define DETAIL_TO_BINARY_59  1, 1, 0, 1, 1, 1, 0
+#define DETAIL_TO_BINARY_60  0, 0, 1, 1, 1, 1, 0
+#define DETAIL_TO_BINARY_61  1, 0, 1, 1, 1, 1, 0
+#define DETAIL_TO_BINARY_62  0, 1, 1, 1, 1, 1, 0
+#define DETAIL_TO_BINARY_63  1, 1, 1, 1, 1, 1, 0
+#define DETAIL_TO_BINARY_64  0, 0, 0, 0, 0, 0, 1
+#define DETAIL_TO_BINARY_65  1, 0, 0, 0, 0, 0, 1
+#define DETAIL_TO_BINARY_66  0, 1, 0, 0, 0, 0, 1
+#define DETAIL_TO_BINARY_67  1, 1, 0, 0, 0, 0, 1
+#define DETAIL_TO_BINARY_68  0, 0, 1, 0, 0, 0, 1
+#define DETAIL_TO_BINARY_69  1, 0, 1, 0, 0, 0, 1
+#define DETAIL_TO_BINARY_70  0, 1, 1, 0, 0, 0, 1
+#define DETAIL_TO_BINARY_71  1, 1, 1, 0, 0, 0, 1
+#define DETAIL_TO_BINARY_72  0, 0, 0, 1, 0, 0, 1
+#define DETAIL_TO_BINARY_73  1, 0, 0, 1, 0, 0, 1
+#define DETAIL_TO_BINARY_74  0, 1, 0, 1, 0, 0, 1
+#define DETAIL_TO_BINARY_75  1, 1, 0, 1, 0, 0, 1
+#define DETAIL_TO_BINARY_76  0, 0, 1, 1, 0, 0, 1
+#define DETAIL_TO_BINARY_77  1, 0, 1, 1, 0, 0, 1
+#define DETAIL_TO_BINARY_78  0, 1, 1, 1, 0, 0, 1
+#define DETAIL_TO_BINARY_79  1, 1, 1, 1, 0, 0, 1
+#define DETAIL_TO_BINARY_80  0, 0, 0, 0, 1, 0, 1
+#define DETAIL_TO_BINARY_81  1, 0, 0, 0, 1, 0, 1
+#define DETAIL_TO_BINARY_82  0, 1, 0, 0, 1, 0, 1
+#define DETAIL_TO_BINARY_83  1, 1, 0, 0, 1, 0, 1
+#define DETAIL_TO_BINARY_84  0, 0, 1, 0, 1, 0, 1
+#define DETAIL_TO_BINARY_85  1, 0, 1, 0, 1, 0, 1
+#define DETAIL_TO_BINARY_86  0, 1, 1, 0, 1, 0, 1
+#define DETAIL_TO_BINARY_87  1, 1, 1, 0, 1, 0, 1
+#define DETAIL_TO_BINARY_88  0, 0, 0, 1, 1, 0, 1
+#define DETAIL_TO_BINARY_89  1, 0, 0, 1, 1, 0, 1
+#define DETAIL_TO_BINARY_90  0, 1, 0, 1, 1, 0, 1
+#define DETAIL_TO_BINARY_91  1, 1, 0, 1, 1, 0, 1
+#define DETAIL_TO_BINARY_92  0, 0, 1, 1, 1, 0, 1
+#define DETAIL_TO_BINARY_93  1, 0, 1, 1, 1, 0, 1
+#define DETAIL_TO_BINARY_94  0, 1, 1, 1, 1, 0, 1
+#define DETAIL_TO_BINARY_95  1, 1, 1, 1, 1, 0, 1
+#define DETAIL_TO_BINARY_96  0, 0, 0, 0, 0, 1, 1
+#define DETAIL_TO_BINARY_97  1, 0, 0, 0, 0, 1, 1
+#define DETAIL_TO_BINARY_98  0, 1, 0, 0, 0, 1, 1
+#define DETAIL_TO_BINARY_99  1, 1, 0, 0, 0, 1, 1
+#define DETAIL_TO_BINARY_100 0, 0, 1, 0, 0, 1, 1
+#define DETAIL_TO_BINARY_101 1, 0, 1, 0, 0, 1, 1
+#define DETAIL_TO_BINARY_102 0, 1, 1, 0, 0, 1, 1
+#define DETAIL_TO_BINARY_103 1, 1, 1, 0, 0, 1, 1
+#define DETAIL_TO_BINARY_104 0, 0, 0, 1, 0, 1, 1
+#define DETAIL_TO_BINARY_105 1, 0, 0, 1, 0, 1, 1
+#define DETAIL_TO_BINARY_106 0, 1, 0, 1, 0, 1, 1
+#define DETAIL_TO_BINARY_107 1, 1, 0, 1, 0, 1, 1
+#define DETAIL_TO_BINARY_108 0, 0, 1, 1, 0, 1, 1
+#define DETAIL_TO_BINARY_109 1, 0, 1, 1, 0, 1, 1
+#define DETAIL_TO_BINARY_110 0, 1, 1, 1, 0, 1, 1
+#define DETAIL_TO_BINARY_111 1, 1, 1, 1, 0, 1, 1
+#define DETAIL_TO_BINARY_112 0, 0, 0, 0, 1, 1, 1
+#define DETAIL_TO_BINARY_113 1, 0, 0, 0, 1, 1, 1
+#define DETAIL_TO_BINARY_114 0, 1, 0, 0, 1, 1, 1
+#define DETAIL_TO_BINARY_115 1, 1, 0, 0, 1, 1, 1
+#define DETAIL_TO_BINARY_116 0, 0, 1, 0, 1, 1, 1
+#define DETAIL_TO_BINARY_117 1, 0, 1, 0, 1, 1, 1
+#define DETAIL_TO_BINARY_118 0, 1, 1, 0, 1, 1, 1
+#define DETAIL_TO_BINARY_119 1, 1, 1, 0, 1, 1, 1
+#define DETAIL_TO_BINARY_120 0, 0, 0, 1, 1, 1, 1
+#define DETAIL_TO_BINARY_121 1, 0, 0, 1, 1, 1, 1
+#define DETAIL_TO_BINARY_122 0, 1, 0, 1, 1, 1, 1
+#define DETAIL_TO_BINARY_123 1, 1, 0, 1, 1, 1, 1
+#define DETAIL_TO_BINARY_124 0, 0, 1, 1, 1, 1, 1
+#define DETAIL_TO_BINARY_125 1, 0, 1, 1, 1, 1, 1
+#define DETAIL_TO_BINARY_126 0, 1, 1, 1, 1, 1, 1
+#define DETAIL_TO_BINARY_127 1, 1, 1, 1, 1, 1, 1
 
 
 #define DETAIL_BITWISE_AND_1(A)  STINGRAYKIT_NTH_ELEMENT(0, STINGRAYKIT_CAT(DETAIL_TO_BINARY_, A))
@@ -155,6 +219,7 @@
 #define DETAIL_BITWISE_AND_8(A)  STINGRAYKIT_NTH_ELEMENT(3, STINGRAYKIT_CAT(DETAIL_TO_BINARY_, A))
 #define DETAIL_BITWISE_AND_16(A) STINGRAYKIT_NTH_ELEMENT(4, STINGRAYKIT_CAT(DETAIL_TO_BINARY_, A))
 #define DETAIL_BITWISE_AND_32(A) STINGRAYKIT_NTH_ELEMENT(5, STINGRAYKIT_CAT(DETAIL_TO_BINARY_, A))
+#define DETAIL_BITWISE_AND_64(A) STINGRAYKIT_NTH_ELEMENT(6, STINGRAYKIT_CAT(DETAIL_TO_BINARY_, A))
 
 #define STINGRAYKIT_BITWISE_AND(A, B) STINGRAYKIT_CAT(DETAIL_BITWISE_AND_, B)(A)
 
