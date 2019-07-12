@@ -54,7 +54,8 @@ namespace stingray
 	STINGRAYKIT_REPEAT( 8, DETAIL_PERFECT_FORWARDING, 3, RetType_, FromFunction_, ToFunction_) \
 	STINGRAYKIT_REPEAT(16, DETAIL_PERFECT_FORWARDING, 4, RetType_, FromFunction_, ToFunction_) \
 	STINGRAYKIT_REPEAT(32, DETAIL_PERFECT_FORWARDING, 5, RetType_, FromFunction_, ToFunction_) \
-	STINGRAYKIT_REPEAT(64, DETAIL_PERFECT_FORWARDING, 6, RetType_, FromFunction_, ToFunction_)
+	STINGRAYKIT_REPEAT(64, DETAIL_PERFECT_FORWARDING, 6, RetType_, FromFunction_, ToFunction_) \
+	STINGRAYKIT_REPEAT(128, DETAIL_PERFECT_FORWARDING, 7, RetType_, FromFunction_, ToFunction_)
 
 }
 
