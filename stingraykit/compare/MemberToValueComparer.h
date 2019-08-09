@@ -39,6 +39,8 @@ namespace stingray
 	struct AllowDereferencing
 	{
 		template <typename T> static const T& Process(const T& t)					{ return t; }
+		template <typename T> static const T& Process(T* const t)					{ return *t; }
+		template <typename T> static const T& Process(const T* const t)				{ return *t; }
 		template <typename T> static const T& Process(const shared_ptr<T>& t)		{ return *t; }
 		template <typename T> static const T& Process(const shared_ptr<const T>& t)	{ return *t; }
 		template <typename T> static const T& Process(const self_count_ptr<T>& t)		{ return *t; }
