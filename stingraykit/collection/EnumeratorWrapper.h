@@ -46,19 +46,14 @@ namespace stingray
 		{ return _srcEnumerator->Valid(); }
 
 		virtual DestType Get() const
-		{
-			if (!_cache)
-				return _caster(_srcEnumerator->Get());
-			const DestType result = _caster(*_cache);
-			_cache.reset();
-			return result;
-		}
+		{ return _cache ? _caster(*_cache) : _caster(_srcEnumerator->Get()); }
 
 		virtual void Next()
 		{
 			if (!Valid())
 				return;
 
+			_cache.reset();
 			do {
 				_srcEnumerator->Next();
 				if (!Valid())
