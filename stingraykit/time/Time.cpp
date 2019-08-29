@@ -12,6 +12,7 @@
 #include <stingraykit/exception.h>
 #include <stingraykit/math.h>
 #include <stingraykit/serialization/Serialization.h>
+#include <stingraykit/string/regex.h>
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/StringParse.h>
 #include <stingraykit/string/StringUtils.h>
@@ -22,10 +23,12 @@ namespace stingray
 {
 
 	static const int SecondsPerMinute		= 60;
-	static const int MillisecondsPerMinute	= SecondsPerMinute * 1000;
 	static const int MinutesPerHour			= 60;
+	static const int HoursPerDay			= 24;
+	static const int DaysPerWeek			= 7;
+	static const int MillisecondsPerMinute	= SecondsPerMinute * 1000;
 	static const int SecondsPerHour			= MinutesPerHour * SecondsPerMinute;
-	static const int SecondsPerDay			= 24 * SecondsPerHour;
+	static const int SecondsPerDay			= HoursPerDay * SecondsPerHour;
 	static const int DaysSinceMjd			= 40587;
 
 
@@ -420,6 +423,225 @@ namespace stingray
 
 		Time FromIso8601(const std::string& format)
 		{ return FromIso8601Impl()(format); }
+
+	}
+
+
+	namespace TimeDurationUtility
+	{
+
+		struct FromIso8601Impl
+		{
+			struct ParseResult
+			{
+				s16 Years;
+				s16 Months;
+				s16 Weeks;
+				s16 Days;
+				s16 Hours;
+				s16 Minutes;
+				s16 Seconds;
+
+				ParseResult()
+					: Years(0), Months(0), Weeks(0), Days(0), Hours(0), Minutes(0), Seconds(0)
+				{ }
+
+				TimeDuration ToTimeDuration(Time base, TimeKind kind) const
+				{
+					if (Years == 0 && Months == 0)
+						return TimeDuration::FromDays(Weeks * DaysPerWeek + Days) + TimeDuration::FromHours(Hours) + TimeDuration::FromMinutes(Minutes) + TimeDuration::FromSeconds(Seconds);
+
+					const BrokenDownTime bdt = base.BreakDown(kind);
+					return Time::FromBrokenDownTime(BrokenDownTime(
+							bdt.Milliseconds,
+							bdt.Seconds + Seconds,
+							bdt.Minutes + Minutes,
+							bdt.Hours + Hours,
+							bdt.WeekDay,
+							bdt.MonthDay + Weeks * DaysPerWeek + Days,
+							bdt.Month + Months,
+							bdt.YearDay,
+							bdt.Year + Years), kind) - base;
+				}
+			};
+
+		private:
+			ParseResult _result;
+
+		public:
+			TimeDuration operator()(const std::string& format, Time base)
+			{
+				const std::string uppercase = ToUpper(format);
+
+				smatch m;
+				if (!regex_search(uppercase, m, regex("^P([0-9WYMDTHS]{2,})$")))
+					STINGRAYKIT_THROW(FormatException(format));
+
+				if (!TryFromDateTime(m[1]) && !TryFromWeek(m[1]))
+					STINGRAYKIT_THROW(FormatException(format));
+
+				return _result.ToTimeDuration(base, TimeKind::Utc);
+			}
+
+		private:
+			bool TryFromDateTime(const std::string& format)
+			{
+				smatch m;
+				if (regex_search(format, m, regex("^(.*)T(.*)$")))
+					return !m[2].empty() && TryFromTime(m[2]) && (m[1].empty() || TryFromDate(m[1]));
+				else
+					return TryFromDate(format);
+			}
+
+			bool TryFromWeek(const std::string& format)
+			{ return StringParse(format, "%1%W", _result.Weeks); }
+
+			bool TryFromTime(std::string format)
+			{
+				if (Contains(format, "H"))
+				{
+					if (EndsWith(format, "H"))
+						return StringParse(format, "%1%H", _result.Hours);
+
+					if (!StringParse(format, "%1%H%2%", _result.Hours, format))
+						return false;
+				}
+
+				if (Contains(format, "M"))
+				{
+					if (EndsWith(format, "M"))
+						return StringParse(format, "%1%M", _result.Minutes);
+
+					if (!StringParse(format, "%1%M%2%", _result.Minutes, format))
+						return false;
+				}
+
+				return StringParse(format, "%1%S", _result.Seconds);
+			}
+
+			bool TryFromDate(std::string format)
+			{
+				if (Contains(format, "Y"))
+				{
+					if (EndsWith(format, "Y"))
+						return StringParse(format, "%1%Y", _result.Years);
+
+					if (!StringParse(format, "%1%Y%2%", _result.Years, format))
+						return false;
+				}
+
+				if (Contains(format, "M"))
+				{
+					if (EndsWith(format, "M"))
+						return StringParse(format, "%1%M", _result.Months);
+
+					if (!StringParse(format, "%1%M%2%", _result.Months, format))
+						return false;
+				}
+
+				return StringParse(format, "%1%D", _result.Days);
+			}
+		};
+
+
+		int GetMaxDaysInYear(int year)
+		{ return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0) ? 366 : 365; }
+
+
+		std::string ToIso8601(TimeDuration timeDuration, const optional<Time>& base)
+		{
+			STINGRAYKIT_CHECK(timeDuration.GetMicroseconds() >= 0, ArgumentException("timeDuration", timeDuration));
+
+			s16 Years, Months, Days, Hours, Minutes, Seconds;
+
+			if (!base)
+			{
+				Years	= 0;
+				Months	= 0;
+				Days	= 0;
+				Hours	= timeDuration.GetHours();
+				Minutes	= timeDuration.GetMinutes() % MinutesPerHour;
+				Seconds	= timeDuration.GetSeconds() % SecondsPerMinute;
+			}
+			else
+			{
+				Years	= 0;
+				Months	= 0;
+				Days	= timeDuration.GetDays();
+				Hours	= timeDuration.GetHours() % HoursPerDay;
+				Minutes	= timeDuration.GetMinutes() % MinutesPerHour;
+				Seconds	= timeDuration.GetSeconds() % SecondsPerMinute;
+
+				BrokenDownTime bdt = base->BreakDown(TimeKind::Utc);
+				int size;
+
+				if (bdt.Month > 2 || (bdt.Month == 2 && bdt.MonthDay == 29))
+					bdt.Year++;
+
+				while ((size = GetMaxDaysInYear(bdt.Year)) <= Days)
+				{
+					Days -= size;
+					bdt.Year++;
+					Years++;
+				}
+
+				if (bdt.Month > 2 || (bdt.Month == 2 && bdt.MonthDay == 29))
+					bdt.Year--;
+
+				while ((size = bdt.GetMaxDaysInMonth()) <= Days)
+				{
+					Days -= size;
+					bdt.Month++;
+
+					if (bdt.Month > 12)
+					{
+						bdt.Month = 1;
+						bdt.Year++;
+					}
+
+					Months++;
+				}
+			}
+
+			const bool hasDate = Years != 0 || Months != 0 || Days != 0;
+			const bool hasTime = Hours != 0 || Minutes != 0 || Seconds != 0;
+
+			if (!hasDate && !hasTime)
+				return "PT0S";
+
+			StringBuilder str;
+			str % "P";
+
+			if (hasDate)
+			{
+				if (Years != 0)
+					str % Years % "Y";
+
+				if (Months != 0 || (Years != 0 && Days != 0))
+					str % Months % "M";
+
+				if (Days != 0)
+					str % Days % "D";
+			}
+
+			if (hasTime)
+			{
+				str % "T";
+				if (Hours != 0)
+					str % Hours % "H";
+
+				if (Minutes != 0 || (Hours != 0 && Seconds != 0))
+					str % Minutes % "M";
+
+				if (Seconds != 0)
+					str % Seconds % "S";
+			}
+
+			return str;
+		}
+
+
+		TimeDuration FromIso8601(const std::string& format, Time base) { return FromIso8601Impl()(format, base); };
 
 	}
 
