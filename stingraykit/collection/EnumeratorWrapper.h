@@ -27,7 +27,7 @@ namespace stingray
 		SrcEnumeratorPtr			_srcEnumerator;
 		Caster						_caster;
 		FilterPredicate				_filterPredicate;
-		mutable optional<SrcType>	_cache;
+		optional<SrcType>			_cache;
 
 	public:
 		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator) :
