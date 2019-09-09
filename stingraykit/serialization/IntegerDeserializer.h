@@ -10,6 +10,8 @@
 
 #include <stingraykit/serialization/Serializer.h>
 
+#include <limits>
+
 namespace stingray
 {
 
