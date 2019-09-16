@@ -13,13 +13,11 @@
 namespace stingray
 {
 
-
 	struct IStringRepresentable
 	{
 		virtual ~IStringRepresentable() { }
 		virtual std::string ToString() const = 0;
 	};
-
 
 }
 

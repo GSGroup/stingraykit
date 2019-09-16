@@ -26,5 +26,4 @@ namespace stingray
 
 }
 
-
 #endif
