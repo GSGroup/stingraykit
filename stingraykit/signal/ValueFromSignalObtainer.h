@@ -115,11 +115,13 @@ namespace stingray
 
 
 	template < typename T >
-	optional<typename Decay<T>::ValueT> GetValueFromSignal(const signal_connector<void (T)>& connector)
+	typename If<IsNullable<typename Decay<T>::ValueT>::Value, typename Decay<T>::ValueT, optional<typename Decay<T>::ValueT> >::ValueT GetValueFromSignal(const signal_connector<void (T)>& connector)
 	{
+		typedef typename If<IsNullable<typename Decay<T>::ValueT>::Value, typename Decay<T>::ValueT, optional<typename Decay<T>::ValueT> >::ValueT ResultType;
+
 		ValueFromSignalObtainer<typename Decay<T>::ValueT> obtainer;
 		connector.SendCurrentState(obtainer);
-		return obtainer.HasValue() ? make_optional(obtainer.GetValue()) : null;
+		return obtainer.HasValue() ? ResultType(obtainer.GetValue()) : null;
 	}
 
 
