@@ -44,8 +44,8 @@ namespace stingray
 		void Report()
 		{
 			MutexLock l(_mutex);
-			u64 speed_in_bytes = _dataSinceLastReport * 1000 / _timeSinceLastReport.ElapsedMilliseconds();
-			Logger::Info() << "Data: " << _dataSinceLastReport << " total: " << _dataTotal << " avg speed: " << speed_in_bytes / 1024 << "." << speed_in_bytes % 1024 << " KB/s";
+			const u64 speedInKbytes = (_dataSinceLastReport * 1000 / _timeSinceLastReport.ElapsedMilliseconds()) / 1024;
+			Logger::Info() << "Data: " << _dataSinceLastReport << " total: " << _dataTotal << " avg speed: " << speedInKbytes << " KB/s";
 
 			_dataSinceLastReport = 0;
 			_timeSinceLastReport.Restart();
