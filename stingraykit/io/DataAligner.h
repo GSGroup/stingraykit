@@ -18,7 +18,7 @@ namespace stingray
 		DataAligner(const IDataSourcePtr& source, size_t alignment)
 			:	_source(source),
 				_alignment(alignment)
-		{ }
+		{ STINGRAYKIT_CHECK(_alignment != 0, ArgumentException("alignment")); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{ _source->ReadToFunction(Bind(&DataAligner::Align, this, wrap_ref(consumer), _1, _2), Bind(&IDataConsumer::EndOfData, wrap_ref(consumer), _1), token); }
