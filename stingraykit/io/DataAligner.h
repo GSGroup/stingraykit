@@ -16,7 +16,7 @@ namespace stingray
 
 	public:
 		DataAligner(const IDataSourcePtr& source, size_t alignment)
-			:	_source(source),
+			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
 				_alignment(alignment)
 		{ STINGRAYKIT_CHECK(_alignment != 0, ArgumentException("alignment")); }
 
@@ -46,10 +46,8 @@ namespace stingray
 
 			if (_buffer.size() == _alignment)
 			{
-				const size_t processed = ConsumeAll(consumer, _buffer, token);
+				ConsumeAll(consumer, _buffer, token);
 				_buffer.clear();
-				if (!token)
-					return processed;
 			}
 
 			return offset;
