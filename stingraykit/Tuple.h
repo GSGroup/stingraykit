@@ -10,6 +10,7 @@
 
 #include <stingraykit/core/Dummy.h>
 #include <stingraykit/metaprogramming/TypeList.h>
+#include <stingraykit/Macro.h>
 #include <stingraykit/Types.h>
 
 namespace stingray

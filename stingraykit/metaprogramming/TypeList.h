@@ -8,18 +8,13 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/metaprogramming/Functional.h>
+#include <stingraykit/metaprogramming/TypeRelationships.h>
 
 #include <sys/types.h>
 
-#include <stingraykit/Macro.h>
-#include <stingraykit/metaprogramming/Functional.h>
-#include <stingraykit/metaprogramming/If.h>
-#include <stingraykit/metaprogramming/YesNo.h>
-
-
 namespace stingray
 {
-
 
 	struct TypeListEndNode
 	{ typedef TypeListEndNode type; };
@@ -39,38 +34,43 @@ namespace stingray
 	//////////////////////////////////////////////////////////////////////
 
 
-#define TY typename
-
 #define MAX_TYPELIST_LEN 60
-
-#define DETAIL_TYPELIST_PARAMS_DECL(Index_, Default_) STINGRAYKIT_COMMA_IF(Index_) typename STINGRAYKIT_CAT(T, Index_) Default_
-#define DETAIL_TYPELIST_PARAMS_USAGE(Index_, Shift_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(T, STINGRAYKIT_ADD(Index_, Shift_))
-#define DETAIL_TYPELISTENDNODE(Index_, unused) STINGRAYKIT_COMMA_IF(Index_) TypeListEndNode
 
 	namespace Detail
 	{
-		template< STINGRAYKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_DECL, STINGRAYKIT_EMPTY()) >
-		struct TypeListCreatorImpl
-		{
-			typedef TypeListNode<T0, typename TypeListCreatorImpl<STINGRAYKIT_REPEAT(STINGRAYKIT_DEC(MAX_TYPELIST_LEN), DETAIL_TYPELIST_PARAMS_USAGE, 1), TypeListEndNode>::ValueT > ValueT;
-		};
+		template < typename T0, typename... Ts >
+		struct IsTypeListEndNodes : public If<IsSame<T0, TypeListEndNode>::Value, IsTypeListEndNodes<Ts...>, FalseType>::ValueT
+		{ };
 
-		template<>
-		struct TypeListCreatorImpl<STINGRAYKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELISTENDNODE, ~)>
+		template < typename T0 >
+		struct IsTypeListEndNodes<T0> : public FalseType
+		{ };
+
+		template < >
+		struct IsTypeListEndNodes<TypeListEndNode> : public TrueType
+		{ };
+
+		template < typename... Ts >
+		struct TypeListCreatorImpl;
+
+		template < >
+		struct TypeListCreatorImpl<>
 		{
 			typedef TypeListEndNode ValueT;
 		};
+
+		template < typename T0, typename... Ts >
+		struct TypeListCreatorImpl<T0, Ts...>
+		{
+			typedef typename If<IsTypeListEndNodes<T0, Ts...>::Value, TypeListEndNode, TypeListNode<T0, typename TypeListCreatorImpl<Ts...>::ValueT> >::ValueT ValueT;
+		};
 	}
 
-	template< STINGRAYKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_DECL, = TypeListEndNode) >
-	struct TypeList : public Detail::TypeListCreatorImpl< STINGRAYKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_USAGE, 0) >::ValueT
+	template < typename... Ts >
+	struct TypeList : public Detail::TypeListCreatorImpl<Ts...>::ValueT
 	{
-		typedef typename Detail::TypeListCreatorImpl< STINGRAYKIT_REPEAT(MAX_TYPELIST_LEN, DETAIL_TYPELIST_PARAMS_USAGE, 0) >::ValueT type;
+		typedef typename Detail::TypeListCreatorImpl<Ts...>::ValueT type;
 	};
-
-#undef DETAIL_TYPELISTENDNODE
-#undef DETAIL_TYPELIST_PARAMS_USAGE
-#undef DETAIL_TYPELIST_PARAMS_DECL
 
 
 	//////////////////////////////////////////////////////////////////////
@@ -343,41 +343,20 @@ namespace stingray
 	template < typename TypeList, template <typename> class FunctorClass >
 	struct ForEachInTypeList
 	{
-		static void Do()
+		template < typename... Ts >
+		static void Do(const Ts&... args)
 		{
-			FunctorClass<typename TypeList::ValueT>::Call();
-			ForEachInTypeList<typename TypeList::Next, FunctorClass>::Do();
+			FunctorClass<typename TypeList::ValueT>::Call(args...);
+			ForEachInTypeList<typename TypeList::Next, FunctorClass>::Do(args...);
 		}
-
-#define DETAIL_STINGRAYKIT_DECLARE_FOREACHINTYPELIST_DO(TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
-		template < TypesDecl_ > \
-		static void Do(ParamsDecl_) \
-		{ \
-			FunctorClass<typename TypeList::ValueT>::Call(ParamsUsage_); \
-			ForEachInTypeList<typename TypeList::Next, FunctorClass>::template Do<TypesUsage_>(ParamsUsage_); \
-		}
-
-		DETAIL_STINGRAYKIT_DECLARE_FOREACHINTYPELIST_DO(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(const T1& p1), MK_PARAM(p1));
-		DETAIL_STINGRAYKIT_DECLARE_FOREACHINTYPELIST_DO(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(const T1& p1, const T2& p2), MK_PARAM(p1, p2));
-		DETAIL_STINGRAYKIT_DECLARE_FOREACHINTYPELIST_DO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(const T1& p1, const T2& p2, const T3& p3), MK_PARAM(p1, p2, p3));
-		DETAIL_STINGRAYKIT_DECLARE_FOREACHINTYPELIST_DO(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(const T1& p1, const T2& p2, const T3& p3, const T4& p4), MK_PARAM(p1, p2, p3, p4));
-		DETAIL_STINGRAYKIT_DECLARE_FOREACHINTYPELIST_DO(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(const T1& p1, const T2& p2, const T3& p3, const T4& p4, const T5& p5), MK_PARAM(p1, p2, p3, p4, p5));
-
-#undef DETAIL_STINGRAYKIT_DECLARE_FOREACHINTYPELIST_DO
 	};
 
 	template < template <typename> class FunctorClass >
 	struct ForEachInTypeList<TypeListEndNode, FunctorClass>
 	{
-		static void Do() { }
-
-		template <TY T1> static void Do(const T1&) { }
-		template <TY T1, TY T2> static void Do(const T1&, const T2&) { }
-		template <TY T1, TY T2, TY T3> static void Do(const T1&, const T2&, const T3&) { }
-		template <TY T1, TY T2, TY T3, TY T4> static void Do(const T1&, const T2&, const T3&, const T4&) { }
-		template <TY T1, TY T2, TY T3, TY T4, TY T5> static void Do(const T1&, const T2&, const T3&, const T4&, const T5&) { }
+		template < typename... Ts >
+		static void Do(const Ts&...) { }
 	};
-
 
 
 	namespace Detail
@@ -404,9 +383,6 @@ namespace stingray
 		typedef typename Detail::ToTypeListImpl<T, sizeof(YesType) == sizeof(TestTypeList((const T*)0))>::ValueT		ValueT;
 	};
 
-#undef TY
-
 }
-
 
 #endif
