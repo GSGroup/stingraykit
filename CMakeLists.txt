@@ -498,3 +498,5 @@ foreach(_DIR ${STINGRAYKIT_INCLUDE_DIRECTORIES})
 endforeach()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/stingraykit.pc.in" "${LIBRARY_OUTPUT_PATH}/stingraykit.pc")
+
+include(HelloWorldCMakeLists.txt)

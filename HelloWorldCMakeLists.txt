@@ -1,0 +1,17 @@
+project(stingraykit-hello-world)
+
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/build)
+
+set(STINGRAYKIT_HELLO_WORLD_SOURCES HelloWorld.cpp)
+
+set_source_files_properties(${STINGRAYKIT_HELLO_WORLD_SOURCES} PROPERTIES COMPILE_FLAGS "${COMMON_SOURCES_FLAGS} ${STINGRAY_NO_ASM_CODE_FLAGS} -Werror -Wno-error=cpp -DSTINGRAY_LIB_SOURCE")
+
+add_executable(stingraykit-hello-world EXCLUDE_FROM_ALL ${STINGRAYKIT_HELLO_WORLD_SOURCES})
+
+target_link_libraries(stingraykit-hello-world stingraykit ${STINGRAYKIT_LIBS})
+
+add_custom_target(install-stingraykit-hello-world DEPENDS stingraykit-hello-world)
+
+if (USE_BACKTRACE AND NOT USE_BFD_BACKTRACE)
+        target_link_libraries(stingraykit-hello-world -Wl,-Map,${EXECUTABLE_OUTPUT_PATH}/stingraykit-hello-world.map)
+endif (USE_BACKTRACE AND NOT USE_BFD_BACKTRACE)
