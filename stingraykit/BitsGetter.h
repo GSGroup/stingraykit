@@ -405,11 +405,11 @@ namespace stingray
 		{ Detail::BitsSetterImpl<ByteDataType, BigEndian, OffsetBits, SizeBits>(_buf).Set(val); }
 
 		template < size_t OffsetBits, typename PodType >
-		void Set(PodType val) const
+		void Set(PodType val, const typename EnableIf<IsFixedWidthInt<PodType>::Value, Dummy>::ValueT& = Dummy()) const
 		{ Set<OffsetBits, 8 * sizeof(PodType)>(val); }
 
 		template < typename PodType >
-		void Set(PodType val) const
+		void Set(PodType val, const typename EnableIf<IsFixedWidthInt<PodType>::Value, Dummy>::ValueT& = Dummy()) const
 		{ Set<0>(val); }
 
 	private:
