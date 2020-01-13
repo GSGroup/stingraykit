@@ -34,8 +34,6 @@ namespace stingray
 	//////////////////////////////////////////////////////////////////////
 
 
-#define MAX_TYPELIST_LEN 60
-
 	namespace Detail
 	{
 		template < typename T0, typename... Ts >

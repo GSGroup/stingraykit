@@ -14,41 +14,50 @@
 namespace stingray
 {
 
-	namespace Detail_InheritanceAccumulator
+	namespace Detail
 	{
 
-		template < typename TypeList >
-		struct Impl;
+#define DETAIL_STINGRAYKIT_IA_CTOR(N_) \
+	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+	InheritanceAccumulatorImpl(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) : \
+		Ts(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))... { } \
+	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
+	InheritanceAccumulatorImpl(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYREF, T)) : \
+		Ts(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))... { }
 
-#define DETAIL_STINGRAYKIT_IA_TYPELISTNODE_BEGIN(Index_, Type_) STINGRAYKIT_COMMA_IF(Index_) TypeListNode< STINGRAYKIT_CAT(Type_, Index_)
-#define DETAIL_STINGRAYKIT_IA_TYPELISTNODE_END(Index_, UserArg_) >
+		template < typename... Ts >
+		struct InheritanceAccumulatorImpl : public Ts...
+		{
+			//GCC has bug: STB-25620, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88580
+			//template < typename... Us >
+			//InheritanceAccumulatorImpl(const Us&... args) : Ts(args...)...
+			//{ }
+			//template < typename... Us >
+			//InheritanceAccumulatorImpl(Us&... args) : Ts(args...)...
+			//{ }
 
-#define DETAIL_STINGRAYKIT_IA_INHERIT(Index_, Type_) STINGRAYKIT_COMMA_IF(Index_) public STINGRAYKIT_CAT(Type_, Index_)
+			InheritanceAccumulatorImpl() { }
 
-#define DETAIL_STINGRAYKIT_IA_CONSTRUCT_BASE(Index_, Args_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(B_, Index_)(STINGRAYKIT_REPEAT(Args_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T))
-
-#define DETAIL_STINGRAYKIT_IA_CTORS(N_, Bases_) \
-		STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT_NESTING_2(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
-		Impl(STINGRAYKIT_REPEAT_NESTING_2(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) STINGRAYKIT_INSERT_IF(Bases_, : STINGRAYKIT_REPEAT_NESTING_2(Bases_, DETAIL_STINGRAYKIT_IA_CONSTRUCT_BASE, N_)) { } \
-		STINGRAYKIT_INSERT_IF(N_, template < STINGRAYKIT_REPEAT_NESTING_2(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
-		Impl(STINGRAYKIT_REPEAT_NESTING_2(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYREF, T)) STINGRAYKIT_INSERT_IF(Bases_, :) STINGRAYKIT_REPEAT_NESTING_2(Bases_, DETAIL_STINGRAYKIT_IA_CONSTRUCT_BASE, N_) { })
-
-#define DETAIL_STINGRAYKIT_IA_IMPL(N_, UserArg_) \
-		template < STINGRAYKIT_REPEAT_NESTING_3(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, B_) > \
-		struct Impl<STINGRAYKIT_REPEAT_NESTING_3(N_, DETAIL_STINGRAYKIT_IA_TYPELISTNODE_BEGIN, B_) STINGRAYKIT_COMMA_IF(N_) TypeListEndNode> STINGRAYKIT_REPEAT_NESTING_3(N_, DETAIL_STINGRAYKIT_IA_TYPELISTNODE_END, B_) \
-			STINGRAYKIT_INSERT_IF(N_, : STINGRAYKIT_REPEAT_NESTING_3(N_, DETAIL_STINGRAYKIT_IA_INHERIT, B_)) \
-		{ \
-			STINGRAYKIT_REPEAT_NESTING_3(3, DETAIL_STINGRAYKIT_IA_CTORS, N_) \
+			DETAIL_STINGRAYKIT_IA_CTOR(1);
+			DETAIL_STINGRAYKIT_IA_CTOR(2);
+			DETAIL_STINGRAYKIT_IA_CTOR(3);
+			DETAIL_STINGRAYKIT_IA_CTOR(4);
+			DETAIL_STINGRAYKIT_IA_CTOR(5);
 		};
 
-		STINGRAYKIT_REPEAT_NESTING_4(MAX_TYPELIST_LEN, DETAIL_STINGRAYKIT_IA_IMPL, ~)
+#undef DETAIL_STINGRAYKIT_IA_CTOR
 
-#undef DETAIL_STINGRAYKIT_IA_IMPL
-#undef DETAIL_STINGRAYKIT_IA_CTORS
-#undef DETAIL_STINGRAYKIT_IA_CONSTRUCT_BASE
-#undef DETAIL_STINGRAYKIT_IA_INHERIT
-#undef DETAIL_STINGRAYKIT_IA_TYPELISTNODE_END
-#undef DETAIL_STINGRAYKIT_IA_TYPELISTNODE_BEGIN
+		template < typename TypeList, typename... Ts >
+		struct InheritanceAccumulatorCreator
+		{
+			typedef typename InheritanceAccumulatorCreator<typename TypeList::Next, Ts..., typename TypeList::ValueT>::ValueT ValueT;
+		};
+
+		template < typename... Ts >
+		struct InheritanceAccumulatorCreator<TypeListEndNode, Ts...>
+		{
+			typedef Detail::InheritanceAccumulatorImpl<Ts...> ValueT;
+		};
 
 	}
 
@@ -56,19 +65,8 @@ namespace stingray
 	template < typename TypeList >
 	struct InheritanceAccumulator
 	{
-		typedef Detail_InheritanceAccumulator::Impl<TypeList> ValueT;
+		typedef typename Detail::InheritanceAccumulatorCreator<TypeList>::ValueT ValueT;
 	};
-
-#define DETAIL_STINGRAYKIT_INHERITANCE_ACCUMULATOR(N_, UserArg_) \
-	template < STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, B_) > \
-	struct InheritanceAccumulator<TypeList<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE, B_)> > \
-	{ \
-		typedef Detail_InheritanceAccumulator::Impl<typename TypeList<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE, B_)>::type> ValueT; \
-	};
-
-	STINGRAYKIT_REPEAT_NESTING_2(MAX_TYPELIST_LEN, DETAIL_STINGRAYKIT_INHERITANCE_ACCUMULATOR, ~)
-
-#undef DETAIL_STINGRAYKIT_INHERITANCE_ACCUMULATOR
 
 }
 
