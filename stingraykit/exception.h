@@ -253,14 +253,8 @@ namespace stingray
 		template < typename T >
 		bool IsNotNull(const T& val) { return NullTester<T>::Test(val); }
 
-		/*
 		template < typename T >
-		T& RequireNotNull(T& obj, const char* expr, const char* file, size_t line, const char* func)
-		{ if (!IsNotNull(obj)) throw stingray::Detail::MakeException(NullPointerException(expr), file, line, func); else return obj; }
-		*/
-
-		template < typename T >
-		const T& RequireNotNull(const T& obj, const char* expr, ToolkitWhere where, int dummy = 42)
+		const T& RequireNotNull(const T& obj, const char* expr, ToolkitWhere where)
 		{
 			if (IsNotNull(obj))
 				return obj;
