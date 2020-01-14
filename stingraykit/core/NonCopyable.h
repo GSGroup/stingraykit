@@ -11,25 +11,28 @@
 namespace stingray
 {
 
-#define STINGRAYKIT_NONCOPYABLE(ClassName) \
-	private: \
-		ClassName(const ClassName&); \
-		ClassName& operator= (const ClassName&)
-
 #define STINGRAYKIT_NONASSIGNABLE(ClassName) \
-	private: \
-		ClassName& operator= (const ClassName&)
+	public: \
+		ClassName& operator = (const ClassName&) = delete
+
+#define STINGRAYKIT_NONCOPYABLE(ClassName) \
+	public: \
+		ClassName(const ClassName&) = delete; \
+		STINGRAYKIT_NONASSIGNABLE(ClassName)
+
+#define STINGRAYKIT_NONMOVABLE(ClassName) \
+	public: \
+		ClassName(ClassName&&) = delete; \
+		ClassName& operator = (ClassName&&) = delete
 
 
 	class NonCopyable
 	{
+		STINGRAYKIT_NONCOPYABLE(NonCopyable);
+
 	protected:
 		NonCopyable()  { }
 		~NonCopyable() { }
-
-	private:
-		NonCopyable(const NonCopyable&);
-		NonCopyable& operator=(const NonCopyable&);
 	};
 
 }
