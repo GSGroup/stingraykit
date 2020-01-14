@@ -25,8 +25,14 @@ namespace stingray
 		explicit unique_ptr(T* rawPtr = 0) : _rawPtr(rawPtr)
 		{ }
 
+		unique_ptr(unique_ptr&& other) : _rawPtr(other.release())
+		{ }
+
 		~unique_ptr()
 		{ CheckedDelete(_rawPtr); }
+
+		unique_ptr& operator = (unique_ptr&& other)
+		{ reset(other.release()); return *this; }
 
 		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
 		bool operator != (T* ptr) const							{ return !(*this == ptr); }
@@ -66,8 +72,14 @@ namespace stingray
 		explicit unique_ptr(T* rawPtr = 0) : _rawPtr(rawPtr)
 		{ }
 
+		unique_ptr(unique_ptr<T[]>&& other) : _rawPtr(other.release())
+		{ }
+
 		~unique_ptr()
 		{ CheckedArrayDelete(_rawPtr); }
+
+		unique_ptr& operator = (unique_ptr<T[]>&& other)
+		{ reset(other.release()); return *this; }
 
 		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
 		bool operator != (T* ptr) const							{ return !(*this == ptr); }
