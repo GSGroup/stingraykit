@@ -243,20 +243,10 @@ namespace stingray
 			return MakeException(Exception(message), where);
 		}
 
-		template < typename T, bool CanCastToBool = IsConvertible<T, bool>::Value >
-		struct NullTester;
-
-		template < typename T >
-		struct NullTester<T, true>
-		{ static bool Test(const T& val) { return val; } };
-
-		template < typename T >
-		bool IsNotNull(const T& val) { return NullTester<T>::Test(val); }
-
 		template < typename T >
 		const T& RequireNotNull(const T& obj, const char* expr, ToolkitWhere where)
 		{
-			if (IsNotNull(obj))
+			if (obj)
 				return obj;
 
 			DebuggingHelper::BreakpointHere();
