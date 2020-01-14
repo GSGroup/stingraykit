@@ -89,7 +89,7 @@ namespace stingray
 			return **_val;
 		}
 
-		bool HasValue() const { return *_val; }
+		bool HasValue() const { return _val->is_initialized(); }
 	};
 
 

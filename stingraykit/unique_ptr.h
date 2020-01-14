@@ -33,7 +33,10 @@ namespace stingray
 		bool operator != (T* ptr) const							{ return !(*this == ptr); }
 		bool operator == (const unique_ptr<T>& other) const		{ return other == _rawPtr; }
 		bool operator != (const unique_ptr<T>& other) const		{ return !(*this == other); }
-		bool boolean_test() const								{ return _rawPtr != 0; }
+
+		bool is_initialized() const								{ return _rawPtr != 0; }
+		bool boolean_test() const								{ return is_initialized(); }
+
 		T* get() const											{ return _rawPtr; }
 		T* operator -> () const									{ check_ptr(); return _rawPtr; }
 		T& operator * () const									{ check_ptr(); return *_rawPtr; }
@@ -71,7 +74,10 @@ namespace stingray
 		bool operator != (T* ptr) const							{ return !(*this == ptr); }
 		bool operator == (const unique_ptr<T>& other) const		{ return other == _rawPtr; }
 		bool operator != (const unique_ptr<T>& other) const		{ return !(*this == other); }
-		bool boolean_test() const								{ return _rawPtr != 0; }
+
+		bool is_initialized() const								{ return _rawPtr != 0; }
+		bool boolean_test() const								{ return is_initialized(); }
+
 		T* get() const											{ return _rawPtr; }
 		T& operator [] (size_t i) const							{ check_ptr(); return _rawPtr[i]; }
 		T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }

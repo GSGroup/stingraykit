@@ -72,7 +72,7 @@ namespace stingray
 		static STINGRAYKIT_DECLARE_ONCE_FLAG(s_initFlag);
 
 	public:
-		static bool IsAlive() { return GetInstancePtr(); }
+		static bool IsAlive() { return GetInstancePtr().is_initialized(); }
 
 		static T& Instance()
 		{
