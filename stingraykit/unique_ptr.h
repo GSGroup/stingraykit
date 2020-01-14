@@ -8,14 +8,11 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/safe_bool.h>
-#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
-
 
 	template<typename T>
 	class unique_ptr : public safe_bool<unique_ptr<T> >
@@ -26,32 +23,31 @@ namespace stingray
 		T* _rawPtr;
 
 	public:
-		explicit inline unique_ptr(T* rawPtr = 0) :
-			_rawPtr(rawPtr)
-		{}
+		explicit unique_ptr(T* rawPtr = 0) : _rawPtr(rawPtr)
+		{ }
 
 		~unique_ptr()
 		{ CheckedDelete(_rawPtr); }
 
-		inline bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
-		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
-		inline bool operator == (const unique_ptr<T>& other) const	{ return other == _rawPtr; }
-		inline bool operator != (const unique_ptr<T>& other) const	{ return !(*this == other); }
-		inline bool boolean_test() const							{ return _rawPtr != 0; }
-		inline T* get() const										{ return _rawPtr; }
-		inline T* operator -> () const								{ check_ptr(); return _rawPtr; }
-		inline T& operator * () const								{ check_ptr(); return *_rawPtr; }
-		inline T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }
-		inline void swap(unique_ptr<T>& other)						{ std::swap(_rawPtr, other._rawPtr); }
+		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
+		bool operator != (T* ptr) const							{ return !(*this == ptr); }
+		bool operator == (const unique_ptr<T>& other) const		{ return other == _rawPtr; }
+		bool operator != (const unique_ptr<T>& other) const		{ return !(*this == other); }
+		bool boolean_test() const								{ return _rawPtr != 0; }
+		T* get() const											{ return _rawPtr; }
+		T* operator -> () const									{ check_ptr(); return _rawPtr; }
+		T& operator * () const									{ check_ptr(); return *_rawPtr; }
+		T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }
+		void swap(unique_ptr<T>& other)							{ std::swap(_rawPtr, other._rawPtr); }
 
-		inline void reset(T* ptr = 0)
+		void reset(T* ptr = 0)
 		{
 			CheckedDelete(_rawPtr);
 			_rawPtr = ptr;
 		}
 
 	private:
-		inline void check_ptr() const
+		void check_ptr() const
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
 	};
 
@@ -65,34 +61,32 @@ namespace stingray
 		T* _rawPtr;
 
 	public:
-		explicit inline unique_ptr(T* rawPtr = 0) :
-			_rawPtr(rawPtr)
-		{}
+		explicit unique_ptr(T* rawPtr = 0) : _rawPtr(rawPtr)
+		{ }
 
 		~unique_ptr()
 		{ CheckedArrayDelete(_rawPtr); }
 
-		inline bool operator == (T* ptr) const						{ return _rawPtr == ptr; }
-		inline bool operator != (T* ptr) const						{ return !(*this == ptr); }
-		inline bool operator == (const unique_ptr<T>& other) const	{ return other == _rawPtr; }
-		inline bool operator != (const unique_ptr<T>& other) const	{ return !(*this == other); }
-		inline bool boolean_test() const							{ return _rawPtr != 0; }
-		inline T* get() const										{ return _rawPtr; }
-		inline T& operator [] (size_t i) const						{ check_ptr(); return _rawPtr[i]; }
-		inline T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }
-		inline void swap(unique_ptr<T>& other)						{ std::swap(_rawPtr, other._rawPtr); }
+		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
+		bool operator != (T* ptr) const							{ return !(*this == ptr); }
+		bool operator == (const unique_ptr<T>& other) const		{ return other == _rawPtr; }
+		bool operator != (const unique_ptr<T>& other) const		{ return !(*this == other); }
+		bool boolean_test() const								{ return _rawPtr != 0; }
+		T* get() const											{ return _rawPtr; }
+		T& operator [] (size_t i) const							{ check_ptr(); return _rawPtr[i]; }
+		T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }
+		void swap(unique_ptr<T>& other)							{ std::swap(_rawPtr, other._rawPtr); }
 
-		inline void reset(T* ptr = 0)
+		void reset(T* ptr = 0)
 		{
 			CheckedArrayDelete(_rawPtr);
 			_rawPtr = ptr;
 		}
 
 	private:
-		inline void check_ptr() const
+		void check_ptr() const
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
 	};
-
 
 }
 
