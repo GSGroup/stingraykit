@@ -9,13 +9,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/exception.h>
-#include <stingraykit/safe_bool.h>
 
 namespace stingray
 {
 
 	template < typename T >
-	class unique_ptr : public safe_bool<unique_ptr<T> >
+	class unique_ptr
 	{
 		STINGRAYKIT_NONCOPYABLE(unique_ptr);
 
@@ -35,7 +34,7 @@ namespace stingray
 		bool operator != (const unique_ptr& other) const		{ return !(*this == other); }
 
 		bool is_initialized() const								{ return _rawPtr != 0; }
-		bool boolean_test() const								{ return is_initialized(); }
+		explicit operator bool () const							{ return is_initialized(); }
 
 		T* get() const											{ return _rawPtr; }
 		T* operator -> () const									{ check_ptr(); return _rawPtr; }
@@ -56,7 +55,7 @@ namespace stingray
 
 
 	template < typename T >
-	class unique_ptr<T[]> : public safe_bool<unique_ptr<T> >
+	class unique_ptr<T[]>
 	{
 		STINGRAYKIT_NONCOPYABLE(unique_ptr);
 
@@ -76,7 +75,7 @@ namespace stingray
 		bool operator != (const unique_ptr<T[]>& other) const	{ return !(*this == other); }
 
 		bool is_initialized() const								{ return _rawPtr != 0; }
-		bool boolean_test() const								{ return is_initialized(); }
+		explicit operator bool () const							{ return is_initialized(); }
 
 		T* get() const											{ return _rawPtr; }
 		T& operator [] (size_t i) const							{ check_ptr(); return _rawPtr[i]; }
