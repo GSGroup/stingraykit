@@ -28,6 +28,7 @@ namespace stingray
 		typedef GenericMutexLock<MutexType>		MutexLockType;
 		typedef GenericMutexUnlock<MutexType>	MutexUnlockType;
 
+	private:
 		MutexType		_waitersMutex;
 		mutable u32		_waitersCount;
 		SemaphoreType	_waiter;

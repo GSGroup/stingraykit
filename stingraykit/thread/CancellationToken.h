@@ -21,10 +21,12 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(CancellationToken);
 
+	private:
 		class Impl : public self_counter<Impl>
 		{
 			STINGRAYKIT_NONCOPYABLE(Impl);
 
+		private:
 			Mutex							_mutex;
 			ConditionVariable				_cond;
 			atomic<bool>					_cancelled;
@@ -47,6 +49,7 @@ namespace stingray
 		};
 		typedef self_count_ptr<Impl>	ImplPtr;
 
+	private:
 		ImplPtr							_impl;
 
 	public:

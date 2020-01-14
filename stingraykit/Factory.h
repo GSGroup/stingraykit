@@ -129,6 +129,7 @@ namespace stingray
 	{
 		STINGRAYKIT_SINGLETON(Factory);
 
+	private:
 		Factory() { Detail::Factory::Instance().RegisterTypes(); }
 
 	public:

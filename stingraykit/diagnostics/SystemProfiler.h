@@ -29,6 +29,7 @@ namespace stingray
 
 		class Impl;
 
+	private:
 		unique_ptr<Impl>		_impl;
 		std::string				_message;
 		s64						_thresholdMs;
