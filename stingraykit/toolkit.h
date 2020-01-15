@@ -181,12 +181,6 @@ namespace stingray
 		TemplateArgs inline bool operator != (const ClassName& lhs, const ClassName& rhs) { return lhs != rhs; } \
 		TemplateArgs inline bool operator == (const ClassName& lhs, const ClassName& rhs) { return lhs == rhs; }
 
-#define STINGRAYKIT_TRANSPARENT_DECORATOR_CTORS(DecoratorType_, BaseType_) \
-		DecoratorType_() { } \
-		template < typename T1 > DecoratorType_(const T1& p1) : BaseType_(p1) { }\
-		template < typename T1, typename T2 > DecoratorType_(const T1& p1, const T2& p2) : BaseType_(p1, p2) { } \
-		template < typename T1, typename T2, typename T3 > DecoratorType_(const T1& p1, const T2& p2, const T3& p3) : BaseType_(p1, p2, p3) { }
-
 
 namespace stingray
 {
