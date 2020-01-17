@@ -131,18 +131,13 @@ namespace stingray
 	{ return Detail::Identity<T>(value); }
 
 
-#define DETAIL_STINGRAY_MAKE_INSTANCE(N_, UserArg_) \
-	STINGRAYKIT_INSERT_IF(N_, template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)>) \
-	Result_ operator()(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) const \
-	{ return Result_(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); }
-
 	template < typename Result_ >
 	struct MakeInstance : public function_info<Result_, UnspecifiedParamTypes>
 	{
-		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAY_MAKE_INSTANCE, ~)
+		template < typename... Ts >
+		Result_ operator () (const Ts&... args) const
+		{ return Result_(args...); }
 	};
-
-#undef DETAIL_STINGRAY_MAKE_INSTANCE
 
 
 	namespace Detail
