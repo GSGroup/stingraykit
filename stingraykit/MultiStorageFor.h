@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/aligned_storage.h>
 
 namespace stingray
@@ -24,17 +23,8 @@ namespace stingray
 
 		Storage _value;
 
-		template < typename T >
-		void Ctor()											{ CheckCanContain<T>(); T* ptr = new(&_value) T(); (void)ptr; assert(ptr == &Ref<T>()); }
-
-		template < typename T, typename P1 >
-		void Ctor(const P1& p1)								{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1); (void)ptr; assert(ptr == &Ref<T>()); }
-
-		template < typename T, typename P1, typename P2 >
-		void Ctor(const P1& p1, const P2& p2)				{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1, p2); (void)ptr; assert(ptr == &Ref<T>()); }
-
-		template < typename T, typename P1, typename P2, typename P3 >
-		void Ctor(const P1& p1, const P2& p2, const P3& p3)	{ CheckCanContain<T>(); T* ptr = new(&_value) T(p1, p2, p3); (void)ptr; assert(ptr == &Ref<T>()); }
+		template < typename T, typename... Us >
+		void Ctor(const Us&... args)						{ CheckCanContain<T>(); T* ptr = new(&_value) T(args...); (void)ptr; assert(ptr == &Ref<T>()); }
 
 		template < typename T >
 		void Dtor()											{ CheckCanContain<T>(); Ref<T>().~T(); }
