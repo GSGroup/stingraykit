@@ -9,11 +9,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/metaprogramming/TypeList.h>
-#include <stingraykit/Macro.h>
 #include <stingraykit/Types.h>
 
 #include <assert.h>
-#include <stddef.h>
 
 namespace stingray
 {
@@ -142,29 +140,14 @@ namespace stingray
 	};
 
 
-#define DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(N_) \
-	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
-	void Ctor(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
-	{ T* ptr = new(&_value) T(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); (void)ptr; assert(ptr == &Ref()); }
-
 	template < typename T >
 	struct StorageFor
 	{
 		typename aligned_storage<sizeof(T), alignment_of<T>::Value>::type	_value;
 
-		void Ctor()
-		{ T* ptr = new(&_value) T(); (void)ptr; assert(ptr == &Ref()); }
-
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(1)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(2)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(3)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(4)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(5)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(6)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(7)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(8)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(9)
-		DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR(10)
+		template < typename... Us >
+		void Ctor(const Us&... args)
+		{ T* ptr = new(&_value) T(args...); (void)ptr; assert(ptr == &Ref()); }
 
 		void Dtor()
 		{ Ref().~T(); }
@@ -172,9 +155,6 @@ namespace stingray
 		T& Ref()				{ return *static_cast<T*>(static_cast<void*>(&_value)); }
 		const T& Ref() const	{ return *static_cast<const T*>(static_cast<const void*>(&_value)); }
 	};
-
-
-#undef DETAIL_STINGRAYKIT_STORAGE_FOR_CTOR
 
 }
 
