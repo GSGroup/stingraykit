@@ -24,7 +24,7 @@ namespace stingray
 		Storage _value;
 
 		template < typename T, typename... Us >
-		void Ctor(const Us&... args)						{ CheckCanContain<T>(); T* ptr = new(&_value) T(args...); (void)ptr; assert(ptr == &Ref<T>()); }
+		void Ctor(Us&&... args)								{ CheckCanContain<T>(); T* ptr = new(&_value) T(std::forward<Us>(args)...); (void)ptr; assert(ptr == &Ref<T>()); }
 
 		template < typename T >
 		void Dtor()											{ CheckCanContain<T>(); Ref<T>().~T(); }
