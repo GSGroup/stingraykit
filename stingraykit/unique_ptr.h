@@ -105,6 +105,40 @@ namespace stingray
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
 	};
 
+
+	namespace Detail
+	{
+
+		template < typename T >
+		struct MakeUnique
+		{ typedef unique_ptr<T> ObjectPtr; };
+
+
+		template < typename T >
+		struct MakeUnique<T[]>
+		{ typedef unique_ptr<T[]> ArrayPtr; };
+
+
+		template < typename T, size_t Size >
+		struct MakeUnique<T[Size]>
+		{ struct UnsupportedPtr { }; };
+
+	}
+
+
+	template < typename T, typename... Us >
+	typename Detail::MakeUnique<T>::ObjectPtr make_unique_ptr(Us&&... args)
+	{ return unique_ptr<T>(new T(std::forward<Us>(args)...)); }
+
+
+	template < typename T >
+	typename Detail::MakeUnique<T>::ArrayPtr make_unique_ptr(size_t size)
+	{ return unique_ptr<T>(new typename RemoveExtent<T>::ValueT[size]()); }
+
+
+	template < typename T, typename... Us >
+	typename Detail::MakeUnique<T>::UnsupportedPtr make_unique_ptr(Us&&... args) = delete;
+
 }
 
 #endif
