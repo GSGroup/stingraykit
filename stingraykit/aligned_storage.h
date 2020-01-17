@@ -11,6 +11,8 @@
 #include <stingraykit/metaprogramming/TypeList.h>
 #include <stingraykit/Types.h>
 
+#include <utility>
+
 #include <assert.h>
 
 namespace stingray
@@ -146,8 +148,8 @@ namespace stingray
 		typename aligned_storage<sizeof(T), alignment_of<T>::Value>::type	_value;
 
 		template < typename... Us >
-		void Ctor(const Us&... args)
-		{ T* ptr = new(&_value) T(args...); (void)ptr; assert(ptr == &Ref()); }
+		void Ctor(Us&&... args)
+		{ T* ptr = new(&_value) T(std::forward<Us>(args)...); (void)ptr; assert(ptr == &Ref()); }
 
 		void Dtor()
 		{ Ref().~T(); }
