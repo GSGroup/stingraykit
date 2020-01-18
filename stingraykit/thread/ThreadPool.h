@@ -17,8 +17,10 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(ThreadPool);
 
+	public:
 		typedef function<void(const ICancellationToken&)>	Task;
 
+	private:
 		class WorkerWrapper;
 		STINGRAYKIT_DECLARE_PTR(WorkerWrapper);
 

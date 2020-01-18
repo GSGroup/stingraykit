@@ -21,9 +21,11 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(ActionTransaction);
 
+	public:
 		typedef function<void ()> ActionFunc;
 		typedef function<void ()> RollbackFunc;
 
+	private:
 		typedef std::vector<RollbackFunc> RollbackSequence;
 
 	private:

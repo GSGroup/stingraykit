@@ -23,6 +23,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(ObjectPool);
 
+	private:
 		struct IObjectHolder
 		{
 			virtual ~IObjectHolder() { }

@@ -49,6 +49,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(CallbackInfo);
 
+	private:
 		typedef function<void()>			FuncT;
 		typedef CallbackQueue::iterator		QueueIterator;
 

@@ -18,9 +18,9 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(ScopedHolder);
 
+	public:
 		typedef typename GetParamPassingType<ValueType>::ValueT ValuePassingType;
 
-	public:
 		typedef function<void (ValuePassingType)> CleanupFuncType;
 
 	private:

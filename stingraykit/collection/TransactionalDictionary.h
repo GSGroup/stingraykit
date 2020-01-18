@@ -28,6 +28,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(TransactionalDictionary);
 
+	private:
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 	public:

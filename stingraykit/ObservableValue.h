@@ -21,6 +21,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONASSIGNABLE(ObservableValue);
 
+	private:
 		typedef IObservableValue<T> Base;
 
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;

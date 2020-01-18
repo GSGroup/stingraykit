@@ -142,6 +142,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(ThreadlessTokenPool);
 
+	private:
 		typedef std::vector<Token> Tokens;
 
 	private:
@@ -164,6 +165,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(TokenPool);
 
+	private:
 		typedef std::vector<Token> Tokens;
 
 	private:
@@ -194,6 +196,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(ThreadlessTokenMap);
 
+	private:
 		typedef std::multimap<Key, Token, Compare> Tokens;
 
 		class BracketsOperatorProxy
@@ -237,6 +240,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(TokenMap);
 
+	private:
 		typedef std::multimap<Key, Token, Compare> Tokens;
 
 		class BracketsOperatorProxy

@@ -65,6 +65,7 @@ namespace stingray
 		{
 			STINGRAYKIT_NONASSIGNABLE(EnumerableToRange);
 
+		private:
 			typedef Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag> base;
 			typedef EnumerableToRange<Enumerable_> Self;
 

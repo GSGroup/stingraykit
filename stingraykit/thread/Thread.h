@@ -96,6 +96,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(Thread);
 
+	public:
 		typedef function<void(const ICancellationToken&)>	FuncType;
 
 	public:

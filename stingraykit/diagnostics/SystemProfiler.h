@@ -27,6 +27,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(SystemProfiler);
 
+	private:
 		class Impl;
 
 	private:

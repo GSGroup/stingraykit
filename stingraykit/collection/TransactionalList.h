@@ -27,6 +27,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(TransactionalList);
 
+	private:
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 	public:
@@ -100,6 +101,7 @@ namespace stingray
 		{
 			STINGRAYKIT_NONCOPYABLE(PopulatorEnumerator);
 
+		private:
 			typedef typename VectorType::const_iterator cit;
 
 		private:

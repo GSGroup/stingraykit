@@ -72,6 +72,7 @@ namespace stingray
 		{
 			STINGRAYKIT_NONCOPYABLE(Invokable);
 
+		private:
 			typedef IInvokable<Signature>		BaseType;
 			typedef typename BaseType::VTable	VTable;
 			typedef Invokable<Signature, FunctorType, HasReturnType> MyType;
@@ -109,6 +110,7 @@ namespace stingray
 		{
 			STINGRAYKIT_NONCOPYABLE(Invokable);
 
+		private:
 			typedef IInvokable<Signature>		BaseType;
 			typedef typename BaseType::VTable	VTable;
 			typedef Invokable<Signature, FunctorType, false> MyType;

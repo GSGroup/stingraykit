@@ -24,6 +24,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(Timer);
 
+	private:
 		class CallbackInfo;
 		STINGRAYKIT_DECLARE_PTR(CallbackInfo);
 

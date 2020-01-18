@@ -80,8 +80,10 @@ namespace stingray
 	{
 		STINGRAYKIT_NONASSIGNABLE(LoggerStream);
 
+	private:
 		typedef string_ostream					StreamType;
 
+	public:
 		typedef void LogFunction(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& message);
 
 	private:
