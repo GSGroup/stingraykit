@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/core/Dummy.h>
 #include <stingraykit/exception.h>
 
 namespace stingray
@@ -28,10 +29,18 @@ namespace stingray
 		unique_ptr(unique_ptr&& other) : _rawPtr(other.release())
 		{ }
 
+		template < typename U >
+		unique_ptr(unique_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0) : _rawPtr(other.release())
+		{ }
+
 		~unique_ptr()
 		{ CheckedDelete(_rawPtr); }
 
 		unique_ptr& operator = (unique_ptr&& other)
+		{ reset(other.release()); return *this; }
+
+		template < typename U >
+		typename EnableIf<IsInherited<U, T>::Value, unique_ptr&>::ValueT operator = (unique_ptr<U>&& other)
 		{ reset(other.release()); return *this; }
 
 		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
