@@ -20,10 +20,20 @@ namespace stingray
 		ClassName(const ClassName&) = delete; \
 		STINGRAYKIT_NONASSIGNABLE(ClassName)
 
+#define STINGRAYKIT_DEFAULTCOPYABLE(ClassName) \
+	public: \
+		ClassName(const ClassName&) = default; \
+		ClassName& operator = (const ClassName&) = default
+
 #define STINGRAYKIT_NONMOVABLE(ClassName) \
 	public: \
 		ClassName(ClassName&&) = delete; \
 		ClassName& operator = (ClassName&&) = delete
+
+#define STINGRAYKIT_DEFAULTMOVABLE(ClassName) \
+	public: \
+		ClassName(ClassName&&) = default; \
+		ClassName& operator = (ClassName&&) = default
 
 
 	class NonCopyable
