@@ -83,7 +83,7 @@ namespace stingray
 		FutureExecutionTester GetExecutionTester() const 		{ return _token.GetExecutionTester(); }
 		void Release()											{ _token.Release(); }
 
-		bool IsPeriodic() const									{ return _period; }
+		bool IsPeriodic() const									{ return _period.is_initialized(); }
 		void Restart(const TimeDuration& currentTime)
 		{
 			STINGRAYKIT_CHECK(_period, "CallbackInfo::Restart internal error: _period is set!");

@@ -74,7 +74,7 @@ namespace stingray
 			future_result(const ExceptionPtr& exception) : _exception(exception) { }
 
 			bool has_exception() const	{ return _exception; }
-			bool has_value() const		{ return _value; }
+			bool has_value() const		{ return _value.is_initialized(); }
 
 			T get()
 			{
