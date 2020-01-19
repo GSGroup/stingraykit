@@ -130,7 +130,8 @@ namespace stingray
 		};
 
 
-		inline bool ForEach_ItemFilter(bool dummy, bool val) { return val; }
+		template < typename T >
+		inline bool ForEach_ItemFilter(bool dummy, const T& val) { return static_cast<bool>(val); }
 		inline bool ForEach_ItemFilter(bool dummy) { return true; }
 	}
 
