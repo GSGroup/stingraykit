@@ -8,15 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/aligned_storage.h>
 #include <stingraykit/compare/comparers.h>
-#include <stingraykit/exception.h>
-#include <stingraykit/safe_bool.h>
 
 namespace stingray
 {
 
-	template<typename T>
+	template < typename T >
 	struct optional : public safe_bool<optional<T> >
 	{
 		typedef typename Decay<T>::ValueT RawType;
@@ -31,7 +28,6 @@ namespace stingray
 		typedef RawType*		PtrParamType;
 		typedef const RawType*	ConstPtrParamType;
 
-
 	public:
 		optional() : _value(), _initialized(false)
 		{ }
@@ -39,34 +35,34 @@ namespace stingray
 		optional(const NullPtrType&) : _value(), _initialized(false)
 		{ }
 
-		optional(ConstParamType value): _value(), _initialized(true)
+		optional(ConstParamType value) : _value(), _initialized(true)
 		{ _value.Ctor(value); }
 
-		optional(const optional& other): _value(), _initialized(other.is_initialized())
+		optional(const optional& other) : _value(), _initialized(other.is_initialized())
 		{
 			if (other.is_initialized())
 				_value.Ctor(other.get());
 		}
 
-		~optional()									{ reset(); }
+		~optional()										{ reset(); }
 
-		optional& operator=(const NullPtrType&)		{ reset();			return *this; }
-		optional& operator=(ConstParamType value)	{ assign(value);	return *this; }
-		optional& operator=(const optional& other)	{ assign(other);	return *this; }
+		optional& operator = (const NullPtrType&)		{ reset();					return *this; }
+		optional& operator = (ConstParamType value)		{ assign(value);			return *this; }
+		optional& operator = (const optional& other)	{ assign(other);			return *this; }
 
-		ConstParamType get() const					{ CheckInitialized(); return _value.Ref(); }
-		ParamType      get()						{ CheckInitialized(); return _value.Ref(); }
+		ConstParamType get() const						{ CheckInitialized(); return _value.Ref(); }
+		ParamType get()									{ CheckInitialized(); return _value.Ref(); }
 
-		ConstParamType get_value_or(ConstParamType value) const { return is_initialized()? _value.Ref() : value; }
+		ConstParamType get_value_or(ConstParamType value) const { return is_initialized() ? _value.Ref() : value; }
 
-		ConstPtrParamType get_ptr() const			{ CheckInitialized(); return &_value.Ref(); }
-		PtrParamType get_ptr()						{ CheckInitialized(); return &_value.Ref(); }
+		ConstPtrParamType get_ptr() const				{ CheckInitialized(); return &_value.Ref(); }
+		PtrParamType get_ptr()							{ CheckInitialized(); return &_value.Ref(); }
 
-		ConstPtrParamType operator->() const		{ return get_ptr(); }
-		PtrParamType operator->()					{ return get_ptr(); }
+		ConstPtrParamType operator -> () const			{ return get_ptr(); }
+		PtrParamType operator -> ()						{ return get_ptr(); }
 
-		ConstParamType operator*() const			{ return get(); }
-		ParamType operator*()						{ return get(); }
+		ConstParamType operator * () const				{ return get(); }
+		ParamType operator * ()							{ return get(); }
 
 		void reset()
 		{
@@ -77,10 +73,10 @@ namespace stingray
 			}
 		}
 
-		bool is_initialized() const					{ return _initialized; }
-		bool boolean_test() const					{ return is_initialized(); }
+		bool is_initialized() const						{ return _initialized; }
+		bool boolean_test() const						{ return is_initialized(); }
 
-		bool operator<(const optional& rhs) const
+		bool operator < (const optional& rhs) const
 		{ return rhs.is_initialized() && (!is_initialized() || (get() < rhs.get())); }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(optional);
 
@@ -128,7 +124,7 @@ namespace stingray
 	};
 
 
-	template <typename T>
+	template < typename T >
 	optional<T> make_optional(const T& t)
 	{ return t; }
 
