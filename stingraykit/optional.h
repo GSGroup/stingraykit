@@ -14,7 +14,7 @@ namespace stingray
 {
 
 	template < typename T >
-	struct optional : public safe_bool<optional<T> >
+	struct optional
 	{
 		typedef typename Decay<T>::ValueT RawType;
 
@@ -74,7 +74,7 @@ namespace stingray
 		}
 
 		bool is_initialized() const						{ return _initialized; }
-		bool boolean_test() const						{ return is_initialized(); }
+		explicit operator bool () const					{ return is_initialized(); }
 
 		bool operator == (const optional& rhs) const
 		{ return is_initialized() ? rhs.is_initialized() && get() == rhs.get() : !rhs.is_initialized(); }
