@@ -32,7 +32,7 @@ namespace stingray
 		Token(const NullPtrType&)
 		{ }
 
-		template<typename T>
+		template < typename T >
 		Token(const self_count_ptr<T>& token)
 			: _token(token)
 		{ }
@@ -63,7 +63,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename T>
+		template < typename T >
 		struct AttachTokenCustomDeleter
 		{
 		private:
@@ -75,7 +75,7 @@ namespace stingray
 				: _ptr(ptr), _token(token)
 			{ }
 
-			void operator() (T*)
+			void operator () (T*)
 			{
 				_token.Reset();
 				_ptr.reset();
@@ -84,7 +84,7 @@ namespace stingray
 	}
 
 
-	template<typename T>
+	template < typename T >
 	shared_ptr<T> AttachToken(const shared_ptr<T>& ptr, const Token& token)
 	{ return shared_ptr<T>(ptr.get(), Detail::AttachTokenCustomDeleter<T>(ptr, token)); }
 
@@ -155,7 +155,7 @@ namespace stingray
 		bool Empty() const										{ return _tokens.empty(); }
 
 		void Add(const Token& token)							{ _tokens.push_back(token); }
-		ThreadlessTokenPool& operator+= (const Token& token)	{ Add(token); return *this; }
+		ThreadlessTokenPool& operator += (const Token& token)	{ Add(token); return *this; }
 
 		void Release()											{ Tokens().swap(_tokens); }
 	};
@@ -179,7 +179,7 @@ namespace stingray
 		bool Empty() const							{ MutexLock l(_mutex); return _tokens.empty(); }
 
 		void Add(const Token& token)				{ MutexLock l(_mutex); _tokens.push_back(token); }
-		TokenPool& operator+= (const Token& token)	{ Add(token); return *this; }
+		TokenPool& operator += (const Token& token)	{ Add(token); return *this; }
 
 		void Release()
 		{
@@ -202,16 +202,16 @@ namespace stingray
 		class BracketsOperatorProxy
 		{
 		private:
+			Tokens&		_tokens;
 			Key			_key;
-			Tokens*		_tokens;
 
 		public:
-			BracketsOperatorProxy(const Key& key, Tokens& tokens)
-				: _key(key), _tokens(&tokens)
+			BracketsOperatorProxy(Tokens& tokens, const Key& key)
+				: _tokens(tokens), _key(key)
 			{ }
 
-			BracketsOperatorProxy& operator+= (const Token& token)
-			{ _tokens->insert(std::make_pair(_key, token)); return *this; }
+			BracketsOperatorProxy& operator += (const Token& token)
+			{ _tokens.insert(std::make_pair(_key, token)); return *this; }
 		};
 
 	private:
@@ -224,8 +224,8 @@ namespace stingray
 		bool contains(const Key& key) const
 		{ return _tokens.find(key) != _tokens.end(); }
 
-		BracketsOperatorProxy operator[] (const Key& key)
-		{ return BracketsOperatorProxy(key, _tokens); }
+		BracketsOperatorProxy operator [] (const Key& key)
+		{ return BracketsOperatorProxy(_tokens, key); }
 
 		void release(const Key& key)
 		{ _tokens.erase(key); }
@@ -247,18 +247,18 @@ namespace stingray
 		{
 		private:
 			Mutex&		_mutex;
+			Tokens&		_tokens;
 			Key			_key;
-			Tokens*		_tokens;
 
 		public:
-			BracketsOperatorProxy(Mutex& mutex, const Key& key, Tokens& tokens)
-				: _mutex(mutex), _key(key), _tokens(&tokens)
+			BracketsOperatorProxy(Mutex& mutex, Tokens& tokens, const Key& key)
+				: _mutex(mutex), _tokens(tokens), _key(key)
 			{ }
 
-			BracketsOperatorProxy& operator+= (const Token& token)
+			BracketsOperatorProxy& operator += (const Token& token)
 			{
 				MutexLock l(_mutex);
-				_tokens->insert(std::make_pair(_key, token));
+				_tokens.insert(std::make_pair(_key, token));
 				return *this;
 			}
 		};
@@ -274,15 +274,15 @@ namespace stingray
 		bool contains(const Key& key) const
 		{ MutexLock l(_mutex); return _tokens.find(key) != _tokens.end(); }
 
-		BracketsOperatorProxy operator[] (const Key& key)
-		{ return BracketsOperatorProxy(_mutex, key, _tokens); }
+		BracketsOperatorProxy operator [] (const Key& key)
+		{ return BracketsOperatorProxy(_mutex, _tokens, key); }
 
 		void release(const Key& key)
 		{
 			std::vector<Token> tokens;
 
 			MutexLock l(_mutex);
-			std::pair<typename Tokens::iterator, typename Tokens::iterator> range = _tokens.equal_range(key);
+			const std::pair<typename Tokens::iterator, typename Tokens::iterator> range = _tokens.equal_range(key);
 			tokens.assign(values_iterator(range.first), values_iterator(range.second));
 			_tokens.erase(range.first, range.second);
 		}
