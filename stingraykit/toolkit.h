@@ -53,7 +53,7 @@ namespace stingray
 		const char*	_functionName;
 
 		ToolkitWhere(const char* file, int line, const char* functionName) : _file(file), _line(line), _functionName(functionName)
-		{}
+		{ }
 
 		size_t GetLine() const				{ return _line; }
 		const char* GetFilename() const		{ return _file; }
@@ -190,12 +190,23 @@ namespace stingray
 
 	struct EmptyType
 	{
-		bool operator < (const EmptyType &) const { return false; }
+		bool operator < (const EmptyType&) const { return false; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(EmptyType);
 	};
 
 
-	template<typename T>
+	template < typename T >
+	struct StaticCaster
+	{
+		typedef T RetType;
+
+		template < typename U >
+		T operator () (U param) const
+		{ return static_cast<T>(param); }
+	};
+
+
+	template < typename T >
 	struct ImplicitCaster
 	{
 		typedef T RetType;
@@ -205,7 +216,7 @@ namespace stingray
 	};
 
 
-	template<typename T> T implicit_cast(T param) { return param; }
+	template < typename T > T implicit_cast(T param) { return param; }
 
 
 	template < typename SrcType >
