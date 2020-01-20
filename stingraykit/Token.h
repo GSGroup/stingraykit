@@ -20,7 +20,7 @@ namespace stingray
 	};
 
 
-	class Token : public safe_bool<Token>
+	class Token
 	{
 	private:
 		self_count_ptr<IToken>	_token;
@@ -41,7 +41,7 @@ namespace stingray
 		void Reset()								{ Set(null); }
 
 		bool IsInitialized() const					{ return _token.is_initialized(); }
-		bool boolean_test() const					{ return IsInitialized(); }
+		explicit operator bool () const				{ return IsInitialized(); }
 	};
 
 
