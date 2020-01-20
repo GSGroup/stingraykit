@@ -60,6 +60,10 @@ namespace stingray
 				_rawPtr->add_ref();
 		}
 
+		self_count_ptr(self_count_ptr<T>&& other)
+			: _rawPtr()
+		{ std::swap(_rawPtr, other._rawPtr); }
+
 		template < typename U >
 		self_count_ptr(const self_count_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr)
@@ -69,12 +73,22 @@ namespace stingray
 		}
 
 		template < typename U >
+		self_count_ptr(self_count_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+			: _rawPtr(other._rawPtr)
+		{ other._rawPtr = 0; }
+
+		template < typename U >
 		self_count_ptr(const self_count_ptr<U>& other, static_cast_tag)
 			: _rawPtr(static_cast<T*>(other._rawPtr))
 		{
 			if (_rawPtr)
 				_rawPtr->add_ref();
 		}
+
+		template < typename U >
+		self_count_ptr(self_count_ptr<U>&& other, static_cast_tag)
+			: _rawPtr(static_cast<T*>(other._rawPtr))
+		{ other._rawPtr = 0; }
 
 		~self_count_ptr()
 		{
@@ -89,10 +103,25 @@ namespace stingray
 			return *this;
 		}
 
+		self_count_ptr<T>& operator = (self_count_ptr<T>&& other)
+		{
+			self_count_ptr<T> tmp(std::move(other));
+			swap(tmp);
+			return *this;
+		}
+
 		template < typename U >
 		typename EnableIf<IsInherited<U, T>::Value, self_count_ptr&>::ValueT operator = (const self_count_ptr<U>& other)
 		{
 			self_count_ptr<T> tmp(other);
+			swap(tmp);
+			return *this;
+		}
+
+		template < typename U >
+		typename EnableIf<IsInherited<U, T>::Value, self_count_ptr&>::ValueT operator = (self_count_ptr<U>&& other)
+		{
+			self_count_ptr<T> tmp(std::move(other));
 			swap(tmp);
 			return *this;
 		}
@@ -128,8 +157,11 @@ namespace stingray
 
 
 	template < typename T >
-	class self_counter : private NonCopyable
+	class self_counter
 	{
+		STINGRAYKIT_NONCOPYABLE(self_counter);
+		STINGRAYKIT_NONMOVABLE(self_counter);
+
 	private:
 		mutable AtomicS32::Type	_value;
 
@@ -187,8 +219,8 @@ namespace stingray
 
 
 	template < typename T, typename... Us >
-	self_count_ptr<T> make_self_count_ptr(const Us&... args)
-	{ return self_count_ptr<T>(new T(args...)); }
+	self_count_ptr<T> make_self_count_ptr(Us&&... args)
+	{ return self_count_ptr<T>(new T(std::forward<Us>(args)...)); }
 
 
 	template < typename T >
