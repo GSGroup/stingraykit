@@ -45,20 +45,13 @@ namespace stingray
 	};
 
 
-#define DETAIL_DECL_MAKE_TOKEN(N_, UserArg_) \
-	template< typename T STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, Param) > \
-	Token MakeToken(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, Param)) \
-	{ return self_count_ptr<IToken>(new T(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, STINGRAYKIT_EMPTY()))); }
-
-
-	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECL_MAKE_TOKEN, STINGRAYKIT_EMPTY())
+	template < typename T, typename... Us >
+	Token MakeToken(const Us&... args)
+	{ return self_count_ptr<IToken>(new T(args...)); }
 
 
 	template < >
 	struct IsNullable<Token> : public TrueType { };
-
-
-#undef DETAIL_DECL_MAKE_TOKEN
 
 
 	namespace Detail
