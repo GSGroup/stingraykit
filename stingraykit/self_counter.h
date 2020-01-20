@@ -186,20 +186,9 @@ namespace stingray
 	{ return ptr.get(); }
 
 
-#define DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename STINGRAYKIT_CAT(Param, Index_)
-#define DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) const STINGRAYKIT_CAT(Param, Index_)& STINGRAYKIT_CAT(p, Index_)
-#define DETAIL_MAKE_SELF_COUNT_PTR_PARAMS(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) STINGRAYKIT_CAT(p, Index_)
-#define DETAIL_DECL_MAKE_SELF_COUNT_PTR(N_, UserArg_) \
-	template< typename T STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES, STINGRAYKIT_EMPTY()) > \
-	self_count_ptr<T> make_self_count_ptr(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS, STINGRAYKIT_EMPTY())) \
-	{ return self_count_ptr<T>(new T(STINGRAYKIT_REPEAT(N_, DETAIL_MAKE_SELF_COUNT_PTR_PARAMS, STINGRAYKIT_EMPTY()))); }
-
-	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECL_MAKE_SELF_COUNT_PTR, STINGRAYKIT_EMPTY())
-
-
-#undef DETAIL_MAKE_SELF_COUNT_PTR_PARAMDECLS
-#undef DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES
-#undef DETAIL_DECL_MAKE_SELF_COUNT_PTR
+	template < typename T, typename... Us >
+	self_count_ptr<T> make_self_count_ptr(const Us&... args)
+	{ return self_count_ptr<T>(new T(args...)); }
 
 
 	template < typename T >
