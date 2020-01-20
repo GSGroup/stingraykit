@@ -12,7 +12,6 @@
 #include <stingraykit/thread/atomic/AtomicInt.h>
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/exception.h>
-#include <stingraykit/safe_bool.h>
 
 #define STINGRAYKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
 
@@ -34,7 +33,7 @@ namespace stingray
 
 
 	template < typename T >
-	class self_count_ptr : public safe_bool<self_count_ptr<T> >
+	class self_count_ptr
 	{
 		template < typename U >
 		friend class self_count_ptr;
@@ -104,7 +103,7 @@ namespace stingray
 		bool operator != (const self_count_ptr<T>& other) const		{ return !(*this == other); }
 
 		bool is_initialized() const									{ return _rawPtr != 0; }
-		bool boolean_test() const									{ return is_initialized(); }
+		explicit operator bool () const								{ return is_initialized(); }
 
 		void reset(T* ptr = 0)
 		{
