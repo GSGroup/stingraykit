@@ -25,6 +25,7 @@ namespace stingray
 	public:
 		typedef RawType&		ParamType;
 		typedef const RawType&	ConstParamType;
+		typedef RawType&&		MoveParamType;
 		typedef RawType*		PtrParamType;
 		typedef const RawType*	ConstPtrParamType;
 
@@ -38,17 +39,28 @@ namespace stingray
 		optional(ConstParamType value) : _value(), _initialized(true)
 		{ _value.Ctor(value); }
 
+		optional(MoveParamType value) : _value(), _initialized(true)
+		{ _value.Ctor(std::move(value)); }
+
 		optional(const optional& other) : _value(), _initialized(other.is_initialized())
 		{
 			if (other.is_initialized())
 				_value.Ctor(other.get());
 		}
 
+		optional(optional&& other) : _value(), _initialized(other.is_initialized())
+		{
+			if (other.is_initialized())
+				_value.Ctor(std::move(other.get()));
+		}
+
 		~optional()										{ reset(); }
 
 		optional& operator = (const NullPtrType&)		{ reset();					return *this; }
 		optional& operator = (ConstParamType value)		{ assign(value);			return *this; }
+		optional& operator = (MoveParamType value)		{ assign(std::move(value));	return *this; }
 		optional& operator = (const optional& other)	{ assign(other);			return *this; }
+		optional& operator = (optional&& other)			{ assign(std::move(other));	return *this; }
 
 		ConstParamType get() const						{ CheckInitialized(); return _value.Ref(); }
 		ParamType get()									{ CheckInitialized(); return _value.Ref(); }
@@ -102,6 +114,17 @@ namespace stingray
 			}
 		}
 
+		void assign(MoveParamType value)
+		{
+			if (_initialized)
+				_value.Ref() = std::move(value);
+			else
+			{
+				_value.Ctor(std::move(value));
+				_initialized = true;
+			}
+		}
+
 		void assign(const optional& other)
 		{
 			if (other.is_initialized())
@@ -110,11 +133,19 @@ namespace stingray
 				reset();
 		}
 
+		void assign(optional&& other)
+		{
+			if (other.is_initialized())
+				assign(std::move(other.get()));
+			else
+				reset();
+		}
+
 		template < typename... Us >
-		void emplace(const Us&... args)
+		void emplace(Us&&... args)
 		{
 			reset();
-			_value.Ctor(args...);
+			_value.Ctor(std::forward<Us>(args)...);
 			_initialized = true;
 		}
 
@@ -124,8 +155,8 @@ namespace stingray
 
 
 	template < typename T >
-	optional<T> make_optional(const T& t)
-	{ return t; }
+	optional<typename Decay<T>::ValueT> make_optional(T&& t)
+	{ return optional<typename Decay<T>::ValueT>(std::forward<T>(t)); }
 
 
 	template < typename CompareFunc >
