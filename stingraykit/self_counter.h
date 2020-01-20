@@ -95,7 +95,7 @@ namespace stingray
 		inline T& operator * () const		{ check_ptr(); return *_rawPtr; }
 		inline bool unique() const			{ return _rawPtr? _rawPtr->value() == 1: true; }
 
-		bool before(const self_count_ptr &other) const
+		bool owner_before(const self_count_ptr& other) const
 		{ return get() < other.get(); }
 
 	private:
@@ -155,17 +155,6 @@ namespace stingray
 
 	template < typename T >
 	inline T* to_pointer(self_count_ptr<T>& ptr) { return ptr.get(); }
-
-
-	template<typename T>
-	struct self_count_less;
-
-	template<typename T>
-	struct self_count_less<self_count_ptr<T> > : public std::binary_function<self_count_ptr<T>, self_count_ptr<T>, bool>
-	{
-		bool operator()(const self_count_ptr<T>& t1, const self_count_ptr<T>& t2) const		{ return t1.before(t2); }
-	};
-
 
 
 #define DETAIL_MAKE_SELF_COUNT_PTR_TYPENAMES(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename STINGRAYKIT_CAT(Param, Index_)
