@@ -40,7 +40,7 @@ namespace stingray
 		void Set(const Token& token)				{ _token = token._token; }
 		void Reset()								{ Set(null); }
 
-		bool IsInitialized() const					{ return _token; }
+		bool IsInitialized() const					{ return _token.is_initialized(); }
 		bool boolean_test() const					{ return IsInitialized(); }
 	};
 
