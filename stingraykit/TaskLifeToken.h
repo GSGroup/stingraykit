@@ -46,6 +46,9 @@ namespace stingray
 
 	class FutureExecutionTester
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(FutureExecutionTester);
+		STINGRAYKIT_DEFAULTMOVABLE(FutureExecutionTester);
+
 		friend class LocalExecutionGuard;
 		friend class TaskLifeToken;
 		friend class TaskLifeHolder;
@@ -86,6 +89,9 @@ namespace stingray
 
 	class TaskLifeToken : STINGRAYKIT_FINAL(TaskLifeToken)
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(TaskLifeToken);
+		STINGRAYKIT_DEFAULTMOVABLE(TaskLifeToken);
+
 	private:
 		Detail::TaskLifeTokenImplSelfCountPtr _impl;
 
@@ -110,8 +116,8 @@ namespace stingray
 		{ return TaskLifeToken(make_self_count_ptr<Detail::TaskLifeTokenImpl>(false)); }
 
 	private:
-		TaskLifeToken(const Detail::TaskLifeTokenImplSelfCountPtr& impl)
-			: _impl(impl)
+		TaskLifeToken(Detail::TaskLifeTokenImplSelfCountPtr&& impl)
+			: _impl(std::move(impl))
 		{ }
 	};
 
