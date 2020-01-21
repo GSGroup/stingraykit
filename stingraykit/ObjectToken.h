@@ -17,7 +17,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template <typename T>
+		template < typename T >
 		struct ObjectToken : public virtual IToken
 		{
 		private:
@@ -26,13 +26,16 @@ namespace stingray
 		public:
 			ObjectToken(const T& object) : _object(object)
 			{ }
+
+			ObjectToken(T&& object) : _object(std::move(object))
+			{ }
 		};
 	}
 
 
-	template <typename T>
-	Token MakeObjectToken(const T& object)
-	{ return MakeToken<Detail::ObjectToken<T> >(object); }
+	template < typename T >
+	Token MakeObjectToken(T&& object)
+	{ return MakeToken<Detail::ObjectToken<typename Decay<T>::ValueT>>(std::forward<T>(object)); }
 
 }
 
