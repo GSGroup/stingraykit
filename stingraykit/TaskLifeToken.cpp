@@ -93,7 +93,7 @@ namespace stingray
 	TaskLifeHolder& TaskLifeHolder::Reset()
 	{
 		Release();
-		_impl.reset(new Detail::TaskLifeTokenImpl());
+		_impl = make_self_count_ptr<Detail::TaskLifeTokenImpl>();
 		return *this;
 	}
 

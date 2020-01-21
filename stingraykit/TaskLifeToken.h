@@ -22,7 +22,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		struct TaskLifeTokenImpl : public self_counter<TaskLifeTokenImpl>
+		class TaskLifeTokenImpl : public self_counter<TaskLifeTokenImpl>
 		{
 		private:
 			Mutex				_sync;
@@ -44,9 +44,9 @@ namespace stingray
 	};
 
 
-	struct FutureExecutionTester
+	class FutureExecutionTester
 	{
-		friend struct LocalExecutionGuard;
+		friend class LocalExecutionGuard;
 
 	private:
 		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
@@ -64,7 +64,7 @@ namespace stingray
 	};
 
 
-	struct LocalExecutionGuard : public safe_bool<LocalExecutionGuard>
+	class LocalExecutionGuard : public safe_bool<LocalExecutionGuard>
 	{
 		STINGRAYKIT_NONCOPYABLE(LocalExecutionGuard);
 
@@ -88,10 +88,7 @@ namespace stingray
 
 	public:
 		TaskLifeToken()
-			: _impl(new Detail::TaskLifeTokenImpl)
-		{ }
-
-		~TaskLifeToken()
+			: _impl(make_self_count_ptr<Detail::TaskLifeTokenImpl>())
 		{ }
 
 		void Release();
@@ -114,7 +111,6 @@ namespace stingray
 			: _impl(impl)
 		{ }
 	};
-	STINGRAYKIT_DECLARE_PTR(TaskLifeToken);
 
 
 	class TaskLifeHolder
@@ -126,7 +122,7 @@ namespace stingray
 
 	public:
 		TaskLifeHolder()
-			: _impl(new Detail::TaskLifeTokenImpl())
+			: _impl(make_self_count_ptr<Detail::TaskLifeTokenImpl>())
 		{ }
 
 		~TaskLifeHolder()
