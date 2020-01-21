@@ -174,7 +174,6 @@ namespace stingray
 
 	public:
 		TokenPool()									{ }
-		~TokenPool()								{ Release(); }
 
 		bool Empty() const							{ MutexLock l(_mutex); return _tokens.empty(); }
 
