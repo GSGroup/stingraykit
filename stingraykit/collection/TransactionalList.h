@@ -354,7 +354,7 @@ namespace stingray
 			}
 
 			virtual bool IsDirty() const
-			{ return _newItems; }
+			{ return _newItems.is_initialized(); }
 
 		private:
 			HolderPtr GetItemsHolder() const

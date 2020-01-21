@@ -73,7 +73,7 @@ namespace stingray
 			future_result(const T& value) : _value(value) { }
 			future_result(const ExceptionPtr& exception) : _exception(exception) { }
 
-			bool has_exception() const	{ return _exception; }
+			bool has_exception() const	{ return _exception.is_initialized(); }
 			bool has_value() const		{ return _value.is_initialized(); }
 
 			T get()
@@ -97,7 +97,7 @@ namespace stingray
 			future_result(bool value) : _value(value) { }
 			future_result(const ExceptionPtr& exception) : _value(false), _exception(exception) { }
 
-			bool has_exception() const	{ return _exception; }
+			bool has_exception() const	{ return _exception.is_initialized(); }
 			bool has_value() const		{ return _value; }
 
 			void get()
@@ -216,7 +216,7 @@ namespace stingray
 		shared_future& operator=(const shared_future &other) { _impl = other._impl; return *this; }
 		void swap(shared_future& other)	{ _impl.swap(other._impl); }
 
-		bool valid() const				{ return _impl; }
+		bool valid() const				{ return _impl.is_initialized(); }
 		bool is_ready() const			{ check_valid(); return _impl->is_ready(); }
 		bool has_exception() const		{ check_valid(); return _impl->has_exception(); }
 		bool has_value() const			{ check_valid(); return _impl->has_value(); }
@@ -245,7 +245,7 @@ namespace stingray
 	public:
 		~future()	{}
 
-		bool valid() const				{ return _impl; }
+		bool valid() const				{ return _impl.is_initialized(); }
 		bool is_ready() const			{ check_valid(); return _impl->is_ready(); }
 		bool has_exception() const		{ check_valid(); return _impl->has_exception(); }
 		bool has_value() const			{ check_valid(); return _impl->has_value(); }

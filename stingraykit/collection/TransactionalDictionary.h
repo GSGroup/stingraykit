@@ -366,7 +366,7 @@ namespace stingray
 			}
 
 			virtual bool IsDirty() const
-			{ return _newMap; }
+			{ return _newMap.is_initialized(); }
 
 		private:
 			HolderPtr GetMapHolder() const
