@@ -28,7 +28,7 @@ namespace stingray
 	class CancellationRegistratorBase;
 
 
-	struct ICancellationToken : public safe_bool<ICancellationToken>
+	struct ICancellationToken
 	{
 	private:
 		friend class CancellationRegistratorBase;
@@ -44,7 +44,7 @@ namespace stingray
 
 		virtual optional<TimeDuration> GetTimeout() const = 0;
 
-		bool boolean_test() const { return !IsCancelled() && !IsTimedOut(); }
+		explicit operator bool () const { return !IsCancelled() && !IsTimedOut(); }
 
 	protected:
 		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const = 0;
