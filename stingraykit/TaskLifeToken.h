@@ -67,7 +67,7 @@ namespace stingray
 	};
 
 
-	class LocalExecutionGuard : public safe_bool<LocalExecutionGuard>
+	class LocalExecutionGuard
 	{
 		STINGRAYKIT_NONCOPYABLE(LocalExecutionGuard);
 
@@ -79,7 +79,7 @@ namespace stingray
 		LocalExecutionGuard(const FutureExecutionTester& tester);
 		~LocalExecutionGuard();
 
-		bool boolean_test() const
+		explicit operator bool () const
 		{ return _allow; }
 	};
 
