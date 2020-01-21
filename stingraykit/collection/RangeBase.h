@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/safe_bool.h>
 #include <stingraykit/toolkit.h>
 
 #include <iterator>
@@ -48,7 +47,6 @@ namespace stingray
 		template < typename Derived_, typename ValueType_, typename Category_ >
 		struct RangeBase :
 			public std::iterator<Category_, ValueType_, std::ptrdiff_t, ArrowProxy<ValueType_>, ValueType_>,
-			public safe_bool<Derived_>,
 			public RangeMarker
 		{
 		private:
@@ -83,7 +81,7 @@ namespace stingray
 			Derived begin() const										{ Derived r(GetDerived()); return r.First(); }
 			Derived end() const											{ Derived r(GetDerived()); r.Last(); return r.Valid() ? r.Next() : r; }
 
-			bool boolean_test() const									{ return GetDerived().Valid(); }
+			explicit operator bool () const								{ return GetDerived().Valid(); }
 
 		private:
 			Derived& GetDerived()										{ return *static_cast<Derived*>(this); }
