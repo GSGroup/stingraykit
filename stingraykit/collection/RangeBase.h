@@ -24,13 +24,13 @@ namespace stingray
 	};
 
 
-	template<typename T>
+	template < typename T >
 	struct IsRange : IsInherited<T, RangeMarker> { };
 
 
 	namespace Range
 	{
-		template<typename T>
+		template < typename T >
 		struct ArrowProxy
 		{
 		private:
@@ -45,7 +45,7 @@ namespace stingray
 		};
 
 
-		template<typename Derived_, typename ValueType_, typename Category_>
+		template < typename Derived_, typename ValueType_, typename Category_ >
 		struct RangeBase :
 			public std::iterator<Category_, ValueType_, std::ptrdiff_t, ArrowProxy<ValueType_>, ValueType_>,
 			public safe_bool<Derived_>,
@@ -61,33 +61,33 @@ namespace stingray
 			static const bool ReturnsTemporary = false;
 
 		public:
-			ValueType      operator *  ()                              { return GetDerived().Get(); }
-			ArrowProxy<ValueType> operator -> ()                       { return GetDerived().Get(); }
+			ValueType		operator *  ()								{ return GetDerived().Get(); }
+			ArrowProxy<ValueType> operator -> ()						{ return GetDerived().Get(); }
 
-			Derived&       operator ++ ()                              { GetDerived().Next(); return GetDerived(); }
-			Derived        operator ++ (int)                           { Derived result(GetDerived()); GetDerived().Next(); return result; }
+			Derived&		operator ++ ()								{ GetDerived().Next(); return GetDerived(); }
+			Derived			operator ++ (int)							{ Derived result(GetDerived()); GetDerived().Next(); return result; }
 
-			bool           operator == (const Derived& other) const    { return GetDerived().Equals(other); }
-			bool           operator != (const Derived& other) const    { return !GetDerived().Equals(other); }
+			bool			operator == (const Derived& other) const	{ return GetDerived().Equals(other); }
+			bool			operator != (const Derived& other) const	{ return !GetDerived().Equals(other); }
 
-			Derived&       operator -- ()                              { GetDerived().Prev(); return GetDerived(); }
-			Derived        operator -- (int)                           { Derived result(GetDerived()); GetDerived().Prev(); return result; }
+			Derived&		operator -- ()								{ GetDerived().Prev(); return GetDerived(); }
+			Derived			operator -- (int)							{ Derived result(GetDerived()); GetDerived().Prev(); return result; }
 
-			ValueType      operator [] (std::ptrdiff_t index) const    { CompileTimeAssert<sizeof(ValueType_) < 0> errorNoBracketsOperator; (void)errorNoBracketsOperator; }
-			Derived&       operator += (std::ptrdiff_t distance)       { GetDerived().Move(distance); return GetDerived(); }
-			Derived        operator +  (std::ptrdiff_t distance) const { Derived result(GetDerived()); return result += distance; }
-			Derived&       operator -= (std::ptrdiff_t distance)       { GetDerived().Move(distance); return GetDerived(); }
-			Derived        operator -  (std::ptrdiff_t distance) const { Derived result(GetDerived()); return result -= distance; }
-			std::ptrdiff_t operator -  (const Derived& other) const    { return GetDerived().GetPosition() - other.GetPosition(); }
+			ValueType		operator [] (std::ptrdiff_t index) const	{ CompileTimeAssert<sizeof(ValueType_) < 0> errorNoBracketsOperator; (void)errorNoBracketsOperator; }
+			Derived&		operator += (std::ptrdiff_t distance)		{ GetDerived().Move(distance); return GetDerived(); }
+			Derived&		operator -= (std::ptrdiff_t distance)		{ GetDerived().Move(distance); return GetDerived(); }
+			Derived			operator + (std::ptrdiff_t distance) const	{ Derived result(GetDerived()); return result += distance; }
+			Derived			operator - (std::ptrdiff_t distance) const	{ Derived result(GetDerived()); return result -= distance; }
+			std::ptrdiff_t	operator - (const Derived& other) const		{ return GetDerived().GetPosition() - other.GetPosition(); }
 
-			Derived begin() const                                      { Derived r(GetDerived()); return r.First(); }
-			Derived end() const                                        { Derived r(GetDerived()); r.Last(); return r.Valid() ? r.Next() : r; }
+			Derived begin() const										{ Derived r(GetDerived()); return r.First(); }
+			Derived end() const											{ Derived r(GetDerived()); r.Last(); return r.Valid() ? r.Next() : r; }
 
-			bool boolean_test() const                                  { return GetDerived().Valid(); }
+			bool boolean_test() const									{ return GetDerived().Valid(); }
 
 		private:
-			Derived& GetDerived()                                      { return *static_cast<Derived*>(this); }
-			const Derived& GetDerived() const                          { return *static_cast<const Derived*>(this); }
+			Derived& GetDerived()										{ return *static_cast<Derived*>(this); }
+			const Derived& GetDerived() const							{ return *static_cast<const Derived*>(this); }
 		};
 	}
 }
