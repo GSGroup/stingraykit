@@ -47,6 +47,8 @@ namespace stingray
 	class FutureExecutionTester
 	{
 		friend class LocalExecutionGuard;
+		friend class TaskLifeToken;
+		friend class TaskLifeHolder;
 
 	private:
 		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
@@ -55,12 +57,13 @@ namespace stingray
 		FutureExecutionTester(const NullPtrType&) // always allows func execution
 		{ }
 
+		bool IsDummy() const
+		{ return !_impl; }
+
+	private:
 		FutureExecutionTester(const Detail::TaskLifeTokenImplSelfCountPtr& impl)
 			: _impl(impl)
 		{ }
-
-		bool IsDummy() const
-		{ return !_impl; }
 	};
 
 
