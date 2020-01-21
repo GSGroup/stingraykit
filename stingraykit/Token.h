@@ -124,7 +124,7 @@ namespace stingray
 
 		void Set(const Token& token_)
 		{
-			Token token = token_;
+			Token token(token_);
 
 			MutexLock l(_mutex);
 			std::swap(token, _token);
@@ -210,7 +210,7 @@ namespace stingray
 			{ }
 
 			BracketsOperatorProxy& operator += (const Token& token)
-			{ _tokens.insert(std::make_pair(_key, token)); return *this; }
+			{ _tokens.emplace(_key, token); return *this; }
 		};
 
 	private:
@@ -257,7 +257,7 @@ namespace stingray
 			BracketsOperatorProxy& operator += (const Token& token)
 			{
 				MutexLock l(_mutex);
-				_tokens.insert(std::make_pair(_key, token));
+				_tokens.emplace(_key, token);
 				return *this;
 			}
 		};
