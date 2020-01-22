@@ -63,7 +63,7 @@ namespace stingray
 		};
 
 
-		template<typename T>
+		template < typename T >
 		class DefaultSharedPtrData : public ISharedPtrData
 		{
 		private:
@@ -78,7 +78,7 @@ namespace stingray
 		};
 
 
-		template<typename T, typename Deleter>
+		template < typename T, typename Deleter >
 		class DeleterSharedPtrData : public ISharedPtrData
 		{
 		private:
@@ -100,7 +100,7 @@ namespace stingray
 	{ _storage.Ctor(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); }
 
 
-		template<typename T>
+		template < typename T >
 		class InplaceSharedPtrData : public ISharedPtrData
 		{
 		private:
@@ -134,7 +134,7 @@ namespace stingray
 
 		struct DisposeConcept : public function_info<void, TypeList<>::type>
 		{
-			template<typename T>
+			template < typename T >
 			static void Apply(T& t)
 			{ t.Dispose(); }
 		};
@@ -151,10 +151,10 @@ namespace stingray
 			TypeErasure<TypeList<DisposeConcept>::type, ISharedPtrData>	_value;
 
 		public:
-			inline SharedPtrImpl()
+			SharedPtrImpl()
 			{ }
 
-			template<typename DataImpl_>
+			template < typename DataImpl_ >
 			DataImpl_* Allocate()
 			{ return _value.Allocate<DataImpl_>(); }
 
@@ -308,20 +308,20 @@ namespace stingray
 		template < typename U >
 		friend struct MakeShared;
 
+	public:
+		typedef T ValueType;
+
 	private:
 		T*						_rawPtr;
 		Detail::SharedPtrImpl	_impl;
 
 	private:
-		inline shared_ptr(T* rawPtr, const Detail::SharedPtrImpl& impl) :
-			_rawPtr(rawPtr), _impl(impl)
+		shared_ptr(T* rawPtr, const Detail::SharedPtrImpl& impl)
+			: _rawPtr(rawPtr), _impl(impl)
 		{ }
 
 	public:
-		typedef T ValueType;
-
-
-		explicit inline shared_ptr(T* rawPtr) : _rawPtr(rawPtr)
+		explicit shared_ptr(T* rawPtr) : _rawPtr(rawPtr)
 		{
 			if (!_rawPtr)
 				return;
@@ -330,46 +330,38 @@ namespace stingray
 			LogAddRef(1);
 		}
 
-
-		template<typename Deleter>
-		inline shared_ptr(T* rawPtr, const Deleter& deleter) : _rawPtr(rawPtr)
+		template < typename Deleter >
+		shared_ptr(T* rawPtr, const Deleter& deleter) : _rawPtr(rawPtr)
 		{
 			_impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(rawPtr, deleter);
 			LogAddRef(1);
 		}
 
-
-		inline shared_ptr() : _rawPtr()
+		shared_ptr() : _rawPtr()
 		{ }
 
-
-		inline shared_ptr(const NullPtrType&) : _rawPtr()
+		shared_ptr(const NullPtrType&) : _rawPtr()
 		{ }
 
-
-		inline shared_ptr(const shared_ptr<T>& other) :
-			_rawPtr(other._rawPtr), _impl(other._impl)
+		shared_ptr(const shared_ptr<T>& other)
+			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
-
 
 		template < typename U >
-		inline shared_ptr(const shared_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0) :
-			_rawPtr(other._rawPtr), _impl(other._impl)
+		shared_ptr(const shared_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
-
 
 		/// @brief: Aliasing constuctor - similar to standard one
 		template < typename U >
-		inline shared_ptr(const shared_ptr<U>& other, T* ptr) :
-			_rawPtr(ptr), _impl(other._impl)
+		shared_ptr(const shared_ptr<U>& other, T* ptr)
+			: _rawPtr(ptr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
 
-
-		inline ~shared_ptr()
+		~shared_ptr()
 		{ LogReleaseRef(_impl.ReleaseStrongReference()); }
 
-
-		inline shared_ptr& operator = (const shared_ptr& other)
+		shared_ptr& operator = (const shared_ptr& other)
 		{
 			shared_ptr tmp(other);
 			swap(tmp);
@@ -384,22 +376,19 @@ namespace stingray
 			return *this;
 		}
 
+		bool operator == (const T* ptr) const					{ return _rawPtr == ptr; }
+		bool operator != (const T* ptr) const					{ return !(*this == ptr); }
+		bool operator == (const shared_ptr& other) const		{ return _rawPtr == other._rawPtr; }
+		bool operator != (const shared_ptr& other) const		{ return !(*this == other); }
 
-		inline bool operator == (const T* ptr) const				{ return _rawPtr == ptr; }
-		inline bool operator != (const T* ptr) const				{ return !(*this == ptr); }
-		inline bool operator == (const shared_ptr& other) const		{ return _rawPtr == other._rawPtr; }
-		inline bool operator != (const shared_ptr& other) const		{ return !(*this == other); }
+		bool is_initialized() const								{ return _rawPtr != 0; }
+		bool boolean_test() const								{ return is_initialized(); }
 
-		inline bool is_initialized() const							{ return _rawPtr != 0; }
-		inline bool boolean_test() const							{ return is_initialized(); }
+		weak_ptr<T> weak() const								{ return weak_ptr<T>(*this); }
 
-		inline weak_ptr<T> weak() const								{ return weak_ptr<T>(*this); }
-
-
-		inline bool release_if_unique()
+		bool release_if_unique()
 		{
-			bool result = _impl.ReleaseStrongIfUnique();
-			if (!result)
+			if (!_impl.ReleaseStrongIfUnique())
 				return false;
 
 			LogReleaseRef(0);
@@ -408,16 +397,13 @@ namespace stingray
 			return true;
 		}
 
-
-		inline bool unique() const
+		bool unique() const
 		{ return use_count() == 1; }
 
-
-		inline size_t use_count() const
+		size_t use_count() const
 		{ return _impl.GetStrongReferences(); }
 
-
-		inline void reset(T* ptr = 0)
+		void reset(T* ptr = 0)
 		{
 			shared_ptr<T> tmp(ptr);
 			swap(tmp);
@@ -427,24 +413,23 @@ namespace stingray
 			//new(this) shared_ptr(ptr);
 		}
 
-
-		inline void swap(shared_ptr<T>& other)
+		void swap(shared_ptr<T>& other)
 		{
 			std::swap(_rawPtr, other._rawPtr);
 			std::swap(_impl, other._impl);
 		}
 
+		T* get() const				{ return _rawPtr; }
+		T* operator -> () const		{ check_ptr(); return _rawPtr; }
+		T& operator * () const		{ check_ptr(); return *_rawPtr; }
 
-		inline T* get() const			{ return _rawPtr; }
-		inline T* operator -> () const	{ check_ptr(); return _rawPtr; }
-		inline T& operator * () const	{ check_ptr(); return *_rawPtr; }
 
-
-		template<typename U> bool owner_before(shared_ptr<U> const& other) const
+		template < typename U >
+		bool owner_before(const shared_ptr<U>& other) const
 		{ return _impl.Before(other._impl); }
 
-
-		template<typename U> bool owner_before(weak_ptr<U> const& other) const
+		template < typename U >
+		bool owner_before(const weak_ptr<U>& other) const
 		{ return _impl.Before(other._impl); }
 
 	private:
@@ -454,65 +439,65 @@ namespace stingray
 				Detail::SharedPtrRefCounter<T>::LogAddRef(referencesCount, _rawPtr, this);
 		}
 
-
 		void LogReleaseRef(u32 referencesCount)
 		{
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::LogReleaseRef(referencesCount, _rawPtr, this);
 		}
 
-
-		inline void check_ptr() const
+		void check_ptr() const
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("shared_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
 	};
 
 
-	template<typename T>
+	template < typename T >
 	void swap(shared_ptr<T>& lhs, shared_ptr<T>& rhs)
 	{ lhs.swap(rhs); }
-
 
 
 	/** @brief Simple weak_ptr implementation */
 	template < typename T >
 	class weak_ptr
 	{
-		template <typename U> friend class weak_ptr;
-		template <typename U> friend class shared_ptr;
+		template < typename U >
+		friend class weak_ptr;
+
+		template < typename U >
+		friend class shared_ptr;
 
 	private:
 		T*								_rawPtr;
 		mutable Detail::SharedPtrImpl	_impl;
 
 	public:
-		inline weak_ptr() : _rawPtr()
+		weak_ptr() : _rawPtr()
 		{ }
 
-		inline weak_ptr(const NullPtrType&) : _rawPtr()
+		weak_ptr(const NullPtrType&) : _rawPtr()
 		{ }
 
-		inline weak_ptr(const shared_ptr<T>& sharedPtr) :
-			_rawPtr(sharedPtr._rawPtr), _impl(sharedPtr._impl)
+		weak_ptr(const shared_ptr<T>& sharedPtr)
+			: _rawPtr(sharedPtr._rawPtr), _impl(sharedPtr._impl)
 		{ _impl.AddWeakReference(); }
 
 		template < typename U >
-		inline weak_ptr(const shared_ptr<U>& sharedPtr) :
-			_rawPtr(sharedPtr._rawPtr), _impl(sharedPtr._impl)
+		weak_ptr(const shared_ptr<U>& sharedPtr)
+			: _rawPtr(sharedPtr._rawPtr), _impl(sharedPtr._impl)
 		{ _impl.AddWeakReference(); }
 
-		inline weak_ptr(const weak_ptr& other) :
-			_rawPtr(other._rawPtr), _impl(other._impl)
+		weak_ptr(const weak_ptr& other)
+			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
 
 		template < typename U >
-		inline weak_ptr(const weak_ptr<U>& other) :
-			_rawPtr(other._rawPtr), _impl(other._impl)
+		weak_ptr(const weak_ptr<U>& other)
+			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
 
-		inline ~weak_ptr()
+		~weak_ptr()
 		{ _impl.ReleaseWeakReference(); }
 
-		inline weak_ptr& operator = (const weak_ptr& other)
+		weak_ptr& operator = (const weak_ptr& other)
 		{
 			weak_ptr tmp(other);
 			swap(tmp);
@@ -520,53 +505,54 @@ namespace stingray
 		}
 
 		template < typename U >
-		inline weak_ptr& operator = (const shared_ptr<U>& other)
+		weak_ptr& operator = (const shared_ptr<U>& other)
 		{
 			weak_ptr tmp(other);
 			swap(tmp);
 			return *this;
 		}
 
-		inline shared_ptr<T> lock() const
+		shared_ptr<T> lock() const
 		{
-			u32 sc = _impl.TryAddStrongReference();
+			const u32 sc = _impl.TryAddStrongReference();
 			if (sc == 0)
 				return shared_ptr<T>();
 
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::LogAddRef(sc, _rawPtr, this);
 
-			shared_ptr<T> result(_rawPtr, _impl);
-			return result;
+			return shared_ptr<T>(_rawPtr, _impl);
 		}
 
-		inline void reset()
+		void reset()
 		{
 			weak_ptr<T> tmp;
 			swap(tmp);
 		}
 
-		inline void swap(weak_ptr<T>& other)
+		void swap(weak_ptr<T>& other)
 		{
 			std::swap(_rawPtr, other._rawPtr);
 			std::swap(_impl, other._impl);
 		}
 
-		inline size_t use_count() const
+		size_t use_count() const
 		{ return _impl.GetStrongReferences(); }
 
-		inline bool expired() const
+		bool expired() const
 		{ return use_count() == 0; }
 
-		template<typename U> bool owner_before(shared_ptr<U> const& other) const
+		template < typename U >
+		bool owner_before(const shared_ptr<U>& other) const
 		{ return _impl.Before(other._impl); }
 
-		template<typename U> bool owner_before(weak_ptr<U> const& other) const
+		template < typename U >
+		bool owner_before(const weak_ptr<U>& other) const
 		{ return _impl.Before(other._impl); }
 	};
 
 
-	template<typename T>
+	template < typename T >
 	void swap(weak_ptr<T>& lhs, weak_ptr<T>& rhs)
 	{ lhs.swap(rhs); }
 
@@ -615,10 +601,12 @@ namespace stingray
 	{ typedef T* ValueT; };
 
 	template < typename T >
-	inline T* to_pointer(const shared_ptr<T>& ptr) { return ptr.get(); }
+	T* to_pointer(const shared_ptr<T>& ptr)
+	{ return ptr.get(); }
 
 	template < typename T >
-	inline T* to_pointer(shared_ptr<T>& ptr) { return ptr.get(); }
+	T* to_pointer(shared_ptr<T>& ptr)
+	{ return ptr.get(); }
 
 
 	namespace Detail
@@ -632,7 +620,7 @@ namespace stingray
 		public:
 			WeakPtrToPointerProxy(const weak_ptr<T>& weakPtr)
 				: _sharedPtr(STINGRAYKIT_REQUIRE_NOT_NULL(weakPtr.lock()))
-			{}
+			{ }
 
 			operator T* () const { return _sharedPtr.get(); }
 		};
@@ -643,12 +631,13 @@ namespace stingray
 	{ typedef Detail::WeakPtrToPointerProxy<T> ValueT; };
 
 	template < typename T >
-	inline Detail::WeakPtrToPointerProxy<T> to_pointer(const weak_ptr<T>& ptr) { return ptr; }
+	Detail::WeakPtrToPointerProxy<T> to_pointer(const weak_ptr<T>& ptr)
+	{ return ptr; }
 
 
 	namespace Detail
 	{
-		template <typename SrcPtr_, typename DstPtr_>
+		template < typename SrcPtr_, typename DstPtr_ >
 		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<IsSharedPtr<SrcPtr_>::Value && IsSharedPtr<DstPtr_>::Value, void>::ValueT>
 		{
 			static DstPtr_ Do(const SrcPtr_& src)
@@ -659,14 +648,14 @@ namespace stingray
 		};
 
 
-		template <typename Src_, typename Dst_>
+		template < typename Src_, typename Dst_ >
 		struct DynamicCastImpl<Src_, Dst_, typename EnableIf<IsSharedPtr<Src_>::Value != IsSharedPtr<Dst_>::Value, void>::ValueT>
 		{
 			// Explicitly prohibit casting if one of the types is a pointer and another one is not
 		};
 
 
-		template <typename Src_>
+		template < typename Src_ >
 		class DynamicCasterImpl<Src_, typename EnableIf<IsSharedPtr<Src_>::Value, void>::ValueT>
 		{
 		private:
@@ -676,7 +665,8 @@ namespace stingray
 			explicit DynamicCasterImpl(const Src_& src) : _src(src)
 			{ }
 
-			template <typename Dst_> operator shared_ptr<Dst_> () const
+			template < typename Dst_ >
+			operator shared_ptr<Dst_> () const
 			{ return DynamicCast<shared_ptr<Dst_>, Src_>(_src); }
 		};
 	}
@@ -686,8 +676,8 @@ namespace stingray
 	struct InstanceOfTester< shared_ptr<T> >
 	{
 		template < typename DestType >
-		static inline bool Test(const shared_ptr<const T>& ptr)
-		{ return (dynamic_cast<const DestType*>(ptr.get()) != 0); }
+		static bool Test(const shared_ptr<const T>& ptr)
+		{ return dynamic_cast<const DestType*>(ptr.get()); }
 	};
 
 
@@ -703,7 +693,7 @@ namespace stingray
 		return result; \
 	}
 
-	template <typename ObjType>
+	template < typename ObjType >
 	struct MakeShared
 	{
 		typedef shared_ptr<ObjType> RetType;
@@ -733,12 +723,14 @@ namespace stingray
 
 
 	template < typename ObjType >
-	shared_ptr<ObjType> make_shared_ptr() { return MakeShared<ObjType>()(); }
+	shared_ptr<ObjType> make_shared_ptr()
+	{ return MakeShared<ObjType>()(); }
 
 
 #define DETAIL_STINGRAYKIT_DECLARE_MAKE_SHARED(Size_, Typenames_, ParamsDecl_, Params_) \
 	template < typename ObjType, Typenames_ > \
-	shared_ptr<ObjType> make_shared_ptr(ParamsDecl_) { return MakeShared<ObjType>()(Params_); }
+	shared_ptr<ObjType> make_shared_ptr(ParamsDecl_) \
+	{ return MakeShared<ObjType>()(Params_); }
 
 
 #define TY typename
