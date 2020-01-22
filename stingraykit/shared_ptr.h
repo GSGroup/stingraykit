@@ -328,8 +328,6 @@ namespace stingray
 
 			_impl.Allocate<Detail::DefaultSharedPtrData<T> >(rawPtr);
 			LogAddRef(1);
-
-			init_enable_shared_from_this(_rawPtr);
 		}
 
 
@@ -338,8 +336,6 @@ namespace stingray
 		{
 			_impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(rawPtr, deleter);
 			LogAddRef(1);
-
-			init_enable_shared_from_this(_rawPtr);
 		}
 
 
@@ -452,10 +448,6 @@ namespace stingray
 		{ return _impl.Before(other._impl); }
 
 	private:
-		inline void init_enable_shared_from_this(...) const
-		{ }
-
-
 		void LogAddRef(u32 referencesCount)
 		{
 			if (_rawPtr)
