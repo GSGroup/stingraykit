@@ -635,7 +635,6 @@ namespace stingray
 			{}
 
 			operator T* () const { return _sharedPtr.get(); }
-			operator bool () const { return _sharedPtr; }
 		};
 	}
 
