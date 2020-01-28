@@ -10,6 +10,7 @@
 
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/shared_ptr.h>
+#include <stingraykit/Tuple.h>
 
 namespace stingray
 {

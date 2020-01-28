@@ -8,21 +8,22 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/function/FunctorInvoker.h>
-#include <stingraykit/assert.h>
+#include <stingraykit/function/function_info.h>
+#include <stingraykit/fatal.h>
 #include <stingraykit/Macro.h>
+#include <stingraykit/PerfectForwarding.h>
 #include <stingraykit/reference.h>
 
 namespace stingray
 {
 
-	template<typename Concepts_, typename Wrapped_>
+	template < typename Concepts_, typename Wrapped_ >
 	class TypeErasureImpl;
 
 
 	class TypeErasureBase
 	{
-		template<typename C, typename W>
+		template < typename C, typename W >
 		friend class TypeErasureImpl;
 
 	public:
@@ -55,7 +56,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename TypeErasureImpl_, typename Concept_, size_t ParamsCount = GetTypeListLength<typename Concept_::ParamTypes>::Value>
+		template < typename TypeErasureImpl_, typename Concept_, size_t ParamsCount = GetTypeListLength<typename Concept_::ParamTypes>::Value >
 		struct ConceptInvoker;
 
 
@@ -69,7 +70,7 @@ namespace stingray
 		};
 
 
-		template<typename TypeErasureImpl_, typename Concept_>
+		template < typename TypeErasureImpl_, typename Concept_ >
 		struct ConceptInvoker<TypeErasureImpl_, Concept_, 0>
 		{
 			static typename Concept_::RetType DoCall(TypeErasureBase* self)
@@ -89,7 +90,7 @@ namespace stingray
 		DETAIL_CONCEPTINVOKER(10)
 
 
-		template<typename TypeErasureImpl_>
+		template < typename TypeErasureImpl_ >
 		struct ConceptInvoker<TypeErasureImpl_, Concepts::Destructor, 0>
 		{
 			static void DoCall(TypeErasureBase* self)
@@ -132,7 +133,7 @@ namespace stingray
 	}
 
 
-	template<typename Concepts_, typename Base_ = TypeErasureBase>
+	template < typename Concepts_, typename Base_ = TypeErasureBase >
 	class TypeErasure
 	{
 		typedef typename TypeListPrepend<Concepts_, Concepts::Destructor>::ValueT AllConcepts;
@@ -153,7 +154,7 @@ namespace stingray
 		TypeErasure& operator = (const TypeErasure& other)
 		{ _data = other._data; return *this; }
 
-		template<typename Wrapped>
+		template < typename Wrapped >
 		Wrapped* Allocate()
 		{
 			Wrapped* result = new TypeErasureImpl<AllConcepts, Wrapped>();
@@ -173,7 +174,10 @@ namespace stingray
 		DETAIL_TYPEERASURE_ALLOCATE(10)
 
 		void Free()
-		{ Call<Concepts::Destructor>(); _data = NULL; }
+		{
+			Call<Concepts::Destructor>();
+			_data = NULL;
+		}
 
 		Base_* Get() const
 		{ return _data; }
@@ -194,7 +198,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template <template <size_t> class FunctorClass, size_t MaxIndex>
+		template < template < size_t > class FunctorClass, size_t MaxIndex >
 		struct RuntimeImplSelector;
 
 
@@ -227,7 +231,7 @@ namespace stingray
 	{ TypeErasureBase::_vTable = &VTableFuncImpl; }
 
 
-	template<typename Concepts_, typename Wrapped_>
+	template < typename Concepts_, typename Wrapped_ >
 	class TypeErasureImpl : public Wrapped_
 	{
 		typedef Wrapped_								Wrapped;
@@ -256,7 +260,7 @@ namespace stingray
 		typedef void DetypedFunction();
 		typedef DetypedFunction* DetypedFunctionPtr;
 
-		template<size_t Index>
+		template < size_t Index >
 		struct VTableHelper
 		{
 			static void Do(DetypedFunctionPtr& result)
