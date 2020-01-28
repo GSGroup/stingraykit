@@ -21,17 +21,17 @@ namespace stingray
 	{
 		namespace EnlargementAlignmentMeasurer
 		{
-			template <typename T> struct alignment_of;
+			template < typename T > struct alignment_of;
 
-			template <typename T, int size_diff>
+			template < typename T, int SizeDiff >
 			struct AlignmentOfHelper
-			{ static const size_t Value = size_diff; };
+			{ static const size_t Value = SizeDiff; };
 
-			template <typename T>
+			template < typename T >
 			struct AlignmentOfHelper<T, 0>
 			{ static const size_t Value = alignment_of<T>::Value; };
 
-			template <typename T>
+			template < typename T >
 			struct alignment_of
 			{
 				struct Enlarged { T x; char c; };
@@ -44,7 +44,7 @@ namespace stingray
 
 		namespace SimpleAlignmentMeasurer
 		{
-			template <typename T>
+			template < typename T >
 			struct alignment_of
 			{
 				static const size_t size = sizeof(T);
@@ -62,7 +62,7 @@ namespace stingray
 			struct __attribute__((__aligned__(16))) a16 {};
 			struct __attribute__((__aligned__(32))) a32 {};
 
-			template <size_t N> struct type_with_alignment;
+			template < size_t N > struct type_with_alignment;
 			template<> struct type_with_alignment<1>  { typedef char type; };
 			template<> struct type_with_alignment<2>  { typedef AlignedTypes::a2 type; };
 			template<> struct type_with_alignment<4>  { typedef AlignedTypes::a4 type; };
@@ -100,7 +100,7 @@ namespace stingray
 #endif
 		}
 
-		template<size_t Len, size_t Align>
+		template < size_t Len, size_t Align >
 		struct AlignedStorageImpl
 		{
 			union
@@ -116,7 +116,7 @@ namespace stingray
 	}
 
 
-	template <typename T>
+	template < typename T >
 	struct alignment_of
 	{
 		static const size_t simple = Detail::SimpleAlignmentMeasurer::alignment_of<T>::Value;
@@ -127,14 +127,14 @@ namespace stingray
 	};
 
 
-	template<typename T>
+	template < typename T >
 	struct SizeOf
 	{
 		typedef integral_constant<size_t, sizeof(T)> ValueT;
 	};
 
 
-	template<size_t Len, size_t Align>
+	template < size_t Len, size_t Align >
 	struct aligned_storage
 	{
 		typedef Detail::AlignedStorageImpl<Len, Align> type;
@@ -146,7 +146,7 @@ namespace stingray
 	void Ctor(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
 	{ T* ptr = new(&_value) T(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); (void)ptr; assert(ptr == &Ref()); }
 
-	template<typename T>
+	template < typename T >
 	struct StorageFor
 	{
 		typename aligned_storage<sizeof(T), alignment_of<T>::Value>::type	_value;
