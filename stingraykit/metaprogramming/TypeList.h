@@ -265,7 +265,7 @@ namespace stingray
 	{ typedef TypeListEndNode ValueT; };
 
 
-	template<typename TypeList, template<typename, typename> class LessPredicate, typename Tail = typename TypeList::Next>
+	template < typename TypeList, template < typename, typename > class LessPredicate, typename Tail = typename TypeList::Next >
 	struct MaxElement
 	{
 	private:
@@ -275,12 +275,12 @@ namespace stingray
 		typedef typename If<LessPredicate<typename TypeList::ValueT, NextResult>::Value, NextResult, typename TypeList::ValueT>::ValueT ValueT;
 	};
 
-	template<typename TypeList, template<typename, typename> class LessPredicate>
+	template < typename TypeList, template < typename, typename > class LessPredicate >
 	struct MaxElement<TypeList, LessPredicate, TypeListEndNode>
 	{ typedef typename TypeList::ValueT ValueT; };
 
 
-	template<typename TypeList, template<typename, typename> class LessPredicate, typename Tail = typename TypeList::Next>
+	template < typename TypeList, template < typename, typename > class LessPredicate, typename Tail = typename TypeList::Next >
 	struct MinElement
 	{
 	private:
@@ -290,12 +290,12 @@ namespace stingray
 		typedef typename If<LessPredicate<typename TypeList::ValueT, NextResult>::Value, typename TypeList::ValueT, NextResult>::ValueT ValueT;
 	};
 
-	template<typename TypeList, template<typename, typename> class LessPredicate>
+	template < typename TypeList, template < typename, typename > class LessPredicate >
 	struct MinElement<TypeList, LessPredicate, TypeListEndNode>
 	{ typedef typename TypeList::ValueT ValueT; };
 
 
-	template <typename TypeList_, template<typename, typename> class LessPredicate>
+	template < typename TypeList_, template < typename, typename > class LessPredicate >
 	struct TypeListSort
 	{
 		typedef typename TypeListMerge<TypeList<
@@ -304,7 +304,7 @@ namespace stingray
 				typename TypeListSort<typename TypeListCopyIf<typename TypeList_::Next, Not<BindRight<LessPredicate, typename TypeList_::ValueT>::template ValueT>::template ValueT>::ValueT, LessPredicate>::ValueT> >::ValueT ValueT;
 	};
 
-	template <template<typename, typename> class LessPredicate>
+	template < template < typename, typename > class LessPredicate >
 	struct TypeListSort<TypeListEndNode, LessPredicate>
 	{ typedef TypeListEndNode ValueT; };
 
