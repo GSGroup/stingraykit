@@ -145,9 +145,9 @@ namespace stingray
 		{ _data = other._data; return *this; }
 
 		template < typename Wrapped, typename... Ts >
-		Wrapped* Allocate(const Ts&... args)
+		Wrapped* Allocate(Ts&&... args)
 		{
-			Wrapped* result = new TypeErasureImpl<AllConcepts, Wrapped>(args...);
+			Wrapped* result = new TypeErasureImpl<AllConcepts, Wrapped>(std::forward<Ts>(args)...);
 			_data = result;
 			return result;
 		}
@@ -183,7 +183,7 @@ namespace stingray
 
 	public:
 		template < typename... Ts >
-		TypeErasureImpl(const Ts&... args) : Wrapped(args...)
+		TypeErasureImpl(Ts&&... args) : Wrapped(std::forward<Ts>(args)...)
 		{ TypeErasureBase::_vTable = &VTableFuncImpl; }
 
 		~TypeErasureImpl()
