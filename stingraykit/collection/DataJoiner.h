@@ -92,7 +92,7 @@ namespace stingray
 		void advance(difference_type diff)						{ SetDistanceFromBegin(GetDistanceFromBegin() + diff); }
 		difference_type distance_to(const MyType &other) const	{ return other.GetDistanceFromBegin() - GetDistanceFromBegin(); }
 
-		int which() const										{ return _iterator.which(); }
+		size_t which() const									{ return _iterator.which(); }
 
 		static DataJoinerIterator CreateBegin(const TupleType* c)
 		{
@@ -132,7 +132,7 @@ namespace stingray
 				static void Call(DataJoinerIterator from, DataJoinerIterator to, VisitorType& visitor)
 				{
 					typename GetTypeListItem<typename TupleType::TypeList, ContainerIndex>::ValueT container = from._containers->template Get<ContainerIndex>();
-					if (from.which() <= (int)ContainerIndex && (int)ContainerIndex <= to.which())
+					if (from.which() <= ContainerIndex && ContainerIndex <= to.which())
 					{
 						typedef typename GetTypeListItem<IndexedIterators, ContainerIndex>::ValueT IndexedIterType;
 						typedef typename GetTypeListItem<IteratorsList, ContainerIndex>::ValueT IterType;

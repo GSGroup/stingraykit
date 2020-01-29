@@ -115,11 +115,11 @@ namespace stingray
 			typedef VariantBase<TypeList>		MyType;
 			typedef MultiStorageFor<TypeList>	Storage;
 
-			int		_type;
+			size_t	_type;
 			Storage _storage;
 
 		public:
-			int which() const
+			size_t which() const
 			{ return _type; }
 
 			const std::type_info& type() const

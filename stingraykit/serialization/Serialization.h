@@ -143,7 +143,7 @@ namespace stingray
 			template < size_t Index_ >
 			struct CreatorFunc
 			{
-				static void Call(int deserializedIndex, variant<Types_>& v)
+				static void Call(size_t deserializedIndex, variant<Types_>& v)
 				{
 					typedef typename GetTypeListItem<Types_, Index_>::ValueT		T;
 					if (deserializedIndex == Index_)
@@ -696,7 +696,7 @@ namespace stingray
 		template < typename Types_ >
 		void deserialize(variant<Types_>& v)
 		{
-			int index = 0;
+			size_t index = 0;
 			Deserialize("index", index);
 			For<GetTypeListLength<Types_>::Value, SerializationUtils::VariantObjectCreator<Types_>::template CreatorFunc>::Do(index, wrap_ref(v));
 			apply_visitor(SerializationUtils::VariantDeserializeVisitor<ObjectIStream>(*this), v);
