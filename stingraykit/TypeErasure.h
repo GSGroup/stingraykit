@@ -11,7 +11,6 @@
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/fatal.h>
 #include <stingraykit/Macro.h>
-#include <stingraykit/PerfectForwarding.h>
 #include <stingraykit/reference.h>
 
 namespace stingray
@@ -106,23 +105,6 @@ namespace stingray
 	}
 
 
-#define DETAIL_TYPEERASURE_CALL_PARAM_DECL(ParamIndex_, ParamVariantId_) \
-	STINGRAYKIT_COMMA_IF(ParamIndex_) STINGRAYKIT_INSERT_IF(STINGRAYKIT_BITWISE_AND(ParamVariantId_, STINGRAYKIT_POW(2, ParamIndex_)), const) STINGRAYKIT_CAT(T, ParamIndex_)& STINGRAYKIT_CAT(p, ParamIndex_)
-
-#define DETAIL_TYPEERASURE_CALL(N_, ParamsCount_) \
-	template< typename Concept_ STINGRAYKIT_COMMA_IF(ParamsCount_) STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
-	typename Concept_::RetType Call(STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, DETAIL_TYPEERASURE_CALL_PARAM_DECL, N_)) \
-	{ \
-		CompileTimeAssert<GetTypeListLength<typename Concept_::ParamTypes>::Value == N_> ErrorParamsCountMismatch; (void)ErrorParamsCountMismatch; \
-		TypeErasureBase::VTableFunc* vTable = _data->GetVTable(); \
-		const size_t ConceptIndex = IndexOfTypeListItem<AllConcepts, Concept_>::Value; \
-		TypeErasureBase::DetypedFunctionPtr virtualFunc = vTable(ConceptIndex); \
-		typedef typename TypeListPrepend<typename Concept_::ParamTypes, TypeErasureBase*>::ValueT AllParams; \
-		typedef typename SignatureBuilder<typename Concept_::RetType, AllParams>::ValueT Signature; \
-		return reinterpret_cast<Signature*>(virtualFunc)(_data STINGRAYKIT_COMMA_IF(ParamsCount_) STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
-	}
-
-
 	template < typename Concepts_, typename Base_ = TypeErasureBase >
 	class TypeErasure
 	{
@@ -161,17 +143,20 @@ namespace stingray
 		Base_* Get() const
 		{ return _data; }
 
-		STINGRAYKIT_REPEAT( 1, DETAIL_TYPEERASURE_CALL, 0)
-		STINGRAYKIT_REPEAT( 2, DETAIL_TYPEERASURE_CALL, 1)
-		STINGRAYKIT_REPEAT( 4, DETAIL_TYPEERASURE_CALL, 2)
-		STINGRAYKIT_REPEAT( 8, DETAIL_TYPEERASURE_CALL, 3)
-		STINGRAYKIT_REPEAT(16, DETAIL_TYPEERASURE_CALL, 4)
-		STINGRAYKIT_REPEAT(32, DETAIL_TYPEERASURE_CALL, 5)
+		template < typename Concept_, typename... Ts >
+		typename Concept_::RetType Call(Ts&&... args)
+		{
+			CompileTimeAssert<GetTypeListLength<typename Concept_::ParamTypes>::Value == sizeof...(Ts)> ErrorParamsCountMismatch; (void)ErrorParamsCountMismatch;
+
+			const size_t ConceptIndex = IndexOfTypeListItem<AllConcepts, Concept_>::Value;
+			TypeErasureBase::DetypedFunctionPtr virtualFunc = _data->GetVTable()(ConceptIndex);
+
+			typedef typename TypeListPrepend<typename Concept_::ParamTypes, TypeErasureBase*>::ValueT AllParams;
+			typedef typename SignatureBuilder<typename Concept_::RetType, AllParams>::ValueT Signature;
+
+			return reinterpret_cast<Signature*>(virtualFunc)(_data, std::forward<Ts>(args)...);
+		}
 	};
-
-
-#undef DETAIL_TYPEERASURE_CALL
-#undef DETAIL_TYPEERASURE_CALL_PARAM_DECL
 
 
 	template < typename Concepts_, typename Wrapped_ >
