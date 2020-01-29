@@ -916,13 +916,9 @@ namespace stingray
 		{ return RangeSplitter<It_>(begin, end, maxFragmentSize); }
 
 
-#define DETAIL_STINGRAYKIT_DECLARE_RANGEZIPPER(N_, UserArg_) \
-		template < typename FuncType STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
-		RangeZipper<FuncType, typename TypeList<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE, T)>::type> Zip(const FuncType& func STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
-		{ return RangeZipper<FuncType, typename TypeList<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE, T)>::type>(func, MakeTuple(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~))); }
-
-		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_RANGEZIPPER, ~)
-#undef DETAIL_STINGRAYKIT_DECLARE_RANGEZIPPER
+		template < typename FuncType, typename... RangeTypes >
+		RangeZipper<FuncType, typename TypeList<RangeTypes...>::type> Zip(const FuncType& func, const RangeTypes&... ranges)
+		{ return RangeZipper<FuncType, typename TypeList<RangeTypes...>::type>(func, MakeTuple(ranges...)); }
 
 	}
 
