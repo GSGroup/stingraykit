@@ -67,7 +67,7 @@ namespace stingray
 			AbsentParamDummy(const T&) { }
 		};
 
-		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value != -1 >
+		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value != TypeListNpos >
 		struct BinderSingleParamTypeGetter
 		{ typedef AbsentParamDummy ValueT; };
 

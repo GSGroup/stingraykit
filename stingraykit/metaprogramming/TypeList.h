@@ -33,6 +33,9 @@ namespace stingray
 	};
 
 
+	const size_t TypeListNpos = static_cast<size_t>(-1);
+
+
 	//////////////////////////////////////////////////////////////////////
 
 
@@ -109,7 +112,7 @@ namespace stingray
 	{ typedef typename TypeList::ValueT		ValueT; };
 
 	template < typename TypeList >
-	struct GetTypeListItem<TypeList, -1>
+	struct GetTypeListItem<TypeList, TypeListNpos>
 	{ CompileTimeAssert<sizeof(TypeList) < 0>	ERROR_invalid_index; };
 
 	template < typename TypeList, typename Val >
@@ -145,35 +148,35 @@ namespace stingray
 	{ typedef TypeListEndNode				ValueT; };
 
 	template < typename TypeList >
-	struct TryGetTypeListItem<TypeList, -1>
+	struct TryGetTypeListItem<TypeList, TypeListNpos>
 	{ CompileTimeAssert<sizeof(TypeList) < 0>	ERROR_invalid_index; };
 
 	template < typename TypeList, typename T, size_t Index_ = 0>
 	struct IndexOfTypeListItem
 	{
 	private:
-		static const int NextResult = IndexOfTypeListItem<typename TypeList::Next, T, Index_>::Value;
+		static const size_t NextResult = IndexOfTypeListItem<typename TypeList::Next, T, Index_>::Value;
 	public:
-		static const int Value = (NextResult == -1) ? -1 : (NextResult + 1);
+		static const size_t Value = (NextResult == TypeListNpos) ? TypeListNpos : (NextResult + 1);
 	};
 
-	template < typename TypeList, typename T >
-	struct TypeListContains : integral_constant<bool, IndexOfTypeListItem<TypeList, T>::Value != -1> { };
-
 	template < typename T, size_t Index_ >
-	struct IndexOfTypeListItem<TypeListEndNode, T, Index_> : integral_constant<int, -1> { };
+	struct IndexOfTypeListItem<TypeListEndNode, T, Index_> : integral_constant<size_t, TypeListNpos> { };
 
 	template < typename TypeList, size_t Index_ >
 	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, Index_>
 	{
 	private:
-		static const int NextResult = IndexOfTypeListItem<typename TypeList::Next, typename TypeList::ValueT, Index_ - 1>::Value;
+		static const size_t NextResult = IndexOfTypeListItem<typename TypeList::Next, typename TypeList::ValueT, Index_ - 1>::Value;
 	public:
-		static const int Value = (NextResult == -1) ? -1 : (NextResult + 1);
+		static const size_t Value = (NextResult == TypeListNpos) ? TypeListNpos : (NextResult + 1);
 	};
 
 	template < typename TypeList >
-	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, 0> : integral_constant<int, 0> { };
+	struct IndexOfTypeListItem<TypeList, typename TypeList::ValueT, 0> : integral_constant<size_t, 0> { };
+
+	template < typename TypeList, typename T >
+	struct TypeListContains : integral_constant<bool, IndexOfTypeListItem<TypeList, T>::Value != TypeListNpos> { };
 
 
 	template < typename TypeList, template<typename> class Predicate >
