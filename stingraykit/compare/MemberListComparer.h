@@ -74,47 +74,21 @@ namespace stingray
 	};
 
 
-#define TY typename
-#define P_(N) const T##N& p##N
-#define DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
-	template < TypesDecl_ > \
-	MemberListComparer<Tuple<TypeList<TypesUsage_> > > CompareMembersCmp(ParamsDecl_) \
-	{ return MemberListComparer<Tuple<TypeList<TypesUsage_> > >(Tuple<TypeList<TypesUsage_> >(ParamsUsage_)); } \
-	template <TypesDecl_> \
-	comparers::CmpToLess<MemberListComparer<Tuple<TypeList<TypesUsage_> > > > CompareMembersLess(ParamsDecl_) \
-	{ return comparers::CmpToLess<MemberListComparer<Tuple<TypeList<TypesUsage_> > > >(Tuple<TypeList<TypesUsage_> >(ParamsUsage_)); } \
-	template <TypesDecl_> \
-	comparers::CmpToGreater<MemberListComparer<Tuple<TypeList<TypesUsage_> > > > CompareMembersGreater(ParamsDecl_) \
-	{ return comparers::CmpToGreater<MemberListComparer<Tuple<TypeList<TypesUsage_> > > >(Tuple<TypeList<TypesUsage_> >(ParamsUsage_)); } \
-	template <TypesDecl_> \
-	comparers::CmpToEquals<MemberListComparer<Tuple<TypeList<TypesUsage_> > > > CompareMembersEquals(ParamsDecl_) \
-	{ return comparers::CmpToEquals<MemberListComparer<Tuple<TypeList<TypesUsage_> > > >(Tuple<TypeList<TypesUsage_> >(ParamsUsage_)); }
+	template < typename... Ts >
+	MemberListComparer<Tuple<typename TypeList<Ts...>::type> > CompareMembersCmp(const Ts&... args)
+	{ return MemberListComparer<Tuple<typename TypeList<Ts...>::type> >(Tuple<typename TypeList<Ts...>::type>(args...)); }
 
+	template < typename... Ts >
+	comparers::CmpToLess<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > > CompareMembersLess(const Ts&... args)
+	{ return comparers::CmpToLess<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > >(Tuple<typename TypeList<Ts...>::type>(args...)); }
 
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1, T2, T3, T4, T5, T6), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p1, p2, p3, p4, p5, p6));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1, T2, T3, T4, T5, T6, T7), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(11, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(12, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(13, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(14, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(15, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(16, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(17, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(18, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17), P_(18)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(19, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17), P_(18), P_(19)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19));
-	DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER(20, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY T13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17), P_(18), P_(19), P_(20)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20));
+	template < typename... Ts >
+	comparers::CmpToGreater<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > > CompareMembersGreater(const Ts&... args)
+	{ return comparers::CmpToGreater<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > >(Tuple<typename TypeList<Ts...>::type>(args...)); }
 
-#undef DETAIL_STINGRAYKIT_DECLARE_MAKEMEMBERLISTCOMPARER
-#undef P_
-#undef TY
+	template < typename... Ts >
+	comparers::CmpToEquals<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > > CompareMembersEquals(const Ts&... args)
+	{ return comparers::CmpToEquals<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > >(Tuple<typename TypeList<Ts...>::type>(args...)); }
 
 }
 
