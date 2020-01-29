@@ -10,7 +10,6 @@
 
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/fatal.h>
-#include <stingraykit/Macro.h>
 #include <stingraykit/reference.h>
 
 namespace stingray
@@ -55,42 +54,16 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename TypeErasureImpl_, typename Concept_, size_t ParamsCount = GetTypeListLength<typename Concept_::ParamTypes>::Value >
-		struct ConceptInvoker;
-
-
-#define DETAIL_CONCEPTINVOKER_PARAM(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename GetTypeListItem<typename Concept_::ParamTypes, Index_>::ValueT p##Index_
-#define DETAIL_CONCEPTINVOKER(N_) \
-		template<typename TypeErasureImpl_, typename Concept_> \
-		struct ConceptInvoker<TypeErasureImpl_, Concept_, N_> \
-		{ \
-			static typename Concept_::RetType DoCall(TypeErasureBase* self, STINGRAYKIT_REPEAT(N_, DETAIL_CONCEPTINVOKER_PARAM, ~)) \
-			{ return Concept_::Apply(static_cast<TypeErasureImpl_&>(*self), STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); } \
-		};
-
-
-		template < typename TypeErasureImpl_, typename Concept_ >
-		struct ConceptInvoker<TypeErasureImpl_, Concept_, 0>
+		template < typename TypeErasureImpl_, typename Concept_, typename... Ts >
+		struct ConceptInvoker
 		{
-			static typename Concept_::RetType DoCall(TypeErasureBase* self)
-			{ return Concept_::Apply(static_cast<TypeErasureImpl_&>(*self)); }
+			static typename Concept_::RetType DoCall(TypeErasureBase* self, Ts... args)
+			{ return Concept_::Apply(static_cast<TypeErasureImpl_&>(*self), args...); }
 		};
-
-
-		DETAIL_CONCEPTINVOKER(1)
-		DETAIL_CONCEPTINVOKER(2)
-		DETAIL_CONCEPTINVOKER(3)
-		DETAIL_CONCEPTINVOKER(4)
-		DETAIL_CONCEPTINVOKER(5)
-		DETAIL_CONCEPTINVOKER(6)
-		DETAIL_CONCEPTINVOKER(7)
-		DETAIL_CONCEPTINVOKER(8)
-		DETAIL_CONCEPTINVOKER(9)
-		DETAIL_CONCEPTINVOKER(10)
 
 
 		template < typename TypeErasureImpl_ >
-		struct ConceptInvoker<TypeErasureImpl_, Concepts::Destructor, 0>
+		struct ConceptInvoker<TypeErasureImpl_, Concepts::Destructor>
 		{
 			static void DoCall(TypeErasureBase* self)
 			{ CheckedDelete(static_cast<TypeErasureImpl_*>(self)); }
@@ -187,9 +160,18 @@ namespace stingray
 					return true;
 
 				typedef typename GetTypeListItem<Concepts, Index>::ValueT Concept;
-				typedef Detail::ConceptInvoker<Self, Concept> ConceptInvoker;
-				result = reinterpret_cast<DetypedFunctionPtr>(&ConceptInvoker::DoCall);
+
+				CallImpl<Concept>(std::make_index_sequence<GetTypeListLength<typename Concept::ParamTypes>::Value>(), result);
 				return false;
+			}
+
+		private:
+			template < typename Concept, size_t... ParamIndex >
+			static void CallImpl(std::index_sequence<ParamIndex...>, DetypedFunctionPtr& result)
+			{
+				typedef Detail::ConceptInvoker<Self, Concept, typename GetTypeListItem<typename Concept::ParamTypes, ParamIndex>::ValueT...> ConceptInvoker;
+
+				result = reinterpret_cast<DetypedFunctionPtr>(&ConceptInvoker::DoCall);
 			}
 		};
 
