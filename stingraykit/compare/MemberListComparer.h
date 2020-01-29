@@ -17,18 +17,18 @@ namespace stingray
 
 	namespace Detail
 	{
-		template <typename MemberPointerTuple>
+		template < typename MemberPointerTuple >
 		struct MemberListComparerImpl
 		{
-			template <typename ClassType, typename MemberPointerType>
-			static int CompareMember(const ClassType &lhs, const ClassType &rhs, const MemberPointerType &pointer)
+			template < typename ClassType, typename MemberPointerType >
+			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const MemberPointerType& pointer)
 			{
 				typedef MemberExtractor<MemberPointerType> Extractor;
 				return comparers::Cmp()(Extractor::GetValue(lhs, pointer), Extractor::GetValue(rhs, pointer));
 			}
 
-			template <typename ClassType, typename MemberPointerT, typename ComparerT>
-			static int CompareMember(const ClassType &lhs, const ClassType &rhs, const CustomMemberComparerWrapper<MemberPointerT, ComparerT> &comparer)
+			template < typename ClassType, typename MemberPointerT, typename ComparerT >
+			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const CustomMemberComparerWrapper<MemberPointerT, ComparerT>& comparer)
 			{
 				CompileTimeAssert<IsSame<typename function_info<ComparerT>::RetType, int>::Value> ErrorExpectedCmpComparer;
 				(void)ErrorExpectedCmpComparer;
@@ -36,13 +36,14 @@ namespace stingray
 				return comparer.Compare(lhs, rhs);
 			}
 
-			template <typename ClassType>
-			static int Do(const ClassType &lhs, const ClassType &rhs, const MemberPointerTuple &tuple)
+			template < typename ClassType >
+			static int Do(const ClassType& lhs, const ClassType& rhs, const MemberPointerTuple& tuple)
 			{
-				int result = CompareMember(lhs, rhs, tuple.GetHead());
-				if (result == 0)
-					return MemberListComparerImpl<typename MemberPointerTuple::Tail>::Do(lhs, rhs, tuple.GetTail());
-				return result;
+				const int result = CompareMember(lhs, rhs, tuple.GetHead());
+				if (result != 0)
+					return result;
+
+				return MemberListComparerImpl<typename MemberPointerTuple::Tail>::Do(lhs, rhs, tuple.GetTail());
 			}
 		};
 
@@ -50,14 +51,14 @@ namespace stingray
 		template < >
 		struct MemberListComparerImpl<Tuple<TypeListEndNode> >
 		{
-			template <typename ClassType>
-			static int Do(const ClassType &lhs, const ClassType &rhs, const Tuple<TypeListEndNode> &tuple)
+			template < typename ClassType >
+			static int Do(const ClassType& lhs, const ClassType& rhs, const Tuple<TypeListEndNode>& tuple)
 			{ return 0; }
 		};
 	}
 
 
-	template <typename MemberPointerTuple>
+	template < typename MemberPointerTuple >
 	struct MemberListComparer : public comparers::CmpComparerBase<MemberListComparer<MemberPointerTuple> >
 	{
 	private:
@@ -67,7 +68,7 @@ namespace stingray
 		MemberListComparer(const MemberPointerTuple& memberPointerList) : _memberPointerList(memberPointerList)
 		{ }
 
-		template <typename T>
+		template < typename T >
 		int DoCompare(const T& lhs, const T& rhs) const
 		{ return Detail::MemberListComparerImpl<MemberPointerTuple>::Do(lhs, rhs, _memberPointerList); }
 	};

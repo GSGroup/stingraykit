@@ -34,7 +34,7 @@ namespace stingray
 			//avoiding dynamic_cast here
 			const char * this_ptr = reinterpret_cast<const char *>(this);
 			const char * this_ifuzzyequatable = reinterpret_cast<const char *>(static_cast<const IFuzzyEquatable *>(this));
-			ptrdiff_t delta = this_ptr - this_ifuzzyequatable; //distance between FuzzyEquatable and IFuzzyEquatable for this type.
+			const ptrdiff_t delta = this_ptr - this_ifuzzyequatable; //distance between FuzzyEquatable and IFuzzyEquatable for this type.
 			const char * other_ifuzzyequatable = reinterpret_cast<const char *>(&other);
 			const FuzzyEquatable<T> *other_ptr = reinterpret_cast<const FuzzyEquatable<T> *>(other_ifuzzyequatable + delta);
 
@@ -50,7 +50,7 @@ namespace stingray
 	{
 		STINGRAYKIT_DECLARE_METHOD_CHECK(FuzzyEquals);
 
-		template<typename T>
+		template < typename T >
 		typename EnableIf<HasMethod_FuzzyEquals<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
 		{
 			if (&lhs == &rhs)

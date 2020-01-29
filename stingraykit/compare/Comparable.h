@@ -15,21 +15,22 @@ namespace stingray
 
 	struct IComparable
 	{
-		virtual ~IComparable() {}
-		virtual int Compare(const IComparable &other) const = 0;
+		virtual ~IComparable() { }
+
+		virtual int Compare(const IComparable& other) const = 0;
 	};
 
 
-	template<typename T>
+	template < typename T >
 	struct Comparable : public virtual IComparable
 	{
-		virtual int Compare(const IComparable &other) const
+		virtual int Compare(const IComparable& other) const
 		{
 			if (this == &other)
 				return 0;
 
-			const std::type_info &my_type = typeid(*this);
-			const std::type_info &other_type = typeid(other);
+			const std::type_info& my_type = typeid(*this);
+			const std::type_info& other_type = typeid(other);
 
 			if (my_type != other_type)
 				return my_type.before(other_type) ? -1 : 1;
@@ -37,7 +38,7 @@ namespace stingray
 			//avoiding dynamic_cast here
 			const char * this_ptr = reinterpret_cast<const char *>(this);
 			const char * this_icomparable = reinterpret_cast<const char *>(static_cast<const IComparable *>(this));
-			ptrdiff_t delta = this_ptr - this_icomparable; //distance between Comparable and IComparable for this type.
+			const ptrdiff_t delta = this_ptr - this_icomparable; //distance between Comparable and IComparable for this type.
 			const char * other_icomparable = reinterpret_cast<const char *>(&other);
 			const Comparable<T> *other_ptr = reinterpret_cast<const Comparable<T> *>(other_icomparable + delta);
 
@@ -45,7 +46,7 @@ namespace stingray
 		}
 
 	protected:
-		virtual int DoCompare(const T &other) const = 0;
+		virtual int DoCompare(const T& other) const = 0;
 	};
 
 

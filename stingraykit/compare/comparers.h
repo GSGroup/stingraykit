@@ -17,14 +17,14 @@ namespace stingray
 	namespace comparers
 	{
 
-		template<typename Derived_>
+		template < typename Derived_ >
 		struct CmpComparerBase : public function_info<int, UnspecifiedParamTypes>
 		{
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, int>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
 			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, int>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
 			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0)); }
 
@@ -34,14 +34,14 @@ namespace stingray
 		};
 
 
-		template<typename Derived_>
+		template < typename Derived_ >
 		struct LessComparerBase : public function_info<bool, UnspecifiedParamTypes>
 		{
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
 			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
 			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (!lhs && rhs); }
 
@@ -51,14 +51,14 @@ namespace stingray
 		};
 
 
-		template<typename Derived_>
+		template < typename Derived_ >
 		struct EqualsComparerBase : public function_info<bool, UnspecifiedParamTypes>
 		{
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
 			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
 			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (!lhs && !rhs); }
 
@@ -68,14 +68,14 @@ namespace stingray
 		};
 
 
-		template<typename Derived_>
+		template < typename Derived_ >
 		struct GreaterComparerBase : public function_info<bool, UnspecifiedParamTypes>
 		{
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
 			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
 			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (lhs && !rhs); }
 
@@ -93,7 +93,7 @@ namespace stingray
 
 		struct Cmp : public CmpComparerBase<Cmp>
 		{
-			template<typename T>
+			template < typename T >
 			typename EnableIf<Detail::HasMethod_Compare<T>::Value, int>::ValueT DoCompare(const T& lhs, const T& rhs) const
 			{
 				if (&lhs == &rhs)
@@ -102,7 +102,7 @@ namespace stingray
 				return lhs.Compare(rhs);
 			}
 
-			template<typename T>
+			template < typename T >
 			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, int>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
 			{
 				if (&lhs == &rhs)
@@ -119,7 +119,7 @@ namespace stingray
 
 		struct Less : public LessComparerBase<Less>
 		{
-			template<typename T>
+			template < typename T >
 			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
 			{
 				if (&lhs == &rhs)
@@ -128,7 +128,7 @@ namespace stingray
 				return lhs.Compare(rhs) < 0;
 			}
 
-			template<typename T>
+			template < typename T >
 			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
 			{
 				if (&lhs == &rhs)
@@ -141,7 +141,7 @@ namespace stingray
 
 		struct Equals : public EqualsComparerBase<Equals>
 		{
-			template<typename T>
+			template < typename T >
 			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
 			{
 				if (&lhs == &rhs)
@@ -150,7 +150,7 @@ namespace stingray
 				return lhs.Compare(rhs) == 0;
 			}
 
-			template<typename T>
+			template < typename T >
 			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
 			{
 				if (&lhs == &rhs)
@@ -163,7 +163,7 @@ namespace stingray
 
 		struct Greater : public GreaterComparerBase<Greater>
 		{
-			template<typename T>
+			template < typename T >
 			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
 			{
 				if (&lhs == &rhs)
@@ -172,7 +172,7 @@ namespace stingray
 				return lhs.Compare(rhs) > 0;
 			}
 
-			template<typename T>
+			template < typename T >
 			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
 			{
 				if (&lhs == &rhs)
@@ -183,7 +183,7 @@ namespace stingray
 		};
 
 
-		template<typename CmpComparer_>
+		template < typename CmpComparer_ >
 		struct CmpToLess : public function_info<bool, UnspecifiedParamTypes>
 		{
 		private:
@@ -196,7 +196,7 @@ namespace stingray
 			CmpToLess(const CmpComparer_& comparer) : _comparer(comparer)
 			{ }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{
 				CompileTimeAssert<IsSame<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
@@ -207,7 +207,7 @@ namespace stingray
 		};
 
 
-		template<typename CmpComparer_>
+		template < typename CmpComparer_ >
 		struct CmpToGreater : public function_info<bool, UnspecifiedParamTypes>
 		{
 		private:
@@ -220,7 +220,7 @@ namespace stingray
 			CmpToGreater(const CmpComparer_& comparer) : _comparer(comparer)
 			{ }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{
 				CompileTimeAssert<IsSame<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
@@ -231,7 +231,7 @@ namespace stingray
 		};
 
 
-		template<typename CmpComparer_>
+		template < typename CmpComparer_ >
 		struct CmpToEquals : public function_info<bool, UnspecifiedParamTypes>
 		{
 		private:
@@ -244,7 +244,7 @@ namespace stingray
 			CmpToEquals(const CmpComparer_& comparer) : _comparer(comparer)
 			{ }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{
 				CompileTimeAssert<IsSame<typename function_info<CmpComparer_>::RetType, int>::Value> ErrorExpectedCmpComparer;
@@ -255,7 +255,7 @@ namespace stingray
 		};
 
 
-		template<typename LessComparer_>
+		template < typename LessComparer_ >
 		struct LessToEquals : public function_info<bool, UnspecifiedParamTypes>
 		{
 		private:
@@ -268,13 +268,13 @@ namespace stingray
 			LessToEquals(const LessComparer_& comparer) : _lessComparer(comparer)
 			{ }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return !_lessComparer(lhs, rhs) && !_lessComparer(rhs, lhs); }
 		};
 
 
-		template<typename LessComparer_>
+		template < typename LessComparer_ >
 		struct LessToCmp : public function_info<int, UnspecifiedParamTypes>
 		{
 		private:
@@ -287,7 +287,7 @@ namespace stingray
 			LessToCmp(const LessComparer_& comparer) : _lessComparer(comparer)
 			{ }
 
-			template <typename Lhs, typename Rhs>
+			template < typename Lhs, typename Rhs >
 			int operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return _lessComparer(lhs, rhs) ? -1 : (_lessComparer(rhs, lhs) ? 1 : 0); }
 		};

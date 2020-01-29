@@ -14,7 +14,7 @@
 namespace stingray
 {
 
-	template<typename ItemCmp = comparers::Cmp>
+	template < typename ItemCmp = comparers::Cmp >
 	struct CollectionCmp : public comparers::CmpComparerBase<CollectionCmp<ItemCmp> >
 	{
 		template < typename T >
@@ -26,7 +26,7 @@ namespace stingray
 		}
 
 	private:
-		template <typename Range_>
+		template < typename Range_ >
 		int DoCompareRanges(Range_ lhs, Range_ rhs) const
 		{
 			for (; lhs; ++lhs, ++rhs)
@@ -34,9 +34,9 @@ namespace stingray
 				if (!rhs)
 					return 1;
 
-				int item_result = ItemCmp()(*lhs, *rhs);
-				if (item_result != 0)
-					return item_result;
+				const int itemResult = ItemCmp()(*lhs, *rhs);
+				if (itemResult != 0)
+					return itemResult;
 			}
 			return rhs ? -1 : 0;
 		}
