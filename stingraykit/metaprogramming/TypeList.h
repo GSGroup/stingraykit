@@ -256,11 +256,11 @@ namespace stingray
 	{ typedef TypeListEndNode ValueT; };
 
 
-	template < unsigned Count, template <int> class GeneratorFunctor, int Start = 0 >
+	template < size_t Count, template <size_t> class GeneratorFunctor, size_t Start = 0 >
 	struct GenerateTypeList
 	{ typedef TypeListNode<typename GeneratorFunctor<Start>::ValueT, typename GenerateTypeList<Count - 1, GeneratorFunctor, Start + 1>::ValueT> ValueT; };
 
-	template < template <int> class GeneratorFunctor, int Start >
+	template < template <size_t> class GeneratorFunctor, size_t Start >
 	struct GenerateTypeList<0, GeneratorFunctor, Start>
 	{ typedef TypeListEndNode ValueT; };
 

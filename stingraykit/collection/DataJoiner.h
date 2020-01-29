@@ -43,7 +43,7 @@ namespace stingray
 		template<typename TypeList>
 		struct TypeListIndexer
 		{
-			template<int Index>
+			template<size_t Index>
 			struct Functor
 			{
 				typedef IndexedType<typename GetTypeListItem<TypeList, Index>::ValueT, Index> ValueT;
