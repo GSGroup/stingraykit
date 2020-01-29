@@ -25,27 +25,23 @@ namespace stingray
 			template < typename Entry, typename LeftNode, typename RightNode >
 			struct BranchNode
 			{
-#define DETAIL_STINGRAYKIT_DECLARE_BRANCHNODE_PROCESS(N_, UserArg_) \
-				STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
-				static ReturnType Process(typename TagType::Enum tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
-				{ \
-					if (tag == Entry::Tag) \
-						return Entry::Type::Do(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
-					else \
-						return tag < Entry::Tag ? LeftNode::Process(tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)) : RightNode::Process(tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
+				template < typename... Ts >
+				static ReturnType Process(typename TagType::Enum tag, Ts... args)
+				{
+					if (tag == Entry::Tag)
+						return Entry::Type::Do(args...);
+					else if (tag < Entry::Tag)
+						return LeftNode::Process(tag, args...);
+					else
+						return RightNode::Process(tag, args...);
 				}
-				STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_BRANCHNODE_PROCESS, ~)
-#undef DETAIL_STINGRAYKIT_DECLARE_BRANCHNODE_PROCESS
 			};
 
 			struct LeafNode
 			{
-#define DETAIL_STINGRAYKIT_DECLARE_LEAFNODE_PROCESS(N_, UserArg_) \
-				STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
-				static ReturnType Process(typename TagType::Enum tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
+				template < typename... Ts >
+				static ReturnType Process(typename TagType::Enum tag, Ts...)
 				{ return LeafFunc<ReturnType>::Do(TagType(tag)); }
-				STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_LEAFNODE_PROCESS, ~)
-#undef DETAIL_STINGRAYKIT_DECLARE_LEAFNODE_PROCESS
 			};
 
 		public:
@@ -101,15 +97,12 @@ namespace stingray
 		};
 
 	public:
-#define DETAIL_STINGRAYKIT_DECLARE_GENERICINVOKER_INVOKE(N_, UserArg_) \
-		STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
-		static ReturnType Invoke(typename TagType::Enum tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYVALUE, T)) \
-		{ \
-			typedef typename Detail::EnumDrivenInvoker<typename Derived::Registry, TagType, ReturnType, LeafFunc>::ValueT Invoker; \
-			return Invoker::Process(tag STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
+		template < typename... Ts >
+		static ReturnType Invoke(typename TagType::Enum tag, Ts... args)
+		{
+			typedef typename Detail::EnumDrivenInvoker<typename Derived::Registry, TagType, ReturnType, LeafFunc>::ValueT Invoker;
+			return Invoker::Process(tag, args...);
 		}
-		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_GENERICINVOKER_INVOKE, ~)
-#undef DETAIL_STINGRAYKIT_DECLARE_GENERICINVOKER_INVOKE
 	};
 
 
