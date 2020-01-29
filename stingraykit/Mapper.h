@@ -103,7 +103,7 @@ namespace stingray
 		template<typename SrcT, typename DstT, typename List, typename Default>
 		struct Mapper
 		{
-			template<int N, bool IsMapBack>
+			template<size_t N, bool IsMapBack>
 			static bool DetailDoMap(typename If<IsMapBack, DstT, SrcT>::ValueT from, typename If<IsMapBack, SrcT, DstT>::ValueT& to)
 			{
 				typedef typename GetTypeListItem<List, N * 2 + (IsMapBack ? 1 : 0)>::ValueT	MappingFrom;
@@ -114,7 +114,7 @@ namespace stingray
 				return !result; // need to negate since ForIf continues untill gets "false" and we need to stop when found fitting mapping
 			}
 
-			template<int N, bool IsMapBack>
+			template<size_t N, bool IsMapBack>
 			static bool DetailDoHasMapping(typename If<IsMapBack, DstT, SrcT>::ValueT from, bool& res)
 			{
 				typedef typename GetTypeListItem<List, N * 2 + (IsMapBack ? 1 : 0)>::ValueT	MappingFrom;
@@ -125,19 +125,19 @@ namespace stingray
 				return !result; // need to negate since ForIf continues untill gets "false" and we need to stop when found fitting mapping
 			}
 
-			template<int N>
+			template<size_t N>
 			struct MapFunctor
 			{ static bool Call(SrcT from, DstT& to) { return DetailDoMap<N, false>(from, to); } };
 
-			template<int N>
+			template<size_t N>
 			struct UnmapFunctor
 			{ static bool Call(DstT from, SrcT& to) { return DetailDoMap<N, true>(from, to); } };
 
-			template<int N>
+			template<size_t N>
 			struct HasMappingFunctor
 			{ static bool Call(SrcT from, bool& res) { return DetailDoHasMapping<N, false>(from, res); } };
 
-			template<int N>
+			template<size_t N>
 			struct HasBackMappingFunctor
 			{ static bool Call(DstT from, bool& res) { return DetailDoHasMapping<N, true>(from, res); } };
 

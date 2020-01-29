@@ -10,12 +10,14 @@
 
 #include <stingraykit/Macro.h>
 
+#include <stddef.h>
+
 namespace stingray
 {
 
 #define TY typename
 
-	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
+	template < size_t Count, template <size_t> class FunctorClass, size_t Start = 0 >
 	struct ForIf
 	{
 		static bool Do()
@@ -39,7 +41,7 @@ namespace stingray
 #undef DETAIL_STINGRAYKIT_DECLARE_FOR_IF_DO
 	};
 
-	template < template <int> class FunctorClass, int Start >
+	template < template <size_t> class FunctorClass, size_t Start >
 	struct ForIf<0, FunctorClass, Start>
 	{
 		static bool Do() { return true; }

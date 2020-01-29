@@ -61,7 +61,7 @@ namespace stingray
 		template<typename Visitor, typename Variant, bool HasRetType = !IsSame<typename Visitor::RetType, void>::Value>
 		struct VariantFunctorApplier
 		{
-			template<int Index>
+			template<size_t Index>
 			struct ApplierHelper
 			{
 				static bool Call(const Visitor& v, Variant& t, optional<typename Visitor::RetType>& result)
@@ -86,7 +86,7 @@ namespace stingray
 		template<typename Visitor, typename Variant>
 		struct VariantFunctorApplier<Visitor, Variant, false>
 		{
-			template<int Index>
+			template<size_t Index>
 			struct ApplierHelper
 			{
 				static bool Call(const Visitor& v, Variant& t)

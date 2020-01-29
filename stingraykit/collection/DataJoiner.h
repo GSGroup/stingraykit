@@ -146,7 +146,7 @@ namespace stingray
 		};
 
 
-		template<int ContainerIndex>
+		template<size_t ContainerIndex>
 		struct DistanceFunctor
 		{
 			static bool Call(const TupleType *cont, const IteratorVariant& iter, difference_type& result)
@@ -171,7 +171,7 @@ namespace stingray
 			return result;
 		}
 
-		template<int ContainerIndex>
+		template<size_t ContainerIndex>
 		struct AdvanceFunctor
 		{
 			static bool Call(const TupleType *cont, size_t& diff, IteratorVariant& iter)

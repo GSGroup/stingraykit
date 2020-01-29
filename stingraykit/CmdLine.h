@@ -318,7 +318,7 @@ namespace stingray
 		{
 			typedef typename FunctionConstructor<void, ParamsList>::ValueT	HandlerFunc;
 
-			template < int N >
+			template < size_t N >
 			struct StringsParser
 			{
 				static bool Call(const StringsTuple& strings, const char*& cmdPtr, size_t& tailLen)
@@ -345,7 +345,7 @@ namespace stingray
 				}
 			};
 
-			template < int N >
+			template < size_t N >
 			struct StringsCompleter
 			{
 				static bool Call(const StringsTuple& strings, std::string& input, CompletionResults& results)
@@ -371,7 +371,7 @@ namespace stingray
 				}
 			};
 
-			template < int N >
+			template < size_t N >
 			struct ArgsParser
 			{
 				static bool Call(Tuple<ParamsList>& args, const char*& cmdPtr, size_t& tailLen)
@@ -399,7 +399,7 @@ namespace stingray
 				}
 			};
 
-			template < int N >
+			template < size_t N >
 			struct ArgsCompleter
 			{
 				static bool Call(std::string& input, CompletionResults& results, const Detail::CustomCompleteFuncsMap& customComplete)

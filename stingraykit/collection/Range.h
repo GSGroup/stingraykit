@@ -536,7 +536,7 @@ namespace stingray
 
 			static const size_t RangeCount = GetTypeListLength<RangeTypes_>::Value;
 
-			template < int Index_ >
+			template < size_t Index_ >
 			struct CallValid
 			{
 				static bool Call(const Tuple<RangeTypes_>& ranges)
