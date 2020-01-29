@@ -50,14 +50,6 @@ namespace stingray
 	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...> >(args...); }
 
 
-	template < typename InterfaceType, typename ClassType >
-	struct DefaultConstructorCreator : public virtual ICreator<InterfaceType>
-	{
-		virtual shared_ptr<InterfaceType> Create() const
-		{ return make_shared_ptr<ClassType>(); }
-	};
-
-
 	namespace Detail
 	{
 		template <typename ClassType >
