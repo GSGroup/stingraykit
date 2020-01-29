@@ -106,16 +106,6 @@ namespace stingray
 	}
 
 
-#define DETAIL_TYPEERASURE_ALLOCATE(N_) \
-	template<typename Wrapped, STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
-	Wrapped* Allocate(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
-	{ \
-		Wrapped* result = new TypeErasureImpl<AllConcepts, Wrapped>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
-		_data = result; \
-		return result; \
-	}
-
-
 #define DETAIL_TYPEERASURE_CALL_PARAM_DECL(ParamIndex_, ParamVariantId_) \
 	STINGRAYKIT_COMMA_IF(ParamIndex_) STINGRAYKIT_INSERT_IF(STINGRAYKIT_BITWISE_AND(ParamVariantId_, STINGRAYKIT_POW(2, ParamIndex_)), const) STINGRAYKIT_CAT(T, ParamIndex_)& STINGRAYKIT_CAT(p, ParamIndex_)
 
@@ -154,24 +144,13 @@ namespace stingray
 		TypeErasure& operator = (const TypeErasure& other)
 		{ _data = other._data; return *this; }
 
-		template < typename Wrapped >
-		Wrapped* Allocate()
+		template < typename Wrapped, typename... Ts >
+		Wrapped* Allocate(const Ts&... args)
 		{
-			Wrapped* result = new TypeErasureImpl<AllConcepts, Wrapped>();
+			Wrapped* result = new TypeErasureImpl<AllConcepts, Wrapped>(args...);
 			_data = result;
 			return result;
 		}
-
-		DETAIL_TYPEERASURE_ALLOCATE(1)
-		DETAIL_TYPEERASURE_ALLOCATE(2)
-		DETAIL_TYPEERASURE_ALLOCATE(3)
-		DETAIL_TYPEERASURE_ALLOCATE(4)
-		DETAIL_TYPEERASURE_ALLOCATE(5)
-		DETAIL_TYPEERASURE_ALLOCATE(6)
-		DETAIL_TYPEERASURE_ALLOCATE(7)
-		DETAIL_TYPEERASURE_ALLOCATE(8)
-		DETAIL_TYPEERASURE_ALLOCATE(9)
-		DETAIL_TYPEERASURE_ALLOCATE(10)
 
 		void Free()
 		{
@@ -193,13 +172,6 @@ namespace stingray
 
 #undef DETAIL_TYPEERASURE_CALL
 #undef DETAIL_TYPEERASURE_CALL_PARAM_DECL
-#undef DETAIL_TYPEERASURE_ALLOCATE
-
-
-#define DETAIL_TYPEERASUREIMPL_CTOR(N_) \
-	template<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)> \
-	TypeErasureImpl(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) : Wrapped_(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)) \
-	{ TypeErasureBase::_vTable = &VTableFuncImpl; }
 
 
 	template < typename Concepts_, typename Wrapped_ >
@@ -210,19 +182,9 @@ namespace stingray
 		typedef TypeErasureImpl<Concepts_, Wrapped_>	Self;
 
 	public:
-		TypeErasureImpl()
+		template < typename... Ts >
+		TypeErasureImpl(const Ts&... args) : Wrapped(args...)
 		{ TypeErasureBase::_vTable = &VTableFuncImpl; }
-
-		DETAIL_TYPEERASUREIMPL_CTOR(1)
-		DETAIL_TYPEERASUREIMPL_CTOR(2)
-		DETAIL_TYPEERASUREIMPL_CTOR(3)
-		DETAIL_TYPEERASUREIMPL_CTOR(4)
-		DETAIL_TYPEERASUREIMPL_CTOR(5)
-		DETAIL_TYPEERASUREIMPL_CTOR(6)
-		DETAIL_TYPEERASUREIMPL_CTOR(7)
-		DETAIL_TYPEERASUREIMPL_CTOR(8)
-		DETAIL_TYPEERASUREIMPL_CTOR(9)
-		DETAIL_TYPEERASUREIMPL_CTOR(10)
 
 		~TypeErasureImpl()
 		{ TypeErasureBase::_vTable = NULL; }
@@ -254,9 +216,6 @@ namespace stingray
 			return result;
 		}
 	};
-
-
-#undef DETAIL_TYPEERASUREIMPL_CTOR
 
 }
 
