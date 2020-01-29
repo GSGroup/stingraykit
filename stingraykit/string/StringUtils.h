@@ -392,7 +392,7 @@ namespace stingray
 		template<typename TupleType>
 		struct TupleFromStringsHelper
 		{
-			template<int Index>
+			template<size_t Index>
 			struct Functor
 			{
 				typedef typename GetTypeListItem<typename TupleType::TypeList, Index>::ValueT Type;

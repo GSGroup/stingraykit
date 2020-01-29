@@ -126,13 +126,13 @@ namespace stingray
 		template <typename VisitorType>
 		struct IntervalsFunctor
 		{
-			template<int ContainerIndex>
+			template<size_t ContainerIndex>
 			struct Func
 			{
 				static void Call(DataJoinerIterator from, DataJoinerIterator to, VisitorType& visitor)
 				{
 					typename GetTypeListItem<typename TupleType::TypeList, ContainerIndex>::ValueT container = from._containers->template Get<ContainerIndex>();
-					if (from.which() <= ContainerIndex && ContainerIndex <= to.which())
+					if (from.which() <= (int)ContainerIndex && (int)ContainerIndex <= to.which())
 					{
 						typedef typename GetTypeListItem<IndexedIterators, ContainerIndex>::ValueT IndexedIterType;
 						typedef typename GetTypeListItem<IteratorsList, ContainerIndex>::ValueT IterType;
@@ -243,7 +243,7 @@ namespace stingray
 		{ iterator::template ApplyToIntervals<const VisitorType>(from, to, visitor); }
 
 	private:
-		template<int ContainerIndex>
+		template<size_t ContainerIndex>
 		struct SizeFunctor
 		{
 			static void Call(const TupleType *cont, size_t& result)

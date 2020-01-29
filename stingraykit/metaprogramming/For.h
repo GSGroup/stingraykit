@@ -10,10 +10,12 @@
 
 #include <stingraykit/Macro.h>
 
+#include <stddef.h>
+
 namespace stingray
 {
 
-	template < unsigned Count, template <int> class FunctorClass, int Start = 0 >
+	template < size_t Count, template <size_t> class FunctorClass, size_t Start = 0 >
 	struct For
 	{
 #define DETAIL_STINGRAYKIT_DECLARE_FOR_DO(N_, UserArg_) \
@@ -29,7 +31,7 @@ namespace stingray
 #undef DETAIL_STINGRAYKIT_DECLARE_FOR_DO
 	};
 
-	template < template <int> class FunctorClass, int Start >
+	template < template <size_t> class FunctorClass, size_t Start >
 	struct For<0, FunctorClass, Start>
 	{
 #define DETAIL_STINGRAYKIT_DECLARE_FOR_DO(N_, UserArg_) \

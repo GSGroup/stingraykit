@@ -543,21 +543,21 @@ namespace stingray
 				{ return ranges.template Get<Index_>().Valid(); }
 			};
 
-			template < int Index_ >
+			template < size_t Index_ >
 			struct CallFirst
 			{
 				static void Call(Tuple<RangeTypes_>& ranges)
 				{ ranges.template Get<Index_>().First(); }
 			};
 
-			template < int Index_ >
+			template < size_t Index_ >
 			struct CallNext
 			{
 				static void Call(Tuple<RangeTypes_>& ranges)
 				{ ranges.template Get<Index_>().Next(); }
 			};
 
-			template < int Index_ >
+			template < size_t Index_ >
 			struct CallPrev
 			{
 				static void Call(Tuple<RangeTypes_>& ranges)

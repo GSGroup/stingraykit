@@ -140,7 +140,7 @@ namespace stingray
 		template < typename Types_ >
 		struct VariantObjectCreator
 		{
-			template < int Index_ >
+			template < size_t Index_ >
 			struct CreatorFunc
 			{
 				static void Call(int deserializedIndex, variant<Types_>& v)

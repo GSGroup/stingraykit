@@ -319,7 +319,7 @@ namespace stingray
 		template<typename Types_>
 		struct TypeToStringSerializer<Tuple<Types_>, TypeToStringObjectType::Other>
 		{
-			template <int Index>
+			template <size_t Index>
 			struct Helper
 			{
 				static void Call(string_ostream* result, const Tuple<Types_>* t)
