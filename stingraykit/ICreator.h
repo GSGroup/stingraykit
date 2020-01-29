@@ -64,38 +64,44 @@ namespace stingray
 
 #undef DETAIL_STINGRAYKIT_DECLARE_CONSTRUCTOR_CREATOR
 
+
 	template < typename InterfaceType, typename ClassType >
 	struct DefaultConstructorCreator : public virtual ICreator<InterfaceType>
 	{
-		virtual shared_ptr<InterfaceType> Create() const { return make_shared_ptr<ClassType>(); }
+		virtual shared_ptr<InterfaceType> Create() const
+		{ return make_shared_ptr<ClassType>(); }
 	};
 
 	template < typename InterfaceType, typename ClassType >
 	shared_ptr<DefaultConstructorCreator<InterfaceType, ClassType> > MakeConstructorCreator()
 	{ return make_shared_ptr<DefaultConstructorCreator<InterfaceType, ClassType> >(); }
 
-	template <typename ClassType >
-	struct SingleInstanceCreatorBase
+
+	namespace Detail
 	{
-	protected:
-		shared_ptr<ClassType> GetInstance() const
+		template <typename ClassType >
+		class SingleInstanceCreatorBase
 		{
-			static shared_ptr<ClassType> instance(make_shared_ptr<ClassType>());
-			return instance;
-		}
-	};
+		protected:
+			shared_ptr<ClassType> GetInstance() const
+			{
+				static shared_ptr<ClassType> instance(make_shared_ptr<ClassType>());
+				return instance;
+			}
+		};
+	}
+
 
 	template < typename InterfaceType, typename ClassType >
-	struct SingleInstanceCreator :
-		public virtual ICreator<InterfaceType>, private SingleInstanceCreatorBase<ClassType>	{
+	class SingleInstanceCreator : public virtual ICreator<InterfaceType>, private Detail::SingleInstanceCreatorBase<ClassType>
+	{
+		typedef Detail::SingleInstanceCreatorBase<ClassType> base;
+
+	public:
 		virtual shared_ptr<InterfaceType> Create() const
-		{
-			return this->GetInstance();
-		}
+		{ return base::GetInstance(); }
 	};
 
-
 }
-
 
 #endif
