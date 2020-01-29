@@ -8,8 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/Macro.h>
-
 #include <stddef.h>
 
 namespace stingray
@@ -18,30 +16,20 @@ namespace stingray
 	template < size_t Count, template <size_t> class FunctorClass, size_t Start = 0 >
 	struct For
 	{
-#define DETAIL_STINGRAYKIT_DECLARE_FOR_DO(N_, UserArg_) \
-		STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
-		static void Do(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
-		{ \
-			FunctorClass<Start>::Call(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
-			For<Count - 1, FunctorClass, Start + 1>:: STINGRAYKIT_INSERT_IF(N_, template) Do STINGRAYKIT_INSERT_IF(N_, <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE, T) STINGRAYKIT_INSERT_IF(N_, >) (STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T)); \
+		template < typename... Ts >
+		static void Do(const Ts&... args)
+		{
+			FunctorClass<Start>::Call(args...);
+			For<Count - 1, FunctorClass, Start + 1>::template Do<Ts...>(args...);
 		}
-
-		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_FOR_DO, ~)
-
-#undef DETAIL_STINGRAYKIT_DECLARE_FOR_DO
 	};
 
 	template < template <size_t> class FunctorClass, size_t Start >
 	struct For<0, FunctorClass, Start>
 	{
-#define DETAIL_STINGRAYKIT_DECLARE_FOR_DO(N_, UserArg_) \
-		STINGRAYKIT_INSERT_IF(N_, template <) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) STINGRAYKIT_INSERT_IF(N_, >) \
-		static void Do(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
+		template < typename... Ts >
+		static void Do(const Ts&...)
 		{ }
-
-		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_FOR_DO, ~)
-
-#undef DETAIL_STINGRAYKIT_DECLARE_FOR_DO
 	};
 
 }
