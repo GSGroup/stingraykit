@@ -58,7 +58,7 @@ namespace stingray
 		struct ConceptInvoker
 		{
 			static typename Concept_::RetType DoCall(TypeErasureBase* self, Ts... args)
-			{ return Concept_::Apply(static_cast<TypeErasureImpl_&>(*self), args...); }
+			{ return Concept_::Apply(static_cast<TypeErasureImpl_&>(*self), std::forward<Ts>(args)...); }
 		};
 
 
