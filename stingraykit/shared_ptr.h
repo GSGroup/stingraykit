@@ -96,8 +96,8 @@ namespace stingray
 
 		public:
 			template < typename... Ts >
-			InplaceSharedPtrData(const Ts&... args)
-			{ _storage.Ctor(args...); }
+			InplaceSharedPtrData(Ts&&... args)
+			{ _storage.Ctor(std::forward<Ts>(args)...); }
 
 			void Dispose()
 			{ _storage.Dtor(); }
@@ -125,8 +125,8 @@ namespace stingray
 			{ }
 
 			template < typename DataImpl_, typename... Ts >
-			DataImpl_* Allocate(const Ts&... args)
-			{ return _value.Allocate<DataImpl_>(args...); }
+			DataImpl_* Allocate(Ts&&... args)
+			{ return _value.Allocate<DataImpl_>(std::forward<Ts>(args)...); }
 
 			void AddWeakReference()
 			{
@@ -657,12 +657,12 @@ namespace stingray
 		typedef shared_ptr<ObjType> RetType;
 
 		template < typename... Ts >
-		shared_ptr<ObjType> operator () (const Ts&... args) const
+		shared_ptr<ObjType> operator () (Ts&&... args) const
 		{
-			(void)sizeof(new ObjType(args...)); // Testing the type for being abstract
+			(void)sizeof(new ObjType(std::forward<Ts>(args)...)); // Testing the type for being abstract
 
 			Detail::SharedPtrImpl impl;
-			Detail::InplaceSharedPtrData<ObjType>* data = impl.Allocate<Detail::InplaceSharedPtrData<ObjType>>(args...);
+			Detail::InplaceSharedPtrData<ObjType>* data = impl.Allocate<Detail::InplaceSharedPtrData<ObjType>>(std::forward<Ts>(args)...);
 
 			const shared_ptr<ObjType> result(data->Get(), impl);
 			Detail::SharedPtrRefCounter<ObjType>::LogAddRef(1, result.get(), &result);
@@ -673,8 +673,8 @@ namespace stingray
 
 
 	template < typename ObjType, typename... Ts >
-	shared_ptr<ObjType> make_shared_ptr(const Ts&... args)
-	{ return MakeShared<ObjType>()(args...); }
+	shared_ptr<ObjType> make_shared_ptr(Ts&&... args)
+	{ return MakeShared<ObjType>()(std::forward<Ts>(args)...); }
 
 
 	template < typename T >
