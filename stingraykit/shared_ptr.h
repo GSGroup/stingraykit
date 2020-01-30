@@ -143,6 +143,7 @@ namespace stingray
 
 		class SharedPtrImpl
 		{
+		private:
 			TypeErasure<TypeList<DisposeConcept>::type, ISharedPtrData>	_value;
 
 		public:
@@ -257,7 +258,9 @@ namespace stingray
 			}
 		};
 
+
 #undef DETAIL_STINGRAYKIT_SHAREDPTRIMPL_ALLOCATE
+
 
 		void DoLogAddRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal);
 		void DoLogReleaseRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal);
