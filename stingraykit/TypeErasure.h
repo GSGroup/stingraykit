@@ -93,11 +93,17 @@ namespace stingray
 		TypeErasure(const TypeErasure& other) : _data(other._data)
 		{ }
 
+		TypeErasure(TypeErasure&& other) : _data()
+		{ std::swap(_data, other._data); }
+
 		~TypeErasure()
 		{ }
 
 		TypeErasure& operator = (const TypeErasure& other)
 		{ _data = other._data; return *this; }
+
+		TypeErasure& operator = (TypeErasure&& other)
+		{ _data = null; std::swap(_data, other._data); return *this; }
 
 		template < typename Wrapped, typename... Ts >
 		Wrapped* Allocate(Ts&&... args)
