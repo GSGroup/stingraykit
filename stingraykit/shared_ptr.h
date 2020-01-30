@@ -14,7 +14,6 @@
 #include <stingraykit/aligned_storage.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/exception.h>
-#include <stingraykit/safe_bool.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
 
 namespace stingray
@@ -295,7 +294,7 @@ namespace stingray
 
 	/** @brief Simple shared_ptr implementation */
 	template < typename T >
-	class shared_ptr : public safe_bool<shared_ptr<T> >
+	class shared_ptr
 	{
 		template < typename U >
 		friend class weak_ptr;
@@ -388,7 +387,7 @@ namespace stingray
 		bool operator != (const shared_ptr& other) const		{ return !(*this == other); }
 
 		bool is_initialized() const								{ return _rawPtr != 0; }
-		bool boolean_test() const								{ return is_initialized(); }
+		explicit operator bool () const							{ return is_initialized(); }
 
 		weak_ptr<T> weak() const								{ return weak_ptr<T>(*this); }
 
