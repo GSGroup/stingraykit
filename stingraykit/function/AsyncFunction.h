@@ -106,8 +106,6 @@ namespace stingray
 			base(executor, func, tester)
 		{ }
 
-		TaskLifeToken GetToken() const { return this->_token; }
-
 		STINGRAYKIT_CONST_FORWARDING(typename base::RetType, operator (), Do)
 
 		std::string get_name() const
