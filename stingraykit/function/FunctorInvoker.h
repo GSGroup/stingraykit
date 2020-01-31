@@ -23,53 +23,34 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < size_t ParametersCount, bool IsMethod >
-		struct FunctorInvokerImpl;
-
-		template < > struct FunctorInvokerImpl<0, false>
+		template < typename FunctorType, FunctionType::Enum Type = function_type<FunctorType>::Type >
+		struct FunctorInvokerImpl
 		{
-			template < typename FunctorType, typename ParametersTuple >
-			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p)
-			{
-				//CompileTimeAssert<ParametersTuple::Size == 0> ERROR__invalid_number_of_parameters;
-				return func();
-			}
+			template < typename ParamsTuple >
+			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
+			{ return InvokeImpl(std::make_index_sequence<ParamsTuple::Size>(), func, params); }
+
+		private:
+			template < typename ParamsTuple, size_t... Index >
+			static typename function_info<FunctorType>::RetType InvokeImpl(std::index_sequence<Index...>, const FunctorType& func, const ParamsTuple& params)
+			{ return func(params.template Get<Index>()...); }
 		};
 
-#define DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(N, ...) \
-		template < > struct FunctorInvokerImpl<N, false> \
-		{ \
-			template < typename FunctorType, typename ParametersTuple > \
-			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p) \
-			{ \
-				/*CompileTimeAssert<ParametersTuple::Size == 0> ERROR__invalid_number_of_parameters;*/ \
-				return func(p.template Get<0>(), ##__VA_ARGS__);  \
-			} \
-		}; \
-		template < > struct FunctorInvokerImpl<N, true> \
-		{ \
-			template < typename FunctorType, typename ParametersTuple > \
-			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p) \
-			{ \
-				/*CompileTimeAssert<ParametersTuple::Size == 0> ERROR__invalid_number_of_parameters;*/ \
-				return (STINGRAYKIT_REQUIRE_NOT_NULL(to_pointer(p.template Get<0>()))->*func)(__VA_ARGS__);  \
-			} \
-		}
+		template < typename FunctorType >
+		struct FunctorInvokerImpl<FunctorType, FunctionType::MethodPtr>
+		{
+			template < typename ParamsTuple >
+			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
+			{
+				CompileTimeAssert<ParamsTuple::Size != 0> ERROR__invalid_number_of_parameters;
+				return InvokeImpl(std::make_index_sequence<ParamsTuple::Size - 1>(), func, params);
+			}
 
-#define P(N) p.template Get<N>()
-
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(1);
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(2, MK_PARAM(P(1)));
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(3, MK_PARAM(P(1), P(2)));
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(4, MK_PARAM(P(1), P(2), P(3)));
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(5, MK_PARAM(P(1), P(2), P(3), P(4)));
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(6, MK_PARAM(P(1), P(2), P(3), P(4), P(5)));
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(7, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6)));
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(8, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6), P(7)));
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(9, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6), P(7), P(8)));
-		DETAIL_STINGRAYKIT_DECLARE_FUNCTOR_INVOKER_IMPL(10, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9)));
-
-#undef P
+		private:
+			template < typename ParamsTuple, size_t... Index >
+			static typename function_info<FunctorType>::RetType InvokeImpl(std::index_sequence<Index...>, const FunctorType& func, const ParamsTuple& params)
+			{ return (STINGRAYKIT_REQUIRE_NOT_NULL(to_pointer(params.template Get<0>()))->*func)(params.template Get<Index + 1>()...); }
+		};
 
 	}
 
@@ -77,15 +58,8 @@ namespace stingray
 	struct FunctorInvoker
 	{
 		template < typename FunctorType, typename ParamsTuple >
-		static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& p)
-		{
-			return Detail::FunctorInvokerImpl
-				<
-					ParamsTuple::Size,
-					/*GetTypeListLength<typename function_info<FunctorType>::ParamTypes>::Value,*/
-					function_type<FunctorType>::Type == FunctionType::MethodPtr
-				>::template Invoke<FunctorType, ParamsTuple>(func, p);
-		}
+		static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
+		{ return Detail::FunctorInvokerImpl<FunctorType>::template Invoke<ParamsTuple>(func, params); }
 	};
 
 	/** @} */
