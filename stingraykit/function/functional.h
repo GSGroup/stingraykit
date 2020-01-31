@@ -34,7 +34,7 @@ namespace stingray
 			STINGRAYKIT_PERFECT_FORWARDING(bool, operator (), Do)
 
 		private:
-			template< typename ParamTypeList >
+			template < typename ParamTypeList >
 			bool Do(const Tuple<ParamTypeList>& params) const
 			{ return !FunctorInvoker::Invoke(_f, params); }
 		};
@@ -60,7 +60,7 @@ namespace stingray
 			STINGRAYKIT_PERFECT_FORWARDING(Ret, operator (), Do)
 
 		private:
-			template< typename ParamTypeList >
+			template < typename ParamTypeList >
 			Ret Do(const Tuple<ParamTypeList>& params) const
 			{ return -FunctorInvoker::Invoke(_f, params); }
 		};
@@ -76,7 +76,7 @@ namespace stingray
 		STINGRAYKIT_PERFECT_FORWARDING(void, operator (), Do)
 
 	private:
-		template< typename ParamTypeList >
+		template < typename ParamTypeList >
 		void Do(const Tuple<ParamTypeList>&) const { }
 	};
 
@@ -138,15 +138,15 @@ namespace stingray
 			Invoker(const FuncType& func) : _func(func) { }
 
 			template < typename Params >
-			typename FuncType::RetType operator() (const Tuple<Params>& params) const
+			typename FuncType::RetType operator () (const Tuple<Params>& params) const
 			{ return FunctorInvoker::Invoke(_func, params); }
 
 			template < typename Key, typename Value >
-			typename FuncType::RetType operator() (const std::pair<Key, Value>& pair) const
+			typename FuncType::RetType operator () (const std::pair<Key, Value>& pair) const
 			{ return _func(pair.first, pair.second); }
 
 			template < typename Key, typename Value >
-			typename FuncType::RetType operator() (const KeyValuePair<Key, Value>& pair) const
+			typename FuncType::RetType operator () (const KeyValuePair<Key, Value>& pair) const
 			{ return _func(pair.Key, pair.Value); }
 		};
 	}
