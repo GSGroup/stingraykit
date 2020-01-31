@@ -29,7 +29,7 @@ namespace stingray
 		template < > struct FunctorInvokerImpl<0, false>
 		{
 			template < typename FunctorType, typename ParametersTuple >
-			static inline typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p)
+			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p)
 			{
 				//CompileTimeAssert<ParametersTuple::Size == 0> ERROR__invalid_number_of_parameters;
 				return func();
@@ -40,7 +40,7 @@ namespace stingray
 		template < > struct FunctorInvokerImpl<N, false> \
 		{ \
 			template < typename FunctorType, typename ParametersTuple > \
-			static inline typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p) \
+			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p) \
 			{ \
 				/*CompileTimeAssert<ParametersTuple::Size == 0> ERROR__invalid_number_of_parameters;*/ \
 				return func(p.template Get<0>(), ##__VA_ARGS__);  \
@@ -49,7 +49,7 @@ namespace stingray
 		template < > struct FunctorInvokerImpl<N, true> \
 		{ \
 			template < typename FunctorType, typename ParametersTuple > \
-			static inline typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p) \
+			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParametersTuple& p) \
 			{ \
 				/*CompileTimeAssert<ParametersTuple::Size == 0> ERROR__invalid_number_of_parameters;*/ \
 				return (STINGRAYKIT_REQUIRE_NOT_NULL(to_pointer(p.template Get<0>()))->*func)(__VA_ARGS__);  \
@@ -77,7 +77,7 @@ namespace stingray
 	struct FunctorInvoker
 	{
 		template < typename FunctorType, typename ParamsTuple >
-		static inline typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& p)
+		static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& p)
 		{
 			return Detail::FunctorInvokerImpl
 				<

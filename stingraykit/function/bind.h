@@ -28,7 +28,7 @@ namespace stingray
 #define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
 	static inline BindPlaceholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_))()	{ return BindPlaceholder<Index_>(); }
 
-	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~)
+	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~);
 
 #undef DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER
 
@@ -63,7 +63,7 @@ namespace stingray
 		{
 			AbsentParamDummy() { }
 
-			template<typename T>
+			template < typename T >
 			AbsentParamDummy(const T&) { }
 		};
 
@@ -174,10 +174,10 @@ namespace stingray
 			{ return _allParams.template Get<IndexOfTypeListItem<BoundParamNumbers, IntToType<Index> >::Value>(); }
 		};
 
-		template<typename T>
+		template < typename T >
 		struct IsNotChomped : TrueType { };
 
-		template<size_t N>
+		template < size_t N >
 		struct IsNotChomped<Chomper<N> > : FalseType { };
 
 		template < typename AllParameters, typename FunctorType >
@@ -207,8 +207,7 @@ namespace stingray
 				{ }
 
 				template < size_t Index >
-				inline typename GetParamType<typename GetTypeListItem<RealRealParameters, Index>::ValueT, BinderParams>::ValueT
-				Get() const
+				typename GetParamType<typename GetTypeListItem<RealRealParameters, Index>::ValueT, BinderParams>::ValueT Get() const
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, _binderParams); }
 			};
 
@@ -226,10 +225,10 @@ namespace stingray
 			std::string get_name() const { return "{ binder: " + get_function_name(_func) + " }"; }
 
 		private:
-			static inline Tuple<BoundParams> GetBoundParams(const Tuple<AllParameters>& all)
+			static Tuple<BoundParams> GetBoundParams(const Tuple<AllParameters>& all)
 			{ return Tuple<BoundParams>::CreateFromTupleLikeObject(NonPlaceholdersCutter<AllParameters>(all)); }
 
-			template< typename ParamTypeList >
+			template < typename ParamTypeList >
 			RetType Do(const Tuple<ParamTypeList>& params) const
 			{
 				RealParameters<ParamTypeList> rp(_boundParams, params);
@@ -262,7 +261,7 @@ namespace stingray
 
 #undef TY
 
-	template<size_t N>
+	template < size_t N >
 	Detail::Chomper<N> not_using(BindPlaceholder<N>(*)()) { return Detail::Chomper<N>(); }
 
 	/** @} */

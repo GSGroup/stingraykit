@@ -22,7 +22,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template <typename FunctorType, bool HasReturnType = !IsSame<typename function_info<FunctorType>::RetType, void>::Value>
+		template < typename FunctorType, bool HasReturnType = !IsSame<typename function_info<FunctorType>::RetType, void>::Value >
 		class AsyncFunctionBase : public function_info<FunctorType>
 		{
 		public:
@@ -35,21 +35,21 @@ namespace stingray
 			FutureExecutionTester	_tester;
 
 		protected:
-			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func) :
-				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(null)
+			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func)
+				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(null)
 			{ }
 
-			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester) :
-				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
+			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
+				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
 
-			template <typename BoundFunctor>
+			template < typename BoundFunctor >
 			RetType DoAddTask(const BoundFunctor& func) const
 			{ _executor->AddTask(func, _tester); }
 		};
 
 
-		template <typename FunctorType>
+		template < typename FunctorType >
 		class AsyncFunctionBase<FunctorType, true> : public function_info<FunctorType>
 		{
 		public:
@@ -66,11 +66,11 @@ namespace stingray
 			TaskLifeToken			_token;
 
 		protected:
-			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func) :
-				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func)
+			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func)
+				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func)
 			{ }
 
-			template <typename BoundFunctor>
+			template < typename BoundFunctor >
 			RetType DoAddTask(const BoundFunctor& func) const
 			{
 				const PromiseTypePtr promise = make_shared_ptr<PromiseType>();
@@ -79,7 +79,7 @@ namespace stingray
 			}
 
 		private:
-			template <typename BoundFunctor>
+			template < typename BoundFunctor >
 			static void FuncWrapper(const BoundFunctor& func, const PromiseTypePtr& promise)
 			{
 				try
@@ -91,45 +91,43 @@ namespace stingray
 	}
 
 
-	template <typename FunctorType>
+	template < typename FunctorType >
 	class AsyncFunction : public Detail::AsyncFunctionBase<FunctorType>
 	{
-		typedef Detail::AsyncFunctionBase<FunctorType>	base;
+		typedef Detail::AsyncFunctionBase<FunctorType>	BaseType;
 
 	public:
-		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func) :
-			base(executor, func)
+		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func)
+			: BaseType(executor, func)
 		{ }
 
-		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester) :
-			base(executor, func, tester)
+		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
+			: BaseType(executor, func, tester)
 		{ }
 
-		STINGRAYKIT_CONST_FORWARDING(typename base::RetType, operator (), Do)
+		STINGRAYKIT_CONST_FORWARDING(typename BaseType::RetType, operator (), Do)
 
 		std::string get_name() const
 		{ return "{ AsyncFunction: " + get_function_name(this->_func) + " }"; }
 
 	private:
-		template< typename ParamTypeList >
-		typename base::RetType Do(const Tuple<ParamTypeList>& params) const
-		{ return base::DoAddTask(Detail::Binder<typename TypeListTransform<ParamTypeList, RemoveReference>::ValueT, FunctorType>(this->_func, params)); }
+		template < typename ParamTypeList >
+		typename BaseType::RetType Do(const Tuple<ParamTypeList>& params) const
+		{ return BaseType::DoAddTask(Detail::Binder<typename TypeListTransform<ParamTypeList, RemoveReference>::ValueT, FunctorType>(this->_func, params)); }
 	};
 
 
-	template <typename FunctorType>
+	template < typename FunctorType >
 	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func)
 	{ return AsyncFunction<FunctorType>(executor, func); }
 
 
-	template <typename FunctorType>
+	template < typename FunctorType >
 	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
 	{ return AsyncFunction<FunctorType>(executor, func, tester); }
 
 	/** @} */
 
 }
-
-
 
 #endif

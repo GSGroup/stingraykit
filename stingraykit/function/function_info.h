@@ -40,11 +40,11 @@ namespace stingray
 #define TY typename
 
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
-	struct function_info;
+	struct function_type;
 
 
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
-	struct function_type;
+	struct function_info;
 
 
 	struct UnspecifiedParamTypes;
@@ -122,7 +122,7 @@ namespace stingray
 		typedef R Signature(C*, T1);
 	};
 	template < typename C, typename R, typename T1 >
-	struct function_info<R (C::*)(T1) const, NullType>  : function_type<R (C::*)(T1) const>, public std::binary_function<const C*, T1, R>
+	struct function_info<R (C::*)(T1) const, NullType> : function_type<R (C::*)(T1) const>, public std::binary_function<const C*, T1, R>
 	{
 		typedef R							RetType;
 		typedef typename TypeList<const C*, T1>::type	ParamTypes;
@@ -159,7 +159,7 @@ namespace stingray
 		typedef R Signature(C*, T1, T2);
 	};
 	template < typename C, typename R, typename T1, typename T2 >
-	struct function_info<R (C::*)(T1, T2) const, NullType>  : function_type<R (C::*)(T1, T2) const>
+	struct function_info<R (C::*)(T1, T2) const, NullType> : function_type<R (C::*)(T1, T2) const>
 	{
 		typedef R											RetType;
 		typedef typename TypeList<const C*, T1, T2>::type	ParamTypes;
@@ -197,7 +197,7 @@ namespace stingray
 		typedef R Signature(C*, ParamTypes_); \
 	}; \
 	template < typename C, typename R, ParamTypenames_ > \
-	struct function_info<R (C::*)(ParamTypes_) const, NullType>  : function_type<R (C::*)(ParamTypes_) const> \
+	struct function_info<R (C::*)(ParamTypes_) const, NullType> : function_type<R (C::*)(ParamTypes_) const> \
 	{ \
 		typedef R												RetType; \
 		typedef typename TypeList<const C*, ParamTypes_>::type	ParamTypes; \
@@ -216,20 +216,20 @@ namespace stingray
 #undef DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO
 
 
-///////////////////////////
-// for toolkit::function //
-///////////////////////////
+////////////////////////////
+// for stingray::function //
+////////////////////////////
 
 	template < typename Signature_ >
 	class function;
 
 	template < typename Signature_ >
-	struct function_type<function<Signature_>, NullType >
+	struct function_type<function<Signature_>, NullType>
 	{ static const FunctionType::Enum Type = FunctionType::GSFunction; };
 
 
 	template < typename Signature_ >
-	struct function_info<function<Signature_>, NullType > : public function_type<function<Signature_> >
+	struct function_info<function<Signature_>, NullType> : public function_type<function<Signature_> >
 	{
 		typedef typename function_info<Signature_>::RetType		RetType;
 		typedef typename function_info<Signature_>::ParamTypes	ParamTypes;
@@ -450,7 +450,5 @@ namespace stingray
 	/** @} */
 
 }
-
-
 
 #endif

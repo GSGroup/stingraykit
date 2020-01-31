@@ -28,17 +28,18 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		struct IInvokableBase : public self_counter<IInvokableBase>
 		{
 			struct VTable
 			{
-				typedef void DtorFunc(IInvokableBase *self);
+				typedef void DtorFunc(IInvokableBase* self);
 				typedef void InvokeFunc(void);
-				typedef std::string GetNameFunc(const IInvokableBase *self);
+				typedef std::string GetNameFunc(const IInvokableBase* self);
 
-				typedef InvokeFunc *	InvokePtr;
-				typedef DtorFunc *		DtorFuncPtr;
-				typedef GetNameFunc *	GetNameFuncPtr;
+				typedef InvokeFunc*		InvokePtr;
+				typedef DtorFunc*		DtorFuncPtr;
+				typedef GetNameFunc*	GetNameFuncPtr;
 
 				DtorFuncPtr		Dtor;
 				InvokePtr		Invoke;
@@ -47,23 +48,24 @@ namespace stingray
 				VTable(DtorFuncPtr dtor, InvokePtr invoke, GetNameFuncPtr getName) : Dtor(dtor), Invoke(invoke), GetName(getName) { }
 			};
 			typedef VTable GetVTableFunc();
-			GetVTableFunc	*_getVTable;
+			GetVTableFunc*	_getVTable;
 
-			inline IInvokableBase(GetVTableFunc* func) : _getVTable(func) {}
-			inline ~IInvokableBase() { _getVTable().Dtor(this); }
+			IInvokableBase(GetVTableFunc* func) : _getVTable(func) { }
+			~IInvokableBase() { _getVTable().Dtor(this); }
 		};
+
 
 		template < typename Signature_ >
 		struct IInvokable : public IInvokableBase
 		{
-			typedef IInvokableBase									base;
+			typedef IInvokableBase									BaseType;
 			typedef Signature_										Signature;
 			typedef typename function_info<Signature>::RetType		RetType;
 			typedef typename function_info<Signature>::ParamTypes	ParamTypes;
 
-			typedef RetType InvokeFunc(IInvokable *self, const Tuple<ParamTypes>& p);
+			typedef RetType InvokeFunc(IInvokable* self, const Tuple<ParamTypes>& p);
 
-			inline IInvokable(GetVTableFunc* func) : base(func) {}
+			IInvokable(GetVTableFunc* func) : BaseType(func) { }
 		};
 
 
@@ -84,26 +86,27 @@ namespace stingray
 			FunctorType	_func;
 
 		public:
-			inline Invokable(const FunctorType& func)
+			Invokable(const FunctorType& func)
 				: BaseType(&MyType::GetVTable), _func(func)
-			{}
+			{ }
 
-			static inline VTable GetVTable()
+			static VTable GetVTable()
 			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke), &MyType::GetName); }
 
 		protected:
-			inline typename BaseType::RetType DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
+			typename BaseType::RetType DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
 			{ return FunctorInvoker::Invoke(_func, p); }
 
-			static inline typename BaseType::RetType Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ return static_cast<MyType *>(self)->DoInvoke(p); }
+			static typename BaseType::RetType Invoke(BaseType* self, const Tuple<typename BaseType::ParamTypes>& p)
+			{ return static_cast<MyType*>(self)->DoInvoke(p); }
 
-			static inline void Dtor(IInvokableBase *self)
-			{ static_cast<MyType *>(self)->_func.~FunctorType(); }
+			static void Dtor(IInvokableBase* self)
+			{ static_cast<MyType*>(self)->_func.~FunctorType(); }
 
-			static std::string GetName(const IInvokableBase *self)
-			{ return get_function_name(static_cast<const MyType *>(self)->_func); }
+			static std::string GetName(const IInvokableBase* self)
+			{ return get_function_name(static_cast<const MyType*>(self)->_func); }
 		};
+
 
 		template < typename Signature, typename FunctorType >
 		class Invokable<Signature, FunctorType, false> : public IInvokable<Signature>
@@ -122,30 +125,29 @@ namespace stingray
 			FunctorType	_func;
 
 		public:
-			inline Invokable(const FunctorType& func)
+			Invokable(const FunctorType& func)
 				: BaseType(&MyType::GetVTable), _func(func)
-			{}
+			{ }
 
-			static inline VTable GetVTable()
+			static VTable GetVTable()
 			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke), &MyType::GetName); }
 
 		protected:
-			inline void DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
+			void DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
 			{ FunctorInvoker::Invoke(_func, p); }
 
-			static inline void Invoke(BaseType *self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ static_cast<MyType *>(self)->DoInvoke(p); }
+			static void Invoke(BaseType* self, const Tuple<typename BaseType::ParamTypes>& p)
+			{ static_cast<MyType*>(self)->DoInvoke(p); }
 
-			static inline void Dtor(IInvokableBase *self)
-			{ static_cast<MyType *>(self)->_func.~FunctorType(); }
+			static void Dtor(IInvokableBase* self)
+			{ static_cast<MyType*>(self)->_func.~FunctorType(); }
 
-			static std::string GetName(const IInvokableBase *self)
-			{ return get_function_name(static_cast<const MyType *>(self)->_func); }
+			static std::string GetName(const IInvokableBase* self)
+			{ return get_function_name(static_cast<const MyType*>(self)->_func); }
 		};
 
 	}
 
-	class function_storage;
 
 	template < typename Signature >
 	class function_base : public function_info<Signature>
@@ -162,17 +164,17 @@ namespace stingray
 		InvokableTypePtr	_invokable;
 
 	protected:
-		inline ~function_base()
+		~function_base()
 		{ }
 
 		template < typename FunctorType >
-		inline function_base(const FunctorType& func) :
-			_invokable(new Detail::Invokable<Signature, FunctorType>(func))
+		function_base(const FunctorType& func)
+			: _invokable(new Detail::Invokable<Signature, FunctorType>(func))
 		{ }
 
-		inline RetType Invoke(const Tuple<ParamTypes>& p) const
+		RetType Invoke(const Tuple<ParamTypes>& p) const
 		{
-			InvokeFunc *func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
+			InvokeFunc* func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
 			return func(_invokable.get(), p);
 		}
 
@@ -184,38 +186,41 @@ namespace stingray
 		{ }
 	};
 
+
 	template < typename RetType, typename ParamTypes, size_t ParamCount = GetTypeListLength<ParamTypes>::Value >
 	struct FunctionConstructor;
+
 
 	template < typename R >
 	class function<R()> : public function_base<R()>
 	{
 		typedef function_base<R()> BaseType;
+		typedef typename BaseType::InvokableTypePtr InvokableTypePtr;
+
+		friend class function_storage;
+
+	private:
+		function(const InvokableTypePtr& invokable, Dummy dummy) : BaseType(invokable, dummy)
+		{ }
 
 	public:
 		template < typename FunctorType >
-		inline function(const FunctorType& func)
+		function(const FunctorType& func)
 			: function_base<R()>(func)
 		{ }
 
-		inline R operator ()() const
+		R operator () () const
 		{
 			Tuple<TypeList<>::type> p;
 			return this->Invoke(p);
 		}
-
-	private:
-		friend class function_storage;
-		typedef typename BaseType::InvokableTypePtr InvokableTypePtr;
-		function(const InvokableTypePtr& invokable, Dummy dummy) : BaseType(invokable, dummy)
-		{ }
-
-		//STINGRAYKIT_NONASSIGNABLE(function); //This will break ActionTransaction and swig, and never actually was here. Uncomment it and fix all operator= for functions
 	};
+
 
 	template < typename RetType, typename ParamTypes >
 	struct FunctionConstructor<RetType, ParamTypes, 0>
 	{ typedef function<RetType()> 	ValueT; };
+
 
 #define TY typename
 #define PT(N_) typename GetTypeListItem<ParamTypes, N_ - 1>::ValueT
@@ -225,28 +230,26 @@ namespace stingray
 	class function<R(ParamTypes_)> : public function_base<R(ParamTypes_)> \
 	{ \
 		typedef function_base<R(ParamTypes_)> BaseType; \
+		typedef typename BaseType::InvokableTypePtr InvokableTypePtr; \
+		friend class function_storage; \
+	private: \
+		function(const InvokableTypePtr& invokable, Dummy dummy) : BaseType(invokable, dummy) \
+		{ } \
 	public: \
 		template < typename FunctorType > \
 		function(const FunctorType& func) \
 			: function_base<R(ParamTypes_)>(func) \
 		{ } \
 		\
-		inline R operator ()(ParamDecl_) const \
+		R operator () (ParamDecl_) const \
 		{  \
 			Tuple<typename TypeList<ParamTypes_>::type> p(ParamUsage_); \
 			return this->Invoke(p); \
 		} \
-	private: \
-		friend class function_storage; \
-		typedef typename BaseType::InvokableTypePtr InvokableTypePtr; \
-		function(const InvokableTypePtr& invokable, Dummy dummy) : BaseType(invokable, dummy) \
-		{ } \
 	}; \
 	template < typename RetType, typename ParamTypes > \
 	struct FunctionConstructor<RetType, ParamTypes, ParamsCount_ > \
 	{ typedef function<RetType(ParamsFromTypeList_)>	ValueT; }
-
-	//Please do not set inline to inline above, this will cause recursive force-inlining, which is incompatible with some compilers
 
 	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1), MK_PARAM(PT(1)));
 	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2), MK_PARAM(PT(1), PT(2)));
@@ -268,11 +271,11 @@ namespace stingray
 		self_count_ptr<Detail::IInvokableBase>	_invokable;
 
 	public:
-		template<typename Signature>
-		explicit function_storage(const function<Signature> &func) : _invokable(func._invokable)
+		template < typename Signature >
+		explicit function_storage(const function<Signature>& func) : _invokable(func._invokable)
 		{ }
 
-		template<typename Signature>
+		template < typename Signature >
 		function<Signature> ToFunction() const
 		{
 			typedef typename function<Signature>::InvokableTypePtr TargetInvokablePtr;

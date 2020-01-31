@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/function/function.h>
-#include <stingraykit/Tuple.h>
 
 namespace stingray
 {
@@ -26,20 +25,20 @@ namespace stingray
 		class ArgumentPacker;
 
 #define DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(N, Args_, Usage_) \
-		\
-		template <typename Signature> class ArgumentPacker<N, Signature> : public function_info<Signature> \
+		template < typename Signature > \
+		class ArgumentPacker<N, Signature> : public function_info<Signature> \
 		{ \
 		public: \
 			typedef typename function_info<Signature>::RetType		RetType; \
 			typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
 			typedef Tuple<ParamTypes>								TupleType; \
-			typedef function<RetType (const TupleType &)>			FuncType; \
+			typedef function<RetType (const TupleType&)>			FuncType; \
 		private: \
 			FuncType _func; \
 		public: \
-			ArgumentPacker(const FuncType &func) : _func(func) {} \
+			ArgumentPacker(const FuncType& func) : _func(func) {} \
 			\
-			RetType operator() (Args_) const \
+			RetType operator () (Args_) const \
 			{ return _func(TupleType(Usage_)); } \
 		} \
 
@@ -62,8 +61,8 @@ namespace stingray
 #undef DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER
 	}
 
-	template<typename Signature>
-	function<Signature> PackArguments(const function<void (const Tuple<typename function_info<Signature>::ParamTypes> &) > &func)
+	template < typename Signature >
+	function<Signature> PackArguments(const function<void (const Tuple<typename function_info<Signature>::ParamTypes>&)>& func)
 	{
 		typedef const Tuple<typename function_info<Signature>::ParamTypes> TupleType;
 		return function<Signature>(Detail::ArgumentPacker<TupleType::Size, Signature>(func));
