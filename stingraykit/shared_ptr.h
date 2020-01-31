@@ -75,12 +75,14 @@ namespace stingray
 		template < typename T, typename Deleter >
 		class DeleterSharedPtrData : public ISharedPtrData
 		{
+			typedef typename Decay<Deleter>::ValueT DeleterType;
+
 		private:
-			T*		_ptr;
-			Deleter	_deleter;
+			T*			_ptr;
+			DeleterType	_deleter;
 
 		public:
-			DeleterSharedPtrData(T* ptr, const Deleter& deleter) : _ptr(ptr), _deleter(deleter)
+			DeleterSharedPtrData(T* ptr, Deleter&& deleter) : _ptr(ptr), _deleter(std::forward<Deleter>(deleter))
 			{ }
 
 			void Dispose()
@@ -117,6 +119,9 @@ namespace stingray
 
 		class SharedPtrImpl
 		{
+			STINGRAYKIT_DEFAULTCOPYABLE(SharedPtrImpl);
+			STINGRAYKIT_DEFAULTMOVABLE(SharedPtrImpl);
+
 		private:
 			TypeErasure<TypeList<DisposeConcept>::type, ISharedPtrData>	_value;
 
@@ -274,8 +279,12 @@ namespace stingray
 		Detail::SharedPtrImpl	_impl;
 
 	private:
-		shared_ptr(T* rawPtr, const Detail::SharedPtrImpl& impl)
+		shared_ptr(T* rawPtr, const Detail::SharedPtrImpl& impl, const Dummy&)
 			: _rawPtr(rawPtr), _impl(impl)
+		{ }
+
+		shared_ptr(T* rawPtr, Detail::SharedPtrImpl&& impl, const Dummy&)
+			: _rawPtr(rawPtr), _impl(std::move(impl))
 		{ }
 
 	public:
@@ -289,9 +298,9 @@ namespace stingray
 		}
 
 		template < typename Deleter >
-		shared_ptr(T* rawPtr, const Deleter& deleter) : _rawPtr(rawPtr)
+		shared_ptr(T* rawPtr, Deleter&& deleter) : _rawPtr(rawPtr)
 		{
-			_impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(rawPtr, deleter);
+			_impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(rawPtr, std::forward<Deleter>(deleter));
 			LogAddRef(1);
 		}
 
@@ -305,16 +314,31 @@ namespace stingray
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
 
+		shared_ptr(shared_ptr<T>&& other)
+			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
+		{ other._rawPtr = null; }
+
 		template < typename U >
 		shared_ptr(const shared_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
+
+		template < typename U >
+		shared_ptr(shared_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
+		{ other._rawPtr = null; }
 
 		/// @brief: Aliasing constuctor - similar to standard one
 		template < typename U >
 		shared_ptr(const shared_ptr<U>& other, T* ptr)
 			: _rawPtr(ptr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
+
+		/// @brief: Aliasing constuctor - similar to standard one from C++20
+		template < typename U >
+		shared_ptr(shared_ptr<U>&& other, T* ptr)
+			: _rawPtr(ptr), _impl(std::move(other._impl))
+		{ other._rawPtr = null; }
 
 		~shared_ptr()
 		{ LogReleaseRef(_impl.ReleaseStrongReference()); }
@@ -334,10 +358,25 @@ namespace stingray
 			return *this;
 		}
 
+		shared_ptr& operator = (shared_ptr&& other)
+		{
+			shared_ptr tmp(std::move(other));
+			swap(tmp);
+			return *this;
+		}
+
 		template < typename U >
 		typename EnableIf<IsInherited<U, T>::Value, shared_ptr&>::ValueT operator = (const shared_ptr<U>& other)
 		{
 			shared_ptr tmp(other);
+			swap(tmp);
+			return *this;
+		}
+
+		template < typename U >
+		typename EnableIf<IsInherited<U, T>::Value, shared_ptr&>::ValueT operator = (shared_ptr<U>&& other)
+		{
+			shared_ptr tmp(std::move(other));
 			swap(tmp);
 			return *this;
 		}
@@ -388,7 +427,6 @@ namespace stingray
 		T* get() const				{ return _rawPtr; }
 		T* operator -> () const		{ check_ptr(); return _rawPtr; }
 		T& operator * () const		{ check_ptr(); return *_rawPtr; }
-
 
 		template < typename U >
 		bool owner_before(const shared_ptr<U>& other) const
@@ -451,10 +489,19 @@ namespace stingray
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
 
+		weak_ptr(weak_ptr&& other)
+			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
+		{ other._rawPtr = null; }
+
 		template < typename U >
 		weak_ptr(const weak_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
+
+		template < typename U >
+		weak_ptr(weak_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
+		{ other._rawPtr = null; }
 
 		~weak_ptr()
 		{ _impl.ReleaseWeakReference(); }
@@ -462,6 +509,13 @@ namespace stingray
 		weak_ptr& operator = (const weak_ptr& other)
 		{
 			weak_ptr tmp(other);
+			swap(tmp);
+			return *this;
+		}
+
+		weak_ptr& operator = (weak_ptr&& other)
+		{
+			weak_ptr tmp(std::move(other));
 			swap(tmp);
 			return *this;
 		}
@@ -482,6 +536,14 @@ namespace stingray
 			return *this;
 		}
 
+		template < typename U >
+		typename EnableIf<IsInherited<U, T>::Value, weak_ptr&>::ValueT operator = (weak_ptr<U>&& other)
+		{
+			weak_ptr tmp(std::move(other));
+			swap(tmp);
+			return *this;
+		}
+
 		shared_ptr<T> lock() const
 		{
 			const u32 sc = _impl.TryAddStrongReference();
@@ -491,7 +553,7 @@ namespace stingray
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::LogAddRef(sc, _rawPtr, this);
 
-			return shared_ptr<T>(_rawPtr, _impl);
+			return shared_ptr<T>(_rawPtr, _impl, Dummy());
 		}
 
 		void reset()
@@ -664,7 +726,7 @@ namespace stingray
 			Detail::SharedPtrImpl impl;
 			Detail::InplaceSharedPtrData<ObjType>* data = impl.Allocate<Detail::InplaceSharedPtrData<ObjType>>(std::forward<Ts>(args)...);
 
-			const shared_ptr<ObjType> result(data->Get(), impl);
+			const shared_ptr<ObjType> result(data->Get(), std::move(impl), Dummy());
 			Detail::SharedPtrRefCounter<ObjType>::LogAddRef(1, result.get(), &result);
 
 			return result;
