@@ -82,7 +82,6 @@ namespace stingray
 			template <typename BoundFunctor>
 			static void FuncWrapper(const BoundFunctor& func, const PromiseTypePtr& promise)
 			{
-				STINGRAYKIT_REQUIRE_NOT_NULL(promise);
 				try
 				{ promise->set_value(func()); }
 				catch (const std::exception& ex)
