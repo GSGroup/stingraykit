@@ -43,9 +43,6 @@ namespace stingray
 				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
 
-			~AsyncFunctionBase()
-			{ }
-
 			template <typename BoundFunctor>
 			RetType DoAddTask(const BoundFunctor& func) const
 			{ _executor->AddTask(func, _tester); }
@@ -71,9 +68,6 @@ namespace stingray
 		protected:
 			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func) :
 				_executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func)
-			{ }
-
-			~AsyncFunctionBase()
 			{ }
 
 			template <typename BoundFunctor>
