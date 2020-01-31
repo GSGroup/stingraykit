@@ -355,10 +355,10 @@ namespace stingray
 
 
 		template < typename Range_, typename Functor_ >
-		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstReference<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category>
+		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category>
 		{
 			typedef RangeTransformer<Range_, Functor_> Self;
-			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstReference<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category> base;
+			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category> base;
 
 		public:
 			static const bool ReturnsTemporary = true;

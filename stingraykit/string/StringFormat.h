@@ -84,7 +84,7 @@ namespace stingray
 	static std::string StringFormat(const std::string& format, ParamsDecl_) \
 	{ \
 		string_ostream ss; \
-		typedef typename TypeListTransform<TypeList<TypesUsage_>, AddConstReference>::ValueT TupleParams; \
+		typedef typename TypeListTransform<TypeList<TypesUsage_>, AddConstLvalueReference>::ValueT TupleParams; \
 		Detail::StringFormatImpl(ss, Split(format, "%"), Tuple<TupleParams>(ParamsUsage_)); \
 		return ss.str(); \
 	}

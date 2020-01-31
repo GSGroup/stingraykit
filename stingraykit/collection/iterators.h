@@ -65,7 +65,7 @@ namespace stingray
 		struct GetMapKeysIteratorPointedType
 		{
 			typedef typename RemoveReference<typename IterType::value_type::first_type>::ValueT DerefKeyType;
-			typedef typename If<IsConstReference<typename IterType::reference>::Value, const DerefKeyType, DerefKeyType>::ValueT ValueT;
+			typedef typename If<IsNonConstLvalueReference<typename IterType::reference>::Value, DerefKeyType, const DerefKeyType>::ValueT ValueT;
 		};
 
 
@@ -73,7 +73,7 @@ namespace stingray
 		struct GetMapValuesIteratorPointedType
 		{
 			typedef typename RemoveReference<typename IterType::value_type::second_type>::ValueT DerefValueType;
-			typedef typename If<IsConstReference<typename IterType::reference>::Value, const DerefValueType, DerefValueType>::ValueT ValueT;
+			typedef typename If<IsNonConstLvalueReference<typename IterType::reference>::Value, DerefValueType, const DerefValueType>::ValueT ValueT;
 		};
 	}
 

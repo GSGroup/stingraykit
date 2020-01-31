@@ -53,7 +53,7 @@ namespace stingray
 		T		_value;
 
 	public:
-		OneItemEnumerator(typename AddConstReference<T>::ValueT value)
+		OneItemEnumerator(typename AddConstLvalueReference<T>::ValueT value)
 			: _valid(true), _value(value)
 		{ }
 
@@ -175,7 +175,7 @@ namespace stingray
 		T		_value;
 
 	public:
-		OneItemEnumerable(typename AddConstReference<T>::ValueT value)
+		OneItemEnumerable(typename AddConstLvalueReference<T>::ValueT value)
 			: _value(value)
 		{ }
 

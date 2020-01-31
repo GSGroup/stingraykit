@@ -21,10 +21,18 @@
 namespace stingray
 {
 
-	template < typename T > struct IsConstReference									: integral_constant<bool, IsReference<T>::Value && IsConst<typename RemoveReference<T>::ValueT>::Value> { };
-	template < typename T > struct IsNonConstReference								: integral_constant<bool, IsReference<T>::Value && !IsConstReference<T>::Value> { };
+	template < typename T > struct IsConstLvalueReference							: integral_constant<bool, IsLvalueReference<T>::Value && IsConst<typename RemoveReference<T>::ValueT>::Value> { };
+	template < typename T > struct IsNonConstLvalueReference						: integral_constant<bool, IsLvalueReference<T>::Value && !IsConst<typename RemoveReference<T>::ValueT>::Value> { };
 
-	template < typename T > struct AddConstReference								{ typedef typename AddReference<typename AddConst<T>::ValueT>::ValueT ValueT; };
+	template < typename T > struct IsConstRvalueReference							: integral_constant<bool, IsRvalueReference<T>::Value && IsConst<typename RemoveReference<T>::ValueT>::Value> { };
+	template < typename T > struct IsNonConstRvalueReference						: integral_constant<bool, IsRvalueReference<T>::Value && !IsConst<typename RemoveReference<T>::ValueT>::Value> { };
+
+	template < typename T > struct IsConstReference									: integral_constant<bool, IsConstLvalueReference<T>::Value || IsConstRvalueReference<T>::Value> { };
+	template < typename T > struct IsNonConstReference								: integral_constant<bool, IsNonConstLvalueReference<T>::Value || IsNonConstRvalueReference<T>::Value> { };
+
+	template < typename T > struct AddConstLvalueReference							{ typedef typename AddLvalueReference<typename AddConst<T>::ValueT>::ValueT ValueT; };
+	template < typename T > struct AddConstRvalueReference							{ typedef typename AddRvalueReference<typename AddConst<T>::ValueT>::ValueT ValueT; };
+
 	template < typename T > struct AddConstPointer									{ typedef typename AddPointer<typename AddConst<T>::ValueT>::ValueT ValueT; };
 
 	template < typename T > struct RemoveCVReference								{ typedef typename RemoveCV<typename RemoveReference<T>::ValueT>::ValueT ValueT; };

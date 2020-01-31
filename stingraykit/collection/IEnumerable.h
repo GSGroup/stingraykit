@@ -130,7 +130,7 @@ namespace stingray
 	class EnumerableWrapper : public virtual IEnumerable<DestType>
 	{
 		typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
-		typedef typename AddConstReference<SrcType>::ValueT			ConstSrcTypeRef;
+		typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
 		typedef function< bool(ConstSrcTypeRef) >					FilterPredicate;
 		typedef function< DestType (ConstSrcTypeRef) >				Caster;
 
@@ -182,7 +182,7 @@ namespace stingray
 			class CastProxy : public EnumerableWrapper<SrcType, DestType>
 			{
 				typedef EnumerableWrapper<SrcType, DestType>				base;
-				typedef typename AddConstReference<SrcType>::ValueT		ConstSrcTypeRef;
+				typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
 
 			public:
 				CastProxy(const SrcEnumerablePtr& srcEnumerable) : base(srcEnumerable, &CastProxy::Cast, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>())

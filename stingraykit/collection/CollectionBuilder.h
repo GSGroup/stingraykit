@@ -30,14 +30,14 @@ namespace stingray
 		template < typename CollectionType, bool HasPushBack = HasMethod_push_back<CollectionType>::Value>
 		struct CollectionInserter
 		{
-			static void Insert(CollectionType& collection, typename AddConstReference<typename CollectionType::value_type>::ValueT val)
+			static void Insert(CollectionType& collection, typename AddConstLvalueReference<typename CollectionType::value_type>::ValueT val)
 			{ collection.push_back(val); }
 		};
 
 		template < typename CollectionType >
 		struct CollectionInserter<CollectionType, false>
 		{
-			static void Insert(CollectionType& collection, typename AddConstReference<typename CollectionType::value_type>::ValueT val)
+			static void Insert(CollectionType& collection, typename AddConstLvalueReference<typename CollectionType::value_type>::ValueT val)
 			{ collection.insert(val); }
 		};
 	}
@@ -47,7 +47,7 @@ namespace stingray
 	class CollectionBuilder
 	{
 	public:
-		typedef typename AddConstReference<typename CollectionType::value_type>::ValueT ArgType;
+		typedef typename AddConstLvalueReference<typename CollectionType::value_type>::ValueT ArgType;
 
 	private:
 		CollectionType		_collection;

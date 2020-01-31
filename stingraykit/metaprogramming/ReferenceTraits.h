@@ -13,14 +13,28 @@
 namespace stingray
 {
 
-	template < typename T > struct IsReference										: FalseType	{ };
-	template < typename T > struct IsReference<T&>									: TrueType	{ };
+	template < typename T > struct IsLvalueReference								: FalseType	{ };
+	template < typename T > struct IsLvalueReference<T&>							: TrueType	{ };
+
+	template < typename T > struct IsRvalueReference								: FalseType	{ };
+	template < typename T > struct IsRvalueReference<T&&>							: TrueType	{ };
+
+	template < typename T > struct IsReference										: integral_constant<bool, IsLvalueReference<T>::Value || IsRvalueReference<T>::Value> { };
 
 	template < typename T > struct RemoveReference									{ typedef T ValueT; };
 	template < typename T > struct RemoveReference<T&>								{ typedef T ValueT; };
+	template < typename T > struct RemoveReference<T&&>								{ typedef T ValueT; };
 
-	template < typename T > struct AddReference										{ typedef T& ValueT; };
-	template < typename T > struct AddReference<T&>									{ typedef T& ValueT; };
+	template < typename T > struct AddLvalueReference								{ typedef T& ValueT; };
+	template < > struct AddLvalueReference<void>									{ typedef void ValueT; };
+	template < > struct AddLvalueReference<const void>								{ typedef const void ValueT; };
+	template < typename T > struct AddLvalueReference<T&>							{ typedef T& ValueT; };
+	template < typename T > struct AddLvalueReference<T&&>							{ typedef T& ValueT; };
+
+	template < typename T > struct AddRvalueReference								{ typedef T&& ValueT; };
+	template < > struct AddRvalueReference<void>									{ typedef void ValueT; };
+	template < > struct AddRvalueReference<const void>								{ typedef const void ValueT; };
+	template < typename T > struct AddRvalueReference<T&&>							{ typedef T&& ValueT; };
 
 }
 
