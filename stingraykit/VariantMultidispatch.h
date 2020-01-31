@@ -10,7 +10,6 @@
 
 
 #include <stingraykit/Tuple.h>
-#include <stingraykit/static_visitor.h>
 #include <stingraykit/variant.h>
 
 

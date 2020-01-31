@@ -11,7 +11,6 @@
 #include <stingraykit/MultiStorageFor.h>
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/fatal.h>
-#include <stingraykit/static_visitor.h>
 
 #include <typeinfo>
 
@@ -40,6 +39,11 @@ namespace stingray
 
 		virtual const char* what() const throw() { return _message.c_str(); }
 	};
+
+
+	template < typename ResultType = void >
+	struct static_visitor : public function_info<ResultType, UnspecifiedParamTypes>
+	{ };
 
 
 	namespace Detail
