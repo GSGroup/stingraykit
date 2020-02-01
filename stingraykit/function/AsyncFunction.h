@@ -43,16 +43,14 @@ namespace stingray
 			: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 		{ }
 
-		STINGRAYKIT_CONST_FORWARDING(RetType, operator (), Do)
+		template < typename... Ts >
+		RetType operator () (const Ts&... args) const
+		{ return DoAddTask<RawRetType>(Bind(_func, args...)); }
 
 		std::string get_name() const
 		{ return "{ AsyncFunction: " + get_function_name(_func) + " }"; }
 
 	private:
-		template < typename ParamTypeList >
-		RetType Do(const Tuple<ParamTypeList>& params) const
-		{ return DoAddTask<RawRetType>(Detail::Binder<FunctorType, typename TypeListTransform<ParamTypeList, RemoveReference>::ValueT>(_func, params)); }
-
 		template < typename RetType_ >
 		typename EnableIf<IsSame<RetType_, void>::Value, RetType_>::ValueT DoAddTask(const function<RetType_ ()>& func) const
 		{ _executor->AddTask(func, _tester); }
