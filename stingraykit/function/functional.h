@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/KeyValuePair.h>
 #include <stingraykit/function/function_info.h>
-#include <stingraykit/PerfectForwarding.h>
 
 namespace stingray
 {
@@ -32,12 +31,9 @@ namespace stingray
 			NotFunc(const FuncType& func) : _func(func)
 			{ }
 
-			STINGRAYKIT_PERFECT_FORWARDING(bool, operator (), Do)
-
-		private:
-			template < typename ParamTypeList >
-			bool Do(const Tuple<ParamTypeList>& params) const
-			{ return !FunctorInvoker::Invoke(_func, params); }
+			template < typename... Ts >
+			bool operator () (Ts&&... args) const
+			{ return !FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...); }
 		};
 	}
 
@@ -61,12 +57,9 @@ namespace stingray
 			NegateFunc(const FuncType& func) : _func(func)
 			{ }
 
-			STINGRAYKIT_PERFECT_FORWARDING(RetType, operator (), Do)
-
-		private:
-			template < typename ParamTypeList >
-			RetType Do(const Tuple<ParamTypeList>& params) const
-			{ return -FunctorInvoker::Invoke(_func, params); }
+			template < typename... Ts >
+			RetType operator () (Ts&&... args) const
+			{ return -FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...); }
 		};
 	}
 
@@ -75,14 +68,10 @@ namespace stingray
 	{ return Detail::NegateFunc<FuncType>(func); }
 
 
-	class NopFunctor : public function_info<void, UnspecifiedParamTypes>
+	struct NopFunctor : public function_info<void, UnspecifiedParamTypes>
 	{
-	public:
-		STINGRAYKIT_PERFECT_FORWARDING(void, operator (), Do)
-
-	private:
-		template < typename ParamTypeList >
-		void Do(const Tuple<ParamTypeList>&) const { }
+		template < typename... Ts >
+		void operator () (Ts&&... args) const { }
 	};
 
 
@@ -121,11 +110,9 @@ namespace stingray
 		public:
 			explicit Identity(T&& value) : _value(std::forward<T>(value)) { }
 
-			STINGRAYKIT_PERFECT_FORWARDING(Type, operator (), Do)
-
-		private:
-			template < typename Params_ >
-			Type Do(const Tuple<Params_>&) const { return _value; }
+			template < typename... Ts >
+			Type operator () (Ts&&...) const
+			{ return _value; }
 		};
 	}
 
