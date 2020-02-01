@@ -30,10 +30,14 @@ namespace stingray
 			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
 			{ return InvokeImpl(std::make_index_sequence<ParamsTuple::Size>(), func, params); }
 
+			template < typename... Ts >
+			static typename function_info<FunctorType>::RetType InvokeArgs(const FunctorType& func, Ts&&... args)
+			{ return func(std::forward<Ts>(args)...); }
+
 		private:
 			template < typename ParamsTuple, size_t... Index >
 			static typename function_info<FunctorType>::RetType InvokeImpl(std::index_sequence<Index...>, const FunctorType& func, const ParamsTuple& params)
-			{ return func(params.template Get<Index>()...); }
+			{ return InvokeArgs(func, params.template Get<Index>()...); }
 		};
 
 		template < typename FunctorType >
@@ -43,13 +47,17 @@ namespace stingray
 			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
 			{
 				CompileTimeAssert<ParamsTuple::Size != 0> ERROR__invalid_number_of_parameters;
-				return InvokeImpl(std::make_index_sequence<ParamsTuple::Size - 1>(), func, params);
+				return InvokeImpl(std::make_index_sequence<ParamsTuple::Size>(), func, params);
 			}
+
+			template < typename This, typename... Ts >
+			static typename function_info<FunctorType>::RetType InvokeArgs(const FunctorType& func, This&& thisObj, Ts&&... args)
+			{ return (STINGRAYKIT_REQUIRE_NOT_NULL(to_pointer(std::forward<This>(thisObj)))->*func)(std::forward<Ts>(args)...); }
 
 		private:
 			template < typename ParamsTuple, size_t... Index >
 			static typename function_info<FunctorType>::RetType InvokeImpl(std::index_sequence<Index...>, const FunctorType& func, const ParamsTuple& params)
-			{ return (STINGRAYKIT_REQUIRE_NOT_NULL(to_pointer(params.template Get<0>()))->*func)(params.template Get<Index + 1>()...); }
+			{ return InvokeArgs(func, params.template Get<Index>()...); }
 		};
 
 	}
@@ -60,6 +68,10 @@ namespace stingray
 		template < typename FunctorType, typename ParamsTuple >
 		static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
 		{ return Detail::FunctorInvokerImpl<FunctorType>::template Invoke<ParamsTuple>(func, params); }
+
+		template < typename FunctorType, typename... Ts >
+		static typename function_info<FunctorType>::RetType InvokeArgs(const FunctorType& func, Ts&&... args)
+		{ return Detail::FunctorInvokerImpl<FunctorType>::template InvokeArgs<Ts...>(func, std::forward<Ts>(args)...); }
 	};
 
 	/** @} */
