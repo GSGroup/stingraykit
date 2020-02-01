@@ -98,7 +98,7 @@ namespace stingray
 			explicit Assigner(T& ref) : _ref(ref) { }
 
 			template < typename V >
-			T& operator () (const V& v) const { return _ref = v; }
+			T& operator () (V&& v) const { return _ref = std::forward<V>(v); }
 		};
 	}
 
@@ -112,31 +112,34 @@ namespace stingray
 		template < typename T >
 		class Identity : public function_info<T, UnspecifiedParamTypes>
 		{
+		public:
+			typedef typename Decay<T>::ValueT Type;
+
 		private:
-			T	_value;
+			Type	_value;
 
 		public:
-			explicit Identity(const T& value) : _value(value) { }
+			explicit Identity(T&& value) : _value(std::forward<T>(value)) { }
 
-			STINGRAYKIT_PERFECT_FORWARDING(T, operator (), Do)
+			STINGRAYKIT_PERFECT_FORWARDING(Type, operator (), Do)
 
 		private:
 			template < typename Params_ >
-			T Do(const Tuple<Params_>&) const { return _value; }
+			Type Do(const Tuple<Params_>&) const { return _value; }
 		};
 	}
 
 	template < typename T >
-	Detail::Identity<T> make_identity(const T& value)
-	{ return Detail::Identity<T>(value); }
+	Detail::Identity<T> make_identity(T&& value)
+	{ return Detail::Identity<T>(std::forward<T>(value)); }
 
 
 	template < typename Result_ >
 	struct MakeInstance : public function_info<Result_, UnspecifiedParamTypes>
 	{
 		template < typename... Ts >
-		Result_ operator () (const Ts&... args) const
-		{ return Result_(args...); }
+		Result_ operator () (Ts&&... args) const
+		{ return Result_(std::forward<Ts>(args)...); }
 	};
 
 
