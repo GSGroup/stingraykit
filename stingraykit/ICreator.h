@@ -38,7 +38,9 @@ namespace stingray
 		Tuple<ParamTypes>	_params;
 
 	public:
-		ConstructorCreator(const Ts&... args) : _params(args...) { }
+		template < typename... Us >
+		ConstructorCreator(Us&&... args) : _params(std::forward<Us>(args)...)
+		{ CompileTimeAssert<sizeof...(Ts) == sizeof...(Us)> ERROR__invalid_number_of_parameters; }
 
 		virtual shared_ptr<InterfaceType> Create() const
 		{ return FunctorInvoker::Invoke(MakeShared<ClassType>(), _params); }
@@ -46,8 +48,8 @@ namespace stingray
 
 
 	template < typename InterfaceType, typename ClassType, typename... Ts >
-	shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts... > > MakeConstructorCreator(const Ts&... args)
-	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...> >(args...); }
+	shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts... > > MakeConstructorCreator(Ts&&... args)
+	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...> >(std::forward<Ts>(args)...); }
 
 
 	namespace Detail
