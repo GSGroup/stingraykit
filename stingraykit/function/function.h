@@ -69,15 +69,17 @@ namespace stingray
 		};
 
 
-		template < typename Signature, typename FunctorType, bool HasReturnType = !IsSame<typename function_info<Signature>::RetType, void>::Value >
+		template < typename Signature, typename FunctorType >
 		class Invokable : public IInvokable<Signature>
 		{
 			STINGRAYKIT_NONCOPYABLE(Invokable);
 
 		private:
-			typedef IInvokable<Signature>		BaseType;
-			typedef typename BaseType::VTable	VTable;
-			typedef Invokable<Signature, FunctorType, HasReturnType> MyType;
+			typedef IInvokable<Signature>				BaseType;
+			typedef typename BaseType::RetType			RetType;
+			typedef typename BaseType::ParamTypes		ParamTypes;
+			typedef typename BaseType::VTable			VTable;
+			typedef Invokable<Signature, FunctorType>	MyType;
 
 		public:
 			typedef typename BaseType::InvokeFunc InvokeFunc;
@@ -94,50 +96,16 @@ namespace stingray
 			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke), &MyType::GetName); }
 
 		protected:
-			typename BaseType::RetType DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
+			template < typename RetType_ >
+			RetType_ DoInvoke(const Tuple<ParamTypes>& p, typename EnableIf<!IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0)
 			{ return FunctorInvoker::Invoke(_func, p); }
 
-			static typename BaseType::RetType Invoke(BaseType* self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ return static_cast<MyType*>(self)->DoInvoke(p); }
-
-			static void Dtor(IInvokableBase* self)
-			{ static_cast<MyType*>(self)->_func.~FunctorType(); }
-
-			static std::string GetName(const IInvokableBase* self)
-			{ return get_function_name(static_cast<const MyType*>(self)->_func); }
-		};
-
-
-		template < typename Signature, typename FunctorType >
-		class Invokable<Signature, FunctorType, false> : public IInvokable<Signature>
-		{
-			STINGRAYKIT_NONCOPYABLE(Invokable);
-
-		private:
-			typedef IInvokable<Signature>		BaseType;
-			typedef typename BaseType::VTable	VTable;
-			typedef Invokable<Signature, FunctorType, false> MyType;
-
-		public:
-			typedef typename BaseType::InvokeFunc InvokeFunc;
-
-		private:
-			FunctorType	_func;
-
-		public:
-			Invokable(const FunctorType& func)
-				: BaseType(&MyType::GetVTable), _func(func)
-			{ }
-
-			static VTable GetVTable()
-			{ return VTable(&MyType::Dtor, reinterpret_cast<typename VTable::InvokePtr>(&MyType::Invoke), &MyType::GetName); }
-
-		protected:
-			void DoInvoke(const Tuple<typename BaseType::ParamTypes>& p)
+			template < typename RetType_ >
+			RetType_ DoInvoke(const Tuple<ParamTypes>& p, typename EnableIf<IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0)
 			{ FunctorInvoker::Invoke(_func, p); }
 
-			static void Invoke(BaseType* self, const Tuple<typename BaseType::ParamTypes>& p)
-			{ static_cast<MyType*>(self)->DoInvoke(p); }
+			static RetType Invoke(BaseType* self, const Tuple<ParamTypes>& p)
+			{ return static_cast<MyType*>(self)->template DoInvoke<RetType>(p); }
 
 			static void Dtor(IInvokableBase* self)
 			{ static_cast<MyType*>(self)->_func.~FunctorType(); }
