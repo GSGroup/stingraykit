@@ -21,52 +21,36 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < size_t ArgumentCount, typename Signature>
-		class ArgumentPacker;
+		template < typename Signature >
+		class ArgumentPacker : public function_info<Signature>
+		{
+		public:
+			typedef typename function_info<Signature>::RetType		RetType;
+			typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+			typedef Tuple<ParamTypes>								TupleType;
+			typedef function<RetType (const TupleType&)>			FuncType;
 
-#define DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(N, Args_, Usage_) \
-		template < typename Signature > \
-		class ArgumentPacker<N, Signature> : public function_info<Signature> \
-		{ \
-		public: \
-			typedef typename function_info<Signature>::RetType		RetType; \
-			typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
-			typedef Tuple<ParamTypes>								TupleType; \
-			typedef function<RetType (const TupleType&)>			FuncType; \
-		private: \
-			FuncType _func; \
-		public: \
-			ArgumentPacker(const FuncType& func) : _func(func) {} \
-			\
-			RetType operator () (Args_) const \
-			{ return _func(TupleType(Usage_)); } \
-		} \
+		private:
+			FuncType _func;
 
+		public:
+			ArgumentPacker(const FuncType& func) : _func(func) { }
 
-#define P(N) const typename GetTypeListItem<ParamTypes, N - 1>::ValueT & p##N
+			template < typename... Ts >
+			RetType operator () (const Ts&... args) const
+			{ return Do(std::make_index_sequence<TupleType::Size>(), args...); }
 
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(0, /**/, /**/);
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(1, MK_PARAM(P(1)), MK_PARAM(p1));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(2, MK_PARAM(P(1), P(2)), MK_PARAM(p1, p2));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(3, MK_PARAM(P(1), P(2), P(3)), MK_PARAM(p1, p2, p3));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(4, MK_PARAM(P(1), P(2), P(3), P(4)), MK_PARAM(p1, p2, p3, p4));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(5, MK_PARAM(P(1), P(2), P(3), P(4), P(5)), MK_PARAM(p1, p2, p3, p4, p5));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(6, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6)), MK_PARAM(p1, p2, p3, p4, p5, p6));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(7, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6), P(7)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(8, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6), P(7), P(8)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(9, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9));
-		DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER(10, MK_PARAM(P(1), P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9), P(10)), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10));
+		private:
+			template < size_t... Index >
+			RetType Do(std::index_sequence<Index...>, const typename GetTypeListItem<ParamTypes, Index>::ValueT&... args) const
+			{ return _func(TupleType(args...)); }
+		};
 
-#undef P
-#undef DETAIL_STINGRAYKIT_DECLARE_ARGUMENT_PACKER
 	}
 
 	template < typename Signature >
 	function<Signature> PackArguments(const function<typename function_info<Signature>::RetType (const Tuple<typename function_info<Signature>::ParamTypes>&)>& func)
-	{
-		typedef const Tuple<typename function_info<Signature>::ParamTypes> TupleType;
-		return function<Signature>(Detail::ArgumentPacker<TupleType::Size, Signature>(func));
-	}
+	{ return Detail::ArgumentPacker<Signature>(func); }
 
 	/** @} */
 
