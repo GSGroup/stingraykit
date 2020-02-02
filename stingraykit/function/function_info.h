@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/function/SignatureBuilder.h>
-#include <stingraykit/Macro.h>
 
 #include <functional>
 
@@ -39,8 +38,6 @@ namespace stingray
 
 #ifndef DOXYGEN_PREPROCESSOR
 
-#define TY typename
-
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_type;
 
@@ -53,94 +50,52 @@ namespace stingray
 // for raw functions and methods //
 ///////////////////////////////////
 
-	template < typename R > struct function_type<R(), NullType>
+	template < typename R, typename... Ts > struct function_type<R (Ts...), NullType>
 	{ static const FunctionType::Enum Type = FunctionType::RawFunction; };
-	template < typename R > struct function_type<R(*)(), NullType>
+
+	template < typename R, typename... Ts >
+	struct function_info<R (Ts...), NullType> : function_type<R (Ts...)>
+	{
+		typedef R								RetType;
+		typedef typename TypeList<Ts...>::type	ParamTypes;
+		typedef R Signature(Ts...);
+	};
+
+
+	template < typename R, typename... Ts > struct function_type<R (*)(Ts...), NullType>
 	{ static const FunctionType::Enum Type = FunctionType::RawFunctionPtr; };
-	template < typename C, typename R > struct function_type<R (C::*)(), NullType>
+
+	template < typename R, typename... Ts >
+	struct function_info<R (*)(Ts...), NullType> : function_type<R (*)(Ts...)>
+	{
+		typedef R								RetType;
+		typedef typename TypeList<Ts...>::type	ParamTypes;
+		typedef R Signature(Ts...);
+	};
+
+
+	template < typename C, typename R, typename... Ts > struct function_type<R (C::*)(Ts...), NullType>
 	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
-	template < typename C, typename R > struct function_type<R (C::*)() const, NullType>
+
+	template < typename C, typename R, typename... Ts >
+	struct function_info<R (C::*)(Ts...), NullType> : function_type<R (C::*)(Ts...)>
+	{
+		typedef R									RetType;
+		typedef typename TypeList<C*, Ts...>::type	ParamTypes;
+		typedef R Signature(C*, Ts...);
+	};
+
+
+	template < typename C, typename R, typename... Ts > struct function_type<R (C::*)(Ts...) const, NullType>
 	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
-	template < typename R >
-	struct function_info<R(), NullType> : public function_type<R()>
-	{
-		typedef R					RetType;
-		typedef TypeList<>::type	ParamTypes;
-		typedef R Signature();
-	};
-	template < typename R >
-	struct function_info<R(*)(), NullType> : public function_type<R(*)()>
-	{
-		typedef R					RetType;
-		typedef TypeList<>::type	ParamTypes;
-		typedef R Signature();
-	};
-	template < typename C, typename R >
-	struct function_info<R (C::*)(), NullType> : public function_type<R (C::*)()>
-	{
-		typedef R				RetType;
-		typedef typename TypeList<C*>::type	ParamTypes;
-		typedef R Signature(C*);
-	};
-	template < typename C, typename R >
-	struct function_info<R (C::*)() const, NullType> : public function_type<R (C::*)() const>
-	{
-		typedef R						RetType;
-		typedef typename TypeList<const C*>::type	ParamTypes;
-		typedef R Signature(const C*);
-	};
 
-
-#define DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(ParamTypenames_, ParamTypes_) \
-	template < typename R, ParamTypenames_ > struct function_type<R(ParamTypes_), NullType> \
-	{ static const FunctionType::Enum Type = FunctionType::RawFunction; }; \
-	template < typename R, ParamTypenames_ > struct function_type<R(*)(ParamTypes_), NullType> \
-	{ static const FunctionType::Enum Type = FunctionType::RawFunctionPtr; }; \
-	template < typename C, typename R, ParamTypenames_ > struct function_type<R (C::*)(ParamTypes_), NullType> \
-	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; }; \
-	template < typename C, typename R, ParamTypenames_ > struct function_type<R (C::*)(ParamTypes_) const, NullType> \
-	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; }; \
-	template < typename R, ParamTypenames_ > \
-	struct function_info<R(ParamTypes_), NullType> : function_type<R(ParamTypes_)> \
-	{ \
-		typedef R										RetType; \
-		typedef typename TypeList<ParamTypes_>::type	ParamTypes; \
-		typedef R Signature(ParamTypes_); \
-	}; \
-	template < typename R, ParamTypenames_ > \
-	struct function_info<R(*)(ParamTypes_), NullType> : function_type<R(*)(ParamTypes_)> \
-	{ \
-		typedef R										RetType; \
-		typedef typename TypeList<ParamTypes_>::type	ParamTypes; \
-		typedef R Signature(ParamTypes_); \
-	}; \
-	template < typename C, typename R, ParamTypenames_ > \
-	struct function_info<R (C::*)(ParamTypes_), NullType> : function_type<R (C::*)(ParamTypes_)> \
-	{ \
-		typedef R											RetType; \
-		typedef typename TypeList<C*, ParamTypes_>::type	ParamTypes; \
-		typedef R Signature(C*, ParamTypes_); \
-	}; \
-	template < typename C, typename R, ParamTypenames_ > \
-	struct function_info<R (C::*)(ParamTypes_) const, NullType> : function_type<R (C::*)(ParamTypes_) const> \
-	{ \
-		typedef R												RetType; \
-		typedef typename TypeList<const C*, ParamTypes_>::type	ParamTypes; \
-		typedef R Signature(const C*, ParamTypes_); \
-	}
-
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1), MK_PARAM(T1));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1, T2, T3, T4, T5, T6));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1, T2, T3, T4, T5, T6, T7));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10));
-
-#undef DETAIL_STINGRAYKIT_DECLARE_FUNCTION_INFO
+	template < typename C, typename R, typename... Ts >
+	struct function_info<R (C::*)(Ts...) const, NullType> : function_type<R (C::*)(Ts...) const>
+	{
+		typedef R											RetType;
+		typedef typename TypeList<const C*, Ts...>::type	ParamTypes;
+		typedef R Signature(const C*, Ts...);
+	};
 
 
 ////////////////////////////
@@ -284,9 +239,6 @@ namespace stingray
 		typedef ParamTypes_													ParamTypes;
 		typedef typename SignatureBuilder<RetType_, ParamTypes_>::ValueT	Signature;
 	};
-
-
-#undef TY
 
 #else
 
