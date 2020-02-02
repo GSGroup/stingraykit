@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/Macro.h>
 #include <stingraykit/toolkit.h>
 
 namespace stingray
@@ -23,31 +22,16 @@ namespace stingray
 	struct UnspecifiedParamTypes;
 
 
-	namespace Detail
-	{
-
-		template < size_t ParamsCount, typename RetType, typename ParamTypes >
-		struct SignatureBuilderImpl;
-
-#define DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS(ParamNumber_, TypeListName_) STINGRAYKIT_COMMA_IF(ParamNumber_) typename GetTypeListItem<TypeListName_, ParamNumber_>::ValueT
-#define DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER(ParamsCount_, UserData_) \
-		template < typename RetType, typename ParamTypes > \
-		struct SignatureBuilderImpl<ParamsCount_, RetType, ParamTypes> \
-		{ \
-			typedef RetType 		ValueT(STINGRAYKIT_REPEAT(ParamsCount_, DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS, ParamTypes)); \
-		};
-
-		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER, ~)
-
-#undef DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER
-#undef DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS
-
-	}
-
-
 	template < typename RetType, typename ParamTypes, bool AllSpecified = !IsSame<RetType, UnspecifiedRetType>::Value && !IsSame<ParamTypes, UnspecifiedParamTypes>::Value >
 	struct SignatureBuilder
-	{ typedef typename Detail::SignatureBuilderImpl<GetTypeListLength<ParamTypes>::Value, RetType, ParamTypes>::ValueT ValueT; };
+	{
+	private:
+		template < size_t... Index >
+		static auto Deduce(std::index_sequence<Index...>) -> RetType (*)(typename GetTypeListItem<ParamTypes, Index>::ValueT...);
+
+	public:
+		typedef typename RemoveReference<decltype(*Deduce(std::make_index_sequence<GetTypeListLength<ParamTypes>::Value>()))>::ValueT ValueT;
+	};
 
 
 	template < typename RetType, typename ParamTypes >
