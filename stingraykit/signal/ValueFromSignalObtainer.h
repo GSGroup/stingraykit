@@ -9,10 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/CollectionBuilder.h>
-#include <stingraykit/function/function_info.h>
 #include <stingraykit/signal/signal_connector.h>
-#include <stingraykit/optional.h>
-#include <stingraykit/shared_ptr.h>
 #include <stingraykit/unique_ptr.h>
 
 namespace stingray

@@ -10,7 +10,8 @@
 
 #include <stingraykit/signal/signal_connector.h>
 
-namespace stingray {
+namespace stingray
+{
 
 	/**
 	 * @addtogroup toolkit_functions
