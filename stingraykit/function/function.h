@@ -187,10 +187,6 @@ namespace stingray
 	};
 
 
-	template < typename RetType, typename ParamTypes, size_t ParamCount = GetTypeListLength<ParamTypes>::Value >
-	struct FunctionConstructor;
-
-
 	template < typename R >
 	class function<R()> : public function_base<R()>
 	{
@@ -217,11 +213,6 @@ namespace stingray
 	};
 
 
-	template < typename RetType, typename ParamTypes >
-	struct FunctionConstructor<RetType, ParamTypes, 0>
-	{ typedef function<RetType()> 	ValueT; };
-
-
 #define TY typename
 #define PT(N_) typename GetTypeListItem<ParamTypes, N_ - 1>::ValueT
 
@@ -246,10 +237,7 @@ namespace stingray
 			Tuple<typename TypeList<ParamTypes_>::type> p(ParamUsage_); \
 			return this->Invoke(p); \
 		} \
-	}; \
-	template < typename RetType, typename ParamTypes > \
-	struct FunctionConstructor<RetType, ParamTypes, ParamsCount_ > \
-	{ typedef function<RetType(ParamsFromTypeList_)>	ValueT; }
+	}
 
 	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1), MK_PARAM(PT(1)));
 	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2), MK_PARAM(PT(1), PT(2)));

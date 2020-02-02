@@ -316,7 +316,7 @@ namespace stingray
 		template < typename StringsTuple, typename ParamsList >
 		class CmdHandler : public virtual ICommandHandler
 		{
-			typedef typename FunctionConstructor<void, ParamsList>::ValueT	HandlerFunc;
+			typedef function<typename SignatureBuilder<void, ParamsList>::ValueT> HandlerFunc;
 
 			template < size_t N >
 			struct StringsParser
