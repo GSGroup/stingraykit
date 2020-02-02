@@ -196,18 +196,6 @@ namespace stingray
 				);
 		};
 
-		template < typename RetType_, typename ParamTypes_, size_t ParamsCount = GetTypeListLength<ParamTypes_>::Value >
-		struct StdSomethingnaryFunctionMixin
-		{ };
-
-		template < typename RetType_, typename ParamTypes_ >
-		struct StdSomethingnaryFunctionMixin<RetType_, ParamTypes_, 1> : public std::unary_function<typename GetTypeListItem<ParamTypes_, 0>::ValueT, RetType_>
-		{ };
-
-		template < typename RetType_, typename ParamTypes_ >
-		struct StdSomethingnaryFunctionMixin<RetType_, ParamTypes_, 2> : public std::binary_function<typename GetTypeListItem<ParamTypes_, 0>::ValueT, typename GetTypeListItem<ParamTypes_, 1>::ValueT, RetType_>
-		{ };
-
 		template < typename F, int StlFunctorNumArguments = GetStlFunctorNumArguments<F>::Value >
 		struct std_function_type;
 
@@ -218,7 +206,7 @@ namespace stingray
 		{ static const FunctionType::Enum Type = FunctionType::StdFunction; };
 
 		template < typename F >
-		struct std_function_info<F, 1> : public std_function_type<F>, public std::unary_function<typename F::argument_type, typename F::result_type>
+		struct std_function_info<F, 1> : public std_function_type<F>
 		{
 			typedef typename F::result_type									RetType;
 			typedef typename TypeList<typename F::argument_type>::type		ParamTypes;
@@ -229,7 +217,7 @@ namespace stingray
 		{ static const FunctionType::Enum Type = FunctionType::StdFunction; };
 
 		template < typename F >
-		struct std_function_info<F, 2> : public std_function_type<F>, public std::binary_function<typename F::first_argument_type, typename F::second_argument_type, typename F::result_type>
+		struct std_function_info<F, 2> : public std_function_type<F>
 		{
 			typedef typename F::result_type									RetType;
 			typedef typename TypeList<typename F::first_argument_type,
@@ -293,7 +281,7 @@ namespace stingray
 
 
 	template < typename RetType_, typename ParamTypes_ >
-	struct function_info : public function_type<RetType_, ParamTypes_>, public Detail::StdSomethingnaryFunctionMixin<RetType_, ParamTypes_>
+	struct function_info : public function_type<RetType_, ParamTypes_>
 	{
 		typedef RetType_													RetType;
 		typedef ParamTypes_													ParamTypes;
