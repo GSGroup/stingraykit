@@ -10,7 +10,6 @@
 
 #include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/function/function_name_getter.h>
-#include <stingraykit/PerfectForwarding.h>
 
 namespace stingray
 {
@@ -236,17 +235,18 @@ namespace stingray
 				: _func(func), _boundParams(TupleConstructorTag(), NonPlaceholdersCutter<AllParameters>(allParams))
 			{ }
 
-			STINGRAYKIT_PERFECT_FORWARDING(RetType, operator(), Do)
-
-			std::string get_name() const { return "{ binder: " + get_function_name(_func) + " }"; }
-
-		private:
-			template < typename ParamTypeList >
-			RetType Do(const Tuple<ParamTypeList>& params) const
+			template < typename... Us >
+			RetType operator () (Us&&... args) const
 			{
-				RealParameters<ParamTypeList> rp(_boundParams, params);
+				typedef typename TypeList<Us...>::type BinderParams;
+
+				const Tuple<BinderParams> params(std::forward<Us>(args)...);
+				const RealParameters<BinderParams> rp(_boundParams, params);
+
 				return FunctorInvoker::Invoke(_func, rp);
 			}
+
+			std::string get_name() const { return "{ binder: " + get_function_name(_func) + " }"; }
 		};
 
 	}
