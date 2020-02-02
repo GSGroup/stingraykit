@@ -11,6 +11,8 @@
 #include <stingraykit/function/SignatureBuilder.h>
 #include <stingraykit/Macro.h>
 
+#include <functional>
+
 namespace stingray
 {
 
@@ -155,6 +157,24 @@ namespace stingray
 
 	template < typename Signature_ >
 	struct function_info<function<Signature_>, NullType> : public function_type<function<Signature_> >
+	{
+		typedef typename function_info<Signature_>::RetType		RetType;
+		typedef typename function_info<Signature_>::ParamTypes	ParamTypes;
+		typedef typename function_info<Signature_>::Signature	Signature;
+	};
+
+
+///////////////////////
+// for std::function //
+///////////////////////
+
+	template < typename Signature_ >
+	struct function_type<std::function<Signature_>, NullType>
+	{ static const FunctionType::Enum Type = FunctionType::StdFunction; };
+
+
+	template < typename Signature_ >
+	struct function_info<std::function<Signature_>, NullType> : public function_type<function<Signature_> >
 	{
 		typedef typename function_info<Signature_>::RetType		RetType;
 		typedef typename function_info<Signature_>::ParamTypes	ParamTypes;
