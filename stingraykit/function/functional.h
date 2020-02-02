@@ -104,7 +104,7 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename T >
-		class Identity : public function_info<T ()>
+		class Identity : public function_info<T, UnspecifiedParamTypes>
 		{
 		private:
 			T	_value;
