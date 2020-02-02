@@ -62,7 +62,7 @@ namespace stingray
 	}
 
 	template < typename Signature >
-	function<Signature> PackArguments(const function<void (const Tuple<typename function_info<Signature>::ParamTypes>&)>& func)
+	function<Signature> PackArguments(const function<typename function_info<Signature>::RetType (const Tuple<typename function_info<Signature>::ParamTypes>&)>& func)
 	{
 		typedef const Tuple<typename function_info<Signature>::ParamTypes> TupleType;
 		return function<Signature>(Detail::ArgumentPacker<TupleType::Size, Signature>(func));
