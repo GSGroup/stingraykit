@@ -53,7 +53,7 @@ namespace stingray
 		};
 
 	public:
-		class value_compare : public std::binary_function<value_type, value_type, bool>
+		class value_compare : public function_info<bool (value_type, value_type)>
 		{
 			friend class flat_map;
 
