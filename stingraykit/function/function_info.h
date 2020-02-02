@@ -314,7 +314,6 @@ namespace stingray
 		struct std_function_type<F, -1>
 		{ static const FunctionType::Enum Type = FunctionType::Other; };
 
-		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(RetType);
 		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(ParamTypes);
 
 		template < typename F, bool HasParamTypes = HasNestedType_ParamTypes<F>::Value >
