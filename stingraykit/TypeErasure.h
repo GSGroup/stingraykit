@@ -128,7 +128,7 @@ namespace stingray
 		const size_t ConceptIndex = IndexOfTypeListItem<AllConcepts, Concept_>::Value; \
 		TypeErasureBase::DetypedFunctionPtr virtualFunc = vTable(ConceptIndex); \
 		typedef typename TypeListPrepend<typename Concept_::ParamTypes, TypeErasureBase*>::ValueT AllParams; \
-		typedef typename Detail::SignatureBuilder<typename Concept_::RetType, AllParams>::ValueT Signature; \
+		typedef typename SignatureBuilder<typename Concept_::RetType, AllParams>::ValueT Signature; \
 		return reinterpret_cast<Signature*>(virtualFunc)(_data STINGRAYKIT_COMMA_IF(ParamsCount_) STINGRAYKIT_REPEAT_NESTING_2(ParamsCount_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
 	}
 

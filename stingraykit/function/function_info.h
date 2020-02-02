@@ -8,8 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/function/SignatureBuilder.h>
 #include <stingraykit/Macro.h>
-#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
@@ -45,9 +45,6 @@ namespace stingray
 
 	template < typename FuncOrRetType, typename OptionalParamTypes = NullType >
 	struct function_info;
-
-
-	struct UnspecifiedParamTypes;
 
 
 ///////////////////////////////////
@@ -244,38 +241,6 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < size_t ParamsCount, typename RetType_, typename ParamTypes_ >
-		struct SignatureBuilderImpl;
-
-#define DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS(ParamNumber_, TypeListName_) STINGRAYKIT_COMMA_IF(ParamNumber_) typename GetTypeListItem<TypeListName_, ParamNumber_>::ValueT
-#define DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER(ParamsCount_, UserData_) \
-		template < typename RetType_, typename ParamTypes_ > \
-		struct SignatureBuilderImpl<ParamsCount_, RetType_, ParamTypes_> \
-		{ \
-			typedef RetType_ 		ValueT(STINGRAYKIT_REPEAT(ParamsCount_, DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS, ParamTypes_)); \
-		};
-
-		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER, ~)
-
-#undef DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER
-#undef DETAIL_STINGRAYKIT_DECLARE_SIGNATURE_BUILDER_ENUM_PARAMS
-
-
-		template < typename RetType_, typename ParamTypes_ >
-		struct SignatureBuilder
-		{ typedef typename SignatureBuilderImpl<GetTypeListLength<ParamTypes_>::Value, RetType_, ParamTypes_>::ValueT ValueT; };
-
-
-		template < typename RetType_>
-		struct SignatureBuilder<RetType_, UnspecifiedParamTypes>
-		{ typedef NullType ValueT; };
-
-
-		template < typename RetType_>
-		struct SignatureBuilder<RetType_, NullType>
-		{ typedef NullType ValueT; };
-
-
 		template < typename F >
 		class GetStlFunctorNumArguments
 		{
@@ -403,9 +368,9 @@ namespace stingray
 	template < typename RetType_, typename ParamTypes_ >
 	struct function_info : public function_type<RetType_, ParamTypes_>, public Detail::StdSomethingnaryFunctionMixin<RetType_, ParamTypes_>
 	{
-		typedef RetType_															RetType;
-		typedef ParamTypes_															ParamTypes;
-		typedef typename Detail::SignatureBuilder<RetType_, ParamTypes_>::ValueT	Signature;
+		typedef RetType_													RetType;
+		typedef ParamTypes_													ParamTypes;
+		typedef typename SignatureBuilder<RetType_, ParamTypes_>::ValueT	Signature;
 	};
 
 
