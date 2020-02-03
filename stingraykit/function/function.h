@@ -117,67 +117,43 @@ namespace stingray
 	}
 
 
-	template < typename Signature >
-	class function_base : public function_info<Signature>
-	{
-	public:
-		typedef typename function_info<Signature>::RetType		RetType;
-		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
-
-	protected:
-		typedef Detail::IInvokable<Signature>					InvokableType;
-		typedef self_count_ptr<InvokableType>					InvokableTypePtr;
-		typedef typename InvokableType::InvokeFunc				InvokeFunc;
-
-		InvokableTypePtr	_invokable;
-
-	protected:
-		~function_base()
-		{ }
-
-		template < typename FunctorType >
-		function_base(const FunctorType& func)
-			: _invokable(new Detail::Invokable<Signature, FunctorType>(func))
-		{ }
-
-		RetType Invoke(const Tuple<ParamTypes>& p) const
-		{
-			InvokeFunc* func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
-			return func(_invokable.get(), p);
-		}
-
-	public:
-		std::string get_name() const { return "{ function: " + _invokable->_getVTable().GetName(_invokable.get()) + " }"; }
-
-	protected:
-		function_base(const InvokableTypePtr& ptr, Dummy dummy) : _invokable(ptr)
-		{ }
-	};
-
-
 	template < typename R, typename... Ts >
-	class function<R (Ts...)> : public function_base<R (Ts...)>
+	class function<R (Ts...)> : public function_info<R (Ts...)>
 	{
-		typedef function_base<R (Ts...)>				BaseType;
-		typedef typename BaseType::InvokableTypePtr		InvokableTypePtr;
+	public:
+		typedef function_info<R (Ts...)>		BaseType;
+
+		typedef typename BaseType::RetType		RetType;
+		typedef typename BaseType::ParamTypes	ParamTypes;
+		typedef typename BaseType::Signature	Signature;
+
+	private:
+		typedef Detail::IInvokable<Signature>		InvokableType;
+		typedef self_count_ptr<InvokableType>		InvokableTypePtr;
+		typedef typename InvokableType::InvokeFunc	InvokeFunc;
 
 		friend class function_storage;
 
 	private:
-		function(const InvokableTypePtr& invokable, Dummy dummy) : BaseType(invokable, dummy)
+		InvokableTypePtr	_invokable;
+
+		function(const InvokableTypePtr& invokable, const Dummy&) : _invokable(invokable)
 		{ }
 
 	public:
 		template < typename FunctorType >
 		function(const FunctorType& func)
-			: function_base<R (Ts...)>(func)
+			: _invokable(make_self_count_ptr<Detail::Invokable<Signature, FunctorType>>(func))
 		{ }
 
-		R operator () (Ts... args) const
+		RetType operator () (Ts... args) const
 		{
-			Tuple<typename TypeList<Ts...>::type> p(args...);
-			return this->Invoke(p);
+			InvokeFunc* func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
+			return func(_invokable.get(), Tuple<typename TypeList<Ts...>::type>(args...));
 		}
+
+		std::string get_name() const
+		{ return "{ function: " + _invokable->_getVTable().GetName(_invokable.get()) + " }"; }
 	};
 
 
