@@ -155,11 +155,11 @@ namespace stingray
 	};
 
 
-	template < typename R >
-	class function<R()> : public function_base<R()>
+	template < typename R, typename... Ts >
+	class function<R (Ts...)> : public function_base<R (Ts...)>
 	{
-		typedef function_base<R()> BaseType;
-		typedef typename BaseType::InvokableTypePtr InvokableTypePtr;
+		typedef function_base<R (Ts...)>				BaseType;
+		typedef typename BaseType::InvokableTypePtr		InvokableTypePtr;
 
 		friend class function_storage;
 
@@ -170,56 +170,16 @@ namespace stingray
 	public:
 		template < typename FunctorType >
 		function(const FunctorType& func)
-			: function_base<R()>(func)
+			: function_base<R (Ts...)>(func)
 		{ }
 
-		R operator () () const
+		R operator () (Ts... args) const
 		{
-			Tuple<TypeList<>::type> p;
+			Tuple<typename TypeList<Ts...>::type> p(args...);
 			return this->Invoke(p);
 		}
 	};
 
-
-#define TY typename
-#define PT(N_) typename GetTypeListItem<ParamTypes, N_ - 1>::ValueT
-
-#define DETAIL_STINGRAYKIT_DECLARE_FUNCTION(ParamsCount_, ParamTypenames_, ParamTypes_, ParamDecl_, ParamUsage_, ParamsFromTypeList_) \
-	template < typename R, ParamTypenames_ > \
-	class function<R(ParamTypes_)> : public function_base<R(ParamTypes_)> \
-	{ \
-		typedef function_base<R(ParamTypes_)> BaseType; \
-		typedef typename BaseType::InvokableTypePtr InvokableTypePtr; \
-		friend class function_storage; \
-	private: \
-		function(const InvokableTypePtr& invokable, Dummy dummy) : BaseType(invokable, dummy) \
-		{ } \
-	public: \
-		template < typename FunctorType > \
-		function(const FunctorType& func) \
-			: function_base<R(ParamTypes_)>(func) \
-		{ } \
-		\
-		R operator () (ParamDecl_) const \
-		{  \
-			Tuple<typename TypeList<ParamTypes_>::type> p(ParamUsage_); \
-			return this->Invoke(p); \
-		} \
-	}
-
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1), MK_PARAM(PT(1)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2), MK_PARAM(PT(1), PT(2)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3), MK_PARAM(PT(1), PT(2), PT(3)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4), MK_PARAM(PT(1), PT(2), PT(3), PT(4)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(6, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1, T2, T3, T4, T5, T6), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6), MK_PARAM(p1, p2, p3, p4, p5, p6), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(7, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1, T2, T3, T4, T5, T6, T7), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7), MK_PARAM(p1, p2, p3, p4, p5, p6, p7), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(8, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(9, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8), PT(9)));
-	DETAIL_STINGRAYKIT_DECLARE_FUNCTION(10, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10), MK_PARAM(PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7), PT(8), PT(9), PT(10)));
-
-#undef PT
-#undef TY
 
 	class function_storage
 	{
