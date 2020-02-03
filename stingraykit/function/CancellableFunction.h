@@ -16,6 +16,9 @@ namespace stingray
 	template < typename FunctorType >
 	class CancellableFunction : public function_info<FunctorType>
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(CancellableFunction);
+		STINGRAYKIT_DEFAULTMOVABLE(CancellableFunction);
+
 	public:
 		typedef typename function_info<FunctorType>::RetType		RetType;
 

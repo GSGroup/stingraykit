@@ -117,6 +117,9 @@ namespace stingray
 	template < typename R, typename... Ts >
 	class function<R (Ts...)> : public function_info<R (Ts...)>
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(function);
+		STINGRAYKIT_DEFAULTMOVABLE(function);
+
 	public:
 		typedef function_info<R (Ts...)>		BaseType;
 
@@ -156,6 +159,9 @@ namespace stingray
 
 	class function_storage
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(function_storage);
+		STINGRAYKIT_DEFAULTMOVABLE(function_storage);
+
 	private:
 		self_count_ptr<Detail::IInvokableBase>	_invokable;
 

@@ -26,6 +26,9 @@ namespace stingray
 							typename function_info<FunctorType>::RetType, future<typename function_info<FunctorType>::RetType> >::ValueT,
 					typename function_info<FunctorType>::ParamTypes>
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(AsyncFunction);
+		STINGRAYKIT_DEFAULTMOVABLE(AsyncFunction);
+
 	private:
 		typedef typename function_info<FunctorType>::RetType	RawRetType;
 
