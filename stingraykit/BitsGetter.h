@@ -8,18 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/collection/ByteData.h>
+
 #include <limits>
 #if defined(__GNUC__) || defined(__clang__)
 #	include <byteswap.h>
 #endif
-
-#include <stingraykit/collection/ByteData.h>
-#include <stingraykit/toolkit.h>
-#include <stingraykit/exception.h>
-#include <stingraykit/Dummy.h>
-#include <stingraykit/metaprogramming/If.h>
-#include <stingraykit/metaprogramming/TypeTraits.h>
-
 
 namespace stingray
 {

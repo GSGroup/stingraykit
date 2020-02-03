@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/IEnumerable.h>
-#include <stingraykit/Final.h>
+#include <stingraykit/core/Final.h>
 #include <stingraykit/serialization/Serializer.h>
 
 namespace stingray

@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_FINAL_H
-#define STINGRAYKIT_FINAL_H
+#ifndef STINGRAYKIT_CORE_DUMMY_H
+#define STINGRAYKIT_CORE_DUMMY_H
 
 // Copyright (c) 2011 - 2019, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -12,28 +12,8 @@
 namespace stingray
 {
 
-	// Usage:
-	// class A : STINGRAYKIT_FINAL(A) { };
-
-#define STINGRAYKIT_FINAL(ClassName_) private virtual stingray::Final<ClassName_>
-#define STINGRAYKIT_NONPOLYMORPHIC(ClassName_) STINGRAYKIT_FINAL(ClassName_), public virtual stingray::NonPolymorphicMarker
-
-	class NonPolymorphicMarker { };
-
-	template < typename T >
-	class Final
-	{
-#if defined __GNUC__ && __GNUG__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ > 6
-		friend T;
-#else
-	protected:
-#endif
-		Final() { }
-		Final(const Final&) { }
-		~Final() { }
-
-		Final& operator = (const Final&) { return *this; }
-	};
+	class Dummy
+	{ };
 
 }
 

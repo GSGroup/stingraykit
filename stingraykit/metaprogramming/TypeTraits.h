@@ -12,7 +12,6 @@
 #include <stingraykit/metaprogramming/CVTraits.h>
 #include <stingraykit/metaprogramming/PointerTraits.h>
 #include <stingraykit/metaprogramming/ReferenceTraits.h>
-
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/NestedTypeCheck.h>
 #include <stingraykit/metaprogramming/TypeCompleteness.h>

@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_SYMBOLVISIBILITY_H
-#define STINGRAYKIT_SYMBOLVISIBILITY_H
+#ifndef STINGRAYKIT_CORE_NULLPTRTYPE_H
+#define STINGRAYKIT_CORE_NULLPTRTYPE_H
 
 // Copyright (c) 2011 - 2019, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -8,14 +8,18 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#ifdef STINGRAYKIT_USES_GCC_VISIBILITY
-#	define STINGRAYKIT_SYMBOL_EXPORT __attribute__ ((visibility ("default")))
-#	define STINGRAYKIT_SYMBOL_IMPORT __attribute__ ((visibility ("default")))
-#	define STINGRAYKIT_SYMBOL_LOCAL __attribute__ ((visibility ("hidden")))
-#else
-#	define STINGRAYKIT_SYMBOL_EXPORT
-#	define STINGRAYKIT_SYMBOL_IMPORT
-#	define STINGRAYKIT_SYMBOL_LOCAL
-#endif
+namespace stingray
+{
+
+	struct NullPtrType
+	{
+		template < typename T >
+		operator T* () const
+		{ return 0; }
+	};
+
+	extern NullPtrType null;
+
+}
 
 #endif

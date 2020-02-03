@@ -29,8 +29,6 @@ namespace stingray
 	{ return StringBuilder() % _functionName % " (" % _file % ":" % _line % ")"; }
 
 
-	NullPtrType null;
-
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex)
 	{
 		std::string backtrace = tkit_ex.GetBacktrace();

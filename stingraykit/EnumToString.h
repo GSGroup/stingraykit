@@ -8,13 +8,13 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/PhoenixSingleton.h>
+#include <stingraykit/collection/iterator_base.h>
+#include <stingraykit/Types.h>
+
 #include <memory>
 #include <vector>
 #include <string>
-
-#include <stingraykit/PhoenixSingleton.h>
-#include <stingraykit/Types.h>
-#include <stingraykit/collection/iterator_base.h>
 
 namespace stingray
 {

@@ -9,14 +9,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-#include <sys/types.h>
-
 #include <stingraykit/metaprogramming/Math.h>
 
+#include <sys/types.h>
 
 namespace stingray
 {
-
 
 #define STINGRAYKIT_ASSERT_SIGNED(Type, Signed) \
 		struct Type##SignedChecker \

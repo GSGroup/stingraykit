@@ -11,7 +11,6 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
 #include <stingraykit/thread/ITaskExecutor.h>
-#include <stingraykit/Final.h>
 
 #include <deque>
 

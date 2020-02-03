@@ -12,7 +12,6 @@
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/ITaskExecutor.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/Final.h>
 
 #include <queue>
 

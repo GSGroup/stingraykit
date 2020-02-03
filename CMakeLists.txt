@@ -90,6 +90,8 @@ set(stingraykit_SRC
 	stingraykit/shared_ptr.cpp
 	stingraykit/toolkit.cpp
 
+	stingraykit/core/NullPtrType.cpp
+
 	stingraykit/diagnostics/AbortWrap.cpp
 	stingraykit/diagnostics/AsyncProfiler.cpp
 	stingraykit/diagnostics/CheckpointProfiler.cpp

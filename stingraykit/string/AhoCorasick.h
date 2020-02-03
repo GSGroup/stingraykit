@@ -1,13 +1,11 @@
 #ifndef STINGRAYKIT_STRING_AHOCORASICK_H
 #define STINGRAYKIT_STRING_AHOCORASICK_H
 
-#include <stingraykit/Types.h>
 #include <stingraykit/collection/array.h>
 #include <stingraykit/optional.h>
 
 #include <algorithm>
 #include <deque>
-#include <vector>
 
 namespace stingray
 {

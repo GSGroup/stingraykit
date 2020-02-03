@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/compare/comparers.h>
-#include <stingraykit/core/NonCopyable.h>
 #include <stingraykit/signal/signals.h>
 #include <stingraykit/IObservableValue.h>
 
