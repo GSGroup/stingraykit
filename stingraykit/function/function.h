@@ -95,14 +95,14 @@ namespace stingray
 		protected:
 			template < typename RetType_ >
 			RetType_ DoInvoke(typename EnableIf<!IsSame<RetType_, void>::Value, const Dummy&>::ValueT, Ts... args)
-			{ return FunctorInvoker::InvokeArgs(_func, args...); }
+			{ return FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...); }
 
 			template < typename RetType_ >
 			RetType_ DoInvoke(typename EnableIf<IsSame<RetType_, void>::Value, const Dummy&>::ValueT, Ts... args)
-			{ FunctorInvoker::InvokeArgs(_func, args...); }
+			{ FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...); }
 
 			static R Invoke(BaseType* self, Ts... args)
-			{ return static_cast<MyType*>(self)->template DoInvoke<R>(Dummy(), args...); }
+			{ return static_cast<MyType*>(self)->template DoInvoke<R>(Dummy(), std::forward<Ts>(args)...); }
 
 			static void Dtor(IInvokableBase* self)
 			{ static_cast<MyType*>(self)->_func.~FunctorType(); }
@@ -146,7 +146,7 @@ namespace stingray
 		RetType operator () (Ts... args) const
 		{
 			InvokeFunc* func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
-			return func(_invokable.get(), args...);
+			return func(_invokable.get(), std::forward<Ts>(args)...);
 		}
 
 		std::string get_name() const
