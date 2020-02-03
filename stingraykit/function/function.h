@@ -55,31 +55,28 @@ namespace stingray
 		};
 
 
-		template < typename Signature_ >
+		template < typename R, typename... Ts >
 		struct IInvokable : public IInvokableBase
 		{
 			typedef IInvokableBase									BaseType;
-			typedef Signature_										Signature;
-			typedef typename function_info<Signature>::RetType		RetType;
-			typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+			typedef IInvokable<R, Ts...>							MyType;
 
-			typedef RetType InvokeFunc(IInvokable* self, const Tuple<ParamTypes>& p);
+			typedef R InvokeFunc(MyType*, Ts...);
 
 			IInvokable(GetVTableFunc* func) : BaseType(func) { }
 		};
 
 
-		template < typename Signature, typename FunctorType >
-		class Invokable : public IInvokable<Signature>
+		template < typename FunctorType, typename R, typename... Ts >
+		class Invokable : public IInvokable<R, Ts...>
 		{
 			STINGRAYKIT_NONCOPYABLE(Invokable);
 
 		private:
-			typedef IInvokable<Signature>				BaseType;
-			typedef typename BaseType::RetType			RetType;
-			typedef typename BaseType::ParamTypes		ParamTypes;
+			typedef IInvokable<R, Ts...>				BaseType;
+			typedef Invokable<FunctorType, R, Ts...>	MyType;
+
 			typedef typename BaseType::VTable			VTable;
-			typedef Invokable<Signature, FunctorType>	MyType;
 
 		public:
 			typedef typename BaseType::InvokeFunc InvokeFunc;
@@ -97,15 +94,15 @@ namespace stingray
 
 		protected:
 			template < typename RetType_ >
-			RetType_ DoInvoke(const Tuple<ParamTypes>& p, typename EnableIf<!IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0)
-			{ return FunctorInvoker::Invoke(_func, p); }
+			RetType_ DoInvoke(typename EnableIf<!IsSame<RetType_, void>::Value, const Dummy&>::ValueT, Ts... args)
+			{ return FunctorInvoker::InvokeArgs(_func, args...); }
 
 			template < typename RetType_ >
-			RetType_ DoInvoke(const Tuple<ParamTypes>& p, typename EnableIf<IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0)
-			{ FunctorInvoker::Invoke(_func, p); }
+			RetType_ DoInvoke(typename EnableIf<IsSame<RetType_, void>::Value, const Dummy&>::ValueT, Ts... args)
+			{ FunctorInvoker::InvokeArgs(_func, args...); }
 
-			static RetType Invoke(BaseType* self, const Tuple<ParamTypes>& p)
-			{ return static_cast<MyType*>(self)->template DoInvoke<RetType>(p); }
+			static R Invoke(BaseType* self, Ts... args)
+			{ return static_cast<MyType*>(self)->template DoInvoke<R>(Dummy(), args...); }
 
 			static void Dtor(IInvokableBase* self)
 			{ static_cast<MyType*>(self)->_func.~FunctorType(); }
@@ -128,7 +125,7 @@ namespace stingray
 		typedef typename BaseType::Signature	Signature;
 
 	private:
-		typedef Detail::IInvokable<Signature>		InvokableType;
+		typedef Detail::IInvokable<R, Ts...>		InvokableType;
 		typedef self_count_ptr<InvokableType>		InvokableTypePtr;
 		typedef typename InvokableType::InvokeFunc	InvokeFunc;
 
@@ -143,13 +140,13 @@ namespace stingray
 	public:
 		template < typename FunctorType >
 		function(const FunctorType& func)
-			: _invokable(make_self_count_ptr<Detail::Invokable<Signature, FunctorType>>(func))
+			: _invokable(make_self_count_ptr<Detail::Invokable<FunctorType, R, Ts...>>(func))
 		{ }
 
 		RetType operator () (Ts... args) const
 		{
 			InvokeFunc* func = reinterpret_cast<InvokeFunc*>(_invokable->_getVTable().Invoke);
-			return func(_invokable.get(), Tuple<typename TypeList<Ts...>::type>(args...));
+			return func(_invokable.get(), args...);
 		}
 
 		std::string get_name() const
