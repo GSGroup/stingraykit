@@ -55,8 +55,6 @@ namespace stingray
 
 		Tuple() : _val(), _tail() { }
 
-		Tuple(const Tuple& other) : _val(other._val), _tail(other._tail) { }
-
 		Tuple(typename GetParamPassingType<ValueType>::ValueT p1) : _val(p1), _tail() { }
 
 		Tuple(typename GetParamPassingType<ValueType>::ValueT head, const Tail& tail) : _val(head), _tail(tail) { }
