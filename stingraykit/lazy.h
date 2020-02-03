@@ -32,13 +32,18 @@ namespace stingray
 			: _func(func)
 		{ }
 
+		LazyVal(Func&& func)
+			: _func(std::move(func))
+		{ }
+
 		operator T() const { return _func(); }
 	};
 
 
 	template < typename FuncType >
-	LazyVal<typename function_info<FuncType>::RetType> lazy(const FuncType& func)
-	{ return LazyVal<typename function_info<FuncType>::RetType>(func); }
+	LazyVal<typename function_info<typename Decay<FuncType>::ValueT>::RetType> lazy(FuncType&& func)
+	{ return LazyVal<typename function_info<typename Decay<FuncType>::ValueT>::RetType>(std::forward<FuncType>(func)); }
+
 
 	template < typename T >
 	struct ToPointer<LazyVal<T> >

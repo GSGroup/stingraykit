@@ -74,6 +74,10 @@ namespace stingray
 			:	_func(func)
 		{ }
 
+		ScopeExitInvoker(FuncType&& func)
+			:	_func(std::move(func))
+		{ }
+
 		~ScopeExitInvoker()
 		{
 			if (_func)

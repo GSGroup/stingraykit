@@ -25,6 +25,9 @@ namespace stingray
 		FunctionToken(const function<void()>& cleanupFunc) : _cleanupFunc(cleanupFunc)
 		{ }
 
+		FunctionToken(function<void()>&& cleanupFunc) : _cleanupFunc(std::move(cleanupFunc))
+		{ }
+
 		virtual ~FunctionToken()
 		{ STINGRAYKIT_TRY_NO_MESSAGE(_cleanupFunc()); }
 	};
