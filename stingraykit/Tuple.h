@@ -15,7 +15,6 @@
 namespace stingray
 {
 
-
 	namespace Detail
 	{
 		template < typename Tuple_, size_t Index >
@@ -23,7 +22,7 @@ namespace stingray
 	}
 
 
-	struct TupleConstructorTag {};
+	struct TupleConstructorTag { };
 
 	template < typename TypeList_ >
 	class Tuple
@@ -41,20 +40,20 @@ namespace stingray
 
 	public:
 		template < typename TupleLikeObject >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject) :
-			_val(tupleLikeObject.template Get<0>()), _tail(tag, tupleLikeObject, integral_constant<size_t, 1>())
+		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
+			: _val(tupleLikeObject.template Get<0>()), _tail(tag, tupleLikeObject, integral_constant<size_t, 1>())
 		{ }
 
 		template < typename TupleLikeObject, typename IndexOffset >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy) :
-			_val(tupleLikeObject.template Get<IndexOffset::Value>()), _tail(tag, tupleLikeObject, integral_constant<size_t, IndexOffset::Value + 1>())
+		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy)
+			: _val(tupleLikeObject.template Get<IndexOffset::Value>()), _tail(tag, tupleLikeObject, integral_constant<size_t, IndexOffset::Value + 1>())
 		{ }
 
 		template < typename TupleLikeObject >
 		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
 		{ return Tuple(TupleConstructorTag(), tll); }
 
-		Tuple() : _val(), _tail() {}
+		Tuple() : _val(), _tail() { }
 
 		Tuple(const Tuple& other) : _val(other._val), _tail(other._tail) { }
 
@@ -209,7 +208,7 @@ namespace stingray
 
 
 	template < size_t Index, typename Tuple_ >
-	inline typename GetParamPassingType<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT GetTupleItem(const Tuple_& tuple)
+	typename GetParamPassingType<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT GetTupleItem(const Tuple_& tuple)
 	{ return Detail::TupleItemGetter<Tuple_, Index>::Get(tuple); }
 
 
