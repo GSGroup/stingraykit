@@ -9,19 +9,19 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/function/function_info.h>
 
-namespace stingray {
+namespace stingray
+{
 
 	/**
 	 * @addtogroup toolkit_threads
 	 * @{
 	 */
 
-	template<typename FuncType, typename ModifierToken, size_t ParamsNum>
+	template < typename FuncType, typename ModifierToken, size_t ParamsNum >
 	struct ExecutionContextModifier;
 
-	template<typename FuncType, typename ModifierToken>
+	template < typename FuncType, typename ModifierToken >
 	struct ExecutionContextModifier<FuncType, ModifierToken, 0> : public function_info<FuncType>
 	{
 		typedef typename function_info<FuncType>::RetType		RetType;
@@ -31,8 +31,9 @@ namespace stingray {
 
 	public:
 		ExecutionContextModifier(const FuncType& func) : _func(func)
-		{}
-		RetType operator() () const
+		{ }
+
+		RetType operator () () const
 		{
 			ModifierToken token;
 			return _func();
@@ -42,7 +43,7 @@ namespace stingray {
 #ifndef DOXYGEN_PREPROCESSOR
 #define TY typename
 #define DETAIL_DECLARE_EXECUTION_CONTEXT_MODIFIER(ParamsNum_, ParamsTypes_, ParamsDecl_, ParamsUsage_) \
-	template<typename FuncType, typename ModifierToken> \
+	template < typename FuncType, typename ModifierToken > \
 	struct ExecutionContextModifier<FuncType, ModifierToken, ParamsNum_> : public function_info<FuncType> \
 	{ \
 		typedef typename function_info<FuncType>::RetType 		RetType; \
@@ -51,9 +52,9 @@ namespace stingray {
 		FuncType	_func; \
 	public: \
 		ExecutionContextModifier(const FuncType& func) : _func(func) \
-		{} \
-		template<ParamsTypes_> \
-		RetType operator() (ParamsDecl_) const \
+		{ } \
+		template < ParamsTypes_ > \
+		RetType operator () (ParamsDecl_) const \
 		{ \
 			ModifierToken token; \
 			return _func(ParamsUsage_); \
@@ -77,10 +78,10 @@ namespace stingray {
 
 	struct DisableInterruptionPointsToken : public EnableInterruptionPoints
 	{
-		DisableInterruptionPointsToken() : EnableInterruptionPoints(false) {}
+		DisableInterruptionPointsToken() : EnableInterruptionPoints(false) { }
 	};
 
-	template<typename FuncType>
+	template < typename FuncType >
 	ExecutionContextModifier<FuncType, DisableInterruptionPointsToken, GetTypeListLength<typename function_info<FuncType>::ParamTypes>::Value> DisableInterruptionPoints(const FuncType& func)
 	{ return ExecutionContextModifier<FuncType, DisableInterruptionPointsToken, GetTypeListLength<typename function_info<FuncType>::ParamTypes>::Value>(func); }
 
@@ -88,6 +89,4 @@ namespace stingray {
 
 }
 
-
 #endif
-
