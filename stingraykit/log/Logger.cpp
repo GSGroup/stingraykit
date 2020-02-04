@@ -88,11 +88,10 @@ namespace stingray
 			_objects.erase(it);
 		}
 
-		void GetLoggerNames(std::set<std::string>& out) const
+		std::set<std::string> GetLoggerNames() const
 		{
 			MutexLock l(_mutex);
-			out.clear();
-			std::copy(keys_iterator(_objects.begin()), keys_iterator(_objects.end()), std::inserter(out, out.begin()));
+			return std::set<std::string>(keys_iterator(_objects.begin()), keys_iterator(_objects.end()));
 		}
 
 		void SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel)
@@ -289,11 +288,13 @@ namespace stingray
 	}
 
 
-	void Logger::GetLoggerNames(std::set<std::string>& out)
+	std::set<std::string> Logger::GetLoggerNames()
 	{
 		LoggerImplPtr logger = LoggerSingleton::Instance();
 		if (logger)
-			logger->GetRegistry().GetLoggerNames(out);
+			return logger->GetRegistry().GetLoggerNames();
+		else
+			return std::set<std::string>();
 	}
 
 

@@ -88,7 +88,7 @@ namespace stingray
 		static void EnableBacktrace(const std::string& loggerName, bool enable);
 		static void EnableHighlight(const std::string& loggerName, bool enable);
 
-		static void GetLoggerNames(std::set<std::string>& out);
+		static std::set<std::string> GetLoggerNames();
 		/// @}
 
 		static Token AddSink(const ILoggerSinkPtr& sink);
