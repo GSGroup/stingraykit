@@ -217,16 +217,6 @@ namespace stingray
 	void LogException(const std::exception& ex);
 	void LogExceptionTo(NamedLogger& namedLogger, const std::exception& ex);
 
-	class ExceptionLogger
-	{
-	private:
-		NamedLogger*	_logger;
-
-	public:
-		ExceptionLogger(NamedLogger& logger) : _logger(&logger) { }
-		void operator () (const std::exception& ex) const { LogExceptionTo(*_logger, ex); }
-	};
-
 
 	namespace Detail {
 	namespace LoggerDetail
