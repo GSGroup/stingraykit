@@ -46,7 +46,7 @@ namespace stingray
 		bool HighlightEnabled() const					{ return _highlight; }
 		void EnableHighlight(bool enable)				{ _highlight = enable; }
 
-		bool IsEmpty() const							{ return GetLogLevel() || BacktraceEnabled() || HighlightEnabled(); }
+		bool IsEmpty() const							{ return !_logLevel && !_backtrace && !_highlight; }
 	};
 
 
