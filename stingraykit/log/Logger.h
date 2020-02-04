@@ -214,10 +214,6 @@ namespace stingray
 	};
 
 
-	void LogException(const std::exception& ex);
-	void LogExceptionTo(NamedLogger& namedLogger, const std::exception& ex);
-
-
 	namespace Detail {
 	namespace LoggerDetail
 	{

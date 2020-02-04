@@ -474,15 +474,4 @@ namespace stingray
 		{ }
 	}
 
-
-	/////////////////////////////////////////////////////////////////
-
-
-	void LogException(const std::exception& ex)
-	{ Logger::Error() << ex; }
-
-
-	void LogExceptionTo(NamedLogger& namedLogger, const std::exception& ex)
-	{ namedLogger.Error() << ex; }
-
 }
