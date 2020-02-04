@@ -20,20 +20,12 @@ namespace stingray
 	 * @{
 	 */
 
-#define TY typename
-
-	template < size_t N > struct BindPlaceholder
-	{ static const size_t Index = N; };
-
-#define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
-	static inline BindPlaceholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_))()	{ return BindPlaceholder<Index_>(); }
-
-	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~);
-
-#undef DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER
-
 	namespace Detail
 	{
+
+		template < size_t N > struct BindPlaceholder
+		{ static const size_t Index = N; };
+
 		template < size_t N > struct Chomper
 		{ static const size_t Index = N; };
 
@@ -238,6 +230,8 @@ namespace stingray
 
 	}
 
+
+#define TY typename
 #define DETAIL_STINGRAYKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
 	template < typename FunctorType, TemplateBindParams_ > \
 	Detail::Binder<typename TypeList<BindParamTypes_>::type, FunctorType> \
@@ -259,10 +253,20 @@ namespace stingray
 	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
 	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
 
+#undef DETAIL_STINGRAYKIT_DECLARE_BIND
 #undef TY
 
+
+#define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
+	static inline Detail::BindPlaceholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_))()	{ return Detail::BindPlaceholder<Index_>(); }
+
+	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~);
+
+#undef DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER
+
+
 	template < size_t N >
-	Detail::Chomper<N> not_using(BindPlaceholder<N>(*)()) { return Detail::Chomper<N>(); }
+	Detail::Chomper<N> not_using(Detail::BindPlaceholder<N>(*)()) { return Detail::Chomper<N>(); }
 
 	/** @} */
 
