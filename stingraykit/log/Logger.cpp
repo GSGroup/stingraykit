@@ -202,10 +202,7 @@ namespace stingray
 			for (SinksBundle::const_iterator it = sinks.begin(); it != sinks.end(); ++it)
 			{
 				try
-				{
-					ILoggerSinkPtr sink = *it;
-					sink->Log(message);
-				}
+				{ (*it)->Log(message); }
 				catch (const std::exception&)
 				{ }
 			}
@@ -318,9 +315,9 @@ namespace stingray
 
 		optional<LoggerMessage> msg;
 		if (loggerParams)
-			msg = LoggerMessage(loggerParams->GetName(), logLevel, text + (loggerParams->BacktraceEnabled() ? ": " + Backtrace().Get() : std::string()), loggerParams->HighlightEnabled());
+			msg.emplace(loggerParams->GetName(), logLevel, text + (loggerParams->BacktraceEnabled() ? ": " + Backtrace().Get() : std::string()), loggerParams->HighlightEnabled());
 		else
-			msg = LoggerMessage(logLevel, text, false);
+			msg.emplace(logLevel, text, false);
 
 		if (logger)
 			logger->Log(*msg);
