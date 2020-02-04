@@ -7,20 +7,13 @@
 
 #include <stingraykit/log/Logger.h>
 
-#include <stingraykit/collection/iterators.h>
-#include <stingraykit/diagnostics/Backtrace.h>
 #include <stingraykit/log/SystemLogger.h>
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/time/TimeEngine.h>
 #include <stingraykit/FunctionToken.h>
-#include <stingraykit/PhoenixSingleton.h>
 #include <stingraykit/SafeSingleton.h>
 
-#include <cstdio>
-#include <cstring>
-
-#include <map>
-#include <sstream>
+#include <string.h>
 
 namespace stingray
 {
@@ -40,8 +33,8 @@ namespace stingray
 		bool				_highlight;
 
 	public:
-		NamedLoggerSettings() :
-			_backtrace(false), _highlight(false)
+		NamedLoggerSettings()
+			: _backtrace(false), _highlight(false)
 		{ }
 
 		optional<LogLevel> GetLogLevel() const			{ return _logLevel; }
@@ -163,17 +156,14 @@ namespace stingray
 		LoggerImpl()
 		{ }
 
-
 		~LoggerImpl()
 		{ }
-
 
 		void AddSink(const ILoggerSinkPtr& sink)
 		{
 			MutexLock l(_logMutex);
 			_sinks.push_back(sink);
 		}
-
 
 		void RemoveSink(const ILoggerSinkPtr& sink)
 		{
@@ -182,7 +172,6 @@ namespace stingray
 			if (it != _sinks.end())
 				_sinks.erase(it);
 		}
-
 
 		void Log(const LoggerMessage& message) throw()
 		{
@@ -205,10 +194,8 @@ namespace stingray
 			{ }
 		}
 
-
 		NamedLoggerRegistry& GetRegistry()
 		{ return _registry; }
-
 
 	private:
 		static void PutMessageToSinks(const SinksBundle& sinks, const LoggerMessage& message)
@@ -234,9 +221,9 @@ namespace stingray
 	/////////////////////////////////////////////////////////////////
 
 
-	NamedLogger::NamedLogger(const char* name) :
-		_params(name),
-		_logLevel(OptionalLogLevel::Null)
+	NamedLogger::NamedLogger(const char* name)
+		:	_params(name),
+			_logLevel(OptionalLogLevel::Null)
 	{
 		LoggerImplPtr logger = LoggerSingleton::Instance();
 		if (logger)
@@ -456,8 +443,8 @@ namespace stingray
 	/////////////////////////////////////////////////////////////////
 
 
-	Tracer::Tracer(const Detail::NamedLoggerAccessor& logger, const char* funcName) :
-		_logger(logger), _logLevel(logger.GetLogLevel()), _funcName(funcName)
+	Tracer::Tracer(const Detail::NamedLoggerAccessor& logger, const char* funcName)
+		: _logger(logger), _logLevel(logger.GetLogLevel()), _funcName(funcName)
 	{
 		if (_logLevel > LogLevel::Trace)
 			return;
@@ -483,7 +470,7 @@ namespace stingray
 			else
 				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' (" << StringFormat("%1%.%2$3%", ms, mms) << " ms)";
 		}
-		catch(const std::exception&)
+		catch (const std::exception&)
 		{ }
 	}
 

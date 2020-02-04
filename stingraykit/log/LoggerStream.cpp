@@ -7,7 +7,7 @@
 
 #include <stingraykit/log/LoggerStream.h>
 
-#include <cstring>
+#include <string.h>
 
 namespace stingray
 {
@@ -23,8 +23,8 @@ namespace stingray
 	}
 
 
-	LoggerStream::LoggerStream(const NamedLoggerParams* loggerParams, LogLevel loggerLogLevel, LogLevel streamLogLevel, DuplicatingLogsFilter* duplicatingLogsFilter, LogFunction* logFunction) :
-		_loggerParams(loggerParams), _loggerLogLevel(loggerLogLevel), _streamLogLevel(streamLogLevel), _duplicatingLogsFilter(duplicatingLogsFilter), _logFunction(logFunction)
+	LoggerStream::LoggerStream(const NamedLoggerParams* loggerParams, LogLevel loggerLogLevel, LogLevel streamLogLevel, DuplicatingLogsFilter* duplicatingLogsFilter, LogFunction* logFunction)
+		: _loggerParams(loggerParams), _loggerLogLevel(loggerLogLevel), _streamLogLevel(streamLogLevel), _duplicatingLogsFilter(duplicatingLogsFilter), _logFunction(logFunction)
 	{ }
 
 
@@ -39,7 +39,7 @@ namespace stingray
 			{
 				try
 				{ DoLog(_stream->str()); }
-				catch(const std::exception &ex)
+				catch (const std::exception&)
 				{ return; }
 			}
 			else

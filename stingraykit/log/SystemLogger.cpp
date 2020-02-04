@@ -7,9 +7,7 @@
 
 #include <stingraykit/log/SystemLogger.h>
 
-#include <cstdio>
-#include <string>
-
+#include <stdio.h>
 
 namespace stingray
 {
@@ -17,7 +15,7 @@ namespace stingray
 	void SystemLogger::Log(const LoggerMessage& message) throw ()
 	{
 #ifndef PRODUCTION_BUILD
-		std::fprintf(stderr, "SystemLogger: %s\n", message.ToString().c_str());
+		fprintf(stderr, "SystemLogger: %s\n", message.ToString().c_str());
 #endif
 	}
 

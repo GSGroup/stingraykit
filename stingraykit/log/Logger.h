@@ -8,17 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/log/ILoggerSink.h>
+#include <stingraykit/log/LoggerStream.h>
+#include <stingraykit/time/ElapsedTime.h>
+#include <stingraykit/Token.h>
 
 #include <set>
-#include <string>
-
-#include <stingraykit/Token.h>
-#include <stingraykit/log/ILoggerSink.h>
-#include <stingraykit/log/LogLevel.h>
-#include <stingraykit/log/LoggerStream.h>
-#include <stingraykit/string/ToString.h>
-#include <stingraykit/thread/atomic.h>
-#include <stingraykit/time/ElapsedTime.h>
 
 namespace stingray
 {
@@ -107,14 +102,16 @@ namespace stingray
 	{
 		struct OptionalLogLevel
 		{
-			STINGRAYKIT_ENUM_VALUES(
+			STINGRAYKIT_ENUM_VALUES
+			(
 				Trace	= LogLevel::Trace,
 				Debug	= LogLevel::Debug,
 				Info	= LogLevel::Info,
 				Warning	= LogLevel::Warning,
 				Error	= LogLevel::Error,
 				Silent	= LogLevel::Silent,
-				Null);
+				Null
+			);
 
 			static OptionalLogLevel FromLogLevel(optional<LogLevel> level)
 			{ return level ? (OptionalLogLevel::Enum)level->val() : OptionalLogLevel::Null; }
@@ -149,8 +146,8 @@ namespace stingray
 		/// @param logLevel log level value to set or null - to remove specific log level and use global one instead
 		void SetLogLevel(optional<LogLevel> logLevel);
 
-		inline bool BacktraceEnabled() const;
-		inline void EnableBacktrace(bool enable);
+		bool BacktraceEnabled() const;
+		void EnableBacktrace(bool enable);
 
 		bool HighlightEnabled() const;
 		void EnableHighlight(bool enable);
@@ -181,10 +178,10 @@ namespace stingray
 			NamedLoggerAccessor(NamedLogger& logger) : _logger(&logger)
 			{ }
 
-			NamedLoggerAccessor& operator =(NullPtrType& n)
+			NamedLoggerAccessor& operator = (NullPtrType& n)
 			{ return *this; }
 
-			NamedLoggerAccessor& operator =(NamedLogger& logger)
+			NamedLoggerAccessor& operator = (NamedLogger& logger)
 			{ _logger = &logger; return *this; }
 
 			LogLevel GetLogLevel() const			{ return _logger ? _logger->GetLogLevel() : Logger::GetLogLevel(); }
@@ -272,6 +269,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif

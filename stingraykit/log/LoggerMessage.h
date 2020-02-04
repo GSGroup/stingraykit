@@ -8,13 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/log/LogLevel.h>
 #include <stingraykit/time/Time.h>
-#include <stingraykit/optional.h>
-
-#include <functional>
-
 
 namespace stingray
 {
@@ -49,13 +44,12 @@ namespace stingray
 
 		std::string ToString() const;
 
-		bool operator < (const LoggerMessage &other) const;
+		bool operator < (const LoggerMessage& other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LoggerMessage);
 	};
 
 	/** @} */
 
 }
-
 
 #endif
