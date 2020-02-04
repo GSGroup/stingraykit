@@ -12,6 +12,8 @@
 #include <stingraykit/log/NamedLoggerParams.h>
 #include <stingraykit/string/ToString.h>
 
+#include <stingraykit/unique_ptr.h>
+
 namespace stingray
 {
 
@@ -74,10 +76,8 @@ namespace stingray
 
 	class LoggerStream
 	{
-		STINGRAYKIT_NONASSIGNABLE(LoggerStream);
-
-	private:
-		typedef string_ostream					StreamType;
+		STINGRAYKIT_NONCOPYABLE(LoggerStream);
+		STINGRAYKIT_DEFAULTMOVABLE(LoggerStream);
 
 	public:
 		typedef void LogFunction(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& message);
@@ -86,9 +86,9 @@ namespace stingray
 		const NamedLoggerParams*				_loggerParams;
 		LogLevel								_loggerLogLevel;
 		LogLevel								_streamLogLevel;
-		shared_ptr<StreamType>					_stream;
+		unique_ptr<string_ostream>				_stream;
 		DuplicatingLogsFilter*					_duplicatingLogsFilter;
-		shared_ptr<Detail::HideDuplicatingLogs>	_hideDuplicatingLogs;
+		unique_ptr<Detail::HideDuplicatingLogs>	_hideDuplicatingLogs;
 		LogFunction*							_logFunction;
 
 	public:
@@ -102,7 +102,7 @@ namespace stingray
 				return *this;
 
 			if (!_stream)
-				_stream = make_shared_ptr<StreamType>();
+				_stream = make_unique_ptr<string_ostream>();
 			ToString(*_stream, val);
 			return *this;
 		}
@@ -114,7 +114,7 @@ namespace stingray
 				return *this;
 
 			if (!_stream)
-				_stream = make_shared_ptr<StreamType>();
+				_stream = make_unique_ptr<string_ostream>();
 			ToString(*_stream, val);
 			return *this;
 		}
@@ -125,7 +125,7 @@ namespace stingray
 				_duplicatingLogsFilter = val.Filter;
 
 			if (_duplicatingLogsFilter)
-				_hideDuplicatingLogs = make_shared_ptr<Detail::HideDuplicatingLogs>(val);
+				_hideDuplicatingLogs = make_unique_ptr<Detail::HideDuplicatingLogs>(val);
 
 			return *this;
 		}
