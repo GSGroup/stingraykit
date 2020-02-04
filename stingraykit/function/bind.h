@@ -252,34 +252,13 @@ namespace stingray
 	}
 
 
-	template < typename FunctorType >
-	Detail::Binder<FunctorType, typename TypeList<>::type> Bind(const FunctorType& func)
-	{ return Detail::Binder<FunctorType, TypeList<>::type>(func, Tuple<TypeList<>::type>()); }
-
-#define TY typename
-#define DETAIL_STINGRAYKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
-	template < typename FunctorType, TemplateBindParams_ > \
-	Detail::Binder<FunctorType, typename TypeList<BindParamTypes_>::type> \
-		Bind(const FunctorType& func, BindParamsDecl_) \
-	{ \
-		typedef typename TypeList<BindParamTypes_>::type		AllParameters; \
-		Tuple<AllParameters> allParams(BindParamsUsage_); \
-		return Detail::Binder<FunctorType, AllParameters>(func, allParams); \
+	template < typename FunctorType, typename... Ts >
+	Detail::Binder<FunctorType, typename TypeList<Ts...>::type> Bind(const FunctorType& func, Ts... args)
+	{
+		typedef typename TypeList<Ts...>::type AllParameters;
+		Tuple<AllParameters> allParams(args...);
+		return Detail::Binder<FunctorType, AllParameters>(func, allParams);
 	}
-
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(T1 p1, T2 p2), MK_PARAM(p1, p2))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(T1 p1, T2 p2, T3 p3), MK_PARAM(p1, p2, p3))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4), MK_PARAM(p1, p2, p3, p4))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5), MK_PARAM(p1, p2, p3, p4, p5))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(T1, T2, T3, T4, T5, T6), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6), MK_PARAM(p1, p2, p3, p4, p5, p6))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(T1, T2, T3, T4, T5, T6, T7), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7), MK_PARAM(p1, p2, p3, p4, p5, p6, p7))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9))
-	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), MK_PARAM(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10), MK_PARAM(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
-
-#undef DETAIL_STINGRAYKIT_DECLARE_BIND
-#undef TY
 
 
 #define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
