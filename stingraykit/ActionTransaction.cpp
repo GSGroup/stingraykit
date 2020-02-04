@@ -20,8 +20,6 @@ namespace stingray
 
 	ActionTransaction::~ActionTransaction()
 	{
-		TRACER;
-
 		if (_active)
 			STINGRAYKIT_TRY("Couldn't rollback transaction!", Rollback());
 	}
@@ -29,8 +27,6 @@ namespace stingray
 
 	void ActionTransaction::Execute(const ActionFunc& actionFunc, const RollbackFunc& rollbackFunc)
 	{
-		TRACER;
-
 		STINGRAYKIT_CHECK(_active, "Transaction is inactive!");
 
 		actionFunc();
@@ -41,8 +37,6 @@ namespace stingray
 
 	void ActionTransaction::Commit()
 	{
-		TRACER;
-
 		STINGRAYKIT_CHECK(_active, "Transaction is inactive!");
 
 		_active = false;
@@ -51,8 +45,6 @@ namespace stingray
 
 	void ActionTransaction::Rollback()
 	{
-		TRACER;
-
 		STINGRAYKIT_CHECK(_active, "Transaction is inactive!");
 
 		for (RollbackSequence::reverse_iterator it = _rollbackSequence.rbegin(); it != _rollbackSequence.rend(); ++it)
