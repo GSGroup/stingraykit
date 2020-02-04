@@ -69,20 +69,20 @@ namespace stingray
 		NamedLoggerRegistry()
 		{ }
 
-		ObjectsRegistry::iterator Register(const char* loggerName, NamedLogger* logger)
+		ObjectsRegistry::const_iterator Register(const char* loggerName, NamedLogger* logger)
 		{
 			MutexLock l(_mutex);
-			SettingsRegistry::iterator it = _settings.find(loggerName);
+			const SettingsRegistry::const_iterator it = _settings.find(loggerName);
 			if (it != _settings.end())
 			{
 				logger->SetLogLevel(it->second.GetLogLevel());
 				logger->EnableBacktrace(it->second.BacktraceEnabled());
 				logger->EnableHighlight(it->second.HighlightEnabled());
 			}
-			return _objects.insert(std::make_pair(loggerName, logger));
+			return _objects.emplace(loggerName, logger);
 		}
 
-		void Unregister(ObjectsRegistry::iterator it)
+		void Unregister(ObjectsRegistry::const_iterator it)
 		{
 			MutexLock l(_mutex);
 			_objects.erase(it);
@@ -97,13 +97,11 @@ namespace stingray
 		void SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel)
 		{
 			MutexLock l(_mutex);
-			std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+			const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
 			for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 				it->second->SetLogLevel(logLevel);
 
-			SettingsRegistry::iterator it = _settings.find(loggerName);
-			if (it == _settings.end())
-				it = _settings.insert(std::make_pair(loggerName, NamedLoggerSettings())).first;
+			const SettingsRegistry::iterator it = _settings.emplace(loggerName, NamedLoggerSettings()).first;
 			it->second.SetLogLevel(logLevel);
 			if (it->second.IsEmpty())
 				_settings.erase(it);
@@ -112,13 +110,11 @@ namespace stingray
 		void EnableBacktrace(const std::string& loggerName, bool enable)
 		{
 			MutexLock l(_mutex);
-			std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+			const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
 			for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 				it->second->EnableBacktrace(enable);
 
-			SettingsRegistry::iterator it = _settings.find(loggerName);
-			if (it == _settings.end())
-				it = _settings.insert(std::make_pair(loggerName, NamedLoggerSettings())).first;
+			const SettingsRegistry::iterator it = _settings.emplace(loggerName, NamedLoggerSettings()).first;
 			it->second.EnableBacktrace(enable);
 			if (it->second.IsEmpty())
 				_settings.erase(it);
@@ -127,13 +123,11 @@ namespace stingray
 		void EnableHighlight(const std::string& loggerName, bool enable)
 		{
 			MutexLock l(_mutex);
-			std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+			const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
 			for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 				it->second->EnableHighlight(enable);
 
-			SettingsRegistry::iterator it = _settings.find(loggerName);
-			if (it == _settings.end())
-				it = _settings.insert(std::make_pair(loggerName, NamedLoggerSettings())).first;
+			const SettingsRegistry::iterator it = _settings.emplace(loggerName, NamedLoggerSettings()).first;
 			it->second.EnableHighlight(enable);
 			if (it->second.IsEmpty())
 				_settings.erase(it);
