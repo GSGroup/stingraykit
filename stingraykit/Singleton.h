@@ -37,7 +37,6 @@ namespace stingray
 
 		public:
 			SingletonInstanceHolder()	{ }
-			~SingletonInstanceHolder()	{ TRACER; }
 			T& Get()					{ return *this; }
 		};
 	}
