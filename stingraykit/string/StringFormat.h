@@ -73,12 +73,8 @@ namespace stingray
 					result << fragment.str();
 			}
 		}
+
 	}
-
-
-	template<typename TupleParams>
-	static void StringFormat(string_ostream & result, const std::string& format, const Tuple<TupleParams>& params)
-	{ Detail::StringFormatImpl(result, Split(format, "%"), params); }
 
 
 #define TY typename
@@ -86,17 +82,11 @@ namespace stingray
 
 #define DETAIL_STINGRAYKIT_DECLARE_STRINGFORMAT(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 	template < TypesDecl_ > \
-	static void StringFormat(string_ostream & ss, const std::string& format, ParamsDecl_) \
-	{ \
-		typedef typename TypeListTransform<TypeList<TypesUsage_>, AddConstReference>::ValueT TupleParams; \
-		StringFormat(ss, format, Tuple<TupleParams>(ParamsUsage_)); \
-	} \
-	template < TypesDecl_ > \
 	static std::string StringFormat(const std::string& format, ParamsDecl_) \
 	{ \
 		string_ostream ss; \
 		typedef typename TypeListTransform<TypeList<TypesUsage_>, AddConstReference>::ValueT TupleParams; \
-		StringFormat(ss, format, Tuple<TupleParams>(ParamsUsage_)); \
+		Detail::StringFormatImpl(ss, Split(format, "%"), Tuple<TupleParams>(ParamsUsage_)); \
 		return ss.str(); \
 	}
 
