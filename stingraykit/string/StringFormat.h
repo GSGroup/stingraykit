@@ -23,21 +23,19 @@ namespace stingray
 		public:
 			static void ItemToString(string_ostream& result, const Tuple<TupleParams>& tuple, size_t index, size_t width)
 			{
-				if (index == 0)
-				{
-					if (width != 0)
-					{
-						const std::string itemStr = ToString(tuple.GetHead());
-						if (itemStr.size() < width)
-							result << std::string(width - itemStr.size(), '0') << itemStr;
-						else
-							result << itemStr;
-					}
-					else
-						ToString(result, tuple.GetHead()); //quick no width variant
-				}
-				else
+				if (index != 0)
 					TupleToStringHelper<typename TupleParams::Next>::ItemToString(result, tuple.GetTail(), index - 1, width);
+				else if (width == 0)
+					ToString(result, tuple.GetHead()); //quick no width variant
+				else
+				{
+					const std::string itemStr = ToString(tuple.GetHead());
+
+					if (itemStr.size() < width)
+						result << std::string(width - itemStr.size(), '0') << itemStr;
+					else
+						result << itemStr;
+				}
 			}
 		};
 
@@ -58,22 +56,20 @@ namespace stingray
 			for (size_t idx = 0; formatFragments.Valid(); ++idx, formatFragments.Next())
 			{
 				const StringRef fragment = *formatFragments;
-				if ((idx % 2) != 0)
-				{
-					if (fragment.empty())
-						result << "%";
-					else
-					{
-						const size_t pos = fragment.find('$');
-						const size_t index = FromString<size_t>(fragment.substr(0, pos));
-						STINGRAYKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
-						const size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
 
-						TupleToStringHelper<TupleParams>::ItemToString(result, params, index - 1, width);
-					}
-				}
-				else
+				if ((idx % 2) == 0)
 					result << fragment.str();
+				else if (fragment.empty())
+					result << "%";
+				else
+				{
+					const size_t pos = fragment.find('$');
+					const size_t index = FromString<size_t>(fragment.substr(0, pos));
+					STINGRAYKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
+					const size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
+
+					TupleToStringHelper<TupleParams>::ItemToString(result, params, index - 1, width);
+				}
 			}
 		}
 
