@@ -184,6 +184,7 @@ namespace stingray
 namespace stingray
 {
 
+	template < typename T > const T* to_pointer(const T& val) { return &val; }
 	template < typename T > T* to_pointer(T& val) { return &val; }
 	template < typename T > T* to_pointer(T* ptr) { return ptr; }
 
