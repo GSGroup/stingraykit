@@ -17,22 +17,24 @@ namespace stingray
 
 	struct TranslatedString
 	{
+	private:
+		typedef IDictionary<LangCode, std::string>	DictionaryImpl;
+		STINGRAYKIT_DECLARE_PTR(DictionaryImpl);
+
 	public:
-		typedef IDictionary<LangCode, std::string>	Dictionary;
+		typedef IReadonlyDictionary<LangCode, std::string>	Dictionary;
 		STINGRAYKIT_DECLARE_PTR(Dictionary);
 
 		class Builder;
 
 	private:
-		DictionaryPtr	_dictionary;
+		DictionaryImplPtr	_dictionary;
 
-		explicit TranslatedString(const DictionaryPtr& dictionary);
+		explicit TranslatedString(const DictionaryImplPtr& dictionary);
 
 	public:
 		TranslatedString();
 		TranslatedString(LangCode lang, const std::string& str);
-
-		TranslatedString& AddTranslation(LangCode lang, const std::string& str);
 
 		bool HasTranslation(LangCode lang) const;
 		std::string GetTranslation(LangCode lang) const;
@@ -68,7 +70,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(Builder);
 
 	private:
-		DictionaryPtr	_product;
+		DictionaryImplPtr	_product;
 
 	public:
 		Builder();
