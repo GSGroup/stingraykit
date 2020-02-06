@@ -45,6 +45,18 @@ namespace stingray
 	}
 
 
+	void TranslatedString::Serialize(ObjectOStream& ar) const
+	{ ar.Serialize("translations", *_dictionary); }
+
+
+	void TranslatedString::Deserialize(ObjectIStream& ar)
+	{ ar.Deserialize("translations", *_dictionary); }
+
+
+	std::string TranslatedString::ToString() const
+	{ return stingray::ToString(_dictionary); }
+
+
 	std::string TranslatedString::SelectTranslation(LangCode l0) const
 	{ return DoSelectTranslation(VectorBuilder<LangCode>(l0, LangCode::Any)); }
 
@@ -57,14 +69,6 @@ namespace stingray
 	{ return DoSelectTranslation(VectorBuilder<LangCode>(l0, l1, l2, LangCode::Any)); }
 
 
-	std::string TranslatedString::DoSelectTranslation(const std::vector<LangCode>& langCodes) const
-	{
-		for (std::vector<LangCode>::const_iterator it = langCodes.begin(); it != langCodes.end(); ++it)
-			if (HasTranslation(*it))
-				return GetTranslation(*it);
-		return "";
-	}
-
 	std::string TranslatedString::SelectTranslation(const std::vector<LangCode>& langCodes) const
 	{
 		for (std::vector<LangCode>::const_iterator it = langCodes.begin(); it != langCodes.end(); ++it)
@@ -74,19 +78,17 @@ namespace stingray
 		return GetTranslation(LangCode::Any);
 	}
 
+
+	std::string TranslatedString::DoSelectTranslation(const std::vector<LangCode>& langCodes) const
+	{
+		for (std::vector<LangCode>::const_iterator it = langCodes.begin(); it != langCodes.end(); ++it)
+			if (HasTranslation(*it))
+				return GetTranslation(*it);
+		return "";
+	}
+
+
 	int TranslatedString::DoCompare(const TranslatedString& other) const
 	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
-
-
-	void TranslatedString::Serialize(ObjectOStream& ar) const
-	{ ar.Serialize("translations", *_dictionary); }
-
-
-	void TranslatedString::Deserialize(ObjectIStream& ar)
-	{ ar.Deserialize("translations", *_dictionary); }
-
-
-	std::string TranslatedString::ToString() const
-	{ return stingray::ToString(_dictionary); }
 
 }
