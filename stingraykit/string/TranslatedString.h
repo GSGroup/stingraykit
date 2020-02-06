@@ -21,8 +21,12 @@ namespace stingray
 		typedef IDictionary<LangCode, std::string>	Dictionary;
 		STINGRAYKIT_DECLARE_PTR(Dictionary);
 
+		class Builder;
+
 	private:
 		DictionaryPtr	_dictionary;
+
+		explicit TranslatedString(const DictionaryPtr& dictionary);
 
 	public:
 		TranslatedString();
@@ -56,6 +60,26 @@ namespace stingray
 	private:
 		std::string DoSelectTranslation(const std::vector<LangCode>& langCodes) const;
 		int DoCompare(const TranslatedString& other) const;
+	};
+
+
+	class TranslatedString::Builder
+	{
+		STINGRAYKIT_NONCOPYABLE(Builder);
+
+	private:
+		DictionaryPtr	_product;
+
+	public:
+		Builder();
+		explicit Builder(const TranslatedString& other);
+
+		Builder& AddTranslation(LangCode lang, const std::string& str);
+
+		operator TranslatedString ()
+		{ return Get(); }
+
+		TranslatedString Get();
 	};
 
 }

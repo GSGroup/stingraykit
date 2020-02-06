@@ -15,6 +15,11 @@
 namespace stingray
 {
 
+	TranslatedString::TranslatedString(const DictionaryPtr& dictionary)
+		: _dictionary(STINGRAYKIT_REQUIRE_NOT_NULL(dictionary))
+	{ }
+
+
 	TranslatedString::TranslatedString()
 		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string> >())
 	{ }
@@ -95,5 +100,30 @@ namespace stingray
 
 	int TranslatedString::DoCompare(const TranslatedString& other) const
 	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
+
+
+	TranslatedString::Builder::Builder()
+		: _product(make_shared_ptr<MapDictionary<LangCode, std::string> >())
+	{ }
+
+
+	TranslatedString::Builder::Builder(const TranslatedString& other)
+		: _product(make_shared_ptr<MapDictionary<LangCode, std::string> >(other._dictionary))
+	{ }
+
+
+	TranslatedString::Builder& TranslatedString::Builder::AddTranslation(LangCode lang, const std::string& str)
+	{
+		_product->Set(lang, str);
+		return *this;
+	}
+
+
+	TranslatedString TranslatedString::Builder::Get()
+	{
+		DictionaryPtr result;
+		result.swap(_product);
+		return TranslatedString(result);
+	}
 
 }
