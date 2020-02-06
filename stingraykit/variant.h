@@ -333,8 +333,8 @@ namespace stingray
 		{ AssignVal(DefaultType()); }
 
 		template < typename T >
-		variant(const T& val)
-		{ AssignVal(val); }
+		variant(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
+		{ AssignVal(std::forward<T>(val)); }
 
 		variant(const variant& other)
 		{ Assign(other); }
@@ -349,10 +349,10 @@ namespace stingray
 		}
 
 		template < typename T >
-		void assign(const T& val)
+		void assign(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
 		{
 			base::Destruct();
-			AssignVal(val);
+			AssignVal(std::forward<T>(val));
 		}
 
 		variant& operator = (const variant& other)
@@ -362,9 +362,9 @@ namespace stingray
 		}
 
 		template < typename T >
-		variant& operator = (const T& val)
+		typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, variant&>::ValueT operator = (T&& val)
 		{
-			assign(val);
+			assign(std::forward<T>(val));
 			return *this;
 		}
 
@@ -391,19 +391,19 @@ namespace stingray
 		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
 
 		template < typename T, typename... Us >
-		void emplace(const Us&... args)
+		void emplace(Us&&... args)
 		{
 			base::Destruct();
-			STINGRAYKIT_ASSURE_NOTHROW("Ctor of never-empty variant item threw an exception", this->_storage.template Ctor<T>(args...));
+			STINGRAYKIT_ASSURE_NOTHROW("Ctor of never-empty variant item threw an exception", this->_storage.template Ctor<T>(std::forward<Us>(args)...));
 			this->_type = IndexOfTypeListItem<TypeList, T>::Value;
 		}
 
 	private:
 		template < typename T >
-		void AssignVal(const T& val)
+		void AssignVal(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
 		{
-			STINGRAYKIT_ASSURE_NOTHROW("Copy-ctor of never-empty variant item threw an exception: ", this->_storage.template Ctor<T>(val));
-			this->_type = IndexOfTypeListItem<TypeList, T>::Value;
+			STINGRAYKIT_ASSURE_NOTHROW("Copy-ctor of never-empty variant item threw an exception: ", this->_storage.template Ctor<typename Decay<T>::ValueT>(std::forward<T>(val)));
+			this->_type = IndexOfTypeListItem<TypeList, typename Decay<T>::ValueT>::Value;
 		}
 
 		struct CopyCtorVisitor : static_visitor<>
@@ -436,8 +436,8 @@ namespace stingray
 		{ AssignDefault(); }
 
 		template < typename T >
-		variant(const T& val)
-		{ AssignVal(val); }
+		variant(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
+		{ AssignVal(std::forward<T>(val)); }
 
 		variant(const variant& other)
 		{ Assign(other); }
@@ -452,10 +452,10 @@ namespace stingray
 		}
 
 		template < typename T >
-		void assign(const T& val)
+		void assign(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
 		{
 			base::Destruct();
-			AssignVal(val);
+			AssignVal(std::forward<T>(val));
 		}
 
 		variant& operator = (const variant& other)
@@ -465,9 +465,9 @@ namespace stingray
 		}
 
 		template < typename T >
-		variant& operator = (const T& val)
+		typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, variant&>::ValueT operator = (T&& val)
 		{
-			assign(val);
+			assign(std::forward<T>(val));
 			return *this;
 		}
 
@@ -494,12 +494,12 @@ namespace stingray
 		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(variant);
 
 		template < typename T, typename... Us >
-		void emplace(const Us&... args)
+		void emplace(Us&&... args)
 		{
 			base::Destruct();
 			try
 			{
-				this->_storage.template Ctor<T>(args...);
+				this->_storage.template Ctor<T>(std::forward<Us>(args)...);
 				this->_type = IndexOfTypeListItem<TypeList, T>::Value;
 			}
 			catch (const std::exception& ex)
@@ -508,12 +508,12 @@ namespace stingray
 
 	private:
 		template < typename T >
-		void AssignVal(const T& val)
+		void AssignVal(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
 		{
 			try
 			{
-				this->_storage.template Ctor<T>(val);
-				this->_type = IndexOfTypeListItem<TypeList, T>::Value;
+				this->_storage.template Ctor<typename Decay<T>::ValueT>(std::forward<T>(val));
+				this->_type = IndexOfTypeListItem<TypeList, typename Decay<T>::ValueT>::Value;
 			}
 			catch (const std::exception& ex)
 			{ AssignDefault(); throw; }
