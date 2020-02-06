@@ -13,24 +13,23 @@
 
 namespace stingray
 {
+
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(MalformedUtf8Exception, "Malformed Utf-8 sequence");
 
-	template<typename ContainerType>
-	class Utf8IteratorRange :
-		public Range::RangeBase<Utf8IteratorRange<ContainerType>,
-			u32, typename std::bidirectional_iterator_tag
-		>
+	template < typename ContainerType >
+	class Utf8IteratorRange : public Range::RangeBase<Utf8IteratorRange<ContainerType>, u32, std::bidirectional_iterator_tag>
 	{
 	private:
 		typedef Utf8IteratorRange<ContainerType>		Self;
 		typedef typename ContainerType::const_iterator	IteratorType;
+
 		IteratorType _begin, _end, _it;
 
 	public:
-		Utf8IteratorRange(const ContainerType & data) : _begin(data.begin()), _end(data.end()), _it(_begin)
+		Utf8IteratorRange(const ContainerType& data) : _begin(data.begin()), _end(data.end()), _it(_begin)
 		{ }
 
-		Utf8IteratorRange(const ContainerType & data, const IteratorType & it) : _begin(data.begin()), _end(data.end()), _it(it)
+		Utf8IteratorRange(const ContainerType& data, const IteratorType& it) : _begin(data.begin()), _end(data.end()), _it(it)
 		{ }
 
 		u32 Get() const
@@ -69,16 +68,16 @@ namespace stingray
 		bool Valid() const
 		{ return _it != _end; }
 
-		bool Equals(const Self & other) const
+		bool Equals(const Self& other) const
 		{ return _begin == other._begin && _end == other._end && _it == other._it; }
 
-		Self & First()
+		Self& First()
 		{ _it = _begin; return *this; }
 
-		Self & Last()
+		Self& Last()
 		{ _it = _end; if (_it != _begin) --_it; return *this; }
 
-		Self & Next()
+		Self& Next()
 		{
 			STINGRAYKIT_CHECK(_it != _end, "Next() behind last element");
 			++_it;
@@ -87,7 +86,7 @@ namespace stingray
 			return *this;
 		}
 
-		Self & Prev()
+		Self& Prev()
 		{
 			STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
 			--_it;

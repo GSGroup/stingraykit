@@ -16,21 +16,22 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename TupleParams>
+
+		template < typename TupleParams >
 		struct TupleToStringHelper
 		{
 		public:
-			static void ItemToString(string_ostream & result, const Tuple<TupleParams>& tuple, size_t index, size_t width)
+			static void ItemToString(string_ostream& result, const Tuple<TupleParams>& tuple, size_t index, size_t width)
 			{
 				if (index == 0)
 				{
 					if (width != 0)
 					{
-						std::string item_str = ToString(tuple.GetHead());
-						if (item_str.size() < width)
-							result << std::string(width - item_str.size(), '0') << item_str;
+						const std::string itemStr = ToString(tuple.GetHead());
+						if (itemStr.size() < width)
+							result << std::string(width - itemStr.size(), '0') << itemStr;
 						else
-							result << item_str;
+							result << itemStr;
 					}
 					else
 						ToString(result, tuple.GetHead()); //quick no width variant
@@ -41,31 +42,33 @@ namespace stingray
 		};
 
 
-		template<>
+		template < >
 		struct TupleToStringHelper<TypeListEndNode>
 		{
-			static void ItemToString(string_ostream &, const Tuple<TypeListEndNode>& tuple, size_t index, size_t width)
+			static void ItemToString(string_ostream&, const Tuple<TypeListEndNode>& tuple, size_t index, size_t width)
 			{ STINGRAYKIT_THROW("Tuple item index mismatch!"); }
 		};
 
 
-		template<typename FormatFragments_, typename TupleParams>
+		template < typename FormatFragments_, typename TupleParams >
 		static void StringFormatImpl(string_ostream& result, FormatFragments_ formatFragments, const Tuple<TupleParams>& params)
 		{
 			STINGRAYKIT_CHECK((Count(formatFragments) % 2) == 1, "Format mismatch: no corresponding %");
-			for (size_t i = 0; formatFragments.Valid(); ++i, formatFragments.Next())
+
+			for (size_t idx = 0; formatFragments.Valid(); ++idx, formatFragments.Next())
 			{
-				StringRef fragment = *formatFragments;
-				if (i % 2)
+				const StringRef fragment = *formatFragments;
+				if ((idx % 2) != 0)
 				{
 					if (fragment.empty())
 						result << "%";
 					else
 					{
-						size_t pos = fragment.find('$');
-						size_t index = FromString<size_t>(fragment.substr(0, pos));
+						const size_t pos = fragment.find('$');
+						const size_t index = FromString<size_t>(fragment.substr(0, pos));
 						STINGRAYKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
-						size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
+						const size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
+
 						TupleToStringHelper<TupleParams>::ItemToString(result, params, index - 1, width);
 					}
 				}
@@ -78,7 +81,7 @@ namespace stingray
 
 
 #define TY typename
-#define P_(N) const T##N & p##N
+#define P_(N) const T##N& p##N
 
 #define DETAIL_STINGRAYKIT_DECLARE_STRINGFORMAT(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
 	template < TypesDecl_ > \
@@ -115,9 +118,6 @@ namespace stingray
 #undef P_
 #undef TY
 
-
 }
 
-
 #endif
-

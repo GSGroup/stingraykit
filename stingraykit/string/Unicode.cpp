@@ -7,8 +7,6 @@
 
 #include <stingraykit/string/Unicode.h>
 
-#include <stingraykit/CheckedDelete.h>
-#include <stingraykit/exception.h>
 #include <stingraykit/string/ToString.h>
 
 #ifdef HAVE_ICU_I18N
@@ -78,7 +76,7 @@ namespace stingray
 
 	int UnicodeCollator::Compare(const std::string &str1, const std::string &str2) const
 	{
-		return _caseSensitive? str1.compare(str2): Utf8ToLower(str1).compare(Utf8ToLower(str2));
+		return _caseSensitive ? str1.compare(str2): Utf8ToLower(str1).compare(Utf8ToLower(str2));
 	}
 
 

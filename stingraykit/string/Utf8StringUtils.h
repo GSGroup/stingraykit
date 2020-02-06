@@ -18,7 +18,7 @@ namespace stingray
 	{ return Count(Utf8IteratorRange<std::string>(str)); }
 
 
-	template< bool IndexBySymbols >
+	template < bool IndexBySymbols >
 	std::string Utf8Substring(const std::string& str, size_t pos, size_t count = std::string::npos)
 	{
 		Utf8IteratorRange<std::string> range(str);
