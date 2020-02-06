@@ -47,41 +47,39 @@ namespace stingray
 			{ STINGRAYKIT_THROW("Tuple item index mismatch!"); }
 		};
 
-
-		template < typename FormatFragments_, typename TupleParams >
-		static void StringFormatImpl(string_ostream& result, FormatFragments_ formatFragments, const Tuple<TupleParams>& params)
-		{
-			STINGRAYKIT_CHECK((Count(formatFragments) % 2) == 1, "Format mismatch: no corresponding %");
-
-			for (size_t idx = 0; formatFragments.Valid(); ++idx, formatFragments.Next())
-			{
-				const StringRef fragment = *formatFragments;
-
-				if ((idx % 2) == 0)
-					result << fragment.str();
-				else if (fragment.empty())
-					result << "%";
-				else
-				{
-					const size_t pos = fragment.find('$');
-					const size_t index = FromString<size_t>(fragment.substr(0, pos));
-					STINGRAYKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
-					const size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
-
-					TupleToStringHelper<TupleParams>::ItemToString(result, params, index - 1, width);
-				}
-			}
-		}
-
 	}
 
 
 	template < typename... Ts >
 	std::string StringFormat(const std::string& format, const Ts&... args)
 	{
-		string_ostream ss;
 		typedef typename TypeListTransform<TypeList<Ts...>, AddConstLvalueReference>::ValueT TupleParams;
-		Detail::StringFormatImpl(ss, Split(format, "%"), Tuple<TupleParams>(args...));
+
+		auto formatFragments = Split(format, "%");
+		STINGRAYKIT_CHECK((Count(formatFragments) % 2) == 1, "Format mismatch: no corresponding %");
+
+		const Tuple<TupleParams> params(args...);
+		string_ostream ss;
+
+		for (size_t idx = 0; formatFragments.Valid(); ++idx, formatFragments.Next())
+		{
+			const StringRef fragment = *formatFragments;
+
+			if ((idx % 2) == 0)
+				ss << fragment.str();
+			else if (fragment.empty())
+				ss << "%";
+			else
+			{
+				const size_t pos = fragment.find('$');
+				const size_t index = FromString<size_t>(fragment.substr(0, pos));
+				STINGRAYKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
+				const size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
+
+				Detail::TupleToStringHelper<TupleParams>::ItemToString(ss, params, index - 1, width);
+			}
+		}
+
 		return ss.str();
 	}
 
