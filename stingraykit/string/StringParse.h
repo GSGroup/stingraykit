@@ -198,17 +198,12 @@ namespace stingray
 	}
 
 
-#	define DETAIL_DEFINE_STRING_PARSE(N_, UserArg_) \
-		STINGRAYKIT_INSERT_IF(N_, template <STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T)>) \
-		inline bool StringParse(const std::string& string, const std::string& format STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL_BYREF, T)) \
-		{ \
-			typedef typename TypeList<STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_USAGE_BYREF, T)>::type Arguments; \
-			return Detail::StringParseImpl(string, format, Tuple<Arguments>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, T))); \
-		}
-
-	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DEFINE_STRING_PARSE, ~)
-
-#	undef DETAIL_DEFINE_STRING_PARSE
+	template < typename... Ts >
+	inline bool StringParse(const std::string& string, const std::string& format, Ts&... args)
+	{
+		typedef typename TypeList<Ts&...>::type Arguments;
+		return Detail::StringParseImpl(string, format, Tuple<Arguments>(args...));
+	}
 
 
 	template < typename T, typename ConvertFunc >
