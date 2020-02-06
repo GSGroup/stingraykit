@@ -26,6 +26,7 @@ namespace stingray
 
 	public:
 		TranslatedString();
+		TranslatedString(LangCode lang, const std::string& str);
 
 		TranslatedString& AddTranslation(LangCode lang, const std::string& str);
 

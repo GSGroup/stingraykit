@@ -20,6 +20,11 @@ namespace stingray
 	{ }
 
 
+	TranslatedString::TranslatedString(LangCode lang, const std::string& str)
+		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string> >())
+	{ _dictionary->Set(lang, str); }
+
+
 	TranslatedString& TranslatedString::AddTranslation(LangCode lang, const std::string& str)
 	{
 		_dictionary->Set(lang, str);
