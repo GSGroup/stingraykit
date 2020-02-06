@@ -15,12 +15,8 @@
 namespace stingray
 {
 
-	TranslatedString::TranslatedString() :
-		_dictionary(make_shared_ptr<MapDictionary<LangCode, std::string> >())
-	{ }
-
-
-	TranslatedString::~TranslatedString()
+	TranslatedString::TranslatedString()
+		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string> >())
 	{ }
 
 
@@ -47,10 +43,6 @@ namespace stingray
 
 		return _dictionary->Get(lang);
 	}
-
-
-	TranslatedString::DictionaryPtr TranslatedString::GetTranslations() const
-	{ return _dictionary; }
 
 
 	std::string TranslatedString::SelectTranslation(LangCode l0) const
@@ -86,11 +78,11 @@ namespace stingray
 	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
 
 
-	void TranslatedString::Serialize(ObjectOStream & ar) const
+	void TranslatedString::Serialize(ObjectOStream& ar) const
 	{ ar.Serialize("translations", *_dictionary); }
 
 
-	void TranslatedString::Deserialize(ObjectIStream & ar)
+	void TranslatedString::Deserialize(ObjectIStream& ar)
 	{ ar.Deserialize("translations", *_dictionary); }
 
 

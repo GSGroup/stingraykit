@@ -19,27 +19,27 @@ namespace stingray
 	{
 	public:
 		typedef IDictionary<LangCode, std::string>	Dictionary;
-		typedef shared_ptr<Dictionary> DictionaryPtr;
+		STINGRAYKIT_DECLARE_PTR(Dictionary);
 
 	private:
 		DictionaryPtr	_dictionary;
 
 	public:
 		TranslatedString();
-		~TranslatedString();
 
 		TranslatedString& AddTranslation(LangCode lang, const std::string& str);
 
 		bool HasTranslation(LangCode lang) const;
 		std::string GetTranslation(LangCode lang) const;
 
-		DictionaryPtr GetTranslations() const;
+		DictionaryPtr GetTranslations() const
+		{ return _dictionary; }
 
 		bool IsEmpty() const
 		{ return _dictionary->IsEmpty(); }
 
-		void Serialize(ObjectOStream &ar) const;
-		void Deserialize(ObjectIStream &ar);
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
 		std::string ToString() const;
 
