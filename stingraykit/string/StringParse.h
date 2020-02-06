@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/Tuple.h>
 #include <stingraykit/variant.h>
 
 #include <deque>
@@ -107,28 +106,25 @@ namespace stingray
 			return result;
 		}
 
-		struct ArgumentReader
+		inline bool TryReadArgument(const std::string& string, size_t index)
 		{
-			template < typename Arguments >
-			static bool TryRead(const std::string& string, const Tuple<Arguments>& arguments, size_t index)
-			{
-				if (index == std::numeric_limits<size_t>::max() - 1)
-					return true;
+			if (index == std::numeric_limits<size_t>::max() - 1)
+				return true;
 
-				if (index)
-					return ArgumentReader::TryRead(string, arguments.GetTail(), index - 1);
-				else
-					return Detail::TryRead(string, arguments.GetHead());
-			}
+			STINGRAYKIT_THROW(IndexOutOfRangeException());
+		}
 
-			static bool TryRead(const std::string&, const Tuple<TypeListEndNode>&, size_t index)
-			{
-				if (index == std::numeric_limits<size_t>::max() - 1)
-					return true;
+		template < typename T0, typename... Ts >
+		bool TryReadArgument(const std::string& string, size_t index, T0& p0, Ts&... args)
+		{
+			if (index == std::numeric_limits<size_t>::max() - 1)
+				return true;
 
-				STINGRAYKIT_THROW(IndexOutOfRangeException());
-			}
-		};
+			if (index)
+				return TryReadArgument(string, index - 1, args...);
+			else
+				return TryRead(string, p0);
+		}
 
 	}
 
@@ -136,10 +132,6 @@ namespace stingray
 	template < typename... Ts >
 	inline bool StringParse(const std::string& string, const std::string& format, Ts&... args)
 	{
-		typedef typename TypeList<Ts&...>::type Arguments;
-
-		const Tuple<Arguments> arguments(args...);
-
 		std::deque<variant<TypeList<std::string, size_t>::type > > tokens;
 		std::string::size_type start_pos = 0, current_pos = 0;
 		do
@@ -192,14 +184,14 @@ namespace stingray
 
 			if (index)
 			{
-				if (!(substr_pos - current_string_pos > 0 && Detail::ArgumentReader::TryRead(std::string(string, current_string_pos, substr_pos - current_string_pos), arguments, index - 1)))
+				if (!(substr_pos - current_string_pos > 0 && Detail::TryReadArgument(std::string(string, current_string_pos, substr_pos - current_string_pos), index - 1, args...)))
 					return false;
 				index = 0;
 			}
 			current_string_pos = substr_pos + substr.length();
 		}
 
-		return tokens.empty() && (index ? Detail::ArgumentReader::TryRead(std::string(string.begin() + current_string_pos, string.end()), arguments, index - 1) : !(current_string_pos < string.length()));
+		return tokens.empty() && (index ? Detail::TryReadArgument(std::string(string.begin() + current_string_pos, string.end()), index - 1, args...) : !(current_string_pos < string.length()));
 	}
 
 
