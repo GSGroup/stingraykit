@@ -15,10 +15,10 @@ namespace stingray
 	namespace Detail {
 	namespace any
 	{
-		void ObjectHolder<ISerializablePtr>::Serialize(ObjectOStream & ar) const
+		void ObjectHolder<ISerializablePtr>::Serialize(ObjectOStream& ar) const
 		{ ar.Serialize("obj", Object); }
 
-		void ObjectHolder<ISerializablePtr>::Deserialize(ObjectIStream & ar)
+		void ObjectHolder<ISerializablePtr>::Deserialize(ObjectIStream& ar)
 		{ ar.Deserialize("obj", Object); }
 	}}
 
@@ -50,7 +50,7 @@ namespace stingray
 			_data.Object = data.Object->Clone();
 			break;
 		default:
-			STINGRAYKIT_THROW(ArgumentException("type", type.ToString()));
+			STINGRAYKIT_THROW(ArgumentException("type", type));
 		}
 		_type = type;
 	}
@@ -71,6 +71,7 @@ namespace stingray
 
 	bool any::IsSerializable() const
 	{ return _type != Type::Object || _data.Object->IsSerializable(); }
+
 
 #define STRING(NAME) case Type::NAME: return stingray::ToString(_data.NAME)
 
@@ -98,16 +99,19 @@ namespace stingray
 		case Type::SerializableObject:
 			return _data.Object->ToString();
 		}
-		STINGRAYKIT_THROW("Unknown type: " + _type.ToString());
+
+		STINGRAYKIT_THROW(StringBuilder() % "Unknown type: " % _type);
 	}
 
 #undef STRING
 
+
 #define SERIALIZE(NAME) case Type::NAME: ar.Serialize("val", _data.NAME); return
 
-	void any::Serialize(ObjectOStream & ar) const
+	void any::Serialize(ObjectOStream& ar) const
 	{
 		ar.Serialize("type", _type);
+
 		switch (_type)
 		{
 		case Type::Empty:	return;
@@ -128,25 +132,30 @@ namespace stingray
 		case Type::Object:
 		case Type::SerializableObject:
 			{
-				STINGRAYKIT_CHECK(_data.Object->IsSerializable(), "'any' object (" + Demangle(typeid(*_data.Object).name()) + ") is not a serializable one!");
-				std::string classname(_data.Object->GetClassName());
-				ar.Serialize(".class", classname);
+				STINGRAYKIT_CHECK(_data.Object->IsSerializable(),
+						StringBuilder() % "'any' object (" % Demangle(typeid(*_data.Object).name()) % ") is not a serializable one!");
+
+				ar.Serialize(".class", _data.Object->GetClassName());
 				_data.Object->Serialize(ar);
 			}
 			return;
 		}
-		STINGRAYKIT_THROW("Unknown type: " + _type.ToString());//you could see warning about unhandled type if leave it here
+
+		STINGRAYKIT_THROW(StringBuilder() % "Unknown type: " % _type); //you could see warning about unhandled type if leave it here
 	}
+
 #undef SERIALIZE
+
 
 #define DESERIALIZE(NAME) case Type::NAME: ar.Deserialize("val", _data.NAME); break
 
-	void any::Deserialize(ObjectIStream & ar)
+	void any::Deserialize(ObjectIStream& ar)
 	{
 		Destroy();
 
 		Type type = Type::Empty;
 		ar.Deserialize("type", type);
+
 		switch (type)
 		{
 		case Type::Empty:	break;
@@ -175,12 +184,15 @@ namespace stingray
 			{
 				std::string classname;
 				ar.Deserialize(".class", classname);
+
 				_data.Object = Factory::Instance().Create<IObjectHolder>(classname);
 				_data.Object->Deserialize(ar);
 			}
 			break;
-		default:			STINGRAYKIT_THROW("Unknown type: " + _type.ToString());
+		default:
+			STINGRAYKIT_THROW(StringBuilder() % "Unknown type: " % _type);
 		}
+
 		_type = type;
 	}
 

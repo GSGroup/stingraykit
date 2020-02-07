@@ -8,16 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <typeinfo>
-
 #include <stingraykit/serialization/ISerializable.h>
-#include <stingraykit/Factory.h>
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/aligned_storage.h>
-#include <stingraykit/exception.h>
-#include <stingraykit/toolkit.h>
-
+#include <stingraykit/Factory.h>
 
 namespace stingray
 {
@@ -94,8 +87,8 @@ namespace stingray
 		{
 			ObjectHolder(const T& object) : ObjectHolderBase<T>(object) { }
 
-			virtual void Serialize(ObjectOStream & ar) const	{ STINGRAYKIT_THROW(NotSupportedException()); }
-			virtual void Deserialize(ObjectIStream & ar)		{ STINGRAYKIT_THROW(NotSupportedException()); }
+			virtual void Serialize(ObjectOStream& ar) const		{ STINGRAYKIT_THROW(NotSupportedException()); }
+			virtual void Deserialize(ObjectIStream& ar)			{ STINGRAYKIT_THROW(NotSupportedException()); }
 			virtual bool IsSerializable() const					{ return false; }
 
 			virtual std::string GetClassName() const { STINGRAYKIT_THROW(NotImplementedException()); }
@@ -106,9 +99,11 @@ namespace stingray
 		{
 			ObjectHolder() { }
 			ObjectHolder(const ISerializablePtr& object) : ObjectHolderBase<ISerializablePtr>(object) { }
-			virtual void Serialize(ObjectOStream & ar) const;
-			virtual void Deserialize(ObjectIStream & ar);
+
+			virtual void Serialize(ObjectOStream& ar) const;
+			virtual void Deserialize(ObjectIStream& ar);
 			virtual bool IsSerializable() const					{ return true; }
+
 			STINGRAYKIT_REGISTER_CLASS(ObjectHolder<ISerializablePtr>);
 		};
 
@@ -121,8 +116,8 @@ namespace stingray
 			{ \
 				ObjectHolder() { } \
 				ObjectHolder(const __VA_ARGS__& object) : ObjectHolderBase<__VA_ARGS__>(object) { } \
-				virtual void Serialize(ObjectOStream & ar) const; \
-				virtual void Deserialize(ObjectIStream & ar); \
+				virtual void Serialize(ObjectOStream& ar) const; \
+				virtual void Deserialize(ObjectIStream& ar); \
 				virtual bool IsSerializable() const	{ return true; } \
 				STINGRAYKIT_REGISTER_CLASS(ObjectHolder<__VA_ARGS__>); \
 			}; \
@@ -132,8 +127,8 @@ namespace stingray
 		namespace stingray { \
 		namespace Detail { \
 		namespace any { \
-				void ObjectHolder<__VA_ARGS__>::Serialize(ObjectOStream & ar) const	{ ar.Serialize("obj", Object); } \
-				void ObjectHolder<__VA_ARGS__>::Deserialize(ObjectIStream & ar)		{ ar.Deserialize("obj", Object); } \
+				void ObjectHolder<__VA_ARGS__>::Serialize(ObjectOStream& ar) const	{ ar.Serialize("obj", Object); } \
+				void ObjectHolder<__VA_ARGS__>::Deserialize(ObjectIStream& ar)		{ ar.Deserialize("obj", Object); } \
 		}}}
 
 		union DataType
@@ -221,8 +216,8 @@ namespace stingray
 
 	class any
 	{
-		template<typename ValueType> friend const ValueType * any_cast(const any * operand);
-		template<typename ValueType> friend ValueType * any_cast(any * operand);
+		template<typename ValueType> friend const ValueType* any_cast(const any* operand);
+		template<typename ValueType> friend ValueType* any_cast(any* operand);
 		template<typename T> friend const T& any_cast(const any& operand);
 		template<typename T> friend T& any_cast(any& operand);
 
@@ -235,20 +230,35 @@ namespace stingray
 		DataType	_data;
 
 	public:
-		any() : _type(Type::Empty) { }
-		any(const any &other) : _type(Type::Empty) { Copy(other._type, other._data); }
+		any() : _type(Type::Empty)
+		{ }
+
+		any(const any& other) : _type(Type::Empty)
+		{ Copy(other._type, other._data); }
 
 		template < typename T >
-		any(const T & val) : _type(Type::Empty) { Init<T>(val); }
+		any(const T& val) : _type(Type::Empty)
+		{ Init<T>(val); }
 
-		~any() { Destroy(); }
+		~any()
+		{ Destroy(); }
 
-		any & operator=(const any &other) { Destroy(); Copy(other._type, other._data); return *this; }
+		any& operator = (const any& other)
+		{
+			Destroy();
+			Copy(other._type, other._data);
+			return *this;
+		}
 
 		template < typename T >
-		any & operator=(const T & val) { Destroy(); Init<T>(val); return *this; }
+		any& operator = (const T& val)
+		{
+			Destroy();
+			Init<T>(val);
+			return *this;
+		}
 
-		any & swap(any & other)
+		any& swap(any& other)
 		{
 			std::swap(_type, other._type);
 			std::swap(_data, other._data);
@@ -256,14 +266,13 @@ namespace stingray
 		}
 
 		bool empty() const { return _type == Type::Empty; }
-		//const std::type_info & type() const;
 
 		bool IsSerializable() const;
 
 		std::string ToString() const;
 
-		void Serialize(ObjectOStream & ar) const;
-		void Deserialize(ObjectIStream & ar);
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
 	private:
 		template < typename T >
@@ -289,40 +298,37 @@ namespace stingray
 	private:
 		std::string		_message;
 	public:
-		bad_any_cast(const std::string& from, const std::string& to) : _message("Bad 'any' cast from " + from + " to " + to + "!") { }
+		bad_any_cast(const std::string& from, const std::string& to) : _message(StringBuilder() % "Bad 'any' cast from " % from % " to " % to % "!") { }
 		virtual ~bad_any_cast() throw() { }
 
 		virtual const char* what() const throw() { return _message.c_str(); }
 	};
 
+
 	template < typename ValueType >
-	const ValueType * any_cast(const any * operand)
+	const ValueType* any_cast(const any* operand)
 	{ return operand ? operand->template Get<ValueType>() : NULL; }
 
 	template < typename ValueType >
-	ValueType * any_cast(any * operand)
+	ValueType* any_cast(any* operand)
 	{ return operand ? operand->template Get<ValueType>() : NULL; }
 
 	template < typename T >
-	T& any_cast(any & operand)
+	T& any_cast(any& operand)
 	{
 		T* ptr = operand.template Get<T>();
-		if (!ptr)
-			STINGRAYKIT_THROW(bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
+		STINGRAYKIT_CHECK(ptr, bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
 		return *ptr;
 	}
 
 	template < typename T >
-	const T& any_cast(const any & operand)
+	const T& any_cast(const any& operand)
 	{
 		const T* ptr = operand.template Get<T>();
-		if (!ptr)
-			STINGRAYKIT_THROW(bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
+		STINGRAYKIT_CHECK(ptr, bad_any_cast(operand._type.ToString(), Demangle(typeid(T).name())));
 		return *ptr;
 	}
 
-
 }
-
 
 #endif
