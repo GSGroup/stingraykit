@@ -3,13 +3,8 @@
 
 #include <stingraykit/function/function.h>
 #include <stingraykit/string/StringUtils.h>
-#include <stingraykit/reference.h>
-#include <stingraykit/toolkit.h>
 
-#include <set>
 #include <stdlib.h>
-#include <string>
-#include <vector>
 
 namespace stingray
 {
@@ -20,9 +15,6 @@ namespace stingray
 		typedef function<std::set<std::string>()>						CustomCompleteFunc;
 		typedef shared_ptr<CustomCompleteFunc>							CustomCompleteFuncPtr;
 		typedef std::map<size_t, CustomCompleteFuncPtr>					CustomCompleteFuncsMap;
-
-		template < typename T, bool THasFromString = HasMethod_FromString<T>::Value, bool TIsIntType = IsInt<T>::Value >
-		struct CmdArgReader;
 
 
 		template < typename T >
@@ -39,6 +31,10 @@ namespace stingray
 				return end_p - str;
 			}
 		};
+
+
+		template < typename T, bool THasFromString = HasMethod_FromString<T>::Value, bool TIsIntType = IsInt<T>::Value >
+		struct CmdArgReader;
 
 		template < typename T >
 		struct CmdArgReader<T, false, true> : public IntCmdArgReader<T> { };
@@ -163,9 +159,11 @@ namespace stingray
 			}
 		};
 
+
 		template < typename T >
 		size_t ReadCmdArg(const char* str, size_t len, T& val)
 		{ return CmdArgReader<T>::Read(str, len, val); }
+
 
 		template < typename T, size_t N, bool TIsUnknownType = !IsEnumClass<T>::Value && !IsSame<bool, T>::Value >
 		struct CmdArgCompleter
@@ -220,7 +218,6 @@ namespace stingray
 				return ret;
 			}
 		};
-
 
 		template < typename T, size_t N >
 		struct CmdArgCompleter<T, N, false >
@@ -287,6 +284,7 @@ namespace stingray
 		};
 	}
 
+
 	struct CustomComplete
 	{
 		size_t							N;
@@ -297,12 +295,13 @@ namespace stingray
 		{ }
 	};
 
+
 	class CmdLine
 	{
 	public:
 		typedef std::set<std::string> CompletionResults;
-	private:
 
+	private:
 		struct ICommandHandler
 		{
 			virtual ~ICommandHandler() { }
@@ -409,7 +408,6 @@ namespace stingray
 				}
 			};
 
-
 		private:
 			StringsTuple					_strings;
 			Detail::CustomCompleteFuncsMap	_customComplete;
@@ -422,9 +420,9 @@ namespace stingray
 
 			virtual void AddCustomComplete(const CustomComplete& customComplete)
 			{
-				Detail::CustomCompleteFuncsMap::const_iterator it = _customComplete.find(customComplete.N);
-				if (it != _customComplete.end())
-					STINGRAYKIT_THROW("Custom complete func for argument #" + stingray::ToString(customComplete.N) + " already registered!");
+				STINGRAYKIT_CHECK(_customComplete.find(customComplete.N) == _customComplete.end(),
+						StringBuilder() % "Custom complete func for argument #" % customComplete.N % " already registered!");
+
 				_customComplete[customComplete.N] = make_shared_ptr<Detail::CustomCompleteFunc>(customComplete.Func);
 			}
 
@@ -490,9 +488,11 @@ namespace stingray
 			template < typename HandlerFunc >
 			CustomCompleteFuncSetter operator = (const HandlerFunc& handlerFunc)
 			{
-				typedef typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, Decay>::ValueT	DecayedParams;
-				ICommandHandlerPtr ch = make_shared_ptr<CmdHandler<StringsTuple, DecayedParams> >(_strings, handlerFunc);
+				typedef typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, Decay>::ValueT DecayedParams;
+
+				const ICommandHandlerPtr ch = make_shared_ptr<CmdHandler<StringsTuple, DecayedParams> >(_strings, handlerFunc);
 				_inst->_commands.push_back(ch);
+
 				return CustomCompleteFuncSetter(ch);
 			}
 		};
@@ -542,8 +542,6 @@ namespace stingray
 		{ return HandlerInserter<StringsTuple>(this, s); }
 	};
 
-
 }
-
 
 #endif
