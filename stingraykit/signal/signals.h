@@ -35,7 +35,7 @@ namespace stingray
 				: _functionStorage(func), _tester(tester)
 			{ }
 
-			template <typename Signature_, typename Params_>
+			template < typename Signature_, typename Params_ >
 			void Invoke(const Params_& p) const
 			{
 				LocalExecutionGuard guard(_tester);
@@ -55,7 +55,7 @@ namespace stingray
 				: _functionStorage(func)
 			{ STINGRAYKIT_CHECK(tester.IsDummy(), "ThreadlessStorage can't be used with real tokens!"); }
 
-			template <typename Signature_, typename Params_>
+			template < typename Signature_, typename Params_ >
 			void Invoke(const Params_& p) const
 			{ FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p); }
 		};
@@ -82,8 +82,10 @@ namespace stingray
 			{ } \
 			void operator() (STINGRAYKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_DECL, ~)) const \
 			{ \
-				try { _func(STINGRAYKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_USAGE, ~)); } \
-				catch (std::exception& ex) { _exFunc(ex); } \
+				try \
+				{ _func(STINGRAYKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_USAGE, ~)); } \
+				catch (std::exception& ex) \
+				{ _exFunc(ex); } \
 			} \
 		};
 
@@ -95,11 +97,9 @@ namespace stingray
 
 #define WRAP_EXCEPTION_HANDLING(exceptionHandler, ...) \
 		try \
-		{ __VA_ARGS__ } \
+		{ __VA_ARGS__; } \
 		catch (const std::exception& ex) \
-		{ \
-			exceptionHandler(ex); \
-		}
+		{ exceptionHandler(ex); }
 
 
 		template < bool IsThreadsafe >
@@ -263,7 +263,7 @@ namespace stingray
 				}
 
 				for (typename base::LocalHandlersCopy::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
-					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature_>(p); );
+					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature_>(p));
 			}
 
 			virtual ConnectionPolicy GetConnectionPolicy() const { return this->DoGetConnectionPolicy(); }
@@ -272,12 +272,13 @@ namespace stingray
 			virtual typename base::MutexRefType DoGetSync() const
 			{ return this->GetSync(); }
 
-			virtual void DoSendCurrentState(const function_storage& storage) const
+			virtual void DoSendCurrentState(const function_storage& slot) const
 			{
-				Detail::ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrapped_slot(storage.ToFunction<Signature_>(), this->GetExceptionHandler());
-				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), PopulatorsPolicy_::template SendCurrentStateImpl<Signature_>(wrapped_slot); );
+				const ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrappedSlot(slot.ToFunction<Signature_>(), this->GetExceptionHandler());
+				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->template SendCurrentStateImpl<Signature_>(wrappedSlot));
 			}
 		};
+
 	}
 
 
@@ -337,7 +338,8 @@ namespace stingray
 		private: \
 			ImplPtr		_impl; \
 		public: \
-			Invoker(const ImplPtr& impl) : _impl(impl) { } \
+			Invoker(const ImplPtr& impl) : _impl(impl) \
+			{ } \
 			void operator () (STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
 			{ _impl->InvokeAll(Tuple<ParamTypes>(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); } \
 		}; \
@@ -382,8 +384,17 @@ namespace stingray
 			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState); \
 		} \
 		\
-		signal_connector<Signature> connector() const { CreationPolicy_::template LazyCreate(_impl); return signal_connector<Signature>(_impl); } \
-		Invoker invoker() const { CreationPolicy_::template LazyCreate(_impl); return Invoker(_impl); } \
+		signal_connector<Signature> connector() const \
+		{ \
+			CreationPolicy_::template LazyCreate(_impl); \
+			return signal_connector<Signature>(_impl); \
+		} \
+		\
+		Invoker invoker() const \
+		{ \
+			CreationPolicy_::template LazyCreate(_impl); \
+			return Invoker(_impl); \
+		} \
 		\
 		void operator () (STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
 		{ \
