@@ -78,7 +78,16 @@ namespace stingray
 		ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
 
 		template < typename ArgumentType >
-		ArgumentException(const std::string& argName, const ArgumentType& argValue) : Exception("Invalid argument '" + argName + "' value '" + ToString(argValue) + "'") { }
+		ArgumentException(const std::string& argName, const ArgumentType& argValue) : Exception(BuildErrorMessage(argName, argValue)) { }
+
+	private:
+		template < typename ArgumentType >
+		static std::string BuildErrorMessage(const std::string& argName, const ArgumentType& argValue)
+		{
+			string_ostream stream;
+			stream << "Invalid argument '" << argName << "' value '" << ToString(argValue) << "'";
+			return stream.str();
+		}
 	};
 
 	struct NullArgumentException : public Exception
@@ -153,10 +162,18 @@ namespace stingray
 
 	public:
 		InvalidCastException() : _message("Invalid cast!") { }
-		InvalidCastException(const std::string& source, const std::string& target) : _message("Invalid cast from " + source + " to " + target) { }
+		InvalidCastException(const std::string& source, const std::string& target) : _message(BuildErrorMessage(source, target)) { }
 		virtual ~InvalidCastException() throw() { }
 
 		virtual const char* what() const throw() { return _message.c_str(); }
+
+	private:
+		static std::string BuildErrorMessage(const std::string& source, const std::string& target)
+		{
+			string_ostream stream;
+			stream << "Invalid cast from " << source << " to " << target;
+			return stream.str();
+		}
 	};
 
 	struct KeyNotFoundException : public Exception
