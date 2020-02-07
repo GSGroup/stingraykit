@@ -126,6 +126,8 @@ namespace stingray
 	class Tuple<TypeListEndNode>
 	{
 	public:
+		typedef TypeList<>::type				TypeList;
+
 		static const size_t Size = 0;
 
 		Tuple() { }
