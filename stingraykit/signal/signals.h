@@ -24,7 +24,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		struct CancellableStorage : public IntrusiveListNode<CancellableStorage>
+		class CancellableStorage : public IntrusiveListNode<CancellableStorage>
 		{
 		private:
 			function_storage		_functionStorage;
@@ -45,7 +45,7 @@ namespace stingray
 		};
 
 
-		struct ThreadlessStorage : public IntrusiveListNode<ThreadlessStorage>
+		class ThreadlessStorage : public IntrusiveListNode<ThreadlessStorage>
 		{
 		private:
 			function_storage		_functionStorage;
@@ -62,16 +62,18 @@ namespace stingray
 
 
 		template < typename Signature, typename ExceptionHandlerFunc, size_t ParamsNum = GetTypeListLength<typename function_info<Signature>::ParamTypes>::Value >
-		struct ExceptionHandlerWrapper;
+		class ExceptionHandlerWrapper;
 
 #define DETAIL_EXCEPTION_HANDLER_PARAM_DECL(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename GetParamPassingType<typename GetTypeListItem<ParamTypes, Index_>::ValueT>::ValueT p##Index_
 #define DETAIL_EXCEPTION_HANDLER_PARAM_USAGE(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) p##Index_
 #define DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(N_, UserArg_) \
 		template < typename Signature, typename ExceptionHandlerFunc > \
-		struct ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, N_> : public function_info<Signature> \
+		class ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, N_> : public function_info<Signature> \
 		{ \
-			typedef function<Signature>								FuncType; \
-			typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
+		public: \
+			typedef function_info<Signature>		BaseType; \
+			typedef typename BaseType::ParamTypes	ParamTypes; \
+			typedef function<Signature>				FuncType; \
 			\
 		private: \
 			FuncType				_func; \
@@ -103,18 +105,18 @@ namespace stingray
 
 
 		template < bool IsThreadsafe >
-		struct SignalImplBase : public ISignalConnector
+		class SignalImplBase : public ISignalConnector
 		{
-			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncType;
-			typedef FuncType																	Handler;
-			typedef IntrusiveList<Handler>														Handlers;
+		public:
+			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncStorageType;
+			typedef IntrusiveList<FuncStorageType>												Handlers;
 
 		protected:
 			typedef signal_policies::threading::DummyMutex										DummyMutex;
 			typedef signal_policies::threading::DummyLock										DummyLock;
 			typedef typename If<IsThreadsafe, const Mutex&, DummyMutex>::ValueT					MutexRefType;
 			typedef typename If<IsThreadsafe, MutexLock, DummyLock>::ValueT						LockType;
-			typedef inplace_vector<FuncType, 16>												LocalHandlersCopy;
+			typedef inplace_vector<FuncStorageType, 16>											LocalHandlersCopy;
 
 		protected:
 			Handlers	_handlers;
@@ -131,13 +133,13 @@ namespace stingray
 				DoSendCurrentState(slot);
 			}
 
-			void AddHandler(Handler& handler)
+			void AddHandler(FuncStorageType& handler)
 			{
 				// mutex is locked in Connect
 				_handlers.push_back(handler);
 			}
 
-			void RemoveHandler(Handler& handler)
+			void RemoveHandler(FuncStorageType& handler)
 			{
 				LockType l(DoGetSync());
 				_handlers.erase(handler);
@@ -159,17 +161,16 @@ namespace stingray
 		public:
 			typedef SignalImplBase<IsThreadsafe>	Impl;
 			typedef self_count_ptr<Impl>			ImplPtr;
-			typedef typename Impl::FuncType			FuncType;
-			typedef typename Impl::Handler			Handler;
+			typedef typename Impl::FuncStorageType	FuncStorageType;
 
 		private:
 			ImplPtr				_signalImpl;
-			Handler				_handler;
+			FuncStorageType		_handler;
 			TaskLifeToken		_token;
 
 		public:
 			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken)
-				: _signalImpl(signalImpl), _handler(FuncType(func, invokeTester)), _token(connectionToken)
+				: _signalImpl(signalImpl), _handler(func, invokeTester), _token(connectionToken)
 			{ _signalImpl->AddHandler(_handler); }
 
 			virtual ~Connection()
