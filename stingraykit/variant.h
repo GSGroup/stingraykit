@@ -424,7 +424,8 @@ namespace stingray
 			void operator () (const T& t) const { _target.AssignVal(t); }
 		};
 
-		void Assign(const MyType& other) { other.ApplyVisitor(CopyCtorVisitor(*this)); }
+		void Assign(const MyType& other)
+		{ other.ApplyVisitor(CopyCtorVisitor(*this)); }
 	};
 
 
@@ -464,16 +465,14 @@ namespace stingray
 
 		variant& operator = (const variant& other)
 		{
-			base::Destruct();
-			Assign(other);
+			assign(other);
 			return *this;
 		}
 
 		template < typename T >
 		variant& operator = (const T& val)
 		{
-			base::Destruct();
-			AssignVal(val);
+			assign(val);
 			return *this;
 		}
 
@@ -508,7 +507,8 @@ namespace stingray
 				base::Destruct(); \
 				this->_storage.template Ctor<T>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
 				this->_type = IndexOfTypeListItem<TypeList, T>::Value; \
-			} catch (const std::exception& ex) \
+			} \
+			catch (const std::exception& ex) \
 			{ AssignDefault(); throw; } \
 		}
 
