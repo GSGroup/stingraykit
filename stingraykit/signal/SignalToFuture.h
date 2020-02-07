@@ -18,7 +18,7 @@ namespace stingray
 	 * @{
 	 */
 
-	template<typename ParamType>
+	template < typename ParamType >
 	class SignalToFutureWrapper
 	{
 	private:
@@ -27,7 +27,7 @@ namespace stingray
 		Token							_connection;
 
 	public:
-		template<typename SignalSignature>
+		template < typename SignalSignature >
 		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& connector)
 		{ _connection = connector.connect(Bind(&promise<ParamType>::set_value, wrap_ref(_promise), _1)); }
 
@@ -40,7 +40,7 @@ namespace stingray
 	};
 
 
-	template<>
+	template < >
 	class SignalToFutureWrapper<void>
 	{
 	private:
@@ -49,7 +49,7 @@ namespace stingray
 		Token						_connection;
 
 	public:
-		template<typename SignalSignature>
+		template < typename SignalSignature >
 		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& connector)
 		{ _connection = connector.connect(Bind(&promise<void>::set_value, wrap_ref(_promise))); }
 

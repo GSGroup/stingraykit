@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/IntrusiveList.h>
-#include <stingraykit/collection/inplace_vector.h>
 #include <stingraykit/signal/signal_connector.h>
 
 namespace stingray
@@ -32,8 +31,8 @@ namespace stingray
 			FutureExecutionTester	_tester;
 
 		public:
-			CancellableStorage(const function_storage& func, const FutureExecutionTester& tester) :
-				_functionStorage(func), _tester(tester)
+			CancellableStorage(const function_storage& func, const FutureExecutionTester& tester)
+				: _functionStorage(func), _tester(tester)
 			{ }
 
 			template <typename Signature_, typename Params_>
@@ -52,8 +51,8 @@ namespace stingray
 			function_storage		_functionStorage;
 
 		public:
-			ThreadlessStorage(const function_storage& func, const FutureExecutionTester& tester) :
-				_functionStorage(func)
+			ThreadlessStorage(const function_storage& func, const FutureExecutionTester& tester)
+				: _functionStorage(func)
 			{ STINGRAYKIT_CHECK(tester.IsDummy(), "ThreadlessStorage can't be used with real tokens!"); }
 
 			template <typename Signature_, typename Params_>
@@ -62,13 +61,13 @@ namespace stingray
 		};
 
 
-		template<typename Signature, typename ExceptionHandlerFunc, size_t ParamsNum = GetTypeListLength<typename function_info<Signature>::ParamTypes>::Value>
+		template < typename Signature, typename ExceptionHandlerFunc, size_t ParamsNum = GetTypeListLength<typename function_info<Signature>::ParamTypes>::Value >
 		struct ExceptionHandlerWrapper;
 
 #define DETAIL_EXCEPTION_HANDLER_PARAM_DECL(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename GetParamPassingType<typename GetTypeListItem<ParamTypes, Index_>::ValueT>::ValueT p##Index_
 #define DETAIL_EXCEPTION_HANDLER_PARAM_USAGE(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) p##Index_
 #define DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(N_, UserArg_) \
-		template<typename Signature, typename ExceptionHandlerFunc> \
+		template < typename Signature, typename ExceptionHandlerFunc > \
 		struct ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, N_> : public function_info<Signature> \
 		{ \
 			typedef function<Signature>								FuncType; \
@@ -103,7 +102,7 @@ namespace stingray
 		}
 
 
-		template <bool IsThreadsafe>
+		template < bool IsThreadsafe >
 		struct SignalImplBase : public ISignalConnector
 		{
 			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncType;
@@ -154,7 +153,7 @@ namespace stingray
 		};
 
 
-		template <bool IsThreadsafe>
+		template < bool IsThreadsafe >
 		class Connection : public IToken
 		{
 		public:
@@ -169,8 +168,8 @@ namespace stingray
 			TaskLifeToken		_token;
 
 		public:
-			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken) :
-				_signalImpl(signalImpl), _handler(FuncType(func, invokeTester)), _token(connectionToken)
+			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken)
+				: _signalImpl(signalImpl), _handler(FuncType(func, invokeTester)), _token(connectionToken)
 			{ _signalImpl->AddHandler(_handler); }
 
 			virtual ~Connection()
@@ -296,6 +295,7 @@ namespace stingray
 		{ }
 	};
 
+
 	template < typename Signature_,
 		typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
 		typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
@@ -370,7 +370,7 @@ namespace stingray
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal"); \
-			TaskLifeToken token(_impl->CreateSyncToken()); \
+			const TaskLifeToken token(_impl->CreateSyncToken()); \
 			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState); \
 		} \
 		\
@@ -378,7 +378,7 @@ namespace stingray
 		{ \
 			CreationPolicy_::template LazyCreate(_impl); \
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal"); \
-			TaskLifeToken token(_impl->CreateAsyncToken()); \
+			const TaskLifeToken token(_impl->CreateAsyncToken()); \
 			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState); \
 		} \
 		\

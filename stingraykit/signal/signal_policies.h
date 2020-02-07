@@ -8,9 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/function/function.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -32,7 +30,7 @@ namespace stingray
 			{
 				template < typename ImplType >
 				static self_count_ptr<ImplType> CtorCreate()
-				{ return self_count_ptr<ImplType>(new ImplType()); }
+				{ return make_self_count_ptr<ImplType>(); }
 
 				template < typename ImplType >
 				static void LazyCreate(self_count_ptr<ImplType>& impl)
@@ -47,7 +45,7 @@ namespace stingray
 
 				template < typename ImplType >
 				static void LazyCreate(self_count_ptr<ImplType>& impl)
-				{ if (!impl) impl.reset(new ImplType()); }
+				{ if (!impl) impl = make_self_count_ptr<ImplType>(); }
 			};
 
 		}

@@ -92,7 +92,7 @@ namespace stingray
 		struct DummySignalConnectorProxy
 		{
 			template < typename Signature_ >
-			operator signal_connector<Signature_>() const
+			operator signal_connector<Signature_> () const
 			{ return signal_connector<Signature_>(); }
 		};
 
