@@ -7,21 +7,28 @@
 
 #include <stingraykit/SystemException.h>
 
+#include <stingraykit/string/ToString.h>
+
 #include <errno.h>
 #include <string.h>
 
-#include <stingraykit/string/ToString.h>
-
 namespace stingray
 {
-	SystemException::SystemException(const std::string &message) throw():
-		Exception(message + ": errno = " + GetErrorMessage(errno)), _error(errno) {}
 
-	SystemException::SystemException(const std::string &message, int err) throw():
-		Exception(message + ": errno = " + GetErrorMessage(err)), _error(err) {}
+	SystemException::SystemException(const std::string& message) throw()
+		: Exception(message + ": errno = " + GetErrorMessage(errno)), _error(errno)
+	{ }
 
-	SystemException::SystemException(const std::string &message, const std::string &path, int err) throw():
-		Exception(message + (!path.empty()? " '" + path + "'": std::string()) + ": errno = " + GetErrorMessage(err)), _error(err) {}
+
+	SystemException::SystemException(const std::string& message, int err) throw()
+		: Exception(message + ": errno = " + GetErrorMessage(err)), _error(err)
+	{ }
+
+
+	SystemException::SystemException(const std::string& message, const std::string& path, int err) throw()
+		: Exception(message + (!path.empty()? " '" + path + "'": std::string()) + ": errno = " + GetErrorMessage(err)), _error(err)
+	{ }
+
 
 	std::string SystemException::GetErrorMessage(int err) throw()
 	{
@@ -29,13 +36,15 @@ namespace stingray
 		char buf[256];
 		char *msg = strerror_r(err, buf, sizeof(buf));
 		result += " (";
-		result += msg ? msg: "Unknown error";
+		result += msg ? msg : "Unknown error";
 		result += ")";
 		return result;
 	}
 
+
 	std::string SystemException::GetErrorMessage() throw()
 	{ return GetErrorMessage(errno); }
+
 
 #define ERRNO_STR(val) case val: return #val
 	std::string SystemException::ErrnoToStr(int e)

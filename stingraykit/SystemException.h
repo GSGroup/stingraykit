@@ -10,27 +10,25 @@
 
 #include <stingraykit/exception.h>
 
-#include <string>
-#include <stdexcept>
-
 namespace stingray
 {
 
-	struct SystemException : public Exception
+	class SystemException : public Exception
 	{
-		SystemException(const std::string &message) throw();
-		SystemException(const std::string &message, int err) throw();
-		SystemException(const std::string &message, const std::string &path, int err) throw();
+	private:
+		int	_error;
+
+	public:
+		SystemException(const std::string& message) throw();
+		SystemException(const std::string& message, int err) throw();
+		SystemException(const std::string& message, const std::string& path, int err) throw();
+
+		int GetErrorCode() const { return _error; }
 
 		static std::string GetErrorMessage(int err) throw();
 		static std::string GetErrorMessage() throw();
 
-		inline int GetErrorCode() const
-		{ return _error; }
-
 	private:
-		int	_error;
-
 		static std::string ErrnoToStr(int e);
 	};
 
