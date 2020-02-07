@@ -69,8 +69,9 @@ namespace stingray
 			if (STINGRAYKIT_UNLIKELY(!_impl))
 				return Token();
 
-			TaskLifeToken token(_impl->CreateSyncToken());
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
+
+			const TaskLifeToken token(_impl->CreateSyncToken());
 			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState);
 		}
 
@@ -79,8 +80,9 @@ namespace stingray
 			if (STINGRAYKIT_UNLIKELY(!_impl))
 				return Token();
 
-			TaskLifeToken token(_impl->CreateAsyncToken());
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
+
+			const TaskLifeToken token(_impl->CreateAsyncToken());
 			return _impl->Connect(function_storage(function<Signature_>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState);
 		}
 	};
