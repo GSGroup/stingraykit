@@ -8,24 +8,20 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stdexcept>
-#include <typeinfo>
-#include <string>
-
-
 #include <stingraykit/diagnostics/Backtrace.h>
 #include <stingraykit/string/string_stream.h>
 #include <stingraykit/toolkit.h>
+
+#include <stdexcept>
+#include <typeinfo>
 
 #define STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(ExceptionClass, Message) \
 	struct ExceptionClass : public stingray::Exception \
 	{ \
 		ExceptionClass() : stingray::Exception(Message) { } \
-		ExceptionClass(const std::string & message) : stingray::Exception(message + ": " + Message) { } \
+		ExceptionClass(const std::string& message) : stingray::Exception(message + ": " + Message) { } \
 		virtual ~ExceptionClass() throw() { } \
 	}
-
 
 namespace stingray
 {
@@ -33,12 +29,12 @@ namespace stingray
 	template < typename T >
 	std::string ToString(const T& val); // for ArgumentException; TODO find better workaround
 
+
 	class Exception : public std::runtime_error
 	{
 	public:
-		Exception(const std::string& message)
-			: std::runtime_error(message)
-		{ }
+		Exception(const std::string& message) : std::runtime_error(message) { }
+
 		virtual ~Exception() throw() { }
 	};
 
@@ -56,6 +52,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(SocketException, "Socket error!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(AccessDeniedException, "Access denied!");
 
+
 #define STINGRAYKIT_CHECK(Condition, ExceptionObj) \
 		do { if (STINGRAYKIT_UNLIKELY(!(Condition))) STINGRAYKIT_THROW(ExceptionObj); } while(false)
 
@@ -64,6 +61,7 @@ namespace stingray
 
 #define STINGRAYKIT_WRAP_EXCEPTIONS(Message, ...) \
 		do { try { __VA_ARGS__; } catch (const std::exception& ex) { STINGRAYKIT_RETHROW_WITH_MESSAGE(Message, ex); } } while (false)
+
 
 	struct LogicException : public std::logic_error
 	{
@@ -78,6 +76,7 @@ namespace stingray
 	{
 		ArgumentException() : Exception("Invalid argument!") { }
 		ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
+
 		template < typename ArgumentType >
 		ArgumentException(const std::string& argName, const ArgumentType& argValue) : Exception("Invalid argument '" + argName + "' value '" + ToString(argValue) + "'") { }
 	};
@@ -202,7 +201,7 @@ namespace stingray
 
 	public:
 		BaseException(ToolkitWhere where) : _where(where)
-		{}
+		{ }
 
 		virtual ~BaseException() throw() { }
 
@@ -219,6 +218,7 @@ namespace stingray
 		ExceptionWrapper(const UserBaseException& ex, ToolkitWhere where)
 			: BaseException(where), UserBaseException(ex)
 		{ }
+
 		virtual ~ExceptionWrapper() throw() { }
 	};
 
@@ -233,15 +233,12 @@ namespace stingray
 			return ExceptionWrapper<BaseException>(ex, where);
 		}
 
-		inline ExceptionWrapper<Exception> MakeException(const std::string &message, ToolkitWhere where)
-		{
-			return MakeException(Exception(message), where);
-		}
+		inline ExceptionWrapper<Exception> MakeException(const std::string& message, ToolkitWhere where)
+		{ return MakeException(Exception(message), where); }
 
 		inline ExceptionWrapper<Exception> MakeException(const char *message, ToolkitWhere where)
-		{
-			return MakeException(Exception(message), where);
-		}
+		{ return MakeException(Exception(message), where); }
+
 
 		template < typename T >
 		const T& RequireNotNull(const T& obj, const char* expr, ToolkitWhere where)
@@ -258,10 +255,11 @@ namespace stingray
 #define STINGRAYKIT_MAKE_EXCEPTION(...) ::stingray::Detail::MakeException(__VA_ARGS__, STINGRAYKIT_WHERE)
 #define STINGRAYKIT_THROW(...) throw ::stingray::Detail::MakeException(__VA_ARGS__, STINGRAYKIT_WHERE)
 
+
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 
 	template < typename ExceptionType >
-	inline void diagnostic_information(string_ostream & result, const ExceptionType& ex)
+	inline void diagnostic_information(string_ostream& result, const ExceptionType& ex)
 	{
 		const Detail::IToolkitException* tkit_ex = dynamic_cast<const Detail::IToolkitException*>(&ex);
 		const std::exception* std_ex = dynamic_cast<const std::exception*>(&ex);
@@ -274,9 +272,7 @@ namespace stingray
 
 		if (tkit_ex)
 			_append_extended_diagnostics(result, *tkit_ex);
-
 	}
-
 
 	template < typename ExceptionType >
 	inline std::string diagnostic_information(const ExceptionType& ex)
@@ -287,6 +283,5 @@ namespace stingray
 	}
 
 }
-
 
 #endif
