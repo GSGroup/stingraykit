@@ -339,6 +339,9 @@ namespace stingray
 		variant(const variant& other)
 		{ Assign(other); }
 
+		variant(variant&& other)
+		{ Assign(std::move(other)); }
+
 		~variant()
 		{ base::Destruct(); }
 
@@ -346,6 +349,12 @@ namespace stingray
 		{
 			base::Destruct();
 			Assign(other);
+		}
+
+		void assign(variant&& other)
+		{
+			base::Destruct();
+			Assign(std::move(other));
 		}
 
 		template < typename T >
@@ -358,6 +367,12 @@ namespace stingray
 		variant& operator = (const variant& other)
 		{
 			assign(other);
+			return *this;
+		}
+
+		variant& operator = (variant&& other)
+		{
+			assign(std::move(other));
 			return *this;
 		}
 
@@ -421,6 +436,26 @@ namespace stingray
 
 		void Assign(const MyType& other)
 		{ other.ApplyVisitor(CopyCtorVisitor(*this)); }
+
+		struct MoveCtorVisitor : static_visitor<>
+		{
+		private:
+			MyType& _target;
+
+		public:
+			MoveCtorVisitor(MyType& t) : _target(t)
+			{ }
+
+			template < typename T >
+			void operator () (T& t) const
+			{
+				CompileTimeAssert<!IsConst<T>::Value> ERROR__move_wont_work;
+				_target.AssignVal(std::move(t));
+			}
+		};
+
+		void Assign(MyType&& other)
+		{ other.ApplyVisitor(MoveCtorVisitor(*this)); }
 	};
 
 
@@ -442,6 +477,9 @@ namespace stingray
 		variant(const variant& other)
 		{ Assign(other); }
 
+		variant(variant&& other)
+		{ Assign(std::move(other)); }
+
 		~variant()
 		{ base::Destruct(); }
 
@@ -449,6 +487,12 @@ namespace stingray
 		{
 			base::Destruct();
 			Assign(other);
+		}
+
+		void assign(variant&& other)
+		{
+			base::Destruct();
+			Assign(std::move(other));
 		}
 
 		template < typename T >
@@ -461,6 +505,12 @@ namespace stingray
 		variant& operator = (const variant& other)
 		{
 			assign(other);
+			return *this;
+		}
+
+		variant& operator = (variant&& other)
+		{
+			assign(std::move(other));
 			return *this;
 		}
 
@@ -540,6 +590,26 @@ namespace stingray
 
 		void Assign(const MyType& other)
 		{ other.ApplyVisitor(CopyCtorVisitor(*this)); }
+
+		struct MoveCtorVisitor : static_visitor<>
+		{
+		private:
+			MyType& _target;
+
+		public:
+			MoveCtorVisitor(MyType& t) : _target(t)
+			{ }
+
+			template < typename T >
+			void operator () (T& t) const
+			{
+				CompileTimeAssert<!IsConst<T>::Value> ERROR__move_wont_work;
+				_target.AssignVal(std::move(t));
+			}
+		};
+
+		void Assign(MyType&& other)
+		{ other.ApplyVisitor(MoveCtorVisitor(*this)); }
 	};
 
 
