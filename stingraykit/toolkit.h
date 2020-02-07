@@ -13,8 +13,6 @@
 #include <stingraykit/EnumToString.h>
 #include <stingraykit/MetaProgramming.h>
 
-#include <stdexcept>
-
 namespace stingray
 {
 

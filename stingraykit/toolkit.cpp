@@ -7,23 +7,19 @@
 
 #include <stingraykit/toolkit.h>
 
-#include <stdio.h>
+#include <stingraykit/log/Logger.h>
+#include <stingraykit/ScopeExit.h>
+#include <stingraykit/function/bind.h>
+
 #include <stdarg.h>
+#include <stdio.h>
 
 #if defined(__GNUC__) || defined(__clang__)
 #	include <cxxabi.h>
 #endif
 
-#include <stingraykit/log/Logger.h>
-#include <stingraykit/diagnostics/Backtrace.h>
-#include <stingraykit/ScopeExit.h>
-#include <stingraykit/string/ToString.h>
-#include <stingraykit/collection/array.h>
-#include <stingraykit/function/bind.h>
-
 namespace stingray
 {
-
 
 	std::string ToolkitWhere::ToString() const
 	{ return StringBuilder() % _functionName % " (" % _file % ":" % _line % ")"; }
@@ -31,7 +27,7 @@ namespace stingray
 
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex)
 	{
-		std::string backtrace = tkit_ex.GetBacktrace();
+		const std::string backtrace = tkit_ex.GetBacktrace();
 		result << "\n  in function '" << tkit_ex.GetFunctionName() << "'" <<
 			"\n  in file '" << tkit_ex.GetFilename() << "' at line " << ToString(tkit_ex.GetLine());
 
@@ -39,16 +35,18 @@ namespace stingray
 			result << "\n" << backtrace;
 	}
 
+
 	void DebuggingHelper::BreakpointHere()
-	{
-	}
+	{ }
+
 
 	void DebuggingHelper::TerminateWithMessage(const std::string& str) throw()
 	{
-		std::string backtrace = Backtrace().Get();
+		const std::string backtrace = Backtrace().Get();
 		Logger::Error() << "Terminate was requested: " << str << (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace));
 		std::terminate();
 	}
+
 
 #if !defined(__GNUC__) && !defined(__clang__)
 	std::string Demangle(const std::string& s)
@@ -57,7 +55,7 @@ namespace stingray
 	std::string Demangle(const std::string& s)
 	{
 		int status = 0;
-		char * result = abi::__cxa_demangle(s.c_str(), 0, 0, &status);
+		char* result = abi::__cxa_demangle(s.c_str(), 0, 0, &status);
 		ScopeExitInvoker sei(Bind(&free, result));
 		return (status != 0) ? s : std::string(result);
 	}
