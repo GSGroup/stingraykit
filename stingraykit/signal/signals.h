@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/IntrusiveList.h>
-#include <stingraykit/metaprogramming/ParamPassingType.h>
 #include <stingraykit/signal/signal_connector.h>
 
 namespace stingray
@@ -25,41 +24,37 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename Signature, typename ExceptionHandlerFunc, size_t ParamsNum = GetTypeListLength<typename function_info<Signature>::ParamTypes>::Value >
+		template < typename Signature, typename ExceptionHandlerFunc >
 		class ExceptionHandlerWrapper;
 
-#define DETAIL_EXCEPTION_HANDLER_PARAM_DECL(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) typename GetParamPassingType<typename GetTypeListItem<ParamTypes, Index_>::ValueT>::ValueT p##Index_
-#define DETAIL_EXCEPTION_HANDLER_PARAM_USAGE(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) p##Index_
-#define DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER(N_, UserArg_) \
-		template < typename Signature, typename ExceptionHandlerFunc > \
-		class ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc, N_> : public function_info<Signature> \
-		{ \
-		public: \
-			typedef function_info<Signature>		BaseType; \
-			typedef typename BaseType::ParamTypes	ParamTypes; \
-			typedef function<Signature>				FuncType; \
-			\
-		private: \
-			FuncType				_func; \
-			ExceptionHandlerFunc	_exFunc; \
-			\
-		public: \
-			ExceptionHandlerWrapper(const FuncType& func, const ExceptionHandlerFunc& exFunc) : _func(func), _exFunc(exFunc) \
-			{ } \
-			void operator() (STINGRAYKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_DECL, ~)) const \
-			{ \
-				try \
-				{ _func(STINGRAYKIT_REPEAT(N_, DETAIL_EXCEPTION_HANDLER_PARAM_USAGE, ~)); } \
-				catch (std::exception& ex) \
-				{ _exFunc(ex); } \
-			} \
+		template < typename... Ts, typename ExceptionHandlerFunc >
+		class ExceptionHandlerWrapper<void (Ts...), ExceptionHandlerFunc> : public function_info<void (Ts...)>
+		{
+		public:
+			typedef function_info<void (Ts...)>		BaseType;
+
+			typedef typename BaseType::ParamTypes	ParamTypes;
+			typedef typename BaseType::Signature	Signature;
+
+			typedef function<Signature>				FuncType;
+
+		private:
+			FuncType				_func;
+			ExceptionHandlerFunc	_exFunc;
+
+		public:
+			ExceptionHandlerWrapper(const FuncType& func, const ExceptionHandlerFunc& exFunc) : _func(func), _exFunc(exFunc)
+			{ }
+
+			void operator () (Ts... args) const
+			{
+				try
+				{ _func(args...); }
+				catch (std::exception& ex)
+				{ _exFunc(ex); }
+			}
 		};
 
-		STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER, ~)
-
-#undef DETAIL_DECLARE_EXCEPTION_HANDLER_WRAPPER
-#undef DETAIL_EXCEPTION_HANDLER_PARAM_USAGE
-#undef DETAIL_EXCEPTION_HANDLER_PARAM_DECL
 
 #define WRAP_EXCEPTION_HANDLING(exceptionHandler, ...) \
 		try \
@@ -290,110 +285,105 @@ namespace stingray
 		typename CreationPolicy_ = signal_policies::creation::Default>
 	class signal;
 
-#define DETAIL_SIGNAL_TEMPLATE_PARAM_DECL(Index_, UserArg_) typename T##Index_,
-#define DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) T##Index_
-#define DETAIL_SIGNAL_PARAM_DECL(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) T##Index_ p##Index_
-#define DETAIL_SIGNAL_PARAM_USAGE(Index_, UserArg_) STINGRAYKIT_COMMA_IF(Index_) p##Index_
-#define DETAIL_DECLARE_SIGNAL(N_, UserArg_) \
-	template < STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_DECL, ~) typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ > \
-	class signal<void(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_, CreationPolicy_> \
-	{ \
-		STINGRAYKIT_NONCOPYABLE(signal); \
-		\
-		friend class signal_locker; \
-		\
-	public: \
-		typedef void Signature(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE, ~)); \
-		\
-		typedef void											RetType; \
-		typedef typename function_info<Signature>::ParamTypes	ParamTypes; \
-		\
-	private: \
-		typedef Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>	Impl; \
-		typedef self_count_ptr<Impl>																							ImplPtr; \
-		\
-		typedef function<void(const std::exception&)>			ExceptionHandlerFunc; \
-		typedef function<void(const function<Signature>&)>		PopulatorFunc; \
-		\
-		typedef ThreadingPolicy_								ThreadingPolicy; \
-		\
-	public: \
-		class Invoker : public function_info<Signature> \
-		{ \
-		private: \
-			ImplPtr		_impl; \
-		public: \
-			Invoker(const ImplPtr& impl) : _impl(impl) \
-			{ } \
-			void operator () (STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
-			{ _impl->InvokeAll(Tuple<ParamTypes>(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); } \
-		}; \
-		\
-	private: \
-		mutable ImplPtr		_impl; \
-		\
-	public: \
-		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { } \
-		signal(const NullPtrType&, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(connectionPolicy)) { } \
-		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { } \
-		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { } \
-		signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { } \
-		signal(const PopulatorFunc& sendCurrentState, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { } \
-		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { } \
-		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler, connectionPolicy)) { } \
-		signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { } \
-		signal(const ThreadingPolicy& threadingPolicy, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { } \
-		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { } \
-		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState, connectionPolicy)) { } \
-		\
-		void SendCurrentState(const function<Signature>& slot) const \
-		{ \
-			if (_impl) \
-				_impl->SendCurrentState(function_storage(slot)); \
-		} \
-		\
-		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const \
-		{ \
-			CreationPolicy_::template LazyCreate(_impl); \
-			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal"); \
-			const TaskLifeToken token(_impl->CreateSyncToken()); \
-			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState); \
-		} \
-		\
-		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const \
-		{ \
-			CreationPolicy_::template LazyCreate(_impl); \
-			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal"); \
-			const TaskLifeToken token(_impl->CreateAsyncToken()); \
-			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState); \
-		} \
-		\
-		signal_connector<Signature> connector() const \
-		{ \
-			CreationPolicy_::template LazyCreate(_impl); \
-			return signal_connector<Signature>(_impl); \
-		} \
-		\
-		Invoker invoker() const \
-		{ \
-			CreationPolicy_::template LazyCreate(_impl); \
-			return Invoker(_impl); \
-		} \
-		\
-		void operator () (STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
-		{ \
-			if (_impl) \
-				_impl->InvokeAll(Tuple<ParamTypes>(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); \
-		} \
+	template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ >
+	class signal<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_, CreationPolicy_>
+	{
+		STINGRAYKIT_NONCOPYABLE(signal);
+
+		friend class signal_locker;
+
+	public:
+		typedef void Signature(Ts...);
+
+		typedef void											RetType;
+		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+
+	private:
+		typedef Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>	Impl;
+		typedef self_count_ptr<Impl>																							ImplPtr;
+
+		typedef function<void (const std::exception&)>			ExceptionHandlerFunc;
+		typedef function<void (const function<Signature>&)>		PopulatorFunc;
+
+		typedef ThreadingPolicy_								ThreadingPolicy;
+
+	public:
+		class Invoker : public function_info<Signature>
+		{
+		private:
+			ImplPtr		_impl;
+		public:
+			Invoker(const ImplPtr& impl) : _impl(impl)
+			{ }
+
+			void operator () (Ts... args) const
+			{ _impl->InvokeAll(Tuple<ParamTypes>(args...)); }
+		};
+
+	private:
+		mutable ImplPtr		_impl;
+
+	public:
+		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { }
+
+		signal(const NullPtrType&, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(connectionPolicy)) { }
+		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
+		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { }
+
+		signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { }
+		signal(const PopulatorFunc& sendCurrentState, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { }
+		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { }
+		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler, connectionPolicy)) { }
+
+		signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { }
+		signal(const ThreadingPolicy& threadingPolicy, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { }
+		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { }
+		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState, connectionPolicy)) { }
+
+		void SendCurrentState(const function<Signature>& slot) const
+		{
+			if (_impl)
+				_impl->SendCurrentState(function_storage(slot));
+		}
+
+		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const
+		{
+			CreationPolicy_::template LazyCreate(_impl);
+
+			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
+
+			const TaskLifeToken token(_impl->CreateSyncToken());
+			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState);
+		}
+
+		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const
+		{
+			CreationPolicy_::template LazyCreate(_impl);
+
+			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
+
+			const TaskLifeToken token(_impl->CreateAsyncToken());
+			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState);
+		}
+
+		signal_connector<Signature> connector() const
+		{
+			CreationPolicy_::template LazyCreate(_impl);
+			return signal_connector<Signature>(_impl);
+		}
+
+		Invoker invoker() const
+		{
+			CreationPolicy_::template LazyCreate(_impl);
+			return Invoker(_impl);
+		}
+
+		void operator () (Ts... args) const
+		{
+			if (_impl)
+				_impl->InvokeAll(Tuple<ParamTypes>(args...));
+		}
 	};
-
-	STINGRAYKIT_REPEAT_NESTING_2(10, DETAIL_DECLARE_SIGNAL, ~)
-
-#undef DETAIL_DECLARE_SIGNAL
-#undef DETAIL_SIGNAL_PARAM_USAGE
-#undef DETAIL_SIGNAL_PARAM_DECL
-#undef DETAIL_SIGNAL_TEMPLATE_PARAM_USAGE
-#undef DETAIL_SIGNAL_TEMPLATE_PARAM_DECL
 
 #else
 
