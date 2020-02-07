@@ -58,10 +58,8 @@ namespace stingray
 
 		void SendCurrentState(const function<Signature_>& slot) const
 		{
-			if (STINGRAYKIT_UNLIKELY(!_impl))
-				return;
-
-			_impl->SendCurrentState(function_storage(slot));
+			if (STINGRAYKIT_LIKELY(_impl.is_initialized()))
+				_impl->SendCurrentState(function_storage(slot));
 		}
 
 		Token connect(const function<Signature_>& slot, bool sendCurrentState = true) const

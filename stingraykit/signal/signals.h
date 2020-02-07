@@ -349,23 +349,22 @@ namespace stingray
 		\
 	public: \
 		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { } \
-		signal(const NullPtrType&, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(new Impl(connectionPolicy)) { } \
-		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler) : _impl(new Impl(null, exceptionHandler)) { } \
-		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(new Impl(null, exceptionHandler, connectionPolicy)) { } \
-		signal(const PopulatorFunc& sendCurrentState) : _impl(new Impl(sendCurrentState)) { } \
-		signal(const PopulatorFunc& sendCurrentState, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(new Impl(sendCurrentState, connectionPolicy)) { } \
-		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(new Impl(sendCurrentState, exceptionHandler)) { } \
-		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(new Impl(sendCurrentState, exceptionHandler, connectionPolicy)) { } \
-		signal(const ThreadingPolicy& threadingPolicy) : _impl(new Impl(threadingPolicy)) { } \
-		signal(const ThreadingPolicy& threadingPolicy, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(new Impl(threadingPolicy, connectionPolicy)) { } \
-		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(new Impl(threadingPolicy, sendCurrentState)) { } \
-		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(new Impl(threadingPolicy, sendCurrentState, connectionPolicy)) { } \
+		signal(const NullPtrType&, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(connectionPolicy)) { } \
+		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { } \
+		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { } \
+		signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { } \
+		signal(const PopulatorFunc& sendCurrentState, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { } \
+		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { } \
+		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler, connectionPolicy)) { } \
+		signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { } \
+		signal(const ThreadingPolicy& threadingPolicy, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { } \
+		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { } \
+		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState, connectionPolicy)) { } \
 		\
 		void SendCurrentState(const function<Signature>& slot) const \
 		{ \
-			if (!_impl) \
-				return; \
-			_impl->SendCurrentState(function_storage(slot)); \
+			if (_impl) \
+				_impl->SendCurrentState(function_storage(slot)); \
 		} \
 		\
 		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const \
@@ -398,9 +397,8 @@ namespace stingray
 		\
 		void operator () (STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_DECL, ~)) const \
 		{ \
-			if (!_impl) \
-				return; \
-			_impl->InvokeAll(Tuple<ParamTypes>(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); \
+			if (_impl) \
+				_impl->InvokeAll(Tuple<ParamTypes>(STINGRAYKIT_REPEAT(N_, DETAIL_SIGNAL_PARAM_USAGE, ~))); \
 		} \
 	};
 
