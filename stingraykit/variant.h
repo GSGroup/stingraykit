@@ -502,9 +502,9 @@ namespace stingray
 		template<typename T STINGRAYKIT_COMMA_IF(N_) STINGRAYKIT_REPEAT(N_, STINGRAYKIT_TEMPLATE_PARAM_DECL, T) > \
 		void emplace(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_DECL, T)) \
 		{ \
+			base::Destruct(); \
 			try \
 			{ \
-				base::Destruct(); \
 				this->_storage.template Ctor<T>(STINGRAYKIT_REPEAT(N_, STINGRAYKIT_FUNCTION_PARAM_USAGE, ~)); \
 				this->_type = IndexOfTypeListItem<TypeList, T>::Value; \
 			} \
