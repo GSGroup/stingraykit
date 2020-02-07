@@ -20,7 +20,7 @@ namespace stingray
 	 * @{
 	 */
 
-	template<typename T, size_t InplaceCapacity_>
+	template < typename T, size_t InplaceCapacity_ >
 	class inplace_vector
 	{
 	public:
@@ -28,10 +28,10 @@ namespace stingray
 
 		typedef	T									value_type;
 		typedef ptrdiff_t							difference_type;
-		typedef value_type *						pointer;
-		typedef value_type &						reference;
-		typedef const value_type *					const_pointer;
-		typedef const value_type &					const_reference;
+		typedef value_type*							pointer;
+		typedef value_type&							reference;
+		typedef const value_type*					const_pointer;
+		typedef const value_type&					const_reference;
 
 	private:
 		size_t									_staticStorageSize;
@@ -39,40 +39,34 @@ namespace stingray
 		std::vector<T>							_dynamicStorage;
 
 	public:
-		template<typename OwnerType, typename ValueType>
-		class inplace_vector_iterator : public iterator_base
-		<
-			inplace_vector_iterator<OwnerType, ValueType>,
-			ValueType,
-			std::random_access_iterator_tag
-		>
+		template < typename OwnerType, typename ValueType >
+		class inplace_vector_iterator : public iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>
 		{
-			OwnerType &				_owner;
+			typedef iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag> base;
+
+		private:
+			OwnerType&				_owner;
 			size_t					_offset;
 
-			typedef iterator_base
-			<
-				inplace_vector_iterator<OwnerType, ValueType>,
-				ValueType,
-				std::random_access_iterator_tag
-			> base;
-
 		public:
-			inplace_vector_iterator(OwnerType &owner, size_t offset): _owner(owner), _offset(offset) { }
+			inplace_vector_iterator(OwnerType& owner, size_t offset)
+				: _owner(owner), _offset(offset)
+			{ }
+
 			typename base::reference dereference() const
 			{ return _owner.at(_offset); }
 
-			bool equal(const inplace_vector_iterator & other) const
+			bool equal(const inplace_vector_iterator& other) const
 			{ return _offset == other._offset; }
 
 			void increment()
 			{ ++_offset; }
 			void decrement()
 			{ --_offset; }
-			void advance(const typename base::difference_type & diff)
+			void advance(typename base::difference_type diff)
 			{ _offset += diff; }
 
-			typename base::difference_type distance_to(const inplace_vector_iterator & other) const
+			typename base::difference_type distance_to(const inplace_vector_iterator& other) const
 			{ return other._offset - _offset; }
 		};
 
@@ -89,38 +83,38 @@ namespace stingray
 		void clear()
 		{
 			_dynamicStorage.clear();
-			for(size_t i = 0; i < _staticStorageSize; ++i) _staticStorage[i].Dtor();
+			for (size_t i = 0; i < _staticStorageSize; ++i)
+				_staticStorage[i].Dtor();
 			_staticStorageSize = 0;
 		}
 
-		inline ~inplace_vector()
+		~inplace_vector()
 		{
-			for(size_t i = 0; i < _staticStorageSize; ++i) _staticStorage[i].Dtor();
+			for (size_t i = 0; i < _staticStorageSize; ++i)
+				_staticStorage[i].Dtor();
 		}
 
-		inline T & at(size_t index)
-		{ return (index < _staticStorageSize)? _staticStorage[index].Ref(): _dynamicStorage.at(index - _staticStorageSize); }
+		T& at(size_t index)
+		{ return (index < _staticStorageSize) ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
 
-		inline const T & at(size_t index) const
-		{ return(index < _staticStorageSize)? _staticStorage[index].Ref(): _dynamicStorage.at(index - _staticStorageSize); }
+		const T& at(size_t index) const
+		{ return (index < _staticStorageSize) ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
 
-		inline T & operator [] (size_t index)
+		T& operator [] (size_t index)
 		{ return at(index); }
 
-		inline const T & operator [] (size_t index) const
+		const T& operator [] (size_t index) const
 		{ return at(index); }
 
-		inline void push_back(const T& value)
+		void push_back(const T& value)
 		{
 			if (_staticStorageSize < InplaceCapacity)
-			{
 				_staticStorage[_staticStorageSize++].Ctor(value);
-			}
 			else
 				_dynamicStorage.push_back(value);
 		}
 
-		template<typename assign_iterator_type>
+		template < typename assign_iterator_type >
 		void assign(assign_iterator_type begin, assign_iterator_type end)
 		{
 			clear();
@@ -128,8 +122,8 @@ namespace stingray
 			std::copy(begin, end, std::back_inserter(*this));
 		}
 
-		inline size_t size() const { return _staticStorageSize + _dynamicStorage.size(); }
-		inline bool empty() const { return size() == 0; }
+		size_t size() const { return _staticStorageSize + _dynamicStorage.size(); }
+		bool empty() const { return size() == 0; }
 
 		void reserve(size_t capacity)
 		{
@@ -139,14 +133,14 @@ namespace stingray
 				_dynamicStorage.reserve(0);
 		}
 
-		inline const_iterator begin() const
+		const_iterator begin() const
 		{ return const_iterator(*this, 0); }
-		inline iterator begin()
+		iterator begin()
 		{ return iterator(*this, 0); }
 
-		inline const_iterator end() const
+		const_iterator end() const
 		{ return const_iterator(*this, size()); }
-		inline iterator end()
+		iterator end()
 		{ return iterator(*this, size()); }
 
 	};
