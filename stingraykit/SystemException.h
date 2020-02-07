@@ -22,6 +22,7 @@ namespace stingray
 		SystemException(const std::string& message) throw();
 		SystemException(const std::string& message, int err) throw();
 		SystemException(const std::string& message, const std::string& path, int err) throw();
+		virtual ~SystemException() throw() { }
 
 		int GetErrorCode() const { return _error; }
 

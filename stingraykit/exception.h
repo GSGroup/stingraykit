@@ -20,7 +20,6 @@
 	{ \
 		ExceptionClass() : stingray::Exception(Message) { } \
 		ExceptionClass(const std::string& message) : stingray::Exception(message + ": " + Message) { } \
-		virtual ~ExceptionClass() throw() { } \
 	}
 
 namespace stingray
@@ -34,8 +33,6 @@ namespace stingray
 	{
 	public:
 		Exception(const std::string& message) : std::runtime_error(message) { }
-
-		virtual ~Exception() throw() { }
 	};
 
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
@@ -180,7 +177,6 @@ namespace stingray
 	{
 		KeyNotFoundException() : Exception("Key not found!") { }
 		KeyNotFoundException(const std::string& keyStr) : Exception("Key '" + keyStr + "' not found!") { }
-		virtual ~KeyNotFoundException() throw() { }
 	};
 
 	struct FileNotFoundException : public Exception
@@ -235,8 +231,6 @@ namespace stingray
 		ExceptionWrapper(const UserBaseException& ex, ToolkitWhere where)
 			: BaseException(where), UserBaseException(ex)
 		{ }
-
-		virtual ~ExceptionWrapper() throw() { }
 	};
 
 
