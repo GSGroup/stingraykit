@@ -16,29 +16,26 @@ namespace stingray
 {
 
 	SystemException::SystemException(const std::string& message) throw()
-		: Exception(message + ": errno = " + GetErrorMessage(errno)), _error(errno)
+		: Exception(StringBuilder() % message % ": errno = " % GetErrorMessage(errno)), _error(errno)
 	{ }
 
 
 	SystemException::SystemException(const std::string& message, int err) throw()
-		: Exception(message + ": errno = " + GetErrorMessage(err)), _error(err)
+		: Exception(StringBuilder() % message % ": errno = " % GetErrorMessage(err)), _error(err)
 	{ }
 
 
 	SystemException::SystemException(const std::string& message, const std::string& path, int err) throw()
-		: Exception(message + (!path.empty()? " '" + path + "'": std::string()) + ": errno = " + GetErrorMessage(err)), _error(err)
+		: Exception(StringBuilder() % message % " '" % path % "'" % ": errno = " % GetErrorMessage(err)), _error(err)
 	{ }
 
 
 	std::string SystemException::GetErrorMessage(int err) throw()
 	{
-		std::string result = ErrnoToStr(err);
 		char buf[256];
 		char *msg = strerror_r(err, buf, sizeof(buf));
-		result += " (";
-		result += msg ? msg : "Unknown error";
-		result += ")";
-		return result;
+
+		return StringBuilder() % ErrnoToStr(err) % " (" % (msg ? msg : "Unknown error") % ")";
 	}
 
 
