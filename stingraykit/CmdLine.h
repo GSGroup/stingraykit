@@ -1,6 +1,7 @@
 #ifndef STINGRAYKIT_CMDLINE_H
 #define STINGRAYKIT_CMDLINE_H
 
+#include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/string/StringUtils.h>
 
