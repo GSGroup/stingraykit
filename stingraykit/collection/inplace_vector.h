@@ -44,6 +44,9 @@ namespace stingray
 		{
 			typedef iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag> base;
 
+			template < typename OtherOwnerType, typename OtherValueType >
+			friend class inplace_vector_iterator;
+
 		private:
 			OwnerType&				_owner;
 			size_t					_offset;
@@ -51,6 +54,11 @@ namespace stingray
 		public:
 			inplace_vector_iterator(OwnerType& owner, size_t offset)
 				: _owner(owner), _offset(offset)
+			{ }
+
+			template < typename OtherOwnerType, typename OtherValueType >
+			inplace_vector_iterator(const inplace_vector_iterator<OtherOwnerType, OtherValueType>& other)
+				: _owner(other._owner), _offset(other._offset)
 			{ }
 
 			typename base::reference dereference() const
