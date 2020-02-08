@@ -80,12 +80,12 @@ namespace stingray
 					: _functionStorage(func), _tester(tester)
 				{ }
 
-				template < typename Signature_, typename Params_ >
-				void Invoke(const Params_& p) const
+				template < typename Signature_, typename... Ts >
+				void Invoke(Ts... args) const
 				{
 					LocalExecutionGuard guard(_tester);
 					if (guard)
-						FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p);
+						_functionStorage.ToFunction<Signature_>()(args...);
 				}
 			};
 
@@ -99,9 +99,9 @@ namespace stingray
 					: _functionStorage(func)
 				{ STINGRAYKIT_CHECK(tester.IsDummy(), "ThreadlessStorage can't be used with real tokens!"); }
 
-				template < typename Signature_, typename Params_ >
-				void Invoke(const Params_& p) const
-				{ FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p); }
+				template < typename Signature_, typename... Ts >
+				void Invoke(Ts... args) const
+				{ _functionStorage.ToFunction<Signature_>()(args...); }
 			};
 
 			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncStorageType;
@@ -179,13 +179,18 @@ namespace stingray
 
 
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		class SignalImpl : public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public SignalImplBase<ThreadingPolicy_::IsThreadsafe>
+		class SignalImpl;
+
+		template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
+		class SignalImpl<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>
+			:	public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public SignalImplBase<ThreadingPolicy_::IsThreadsafe>
 		{
 			typedef SignalImplBase<ThreadingPolicy_::IsThreadsafe>	base;
-			typedef typename function_info<Signature_>::ParamTypes	ParamTypes;
+
+			typedef void Signature(Ts...);
 
 			typedef function<void(const std::exception&)>			ExceptionHandlerFunc;
-			typedef function<void(const function<Signature_>&)>		PopulatorFunc;
+			typedef function<void(const function<Signature>&)>		PopulatorFunc;
 
 		public:
 			SignalImpl() { }
@@ -234,7 +239,7 @@ namespace stingray
 				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState), ConnectionPolicyControl_(connectionPolicy)
 			{ }
 
-			void InvokeAll(const Tuple<ParamTypes>& p) const
+			void InvokeAll(Ts... args) const
 			{
 				typename base::LocalHandlersCopy localCopy;
 				{
@@ -243,7 +248,7 @@ namespace stingray
 				}
 
 				for (typename base::LocalHandlersCopy::const_iterator it = localCopy.begin(); it != localCopy.end(); ++it)
-					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature_>(p));
+					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature, Ts...>(args...));
 			}
 
 			virtual ConnectionPolicy GetConnectionPolicy() const { return this->DoGetConnectionPolicy(); }
@@ -254,8 +259,8 @@ namespace stingray
 
 			virtual void DoSendCurrentState(const function_storage& slot) const
 			{
-				const ExceptionHandlerWrapper<Signature_, ExceptionHandlerFunc> wrappedSlot(slot.ToFunction<Signature_>(), this->GetExceptionHandler());
-				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->template SendCurrentStateImpl<Signature_>(wrappedSlot));
+				const ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc> wrappedSlot(slot.ToFunction<Signature>(), this->GetExceptionHandler());
+				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->template SendCurrentStateImpl<Signature>(wrappedSlot));
 			}
 		};
 
@@ -317,7 +322,7 @@ namespace stingray
 			{ }
 
 			void operator () (Ts... args) const
-			{ _impl->InvokeAll(Tuple<ParamTypes>(args...)); }
+			{ _impl->InvokeAll(args...); }
 		};
 
 	private:
@@ -381,7 +386,7 @@ namespace stingray
 		void operator () (Ts... args) const
 		{
 			if (_impl)
-				_impl->InvokeAll(Tuple<ParamTypes>(args...));
+				_impl->InvokeAll(args...);
 		}
 	};
 
