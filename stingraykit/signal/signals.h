@@ -254,13 +254,13 @@ namespace stingray
 
 			void InvokeAll(const Tuple<ParamTypes>& p) const
 			{
-				typename base::LocalHandlersCopy local_copy;
+				typename base::LocalHandlersCopy localCopy;
 				{
 					typename base::LockType l(this->GetSync());
-					this->CopyHandlersToLocal(local_copy);
+					this->CopyHandlersToLocal(localCopy);
 				}
 
-				for (typename base::LocalHandlersCopy::iterator it = local_copy.begin(); it != local_copy.end(); ++it)
+				for (typename base::LocalHandlersCopy::const_iterator it = localCopy.begin(); it != localCopy.end(); ++it)
 					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature_>(p));
 			}
 
