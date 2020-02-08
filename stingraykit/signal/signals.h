@@ -199,9 +199,6 @@ namespace stingray
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
 		class SignalImpl : public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public SignalImplBase<ThreadingPolicy_::IsThreadsafe>
 		{
-			template < typename Signature2_, typename ThreadingPolicy2_, typename ExceptionPolicy2_, typename PopulatorsPolicy2_, typename ConnectionPolicyControl2_, typename CreationPolicy2_ >
-			friend class signal;
-
 			typedef SignalImplBase<ThreadingPolicy_::IsThreadsafe>	base;
 			typedef typename function_info<Signature_>::ParamTypes	ParamTypes;
 
