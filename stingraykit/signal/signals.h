@@ -107,16 +107,38 @@ namespace stingray
 		template < bool IsThreadsafe >
 		class SignalImplBase : public ISignalConnector
 		{
-		public:
+		protected:
 			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncStorageType;
 			typedef IntrusiveList<FuncStorageType>												Handlers;
+			typedef inplace_vector<FuncStorageType, 16>											LocalHandlersCopy;
 
-		protected:
 			typedef signal_policies::threading::DummyMutex										DummyMutex;
 			typedef signal_policies::threading::DummyLock										DummyLock;
 			typedef typename If<IsThreadsafe, const Mutex&, DummyMutex>::ValueT					MutexRefType;
 			typedef typename If<IsThreadsafe, MutexLock, DummyLock>::ValueT						LockType;
-			typedef inplace_vector<FuncStorageType, 16>											LocalHandlersCopy;
+
+		private:
+			class Connection : public IToken
+			{
+			public:
+				typedef self_count_ptr<SignalImplBase> ImplPtr;
+
+			private:
+				ImplPtr				_impl;
+				FuncStorageType		_handler;
+				TaskLifeToken		_token;
+
+			public:
+				Connection(const ImplPtr& impl, const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken)
+					: _impl(impl), _handler(func, invokeTester), _token(connectionToken)
+				{ _impl->AddHandler(_handler); }
+
+				virtual ~Connection()
+				{
+					_impl->RemoveHandler(_handler);
+					_token.Release();
+				}
+			};
 
 		protected:
 			Handlers	_handlers;
@@ -125,7 +147,17 @@ namespace stingray
 			virtual TaskLifeToken CreateSyncToken() const	{ return IsThreadsafe ? TaskLifeToken() : TaskLifeToken::CreateDummyTaskToken(); }
 			virtual TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
 
-			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState);
+			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState)
+			{
+				LockType l(DoGetSync());
+				if (sendCurrentState)
+					DoSendCurrentState(func);
+
+				const typename Connection::ImplPtr impl(this);
+				this->add_ref();
+
+				return MakeToken<Connection>(impl, func, invokeTester, connectionToken);
+			}
 
 			virtual void SendCurrentState(const function_storage& slot) const
 			{
@@ -133,6 +165,7 @@ namespace stingray
 				DoSendCurrentState(slot);
 			}
 
+		private:
 			void AddHandler(FuncStorageType& handler)
 			{
 				// mutex is locked in Connect
@@ -153,47 +186,6 @@ namespace stingray
 			virtual MutexRefType DoGetSync() const = 0;
 			virtual void DoSendCurrentState(const function_storage& slot) const = 0;
 		};
-
-
-		template < bool IsThreadsafe >
-		class Connection : public IToken
-		{
-		public:
-			typedef SignalImplBase<IsThreadsafe>	Impl;
-			typedef self_count_ptr<Impl>			ImplPtr;
-			typedef typename Impl::FuncStorageType	FuncStorageType;
-
-		private:
-			ImplPtr				_signalImpl;
-			FuncStorageType		_handler;
-			TaskLifeToken		_token;
-
-		public:
-			Connection(const ImplPtr& signalImpl, const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken)
-				: _signalImpl(signalImpl), _handler(func, invokeTester), _token(connectionToken)
-			{ _signalImpl->AddHandler(_handler); }
-
-			virtual ~Connection()
-			{
-				_signalImpl->RemoveHandler(_handler);
-				_token.Release();
-			}
-		};
-
-
-		template < bool IsThreadsafe >
-		Token SignalImplBase<IsThreadsafe>::Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState)
-		{
-			LockType l(DoGetSync());
-			if (sendCurrentState)
-				DoSendCurrentState(func);
-
-			typedef Connection<IsThreadsafe> Connection;
-			typename Connection::ImplPtr impl(this);
-			this->add_ref();
-
-			return MakeToken<Connection>(impl, func, invokeTester, connectionToken);
-		}
 
 
 		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
