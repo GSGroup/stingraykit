@@ -24,43 +24,6 @@ namespace stingray
 	namespace Detail
 	{
 
-		class CancellableStorage : public IntrusiveListNode<CancellableStorage>
-		{
-		private:
-			function_storage		_functionStorage;
-			FutureExecutionTester	_tester;
-
-		public:
-			CancellableStorage(const function_storage& func, const FutureExecutionTester& tester)
-				: _functionStorage(func), _tester(tester)
-			{ }
-
-			template < typename Signature_, typename Params_ >
-			void Invoke(const Params_& p) const
-			{
-				LocalExecutionGuard guard(_tester);
-				if (guard)
-					FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p);
-			}
-		};
-
-
-		class ThreadlessStorage : public IntrusiveListNode<ThreadlessStorage>
-		{
-		private:
-			function_storage		_functionStorage;
-
-		public:
-			ThreadlessStorage(const function_storage& func, const FutureExecutionTester& tester)
-				: _functionStorage(func)
-			{ STINGRAYKIT_CHECK(tester.IsDummy(), "ThreadlessStorage can't be used with real tokens!"); }
-
-			template < typename Signature_, typename Params_ >
-			void Invoke(const Params_& p) const
-			{ FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p); }
-		};
-
-
 		template < typename Signature, typename ExceptionHandlerFunc, size_t ParamsNum = GetTypeListLength<typename function_info<Signature>::ParamTypes>::Value >
 		class ExceptionHandlerWrapper;
 
@@ -110,6 +73,41 @@ namespace stingray
 			typedef self_count_ptr<SignalImplBase>												ImplPtr;
 
 		protected:
+			class CancellableStorage : public IntrusiveListNode<CancellableStorage>
+			{
+			private:
+				function_storage		_functionStorage;
+				FutureExecutionTester	_tester;
+
+			public:
+				CancellableStorage(const function_storage& func, const FutureExecutionTester& tester)
+					: _functionStorage(func), _tester(tester)
+				{ }
+
+				template < typename Signature_, typename Params_ >
+				void Invoke(const Params_& p) const
+				{
+					LocalExecutionGuard guard(_tester);
+					if (guard)
+						FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p);
+				}
+			};
+
+			class ThreadlessStorage : public IntrusiveListNode<ThreadlessStorage>
+			{
+			private:
+				function_storage		_functionStorage;
+
+			public:
+				ThreadlessStorage(const function_storage& func, const FutureExecutionTester& tester)
+					: _functionStorage(func)
+				{ STINGRAYKIT_CHECK(tester.IsDummy(), "ThreadlessStorage can't be used with real tokens!"); }
+
+				template < typename Signature_, typename Params_ >
+				void Invoke(const Params_& p) const
+				{ FunctorInvoker::Invoke(_functionStorage.ToFunction<Signature_>(), p); }
+			};
+
 			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncStorageType;
 			typedef IntrusiveList<FuncStorageType>												Handlers;
 			typedef inplace_vector<FuncStorageType, 16>											LocalHandlersCopy;
