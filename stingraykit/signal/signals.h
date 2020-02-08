@@ -107,6 +107,8 @@ namespace stingray
 		template < bool IsThreadsafe >
 		class SignalImplBase : public ISignalConnector
 		{
+			typedef self_count_ptr<SignalImplBase>												ImplPtr;
+
 		protected:
 			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncStorageType;
 			typedef IntrusiveList<FuncStorageType>												Handlers;
@@ -120,9 +122,6 @@ namespace stingray
 		private:
 			class Connection : public IToken
 			{
-			public:
-				typedef self_count_ptr<SignalImplBase> ImplPtr;
-
 			private:
 				ImplPtr				_impl;
 				FuncStorageType		_handler;
@@ -153,10 +152,7 @@ namespace stingray
 				if (sendCurrentState)
 					DoSendCurrentState(func);
 
-				const typename Connection::ImplPtr impl(this);
-				this->add_ref();
-
-				return MakeToken<Connection>(impl, func, invokeTester, connectionToken);
+				return MakeToken<Connection>(ImplPtr(self_count_ptr_from_this(), static_cast_tag()), func, invokeTester, connectionToken);
 			}
 
 			virtual void SendCurrentState(const function_storage& slot) const
