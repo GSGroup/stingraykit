@@ -50,6 +50,7 @@ namespace stingray
 			_data.String.Ctor(other._data.String.Ref());
 			break;
 		case Type::Object:
+		case Type::SerializableObject:
 			_data.Object = other._data.Object->Clone();
 			break;
 		default:
