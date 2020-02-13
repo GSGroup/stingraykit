@@ -75,8 +75,8 @@ namespace stingray
 		{
 			T	Object;
 
-			ObjectHolderBase() : Object()						{ }
-			ObjectHolderBase(const T& object) : Object(object)	{ }
+			ObjectHolderBase() : Object() { }
+			ObjectHolderBase(const T& object) : Object(object) { }
 
 			virtual IObjectHolder* Clone() const				{ return new ObjectHolder<T>(Object); }
 			virtual std::string ToString() const				{ return ObjectToString<T>::ToString(Object); }
@@ -187,9 +187,23 @@ namespace stingray
 #define ANY_VAL_ACCESSOR(EnumVal_, Set_, Get_) \
 		template < > struct AnyValAccessor<AnyType::EnumVal_> \
 		{ \
-			template < typename T > static void Set(DataType& data, const T& val) { Set_; } \
-			template < typename T > static const T* Get(AnyType type, const DataType& data) { if (type != CppTypeToAnyUnionType<T>::Value) return NULL; Get_; } \
-			template < typename T > static T* Get(AnyType type, DataType& data) { if (type != CppTypeToAnyUnionType<T>::Value) return NULL; Get_; } \
+			template < typename T > \
+			static void Set(DataType& data, const T& val) \
+			{ Set_; } \
+			template < typename T > \
+			static const T* Get(AnyType type, const DataType& data) \
+			{ \
+				if (type != CppTypeToAnyUnionType<T>::Value) \
+					return NULL; \
+				Get_; \
+			} \
+			template < typename T > \
+			static T* Get(AnyType type, DataType& data) \
+			{ \
+				if (type != CppTypeToAnyUnionType<T>::Value) \
+					return NULL; \
+				Get_; \
+			} \
 		}
 
 		/*				  Type		Set										Get					*/
@@ -208,18 +222,36 @@ namespace stingray
 		ANY_VAL_ACCESSOR( Float,	data.Float	= val,						return &data.Float );
 		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return &data.Double );
 		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val),					return &data.String.Ref() );
-		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),	ObjectHolder<T>* obj_holder = dynamic_cast<ObjectHolder<T>*>(data.Object); if (obj_holder) return &obj_holder->Object; return NULL; );
-		ANY_VAL_ACCESSOR( SerializableObject,	data.Object	= new ObjectHolder<ISerializablePtr>(val),	ObjectHolder<ISerializablePtr>* obj_holder = dynamic_cast<ObjectHolder<ISerializablePtr>*>(data.Object); if (obj_holder) return dynamic_cast<T*>(obj_holder->Object.get()); return NULL; );
+
+		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),
+				if (ObjectHolder<T>* objHolder = dynamic_cast<ObjectHolder<T>*>(data.Object))
+					return &objHolder->Object;
+				return NULL;
+		);
+
+		ANY_VAL_ACCESSOR( SerializableObject,	data.Object	= new ObjectHolder<ISerializablePtr>(val),
+				if (ObjectHolder<ISerializablePtr>* objHolder = dynamic_cast<ObjectHolder<ISerializablePtr>*>(data.Object))
+					return dynamic_cast<T*>(objHolder->Object.get());
+				return NULL;
+		);
+
 #undef ANY_VAL_ACCESSOR
 
 	}}
 
 	class any
 	{
-		template<typename ValueType> friend const ValueType* any_cast(const any* operand);
-		template<typename ValueType> friend ValueType* any_cast(any* operand);
-		template<typename T> friend const T& any_cast(const any& operand);
-		template<typename T> friend T& any_cast(any& operand);
+		template < typename ValueType >
+		friend const ValueType* any_cast(const any* operand);
+
+		template < typename ValueType >
+		friend ValueType* any_cast(any* operand);
+
+		template < typename T >
+		friend const T& any_cast(const any& operand);
+
+		template < typename T >
+		friend T& any_cast(any& operand);
 
 		typedef Detail::any::AnyType		Type;
 		typedef Detail::any::IObjectHolder	IObjectHolder;
