@@ -77,6 +77,7 @@ namespace stingray
 
 			ObjectHolderBase() : Object() { }
 			ObjectHolderBase(const T& object) : Object(object) { }
+			ObjectHolderBase(T&& object) : Object(std::move(object)) { }
 
 			virtual IObjectHolder* Clone() const				{ return new ObjectHolder<T>(Object); }
 			virtual std::string ToString() const				{ return ObjectToString<T>::ToString(Object); }
@@ -86,6 +87,7 @@ namespace stingray
 		struct ObjectHolder : public ObjectHolderBase<T>
 		{
 			ObjectHolder(const T& object) : ObjectHolderBase<T>(object) { }
+			ObjectHolder(T&& object) : ObjectHolderBase<T>(std::move(object)) { }
 
 			virtual void Serialize(ObjectOStream& ar) const		{ STINGRAYKIT_THROW(NotSupportedException()); }
 			virtual void Deserialize(ObjectIStream& ar)			{ STINGRAYKIT_THROW(NotSupportedException()); }
@@ -99,6 +101,7 @@ namespace stingray
 		{
 			ObjectHolder() { }
 			ObjectHolder(const ISerializablePtr& object) : ObjectHolderBase<ISerializablePtr>(object) { }
+			ObjectHolder(ISerializablePtr&& object) : ObjectHolderBase<ISerializablePtr>(std::move(object)) { }
 
 			virtual void Serialize(ObjectOStream& ar) const;
 			virtual void Deserialize(ObjectIStream& ar);
@@ -116,6 +119,7 @@ namespace stingray
 			{ \
 				ObjectHolder() { } \
 				ObjectHolder(const __VA_ARGS__& object) : ObjectHolderBase<__VA_ARGS__>(object) { } \
+				ObjectHolder(__VA_ARGS__&& object) : ObjectHolderBase<__VA_ARGS__>(std::move(object)) { } \
 				virtual void Serialize(ObjectOStream& ar) const; \
 				virtual void Deserialize(ObjectIStream& ar); \
 				virtual bool IsSerializable() const	{ return true; } \
@@ -188,8 +192,11 @@ namespace stingray
 		template < > struct AnyValAccessor<AnyType::EnumVal_> \
 		{ \
 			template < typename T > \
-			static void Set(DataType& data, const T& val) \
-			{ Set_; } \
+			static void Set(DataType& data, T&& val) \
+			{ \
+				typedef typename Decay<T>::ValueT RawType; \
+				Set_; \
+			} \
 			template < typename T > \
 			static const T* Get(AnyType type, const DataType& data) \
 			{ \
@@ -221,15 +228,15 @@ namespace stingray
 		ANY_VAL_ACCESSOR( ULongLong,data.ULongLong	= val,					return &data.ULongLong );
 		ANY_VAL_ACCESSOR( Float,	data.Float	= val,						return &data.Float );
 		ANY_VAL_ACCESSOR( Double,	data.Double	= val,						return &data.Double );
-		ANY_VAL_ACCESSOR( String,	data.String.Ctor(val),					return &data.String.Ref() );
+		ANY_VAL_ACCESSOR( String,	data.String.Ctor(std::forward<T>(val)),	return &data.String.Ref() );
 
-		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<T>(val),
+		ANY_VAL_ACCESSOR( Object,	data.Object	= new ObjectHolder<RawType>(std::forward<T>(val)),
 				if (ObjectHolder<T>* objHolder = dynamic_cast<ObjectHolder<T>*>(data.Object))
 					return &objHolder->Object;
 				return NULL;
 		);
 
-		ANY_VAL_ACCESSOR( SerializableObject,	data.Object	= new ObjectHolder<ISerializablePtr>(val),
+		ANY_VAL_ACCESSOR( SerializableObject,	data.Object	= new ObjectHolder<ISerializablePtr>(std::forward<T>(val)),
 				if (ObjectHolder<ISerializablePtr>* objHolder = dynamic_cast<ObjectHolder<ISerializablePtr>*>(data.Object))
 					return &objHolder->Object;
 				return NULL;
@@ -269,8 +276,8 @@ namespace stingray
 		{ Copy(other); }
 
 		template < typename T >
-		any(const T& val) : _type(Type::Empty)
-		{ Init<T>(val); }
+		any(T&& val, typename EnableIf<!IsSame<any, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0) : _type(Type::Empty)
+		{ Init<T>(std::forward<T>(val)); }
 
 		~any()
 		{ Destroy(); }
@@ -283,10 +290,10 @@ namespace stingray
 		}
 
 		template < typename T >
-		any& operator = (const T& val)
+		typename EnableIf<!IsSame<any, typename Decay<T>::ValueT>::Value, any>::ValueT& operator = (T&& val)
 		{
 			Destroy();
-			Init<T>(val);
+			Init<T>(std::forward<T>(val));
 			return *this;
 		}
 
@@ -301,10 +308,12 @@ namespace stingray
 
 	private:
 		template < typename T >
-		void Init(const T& val)
+		void Init(T&& val)
 		{
-			_type = Detail::any::CppTypeToAnyUnionType<T>::Value;
-			Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::Set(_data, val);
+			typedef typename Decay<T>::ValueT RawType;
+
+			_type = Detail::any::CppTypeToAnyUnionType<RawType>::Value;
+			Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<RawType>::Value>::Set(_data, std::forward<T>(val));
 		}
 
 		template < typename T >
