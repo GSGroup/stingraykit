@@ -275,6 +275,9 @@ namespace stingray
 		any(const any& other) : _type(Type::Empty)
 		{ Copy(other); }
 
+		any(any&& other) : _type(Type::Empty)
+		{ Move(std::move(other)); }
+
 		template < typename T >
 		any(T&& val, typename EnableIf<!IsSame<any, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0) : _type(Type::Empty)
 		{ Init<T>(std::forward<T>(val)); }
@@ -286,6 +289,13 @@ namespace stingray
 		{
 			Destroy();
 			Copy(other);
+			return *this;
+		}
+
+		any& operator = (any&& other)
+		{
+			Destroy();
+			Move(std::move(other));
 			return *this;
 		}
 
@@ -323,6 +333,7 @@ namespace stingray
 		const T* Get() const { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::template Get<T>(_type, _data); }
 
 		void Copy(const any& other);
+		void Move(any&& other);
 		void Destroy();
 	};
 

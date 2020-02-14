@@ -61,6 +61,43 @@ namespace stingray
 	}
 
 
+	void any::Move(any&& other)
+	{
+		STINGRAYKIT_ASSERT(_type == Type::Empty);
+
+		switch (other._type)
+		{
+		case Type::Empty:
+		case Type::Bool:
+		case Type::Char:
+		case Type::UChar:
+		case Type::Short:
+		case Type::UShort:
+		case Type::Int:
+		case Type::UInt:
+		case Type::Long:
+		case Type::ULong:
+		case Type::LongLong:
+		case Type::ULongLong:
+		case Type::Float:
+		case Type::Double:
+			_data = other._data;
+			break;
+		case Type::String:
+			_data.String.Ctor(std::move(other._data.String.Ref()));
+			break;
+		case Type::Object:
+		case Type::SerializableObject:
+			_data.Object = other._data.Object;
+			break;
+		default:
+			STINGRAYKIT_THROW(ArgumentException("type", other._type));
+		}
+
+		std::swap(_type, other._type);
+	}
+
+
 	void any::Destroy()
 	{
 		switch (_type)
