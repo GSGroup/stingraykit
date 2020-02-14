@@ -231,7 +231,7 @@ namespace stingray
 
 		ANY_VAL_ACCESSOR( SerializableObject,	data.Object	= new ObjectHolder<ISerializablePtr>(val),
 				if (ObjectHolder<ISerializablePtr>* objHolder = dynamic_cast<ObjectHolder<ISerializablePtr>*>(data.Object))
-					return dynamic_cast<T*>(objHolder->Object.get());
+					return &objHolder->Object;
 				return NULL;
 		);
 
