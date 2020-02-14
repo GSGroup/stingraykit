@@ -290,13 +290,6 @@ namespace stingray
 			return *this;
 		}
 
-		any& swap(any& other)
-		{
-			std::swap(_type, other._type);
-			std::swap(_data, other._data);
-			return *this;
-		}
-
 		bool empty() const { return _type == Type::Empty; }
 
 		bool IsSerializable() const;
