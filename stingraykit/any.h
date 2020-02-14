@@ -266,7 +266,7 @@ namespace stingray
 		{ }
 
 		any(const any& other) : _type(Type::Empty)
-		{ Copy(other._type, other._data); }
+		{ Copy(other); }
 
 		template < typename T >
 		any(const T& val) : _type(Type::Empty)
@@ -278,7 +278,7 @@ namespace stingray
 		any& operator = (const any& other)
 		{
 			Destroy();
-			Copy(other._type, other._data);
+			Copy(other);
 			return *this;
 		}
 
@@ -320,7 +320,7 @@ namespace stingray
 		template < typename T >
 		const T* Get() const { return Detail::any::AnyValAccessor<Detail::any::CppTypeToAnyUnionType<T>::Value>::template Get<T>(_type, _data); }
 
-		void Copy(Type type, const DataType& data);
+		void Copy(const any& other);
 		void Destroy();
 	};
 

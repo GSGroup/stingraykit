@@ -8,6 +8,7 @@
 #include <stingraykit/any.h>
 
 #include <stingraykit/serialization/Serialization.h>
+#include <stingraykit/assert.h>
 
 namespace stingray
 {
@@ -23,9 +24,11 @@ namespace stingray
 	}}
 
 
-	void any::Copy(Type type, const DataType& data)
+	void any::Copy(const any& other)
 	{
-		switch (type)
+		STINGRAYKIT_ASSERT(_type == Type::Empty);
+
+		switch (other._type)
 		{
 		case Type::Empty:
 		case Type::Bool:
@@ -41,18 +44,19 @@ namespace stingray
 		case Type::ULongLong:
 		case Type::Float:
 		case Type::Double:
-			_data = data;
+			_data = other._data;
 			break;
 		case Type::String:
-			_data.String.Ctor(data.String.Ref());
+			_data.String.Ctor(other._data.String.Ref());
 			break;
 		case Type::Object:
-			_data.Object = data.Object->Clone();
+			_data.Object = other._data.Object->Clone();
 			break;
 		default:
-			STINGRAYKIT_THROW(ArgumentException("type", type));
+			STINGRAYKIT_THROW(ArgumentException("type", other._type));
 		}
-		_type = type;
+
+		_type = other._type;
 	}
 
 
