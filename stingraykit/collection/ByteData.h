@@ -40,10 +40,12 @@ namespace stingray
 
 	private:
 		pointer _ptr;
-		pointer _begin, _end;
-
+		pointer _begin;
+		pointer _end;
 
 	public:
+		ByteDataIterator() : _ptr(), _begin(), _end() { }
+
 		ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
 			:	_ptr(ptr),
 				_begin(begin),
