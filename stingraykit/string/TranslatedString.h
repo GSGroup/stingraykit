@@ -71,6 +71,7 @@ namespace stingray
 
 	private:
 		DictionaryImplPtr	_product;
+		bool				_dirty;
 
 	public:
 		Builder();

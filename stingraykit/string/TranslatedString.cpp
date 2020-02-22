@@ -96,17 +96,23 @@ namespace stingray
 
 
 	TranslatedString::Builder::Builder()
-		: _product(make_shared_ptr<MapDictionary<LangCode, std::string> >())
+		: _product(make_shared_ptr<MapDictionary<LangCode, std::string> >()), _dirty(true)
 	{ }
 
 
 	TranslatedString::Builder::Builder(const TranslatedString& other)
-		: _product(make_shared_ptr<MapDictionary<LangCode, std::string> >(other._dictionary))
+		: _product(other._dictionary), _dirty(false)
 	{ }
 
 
 	TranslatedString::Builder& TranslatedString::Builder::AddTranslation(LangCode lang, const std::string& str)
 	{
+		if (!_dirty)
+		{
+			_product = make_shared_ptr<MapDictionary<LangCode, std::string> >(_product);
+			_dirty = true;
+		}
+
 		_product->Set(lang, str);
 		return *this;
 	}
