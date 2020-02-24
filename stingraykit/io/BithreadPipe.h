@@ -64,6 +64,12 @@ namespace stingray
 
 			return data.size();
 		}
+
+		virtual bool Peek(const ICancellationToken& token = DummyCancellationToken())
+		{
+			MutexLock l(_guard);
+			return _data.is_initialized();
+		}
 	};
 
 }

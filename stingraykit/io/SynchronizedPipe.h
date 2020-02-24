@@ -42,6 +42,9 @@ namespace stingray
 			CheckedWriteAll(*pipe, data, token);
 			return data.size();
 		}
+
+		virtual bool Peek(const ICancellationToken& token)
+		{ STINGRAYKIT_THROW(NotSupportedException()); }
 	};
 
 }

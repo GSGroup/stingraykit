@@ -38,4 +38,8 @@ namespace stingray
 	u64 BufferedPipe::Write(ConstByteData data, const ICancellationToken& token)
 	{ return _pipe->Write(data, token); }
 
+
+	bool BufferedPipe::Peek(const ICancellationToken& token)
+	{ return _bufferOffset != _bufferSize || _pipe->Peek(token); }
+
 }
