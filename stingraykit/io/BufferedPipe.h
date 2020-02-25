@@ -31,6 +31,8 @@ namespace stingray
 		virtual u64 Read(ByteData data, const ICancellationToken& token);
 
 		virtual u64 Write(ConstByteData data, const ICancellationToken& token);
+
+		virtual bool Peek(const ICancellationToken& token);
 	};
 
 }
