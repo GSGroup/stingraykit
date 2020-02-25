@@ -20,7 +20,9 @@ namespace stingray
 
 
 	struct IPipe : public virtual IInputByteStream, public virtual IOutputByteStream
-	{ };
+	{
+		virtual bool Peek(const ICancellationToken& token = DummyCancellationToken()) = 0;
+	};
 	STINGRAYKIT_DECLARE_PTR(IPipe);
 
 }
