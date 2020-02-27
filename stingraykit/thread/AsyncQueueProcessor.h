@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/log/Logger.h>
-#include <stingraykit/signal/signals.h>
+#include <stingraykit/ObservableValue.h>
 #include <stingraykit/ProgressValue.h>
 
 #include <list>
@@ -39,24 +39,16 @@ namespace stingray
 		Queue							_queue;
 		ConditionVariable				_condition;
 
-		bool							_idle;
-		ProgressValue					_progress;
+		ObservableValue<bool>			_idle;
+		ObservableValue<ProgressValue>	_progress;
 
 		ThreadPtr						_thread;
 
 	public:
-		signal<void(bool)>				OnIdle;
-		signal<void(ProgressValue)>		OnProgress;
-
 		AsyncQueueProcessor(const std::string& name, const FunctorType& processor)
 			:	_processor(processor),
-				_idle(true),
-				OnIdle(Bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
-				OnProgress(Bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1))
+				_idle(true)
 		{ _thread = make_shared_ptr<Thread>(name, Bind(&AsyncQueueProcessor::ThreadFunc, this, _1)); }
-
-		~AsyncQueueProcessor()
-		{ _thread.reset(); }
 
 		void PushFront(const ValueType& value)
 		{
@@ -66,11 +58,7 @@ namespace stingray
 				_condition.Broadcast();
 			}
 
-			{
-				signal_locker l(OnProgress);
-				++_progress.Total;
-				OnProgress(_progress);
-			}
+			IncreaseProgress(0, 1);
 		}
 
 		void PushBack(const ValueType& value)
@@ -81,30 +69,22 @@ namespace stingray
 				_condition.Broadcast();
 			}
 
-			{
-				signal_locker l(OnProgress);
-				++_progress.Total;
-				OnProgress(_progress);
-			}
+			IncreaseProgress(0, 1);
 		}
 
+		signal_connector<void (bool)> OnIdle() const
+		{ return _idle.OnChanged(); }
+
+		signal_connector<void (const ProgressValue&)> OnProgress() const
+		{ return _progress.OnChanged(); }
+
 	private:
-		void OnIdlePopulator(const function<void (bool)>& slot) const
-		{ slot(_idle); }
-
-		void OnProgressPopulator(const function<void (ProgressValue)>& slot) const
-		{ slot(_progress); }
-
-		void SetIdle(MutexLock& lock, bool idle)
+		void IncreaseProgress(s64 CurrentDelta, s64 totalDelta)
 		{
-			MutexUnlock ll(lock);
+			MutexLock l(_progress.GetSyncRoot());
 
-			signal_locker l(OnIdle);
-			if (idle != _idle)
-			{
-				_idle = idle;
-				OnIdle(_idle);
-			}
+			const ProgressValue progress = _progress.Get();
+			_progress.Set(ProgressValue(progress.Current + CurrentDelta, progress.Total + totalDelta));
 		}
 
 		void ThreadFunc(const ICancellationToken& token)
@@ -113,28 +93,26 @@ namespace stingray
 
 			while (token)
 			{
+				const bool idle = _queue.empty();
+
+				{
+					MutexUnlock ul(l);
+					_idle.Set(idle);
+				}
+
 				if (_queue.empty())
 				{
-					SetIdle(l, true);
 					_condition.Wait(_mutex, token);
-
-					if (!_queue.empty())
-						SetIdle(l, false);
-
 					continue;
 				}
 
 				const ValueType value = _queue.front();
 				_queue.pop_front();
 
-				MutexUnlock ll(l);
-				STINGRAYKIT_TRY("exception in queue processor", _processor(value));
+				MutexUnlock ul(l);
+				STINGRAYKIT_TRY("Processor func exception", _processor(value));
 
-				{
-					signal_locker l(OnProgress);
-					++_progress.Current;
-					OnProgress(_progress);
-				}
+				IncreaseProgress(1, 0);
 			}
 		}
 	};
