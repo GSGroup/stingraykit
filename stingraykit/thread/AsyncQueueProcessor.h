@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/log/Logger.h>
-#include <stingraykit/thread/CancellationToken.h>
 #include <stingraykit/signal/signals.h>
 #include <stingraykit/ProgressValue.h>
 
@@ -23,51 +22,50 @@ namespace stingray
 	 * @{
 	 */
 
-	template<typename ValueType_>
+	template < typename ValueType_ >
 	class AsyncQueueProcessor
 	{
 	public:
 		typedef ValueType_							ValueType;
-		typedef function<void (const ValueType &)>	FunctorType;
+		typedef function<void (const ValueType&)>	FunctorType;
 
 	private:
-		FunctorType			_processor;
-
-		CancellationToken	_token;
-		ConditionVariable	_condition;
-		Mutex				_lock;
-
 		typedef std::list<ValueType> Queue;
-		Queue				_queue;
 
-		bool				_idle;
-		ProgressValue		_progress;
+	private:
+		FunctorType						_processor;
 
-		ThreadPtr			_thread;
+		Mutex							_mutex;
+		Queue							_queue;
+		ConditionVariable				_condition;
+
+		bool							_idle;
+		ProgressValue					_progress;
+
+		ThreadPtr						_thread;
 
 	public:
 		signal<void(bool)>				OnIdle;
 		signal<void(ProgressValue)>		OnProgress;
 
-		AsyncQueueProcessor(const std::string &name, const FunctorType &processor):
-			_processor(processor),
-			_idle(true),
-			OnIdle(Bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
-			OnProgress(Bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1))
+		AsyncQueueProcessor(const std::string& name, const FunctorType& processor)
+			:	_processor(processor),
+				_idle(true),
+				OnIdle(Bind(&AsyncQueueProcessor::OnIdlePopulator, this, _1)),
+				OnProgress(Bind(&AsyncQueueProcessor::OnProgressPopulator, this, _1))
 		{ _thread = make_shared_ptr<Thread>(name, Bind(&AsyncQueueProcessor::ThreadFunc, this, _1)); }
 
 		~AsyncQueueProcessor()
-		{
-			_thread.reset();
-		}
+		{ _thread.reset(); }
 
-		void PushFront(const ValueType &value)
+		void PushFront(const ValueType& value)
 		{
 			{
-				MutexLock l(_lock);
+				MutexLock l(_mutex);
 				_queue.push_front(value);
 				_condition.Broadcast();
 			}
+
 			{
 				signal_locker l(OnProgress);
 				++_progress.Total;
@@ -75,13 +73,14 @@ namespace stingray
 			}
 		}
 
-		void PushBack(const ValueType &value)
+		void PushBack(const ValueType& value)
 		{
 			{
-				MutexLock l(_lock);
+				MutexLock l(_mutex);
 				_queue.push_back(value);
 				_condition.Broadcast();
 			}
+
 			{
 				signal_locker l(OnProgress);
 				++_progress.Total;
@@ -96,9 +95,10 @@ namespace stingray
 		void OnProgressPopulator(const function<void (ProgressValue)>& slot) const
 		{ slot(_progress); }
 
-		void SetIdle(MutexLock &lock, bool idle)
+		void SetIdle(MutexLock& lock, bool idle)
 		{
 			MutexUnlock ll(lock);
+
 			signal_locker l(OnIdle);
 			if (idle != _idle)
 			{
@@ -109,22 +109,27 @@ namespace stingray
 
 		void ThreadFunc(const ICancellationToken& token)
 		{
-			MutexLock l(_lock);
-			while(token)
+			MutexLock l(_mutex);
+
+			while (token)
 			{
 				if (_queue.empty())
 				{
 					SetIdle(l, true);
-					_condition.Wait(_lock, token);
+					_condition.Wait(_mutex, token);
+
 					if (!_queue.empty())
 						SetIdle(l, false);
+
 					continue;
 				}
-				ValueType value = _queue.front();
+
+				const ValueType value = _queue.front();
 				_queue.pop_front();
 
 				MutexUnlock ll(l);
 				STINGRAYKIT_TRY("exception in queue processor", _processor(value));
+
 				{
 					signal_locker l(OnProgress);
 					++_progress.Current;
@@ -137,6 +142,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
