@@ -52,22 +52,18 @@ namespace stingray
 
 		void PushFront(const ValueType& value)
 		{
-			{
-				MutexLock l(_mutex);
-				_queue.push_front(value);
-				_condition.Broadcast();
-			}
+			MutexLock l(_mutex);
+			_queue.push_front(value);
+			_condition.Broadcast();
 
 			IncreaseProgress(0, 1);
 		}
 
 		void PushBack(const ValueType& value)
 		{
-			{
-				MutexLock l(_mutex);
-				_queue.push_back(value);
-				_condition.Broadcast();
-			}
+			MutexLock l(_mutex);
+			_queue.push_back(value);
+			_condition.Broadcast();
 
 			IncreaseProgress(0, 1);
 		}
@@ -93,18 +89,14 @@ namespace stingray
 
 			while (token)
 			{
-				const bool idle = _queue.empty();
-
-				{
-					MutexUnlock ul(l);
-					_idle.Set(idle);
-				}
-
 				if (_queue.empty())
 				{
+					_idle.Set(true);
 					_condition.Wait(_mutex, token);
 					continue;
 				}
+
+				_idle.Set(false);
 
 				const ValueType value = _queue.front();
 				_queue.pop_front();
