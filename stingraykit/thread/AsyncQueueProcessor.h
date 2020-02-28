@@ -92,6 +92,8 @@ namespace stingray
 				if (_queue.empty())
 				{
 					_idle.Set(true);
+					_progress.Set(ProgressValue());
+
 					_condition.Wait(_mutex, token);
 					continue;
 				}
