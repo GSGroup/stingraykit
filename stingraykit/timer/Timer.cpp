@@ -30,10 +30,10 @@ namespace stingray
 	public:
 		typedef ContainerInternal::iterator iterator;
 
-		inline Mutex& Sync()
+		Mutex& Sync()
 		{ return _mutex; }
 
-		inline bool IsEmpty() const
+		bool IsEmpty() const
 		{
 			MutexLock l(_mutex);
 			return _container.empty();
