@@ -33,7 +33,7 @@ namespace stingray
 
 	private:
 		typedef std::pair<TaskType, FutureExecutionTester>				TaskPair;
-		typedef std::queue<TaskPair, std::deque<TaskPair> >				QueueType;
+		typedef std::deque<TaskPair>									QueueType;
 
 	public:
 		static const TimeDuration DefaultProfileTimeout;
