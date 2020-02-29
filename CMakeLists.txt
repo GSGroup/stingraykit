@@ -128,7 +128,6 @@ set(stingraykit_SRC
 
 	stingraykit/thread/CancellationToken.cpp
 	stingraykit/thread/DummyCancellationToken.cpp
-	stingraykit/thread/ITaskExecutor.cpp
 	stingraykit/thread/Thread.cpp
 	stingraykit/thread/ThreadlessTaskExecutor.cpp
 	stingraykit/thread/ThreadOperation.cpp

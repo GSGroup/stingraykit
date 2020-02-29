@@ -10,7 +10,6 @@
 
 #include <stingraykit/TaskLifeToken.h>
 #include <stingraykit/function/function.h>
-#include <stingraykit/shared_ptr.h>
 
 namespace stingray
 {
@@ -25,9 +24,6 @@ namespace stingray
 		virtual ~ITaskExecutor() { }
 
 		virtual void AddTask(const function<void ()>& task, const FutureExecutionTester& tester = null) = 0;
-
-		/** @deprecated instead, create ThreadTaskExecutor directly */
-		static shared_ptr<ITaskExecutor> Create(const std::string& name);
 	};
 	STINGRAYKIT_DECLARE_PTR(ITaskExecutor);
 
