@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/array.h>
+#include <stingraykit/collection/ByteData.h>
 #include <stingraykit/string/string_view.h>
 #include <stingraykit/toolkit.h>
 
@@ -26,6 +26,7 @@ namespace stingray
 	public:
 		UUID() { }
 		explicit UUID(const DataType& data) : _data(data) { }
+		explicit UUID(ConstByteData data);
 
 		bool operator< (const UUID& other) const
 		{ return std::lexicographical_compare(_data.begin(), _data.end(), other._data.begin(), other._data.end()); }

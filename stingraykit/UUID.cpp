@@ -26,6 +26,14 @@ namespace stingray
 	}
 
 
+	UUID::UUID(ConstByteData data)
+	{
+		STINGRAYKIT_CHECK(data.size() == DataType::Size, ArgumentException("data.size()", data.size()));
+
+		std::copy(data.begin(), data.end(), _data.begin());
+	}
+
+
 	UUID UUID::FromString(string_view str)
 	{
 		STINGRAYKIT_CHECK(str.length() == Format.length(), FormatException("invalid length!"));
