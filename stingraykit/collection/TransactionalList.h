@@ -464,9 +464,6 @@ namespace stingray
 
 		virtual const Mutex& GetSyncRoot() const
 		{ return *_impl->Guard; }
-
-		ObservableCollectionLockerPtr Lock() const
-		{ return make_shared_ptr<ObservableCollectionLocker>(*this); }
 	};
 
 	/** @} */
