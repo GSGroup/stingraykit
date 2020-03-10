@@ -34,9 +34,11 @@ namespace stingray
 		typedef function<bool (const DestType&, SrcType&)> BackCaster;
 
 	private:
-		WrappedPtr											_wrapped;
-		Caster												_caster;
-		BackCaster											_backCaster;
+		const WrappedPtr									_wrapped;
+
+	protected:
+		const Caster										_caster;
+		const BackCaster									_backCaster;
 
 	public:
 		SetCaster(const WrappedPtr& wrapped, const Caster& caster = &Self::DefaultCast, const BackCaster& backCaster = &Self::DefaultBackCast)
@@ -106,14 +108,16 @@ namespace stingray
 		typedef typename base::BackCaster BackCaster;
 
 	private:
-		WrappedPtr											_wrapped;
+		const WrappedPtr									_wrapped;
 		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
+		const Token											_connection;
 
 	public:
 		explicit ObservableSetCaster(const WrappedPtr& wrapped, const Caster& caster = &base::DefaultCast, const BackCaster& backCaster = &base::DefaultBackCast)
 			:	base(wrapped, caster, backCaster),
 				_wrapped(wrapped),
-				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_wrapped, &_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1))
+				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_wrapped, &_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
+				_connection(_wrapped->OnChanged().connect(Bind(&Self::ChangedHandler, this, _1, _2)))
 		{ }
 
 		virtual signal_connector<OnChangedSignature> OnChanged() const
@@ -128,6 +132,9 @@ namespace stingray
 			FOR_EACH(const DestType value IN base::GetEnumerator())
 				slot(CollectionOp::Added, value);
 		}
+
+		void ChangedHandler(CollectionOp op, const SrcType& value)
+		{ _onChanged(op, base::_caster(value)); }
 	};
 
 
