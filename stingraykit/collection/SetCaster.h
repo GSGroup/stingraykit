@@ -34,23 +34,6 @@ namespace stingray
 		typedef function<bool (const DestType&, SrcType&)> BackCaster;
 
 	private:
-		class Enumerator : public virtual IEnumerator<DestType>
-		{
-		private:
-			shared_ptr<IEnumerator<SrcType> >	_wrapped;
-			Caster								_caster;
-
-		public:
-			Enumerator(const shared_ptr<IEnumerator<SrcType> >& wrapped, const Caster& caster)
-				: _wrapped(wrapped), _caster(caster)
-			{ }
-
-			virtual bool Valid() const { return _wrapped->Valid(); }
-			virtual DestType Get() const { return _caster(_wrapped->Get()); }
-			virtual void Next() { _wrapped->Next(); }
-		};
-
-	private:
 		WrappedPtr											_wrapped;
 		Caster												_caster;
 		BackCaster											_backCaster;
@@ -61,7 +44,7 @@ namespace stingray
 		{ }
 
 		virtual shared_ptr<IEnumerator<DestType> > GetEnumerator() const
-		{ return make_shared_ptr<Enumerator>(_wrapped->GetEnumerator(), _caster); }
+		{ return WrapEnumerator(_wrapped->GetEnumerator(), _caster); }
 
 		virtual shared_ptr<IEnumerable<DestType> > Reverse() const
 		{ return WrapEnumerable(_wrapped->Reverse(), _caster); }
@@ -82,7 +65,7 @@ namespace stingray
 		{
 			SrcType value_;
 			if (_backCaster(value, value_))
-				return make_shared_ptr<Enumerator>(_wrapped->Find(value_), _caster);
+				return WrapEnumerator(_wrapped->Find(value_), _caster);
 			return MakeEmptyEnumerator();
 		}
 
@@ -90,7 +73,7 @@ namespace stingray
 		{
 			SrcType value_;
 			if (_backCaster(value, value_))
-				return make_shared_ptr<Enumerator>(_wrapped->ReverseFind(value_), _caster);
+				return WrapEnumerator(_wrapped->ReverseFind(value_), _caster);
 			return MakeEmptyEnumerator();
 		}
 
