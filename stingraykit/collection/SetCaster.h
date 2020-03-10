@@ -21,27 +21,24 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename SrcType, typename DestType >
+	template < typename SrcType, typename DestType, typename SrcSetType = IReadonlySet<SrcType> >
 	class SetCaster : public virtual IReadonlySet<DestType>
 	{
-		typedef SetCaster<SrcType, DestType> Self;
+		typedef SetCaster<SrcType, DestType, SrcSetType> Self;
 
-		typedef IReadonlySet<SrcType> Wrapped;
-		STINGRAYKIT_DECLARE_PTR(Wrapped);
+		STINGRAYKIT_DECLARE_PTR(SrcSetType);
 
 	public:
 		typedef function<DestType (const SrcType&)> Caster;
 		typedef function<bool (const DestType&, SrcType&)> BackCaster;
 
-	private:
-		const WrappedPtr									_wrapped;
-
 	protected:
+		const SrcSetTypePtr									_wrapped;
 		const Caster										_caster;
 		const BackCaster									_backCaster;
 
 	public:
-		SetCaster(const WrappedPtr& wrapped, const Caster& caster = &Self::DefaultCast, const BackCaster& backCaster = &Self::DefaultBackCast)
+		SetCaster(const SrcSetTypePtr& wrapped, const Caster& caster = &Self::DefaultCast, const BackCaster& backCaster = &Self::DefaultBackCast)
 			: _wrapped(STINGRAYKIT_REQUIRE_NOT_NULL(wrapped)), _caster(caster), _backCaster(backCaster)
 		{ }
 
@@ -91,13 +88,13 @@ namespace stingray
 
 
 	template < typename SrcType, typename DestType >
-	class ObservableSetCaster : public SetCaster<SrcType, DestType>, public virtual IReadonlyObservableSet<DestType>
+	class ObservableSetCaster : public SetCaster<SrcType, DestType, IReadonlyObservableSet<SrcType> >, public virtual IReadonlyObservableSet<DestType>
 	{
-		typedef SetCaster<SrcType, DestType> base;
+		typedef SetCaster<SrcType, DestType, IReadonlyObservableSet<SrcType> > base;
 		typedef ObservableSetCaster<SrcType, DestType> Self;
 
-		typedef IReadonlyObservableSet<SrcType> Wrapped;
-		STINGRAYKIT_DECLARE_PTR(Wrapped);
+		typedef IReadonlyObservableSet<SrcType> SrcSetType;
+		STINGRAYKIT_DECLARE_PTR(SrcSetType);
 
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
@@ -108,23 +105,21 @@ namespace stingray
 		typedef typename base::BackCaster BackCaster;
 
 	private:
-		const WrappedPtr									_wrapped;
 		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 		const Token											_connection;
 
 	public:
-		explicit ObservableSetCaster(const WrappedPtr& wrapped, const Caster& caster = &base::DefaultCast, const BackCaster& backCaster = &base::DefaultBackCast)
+		explicit ObservableSetCaster(const SrcSetTypePtr& wrapped, const Caster& caster = &base::DefaultCast, const BackCaster& backCaster = &base::DefaultBackCast)
 			:	base(wrapped, caster, backCaster),
-				_wrapped(wrapped),
-				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_wrapped, &_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
-				_connection(_wrapped->OnChanged().connect(Bind(&Self::ChangedHandler, this, _1, _2)))
+				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(base::_wrapped, &base::_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
+				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ChangedHandler, this, _1, _2)))
 		{ }
 
 		virtual signal_connector<OnChangedSignature> OnChanged() const
 		{ return _onChanged.connector(); }
 
 		virtual const Mutex& GetSyncRoot() const
-		{ return _wrapped->GetSyncRoot(); }
+		{ return base::_wrapped->GetSyncRoot(); }
 
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
