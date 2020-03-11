@@ -38,7 +38,7 @@ namespace stingray
 		const BackCaster									_backCaster;
 
 	public:
-		ListCaster(const SrcListTypePtr& wrapped, const Caster& caster = &Self::DefaultCast, const BackCaster& backCaster = &Self::DefaultBackCast)
+		ListCaster(const SrcListTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
 			: _wrapped(STINGRAYKIT_REQUIRE_NOT_NULL(wrapped)), _caster(caster), _backCaster(backCaster)
 		{ }
 
@@ -79,15 +79,6 @@ namespace stingray
 			}
 			return false;
 		}
-
-		static typename EnableIf<IsConvertible<SrcType, DestType>::Value, DestType>::ValueT DefaultCast(const SrcType& value)
-		{ return DestType(value); }
-
-		static typename EnableIf<IsSharedPtr<SrcType>::Value && IsSharedPtr<DestType>::Value, bool>::ValueT DefaultBackCast(const DestType& value, SrcType& result)
-		{
-			result = dynamic_caster(value);
-			return result.is_initialized();
-		}
 	};
 
 
@@ -113,7 +104,7 @@ namespace stingray
 		const Token											_connection;
 
 	public:
-		explicit ObservableListCaster(const SrcListTypePtr& wrapped, const Caster& caster = &base::DefaultCast, const BackCaster& backCaster = &base::DefaultBackCast)
+		explicit ObservableListCaster(const SrcListTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
 			:	base(wrapped, caster, backCaster),
 				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(base::_wrapped, &base::_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
 				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ChangedHandler, this, _1, _2, _3)))
@@ -155,11 +146,23 @@ namespace stingray
 
 			template < typename DestType >
 			operator shared_ptr<IReadonlyList<DestType> > () const
-			{ return make_shared_ptr<ListCaster<SrcType, DestType> >(_srcList); }
+			{ return make_shared_ptr<ListCaster<SrcType, DestType> >(_srcList, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
 
 			template < typename DestType >
 			operator shared_ptr<IReadonlyObservableList<DestType> > () const
-			{ return make_shared_ptr<ObservableListCaster<SrcType, DestType> >(_srcList); }
+			{ return make_shared_ptr<ObservableListCaster<SrcType, DestType> >(_srcList, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
+
+		private:
+			template < typename DestType >
+			static typename EnableIf<IsConvertible<SrcType, DestType>::Value, DestType>::ValueT DefaultCast(const SrcType& value)
+			{ return DestType(value); }
+
+			template < typename DestType >
+			static typename EnableIf<IsSharedPtr<SrcType>::Value && IsSharedPtr<DestType>::Value, bool>::ValueT DefaultBackCast(const DestType& value, SrcType& result)
+			{
+				result = dynamic_caster(value);
+				return result.is_initialized();
+			}
 		};
 
 	}
