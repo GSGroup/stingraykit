@@ -43,13 +43,13 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		ObservableSetWrapper(shared_ptr<IEnumerator<ValueType> > enumerator)
+		explicit ObservableSetWrapper(const shared_ptr<IEnumerator<ValueType> >& enumerator)
 			:	Wrapped_(enumerator),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		ObservableSetWrapper(shared_ptr<IEnumerable<ValueType> > enumerable)
+		explicit ObservableSetWrapper(const shared_ptr<IEnumerable<ValueType> >& enumerable)
 			:	Wrapped_(enumerable),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))

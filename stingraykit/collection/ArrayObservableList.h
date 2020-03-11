@@ -26,8 +26,8 @@ namespace stingray
 		typedef ObservableListWrapper<ArrayList<ValueType_> > base;
 
 		ArrayObservableList() : base() { }
-		ArrayObservableList(shared_ptr<IEnumerable<typename base::ValueType> > enumerable) : base(enumerable) { }
-		ArrayObservableList(shared_ptr<IEnumerator<typename base::ValueType> > enumerator) : base(enumerator) { }
+		explicit ArrayObservableList(const shared_ptr<IEnumerable<typename base::ValueType> >& enumerable) : base(enumerable) { }
+		explicit ArrayObservableList(const shared_ptr<IEnumerator<typename base::ValueType> >& enumerator) : base(enumerator) { }
 	};
 
 	/** @} */

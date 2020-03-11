@@ -47,7 +47,8 @@ namespace stingray
 		struct Holder
 		{
 			MapTypePtr		Map;
-			Holder(const MapTypePtr& map) : Map(map) { }
+
+			explicit Holder(const MapTypePtr& map) : Map(map) { }
 		};
 		STINGRAYKIT_DECLARE_PTR(Holder);
 
@@ -55,7 +56,7 @@ namespace stingray
 		{
 			HolderPtr		_holder;
 
-			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
+			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
 			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 			{ return WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
@@ -73,7 +74,7 @@ namespace stingray
 		MapDictionary(const MapDictionary& other)
 		{ CopyMap(other._map); }
 
-		MapDictionary(shared_ptr<IEnumerable<PairType> > enumerable)
+		explicit MapDictionary(const shared_ptr<IEnumerable<PairType> >& enumerable)
 			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
@@ -81,7 +82,7 @@ namespace stingray
 				Set(p.Key, p.Value);
 		}
 
-		MapDictionary(shared_ptr<IEnumerator<PairType> > enumerator)
+		explicit MapDictionary(const shared_ptr<IEnumerator<PairType> >& enumerator)
 			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
@@ -89,7 +90,7 @@ namespace stingray
 				Set(p.Key, p.Value);
 		}
 
-		MapDictionary& operator =(const MapDictionary& other)
+		MapDictionary& operator = (const MapDictionary& other)
 		{ CopyMap(other._map); return *this; }
 
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
@@ -225,6 +226,7 @@ namespace stingray
 		static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
 		{ return make_shared_ptr<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
 	};
+
 
 	template <
 			typename KeyType,

@@ -34,7 +34,8 @@ namespace stingray
 		struct Holder
 		{
 			SetTypePtr		Items;
-			Holder(const SetTypePtr& items) : Items(items) { }
+
+			explicit Holder(const SetTypePtr& items) : Items(items) { }
 		};
 		STINGRAYKIT_DECLARE_PTR(Holder);
 
@@ -42,7 +43,7 @@ namespace stingray
 		{
 			HolderPtr		_holder;
 
-			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
+			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
 			virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
@@ -60,14 +61,14 @@ namespace stingray
 		SortedMultiSet(const SortedMultiSet& other)
 		{ CopyItems(other._items); }
 
-		SortedMultiSet(shared_ptr<IEnumerator<T> > enumerator)
+		explicit SortedMultiSet(const shared_ptr<IEnumerator<T> >& enumerator)
 			:	_items(make_shared_ptr<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			Enumerable::ForEach(enumerator, Bind(&SortedMultiSet::Add, this, _1));
 		}
 
-		SortedMultiSet(shared_ptr<IEnumerable<T> > enumerable)
+		explicit SortedMultiSet(const shared_ptr<IEnumerable<T> >& enumerable)
 			:	_items(make_shared_ptr<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);

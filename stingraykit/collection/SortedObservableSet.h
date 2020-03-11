@@ -31,9 +31,10 @@ namespace stingray
 		typedef ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_> > base;
 
 		SortedObservableSet() : base() { }
-		SortedObservableSet(shared_ptr<IEnumerable<typename base::ValueType> > enumerable) : base(enumerable) { }
-		SortedObservableSet(shared_ptr<IEnumerator<typename base::ValueType> > enumerator) : base(enumerator) { }
+		explicit SortedObservableSet(const shared_ptr<IEnumerable<typename base::ValueType> >& enumerable) : base(enumerable) { }
+		explicit SortedObservableSet(const shared_ptr<IEnumerator<typename base::ValueType> >& enumerator) : base(enumerator) { }
 	};
+
 
 	template <
 			typename T,

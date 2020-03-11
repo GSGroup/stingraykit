@@ -58,22 +58,22 @@ namespace stingray
 
 
 	template < typename T >
-	inline StlEnumeratorAdapter<T> Wrap(shared_ptr<IEnumerator<T> > enumerator)
+	inline StlEnumeratorAdapter<T> Wrap(const shared_ptr<IEnumerator<T> >& enumerator)
 	{ return StlEnumeratorAdapter<T>(enumerator); }
 
 
 	template < typename T >
-	inline StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerator<T> >/* enumerator*/)
+	inline StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerator<T> >&/* enumerator*/)
 	{ return StlEnumeratorAdapter<T>(); }
 
 
 	template < typename T >
-	inline StlEnumeratorAdapter<T> Wrap(shared_ptr<IEnumerable<T> > enumerable)
+	inline StlEnumeratorAdapter<T> Wrap(const shared_ptr<IEnumerable<T> >& enumerable)
 	{ return StlEnumeratorAdapter<T>(enumerable->GetEnumerator()); }
 
 
 	template < typename T >
-	inline StlEnumeratorAdapter<T> WrapEnd(shared_ptr<IEnumerable<T> >/* enumerator*/)
+	inline StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerable<T> >&/* enumerator*/)
 	{ return StlEnumeratorAdapter<T>(); }
 
 	/** @} */

@@ -20,9 +20,9 @@ namespace stingray
 	 */
 
 	template < typename KeyType_, typename ValueType_ >
-	struct IReadonlyDictionary :
-		public virtual ICollection<KeyValuePair<KeyType_, ValueType_> >,
-		public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_> >
+	struct IReadonlyDictionary
+		:	public virtual ICollection<KeyValuePair<KeyType_, ValueType_> >,
+			public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_> >
 	{
 		typedef KeyType_							KeyType;
 		typedef ValueType_							ValueType;
@@ -46,8 +46,8 @@ namespace stingray
 
 
 	template < typename KeyType_, typename ValueType_ >
-	struct IDictionary :
-		public virtual IReadonlyDictionary<KeyType_, ValueType_>
+	struct IDictionary
+		:	public virtual IReadonlyDictionary<KeyType_, ValueType_>
 	{
 		typedef KeyType_							KeyType;
 		typedef ValueType_							ValueType;

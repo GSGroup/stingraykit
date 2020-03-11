@@ -32,9 +32,10 @@ namespace stingray
 		typedef ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_> > base;
 
 		MapObservableDictionary() : base() { }
-		MapObservableDictionary(shared_ptr<IEnumerable<typename base::PairType> > enumerable) : base(enumerable) { }
-		MapObservableDictionary(shared_ptr<IEnumerator<typename base::PairType> > enumerator) : base(enumerator) { }
+		explicit MapObservableDictionary(const shared_ptr<IEnumerable<typename base::PairType> >& enumerable) : base(enumerable) { }
+		explicit MapObservableDictionary(const shared_ptr<IEnumerator<typename base::PairType> >& enumerator) : base(enumerator) { }
 	};
+
 
 	template <
 			typename KeyType,
