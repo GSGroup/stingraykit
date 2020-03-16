@@ -19,7 +19,7 @@ namespace stingray
 	 */
 
 	template < typename T >
-	class StlEnumeratorAdapter : public std::iterator< std::forward_iterator_tag, T >
+	class StlEnumeratorAdapter : public std::iterator<std::input_iterator_tag, T>
 	{
 	private:
 		shared_ptr<IEnumerator<T> >		_enumerator;
@@ -41,17 +41,16 @@ namespace stingray
 
 		T operator * () const
 		{
-			if (!_enumerator->Valid())
+			if (!_enumerator || !_enumerator->Valid())
 				STINGRAYKIT_THROW(std::runtime_error("Trying to dereference an invalid enumerator!"));
 			return _enumerator->Get();
 		}
 
 		bool operator != (const StlEnumeratorAdapter& other) const
-		{
-			if (other._enumerator != NULL)
-				STINGRAYKIT_THROW(NotImplementedException());
-			return _enumerator->Valid();
-		}
+		{ return (_enumerator && _enumerator->Valid()) != (other._enumerator && other._enumerator->Valid()); }
+
+		bool operator == (const StlEnumeratorAdapter& other) const
+		{ return !(*this != other); }
 
 		// whatever
 	};
