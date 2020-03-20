@@ -107,6 +107,13 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableValue::OnChangedPopulator, this, _1))
 		{ }
 
+		explicit ObservableValue(const shared_ptr<Mutex>& mutex, ParamPassingType val = T(), const PopulationPolicySpecifier& populationPolicySpecifier = PopulationPolicySpecifier())
+			:	_val(val),
+				_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
+				_populationPolicy(populationPolicySpecifier),
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableValue::OnChangedPopulator, this, _1))
+		{ }
+
 		ObservableValue& operator = (ParamPassingType val)
 		{
 			Set(val);
