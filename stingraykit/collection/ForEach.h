@@ -124,18 +124,18 @@ namespace stingray
 		template < typename T >
 		inline bool ForEach_ItemFilter(bool dummy, const T& val) { return static_cast<bool>(val); }
 		inline bool ForEach_ItemFilter(bool dummy) { return true; }
-	}
 
-	template < typename T >
-	typename Detail::EnumeratorGetter<T>::EnumeratorPtrType GetEnumeratorCaster(const shared_ptr<T>& obj)
-	{ return Detail::EnumeratorGetter<T>::Get(obj); }
+		template < typename T >
+		typename Detail::EnumeratorGetter<T>::EnumeratorPtrType GetEnumeratorGetter(const shared_ptr<T>& obj)
+		{ return Detail::EnumeratorGetter<T>::Get(obj); }
+	}
 
 
 #define IN ,
 #define WHERE ,
 #define FOR_EACH__IMPL(ItemDecl_, SomethingToEnumerate_, ...) \
 		for (bool __broken__ = false; !__broken__; __broken__ = true) \
-			for (::stingray::shared_ptr< ::stingray::IEnumerator<typename ::stingray::Detail::GetItemTypeFromItemDecl<void(*)(ItemDecl_)>::ValueT> > __en__(::stingray::GetEnumeratorCaster(SomethingToEnumerate_)); \
+			for (::stingray::shared_ptr< ::stingray::IEnumerator<typename ::stingray::Detail::GetItemTypeFromItemDecl<void(*)(ItemDecl_)>::ValueT> > __en__(::stingray::Detail::GetEnumeratorGetter(SomethingToEnumerate_)); \
 				 __en__ && __en__->Valid() && !__broken__; \
 				 __en__->Next()) \
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \
