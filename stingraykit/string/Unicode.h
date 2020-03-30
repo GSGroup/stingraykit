@@ -8,8 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/compare/comparers.h>
 #include <stingraykit/unique_ptr.h>
-#include <stingraykit/shared_ptr.h>
 
 #ifdef HAVE_ICU_I18N
 #	include <unicode/coll.h>
@@ -33,12 +33,30 @@ namespace stingray
 		~UnicodeCollator();
 
 		void SetCaseSensitivity(bool sensitive);
-		int Compare(const std::string &str1, const std::string &str2) const;
+		int Compare(const std::string& str1, const std::string& str2) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(UnicodeCollator);
 
 
 	std::string Utf8ToLower(const std::string& str);
+
+
+	template < bool CaseSensitive >
+	class UnicodeCmp : public comparers::CmpComparerBase<UnicodeCmp<CaseSensitive> >
+	{
+	private:
+		UnicodeCollatorPtr		_collator;
+
+	public:
+		UnicodeCmp() : _collator(make_shared_ptr<UnicodeCollator>())
+		{ _collator->SetCaseSensitivity(CaseSensitive); }
+
+		int DoCompare(const std::string& str1, const std::string& str2) const
+		{ return _collator->Compare(str1, str2); }
+	};
+	template < bool CaseSensitive > struct UnicodeLess : public comparers::CmpToLess<UnicodeCmp<CaseSensitive> > { };
+	template < bool CaseSensitive > struct UnicodeEquals : public comparers::CmpToEquals<UnicodeCmp<CaseSensitive> > { };
+	template < bool CaseSensitive > struct UnicodeGreater : public comparers::CmpToGreater<UnicodeCmp<CaseSensitive> > { };
 
 }
 
