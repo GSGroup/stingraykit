@@ -8,6 +8,7 @@
 #include <stingraykit/string/Unicode.h>
 
 #include <stingraykit/string/ToString.h>
+#include <stingraykit/Mapper.h>
 
 #ifdef HAVE_ICU_I18N
 #	include <unicode/unistr.h>
@@ -18,6 +19,23 @@ namespace stingray
 {
 
 #ifdef HAVE_ICU_I18N
+
+	namespace
+	{
+
+		struct CollationResultMapper : public BaseValueMapper<CollationResultMapper, UCollationResult, int>
+		{
+			typedef TypeList
+			<
+				Src::Value<UCOL_EQUAL>,		Dst::Value<0>,
+				Src::Value<UCOL_LESS>,		Dst::Value<-1>,
+				Src::Value<UCOL_GREATER>,	Dst::Value<1>
+			> MappingsList;
+
+			typedef TypeList<Src::Fail, Dst::Fail> DefaultMapping;
+		};
+
+	}
 
 	UnicodeCollator::UnicodeCollator()
 	{
@@ -42,15 +60,11 @@ namespace stingray
 
 	int UnicodeCollator::Compare(const std::string& str1, const std::string& str2) const
 	{
-		CompileTimeAssert<(UCOL_EQUAL == 0)>	Error_invalid_equal_const;
-		CompileTimeAssert<(UCOL_LESS < 0)>		Error_invalid_less_const;
-		CompileTimeAssert<(UCOL_GREATER > 0)>	Error_invalid_greater_const;
-
 		UErrorCode success = U_ZERO_ERROR;
 		const UCollationResult r = _collator->compareUTF8(str1, str2, success);
 		STINGRAYKIT_CHECK(U_SUCCESS(success), "compareUTF8 failed, error: " + ToString(success));
 
-		return r;
+		return CollationResultMapper::Map(r);
 	}
 
 
