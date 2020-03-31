@@ -47,7 +47,7 @@ namespace stingray
 		CompileTimeAssert<(UCOL_GREATER > 0)>	Error_invalid_greater_const;
 
 		UErrorCode success = U_ZERO_ERROR;
-		UCollationResult r = _collator->compareUTF8(str1, str2, success);
+		const UCollationResult r = _collator->compareUTF8(str1, str2, success);
 		STINGRAYKIT_CHECK(U_SUCCESS(success), "compareUTF8 failed, error: " + ToString(success));
 
 		return r;
@@ -56,7 +56,7 @@ namespace stingray
 
 	std::string Utf8ToLower(const std::string& str)
 	{
-		icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(str).toLower();
+		const icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(str).toLower();
 		std::string r;
 		ustr.toUTF8String(r);
 		return r;
@@ -74,10 +74,8 @@ namespace stingray
 	{ _caseSensitive = sensitive; }
 
 
-	int UnicodeCollator::Compare(const std::string &str1, const std::string &str2) const
-	{
-		return _caseSensitive ? str1.compare(str2): Utf8ToLower(str1).compare(Utf8ToLower(str2));
-	}
+	int UnicodeCollator::Compare(const std::string& str1, const std::string& str2) const
+	{ return _caseSensitive ? str1.compare(str2) : Utf8ToLower(str1).compare(Utf8ToLower(str2)); }
 
 
 	std::string Utf8ToLower(const std::string& str)
