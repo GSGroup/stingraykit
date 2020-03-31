@@ -11,14 +11,17 @@
 #include <string>
 #include <vector>
 
-namespace stingray { namespace posix 
+namespace stingray {
+namespace posix
 {
 
 	class Backtrace
 	{
 		std::vector<void *> _backtrace;
+
 	public:
 		Backtrace();
+
 		std::string Get() const;
 		std::string ToString() const { return Get(); }
 	};

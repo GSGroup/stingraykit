@@ -7,20 +7,18 @@
 
 #include <stingraykit/thread/posix/Backtrace.h>
 
+#include <stingraykit/thread/Thread.h>
+#include <stingraykit/function/bind.h>
+#include <stingraykit/string/Hex.h>
+#include <stingraykit/ScopeExit.h>
+
 #ifdef HAVE_BFD_BACKTRACE
 #	include <bfd.h>
 #endif
 #include <execinfo.h>
 
 #include <iosfwd>
-#include <exception>
 #include <sstream>
-
-#include <stingraykit/log/Logger.h>
-#include <stingraykit/thread/Thread.h>
-#include <stingraykit/function/bind.h>
-#include <stingraykit/ScopeExit.h>
-
 
 #define BACKTRACE_DEMANGLE 0
 
@@ -30,7 +28,8 @@
 
 #define BACKTRACE_FRAMES (64)
 
-namespace stingray { namespace posix
+namespace stingray {
+namespace posix
 {
 
 	static Mutex _backtrace_mutex;
@@ -181,9 +180,7 @@ namespace stingray { namespace posix
 		string_ostream backtrace;
 
 		for(size_t i = 0; i < _backtrace.size(); ++i)
-		{
-			backtrace << Hex((unsigned long)_backtrace[i], 8) << " ";
-		}
+			backtrace << ToHex((unsigned long)_backtrace[i], 8) << " ";
 
 		return backtrace.str();
 	}
