@@ -3,7 +3,7 @@
 #include <stingraykit/string/Hex.h>
 #include <stingraykit/string/string_stream.h>
 
-#include <../libunwind/include/libunwind.h>
+#include <libunwind.h>
 
 namespace stingray
 {
