@@ -25,14 +25,14 @@ namespace stingray
 	private:
 #ifdef HAVE_ICU_I18N
 		unique_ptr<icu::Collator>	_collator;
-#endif
+#else
 		bool						_caseSensitive;
+#endif
 
 	public:
-		UnicodeCollator();
+		UnicodeCollator(bool caseSensitive);
 		~UnicodeCollator();
 
-		void SetCaseSensitivity(bool sensitive);
 		int Compare(const std::string& str1, const std::string& str2) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(UnicodeCollator);
@@ -48,8 +48,8 @@ namespace stingray
 		UnicodeCollatorPtr		_collator;
 
 	public:
-		UnicodeCmp() : _collator(make_shared_ptr<UnicodeCollator>())
-		{ _collator->SetCaseSensitivity(CaseSensitive); }
+		UnicodeCmp() : _collator(make_shared_ptr<UnicodeCollator>(CaseSensitive))
+		{ }
 
 		int DoCompare(const std::string& str1, const std::string& str2) const
 		{ return _collator->Compare(str1, str2); }

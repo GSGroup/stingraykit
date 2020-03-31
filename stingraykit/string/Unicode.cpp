@@ -37,25 +37,19 @@ namespace stingray
 
 	}
 
-	UnicodeCollator::UnicodeCollator()
+	UnicodeCollator::UnicodeCollator(bool caseSensitive)
 	{
 		UErrorCode success = U_ZERO_ERROR;
 		_collator.reset(icu::Collator::createInstance(success));
 		STINGRAYKIT_CHECK(success != U_FILE_ACCESS_ERROR, "file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
 		STINGRAYKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
-		SetCaseSensitivity(true);
+
+		_collator->setStrength(caseSensitive ? icu::Collator::TERTIARY : icu::Collator::SECONDARY);
 	}
 
 
 	UnicodeCollator::~UnicodeCollator()
 	{ }
-
-
-	void UnicodeCollator::SetCaseSensitivity(bool sensitive)
-	{
-		_caseSensitive = sensitive;
-		_collator->setStrength(sensitive ? icu::Collator::TERTIARY : icu::Collator::SECONDARY);
-	}
 
 
 	int UnicodeCollator::Compare(const std::string& str1, const std::string& str2) const
@@ -78,14 +72,10 @@ namespace stingray
 
 #else
 
-	UnicodeCollator::UnicodeCollator(): _caseSensitive(true) { }
+	UnicodeCollator::UnicodeCollator(bool caseSensitive): _caseSensitive(caseSensitive) { }
 
 
 	UnicodeCollator::~UnicodeCollator() { }
-
-
-	void UnicodeCollator::SetCaseSensitivity(bool sensitive)
-	{ _caseSensitive = sensitive; }
 
 
 	int UnicodeCollator::Compare(const std::string& str1, const std::string& str2) const
