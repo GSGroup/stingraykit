@@ -12,6 +12,6 @@ target_link_libraries(stingraykit-hello-world stingraykit ${STINGRAYKIT_LIBS})
 
 add_custom_target(install-stingraykit-hello-world DEPENDS stingraykit-hello-world)
 
-if (USE_BACKTRACE AND NOT USE_BFD_BACKTRACE)
+if (STINGRAY_USE_BACKTRACE AND NOT STINGRAY_USE_BFD_BACKTRACE)
         target_link_libraries(stingraykit-hello-world -Wl,-Map,${EXECUTABLE_OUTPUT_PATH}/stingraykit-hello-world.map)
-endif (USE_BACKTRACE AND NOT USE_BFD_BACKTRACE)
+endif (STINGRAY_USE_BACKTRACE AND NOT STINGRAY_USE_BFD_BACKTRACE)
