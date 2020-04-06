@@ -11,6 +11,7 @@
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/core/Final.h>
 #include <stingraykit/serialization/Serializer.h>
+#include <stingraykit/string/ToString.h>
 
 namespace stingray
 {
