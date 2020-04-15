@@ -133,9 +133,9 @@ namespace stingray
 		{ return *this = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(val()) | static_cast<int>(r))); } \
 		inline ClassName_& operator &= (ClassName_::Enum r) \
 		{ return *this = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(val()) & static_cast<int>(r))); } \
-		inline ClassName_::Enum operator | (ClassName_::Enum r) \
+		inline ClassName_ operator | (ClassName_::Enum r) \
 		{ ClassName_ result(*this); return result |= r; } \
-		inline ClassName_::Enum operator & (ClassName_::Enum r) \
+		inline ClassName_ operator & (ClassName_::Enum r) \
 		{ ClassName_ result(*this); return result &= r; }
 
 #define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
