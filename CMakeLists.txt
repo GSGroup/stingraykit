@@ -161,7 +161,6 @@ if (PLATFORM_POSIX)
 	set(COMMON_FLAGS "${COMMON_FLAGS} -pthread")
 
 	list(APPEND stingraykit_SRC
-		stingraykit/thread/posix/BackgroundProcess.cpp
 		stingraykit/thread/posix/PosixCallOnce.cpp
 		stingraykit/thread/posix/PosixConditionVariable.cpp
 		stingraykit/thread/posix/PosixSemaphore.cpp
