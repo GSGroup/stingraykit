@@ -36,31 +36,34 @@ namespace stingray
 		virtual ConstByteData ReadStorage(size_t offset, size_t size) const = 0;
 
 	private:
-		size_t	_writeOffset, _readOffset, _lockedDataSize;
-		Mutex	_mutex;
-		static NamedLogger s_logger;
-		bool _loggingEnabled;
+		static NamedLogger	s_logger;
 
-		ConstByteData CheckDataSize(const ConstByteData &data)
-		{ // Crops data if necessary
-			size_t total_capacity = (_writeOffset >= _readOffset) ? (GetStorageSize() - _writeOffset + _readOffset - 1)
+		size_t				_writeOffset;
+		size_t				_readOffset;
+		size_t				_lockedDataSize;
+		Mutex				_mutex;
+		bool 				_loggingEnabled;
+
+		ConstByteData CheckDataSize(const ConstByteData& data)
+		{
+			const size_t totalCapacity = (_writeOffset >= _readOffset) ? (GetStorageSize() - _writeOffset + _readOffset - 1)
 																  : (_readOffset - _writeOffset - 1);
-			if (data.size() > total_capacity)
+			if (data.size() > totalCapacity)
 			{
 				if (DiscardOnOverflow)
 				{
-					size_t result_size = std::min(data.size(), GetStorageSize() - 1);
-					ConstByteData cropped_data(data, data.size() - result_size, result_size);
-					Pop(result_size - total_capacity);
-					return cropped_data;
+					const size_t resultSize = std::min(data.size(), GetStorageSize() - 1);
+					ConstByteData croppedData(data, data.size() - resultSize, resultSize);
+					Pop(resultSize - totalCapacity);
+					return croppedData;
 				}
-				else
-					STINGRAYKIT_THROW(BufferIsFullException());
+
+				STINGRAYKIT_THROW(BufferIsFullException());
 			}
 			return data;
 		}
 
-		void DoPush(const ConstByteData &data)
+		void DoPush(const ConstByteData& data)
 		{
 			WriteToStorage(_writeOffset, data.begin(), data.end());
 			_writeOffset += data.size();
@@ -85,17 +88,17 @@ namespace stingray
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 			}
 
-			if (_writeOffset >= _readOffset) // data is stored in the middle of the container?
+			if (_writeOffset >= _readOffset)
 				DoPop(size);
 			else
 			{
-				size_t tail_size = GetStorageSize() - _readOffset;
-				if (size <= tail_size) // pop part of tail?
+				const size_t tailSize = GetStorageSize() - _readOffset;
+				if (size <= tailSize)
 					DoPop(size);
 				else
 				{
-					DoPop(tail_size);
-					DoPop(size - tail_size);
+					DoPop(tailSize);
+					DoPop(size - tailSize);
 				}
 			}
 
@@ -113,9 +116,7 @@ namespace stingray
 		{ }
 
 		void SetLoggingEnabled()
-		{
-			_loggingEnabled = true;
-		}
+		{ _loggingEnabled = true; }
 
 		shared_ptr<std::vector<u8> > GetAllData() const
 		{
@@ -124,17 +125,17 @@ namespace stingray
 
 			if (_writeOffset >= _readOffset)
 			{
-				ConstByteData src = ReadStorage(_readOffset, _writeOffset - _readOffset);
+				const ConstByteData src = ReadStorage(_readOffset, _writeOffset - _readOffset);
 				std::copy(src.begin(), src.end(), std::back_inserter(*result));
 			}
 			else
 			{
 				{
-					ConstByteData src = ReadStorage(_readOffset, GetStorageSize() - _readOffset);
+					const ConstByteData src = ReadStorage(_readOffset, GetStorageSize() - _readOffset);
 					std::copy(src.begin(), src.end(), std::back_inserter(*result));
 				}
 				{
-					ConstByteData src = ReadStorage(0, _writeOffset);
+					const ConstByteData src = ReadStorage(0, _writeOffset);
 					std::copy(src.begin(), src.end(), std::back_inserter(*result));
 				}
 			}
@@ -149,7 +150,7 @@ namespace stingray
 		}
 
 		size_t GetFreeSize() const
-		{ return  (_writeOffset >= _readOffset) ? (GetStorageSize() - _writeOffset + _readOffset - 1) : (_readOffset - _writeOffset - 1); }
+		{ return (_writeOffset >= _readOffset) ? (GetStorageSize() - _writeOffset + _readOffset - 1) : (_readOffset - _writeOffset - 1); }
 
 		CircularDataReserverPtr Pop(size_t size = std::numeric_limits<size_t>::max())
 		{
@@ -162,23 +163,23 @@ namespace stingray
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 			}
 
-			size_t result_size = size;
+			size_t resultSize = size;
 			if (_writeOffset >= _readOffset)
-				result_size = std::min(result_size, _writeOffset - _readOffset);
+				resultSize = std::min(resultSize, _writeOffset - _readOffset);
 			else
-				result_size = std::min(result_size, GetStorageSize() - _readOffset);
+				resultSize = std::min(resultSize, GetStorageSize() - _readOffset);
 
-			_lockedDataSize = result_size;
+			_lockedDataSize = resultSize;
 
 			if (_loggingEnabled)
 			{
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 				s_logger.Warning() << "Pop finished";
 			}
-			return make_shared_ptr<CircularDataReserver>(ReadStorage(_readOffset, result_size), Bind(&CircularBufferBase::ReleaseData, this, _1));
+			return make_shared_ptr<CircularDataReserver>(ReadStorage(_readOffset, resultSize), Bind(&CircularBufferBase::ReleaseData, this, _1));
 		}
 
-		void Push(const ConstByteData &data)
+		void Push(const ConstByteData& data)
 		{
 			MutexLock l(_mutex);
 			if (_loggingEnabled)
@@ -186,20 +187,20 @@ namespace stingray
 				s_logger.Warning() << "Push started";
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 			}
-			ConstByteData data_to_push(CheckDataSize(data));
-			if (_writeOffset >= _readOffset) // data is stored in the middle of the container?
+			const ConstByteData dataToPush(CheckDataSize(data));
+			if (_writeOffset >= _readOffset)
 			{
-				size_t tail_capacity = GetStorageSize() - _writeOffset; // tail capacity
-				if (data_to_push.size() > tail_capacity)
-				{ // split pushed data in two pieces
-					DoPush(ConstByteData(data_to_push, 0, tail_capacity));
-					DoPush(ConstByteData(data_to_push, tail_capacity, data_to_push.size() - tail_capacity));
+				const size_t tailCapacity = GetStorageSize() - _writeOffset;
+				if (dataToPush.size() > tailCapacity)
+				{
+					DoPush(ConstByteData(dataToPush, 0, tailCapacity));
+					DoPush(ConstByteData(dataToPush, tailCapacity, dataToPush.size() - tailCapacity));
 				}
 				else
-					DoPush(data_to_push);
+					DoPush(dataToPush);
 			}
 			else
-				DoPush(data_to_push);
+				DoPush(dataToPush);
 
 			if (_loggingEnabled)
 			{
@@ -238,6 +239,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
