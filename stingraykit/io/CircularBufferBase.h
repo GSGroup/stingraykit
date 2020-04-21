@@ -46,8 +46,7 @@ namespace stingray
 
 		ConstByteData CheckDataSize(const ConstByteData& data)
 		{
-			const size_t totalCapacity = (_writeOffset >= _readOffset) ? (GetStorageSize() - _writeOffset + _readOffset - 1)
-																  : (_readOffset - _writeOffset - 1);
+			const size_t totalCapacity = GetFreeSize();
 			if (data.size() > totalCapacity)
 			{
 				if (DiscardOnOverflow)
