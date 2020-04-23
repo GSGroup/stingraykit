@@ -143,11 +143,7 @@ namespace stingray
 		}
 
 		size_t GetSize() const
-		{
-			size_t total_data_size = (_writeOffset >= _readOffset) ? (_writeOffset - _readOffset)
-																   : (GetStorageSize() - _readOffset + _writeOffset);
-			return total_data_size;
-		}
+		{ return (_writeOffset >= _readOffset) ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset + _writeOffset); }
 
 		size_t GetFreeSize() const
 		{ return (_writeOffset >= _readOffset) ? (GetStorageSize() - _writeOffset + _readOffset - 1) : (_readOffset - _writeOffset - 1); }
@@ -163,20 +159,17 @@ namespace stingray
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 			}
 
-			size_t resultSize = size;
 			if (_writeOffset >= _readOffset)
-				resultSize = std::min(resultSize, _writeOffset - _readOffset);
+				_lockedDataSize = std::min(size, _writeOffset - _readOffset);
 			else
-				resultSize = std::min(resultSize, GetStorageSize() - _readOffset);
-
-			_lockedDataSize = resultSize;
+				_lockedDataSize = std::min(size, GetStorageSize() - _readOffset);
 
 			if (_loggingEnabled)
 			{
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 				s_logger.Warning() << "Pop finished";
 			}
-			return make_shared_ptr<CircularDataReserver>(ReadStorage(_readOffset, resultSize), Bind(&CircularBufferBase::ReleaseData, this, _1));
+			return make_shared_ptr<CircularDataReserver>(ReadStorage(_readOffset, _lockedDataSize), Bind(&CircularBufferBase::ReleaseData, this, _1));
 		}
 
 		void Push(const ConstByteData& data)
