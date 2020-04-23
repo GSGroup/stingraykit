@@ -41,6 +41,7 @@ namespace stingray
 		size_t				_writeOffset;
 		size_t				_readOffset;
 		size_t				_lockedDataSize;
+		bool				_dataIsContiguous;
 		Mutex				_mutex;
 		bool 				_loggingEnabled;
 
@@ -52,7 +53,7 @@ namespace stingray
 				if (DiscardOnOverflow)
 				{
 					STINGRAYKIT_CHECK(_lockedDataSize == 0, "Previous data was not freed");
-					const size_t resultSize = std::min(data.size(), GetStorageSize() - 1);
+					const size_t resultSize = std::min(data.size(), GetStorageSize());
 					ConstByteData croppedData(data, data.size() - resultSize, resultSize);
 					ReleaseData(resultSize - totalCapacity);
 					return croppedData;
@@ -67,15 +68,23 @@ namespace stingray
 		{
 			WriteToStorage(_writeOffset, data.begin(), data.end());
 			_writeOffset += data.size();
+
 			if (_writeOffset == GetStorageSize())
+			{
 				_writeOffset = 0;
+				_dataIsContiguous = !_dataIsContiguous;
+			}
 		}
 
 		void DoPop(size_t size)
 		{
 			_readOffset += size;
+
 			if (_readOffset == GetStorageSize())
+			{
 				_readOffset = 0;
+				_dataIsContiguous = !_dataIsContiguous;
+			}
 		}
 
 		void ReleaseData(size_t size)
@@ -89,7 +98,7 @@ namespace stingray
 			}
 
 			const size_t tailSize = GetStorageSize() - _readOffset;
-			if (_writeOffset >= _readOffset || size <= tailSize)
+			if (_dataIsContiguous || size <= tailSize)
 				DoPop(size);
 			else
 			{
@@ -107,7 +116,7 @@ namespace stingray
 		}
 
 	public:
-		CircularBufferBase(): _writeOffset(0), _readOffset(0), _lockedDataSize(0), _loggingEnabled(false)
+		CircularBufferBase(): _writeOffset(0), _readOffset(0), _lockedDataSize(0), _dataIsContiguous(true), _loggingEnabled(false)
 		{ }
 
 		void SetLoggingEnabled()
@@ -118,7 +127,7 @@ namespace stingray
 			shared_ptr<std::vector<u8> > result = make_shared_ptr<std::vector<u8> >();
 			result->reserve(GetSize());
 
-			if (_writeOffset >= _readOffset)
+			if (_dataIsContiguous)
 			{
 				const ConstByteData src = ReadStorage(_readOffset, _writeOffset - _readOffset);
 				std::copy(src.begin(), src.end(), std::back_inserter(*result));
@@ -138,10 +147,10 @@ namespace stingray
 		}
 
 		size_t GetSize() const
-		{ return (_writeOffset >= _readOffset) ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset + _writeOffset); }
+		{ return _dataIsContiguous ? (_writeOffset - _readOffset) : (GetStorageSize() - _readOffset + _writeOffset); }
 
 		size_t GetFreeSize() const
-		{ return (_writeOffset >= _readOffset) ? (GetStorageSize() - _writeOffset + _readOffset - 1) : (_readOffset - _writeOffset - 1); }
+		{ return _dataIsContiguous ? (GetStorageSize() - _writeOffset + _readOffset) : (_readOffset - _writeOffset); }
 
 		CircularDataReserverPtr Pop(size_t size = std::numeric_limits<size_t>::max())
 		{
@@ -154,7 +163,7 @@ namespace stingray
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 			}
 
-			if (_writeOffset >= _readOffset)
+			if (_dataIsContiguous)
 				_lockedDataSize = std::min(size, _writeOffset - _readOffset);
 			else
 				_lockedDataSize = std::min(size, GetStorageSize() - _readOffset);
@@ -177,7 +186,7 @@ namespace stingray
 			}
 			const ConstByteData dataToPush(CheckDataSize(data));
 			const size_t tailCapacity = GetStorageSize() - _writeOffset;
-			if (_writeOffset >= _readOffset && dataToPush.size() > tailCapacity)
+			if (_dataIsContiguous && dataToPush.size() > tailCapacity)
 			{
 				DoPush(ConstByteData(dataToPush, 0, tailCapacity));
 				DoPush(ConstByteData(dataToPush, tailCapacity, dataToPush.size() - tailCapacity));
