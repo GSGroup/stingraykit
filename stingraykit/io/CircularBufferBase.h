@@ -88,18 +88,13 @@ namespace stingray
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 			}
 
-			if (_writeOffset >= _readOffset)
+			const size_t tailSize = GetStorageSize() - _readOffset;
+			if (_writeOffset >= _readOffset || size <= tailSize)
 				DoPop(size);
 			else
 			{
-				const size_t tailSize = GetStorageSize() - _readOffset;
-				if (size <= tailSize)
-					DoPop(size);
-				else
-				{
-					DoPop(tailSize);
-					DoPop(size - tailSize);
-				}
+				DoPop(tailSize);
+				DoPop(size - tailSize);
 			}
 
 			_lockedDataSize = 0;
