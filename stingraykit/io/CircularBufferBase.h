@@ -181,16 +181,11 @@ namespace stingray
 				s_logger.Warning() << "ro: " << _readOffset << ", wo: " << _writeOffset << ", ls: " << _lockedDataSize;
 			}
 			const ConstByteData dataToPush(CheckDataSize(data));
-			if (_writeOffset >= _readOffset)
+			const size_t tailCapacity = GetStorageSize() - _writeOffset;
+			if (_writeOffset >= _readOffset && dataToPush.size() > tailCapacity)
 			{
-				const size_t tailCapacity = GetStorageSize() - _writeOffset;
-				if (dataToPush.size() > tailCapacity)
-				{
-					DoPush(ConstByteData(dataToPush, 0, tailCapacity));
-					DoPush(ConstByteData(dataToPush, tailCapacity, dataToPush.size() - tailCapacity));
-				}
-				else
-					DoPush(dataToPush);
+				DoPush(ConstByteData(dataToPush, 0, tailCapacity));
+				DoPush(ConstByteData(dataToPush, tailCapacity, dataToPush.size() - tailCapacity));
 			}
 			else
 				DoPush(dataToPush);
