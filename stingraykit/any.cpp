@@ -65,9 +65,15 @@ namespace stingray
 	{
 		switch (_type)
 		{
-		case Type::String:	_data.String.Dtor();	break;
-		case Type::Object:	delete _data.Object;	break;
-		default:			break;
+		case Type::String:
+			_data.String.Dtor();
+			break;
+		case Type::Object:
+		case Type::SerializableObject:
+			delete _data.Object;
+			break;
+		default:
+			break;
 		}
 
 		_type = Type::Empty;
