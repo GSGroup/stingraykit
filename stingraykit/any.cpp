@@ -81,7 +81,7 @@ namespace stingray
 
 
 	bool any::IsSerializable() const
-	{ return _type != Type::Object || _data.Object->IsSerializable(); }
+	{ return (_type != Type::Object && _type != Type::SerializableObject) || _data.Object->IsSerializable(); }
 
 
 #define STRING(NAME) case Type::NAME: return stingray::ToString(_data.NAME)
