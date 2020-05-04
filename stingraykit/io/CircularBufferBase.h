@@ -51,9 +51,10 @@ namespace stingray
 			{
 				if (DiscardOnOverflow)
 				{
+					STINGRAYKIT_CHECK(_lockedDataSize == 0, "Previous data was not freed");
 					const size_t resultSize = std::min(data.size(), GetStorageSize() - 1);
 					ConstByteData croppedData(data, data.size() - resultSize, resultSize);
-					Pop(resultSize - totalCapacity);
+					ReleaseData(resultSize - totalCapacity);
 					return croppedData;
 				}
 
