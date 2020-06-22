@@ -9,9 +9,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/core/Dummy.h>
-#include <stingraykit/metaprogramming/TypeList.h>
-#include <stingraykit/Macro.h>
+#include <stingraykit/core/NonCopyable.h>
+#include <stingraykit/metaprogramming/EnableIf.h>
+#include <stingraykit/metaprogramming/TypeTraits.h>
 #include <stingraykit/Types.h>
+
+#include <utility>
 
 namespace stingray
 {
@@ -45,6 +48,9 @@ namespace stingray
 	template < typename TypeList_ >
 	class Tuple
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(Tuple);
+		STINGRAYKIT_DEFAULTMOVABLE(Tuple);
+
 	public:
 		typedef TypeList_						TypeList;
 		typedef Tuple<typename TypeList::Next>	Tail;
@@ -59,35 +65,20 @@ namespace stingray
 	public:
 		Tuple() : _val(), _tail() { }
 
-		Tuple(const ValueType& val) : _val(val), _tail() { }
+		template < typename T0, typename... Ts, typename EnableIf<!IsSame<typename Decay<T0>::ValueT, TupleConstructorTag>::Value && !IsSame<typename Decay<T0>::ValueT, Tuple<TypeList>>::Value, bool>::ValueT = false >
+		Tuple(T0&& p0, Ts&&... args)
+			: _val(std::forward<T0>(p0)), _tail(std::forward<Ts>(args)...)
+		{ }
 
-		Tuple(const ValueType& val, const Tail& tail) : _val(val), _tail(tail) { }
+		template < typename OtherTypeList_, typename EnableIf<!IsSame<Tuple<OtherTypeList_>, typename Decay<ValueType>::ValueT>::Value && !IsSame<OtherTypeList_, TypeListEndNode>::Value, bool>::ValueT = false >
+		Tuple(const Tuple<OtherTypeList_>& other)
+			: _val(other.GetHead()), _tail(other.GetTail())
+		{ }
 
-#define TY typename
-#define P_(N) const typename TryGetTypeListItem<TypeList, N - 1>::ValueT& p##N
-
-#define DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(Typenames_, ParamsDecl_, Params_) \
-		Tuple(const ValueType& val, ParamsDecl_) : _val(val), _tail(Params_) { }
-
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2), MK_PARAM(P_(2)), MK_PARAM(p2))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3), MK_PARAM(P_(2), P_(3)), MK_PARAM(p2, p3))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4), MK_PARAM(P_(2), P_(3), P_(4)), MK_PARAM(p2, p3, p4))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5), MK_PARAM(P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p2, p3, p4, p5))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6)), MK_PARAM(p2, p3, p4, p5, p6))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7)), MK_PARAM(p2, p3, p4, p5, p6, p7))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14, TY T15), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14, TY T15, TY T16), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14, TY T15, TY T16, TY T17), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14, TY T15, TY T16, TY T17, TY T18), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17), P_(18)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17), P_(18), P_(19)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19))
-		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17), P_(18), P_(19), P_(20)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20))
+		template < typename OtherTypeList_, typename EnableIf<!IsSame<Tuple<OtherTypeList_>, typename Decay<ValueType>::ValueT>::Value && !IsSame<OtherTypeList_, TypeListEndNode>::Value, bool>::ValueT = false >
+		Tuple(Tuple<OtherTypeList_>&& other)
+			: _val(std::move(other.GetHead())), _tail(std::move(other.GetTail()))
+		{ }
 
 		template < typename TupleLikeObject >
 		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
@@ -138,6 +129,9 @@ namespace stingray
 	template < >
 	class Tuple<TypeListEndNode>
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(Tuple<TypeListEndNode>);
+		STINGRAYKIT_DEFAULTMOVABLE(Tuple<TypeListEndNode>);
+
 	public:
 		typedef TypeList<>::type				TypeList;
 
@@ -157,6 +151,11 @@ namespace stingray
 		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
 		{ return Tuple(TupleConstructorTag(), tll); }
 	};
+
+
+	template < typename... Ts >
+	Tuple<typename TypeList<Ts...>::type> MakeTuple(Ts&&... args)
+	{ return Tuple<typename TypeList<Ts...>::type>(std::forward<Ts>(args)...); }
 
 
 	namespace Detail
@@ -185,31 +184,6 @@ namespace stingray
 	Tuple<typename TypeListReverse<typename TupleLikeObject_::TypeList>::ValueT> ReverseTuple(const TupleLikeObject_& src)
 	{ return Tuple<typename TypeListReverse<typename TupleLikeObject_::TypeList>::ValueT>::CreateFromTupleLikeObject(Detail::TupleReverser<TupleLikeObject_>(src)); }
 
-
-	inline Tuple<TypeList<>::type> MakeTuple()
-	{ return Tuple<TypeList<>::type>(); }
-
-
-#undef P_
-#define P_(N) const T##N & p##N
-
-#define DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(N_, TypesDecl_, TypesUsage_, ParamsDecl_, ParamsUsage_) \
-	template < TypesDecl_ > \
-	Tuple<typename TypeList<TypesUsage_>::type> MakeTuple(ParamsDecl_) \
-	{ return Tuple<typename TypeList<TypesUsage_>::type>(ParamsUsage_); }
-
-	DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(1, MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(P_(1)), MK_PARAM(p1));
-	DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(2, MK_PARAM(TY T1, TY T2), MK_PARAM(T1, T2), MK_PARAM(P_(1), P_(2)), MK_PARAM(p1, p2));
-	DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(3, MK_PARAM(TY T1, TY T2, TY T3), MK_PARAM(T1, T2, T3), MK_PARAM(P_(1), P_(2), P_(3)), MK_PARAM(p1, p2, p3));
-	DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(4, MK_PARAM(TY T1, TY T2, TY T3, TY T4), MK_PARAM(T1, T2, T3, T4), MK_PARAM(P_(1), P_(2), P_(3), P_(4)), MK_PARAM(p1, p2, p3, p4));
-	DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE(5, MK_PARAM(TY T1, TY T2, TY T3, TY T4, TY T5), MK_PARAM(T1, T2, T3, T4, T5), MK_PARAM(P_(1), P_(2), P_(3), P_(4), P_(5)), MK_PARAM(p1, p2, p3, p4, p5));
-
-#undef DETAIL_STINGRAYKIT_DECLARE_MAKETUPLE
-#undef P_
-#undef TY
-
-
 }
-
 
 #endif
