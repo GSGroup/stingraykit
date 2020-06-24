@@ -17,6 +17,9 @@ namespace stingray
 	template < typename FunctorType >
 	class CancellableFunction : public function_info<FunctorType>
 	{
+	public:
+		typedef typename function_info<FunctorType>::RetType		RetType;
+
 	private:
 		FunctorType				_func;
 		FutureExecutionTester	_tester;
@@ -26,18 +29,31 @@ namespace stingray
 			: _func(func), _tester(tester)
 		{ }
 
-		STINGRAYKIT_PERFECT_FORWARDING(void, operator (), Do)
+		STINGRAYKIT_PERFECT_FORWARDING(RetType, operator (), Do)
 
 		std::string get_name() const
 		{ return "{ CancellableFunction: " + get_function_name(_func) + " }"; }
 
 	private:
-		template < typename ParamTypeList >
-		void Do(const Tuple<ParamTypeList>& params) const
+		template < typename ParamTypeList_ >
+		RetType Do(const Tuple<ParamTypeList_>& params) const
+		{ return this->template DoImpl<RetType>(params); }
+
+		template < typename RetType_, typename ParamTypeList_ >
+		RetType DoImpl(const Tuple<ParamTypeList_>& params, typename EnableIf<IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0) const
 		{
 			LocalExecutionGuard guard(_tester);
 			if (guard)
 				FunctorInvoker::Invoke(_func, params);
+		}
+
+		template < typename RetType_, typename ParamTypeList_ >
+		RetType DoImpl(const Tuple<ParamTypeList_>& params, typename EnableIf<!IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0) const
+		{
+			LocalExecutionGuard guard(_tester);
+			STINGRAYKIT_CHECK(guard, "Function " + get_function_name(_func) + " was cancelled");
+
+			return FunctorInvoker::Invoke(_func, params);
 		}
 	};
 
