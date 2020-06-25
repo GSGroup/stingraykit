@@ -170,6 +170,7 @@ namespace stingray
 		static Time Now();
 
 		s64 GetMilliseconds() const { return _milliseconds; }
+		s64 GetSeconds() const		{ return GetMilliseconds() / 1000; }
 
 		BrokenDownTime BreakDown(TimeKind kind = TimeKind::Local) const;
 		static Time FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind = TimeKind::Local);
