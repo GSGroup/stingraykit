@@ -62,20 +62,6 @@ namespace stingray
 		Tail		_tail;
 
 	public:
-		template < typename TupleLikeObject >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
-			: _val(tupleLikeObject.template Get<0>()), _tail(tag, tupleLikeObject, integral_constant<size_t, 1>())
-		{ }
-
-		template < typename TupleLikeObject, typename IndexOffset >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy)
-			: _val(tupleLikeObject.template Get<IndexOffset::Value>()), _tail(tag, tupleLikeObject, integral_constant<size_t, IndexOffset::Value + 1>())
-		{ }
-
-		template < typename TupleLikeObject >
-		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
-		{ return Tuple(TupleConstructorTag(), tll); }
-
 		Tuple() : _val(), _tail() { }
 
 		Tuple(typename GetParamPassingType<ValueType>::ValueT p1) : _val(p1), _tail() { }
@@ -108,6 +94,19 @@ namespace stingray
 		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17), P_(18), P_(19)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19))
 		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3, TY T4, TY T5, TY T6, TY T7, TY T8, TY T9, TY T10, TY T11, TY T12, TY 13, TY T14, TY T15, TY T16, TY T17, TY T18, TY T19, TY T20), MK_PARAM(P_(2), P_(3), P_(4), P_(5), P_(6), P_(7), P_(8), P_(9), P_(10), P_(11), P_(12), P_(13), P_(14), P_(15), P_(16), P_(17), P_(18), P_(19), P_(20)), MK_PARAM(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20))
 
+		template < typename TupleLikeObject >
+		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
+			: _val(tupleLikeObject.template Get<0>()), _tail(tag, tupleLikeObject, integral_constant<size_t, 1>())
+		{ }
+
+		template < typename TupleLikeObject, typename IndexOffset >
+		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy)
+			: _val(tupleLikeObject.template Get<IndexOffset::Value>()), _tail(tag, tupleLikeObject, integral_constant<size_t, IndexOffset::Value + 1>())
+		{ }
+
+		template < typename TupleLikeObject >
+		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
+		{ return Tuple(TupleConstructorTag(), tll); }
 
 		typename GetParamPassingType<ValueType>::ValueT GetHead() const { return _val; }
 		typename RemoveReference<ValueType>::ValueT& GetHead() { return _val; }
@@ -155,13 +154,13 @@ namespace stingray
 
 		Tuple() { }
 
-		template < typename TupleLikeObject, typename IndexOffset >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy)
-		{ CompileTimeAssert<GetTypeListLength<typename TupleLikeObject::TypeList>::Value == IndexOffset::Value> ERROR__tuple_like_object_is_too_big; }
-
 		template < typename TupleLikeObject >
 		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
 		{ CompileTimeAssert<GetTypeListLength<typename TupleLikeObject::TypeList>::Value == 0> ERROR__tuple_like_object_is_too_big; }
+
+		template < typename TupleLikeObject, typename IndexOffset >
+		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy)
+		{ CompileTimeAssert<GetTypeListLength<typename TupleLikeObject::TypeList>::Value == IndexOffset::Value> ERROR__tuple_like_object_is_too_big; }
 
 		template < typename TupleLikeObject >
 		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
