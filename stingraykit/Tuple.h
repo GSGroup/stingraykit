@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/core/Dummy.h>
-#include <stingraykit/metaprogramming/ParamPassingType.h>
+#include <stingraykit/metaprogramming/TypeList.h>
 #include <stingraykit/Types.h>
 
 namespace stingray
@@ -20,20 +20,20 @@ namespace stingray
 		template < typename Tuple_, size_t Index >
 		struct TupleItemGetter
 		{
-			static typename GetParamPassingType<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT Get(const Tuple_& tuple)
+			static const typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT& Get(const Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
-			static typename RemoveReference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT& Get(Tuple_& tuple)
+			static typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT& Get(Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 		};
 
 		template < typename Tuple_ >
 		struct TupleItemGetter<Tuple_, 0>
 		{
-			static typename GetParamPassingType<typename Tuple_::ValueType>::ValueT Get(const Tuple_& tuple)
+			static const typename Tuple_::ValueType& Get(const Tuple_& tuple)
 			{ return tuple.GetHead(); }
 
-			static typename RemoveReference<typename Tuple_::ValueType>::ValueT& Get(Tuple_& tuple)
+			static typename Tuple_::ValueType& Get(Tuple_& tuple)
 			{ return tuple.GetHead(); }
 		};
 	}
@@ -58,15 +58,15 @@ namespace stingray
 	public:
 		Tuple() : _val(), _tail() { }
 
-		Tuple(typename GetParamPassingType<ValueType>::ValueT p1) : _val(p1), _tail() { }
+		Tuple(const ValueType& val) : _val(val), _tail() { }
 
-		Tuple(typename GetParamPassingType<ValueType>::ValueT head, const Tail& tail) : _val(head), _tail(tail) { }
+		Tuple(const ValueType& val, const Tail& tail) : _val(val), _tail(tail) { }
 
 #define TY typename
-#define P_(N) typename GetParamPassingType<typename TryGetTypeListItem<TypeList, N - 1>::ValueT>::ValueT p##N
+#define P_(N) const typename TryGetTypeListItem<TypeList, N - 1>::ValueT& p##N
 
 #define DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(Typenames_, ParamsDecl_, Params_) \
-		Tuple(typename GetParamPassingType<ValueType>::ValueT p1, ParamsDecl_) : _val(p1), _tail(Params_) { }
+		Tuple(const ValueType& val, ParamsDecl_) : _val(val), _tail(Params_) { }
 
 		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2), MK_PARAM(P_(2)), MK_PARAM(p2))
 		DETAIL_STINGRAYKIT_DECLARE_TUPLE_CTOR(MK_PARAM(TY T2, TY T3), MK_PARAM(P_(2), P_(3)), MK_PARAM(p2, p3))
@@ -102,14 +102,14 @@ namespace stingray
 		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
 		{ return Tuple(TupleConstructorTag(), tll); }
 
-		typename GetParamPassingType<ValueType>::ValueT GetHead() const { return _val; }
-		typename RemoveReference<ValueType>::ValueT& GetHead() { return _val; }
+		const ValueType& GetHead() const { return _val; }
+		ValueType& GetHead() { return _val; }
 
 		const Tail& GetTail() const { return _tail; }
 		Tail& GetTail() { return _tail; }
 
 		template < size_t Index >
-		typename GetParamPassingType<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT Get() const
+		const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
 
 		template < size_t Index >
@@ -117,7 +117,7 @@ namespace stingray
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
 
 		template < typename Type_ >
-		typename GetParamPassingType<Type_>::ValueT Get(Dummy dummy = Dummy()) const
+		const Type_& Get(Dummy dummy = Dummy()) const
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(*this); }
 
 		template < typename Type_ >
@@ -125,7 +125,7 @@ namespace stingray
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(*this); }
 
 		template < typename Type_, size_t Index >
-		typename GetParamPassingType<Type_>::ValueT Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) const
+		const Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) const
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(*this); }
 
 		template < typename Type_, size_t Index >
@@ -174,7 +174,7 @@ namespace stingray
 			TupleReverser(const TupleLikeObject_& src) : _src(src) { }
 
 			template < size_t Index >
-			typename GetParamPassingType<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT Get() const
+			const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const
 			{ return _src.template Get<GetTypeListLength<SrcTypeList>::Value - (Index + 1)>(); }
 		};
 	}

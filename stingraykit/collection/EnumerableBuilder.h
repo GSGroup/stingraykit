@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/IEnumerable.h>
+#include <stingraykit/metaprogramming/ParamPassingType.h>
 
 namespace stingray
 {

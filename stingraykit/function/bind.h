@@ -10,6 +10,7 @@
 
 #include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/function/function_name_getter.h>
+#include <stingraykit/metaprogramming/ParamPassingType.h>
 #include <stingraykit/PerfectForwarding.h>
 
 namespace stingray
