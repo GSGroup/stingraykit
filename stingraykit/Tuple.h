@@ -18,7 +18,30 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename Tuple_, size_t Index >
-		struct TupleItemGetter;
+		struct TupleItemGetter
+		{
+			static typename GetParamPassingType<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT Get(const Tuple_& tuple)
+			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
+
+			static typename RemoveReference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT& Get(Tuple_& tuple)
+			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
+
+			static void Set(Tuple_& tuple, typename AddConstReference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT val)
+			{ TupleItemGetter<typename Tuple_::Tail, Index - 1>::Set(tuple.GetTail(), val); }
+		};
+
+		template < typename Tuple_ >
+		struct TupleItemGetter<Tuple_, 0>
+		{
+			static typename GetParamPassingType<typename Tuple_::ValueType>::ValueT Get(const Tuple_& tuple)
+			{ return tuple.GetHead(); }
+
+			static typename RemoveReference<typename Tuple_::ValueType>::ValueT& Get(Tuple_& tuple)
+			{ return tuple.GetHead(); }
+
+			static void Set(Tuple_& tuple, typename AddConstReference<typename Tuple_::ValueType>::ValueT val)
+			{ tuple.SetHead(val); }
+		};
 	}
 
 
@@ -171,40 +194,6 @@ namespace stingray
 	template < typename TupleLikeObject_ >
 	Tuple<typename TypeListReverse<typename TupleLikeObject_::TypeList>::ValueT> ReverseTuple(const TupleLikeObject_& src)
 	{ return Tuple<typename TypeListReverse<typename TupleLikeObject_::TypeList>::ValueT>::CreateFromTupleLikeObject(Detail::TupleReverser<TupleLikeObject_>(src)); }
-
-
-	namespace Detail
-	{
-		template < typename Tuple_, size_t Index >
-		struct TupleItemGetter
-		{
-			static typename GetParamPassingType<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT
-			Get(const Tuple_& tuple)
-			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
-
-			static typename RemoveReference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT&
-			Get(Tuple_& tuple)
-			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
-
-			static void Set(Tuple_& tuple, typename AddConstReference<typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT>::ValueT val)
-			{ TupleItemGetter<typename Tuple_::Tail, Index - 1>::Set(tuple.GetTail(), val); }
-		};
-
-		template < typename Tuple_ >
-		struct TupleItemGetter<Tuple_, 0>
-		{
-			static typename GetParamPassingType<typename Tuple_::ValueType>::ValueT
-			Get(const Tuple_& tuple)
-			{ return tuple.GetHead(); }
-
-			static typename RemoveReference<typename Tuple_::ValueType>::ValueT&
-			Get(Tuple_& tuple)
-			{ return tuple.GetHead(); }
-
-			static void Set(Tuple_& tuple, typename AddConstReference<typename Tuple_::ValueType>::ValueT val)
-			{ tuple.SetHead(val); }
-		};
-	}
 
 
 	inline Tuple<TypeList<>::type> MakeTuple()
