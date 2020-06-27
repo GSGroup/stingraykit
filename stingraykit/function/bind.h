@@ -134,7 +134,7 @@ namespace stingray
 			Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
 			{
 				typedef typename GetTypeListItem<AllParameters, Index>::ValueT Placeholder;
-				return GetTupleItem<GetPlaceholderIndex<Placeholder>::Value>(binderParams);
+				return binderParams.template Get<GetPlaceholderIndex<Placeholder>::Value>();
 			}
 		};
 
@@ -144,7 +144,7 @@ namespace stingray
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 			static typename GetParamType<typename GetTypeListItem<AllParameters, Index>::ValueT, BinderParams>::ValueT
 			Get(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
-			{ return GetTupleItem<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(boundParams); }
+			{ return boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(); }
 		};
 
 
