@@ -394,7 +394,7 @@ namespace stingray
 						++cmdPtr;
 					}
 
-					args.template Set<N>(p);
+					args.template Get<N>() = p;
 					return true;
 				}
 			};
