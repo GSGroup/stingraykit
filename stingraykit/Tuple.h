@@ -87,18 +87,18 @@ namespace stingray
 		{ }
 
 		template < typename TupleLikeObject >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
-			: _val(tupleLikeObject.template Get<0>()), _tail(tag, tupleLikeObject, integral_constant<size_t, 1>())
+		Tuple(const TupleConstructorTag& tag, TupleLikeObject&& tupleLikeObject)
+			: _val(std::forward<TupleLikeObject>(tupleLikeObject).template Get<0>()), _tail(tag, std::forward<TupleLikeObject>(tupleLikeObject), integral_constant<size_t, 1>())
 		{ }
 
 		template < typename TupleLikeObject, typename IndexOffset >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy)
-			: _val(tupleLikeObject.template Get<IndexOffset::Value>()), _tail(tag, tupleLikeObject, integral_constant<size_t, IndexOffset::Value + 1>())
+		Tuple(const TupleConstructorTag& tag, TupleLikeObject&& tupleLikeObject, IndexOffset Dummy)
+			: _val(std::forward<TupleLikeObject>(tupleLikeObject).template Get<IndexOffset::Value>()), _tail(tag, std::forward<TupleLikeObject>(tupleLikeObject), integral_constant<size_t, IndexOffset::Value + 1>())
 		{ }
 
 		template < typename TupleLikeObject >
-		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
-		{ return Tuple(TupleConstructorTag(), tll); }
+		static Tuple CreateFromTupleLikeObject(TupleLikeObject&& tll)
+		{ return Tuple(TupleConstructorTag(), std::forward<TupleLikeObject>(tll)); }
 
 		const ValueType& GetHead() const & { return _val; }
 		ValueType& GetHead() & { return _val; }
@@ -160,16 +160,16 @@ namespace stingray
 		Tuple() { }
 
 		template < typename TupleLikeObject >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject)
-		{ CompileTimeAssert<GetTypeListLength<typename TupleLikeObject::TypeList>::Value == 0> ERROR__tuple_like_object_is_too_big; }
+		Tuple(const TupleConstructorTag& tag, TupleLikeObject&& tupleLikeObject)
+		{ CompileTimeAssert<GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::TypeList>::Value == 0> ERROR__tuple_like_object_is_too_big; }
 
 		template < typename TupleLikeObject, typename IndexOffset >
-		Tuple(const TupleConstructorTag& tag, const TupleLikeObject& tupleLikeObject, IndexOffset Dummy)
-		{ CompileTimeAssert<GetTypeListLength<typename TupleLikeObject::TypeList>::Value == IndexOffset::Value> ERROR__tuple_like_object_is_too_big; }
+		Tuple(const TupleConstructorTag& tag, TupleLikeObject&& tupleLikeObject, IndexOffset Dummy)
+		{ CompileTimeAssert<GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::TypeList>::Value == IndexOffset::Value> ERROR__tuple_like_object_is_too_big; }
 
 		template < typename TupleLikeObject >
-		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
-		{ return Tuple(TupleConstructorTag(), tll); }
+		static Tuple CreateFromTupleLikeObject(TupleLikeObject&& tll)
+		{ return Tuple(TupleConstructorTag(), std::forward<TupleLikeObject>(tll)); }
 	};
 
 
