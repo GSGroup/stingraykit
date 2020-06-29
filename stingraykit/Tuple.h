@@ -29,6 +29,9 @@ namespace stingray
 
 			static typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT& Get(Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
+
+			static typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT&& Get(Tuple_&& tuple)
+			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(std::move(tuple).GetTail()); }
 		};
 
 		template < typename Tuple_ >
@@ -39,6 +42,9 @@ namespace stingray
 
 			static typename Tuple_::ValueType& Get(Tuple_& tuple)
 			{ return tuple.GetHead(); }
+
+			static typename Tuple_::ValueType&& Get(Tuple_&& tuple)
+			{ return std::move(tuple).GetHead(); }
 		};
 	}
 
@@ -94,35 +100,49 @@ namespace stingray
 		static Tuple CreateFromTupleLikeObject(const TupleLikeObject& tll)
 		{ return Tuple(TupleConstructorTag(), tll); }
 
-		const ValueType& GetHead() const { return _val; }
-		ValueType& GetHead() { return _val; }
+		const ValueType& GetHead() const & { return _val; }
+		ValueType& GetHead() & { return _val; }
+		ValueType&& GetHead() && { return std::move(_val); }
 
-		const Tail& GetTail() const { return _tail; }
-		Tail& GetTail() { return _tail; }
+		const Tail& GetTail() const & { return _tail; }
+		Tail& GetTail() & { return _tail; }
+		Tail&& GetTail() && { return std::move(_tail); }
 
 		template < size_t Index >
-		const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const
+		const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const &
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
 
 		template < size_t Index >
-		typename GetTypeListItem<TypeList, Index>::ValueT& Get()
+		typename GetTypeListItem<TypeList, Index>::ValueT& Get() &
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
 
+		template < size_t Index >
+		typename GetTypeListItem<TypeList, Index>::ValueT&& Get() &&
+		{ return Detail::TupleItemGetter<Tuple, Index>::Get(std::move(*this)); }
+
 		template < typename Type_ >
-		const Type_& Get(Dummy dummy = Dummy()) const
+		const Type_& Get(Dummy dummy = Dummy()) const &
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(*this); }
 
 		template < typename Type_ >
-		Type_& Get(Dummy dummy = Dummy())
+		Type_& Get(Dummy dummy = Dummy()) &
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(*this); }
 
+		template < typename Type_ >
+		Type_&& Get(Dummy dummy = Dummy()) &&
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(std::move(*this)); }
+
 		template < typename Type_, size_t Index >
-		const Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) const
+		const Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) const &
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(*this); }
 
 		template < typename Type_, size_t Index >
-		Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy())
+		Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) &
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(*this); }
+
+		template < typename Type_, size_t Index >
+		Type_&& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) &&
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(std::move(*this)); }
 	};
 
 
