@@ -25,13 +25,17 @@ namespace stingray
 				_exponent(exponent)
 		{ }
 
+		explicit Decimal(const std::string& str);
+
 		s64 GetMantissa() const
 		{ return _mantissa; }
 
 		u16 GetExponent() const
 		{ return _exponent; }
 
-		static Decimal FromString(const std::string& str);
+		static Decimal FromString(const std::string& str)
+		{ return Decimal(str); }
+
 		std::string ToString() const;
 
 		bool operator == (const Decimal& other) const;

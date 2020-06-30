@@ -39,7 +39,7 @@ namespace stingray
 
 	}
 
-	Decimal Decimal::FromString(const std::string& str)
+	Decimal::Decimal(const std::string& str)
 	{
 		std::vector<std::string> fractions;
 		Copy(Split(str, "."), std::back_inserter(fractions));
@@ -48,7 +48,11 @@ namespace stingray
 		const s64 integralPart = stingray::FromString<s64>(fractions[0]);
 
 		if (fractions.size() == 1)
-			return integralPart;
+		{
+			_mantissa = integralPart;
+			_exponent = 0;
+			return;
+		}
 
 		const std::string rawFractionalPart = RemoveUnsignificantZeros(fractions[1]);
 		const s64 fractionalPart = stingray::FromString<s64>(rawFractionalPart);
@@ -58,7 +62,8 @@ namespace stingray
 		const s64 fractionalMantissa = (integralPart >= 0) ? fractionalPart : -fractionalPart;
 		const int signFactor = (!fractions[0].empty() && fractions[0][0] == '-' && integralPart == 0) ? -1 : 1;
 
-		return Decimal((integralMantissa + fractionalMantissa) * signFactor, exponent);
+		_mantissa = (integralMantissa + fractionalMantissa) * signFactor;
+		_exponent = exponent;
 	}
 
 
