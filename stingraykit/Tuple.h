@@ -184,25 +184,29 @@ namespace stingray
 		class TupleReverser
 		{
 		public:
-			typedef typename TupleLikeObject_::TypeList				SrcTypeList;
-			typedef typename TypeListReverse<SrcTypeList>::ValueT	TypeList;
+			typedef typename Decay<TupleLikeObject_>::ValueT::TypeList	SrcTypeList;
+			typedef typename TypeListReverse<SrcTypeList>::ValueT		TypeList;
 
 		private:
-			const TupleLikeObject_&		_src;
+			TupleLikeObject_&&		_src;
 
 		public:
-			TupleReverser(const TupleLikeObject_& src) : _src(src) { }
+			TupleReverser(TupleLikeObject_&& src) : _src(std::forward<TupleLikeObject_>(src)) { }
 
 			template < size_t Index >
-			const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const
+			const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const &
 			{ return _src.template Get<GetTypeListLength<SrcTypeList>::Value - (Index + 1)>(); }
+
+			template < size_t Index >
+			typename EnableIf<IsNonConstRvalueReference<TupleLikeObject_&&>::Value, typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT&& Get() &&
+			{ return std::move(_src).template Get<GetTypeListLength<SrcTypeList>::Value - (Index + 1)>(); }
 		};
 	}
 
 
 	template < typename TupleLikeObject_ >
-	Tuple<typename TypeListReverse<typename TupleLikeObject_::TypeList>::ValueT> ReverseTuple(const TupleLikeObject_& src)
-	{ return Tuple<typename TypeListReverse<typename TupleLikeObject_::TypeList>::ValueT>::CreateFromTupleLikeObject(Detail::TupleReverser<TupleLikeObject_>(src)); }
+	Tuple<typename TypeListReverse<typename Decay<TupleLikeObject_>::ValueT::TypeList>::ValueT> ReverseTuple(TupleLikeObject_&& src)
+	{ return Tuple<typename TypeListReverse<typename Decay<TupleLikeObject_>::ValueT::TypeList>::ValueT>::CreateFromTupleLikeObject(Detail::TupleReverser<TupleLikeObject_>(std::forward<TupleLikeObject_>(src))); }
 
 }
 
