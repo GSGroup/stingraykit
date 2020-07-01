@@ -78,15 +78,17 @@ namespace stingray
 
 			typedef typename BaseType::VTable			VTable;
 
+			typedef typename Decay<FunctorType>::ValueT	RawFunctorType;
+
 		public:
 			typedef typename BaseType::InvokeFunc InvokeFunc;
 
 		private:
-			FunctorType	_func;
+			RawFunctorType	_func;
 
 		public:
-			Invokable(const FunctorType& func)
-				: BaseType(&MyType::GetVTable), _func(func)
+			Invokable(FunctorType&& func)
+				: BaseType(&MyType::GetVTable), _func(std::forward<FunctorType>(func))
 			{ }
 
 			static VTable GetVTable()
@@ -105,7 +107,7 @@ namespace stingray
 			{ return static_cast<MyType*>(self)->template DoInvoke<R>(Dummy(), std::forward<Ts>(args)...); }
 
 			static void Dtor(IInvokableBase* self)
-			{ static_cast<MyType*>(self)->_func.~FunctorType(); }
+			{ static_cast<MyType*>(self)->_func.~RawFunctorType(); }
 
 			static std::string GetName(const IInvokableBase* self)
 			{ return get_function_name(static_cast<const MyType*>(self)->_func); }
@@ -122,6 +124,7 @@ namespace stingray
 
 	public:
 		typedef function_info<R (Ts...)>		BaseType;
+		typedef	function<R (Ts...)>				MyType;
 
 		typedef typename BaseType::RetType		RetType;
 		typedef typename BaseType::ParamTypes	ParamTypes;
@@ -140,10 +143,13 @@ namespace stingray
 		function(const InvokableTypePtr& invokable, const Dummy&) : _invokable(invokable)
 		{ }
 
+		function(InvokableTypePtr&& invokable, const Dummy&) : _invokable(std::move(invokable))
+		{ }
+
 	public:
-		template < typename FunctorType >
-		function(const FunctorType& func)
-			: _invokable(make_self_count_ptr<Detail::Invokable<FunctorType, R, Ts...>>(func))
+		template < typename FunctorType, typename EnableIf<!IsSame<typename Decay<FunctorType>::ValueT, MyType>::Value, bool>::ValueT = false >
+		function(FunctorType&& func)
+			: _invokable(make_self_count_ptr<Detail::Invokable<FunctorType, R, Ts...>>(std::forward<FunctorType>(func)))
 		{ }
 
 		RetType operator () (Ts... args) const
@@ -168,6 +174,10 @@ namespace stingray
 	public:
 		template < typename Signature >
 		explicit function_storage(const function<Signature>& func) : _invokable(func._invokable)
+		{ }
+
+		template < typename Signature >
+		explicit function_storage(function<Signature>&& func) : _invokable(std::move(func._invokable))
 		{ }
 
 		template < typename Signature >
