@@ -23,7 +23,7 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename FuncType >
-		class NotFunc : public function_info<FuncType>
+		class NotFunc : public function_info<bool, typename function_info<FuncType>::ParamTypes>
 		{
 			FuncType	_func;
 
