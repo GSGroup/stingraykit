@@ -22,13 +22,13 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename F >
-		class NotFunc : public function_info<F>
+		template < typename FuncType >
+		class NotFunc : public function_info<FuncType>
 		{
-			F	_f;
+			FuncType	_func;
 
 		public:
-			NotFunc(const F& f) : _f(f)
+			NotFunc(const FuncType& func) : _func(func)
 			{ }
 
 			STINGRAYKIT_PERFECT_FORWARDING(bool, operator (), Do)
@@ -36,38 +36,38 @@ namespace stingray
 		private:
 			template < typename ParamTypeList >
 			bool Do(const Tuple<ParamTypeList>& params) const
-			{ return !FunctorInvoker::Invoke(_f, params); }
+			{ return !FunctorInvoker::Invoke(_func, params); }
 		};
 	}
 
-	template < typename F >
-	Detail::NotFunc<F> not_(const F& f) { return Detail::NotFunc<F>(f); }
+	template < typename FuncType >
+	Detail::NotFunc<FuncType> not_(const FuncType& func) { return Detail::NotFunc<FuncType>(func); }
 
 
 	namespace Detail
 	{
-		template < typename F >
-		class NegateFunc : public function_info<F>
+		template < typename FuncType >
+		class NegateFunc : public function_info<FuncType>
 		{
-			typedef typename function_info<F>::RetType		Ret;
+			typedef typename function_info<FuncType>::RetType		RetType;
 
-			F	_f;
+			FuncType	_func;
 
 		public:
-			NegateFunc(const F& f) : _f(f)
+			NegateFunc(const FuncType& func) : _func(func)
 			{ }
 
-			STINGRAYKIT_PERFECT_FORWARDING(Ret, operator (), Do)
+			STINGRAYKIT_PERFECT_FORWARDING(RetType, operator (), Do)
 
 		private:
 			template < typename ParamTypeList >
-			Ret Do(const Tuple<ParamTypeList>& params) const
-			{ return -FunctorInvoker::Invoke(_f, params); }
+			RetType Do(const Tuple<ParamTypeList>& params) const
+			{ return -FunctorInvoker::Invoke(_func, params); }
 		};
 	}
 
-	template < typename F >
-	Detail::NegateFunc<F> negate(const F& f) { return Detail::NegateFunc<F>(f); }
+	template < typename FuncType >
+	Detail::NegateFunc<FuncType> negate(const FuncType& func) { return Detail::NegateFunc<FuncType>(func); }
 
 
 	class NopFunctor : public function_info<void, UnspecifiedParamTypes>
@@ -158,6 +158,9 @@ namespace stingray
 		template < typename FuncType >
 		class Invoker : public function_info<typename FuncType::RetType, UnspecifiedParamTypes>
 		{
+		public:
+			typedef typename FuncType::RetType		RetType;
+
 		private:
 			FuncType	_func;
 
@@ -165,15 +168,15 @@ namespace stingray
 			Invoker(const FuncType& func) : _func(func) { }
 
 			template < typename Params >
-			typename FuncType::RetType operator () (const Tuple<Params>& params) const
+			RetType operator () (const Tuple<Params>& params) const
 			{ return FunctorInvoker::Invoke(_func, params); }
 
 			template < typename Key, typename Value >
-			typename FuncType::RetType operator () (const std::pair<Key, Value>& pair) const
+			RetType operator () (const std::pair<Key, Value>& pair) const
 			{ return _func(pair.first, pair.second); }
 
 			template < typename Key, typename Value >
-			typename FuncType::RetType operator () (const KeyValuePair<Key, Value>& pair) const
+			RetType operator () (const KeyValuePair<Key, Value>& pair) const
 			{ return _func(pair.Key, pair.Value); }
 		};
 	}
