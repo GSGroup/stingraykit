@@ -156,10 +156,10 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename FuncType >
-		class Invoker : public function_info<typename FuncType::RetType, UnspecifiedParamTypes>
+		class Invoker : public function_info<typename function_info<FuncType>::RetType, UnspecifiedParamTypes>
 		{
 		public:
-			typedef typename FuncType::RetType		RetType;
+			typedef typename function_info<FuncType>::RetType		RetType;
 
 		private:
 			FuncType	_func;
