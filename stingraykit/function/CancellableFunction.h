@@ -58,9 +58,9 @@ namespace stingray
 	};
 
 
-	template < typename FuncType >
-	CancellableFunction<FuncType> MakeCancellableFunction(const FuncType& func, const FutureExecutionTester& tester)
-	{ return CancellableFunction<FuncType>(func, tester); }
+	template < typename FunctorType >
+	CancellableFunction<FunctorType> MakeCancellableFunction(const FunctorType& func, const FutureExecutionTester& tester)
+	{ return CancellableFunction<FunctorType>(func, tester); }
 
 }
 
