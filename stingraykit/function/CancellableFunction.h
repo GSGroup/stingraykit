@@ -14,21 +14,25 @@ namespace stingray
 {
 
 	template < typename FunctorType >
-	class CancellableFunction : public function_info<FunctorType>
+	class CancellableFunction : public function_info<typename Decay<FunctorType>::ValueT>
 	{
 		STINGRAYKIT_DEFAULTCOPYABLE(CancellableFunction);
 		STINGRAYKIT_DEFAULTMOVABLE(CancellableFunction);
 
+	private:
+		typedef typename Decay<FunctorType>::ValueT				RawFunctorType;
+
 	public:
-		typedef typename function_info<FunctorType>::RetType		RetType;
+		typedef typename function_info<RawFunctorType>::RetType	RetType;
 
 	private:
-		FunctorType				_func;
+		RawFunctorType			_func;
 		FutureExecutionTester	_tester;
 
 	public:
-		CancellableFunction(const FunctorType& func, const FutureExecutionTester& tester)
-			: _func(func), _tester(tester)
+		template < typename ExecutionTester >
+		CancellableFunction(FunctorType&& func, ExecutionTester&& tester)
+			: _func(std::forward<FunctorType>(func)), _tester(std::forward<ExecutionTester>(tester))
 		{ }
 
 		template < typename... Ts >
@@ -58,9 +62,9 @@ namespace stingray
 	};
 
 
-	template < typename FunctorType >
-	CancellableFunction<FunctorType> MakeCancellableFunction(const FunctorType& func, const FutureExecutionTester& tester)
-	{ return CancellableFunction<FunctorType>(func, tester); }
+	template < typename FunctorType, typename ExecutionTester >
+	CancellableFunction<FunctorType> MakeCancellableFunction(FunctorType&& func, ExecutionTester&& tester)
+	{ return CancellableFunction<FunctorType>(std::forward<FunctorType>(func), std::forward<ExecutionTester>(tester)); }
 
 }
 
