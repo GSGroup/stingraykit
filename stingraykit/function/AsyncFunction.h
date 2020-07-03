@@ -22,28 +22,30 @@ namespace stingray
 
 	template < typename FunctorType >
 	class AsyncFunction
-		:	public function_info<typename If<IsSame<typename function_info<FunctorType>::RetType, void>::Value,
-							typename function_info<FunctorType>::RetType, future<typename function_info<FunctorType>::RetType> >::ValueT,
-					typename function_info<FunctorType>::ParamTypes>
+		:	public function_info<typename If<IsSame<typename function_info<typename Decay<FunctorType>::ValueT>::RetType, void>::Value,
+							typename function_info<typename Decay<FunctorType>::ValueT>::RetType, future<typename function_info<typename Decay<FunctorType>::ValueT>::RetType> >::ValueT,
+					typename function_info<typename Decay<FunctorType>::ValueT>::ParamTypes>
 	{
 		STINGRAYKIT_DEFAULTCOPYABLE(AsyncFunction);
 		STINGRAYKIT_DEFAULTMOVABLE(AsyncFunction);
 
 	private:
-		typedef typename function_info<FunctorType>::RetType	RawRetType;
+		typedef typename Decay<FunctorType>::ValueT				RawFunctorType;
+		typedef typename function_info<RawFunctorType>::RetType	RawRetType;
 
 	public:
 		typedef typename If<IsSame<RawRetType, void>::Value, RawRetType, future<RawRetType> >::ValueT	RetType;
-		typedef typename function_info<FunctorType>::ParamTypes											ParamTypes;
+		typedef typename function_info<RawFunctorType>::ParamTypes										ParamTypes;
 
 	private:
 		ITaskExecutorPtr		_executor;
-		FunctorType				_func;
+		RawFunctorType			_func;
 		FutureExecutionTester	_tester;
 
 	public:
-		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
-			: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
+		template < typename ExecutionTester >
+		AsyncFunction(const ITaskExecutorPtr& executor, FunctorType&& func, ExecutionTester&& tester)
+			: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(std::forward<FunctorType>(func)), _tester(std::forward<ExecutionTester>(tester))
 		{ }
 
 		template < typename... Ts >
@@ -78,9 +80,9 @@ namespace stingray
 	};
 
 
-	template < typename FunctorType >
-	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester = null)
-	{ return AsyncFunction<FunctorType>(executor, func, tester); }
+	template < typename FunctorType, typename ExecutionTester = FutureExecutionTester >
+	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, FunctorType&& func, ExecutionTester&& tester = null)
+	{ return AsyncFunction<FunctorType>(executor, std::forward<FunctorType>(func), std::forward<ExecutionTester>(tester)); }
 
 	/** @} */
 
