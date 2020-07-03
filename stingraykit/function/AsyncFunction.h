@@ -63,18 +63,22 @@ namespace stingray
 		protected:
 			ITaskExecutorPtr		_executor;
 			FunctorType				_func;
-			TaskLifeToken			_token;
+			FutureExecutionTester	_tester;
 
 		protected:
 			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func)
-				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func)
+				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(null)
+			{ }
+
+			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
+				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
 
 			template < typename BoundFunctor >
 			RetType DoAddTask(const BoundFunctor& func) const
 			{
 				const PromiseTypePtr promise = make_shared_ptr<PromiseType>();
-				_executor->AddTask(Bind(&AsyncFunctionBase::FuncWrapper<BoundFunctor>, func, promise), _token.GetExecutionTester());
+				_executor->AddTask(Bind(&AsyncFunctionBase::FuncWrapper<BoundFunctor>, func, promise), _tester);
 				return promise->get_future();
 			}
 
