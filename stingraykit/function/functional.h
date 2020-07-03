@@ -25,6 +25,7 @@ namespace stingray
 		template < typename FuncType >
 		class NotFunc : public function_info<bool, typename function_info<FuncType>::ParamTypes>
 		{
+		private:
 			FuncType	_func;
 
 		public:
@@ -41,7 +42,8 @@ namespace stingray
 	}
 
 	template < typename FuncType >
-	Detail::NotFunc<FuncType> not_(const FuncType& func) { return Detail::NotFunc<FuncType>(func); }
+	Detail::NotFunc<FuncType> not_(const FuncType& func)
+	{ return Detail::NotFunc<FuncType>(func); }
 
 
 	namespace Detail
@@ -49,8 +51,10 @@ namespace stingray
 		template < typename FuncType >
 		class NegateFunc : public function_info<FuncType>
 		{
+		public:
 			typedef typename function_info<FuncType>::RetType		RetType;
 
+		private:
 			FuncType	_func;
 
 		public:
@@ -67,7 +71,8 @@ namespace stingray
 	}
 
 	template < typename FuncType >
-	Detail::NegateFunc<FuncType> negate(const FuncType& func) { return Detail::NegateFunc<FuncType>(func); }
+	Detail::NegateFunc<FuncType> negate(const FuncType& func)
+	{ return Detail::NegateFunc<FuncType>(func); }
 
 
 	class NopFunctor : public function_info<void, UnspecifiedParamTypes>
@@ -98,7 +103,8 @@ namespace stingray
 	}
 
 	template < typename T >
-	Detail::Assigner<T> make_assigner(T& ref) { return Detail::Assigner<T>(ref); }
+	Detail::Assigner<T> make_assigner(T& ref)
+	{ return Detail::Assigner<T>(ref); }
 
 
 	namespace Detail
@@ -121,7 +127,8 @@ namespace stingray
 	}
 
 	template < typename T >
-	Detail::Identity<T> make_identity(const T& value) { return Detail::Identity<T>(value); }
+	Detail::Identity<T> make_identity(const T& value)
+	{ return Detail::Identity<T>(value); }
 
 
 #define DETAIL_STINGRAY_MAKE_INSTANCE(N_, UserArg_) \
@@ -182,7 +189,8 @@ namespace stingray
 	}
 
 	template < typename FuncType >
-	Detail::Invoker<FuncType> make_invoker(const FuncType& func) { return Detail::Invoker<FuncType>(func); }
+	Detail::Invoker<FuncType> make_invoker(const FuncType& func)
+	{ return Detail::Invoker<FuncType>(func); }
 
 	/** @} */
 
