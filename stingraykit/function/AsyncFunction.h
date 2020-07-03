@@ -35,10 +35,6 @@ namespace stingray
 			FutureExecutionTester	_tester;
 
 		protected:
-			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func)
-				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(null)
-			{ }
-
 			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
 				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
@@ -66,10 +62,6 @@ namespace stingray
 			FutureExecutionTester	_tester;
 
 		protected:
-			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func)
-				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(null)
-			{ }
-
 			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
 				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
@@ -101,10 +93,6 @@ namespace stingray
 		typedef Detail::AsyncFunctionBase<FunctorType>	BaseType;
 
 	public:
-		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func)
-			: BaseType(executor, func)
-		{ }
-
 		AsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
 			: BaseType(executor, func, tester)
 		{ }
@@ -122,12 +110,7 @@ namespace stingray
 
 
 	template < typename FunctorType >
-	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func)
-	{ return AsyncFunction<FunctorType>(executor, func); }
-
-
-	template < typename FunctorType >
-	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
+	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester = null)
 	{ return AsyncFunction<FunctorType>(executor, func, tester); }
 
 	/** @} */
