@@ -22,13 +22,15 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename FuncType >
-		class NotFunc : public function_info<bool, typename function_info<FuncType>::ParamTypes>
+		class NotFunc : public function_info<bool, typename function_info<typename Decay<FuncType>::ValueT>::ParamTypes>
 		{
+			typedef typename Decay<FuncType>::ValueT RawFuncType;
+
 		private:
-			FuncType	_func;
+			RawFuncType	_func;
 
 		public:
-			NotFunc(const FuncType& func) : _func(func)
+			NotFunc(FuncType&& func) : _func(std::forward<FuncType>(func))
 			{ }
 
 			template < typename... Ts >
@@ -38,23 +40,25 @@ namespace stingray
 	}
 
 	template < typename FuncType >
-	Detail::NotFunc<FuncType> not_(const FuncType& func)
-	{ return Detail::NotFunc<FuncType>(func); }
+	Detail::NotFunc<FuncType> not_(FuncType&& func)
+	{ return Detail::NotFunc<FuncType>(std::forward<FuncType>(func)); }
 
 
 	namespace Detail
 	{
 		template < typename FuncType >
-		class NegateFunc : public function_info<FuncType>
+		class NegateFunc : public function_info<typename Decay<FuncType>::ValueT>
 		{
+			typedef typename Decay<FuncType>::ValueT RawFuncType;
+
 		public:
-			typedef typename function_info<FuncType>::RetType		RetType;
+			typedef typename function_info<RawFuncType>::RetType RetType;
 
 		private:
-			FuncType	_func;
+			RawFuncType	_func;
 
 		public:
-			NegateFunc(const FuncType& func) : _func(func)
+			NegateFunc(FuncType&& func) : _func(std::forward<FuncType>(func))
 			{ }
 
 			template < typename... Ts >
@@ -64,8 +68,8 @@ namespace stingray
 	}
 
 	template < typename FuncType >
-	Detail::NegateFunc<FuncType> negate(const FuncType& func)
-	{ return Detail::NegateFunc<FuncType>(func); }
+	Detail::NegateFunc<FuncType> negate(FuncType&& func)
+	{ return Detail::NegateFunc<FuncType>(std::forward<FuncType>(func)); }
 
 
 	struct NopFunctor : public function_info<void, UnspecifiedParamTypes>
@@ -133,16 +137,18 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename FuncType >
-		class Invoker : public function_info<typename function_info<FuncType>::RetType, UnspecifiedParamTypes>
+		class Invoker : public function_info<typename function_info<typename Decay<FuncType>::ValueT>::RetType, UnspecifiedParamTypes>
 		{
+			typedef typename Decay<FuncType>::ValueT RawFuncType;
+
 		public:
-			typedef typename function_info<FuncType>::RetType		RetType;
+			typedef typename function_info<RawFuncType>::RetType RetType;
 
 		private:
-			FuncType	_func;
+			RawFuncType	_func;
 
 		public:
-			Invoker(const FuncType& func) : _func(func) { }
+			Invoker(FuncType&& func) : _func(std::forward<FuncType>(func)) { }
 
 			template < typename Params >
 			RetType operator () (const Tuple<Params>& params) const
@@ -159,8 +165,8 @@ namespace stingray
 	}
 
 	template < typename FuncType >
-	Detail::Invoker<FuncType> make_invoker(const FuncType& func)
-	{ return Detail::Invoker<FuncType>(func); }
+	Detail::Invoker<FuncType> make_invoker(FuncType&& func)
+	{ return Detail::Invoker<FuncType>(std::forward<FuncType>(func)); }
 
 	/** @} */
 
