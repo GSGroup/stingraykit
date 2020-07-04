@@ -83,7 +83,7 @@ namespace stingray
 				<
 					ParamsTuple::Size,
 					/*GetTypeListLength<typename function_info<FunctorType>::ParamTypes>::Value,*/
-					function_info<FunctorType>::Type == FunctionType::MethodPtr
+					function_type<FunctorType>::Type == FunctionType::MethodPtr
 				>::template Invoke<FunctorType, ParamsTuple>(func, p);
 		}
 	};
