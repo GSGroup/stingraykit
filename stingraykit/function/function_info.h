@@ -26,7 +26,7 @@ namespace stingray
 			RawFunction,
 			RawFunctionPtr,
 			MethodPtr,
-			GSFunction,
+			StingrayFunction,
 			StdFunction,
 			Other
 		);
@@ -150,7 +150,7 @@ namespace stingray
 
 	template < typename Signature_ >
 	struct function_type<function<Signature_>, NullType>
-	{ static const FunctionType::Enum Type = FunctionType::GSFunction; };
+	{ static const FunctionType::Enum Type = FunctionType::StingrayFunction; };
 
 
 	template < typename Signature_ >
