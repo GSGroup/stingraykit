@@ -53,11 +53,6 @@ namespace stingray
 	struct SignatureBuilder<RetType, UnspecifiedParamTypes>
 	{ typedef NullType ValueT; };
 
-
-	template < typename RetType >
-	struct SignatureBuilder<RetType, NullType>
-	{ typedef NullType ValueT; };
-
 	/** @} */
 
 }
