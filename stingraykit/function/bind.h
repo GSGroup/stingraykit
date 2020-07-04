@@ -210,7 +210,7 @@ namespace stingray
 
 		public:
 			Binder(const FunctorType& func, const Tuple<AllParameters>& allParams)
-				: _func(func), _boundParams(GetBoundParams(allParams))
+				: _func(func), _boundParams(TupleConstructorTag(), NonPlaceholdersCutter<AllParameters>(allParams))
 			{ }
 
 			STINGRAYKIT_PERFECT_FORWARDING(RetType, operator(), Do)
@@ -218,9 +218,6 @@ namespace stingray
 			std::string get_name() const { return "{ binder: " + get_function_name(_func) + " }"; }
 
 		private:
-			static Tuple<BoundParams> GetBoundParams(const Tuple<AllParameters>& all)
-			{ return Tuple<BoundParams>::CreateFromTupleLikeObject(NonPlaceholdersCutter<AllParameters>(all)); }
-
 			template < typename ParamTypeList >
 			RetType Do(const Tuple<ParamTypeList>& params) const
 			{
