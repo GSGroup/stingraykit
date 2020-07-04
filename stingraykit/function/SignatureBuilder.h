@@ -19,6 +19,7 @@ namespace stingray
 	 * @{
 	 */
 
+	struct UnspecifiedRetType;
 	struct UnspecifiedParamTypes;
 
 
@@ -44,13 +45,13 @@ namespace stingray
 	}
 
 
-	template < typename RetType, typename ParamTypes >
+	template < typename RetType, typename ParamTypes, bool AllSpecified = !IsSame<RetType, UnspecifiedRetType>::Value && !IsSame<ParamTypes, UnspecifiedParamTypes>::Value >
 	struct SignatureBuilder
 	{ typedef typename Detail::SignatureBuilderImpl<GetTypeListLength<ParamTypes>::Value, RetType, ParamTypes>::ValueT ValueT; };
 
 
-	template < typename RetType >
-	struct SignatureBuilder<RetType, UnspecifiedParamTypes>
+	template < typename RetType, typename ParamTypes >
+	struct SignatureBuilder<RetType, ParamTypes, false>
 	{ typedef NullType ValueT; };
 
 	/** @} */
