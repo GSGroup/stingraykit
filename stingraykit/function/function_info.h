@@ -272,14 +272,6 @@ namespace stingray
 	{ static const FunctionType::Enum Type = FunctionType::Other; };
 
 
-	template < typename RetType_>
-	struct function_info<RetType_, UnspecifiedParamTypes> : public function_type<RetType_, UnspecifiedParamTypes>
-	{
-		typedef RetType_				RetType;
-		typedef UnspecifiedParamTypes	ParamTypes;
-	};
-
-
 	template < typename RetType_, typename ParamTypes_ >
 	struct function_info : public function_type<RetType_, ParamTypes_>
 	{
