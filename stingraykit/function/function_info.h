@@ -168,72 +168,48 @@ namespace stingray
 
 	namespace Detail
 	{
+		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(RetType);
+		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(ParamTypes);
+		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(result_type);
 
-		template < typename F >
-		class GetStlFunctorNumArguments
+		struct FunctorType
 		{
-		private:
-			struct _wtf_ { char dummy[2]; };
-			struct _1_ { _wtf_ dummy[2]; };
-			struct _2_ { _1_ dummy[2]; };
-
-			template < typename R, typename T1, typename T2 >
-			static _2_ Test(const std::binary_function<T1, T2, R>*);
-
-			template < typename R, typename T1 >
-			static _1_ Test(const std::unary_function<T1, R>*);
-
-			static _wtf_ Test(...);
-			CompileTimeAssert<sizeof(_1_) != sizeof(_2_) && sizeof(_2_) != sizeof(_wtf_) && sizeof(_1_) != sizeof(_wtf_)> ERROR__type_detectors_dont_work;
-		public:
-			static const int Value =
-				(sizeof(Test((const F*)0)) == sizeof(_1_)
-					? 1
-					: (sizeof(Test((const F*)0)) == sizeof(_2_)
-						? 2
-						: -1
-					)
-				);
+			STINGRAYKIT_ENUM_VALUES(FunctorWithRetAndParamTypes, FunctorWithRetType, StdFunctor, Other);
+			STINGRAYKIT_DECLARE_ENUM_CLASS(FunctorType);
 		};
 
-		template < typename F, int StlFunctorNumArguments = GetStlFunctorNumArguments<F>::Value >
-		struct std_function_type;
+		template < typename F, FunctorType::Enum FuncType =
+			HasNestedType_RetType<F>::Value ? (HasNestedType_ParamTypes<F>::Value ? FunctorType::FunctorWithRetAndParamTypes : FunctorType::FunctorWithRetType) :
+				HasNestedType_result_type<F>::Value ? FunctorType::StdFunctor : FunctorType::Other>
+		struct FunctorTypeGetter
+		{ static const FunctorType::Enum Value = FuncType; };
 
-		template < typename F, int StlFunctorNumArguments = GetStlFunctorNumArguments<F>::Value >
-		struct std_function_info;
 
-		template < typename F> struct std_function_type<F, 1>
+		template < typename F, FunctorType::Enum FuncType = FunctorTypeGetter<F>::Value >
+		struct GenericFunctionType;
+
+		template < typename F >
+		struct GenericFunctionType<F, FunctorType::FunctorWithRetAndParamTypes>
+		{ static const FunctionType::Enum Type = FunctionType::StingrayFunction; };
+
+		template < typename F >
+		struct GenericFunctionType<F, FunctorType::FunctorWithRetType>
+		{ static const FunctionType::Enum Type = FunctionType::StingrayFunction; };
+
+		template < typename F >
+		struct GenericFunctionType<F, FunctorType::StdFunctor>
 		{ static const FunctionType::Enum Type = FunctionType::StdFunction; };
 
 		template < typename F >
-		struct std_function_info<F, 1> : public std_function_type<F>
-		{
-			typedef typename F::result_type									RetType;
-			typedef typename TypeList<typename F::argument_type>::type		ParamTypes;
-			typedef typename SignatureBuilder<RetType, ParamTypes>::ValueT	Signature;
-		};
-
-		template < typename F> struct std_function_type<F, 2>
-		{ static const FunctionType::Enum Type = FunctionType::StdFunction; };
-
-		template < typename F >
-		struct std_function_info<F, 2> : public std_function_type<F>
-		{
-			typedef typename F::result_type									RetType;
-			typedef typename TypeList<typename F::first_argument_type,
-							 typename F::second_argument_type>::type		ParamTypes;
-			typedef typename SignatureBuilder<RetType, ParamTypes>::ValueT	Signature;
-		};
-
-
-		template < typename F >
-		struct std_function_type<F, -1>
+		struct GenericFunctionType<F, FunctorType::Other>
 		{ static const FunctionType::Enum Type = FunctionType::Other; };
 
-		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(ParamTypes);
 
-		template < typename F, bool HasParamTypes = HasNestedType_ParamTypes<F>::Value >
-		struct GenericFunctionInfo
+		template < typename F, FunctorType::Enum FuncType = FunctorTypeGetter<F>::Value >
+		struct GenericFunctionInfo;
+
+		template < typename F >
+		struct GenericFunctionInfo<F, FunctorType::FunctorWithRetAndParamTypes>
 		{
 			typedef typename F::RetType										RetType;
 			typedef typename F::ParamTypes									ParamTypes;
@@ -241,7 +217,7 @@ namespace stingray
 		};
 
 		template < typename F >
-		struct GenericFunctionInfo<F, false>
+		struct GenericFunctionInfo<F, FunctorType::FunctorWithRetType>
 		{
 			typedef typename F::RetType		RetType;
 			typedef UnspecifiedParamTypes	ParamTypes;
@@ -249,21 +225,30 @@ namespace stingray
 		};
 
 		template < typename F >
-		struct std_function_info<F, -1> : public std_function_type<F>
+		struct GenericFunctionInfo<F, FunctorType::StdFunctor>
 		{
-			typedef typename GenericFunctionInfo<F>::RetType	RetType;
-			typedef typename GenericFunctionInfo<F>::ParamTypes	ParamTypes;
-			typedef typename GenericFunctionInfo<F>::Signature	Signature;
+			typedef typename F::result_type	RetType;
+			typedef UnspecifiedParamTypes	ParamTypes;
+			typedef NullType				Signature;
+		};
+
+		template < typename F >
+		struct GenericFunctionInfo<F, FunctorType::Other>
+		{
+			typedef UnspecifiedRetType		RetType;
+			typedef UnspecifiedParamTypes	ParamTypes;
+			typedef NullType				Signature;
 		};
 	}
 
+
 	template < typename F >
-	struct function_type<F, NullType> : public Detail::std_function_type<F>
+	struct function_type<F, NullType> : public Detail::GenericFunctionType<F>
 	{ };
 
 
 	template < typename F >
-	struct function_info<F, NullType> : public Detail::std_function_info<F>
+	struct function_info<F, NullType> : public Detail::GenericFunctionInfo<F>
 	{ };
 
 
