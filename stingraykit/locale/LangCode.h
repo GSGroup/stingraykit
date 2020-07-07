@@ -8,8 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <string>
-
 #include <stingraykit/toolkit.h>
 
 namespace stingray
@@ -22,30 +20,34 @@ namespace stingray
 
 	class LangCode
 	{
+	private:
 		u32 _code;
 
 	public:
-
-		struct AnyType {};
+		struct AnyType { };
 		static const AnyType Any;
 
 		static LangCode Eng();
 		static LangCode Rus();
 
-		inline LangCode() : _code(0) { }
-		inline LangCode(AnyType) : _code(0) { }
+		LangCode() : _code(0) { }
+		LangCode(AnyType) : _code(0) { }
 
 		explicit LangCode(u32 code);
-		LangCode(const std::string &code);
-		LangCode(const char *code);
+		LangCode(const std::string& code);
+		LangCode(const char* code);
 
-		inline bool operator <  (const LangCode& other) const	{ return _code < other._code; }
+		bool operator < (const LangCode& other) const
+		{ return _code < other._code; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LangCode);
 
-		static LangCode FromString(const std::string &code)		{ return code.length() == 2 ? From2Letter(code) : From3Letter(code); }
+		static LangCode FromString(const std::string& code)
+		{ return code.length() == 2 ? From2Letter(code) : From3Letter(code); }
+
 		std::string ToString() const;
-		static LangCode From3Letter(const std::string &code);
-		static LangCode From2Letter(const std::string &code);
+
+		static LangCode From3Letter(const std::string& code);
+		static LangCode From2Letter(const std::string& code);
 
 	private:
 		void ToUpper();
@@ -55,6 +57,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif

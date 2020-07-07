@@ -8,15 +8,15 @@
 #include <stingraykit/locale/LangCode.h>
 
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/collection/array.h>
-#include <stingraykit/exception.h>
 
 namespace stingray
 {
-	const LangCode::AnyType LangCode::Any = {};
+
+	const LangCode::AnyType LangCode::Any = { };
 
 	LangCode LangCode::Eng() { return LangCode("eng"); }
 	LangCode LangCode::Rus() { return LangCode("rus"); }
+
 
 	LangCode::LangCode(u32 code) : _code(code)
 	{
@@ -25,51 +25,59 @@ namespace stingray
 		ToUpper();
 	}
 
-	LangCode::LangCode(const std::string &code)
+
+	LangCode::LangCode(const std::string& code)
 	{
 		if (code.size() != 3)
 			STINGRAYKIT_THROW("invalid language code: " + code);
 
-		char a = DoToUpper(code[0]), b = DoToUpper(code[1]), c = DoToUpper(code[2]);
+		const char a = DoToUpper(code[0]);
+		const char b = DoToUpper(code[1]);
+		const char c = DoToUpper(code[2]);
+
 		//if (a < 'A' || a > 'Z' || b < 'A' || b > 'Z' || c < 'A' || c > 'Z')
 		//	STINGRAYKIT_THROW("invalid language code: " + code);
 
 		_code = (((u8)a) << 16) | (((u8)b) << 8) | (((u8)c) << 0);
 	}
 
+
 	LangCode::LangCode(const char *code)
 	{ _code = LangCode(std::string(code))._code; }
 
+
 	std::string LangCode::ToString() const
 	{
-		if (_code)
-		{
-			char r[4] = { (char)((_code >> 16) & 0xff), (char)((_code >> 8) & 0xff), (char)((_code >> 0) & 0xff), 0 };
-			return r;
-		}
-		else
+		if (_code == 0)
 			return std::string();
+
+		const char r[4] = { (char)((_code >> 16) & 0xff), (char)((_code >> 8) & 0xff), (char)((_code >> 0) & 0xff), 0 };
+		return r;
 	}
+
 
 	void LangCode::ToUpper()
 	{
 		if (_code == 0)
 			return;
 
-		array<char, 3> c, r;
+		array<char, 3> c;
 		c[0] = (_code >> 16) & 0xff;
 		c[1] = (_code >> 8) & 0xff;
 		c[2] = (_code >> 0) & 0xff;
+
+		array<char, 3> r;
 		std::transform(c.begin(), c.end(), r.begin(), &LangCode::DoToUpper);
+
 		_code = (r[0] << 16) + (r[1] << 8) + r[2];
 	}
 
-	char LangCode::DoToUpper(char c)
-	{
-		return c >= 'a' && c <= 'z'? c - 'a' + 'A': c;
-	}
 
-	LangCode LangCode::From2Letter(const std::string &code)
+	char LangCode::DoToUpper(char c)
+	{ return c >= 'a' && c <= 'z'? c - 'a' + 'A' : c; }
+
+
+	LangCode LangCode::From2Letter(const std::string& code)
 	{
 		STINGRAYKIT_CHECK(code.length() >= 2, "invalid language code: " + code);
 
@@ -86,8 +94,8 @@ namespace stingray
 		return LangCode();
 	}
 
-	LangCode LangCode::From3Letter(const std::string &code)
-	{
-		return LangCode(code);
-	}
+
+	LangCode LangCode::From3Letter(const std::string& code)
+	{ return LangCode(code); }
+
 }
