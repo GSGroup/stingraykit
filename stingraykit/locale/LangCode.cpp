@@ -12,16 +12,42 @@
 namespace stingray
 {
 
+	namespace
+	{
+
+		char DoToUpper(char c)
+		{ return c >= 'a' && c <= 'z'? c - 'a' + 'A' : c; }
+
+
+		u32 ToUpper(u32 code)
+		{
+			if (code == 0)
+				return code;
+
+			array<char, 3> c;
+			c[0] = (code >> 16) & 0xff;
+			c[1] = (code >> 8) & 0xff;
+			c[2] = (code >> 0) & 0xff;
+
+			array<char, 3> r;
+			std::transform(c.begin(), c.end(), r.begin(), &DoToUpper);
+
+			return (u32)(r[0] << 16) + (r[1] << 8) + r[2];
+		}
+
+	}
+
+
 	const LangCode::AnyType LangCode::Any = { };
 
 	LangCode LangCode::Eng() { return LangCode("eng"); }
 	LangCode LangCode::Rus() { return LangCode("rus"); }
 
 
-	LangCode::LangCode(u32 code) : _code(code)
+	LangCode::LangCode(u32 code) : _code(0)
 	{
 		STINGRAYKIT_CHECK(!(code & 0xff000000u), StringBuilder() % "Invalid language code: " % code);
-		ToUpper();
+		_code = ToUpper(code);
 	}
 
 
@@ -49,33 +75,12 @@ namespace stingray
 	}
 
 
-	void LangCode::ToUpper()
-	{
-		if (_code == 0)
-			return;
-
-		array<char, 3> c;
-		c[0] = (_code >> 16) & 0xff;
-		c[1] = (_code >> 8) & 0xff;
-		c[2] = (_code >> 0) & 0xff;
-
-		array<char, 3> r;
-		std::transform(c.begin(), c.end(), r.begin(), &LangCode::DoToUpper);
-
-		_code = (r[0] << 16) + (r[1] << 8) + r[2];
-	}
-
-
-	char LangCode::DoToUpper(char c)
-	{ return c >= 'a' && c <= 'z'? c - 'a' + 'A' : c; }
-
-
 	LangCode LangCode::From2Letter(const std::string& code)
 	{
 		STINGRAYKIT_CHECK(code.size() >= 2, StringBuilder() % "Invalid language code: " % code);
 
 		std::string subcode(code, 0, 2);
-		std::transform(subcode.begin(), subcode.end(), subcode.begin(), &LangCode::DoToUpper);
+		std::transform(subcode.begin(), subcode.end(), subcode.begin(), &DoToUpper);
 
 		if (subcode == "RU")
 			return LangCode("rus");
