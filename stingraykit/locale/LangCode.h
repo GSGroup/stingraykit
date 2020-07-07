@@ -35,7 +35,6 @@ namespace stingray
 
 		explicit LangCode(u32 code);
 		LangCode(const std::string& code);
-		LangCode(const char* code);
 
 		bool operator < (const LangCode& other) const
 		{ return _code < other._code; }

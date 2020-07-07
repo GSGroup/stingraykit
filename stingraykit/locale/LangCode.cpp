@@ -39,10 +39,6 @@ namespace stingray
 	}
 
 
-	LangCode::LangCode(const char *code)
-	{ _code = LangCode(std::string(code))._code; }
-
-
 	std::string LangCode::ToString() const
 	{
 		if (_code == 0)
