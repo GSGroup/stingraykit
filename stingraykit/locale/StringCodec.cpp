@@ -7,7 +7,7 @@
 
 #include <stingraykit/locale/StringCodec.h>
 
-#include <stingraykit/exception.h>
+#include <stingraykit/string/ToString.h>
 
 namespace stingray
 {
@@ -423,17 +423,16 @@ namespace stingray
 		if (src.TextEncoding == Encoding::ISO_10646_utf8)
 			return src.Text;
 
-		UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
-		if (!unpack)
-			STINGRAYKIT_THROW(std::runtime_error("conversion from " + src.TextEncoding.ToString() + " not supported"));
+		const UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
+		STINGRAYKIT_CHECK(unpack, StringBuilder() % "Not supported conversion from " % src.TextEncoding);
 
 		std::string r;
 		r.reserve(src.Text.size() * 2);
 
-		const string_view src_text = src.Text;
-		for (string_view::const_iterator i = src_text.begin(), end = src_text.end(); i != end; )
+		const string_view srcText = src.Text;
+		for (string_view::const_iterator it = srcText.begin(), end = srcText.end(); it != end; )
 		{
-			u32 ucs = unpack(i, end);
+			u32 ucs = unpack(it, end);
 			if (ucs == InvalidCharacter)
 				ucs = invalidCharReplacement;
 			PackUtf8(r, ucs, invalidCharReplacement);
@@ -452,24 +451,27 @@ namespace stingray
 	{
 		//please do not "optimize" it comparing encodings, this is invalid,
 		//as it different symbols are differently ordered between unicode and iso
-		UnpackFunc unpack_a = GetUnpackFunc(a.TextEncoding), unpack_b = GetUnpackFunc(b.TextEncoding);
-		if (!unpack_a)
-			STINGRAYKIT_THROW(std::runtime_error("conversion from " + a.TextEncoding.ToString() + " not supported"));
-		if (!unpack_b)
-			STINGRAYKIT_THROW(std::runtime_error("conversion from " + b.TextEncoding.ToString() + " not supported"));
+		const UnpackFunc unpackA = GetUnpackFunc(a.TextEncoding);
+		STINGRAYKIT_CHECK(unpackA, StringBuilder() % "Not supported conversion from " % a.TextEncoding);
+		const UnpackFunc unpackB = GetUnpackFunc(b.TextEncoding);
+		STINGRAYKIT_CHECK(unpackB, StringBuilder() % "Not supported conversion from " % b.TextEncoding);
 
-		const string_view str_a = a.Text, str_b = b.Text;
-		string_view::const_iterator i_a = str_a.begin(), i_b = str_b.begin();
-		string_view::const_iterator end_a = str_a.end(), end_b = str_b.end();
-		while(i_a != end_a && i_b != end_b)
+		const string_view strA = a.Text;
+		const string_view strB = b.Text;
+
+		string_view::const_iterator itA = strA.begin();
+		string_view::const_iterator itB = strB.begin();
+		string_view::const_iterator endA = strA.end();
+		string_view::const_iterator endB = strB.end();
+		while (itA != endA && itB != endB)
 		{
-			int ucs_a = unpack_a(i_a, end_a);
-			int ucs_b = unpack_b(i_b, end_b);
-			if (ucs_a != ucs_b)
-				return ucs_a - ucs_b;
+			const int ucsA = unpackA(itA, endB);
+			const int ucsB = unpackB(itB, endB);
+			if (ucsA != ucsB)
+				return ucsA - ucsA;
 		}
 
-		return (i_a != end_a ? 1 : 0) + (i_b != end_b ? -1 : 0);
+		return (itA != endA ? 1 : 0) + (itB != endB ? -1 : 0);
 	}
 
 
@@ -578,10 +580,10 @@ namespace stingray
 		LocaleString r;
 		r.TextEncoding = Encoding::ISO_10646_utf8;
 
-		string_view src_view = src;
-		for (string_view::const_iterator i = src_view.begin(), end = src_view.end(); i != end; )
+		string_view srcView = src;
+		for (string_view::const_iterator it = srcView.begin(), end = srcView.end(); it != end; )
 		{
-			u32 ucs = unpack(i, end);
+			u32 ucs = unpack(it, end);
 			if (ucs == InvalidCharacter)
 				ucs = invalidCharReplacement;
 			PackUtf8(r.Text, ucs, invalidCharReplacement);
@@ -593,20 +595,21 @@ namespace stingray
 
 	std::string StringCodec::ToCodePage(const LocaleString& src, unsigned codePage)
 	{
-		UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
-		if (!unpack)
-			STINGRAYKIT_THROW("invalid src encoding" + src.TextEncoding.ToString());
+		const UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
+		STINGRAYKIT_CHECK(unpack, StringBuilder() % "Not supported conversion from " % src.TextEncoding);
 
-		PackFunc pack = GetCodePagePackFunc(codePage); //always valid
-		string_view src_text = src.Text;
-		string_view::const_iterator i = src_text.begin();
-		string_view::const_iterator e = src_text.end();
+		const PackFunc pack = GetCodePagePackFunc(codePage); //always valid
+
+		string_view srcText = src.Text;
+		string_view::const_iterator it = srcText.begin();
+		string_view::const_iterator end = srcText.end();
 		std::string result;
-		while(i != e)
+		while (it != end)
 		{
-			u32 unicode = unpack(i, e);
+			u32 unicode = unpack(it, end);
 			pack(result, unicode, '?');
 		}
+
 		return result;
 	}
 
