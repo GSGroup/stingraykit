@@ -20,23 +20,20 @@ namespace stingray
 
 	LangCode::LangCode(u32 code) : _code(code)
 	{
-		if (code & 0xff000000u)
-			STINGRAYKIT_THROW(std::string("invalid language code: ") + stingray::ToString(code));
+		STINGRAYKIT_CHECK(!(code & 0xff000000u), StringBuilder() % "Invalid language code: " % code);
 		ToUpper();
 	}
 
 
 	LangCode::LangCode(const std::string& code)
 	{
-		if (code.size() != 3)
-			STINGRAYKIT_THROW("invalid language code: " + code);
+		STINGRAYKIT_CHECK(code.size() == 3, StringBuilder() % "Invalid language code: " % code);
 
 		const char a = DoToUpper(code[0]);
 		const char b = DoToUpper(code[1]);
 		const char c = DoToUpper(code[2]);
 
-		//if (a < 'A' || a > 'Z' || b < 'A' || b > 'Z' || c < 'A' || c > 'Z')
-		//	STINGRAYKIT_THROW("invalid language code: " + code);
+		//STINGRAYKIT_CHECK(a >= 'A' && a <= 'Z' && b >= 'A' && b <= 'Z' && c >= 'A' && c <= 'Z', StringBuilder() % "Invalid language code: " % code);
 
 		_code = (((u8)a) << 16) | (((u8)b) << 8) | (((u8)c) << 0);
 	}
@@ -79,10 +76,9 @@ namespace stingray
 
 	LangCode LangCode::From2Letter(const std::string& code)
 	{
-		STINGRAYKIT_CHECK(code.length() >= 2, "invalid language code: " + code);
+		STINGRAYKIT_CHECK(code.size() >= 2, StringBuilder() % "Invalid language code: " % code);
 
 		std::string subcode(code, 0, 2);
-
 		std::transform(subcode.begin(), subcode.end(), subcode.begin(), &LangCode::DoToUpper);
 
 		if (subcode == "RU")
