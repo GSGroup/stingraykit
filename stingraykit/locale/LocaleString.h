@@ -29,17 +29,17 @@ namespace stingray
 		LocaleString(const LocaleString& l);
 		~LocaleString();
 
-		void Serialize(ObjectOStream & ar) const;
-		void Deserialize(ObjectIStream & ar);
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
-		bool operator<(const LocaleString& other) const;
-		bool operator==(const LocaleString& other) const;
-		bool operator!=(const LocaleString& other) const;
+		bool operator < (const LocaleString& other) const;
+		bool operator == (const LocaleString& other) const;
+		bool operator != (const LocaleString& other) const;
 
 		std::string ToString() const;
-		static LocaleString FromUtf8(const std::string &str);
+		static LocaleString FromUtf8(const std::string& str);
 
-		int Compare(const LocaleString &other) const;
+		int Compare(const LocaleString& other) const;
 	};
 
 	/** @} */
