@@ -442,64 +442,6 @@ namespace stingray
 	}
 
 
-	void StringCodec::PackUtf8(std::string& dst, u32 ucs, u32 invalidCharReplacement)
-	{
-		if (ucs < 0x80)
-		{
-			dst += (char)ucs;
-		}
-		else if (ucs < 0x800)
-		{
-			dst += (char) ((ucs >> 6) | 0xc0);
-			dst += (char) ((ucs & 0x3f) | 0x80);
-		}
-		else if (ucs < 0x10000)
-		{
-			dst += (char)((ucs >> 12) | 0xe0);
-			dst += (char)(((ucs & 0x0fc0) >> 6) | 0x80);
-			dst += (char)((ucs & 0x003f) | 0x80);
-		}
-		else if (ucs < 0x110000) //actually 0x200000, but unicode still not reached this limit.
-		{
-			dst += (char)((ucs >> 18) | 0xf0);
-			dst += (char)(((ucs & 0x03f000) >> 12) | 0x80);
-			dst += (char)(((ucs & 0x000fc0) >> 6) | 0x80);
-			dst += (char)( (ucs & 0x00003f) | 0x80);
-		}
-		else
-			dst += invalidCharReplacement;
-	}
-
-
-	StringCodec::UnpackFunc StringCodec::GetUnpackFunc(Encoding encoding)
-	{
-		switch (encoding)
-		{
-		case Encoding::CP1251:		return &Unpack_CP1251;
-		case Encoding::ISO_8859_1:	return &Unpack_ISO_8859_1;
-		case Encoding::ISO_8859_2:	return &Unpack_ISO_8859_2;
-		case Encoding::ISO_8859_3:	return &Unpack_ISO_8859_3;
-		case Encoding::ISO_8859_4:	return &Unpack_ISO_8859_4;
-		case Encoding::ISO_8859_5:	return &Unpack_ISO_8859_5;
-		case Encoding::ISO_8859_6:	return &Unpack_ISO_8859_6;
-		case Encoding::ISO_8859_7:	return &Unpack_ISO_8859_7;
-		case Encoding::ISO_8859_8:	return &Unpack_ISO_8859_8;
-		case Encoding::ISO_8859_9:	return &Unpack_ISO_8859_9;
-		case Encoding::ISO_8859_10:	return &Unpack_ISO_8859_10;
-		case Encoding::ISO_8859_11:	return &Unpack_ISO_8859_11;
-		case Encoding::ISO_8859_13:	return &Unpack_ISO_8859_13;
-		case Encoding::ISO_8859_14:	return &Unpack_ISO_8859_14;
-		case Encoding::ISO_8859_15:	return &Unpack_ISO_8859_15;
-		case Encoding::ISO_8859_16:	return &Unpack_ISO_8859_16;
-		case Encoding::ISO_10646:	return &Unpack_ISO_10646;
-		case Encoding::ISO_10646_utf8: return &Unpack_ISO_10646_utf8;
-		case Encoding::ISO_10646_utf16LE: return &Unpack_ISO_10646_utf16le;
-		case Encoding::ISO_10646_utf16BE: return &Unpack_ISO_10646_utf16be;
-		default:					return NULL;
-		}
-	}
-
-
 	std::string StringCodec::ToUtf8(const LocaleString& src, u32 invalidCharReplacement)
 	{
 		if (src.TextEncoding == Encoding::ISO_10646_utf8)
@@ -557,6 +499,64 @@ namespace stingray
 	}
 
 
+	StringCodec::UnpackFunc StringCodec::GetUnpackFunc(Encoding encoding)
+	{
+		switch (encoding)
+		{
+		case Encoding::CP1251:		return &Unpack_CP1251;
+		case Encoding::ISO_8859_1:	return &Unpack_ISO_8859_1;
+		case Encoding::ISO_8859_2:	return &Unpack_ISO_8859_2;
+		case Encoding::ISO_8859_3:	return &Unpack_ISO_8859_3;
+		case Encoding::ISO_8859_4:	return &Unpack_ISO_8859_4;
+		case Encoding::ISO_8859_5:	return &Unpack_ISO_8859_5;
+		case Encoding::ISO_8859_6:	return &Unpack_ISO_8859_6;
+		case Encoding::ISO_8859_7:	return &Unpack_ISO_8859_7;
+		case Encoding::ISO_8859_8:	return &Unpack_ISO_8859_8;
+		case Encoding::ISO_8859_9:	return &Unpack_ISO_8859_9;
+		case Encoding::ISO_8859_10:	return &Unpack_ISO_8859_10;
+		case Encoding::ISO_8859_11:	return &Unpack_ISO_8859_11;
+		case Encoding::ISO_8859_13:	return &Unpack_ISO_8859_13;
+		case Encoding::ISO_8859_14:	return &Unpack_ISO_8859_14;
+		case Encoding::ISO_8859_15:	return &Unpack_ISO_8859_15;
+		case Encoding::ISO_8859_16:	return &Unpack_ISO_8859_16;
+		case Encoding::ISO_10646:	return &Unpack_ISO_10646;
+		case Encoding::ISO_10646_utf8: return &Unpack_ISO_10646_utf8;
+		case Encoding::ISO_10646_utf16LE: return &Unpack_ISO_10646_utf16le;
+		case Encoding::ISO_10646_utf16BE: return &Unpack_ISO_10646_utf16be;
+		default:					return NULL;
+		}
+	}
+
+
+	void StringCodec::PackUtf8(std::string& dst, u32 ucs, u32 invalidCharReplacement)
+	{
+		if (ucs < 0x80)
+		{
+			dst += (char)ucs;
+		}
+		else if (ucs < 0x800)
+		{
+			dst += (char) ((ucs >> 6) | 0xc0);
+			dst += (char) ((ucs & 0x3f) | 0x80);
+		}
+		else if (ucs < 0x10000)
+		{
+			dst += (char)((ucs >> 12) | 0xe0);
+			dst += (char)(((ucs & 0x0fc0) >> 6) | 0x80);
+			dst += (char)((ucs & 0x003f) | 0x80);
+		}
+		else if (ucs < 0x110000) //actually 0x200000, but unicode still not reached this limit.
+		{
+			dst += (char)((ucs >> 18) | 0xf0);
+			dst += (char)(((ucs & 0x03f000) >> 12) | 0x80);
+			dst += (char)(((ucs & 0x000fc0) >> 6) | 0x80);
+			dst += (char)( (ucs & 0x00003f) | 0x80);
+		}
+		else
+			dst += invalidCharReplacement;
+	}
+
+
 	StringCodec::PackFunc StringCodec::GetCodePagePackFunc(unsigned codePage)
 	{
 		switch (codePage)
@@ -578,26 +578,6 @@ namespace stingray
 	}
 
 
-	LocaleString StringCodec::FromCodePage(const std::string& src, unsigned codePage, u32 invalidCharReplacement)
-	{
-		UnpackFunc unpack = GetCodePageUnpackFunc(codePage);
-
-		LocaleString r;
-		r.TextEncoding = Encoding::ISO_10646_utf8;
-
-		string_view srcView = src;
-		for (string_view::const_iterator it = srcView.begin(), end = srcView.end(); it != end; )
-		{
-			u32 ucs = unpack(it, end);
-			if (ucs == InvalidCharacter)
-				ucs = invalidCharReplacement;
-			PackUtf8(r.Text, ucs, invalidCharReplacement);
-		}
-
-		return r;
-	}
-
-
 	std::string StringCodec::ToCodePage(const LocaleString& src, unsigned codePage)
 	{
 		const UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
@@ -616,6 +596,26 @@ namespace stingray
 		}
 
 		return result;
+	}
+
+
+	LocaleString StringCodec::FromCodePage(const std::string& src, unsigned codePage, u32 invalidCharReplacement)
+	{
+		UnpackFunc unpack = GetCodePageUnpackFunc(codePage);
+
+		LocaleString r;
+		r.TextEncoding = Encoding::ISO_10646_utf8;
+
+		string_view srcView = src;
+		for (string_view::const_iterator it = srcView.begin(), end = srcView.end(); it != end; )
+		{
+			u32 ucs = unpack(it, end);
+			if (ucs == InvalidCharacter)
+				ucs = invalidCharReplacement;
+			PackUtf8(r.Text, ucs, invalidCharReplacement);
+		}
+
+		return r;
 	}
 
 }

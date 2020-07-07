@@ -25,9 +25,6 @@ namespace stingray
 		static LocaleString FromUtf8(const std::string& str);
 		static int Compare(const LocaleString& a, const LocaleString& b);
 
-		static std::string ToCodePage(const LocaleString& src, unsigned codePage);
-		static LocaleString FromCodePage(const std::string& src, unsigned codePage, u32 invalidCharReplacement = '?');
-
 		typedef u32 (*UnpackFunc)(string_view::const_iterator& it, const string_view::const_iterator& end);
 		typedef void (*PackFunc)(std::string& str, u32 unicode, char invalidCharReplacement);
 
@@ -38,6 +35,9 @@ namespace stingray
 
 		static PackFunc GetCodePagePackFunc(unsigned codePage);
 		static UnpackFunc GetCodePageUnpackFunc(unsigned codePage);
+
+		static std::string ToCodePage(const LocaleString& src, unsigned codePage);
+		static LocaleString FromCodePage(const std::string& src, unsigned codePage, u32 invalidCharReplacement = '?');
 	};
 
 	/** @} */
