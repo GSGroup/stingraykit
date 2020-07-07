@@ -21,14 +21,6 @@ namespace stingray
 	{ }
 
 
-	LocaleString::LocaleString(const LocaleString& l) : TextEncoding(l.TextEncoding), Text(l.Text)
-	{ }
-
-
-	LocaleString::~LocaleString()
-	{ }
-
-
 	void LocaleString::Serialize(ObjectOStream& ar) const
 	{
 		ar.Serialize("encoding", TextEncoding);
@@ -57,10 +49,6 @@ namespace stingray
 
 		return Compare(other) == 0;
 	}
-
-
-	bool LocaleString::operator != (const LocaleString& other) const
-	{ return !(*this == other); }
 
 
 	std::string LocaleString::ToString() const

@@ -26,15 +26,13 @@ namespace stingray
 
 		LocaleString();
 		LocaleString(Encoding encoding, const std::string& text);
-		LocaleString(const LocaleString& l);
-		~LocaleString();
 
 		void Serialize(ObjectOStream& ar) const;
 		void Deserialize(ObjectIStream& ar);
 
 		bool operator < (const LocaleString& other) const;
 		bool operator == (const LocaleString& other) const;
-		bool operator != (const LocaleString& other) const;
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(LocaleString);
 
 		std::string ToString() const;
 		static LocaleString FromUtf8(const std::string& str);
