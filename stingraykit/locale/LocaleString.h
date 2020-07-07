@@ -8,8 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <string>
-
 #include <stingraykit/locale/Encoding.h>
 #include <stingraykit/serialization/ISerializable.h>
 
@@ -44,15 +42,8 @@ namespace stingray
 		int Compare(const LocaleString &other) const;
 	};
 
-	template<typename T>
-	std::basic_ostream<T>& operator << (std::basic_ostream<T>& stream, const LocaleString& val)
-	{
-		return stream << val.ToString();
-	}
-
 	/** @} */
 
 }
 
-#endif	/* LOCALE_LOCALESTRING_H */
-
+#endif
