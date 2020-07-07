@@ -9,22 +9,22 @@
 
 #include <stingraykit/exception.h>
 
-
 namespace stingray
 {
 
 	static const u32 InvalidCharacter = ~0;
 
 
-	static u32 Unpack_ISO_8859_1(string_view::const_iterator &i, const string_view::const_iterator &end)
+	static u32 Unpack_ISO_8859_1(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		return c;
 	}
 
-	static u32 Unpack_ISO_8859_2(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_2(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0_100[] =
 		{
 			0x00a0, 0x0104, 0x02d8, 0x0141, 0x00a4, 0x013d, 0x015a, 0x00a7, 0x00a8, 0x0160, 0x015e, 0x0164, 0x0179, 0x00ad, 0x017d, 0x017b,
@@ -34,12 +34,13 @@ namespace stingray
 			0x0155, 0x00e1, 0x00e2, 0x0103, 0x00e4, 0x013a, 0x0107, 0x00e7, 0x010d, 0x00e9, 0x0119, 0x00eb, 0x011b, 0x00ed, 0x00ee, 0x010f,
 			0x0111, 0x0144, 0x0148, 0x00f3, 0x00f4, 0x0151, 0x00f6, 0x00f7, 0x0159, 0x016f, 0x00fa, 0x0171, 0x00fc, 0x00fd, 0x0163, 0x02d9,
 		};
-		return c < 0xa0? c: table_a0_100[c - 0xa0];
+		return c < 0xa0 ? c : table_a0_100[c - 0xa0];
 	}
 
-	static u32 Unpack_ISO_8859_3(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_3(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0x0126, 0x02d8, 0x00a3, 0x00a4, 0xffff, 0x0124, 0x00a7, 0x00a8, 0x0130, 0x015e, 0x011e, 0x0134, 0x00ad, 0xffff, 0x017b,
@@ -52,12 +53,13 @@ namespace stingray
 		if (c < 0xa0)
 			return c;
 		u16 r = table_a0[c - 0xa0];
-		return r != 0xffff? r: InvalidCharacter;
+		return r != 0xffff ? r : InvalidCharacter;
 	}
 
-	static u32 Unpack_ISO_8859_4(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_4(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0x0104, 0x0138, 0x0156, 0x00a4, 0x0128, 0x013b, 0x00a7, 0x00a8, 0x0160, 0x0112, 0x0122, 0x0166, 0x00ad, 0x017d, 0x00af,
@@ -67,12 +69,13 @@ namespace stingray
 			0x0101, 0x00e1, 0x00e2, 0x00e3, 0x00e4, 0x00e5, 0x00e6, 0x012f, 0x010d, 0x00e9, 0x0119, 0x00eb, 0x0117, 0x00ed, 0x00ee, 0x012b,
 			0x0111, 0x0146, 0x014d, 0x0137, 0x00f4, 0x00f5, 0x00f6, 0x00f7, 0x00f8, 0x0173, 0x00fa, 0x00fb, 0x00fc, 0x0169, 0x016b, 0x02d9,
 		};
-		return c < 0xa0? c: table_a0[c - 0xa0];
+		return c < 0xa0 ? c : table_a0[c - 0xa0];
 	}
 
-	static u32 Unpack_ISO_8859_5(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_5(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0x0401, 0x0402, 0x0403, 0x0404, 0x0405, 0x0406, 0x0407, 0x0408, 0x0409, 0x040a, 0x040b, 0x040c, 0x00ad, 0x040e, 0x040f,
@@ -82,12 +85,13 @@ namespace stingray
 			0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044a, 0x044b, 0x044c, 0x044d, 0x044e, 0x044f,
 			0x2116, 0x0451, 0x0452, 0x0453, 0x0454, 0x0455, 0x0456, 0x0457, 0x0458, 0x0459, 0x045a, 0x045b, 0x045c, 0x00a7, 0x045e, 0x045f,
 		};
-		return c < 0xa0? c: table_a0[c - 0xa0];
+		return c < 0xa0 ? c : table_a0[c - 0xa0];
 	}
 
-	static u32 Unpack_ISO_8859_6(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_6(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0xffff, 0xffff, 0xffff, 0x00a4, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0x060c, 0x00ad, 0xffff, 0xffff,
@@ -100,12 +104,13 @@ namespace stingray
 		if (c < 0xa0)
 			return c;
 		u16 r = table_a0[c - 0xa0];
-		return r != 0xffff? r: InvalidCharacter;
+		return r != 0xffff ? r : InvalidCharacter;
 	}
 
-	static u32 Unpack_ISO_8859_7(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_7(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0x2018, 0x2019, 0x00a3, 0x20ac, 0x20af, 0x00a6, 0x00a7, 0x00a8, 0x00a9, 0x037a, 0x00ab, 0x00ac, 0x00ad, 0xfffd, 0x2015,
@@ -118,12 +123,13 @@ namespace stingray
 		if (c < 0xa0)
 			return c;
 		u16 r = table_a0[c - 0xa0];
-		return r != 0xffff? r: InvalidCharacter;
+		return r != 0xffff ? r : InvalidCharacter;
 	}
 
-	static u32 Unpack_ISO_8859_8(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_8(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0xfffd, 0x00a2, 0x00a3, 0x00a4, 0x00a5, 0x00a6, 0x00a7, 0x00a8, 0x00a9, 0x00d7, 0x00ab, 0x00ac, 0x00ad, 0x00ae, 0x00af,
@@ -136,24 +142,26 @@ namespace stingray
 		if (c < 0xa0)
 			return c;
 		u16 r = table_a0[c - 0xa0];
-		return r != 0xffff? r: InvalidCharacter;
+		return r != 0xffff ? r : InvalidCharacter;
 	}
 
-	static u32 Unpack_ISO_8859_9(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_9(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_d0[] =
 		{
 			0x011e, 0x00d1, 0x00d2, 0x00d3, 0x00d4, 0x00d5, 0x00d6, 0x00d7, 0x00d8, 0x00d9, 0x00da, 0x00db, 0x00dc, 0x0130, 0x015e, 0x00df,
 			0x00e0, 0x00e1, 0x00e2, 0x00e3, 0x00e4, 0x00e5, 0x00e6, 0x00e7, 0x00e8, 0x00e9, 0x00ea, 0x00eb, 0x00ec, 0x00ed, 0x00ee, 0x00ef,
 			0x011f, 0x00f1, 0x00f2, 0x00f3, 0x00f4, 0x00f5, 0x00f6, 0x00f7, 0x00f8, 0x00f9, 0x00fa, 0x00fb, 0x00fc, 0x0131, 0x015f, 0x00ff,
 		};
-		return c < 0xd0? c: table_d0[c - 0xd0];
+		return c < 0xd0 ? c : table_d0[c - 0xd0];
 	}
 
-	static u32 Unpack_ISO_8859_10(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_10(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0x0104, 0x0112, 0x0122, 0x012a, 0x0128, 0x0136, 0x00a7, 0x013b, 0x0110, 0x0160, 0x0166, 0x017d, 0x00ad, 0x016a, 0x014a,
@@ -163,12 +171,13 @@ namespace stingray
 			0x0101, 0x00e1, 0x00e2, 0x00e3, 0x00e4, 0x00e5, 0x00e6, 0x012f, 0x010d, 0x00e9, 0x0119, 0x00eb, 0x0117, 0x00ed, 0x00ee, 0x00ef,
 			0x00f0, 0x0146, 0x014d, 0x00f3, 0x00f4, 0x00f5, 0x00f6, 0x0169, 0x00f8, 0x0173, 0x00fa, 0x00fb, 0x00fc, 0x00fd, 0x00fe, 0x0138,
 		};
-		return c < 0xa0? c: table_a0[c - 0xa0];
+		return c < 0xa0 ? c : table_a0[c - 0xa0];
 	}
 
-	static u32 Unpack_ISO_8859_11(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_11(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		if (c <= 0xa0)
 			return c;
 		if (c == 0xdb || c == 0xdc || c == 0xde)
@@ -176,9 +185,10 @@ namespace stingray
 		return 0x0d60 + c;
 	}
 
-	static u32 Unpack_ISO_8859_13(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_13(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0x201d, 0x00a2, 0x00a3, 0x00a4, 0x201e, 0x00a6, 0x00a7, 0x00d8, 0x00a9, 0x0156, 0x00ab, 0x00ac, 0x00ad, 0x00ae, 0x00c6,
@@ -188,12 +198,13 @@ namespace stingray
 			0x0105, 0x012f, 0x0101, 0x0107, 0x00e4, 0x00e5, 0x0119, 0x0113, 0x010d, 0x00e9, 0x017a, 0x0117, 0x0123, 0x0137, 0x012b, 0x013c,
 			0x0161, 0x0144, 0x0146, 0x00f3, 0x014d, 0x00f5, 0x00f6, 0x00f7, 0x0173, 0x0142, 0x015b, 0x016b, 0x00fc, 0x017c, 0x017e, 0x2019,
 		};
-		return c < 0xa0? c: table_a0[c - 0xa0];
+		return c < 0xa0 ? c : table_a0[c - 0xa0];
 	}
 
-	static u32 Unpack_ISO_8859_14(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_14(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0x1e02, 0x1e03, 0x00a3, 0x010a, 0x010b, 0x1e0a, 0x00a7, 0x1e80, 0x00a9, 0x1e82, 0x1e0b, 0x1ef2, 0x00ad, 0x00ae, 0x0178,
@@ -203,23 +214,25 @@ namespace stingray
 			0x00e0, 0x00e1, 0x00e2, 0x00e3, 0x00e4, 0x00e5, 0x00e6, 0x00e7, 0x00e8, 0x00e9, 0x00ea, 0x00eb, 0x00ec, 0x00ed, 0x00ee, 0x00ef,
 			0x0175, 0x00f1, 0x00f2, 0x00f3, 0x00f4, 0x00f5, 0x00f6, 0x1e6b, 0x00f8, 0x00f9, 0x00fa, 0x00fb, 0x00fc, 0x00fd, 0x0177, 0x00ff,
 		};
-		return c < 0xa0? c: table_a0[c - 0xa0];
+		return c < 0xa0 ? c : table_a0[c - 0xa0];
 	}
 
-	static u32 Unpack_ISO_8859_15(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_15(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0_c0[] =
 		{
 			0x00a0, 0x00a1, 0x00a2, 0x00a3, 0x20ac, 0x00a5, 0x0160, 0x00a7, 0x0161, 0x00a9, 0x00aa, 0x00ab, 0x00ac, 0x00ad, 0x00ae, 0x00af,
 			0x00b0, 0x00b1, 0x00b2, 0x00b3, 0x017d, 0x00b5, 0x00b6, 0x00b7, 0x017e, 0x00b9, 0x00ba, 0x00bb, 0x0152, 0x0153, 0x0178, 0x00bf,
 		};
-		return (c < 0xa0 || c >= 0xc0)? c: table_a0_c0[c - 0xa0];
+		return (c < 0xa0 || c >= 0xc0) ? c : table_a0_c0[c - 0xa0];
 	}
 
-	static u32 Unpack_ISO_8859_16(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_8859_16(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		static const u16 table_a0[] =
 		{
 			0x00a0, 0x0104, 0x0105, 0x0141, 0x20ac, 0x201e, 0x0160, 0x00a7, 0x0161, 0x00a9, 0x0218, 0x00ab, 0x0179, 0x00ad, 0x017a, 0x017b,
@@ -229,88 +242,92 @@ namespace stingray
 			0x00e0, 0x00e1, 0x00e2, 0x0103, 0x00e4, 0x0107, 0x00e6, 0x00e7, 0x00e8, 0x00e9, 0x00ea, 0x00eb, 0x00ec, 0x00ed, 0x00ee, 0x00ef,
 			0x0111, 0x0144, 0x00f2, 0x00f3, 0x00f4, 0x0151, 0x00f6, 0x015b, 0x0171, 0x00f9, 0x00fa, 0x00fb, 0x00fc, 0x0119, 0x021b, 0x00ff,
 		};
-		return c < 0xa0? c: table_a0[c - 0xa0];
+		return c < 0xa0 ? c : table_a0[c - 0xa0];
 	}
 
-	static u32 Unpack_ISO_10646_utf8(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_10646_utf8(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		unsigned char c0 = (unsigned char)*i++;
+		unsigned char c0 = (unsigned char)*it++;
 		if (c0 <= 0x7f)
 			return c0;
 
-		if (c0 == 0xc0 || c0 == 0xc1 || c0 >= 0xf5 || i == end)
+		if (c0 == 0xc0 || c0 == 0xc1 || c0 >= 0xf5 || it == end)
 			return InvalidCharacter;
 
-		unsigned char c1 = (unsigned char)*i++;
+		unsigned char c1 = (unsigned char)*it++;
 		if (c0 >= 0xc2 && c0 <= 0xdf)
 			return ((c0 & 0x1f) << 6) | (c1 & 0x3f);
 
-		if (i == end)
+		if (it == end)
 			return InvalidCharacter;
 
-		unsigned char c2 = (unsigned char)*i++;
+		unsigned char c2 = (unsigned char)*it++;
 		if (c0 >= 0xe0 && c0 <= 0xef)
 			return ((c0 & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
 
-		if (i == end)
+		if (it == end)
 			return InvalidCharacter;
 
-		unsigned char c3 = (unsigned char)*i++;
+		unsigned char c3 = (unsigned char)*it++;
 		if (c0 >= 0xf0 && c0 <= 0xf4)
 			return ((c0 & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
 
 		return InvalidCharacter;
 	}
 
-	static u32 Unpack_ISO_10646_utf16le(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_10646_utf16le(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		unsigned char c0 = (unsigned char)*i++;
-		if (i == end)
+		unsigned char c0 = (unsigned char)*it++;
+		if (it == end)
 			return InvalidCharacter;
 
-		unsigned char c1 = (unsigned char)*i++;
+		unsigned char c1 = (unsigned char)*it++;
 		if (c0 < 0xd8 || c0 > 0xdf)
 			return (c0 << 8) | c1;
 
-		if (c0 > 0xdb || i == end)
+		if (c0 > 0xdb || it == end)
 			return InvalidCharacter;
 
-		unsigned char c2 = (unsigned char)*i++;
-		if (i == end)
+		unsigned char c2 = (unsigned char)*it++;
+		if (it == end)
 			return InvalidCharacter;
 
-		unsigned char c3 = (unsigned char)*i++;
+		unsigned char c3 = (unsigned char)*it++;
 		if (c2 < 0xdc || c2 > 0xdf)
 			return InvalidCharacter;
 
 		return ((c0 & 0x03) << 18) | (c1 << 10) | ((c2 & 0x03) << 8) | c3;
 	}
 
-	static u32 Unpack_ISO_10646_utf16be(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_10646_utf16be(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		unsigned char c0 = (unsigned char)*i++;
-		if (i == end)
+		unsigned char c0 = (unsigned char)*it++;
+		if (it == end)
 			return InvalidCharacter;
 
-		unsigned char c1 = (unsigned char)*i++;
+		unsigned char c1 = (unsigned char)*it++;
 		if (c1 < 0xd8 || c1 > 0xdf)
 			return (c1 << 8) | c0;
 
-		if (c1 > 0xdb || i == end)
+		if (c1 > 0xdb || it == end)
 			return InvalidCharacter;
 
-		unsigned char c2 = (unsigned char)*i++;
-		if (i == end)
+		unsigned char c2 = (unsigned char)*it++;
+		if (it == end)
 			return InvalidCharacter;
 
-		unsigned char c3 = (unsigned char)*i++;
+		unsigned char c3 = (unsigned char)*it++;
 		if (c3 < 0xdc || c3 > 0xdf)
 			return InvalidCharacter;
 
 		return ((c1 & 0x03) << 18) | (c0 << 10) | ((c3 & 0x03) << 8) | c2;
 	}
 
-	void StringCodec::PackUtf8(std::string &dst, u32 ucs, u32 replacement)
+
+	void StringCodec::PackUtf8(std::string& dst, u32 ucs, u32 invalidCharReplacement)
 	{
 		if (ucs < 0x80)
 		{
@@ -335,25 +352,27 @@ namespace stingray
 			dst += (char)( (ucs & 0x00003f) | 0x80);
 		}
 		else
-			dst += replacement;
+			dst += invalidCharReplacement;
 	}
 
-	static u32 Unpack_ISO_10646(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ISO_10646(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
 		u32 ucs = 0;
-		for(unsigned n = 0; n < 4; ++n)
+		for (unsigned n = 0; n < 4; ++n)
 		{
-			if (i == end)
+			if (it == end)
 				return InvalidCharacter;
 			ucs <<= 8;
-			ucs |= (u8)*i++;
+			ucs |= (u8)*it++;
 		}
-		return ucs < 0x110000? ucs: InvalidCharacter;
+		return ucs < 0x110000 ? ucs : InvalidCharacter;
 	}
 
-	static u32 Unpack_CP1251(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_CP1251(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 
 		static const u16 table_80[] =
 		{
@@ -366,12 +385,13 @@ namespace stingray
 			0x0430, 0x0431, 0x0432, 0x0433, 0x0434, 0x0435, 0x0436, 0x0437, 0x0438, 0x0439, 0x043A, 0x043B, 0x043C, 0x043D, 0x043E, 0x043F,
 			0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F
 		};
-		return c < 0x80? c: (table_80[c - 0x80]);
+		return c < 0x80 ? c : table_80[c - 0x80];
 	}
 
-	StringCodec::UnpackFunc StringCodec::GetUnpackFunc(const Encoding &encoding)
+
+	StringCodec::UnpackFunc StringCodec::GetUnpackFunc(Encoding encoding)
 	{
-		switch(encoding)
+		switch (encoding)
 		{
 		case Encoding::CP1251:		return &Unpack_CP1251;
 		case Encoding::ISO_8859_1:	return &Unpack_ISO_8859_1;
@@ -397,7 +417,8 @@ namespace stingray
 		}
 	}
 
-	std::string StringCodec::ToUtf8(const LocaleString &src, u32 replacement)
+
+	std::string StringCodec::ToUtf8(const LocaleString& src, u32 invalidCharReplacement)
 	{
 		if (src.TextEncoding == Encoding::ISO_10646_utf8)
 			return src.Text;
@@ -410,24 +431,24 @@ namespace stingray
 		r.reserve(src.Text.size() * 2);
 
 		const string_view src_text = src.Text;
-		for(string_view::const_iterator i = src_text.begin(), end = src_text.end(); i != end; )
+		for (string_view::const_iterator i = src_text.begin(), end = src_text.end(); i != end; )
 		{
 			u32 ucs = unpack(i, end);
 			if (ucs == InvalidCharacter)
-				ucs = replacement;
-			PackUtf8(r, ucs, replacement);
+				ucs = invalidCharReplacement;
+			PackUtf8(r, ucs, invalidCharReplacement);
 		}
 		r.reserve(r.size()); //«In all other cases, it is taken as a non-binding request to shrink the string capacity»
 
 		return r;
 	}
 
-	LocaleString StringCodec::FromUtf8(const std::string &str)
-	{
-		return LocaleString(Encoding::ISO_10646_utf8, str);
-	}
 
-	int StringCodec::Compare(const LocaleString &a, const LocaleString &b)
+	LocaleString StringCodec::FromUtf8(const std::string& str)
+	{ return LocaleString(Encoding::ISO_10646_utf8, str); }
+
+
+	int StringCodec::Compare(const LocaleString& a, const LocaleString& b)
 	{
 		//please do not "optimize" it comparing encodings, this is invalid,
 		//as it different symbols are differently ordered between unicode and iso
@@ -447,18 +468,21 @@ namespace stingray
 			if (ucs_a != ucs_b)
 				return ucs_a - ucs_b;
 		}
-		return (i_a != end_a? 1: 0) + (i_b != end_b? -1: 0);
+
+		return (i_a != end_a ? 1 : 0) + (i_b != end_b ? -1 : 0);
 	}
 
-	static void Pack_ASCII(std::string &str, u32 unicode, char invalid_char_replacement)
+
+	static void Pack_ASCII(std::string& str, u32 unicode, char invalidCharReplacement)
 	{
 		if (unicode < 0x80)
 			str += (char)unicode;
 		else
-			str += invalid_char_replacement;
+			str += invalidCharReplacement;
 	}
 
-	static void Pack_CP866(std::string &str, u32 unicode, char invalid_char_replacement)
+
+	static void Pack_CP866(std::string& str, u32 unicode, char invalidCharReplacement)
 	{
 		if (unicode < 0x80)
 			str += (char)unicode;
@@ -468,7 +492,7 @@ namespace stingray
 			str += (char)(unicode - 0x440 + 0xe0);
 		else
 		{
-			switch(unicode)
+			switch (unicode)
 			{
 			case 0x0401: str += (char)0xf0; break;
 			case 0x0451: str += (char)0xf1; break;
@@ -488,29 +512,32 @@ namespace stingray
 			case 0x25a0: str += (char)0xfe; break;
 			case 0x00a0: str += (char)0xff; break;
 
-			default: str += invalid_char_replacement;
+			default: str += invalidCharReplacement;
 			}
 		}
 	}
 
-	StringCodec::PackFunc StringCodec::GetCodePagePackFunc(unsigned code_page)
+
+	StringCodec::PackFunc StringCodec::GetCodePagePackFunc(unsigned codePage)
 	{
-		switch(code_page)
+		switch (codePage)
 		{
 		case 866:	return &Pack_CP866;
 		default:	return &Pack_ASCII;
 		}
 	}
 
-	static u32 Unpack_ASCII(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_ASCII(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
-		return c < 0x80? c: InvalidCharacter;
+		u8 c = (u8)*it++;
+		return c < 0x80 ? c : InvalidCharacter;
 	}
 
-	static u32 Unpack_CP866(string_view::const_iterator &i, const string_view::const_iterator &end)
+
+	static u32 Unpack_CP866(string_view::const_iterator& it, const string_view::const_iterator& end)
 	{
-		u8 c = (u8)*i++;
+		u8 c = (u8)*it++;
 		if (c < 0x80)
 			return c;
 		else if (c >= 0x80 && c < 0xb0)
@@ -532,9 +559,10 @@ namespace stingray
 			return InvalidCharacter;
 	}
 
-	StringCodec::UnpackFunc StringCodec::GetCodePageUnpackFunc(unsigned code_page)
+
+	StringCodec::UnpackFunc StringCodec::GetCodePageUnpackFunc(unsigned codePage)
 	{
-		switch(code_page)
+		switch (codePage)
 		{
 		case 866:	return &Unpack_CP866;
 		case 1251:	return &Unpack_CP1251;
@@ -542,32 +570,34 @@ namespace stingray
 		}
 	}
 
-	LocaleString StringCodec::FromCodePage(const std::string &src, unsigned code_page, u32 invalid_char_replacement)
+
+	LocaleString StringCodec::FromCodePage(const std::string& src, unsigned codePage, u32 invalidCharReplacement)
 	{
-		UnpackFunc unpack = GetCodePageUnpackFunc(code_page);
+		UnpackFunc unpack = GetCodePageUnpackFunc(codePage);
 
 		LocaleString r;
 		r.TextEncoding = Encoding::ISO_10646_utf8;
 
 		string_view src_view = src;
-		for(string_view::const_iterator i = src_view.begin(), end = src_view.end(); i != end; )
+		for (string_view::const_iterator i = src_view.begin(), end = src_view.end(); i != end; )
 		{
 			u32 ucs = unpack(i, end);
 			if (ucs == InvalidCharacter)
-				ucs = invalid_char_replacement;
-			PackUtf8(r.Text, ucs, invalid_char_replacement);
+				ucs = invalidCharReplacement;
+			PackUtf8(r.Text, ucs, invalidCharReplacement);
 		}
 
 		return r;
 	}
 
-	std::string StringCodec::ToCodePage(const LocaleString &src, unsigned code_page)
+
+	std::string StringCodec::ToCodePage(const LocaleString& src, unsigned codePage)
 	{
 		UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
 		if (!unpack)
 			STINGRAYKIT_THROW("invalid src encoding" + src.TextEncoding.ToString());
 
-		PackFunc pack = GetCodePagePackFunc(code_page); //always valid
+		PackFunc pack = GetCodePagePackFunc(codePage); //always valid
 		string_view src_text = src.Text;
 		string_view::const_iterator i = src_text.begin();
 		string_view::const_iterator e = src_text.end();
