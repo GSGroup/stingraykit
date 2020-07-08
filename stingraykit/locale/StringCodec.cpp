@@ -299,7 +299,7 @@ namespace stingray
 		}
 
 
-		u32 Unpack_ISO_10646_utf16le(string_view::const_iterator& it, const string_view::const_iterator& end)
+		u32 Unpack_ISO_10646_utf16be(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			unsigned char c0 = (unsigned char)*it++;
 			if (it == end)
@@ -324,7 +324,7 @@ namespace stingray
 		}
 
 
-		u32 Unpack_ISO_10646_utf16be(string_view::const_iterator& it, const string_view::const_iterator& end)
+		u32 Unpack_ISO_10646_utf16le(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			unsigned char c0 = (unsigned char)*it++;
 			if (it == end)
@@ -521,8 +521,8 @@ namespace stingray
 		case Encoding::ISO_8859_16:	return &Unpack_ISO_8859_16;
 		case Encoding::ISO_10646:	return &Unpack_ISO_10646;
 		case Encoding::ISO_10646_utf8: return &Unpack_ISO_10646_utf8;
-		case Encoding::ISO_10646_utf16LE: return &Unpack_ISO_10646_utf16le;
 		case Encoding::ISO_10646_utf16BE: return &Unpack_ISO_10646_utf16be;
+		case Encoding::ISO_10646_utf16LE: return &Unpack_ISO_10646_utf16le;
 		default:					return NULL;
 		}
 	}

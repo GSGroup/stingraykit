@@ -43,8 +43,8 @@ namespace stingray
 			GB_2312_1980,
 			ISO_10646_big5,
 			ISO_10646_utf8,
-			ISO_10646_utf16LE,
 			ISO_10646_utf16BE,
+			ISO_10646_utf16LE,
 			CP1251
 		);
 
@@ -73,8 +73,8 @@ namespace stingray
 			case GB_2312_1980:		return "GB-2312-1980"; //another chinese standard
 			case ISO_10646_big5:	return "ISO-10646-big5"; //fixme: find out what is it: big5? big5 was not really supported by anyone
 			case ISO_10646_utf8:	return "UTF-8";
-			case ISO_10646_utf16LE:	return "UTF-16LE";
 			case ISO_10646_utf16BE:	return "UTF-16BE";
+			case ISO_10646_utf16LE:	return "UTF-16LE";
 			case CP1251:			return "CP1251";
 			default:				return "Unknown";
 			}
