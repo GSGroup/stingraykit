@@ -7,6 +7,7 @@
 
 #include <stingraykit/locale/StringCodec.h>
 
+#include <stingraykit/collection/iterators.h>
 #include <stingraykit/string/ToString.h>
 
 namespace stingray
@@ -460,14 +461,15 @@ namespace stingray
 		if (src.TextEncoding == Encoding::ISO_10646_utf8)
 			return src.Text;
 
-		const UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
+		size_t bomSize = 0;
+		const UnpackFunc unpack = GetUnpackFunc(src, bomSize);
 		STINGRAYKIT_CHECK(unpack, StringBuilder() % "Not supported conversion from " % src.TextEncoding);
 
 		std::string r;
 		r.reserve(src.Text.size() * 2);
 
 		const string_view srcText = src.Text;
-		for (string_view::const_iterator it = srcText.begin(), end = srcText.end(); it != end; )
+		for (string_view::const_iterator it = next_iterator(srcText.begin(), bomSize), end = srcText.end(); it != end; )
 		{
 			u32 ucs = unpack(it, end);
 			if (ucs == InvalidCharacter)
@@ -488,16 +490,18 @@ namespace stingray
 	{
 		//please do not "optimize" it comparing encodings, this is invalid,
 		//as it different symbols are differently ordered between unicode and iso
-		const UnpackFunc unpackA = GetUnpackFunc(a.TextEncoding);
+		size_t bomSizeA = 0;
+		const UnpackFunc unpackA = GetUnpackFunc(a, bomSizeA);
 		STINGRAYKIT_CHECK(unpackA, StringBuilder() % "Not supported conversion from " % a.TextEncoding);
-		const UnpackFunc unpackB = GetUnpackFunc(b.TextEncoding);
+		size_t bomSizeB = 0;
+		const UnpackFunc unpackB = GetUnpackFunc(b, bomSizeB);
 		STINGRAYKIT_CHECK(unpackB, StringBuilder() % "Not supported conversion from " % b.TextEncoding);
 
 		const string_view strA = a.Text;
 		const string_view strB = b.Text;
 
-		string_view::const_iterator itA = strA.begin();
-		string_view::const_iterator itB = strB.begin();
+		string_view::const_iterator itA = next_iterator(strA.begin(), bomSizeA);
+		string_view::const_iterator itB = next_iterator(strB.begin(), bomSizeB);
 		string_view::const_iterator endA = strA.end();
 		string_view::const_iterator endB = strB.end();
 		while (itA != endA && itB != endB)
@@ -643,13 +647,14 @@ namespace stingray
 
 	std::string StringCodec::ToCodePage(const LocaleString& src, unsigned codePage)
 	{
-		const UnpackFunc unpack = GetUnpackFunc(src.TextEncoding);
+		size_t bomSize = 0;
+		const UnpackFunc unpack = GetUnpackFunc(src, bomSize);
 		STINGRAYKIT_CHECK(unpack, StringBuilder() % "Not supported conversion from " % src.TextEncoding);
 
 		const PackFunc pack = GetCodePagePackFunc(codePage); //always valid
 
 		string_view srcText = src.Text;
-		string_view::const_iterator it = srcText.begin();
+		string_view::const_iterator it = next_iterator(srcText.begin(), bomSize);
 		string_view::const_iterator end = srcText.end();
 		std::string result;
 		while (it != end)
