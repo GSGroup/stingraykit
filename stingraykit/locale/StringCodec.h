@@ -30,7 +30,9 @@ namespace stingray
 
 		///example for(it = str.begin(); it != str.end(); ) { u32 ucs_char = (*unpack)(it, str.end()); }
 		///\return pointer to unpack function, null for unsupported encoding.
+		static UnpackFunc GetUnpackFunc(const LocaleString& str, size_t& bomSize);
 		static UnpackFunc GetUnpackFunc(Encoding encoding);
+
 		static void PackUtf8(std::string& dst, u32 ucs, u32 invalidCharReplacement);
 
 		static PackFunc GetCodePagePackFunc(unsigned codePage);

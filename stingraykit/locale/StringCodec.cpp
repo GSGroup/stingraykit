@@ -512,6 +512,54 @@ namespace stingray
 	}
 
 
+	StringCodec::UnpackFunc StringCodec::GetUnpackFunc(const LocaleString& str, size_t& bomSize)
+	{
+		if (str.TextEncoding == Encoding::ISO_10646)
+		{
+			const string_view srcText = str.Text;
+
+			if (srcText.size() >= 4)
+			{
+				const u32 bom = ((u8)srcText[0] << 24) | ((u8)srcText[1] << 16) | ((u8)srcText[2] << 8) | (u8)srcText[3];
+				if (bom == 0x0000feff)
+				{
+					bomSize = 4;
+					return &Unpack_ISO_10646_utf32be;
+				}
+				else if (bom == 0xfffe0000)
+				{
+					bomSize = 4;
+					return &Unpack_ISO_10646_utf32le;
+				}
+			}
+
+			if (srcText.size() >= 3 && (u8)srcText[0] == 0xef && (u8)srcText[1] == 0xbb && (u8)srcText[2] == 0xbf)
+			{
+				bomSize = 3;
+				return &Unpack_ISO_10646_utf8;
+			}
+
+			if (srcText.size() >= 2)
+			{
+				const u16 bom = ((u8)srcText[0] << 8) | (u8)srcText[1];
+				if (bom == 0xfeff)
+				{
+					bomSize = 2;
+					return &Unpack_ISO_10646_utf16be;
+				}
+				else if (bom == 0xfffe)
+				{
+					bomSize = 2;
+					return &Unpack_ISO_10646_utf16le;
+				}
+			}
+		}
+
+		bomSize = 0;
+		return GetUnpackFunc(str.TextEncoding);
+	}
+
+
 	StringCodec::UnpackFunc StringCodec::GetUnpackFunc(Encoding encoding)
 	{
 		switch (encoding)
