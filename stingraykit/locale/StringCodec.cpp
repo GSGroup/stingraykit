@@ -584,7 +584,7 @@ namespace stingray
 		case Encoding::ISO_8859_14:	return &Unpack_ISO_8859_14;
 		case Encoding::ISO_8859_15:	return &Unpack_ISO_8859_15;
 		case Encoding::ISO_8859_16:	return &Unpack_ISO_8859_16;
-		case Encoding::ISO_10646:	return &Unpack_ISO_10646_utf32be;
+		case Encoding::ISO_10646:	return &Unpack_ISO_10646_utf16be; // previously Unpack_ISO_10646_utf32be was returned here, sorry, doesn't know what's right
 		case Encoding::ISO_10646_utf8: return &Unpack_ISO_10646_utf8;
 		case Encoding::ISO_10646_utf16BE: return &Unpack_ISO_10646_utf16be;
 		case Encoding::ISO_10646_utf16LE: return &Unpack_ISO_10646_utf16le;
