@@ -349,7 +349,7 @@ namespace stingray
 		}
 
 
-		u32 Unpack_ISO_10646(string_view::const_iterator& it, const string_view::const_iterator& end)
+		u32 Unpack_ISO_10646_utf32be(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u32 ucs = 0;
 			for (unsigned n = 0; n < 4; ++n)
@@ -358,6 +358,19 @@ namespace stingray
 					return InvalidCharacter;
 				ucs <<= 8;
 				ucs |= (u8)*it++;
+			}
+			return ucs < 0x110000 ? ucs : InvalidCharacter;
+		}
+
+
+		u32 Unpack_ISO_10646_utf32le(string_view::const_iterator& it, const string_view::const_iterator& end)
+		{
+			u32 ucs = 0;
+			for (unsigned n = 0; n < 4; ++n)
+			{
+				if (it == end)
+					return InvalidCharacter;
+				ucs |= ((u32)*it++ << (n * 8));
 			}
 			return ucs < 0x110000 ? ucs : InvalidCharacter;
 		}
@@ -519,10 +532,12 @@ namespace stingray
 		case Encoding::ISO_8859_14:	return &Unpack_ISO_8859_14;
 		case Encoding::ISO_8859_15:	return &Unpack_ISO_8859_15;
 		case Encoding::ISO_8859_16:	return &Unpack_ISO_8859_16;
-		case Encoding::ISO_10646:	return &Unpack_ISO_10646;
+		case Encoding::ISO_10646:	return &Unpack_ISO_10646_utf32be;
 		case Encoding::ISO_10646_utf8: return &Unpack_ISO_10646_utf8;
 		case Encoding::ISO_10646_utf16BE: return &Unpack_ISO_10646_utf16be;
 		case Encoding::ISO_10646_utf16LE: return &Unpack_ISO_10646_utf16le;
+		case Encoding::ISO_10646_utf32BE: return &Unpack_ISO_10646_utf32be;
+		case Encoding::ISO_10646_utf32LE: return &Unpack_ISO_10646_utf32le;
 		default:					return NULL;
 		}
 	}
