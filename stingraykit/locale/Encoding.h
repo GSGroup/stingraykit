@@ -45,6 +45,8 @@ namespace stingray
 			ISO_10646_utf8,
 			ISO_10646_utf16BE,
 			ISO_10646_utf16LE,
+			ISO_10646_utf32BE,
+			ISO_10646_utf32LE,
 			CP1251
 		);
 
@@ -75,6 +77,8 @@ namespace stingray
 			case ISO_10646_utf8:	return "UTF-8";
 			case ISO_10646_utf16BE:	return "UTF-16BE";
 			case ISO_10646_utf16LE:	return "UTF-16LE";
+			case ISO_10646_utf32BE:	return "UTF-32BE";
+			case ISO_10646_utf32LE:	return "UTF-32LE";
 			case CP1251:			return "CP1251";
 			default:				return "Unknown";
 			}
