@@ -370,7 +370,7 @@ namespace stingray
 			{
 				if (it == end)
 					return InvalidCharacter;
-				ucs |= ((u32)*it++ << (n * 8));
+				ucs |= ((u8)*it++ << (n * 8));
 			}
 			return ucs < 0x110000 ? ucs : InvalidCharacter;
 		}
