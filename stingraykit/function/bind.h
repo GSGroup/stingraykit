@@ -106,9 +106,6 @@ namespace stingray
 			static const int Counter = GetTypeListLength<typename TypeListCopyIf<SrcAllParameters, Not<IsPlaceholder>::template ValueT>::ValueT>::Value;
 		};
 
-		template < typename AllParameters >
-		struct GetBinderParameters : public TypeListCopyIf<AllParameters, IsPlaceholder> { };
-
 		template < typename OriginalParamType, typename BinderParams >
 		struct GetParamType
 		{ typedef typename GetParamPassingType<OriginalParamType>::ValueT ValueT; };
@@ -256,7 +253,7 @@ namespace stingray
 
 
 #define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
-	static inline Detail::BindPlaceholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_))()	{ return Detail::BindPlaceholder<Index_>(); }
+	inline Detail::BindPlaceholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_))()	{ return Detail::BindPlaceholder<Index_>(); }
 
 	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~);
 
