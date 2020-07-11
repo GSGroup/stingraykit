@@ -10,7 +10,6 @@
 
 #include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/function/function_name_getter.h>
-#include <stingraykit/metaprogramming/ParamPassingType.h>
 #include <stingraykit/PerfectForwarding.h>
 
 namespace stingray
@@ -108,11 +107,11 @@ namespace stingray
 
 		template < typename OriginalParamType, typename BinderParams >
 		struct GetParamType
-		{ typedef typename GetParamPassingType<OriginalParamType>::ValueT ValueT; };
+		{ typedef const OriginalParamType& ValueT; };
 
 		template < size_t Index, typename BinderParams >
 		struct GetParamType<BindPlaceholder<Index>(*)(), BinderParams>
-		{ typedef typename GetParamPassingType<typename GetTypeListItem<BinderParams, Index>::ValueT>::ValueT	ValueT; };
+		{ typedef typename GetTypeListItem<BinderParams, Index>::ValueT	ValueT; };
 
 
 		template
@@ -160,7 +159,7 @@ namespace stingray
 			NonPlaceholdersCutter(const Tuple<AllParameters>& allParams) : _allParams(allParams) { }
 
 			template < size_t Index >
-			typename GetParamPassingType<typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT Get() const
+			const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const
 			{ return _allParams.template Get<IndexOfTypeListItem<BoundParamNumbers, IntToType<Index> >::Value>(); }
 		};
 
