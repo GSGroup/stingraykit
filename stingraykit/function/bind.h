@@ -170,22 +170,23 @@ namespace stingray
 		template < size_t N >
 		struct IsNotChomped<Chomper<N> > : FalseType { };
 
-		template < typename AllParameters, typename FunctorType >
+		template < typename FunctorType, typename AllParameters >
 		class Binder
 		{
+			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
+
 		public:
 			typedef typename function_info<FunctorType>::RetType															RetType;
 			typedef typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT	ParamTypes;
 
 		private:
-			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
-
 			template < typename BinderParams >
 			class RealParameters
 			{
-				typedef typename TypeListCopyIf<AllParameters, IsNotChomped>::ValueT RealRealParameters;
 			public:
-				static const size_t Size = GetTypeListLength<RealRealParameters>::Value;
+				typedef typename TypeListCopyIf<AllParameters, IsNotChomped>::ValueT TypeList;
+
+				static const size_t Size = GetTypeListLength<TypeList>::Value;
 
 			private:
 				const Tuple<BoundParams>&		_boundParams;
@@ -197,7 +198,7 @@ namespace stingray
 				{ }
 
 				template < size_t Index >
-				typename GetParamType<typename GetTypeListItem<RealRealParameters, Index>::ValueT, BinderParams>::ValueT Get() const
+				typename GetParamType<typename GetTypeListItem<TypeList, Index>::ValueT, BinderParams>::ValueT Get() const
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, _binderParams); }
 			};
 
@@ -229,12 +230,12 @@ namespace stingray
 #define TY typename
 #define DETAIL_STINGRAYKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
 	template < typename FunctorType, TemplateBindParams_ > \
-	Detail::Binder<typename TypeList<BindParamTypes_>::type, FunctorType> \
+	Detail::Binder<FunctorType, typename TypeList<BindParamTypes_>::type> \
 		Bind(const FunctorType& func, BindParamsDecl_) \
 	{ \
-		typedef typename TypeList<BindParamTypes_>::type		AllParams; \
-		Tuple<AllParams> all_params(BindParamsUsage_); \
-		return Detail::Binder<AllParams, FunctorType>(func, all_params); \
+		typedef typename TypeList<BindParamTypes_>::type		AllParameters; \
+		Tuple<AllParameters> allParams(BindParamsUsage_); \
+		return Detail::Binder<FunctorType, AllParameters>(func, allParams); \
 	}
 
 	DETAIL_STINGRAYKIT_DECLARE_BIND(MK_PARAM(TY T1), MK_PARAM(T1), MK_PARAM(T1 p1), MK_PARAM(p1))
