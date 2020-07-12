@@ -22,7 +22,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename FunctorType, typename AllParameters >
+		template < typename FunctorType, typename... Ts >
 		class Binder;
 
 		template < size_t N > struct Placeholder
@@ -32,8 +32,8 @@ namespace stingray
 		{ static const size_t Index = N; };
 
 		template < typename T > struct IsBinderImpl								: FalseType { };
-		template < typename FunctorType, typename AllParameters >
-		struct IsBinderImpl<Binder<FunctorType, AllParameters> >				: TrueType { };
+		template < typename FunctorType, typename... Ts >
+		struct IsBinderImpl<Binder<FunctorType, Ts...> >						: TrueType { };
 
 		template < typename T > struct IsBinder									: IsBinderImpl<typename Decay<T>::ValueT> { };
 
@@ -126,9 +126,9 @@ namespace stingray
 		struct GetParamType
 		{ typedef const OriginalParamType& ValueT; };
 
-		template < typename FunctorType, typename AllParameters, typename BinderParams >
-		struct GetParamType<Binder<FunctorType, AllParameters>, BinderParams>
-		{ typedef typename Binder<FunctorType, AllParameters>::RetType ValueT; };
+		template < typename FunctorType, typename... Ts, typename BinderParams >
+		struct GetParamType<Binder<FunctorType, Ts...>, BinderParams>
+		{ typedef typename Binder<FunctorType, Ts...>::RetType ValueT; };
 
 		template < size_t Index, typename BinderParams >
 		struct GetParamType<Placeholder<Index>, BinderParams>
@@ -176,28 +176,34 @@ namespace stingray
 		};
 
 
-		template < typename AllParameters >
+		template < typename... Ts >
 		class NonPlaceholdersCutter
 		{
 		public:
-			typedef typename BoundParamTypesGetter<AllParameters>::ValueT		TypeList;
+			typedef typename TypeList<Ts&&...>::type						AllParameters;
+			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	TypeList;
 			typedef typename BoundParamNumbersGetter<AllParameters>::ValueT	BoundParamNumbers;
 
 		private:
-			const Tuple<AllParameters>&		_allParams;
+			Tuple<AllParameters>		_allParams;
 
 		public:
-			NonPlaceholdersCutter(const Tuple<AllParameters>& allParams) : _allParams(allParams) { }
+			NonPlaceholdersCutter(Ts&&... args) : _allParams(std::forward<Ts>(args)...) { }
 
 			template < size_t Index >
-			const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const
+			const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const &
 			{ return _allParams.template Get<IndexOfTypeListItem<BoundParamNumbers, IntToType<Index> >::Value>(); }
+
+			template < size_t Index >
+			typename EnableIf<IsNonConstRvalueReference<typename GetTypeListItem<TypeList, Index>::ValueT>::Value, typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT Get() &&
+			{ return std::move(_allParams).template Get<IndexOfTypeListItem<BoundParamNumbers, IntToType<Index> >::Value>(); }
 		};
 
-		template < typename FunctorType, typename AllParameters >
+		template < typename FunctorType, typename... Ts >
 		class Binder
 		{
 			typedef typename Decay<FunctorType>::ValueT						RawFunctorType;
+			typedef typename TypeList<typename Decay<Ts>::ValueT...>::type	AllParameters;
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
 		public:
@@ -232,8 +238,8 @@ namespace stingray
 			Tuple<BoundParams>			_boundParams;
 
 		public:
-			Binder(FunctorType&& func, const Tuple<AllParameters>& allParams)
-				: _func(std::forward<FunctorType>(func)), _boundParams(TupleConstructorTag(), NonPlaceholdersCutter<AllParameters>(allParams))
+			Binder(FunctorType&& func, Ts&&... args)
+				: _func(std::forward<FunctorType>(func)), _boundParams(TupleConstructorTag(), NonPlaceholdersCutter<Ts...>(std::forward<Ts>(args)...))
 			{ }
 
 			template < typename... Us >
@@ -254,13 +260,8 @@ namespace stingray
 
 
 	template < typename FunctorType, typename... Ts >
-	Detail::Binder<FunctorType, typename TypeList<Ts...>::type> Bind(FunctorType&& func, Ts... args)
-	{
-		typedef typename TypeList<Ts...>::type AllParameters;
-		Tuple<AllParameters> allParams(args...);
-		return Detail::Binder<FunctorType, AllParameters>(std::forward<FunctorType>(func), allParams);
-	}
-
+	Detail::Binder<FunctorType, Ts...> Bind(FunctorType&& func, Ts&&... args)
+	{ return Detail::Binder<FunctorType, Ts...>(std::forward<FunctorType>(func), std::forward<Ts>(args)...); }
 
 #define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
 	extern const Detail::Placeholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_));
