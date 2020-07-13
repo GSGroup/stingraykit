@@ -506,10 +506,10 @@ namespace stingray
 		string_view::const_iterator endB = strB.end();
 		while (itA != endA && itB != endB)
 		{
-			const int ucsA = unpackA(itA, endB);
+			const int ucsA = unpackA(itA, endA);
 			const int ucsB = unpackB(itB, endB);
 			if (ucsA != ucsB)
-				return ucsA - ucsA;
+				return ucsA - ucsB;
 		}
 
 		return (itA != endA ? 1 : 0) + (itB != endB ? -1 : 0);
