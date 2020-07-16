@@ -33,7 +33,12 @@ namespace stingray
 
 	private:
 		void ThreadFunc(const ICancellationToken& token)
-		{ ReactiveDataSource(_source).Read(*_buffer, token); }
+		{
+			try
+			{ ReactiveDataSource(_source).Read(*_buffer, token); }
+			catch (const std::exception& ex)
+			{ _buffer->SetException(ex, token); }
+		}
 	};
 	STINGRAYKIT_DECLARE_PTR(IntermediateDataBuffer);
 
