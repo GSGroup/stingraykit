@@ -69,6 +69,7 @@ namespace stingray
 	protected:
 		BithreadCircularBuffer	_buffer;
 		bool					_eod;
+		ExceptionPtr			_exception;
 
 		Mutex					_bufferMutex;
 		ConditionVariable		_bufferEmpty;
@@ -117,6 +118,7 @@ namespace stingray
 
 			_buffer.Clear();
 			_eod = false;
+			_exception.reset();
 
 			_bufferFull.Broadcast();
 		}
@@ -134,6 +136,7 @@ namespace stingray
 			WriteLock wl(*this);
 
 			STINGRAYKIT_CHECK(!_eod, InvalidOperationException("Already got EOD!"));
+			STINGRAYKIT_CHECK(!_exception, InvalidOperationException("Already got exception!"));
 
 			BithreadCircularBuffer::Writer w = _buffer.Write();
 			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
@@ -164,7 +167,20 @@ namespace stingray
 		virtual void EndOfData(const ICancellationToken&)
 		{
 			MutexLock l(_bufferMutex);
+
+			STINGRAYKIT_CHECK(!_exception, InvalidOperationException("Already got exception!"));
+
 			_eod = true;
+			_bufferEmpty.Broadcast();
+		}
+
+		void SetException(const std::exception& ex, const ICancellationToken& token)
+		{
+			MutexLock l(_bufferMutex);
+
+			STINGRAYKIT_CHECK(!_eod, InvalidOperationException("Already got EOD!"));
+
+			_exception = MakeExceptionPtr(ex);
 			_bufferEmpty.Broadcast();
 		}
 

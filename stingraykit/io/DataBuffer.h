@@ -63,7 +63,9 @@ namespace stingray
 			size_t packetized_size = r.size() / _outputPacketSize * _outputPacketSize;
 			if (packetized_size == 0)
 			{
-				if (_eod)
+				if (_exception)
+					RethrowException(_exception);
+				else if (_eod)
 				{
 					if (r.size() != 0)
 						s_logger.Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
@@ -103,6 +105,9 @@ namespace stingray
 
 		virtual size_t GetStorageSize() const
 		{ return BufferedDataConsumerBase::GetStorageSize(); }
+
+		virtual void SetException(const std::exception& ex, const ICancellationToken& token)
+		{ BufferedDataConsumerBase::SetException(ex, token); }
 
 		virtual void Clear()
 		{ BufferedDataConsumerBase::Clear(); }
