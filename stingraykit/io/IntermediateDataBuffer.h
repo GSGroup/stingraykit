@@ -29,14 +29,11 @@ namespace stingray
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ return _mediator->Read(consumer, token); }
+		{ _mediator->Read(consumer, token); }
 
 	private:
 		void ThreadFunc(const ICancellationToken& token)
-		{
-			while (token)
-				_source->Read(*_mediator, token);
-		}
+		{ ReactiveDataSource(_source).Read(*_mediator, token); }
 	};
 	STINGRAYKIT_DECLARE_PTR(IntermediateDataBuffer);
 
