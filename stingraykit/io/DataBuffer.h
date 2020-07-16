@@ -8,33 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/io/BufferedDataConsumerBase.h>
 
 namespace stingray
 {
 
-	struct DataBufferBase : public virtual IDataBuffer, public BufferedDataConsumerBase
-	{
-		DataBufferBase(bool discardOnOverflow, size_t size, size_t inputPacketSize, size_t requiredFreeSpace)
-			: BufferedDataConsumerBase(discardOnOverflow, size, inputPacketSize, requiredFreeSpace)
-		{ }
-
-		DataBufferBase(bool discardOnOverflow, const BytesOwner& storage, size_t inputPacketSize, size_t requiredFreeSpace)
-			: BufferedDataConsumerBase(discardOnOverflow, storage, inputPacketSize, requiredFreeSpace)
-		{ }
-
-		virtual size_t GetDataSize() const                            { return BufferedDataConsumerBase::GetDataSize(); }
-		virtual size_t GetFreeSize() const                            { return BufferedDataConsumerBase::GetFreeSize(); }
-		virtual size_t GetStorageSize() const                         { return BufferedDataConsumerBase::GetStorageSize(); }
-
-		virtual void Clear()                                          { BufferedDataConsumerBase::Clear(); }
-
-		virtual signal_connector<void(size_t)> OnOverflow() const     { return BufferedDataConsumerBase::OnOverflow(); }
-	};
-
-
-	class DataBuffer : public DataBufferBase
+	class DataBuffer : public virtual IDataBuffer, public BufferedDataConsumerBase
 	{
 	public:
 		struct Parameters
@@ -59,14 +38,16 @@ namespace stingray
 
 	public:
 		DataBuffer(bool discardOnOverflow, size_t size, Parameters parameters = Parameters())
-			: DataBufferBase(discardOnOverflow, size, parameters.InputPacketSize, parameters.RequiredFreeSpace), _outputPacketSize(parameters.OutputPacketSize)
+			:	BufferedDataConsumerBase(discardOnOverflow, size, parameters.InputPacketSize, parameters.RequiredFreeSpace),
+				_outputPacketSize(parameters.OutputPacketSize)
 		{
 			STINGRAYKIT_CHECK(parameters.OutputPacketSize != 0, ArgumentException("parameters.OutputPacketSize", parameters.OutputPacketSize));
 			STINGRAYKIT_CHECK(size % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
 		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, Parameters parameters = Parameters())
-			: DataBufferBase(discardOnOverflow, storage, parameters.InputPacketSize, parameters.RequiredFreeSpace), _outputPacketSize(parameters.OutputPacketSize)
+			:	BufferedDataConsumerBase(discardOnOverflow, storage, parameters.InputPacketSize, parameters.RequiredFreeSpace),
+				_outputPacketSize(parameters.OutputPacketSize)
 		{
 			STINGRAYKIT_CHECK(parameters.OutputPacketSize != 0, ArgumentException("parameters.OutputPacketSize", parameters.OutputPacketSize));
 			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
@@ -113,6 +94,21 @@ namespace stingray
 			r.Pop(processed_size);
 			_bufferFull.Broadcast();
 		}
+
+		virtual size_t GetDataSize() const
+		{ return BufferedDataConsumerBase::GetDataSize(); }
+
+		virtual size_t GetFreeSize() const
+		{ return BufferedDataConsumerBase::GetFreeSize(); }
+
+		virtual size_t GetStorageSize() const
+		{ return BufferedDataConsumerBase::GetStorageSize(); }
+
+		virtual void Clear()
+		{ BufferedDataConsumerBase::Clear(); }
+
+		virtual signal_connector<void(size_t)> OnOverflow() const
+		{ return BufferedDataConsumerBase::OnOverflow(); }
 	};
 	STINGRAYKIT_DECLARE_PTR(DataBuffer);
 
