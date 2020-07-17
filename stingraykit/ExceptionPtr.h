@@ -30,7 +30,7 @@ namespace stingray
 	{ return make_shared_ptr<RethrownException>(ex); }
 
 	inline void RethrowException(const ExceptionPtr& ex)
-	{ if (ex) throw *ex; }
+	{ if (ex) STINGRAYKIT_THROW(*ex); }
 
 }
 
