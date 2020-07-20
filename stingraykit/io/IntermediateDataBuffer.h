@@ -17,23 +17,23 @@ namespace stingray
 	{
 	private:
 		IDataSourcePtr			_source;
-		IDataMediatorPtr		_mediator;
+		IDataBufferPtr			_buffer;
 
 		ThreadPtr				_worker;
 
 	public:
-		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataMediatorPtr& mediator)
+		IntermediateDataBuffer(const std::string& threadName, const IDataSourcePtr& source, const IDataBufferPtr& buffer)
 			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
-				_mediator(STINGRAYKIT_REQUIRE_NOT_NULL(mediator)),
+				_buffer(STINGRAYKIT_REQUIRE_NOT_NULL(buffer)),
 				_worker(make_shared_ptr<Thread>(threadName, Bind(&IntermediateDataBuffer::ThreadFunc, this, _1)))
 		{ }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
-		{ _mediator->Read(consumer, token); }
+		{ _buffer->Read(consumer, token); }
 
 	private:
 		void ThreadFunc(const ICancellationToken& token)
-		{ ReactiveDataSource(_source).Read(*_mediator, token); }
+		{ ReactiveDataSource(_source).Read(*_buffer, token); }
 	};
 	STINGRAYKIT_DECLARE_PTR(IntermediateDataBuffer);
 
