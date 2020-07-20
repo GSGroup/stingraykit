@@ -28,11 +28,12 @@ namespace stingray
 	inline size_t WriteAll(StreamType& stream, ConstByteData data, const ICancellationToken& token = DummyCancellationToken())
 	{
 		size_t total = 0;
-		size_t written = 0;
-		do {
+		optional<size_t> written;
+		while (token && (total < data.size()) && (!written || *written != 0))
+		{
 			written = (size_t)stream.Write(ConstByteData(data, total), token);
-			total += written;
-		} while (token && (total < data.size()) && written != 0);
+			total += *written;
+		}
 
 		return total;
 	}

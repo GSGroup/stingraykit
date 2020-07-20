@@ -28,11 +28,12 @@ namespace stingray
 	inline size_t ReadAll(StreamType& stream, ByteData data, const ICancellationToken& token = DummyCancellationToken())
 	{
 		size_t total = 0;
-		size_t readed = 0;
-		do {
+		optional<size_t> readed;
+		while (token && (total < data.size()) && (!readed || *readed != 0))
+		{
 			readed = (size_t)stream.Read(ByteData(data, total), token);
-			total += readed;
-		} while (token && (total < data.size()) && readed != 0);
+			total += *readed;
+		}
 
 		return total;
 	}
