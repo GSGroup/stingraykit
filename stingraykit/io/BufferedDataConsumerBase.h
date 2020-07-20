@@ -133,6 +133,8 @@ namespace stingray
 			MutexLock l2(_bufferMutex);
 			WriteLock wl(*this);
 
+			STINGRAYKIT_CHECK(!_eod, InvalidOperationException("Already got EOD!"));
+
 			BithreadCircularBuffer::Writer w = _buffer.Write();
 			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
 			if (packetized_size == 0 || GetFreeSize() < _requiredFreeSpace)
