@@ -88,6 +88,7 @@ set(stingraykit_SRC
 	stingraykit/diagnostics/CheckpointProfiler.cpp
 	stingraykit/diagnostics/SystemProfiler.cpp
 
+	stingraykit/function/bind.cpp
 	stingraykit/function/function_name_getter.cpp
 
 	stingraykit/io/AsyncByteStream.cpp
