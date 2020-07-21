@@ -156,6 +156,15 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ReactiveDataSource);
 
 
+	class EmptyDataSource : public virtual IDataSource
+	{
+	public:
+		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		{ consumer.EndOfData(token); }
+	};
+	STINGRAYKIT_DECLARE_PTR(EmptyDataSource);
+
+
 	template<typename MetadataType>
 	class Packet
 	{
