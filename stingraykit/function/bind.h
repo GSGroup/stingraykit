@@ -33,6 +33,8 @@ namespace stingray
 		template < size_t N > struct IsPlaceholder<Placeholder<N>(*)() >		: TrueType	{ };
 		template < size_t N > struct IsPlaceholder<Chomper<N> >					: TrueType	{ };
 
+		template < typename T > struct IsChomper								: FalseType { };
+		template < size_t N > struct IsChomper<Chomper<N> >						: TrueType { };
 
 		template < typename T > struct GetPlaceholderIndex							: integral_constant<int, -1> { };
 		template < size_t N > struct GetPlaceholderIndex<Placeholder<N>(*)() >		: integral_constant<int, N> { };
@@ -50,6 +52,7 @@ namespace stingray
 		template < >
 		struct GetBinderParamsCount<TypeListEndNode>
 		{ static const size_t Value = 0; };
+
 
 		struct AbsentParamDummy
 		{
@@ -165,12 +168,6 @@ namespace stingray
 			{ return _allParams.template Get<IndexOfTypeListItem<BoundParamNumbers, IntToType<Index> >::Value>(); }
 		};
 
-		template < typename T >
-		struct IsNotChomped : TrueType { };
-
-		template < size_t N >
-		struct IsNotChomped<Chomper<N> > : FalseType { };
-
 		template < typename FunctorType, typename AllParameters >
 		class Binder
 		{
@@ -185,7 +182,7 @@ namespace stingray
 			class RealParameters
 			{
 			public:
-				typedef typename TypeListCopyIf<AllParameters, IsNotChomped>::ValueT TypeList;
+				typedef typename TypeListCopyIf<AllParameters, Not<IsChomper>::template ValueT>::ValueT TypeList;
 
 				static const size_t Size = GetTypeListLength<TypeList>::Value;
 
