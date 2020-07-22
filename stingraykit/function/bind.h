@@ -23,19 +23,19 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < size_t N > struct BindPlaceholder
+		template < size_t N > struct Placeholder
 		{ static const size_t Index = N; };
 
 		template < size_t N > struct Chomper
 		{ static const size_t Index = N; };
 
 		template < typename T > struct IsPlaceholder							: FalseType	{ };
-		template < size_t N > struct IsPlaceholder<BindPlaceholder<N>(*)() >	: TrueType	{ };
+		template < size_t N > struct IsPlaceholder<Placeholder<N>(*)() >		: TrueType	{ };
 		template < size_t N > struct IsPlaceholder<Chomper<N> >					: TrueType	{ };
 
 
 		template < typename T > struct GetPlaceholderIndex							: integral_constant<int, -1> { };
-		template < size_t N > struct GetPlaceholderIndex<BindPlaceholder<N>(*)() >	: integral_constant<int, N> { };
+		template < size_t N > struct GetPlaceholderIndex<Placeholder<N>(*)() >		: integral_constant<int, N> { };
 		template < size_t N > struct GetPlaceholderIndex<Chomper<N> >				: integral_constant<int, N> { };
 
 		template < typename AllParameters >
@@ -59,13 +59,13 @@ namespace stingray
 			AbsentParamDummy(const T&) { }
 		};
 
-		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value != TypeListNpos >
+		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex>(*)() >::Value != TypeListNpos >
 		struct BinderSingleParamTypeGetter
 		{ typedef AbsentParamDummy ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex >
 		struct BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex, true>
-		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, BindPlaceholder<CurrentIndex>(*)() >::Value >::ValueT	ValueT; };
+		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex>(*)() >::Value >::ValueT	ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex = 0, size_t Count = GetBinderParamsCount<AllParameters>::Value >
 		struct BinderParamTypesGetter
@@ -110,7 +110,7 @@ namespace stingray
 		{ typedef const OriginalParamType& ValueT; };
 
 		template < size_t Index, typename BinderParams >
-		struct GetParamType<BindPlaceholder<Index>(*)(), BinderParams>
+		struct GetParamType<Placeholder<Index>(*)(), BinderParams>
 		{ typedef typename GetTypeListItem<BinderParams, Index>::ValueT	ValueT; };
 
 
@@ -127,6 +127,7 @@ namespace stingray
 		struct ParamSelector<AllParameters, BinderParams, Index, true>
 		{
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
+
 			static typename GetParamType<typename GetTypeListItem<AllParameters, Index>::ValueT, BinderParams>::ValueT
 			Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
 			{
@@ -139,6 +140,7 @@ namespace stingray
 		struct ParamSelector<AllParameters, BinderParams, Index, false>
 		{
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
+
 			static typename GetParamType<typename GetTypeListItem<AllParameters, Index>::ValueT, BinderParams>::ValueT
 			Get(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
 			{ return boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(); }
@@ -253,7 +255,7 @@ namespace stingray
 
 
 #define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
-	inline Detail::BindPlaceholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_))()	{ return Detail::BindPlaceholder<Index_>(); }
+	inline Detail::Placeholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_))()	{ return Detail::Placeholder<Index_>(); }
 
 	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~);
 
@@ -261,7 +263,7 @@ namespace stingray
 
 
 	template < size_t N >
-	Detail::Chomper<N> not_using(Detail::BindPlaceholder<N>(*)()) { return Detail::Chomper<N>(); }
+	Detail::Chomper<N> not_using(Detail::Placeholder<N>(*)()) { return Detail::Chomper<N>(); }
 
 	/** @} */
 
