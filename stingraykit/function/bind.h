@@ -29,16 +29,22 @@ namespace stingray
 		template < size_t N > struct Chomper
 		{ static const size_t Index = N; };
 
-		template < typename T > struct IsPlaceholder							: FalseType	{ };
-		template < size_t N > struct IsPlaceholder<Placeholder<N> >				: TrueType	{ };
-		template < size_t N > struct IsPlaceholder<Chomper<N> >					: TrueType	{ };
+		template < typename T > struct IsPlaceholderImpl						: FalseType { };
+		template < size_t N > struct IsPlaceholderImpl<Placeholder<N> >			: TrueType { };
+		template < size_t N > struct IsPlaceholderImpl<Chomper<N> >				: TrueType { };
 
-		template < typename T > struct IsChomper								: FalseType { };
-		template < size_t N > struct IsChomper<Chomper<N> >						: TrueType { };
+		template < typename T > struct IsPlaceholder							: IsPlaceholderImpl<typename Decay<T>::ValueT> { };
 
-		template < typename T > struct GetPlaceholderIndex							: integral_constant<int, -1> { };
-		template < size_t N > struct GetPlaceholderIndex<Placeholder<N> >			: integral_constant<int, N> { };
-		template < size_t N > struct GetPlaceholderIndex<Chomper<N> >				: integral_constant<int, N> { };
+		template < typename T > struct IsChomperImpl							: FalseType { };
+		template < size_t N > struct IsChomperImpl<Chomper<N> >					: TrueType { };
+
+		template < typename T > struct IsChomper								: IsChomperImpl<typename Decay<T>::ValueT> { };
+
+		template < typename T > struct GetPlaceholderIndexImpl						: integral_constant<int, -1> { };
+		template < size_t N > struct GetPlaceholderIndexImpl<Placeholder<N> >		: integral_constant<int, N> { };
+		template < size_t N > struct GetPlaceholderIndexImpl<Chomper<N> >			: integral_constant<int, N> { };
+
+		template < typename T > struct GetPlaceholderIndex							: GetPlaceholderIndexImpl<typename Decay<T>::ValueT> { };
 
 		template < typename AllParameters >
 		struct GetBinderParamsCount
