@@ -122,17 +122,21 @@ namespace stingray
 			static const int Counter = GetTypeListLength<typename TypeListCopyIf<SrcAllParameters, Not<IsPlaceholder>::template ValueT>::ValueT>::Value;
 		};
 
-		template < typename OriginalParamType, typename BinderParams >
+		template < typename OriginalParamType, typename BinderParams, bool ForwardBinderParams = false >
 		struct GetParamType
 		{ typedef const OriginalParamType& ValueT; };
 
-		template < typename FunctorType, typename... Ts, typename BinderParams >
-		struct GetParamType<Binder<FunctorType, Ts...>, BinderParams>
+		template < typename FunctorType, typename... Ts, typename BinderParams, bool ForwardBinderParams >
+		struct GetParamType<Binder<FunctorType, Ts...>, BinderParams, ForwardBinderParams>
 		{ typedef typename Binder<FunctorType, Ts...>::RetType ValueT; };
 
 		template < size_t Index, typename BinderParams >
-		struct GetParamType<Placeholder<Index>, BinderParams>
+		struct GetParamType<Placeholder<Index>, BinderParams, true>
 		{ typedef typename GetTypeListItem<BinderParams, Index>::ValueT ValueT; };
+
+		template < size_t Index, typename BinderParams >
+		struct GetParamType<Placeholder<Index>, BinderParams, false>
+		{ typedef const typename GetTypeListItem<BinderParams, Index>::ValueT& ValueT; };
 
 
 		template
@@ -153,6 +157,9 @@ namespace stingray
 
 			static ParamType Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
 			{ return binderParams.template Get<GetPlaceholderIndex<BoundType>::Value>(); }
+
+			static typename GetParamType<BoundType, BinderParams, true>::ValueT Get(const Tuple<BoundParams>& BoundParams, Tuple<BinderParams>&& binderParams)
+			{ return std::move(binderParams).template Get<GetPlaceholderIndex<BoundType>::Value>(); }
 		};
 
 		template < typename AllParameters, typename BinderParams, size_t Index >
@@ -165,14 +172,20 @@ namespace stingray
 			static ParamType Get(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
 			{ return DoGet<BoundType>(boundParams, binderParams); }
 
+			static ParamType Get(const Tuple<BoundParams>& boundParams, Tuple<BinderParams>&& binderParams)
+			{
+				CompileTimeAssert<IsSame<ParamType, typename GetParamType<BoundType, BinderParams, true>::ValueT>::Value> ERROR__trying_to_forward_bound_params;
+				return DoGet<BoundType>(boundParams, std::move(binderParams));
+			}
+
 		private:
-			template < typename BoundType_ >
-			static ParamType DoGet(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams, typename EnableIf<!IsBinder<BoundType_>::Value, Dummy>::ValueT* = 0)
+			template < typename BoundType_, typename BinderParamsTuple_ >
+			static ParamType DoGet(const Tuple<BoundParams>& boundParams, BinderParamsTuple_&& binderParams, typename EnableIf<!IsBinder<BoundType_>::Value, Dummy>::ValueT* = 0)
 			{ return boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(); }
 
-			template < typename BoundType_ >
-			static ParamType DoGet(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams, typename EnableIf<IsBinder<BoundType_>::Value, Dummy>::ValueT* = 0)
-			{ return FunctorInvoker::Invoke(boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(), binderParams); }
+			template < typename BoundType_, typename BinderParamsTuple_ >
+			static ParamType DoGet(const Tuple<BoundParams>& boundParams, BinderParamsTuple_&& binderParams, typename EnableIf<IsBinder<BoundType_>::Value, Dummy>::ValueT* = 0)
+			{ return FunctorInvoker::Invoke(boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(), std::forward<BinderParamsTuple_>(binderParams)); }
 		};
 
 
@@ -211,26 +224,34 @@ namespace stingray
 			typedef typename BinderParamTypesGetter<typename function_info<RawFunctorType>::ParamTypes, AllParameters>::ValueT	ParamTypes;
 
 		private:
-			template < typename BinderParams >
+			template < typename... Us >
 			class RealParameters
 			{
 			public:
+				typedef typename TypeList<Us&&...>::type	BinderParams;
+
 				typedef typename TypeListCopyIf<AllParameters, Not<IsChomper>::template ValueT>::ValueT TypeList;
 
 				static const size_t Size = GetTypeListLength<TypeList>::Value;
 
 			private:
 				const Tuple<BoundParams>&		_boundParams;
-				const Tuple<BinderParams>&		_binderParams;
+				Tuple<BinderParams>				_binderParams;
 
 			public:
-				RealParameters(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
-					: _boundParams(boundParams), _binderParams(binderParams)
+				RealParameters(const Tuple<BoundParams>& boundParams, Us&&... params)
+					: _boundParams(boundParams), _binderParams(std::forward<Us>(params)...)
 				{ }
 
 				template < size_t Index >
-				typename GetParamType<typename GetTypeListItem<TypeList, Index>::ValueT, BinderParams>::ValueT Get() const
+				typename GetParamType<typename GetTypeListItem<TypeList, Index>::ValueT, BinderParams>::ValueT Get() const &
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, _binderParams); }
+
+				template < size_t Index >
+				typename EnableIf<IsNonConstRvalueReference<typename GetParamType<typename GetTypeListItem<TypeList, Index>::ValueT, BinderParams, true>::ValueT>::Value ||
+								IsBinder<typename GetTypeListItem<TypeList, Index>::ValueT>::Value,
+						typename GetParamType<typename GetTypeListItem<TypeList, Index>::ValueT, BinderParams, true>::ValueT>::ValueT Get() &&
+				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, std::move(_binderParams)); }
 			};
 
 		private:
@@ -243,15 +264,8 @@ namespace stingray
 			{ }
 
 			template < typename... Us >
-			RetType operator () (Us&&... args) const
-			{
-				typedef typename TypeList<Us...>::type BinderParams;
-
-				const Tuple<BinderParams> params(std::forward<Us>(args)...);
-				const RealParameters<BinderParams> rp(_boundParams, params);
-
-				return FunctorInvoker::Invoke(_func, rp);
-			}
+			RetType operator () (Us&&... params) const
+			{ return FunctorInvoker::Invoke(_func, RealParameters<Us...>(_boundParams, std::forward<Us>(params)...)); }
 
 			std::string get_name() const { return "{ binder: " + get_function_name(_func) + " }"; }
 		};
