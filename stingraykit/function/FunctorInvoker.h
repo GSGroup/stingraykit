@@ -27,8 +27,8 @@ namespace stingray
 		struct FunctorInvokerImpl
 		{
 			template < typename ParamsTuple >
-			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
-			{ return InvokeImpl(std::make_index_sequence<ParamsTuple::Size>(), func, params); }
+			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, ParamsTuple&& params)
+			{ return InvokeImpl(std::make_index_sequence<Decay<ParamsTuple>::ValueT::Size>(), func, std::forward<ParamsTuple>(params)); }
 
 			template < typename... Ts >
 			static typename function_info<FunctorType>::RetType InvokeArgs(const FunctorType& func, Ts&&... args)
@@ -36,18 +36,18 @@ namespace stingray
 
 		private:
 			template < typename ParamsTuple, size_t... Index >
-			static typename function_info<FunctorType>::RetType InvokeImpl(std::index_sequence<Index...>, const FunctorType& func, const ParamsTuple& params)
-			{ return InvokeArgs(func, params.template Get<Index>()...); }
+			static typename function_info<FunctorType>::RetType InvokeImpl(std::index_sequence<Index...>, const FunctorType& func, ParamsTuple&& params)
+			{ return InvokeArgs(func, std::forward<ParamsTuple>(params).template Get<Index>()...); }
 		};
 
 		template < typename FunctorType >
 		struct FunctorInvokerImpl<FunctorType, FunctionType::MethodPtr>
 		{
 			template < typename ParamsTuple >
-			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
+			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, ParamsTuple&& params)
 			{
-				CompileTimeAssert<ParamsTuple::Size != 0> ERROR__invalid_number_of_parameters;
-				return InvokeImpl(std::make_index_sequence<ParamsTuple::Size>(), func, params);
+				CompileTimeAssert<Decay<ParamsTuple>::ValueT::Size != 0> ERROR__invalid_number_of_parameters;
+				return InvokeImpl(std::make_index_sequence<Decay<ParamsTuple>::ValueT::Size>(), func, std::forward<ParamsTuple>(params));
 			}
 
 			template < typename This, typename... Ts >
@@ -56,8 +56,8 @@ namespace stingray
 
 		private:
 			template < typename ParamsTuple, size_t... Index >
-			static typename function_info<FunctorType>::RetType InvokeImpl(std::index_sequence<Index...>, const FunctorType& func, const ParamsTuple& params)
-			{ return InvokeArgs(func, params.template Get<Index>()...); }
+			static typename function_info<FunctorType>::RetType InvokeImpl(std::index_sequence<Index...>, const FunctorType& func, ParamsTuple&& params)
+			{ return InvokeArgs(func, std::forward<ParamsTuple>(params).template Get<Index>()...); }
 		};
 
 	}
@@ -66,8 +66,8 @@ namespace stingray
 	struct FunctorInvoker
 	{
 		template < typename FunctorType, typename ParamsTuple >
-		static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, const ParamsTuple& params)
-		{ return Detail::FunctorInvokerImpl<FunctorType>::template Invoke<ParamsTuple>(func, params); }
+		static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, ParamsTuple&& params)
+		{ return Detail::FunctorInvokerImpl<FunctorType>::template Invoke<ParamsTuple>(func, std::forward<ParamsTuple>(params)); }
 
 		template < typename FunctorType, typename... Ts >
 		static typename function_info<FunctorType>::RetType InvokeArgs(const FunctorType& func, Ts&&... args)
