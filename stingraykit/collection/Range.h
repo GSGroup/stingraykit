@@ -599,7 +599,12 @@ namespace stingray
 			typename base::ValueType Get()
 			{
 				if (!_value)
-					_value.emplace(FunctorInvoker::Invoke(_func, Tuple<typename ValuesGetter::TypeList>(TupleConstructorTag(), ValuesGetter(_ranges))));
+				{
+					const ValuesGetter getter(_ranges);
+					const Tuple<typename ValuesGetter::TypeList> values(TupleConstructorTag(), getter);
+
+					_value.emplace(FunctorInvoker::Invoke(_func, values));
+				}
 				return *_value;
 			}
 
