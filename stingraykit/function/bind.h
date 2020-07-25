@@ -197,11 +197,12 @@ namespace stingray
 		template < typename FunctorType, typename AllParameters >
 		class Binder
 		{
+			typedef typename Decay<FunctorType>::ValueT						RawFunctorType;
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
 		public:
-			typedef typename function_info<FunctorType>::RetType															RetType;
-			typedef typename BinderParamTypesGetter<typename function_info<FunctorType>::ParamTypes, AllParameters>::ValueT	ParamTypes;
+			typedef typename function_info<RawFunctorType>::RetType																RetType;
+			typedef typename BinderParamTypesGetter<typename function_info<RawFunctorType>::ParamTypes, AllParameters>::ValueT	ParamTypes;
 
 		private:
 			template < typename BinderParams >
@@ -227,12 +228,12 @@ namespace stingray
 			};
 
 		private:
-			FunctorType					_func;
+			RawFunctorType				_func;
 			Tuple<BoundParams>			_boundParams;
 
 		public:
-			Binder(const FunctorType& func, const Tuple<AllParameters>& allParams)
-				: _func(func), _boundParams(TupleConstructorTag(), NonPlaceholdersCutter<AllParameters>(allParams))
+			Binder(FunctorType&& func, const Tuple<AllParameters>& allParams)
+				: _func(std::forward<FunctorType>(func)), _boundParams(TupleConstructorTag(), NonPlaceholdersCutter<AllParameters>(allParams))
 			{ }
 
 			template < typename... Us >
@@ -253,11 +254,11 @@ namespace stingray
 
 
 	template < typename FunctorType, typename... Ts >
-	Detail::Binder<FunctorType, typename TypeList<Ts...>::type> Bind(const FunctorType& func, Ts... args)
+	Detail::Binder<FunctorType, typename TypeList<Ts...>::type> Bind(FunctorType&& func, Ts... args)
 	{
 		typedef typename TypeList<Ts...>::type AllParameters;
 		Tuple<AllParameters> allParams(args...);
-		return Detail::Binder<FunctorType, AllParameters>(func, allParams);
+		return Detail::Binder<FunctorType, AllParameters>(std::forward<FunctorType>(func), allParams);
 	}
 
 
