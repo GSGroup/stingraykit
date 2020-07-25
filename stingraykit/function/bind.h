@@ -74,7 +74,7 @@ namespace stingray
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex >
 		struct BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex, true>
-		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex> >::Value >::ValueT	ValueT; };
+		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex> >::Value >::ValueT ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex = 0, size_t Count = GetBinderParamsCount<AllParameters>::Value >
 		struct BinderParamTypesGetter
@@ -82,7 +82,7 @@ namespace stingray
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t Count >
 		struct BinderParamTypesGetter<OriginalParamTypes, AllParameters, Count, Count>
-		{ typedef TypeListEndNode	ValueT; };
+		{ typedef TypeListEndNode ValueT; };
 
 		template < typename AllParameters, size_t CurrentIndex, size_t Count >
 		struct BinderParamTypesGetter<UnspecifiedParamTypes, AllParameters, CurrentIndex, Count>
@@ -104,7 +104,7 @@ namespace stingray
 			static const bool IsPH = IsPlaceholder<CurType>::Value;
 			static const int Counter = BoundParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::Counter - (IsPH ? 0 : 1);
 			static const int Num = IsPH ? -1 : Counter;
-			typedef TypeListNode<IntToType<Num>, typename BoundParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::ValueT>	ValueT;
+			typedef TypeListNode<IntToType<Num>, typename BoundParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::ValueT> ValueT;
 		};
 
 		template < typename SrcAllParameters >
@@ -120,7 +120,7 @@ namespace stingray
 
 		template < size_t Index, typename BinderParams >
 		struct GetParamType<Placeholder<Index>, BinderParams>
-		{ typedef typename GetTypeListItem<BinderParams, Index>::ValueT	ValueT; };
+		{ typedef typename GetTypeListItem<BinderParams, Index>::ValueT ValueT; };
 
 
 		template
@@ -206,7 +206,7 @@ namespace stingray
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, _binderParams); }
 			};
 
-		protected:
+		private:
 			FunctorType					_func;
 			Tuple<BoundParams>			_boundParams;
 
@@ -224,7 +224,7 @@ namespace stingray
 			RetType Do(const Tuple<ParamTypeList>& params) const
 			{
 				RealParameters<ParamTypeList> rp(_boundParams, params);
-				return FunctorInvoker::Invoke<FunctorType>(_func, rp);
+				return FunctorInvoker::Invoke(_func, rp);
 			}
 		};
 
