@@ -40,7 +40,7 @@ namespace stingray
 		{ return this->template DoImpl<RetType>(params); }
 
 		template < typename RetType_, typename ParamTypeList_ >
-		RetType DoImpl(const Tuple<ParamTypeList_>& params, typename EnableIf<IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0) const
+		RetType_ DoImpl(const Tuple<ParamTypeList_>& params, typename EnableIf<IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0) const
 		{
 			LocalExecutionGuard guard(_tester);
 			if (guard)
@@ -48,7 +48,7 @@ namespace stingray
 		}
 
 		template < typename RetType_, typename ParamTypeList_ >
-		RetType DoImpl(const Tuple<ParamTypeList_>& params, typename EnableIf<!IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0) const
+		RetType_ DoImpl(const Tuple<ParamTypeList_>& params, typename EnableIf<!IsSame<RetType_, void>::Value, Dummy>::ValueT* = 0) const
 		{
 			LocalExecutionGuard guard(_tester);
 			STINGRAYKIT_CHECK(guard, "Function " + get_function_name(_func) + " was cancelled");
