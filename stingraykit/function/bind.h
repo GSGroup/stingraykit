@@ -135,23 +135,22 @@ namespace stingray
 		template < typename AllParameters, typename BinderParams, size_t Index >
 		struct ParamSelector<AllParameters, BinderParams, Index, true>
 		{
+			typedef typename GetTypeListItem<AllParameters, Index>::ValueT	BoundType;
+			typedef typename GetParamType<BoundType, BinderParams>::ValueT	ParamType;
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
-			static typename GetParamType<typename GetTypeListItem<AllParameters, Index>::ValueT, BinderParams>::ValueT
-			Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
-			{
-				typedef typename GetTypeListItem<AllParameters, Index>::ValueT Placeholder;
-				return binderParams.template Get<GetPlaceholderIndex<Placeholder>::Value>();
-			}
+			static ParamType Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
+			{ return binderParams.template Get<GetPlaceholderIndex<BoundType>::Value>(); }
 		};
 
 		template < typename AllParameters, typename BinderParams, size_t Index >
 		struct ParamSelector<AllParameters, BinderParams, Index, false>
 		{
+			typedef typename GetTypeListItem<AllParameters, Index>::ValueT	BoundType;
+			typedef typename GetParamType<BoundType, BinderParams>::ValueT	ParamType;
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
-			static typename GetParamType<typename GetTypeListItem<AllParameters, Index>::ValueT, BinderParams>::ValueT
-			Get(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
+			static ParamType Get(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
 			{ return boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(); }
 		};
 
