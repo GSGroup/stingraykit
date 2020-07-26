@@ -14,7 +14,6 @@
 #include <stingraykit/compare/Comparable.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/RefStorage.h>
-#include <stingraykit/lazy.h>
 
 namespace stingray
 {
@@ -597,7 +596,7 @@ namespace stingray
 
 		template <typename TResult, typename SrcEnumerable>
 		shared_ptr<IEnumerable<TResult> > OfType(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
-		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorOfType<TResult, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType> > > >(), lazy(Bind(&SrcEnumerable::GetEnumerator, enumerable)))); }
+		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorOfType<TResult, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType> > > >(), Bind(&SrcEnumerable::GetEnumerator, enumerable))); }
 
 
 		template < typename CollectionType >
