@@ -230,6 +230,10 @@ namespace stingray
 	}
 
 
+	template < typename FunctorType >
+	Detail::Binder<FunctorType, typename TypeList<>::type> Bind(const FunctorType& func)
+	{ return Detail::Binder<FunctorType, TypeList<>::type>(func, Tuple<TypeList<>::type>()); }
+
 #define TY typename
 #define DETAIL_STINGRAYKIT_DECLARE_BIND(TemplateBindParams_, BindParamTypes_, BindParamsDecl_, BindParamsUsage_) \
 	template < typename FunctorType, TemplateBindParams_ > \
