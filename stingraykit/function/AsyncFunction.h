@@ -39,8 +39,7 @@ namespace stingray
 				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
 
-			template < typename BoundFunctor >
-			RetType DoAddTask(const BoundFunctor& func) const
+			RetType DoAddTask(const function<RetType ()>& func) const
 			{ _executor->AddTask(func, _tester); }
 		};
 
@@ -66,17 +65,15 @@ namespace stingray
 				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
 
-			template < typename BoundFunctor >
-			RetType DoAddTask(const BoundFunctor& func) const
+			RetType DoAddTask(const function<AsyncRetType ()>& func) const
 			{
 				const PromiseTypePtr promise = make_shared_ptr<PromiseType>();
-				_executor->AddTask(Bind(&AsyncFunctionBase::FuncWrapper<BoundFunctor>, func, promise), _tester);
+				_executor->AddTask(Bind(&AsyncFunctionBase::FuncWrapper, func, promise), _tester);
 				return promise->get_future();
 			}
 
 		private:
-			template < typename BoundFunctor >
-			static void FuncWrapper(const BoundFunctor& func, const PromiseTypePtr& promise)
+			static void FuncWrapper(const function<AsyncRetType ()>& func, const PromiseTypePtr& promise)
 			{
 				try
 				{ promise->set_value(func()); }
