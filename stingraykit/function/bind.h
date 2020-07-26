@@ -23,11 +23,20 @@ namespace stingray
 	namespace Detail
 	{
 
+		template < typename FunctorType, typename AllParameters >
+		class Binder;
+
 		template < size_t N > struct Placeholder
 		{ static const size_t Index = N; };
 
 		template < size_t N > struct Chomper
 		{ static const size_t Index = N; };
+
+		template < typename T > struct IsBinderImpl								: FalseType { };
+		template < typename FunctorType, typename AllParameters >
+		struct IsBinderImpl<Binder<FunctorType, AllParameters> >				: TrueType { };
+
+		template < typename T > struct IsBinder									: IsBinderImpl<typename Decay<T>::ValueT> { };
 
 		template < typename T > struct IsPlaceholderImpl						: FalseType { };
 		template < size_t N > struct IsPlaceholderImpl<Placeholder<N> >			: TrueType { };
@@ -118,6 +127,10 @@ namespace stingray
 		struct GetParamType
 		{ typedef const OriginalParamType& ValueT; };
 
+		template < typename FunctorType, typename AllParameters, typename BinderParams >
+		struct GetParamType<Binder<FunctorType, AllParameters>, BinderParams>
+		{ typedef typename Binder<FunctorType, AllParameters>::RetType ValueT; };
+
 		template < size_t Index, typename BinderParams >
 		struct GetParamType<Placeholder<Index>, BinderParams>
 		{ typedef typename GetTypeListItem<BinderParams, Index>::ValueT ValueT; };
@@ -151,7 +164,16 @@ namespace stingray
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
 			static ParamType Get(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams)
+			{ return DoGet<BoundType>(boundParams, binderParams); }
+
+		private:
+			template < typename BoundType_ >
+			static ParamType DoGet(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams, typename EnableIf<!IsBinder<BoundType_>::Value, Dummy>::ValueT* = 0)
 			{ return boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(); }
+
+			template < typename BoundType_ >
+			static ParamType DoGet(const Tuple<BoundParams>& boundParams, const Tuple<BinderParams>& binderParams, typename EnableIf<IsBinder<BoundType_>::Value, Dummy>::ValueT* = 0)
+			{ return FunctorInvoker::Invoke(boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(), binderParams); }
 		};
 
 
