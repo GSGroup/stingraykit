@@ -22,15 +22,18 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename FunctorType, bool HasReturnType = !IsSame<typename function_info<FunctorType>::RetType, void>::Value >
+		template < typename FunctorType >
 		class AsyncFunctionBase
 			:	public function_info<typename If<IsSame<typename function_info<FunctorType>::RetType, void>::Value,
 								typename function_info<FunctorType>::RetType, future<typename function_info<FunctorType>::RetType> >::ValueT,
 						typename function_info<FunctorType>::ParamTypes>
 		{
+		protected:
+			typedef typename function_info<FunctorType>::RetType	RawRetType;
+
 		public:
-			typedef void											RetType;
-			typedef typename function_info<FunctorType>::ParamTypes	ParamTypes;
+			typedef typename If<IsSame<RawRetType, void>::Value, RawRetType, future<RawRetType> >::ValueT	RetType;
+			typedef typename function_info<FunctorType>::ParamTypes											ParamTypes;
 
 		protected:
 			ITaskExecutorPtr		_executor;
@@ -42,44 +45,22 @@ namespace stingray
 				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
 			{ }
 
-			RetType DoAddTask(const function<RetType ()>& func) const
+			template < typename RetType_ >
+			typename EnableIf<IsSame<RetType_, void>::Value, RetType_>::ValueT DoAddTask(const function<RetType_ ()>& func) const
 			{ _executor->AddTask(func, _tester); }
-		};
 
-
-		template < typename FunctorType >
-		class AsyncFunctionBase<FunctorType, true>
-			:	public function_info<typename If<IsSame<typename function_info<FunctorType>::RetType, void>::Value,
-								typename function_info<FunctorType>::RetType, future<typename function_info<FunctorType>::RetType> >::ValueT,
-						typename function_info<FunctorType>::ParamTypes>
-		{
-		public:
-			typedef typename function_info<FunctorType>::RetType		AsyncRetType;
-			typedef promise<AsyncRetType>								PromiseType;
-			STINGRAYKIT_DECLARE_PTR(PromiseType);
-
-			typedef future<AsyncRetType>								RetType;
-			typedef typename function_info<FunctorType>::ParamTypes		ParamTypes;
-
-		protected:
-			ITaskExecutorPtr		_executor;
-			FunctorType				_func;
-			FutureExecutionTester	_tester;
-
-		protected:
-			AsyncFunctionBase(const ITaskExecutorPtr& executor, const FunctorType& func, const FutureExecutionTester& tester)
-				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(func), _tester(tester)
-			{ }
-
-			RetType DoAddTask(const function<AsyncRetType ()>& func) const
+			template < typename RetType_ >
+			typename EnableIf<!IsSame<RetType_, void>::Value, future<RetType_> >::ValueT DoAddTask(const function<RetType_ ()>& func) const
 			{
-				const PromiseTypePtr promise = make_shared_ptr<PromiseType>();
-				_executor->AddTask(Bind(&AsyncFunctionBase::FuncWrapper, func, promise), _tester);
+				typedef promise<RetType_> PromiseType;
+				const shared_ptr<PromiseType> promise = make_shared_ptr<PromiseType>();
+				_executor->AddTask(Bind(&AsyncFunctionBase::FuncWrapper<RetType_>, func, promise), _tester);
 				return promise->get_future();
 			}
 
 		private:
-			static void FuncWrapper(const function<AsyncRetType ()>& func, const PromiseTypePtr& promise)
+			template < typename RetType_ >
+			static void FuncWrapper(const function<RetType_ ()>& func, const shared_ptr<promise<RetType_> >& promise)
 			{
 				try
 				{ promise->set_value(func()); }
@@ -108,7 +89,7 @@ namespace stingray
 	private:
 		template < typename ParamTypeList >
 		typename BaseType::RetType Do(const Tuple<ParamTypeList>& params) const
-		{ return BaseType::DoAddTask(Detail::Binder<FunctorType, typename TypeListTransform<ParamTypeList, RemoveReference>::ValueT>(this->_func, params)); }
+		{ return BaseType::template DoAddTask<typename BaseType::RawRetType>(Detail::Binder<FunctorType, typename TypeListTransform<ParamTypeList, RemoveReference>::ValueT>(this->_func, params)); }
 	};
 
 
