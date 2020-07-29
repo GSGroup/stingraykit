@@ -46,12 +46,12 @@ namespace stingray
 		STINGRAYKIT_CONST_FORWARDING(RetType, operator (), Do)
 
 		std::string get_name() const
-		{ return "{ AsyncFunction: " + get_function_name(this->_func) + " }"; }
+		{ return "{ AsyncFunction: " + get_function_name(_func) + " }"; }
 
 	private:
 		template < typename ParamTypeList >
 		RetType Do(const Tuple<ParamTypeList>& params) const
-		{ return DoAddTask<RawRetType>(Detail::Binder<FunctorType, typename TypeListTransform<ParamTypeList, RemoveReference>::ValueT>(this->_func, params)); }
+		{ return DoAddTask<RawRetType>(Detail::Binder<FunctorType, typename TypeListTransform<ParamTypeList, RemoveReference>::ValueT>(_func, params)); }
 
 		template < typename RetType_ >
 		typename EnableIf<IsSame<RetType_, void>::Value, RetType_>::ValueT DoAddTask(const function<RetType_ ()>& func) const
