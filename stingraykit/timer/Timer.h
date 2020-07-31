@@ -74,6 +74,9 @@ namespace stingray
 
 	class ExecutionDeferrer
 	{
+	public:
+		typedef Timer::TaskType TaskType;
+
 	private:
 		Timer&			_timer;
 		TimeDuration	_timeout;
@@ -95,22 +98,25 @@ namespace stingray
 		void Cancel();
 
 		// we shouldn't call Defer from deferred function!
-		void Defer(const function<void()>& func);
+		void Defer(const TaskType& task);
 
 		// custom timeout version - doesn't change "default" timeout value stored in deferrer - passed timeout value corresponds to the very deferring
-		void Defer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval = null);
+		void Defer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval = null);
 
-		void DeferNoTimeout(const function<void()>& func)							{ Defer(func); }
-		void DeferWithTimeout(const function<void()>& func, TimeDuration timeout)	{ Defer(func, timeout); }
+		void DeferNoTimeout(const TaskType& task)									{ Defer(task); }
+		void DeferWithTimeout(const TaskType& task, TimeDuration timeout)			{ Defer(task, timeout); }
 
 	private:
-		void DoDefer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval);
+		void DoDefer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval);
 	};
 	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrer);
 
 
 	class ExecutionDeferrerWithTimer
 	{
+	public:
+		typedef ExecutionDeferrer::TaskType TaskType;
+
 	private:
 		Timer					_timer;
 		ExecutionDeferrerPtr	_impl;
@@ -122,11 +128,11 @@ namespace stingray
 
 		void Cancel()																{ _impl->Cancel(); }
 
-		void Defer(const function<void()>& func)									{ _impl->Defer(func); }
-		void Defer(const function<void()>& func, TimeDuration timeout)				{ _impl->Defer(func, timeout); }
+		void Defer(const TaskType& task)											{ _impl->Defer(task); }
+		void Defer(const TaskType& task, TimeDuration timeout)						{ _impl->Defer(task, timeout); }
 
-		void DeferNoTimeout(const function<void()>& func)							{ Defer(func); }
-		void DeferWithTimeout(const function<void()>& func, TimeDuration timeout)	{ Defer(func, timeout); }
+		void DeferNoTimeout(const TaskType& task)									{ Defer(task); }
+		void DeferWithTimeout(const TaskType& task, TimeDuration timeout)			{ Defer(task, timeout); }
 	};
 	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
 

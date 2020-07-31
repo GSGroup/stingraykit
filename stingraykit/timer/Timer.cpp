@@ -313,7 +313,7 @@ namespace stingray
 			else
 				ci->GetTask()();
 		}
-		catch(const std::exception &ex)
+		catch (const std::exception& ex)
 		{ _exceptionHandler(ex); }
 	}
 
@@ -344,27 +344,27 @@ namespace stingray
 	}
 
 
-	void ExecutionDeferrer::Defer(const function<void()>& func)
+	void ExecutionDeferrer::Defer(const TaskType& task)
 	{
-		STINGRAYKIT_CHECK(_timeout != TimeDuration(), Exception("Invalid timeout!"));
-		Defer(func, _timeout);
+		STINGRAYKIT_CHECK(_timeout != TimeDuration(), "Invalid timeout");
+		Defer(task, _timeout);
 	}
 
 
-	void ExecutionDeferrer::Defer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval)
+	void ExecutionDeferrer::Defer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval)
 	{
 		MutexLock l(_doDeferConnectionMutex);
-		_doDeferConnection = _timer.SetTimeout(TimeDuration(), Bind(&ExecutionDeferrer::DoDefer, this, func, timeout, interval));
+		_doDeferConnection = _timer.SetTimeout(TimeDuration(), Bind(&ExecutionDeferrer::DoDefer, this, task, timeout, interval));
 	}
 
 
-	void ExecutionDeferrer::DoDefer(const function<void()>& func, TimeDuration timeout, optional<TimeDuration> interval)
+	void ExecutionDeferrer::DoDefer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval)
 	{
 		MutexLock l(_connectionMutex);
 		if (interval)
-			_connection = _timer.SetTimer(timeout, *interval, func);
+			_connection = _timer.SetTimer(timeout, *interval, task);
 		else
-			_connection = _timer.SetTimeout(timeout, func);
+			_connection = _timer.SetTimeout(timeout, task);
 	}
 
 }
