@@ -23,7 +23,7 @@ namespace stingray
 		optional<TimeDuration>	_profileTimeout;
 		ExceptionHandler		_exceptionHandler;
 
-		Mutex					_guard;
+		Mutex					_mutex;
 		optional<Task>			_task;
 		ConditionVariable		_cond;
 
@@ -40,7 +40,7 @@ namespace stingray
 
 		bool TryAddTask(const Task& task)
 		{
-			MutexLock l(_guard);
+			MutexLock l(_mutex);
 			if (_task)
 				return false;
 
@@ -55,12 +55,12 @@ namespace stingray
 
 		void ThreadFunc(const ICancellationToken& token)
 		{
-			MutexLock l(_guard);
+			MutexLock l(_mutex);
 			while (token)
 			{
 				if (!_task)
 				{
-					_cond.Wait(_guard, token);
+					_cond.Wait(_mutex, token);
 					continue;
 				}
 
@@ -104,16 +104,69 @@ namespace stingray
 	void ThreadPool::Queue(const Task& task)
 	{
 		MutexLock l(_mutex);
+		if (!_task)
+		{
+			if (!_worker)
+				_worker.reset(new Thread(_name + "_0", Bind(&ThreadPool::ThreadFunc, this, _1)));
+
+			_task = task;
+			_cond.Broadcast();
+			return;
+		}
+
 		for (Workers::const_iterator it = _workers.begin(); it != _workers.end(); ++it)
 			if ((*it)->TryAddTask(task))
 				return;
 
-		STINGRAYKIT_CHECK(_workers.size() < _maxThreads, "Thread limit exceeded");
-		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % _workers.size(), _profileTimeout, _exceptionHandler, task));
+		STINGRAYKIT_CHECK(_workers.size() + 1 < _maxThreads, "Thread limit exceeded");
+		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _exceptionHandler, task));
 	}
 
 
 	void ThreadPool::DefaultExceptionHandler(const std::exception& ex)
 	{ Logger::Error() << "Thread pool task exception: " << ex; }
+
+
+	std::string ThreadPool::GetProfilerMessage(const Task& task) const
+	{ return StringBuilder() % get_function_name(task) % " in ThreadPool '" % _name % "'"; }
+
+
+	void ThreadPool::ThreadFunc(const ICancellationToken& token)
+	{
+		MutexLock l(_mutex);
+		while (token)
+		{
+			if (!_task)
+			{
+				_cond.Wait(_mutex, token);
+				continue;
+			}
+
+			{
+				const Task task = *_task;
+
+				MutexUnlock ul(l);
+				ExecuteTask(token, task);
+			}
+
+			_task.reset();
+		}
+	}
+
+	void ThreadPool::ExecuteTask(const ICancellationToken& token, const Task& task) const
+	{
+		try
+		{
+			if (_profileTimeout)
+			{
+				AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), Bind(&ThreadPool::GetProfilerMessage, this, wrap_const_ref(task)), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				task(token);
+			}
+			else
+				task(token);
+		}
+		catch (const std::exception& ex)
+		{ _exceptionHandler(ex); }
+	}
 
 }

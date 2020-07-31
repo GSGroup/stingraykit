@@ -8,7 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/thread/Thread.h>
+#include <stingraykit/thread/ConditionVariable.h>
+#include <stingraykit/unique_ptr.h>
 
 namespace stingray
 {
@@ -37,7 +38,11 @@ namespace stingray
 		ExceptionHandler		_exceptionHandler;
 
 		Mutex					_mutex;
+		optional<Task>			_task;
+		ConditionVariable		_cond;
+
 		Workers					_workers;
+		unique_ptr<Thread>		_worker;
 
 	public:
 		ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
@@ -45,6 +50,12 @@ namespace stingray
 		void Queue(const Task& task);
 
 		static void DefaultExceptionHandler(const std::exception& ex);
+
+	private:
+		std::string GetProfilerMessage(const Task& task) const;
+
+		void ThreadFunc(const ICancellationToken& token);
+		void ExecuteTask(const ICancellationToken& token, const Task& task) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(ThreadPool);
 
