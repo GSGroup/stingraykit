@@ -28,8 +28,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ThreadTaskExecutor);
 
 	public:
-		typedef function<void()>										TaskType;
-		typedef function<void(const std::exception&)>					ExceptionHandlerType;
+		typedef function<void (const std::exception&)>					ExceptionHandlerType;
 
 	private:
 		typedef std::pair<TaskType, FutureExecutionTester>				TaskPair;
@@ -62,7 +61,7 @@ namespace stingray
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
-		std::string GetProfilerMessage(const function<void()>& func) const;
+		std::string GetProfilerMessage(const TaskType& task) const;
 
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const TaskPair& task) const;

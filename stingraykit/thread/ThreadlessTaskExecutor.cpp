@@ -73,11 +73,11 @@ namespace stingray
 
 
 	void ThreadlessTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Executor func exception: " << ex; }
+	{ s_logger.Error() << "Executor task exception: " << ex; }
 
 
-	std::string ThreadlessTaskExecutor::GetProfilerMessage(const function<void()>& func) const
-	{ return StringBuilder() % get_function_name(func) % " in ThreadlessTaskExecutor '" % _name % "'"; }
+	std::string ThreadlessTaskExecutor::GetProfilerMessage(const TaskType& task) const
+	{ return StringBuilder() % get_function_name(task) % " in ThreadlessTaskExecutor '" % _name % "'"; }
 
 
 	void ThreadlessTaskExecutor::ExecuteTask(const TaskPair& task) const
@@ -90,13 +90,13 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, wrap_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, wrap_const_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				task.first();
 			}
 			else
 				task.first();
 		}
-		catch(const std::exception& ex)
+		catch (const std::exception& ex)
 		{ _exceptionHandler(ex); }
 	}
 

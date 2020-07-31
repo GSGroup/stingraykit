@@ -39,11 +39,11 @@ namespace stingray
 
 
 	void ThreadTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Executor func exception: " << ex; }
+	{ s_logger.Error() << "Executor task exception: " << ex; }
 
 
-	std::string ThreadTaskExecutor::GetProfilerMessage(const function<void()>& func) const
-	{ return StringBuilder() % get_function_name(func) % " in ThreadTaskExecutor '" % _name % "'"; }
+	std::string ThreadTaskExecutor::GetProfilerMessage(const TaskType& task) const
+	{ return StringBuilder() % get_function_name(task) % " in ThreadTaskExecutor '" % _name % "'"; }
 
 
 	void ThreadTaskExecutor::ThreadFunc(const ICancellationToken& token)
@@ -79,13 +79,13 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&ThreadTaskExecutor::GetProfilerMessage, this, wrap_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&ThreadTaskExecutor::GetProfilerMessage, this, wrap_const_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				task.first();
 			}
 			else
 				task.first();
 		}
-		catch(const std::exception& ex)
+		catch (const std::exception& ex)
 		{ _exceptionHandler(ex); }
 	}
 

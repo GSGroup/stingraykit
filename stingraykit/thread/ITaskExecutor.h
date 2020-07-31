@@ -21,9 +21,11 @@ namespace stingray
 
 	struct ITaskExecutor
 	{
+		typedef function<void ()> TaskType;
+
 		virtual ~ITaskExecutor() { }
 
-		virtual void AddTask(const function<void ()>& task, const FutureExecutionTester& tester = null) = 0;
+		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(ITaskExecutor);
 

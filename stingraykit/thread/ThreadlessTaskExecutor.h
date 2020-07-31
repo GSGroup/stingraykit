@@ -19,8 +19,7 @@ namespace stingray
 
 	class ThreadlessTaskExecutor : STINGRAYKIT_FINAL(ThreadlessTaskExecutor), public virtual ITaskExecutor
 	{
-		typedef function<void()>							TaskType;
-		typedef function<void(const std::exception&)>		ExceptionHandlerType;
+		typedef function<void (const std::exception&)>		ExceptionHandlerType;
 
 		typedef std::pair<TaskType, FutureExecutionTester>	TaskPair;
 		typedef std::deque<TaskPair>						QueueType;
@@ -51,7 +50,7 @@ namespace stingray
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
-		std::string GetProfilerMessage(const function<void()>& func) const;
+		std::string GetProfilerMessage(const TaskType& task) const;
 
 		void ExecuteTask(const TaskPair& task) const;
 	};
