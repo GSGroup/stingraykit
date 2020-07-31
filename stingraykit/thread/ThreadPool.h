@@ -27,6 +27,8 @@ namespace stingray
 		static const TimeDuration DefaultProfileTimeout;
 
 	private:
+		typedef function<void ()>	CompletedHandler;
+
 		class WorkerWrapper;
 		STINGRAYKIT_DECLARE_PTR(WorkerWrapper);
 
@@ -42,6 +44,7 @@ namespace stingray
 		Mutex					_mutex;
 		optional<Task>			_task;
 		ConditionVariable		_cond;
+		ConditionVariable		_completedCond;
 
 		Workers					_workers;
 		unique_ptr<Thread>		_worker;
@@ -53,11 +56,14 @@ namespace stingray
 
 		void Queue(const Task& task);
 		bool TryQueue(const Task& task);
+		void WaitQueue(const Task& task, const ICancellationToken& token);
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
 		std::string GetProfilerMessage(const Task& task) const;
+
+		void TaskCompletedHandler();
 
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const ICancellationToken& token, const Task& task) const;

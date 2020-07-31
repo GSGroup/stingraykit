@@ -25,21 +25,25 @@ namespace stingray
 		optional<TimeDuration>	_profileTimeout;
 		optional<TimeDuration>	_idleTimeout;
 		ExceptionHandler		_exceptionHandler;
+		CompletedHandler		_completedHandler;
 
 		Mutex					_mutex;
 		optional<Task>			_task;
+		bool					_completed;
 		bool					_idle;
 		ConditionVariable		_cond;
 
 		Thread					_worker;
 
 	public:
-		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const optional<TimeDuration>& idleTimeout, const ExceptionHandler& exceptionHandler, const Task& task)
+		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const optional<TimeDuration>& idleTimeout, const ExceptionHandler& exceptionHandler, const CompletedHandler& completedHandler, const Task& task)
 			:	_name(name),
 				_profileTimeout(profileTimeout),
 				_idleTimeout(idleTimeout),
 				_exceptionHandler(exceptionHandler),
+				_completedHandler(completedHandler),
 				_task(task),
+				_completed(false),
 				_idle(false),
 				_worker(_name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
 		{ }
@@ -47,7 +51,7 @@ namespace stingray
 		bool IsIdle() const
 		{
 			MutexLock l(_mutex);
-			return !_task && _idle;
+			return !_task && _completed && _idle;
 		}
 
 		bool CanAddTask() const
@@ -63,6 +67,7 @@ namespace stingray
 				return false;
 
 			_task = task;
+			_completed = false;
 			_idle = false;
 			_cond.Broadcast();
 			return true;
@@ -79,6 +84,17 @@ namespace stingray
 			{
 				if (!_task)
 				{
+					if (!_completed)
+					{
+						MutexUnlock ul(l);
+						_completedHandler();
+					}
+
+					if (_task)
+						continue;
+
+					_completed = true;
+
 					if (!_idle && _idleTimeout)
 						_idle = _cond.Wait(_mutex, TimedCancellationToken(token, *_idleTimeout)) == ConditionWaitResult::TimedOut;
 					else
@@ -159,7 +175,7 @@ namespace stingray
 		{
 			if (!*it)
 			{
-				*it = make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (std::distance(_workers.begin(), it) + 1), _profileTimeout, _idleTimeout, _exceptionHandler, task);
+				*it = make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (std::distance(_workers.begin(), it) + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), task);
 				return true;
 			}
 			else if ((*it)->TryAddTask(task))
@@ -169,8 +185,29 @@ namespace stingray
 		if (_workers.size() + 1 >= _maxThreads)
 			return false;
 
-		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _idleTimeout, _exceptionHandler, task));
+		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), task));
 		return true;
+	}
+
+
+	void ThreadPool::WaitQueue(const Task& task, const ICancellationToken& token)
+	{
+		MutexLock l(_mutex);
+
+		while (token)
+		{
+			if (TryQueue(task))
+				return;
+
+			switch (_completedCond.Wait(_mutex, token))
+			{
+			case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
+			case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
+			default:								break;
+			}
+		}
+
+		STINGRAYKIT_THROW(OperationCancelledException());
 	}
 
 
@@ -182,6 +219,13 @@ namespace stingray
 	{ return StringBuilder() % get_function_name(task) % " in ThreadPool '" % _name % "'"; }
 
 
+	void ThreadPool::TaskCompletedHandler()
+	{
+		MutexLock l(_mutex);
+		_completedCond.Broadcast();
+	}
+
+
 	void ThreadPool::ThreadFunc(const ICancellationToken& token)
 	{
 		MutexLock l(_mutex);
@@ -189,6 +233,8 @@ namespace stingray
 		{
 			if (!_task)
 			{
+				_completedCond.Broadcast();
+
 				if (!_workers.empty() && _idleTimeout)
 				{
 					if (_cond.Wait(_mutex, TimedCancellationToken(token, *_idleTimeout)) == ConditionWaitResult::TimedOut)
