@@ -32,7 +32,7 @@ namespace stingray
 
 	private:
 		std::string				_name;
-		u32						_maxThreads;
+		size_t					_maxThreads;
 		optional<TimeDuration>	_profileTimeout;
 		ExceptionHandler		_exceptionHandler;
 
@@ -40,7 +40,7 @@ namespace stingray
 		Workers					_workers;
 
 	public:
-		ThreadPool(const std::string& name, u32 maxThreads, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
+		ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 
 		void Queue(const Task& task);
 

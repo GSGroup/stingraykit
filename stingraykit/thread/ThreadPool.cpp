@@ -93,12 +93,12 @@ namespace stingray
 	};
 
 
-	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
+	ThreadPool::ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
 		:	_name(name),
 			_maxThreads(maxThreads),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler)
-	{ }
+	{ STINGRAYKIT_CHECK(_maxThreads != 0, ArgumentException("maxThreads")); }
 
 
 	void ThreadPool::Queue(const Task& task)
