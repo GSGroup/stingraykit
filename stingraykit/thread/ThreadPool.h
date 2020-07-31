@@ -18,7 +18,11 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ThreadPool);
 
 	public:
-		typedef function<void(const ICancellationToken&)>	Task;
+		typedef function<void (const ICancellationToken&)>	Task;
+		typedef function<void (const std::exception&)>		ExceptionHandler;
+
+	public:
+		static const TimeDuration DefaultProfileTimeout;
 
 	private:
 		class WorkerWrapper;
@@ -27,16 +31,20 @@ namespace stingray
 		typedef std::vector<WorkerWrapperPtr>	Workers;
 
 	private:
-		Mutex			_mutex;
-		std::string		_name;
-		u32				_maxThreads;
-		bool			_profileCalls;
-		Workers			_workers;
+		std::string				_name;
+		u32						_maxThreads;
+		optional<TimeDuration>	_profileTimeout;
+		ExceptionHandler		_exceptionHandler;
+
+		Mutex					_mutex;
+		Workers					_workers;
 
 	public:
-		ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls = true);
+		ThreadPool(const std::string& name, u32 maxThreads, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 
 		void Queue(const Task& task);
+
+		static void DefaultExceptionHandler(const std::exception& ex);
 	};
 	STINGRAYKIT_DECLARE_PTR(ThreadPool);
 

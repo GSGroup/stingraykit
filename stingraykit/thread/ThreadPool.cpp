@@ -13,20 +13,26 @@
 namespace stingray
 {
 
+	const TimeDuration ThreadPool::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+
+
 	class ThreadPool::WorkerWrapper
 	{
 	private:
-		const bool			_profileCalls;
+		optional<TimeDuration>	_profileTimeout;
+		ExceptionHandler		_exceptionHandler;
 
-		Mutex				_guard;
-		optional<Task>		_task;
-		ConditionVariable	_cond;
+		Mutex					_guard;
+		optional<Task>			_task;
+		ConditionVariable		_cond;
 
-		Thread				_worker;
+		Thread					_worker;
 
 	public:
-		explicit WorkerWrapper(const std::string& name, bool profileCalls = true)
-			: _profileCalls(profileCalls), _worker(name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
+		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
+			:	_profileTimeout(profileTimeout),
+				_exceptionHandler(exceptionHandler),
+				_worker(name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
 		{ }
 
 		bool TryAddTask(const Task& task)
@@ -65,21 +71,27 @@ namespace stingray
 
 		void ExecuteTask(const ICancellationToken& token, const Task& task) const
 		{
-			STINGRAYKIT_TRY("Task execution failed",
-				if (_profileCalls)
+			try
+			{
+				if (_profileTimeout)
 				{
-					AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % get_function_name(task) % " in ThreadPool worker", TimeDuration::FromSeconds(10));
+					AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % get_function_name(task) % " in ThreadPool worker", *_profileTimeout);
 					task(token);
 				}
 				else
 					task(token);
-			);
+			}
+			catch (const std::exception& ex)
+			{ _exceptionHandler(ex); }
 		}
 	};
 
 
-	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, bool profileCalls)
-		: _name(name), _maxThreads(maxThreads), _profileCalls(profileCalls)
+	ThreadPool::ThreadPool(const std::string& name, u32 maxThreads, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
+		:	_name(name),
+			_maxThreads(maxThreads),
+			_profileTimeout(profileTimeout),
+			_exceptionHandler(exceptionHandler)
 	{ }
 
 
@@ -91,9 +103,13 @@ namespace stingray
 				return;
 
 		STINGRAYKIT_CHECK(_workers.size() < _maxThreads, "Thread limit exceeded");
-		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % _workers.size(), _profileCalls));
+		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % _workers.size(), _profileTimeout, _exceptionHandler));
 
 		STINGRAYKIT_CHECK(_workers.back()->TryAddTask(task), "Internal ThreadPool error!");
 	}
+
+
+	void ThreadPool::DefaultExceptionHandler(const std::exception& ex)
+	{ Logger::Error() << "Thread pool task exception: " << ex; }
 
 }
