@@ -52,18 +52,28 @@ namespace stingray
 					continue;
 				}
 
-				STINGRAYKIT_TRY("Task execution failed",
+				{
+					const Task task = *_task;
+
 					MutexUnlock ul(l);
-					if (_profileCalls)
-					{
-						AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % get_function_name(*_task) % " in ThreadPool worker", TimeDuration::FromSeconds(10));
-						(*_task)(token);
-					}
-					else
-						(*_task)(token);
-				);
+					ExecuteTask(token, task);
+				}
+
 				_task.reset();
 			}
+		}
+
+		void ExecuteTask(const ICancellationToken& token, const Task& task) const
+		{
+			STINGRAYKIT_TRY("Task execution failed",
+				if (_profileCalls)
+				{
+					AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % get_function_name(task) % " in ThreadPool worker", TimeDuration::FromSeconds(10));
+					task(token);
+				}
+				else
+					task(token);
+			);
 		}
 	};
 
