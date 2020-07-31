@@ -30,10 +30,11 @@ namespace stingray
 		Thread					_worker;
 
 	public:
-		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
+		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler, const Task& task)
 			:	_name(name),
 				_profileTimeout(profileTimeout),
 				_exceptionHandler(exceptionHandler),
+				_task(task),
 				_worker(_name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
 		{ }
 
@@ -108,9 +109,7 @@ namespace stingray
 				return;
 
 		STINGRAYKIT_CHECK(_workers.size() < _maxThreads, "Thread limit exceeded");
-		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % _workers.size(), _profileTimeout, _exceptionHandler));
-
-		STINGRAYKIT_CHECK(_workers.back()->TryAddTask(task), "Internal ThreadPool error!");
+		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % _workers.size(), _profileTimeout, _exceptionHandler, task));
 	}
 
 
