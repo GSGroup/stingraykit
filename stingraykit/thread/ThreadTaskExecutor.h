@@ -52,7 +52,7 @@ namespace stingray
 		QueueType				_queue;
 		ConditionVariable		_condVar;
 
-		ThreadPtr				_worker;
+		Thread					_worker;
 
 	public:
 		explicit ThreadTaskExecutor(const std::string& name, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DefaultExceptionHandler);

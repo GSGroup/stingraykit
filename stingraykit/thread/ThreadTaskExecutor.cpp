@@ -23,7 +23,7 @@ namespace stingray
 		:	_name(name),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
-			_worker(make_shared_ptr<Thread>(name, Bind(&ThreadTaskExecutor::ThreadFunc, this, _1)))
+			_worker(name, Bind(&ThreadTaskExecutor::ThreadFunc, this, _1))
 	{ }
 
 
