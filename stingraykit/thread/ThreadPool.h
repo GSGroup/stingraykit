@@ -23,6 +23,7 @@ namespace stingray
 		typedef function<void (const std::exception&)>		ExceptionHandler;
 
 	public:
+		static const TimeDuration DefaultIdleTimeout;
 		static const TimeDuration DefaultProfileTimeout;
 
 	private:
@@ -35,6 +36,7 @@ namespace stingray
 		std::string				_name;
 		size_t					_maxThreads;
 		optional<TimeDuration>	_profileTimeout;
+		optional<TimeDuration>	_idleTimeout;
 		ExceptionHandler		_exceptionHandler;
 
 		Mutex					_mutex;
@@ -45,7 +47,7 @@ namespace stingray
 		unique_ptr<Thread>		_worker;
 
 	public:
-		ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
+		ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const optional<TimeDuration>& idleTimeout = DefaultIdleTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 
 		void Queue(const Task& task);
 

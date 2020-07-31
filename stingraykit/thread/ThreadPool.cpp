@@ -9,10 +9,12 @@
 
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/thread/TimedCancellationToken.h>
 
 namespace stingray
 {
 
+	const TimeDuration ThreadPool::DefaultIdleTimeout = TimeDuration::Minute();
 	const TimeDuration ThreadPool::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 
 
@@ -21,22 +23,32 @@ namespace stingray
 	private:
 		std::string				_name;
 		optional<TimeDuration>	_profileTimeout;
+		optional<TimeDuration>	_idleTimeout;
 		ExceptionHandler		_exceptionHandler;
 
 		Mutex					_mutex;
 		optional<Task>			_task;
+		bool					_idle;
 		ConditionVariable		_cond;
 
 		Thread					_worker;
 
 	public:
-		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler, const Task& task)
+		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const optional<TimeDuration>& idleTimeout, const ExceptionHandler& exceptionHandler, const Task& task)
 			:	_name(name),
 				_profileTimeout(profileTimeout),
+				_idleTimeout(idleTimeout),
 				_exceptionHandler(exceptionHandler),
 				_task(task),
+				_idle(false),
 				_worker(_name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
 		{ }
+
+		bool IsIdle() const
+		{
+			MutexLock l(_mutex);
+			return !_task && _idle;
+		}
 
 		bool TryAddTask(const Task& task)
 		{
@@ -45,6 +57,7 @@ namespace stingray
 				return false;
 
 			_task = task;
+			_idle = false;
 			_cond.Broadcast();
 			return true;
 		}
@@ -60,7 +73,10 @@ namespace stingray
 			{
 				if (!_task)
 				{
-					_cond.Wait(_mutex, token);
+					if (!_idle && _idleTimeout)
+						_idle = _cond.Wait(_mutex, TimedCancellationToken(token, *_idleTimeout)) == ConditionWaitResult::TimedOut;
+					else
+						_cond.Wait(_mutex, token);
 					continue;
 				}
 
@@ -93,10 +109,11 @@ namespace stingray
 	};
 
 
-	ThreadPool::ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
+	ThreadPool::ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout, const optional<TimeDuration>& idleTimeout, const ExceptionHandler& exceptionHandler)
 		:	_name(name),
 			_maxThreads(maxThreads),
 			_profileTimeout(profileTimeout),
+			_idleTimeout(idleTimeout),
 			_exceptionHandler(exceptionHandler)
 	{ STINGRAYKIT_CHECK(_maxThreads != 0, ArgumentException("maxThreads")); }
 
@@ -114,12 +131,19 @@ namespace stingray
 			return;
 		}
 
-		for (Workers::const_iterator it = _workers.begin(); it != _workers.end(); ++it)
-			if ((*it)->TryAddTask(task))
+		for (Workers::iterator it = _workers.begin(); it != _workers.end(); ++it)
+		{
+			if (!*it)
+			{
+				*it = make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (std::distance(_workers.begin(), it) + 1), _profileTimeout, _idleTimeout, _exceptionHandler, task);
 				return;
+			}
+			else if ((*it)->TryAddTask(task))
+				return;
+		}
 
 		STINGRAYKIT_CHECK(_workers.size() + 1 < _maxThreads, "Thread limit exceeded");
-		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _exceptionHandler, task));
+		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _idleTimeout, _exceptionHandler, task));
 	}
 
 
@@ -138,7 +162,18 @@ namespace stingray
 		{
 			if (!_task)
 			{
-				_cond.Wait(_mutex, token);
+				if (!_workers.empty() && _idleTimeout)
+				{
+					if (_cond.Wait(_mutex, TimedCancellationToken(token, *_idleTimeout)) == ConditionWaitResult::TimedOut)
+						for (Workers::iterator it = _workers.begin(); it != _workers.end(); ++it)
+							if (*it && (*it)->IsIdle())
+								it->reset();
+
+					while (!_workers.empty() && !_workers.back())
+						_workers.pop_back();
+				}
+				else
+					_cond.Wait(_mutex, token);
 				continue;
 			}
 
