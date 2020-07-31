@@ -19,6 +19,7 @@ namespace stingray
 	class ThreadPool::WorkerWrapper
 	{
 	private:
+		std::string				_name;
 		optional<TimeDuration>	_profileTimeout;
 		ExceptionHandler		_exceptionHandler;
 
@@ -30,9 +31,10 @@ namespace stingray
 
 	public:
 		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
-			:	_profileTimeout(profileTimeout),
+			:	_name(name),
+				_profileTimeout(profileTimeout),
 				_exceptionHandler(exceptionHandler),
-				_worker(name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
+				_worker(_name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
 		{ }
 
 		bool TryAddTask(const Task& task)
@@ -47,6 +49,9 @@ namespace stingray
 		}
 
 	private:
+		std::string GetProfilerMessage(const Task& task) const
+		{ return StringBuilder() % get_function_name(task) % " in ThreadPool '" % _name % "'"; }
+
 		void ThreadFunc(const ICancellationToken& token)
 		{
 			MutexLock l(_guard);
@@ -75,7 +80,7 @@ namespace stingray
 			{
 				if (_profileTimeout)
 				{
-					AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), StringBuilder() % get_function_name(task) % " in ThreadPool worker", *_profileTimeout);
+					AsyncProfiler::Session profilerSession(ExecutorsProfiler::Instance().GetProfiler(), Bind(&WorkerWrapper::GetProfilerMessage, this, wrap_const_ref(task)), *_profileTimeout, AsyncProfiler::NameGetterTag());
 					task(token);
 				}
 				else
