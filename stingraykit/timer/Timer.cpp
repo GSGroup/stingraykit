@@ -50,11 +50,10 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(CallbackInfo);
 
 	private:
-		typedef function<void()>			FuncT;
 		typedef CallbackQueue::iterator		QueueIterator;
 
 	private:
-		FuncT						_func;
+		TaskType					_task;
 		TimeDuration				_timeToTrigger;
 		optional<TimeDuration>		_period;
 		TaskLifeToken				_token;
@@ -71,15 +70,15 @@ namespace stingray
 		bool IsErased() const									{ return _erased; }
 
 	public:
-		CallbackInfo(const FuncT& func, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const TaskLifeToken& token)
-			:	_func(func),
+		CallbackInfo(const TaskType& task, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const TaskLifeToken& token)
+			:	_task(task),
 				_timeToTrigger(timeToTrigger),
 				_period(period),
 				_token(token),
 				_erased(false)
 		{ }
 
-		const FuncT& GetFunc() const							{ return _func; }
+		const TaskType& GetTask() const							{ return _task; }
 		FutureExecutionTester GetExecutionTester() const 		{ return _token.GetExecutionTester(); }
 		void Release()											{ _token.Release(); }
 
@@ -178,9 +177,9 @@ namespace stingray
 	}
 
 
-	Token Timer::SetTimeout(const TimeDuration& timeout, const function<void()>& func)
+	Token Timer::SetTimeout(const TimeDuration& timeout, const TaskType& task)
 	{
-		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(func, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
 		const Token token = MakeToken<FunctionToken>(Bind(&Timer::RemoveTask, _queue, ci));
 
 		{
@@ -193,13 +192,13 @@ namespace stingray
 	}
 
 
-	Token Timer::SetTimer(const TimeDuration& interval, const function<void()>& func)
-	{ return SetTimer(interval, interval, func); }
+	Token Timer::SetTimer(const TimeDuration& interval, const TaskType& task)
+	{ return SetTimer(interval, interval, task); }
 
 
-	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func)
+	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const TaskType& task)
 	{
-		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(func, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
 		const Token token = MakeToken<FunctionToken>(Bind(&Timer::RemoveTask, _queue, ci));
 
 		{
@@ -212,7 +211,7 @@ namespace stingray
 	}
 
 
-	void Timer::AddTask(const function<void()>& task, const FutureExecutionTester& tester)
+	void Timer::AddTask(const TaskType& task, const FutureExecutionTester& tester)
 	{
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
 
@@ -233,11 +232,11 @@ namespace stingray
 
 
 	void Timer::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Timer func exception: " << ex; }
+	{ s_logger.Error() << "Timer task exception: " << ex; }
 
 
-	std::string Timer::GetProfilerMessage(const function<void()>& func) const
-	{ return StringBuilder() % get_function_name(func) % " in Timer '" % _timerName % "'"; }
+	std::string Timer::GetProfilerMessage(const TaskType& task) const
+	{ return StringBuilder() % get_function_name(task) % " in Timer '" % _timerName % "'"; }
 
 
 	void Timer::ThreadFunc(const ICancellationToken& token)
@@ -308,11 +307,11 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&Timer::GetProfilerMessage, this, wrap_ref(ci->GetFunc())), *_profileTimeout, AsyncProfiler::NameGetterTag());
-				ci->GetFunc()();
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&Timer::GetProfilerMessage, this, wrap_const_ref(ci->GetTask())), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				ci->GetTask()();
 			}
 			else
-				ci->GetFunc()();
+				ci->GetTask()();
 		}
 		catch(const std::exception &ex)
 		{ _exceptionHandler(ex); }

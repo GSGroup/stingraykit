@@ -32,7 +32,7 @@ namespace stingray
 		STINGRAYKIT_DECLARE_PTR(CallbackQueue);
 
 	public:
-		typedef function<void(const std::exception&)>	ExceptionHandler;
+		typedef function<void (const std::exception&)>	ExceptionHandler;
 
 		static const TimeDuration DefaultProfileTimeout;
 
@@ -53,18 +53,18 @@ namespace stingray
 		explicit Timer(const std::string& timerName, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 		virtual ~Timer();
 
-		Token SetTimeout(const TimeDuration& timeout, const function<void()>& func);
-		Token SetTimer(const TimeDuration& interval, const function<void()>& func);
-		Token SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const function<void()>& func);
+		Token SetTimeout(const TimeDuration& timeout, const TaskType& task);
+		Token SetTimer(const TimeDuration& interval, const TaskType& task);
+		Token SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const TaskType& task);
 
-		virtual void AddTask(const function<void()>& task, const FutureExecutionTester& tester = null);
+		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
 		static void RemoveTask(const CallbackQueuePtr& queue, const CallbackInfoPtr& ci);
 
-		std::string GetProfilerMessage(const function<void()>& func) const;
+		std::string GetProfilerMessage(const TaskType& task) const;
 
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const CallbackInfoPtr& ci) const;
