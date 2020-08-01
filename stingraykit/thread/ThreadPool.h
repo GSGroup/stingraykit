@@ -49,7 +49,10 @@ namespace stingray
 	public:
 		ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const optional<TimeDuration>& idleTimeout = DefaultIdleTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 
+		bool CanQueue() const;
+
 		void Queue(const Task& task);
+		bool TryQueue(const Task& task);
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
