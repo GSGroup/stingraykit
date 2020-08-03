@@ -10,8 +10,6 @@
 
 #include <stingraykit/io/IInputByteStream.h>
 #include <stingraykit/io/IOutputByteStream.h>
-#include <stingraykit/optional.h>
-#include <stingraykit/time/Time.h>
 
 namespace stingray
 {
