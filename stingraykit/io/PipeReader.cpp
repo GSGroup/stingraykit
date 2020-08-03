@@ -10,7 +10,9 @@
 namespace stingray
 {
 
-	PipeReader::PipeReader(const IPipePtr& pipe) : _pipe(pipe) { }
+	PipeReader::PipeReader(const IPipePtr& pipe)
+		: _pipe(STINGRAYKIT_REQUIRE_NOT_NULL(pipe))
+	{ }
 
 
 	u8 PipeReader::ReadByte(const ICancellationToken& token)
