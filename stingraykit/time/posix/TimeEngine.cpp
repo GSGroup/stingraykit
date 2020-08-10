@@ -22,6 +22,7 @@ namespace posix
 
 	//work around year 2038 bug.
 	//this slightly modified version of gmtime_r was taken from http://www.2038bug.com/developers.html
+	//timegm64 implementation was taken from Bionic
 
 #	define LEAP_CHECK(n) ((!(((n) + 1900) % 400) || (!(((n) + 1900) % 4) && (((n) + 1900) % 100))) != 0)
 #	define WRAP(a,b,m)	((a) = ((a) <  0  ) ? ((b)--, (a) + (m)) : (a))
@@ -29,16 +30,19 @@ namespace posix
 	namespace
 	{
 
+		const int days_in_months[4][13] =
+		{
+			{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+			{31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+			{0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
+			{0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366},
+		};
+
+		const int days_in_gregorian_cycle = ((365 * 400) + 100 - 4 + 1);
+
+
 		struct tm *gmtime64_r (s64 t, struct tm *p)
 		{
-			static const int days[4][13] =
-			{
-				{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-				{31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-				{0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
-				{0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366},
-			};
-
 			int v_tm_sec, v_tm_min, v_tm_hour, v_tm_mon, v_tm_wday, v_tm_tday;
 			int leap;
 			long m;
@@ -57,23 +61,71 @@ namespace posix
 			m = (long) v_tm_tday;
 			p->tm_year = 70;
 			leap = LEAP_CHECK (p->tm_year);
-			while (m >= (long) days[leap + 2][12])
+			while (m >= (long) days_in_months[leap + 2][12])
 			{
-				m -= (long) days[leap + 2][12];
+				m -= (long) days_in_months[leap + 2][12];
 				p->tm_year++;
 				leap = LEAP_CHECK (p->tm_year);
 			}
 			v_tm_mon = 0;
-			while (m >= (long) days[leap][v_tm_mon])
+			while (m >= (long) days_in_months[leap][v_tm_mon])
 			{
-				m -= (long) days[leap][v_tm_mon];
+				m -= (long) days_in_months[leap][v_tm_mon];
 				v_tm_mon++;
 			}
 			p->tm_mday = (int) m + 1;
-			p->tm_yday = days[leap + 2][v_tm_mon] + m;
+			p->tm_yday = days_in_months[leap + 2][v_tm_mon] + m;
 			p->tm_sec = v_tm_sec, p->tm_min = v_tm_min, p->tm_hour = v_tm_hour,
 									 p->tm_mon = v_tm_mon, p->tm_wday = v_tm_wday;
 			return p;
+		}
+
+
+		s64 timegm64(const struct tm *date)
+		{
+			s64 days = 0;
+			s64 seconds = 0;
+			int year;
+			int orig_year = date->tm_year;
+			int cycles = 0;
+			if (orig_year > 100)
+			{
+				cycles = (orig_year - 100) / 400;
+				orig_year -= cycles * 400;
+				days += (s64)cycles * days_in_gregorian_cycle;
+			}
+			else if (orig_year < -300)
+			{
+				cycles = (orig_year - 100) / 400;
+				orig_year -= cycles * 400;
+				days += (s64)cycles * days_in_gregorian_cycle;
+			}
+
+			if (orig_year > 70)
+			{
+				year = 70;
+				while (year < orig_year)
+				{
+					days += days_in_months[LEAP_CHECK(year) + 2][12];
+					year++;
+				}
+			}
+			else if (orig_year < 70)
+			{
+				year = 69;
+				do {
+					days -= days_in_months[LEAP_CHECK(year) + 2][12];
+					year--;
+				}
+				while (year >= orig_year);
+			}
+			days += days_in_months[LEAP_CHECK(orig_year) + 2][date->tm_mon];
+			days += date->tm_mday - 1;
+			seconds = days * 60 * 60 * 24;
+			seconds += date->tm_hour * 60 * 60;
+			seconds += date->tm_min * 60;
+			seconds += date->tm_sec;
+			return seconds;
 		}
 
 	}
@@ -147,8 +199,13 @@ namespace posix
 		bdt.tm_mday = bdTime.MonthDay;
 		bdt.tm_mon = bdTime.Month - 1;
 		bdt.tm_year = bdTime.Year - 1900;
+#ifdef STINGRAYKIT_32_BIT_TIME_T
+		const s64 result = timegm64(&bdt);
+		STINGRAYKIT_CHECK(result != -1, SystemException(StringBuilder() % "timegm64(" % bdTime % ")"));
+#else
 		const time_t result = timegm(&bdt);
 		STINGRAYKIT_CHECK(result != -1, SystemException(StringBuilder() % "timegm(" % bdTime % ")"));
+#endif
 		return (s64)result * 1000 + bdTime.Milliseconds;
 	}
 
