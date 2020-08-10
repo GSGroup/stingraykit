@@ -7,6 +7,7 @@
 
 #include <stingraykit/time/posix/TimeEngine.h>
 
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
 #include <stingraykit/SystemException.h>
 
@@ -147,7 +148,7 @@ namespace posix
 		bdt.tm_mon = bdTime.Month - 1;
 		bdt.tm_year = bdTime.Year - 1900;
 		const time_t result = timegm(&bdt);
-		STINGRAYKIT_CHECK(result != -1, SystemException("timegm failed while processing bdt = " + bdTime.ToString() + "!"));
+		STINGRAYKIT_CHECK(result != -1, SystemException(StringBuilder() % "timegm(" % bdTime % ")"));
 		return (s64)result * 1000 + bdTime.Milliseconds;
 	}
 
@@ -156,10 +157,10 @@ namespace posix
 	{
 		tm b = { };
 #ifdef STINGRAYKIT_32_BIT_TIME_T
-		STINGRAYKIT_CHECK(gmtime64_r(milliseconds / 1000, &b) != NULL, SystemException("gmtime64_r failed!"));
+		STINGRAYKIT_CHECK(gmtime64_r(milliseconds / 1000, &b) != NULL, SystemException(StringBuilder() % "gmtime64_r(" % milliseconds % ")"));
 #else
 		const time_t t = milliseconds / 1000;
-		STINGRAYKIT_CHECK(gmtime_r(&t, &b) != NULL, SystemException("gmtime_r failed!"));
+		STINGRAYKIT_CHECK(gmtime_r(&t, &b) != NULL, SystemException(StringBuilder() % "gmtime_r(" % milliseconds % ")"));
 #endif
 
 		return BrokenDownTime(milliseconds % 1000, b.tm_sec, b.tm_min, b.tm_hour, b.tm_wday, b.tm_mday, b.tm_mon + 1, b.tm_yday, b.tm_year + 1900);
