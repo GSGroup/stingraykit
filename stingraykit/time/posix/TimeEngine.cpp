@@ -8,7 +8,6 @@
 #include <stingraykit/time/posix/TimeEngine.h>
 
 #include <stingraykit/thread/atomic/AtomicInt.h>
-#include <stingraykit/exception.h>
 #include <stingraykit/SystemException.h>
 
 #include <time.h>
@@ -28,6 +27,7 @@ namespace posix
 
 	namespace
 	{
+
 		struct tm *gmtime64_r (s64 t, struct tm *p)
 		{
 			static const int days[4][13] =
@@ -74,12 +74,14 @@ namespace posix
 									 p->tm_mon = v_tm_mon, p->tm_wday = v_tm_wday;
 			return p;
 		}
+
 	}
 
 #endif
 
 	namespace
 	{
+
 		struct AtomicsHolder
 		{
 			static AtomicS32::Type	s_minutesFromUtc;
@@ -92,34 +94,33 @@ namespace posix
 #ifndef PLATFORM_EMBEDDED
 		AtomicS64::Type		AtomicsHolder::s_deltaMilliseconds = 0;
 #endif
+
 	}
 
 
 	void TimeEngine::SetMillisecondsSinceEpoch(s64 milliseconds)
 	{
 #ifdef PLATFORM_EMBEDDED
-		struct timeval tv = {};
+		struct timeval tv = { };
 		tv.tv_sec = milliseconds / 1000;
 		tv.tv_usec = (milliseconds % 1000) * 1000;
-		if (settimeofday(&tv, 0))
-			STINGRAYKIT_THROW(SystemException("settimeofday"));
+		STINGRAYKIT_CHECK(settimeofday(&tv, 0) == 0, SystemException("settimeofday"));
 #else
-		struct timeval tv = {};
-		if (gettimeofday(&tv, 0))
-			STINGRAYKIT_THROW(SystemException("gettimeofday"));
+		struct timeval tv = { };
+		STINGRAYKIT_CHECK(gettimeofday(&tv, 0) == 0, SystemException("gettimeofday"));
 
-		s64 ms = (s64)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+		const s64 ms = (s64)tv.tv_sec * 1000 + tv.tv_usec / 1000;
 		AtomicS64::Store(AtomicsHolder::s_deltaMilliseconds, milliseconds - ms);
 #endif
 	}
 
+
 	s64 TimeEngine::GetMillisecondsSinceEpoch()
 	{
-		struct timeval tv = {};
-		if (gettimeofday(&tv, 0))
-			STINGRAYKIT_THROW(SystemException("gettimeofday"));
+		struct timeval tv = { };
+		STINGRAYKIT_CHECK(gettimeofday(&tv, 0) == 0, SystemException("gettimeofday"));
 
-		s64 ms = (s64)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+		const s64 ms = (s64)tv.tv_sec * 1000 + tv.tv_usec / 1000;
 #ifdef PLATFORM_EMBEDDED
 		return ms;
 #else
@@ -127,37 +128,38 @@ namespace posix
 #endif
 	}
 
+
 	s16 TimeEngine::GetMinutesFromUtc()
 	{ return AtomicS32::Load(AtomicsHolder::s_minutesFromUtc); }
+
 
 	void TimeEngine::SetMinutesFromUtc(s16 minutes)
 	{ AtomicS32::Store(AtomicsHolder::s_minutesFromUtc, minutes); }
 
+
 	s64 TimeEngine::MillisecondsFromBrokenDown(const BrokenDownTime& bdTime)
 	{
-		tm bdt = {};
+		tm bdt = { };
 		bdt.tm_sec = bdTime.Seconds;
 		bdt.tm_min = bdTime.Minutes;
 		bdt.tm_hour = bdTime.Hours;
 		bdt.tm_mday = bdTime.MonthDay;
 		bdt.tm_mon = bdTime.Month - 1;
 		bdt.tm_year = bdTime.Year - 1900;
-		time_t result = timegm(&bdt);
+		const time_t result = timegm(&bdt);
 		STINGRAYKIT_CHECK(result != -1, SystemException("timegm failed while processing bdt = " + bdTime.ToString() + "!"));
 		return (s64)result * 1000 + bdTime.Milliseconds;
 	}
+
 
 	BrokenDownTime TimeEngine::BrokenDownFromMilliseconds(s64 milliseconds)
 	{
 		tm b = { };
 #ifdef STINGRAYKIT_32_BIT_TIME_T
-		if (gmtime64_r(milliseconds / 1000, &b) == NULL)
-			STINGRAYKIT_THROW(SystemException("gmtime64_r failed!"));
+		STINGRAYKIT_CHECK(gmtime64_r(milliseconds / 1000, &b) != NULL, SystemException("gmtime64_r failed!"));
 #else
-		time_t t = milliseconds / 1000;
-
-		if (gmtime_r(&t, &b) == NULL)
-			STINGRAYKIT_THROW(SystemException("gmtime_r failed!"));
+		const time_t t = milliseconds / 1000;
+		STINGRAYKIT_CHECK(gmtime_r(&t, &b) != NULL, SystemException("gmtime_r failed!"));
 #endif
 
 		return BrokenDownTime(milliseconds % 1000, b.tm_sec, b.tm_min, b.tm_hour, b.tm_wday, b.tm_mday, b.tm_mon + 1, b.tm_yday, b.tm_year + 1900);
