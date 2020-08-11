@@ -21,8 +21,7 @@ namespace posix
 #ifdef STINGRAYKIT_32_BIT_TIME_T
 
 	//work around year 2038 bug.
-	//this slightly modified version of gmtime_r was taken from http://www.2038bug.com/developers.html
-	//timegm64 implementation was taken from Bionic
+	//gmtime64_r and timegm64 implementations was taken from Bionic with some modifications
 
 #	define LEAP_CHECK(n) ((!(((n) + 1900) % 400) || (!(((n) + 1900) % 4) && (((n) + 1900) % 100))) != 0)
 #	define WRAP(a,b,m)	((a) = ((a) <  0  ) ? ((b)--, (a) + (m)) : (a))
@@ -41,42 +40,87 @@ namespace posix
 		const int days_in_gregorian_cycle = ((365 * 400) + 100 - 4 + 1);
 
 
-		struct tm *gmtime64_r (s64 t, struct tm *p)
+		struct tm *gmtime64_r(s64 t, struct tm *p)
 		{
-			int v_tm_sec, v_tm_min, v_tm_hour, v_tm_mon, v_tm_wday, v_tm_tday;
+			int v_tm_sec, v_tm_min, v_tm_hour, v_tm_mon, v_tm_wday;
+			s64 v_tm_tday;
 			int leap;
-			long m;
-			v_tm_sec = (int) ((s64) t % (s64) 60);
-			t /= 60;
-			v_tm_min = (int) ((s64) t % (s64) 60);
-			t /= 60;
-			v_tm_hour = (int) ((s64) t % (s64) 24);
-			t /= 24;
-			v_tm_tday = (int) t;
+			s64 m;
+			s64 time = t;
+			int year = 70;
+			int cycles = 0;
+
+			v_tm_sec =  (int)(time % 60);
+			time /= 60;
+			v_tm_min =  (int)(time % 60);
+			time /= 60;
+			v_tm_hour = (int)(time % 24);
+			time /= 24;
+			v_tm_tday = time;
+
 			WRAP (v_tm_sec, v_tm_min, 60);
 			WRAP (v_tm_min, v_tm_hour, 60);
 			WRAP (v_tm_hour, v_tm_tday, 24);
-			if ((v_tm_wday = (v_tm_tday + 4) % 7) < 0)
+
+			v_tm_wday = (int)((v_tm_tday + 4) % 7);
+			if (v_tm_wday < 0)
 				v_tm_wday += 7;
-			m = (long) v_tm_tday;
-			p->tm_year = 70;
-			leap = LEAP_CHECK (p->tm_year);
-			while (m >= (long) days_in_months[leap + 2][12])
+			m = v_tm_tday;
+
+			if (m >= 0)
 			{
-				m -= (long) days_in_months[leap + 2][12];
-				p->tm_year++;
-				leap = LEAP_CHECK (p->tm_year);
+				cycles = (int)(m / (s64) days_in_gregorian_cycle);
+				m -= (cycles * (s64) days_in_gregorian_cycle);
+				year += (cycles * 400);
+
+				leap = LEAP_CHECK(year);
+				while (m >= (s64) days_in_months[leap + 2][12])
+				{
+					m -= (s64) days_in_months[leap + 2][12];
+					year++;
+					leap = LEAP_CHECK(year);
+				}
+
+				v_tm_mon = 0;
+				while (m >= (s64) days_in_months[leap][v_tm_mon])
+				{
+					m -= (s64) days_in_months[leap][v_tm_mon];
+					v_tm_mon++;
+				}
 			}
-			v_tm_mon = 0;
-			while (m >= (long) days_in_months[leap][v_tm_mon])
+			else
 			{
-				m -= (long) days_in_months[leap][v_tm_mon];
-				v_tm_mon++;
+				year--;
+
+				cycles = (int)((m / (s64) days_in_gregorian_cycle) + 1);
+				m -= (cycles * (s64) days_in_gregorian_cycle);
+				year += (cycles * 400);
+
+				leap = LEAP_CHECK(year);
+				while (m < (s64) -days_in_months[leap + 2][12])
+				{
+					m += (s64) days_in_months[leap + 2][12];
+					year--;
+					leap = LEAP_CHECK(year);
+				}
+
+				v_tm_mon = 11;
+				while (m < (s64) -days_in_months[leap][v_tm_mon])
+				{
+					m += (s64) days_in_months[leap][v_tm_mon];
+					v_tm_mon--;
+				}
+				m += (s64) days_in_months[leap][v_tm_mon];
 			}
+
+			p->tm_year = year;
 			p->tm_mday = (int) m + 1;
-			p->tm_yday = days_in_months[leap + 2][v_tm_mon] + m;
-			p->tm_sec = v_tm_sec, p->tm_min = v_tm_min, p->tm_hour = v_tm_hour,
-									 p->tm_mon = v_tm_mon, p->tm_wday = v_tm_wday;
+			p->tm_yday = days_in_months[leap + 2][v_tm_mon] + (int)m;
+			p->tm_sec  = v_tm_sec;
+			p->tm_min  = v_tm_min;
+			p->tm_hour = v_tm_hour;
+			p->tm_mon  = v_tm_mon;
+			p->tm_wday = v_tm_wday;
 			return p;
 		}
 
