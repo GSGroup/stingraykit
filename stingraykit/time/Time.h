@@ -8,10 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/optional.h>
 #include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/time/BrokenDownTime.h>
-#include <stingraykit/toolkit.h>
+#include <stingraykit/optional.h>
 
 #include <limits>
 
@@ -45,8 +44,8 @@ namespace stingray
 
 		TimeDuration Absolute() const						{ return TimeDuration(_microseconds < 0 ? -_microseconds : _microseconds, Dummy()); }
 
-		void Serialize(ObjectOStream & ar) const;
-		void Deserialize(ObjectIStream & ar);
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
 		TimeDuration& operator += (TimeDuration other)			{ _microseconds += other._microseconds; return *this; }
 		TimeDuration operator + (TimeDuration other) const		{ TimeDuration result(*this); return result += other; }
@@ -106,8 +105,8 @@ namespace stingray
 		std::string ToString() const;
 		static TimeZone FromString(const std::string& str);
 
-		void Serialize(ObjectOStream & ar) const;
-		void Deserialize(ObjectIStream & ar);
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 	};
 
 
@@ -129,7 +128,7 @@ namespace stingray
 		static Time FromTimeT(time_t t)
 		{ return Time((s64)t * 1000); }
 
-		u32 ToTime_t() const
+		u32 ToTimeT() const
 		{ return _milliseconds / 1000; }
 
 		TimeDuration operator - (const Time& other) const
@@ -153,23 +152,19 @@ namespace stingray
 			return result -= duration;
 		}
 
-
 		Time operator + (TimeDuration duration) const
 		{
 			Time result(*this);
 			return result += duration;
 		}
 
-
 		bool operator < (const Time& other) const
 		{ return _milliseconds < other._milliseconds; }
-
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Time);
-
 
 		static Time Now();
 
-		s64 GetMilliseconds() const { return _milliseconds; }
+		s64 GetMilliseconds() const	{ return _milliseconds; }
 		s64 GetSeconds() const		{ return GetMilliseconds() / 1000; }
 
 		BrokenDownTime BreakDown(TimeKind kind = TimeKind::Local) const;
@@ -187,8 +182,8 @@ namespace stingray
 		int GetMJD() const;
 		u32 GetBCDTime(TimeKind kind = TimeKind::Local) const;
 
-		void Serialize(ObjectOStream & ar) const;
-		void Deserialize(ObjectIStream & ar);
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
 		int DaysTo(const Time& endTime) const;
 	};

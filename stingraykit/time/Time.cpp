@@ -7,36 +7,47 @@
 
 #include <stingraykit/time/Time.h>
 
-#include <stdio.h>
-
-#include <stingraykit/exception.h>
-#include <stingraykit/math.h>
 #include <stingraykit/serialization/Serialization.h>
 #include <stingraykit/string/regex.h>
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/StringParse.h>
-#include <stingraykit/string/StringUtils.h>
 #include <stingraykit/time/TimeEngine.h>
 #include <stingraykit/log/Logger.h>
+#include <stingraykit/math.h>
+
+#include <stdio.h>
 
 namespace stingray
 {
 
-	static const int SecondsPerMinute		= 60;
-	static const int MinutesPerHour			= 60;
-	static const int HoursPerDay			= 24;
-	static const int DaysPerWeek			= 7;
-	static const int MillisecondsPerMinute	= SecondsPerMinute * 1000;
-	static const int SecondsPerHour			= MinutesPerHour * SecondsPerMinute;
-	static const int SecondsPerDay			= HoursPerDay * SecondsPerHour;
-	static const int DaysSinceMjd			= 40587;
+	namespace
+	{
+
+		const int SecondsPerMinute			= 60;
+		const int MinutesPerHour			= 60;
+		const int HoursPerDay				= 24;
+		const int DaysPerWeek				= 7;
+		const int MillisecondsPerMinute		= SecondsPerMinute * 1000;
+		const int SecondsPerHour			= MinutesPerHour * SecondsPerMinute;
+		const int SecondsPerDay				= HoursPerDay * SecondsPerHour;
+		const int DaysSinceMjd				= 40587;
+
+		const s64 SecondsBetweenNtpAndUnixEpochs = 2208988800ll;
+
+		u8 BcdValue(u8 byte)
+		{ return ((byte >> 4) & 0x0f) * 10 + (byte & 0x0f); }
+
+		u8 BcdEncode(u8 value)
+		{ return ((value / 10) << 4) + value % 10; }
+
+	}
 
 
-	void TimeDuration::Serialize(ObjectOStream & ar) const
+	void TimeDuration::Serialize(ObjectOStream& ar) const
 	{ ar.Serialize("us", _microseconds); }
 
 
-	void TimeDuration::Deserialize(ObjectIStream & ar)
+	void TimeDuration::Deserialize(ObjectIStream& ar)
 	{
 		optional<s64> microseconds;
 		ar.Deserialize("us", microseconds);
@@ -78,6 +89,7 @@ namespace stingray
 		return result;
 	}
 
+
 	TimeDuration TimeDuration::FromString(const std::string& s)
 	{
 		int n;
@@ -107,7 +119,10 @@ namespace stingray
 		: _milliseconds(milliseconds)
 	{ }
 
-	Time Time::Now() { return Time(TimeEngine::GetMillisecondsSinceEpoch()); }
+
+	Time Time::Now()
+	{ return Time(TimeEngine::GetMillisecondsSinceEpoch()); }
+
 
 	BrokenDownTime Time::BreakDown(TimeKind kind) const
 	{
@@ -115,14 +130,17 @@ namespace stingray
 		return TimeEngine::BrokenDownFromMilliseconds(_milliseconds + offset);
 	}
 
+
 	Time Time::FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind)
 	{
 		const s64 offset = kind == TimeKind::Utc? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
 		return Time(TimeEngine::MillisecondsFromBrokenDown(bdt) - offset);
 	}
 
+
 	std::string Time::ToString(const std::string& format, TimeKind kind) const
 	{ return BreakDown(kind).ToString(format); }
+
 
 	Time Time::FromString(const std::string& s, TimeKind kind)
 	{
@@ -241,21 +259,30 @@ namespace stingray
 		return FromBrokenDownTime(bdt, kind);
 	}
 
-	void Time::Serialize(ObjectOStream & ar) const	{ ar.Serialize("ms", _milliseconds); }
-	void Time::Deserialize(ObjectIStream & ar)		{ ar.Deserialize("ms", _milliseconds); }
+
+	void Time::Serialize(ObjectOStream& ar) const
+	{ ar.Serialize("ms", _milliseconds); }
+
+
+	void Time::Deserialize(ObjectIStream& ar)
+	{ ar.Deserialize("ms", _milliseconds); }
+
 
 	TimeZone::TimeZone(s16 minutes)
 		: _minutesFromUtc(minutes)
 	{ STINGRAYKIT_CHECK(minutes >= -12 * MinutesPerHour && minutes <= 14 * MinutesPerHour, ArgumentException("minutes", minutes)); }
 
+
 	TimeZone TimeZone::Current()
 	{ return TimeZone(TimeEngine::GetMinutesFromUtc()); }
+
 
 	std::string TimeZone::ToString() const
 	{
 		const std::string sign = _minutesFromUtc > 0 ? "+" : (_minutesFromUtc < 0 ? "-" : "");
 		return StringBuilder() % sign % (Abs(_minutesFromUtc) / MinutesPerHour) % ":" % (Abs(_minutesFromUtc) % MinutesPerHour);
 	}
+
 
 	TimeZone TimeZone::FromString(const std::string& str)
 	{
@@ -269,27 +296,21 @@ namespace stingray
 	}
 
 
-	void TimeZone::Serialize(ObjectOStream & ar) const	{ ar.Serialize("offset", _minutesFromUtc); }
-	void TimeZone::Deserialize(ObjectIStream & ar)		{ ar.Deserialize("offset", _minutesFromUtc); }
+	void TimeZone::Serialize(ObjectOStream& ar) const
+	{ ar.Serialize("offset", _minutesFromUtc); }
 
 
-	const s64 SecondsBetweenNtpAndUnixEpochs = 2208988800ll;
+	void TimeZone::Deserialize(ObjectIStream& ar)
+	{ ar.Deserialize("offset", _minutesFromUtc); }
+
 
 	u64 Time::ToNtpTimestamp() const
-	{
-		return GetMilliseconds() / 1000 + SecondsBetweenNtpAndUnixEpochs;
-	}
+	{ return GetMilliseconds() / 1000 + SecondsBetweenNtpAndUnixEpochs; }
+
 
 	Time Time::FromNtpTimestamp(u64 timestamp)
-	{
-		return Time((timestamp - SecondsBetweenNtpAndUnixEpochs) * 1000);
-	}
+	{ return Time((timestamp - SecondsBetweenNtpAndUnixEpochs) * 1000); }
 
-	static inline u8 bcdValue(u8 byte)
-	{ return ((byte >> 4) & 0x0f) * 10 + (byte & 0x0f); }
-
-	static inline u8 bcdEncode(u8 value)
-	{ return ((value / 10) << 4) + value % 10; }
 
 	Time Time::MJDtoEpoch(int mjd, u32 bcdTime)
 	{ return Time(s64(mjd - DaysSinceMjd) * SecondsPerDay * 1000) + BCDDurationToTimeDuration(bcdTime); }
@@ -297,26 +318,25 @@ namespace stingray
 
 	TimeDuration Time::BCDDurationToTimeDuration(u32 bcdTime)
 	{
-		return TimeDuration(s64(1000) * (SecondsPerHour * bcdValue((bcdTime >> 16) & 0xff) +
-				SecondsPerMinute * bcdValue((bcdTime >> 8) & 0xff) +
-				bcdValue(bcdTime & 0xff)));
+		return TimeDuration(s64(1000) * (SecondsPerHour * BcdValue((bcdTime >> 16) & 0xff) +
+				SecondsPerMinute * BcdValue((bcdTime >> 8) & 0xff) +
+				BcdValue(bcdTime & 0xff)));
 	}
 
+
 	int Time::GetMJD() const
-	{
-		return DaysSinceMjd + _milliseconds / (1000 * SecondsPerDay);
-	}
+	{ return DaysSinceMjd + _milliseconds / (1000 * SecondsPerDay); }
+
 
 	u32 Time::GetBCDTime(TimeKind kind) const
 	{
-		BrokenDownTime bdt(this->BreakDown(kind));
-		return (bcdEncode(bdt.Hours) << 16) + (bcdEncode(bdt.Minutes) << 8) + bcdEncode(bdt.Seconds);
+		const BrokenDownTime bdt(BreakDown(kind));
+		return (BcdEncode(bdt.Hours) << 16) + (BcdEncode(bdt.Minutes) << 8) + BcdEncode(bdt.Seconds);
 	}
 
+
 	int Time::DaysTo(const Time& endTime) const
-	{
-		return (Time::FromBrokenDownTime((*this).BreakDown().GetDayStart()).GetMilliseconds() - Time::FromBrokenDownTime(endTime.BreakDown().GetDayStart()).GetMilliseconds()) / 86400000;	// 1000 * 60 * 60 * 24 = 86400000
-	}
+	{ return (Time::FromBrokenDownTime((*this).BreakDown().GetDayStart()).GetMilliseconds() - Time::FromBrokenDownTime(endTime.BreakDown().GetDayStart()).GetMilliseconds()) / (24 * 60 * 60 * 1000); }
 
 
 	namespace TimeUtility
@@ -641,7 +661,8 @@ namespace stingray
 		}
 
 
-		TimeDuration FromIso8601(const std::string& format, Time base) { return FromIso8601Impl()(format, base); };
+		TimeDuration FromIso8601(const std::string& format, Time base)
+		{ return FromIso8601Impl()(format, base); };
 
 	}
 
