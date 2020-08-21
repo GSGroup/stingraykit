@@ -182,10 +182,10 @@ namespace stingray
 		int GetMJD() const;
 		u32 GetBCDTime(TimeKind kind = TimeKind::Local) const;
 
+		int DaysTo(const Time& endTime) const;
+
 		void Serialize(ObjectOStream& ar) const;
 		void Deserialize(ObjectIStream& ar);
-
-		int DaysTo(const Time& endTime) const;
 	};
 
 

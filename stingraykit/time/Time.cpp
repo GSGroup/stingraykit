@@ -115,6 +115,42 @@ namespace stingray
 	}
 
 
+	TimeZone::TimeZone(s16 minutes)
+		: _minutesFromUtc(minutes)
+	{ STINGRAYKIT_CHECK(minutes >= -12 * MinutesPerHour && minutes <= 14 * MinutesPerHour, ArgumentException("minutes", minutes)); }
+
+
+	TimeZone TimeZone::Current()
+	{ return TimeZone(TimeEngine::GetMinutesFromUtc()); }
+
+
+	std::string TimeZone::ToString() const
+	{
+		const std::string sign = _minutesFromUtc > 0 ? "+" : (_minutesFromUtc < 0 ? "-" : "");
+		return StringBuilder() % sign % (Abs(_minutesFromUtc) / MinutesPerHour) % ":" % (Abs(_minutesFromUtc) % MinutesPerHour);
+	}
+
+
+	TimeZone TimeZone::FromString(const std::string& str)
+	{
+		char sign;
+		int hours, minutes;
+
+		STINGRAYKIT_CHECK(sscanf(str.c_str(), "%c%d:%d", &sign, &hours, &minutes) == 3, FormatException());
+
+		const int value = hours * MinutesPerHour + minutes;
+		return TimeZone(sign == '+'? value : -value);
+	}
+
+
+	void TimeZone::Serialize(ObjectOStream& ar) const
+	{ ar.Serialize("offset", _minutesFromUtc); }
+
+
+	void TimeZone::Deserialize(ObjectIStream& ar)
+	{ ar.Deserialize("offset", _minutesFromUtc); }
+
+
 	Time::Time(s64 milliseconds)
 		: _milliseconds(milliseconds)
 	{ }
@@ -260,50 +296,6 @@ namespace stingray
 	}
 
 
-	void Time::Serialize(ObjectOStream& ar) const
-	{ ar.Serialize("ms", _milliseconds); }
-
-
-	void Time::Deserialize(ObjectIStream& ar)
-	{ ar.Deserialize("ms", _milliseconds); }
-
-
-	TimeZone::TimeZone(s16 minutes)
-		: _minutesFromUtc(minutes)
-	{ STINGRAYKIT_CHECK(minutes >= -12 * MinutesPerHour && minutes <= 14 * MinutesPerHour, ArgumentException("minutes", minutes)); }
-
-
-	TimeZone TimeZone::Current()
-	{ return TimeZone(TimeEngine::GetMinutesFromUtc()); }
-
-
-	std::string TimeZone::ToString() const
-	{
-		const std::string sign = _minutesFromUtc > 0 ? "+" : (_minutesFromUtc < 0 ? "-" : "");
-		return StringBuilder() % sign % (Abs(_minutesFromUtc) / MinutesPerHour) % ":" % (Abs(_minutesFromUtc) % MinutesPerHour);
-	}
-
-
-	TimeZone TimeZone::FromString(const std::string& str)
-	{
-		char sign;
-		int hours, minutes;
-
-		STINGRAYKIT_CHECK(sscanf(str.c_str(), "%c%d:%d", &sign, &hours, &minutes) == 3, FormatException());
-
-		const int value = hours * MinutesPerHour + minutes;
-		return TimeZone(sign == '+'? value : -value);
-	}
-
-
-	void TimeZone::Serialize(ObjectOStream& ar) const
-	{ ar.Serialize("offset", _minutesFromUtc); }
-
-
-	void TimeZone::Deserialize(ObjectIStream& ar)
-	{ ar.Deserialize("offset", _minutesFromUtc); }
-
-
 	u64 Time::ToNtpTimestamp() const
 	{ return GetMilliseconds() / 1000 + SecondsBetweenNtpAndUnixEpochs; }
 
@@ -337,6 +329,14 @@ namespace stingray
 
 	int Time::DaysTo(const Time& endTime) const
 	{ return (Time::FromBrokenDownTime((*this).BreakDown().GetDayStart()).GetMilliseconds() - Time::FromBrokenDownTime(endTime.BreakDown().GetDayStart()).GetMilliseconds()) / (24 * 60 * 60 * 1000); }
+
+
+	void Time::Serialize(ObjectOStream& ar) const
+	{ ar.Serialize("ms", _milliseconds); }
+
+
+	void Time::Deserialize(ObjectIStream& ar)
+	{ ar.Deserialize("ms", _milliseconds); }
 
 
 	namespace TimeUtility
