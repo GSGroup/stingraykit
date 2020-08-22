@@ -133,13 +133,15 @@ namespace stingray
 
 	TimeZone TimeZone::FromString(const std::string& str)
 	{
-		char sign;
-		int hours, minutes;
+		STINGRAYKIT_CHECK(!str.empty(), FormatException(str));
 
-		STINGRAYKIT_CHECK(sscanf(str.c_str(), "%c%d:%d", &sign, &hours, &minutes) == 3, FormatException());
+		const optional<char> sign = str[0] == '+' || str[0] == '-' ? str[0] : optional<char>();
+
+		int hours, minutes;
+		STINGRAYKIT_CHECK(sscanf(str.c_str() + (sign ? 1 : 0), "%d:%d", &hours, &minutes) == 2, FormatException(str));
 
 		const int value = hours * MinutesPerHour + minutes;
-		return TimeZone(sign == '+'? value : -value);
+		return TimeZone(!sign || *sign == '+' ? value : -value);
 	}
 
 
