@@ -130,7 +130,7 @@ namespace posix
 			s64 days = 0;
 			s64 seconds = 0;
 			int year;
-			int orig_year = date->tm_year;
+			int orig_year = date->tm_year + date->tm_mon / 12;
 			int cycles = 0;
 			if (orig_year > 100)
 			{
@@ -163,7 +163,7 @@ namespace posix
 				}
 				while (year >= orig_year);
 			}
-			days += days_in_months[LEAP_CHECK(orig_year) + 2][date->tm_mon];
+			days += days_in_months[LEAP_CHECK(orig_year) + 2][date->tm_mon % 12];
 			days += date->tm_mday - 1;
 			seconds = days * 60 * 60 * 24;
 			seconds += date->tm_hour * 60 * 60;
