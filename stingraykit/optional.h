@@ -76,9 +76,13 @@ namespace stingray
 		bool is_initialized() const						{ return _initialized; }
 		bool boolean_test() const						{ return is_initialized(); }
 
+		bool operator == (const optional& rhs) const
+		{ return is_initialized() ? rhs.is_initialized() && get() == rhs.get() : !rhs.is_initialized(); }
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(optional);
+
 		bool operator < (const optional& rhs) const
 		{ return rhs.is_initialized() && (!is_initialized() || (get() < rhs.get())); }
-		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(optional);
+		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(optional);
 
 		int Compare(const optional& other) const
 		{
