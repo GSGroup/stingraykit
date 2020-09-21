@@ -474,13 +474,9 @@ namespace stingray
 		weak_ptr(const NullPtrType&) : _rawPtr()
 		{ }
 
-		weak_ptr(const shared_ptr<T>& sharedPtr)
-			: _rawPtr(sharedPtr._rawPtr), _impl(sharedPtr._impl)
-		{ _impl.AddWeakReference(); }
-
 		template < typename U >
-		weak_ptr(const shared_ptr<U>& sharedPtr, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
-			: _rawPtr(sharedPtr._rawPtr), _impl(sharedPtr._impl)
+		weak_ptr(const shared_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
 
 		weak_ptr(const weak_ptr& other)
