@@ -90,6 +90,14 @@ namespace stingray
 			return *this;
 		}
 
+		template < typename U >
+		typename EnableIf<IsInherited<U, T>::Value, self_count_ptr&>::ValueT operator = (const self_count_ptr<U>& other)
+		{
+			self_count_ptr<T> tmp(other);
+			swap(tmp);
+			return *this;
+		}
+
 		bool operator == (T* ptr) const								{ return _rawPtr == ptr; }
 		bool operator != (T* ptr) const								{ return !(*this == ptr); }
 		bool operator == (const self_count_ptr<T>& other) const		{ return other == _rawPtr; }
