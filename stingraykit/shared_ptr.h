@@ -374,6 +374,14 @@ namespace stingray
 			return *this;
 		}
 
+		template < typename U >
+		typename EnableIf<IsInherited<U, T>::Value, shared_ptr&>::ValueT operator = (const shared_ptr<U>& other)
+		{
+			shared_ptr tmp(other);
+			swap(tmp);
+			return *this;
+		}
+
 		bool operator == (const T* ptr) const					{ return _rawPtr == ptr; }
 		bool operator != (const T* ptr) const					{ return !(*this == ptr); }
 		bool operator == (const shared_ptr& other) const		{ return _rawPtr == other._rawPtr; }
@@ -500,6 +508,14 @@ namespace stingray
 
 		template < typename U >
 		typename EnableIf<IsInherited<U, T>::Value, weak_ptr&>::ValueT operator = (const shared_ptr<U>& other)
+		{
+			weak_ptr tmp(other);
+			swap(tmp);
+			return *this;
+		}
+
+		template < typename U >
+		typename EnableIf<IsInherited<U, T>::Value, weak_ptr&>::ValueT operator = (const weak_ptr<U>& other)
 		{
 			weak_ptr tmp(other);
 			swap(tmp);
