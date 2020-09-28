@@ -19,46 +19,6 @@ namespace stingray
 	 * @{
 	 */
 
-	template <typename T, size_t N>
-	T* begin_iterator(T(&arr)[N])
-	{ return &arr[0]; }
-
-
-	template <typename T, size_t N>
-	T* end_iterator(T(&arr)[N])
-	{ return &arr[N]; }
-
-
-	template <typename Collection>
-	typename Collection::const_iterator begin_iterator(const Collection& collection)
-	{ return collection.begin(); }
-
-
-	template <typename Collection>
-	typename Collection::const_iterator end_iterator(const Collection& collection)
-	{ return collection.end(); }
-
-
-	template <typename Collection>
-	typename Collection::iterator begin_iterator(Collection& collection)
-	{ return collection.begin(); }
-
-
-	template <typename Collection>
-	typename Collection::iterator end_iterator(Collection& collection)
-	{ return collection.end(); }
-
-
-	template<typename BidirectionalIteratorT>
-	BidirectionalIteratorT prev_iterator(BidirectionalIteratorT it, typename std::iterator_traits<BidirectionalIteratorT>::difference_type n = 1)
-	{ std::advance(it, -n);	return it; }
-
-
-	template<typename BidirectionalIteratorT>
-	BidirectionalIteratorT next_iterator(BidirectionalIteratorT it, typename std::iterator_traits<BidirectionalIteratorT>::difference_type n = 1)
-	{ std::advance(it, n);	return it; }
-
-
 	namespace Detail
 	{
 		template < typename IterType >

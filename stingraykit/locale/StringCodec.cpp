@@ -7,7 +7,6 @@
 
 #include <stingraykit/locale/StringCodec.h>
 
-#include <stingraykit/collection/iterators.h>
 #include <stingraykit/string/ToString.h>
 
 namespace stingray
@@ -469,7 +468,7 @@ namespace stingray
 		r.reserve(src.Text.size() * 2);
 
 		const string_view srcText = src.Text;
-		for (string_view::const_iterator it = next_iterator(srcText.begin(), bomSize), end = srcText.end(); it != end; )
+		for (string_view::const_iterator it = std::next(srcText.begin(), bomSize), end = srcText.end(); it != end; )
 		{
 			u32 ucs = unpack(it, end);
 			if (ucs == InvalidCharacter)
@@ -500,8 +499,8 @@ namespace stingray
 		const string_view strA = a.Text;
 		const string_view strB = b.Text;
 
-		string_view::const_iterator itA = next_iterator(strA.begin(), bomSizeA);
-		string_view::const_iterator itB = next_iterator(strB.begin(), bomSizeB);
+		string_view::const_iterator itA = std::next(strA.begin(), bomSizeA);
+		string_view::const_iterator itB = std::next(strB.begin(), bomSizeB);
 		string_view::const_iterator endA = strA.end();
 		string_view::const_iterator endB = strB.end();
 		while (itA != endA && itB != endB)
@@ -654,7 +653,7 @@ namespace stingray
 		const PackFunc pack = GetCodePagePackFunc(codePage); //always valid
 
 		string_view srcText = src.Text;
-		string_view::const_iterator it = next_iterator(srcText.begin(), bomSize);
+		string_view::const_iterator it = std::next(srcText.begin(), bomSize);
 		string_view::const_iterator end = srcText.end();
 		std::string result;
 		while (it != end)

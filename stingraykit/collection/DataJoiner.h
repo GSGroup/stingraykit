@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/iterators.h>
 #include <stingraykit/Tuple.h>
 #include <stingraykit/variant.h>
 
@@ -185,7 +184,7 @@ namespace stingray
 				}
 
 				typedef typename GetTypeListItem<IndexedIterators, ContainerIndex>::ValueT IterType;
-				IterType it(next_iterator(container->begin(), diff));
+				IterType it(std::next(container->begin(), diff));
 				iter = it;
 				return false;
 			}

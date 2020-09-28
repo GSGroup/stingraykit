@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/IList.h>
-#include <stingraykit/collection/iterators.h>
 
 #include <algorithm>
 #include <vector>
@@ -129,14 +128,14 @@ namespace stingray
 		{
 			STINGRAYKIT_CHECK(index <= _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
-			_items->insert(next_iterator(_items->begin(), index), value);
+			_items->insert(std::next(_items->begin(), index), value);
 		}
 
 		virtual void RemoveAt(size_t index)
 		{
 			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
-			_items->erase(next_iterator(_items->begin(), index));
+			_items->erase(std::next(_items->begin(), index));
 		}
 
 		virtual bool TryRemove(const ValueType& value)
@@ -150,7 +149,7 @@ namespace stingray
 			const size_t index = std::distance(cit(_items->begin()), it);
 
 			CopyOnWrite();
-			_items->erase(next_iterator(_items->begin(), index));
+			_items->erase(std::next(_items->begin(), index));
 			return true;
 		}
 

@@ -12,7 +12,6 @@
 #include <stingraykit/collection/RangeBase.h>
 #include <stingraykit/collection/ToRange.h>
 #include <stingraykit/collection/Transformers.h>
-#include <stingraykit/collection/iterators.h>
 #include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/math.h>
@@ -486,7 +485,7 @@ namespace stingray
 			{
 				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
 				if (!_value)
-					_value.emplace(_it, _it, next_iterator(_it, GetSize()));
+					_value.emplace(_it, _it, std::next(_it, GetSize()));
 				return *_value;
 			}
 
@@ -511,14 +510,14 @@ namespace stingray
 			Self& Prev()
 			{
 				STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
-				_it = next_iterator(_begin, AlignDown(std::distance(_begin, _it) - 1, _maxFragmentSize));
+				_it = std::next(_begin, AlignDown(std::distance(_begin, _it) - 1, _maxFragmentSize));
 				_value.reset();
 				return *this;
 			}
 
 			Self& Last()
 			{
-				_it = next_iterator(_begin, AlignDown(std::distance(_begin, _end), _maxFragmentSize));
+				_it = std::next(_begin, AlignDown(std::distance(_begin, _end), _maxFragmentSize));
 				_value.reset();
 				return *this;
 			}
@@ -932,7 +931,7 @@ namespace stingray
 			typedef Range::IteratorRange<IterType> ValueT;
 
 			static ValueT Do(T& collection)
-			{ return ValueT(begin_iterator(collection), begin_iterator(collection), end_iterator(collection)); }
+			{ return ValueT(std::begin(collection), std::begin(collection), std::end(collection)); }
 		};
 
 
@@ -943,7 +942,7 @@ namespace stingray
 			typedef Range::IteratorRange<MemberType*> ValueT;
 
 			static ValueT Do(ArrayType_& arr)
-			{ return ValueT(begin_iterator(arr), begin_iterator(arr), end_iterator(arr)); }
+			{ return ValueT(std::begin(arr), std::begin(arr), std::end(arr)); }
 		};
 
 
