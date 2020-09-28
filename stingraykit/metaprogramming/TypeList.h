@@ -25,6 +25,8 @@ namespace stingray
 	{
 		typedef Value_	ValueT;
 		typedef Next_	Next;
+
+		typedef TypeListNode<Value_, Next_> type;
 	};
 
 
@@ -64,12 +66,7 @@ namespace stingray
 		};
 	}
 
-	template < typename... Ts >
-	struct TypeList : public Detail::TypeListCreatorImpl<Ts...>::ValueT
-	{
-		typedef typename Detail::TypeListCreatorImpl<Ts...>::ValueT type;
-	};
-
+	template < typename... Ts > using TypeList = typename Detail::TypeListCreatorImpl<Ts...>::ValueT;
 
 	//////////////////////////////////////////////////////////////////////
 
