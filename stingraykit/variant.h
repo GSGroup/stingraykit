@@ -73,7 +73,7 @@ namespace stingray
 				{
 					if (t.which() != Index)
 						return true;
-					result = v.template Call<typename GetTypeListItem<typename Variant::TypeList, Index>::ValueT>(t);
+					result = v.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(t);
 					return false; // stop ForIf
 				}
 			};
@@ -82,7 +82,7 @@ namespace stingray
 			{
 				typedef typename Visitor::RetType RetType;
 				optional<RetType> result;
-				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, wrap_ref(var), wrap_ref(result)))
+				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(v, wrap_ref(var), wrap_ref(result)))
 					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 				return *result;
 			}
@@ -98,14 +98,14 @@ namespace stingray
 				{
 					if (t.which() != Index)
 						return true;
-					v.template Call<typename GetTypeListItem<typename Variant::TypeList, Index>::ValueT>(t);
+					v.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(t);
 					return false; // stop ForIf
 				}
 			};
 
 			static void Apply(const Visitor& v, Variant& var)
 			{
-				if (ForIf<GetTypeListLength<typename Variant::TypeList>::Value, ApplierHelper>::Do(v, wrap_ref(var)))
+				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(v, wrap_ref(var)))
 					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 			}
 		};
@@ -114,11 +114,11 @@ namespace stingray
 		template < typename TypeList_ >
 		struct VariantBase
 		{
-			typedef TypeList_					TypeList;
+			typedef TypeList_					Types;
 
 		protected:
-			typedef VariantBase<TypeList>		MyType;
-			typedef MultiStorageFor<TypeList>	Storage;
+			typedef VariantBase<Types>			MyType;
+			typedef MultiStorageFor<Types>		Storage;
 
 			size_t	_type;
 			Storage _storage;
@@ -262,14 +262,14 @@ namespace stingray
 			template < typename T >
 			void CheckCanContain() const
 			{
-				CompileTimeAssert<TypeListContains<TypeList, T>::Value> ERROR__invalid_type_for_variant;
+				CompileTimeAssert<TypeListContains<Types, T>::Value> ERROR__invalid_type_for_variant;
 				(void)ERROR__invalid_type_for_variant;
 			}
 
 			template < typename T >
 			void CheckCanContainInheritedType() const
 			{
-				typedef typename Detail::TypeListFilterInheritedTypes<TypeList, T> InheritedTypes;
+				typedef typename Detail::TypeListFilterInheritedTypes<Types, T> InheritedTypes;
 				CompileTimeAssert<!InheritedTypes::IsEmpty> ERROR__invalid_type_for_variant;
 				(void)ERROR__invalid_type_for_variant;
 			}
