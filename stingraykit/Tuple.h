@@ -24,13 +24,13 @@ namespace stingray
 		template < typename Tuple_, size_t Index >
 		struct TupleItemGetter
 		{
-			static const typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT& Get(const Tuple_& tuple)
+			static const typename GetTypeListItem<typename Tuple_::Types, Index>::ValueT& Get(const Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
-			static typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT& Get(Tuple_& tuple)
+			static typename GetTypeListItem<typename Tuple_::Types, Index>::ValueT& Get(Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
-			static typename GetTypeListItem<typename Tuple_::TypeList, Index>::ValueT&& Get(Tuple_&& tuple)
+			static typename GetTypeListItem<typename Tuple_::Types, Index>::ValueT&& Get(Tuple_&& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(std::move(tuple).GetTail()); }
 		};
 
@@ -58,9 +58,9 @@ namespace stingray
 		STINGRAYKIT_DEFAULTMOVABLE(Tuple);
 
 	public:
-		typedef TypeList_						TypeList;
-		typedef Tuple<typename TypeList::Next>	Tail;
-		typedef typename TypeList::ValueT		ValueType;
+		typedef TypeList_						Types;
+		typedef Tuple<typename Types::Next>		Tail;
+		typedef typename Types::ValueT			ValueType;
 
 		static const size_t Size = Tail::Size + 1;
 
@@ -71,7 +71,7 @@ namespace stingray
 	public:
 		Tuple() : _val(), _tail() { }
 
-		template < typename T0, typename... Ts, typename EnableIf<!IsSame<typename Decay<T0>::ValueT, TupleConstructorTag>::Value && !IsSame<typename Decay<T0>::ValueT, Tuple<TypeList>>::Value, bool>::ValueT = false >
+		template < typename T0, typename... Ts, typename EnableIf<!IsSame<typename Decay<T0>::ValueT, TupleConstructorTag>::Value && !IsSame<typename Decay<T0>::ValueT, Tuple<Types>>::Value, bool>::ValueT = false >
 		Tuple(T0&& p0, Ts&&... args)
 			: _val(std::forward<T0>(p0)), _tail(std::forward<Ts>(args)...)
 		{ }
@@ -109,40 +109,40 @@ namespace stingray
 		Tail&& GetTail() && { return std::move(_tail); }
 
 		template < size_t Index >
-		const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const &
+		const typename GetTypeListItem<Types, Index>::ValueT& Get() const &
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
 
 		template < size_t Index >
-		typename GetTypeListItem<TypeList, Index>::ValueT& Get() &
+		typename GetTypeListItem<Types, Index>::ValueT& Get() &
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
 
 		template < size_t Index >
-		typename GetTypeListItem<TypeList, Index>::ValueT&& Get() &&
+		typename GetTypeListItem<Types, Index>::ValueT&& Get() &&
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(std::move(*this)); }
 
 		template < typename Type_ >
 		const Type_& Get(Dummy dummy = Dummy()) const &
-		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(*this); }
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_>::Value>::Get(*this); }
 
 		template < typename Type_ >
 		Type_& Get(Dummy dummy = Dummy()) &
-		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(*this); }
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_>::Value>::Get(*this); }
 
 		template < typename Type_ >
 		Type_&& Get(Dummy dummy = Dummy()) &&
-		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_>::Value>::Get(std::move(*this)); }
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_>::Value>::Get(std::move(*this)); }
 
 		template < typename Type_, size_t Index >
 		const Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) const &
-		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(*this); }
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_, Index>::Value>::Get(*this); }
 
 		template < typename Type_, size_t Index >
 		Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) &
-		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(*this); }
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_, Index>::Value>::Get(*this); }
 
 		template < typename Type_, size_t Index >
 		Type_&& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) &&
-		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<TypeList, Type_, Index>::Value>::Get(std::move(*this)); }
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_, Index>::Value>::Get(std::move(*this)); }
 	};
 
 
@@ -153,7 +153,7 @@ namespace stingray
 		STINGRAYKIT_DEFAULTMOVABLE(Tuple<TypeListEndNode>);
 
 	public:
-		typedef TypeList<>::type				TypeList;
+		typedef TypeListEndNode				Types;
 
 		static const size_t Size = 0;
 
@@ -161,11 +161,11 @@ namespace stingray
 
 		template < typename TupleLikeObject >
 		Tuple(const TupleConstructorTag& tag, TupleLikeObject&& tupleLikeObject)
-		{ CompileTimeAssert<GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::TypeList>::Value == 0> ERROR__tuple_like_object_is_too_big; }
+		{ CompileTimeAssert<GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::Types>::Value == 0> ERROR__tuple_like_object_is_too_big; }
 
 		template < typename TupleLikeObject, typename IndexOffset >
 		Tuple(const TupleConstructorTag& tag, TupleLikeObject&& tupleLikeObject, IndexOffset Dummy)
-		{ CompileTimeAssert<GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::TypeList>::Value == IndexOffset::Value> ERROR__tuple_like_object_is_too_big; }
+		{ CompileTimeAssert<GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::Types>::Value == IndexOffset::Value> ERROR__tuple_like_object_is_too_big; }
 
 		template < typename TupleLikeObject >
 		static Tuple CreateFromTupleLikeObject(TupleLikeObject&& tll)
@@ -184,8 +184,8 @@ namespace stingray
 		class TupleReverser
 		{
 		public:
-			typedef typename Decay<TupleLikeObject_>::ValueT::TypeList	SrcTypeList;
-			typedef typename TypeListReverse<SrcTypeList>::ValueT		TypeList;
+			typedef typename Decay<TupleLikeObject_>::ValueT::Types		SrcTypes;
+			typedef typename TypeListReverse<SrcTypes>::ValueT			Types;
 
 		private:
 			TupleLikeObject_&&		_src;
@@ -194,19 +194,19 @@ namespace stingray
 			TupleReverser(TupleLikeObject_&& src) : _src(std::forward<TupleLikeObject_>(src)) { }
 
 			template < size_t Index >
-			const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const &
-			{ return _src.template Get<GetTypeListLength<SrcTypeList>::Value - (Index + 1)>(); }
+			const typename GetTypeListItem<Types, Index>::ValueT& Get() const &
+			{ return _src.template Get<GetTypeListLength<SrcTypes>::Value - (Index + 1)>(); }
 
 			template < size_t Index >
-			typename EnableIf<IsNonConstRvalueReference<TupleLikeObject_&&>::Value, typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT&& Get() &&
-			{ return std::move(_src).template Get<GetTypeListLength<SrcTypeList>::Value - (Index + 1)>(); }
+			typename EnableIf<IsNonConstRvalueReference<TupleLikeObject_&&>::Value, typename GetTypeListItem<Types, Index>::ValueT>::ValueT&& Get() &&
+			{ return std::move(_src).template Get<GetTypeListLength<SrcTypes>::Value - (Index + 1)>(); }
 		};
 	}
 
 
 	template < typename TupleLikeObject_ >
-	Tuple<typename TypeListReverse<typename Decay<TupleLikeObject_>::ValueT::TypeList>::ValueT> ReverseTuple(TupleLikeObject_&& src)
-	{ return Tuple<typename TypeListReverse<typename Decay<TupleLikeObject_>::ValueT::TypeList>::ValueT>::CreateFromTupleLikeObject(Detail::TupleReverser<TupleLikeObject_>(std::forward<TupleLikeObject_>(src))); }
+	Tuple<typename TypeListReverse<typename Decay<TupleLikeObject_>::ValueT::Types>::ValueT> ReverseTuple(TupleLikeObject_&& src)
+	{ return Tuple<typename TypeListReverse<typename Decay<TupleLikeObject_>::ValueT::Types>::ValueT>::CreateFromTupleLikeObject(Detail::TupleReverser<TupleLikeObject_>(std::forward<TupleLikeObject_>(src))); }
 
 }
 

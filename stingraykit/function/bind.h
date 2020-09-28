@@ -204,11 +204,11 @@ namespace stingray
 			NonPlaceholdersCutter(Ts&&... args) : _allParams(std::forward<Ts>(args)...) { }
 
 			template < size_t Index >
-			const typename GetTypeListItem<TypeList, Index>::ValueT& Get() const &
+			const typename GetTypeListItem<Types, Index>::ValueT& Get() const &
 			{ return _allParams.template Get<IndexOfTypeListItem<BoundParamNumbers, IntToType<Index> >::Value>(); }
 
 			template < size_t Index >
-			typename EnableIf<IsNonConstRvalueReference<typename GetTypeListItem<TypeList, Index>::ValueT>::Value, typename GetTypeListItem<TypeList, Index>::ValueT>::ValueT Get() &&
+			typename EnableIf<IsNonConstRvalueReference<typename GetTypeListItem<Types, Index>::ValueT>::Value, typename GetTypeListItem<Types, Index>::ValueT>::ValueT Get() &&
 			{ return std::move(_allParams).template Get<IndexOfTypeListItem<BoundParamNumbers, IntToType<Index> >::Value>(); }
 		};
 
@@ -230,9 +230,9 @@ namespace stingray
 			public:
 				typedef typename TypeList<Us&&...>::type	BinderParams;
 
-				typedef typename TypeListCopyIf<AllParameters, Not<IsChomper>::template ValueT>::ValueT TypeList;
+				typedef typename TypeListCopyIf<AllParameters, Not<IsChomper>::template ValueT>::ValueT Types;
 
-				static const size_t Size = GetTypeListLength<TypeList>::Value;
+				static const size_t Size = GetTypeListLength<Types>::Value;
 
 			private:
 				const Tuple<BoundParams>&		_boundParams;
@@ -244,13 +244,13 @@ namespace stingray
 				{ }
 
 				template < size_t Index >
-				typename GetParamType<typename GetTypeListItem<TypeList, Index>::ValueT, BinderParams>::ValueT Get() const &
+				typename GetParamType<typename GetTypeListItem<Types, Index>::ValueT, BinderParams>::ValueT Get() const &
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, _binderParams); }
 
 				template < size_t Index >
-				typename EnableIf<IsNonConstRvalueReference<typename GetParamType<typename GetTypeListItem<TypeList, Index>::ValueT, BinderParams, true>::ValueT>::Value ||
-								IsBinder<typename GetTypeListItem<TypeList, Index>::ValueT>::Value,
-						typename GetParamType<typename GetTypeListItem<TypeList, Index>::ValueT, BinderParams, true>::ValueT>::ValueT Get() &&
+				typename EnableIf<IsNonConstRvalueReference<typename GetParamType<typename GetTypeListItem<Types, Index>::ValueT, BinderParams, true>::ValueT>::Value ||
+								IsBinder<typename GetTypeListItem<Types, Index>::ValueT>::Value,
+						typename GetParamType<typename GetTypeListItem<Types, Index>::ValueT, BinderParams, true>::ValueT>::ValueT Get() &&
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, std::move(_binderParams)); }
 			};
 

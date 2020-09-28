@@ -572,7 +572,7 @@ namespace stingray
 				{ typedef typename Range_::ValueType ValueT; };
 
 			public:
-				typedef typename TypeListTransform<RangeTypes_, GetValueType>::ValueT TypeList;
+				typedef typename TypeListTransform<RangeTypes_, GetValueType>::ValueT Types;
 
 			private:
 				Tuple<RangeTypes_>&	_ranges;
@@ -581,7 +581,7 @@ namespace stingray
 				explicit ValuesGetter(Tuple<RangeTypes_>& ranges) : _ranges(ranges) { }
 
 				template < int Index_ >
-				typename GetTypeListItem<TypeList, Index_>::ValueT Get() const
+				typename GetTypeListItem<Types, Index_>::ValueT Get() const
 				{ return _ranges.template Get<Index_>().Get(); }
 			};
 
@@ -601,7 +601,7 @@ namespace stingray
 				if (!_value)
 				{
 					const ValuesGetter getter(_ranges);
-					const Tuple<typename ValuesGetter::TypeList> values(TupleConstructorTag(), getter);
+					const Tuple<typename ValuesGetter::Types> values(TupleConstructorTag(), getter);
 
 					_value.emplace(FunctorInvoker::Invoke(_func, values));
 				}

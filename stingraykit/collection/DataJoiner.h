@@ -131,7 +131,7 @@ namespace stingray
 			{
 				static void Call(DataJoinerIterator from, DataJoinerIterator to, VisitorType& visitor)
 				{
-					typename GetTypeListItem<typename TupleType::TypeList, ContainerIndex>::ValueT container = from._containers->template Get<ContainerIndex>();
+					typename GetTypeListItem<typename TupleType::Types, ContainerIndex>::ValueT container = from._containers->template Get<ContainerIndex>();
 					if (from.which() <= ContainerIndex && ContainerIndex <= to.which())
 					{
 						typedef typename GetTypeListItem<IndexedIterators, ContainerIndex>::ValueT IndexedIterType;
@@ -151,7 +151,7 @@ namespace stingray
 		{
 			static bool Call(const TupleType *cont, const IteratorVariant& iter, difference_type& result)
 			{
-				typename GetTypeListItem<typename TupleType::TypeList, ContainerIndex>::ValueT container = cont->template Get<ContainerIndex>();
+				typename GetTypeListItem<typename TupleType::Types, ContainerIndex>::ValueT container = cont->template Get<ContainerIndex>();
 				if (iter.which() != ContainerIndex)
 				{
 					result += container->size();
@@ -176,7 +176,7 @@ namespace stingray
 		{
 			static bool Call(const TupleType *cont, size_t& diff, IteratorVariant& iter)
 			{
-				typename GetTypeListItem<typename TupleType::TypeList, ContainerIndex>::ValueT container = cont->template Get<ContainerIndex>();
+				typename GetTypeListItem<typename TupleType::Types, ContainerIndex>::ValueT container = cont->template Get<ContainerIndex>();
 				size_t size = container->size();
 				if (diff >= size)
 				{
@@ -248,7 +248,7 @@ namespace stingray
 		{
 			static void Call(const TupleType *cont, size_t& result)
 			{
-				typename GetTypeListItem<typename TupleType::TypeList, ContainerIndex>::ValueT container = cont->template Get<ContainerIndex>();
+				typename GetTypeListItem<typename TupleType::Types, ContainerIndex>::ValueT container = cont->template Get<ContainerIndex>();
 				result += container->size();
 			}
 		};

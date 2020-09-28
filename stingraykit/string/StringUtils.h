@@ -387,7 +387,7 @@ namespace stingray
 			template<size_t Index>
 			struct Functor
 			{
-				typedef typename GetTypeListItem<typename TupleType::TypeList, Index>::ValueT Type;
+				typedef typename GetTypeListItem<typename TupleType::Types, Index>::ValueT Type;
 
 				template<typename Range_>
 				static void Call(const TupleType& tuple, Range_* range)
