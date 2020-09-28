@@ -36,7 +36,7 @@ namespace stingray
 		const T& Ref() const								{ CheckCanContain<T>(); return *static_cast<const T*>(static_cast<const void*>(&_value)); }
 
 		template < typename T >
-		void CheckCanContain() const						{ CompileTimeAssert<TypeListContains<TypeList, T>::Value> ERROR_TypeIsNotInList; (void)ERROR_TypeIsNotInList; }
+		void CheckCanContain() const						{ static_assert(TypeListContains<TypeList, T>::Value, "Type is not in list"); }
 	};
 
 }

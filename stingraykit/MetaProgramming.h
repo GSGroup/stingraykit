@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/metaprogramming/CommonType.h>
-#include <stingraykit/metaprogramming/CompileTimeAssert.h>
 #include <stingraykit/metaprogramming/EnableIf.h>
 #include <stingraykit/metaprogramming/For.h>
 #include <stingraykit/metaprogramming/ForIf.h>

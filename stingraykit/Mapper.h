@@ -52,7 +52,7 @@ namespace stingray
 			{
 				static bool Fits(Dst val)
 				{
-					CompileTimeAssert<(Start_ < End_)> ErrorStartAfterEnd;
+					static_assert(Start_ < End_, "Start after end");
 					return Start_ <= val && val < End_;
 				}
 				static Dst GetValue(Src from)	{ return MapBackValue_; }
@@ -63,7 +63,7 @@ namespace stingray
 			{
 				static bool Fits(Dst val)
 				{
-					CompileTimeAssert<Preferred != Other> ERROR_same_values;
+					static_assert(Preferred != Other, "Same values");
 					return val == Preferred || val == Other;
 				}
 				static Dst GetValue(Src from) { return Preferred; }
@@ -187,8 +187,8 @@ namespace stingray
 
 			static void DetailCheckSizes()
 			{
-				CompileTimeAssert<GetTypeListLength<List>::Value % 2 == 0> ERROR_wrong_mappings_count;
-				CompileTimeAssert<GetTypeListLength<Default>::Value == 2> ERROR_wrong_default_mapping;
+				static_assert(GetTypeListLength<List>::Value % 2 == 0, "Wrong mappings count");
+				static_assert(GetTypeListLength<Default>::Value == 2, "Wrong default mapping");
 			}
 		};
 	}
@@ -240,7 +240,7 @@ namespace stingray
 		static void Check()
 		{
 			typedef BaseValueMapper<Derived, SrcT, DstT> ThisT;
-			CompileTimeAssert<IsInherited<Derived, ThisT>::Value> ERR_DerivedDoesntInherit_BaseValueMapper;
+			static_assert(IsInherited<Derived, ThisT>::Value, "Derived doesn't inherit BaseValueMapper");
 		}
 	};
 

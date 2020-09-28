@@ -83,7 +83,7 @@ namespace stingray
 
 		inplace_vector()
 			: _staticStorageSize(0)
-		{ CompileTimeAssert<InplaceCapacity_ != 0> ERROR_invalid_inplace_capacity; }
+		{ static_assert(InplaceCapacity_ != 0, "Invalid inplace capacity"); }
 
 		size_t capacity() const
 		{ return InplaceCapacity + _dynamicStorage.capacity(); }

@@ -262,16 +262,14 @@ namespace stingray
 			template < typename T >
 			void CheckCanContain() const
 			{
-				CompileTimeAssert<TypeListContains<Types, T>::Value> ERROR__invalid_type_for_variant;
-				(void)ERROR__invalid_type_for_variant;
+				static_assert(TypeListContains<Types, T>::Value, "Invalid type for variant");
 			}
 
 			template < typename T >
 			void CheckCanContainInheritedType() const
 			{
 				typedef typename Detail::TypeListFilterInheritedTypes<Types, T> InheritedTypes;
-				CompileTimeAssert<!InheritedTypes::IsEmpty> ERROR__invalid_type_for_variant;
-				(void)ERROR__invalid_type_for_variant;
+				static_assert(!InheritedTypes::IsEmpty, "Invalid type for variant");
 			}
 
 			template < typename T >
@@ -449,7 +447,7 @@ namespace stingray
 			template < typename T >
 			void operator () (T& t) const
 			{
-				CompileTimeAssert<!IsConst<T>::Value> ERROR__move_wont_work;
+				static_assert(!IsConst<T>::Value, "Move won't work");
 				_target.AssignVal(std::move(t));
 			}
 		};
@@ -603,7 +601,7 @@ namespace stingray
 			template < typename T >
 			void operator () (T& t) const
 			{
-				CompileTimeAssert<!IsConst<T>::Value> ERROR__move_wont_work;
+				static_assert(!IsConst<T>::Value, "Move won't work");
 				_target.AssignVal(std::move(t));
 			}
 		};

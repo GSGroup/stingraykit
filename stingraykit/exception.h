@@ -239,8 +239,7 @@ namespace stingray
 		template < typename BaseException >
 		inline typename EnableIf<IsInherited<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, ToolkitWhere where)
 		{
-			CompileTimeAssert<IsInherited<BaseException, std::exception>::Value > ERROR_invalid_exception;
-			(void)ERROR_invalid_exception;
+			static_assert(IsInherited<BaseException, std::exception>::Value, "Invalid exception type");
 			return ExceptionWrapper<BaseException>(ex, where);
 		}
 

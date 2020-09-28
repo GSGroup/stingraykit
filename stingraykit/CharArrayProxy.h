@@ -26,15 +26,14 @@ namespace stingray
 	public:
 		CharArrayProxy(CharType* array) : _array(reinterpret_cast<PtrType>(array))
 		{
-			CompileTimeAssert<sizeof(CharType) == 1>	ERROR__bigger_char_sizes_not_implemented;
-			(void)ERROR__bigger_char_sizes_not_implemented;
+			static_assert(sizeof(CharType) == 1, "Bigger char sizes not implemented");
 		}
 
 		template<typename OtherCharType, size_t OtherSize>
 		CharArrayProxy& operator=(const CharArrayProxy<OtherCharType, OtherSize>& other)
 		{
-			CompileTimeAssert<sizeof(CharType) == sizeof(OtherCharType)> ERR_char_sizes_differ;
-			CompileTimeAssert<Size >= OtherSize> ERR_array_sizes_differ;
+			static_assert(sizeof(CharType) == sizeof(OtherCharType), "Char sizes differ");
+			static_assert(Size >= OtherSize, "Array sizes differ");
 			strncpy(_array, other._array, Size);
 			return *this;
 		}

@@ -99,7 +99,7 @@ namespace stingray
 
 		public:
 			ModelBuilder() : _contextsCount(0), _entriesCount(0)
-			{ CompileTimeAssert<(ContextSize > ChildModel::ContextSize || IsSame<typename ModelConfigList_::Next, TypeListEndNode>::Value)> ModelConfigsMustBeSortedInDescendingOrder; }
+			{ static_assert((ContextSize > ChildModel::ContextSize || IsSame<typename ModelConfigList_::Next, TypeListEndNode>::Value), "Model configs must be sorted in descending order"); }
 
 			void AddSymbol(const std::deque<Symbol>& context, Symbol symbol, SymbolCount count)
 			{
@@ -258,7 +258,7 @@ namespace stingray
 			{
 				Entry e = _entries.back();
 
-				CompileTimeAssert<(ContextSize > ChildCompactificator::ContextSize)> ErrorContextSizeMismatch;
+				static_assert((ContextSize > ChildCompactificator::ContextSize), "Context size mismatch");
 				array<Symbol, ChildCompactificator::ContextSize> recipientContext;
 				std::copy(e.GetContext().end() - ChildCompactificator::ContextSize, e.GetContext().end(), recipientContext.begin());
 

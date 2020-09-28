@@ -8,8 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/metaprogramming/CompileTimeAssert.h>
-
 namespace stingray
 {
 
@@ -17,7 +15,7 @@ namespace stingray
 	typedef char (&NoType)[2];
 
 	namespace
-	{ CompileTimeAssert< sizeof(YesType) != sizeof(NoType) >	ERROR__yes_and_no_types_do_not_work; }
+	{ static_assert(sizeof(YesType) != sizeof(NoType), "Yes and No types don't work"); }
 
 }
 

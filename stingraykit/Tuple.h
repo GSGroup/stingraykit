@@ -161,11 +161,11 @@ namespace stingray
 
 		template < typename TupleLikeObject >
 		Tuple(const TupleConstructorTag& tag, TupleLikeObject&& tupleLikeObject)
-		{ CompileTimeAssert<GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::Types>::Value == 0> ERROR__tuple_like_object_is_too_big; }
+		{ static_assert(GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::Types>::Value == 0, "Tuple like object is too big"); }
 
 		template < typename TupleLikeObject, typename IndexOffset >
 		Tuple(const TupleConstructorTag& tag, TupleLikeObject&& tupleLikeObject, IndexOffset Dummy)
-		{ CompileTimeAssert<GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::Types>::Value == IndexOffset::Value> ERROR__tuple_like_object_is_too_big; }
+		{ static_assert(GetTypeListLength<typename Decay<TupleLikeObject>::ValueT::Types>::Value == IndexOffset::Value, "Tuple like object is too big"); }
 
 		template < typename TupleLikeObject >
 		static Tuple CreateFromTupleLikeObject(TupleLikeObject&& tll)

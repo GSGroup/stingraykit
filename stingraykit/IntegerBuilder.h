@@ -29,12 +29,12 @@ namespace stingray
 	public:
 		IntegerBuilder()
 			: _result(0)
-		{ CompileTimeAssert<IsFixedWidthInt<IntegerType>::Value>(); }
+		{ static_assert(IsFixedWidthInt<IntegerType>::Value, "Integer must have fixed width"); }
 
 		template<typename U>
 		IntegerBuilder& Append(const U& field, size_t fieldSize)
 		{
-			CompileTimeAssert<IsFixedWidthInt<U>::Value>();
+			static_assert(IsFixedWidthInt<U>::Value, "Integer must have fixed width");
 
 			_result <<= fieldSize;
 			_result |= ResetMostSignificantBits(field, 8 * sizeof(U) - fieldSize);

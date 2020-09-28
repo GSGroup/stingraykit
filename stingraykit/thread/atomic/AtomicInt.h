@@ -127,8 +127,8 @@ namespace stingray
 		private:
 			void CheckType()
 			{
-				CompileTimeAssert<sizeof(_Atomic_word) == sizeof(IntType)> ErrorSizeMismatch;
-				CompileTimeAssert<IntTraits<IntType>::IsSigned> ErrorNoUnsignedAtomicTypesImplemented;
+				static_assert(sizeof(_Atomic_word) == sizeof(IntType), "Size mismatch");
+				static_assert(IntTraits<IntType>::IsSigned, "No unsigned atomic types implemented");
 			}
 		};
 

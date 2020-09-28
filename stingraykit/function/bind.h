@@ -174,7 +174,7 @@ namespace stingray
 
 			static ParamType Get(const Tuple<BoundParams>& boundParams, Tuple<BinderParams>&& binderParams)
 			{
-				CompileTimeAssert<IsSame<ParamType, typename GetParamType<BoundType, BinderParams, true>::ValueT>::Value> ERROR__trying_to_forward_bound_params;
+				static_assert(IsSame<ParamType, typename GetParamType<BoundType, BinderParams, true>::ValueT>::Value, "Trying to forward bound params");
 				return DoGet<BoundType>(boundParams, std::move(binderParams));
 			}
 

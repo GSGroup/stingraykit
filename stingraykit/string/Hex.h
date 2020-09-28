@@ -135,10 +135,8 @@ namespace stingray
 		std::string ToString() const
 		{
 			typedef typename IntType<sizeof(T) * 8, false>::ValueT CastTo;
-			CompileTimeAssert<sizeof(CastTo) >= sizeof(T)> ERROR__T_is_bigger_than_CastTo;
-			CompileTimeAssert<sizeof(u64) >= sizeof(T)> ERROR__T_is_bigger_than_u64;
-			(void)ERROR__T_is_bigger_than_CastTo;
-			(void)ERROR__T_is_bigger_than_u64;
+			static_assert(sizeof(CastTo) >= sizeof(T), "T is bigger than CastTo");
+			static_assert(sizeof(u64) >= sizeof(T), "T is bigger than u64");
 
 			string_ostream ss;
 			ToHexImpl(ss, (u64)(CastTo)_val, _width);

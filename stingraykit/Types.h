@@ -21,13 +21,13 @@ namespace stingray
 		{ \
 			static const Type Neg = ~(Type)0; \
 			static const Type Zero = 0; \
-			CompileTimeAssert< (Neg < Zero) == Signed > ERROR__invalid_signed_##Type; \
+			static_assert((Neg < Zero) == Signed, "Invalid signed "#Type); \
 		};
 
 #define STINGRAYKIT_ASSERT_SIZE_OF(Type, Size) \
 		struct Type##SizeChecker\
 		{ \
-			CompileTimeAssert< sizeof(Type) == Size > ERROR__invalid_size_of_##Type; \
+			static_assert(sizeof(Type) == Size, "Invalid size of "#Type); \
 		};
 
 #define DETAIL_STINGRAYKIT_DECLARE_INT_TRAITS(NativeType_) \

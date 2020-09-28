@@ -64,7 +64,7 @@ namespace stingray
 		//    size_t GetSize() const;
 		//    Self& Move(std::ptrdiff_t distance);
 		//
-		//    ValueType operator [] (std::ptrdiff_t index) const  { CompileTimeAssert<false> errorNoBracketsOperator; (void)errorNoBracketsOperator; }
+		//    ValueType operator [] (std::ptrdiff_t index) const  { static_assert(false, "No brackets operator"); }
 		//    Self& operator += (std::ptrdiff_t distance)         { Move(distance); return *this; }
 		//    Self operator + (std::ptrdiff_t distance) const     { Self result(*this); return result += distance; }
 		//    Self& operator -= (std::ptrdiff_t distance)         { Move(distance); return *this; }
@@ -88,7 +88,7 @@ namespace stingray
 			bool Valid() const	{ return true; }
 			ValueType Get()		{ return *_it; }
 
-			void First()		{ CompileTimeAssert<sizeof(Iterator_) < 0> errorNoFirstInOutputRange; (void)errorNoFirstInOutputRange; }
+			void First()		{ static_assert(sizeof(Iterator_) < 0, "No first in output range"); }
 			void Next()			{ ++_it; }
 		};
 

@@ -40,7 +40,7 @@ namespace stingray
 	public:
 		template < typename... Us >
 		ConstructorCreator(Us&&... args) : _params(std::forward<Us>(args)...)
-		{ CompileTimeAssert<sizeof...(Ts) == sizeof...(Us)> ERROR__invalid_number_of_parameters; }
+		{ static_assert(sizeof...(Ts) == sizeof...(Us), "Invalid number of parameters"); }
 
 		virtual shared_ptr<InterfaceType> Create() const
 		{ return FunctorInvoker::Invoke(MakeShared<ClassType>(), _params); }

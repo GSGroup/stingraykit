@@ -46,7 +46,7 @@ namespace stingray
 			template < typename ParamsTuple >
 			static typename function_info<FunctorType>::RetType Invoke(const FunctorType& func, ParamsTuple&& params)
 			{
-				CompileTimeAssert<Decay<ParamsTuple>::ValueT::Size != 0> ERROR__invalid_number_of_parameters;
+				static_assert(Decay<ParamsTuple>::ValueT::Size != 0, "Invalid number of parameters");
 				return InvokeImpl(std::make_index_sequence<Decay<ParamsTuple>::ValueT::Size>(), func, std::forward<ParamsTuple>(params));
 			}
 

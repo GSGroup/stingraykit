@@ -103,11 +103,11 @@ namespace stingray
 		operator Enum () const { return _enumVal; } \
 		Enum val() const { return _enumVal; } \
 		template<typename T> inline bool operator<(T other) const { \
-			stingray::CompileTimeAssert<stingray::IsSame<Enum, typename T::Enum>::Value> ERROR_invalid_enum_used; \
+			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
 			return _enumVal < other._enumVal; \
 		} \
 		template<typename T> inline bool operator==(T other) const { \
-			stingray::CompileTimeAssert<stingray::IsSame<Enum, typename T::Enum>::Value> ERROR_invalid_enum_used; \
+			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
 			return _enumVal == other._enumVal; \
 		} \
 		inline bool operator==(Enum value) const { return _enumVal == value; } \
@@ -252,7 +252,7 @@ namespace stingray
 		template < typename Something > // There is also InstanceOf for shared_ptrs somewhere in shared_ptr.h
 		inline bool operator () (const Something& obj) const
 		{
-			CompileTimeAssert<!Is1ParamTemplate<shared_ptr, DestType>::Value> ERROR_this_will_actually_test_your_instance_for_shared_ptr_This_is_probably_not_what_you_wanted;
+			static_assert(!Is1ParamTemplate<shared_ptr, DestType>::Value, "This will actually test your instance for shared_ptr. This is probably not what you wanted");
 			return InstanceOf<DestType>(obj);
 		}
 	};

@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/metaprogramming/CompileTimeAssert.h>
 #include <stingraykit/metaprogramming/IntegralConstant.h>
 
 namespace stingray
@@ -24,14 +23,14 @@ namespace stingray
 	template <unsigned int Val, unsigned int Boundary>
 	struct CompileTimeAlignDown
 	{
-		CompileTimeAssert<Boundary != 0> ERROR__aligning_to_zero_boundary;
+		static_assert(Boundary != 0, "Aligning to zero boundary");
 		static const unsigned int Value = Boundary * (Val / Boundary);
 	};
 
 	template <unsigned int Val, unsigned int Boundary>
 	struct CompileTimeAlignUp
 	{
-		CompileTimeAssert<Boundary != 0> ERROR__aligning_to_zero_boundary;
+		static_assert(Boundary != 0, "Aligning to zero boundary");
 		static const unsigned int Value = Boundary * ((Val + Boundary - 1) / Boundary);
 	};
 

@@ -125,7 +125,7 @@ namespace stingray
 		template < typename Concept_, typename... Ts >
 		typename Concept_::RetType Call(Ts&&... args)
 		{
-			CompileTimeAssert<GetTypeListLength<typename Concept_::ParamTypes>::Value == sizeof...(Ts)> ErrorParamsCountMismatch; (void)ErrorParamsCountMismatch;
+			static_assert(GetTypeListLength<typename Concept_::ParamTypes>::Value == sizeof...(Ts), "Params count mismatch");
 
 			const size_t ConceptIndex = IndexOfTypeListItem<AllConcepts, Concept_>::Value;
 			TypeErasureBase::DetypedFunctionPtr virtualFunc = _data->GetVTable()(ConceptIndex);

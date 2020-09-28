@@ -23,7 +23,7 @@ namespace stingray
 		template < typename Entry >
 		struct MappingChecker
 		{
-			CompileTimeAssert<!IsSame<Entry, TypeListEndNode>::Value> ERROR_no_mapping;
+			static_assert(!IsSame<Entry, TypeListEndNode>::Value, "No mapping");
 			typedef Entry ValueT;
 		};
 

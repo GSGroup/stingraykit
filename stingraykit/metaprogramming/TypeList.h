@@ -106,7 +106,7 @@ namespace stingray
 
 	template < typename TypeList >
 	struct GetTypeListItem<TypeList, TypeListNpos>
-	{ CompileTimeAssert<sizeof(TypeList) < 0>	ERROR_invalid_index; };
+	{ static_assert(sizeof(TypeList) < 0, "Invalid index"); };
 
 	template < typename TypeList, typename Val >
 	struct TypeListAppend
@@ -142,7 +142,7 @@ namespace stingray
 
 	template < typename TypeList >
 	struct TryGetTypeListItem<TypeList, TypeListNpos>
-	{ CompileTimeAssert<sizeof(TypeList) < 0>	ERROR_invalid_index; };
+	{ static_assert(sizeof(TypeList) < 0, "Invalid index"); };
 
 	template < typename TypeList, typename T, size_t Index_ = 0>
 	struct IndexOfTypeListItem
