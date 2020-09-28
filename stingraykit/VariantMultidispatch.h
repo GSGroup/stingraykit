@@ -81,7 +81,7 @@ namespace stingray
 	typename Multivisitor_::RetType Multidispatch(const Multivisitor_& multivisitor, const VariantType1_& var1, const VariantType2_& var2)
 	{
 		typedef TypeList<const VariantType2_&>	VariantTypes;
-		return apply_visitor(Detail::MultiDispatchVisitor<const Multivisitor_, VariantTypes, TypeList<>::type>(multivisitor, Tuple<VariantTypes>(var2), Tuple<TypeList<>::type>()), var1);
+		return apply_visitor(Detail::MultiDispatchVisitor<const Multivisitor_, VariantTypes, TypeList<>>(multivisitor, Tuple<VariantTypes>(var2), Tuple<TypeList<>>()), var1);
 	}
 
 	/** @} */

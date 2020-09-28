@@ -132,7 +132,7 @@ namespace stingray
 	template < typename... Ts >
 	inline bool StringParse(const std::string& string, const std::string& format, Ts&... args)
 	{
-		std::deque<variant<TypeList<std::string, size_t>::type > > tokens;
+		std::deque<variant<TypeList<std::string, size_t>> > tokens;
 		std::string::size_type start_pos = 0, current_pos = 0;
 		do
 		{

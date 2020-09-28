@@ -329,7 +329,7 @@ namespace stingray
 	public:
 		explicit TupleCmp(const CompareFunc& compareFunc = comparers::Cmp()) : _compareFunc(compareFunc) { }
 
-		int operator () (const Tuple<TypeList<>::type>&, const Tuple<TypeList<>::type>&) const
+		int operator () (const Tuple<TypeList<>>&, const Tuple<TypeList<>>&) const
 		{ return 0; }
 
 		template < typename T >
@@ -344,7 +344,7 @@ namespace stingray
 
 	struct TupleEquals : public function_info<bool, UnspecifiedParamTypes>
 	{
-		bool operator () (const Tuple<TypeList<>::type>&, const Tuple<TypeList<>::type>&) const
+		bool operator () (const Tuple<TypeList<>>&, const Tuple<TypeList<>>&) const
 		{ return true; }
 
 		template < typename T >

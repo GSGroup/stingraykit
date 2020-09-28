@@ -174,8 +174,8 @@ namespace stingray
 
 
 	template < typename... Ts >
-	Tuple<typename TypeList<Ts...>::type> MakeTuple(Ts&&... args)
-	{ return Tuple<typename TypeList<Ts...>::type>(std::forward<Ts>(args)...); }
+	Tuple<TypeList<Ts...>> MakeTuple(Ts&&... args)
+	{ return Tuple<TypeList<Ts...>>(std::forward<Ts>(args)...); }
 
 
 	namespace Detail

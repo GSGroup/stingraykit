@@ -57,7 +57,7 @@ namespace stingray
 	struct function_info<R (Ts...), NullType> : function_type<R (Ts...)>
 	{
 		typedef R								RetType;
-		typedef typename TypeList<Ts...>::type	ParamTypes;
+		typedef TypeList<Ts...>					ParamTypes;
 		typedef R Signature(Ts...);
 	};
 
@@ -69,7 +69,7 @@ namespace stingray
 	struct function_info<R (*)(Ts...), NullType> : function_type<R (*)(Ts...)>
 	{
 		typedef R								RetType;
-		typedef typename TypeList<Ts...>::type	ParamTypes;
+		typedef TypeList<Ts...>					ParamTypes;
 		typedef R Signature(Ts...);
 	};
 
@@ -81,7 +81,7 @@ namespace stingray
 	struct function_info<R (C::*)(Ts...), NullType> : function_type<R (C::*)(Ts...)>
 	{
 		typedef R									RetType;
-		typedef typename TypeList<C*, Ts...>::type	ParamTypes;
+		typedef TypeList<C*, Ts...>					ParamTypes;
 		typedef R Signature(C*, Ts...);
 	};
 
@@ -93,7 +93,7 @@ namespace stingray
 	struct function_info<R (C::*)(Ts...) const, NullType> : function_type<R (C::*)(Ts...) const>
 	{
 		typedef R											RetType;
-		typedef typename TypeList<const C*, Ts...>::type	ParamTypes;
+		typedef TypeList<const C*, Ts...>					ParamTypes;
 		typedef R Signature(const C*, Ts...);
 	};
 

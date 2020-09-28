@@ -75,20 +75,20 @@ namespace stingray
 
 
 	template < typename... Ts >
-	MemberListComparer<Tuple<typename TypeList<Ts...>::type> > CompareMembersCmp(const Ts&... args)
-	{ return MemberListComparer<Tuple<typename TypeList<Ts...>::type> >(Tuple<typename TypeList<Ts...>::type>(args...)); }
+	MemberListComparer<Tuple<TypeList<Ts...>>> CompareMembersCmp(const Ts&... args)
+	{ return MemberListComparer<Tuple<TypeList<Ts...>>>(Tuple<TypeList<Ts...>>(args...)); }
 
 	template < typename... Ts >
-	comparers::CmpToLess<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > > CompareMembersLess(const Ts&... args)
-	{ return comparers::CmpToLess<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > >(Tuple<typename TypeList<Ts...>::type>(args...)); }
+	comparers::CmpToLess<MemberListComparer<Tuple<TypeList<Ts...>>>> CompareMembersLess(const Ts&... args)
+	{ return comparers::CmpToLess<MemberListComparer<Tuple<TypeList<Ts...>>>>(Tuple<TypeList<Ts...>>(args...)); }
 
 	template < typename... Ts >
-	comparers::CmpToGreater<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > > CompareMembersGreater(const Ts&... args)
-	{ return comparers::CmpToGreater<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > >(Tuple<typename TypeList<Ts...>::type>(args...)); }
+	comparers::CmpToGreater<MemberListComparer<Tuple<TypeList<Ts...>>>> CompareMembersGreater(const Ts&... args)
+	{ return comparers::CmpToGreater<MemberListComparer<Tuple<TypeList<Ts...>>>>(Tuple<TypeList<Ts...>>(args...)); }
 
 	template < typename... Ts >
-	comparers::CmpToEquals<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > > CompareMembersEquals(const Ts&... args)
-	{ return comparers::CmpToEquals<MemberListComparer<Tuple<typename TypeList<Ts...>::type> > >(Tuple<typename TypeList<Ts...>::type>(args...)); }
+	comparers::CmpToEquals<MemberListComparer<Tuple<TypeList<Ts...>>>> CompareMembersEquals(const Ts&... args)
+	{ return comparers::CmpToEquals<MemberListComparer<Tuple<TypeList<Ts...>>>>(Tuple<TypeList<Ts...>>(args...)); }
 
 }
 

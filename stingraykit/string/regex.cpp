@@ -39,7 +39,7 @@ namespace stingray
 
 	typedef std::vector<RegexMatch>						RegexMatchVec;
 
-	typedef variant<TypeList<std::string, int>::type>	ReplacementEntry;
+	typedef variant<TypeList<std::string, int>>			ReplacementEntry;
 	typedef std::vector<ReplacementEntry>				ReplacementEntryVec;
 
 	class ReplacementEntryVisitor : public static_visitor<std::string>

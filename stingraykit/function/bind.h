@@ -193,8 +193,8 @@ namespace stingray
 		class NonPlaceholdersCutter
 		{
 		public:
-			typedef typename TypeList<Ts&&...>::type						AllParameters;
-			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	TypeList;
+			typedef TypeList<Ts&&...>										AllParameters;
+			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	Types;
 			typedef typename BoundParamNumbersGetter<AllParameters>::ValueT	BoundParamNumbers;
 
 		private:
@@ -216,7 +216,7 @@ namespace stingray
 		class Binder
 		{
 			typedef typename Decay<FunctorType>::ValueT						RawFunctorType;
-			typedef typename TypeList<typename Decay<Ts>::ValueT...>::type	AllParameters;
+			typedef TypeList<typename Decay<Ts>::ValueT...>					AllParameters;
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
 		public:
@@ -228,7 +228,7 @@ namespace stingray
 			class RealParameters
 			{
 			public:
-				typedef typename TypeList<Us&&...>::type	BinderParams;
+				typedef TypeList<Us&&...>	BinderParams;
 
 				typedef typename TypeListCopyIf<AllParameters, Not<IsChomper>::template ValueT>::ValueT Types;
 

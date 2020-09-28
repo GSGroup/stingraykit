@@ -123,7 +123,7 @@ namespace stingray
 			STINGRAYKIT_DEFAULTMOVABLE(SharedPtrImpl);
 
 		private:
-			TypeErasure<TypeList<DisposeConcept>::type, ISharedPtrData>	_value;
+			TypeErasure<TypeList<DisposeConcept>, ISharedPtrData>	_value;
 
 		public:
 			SharedPtrImpl()

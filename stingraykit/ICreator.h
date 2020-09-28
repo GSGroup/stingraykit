@@ -32,7 +32,7 @@ namespace stingray
 	template < typename InterfaceType, typename ClassType, typename... Ts >
 	class ConstructorCreator : public virtual ICreator<InterfaceType>
 	{
-		typedef typename TypeList<Ts...>::type ParamTypes;
+		typedef TypeList<Ts...> ParamTypes;
 
 	private:
 		Tuple<ParamTypes>	_params;

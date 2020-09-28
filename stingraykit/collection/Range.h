@@ -917,8 +917,8 @@ namespace stingray
 
 
 		template < typename FuncType, typename... RangeTypes >
-		RangeZipper<FuncType, typename TypeList<RangeTypes...>::type> Zip(const FuncType& func, const RangeTypes&... ranges)
-		{ return RangeZipper<FuncType, typename TypeList<RangeTypes...>::type>(func, MakeTuple(ranges...)); }
+		RangeZipper<FuncType, TypeList<RangeTypes...>> Zip(const FuncType& func, const RangeTypes&... ranges)
+		{ return RangeZipper<FuncType, TypeList<RangeTypes...>>(func, MakeTuple(ranges...)); }
 
 	}
 

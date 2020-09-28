@@ -48,8 +48,8 @@ namespace stingray
 				&& !(HasMethod_SerializeAsValue<T>::Value && HasMethod_DeserializeAsValue<T>::Value)>
 		{ };
 
-		typedef TypeList<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long, size_t, u8, u16, u32, u64>::type UnsignedTypes;
-		typedef TypeList<char, short, int, long, long long, off_t, s8, s16, s32, s64>::type SignedTypes;
+		typedef TypeList<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long, size_t, u8, u16, u32, u64> UnsignedTypes;
+		typedef TypeList<char, short, int, long, long long, off_t, s8, s16, s32, s64> SignedTypes;
 
 		struct TypeTraits
 		{
