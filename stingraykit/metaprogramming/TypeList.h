@@ -17,7 +17,7 @@ namespace stingray
 {
 
 	struct TypeListEndNode
-	{ typedef TypeListEndNode type; };
+	{ };
 
 
 	template < typename Value_, typename Next_ >
@@ -25,8 +25,6 @@ namespace stingray
 	{
 		typedef Value_	ValueT;
 		typedef Next_	Next;
-
-		typedef TypeListNode<Value_, Next_> type;
 	};
 
 
