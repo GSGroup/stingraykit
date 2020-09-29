@@ -20,7 +20,7 @@ namespace stingray
 	 * @{
 	 */
 
-	class Timer : STINGRAYKIT_FINAL(Timer), public virtual ITaskExecutor
+	class Timer final : public virtual ITaskExecutor
 	{
 		STINGRAYKIT_NONCOPYABLE(Timer);
 

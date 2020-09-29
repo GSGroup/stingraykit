@@ -15,6 +15,7 @@
 #include <stingraykit/collection/IObservableSet.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/collection/ITransactionalList.h>
+#include <stingraykit/core/NonPolymorphic.h>
 #include <stingraykit/diagnostics/PrivateIncludeGuard.h>
 #include <stingraykit/io/IOutputByteStream.h>
 #include <stingraykit/serialization/FloatString.h>

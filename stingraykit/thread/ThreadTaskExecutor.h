@@ -23,7 +23,7 @@ namespace stingray
 	 * @{
 	 */
 
-	class ThreadTaskExecutor : STINGRAYKIT_FINAL(ThreadTaskExecutor), public virtual ITaskExecutor
+	class ThreadTaskExecutor final : public virtual ITaskExecutor
 	{
 		STINGRAYKIT_NONCOPYABLE(ThreadTaskExecutor);
 

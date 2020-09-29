@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_CORE_FINAL_H
-#define STINGRAYKIT_CORE_FINAL_H
+#ifndef STINGRAYKIT_CORE_NONPOLYMORPHIC_H
+#define STINGRAYKIT_CORE_NONPOLYMORPHIC_H
 
 // Copyright (c) 2011 - 2019, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -13,13 +13,13 @@ namespace stingray
 {
 
 	// Usage:
-	// class A : STINGRAYKIT_FINAL(A) { };
+	// class A : STINGRAYKIT_NONPOLYMORPHIC(A) { };
 
-#define STINGRAYKIT_FINAL(ClassName_) private virtual stingray::Final<ClassName_>
-#define STINGRAYKIT_NONPOLYMORPHIC(ClassName_) STINGRAYKIT_FINAL(ClassName_), public virtual stingray::NonPolymorphicMarker
+#define STINGRAYKIT_NONPOLYMORPHIC(ClassName_) private virtual stingray::Final<ClassName_>, public virtual stingray::NonPolymorphicMarker
 
 	class NonPolymorphicMarker { };
 
+	/** @deprecated */
 	template < typename T >
 	class Final
 	{

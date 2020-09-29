@@ -17,7 +17,7 @@
 namespace stingray
 {
 
-	class ThreadlessTaskExecutor : STINGRAYKIT_FINAL(ThreadlessTaskExecutor), public virtual ITaskExecutor
+	class ThreadlessTaskExecutor final : public virtual ITaskExecutor
 	{
 		typedef function<void (const std::exception&)>		ExceptionHandlerType;
 
