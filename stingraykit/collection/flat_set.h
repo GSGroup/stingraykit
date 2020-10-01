@@ -52,6 +52,10 @@ namespace stingray
 			: _container(alloc), _cmp(comp)
 		{ insert(first, last); }
 
+		flat_set(std::initializer_list<value_type> list, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
+			: _container(alloc), _cmp(comp)
+		{ insert(list.begin(), list.end()); }
+
 		flat_set(const flat_set& other)
 			: _container(other._container), _cmp(other._cmp)
 		{ }
