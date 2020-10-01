@@ -1,7 +1,6 @@
 #ifndef STINGRAYKIT_CMDLINE_H
 #define STINGRAYKIT_CMDLINE_H
 
-#include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/string/StringUtils.h>
 
@@ -264,7 +263,7 @@ namespace stingray
 				const size_t size = CmdArgReader<std::string, false>::Read(input.c_str(), input.size(), value);
 
 				bool got_exact_match = false;
-				const std::vector<std::string> variants = VectorBuilder<std::string>() % "on" % "off" % "true" % "false";
+				const std::vector<std::string> variants = { "on", "off", "true", "false" };
 				for(std::vector<std::string>::const_iterator it = variants.begin(); it != variants.end(); ++it)
 				{
 					if (value.size() > (*it).length())

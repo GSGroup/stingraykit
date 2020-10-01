@@ -7,7 +7,6 @@
 
 #include <stingraykit/string/TranslatedString.h>
 
-#include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/MapDictionary.h>
 #include <stingraykit/serialization/Serialization.h>
@@ -61,15 +60,15 @@ namespace stingray
 
 
 	std::string TranslatedString::SelectTranslation(LangCode l0) const
-	{ return DoSelectTranslation(VectorBuilder<LangCode>(l0, LangCode::Any)); }
+	{ return DoSelectTranslation({ l0, LangCode::Any }); }
 
 
 	std::string TranslatedString::SelectTranslation(LangCode l0, LangCode l1) const
-	{ return DoSelectTranslation(VectorBuilder<LangCode>(l0, l1, LangCode::Any)); }
+	{ return DoSelectTranslation({ l0, l1, LangCode::Any }); }
 
 
 	std::string TranslatedString::SelectTranslation(LangCode l0, LangCode l1, LangCode l2) const
-	{ return DoSelectTranslation(VectorBuilder<LangCode>(l0, l1, l2, LangCode::Any)); }
+	{ return DoSelectTranslation({ l0, l1, l2, LangCode::Any }); }
 
 
 	std::string TranslatedString::SelectTranslation(const std::vector<LangCode>& langCodes) const
