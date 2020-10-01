@@ -53,28 +53,8 @@ namespace stingray
 		CollectionType		_collection;
 
 	public:
-		CollectionBuilder()
-		{}
-		CollectionBuilder(ArgType a1)
-		{ *this % a1; }
-		CollectionBuilder(ArgType a1, ArgType a2)
-		{ *this % a1 % a2; }
-		CollectionBuilder(ArgType a1, ArgType a2, ArgType a3)
-		{ *this % a1 % a2 % a3; }
-		CollectionBuilder(ArgType a1, ArgType a2, ArgType a3, ArgType a4)
-		{ *this % a1 % a2 % a3 % a4; }
-		CollectionBuilder(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5)
-		{ *this % a1 % a2 % a3 % a4 % a5; }
-		CollectionBuilder(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6)
-		{ *this % a1 % a2 % a3 % a4 % a5 % a6; }
-		CollectionBuilder(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6, ArgType a7)
-		{ *this % a1 % a2 % a3 % a4 % a5 % a6 % a7; }
-		CollectionBuilder(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6, ArgType a7, ArgType a8)
-		{ *this % a1 % a2 % a3 % a4 % a5 % a6 % a7 % a8; }
-		CollectionBuilder(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6, ArgType a7, ArgType a8, ArgType a9)
-		{ *this % a1 % a2 % a3 % a4 % a5 % a6 % a7 % a8 % a9; }
-		CollectionBuilder(ArgType a1, ArgType a2, ArgType a3, ArgType a4, ArgType a5, ArgType a6, ArgType a7, ArgType a8, ArgType a9, ArgType a10)
-		{ *this % a1 % a2 % a3 % a4 % a5 % a6 % a7 % a8 % a9 % a10; }
+		template < typename... Ts >
+		CollectionBuilder(const Ts&... args) { Insert(args...); }
 
 		const CollectionType& Get() const { return _collection; }
 
@@ -82,6 +62,11 @@ namespace stingray
 
 		CollectionBuilder& operator % (ArgType val)
 		{ Detail::CollectionInserter<CollectionType>::Insert(_collection, val); return *this; }
+
+	private:
+		template < typename... Ts >
+		void Insert(const ArgType& a0, const Ts&... args) { *this % a0; Insert(args...); }
+		void Insert() { }
 	};
 
 
