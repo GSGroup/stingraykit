@@ -8,14 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/toolkit.h>
-
-
 
 namespace stingray
 {
-
 
 	template < typename T >
 	class reference
@@ -24,22 +20,30 @@ namespace stingray
 		T*		_ptr;
 
 	public:
-		explicit inline reference(T& obj)
+		explicit reference(T& obj)
 			: _ptr(&obj)
 		{ }
 
-		inline operator T&() const
+		reference(T&&) = delete;
+
+		operator T& () const
 		{ return *_ptr; }
 	};
 
 
-	template < typename T>
+	template < typename T >
 	reference<T> wrap_ref(T& obj)
 	{ return reference<T>(obj); }
 
-	template < typename T>
+	template < typename T >
+	reference<T> wrap_ref(const T&& obj) = delete;
+
+	template < typename T >
 	reference<const T> wrap_const_ref(const T& obj)
 	{ return reference<const T>(obj); }
+
+	template < typename T >
+	reference<const T> wrap_const_ref(const T&& obj) = delete;
 
 	template < typename T >
 	struct ToPointer<reference<T> >
@@ -49,7 +53,5 @@ namespace stingray
 	inline T* to_pointer(const reference<T>& r) { return &(T&)r; }
 
 }
-
-
 
 #endif
