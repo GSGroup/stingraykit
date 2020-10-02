@@ -94,10 +94,18 @@ namespace stingray
 		unique_ptr(unique_ptr<T[]>&& other) : _rawPtr(other.release())
 		{ }
 
+		template < typename U >
+		unique_ptr(unique_ptr<U[]>&& other, typename EnableIf<IsInherited<U*, T*>::Value, Dummy>::ValueT* = 0) : _rawPtr(other.release())
+		{ }
+
 		~unique_ptr()
 		{ CheckedArrayDelete(_rawPtr); }
 
 		unique_ptr& operator = (unique_ptr<T[]>&& other)
+		{ reset(other.release()); return *this; }
+
+		template < typename U >
+		typename EnableIf<IsInherited<U*, T*>::Value, unique_ptr&>::ValueT operator = (unique_ptr<U[]>&& other)
 		{ reset(other.release()); return *this; }
 
 		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
