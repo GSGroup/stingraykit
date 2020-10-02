@@ -126,7 +126,7 @@ namespace stingray
 			_model->Predict(_context, null, Bind(&PpmCompressor::DoEncode, this, _1, _2, _3));
 
 			_coder.EndOfData(Bind(&PpmCompressor::AddBit, this, _1));
-			if (!_bitBuffer.EndOfData(Bind(&IDataConsumer::Process, &consumer, _1, wrap_ref(token))))
+			if (!_bitBuffer.EndOfData(Bind(&IDataConsumer::Process, &consumer, _1, wrap_const_ref(token))))
 				return;
 			consumer.EndOfData(token);
 		}
@@ -153,7 +153,7 @@ namespace stingray
 		bool ConsumeData(IDataConsumer& consumer, const ICancellationToken& token)
 		{
 			while (_bitBuffer.GetFreeSizeBits() < MaxBitsPerSymbol)
-				if (!_bitBuffer.ConsumeBytes(Bind(&IDataConsumer::Process, &consumer, _1, wrap_ref(token))))
+				if (!_bitBuffer.ConsumeBytes(Bind(&IDataConsumer::Process, &consumer, _1, wrap_const_ref(token))))
 					return false;
 			return true;
 		}
