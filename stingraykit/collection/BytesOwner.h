@@ -18,17 +18,14 @@ namespace stingray
 	template < typename T >
 	class BasicBytesOwner
 	{
-		struct Storage : public IToken
+		class Storage : public IToken
 		{
 		private:
-			T* _data;
+			unique_ptr<T[]>	_data;
 
 		public:
-			Storage(T* data) : _data(data)
+			Storage(unique_ptr<T[]>&& data) : _data(std::move(data))
 			{ }
-
-			virtual ~Storage()
-			{ delete[] _data; }
 		};
 
 		typedef BasicByteData<T>							DataType;
@@ -91,19 +88,19 @@ namespace stingray
 
 		static BasicBytesOwner Create(size_t size)
 		{
-			unique_ptr<DeconstT[]> arr(new T[size]);
-			BasicBytesOwner result(DataType(arr.get(), size), MakeToken<Storage>(arr.get()));
-			arr.release();
-			return result;
+			unique_ptr<T[]> arr(make_unique_ptr<T[]>(size));
+
+			const DataType data(arr.get(), size);
+			return BasicBytesOwner(data, MakeToken<Storage>(std::move(arr)));
 		}
 
-		static BasicBytesOwner Create(BasicByteData<const T> data)
+		static BasicBytesOwner Create(BasicByteData<const T> other)
 		{
-			unique_ptr<DeconstT[]> arr(new DeconstT[data.size()]);
-			std::copy(data.begin(), data.end(), arr.get());
-			BasicBytesOwner result(DataType(arr.get(), data.size()), MakeToken<Storage>(arr.get()));
-			arr.release();
-			return result;
+			unique_ptr<DeconstT[]> arr(make_unique_ptr<DeconstT[]>(other.size()));
+			std::copy(other.begin(), other.end(), arr.get());
+
+			const DataType data(arr.get(), other.size());
+			return BasicBytesOwner(data, MakeToken<Storage>(std::move(arr)));
 		}
 	};
 
