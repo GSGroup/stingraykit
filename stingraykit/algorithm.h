@@ -34,15 +34,6 @@ namespace stingray
 	}
 
 
-	template<typename InputIterator, typename Size, typename OutputIterator>
-	OutputIterator copy_n(InputIterator first, Size count, OutputIterator result)
-	{
-		for (Size i = 0; i < count; ++i, ++first)
-			*result++ = *first;
-		return result;
-	}
-
-
 	template<class It1, class It2, class Pred>
 	bool equal(It1 first1, It1 last1, It2 first2, It2 last2, Pred p)
 	{
