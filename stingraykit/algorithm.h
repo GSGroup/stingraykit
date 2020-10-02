@@ -24,16 +24,6 @@ namespace stingray
 	}
 
 
-	template<typename InputIterator, typename OutputIterator, typename Pred>
-	OutputIterator copy_if(InputIterator first, InputIterator last, OutputIterator result, Pred pred)
-	{
-		for (; first != last; ++first)
-			if (pred(*first))
-				*result++ = *first;
-		return result;
-	}
-
-
 	template<class It1, class It2, class Pred>
 	bool equal(It1 first1, It1 last1, It2 first2, It2 last2, Pred p)
 	{
