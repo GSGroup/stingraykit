@@ -1,6 +1,7 @@
 #ifndef STINGRAYKIT_IO_SYNCHRONIZEDPIPE_H
 #define STINGRAYKIT_IO_SYNCHRONIZEDPIPE_H
 
+#include <stingraykit/function/bind.h>
 #include <stingraykit/io/IPipe.h>
 #include <stingraykit/ScopeExit.h>
 #include <stingraykit/thread/ConditionVariable.h>
