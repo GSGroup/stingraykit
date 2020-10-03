@@ -8,13 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/core/Dummy.h>
 #include <stingraykit/TypeErasure.h>
 #include <stingraykit/TypeInfo.h>
 #include <stingraykit/aligned_storage.h>
 #include <stingraykit/dynamic_caster.h>
-#include <stingraykit/exception.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
+#include <stingraykit/unique_ptr.h>
 
 namespace stingray
 {
@@ -318,6 +317,19 @@ namespace stingray
 			LogAddRef(1);
 		}
 
+		template < typename U >
+		shared_ptr(unique_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+			: _rawPtr(other.get())
+		{
+			if (!_rawPtr)
+				return;
+
+			_impl.Allocate<Detail::DefaultSharedPtrData<T> >(_rawPtr);
+			other.release();
+
+			LogAddRef(1);
+		}
+
 		shared_ptr() : _rawPtr()
 		{ }
 
@@ -389,6 +401,14 @@ namespace stingray
 
 		template < typename U >
 		typename EnableIf<IsInherited<U, T>::Value, shared_ptr&>::ValueT operator = (shared_ptr<U>&& other)
+		{
+			shared_ptr tmp(std::move(other));
+			swap(tmp);
+			return *this;
+		}
+
+		template < typename U >
+		typename EnableIf<IsInherited<U, T>::Value, shared_ptr&>::ValueT operator = (unique_ptr<U>&& other)
 		{
 			shared_ptr tmp(std::move(other));
 			swap(tmp);
