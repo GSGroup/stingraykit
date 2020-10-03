@@ -293,14 +293,28 @@ namespace stingray
 			if (!_rawPtr)
 				return;
 
-			_impl.Allocate<Detail::DefaultSharedPtrData<T> >(rawPtr);
+			try
+			{ _impl.Allocate<Detail::DefaultSharedPtrData<T> >(_rawPtr); }
+			catch (...)
+			{
+				CheckedDelete(_rawPtr);
+				throw;
+			}
+
 			LogAddRef(1);
 		}
 
 		template < typename Deleter >
 		shared_ptr(T* rawPtr, Deleter&& deleter) : _rawPtr(rawPtr)
 		{
-			_impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(rawPtr, std::forward<Deleter>(deleter));
+			try
+			{ _impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(_rawPtr, std::forward<Deleter>(deleter)); }
+			catch (...)
+			{
+				deleter(_rawPtr);
+				throw;
+			}
+
 			LogAddRef(1);
 		}
 
