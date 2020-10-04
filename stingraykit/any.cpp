@@ -233,8 +233,9 @@ namespace stingray
 				std::string classname;
 				ar.Deserialize(".class", classname);
 
-				_data.Object = Factory::Instance().Create<IObjectHolder>(classname);
-				_data.Object->Deserialize(ar);
+				unique_ptr<IObjectHolder> object(Factory::Instance().Create<IObjectHolder>(classname));
+				object->Deserialize(ar);
+				_data.Object = object.release();
 			}
 			break;
 		default:
