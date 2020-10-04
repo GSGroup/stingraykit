@@ -28,18 +28,20 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(FactoryContext);
 
 	public:
+		STINGRAYKIT_DECLARE_UNIQ_PTR(IFactoryObject);
+
 		struct IFactoryObjectCreator
 		{
 			virtual ~IFactoryObjectCreator() { }
 
-			virtual IFactoryObject* Create() const = 0;
+			virtual IFactoryObjectUniqPtr Create() const = 0;
 		};
 		STINGRAYKIT_DECLARE_UNIQ_PTR(IFactoryObjectCreator);
 
 		template < typename ClassType >
 		class FactoryObjectCreator : public virtual IFactoryObjectCreator
 		{
-			virtual IFactoryObject* Create() const { return new ClassType; }
+			virtual IFactoryObjectUniqPtr Create() const { return IFactoryObjectUniqPtr(new ClassType()); }
 		};
 
 	private:
@@ -66,12 +68,12 @@ namespace stingray
 		{ Register(name, TypeInfo(typeid(ClassType)), make_unique_ptr<FactoryObjectCreator<ClassType>>()); }
 
 		template < typename ClassType >
-		ClassType* Create(const std::string& name)
+		unique_ptr<ClassType> Create(const std::string& name)
 		{
-			unique_ptr<IFactoryObject> factory_obj(Create(name));
-			ClassType* object = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(STINGRAYKIT_REQUIRE_NOT_NULL(factory_obj.get()));
-			factory_obj.release();
-			return object;
+			IFactoryObjectUniqPtr factoryObj(Create(name));
+			ClassType* object = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(STINGRAYKIT_REQUIRE_NOT_NULL(factoryObj.get()));
+			factoryObj.release();
+			return unique_ptr<ClassType>(object);
 		}
 
 	private:
@@ -79,7 +81,7 @@ namespace stingray
 
 		void Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreatorUniqPtr&& creator);
 
-		IFactoryObject* Create(const std::string& name);
+		IFactoryObjectUniqPtr Create(const std::string& name);
 	};
 
 	namespace Detail
@@ -111,7 +113,7 @@ namespace stingray
 			{ _rootContext->Register<ClassType>(name);}
 
 			template < typename ClassType >
-			ClassType* Create(const std::string& name)
+			unique_ptr<ClassType> Create(const std::string& name)
 			{ return _rootContext->Create<ClassType>(name); }
 
 		private:
@@ -130,7 +132,7 @@ namespace stingray
 
 	public:
 		template < typename ClassType >
-		ClassType* Create(const std::string& name) const
+		unique_ptr<ClassType> Create(const std::string& name) const
 		{ return Detail::Factory::Instance().Create<ClassType>(name); }
 
 		FactoryContextPtr GetRootContext() const

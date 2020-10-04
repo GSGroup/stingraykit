@@ -54,7 +54,7 @@ namespace stingray
 	}
 
 
-	IFactoryObject* FactoryContext::Create(const std::string& name)
+	FactoryContext::IFactoryObjectUniqPtr FactoryContext::Create(const std::string& name)
 	{
 		{
 			MutexLock l(_guard);

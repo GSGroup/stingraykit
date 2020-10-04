@@ -689,7 +689,7 @@ namespace stingray
 			}
 			else
 			{	//default deserialize
-				value.reset(_context->Create<T>(classname));
+				value = _context->Create<T>(classname);
 				value->Deserialize(*this);
 			}
 		}
