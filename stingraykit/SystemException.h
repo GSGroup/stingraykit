@@ -19,15 +19,15 @@ namespace stingray
 		int	_error;
 
 	public:
-		SystemException(const std::string& message) throw();
-		SystemException(const std::string& message, int err) throw();
-		SystemException(const std::string& message, const std::string& path, int err) throw();
-		virtual ~SystemException() throw() { }
+		SystemException(const std::string& message) noexcept;
+		SystemException(const std::string& message, int err) noexcept;
+		SystemException(const std::string& message, const std::string& path, int err) noexcept;
+		virtual ~SystemException() noexcept { }
 
 		int GetErrorCode() const { return _error; }
 
-		static std::string GetErrorMessage(int err) throw();
-		static std::string GetErrorMessage() throw();
+		static std::string GetErrorMessage(int err) noexcept;
+		static std::string GetErrorMessage() noexcept;
 
 	private:
 		static std::string ErrnoToStr(int e);

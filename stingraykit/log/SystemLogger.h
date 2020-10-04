@@ -15,7 +15,7 @@ namespace stingray
 
 	struct SystemLogger
 	{
-		static void Log(const LoggerMessage& message) throw ();
+		static void Log(const LoggerMessage& message) noexcept;
 	};
 
 }

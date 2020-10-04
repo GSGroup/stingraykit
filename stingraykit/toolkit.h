@@ -284,7 +284,7 @@ namespace stingray
 #if defined(__GNUC__) || defined(__clang__)
 		__attribute__((noreturn))
 #endif
-		static void TerminateWithMessage(const std::string& str) throw();
+		static void TerminateWithMessage(const std::string& str) noexcept;
 	};
 
 

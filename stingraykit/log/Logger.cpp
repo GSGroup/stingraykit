@@ -166,7 +166,7 @@ namespace stingray
 				_sinks.erase(it);
 		}
 
-		void Log(const LoggerMessage& message) throw()
+		void Log(const LoggerMessage& message) noexcept
 		{
 			try
 			{

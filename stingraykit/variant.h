@@ -34,9 +34,9 @@ namespace stingray
 		std::string		_message;
 	public:
 		bad_variant_get(const std::string& to, const std::string& from) : _message("Bad 'variant' get (" + to + " type requested, variant type is " + from + ")!") { }
-		virtual ~bad_variant_get() throw() { }
+		virtual ~bad_variant_get() noexcept { }
 
-		virtual const char* what() const throw() { return _message.c_str(); }
+		virtual const char* what() const noexcept { return _message.c_str(); }
 	};
 
 

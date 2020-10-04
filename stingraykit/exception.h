@@ -160,9 +160,9 @@ namespace stingray
 	public:
 		InvalidCastException() : _message("Invalid cast!") { }
 		InvalidCastException(const std::string& source, const std::string& target) : _message(BuildErrorMessage(source, target)) { }
-		virtual ~InvalidCastException() throw() { }
+		virtual ~InvalidCastException() noexcept { }
 
-		virtual const char* what() const throw() { return _message.c_str(); }
+		virtual const char* what() const noexcept { return _message.c_str(); }
 
 	private:
 		static std::string BuildErrorMessage(const std::string& source, const std::string& target)
@@ -196,7 +196,7 @@ namespace stingray
 
 		struct IToolkitException
 		{
-			virtual ~IToolkitException() throw() { }
+			virtual ~IToolkitException() noexcept { }
 
 			virtual size_t GetLine() const = 0;
 			virtual const char* GetFilename() const = 0;
@@ -216,7 +216,7 @@ namespace stingray
 		BaseException(ToolkitWhere where) : _where(where)
 		{ }
 
-		virtual ~BaseException() throw() { }
+		virtual ~BaseException() noexcept { }
 
 		virtual size_t GetLine() const				{ return _where.GetLine(); }
 		virtual const char* GetFilename() const		{ return _where.GetFilename(); }

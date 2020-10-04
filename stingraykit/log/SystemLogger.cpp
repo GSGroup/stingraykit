@@ -12,7 +12,7 @@
 namespace stingray
 {
 
-	void SystemLogger::Log(const LoggerMessage& message) throw ()
+	void SystemLogger::Log(const LoggerMessage& message) noexcept
 	{
 #ifndef PRODUCTION_BUILD
 		fprintf(stderr, "SystemLogger: %s\n", message.ToString().c_str());

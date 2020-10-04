@@ -25,9 +25,9 @@ namespace stingray
 
 	public:
 		SettingsValueException(const std::string& msg) : Exception(std::string()), _backtrace(msg) { }
-		virtual ~SettingsValueException() throw() { }
+		virtual ~SettingsValueException() noexcept { }
 
-		virtual const char *what() const throw() { return _backtrace.c_str(); }
+		virtual const char *what() const noexcept { return _backtrace.c_str(); }
 
 		void Append(const std::string& property) { _backtrace = property + "->" + _backtrace; }
 	};

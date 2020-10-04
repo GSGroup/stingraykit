@@ -18,10 +18,10 @@ namespace stingray
 		std::string _what;
 
 	public:
-		RethrownException(const std::exception& ex) throw() : _what(diagnostic_information(ex)) { }
-		virtual ~RethrownException() throw() { }
+		RethrownException(const std::exception& ex) noexcept : _what(diagnostic_information(ex)) { }
+		virtual ~RethrownException() noexcept { }
 
-		virtual const char* what() const throw() { return _what.c_str(); }
+		virtual const char* what() const noexcept { return _what.c_str(); }
 	};
 
 	typedef shared_ptr<RethrownException> ExceptionPtr;

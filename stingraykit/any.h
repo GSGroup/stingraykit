@@ -344,9 +344,9 @@ namespace stingray
 		std::string		_message;
 	public:
 		bad_any_cast(const std::string& from, const std::string& to) : _message(StringBuilder() % "Bad 'any' cast from " % from % " to " % to % "!") { }
-		virtual ~bad_any_cast() throw() { }
+		virtual ~bad_any_cast() noexcept { }
 
-		virtual const char* what() const throw() { return _message.c_str(); }
+		virtual const char* what() const noexcept { return _message.c_str(); }
 	};
 
 
