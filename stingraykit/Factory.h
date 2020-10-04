@@ -34,6 +34,7 @@ namespace stingray
 
 			virtual IFactoryObject* Create() const = 0;
 		};
+		STINGRAYKIT_DECLARE_UNIQ_PTR(IFactoryObjectCreator);
 
 		template < typename ClassType >
 		class FactoryObjectCreator : public virtual IFactoryObjectCreator
@@ -42,8 +43,8 @@ namespace stingray
 		};
 
 	private:
-		typedef std::map<std::string, IFactoryObjectCreator*>	ObjectCreatorsRegistry;
-		typedef std::map<TypeInfo, std::string>					ClassNamesRegistry;
+		typedef std::map<std::string, IFactoryObjectCreatorUniqPtr> ObjectCreatorsRegistry;
+		typedef std::map<TypeInfo, std::string> ClassNamesRegistry;
 
 		friend class Detail::Factory;
 
@@ -57,17 +58,12 @@ namespace stingray
 
 	public:
 		FactoryContext();
-		~FactoryContext();
 
 		std::string GetClassName(const std::type_info& info) const;
 
 		template < typename ClassType >
 		void Register(const std::string& name)
-		{
-			unique_ptr<IFactoryObjectCreator> creator(new FactoryObjectCreator<ClassType>());
-			Register(name, TypeInfo(typeid(ClassType)), creator.get());
-			creator.release();
-		}
+		{ Register(name, TypeInfo(typeid(ClassType)), make_unique_ptr<FactoryObjectCreator<ClassType>>()); }
 
 		template < typename ClassType >
 		ClassType* Create(const std::string& name)
@@ -81,7 +77,7 @@ namespace stingray
 	private:
 		FactoryContext(const FactoryContextPtr& baseContext);
 
-		void Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreator* creator);
+		void Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreatorUniqPtr&& creator);
 
 		IFactoryObject* Create(const std::string& name);
 	};

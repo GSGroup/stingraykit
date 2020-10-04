@@ -18,15 +18,6 @@ namespace stingray
 		{ }
 
 
-	FactoryContext::~FactoryContext()
-	{
-		STINGRAYKIT_TRY("Clean failed",
-			MutexLock l(_guard);
-			for (ObjectCreatorsRegistry::iterator i = _objectCreators.begin(); i != _objectCreators.end(); ++i)
-				delete i->second;
-		);
-	}
-
 	std::string Factory::RemoveTypePrefix(const std::string & type, const std::string &prefix)
 	{ return RemovePrefix(type, prefix); }
 
@@ -50,7 +41,7 @@ namespace stingray
 	}
 
 
-	void FactoryContext::Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreator* creator)
+	void FactoryContext::Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreatorUniqPtr&& creator)
 	{
 		Logger::Debug() << "Registering " << name;
 
@@ -58,7 +49,7 @@ namespace stingray
 
 		STINGRAYKIT_CHECK(_objectCreators.find(name) == _objectCreators.end(), "Class '" + name + "' is already registered!");
 
-		_objectCreators[name] = creator;
+		_objectCreators[name] = std::move(creator);
 		_classNames[info] = name;
 	}
 
