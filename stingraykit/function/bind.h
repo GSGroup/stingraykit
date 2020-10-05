@@ -28,9 +28,6 @@ namespace stingray
 		template < size_t N > struct Placeholder
 		{ static const size_t Index = N; };
 
-		template < size_t N > struct Chomper
-		{ static const size_t Index = N; };
-
 		template < typename T > struct IsBinderImpl								: FalseType { };
 		template < typename FunctorType, typename... Ts >
 		struct IsBinderImpl<Binder<FunctorType, Ts...> >						: TrueType { };
@@ -39,18 +36,11 @@ namespace stingray
 
 		template < typename T > struct IsPlaceholderImpl						: FalseType { };
 		template < size_t N > struct IsPlaceholderImpl<Placeholder<N> >			: TrueType { };
-		template < size_t N > struct IsPlaceholderImpl<Chomper<N> >				: TrueType { };
 
 		template < typename T > struct IsPlaceholder							: IsPlaceholderImpl<typename Decay<T>::ValueT> { };
 
-		template < typename T > struct IsChomperImpl							: FalseType { };
-		template < size_t N > struct IsChomperImpl<Chomper<N> >					: TrueType { };
-
-		template < typename T > struct IsChomper								: IsChomperImpl<typename Decay<T>::ValueT> { };
-
 		template < typename T > struct GetPlaceholderIndexImpl						: integral_constant<int, -1> { };
 		template < size_t N > struct GetPlaceholderIndexImpl<Placeholder<N> >		: integral_constant<int, N> { };
-		template < size_t N > struct GetPlaceholderIndexImpl<Chomper<N> >			: integral_constant<int, N> { };
 
 		template < typename T > struct GetPlaceholderIndex							: GetPlaceholderIndexImpl<typename Decay<T>::ValueT> { };
 
@@ -228,9 +218,9 @@ namespace stingray
 			class RealParameters
 			{
 			public:
-				typedef TypeList<Us&&...>	BinderParams;
+				typedef AllParameters		Types;
 
-				typedef typename TypeListCopyIf<AllParameters, Not<IsChomper>::template ValueT>::ValueT Types;
+				typedef TypeList<Us&&...>	BinderParams;
 
 				static const size_t Size = GetTypeListLength<Types>::Value;
 
@@ -283,10 +273,6 @@ namespace stingray
 	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~)
 
 #undef DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER
-
-
-	template < size_t N >
-	Detail::Chomper<N> not_using(const Detail::Placeholder<N>&) { return Detail::Chomper<N>(); }
 
 	/** @} */
 
