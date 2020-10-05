@@ -32,12 +32,19 @@ namespace stingray
 		template < typename FunctorType, typename... Ts >
 		struct IsBinderImpl<Binder<FunctorType, Ts...> >						: TrueType { };
 
-		template < typename T > struct IsBinder									: IsBinderImpl<typename RemoveCV<T>::ValueT> { };
-
 		template < typename T > struct IsPlaceholderImpl						: integral_constant<int, 0> { };
 		template < size_t N > struct IsPlaceholderImpl<Placeholder<N> >			: integral_constant<int, N> { };
 
-		template < typename T > struct IsPlaceholder							: IsPlaceholderImpl<typename RemoveCV<T>::ValueT> { };
+	}
+
+
+	template < typename T > struct IsBinder			: Detail::IsBinderImpl<typename RemoveCV<T>::ValueT> { };
+
+	template < typename T > struct IsPlaceholder	: Detail::IsPlaceholderImpl<typename RemoveCV<T>::ValueT> { };
+
+
+	namespace Detail
+	{
 
 		template < typename AllParameters >
 		struct GetBinderParamsCount
