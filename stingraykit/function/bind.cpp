@@ -16,7 +16,7 @@ namespace stingray
 	 */
 
 #define DETAIL_STINGRAYKIT_DEFINE_PLACEHOLDER(Index_, UserArg_) \
-	const Detail::Placeholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_));
+	const Detail::Placeholder<Index_ + 1>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_));
 
 	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DEFINE_PLACEHOLDER, ~)
 

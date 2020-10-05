@@ -39,7 +39,7 @@ namespace stingray
 
 		template < typename T > struct IsPlaceholder							: IsPlaceholderImpl<typename Decay<T>::ValueT> { };
 
-		template < typename T > struct GetPlaceholderIndexImpl						: integral_constant<int, -1> { };
+		template < typename T > struct GetPlaceholderIndexImpl						: integral_constant<int, 0> { };
 		template < size_t N > struct GetPlaceholderIndexImpl<Placeholder<N> >		: integral_constant<int, N> { };
 
 		template < typename T > struct GetPlaceholderIndex							: GetPlaceholderIndexImpl<typename Decay<T>::ValueT> { };
@@ -48,9 +48,9 @@ namespace stingray
 		struct GetBinderParamsCount
 		{
 			static const size_t Value =
-					(GetBinderParamsCount<typename AllParameters::Next>::Value > GetPlaceholderIndex<typename AllParameters::ValueT>::Value + 1) ?
+					(GetBinderParamsCount<typename AllParameters::Next>::Value > GetPlaceholderIndex<typename AllParameters::ValueT>::Value) ?
 					GetBinderParamsCount<typename AllParameters::Next>::Value :
-					(GetPlaceholderIndex<typename AllParameters::ValueT>::Value + 1);
+					GetPlaceholderIndex<typename AllParameters::ValueT>::Value;
 		};
 
 		template < >
@@ -66,13 +66,13 @@ namespace stingray
 			AbsentParamDummy(const T&) { }
 		};
 
-		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex> >::Value != TypeListNpos >
+		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex + 1> >::Value != TypeListNpos >
 		struct BinderSingleParamTypeGetter
 		{ typedef AbsentParamDummy ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex >
 		struct BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex, true>
-		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex> >::Value >::ValueT ValueT; };
+		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex + 1> >::Value >::ValueT ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex = 0, size_t Count = GetBinderParamsCount<AllParameters>::Value >
 		struct BinderParamTypesGetter
@@ -122,11 +122,11 @@ namespace stingray
 
 		template < size_t Index, typename BinderParams >
 		struct GetParamType<Placeholder<Index>, BinderParams, true>
-		{ typedef typename GetTypeListItem<BinderParams, Index>::ValueT ValueT; };
+		{ typedef typename GetTypeListItem<BinderParams, Index - 1>::ValueT ValueT; };
 
 		template < size_t Index, typename BinderParams >
 		struct GetParamType<Placeholder<Index>, BinderParams, false>
-		{ typedef const typename GetTypeListItem<BinderParams, Index>::ValueT& ValueT; };
+		{ typedef const typename GetTypeListItem<BinderParams, Index - 1>::ValueT& ValueT; };
 
 
 		template
@@ -146,10 +146,10 @@ namespace stingray
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
 			static ParamType Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
-			{ return binderParams.template Get<GetPlaceholderIndex<BoundType>::Value>(); }
+			{ return binderParams.template Get<GetPlaceholderIndex<BoundType>::Value - 1>(); }
 
 			static typename GetParamType<BoundType, BinderParams, true>::ValueT Get(const Tuple<BoundParams>& BoundParams, Tuple<BinderParams>&& binderParams)
-			{ return std::move(binderParams).template Get<GetPlaceholderIndex<BoundType>::Value>(); }
+			{ return std::move(binderParams).template Get<GetPlaceholderIndex<BoundType>::Value - 1>(); }
 		};
 
 		template < typename AllParameters, typename BinderParams, size_t Index >
@@ -268,7 +268,7 @@ namespace stingray
 	{ return Detail::Binder<FunctorType, Ts...>(std::forward<FunctorType>(func), std::forward<Ts>(args)...); }
 
 #define DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER(Index_, UserArg_) \
-	extern const Detail::Placeholder<Index_>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_));
+	extern const Detail::Placeholder<Index_ + 1>	STINGRAYKIT_CAT(_, STINGRAYKIT_INC(Index_));
 
 	STINGRAYKIT_REPEAT(20, DETAIL_STINGRAYKIT_DECLARE_PLACEHOLDER, ~)
 
