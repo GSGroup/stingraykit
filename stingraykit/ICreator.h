@@ -77,6 +77,25 @@ namespace stingray
 		{ return base::GetInstance(); }
 	};
 
+
+	template < typename To, typename From >
+	class ConvertingCreator : public virtual ICreator<To>
+	{
+		shared_ptr<ICreator<From>>	_creator;
+
+	public:
+		ConvertingCreator(const shared_ptr<ICreator<From>>& creator) : _creator(STINGRAYKIT_REQUIRE_NOT_NULL(creator))
+		{ }
+
+		virtual shared_ptr<To> Create() const
+		{ return _creator->Create(); }
+	};
+
+
+	template < typename To, typename From >
+	shared_ptr<ICreator<To>> MakeConvertingCreator(const shared_ptr<ICreator<From>>& creator)
+	{ return make_shared_ptr<ConvertingCreator<To, From>>(creator); }
+
 }
 
 #endif
