@@ -11,7 +11,7 @@
 namespace stingray
 {
 
-	template < typename T > struct StaticAssertCompleteType { static_assert(sizeof(T) == sizeof(T)); typedef T ValueT; };
+	template < typename T > struct StaticAssertCompleteType { static_assert(sizeof(T) == sizeof(T), "Type is incomplete"); typedef T ValueT; };
 
 }
 

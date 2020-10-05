@@ -134,11 +134,11 @@ namespace stingray
 			inline operator T() const
 			{
 				static_assert(!IsSame<T, BitsGetterProxy>::Value, "Old gcc bug");
-				static_assert(SizeBits <= 64);
+				static_assert(SizeBits <= 64, "Wrong SizeBits value");
 
 				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
-				static_assert(SizeBits + OffsetBits >= SizeBits);
-				static_assert(SizeBits + OffsetBits >= OffsetBits);
+				static_assert(SizeBits + OffsetBits >= SizeBits, "SizeBits or OffsetBits is negative");
+				static_assert(SizeBits + OffsetBits >= OffsetBits, "SizeBits or OffsetBits is negative");
 
 				const size_t BytesRequirement = (OffsetBits + SizeBits + 7) / 8;
 				STINGRAYKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
@@ -191,8 +191,8 @@ namespace stingray
 				static_assert(!IsSame<T, BitsGetterProxy>::Value, "Old gcc bug");
 
 				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
-				static_assert(SizeBits + OffsetBits >= SizeBits);
-				static_assert(SizeBits + OffsetBits >= OffsetBits);
+				static_assert(SizeBits + OffsetBits >= SizeBits, "SizeBits or OffsetBits is negative");
+				static_assert(SizeBits + OffsetBits >= OffsetBits, "SizeBits or OffsetBits is negative");
 
 				const size_t BytesRequirement = (OffsetBits + SizeBits + 7) / 8;
 				STINGRAYKIT_CHECK(_buf.size() >= BytesRequirement, IndexOutOfRangeException(BytesRequirement, _buf.size()));
@@ -266,8 +266,8 @@ namespace stingray
 			inline void Set (T val) const
 			{
 				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
-				static_assert(SizeBits + OffsetBits >= SizeBits);
-				static_assert(SizeBits + OffsetBits >= OffsetBits);
+				static_assert(SizeBits + OffsetBits >= SizeBits, "SizeBits or OffsetBits is negative");
+				static_assert(SizeBits + OffsetBits >= OffsetBits, "SizeBits or OffsetBits is negative");
 
 				size_t required_size = (OffsetBits + SizeBits + 7) / 8;
 				ByteDataResizer<ByteDataType>::RequireSize(_buf, required_size);
@@ -323,8 +323,8 @@ namespace stingray
 			inline void Set (T val) const
 			{
 				// In case of negative SizeBits or OffsetBits index check can pass due to overflow
-				static_assert(SizeBits + OffsetBits >= SizeBits);
-				static_assert(SizeBits + OffsetBits >= OffsetBits);
+				static_assert(SizeBits + OffsetBits >= SizeBits, "SizeBits or OffsetBits is negative");
+				static_assert(SizeBits + OffsetBits >= OffsetBits, "SizeBits or OffsetBits is negative");
 
 				size_t required_size = (OffsetBits + SizeBits + 7) / 8;
 				ByteDataResizer<ByteDataType>::RequireSize(_buf, required_size);
