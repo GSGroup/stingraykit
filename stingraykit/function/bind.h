@@ -34,23 +34,18 @@ namespace stingray
 
 		template < typename T > struct IsBinder									: IsBinderImpl<typename Decay<T>::ValueT> { };
 
-		template < typename T > struct IsPlaceholderImpl						: FalseType { };
-		template < size_t N > struct IsPlaceholderImpl<Placeholder<N> >			: TrueType { };
+		template < typename T > struct IsPlaceholderImpl						: integral_constant<int, 0> { };
+		template < size_t N > struct IsPlaceholderImpl<Placeholder<N> >			: integral_constant<int, N> { };
 
 		template < typename T > struct IsPlaceholder							: IsPlaceholderImpl<typename Decay<T>::ValueT> { };
-
-		template < typename T > struct GetPlaceholderIndexImpl						: integral_constant<int, 0> { };
-		template < size_t N > struct GetPlaceholderIndexImpl<Placeholder<N> >		: integral_constant<int, N> { };
-
-		template < typename T > struct GetPlaceholderIndex							: GetPlaceholderIndexImpl<typename Decay<T>::ValueT> { };
 
 		template < typename AllParameters >
 		struct GetBinderParamsCount
 		{
 			static const size_t Value =
-					(GetBinderParamsCount<typename AllParameters::Next>::Value > GetPlaceholderIndex<typename AllParameters::ValueT>::Value) ?
+					(GetBinderParamsCount<typename AllParameters::Next>::Value > IsPlaceholder<typename AllParameters::ValueT>::Value) ?
 					GetBinderParamsCount<typename AllParameters::Next>::Value :
-					GetPlaceholderIndex<typename AllParameters::ValueT>::Value;
+					IsPlaceholder<typename AllParameters::ValueT>::Value;
 		};
 
 		template < >
@@ -99,7 +94,7 @@ namespace stingray
 		struct BoundParamNumbersGetter
 		{
 			typedef typename AllParameters::ValueT CurType;
-			static const bool IsPH = IsPlaceholder<CurType>::Value;
+			static const bool IsPH = IsPlaceholder<CurType>::Value != 0;
 			static const int Counter = BoundParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::Counter - (IsPH ? 0 : 1);
 			static const int Num = IsPH ? -1 : Counter;
 			typedef TypeListNode<IntToType<Num>, typename BoundParamNumbersGetter<typename AllParameters::Next, SrcAllParameters>::ValueT> ValueT;
@@ -134,7 +129,7 @@ namespace stingray
 				typename AllParameters,
 				typename BinderParams,
 				size_t Index,
-				bool UseBinderParams = IsPlaceholder<typename GetTypeListItem<AllParameters, Index>::ValueT>::Value
+				bool UseBinderParams = IsPlaceholder<typename GetTypeListItem<AllParameters, Index>::ValueT>::Value != 0
 			>
 		struct ParamSelector;
 
@@ -146,10 +141,10 @@ namespace stingray
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
 
 			static ParamType Get(const Tuple<BoundParams>& BoundParams, const Tuple<BinderParams>& binderParams)
-			{ return binderParams.template Get<GetPlaceholderIndex<BoundType>::Value - 1>(); }
+			{ return binderParams.template Get<IsPlaceholder<BoundType>::Value - 1>(); }
 
 			static typename GetParamType<BoundType, BinderParams, true>::ValueT Get(const Tuple<BoundParams>& BoundParams, Tuple<BinderParams>&& binderParams)
-			{ return std::move(binderParams).template Get<GetPlaceholderIndex<BoundType>::Value - 1>(); }
+			{ return std::move(binderParams).template Get<IsPlaceholder<BoundType>::Value - 1>(); }
 		};
 
 		template < typename AllParameters, typename BinderParams, size_t Index >
