@@ -65,11 +65,10 @@ namespace stingray
 
 	private:
 		ExternalAPIGuardStack*	_stack;
-		const char*				_externalApiEntry;
 
 	public:
 		EnterExternalAPIGuardBase(ExternalAPIGuardStack* stack, const char* externalApiEntry)
-			: _stack(stack), _externalApiEntry(externalApiEntry)
+			: _stack(stack)
 		{ if (_stack) _stack->Push(ExternalAPIGuardStack::StackEntry(ExternalAPIGuardStack::StackEntry::EnterExternalAPI, externalApiEntry)); }
 
 		~EnterExternalAPIGuardBase()
@@ -83,11 +82,10 @@ namespace stingray
 
 	private:
 		ExternalAPIGuardStack*	_stack;
-		const char*				_internalApiEntry;
 
 	public:
 		LeaveExternalAPIGuardBase(ExternalAPIGuardStack* stack, const char* internalApiEntry)
-			: _stack(stack), _internalApiEntry(internalApiEntry)
+			: _stack(stack)
 		{ if (_stack) _stack->Push(ExternalAPIGuardStack::StackEntry(ExternalAPIGuardStack::StackEntry::LeaveExternalAPI, internalApiEntry)); }
 
 		~LeaveExternalAPIGuardBase()
