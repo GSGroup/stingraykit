@@ -32,12 +32,12 @@ namespace stingray
 		template < typename FunctorType, typename... Ts >
 		struct IsBinderImpl<Binder<FunctorType, Ts...> >						: TrueType { };
 
-		template < typename T > struct IsBinder									: IsBinderImpl<typename Decay<T>::ValueT> { };
+		template < typename T > struct IsBinder									: IsBinderImpl<typename RemoveCV<T>::ValueT> { };
 
 		template < typename T > struct IsPlaceholderImpl						: integral_constant<int, 0> { };
 		template < size_t N > struct IsPlaceholderImpl<Placeholder<N> >			: integral_constant<int, N> { };
 
-		template < typename T > struct IsPlaceholder							: IsPlaceholderImpl<typename Decay<T>::ValueT> { };
+		template < typename T > struct IsPlaceholder							: IsPlaceholderImpl<typename RemoveCV<T>::ValueT> { };
 
 		template < typename AllParameters >
 		struct GetBinderParamsCount
@@ -87,7 +87,10 @@ namespace stingray
 
 		template < typename AllParameters >
 		struct BoundParamTypesGetter
-		{ typedef typename TypeListCopyIf<AllParameters, Not<IsPlaceholder>::template ValueT>::ValueT ValueT; };
+		{
+			template < typename T > struct IsPassingPlaceholder : IsPlaceholder<typename Decay<T>::ValueT> { };
+			typedef typename TypeListCopyIf<AllParameters, Not<IsPassingPlaceholder>::template ValueT>::ValueT ValueT;
+		};
 
 
 		template < typename AllParameters, typename SrcAllParameters = AllParameters >
@@ -178,12 +181,14 @@ namespace stingray
 		class NonPlaceholdersCutter
 		{
 		public:
-			typedef TypeList<Ts&&...>										AllParameters;
-			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	Types;
-			typedef typename BoundParamNumbersGetter<AllParameters>::ValueT	BoundParamNumbers;
+			typedef TypeList<Ts&&...>										PassingParameters;
+			typedef TypeList<typename Decay<Ts>::ValueT...>					AllParameters;
+
+			typedef typename BoundParamTypesGetter<PassingParameters>::ValueT	Types;
+			typedef typename BoundParamNumbersGetter<AllParameters>::ValueT		BoundParamNumbers;
 
 		private:
-			Tuple<AllParameters>		_allParams;
+			Tuple<PassingParameters>		_allParams;
 
 		public:
 			NonPlaceholdersCutter(Ts&&... args) : _allParams(std::forward<Ts>(args)...) { }
