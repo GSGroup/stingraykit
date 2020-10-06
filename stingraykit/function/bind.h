@@ -61,13 +61,17 @@ namespace stingray
 			AbsentParamDummy(const T&) { }
 		};
 
-		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, bool HasThisParam = IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex + 1> >::Value != TypeListNpos >
+		template < typename ParamType >
+		struct ToPlaceholderNumber
+		{ typedef IntToType<IsPlaceholder<ParamType>::Value> ValueT; };
+
+		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex, size_t IndexOfThisParam = IndexOfTypeListItem<typename TypeListTransform<AllParameters, ToPlaceholderNumber>::ValueT, IntToType<CurrentIndex + 1>>::Value >
 		struct BinderSingleParamTypeGetter
-		{ typedef AbsentParamDummy ValueT; };
+		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfThisParam>::ValueT ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex >
-		struct BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex, true>
-		{ typedef typename GetTypeListItem<OriginalParamTypes, IndexOfTypeListItem<AllParameters, Placeholder<CurrentIndex + 1> >::Value >::ValueT ValueT; };
+		struct BinderSingleParamTypeGetter<OriginalParamTypes, AllParameters, CurrentIndex, TypeListNpos>
+		{ typedef AbsentParamDummy ValueT; };
 
 		template < typename OriginalParamTypes, typename AllParameters, size_t CurrentIndex = 0, size_t Count = GetBinderParamsCount<AllParameters>::Value >
 		struct BinderParamTypesGetter
