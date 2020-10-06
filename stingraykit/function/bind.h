@@ -110,21 +110,37 @@ namespace stingray
 			static const int Counter = GetTypeListLength<typename TypeListCopyIf<SrcAllParameters, Not<IsPlaceholder>::template ValueT>::ValueT>::Value;
 		};
 
-		template < typename OriginalParamType, typename BinderParams, bool ForwardBinderParams = false >
-		struct GetParamType
+
+		struct ParameterCategory
+		{
+			STINGRAYKIT_ENUM_VALUES(Regular, Placeholder, Binder);
+			STINGRAYKIT_DECLARE_ENUM_CLASS(ParameterCategory);
+		};
+
+		template < typename OriginalParamType, ParameterCategory::Enum ParamCategory =
+			IsBinder<OriginalParamType>::Value ? ParameterCategory::Binder :
+				IsPlaceholder<OriginalParamType>::Value ? ParameterCategory::Placeholder : ParameterCategory::Regular>
+		struct ParameterCategoryGetter
+		{ static const ParameterCategory::Enum Value = ParamCategory; };
+
+		template < typename OriginalParamType, typename BinderParams, bool ForwardBinderParams = false, ParameterCategory::Enum ParamCategory = ParameterCategoryGetter<OriginalParamType>::Value  >
+		struct GetParamType;
+
+		template < typename OriginalParamType, typename BinderParams, bool ForwardBinderParams >
+		struct GetParamType<OriginalParamType, BinderParams, ForwardBinderParams, ParameterCategory::Regular>
 		{ typedef const OriginalParamType& ValueT; };
 
-		template < typename FunctorType, typename... Ts, typename BinderParams, bool ForwardBinderParams >
-		struct GetParamType<Binder<FunctorType, Ts...>, BinderParams, ForwardBinderParams>
-		{ typedef typename Binder<FunctorType, Ts...>::RetType ValueT; };
+		template < typename OriginalParamType, typename BinderParams, bool ForwardBinderParams >
+		struct GetParamType<OriginalParamType, BinderParams, ForwardBinderParams, ParameterCategory::Binder>
+		{ typedef typename function_info<OriginalParamType>::RetType ValueT; };
 
-		template < size_t Index, typename BinderParams >
-		struct GetParamType<Placeholder<Index>, BinderParams, true>
-		{ typedef typename GetTypeListItem<BinderParams, Index - 1>::ValueT ValueT; };
+		template < typename OriginalParamType, typename BinderParams >
+		struct GetParamType<OriginalParamType, BinderParams, true, ParameterCategory::Placeholder>
+		{ typedef typename GetTypeListItem<BinderParams, IsPlaceholder<OriginalParamType>::Value - 1>::ValueT ValueT; };
 
-		template < size_t Index, typename BinderParams >
-		struct GetParamType<Placeholder<Index>, BinderParams, false>
-		{ typedef const typename GetTypeListItem<BinderParams, Index - 1>::ValueT& ValueT; };
+		template < typename OriginalParamType, typename BinderParams >
+		struct GetParamType<OriginalParamType, BinderParams, false, ParameterCategory::Placeholder>
+		{ typedef const typename GetTypeListItem<BinderParams, IsPlaceholder<OriginalParamType>::Value - 1>::ValueT& ValueT; };
 
 
 		template
