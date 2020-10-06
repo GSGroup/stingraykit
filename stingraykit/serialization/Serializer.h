@@ -62,6 +62,16 @@ namespace stingray
 	};
 
 	template < typename Tag, typename T >
+	struct Serializer<Tag, T, typename EnableIf<!IsOptional<T>::Value
+			&& !SerializerUtils::HasMethod_Serialize<Serialization<Tag, T, void> >::Value
+			&& !SerializerUtils::HasMethod_SerializeAsValue<Serialization<Tag, T, void> >::Value, void>::ValueT>
+	{
+		const T&	Object;
+
+		explicit Serializer(const T& object) : Object(object) { }
+	};
+
+	template < typename Tag, typename T >
 	struct Serializer<Tag, optional<T>, void >
 	{
 		const T&		Object;
@@ -155,6 +165,18 @@ namespace stingray
 		template < typename IStream_ >
 		void DeserializeAsValue(IStream_& ar)
 		{ Serialization<Tag, T, void>::DeserializeAsValue(ar, Object); }
+
+		Deserializer& operator * () { return *this; }
+	};
+
+	template < typename Tag, typename T >
+	struct Deserializer<Tag, T, typename EnableIf<!IsOptional<T>::Value
+			&& !SerializerUtils::HasMethod_Deserialize<Serialization<Tag, T, void> >::Value
+			&& !SerializerUtils::HasMethod_DeserializeAsValue<Serialization<Tag, T, void> >::Value, void>::ValueT>
+	{
+		T&		Object;
+
+		explicit Deserializer(T& object) : Object(object) { }
 
 		Deserializer& operator * () { return *this; }
 	};
