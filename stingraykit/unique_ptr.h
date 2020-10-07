@@ -172,6 +172,16 @@ namespace stingray
 	template < typename T, typename... Us >
 	typename Detail::MakeUnique<T>::UnsupportedPtr make_unique_ptr(Us&&... args) = delete;
 
+
+	template < typename UniquePtrT >
+	struct IsUniquePtr : FalseType { };
+
+	template < typename T >
+	struct IsUniquePtr<unique_ptr<T> > : TrueType { };
+
+	template < typename T >
+	struct IsUniquePtr<const unique_ptr<T> > : TrueType { };
+
 }
 
 #endif
