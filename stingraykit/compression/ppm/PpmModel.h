@@ -296,19 +296,7 @@ namespace stingray
 		};
 
 
-		template <typename ModelConfigList_, typename Enabler = void>
-		class Model;
-
-
-		struct ModelMemoryCounter
-		{
-			template <typename ModelConfigList_>
-			size_t operator() (const ModelBuilder<ModelConfigList_>*, size_t contextsCount, size_t entriesCount) const
-			{ return contextsCount * Model<ModelConfigList_>::ContextInfoMemorySize + entriesCount * Model<ModelConfigList_>::SymbolProbabilityMemorySize; }
-		};
-
-
-		template <typename ModelConfigList_, typename Enabler>
+		template < typename ModelConfigList_, size_t ConfigListSize = GetTypeListLength<ModelConfigList_>::Value >
 		class Model
 		{
 		public:
@@ -508,8 +496,8 @@ namespace stingray
 		};
 
 
-		template <typename ModelConfigList_>
-		class Model<ModelConfigList_, typename EnableIf<GetTypeListLength<ModelConfigList_>::Value == 0, void>::ValueT>
+		template < typename ModelConfigList_ >
+		class Model<ModelConfigList_, 0>
 		{
 		public:
 			Model(ModelBuilder<ModelConfigList_>& modelBuilder)
@@ -525,6 +513,14 @@ namespace stingray
 
 			std::string ToString() const
 			{ return ""; }
+		};
+
+
+		struct ModelMemoryCounter
+		{
+			template <typename ModelConfigList_>
+			size_t operator() (const ModelBuilder<ModelConfigList_>*, size_t contextsCount, size_t entriesCount) const
+			{ return contextsCount * Model<ModelConfigList_>::ContextInfoMemorySize + entriesCount * Model<ModelConfigList_>::SymbolProbabilityMemorySize; }
 		};
 	};
 
