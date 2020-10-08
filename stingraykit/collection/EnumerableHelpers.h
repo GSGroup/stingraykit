@@ -703,14 +703,14 @@ namespace stingray
 		shared_ptr<IEnumerator<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerator, const PredicateFunc& predicate, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT dummy = 0)
 		{
 			typedef typename CollectionType::ItemType T;
-			return make_shared_ptr<EnumeratorWrapper<T, T> >(enumerator, &stingray::implicit_cast<T>, predicate);
+			return WrapEnumerator(enumerator, &stingray::implicit_cast<T>, predicate);
 		}
 
 		template < typename CollectionType, typename PredicateFunc >
 		shared_ptr<IEnumerable<typename CollectionType::ItemType> > Where(const shared_ptr<CollectionType>& enumerable, const PredicateFunc& predicate, typename EnableIf<IsEnumerable<CollectionType>::Value, int>::ValueT dummy = 0)
 		{
 			typedef typename CollectionType::ItemType T;
-			return make_shared_ptr<EnumerableWrapper<T, T> >(enumerable, &stingray::implicit_cast<T>, predicate);
+			return WrapEnumerable(enumerable, &stingray::implicit_cast<T>, predicate);
 		}
 
 
