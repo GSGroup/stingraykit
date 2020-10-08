@@ -183,13 +183,13 @@ namespace stingray
 		private:
 			void FindNext()
 			{
-				while (_impl.Valid() && !_predicate(_impl.Get()))
+				while (_impl.Valid() && !FunctorInvoker::InvokeArgs(_predicate, _impl.Get()))
 					_impl.Next();
 			}
 
 			void FindPrev()
 			{
-				while (_impl.Valid() && !_predicate(_impl.Get()))
+				while (_impl.Valid() && !FunctorInvoker::InvokeArgs(_predicate, _impl.Get()))
 					_impl.Prev();
 			}
 		};
@@ -388,7 +388,7 @@ namespace stingray
 			void DoTransform()
 			{
 				if (!_cache)
-					_cache.emplace(_functor(_impl.Get()));
+					_cache.emplace(FunctorInvoker::InvokeArgs(_functor, _impl.Get()));
 			}
 		};
 
@@ -743,7 +743,7 @@ namespace stingray
 		void ForEach(Range_ range, const Functor_& functor)
 		{
 			for (; range.Valid(); range.Next())
-				functor(range.Get());
+				FunctorInvoker::InvokeArgs(functor, range.Get());
 		}
 
 
@@ -785,7 +785,7 @@ namespace stingray
 		bool AnyOf(Range_ range, Predicate_ predicate)
 		{
 			for (; range.Valid(); range.Next())
-				if (predicate(range.Get()))
+				if (FunctorInvoker::InvokeArgs(predicate, range.Get()))
 					return true;
 			return false;
 		}
@@ -795,7 +795,7 @@ namespace stingray
 		bool AllOf(Range_ range, Predicate_ predicate)
 		{
 			for (; range.Valid(); range.Next())
-				if (!predicate(range.Get()))
+				if (!FunctorInvoker::InvokeArgs(predicate, range.Get()))
 					return false;
 			return true;
 		}
@@ -805,7 +805,7 @@ namespace stingray
 		bool NoneOf(Range_ range, Predicate_ predicate)
 		{
 			for (; range.Valid(); range.Next())
-				if (predicate(range.Get()))
+				if (FunctorInvoker::InvokeArgs(predicate, range.Get()))
 					return false;
 			return true;
 		}
@@ -890,7 +890,7 @@ namespace stingray
 		{
 			optional<typename Detail::RangeToValue<Range_>::ValueT> result;
 			for (; range.Valid(); range.Next())
-				result = result ? functor(*result, range.Get()) : range.Get();
+				result = result ? FunctorInvoker::InvokeArgs(functor, *result, range.Get()) : range.Get();
 			return result;
 		}
 
@@ -900,7 +900,7 @@ namespace stingray
 		{
 			Result_ result = initialValue;
 			for (; range.Valid(); range.Next())
-				result = functor(result, range.Get());
+				result = FunctorInvoker::InvokeArgs(functor, result, range.Get());
 			return result;
 		}
 
