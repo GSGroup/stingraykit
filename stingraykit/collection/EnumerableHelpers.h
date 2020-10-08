@@ -637,7 +637,7 @@ namespace stingray
 			template < typename SrcType, typename FunctorType >
 			class EnumeratorTransformer : public IEnumerator<typename function_info<FunctorType>::RetType>
 			{
-				typedef IEnumerator<typename function_info<FunctorType>::RetType >	base;
+				typedef IEnumerator<typename function_info<FunctorType>::RetType>	base;
 				typedef shared_ptr<IEnumerator<SrcType> >							SrcEnumeratorPtr;
 
 			private:
@@ -645,8 +645,8 @@ namespace stingray
 				FunctorType			_functor;
 
 			public:
-				EnumeratorTransformer(const SrcEnumeratorPtr& src, const FunctorType& functor) :
-					_src(src), _functor(functor)
+				EnumeratorTransformer(const SrcEnumeratorPtr& src, const FunctorType& functor)
+					: _src(src), _functor(functor)
 				{ }
 
 				virtual bool Valid() const					{ return _src->Valid(); }
@@ -658,7 +658,7 @@ namespace stingray
 			template < typename SrcType, typename FunctorType >
 			class EnumerableTransformer : public IEnumerable<typename function_info<FunctorType>::RetType>
 			{
-				typedef IEnumerable<typename function_info<FunctorType>::RetType >	base;
+				typedef IEnumerable<typename function_info<FunctorType>::RetType>	base;
 				typedef shared_ptr<IEnumerable<SrcType> >							SrcEnumerablePtr;
 
 			private:
@@ -666,8 +666,8 @@ namespace stingray
 				FunctorType			_functor;
 
 			public:
-				EnumerableTransformer(const SrcEnumerablePtr& src, const FunctorType& functor) :
-					_src(src), _functor(functor)
+				EnumerableTransformer(const SrcEnumerablePtr& src, const FunctorType& functor)
+					: _src(src), _functor(functor)
 				{ }
 
 				virtual shared_ptr<IEnumerator<typename base::ItemType> > GetEnumerator() const
