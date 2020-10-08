@@ -17,6 +17,9 @@ namespace stingray
 #define STINGRAYKIT_DECLARE_UNIQ_PTR(ClassName) \
 		typedef stingray::unique_ptr<ClassName>			ClassName##UniqPtr
 
+#define STINGRAYKIT_DECLARE_CONST_UNIQ_PTR(ClassName) \
+		typedef stingray::unique_ptr<const ClassName>	ClassName##ConstUniqPtr
+
 
 	template < typename T >
 	class unique_ptr
