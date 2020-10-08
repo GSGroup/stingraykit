@@ -267,7 +267,7 @@ namespace stingray
 		{ }
 
 		virtual shared_ptr<IEnumerator<typename base::ItemType> > GetEnumerator() const
-		{ return _functor(); }
+		{ return FunctorInvoker::InvokeArgs(_functor); }
 	};
 
 
@@ -352,7 +352,7 @@ namespace stingray
 			T result = enumerator.Get();
 			enumerator.Next();
 			for (; enumerator.Valid(); enumerator.Next())
-				result = aggregateFunc(result, enumerator.Get());
+				result = FunctorInvoker::InvokeArgs(aggregateFunc, result, enumerator.Get());
 			return result;
 		}
 
@@ -361,7 +361,7 @@ namespace stingray
 		{
 			U result = initialValue;
 			for (; enumerator.Valid(); enumerator.Next())
-				result = aggregateFunc(result, enumerator.Get());
+				result = FunctorInvoker::InvokeArgs(aggregateFunc, result, enumerator.Get());
 			return result;
 		}
 
@@ -369,7 +369,7 @@ namespace stingray
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), bool, All, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
-				if (!predicate(enumerator.Get()))
+				if (!FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
 					return false;
 			return true;
 		}
@@ -381,7 +381,7 @@ namespace stingray
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), bool, Any, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
-				if (predicate(enumerator.Get()))
+				if (FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
 					return true;
 			return false;
 		}
@@ -400,7 +400,7 @@ namespace stingray
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename EqualPredicateFunc>), bool, Contains, MK_PARAM(const T& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
-				if (equalPredicate(enumerator.Get(), value))
+				if (FunctorInvoker::InvokeArgs(equalPredicate, enumerator.Get(), value))
 					return true;
 			return false;
 		}
@@ -422,7 +422,7 @@ namespace stingray
 		{
 			size_t result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
-				if (predicate(enumerator.Get()))
+				if (FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
 					++result;
 			return result;
 		}
@@ -431,7 +431,7 @@ namespace stingray
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename Func>), void, ForEach, MK_PARAM(const Func& func), MK_PARAM(func))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
-				func(enumerator.Get());
+				FunctorInvoker::InvokeArgs(func, enumerator.Get());
 		}
 
 
@@ -440,7 +440,7 @@ namespace stingray
 			size_t result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
 			{
-				if (predicate(enumerator.Get()))
+				if (FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
 					return result;
 				++result;
 			}
@@ -488,7 +488,7 @@ namespace stingray
 
 		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, First, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
-			while (enumerator.Valid() && !predicate(enumerator.Get()))
+			while (enumerator.Valid() && !FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
 				enumerator.Next();
 			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
 			return enumerator.Get();
@@ -505,7 +505,7 @@ namespace stingray
 			for (; enumerator.Valid(); enumerator.Next())
 			{
 				const T result = enumerator.Get();
-				if (predicate(result))
+				if (FunctorInvoker::InvokeArgs(predicate, result))
 					return result;
 			}
 			return T();
@@ -527,7 +527,7 @@ namespace stingray
 			for (; enumerator.Valid(); enumerator.Next())
 			{
 				const T value = enumerator.Get();
-				if (predicate(value))
+				if (FunctorInvoker::InvokeArgs(predicate, value))
 					result = value;
 			}
 			STINGRAYKIT_CHECK(result, InvalidOperationException());
@@ -549,7 +549,7 @@ namespace stingray
 			for (; enumerator.Valid(); enumerator.Next())
 			{
 				const T value = enumerator.Get();
-				if (predicate(value))
+				if (FunctorInvoker::InvokeArgs(predicate, value))
 					result = value;
 			}
 			return result ? *result : T();
@@ -650,7 +650,7 @@ namespace stingray
 				{ }
 
 				virtual bool Valid() const					{ return _src->Valid(); }
-				virtual typename base::ItemType Get() const	{ return _functor(_src->Get()); }
+				virtual typename base::ItemType Get() const	{ return FunctorInvoker::InvokeArgs(_functor, _src->Get()); }
 				virtual void Next()							{ _src->Next(); }
 			};
 
@@ -677,12 +677,12 @@ namespace stingray
 
 
 		template < typename SrcEnumerator, typename FunctorType >
-		shared_ptr<IEnumerator<typename FunctorType::RetType> > Transform(const shared_ptr<SrcEnumerator>& enumerator, const FunctorType& functor, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename function_info<FunctorType>::RetType> > Transform(const shared_ptr<SrcEnumerator>& enumerator, const FunctorType& functor, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
 		{ return make_shared_ptr<Detail::EnumeratorTransformer<typename SrcEnumerator::ItemType, FunctorType> >(enumerator, functor); }
 
 
 		template < typename SrcEnumerable, typename FunctorType >
-		shared_ptr<IEnumerable<typename FunctorType::RetType> > Transform(const shared_ptr<SrcEnumerable>& enumerable, const FunctorType& functor, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename function_info<FunctorType>::RetType> > Transform(const shared_ptr<SrcEnumerable>& enumerable, const FunctorType& functor, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
 		{ return make_shared_ptr<Detail::EnumerableTransformer<typename SrcEnumerable::ItemType, FunctorType> >(enumerable, functor); }
 
 
@@ -705,7 +705,7 @@ namespace stingray
 		bool SequenceEqual(const shared_ptr<IEnumerator<T> >& first, const shared_ptr<IEnumerator<T> >& second, const PredicateFunc& equalPredicate)
 		{
 			for (; first->Valid() && second->Valid(); first->Next(), second->Next())
-				if (!equalPredicate(first->Get(), second->Get()))
+				if (!FunctorInvoker::InvokeArgs(equalPredicate, first->Get(), second->Get()))
 					return false;
 			return !first->Valid() && !second->Valid();
 		}
