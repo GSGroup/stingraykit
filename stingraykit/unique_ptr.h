@@ -23,6 +23,9 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(unique_ptr);
 
+	public:
+		typedef T ValueType;
+
 	private:
 		T* _rawPtr;
 
@@ -80,6 +83,9 @@ namespace stingray
 	class unique_ptr<T[]>
 	{
 		STINGRAYKIT_NONCOPYABLE(unique_ptr);
+
+	public:
+		typedef T ValueType;
 
 	private:
 		T* _rawPtr;
