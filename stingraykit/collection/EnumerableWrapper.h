@@ -144,20 +144,7 @@ namespace stingray
 		class EnumerableCaster
 		{
 			typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
-
-			template < typename DestType >
-			class CastProxy : public EnumerableWrapper<SrcType, DestType>
-			{
-				typedef EnumerableWrapper<SrcType, DestType>				base;
-				typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
-
-			public:
-				CastProxy(const SrcEnumerablePtr& srcEnumerable) : base(srcEnumerable, &CastProxy::Cast, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>())
-				{ }
-
-			private:
-				static DestType Cast(ConstSrcTypeRef src)	{ return dynamic_caster(src); }
-			};
+			typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
 
 		private:
 			SrcEnumerablePtr			_srcEnumerable;
@@ -168,7 +155,12 @@ namespace stingray
 
 			template < typename DestType >
 			operator shared_ptr<IEnumerable<DestType> > () const
-			{ return make_shared_ptr<CastProxy<DestType> >(_srcEnumerable); }
+			{ return WrapEnumerable(_srcEnumerable, &EnumerableCaster::Cast<DestType>, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()); }
+
+		private:
+			template < typename DestType >
+			static DestType Cast(ConstSrcTypeRef src)
+			{ return dynamic_caster(src); }
 		};
 	}
 

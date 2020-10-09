@@ -54,20 +54,6 @@ namespace stingray
 			typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
 			typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
 
-			template < typename DestType >
-			class CastProxy : public EnumeratorWrapper<SrcType, DestType>
-			{
-				typedef EnumeratorWrapper<SrcType, DestType>	base;
-
-			public:
-				CastProxy(const SrcEnumeratorPtr& srcEnumerator)
-					: base(srcEnumerator, &CastProxy::Cast, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>())
-				{ }
-
-			private:
-				static DestType Cast(ConstSrcTypeRef src) { return dynamic_caster(src); }
-			};
-
 		private:
 			SrcEnumeratorPtr			_srcEnumerator;
 
@@ -81,7 +67,12 @@ namespace stingray
 
 			template < typename DestType >
 			operator shared_ptr<IEnumerator<DestType> > () const
-			{ return make_shared_ptr<CastProxy<DestType> >(_srcEnumerator); }
+			{ return WrapEnumerator(_srcEnumerator, &EnumeratorCaster::Cast<DestType>, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()); }
+
+		private:
+			template < typename DestType >
+			static DestType Cast(ConstSrcTypeRef src)
+			{ return dynamic_caster(src); }
 		};
 
 
