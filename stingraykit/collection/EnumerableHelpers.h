@@ -23,72 +23,76 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T >
-	struct EmptyEnumerator : public virtual IEnumerator<T>
+	namespace Detail
 	{
-		virtual bool Valid() const	{ return false; }
-		virtual T Get() const		{ STINGRAYKIT_THROW(NotSupportedException()); }
-		virtual void Next()			{ STINGRAYKIT_THROW(NotSupportedException()); }
-	};
-
-
-	class EmptyEnumeratorProxy
-	{
-	public:
-		template< typename U >
-		operator shared_ptr<IEnumerator<U> >() const
-		{ return make_shared_ptr<EmptyEnumerator<U> >(); }
-	};
-
-
-	inline EmptyEnumeratorProxy MakeEmptyEnumerator()
-	{ return EmptyEnumeratorProxy(); }
-
-
-	template < typename T >
-	struct OneItemEnumerator : public virtual IEnumerator<T>
-	{
-	private:
-		bool	_valid;
-		T		_value;
-
-	public:
-		OneItemEnumerator(typename AddConstLvalueReference<T>::ValueT value)
-			: _valid(true), _value(value)
-		{ }
-
-		virtual bool Valid() const			{ return _valid; }
-		virtual void Next()					{ _valid = false; }
-
-		virtual T Get() const
+		template < typename T >
+		struct EmptyEnumerator : public virtual IEnumerator<T>
 		{
-			if (!_valid)
-				STINGRAYKIT_THROW(std::runtime_error("Invalid enumerator!"));
-			return _value;
-		}
-	};
+			virtual bool Valid() const	{ return false; }
+			virtual T Get() const		{ STINGRAYKIT_THROW(NotSupportedException()); }
+			virtual void Next()			{ STINGRAYKIT_THROW(NotSupportedException()); }
+		};
+
+		class EmptyEnumeratorProxy
+		{
+		public:
+			template < typename U >
+			operator shared_ptr<IEnumerator<U> >() const
+			{ return make_shared_ptr<EmptyEnumerator<U> >(); }
+		};
+	}
 
 
-	template< typename T >
-	class OneItemEnumeratorProxy
+	inline Detail::EmptyEnumeratorProxy MakeEmptyEnumerator()
+	{ return Detail::EmptyEnumeratorProxy(); }
+
+
+	namespace Detail
 	{
-	private:
-		T	_item;
+		template < typename T >
+		struct OneItemEnumerator : public virtual IEnumerator<T>
+		{
+		private:
+			bool	_valid;
+			T		_value;
 
-	public:
-		explicit OneItemEnumeratorProxy(const T& item)
-			: _item(item)
-		{ }
+		public:
+			OneItemEnumerator(typename AddConstLvalueReference<T>::ValueT value)
+				: _valid(true), _value(value)
+			{ }
 
-		template< typename U >
-		operator shared_ptr<IEnumerator<U> >() const
-		{ return make_shared_ptr<OneItemEnumerator<U> >(_item); }
-	};
+			virtual bool Valid() const			{ return _valid; }
+			virtual void Next()					{ _valid = false; }
+
+			virtual T Get() const
+			{
+				if (!_valid)
+					STINGRAYKIT_THROW(std::runtime_error("Invalid enumerator!"));
+				return _value;
+			}
+		};
+
+		template < typename T >
+		class OneItemEnumeratorProxy
+		{
+		private:
+			T	_item;
+
+		public:
+			explicit OneItemEnumeratorProxy(const T& item)
+				: _item(item)
+			{ }
+
+			template < typename U >
+			operator shared_ptr<IEnumerator<U> >() const
+			{ return make_shared_ptr<OneItemEnumerator<U> >(_item); }
+		};
+	}
 
 
-	template< typename T >
-	OneItemEnumeratorProxy<T> MakeOneItemEnumerator(const T& item)
-	{ return OneItemEnumeratorProxy<T>(item); }
+	template < typename T >
+	Detail::OneItemEnumeratorProxy<T> MakeOneItemEnumerator(const T& item)
+	{ return Detail::OneItemEnumeratorProxy<T>(item); }
 
 
 	namespace Detail
@@ -147,63 +151,67 @@ namespace stingray
 	};
 
 
+	namespace Detail
+	{
+		template < typename T >
+		struct EmptyEnumerable : public virtual IEnumerable<T>
+		{
+			virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
+			{ return make_shared_ptr<EmptyEnumerator<T> >(); }
+		};
+
+		class EmptyEnumerableProxy
+		{
+		public:
+			template < typename U >
+			operator shared_ptr<IEnumerable<U> >() const
+			{ return make_shared_ptr<EmptyEnumerable<U> >(); }
+		};
+	}
+
+
+	inline Detail::EmptyEnumerableProxy MakeEmptyEnumerable()
+	{ return Detail::EmptyEnumerableProxy(); }
+
+
+	namespace Detail
+	{
+		template < typename T >
+		struct OneItemEnumerable : public virtual IEnumerable<T>
+		{
+		private:
+			T		_value;
+
+		public:
+			OneItemEnumerable(typename AddConstLvalueReference<T>::ValueT value)
+				: _value(value)
+			{ }
+
+			virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
+			{ return make_shared_ptr<OneItemEnumerator<T> >(_value); }
+		};
+
+		template < typename T >
+		class OneItemEnumerableProxy
+		{
+		private:
+			T	_item;
+
+		public:
+			explicit OneItemEnumerableProxy(const T& item)
+				: _item(item)
+			{ }
+
+			template < typename U >
+			operator shared_ptr<IEnumerable<U> >() const
+			{ return make_shared_ptr<OneItemEnumerable<U> >(_item); }
+		};
+	}
+
+
 	template < typename T >
-	struct EmptyEnumerable : public virtual IEnumerable<T>
-	{
-		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-		{ return make_shared_ptr<EmptyEnumerator<T> >(); }
-	};
-
-
-	class EmptyEnumerableProxy
-	{
-	public:
-		template< typename U >
-		operator shared_ptr<IEnumerable<U> >() const
-		{ return make_shared_ptr<EmptyEnumerable<U> >(); }
-	};
-
-
-	inline EmptyEnumerableProxy MakeEmptyEnumerable()
-	{ return EmptyEnumerableProxy(); }
-
-
-	template < typename T >
-	struct OneItemEnumerable : public virtual IEnumerable<T>
-	{
-	private:
-		T		_value;
-
-	public:
-		OneItemEnumerable(typename AddConstLvalueReference<T>::ValueT value)
-			: _value(value)
-		{ }
-
-		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
-		{ return make_shared_ptr<OneItemEnumerator<T> >(_value); }
-	};
-
-
-	template< typename T >
-	class OneItemEnumerableProxy
-	{
-	private:
-		T	_item;
-
-	public:
-		explicit OneItemEnumerableProxy(const T& item)
-			: _item(item)
-		{ }
-
-		template< typename U >
-		operator shared_ptr<IEnumerable<U> >() const
-		{ return make_shared_ptr<OneItemEnumerable<U> >(_item); }
-	};
-
-
-	template< typename T >
-	OneItemEnumerableProxy<T> MakeOneItemEnumerable(const T& item)
-	{ return OneItemEnumerableProxy<T>(item); }
+	Detail::OneItemEnumerableProxy<T> MakeOneItemEnumerable(const T& item)
+	{ return Detail::OneItemEnumerableProxy<T>(item); }
 
 
 	namespace Detail
@@ -255,25 +263,29 @@ namespace stingray
 	};
 
 
-	template <typename Functor_>
-	class SimpleEnumerable : public IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType>
+	namespace Detail
 	{
-		typedef IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType> base;
-	private:
-		Functor_ _functor;
+		template < typename Functor_ >
+		class SimpleEnumerable : public IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType>
+		{
+			typedef IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType> base;
 
-	public:
-		SimpleEnumerable(const Functor_& functor) : _functor(functor)
-		{ }
+		private:
+			Functor_	_functor;
 
-		virtual shared_ptr<IEnumerator<typename base::ItemType> > GetEnumerator() const
-		{ return FunctorInvoker::InvokeArgs(_functor); }
-	};
+		public:
+			SimpleEnumerable(const Functor_& functor) : _functor(functor)
+			{ }
+
+			virtual shared_ptr<IEnumerator<typename base::ItemType> > GetEnumerator() const
+			{ return FunctorInvoker::InvokeArgs(_functor); }
+		};
+	}
 
 
-	template <typename Functor_>
-	shared_ptr<SimpleEnumerable<Functor_> > MakeSimpleEnumerable(const Functor_& functor)
-	{ return make_shared_ptr<SimpleEnumerable<Functor_> >(functor); }
+	template < typename Functor_ >
+	shared_ptr<Detail::SimpleEnumerable<Functor_> > MakeSimpleEnumerable(const Functor_& functor)
+	{ return make_shared_ptr<Detail::SimpleEnumerable<Functor_> >(functor); }
 
 
 	namespace Enumerable
