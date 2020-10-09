@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/EnumerableHelpers.h>
-#include <stingraykit/collection/EnumeratorWrapper.h>
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IMultiDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
