@@ -156,11 +156,11 @@ namespace stingray
 
 			template < typename Key, typename Value >
 			RetType operator () (const std::pair<Key, Value>& pair) const
-			{ return _func(pair.first, pair.second); }
+			{ return FunctorInvoker::InvokeArgs(_func, pair.first, pair.second); }
 
 			template < typename Key, typename Value >
 			RetType operator () (const KeyValuePair<Key, Value>& pair) const
-			{ return _func(pair.Key, pair.Value); }
+			{ return FunctorInvoker::InvokeArgs(_func, pair.Key, pair.Value); }
 		};
 	}
 
