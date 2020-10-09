@@ -232,6 +232,10 @@ namespace stingray
 		template < typename FunctorType, typename... Ts >
 		class Binder
 		{
+			STINGRAYKIT_DEFAULTCOPYABLE(Binder);
+			STINGRAYKIT_DEFAULTMOVABLE(Binder);
+
+		private:
 			typedef typename Decay<FunctorType>::ValueT						RawFunctorType;
 			typedef TypeList<typename Decay<Ts>::ValueT...>					AllParameters;
 			typedef typename BoundParamTypesGetter<AllParameters>::ValueT	BoundParams;
