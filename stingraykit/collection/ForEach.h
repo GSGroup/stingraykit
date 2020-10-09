@@ -48,37 +48,20 @@ namespace stingray
 		{ typedef T	ValueT; };
 
 
-		template < typename SrcType, typename LifeAssurance >
+		template < typename SrcType >
 		class EnumeratorCaster
 		{
 			typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
 			typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
-
-
-			class Proxy : public EnumeratorWrapper<SrcType, SrcType>
-			{
-				typedef EnumeratorWrapper<SrcType, SrcType>	base;
-
-			private:
-				shared_ptr<LifeAssurance>	_assurance;
-
-			public:
-				Proxy(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<LifeAssurance>& assurance)
-					: base(srcEnumerator), _assurance(assurance)
-				{ }
-			};
 
 			template < typename DestType >
 			class CastProxy : public EnumeratorWrapper<SrcType, DestType>
 			{
 				typedef EnumeratorWrapper<SrcType, DestType>	base;
 
-			private:
-				shared_ptr<LifeAssurance>	_assurance;
-
 			public:
-				CastProxy(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<LifeAssurance>& assurance)
-					: base(srcEnumerator, &CastProxy::Cast, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()), _assurance(assurance)
+				CastProxy(const SrcEnumeratorPtr& srcEnumerator)
+					: base(srcEnumerator, &CastProxy::Cast, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>())
 				{ }
 
 			private:
@@ -87,38 +70,37 @@ namespace stingray
 
 		private:
 			SrcEnumeratorPtr			_srcEnumerator;
-			shared_ptr<LifeAssurance>	_assurance; // In order to control the lifetime of the assurance if necessary
 
 		public:
-			EnumeratorCaster(const SrcEnumeratorPtr& srcEnumerator, const shared_ptr<LifeAssurance>& assurance)
-				: _srcEnumerator(srcEnumerator), _assurance(assurance)
+			EnumeratorCaster(const SrcEnumeratorPtr& srcEnumerator)
+				: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator))
 			{ }
 
-			operator SrcEnumeratorPtr() const
-			{ return make_shared_ptr<Proxy>(_srcEnumerator, _assurance); }
+			operator SrcEnumeratorPtr () const
+			{ return _srcEnumerator; }
 
 			template < typename DestType >
 			operator shared_ptr<IEnumerator<DestType> > () const
-			{ return make_shared_ptr<CastProxy<DestType> >(_srcEnumerator, _assurance); }
+			{ return make_shared_ptr<CastProxy<DestType> >(_srcEnumerator); }
 		};
 
 
 		template < typename T, bool IsEnumerator_ = IsEnumerator<T>::Value >
 		struct EnumeratorGetter
 		{
-			typedef EnumeratorCaster<typename T::ItemType, T>	EnumeratorPtrType;
+			typedef EnumeratorCaster<typename T::ItemType>	EnumeratorPtrType;
 
 			static EnumeratorPtrType Get(const shared_ptr<T>& obj)
-			{ return EnumeratorPtrType(obj->GetEnumerator(), obj); }
+			{ return EnumeratorPtrType(obj->GetEnumerator()); }
 		};
 
 		template < typename T >
 		struct EnumeratorGetter<T, true>
 		{
-			typedef EnumeratorCaster<typename T::ItemType, int>	EnumeratorPtrType;
+			typedef EnumeratorCaster<typename T::ItemType>	EnumeratorPtrType;
 
 			static EnumeratorPtrType Get(const shared_ptr<T>& obj)
-			{ return EnumeratorPtrType(obj, null); }
+			{ return EnumeratorPtrType(obj); }
 		};
 
 		template < typename T >
