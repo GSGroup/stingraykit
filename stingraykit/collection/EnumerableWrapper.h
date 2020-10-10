@@ -192,6 +192,41 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename SrcType >
+		class EnumeratorCaster
+		{
+			typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
+			typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
+
+		private:
+			SrcEnumeratorPtr			_srcEnumerator;
+
+		public:
+			EnumeratorCaster(const SrcEnumeratorPtr& srcEnumerator) : _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator))
+			{ }
+
+			operator SrcEnumeratorPtr () const
+			{ return _srcEnumerator; }
+
+			template < typename DestType >
+			operator shared_ptr<IEnumerator<DestType> > () const
+			{ return WrapEnumerator(_srcEnumerator, &EnumeratorCaster::Cast<DestType>, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()); }
+
+		private:
+			template < typename DestType >
+			static DestType Cast(ConstSrcTypeRef src)
+			{ return dynamic_caster(src); }
+		};
+	}
+
+
+	template < typename SrcEnumeratorType >
+	Detail::EnumeratorCaster<typename SrcEnumeratorType::ItemType> GetEnumeratorCaster(const shared_ptr<SrcEnumeratorType>& enumerator)
+	{ return Detail::EnumeratorCaster<typename SrcEnumeratorType::ItemType>(enumerator); }
+
+
+	namespace Detail
+	{
+		template < typename SrcType >
 		class EnumerableCaster
 		{
 			typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
