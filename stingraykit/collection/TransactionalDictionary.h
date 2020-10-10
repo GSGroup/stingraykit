@@ -53,7 +53,7 @@ namespace stingray
 		struct Utils
 		{
 			static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
-			{ return make_shared_ptr<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
+			{ return WrapEnumerator(mapEnumerator); }
 
 			static DiffEntryType MakeDiffEntry(CollectionOp op, const typename MapType::value_type& pair)
 			{ return stingray::MakeDiffEntry(op, PairType(pair)); }

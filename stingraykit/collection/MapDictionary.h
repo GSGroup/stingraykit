@@ -223,7 +223,7 @@ namespace stingray
 		}
 
 		static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
-		{ return make_shared_ptr<EnumeratorWrapper<typename MapType::value_type, PairType> >(mapEnumerator); }
+		{ return WrapEnumerator(mapEnumerator); }
 	};
 
 
