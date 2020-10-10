@@ -15,76 +15,75 @@
 namespace stingray
 {
 
-	template < typename SrcType, typename DestType >
-	class EnumeratorWrapper : public IEnumerator<DestType>
-	{
-		typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
-		typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
-		typedef function<bool (ConstSrcTypeRef)>					FilterPredicate;
-		typedef function<DestType (ConstSrcTypeRef)>				Caster;
-
-	private:
-		SrcEnumeratorPtr			_srcEnumerator;
-		Caster						_caster;
-		FilterPredicate				_filterPredicate;
-		optional<SrcType>			_cache;
-
-	public:
-		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator)
-			: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(&EnumeratorWrapper::DefaultCast), _filterPredicate(&EnumeratorWrapper::NoFilter)
-		{ FindFirst(); }
-
-		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster)
-			: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(caster), _filterPredicate(&EnumeratorWrapper::NoFilter)
-		{ FindFirst(); }
-
-		EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster, const FilterPredicate& filterPredicate)
-			: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(caster), _filterPredicate(filterPredicate)
-		{ FindFirst(); }
-
-		virtual bool Valid() const
-		{ return _srcEnumerator->Valid(); }
-
-		virtual DestType Get() const
-		{ return _cache ? _caster(*_cache) : _caster(_srcEnumerator->Get()); }
-
-		virtual void Next()
-		{
-			if (!Valid())
-				return;
-
-			_cache.reset();
-			do {
-				_srcEnumerator->Next();
-				if (!Valid())
-					break;
-
-				const SrcType& cache = _srcEnumerator->Get();
-				if (_filterPredicate(cache))
-					_cache.emplace(cache);
-			} while (!_cache);
-		}
-
-	private:
-		void FindFirst()
-		{
-			while (Valid() && !_cache)
-			{
-				const SrcType& cache = _srcEnumerator->Get();
-				if (_filterPredicate(cache))
-					_cache.emplace(cache);
-				else
-					_srcEnumerator->Next();
-			}
-		}
-
-		static DestType DefaultCast(ConstSrcTypeRef src)	{ return DestType(src); }
-		static bool NoFilter(ConstSrcTypeRef)				{ return true; }
-	};
-
-
 	namespace Detail
 	{
+		template < typename SrcType, typename DestType >
+		class EnumeratorWrapper : public IEnumerator<DestType>
+		{
+			typedef shared_ptr<IEnumerator<SrcType> >					SrcEnumeratorPtr;
+			typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
+			typedef function<bool (ConstSrcTypeRef)>					FilterPredicate;
+			typedef function<DestType (ConstSrcTypeRef)>				Caster;
+
+		private:
+			SrcEnumeratorPtr			_srcEnumerator;
+			Caster						_caster;
+			FilterPredicate				_filterPredicate;
+			optional<SrcType>			_cache;
+
+		public:
+			EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator)
+				: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(&EnumeratorWrapper::DefaultCast), _filterPredicate(&EnumeratorWrapper::NoFilter)
+			{ FindFirst(); }
+
+			EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster)
+				: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(caster), _filterPredicate(&EnumeratorWrapper::NoFilter)
+			{ FindFirst(); }
+
+			EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster, const FilterPredicate& filterPredicate)
+				: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(caster), _filterPredicate(filterPredicate)
+			{ FindFirst(); }
+
+			virtual bool Valid() const
+			{ return _srcEnumerator->Valid(); }
+
+			virtual DestType Get() const
+			{ return _cache ? _caster(*_cache) : _caster(_srcEnumerator->Get()); }
+
+			virtual void Next()
+			{
+				if (!Valid())
+					return;
+
+				_cache.reset();
+				do {
+					_srcEnumerator->Next();
+					if (!Valid())
+						break;
+
+					const SrcType& cache = _srcEnumerator->Get();
+					if (_filterPredicate(cache))
+						_cache.emplace(cache);
+				} while (!_cache);
+			}
+
+		private:
+			void FindFirst()
+			{
+				while (Valid() && !_cache)
+				{
+					const SrcType& cache = _srcEnumerator->Get();
+					if (_filterPredicate(cache))
+						_cache.emplace(cache);
+					else
+						_srcEnumerator->Next();
+				}
+			}
+
+			static DestType DefaultCast(ConstSrcTypeRef src)	{ return DestType(src); }
+			static bool NoFilter(ConstSrcTypeRef)				{ return true; }
+		};
+
 		template < typename SrcType >
 		class EnumeratorWrapperProxy
 		{
@@ -112,51 +111,49 @@ namespace stingray
 
 	template < typename SrcEnumeratorType, typename CasterType >
 	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<SrcEnumeratorType>& src, const CasterType& caster)
-	{ return make_shared_ptr<EnumeratorWrapper<typename SrcEnumeratorType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
+	{ return make_shared_ptr<Detail::EnumeratorWrapper<typename SrcEnumeratorType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
 
 
 	template < typename SrcEnumeratorType, typename CasterType, typename FilterPredicate >
 	shared_ptr<IEnumerator<typename function_info<CasterType>::RetType> > WrapEnumerator(const shared_ptr<SrcEnumeratorType>& src, const CasterType& caster, const FilterPredicate& filterPredicate)
-	{ return make_shared_ptr<EnumeratorWrapper<typename SrcEnumeratorType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
-
-
-	template < typename SrcType, typename DestType >
-	class EnumerableWrapper : public virtual IEnumerable<DestType>
-	{
-		typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
-		typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
-		typedef function<bool (ConstSrcTypeRef)>					FilterPredicate;
-		typedef function<DestType (ConstSrcTypeRef)>				Caster;
-
-	private:
-		SrcEnumerablePtr			_srcEnumerable;
-		Caster						_caster;
-		FilterPredicate				_filterPredicate;
-
-	public:
-		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable)
-			: _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable)), _caster(&EnumerableWrapper::DefaultCast), _filterPredicate(&EnumerableWrapper::NoFilter)
-		{ }
-
-		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster)
-			: _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable)), _caster(caster), _filterPredicate(&EnumerableWrapper::NoFilter)
-		{ }
-
-		EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster, const FilterPredicate& filterPredicate)
-			: _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable)), _caster(caster), _filterPredicate(filterPredicate)
-		{ }
-
-		virtual shared_ptr<IEnumerator<DestType> > GetEnumerator() const
-		{ return WrapEnumerator(_srcEnumerable->GetEnumerator(), _caster, _filterPredicate); }
-
-	private:
-		static DestType DefaultCast(ConstSrcTypeRef src)	{ return DestType(src); }
-		static bool NoFilter(ConstSrcTypeRef)				{ return true; }
-	};
-
+	{ return make_shared_ptr<Detail::EnumeratorWrapper<typename SrcEnumeratorType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
 
 	namespace Detail
 	{
+		template < typename SrcType, typename DestType >
+		class EnumerableWrapper : public virtual IEnumerable<DestType>
+		{
+			typedef shared_ptr<IEnumerable<SrcType> >					SrcEnumerablePtr;
+			typedef typename AddConstLvalueReference<SrcType>::ValueT	ConstSrcTypeRef;
+			typedef function<bool (ConstSrcTypeRef)>					FilterPredicate;
+			typedef function<DestType (ConstSrcTypeRef)>				Caster;
+
+		private:
+			SrcEnumerablePtr			_srcEnumerable;
+			Caster						_caster;
+			FilterPredicate				_filterPredicate;
+
+		public:
+			EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable)
+				: _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable)), _caster(&EnumerableWrapper::DefaultCast), _filterPredicate(&EnumerableWrapper::NoFilter)
+			{ }
+
+			EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster)
+				: _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable)), _caster(caster), _filterPredicate(&EnumerableWrapper::NoFilter)
+			{ }
+
+			EnumerableWrapper(const SrcEnumerablePtr& srcEnumerable, const Caster& caster, const FilterPredicate& filterPredicate)
+				: _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable)), _caster(caster), _filterPredicate(filterPredicate)
+			{ }
+
+			virtual shared_ptr<IEnumerator<DestType> > GetEnumerator() const
+			{ return WrapEnumerator(_srcEnumerable->GetEnumerator(), _caster, _filterPredicate); }
+
+		private:
+			static DestType DefaultCast(ConstSrcTypeRef src)	{ return DestType(src); }
+			static bool NoFilter(ConstSrcTypeRef)				{ return true; }
+		};
+
 		template < typename SrcType >
 		class EnumerableWrapperProxy
 		{
@@ -184,12 +181,12 @@ namespace stingray
 
 	template < typename SrcEnumerableType, typename CasterType >
 	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster)
-	{ return make_shared_ptr<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
+	{ return make_shared_ptr<Detail::EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster); }
 
 
 	template < typename SrcEnumerableType, typename CasterType, typename FilterPredicate >
 	shared_ptr<IEnumerable<typename function_info<CasterType>::RetType> > WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterType& caster, const FilterPredicate& filterPredicate)
-	{ return make_shared_ptr<EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
+	{ return make_shared_ptr<Detail::EnumerableWrapper<typename SrcEnumerableType::ItemType, typename function_info<CasterType>::RetType> >(src, caster, filterPredicate); }
 
 
 	namespace Detail
