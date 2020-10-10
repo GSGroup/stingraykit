@@ -150,8 +150,11 @@ namespace stingray
 			SrcEnumerablePtr			_srcEnumerable;
 
 		public:
-			EnumerableCaster(const SrcEnumerablePtr& srcEnumerable) : _srcEnumerable(srcEnumerable)
+			EnumerableCaster(const SrcEnumerablePtr& srcEnumerable) : _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable))
 			{ }
+
+			operator SrcEnumerablePtr () const
+			{ return _srcEnumerable; }
 
 			template < typename DestType >
 			operator shared_ptr<IEnumerable<DestType> > () const
@@ -165,9 +168,9 @@ namespace stingray
 	}
 
 
-	template < typename T >
-	typename Detail::EnumerableCaster<typename T::ItemType> GetEnumerableCaster(const shared_ptr<T>& enumerable)
-	{ return Detail::EnumerableCaster<typename T::ItemType>(enumerable); }
+	template < typename SrcEnumerableType >
+	Detail::EnumerableCaster<typename SrcEnumerableType::ItemType> GetEnumerableCaster(const shared_ptr<SrcEnumerableType>& enumerable)
+	{ return Detail::EnumerableCaster<typename SrcEnumerableType::ItemType>(enumerable); }
 
 }
 
