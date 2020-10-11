@@ -32,21 +32,27 @@ namespace stingray
 
 		virtual ~IEnumerable() { }
 
-		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const = 0;
+		virtual shared_ptr<IEnumerator<ItemType> > GetEnumerator() const = 0;
 	};
 
 
 	template < typename T >
-	struct IReversableEnumerable
+	struct IReversableEnumerable : public virtual IEnumerable<T>
 	{
+		typedef T ItemType;
+
 		virtual ~IReversableEnumerable() { }
 
-		virtual shared_ptr<IEnumerable<T> > Reverse() const = 0;
+		virtual shared_ptr<IEnumerable<ItemType> > Reverse() const = 0;
 	};
 
 
 	template < typename T >
 	struct IsEnumerable : IsInherited1ParamTemplate<T, IEnumerable> { };
+
+
+	template < typename T >
+	struct IsReversableEnumerable : IsInherited1ParamTemplate<T, IReversableEnumerable> { };
 
 
 	namespace Detail
