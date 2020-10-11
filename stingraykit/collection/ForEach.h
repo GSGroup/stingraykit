@@ -35,6 +35,7 @@ namespace stingray
 	 *     other_obj->SomeMethod();
 	 * @endcode
 	 */
+
 #define FOR_EACH(...) FOR_EACH__IMPL(__VA_ARGS__)
 
 
@@ -47,31 +48,9 @@ namespace stingray
 		struct GetItemTypeFromItemDecl< void (*)(T) >
 		{ typedef T	ValueT; };
 
-		template < typename T, bool IsEnumerator_ = IsEnumerator<T>::Value >
-		struct EnumeratorGetter
-		{
-			typedef shared_ptr<IEnumerator<typename T::ItemType> >	EnumeratorPtrType;
-
-			static EnumeratorPtrType Get(const shared_ptr<T>& obj)
-			{ return EnumeratorPtrType(obj->GetEnumerator()); }
-		};
-
 		template < typename T >
-		struct EnumeratorGetter<T, true>
-		{
-			typedef shared_ptr<IEnumerator<typename T::ItemType> >	EnumeratorPtrType;
-
-			static EnumeratorPtrType Get(const shared_ptr<T>& obj)
-			{ return EnumeratorPtrType(obj); }
-		};
-
-		template < typename T >
-		inline bool ForEach_ItemFilter(bool dummy, const T& val) { return static_cast<bool>(val); }
+		bool ForEach_ItemFilter(bool dummy, const T& val) { return static_cast<bool>(val); }
 		inline bool ForEach_ItemFilter(bool dummy) { return true; }
-
-		template < typename T >
-		typename Detail::EnumeratorGetter<T>::EnumeratorPtrType GetEnumeratorGetter(const shared_ptr<T>& obj)
-		{ return Detail::EnumeratorGetter<T>::Get(obj); }
 	}
 
 
@@ -79,7 +58,7 @@ namespace stingray
 #define WHERE ,
 #define FOR_EACH__IMPL(ItemDecl_, SomethingToEnumerate_, ...) \
 		for (bool __broken__ = false; !__broken__; __broken__ = true) \
-			for (::stingray::shared_ptr< ::stingray::IEnumerator<typename ::stingray::Detail::GetItemTypeFromItemDecl<void(*)(ItemDecl_)>::ValueT> > __en__(::stingray::GetEnumeratorCaster(::stingray::Detail::GetEnumeratorGetter(SomethingToEnumerate_))); \
+			for (::stingray::shared_ptr<::stingray::IEnumerator<typename ::stingray::Detail::GetItemTypeFromItemDecl<void(*)(ItemDecl_)>::ValueT>> __en__(::stingray::GetEnumeratorCaster(::stingray::ToEnumerator(SomethingToEnumerate_))); \
 				 __en__ && __en__->Valid() && !__broken__; \
 				 __en__->Next()) \
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \
