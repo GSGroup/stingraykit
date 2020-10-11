@@ -16,21 +16,32 @@
 namespace stingray
 {
 
-	class FunctionToken : public virtual IToken
+	namespace Detail
 	{
-	private:
-		function<void()>	_cleanupFunc;
+		template < typename FuncType >
+		class FunctionToken : public virtual IToken
+		{
+		private:
+			FuncType	_cleanupFunc;
 
-	public:
-		FunctionToken(const function<void()>& cleanupFunc) : _cleanupFunc(cleanupFunc)
-		{ }
+		public:
+			FunctionToken(const FuncType& cleanupFunc) : _cleanupFunc(cleanupFunc)
+			{ }
 
-		FunctionToken(function<void()>&& cleanupFunc) : _cleanupFunc(std::move(cleanupFunc))
-		{ }
+			FunctionToken(FuncType&& cleanupFunc) : _cleanupFunc(std::move(cleanupFunc))
+			{ }
 
-		virtual ~FunctionToken()
-		{ STINGRAYKIT_TRY_NO_MESSAGE(_cleanupFunc()); }
-	};
+			virtual ~FunctionToken()
+			{ STINGRAYKIT_TRY_NO_MESSAGE(FunctorInvoker::InvokeArgs(_cleanupFunc)); }
+		};
+	}
+
+
+	using FunctionToken = Detail::FunctionToken<function<void ()>>;
+
+	template < typename FuncType >
+	Token MakeFunctionToken(FuncType&& cleanupFunc)
+	{ return MakeToken<Detail::FunctionToken<typename Decay<FuncType>::ValueT>>(std::forward<FuncType>(cleanupFunc)); }
 
 }
 
