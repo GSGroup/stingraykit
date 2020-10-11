@@ -79,7 +79,7 @@ namespace stingray
 	template < typename T, typename EqualsCmp = comparers::Equals, template < typename, typename > class PopulationPolicy = ObservableValuePolicies::MandatoryPopulation>
 	class ObservableValue : public virtual IObservableValue<T>
 	{
-		STINGRAYKIT_NONASSIGNABLE(ObservableValue);
+		STINGRAYKIT_NONCOPYABLE(ObservableValue);
 
 	private:
 		typedef IObservableValue<T> Base;
