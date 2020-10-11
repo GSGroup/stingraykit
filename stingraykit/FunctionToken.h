@@ -8,10 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
+#include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/Token.h>
-#include <stingraykit/function/function.h>
 
 namespace stingray
 {
@@ -36,8 +35,6 @@ namespace stingray
 		};
 	}
 
-
-	using FunctionToken = Detail::FunctionToken<function<void ()>>;
 
 	template < typename FuncType >
 	Token MakeFunctionToken(FuncType&& cleanupFunc)
