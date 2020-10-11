@@ -13,58 +13,61 @@
 namespace stingray
 {
 
-	template < typename FunctorType >
-	class CancellableFunction : public function_info<typename Decay<FunctorType>::ValueT>
+	namespace Detail
 	{
-		STINGRAYKIT_DEFAULTCOPYABLE(CancellableFunction);
-		STINGRAYKIT_DEFAULTMOVABLE(CancellableFunction);
-
-	private:
-		typedef typename Decay<FunctorType>::ValueT				RawFunctorType;
-
-	public:
-		typedef typename function_info<RawFunctorType>::RetType	RetType;
-
-	private:
-		RawFunctorType			_func;
-		FutureExecutionTester	_tester;
-
-	public:
-		template < typename ExecutionTester >
-		CancellableFunction(FunctorType&& func, ExecutionTester&& tester)
-			: _func(std::forward<FunctorType>(func)), _tester(std::forward<ExecutionTester>(tester))
-		{ }
-
-		template < typename... Ts >
-		RetType operator () (Ts&&... args) const
-		{ return this->template Do<RetType>(std::forward<Ts>(args)...); }
-
-		std::string get_name() const
-		{ return "{ CancellableFunction: " + get_function_name(_func) + " }"; }
-
-	private:
-		template < typename RetType_, typename... Ts, typename EnableIf<IsSame<RetType_, void>::Value, bool>::ValueT = false >
-		RetType_ Do(Ts&&... args) const
+		template < typename FunctorType >
+		class CancellableFunction : public function_info<typename Decay<FunctorType>::ValueT>
 		{
-			LocalExecutionGuard guard(_tester);
-			if (guard)
-				FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...);
-		}
+			STINGRAYKIT_DEFAULTCOPYABLE(CancellableFunction);
+			STINGRAYKIT_DEFAULTMOVABLE(CancellableFunction);
 
-		template < typename RetType_, typename... Ts, typename EnableIf<!IsSame<RetType_, void>::Value, bool>::ValueT = false >
-		RetType_ Do(Ts&&... args) const
-		{
-			LocalExecutionGuard guard(_tester);
-			STINGRAYKIT_CHECK(guard, "Function " + get_function_name(_func) + " was cancelled");
+		private:
+			typedef typename Decay<FunctorType>::ValueT				RawFunctorType;
 
-			return FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...);
-		}
-	};
+		public:
+			typedef typename function_info<RawFunctorType>::RetType	RetType;
+
+		private:
+			RawFunctorType			_func;
+			FutureExecutionTester	_tester;
+
+		public:
+			template < typename ExecutionTester >
+			CancellableFunction(FunctorType&& func, ExecutionTester&& tester)
+				: _func(std::forward<FunctorType>(func)), _tester(std::forward<ExecutionTester>(tester))
+			{ }
+
+			template < typename... Ts >
+			RetType operator () (Ts&&... args) const
+			{ return this->template Do<RetType>(std::forward<Ts>(args)...); }
+
+			std::string get_name() const
+			{ return "{ CancellableFunction: " + get_function_name(_func) + " }"; }
+
+		private:
+			template < typename RetType_, typename... Ts, typename EnableIf<IsSame<RetType_, void>::Value, bool>::ValueT = false >
+			RetType_ Do(Ts&&... args) const
+			{
+				LocalExecutionGuard guard(_tester);
+				if (guard)
+					FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...);
+			}
+
+			template < typename RetType_, typename... Ts, typename EnableIf<!IsSame<RetType_, void>::Value, bool>::ValueT = false >
+			RetType_ Do(Ts&&... args) const
+			{
+				LocalExecutionGuard guard(_tester);
+				STINGRAYKIT_CHECK(guard, "Function " + get_function_name(_func) + " was cancelled");
+
+				return FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...);
+			}
+		};
+	}
 
 
 	template < typename FunctorType, typename ExecutionTester >
-	CancellableFunction<FunctorType> MakeCancellableFunction(FunctorType&& func, ExecutionTester&& tester)
-	{ return CancellableFunction<FunctorType>(std::forward<FunctorType>(func), std::forward<ExecutionTester>(tester)); }
+	Detail::CancellableFunction<FunctorType> MakeCancellableFunction(FunctorType&& func, ExecutionTester&& tester)
+	{ return Detail::CancellableFunction<FunctorType>(std::forward<FunctorType>(func), std::forward<ExecutionTester>(tester)); }
 
 }
 
