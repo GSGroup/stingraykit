@@ -20,69 +20,72 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename FunctorType >
-	class AsyncFunction
-		:	public function_info<typename If<IsSame<typename function_info<typename Decay<FunctorType>::ValueT>::RetType, void>::Value,
-							typename function_info<typename Decay<FunctorType>::ValueT>::RetType, future<typename function_info<typename Decay<FunctorType>::ValueT>::RetType> >::ValueT,
-					typename function_info<typename Decay<FunctorType>::ValueT>::ParamTypes>
+	namespace Detail
 	{
-		STINGRAYKIT_DEFAULTCOPYABLE(AsyncFunction);
-		STINGRAYKIT_DEFAULTMOVABLE(AsyncFunction);
-
-	private:
-		typedef typename Decay<FunctorType>::ValueT				RawFunctorType;
-		typedef typename function_info<RawFunctorType>::RetType	RawRetType;
-
-	public:
-		typedef typename If<IsSame<RawRetType, void>::Value, RawRetType, future<RawRetType> >::ValueT	RetType;
-		typedef typename function_info<RawFunctorType>::ParamTypes										ParamTypes;
-
-	private:
-		ITaskExecutorPtr		_executor;
-		RawFunctorType			_func;
-		FutureExecutionTester	_tester;
-
-	public:
-		template < typename ExecutionTester >
-		AsyncFunction(const ITaskExecutorPtr& executor, FunctorType&& func, ExecutionTester&& tester)
-			: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(std::forward<FunctorType>(func)), _tester(std::forward<ExecutionTester>(tester))
-		{ }
-
-		template < typename... Ts >
-		RetType operator () (const Ts&... args) const
-		{ return DoAddTask<RawRetType>(Bind(_func, args...)); }
-
-		std::string get_name() const
-		{ return "{ AsyncFunction: " + get_function_name(_func) + " }"; }
-
-	private:
-		template < typename RetType_ >
-		typename EnableIf<IsSame<RetType_, void>::Value, RetType_>::ValueT DoAddTask(const function<RetType_ ()>& func) const
-		{ _executor->AddTask(func, _tester); }
-
-		template < typename RetType_ >
-		typename EnableIf<!IsSame<RetType_, void>::Value, future<RetType_> >::ValueT DoAddTask(const function<RetType_ ()>& func) const
+		template < typename FunctorType >
+		class AsyncFunction
+			:	public function_info<typename If<IsSame<typename function_info<typename Decay<FunctorType>::ValueT>::RetType, void>::Value,
+								typename function_info<typename Decay<FunctorType>::ValueT>::RetType, future<typename function_info<typename Decay<FunctorType>::ValueT>::RetType> >::ValueT,
+						typename function_info<typename Decay<FunctorType>::ValueT>::ParamTypes>
 		{
-			typedef promise<RetType_> PromiseType;
-			const shared_ptr<PromiseType> promise = make_shared_ptr<PromiseType>();
-			_executor->AddTask(Bind(&AsyncFunction::FuncWrapper<RetType_>, func, promise), _tester);
-			return promise->get_future();
-		}
+			STINGRAYKIT_DEFAULTCOPYABLE(AsyncFunction);
+			STINGRAYKIT_DEFAULTMOVABLE(AsyncFunction);
 
-		template < typename RetType_ >
-		static void FuncWrapper(const function<RetType_ ()>& func, const shared_ptr<promise<RetType_> >& promise)
-		{
-			try
-			{ promise->set_value(func()); }
-			catch (const std::exception& ex)
-			{ promise->set_exception(MakeExceptionPtr(ex)); }
-		}
-	};
+		private:
+			typedef typename Decay<FunctorType>::ValueT				RawFunctorType;
+			typedef typename function_info<RawFunctorType>::RetType	RawRetType;
+
+		public:
+			typedef typename If<IsSame<RawRetType, void>::Value, RawRetType, future<RawRetType> >::ValueT	RetType;
+			typedef typename function_info<RawFunctorType>::ParamTypes										ParamTypes;
+
+		private:
+			ITaskExecutorPtr		_executor;
+			RawFunctorType			_func;
+			FutureExecutionTester	_tester;
+
+		public:
+			template < typename ExecutionTester >
+			AsyncFunction(const ITaskExecutorPtr& executor, FunctorType&& func, ExecutionTester&& tester)
+				: _executor(STINGRAYKIT_REQUIRE_NOT_NULL(executor)), _func(std::forward<FunctorType>(func)), _tester(std::forward<ExecutionTester>(tester))
+			{ }
+
+			template < typename... Ts >
+			RetType operator () (const Ts&... args) const
+			{ return DoAddTask<RawRetType>(Bind(_func, args...)); }
+
+			std::string get_name() const
+			{ return "{ AsyncFunction: " + get_function_name(_func) + " }"; }
+
+		private:
+			template < typename RetType_ >
+			typename EnableIf<IsSame<RetType_, void>::Value, RetType_>::ValueT DoAddTask(const function<RetType_ ()>& func) const
+			{ _executor->AddTask(func, _tester); }
+
+			template < typename RetType_ >
+			typename EnableIf<!IsSame<RetType_, void>::Value, future<RetType_> >::ValueT DoAddTask(const function<RetType_ ()>& func) const
+			{
+				typedef promise<RetType_> PromiseType;
+				const shared_ptr<PromiseType> promise = make_shared_ptr<PromiseType>();
+				_executor->AddTask(Bind(&AsyncFunction::FuncWrapper<RetType_>, func, promise), _tester);
+				return promise->get_future();
+			}
+
+			template < typename RetType_ >
+			static void FuncWrapper(const function<RetType_ ()>& func, const shared_ptr<promise<RetType_> >& promise)
+			{
+				try
+				{ promise->set_value(func()); }
+				catch (const std::exception& ex)
+				{ promise->set_exception(MakeExceptionPtr(ex)); }
+			}
+		};
+	}
 
 
 	template < typename FunctorType, typename ExecutionTester = FutureExecutionTester >
-	AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, FunctorType&& func, ExecutionTester&& tester = null)
-	{ return AsyncFunction<FunctorType>(executor, std::forward<FunctorType>(func), std::forward<ExecutionTester>(tester)); }
+	Detail::AsyncFunction<FunctorType> MakeAsyncFunction(const ITaskExecutorPtr& executor, FunctorType&& func, ExecutionTester&& tester = null)
+	{ return Detail::AsyncFunction<FunctorType>(executor, std::forward<FunctorType>(func), std::forward<ExecutionTester>(tester)); }
 
 	/** @} */
 
