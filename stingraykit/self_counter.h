@@ -160,7 +160,6 @@ namespace stingray
 	class self_counter
 	{
 		STINGRAYKIT_NONCOPYABLE(self_counter);
-		STINGRAYKIT_NONMOVABLE(self_counter);
 
 	private:
 		mutable AtomicS32::Type	_value;
