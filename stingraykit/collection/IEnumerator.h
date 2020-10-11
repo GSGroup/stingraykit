@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/ToEnumerator.h>
 #include <stingraykit/shared_ptr.h>
 
 #define STINGRAYKIT_DECLARE_ENUMERATOR(ClassName) \
@@ -31,7 +30,7 @@ namespace stingray
 		virtual ~IEnumerator() { }
 
 		virtual bool Valid() const = 0;
-		virtual T Get() const = 0;
+		virtual ItemType Get() const = 0;
 		virtual void Next() = 0;
 	};
 
@@ -42,7 +41,10 @@ namespace stingray
 
 	namespace Detail
 	{
-		template< typename T >
+		template < typename T, typename Enabler = void >
+		struct ToEnumeratorImpl;
+
+		template < typename T >
 		struct ToEnumeratorImpl<T, typename EnableIf<IsEnumerator<T>::Value, void>::ValueT>
 		{
 			typedef IEnumerator<typename T::ItemType>	ValueT;
@@ -52,9 +54,12 @@ namespace stingray
 	}
 
 
+	template < typename T >
+	shared_ptr<typename Detail::ToEnumeratorImpl<T>::ValueT> ToEnumerator(const shared_ptr<T>& src)
+	{ return Detail::ToEnumeratorImpl<T>::Do(STINGRAYKIT_REQUIRE_NOT_NULL(src)); }
+
 	/** @} */
 
 }
-
 
 #endif
