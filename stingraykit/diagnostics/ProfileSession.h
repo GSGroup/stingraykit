@@ -8,16 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/FunctionToken.h>
-#include <stingraykit/optional.h>
-#include <stingraykit/shared_ptr.h>
-#include <stingraykit/Token.h>
+#include <stingraykit/function/bind.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/time/ElapsedTime.h>
-#include <stingraykit/string/lexical_cast.h>
-#include <stingraykit/string/string_stream.h>
-
-#include <map>
+#include <stingraykit/FunctionToken.h>
 
 namespace stingray
 {
