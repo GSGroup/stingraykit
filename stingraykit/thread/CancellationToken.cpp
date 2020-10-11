@@ -119,7 +119,7 @@ namespace stingray
 
 
 	Token CancellationToken::GetCancellator() const
-	{ return MakeToken<FunctionToken>(Bind(&Impl::Cancel, _impl)); }
+	{ return MakeFunctionToken(Bind(&Impl::Cancel, _impl)); }
 
 
 	bool CancellationToken::Sleep(optional<TimeDuration> duration) const

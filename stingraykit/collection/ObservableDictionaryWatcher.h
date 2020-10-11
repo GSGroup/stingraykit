@@ -45,7 +45,7 @@ namespace stingray
 			:	_key(key),
 				_handler(worker ? MakeAsyncFunction(worker, handler, _taskLifeToken.GetExecutionTester()) : handler)
 		{
-			_connections += MakeToken<FunctionToken>(Bind(&TaskLifeToken::Release, wrap_ref(_taskLifeToken)));
+			_connections += MakeFunctionToken(Bind(&TaskLifeToken::Release, wrap_ref(_taskLifeToken)));
 
 			MutexLock l(dict->GetSyncRoot());
 			_connections += dict->OnChanged().connect(Bind(&ObservableDictionaryWatcher::DictionaryChangedHandler, this, _1, _2, _3), false);

@@ -72,7 +72,7 @@ namespace stingray
 		{
 			if (_enable)
 			{
-				_reportToParentToken = MakeToken<FunctionToken>(Bind(&ProfileSession::ChildCallback, &parent, wrap_const_ref(*this)));
+				_reportToParentToken = MakeFunctionToken(Bind(&ProfileSession::ChildCallback, &parent, wrap_const_ref(*this)));
 				_elapsedTime = ElapsedTime();
 			}
 		}

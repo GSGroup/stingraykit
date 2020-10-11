@@ -163,7 +163,7 @@ namespace stingray
 	Token Timer::SetTimeout(const TimeDuration& timeout, const TaskType& task)
 	{
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
-		const Token token = MakeToken<FunctionToken>(Bind(&Timer::RemoveTask, _queue, ci));
+		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
 
 		{
 			MutexLock l(_queue->Sync());
@@ -182,7 +182,7 @@ namespace stingray
 	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const TaskType& task)
 	{
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
-		const Token token = MakeToken<FunctionToken>(Bind(&Timer::RemoveTask, _queue, ci));
+		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
 
 		{
 			MutexLock l(_queue->Sync());
