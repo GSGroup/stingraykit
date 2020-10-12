@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/KeyValuePair.h>
-#include <stingraykit/function/function_info.h>
+#include <stingraykit/function/FunctorInvoker.h>
 
 namespace stingray
 {
@@ -156,11 +156,11 @@ namespace stingray
 
 			template < typename Key, typename Value >
 			RetType operator () (const std::pair<Key, Value>& pair) const
-			{ return _func(pair.first, pair.second); }
+			{ return FunctorInvoker::InvokeArgs(_func, pair.first, pair.second); }
 
 			template < typename Key, typename Value >
 			RetType operator () (const KeyValuePair<Key, Value>& pair) const
-			{ return _func(pair.Key, pair.Value); }
+			{ return FunctorInvoker::InvokeArgs(_func, pair.Key, pair.Value); }
 		};
 	}
 

@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/IEnumerable.h>
 #include <stingraykit/string/string_stream.h>
+#include <stingraykit/optional.h>
 
 #include <algorithm>
 #include <ctype.h>
