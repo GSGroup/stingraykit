@@ -34,43 +34,39 @@ namespace stingray
 		public:
 			EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator)
 				: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(&EnumeratorWrapper::DefaultCast), _filterPredicate(&EnumeratorWrapper::NoFilter)
-			{ FindFirst(); }
+			{ FindNext(); }
 
 			EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster)
 				: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(caster), _filterPredicate(&EnumeratorWrapper::NoFilter)
-			{ FindFirst(); }
+			{ FindNext(); }
 
 			EnumeratorWrapper(const SrcEnumeratorPtr& srcEnumerator, const Caster& caster, const FilterPredicate& filterPredicate)
 				: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator)), _caster(caster), _filterPredicate(filterPredicate)
-			{ FindFirst(); }
+			{ FindNext(); }
 
 			virtual bool Valid() const
-			{ return _srcEnumerator->Valid(); }
+			{ return _cache.is_initialized(); }
 
 			virtual DestType Get() const
-			{ return _cache ? _caster(*_cache) : _caster(_srcEnumerator->Get()); }
+			{
+				STINGRAYKIT_CHECK(_cache, "Enumerator is not valid!");
+				return _caster(*_cache);
+			}
 
 			virtual void Next()
 			{
-				if (!Valid())
-					return;
+				STINGRAYKIT_CHECK(_cache, "Enumerator is not valid!");
 
 				_cache.reset();
-				do {
-					_srcEnumerator->Next();
-					if (!Valid())
-						break;
+				_srcEnumerator->Next();
 
-					const SrcType& cache = _srcEnumerator->Get();
-					if (_filterPredicate(cache))
-						_cache.emplace(cache);
-				} while (!_cache);
+				FindNext();
 			}
 
 		private:
-			void FindFirst()
+			void FindNext()
 			{
-				while (Valid() && !_cache)
+				while (!_cache && _srcEnumerator->Valid())
 				{
 					const SrcType& cache = _srcEnumerator->Get();
 					if (_filterPredicate(cache))
