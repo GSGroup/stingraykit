@@ -28,21 +28,24 @@ namespace stingray
 		template < typename... Ts >
 		struct InheritanceAccumulatorImpl : public Ts...
 		{
-			//GCC has bug: STB-25620, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88580
-			//template < typename... Us >
-			//InheritanceAccumulatorImpl(const Us&... args) : Ts(args...)...
-			//{ }
-			//template < typename... Us >
-			//InheritanceAccumulatorImpl(Us&... args) : Ts(args...)...
-			//{ }
-
 			InheritanceAccumulatorImpl() { }
 
+#if defined(__GNUC__) && !defined(__clang__)
+			//GCC has bug: STB-25620, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88580
 			DETAIL_STINGRAYKIT_IA_CTOR(1);
 			DETAIL_STINGRAYKIT_IA_CTOR(2);
 			DETAIL_STINGRAYKIT_IA_CTOR(3);
 			DETAIL_STINGRAYKIT_IA_CTOR(4);
 			DETAIL_STINGRAYKIT_IA_CTOR(5);
+#else
+			template < typename U0, typename... Us >
+			InheritanceAccumulatorImpl(const U0& p0, const Us&... args) : Ts(p0, args...)...
+			{ }
+
+			template < typename U0, typename... Us >
+			InheritanceAccumulatorImpl(U0& p0, Us&... args) : Ts(p0, args...)...
+			{ }
+#endif
 		};
 
 #undef DETAIL_STINGRAYKIT_IA_CTOR
