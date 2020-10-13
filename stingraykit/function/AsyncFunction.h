@@ -31,6 +31,30 @@ namespace stingray
 			STINGRAYKIT_DEFAULTCOPYABLE(AsyncFunction);
 			STINGRAYKIT_DEFAULTMOVABLE(AsyncFunction);
 
+			template < typename RetType_, typename BoundFunctor_ >
+			class FuncWrapper : public function_info<void ()>
+			{
+				STINGRAYKIT_DEFAULTCOPYABLE(FuncWrapper);
+				STINGRAYKIT_DEFAULTMOVABLE(FuncWrapper);
+
+			private:
+				typename Decay<BoundFunctor_>::ValueT		_func;
+				shared_ptr<promise<RetType_> >				_promise;
+
+			public:
+				FuncWrapper(BoundFunctor_&& func, const shared_ptr<promise<RetType_> >& promise)
+					: _func(std::forward<BoundFunctor_>(func)), _promise(promise)
+				{ }
+
+				void operator () () const
+				{
+					try
+					{ _promise->set_value(FunctorInvoker::InvokeArgs(_func)); }
+					catch (const std::exception& ex)
+					{ _promise->set_exception(MakeExceptionPtr(ex)); }
+				}
+			};
+
 		private:
 			typedef typename Decay<FunctorType>::ValueT				RawFunctorType;
 			typedef typename function_info<RawFunctorType>::RetType	RawRetType;
@@ -58,26 +82,17 @@ namespace stingray
 			{ return "{ AsyncFunction: " + get_function_name(_func) + " }"; }
 
 		private:
-			template < typename RetType_ >
-			typename EnableIf<IsSame<RetType_, void>::Value, RetType_>::ValueT DoAddTask(const function<RetType_ ()>& func) const
-			{ _executor->AddTask(func, _tester); }
+			template < typename RetType_, typename BoundFunctor_ >
+			typename EnableIf<IsSame<RetType_, void>::Value, RetType_>::ValueT DoAddTask(BoundFunctor_&& func) const
+			{ _executor->AddTask(std::forward<BoundFunctor_>(func), _tester); }
 
-			template < typename RetType_ >
-			typename EnableIf<!IsSame<RetType_, void>::Value, future<RetType_> >::ValueT DoAddTask(const function<RetType_ ()>& func) const
+			template < typename RetType_, typename BoundFunctor_ >
+			typename EnableIf<!IsSame<RetType_, void>::Value, future<RetType_> >::ValueT DoAddTask(BoundFunctor_&& func) const
 			{
 				typedef promise<RetType_> PromiseType;
 				const shared_ptr<PromiseType> promise = make_shared_ptr<PromiseType>();
-				_executor->AddTask(Bind(&AsyncFunction::FuncWrapper<RetType_>, func, promise), _tester);
+				_executor->AddTask(FuncWrapper<RetType_, BoundFunctor_>(std::forward<BoundFunctor_>(func), promise), _tester);
 				return promise->get_future();
-			}
-
-			template < typename RetType_ >
-			static void FuncWrapper(const function<RetType_ ()>& func, const shared_ptr<promise<RetType_> >& promise)
-			{
-				try
-				{ promise->set_value(func()); }
-				catch (const std::exception& ex)
-				{ promise->set_exception(MakeExceptionPtr(ex)); }
 			}
 		};
 	}
