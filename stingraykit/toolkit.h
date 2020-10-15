@@ -25,7 +25,7 @@ namespace stingray
 
 }
 
-#if (__GNUC__ >= 3 || defined(__clang__)) && !defined(PRODUCTION_BUILD)
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(PRODUCTION_BUILD)
 #	define STINGRAYKIT_FUNCTION __PRETTY_FUNCTION__
 #else
 #	define STINGRAYKIT_FUNCTION __func__
