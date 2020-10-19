@@ -155,7 +155,7 @@ namespace stingray
 
 
 	template < typename T >
-	optional<typename Decay<T>::ValueT> make_optional(T&& t)
+	optional<typename Decay<T>::ValueT> make_optional_value(T&& t)
 	{ return optional<typename Decay<T>::ValueT>(std::forward<T>(t)); }
 
 
