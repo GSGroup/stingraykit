@@ -24,6 +24,40 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(IByteStream);
 	STINGRAYKIT_DECLARE_CREATOR(IByteStream);
 
+
+	template < typename StreamType >
+	inline optional<std::string> ReadLine(StreamType& stream, const ICancellationToken& token = DummyCancellationToken())
+	{
+		optional<string_ostream> result;
+
+		while (token)
+		{
+			u8 byte;
+			if (stream.Read(ByteData(&byte, sizeof(byte)), token) == 0)
+				break;
+
+			if (!result)
+				result.emplace();
+
+			if (byte == '\n')
+				break;
+
+			if (byte == '\r')
+			{
+				if (stream.Read(ByteData(&byte, sizeof(byte)), token) == 0 || byte == '\n')
+					break;
+
+				stream.Seek(-1, SeekMode::Current);
+				break;
+			}
+
+			(*result) << static_cast<string_ostream::value_type>(byte);
+		}
+
+		STINGRAYKIT_CHECK(token, OperationCancelledException());
+		return result ? make_optional_value(result->str()) : null;
+	}
+
 }
 
 #endif
