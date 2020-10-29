@@ -61,8 +61,14 @@ namespace stingray
 				: _valid(true), _value(value)
 			{ }
 
-			virtual bool Valid() const			{ return _valid; }
-			virtual void Next()					{ _valid = false; }
+			virtual bool Valid() const
+			{ return _valid; }
+
+			virtual void Next()
+			{
+				STINGRAYKIT_CHECK(_valid, "Enumerator is not valid!");
+				_valid = false;
+			}
 
 			virtual T Get() const
 			{
@@ -583,9 +589,20 @@ namespace stingray
 				EnumeratorOfType(const SrcEnumerator_& srcEnumerator) : _srcEnumerator(srcEnumerator)
 				{ FindNext(); }
 
-				virtual bool Valid() const { return _srcEnumerator->Valid(); }
-				virtual Dst_ Get() const   { return Storage::Unwrap(_dst); }
-				virtual void Next()        { _srcEnumerator->Next(); FindNext(); }
+				virtual bool Valid() const
+				{ return _srcEnumerator->Valid(); }
+
+				virtual Dst_ Get() const
+				{
+					STINGRAYKIT_CHECK(_srcEnumerator->Valid(), "Enumerator is not valid!");
+					return Storage::Unwrap(_dst);
+				}
+
+				virtual void Next()
+				{
+					_srcEnumerator->Next();
+					FindNext();
+				}
 
 			private:
 				void FindNext()
