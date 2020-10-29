@@ -29,15 +29,15 @@ namespace stingray
 		struct EmptyEnumerator : public virtual IEnumerator<T>
 		{
 			virtual bool Valid() const	{ return false; }
-			virtual T Get() const		{ STINGRAYKIT_THROW(NotSupportedException()); }
-			virtual void Next()			{ STINGRAYKIT_THROW(NotSupportedException()); }
+			virtual T Get() const		{ STINGRAYKIT_THROW("Enumerator is not valid!"); }
+			virtual void Next()			{ STINGRAYKIT_THROW("Enumerator is not valid!"); }
 		};
 
 		class EmptyEnumeratorProxy
 		{
 		public:
 			template < typename U >
-			operator shared_ptr<IEnumerator<U> >() const
+			operator shared_ptr<IEnumerator<U> > () const
 			{ return make_shared_ptr<EmptyEnumerator<U> >(); }
 		};
 	}
@@ -66,8 +66,7 @@ namespace stingray
 
 			virtual T Get() const
 			{
-				if (!_valid)
-					STINGRAYKIT_THROW(std::runtime_error("Invalid enumerator!"));
+				STINGRAYKIT_CHECK(_valid, "Enumerator is not valid!");
 				return _value;
 			}
 		};
@@ -84,7 +83,7 @@ namespace stingray
 			{ }
 
 			template < typename U >
-			operator shared_ptr<IEnumerator<U> >() const
+			operator shared_ptr<IEnumerator<U> > () const
 			{ return make_shared_ptr<OneItemEnumerator<U> >(_item); }
 		};
 	}
@@ -164,7 +163,7 @@ namespace stingray
 		{
 		public:
 			template < typename U >
-			operator shared_ptr<IEnumerable<U> >() const
+			operator shared_ptr<IEnumerable<U> > () const
 			{ return make_shared_ptr<EmptyEnumerable<U> >(); }
 		};
 	}
@@ -203,7 +202,7 @@ namespace stingray
 			{ }
 
 			template < typename U >
-			operator shared_ptr<IEnumerable<U> >() const
+			operator shared_ptr<IEnumerable<U> > () const
 			{ return make_shared_ptr<OneItemEnumerable<U> >(_item); }
 		};
 	}
@@ -750,7 +749,7 @@ namespace stingray
 			{ }
 
 			template < typename T >
-			int operator() (const shared_ptr<T>& first, const shared_ptr<T>& second) const
+			int operator () (const shared_ptr<T>& first, const shared_ptr<T>& second) const
 			{
 				shared_ptr<IEnumerator<typename T::ItemType> > l(first->GetEnumerator()), r(second->GetEnumerator());
 				for (; l->Valid(); l->Next(), r->Next())
