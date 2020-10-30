@@ -36,6 +36,6 @@ namespace stingray
 
 
 	TimeDuration ElapsedTime::Elapsed() const
-	{ return TimeDuration(ElapsedMilliseconds()); }
+	{ return TimeDuration::FromMicroseconds(ElapsedMicroseconds()); }
 
 }
