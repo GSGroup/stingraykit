@@ -19,8 +19,9 @@ namespace stingray
 
 	TimeDuration ElapsedTime::Restart()
 	{
-		u64 newStart = TimeEngine::GetMonotonicMicroseconds();
-		TimeDuration result(TimeDuration::FromMicroseconds(newStart - _start));
+		const u64 newStart = TimeEngine::GetMonotonicMicroseconds();
+		const TimeDuration result(TimeDuration::FromMicroseconds(newStart - _start));
+
 		_start = newStart;
 		return result;
 	}
