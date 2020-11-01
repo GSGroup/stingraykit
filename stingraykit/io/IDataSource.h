@@ -76,6 +76,8 @@ namespace stingray
 		virtual size_t GetFreeSize() const = 0;
 		virtual size_t GetStorageSize() const = 0;
 
+		virtual bool HasEndOfDataOrException() const = 0;
+
 		virtual void SetException(const std::exception& ex, const ICancellationToken& token) = 0;
 		virtual void Clear() = 0;
 

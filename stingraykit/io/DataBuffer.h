@@ -106,6 +106,9 @@ namespace stingray
 		size_t GetStorageSize() const override
 		{ return BufferedDataConsumerBase::GetStorageSize(); }
 
+		bool HasEndOfDataOrException() const override
+		{ return BufferedDataConsumerBase::HasEndOfDataOrException(); }
+
 		void SetException(const std::exception& ex, const ICancellationToken& token) override
 		{ BufferedDataConsumerBase::SetException(ex, token); }
 

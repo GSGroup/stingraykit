@@ -109,6 +109,8 @@ namespace stingray
 		size_t GetFreeSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
 		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
 
+		bool HasEndOfDataOrException() const	{ MutexLock l(_bufferMutex); return _eod || _exception; }
+
 		/// @brief: Clears buffer completely. Warning: can't be called simultaneously with Process(...) or Read(...)
 		void Clear()
 		{
