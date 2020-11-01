@@ -53,7 +53,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
 			MutexLock l(_bufferMutex);
 			ReadLock rl(*this);
@@ -97,22 +97,22 @@ namespace stingray
 			_bufferFull.Broadcast();
 		}
 
-		virtual size_t GetDataSize() const
+		size_t GetDataSize() const override
 		{ return BufferedDataConsumerBase::GetDataSize(); }
 
-		virtual size_t GetFreeSize() const
+		size_t GetFreeSize() const override
 		{ return BufferedDataConsumerBase::GetFreeSize(); }
 
-		virtual size_t GetStorageSize() const
+		size_t GetStorageSize() const override
 		{ return BufferedDataConsumerBase::GetStorageSize(); }
 
-		virtual void SetException(const std::exception& ex, const ICancellationToken& token)
+		void SetException(const std::exception& ex, const ICancellationToken& token) override
 		{ BufferedDataConsumerBase::SetException(ex, token); }
 
-		virtual void Clear()
+		void Clear() override
 		{ BufferedDataConsumerBase::Clear(); }
 
-		virtual signal_connector<void(size_t)> OnOverflow() const
+		signal_connector<void(size_t)> OnOverflow() const override
 		{ return BufferedDataConsumerBase::OnOverflow(); }
 	};
 	STINGRAYKIT_DECLARE_PTR(DataBuffer);

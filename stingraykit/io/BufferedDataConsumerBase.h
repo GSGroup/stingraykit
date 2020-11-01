@@ -123,7 +123,7 @@ namespace stingray
 			_bufferFull.Broadcast();
 		}
 
-		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
+		size_t Process(ConstByteData data, const ICancellationToken& token) override
 		{
 			if (data.size() % _inputPacketSize != 0)
 			{
@@ -164,7 +164,7 @@ namespace stingray
 			return write_size;
 		}
 
-		virtual void EndOfData(const ICancellationToken&)
+		void EndOfData(const ICancellationToken&) override
 		{
 			MutexLock l(_bufferMutex);
 
