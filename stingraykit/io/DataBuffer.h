@@ -109,6 +109,19 @@ namespace stingray
 		bool HasEndOfDataOrException() const override
 		{ return BufferedDataConsumerBase::HasEndOfDataOrException(); }
 
+		void WaitForData(size_t threshold, const ICancellationToken& token) override
+		{
+			STINGRAYKIT_CHECK(threshold > 0 && threshold % _outputPacketSize == 0 && threshold < BufferedDataConsumerBase::GetStorageSize(),
+					ArgumentException("threshold", threshold));
+
+			MutexLock l(_bufferMutex);
+			ReadLock rl(*this);
+
+			while (BufferedDataConsumerBase::GetDataSize() < threshold && !_eod && !_exception)
+				if (_bufferEmpty.Wait(_bufferMutex, token) != ConditionWaitResult::Broadcasted)
+					break;
+		}
+
 		void SetException(const std::exception& ex, const ICancellationToken& token) override
 		{ BufferedDataConsumerBase::SetException(ex, token); }
 
