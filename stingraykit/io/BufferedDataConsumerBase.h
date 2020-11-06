@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/io/BithreadCircularBuffer.h>
 #include <stingraykit/io/IDataSource.h>
 #include <stingraykit/log/Logger.h>
@@ -105,26 +104,6 @@ namespace stingray
 		}
 
 	public:
-		size_t GetDataSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetDataSize(); }
-		size_t GetFreeSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
-		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
-
-		bool HasEndOfDataOrException() const	{ MutexLock l(_bufferMutex); return _eod || _exception; }
-
-		/// @brief: Clears buffer completely. Warning: can't be called simultaneously with Process(...) or Read(...)
-		void Clear()
-		{
-			MutexLock l(_bufferMutex);
-			STINGRAYKIT_CHECK(!_activeRead, InvalidOperationException("Simultaneous Read() and Clear()!"));
-			STINGRAYKIT_CHECK(_activeWrites == 0, InvalidOperationException("Simultaneous Process() and Clear()!"));
-
-			_buffer.Clear();
-			_eod = false;
-			_exception.reset();
-
-			_bufferFull.Broadcast();
-		}
-
 		size_t Process(ConstByteData data, const ICancellationToken& token) override
 		{
 			if (data.size() % _inputPacketSize != 0)
@@ -176,6 +155,13 @@ namespace stingray
 			_bufferEmpty.Broadcast();
 		}
 
+	protected:
+		size_t GetDataSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetDataSize(); }
+		size_t GetFreeSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
+		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
+
+		bool HasEndOfDataOrException() const	{ MutexLock l(_bufferMutex); return _eod || _exception; }
+
 		void SetException(const std::exception& ex, const ICancellationToken& token)
 		{
 			MutexLock l(_bufferMutex);
@@ -184,6 +170,20 @@ namespace stingray
 
 			_exception = MakeExceptionPtr(ex);
 			_bufferEmpty.Broadcast();
+		}
+
+		/// @brief: Clears buffer completely. Warning: can't be called simultaneously with Process(...) or Read(...)
+		void Clear()
+		{
+			MutexLock l(_bufferMutex);
+			STINGRAYKIT_CHECK(!_activeRead, InvalidOperationException("Simultaneous Read() and Clear()!"));
+			STINGRAYKIT_CHECK(_activeWrites == 0, InvalidOperationException("Simultaneous Process() and Clear()!"));
+
+			_buffer.Clear();
+			_eod = false;
+			_exception.reset();
+
+			_bufferFull.Broadcast();
 		}
 
 		signal_connector<void(size_t)> OnOverflow() const
