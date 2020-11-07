@@ -89,32 +89,35 @@ namespace stingray
 
 	struct InterceptingDataSource : public virtual IDataSource
 	{
-		typedef function<void(ConstByteData)> FunctionType;
-		typedef function<void()> EodFunctionType;
+		typedef function<void (ConstByteData, const ICancellationToken&)> ProcessFunctionType;
+		typedef function<void (const ICancellationToken&)> EodFunctionType;
 
 	private:
-		IDataSourcePtr	_source;
-		FunctionType	_func;
-		EodFunctionType	_eod;
+		IDataSourcePtr			_source;
+		ProcessFunctionType		_processFunc;
+		EodFunctionType			_eodFunc;
 
 	public:
-		InterceptingDataSource(const IDataSourcePtr& source, const FunctionType& func, const EodFunctionType& eod)
-			: _source(STINGRAYKIT_REQUIRE_NOT_NULL(source)), _func(func), _eod(eod)
+		InterceptingDataSource(const IDataSourcePtr& source, const ProcessFunctionType& processFunc, const EodFunctionType& eodFunc)
+			: _source(STINGRAYKIT_REQUIRE_NOT_NULL(source)), _processFunc(processFunc), _eodFunc(eodFunc)
 		{ }
 
 		virtual void Read(IDataConsumer& c, const ICancellationToken& token)
-		{ _source->ReadToFunction(Bind(&InterceptingDataSource::DoPush, this, wrap_ref(c), _1, _2), Bind(&InterceptingDataSource::Eod, this, wrap_ref(c), _1), token); }
+		{ _source->ReadToFunction(Bind(&InterceptingDataSource::DoPush, this, wrap_ref(c), _1, _2), Bind(&InterceptingDataSource::EndOfData, this, wrap_ref(c), _1), token); }
 
 	private:
 		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 		{
 			const size_t size = consumer.Process(data, token);
-			_func(ConstByteData(data, 0, size));
+			_processFunc(ConstByteData(data, 0, size), token);
 			return size;
 		}
 
-		void Eod(IDataConsumer& consumer, const ICancellationToken& token)
-		{ consumer.EndOfData(token); _eod(); }
+		void EndOfData(IDataConsumer& consumer, const ICancellationToken& token)
+		{
+			consumer.EndOfData(token);
+			_eodFunc(token);
+		}
 	};
 	STINGRAYKIT_DECLARE_PTR(InterceptingDataSource);
 
