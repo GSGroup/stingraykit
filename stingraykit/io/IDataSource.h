@@ -25,6 +25,36 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(IDataConsumer);
 
 
+	struct InterceptingDataConsumer : public virtual IDataConsumer
+	{
+		typedef function<void (ConstByteData, const ICancellationToken&)> ProcessFunctionType;
+		typedef function<void (const ICancellationToken&)> EodFunctionType;
+
+	private:
+		IDataConsumer&			_consumer;
+		ProcessFunctionType		_processFunc;
+		EodFunctionType			_eodFunc;
+
+	public:
+		InterceptingDataConsumer(IDataConsumer& consumer, const ProcessFunctionType& processFunc, const EodFunctionType& eodFunc)
+			: _consumer(consumer), _processFunc(processFunc), _eodFunc(eodFunc)
+		{ }
+
+		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
+		{
+			const size_t size = _consumer.Process(data, token);
+			_processFunc(ConstByteData(data, 0, size), token);
+			return size;
+		}
+
+		virtual void EndOfData(const ICancellationToken& token)
+		{
+			_consumer.EndOfData(token);
+			_eodFunc(token);
+		}
+	};
+
+
 	template < typename ProcessFunctorType, typename EodFunctorType >
 	struct FunctorDataConsumer : public virtual IDataConsumer
 	{
