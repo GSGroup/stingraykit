@@ -25,7 +25,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(IDataConsumer);
 
 
-	template <typename ProcessFunctorType, typename EodFunctorType>
+	template < typename ProcessFunctorType, typename EodFunctorType >
 	struct FunctorDataConsumer : public virtual IDataConsumer
 	{
 	private:
@@ -47,11 +47,11 @@ namespace stingray
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token) = 0;
 
-		template <typename ProcessFunctorType>
+		template < typename ProcessFunctorType >
 		void ReadToFunction(const ProcessFunctorType& processFunc, const ICancellationToken& token)
 		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
 
-		template <typename ProcessFunctorType, typename EndOfDataFunctorType>
+		template < typename ProcessFunctorType, typename EndOfDataFunctorType >
 		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const ICancellationToken& token)
 		{
 			FunctorDataConsumer<ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
@@ -138,7 +138,10 @@ namespace stingray
 			virtual size_t Process(ConstByteData data, const ICancellationToken& token) { return _consumer.Process(data, token); }
 
 			virtual void EndOfData(const ICancellationToken& token)
-			{ _endOfData = true; _consumer.EndOfData(token); }
+			{
+				_endOfData = true;
+				_consumer.EndOfData(token);
+			}
 		};
 
 	private:
@@ -168,7 +171,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(EmptyDataSource);
 
 
-	template<typename MetadataType>
+	template < typename MetadataType >
 	class Packet
 	{
 	private:
@@ -186,7 +189,7 @@ namespace stingray
 	};
 
 
-	template<typename MetadataType>
+	template < typename MetadataType >
 	struct IPacketConsumer
 	{
 		virtual ~IPacketConsumer() { }
@@ -196,7 +199,7 @@ namespace stingray
 	};
 
 
-	template <typename MetadataType, typename ProcessFunctorType, typename EodFunctorType>
+	template < typename MetadataType, typename ProcessFunctorType, typename EodFunctorType >
 	struct FunctorPacketConsumer : public virtual IPacketConsumer<MetadataType>
 	{
 	private:
@@ -212,18 +215,18 @@ namespace stingray
 	};
 
 
-	template<typename MetadataType>
+	template < typename MetadataType >
 	struct IPacketSource
 	{
 		virtual ~IPacketSource() { }
 
 		virtual void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token) = 0;
 
-		template <typename ProcessFunctorType>
+		template < typename ProcessFunctorType >
 		void ReadToFunction(const ProcessFunctorType& processFunc, const ICancellationToken& token)
 		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
 
-		template <typename ProcessFunctorType, typename EndOfDataFunctorType>
+		template < typename ProcessFunctorType, typename EndOfDataFunctorType >
 		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const ICancellationToken& token)
 		{
 			FunctorPacketConsumer<MetadataType, ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
@@ -246,7 +249,7 @@ namespace stingray
 	}
 
 
-	template <typename Metadata>
+	template < typename Metadata >
 	inline bool ConsumeAll(IPacketConsumer<Metadata>& consumer, const Packet<Metadata>& packet, const ICancellationToken& token)
 	{
 		bool processed = false;
@@ -259,6 +262,7 @@ namespace stingray
 
 	class DataConsumeAll : public function_info<size_t (ConstByteData, const ICancellationToken&)>
 	{
+	private:
 		IDataConsumer& _consumer;
 
 	public:
@@ -269,9 +273,10 @@ namespace stingray
 	};
 
 
-	template <typename Metadata>
+	template < typename Metadata >
 	struct PacketConsumeAll : public function_info<bool (const Packet<Metadata>&, const ICancellationToken&)>
 	{
+	private:
 		IPacketConsumer<Metadata>& _consumer;
 
 	public:
