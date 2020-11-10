@@ -119,7 +119,7 @@ namespace stingray
 
 
 	template < typename MemberPointer, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
-	struct MemberToValueComparer : public function_info<bool (const typename MemberExtractor<MemberPointer>::ClassType &)>
+	struct MemberToValueComparer : public function_info<bool, UnspecifiedParamTypes>
 	{
 		typedef MemberExtractor<MemberPointer>		Extractor;
 		typedef typename Extractor::MemberType		MemberType;
