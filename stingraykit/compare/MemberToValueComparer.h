@@ -118,20 +118,19 @@ namespace stingray
 	{ return MemberExtractorComparer<MemberPointer, comparers::Less, AllowDereferencing >(ptr); }
 
 
-	template < typename MemberPointer, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
+	template < typename MemberPointer, typename ValueType, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
 	struct MemberToValueComparer : public function_info<bool, UnspecifiedParamTypes>
 	{
 		typedef MemberExtractor<MemberPointer>		Extractor;
-		typedef typename Extractor::MemberType		MemberType;
 		typedef typename Extractor::ClassType		ClassType;
 
 	private:
 		MemberPointer	_ptr;
-		MemberType		_value;
+		ValueType		_value;
 		Comparer		_comparer;
 
 	public:
-		MemberToValueComparer(MemberPointer ptr, MemberType memberValue, Comparer comparer = Comparer())
+		MemberToValueComparer(MemberPointer ptr, ValueType memberValue, Comparer comparer = Comparer())
 			: _ptr(ptr), _value(memberValue), _comparer(comparer)
 		{ }
 
@@ -145,12 +144,12 @@ namespace stingray
 
 
 	template < template < typename > class Comparer, typename MemberPointer, typename ValueType >
-	MemberToValueComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> > CompareMemberToValue(MemberPointer ptr, ValueType value)
-	{ return MemberToValueComparer<MemberPointer, Comparer<typename MemberExtractor<MemberPointer>::MemberType> >(ptr, value); }
+	MemberToValueComparer<MemberPointer, ValueType, Comparer<typename MemberExtractor<MemberPointer>::MemberType> > CompareMemberToValue(MemberPointer ptr, ValueType value)
+	{ return MemberToValueComparer<MemberPointer, ValueType, Comparer<typename MemberExtractor<MemberPointer>::MemberType> >(ptr, value); }
 
 	template < typename Comparer, typename MemberPointer, typename ValueType >
-	MemberToValueComparer<MemberPointer, Comparer> CompareMemberToValue(MemberPointer ptr, ValueType value, Comparer cmp = Comparer())
-	{ return MemberToValueComparer<MemberPointer, Comparer>(ptr, value, cmp); }
+	MemberToValueComparer<MemberPointer, ValueType, Comparer> CompareMemberToValue(MemberPointer ptr, ValueType value, Comparer cmp = Comparer())
+	{ return MemberToValueComparer<MemberPointer, ValueType, Comparer>(ptr, value, cmp); }
 
 }
 
