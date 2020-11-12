@@ -29,7 +29,7 @@ namespace stingray
 				switch (_cv.Wait(_guard, token))
 				{
 				case ConditionWaitResult::Broadcasted:	continue;
-				case ConditionWaitResult::Cancelled:	return 0;
+				case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
 				case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
 				}
 
