@@ -19,10 +19,7 @@ namespace stingray
 	{
 		u8 result;
 		if (Read(ByteData(&result, sizeof(result)), token) != sizeof(result))
-		{
-			STINGRAYKIT_CHECK(!token, "Abnormal behaviour!");
-			STINGRAYKIT_THROW(OperationCancelledException());
-		}
+			STINGRAYKIT_ASSUME_CANCELLATION(token);
 		return result;
 	}
 

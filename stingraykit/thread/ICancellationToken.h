@@ -59,6 +59,12 @@ namespace stingray
 			STINGRAYKIT_CHECK(!TokenObj.IsTimedOut(), TimeoutException()); \
 		} while(false)
 
+#define STINGRAYKIT_ASSUME_CANCELLATION(TokenObj) \
+		do { \
+			STINGRAYKIT_CHECK_CANCELLATION(TokenObj); \
+			STINGRAYKIT_THROW("Abnormal behaviour"); \
+		} while(false)
+
 }
 
 #endif
