@@ -52,6 +52,13 @@ namespace stingray
 		virtual bool UnregisterCancellationHandler() const = 0;
 	};
 
+
+#define STINGRAYKIT_CHECK_CANCELLATION(TokenObj) \
+		do { \
+			STINGRAYKIT_CHECK(!TokenObj.IsCancelled(), OperationCancelledException()); \
+			STINGRAYKIT_CHECK(!TokenObj.IsTimedOut(), TimeoutException()); \
+		} while(false)
+
 }
 
 #endif
