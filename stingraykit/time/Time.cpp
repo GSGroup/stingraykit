@@ -135,7 +135,7 @@ namespace stingray
 	{
 		STINGRAYKIT_CHECK(!str.empty(), FormatException(str));
 
-		const optional<char> sign = str[0] == '+' || str[0] == '-' ? str[0] : optional<char>();
+		const optional<char> sign = str[0] == '+' || str[0] == '-' ? make_optional_value(str[0]) : null;
 
 		int hours, minutes;
 		STINGRAYKIT_CHECK(sscanf(str.c_str() + (sign ? 1 : 0), "%d:%d", &hours, &minutes) == 2, FormatException(str));

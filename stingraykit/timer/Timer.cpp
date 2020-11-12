@@ -241,7 +241,7 @@ namespace stingray
 
 				MutexUnlock ul(l);
 
-				const optional<TimeDuration> monotonic = top->IsPeriodic() ? _monotonic.Elapsed() : optional<TimeDuration>();
+				const optional<TimeDuration> monotonic = top->IsPeriodic() ? make_optional_value(_monotonic.Elapsed()) : null;
 
 				ExecuteTask(top);
 

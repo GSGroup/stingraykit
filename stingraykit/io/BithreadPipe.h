@@ -36,7 +36,7 @@ namespace stingray
 			const size_t size = std::min(data.size(), _data->size());
 			std::copy(_data->begin(), _data->begin() + size, data.data());
 
-			_data = size == _data->size() ? null : optional<ConstByteData>(ConstByteData(*_data, size));
+			_data = size == _data->size() ? null : make_optional_value(ConstByteData(*_data, size));
 			if (!_data)
 				_empty.Broadcast();
 
