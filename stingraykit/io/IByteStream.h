@@ -54,7 +54,7 @@ namespace stingray
 			(*result) << static_cast<string_ostream::value_type>(byte);
 		}
 
-		STINGRAYKIT_CHECK(token, OperationCancelledException());
+		STINGRAYKIT_CHECK_CANCELLATION(token);
 		return result ? make_optional_value(result->str()) : null;
 	}
 
