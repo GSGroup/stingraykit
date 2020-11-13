@@ -41,8 +41,6 @@ namespace stingray
 		virtual ISerializablePtr GetObject(const std::string& classname, PrimaryKeyType key) const = 0;
 
 		virtual void ReleaseRef(const std::string& classname, PrimaryKeyType key) const = 0;
-
-		virtual void Flush() = 0;
 	};
 
 	/** @} */
