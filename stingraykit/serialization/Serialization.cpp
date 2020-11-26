@@ -60,7 +60,7 @@ namespace stingray
 	{
 		if (_root->contains<ByteArray>())
 		{
-			ConstByteData storage = _root->get<ByteArray>().GetByteData();
+			ConstByteData storage = _root->get<ByteArray>();
 			data.assign(storage.begin(), storage.end());
 		}
 		else if (_root->contains<std::string>())
