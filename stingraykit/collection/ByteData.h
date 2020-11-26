@@ -241,8 +241,7 @@ namespace stingray
 		void reserve(size_t n)
 		{ _data->reserve(_offset + n); }
 
-		template <typename U>
-		void swap(BasicByteArray<U>& other)
+		void swap(BasicByteArray& other)
 		{
 			_data.swap(other._data);
 			std::swap(_offset, other._offset);
