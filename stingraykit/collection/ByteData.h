@@ -202,8 +202,6 @@ namespace stingray
 		inline size_t GetOffset() const { return _offset; }
 		inline CollectionTypePtr GetData() const { return _data; }
 
-		inline bool CheckIterator(const const_iterator& it) const	{ return it - begin() >= 0 && end() - it > 0; }
-
 		void RequireSize(size_t size)
 		{
 			if (_data->size() < size + _offset)
@@ -411,8 +409,6 @@ namespace stingray
 		BasicByteData(BasicByteData data, size_t offset, size_t size) :
 			_data(data._data + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size, data._size); }
-
-		inline bool CheckIterator(const const_iterator& it) const	{ return std::distance(it, end()) > 0; }
 
 		inline T& operator[](size_t index) const
 		{
