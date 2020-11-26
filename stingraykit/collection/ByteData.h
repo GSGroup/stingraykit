@@ -373,19 +373,9 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		BasicByteData(BasicByteArray<U>& array, size_t offset) :
-			_data(array.data() + offset), _size(array.size() - offset)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, array.size()); }
-
-		template < typename U >
 		BasicByteData(const BasicByteArray<U>& array, size_t offset) :
 			_data(array.data() + offset), _size(array.size() - offset)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, array.size()); }
-
-		template < typename U >
-		BasicByteData(BasicByteArray<U>& array, size_t offset, size_t size) :
-			_data(array.data() + offset), _size(size)
-		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size, array.size()); }
 
 		template < typename U >
 		BasicByteData(const BasicByteArray<U>& array, size_t offset, size_t size) :
