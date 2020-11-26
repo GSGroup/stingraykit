@@ -180,17 +180,17 @@ namespace stingray
 			: _data(make_shared_ptr<CollectionType>(first, last)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
-		template < typename U >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteArray(const BasicByteArray<U>& other)
 			: _data(other.GetData()), _offset(other._offset), _sizeLimit(other._sizeLimit)
 		{ }
 
-		template < typename U >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset)
 			: _data(other.GetData()), _offset(other._offset + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
 		{ STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size())); }
 
-		template < typename U >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit)
 			: _data(other.GetData()), _offset(other._offset + offset), _sizeLimit(sizeLimit)
 		{
@@ -342,7 +342,7 @@ namespace stingray
 			: _data(), _size()
 		{ }
 
-		template < typename U >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteData(BasicByteData<U> data)
 			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
@@ -352,7 +352,7 @@ namespace stingray
 			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
-		template < typename U >
+		template < typename U, typename EnableIf<IsConvertible<const U*, T*>::Value, bool>::ValueT = false >
 		BasicByteData(const std::vector<U>& data)
 			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
@@ -362,22 +362,22 @@ namespace stingray
 			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
-		template < typename U, size_t N >
+		template < typename U, size_t N, typename EnableIf<IsConvertible<const U*, T*>::Value, bool>::ValueT = false >
 		BasicByteData(const array<U, N>& data)
 			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
-		template < typename U >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteData(const BasicByteArray<U>& array)
 			: _data(array.data()), _size(array.size())
 		{ }
 
-		template < typename U >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteData(const BasicByteArray<U>& array, size_t offset)
 			: _data(array.data() + offset), _size(array.size() - offset)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, array.size()); }
 
-		template < typename U >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteData(const BasicByteArray<U>& array, size_t offset, size_t size)
 			: _data(array.data() + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size, array.size()); }
