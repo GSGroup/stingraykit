@@ -202,8 +202,6 @@ namespace stingray
 		inline size_t GetOffset() const { return _offset; }
 		inline CollectionTypePtr GetData() const { return _data; }
 
-		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); }
-
 		inline bool CheckIterator(const const_iterator& it) const	{ return it - begin() >= 0 && end() - it > 0; }
 
 		void RequireSize(size_t size)
@@ -297,7 +295,7 @@ namespace stingray
 
 		template<typename ObjectOStream>
 		void Serialize(ObjectOStream & ar) const
-		{ ar.Serialize("d", GetByteData()); }
+		{ ar.Serialize("d", BasicByteData<T>(*this)); }
 
 		template<typename ObjectIStream>
 		void Deserialize(ObjectIStream & ar)
@@ -413,8 +411,6 @@ namespace stingray
 		BasicByteData(BasicByteData data, size_t offset, size_t size) :
 			_data(data._data + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size, data._size); }
-
-		inline BasicByteData<T> GetByteData() const { return BasicByteData<T>(*this); } //made compatible with array for template classes
 
 		inline bool CheckIterator(const const_iterator& it) const	{ return std::distance(it, end()) > 0; }
 
