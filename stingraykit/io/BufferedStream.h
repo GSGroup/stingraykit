@@ -48,7 +48,7 @@ namespace stingray
 				{
 					if (_bufferSize)
 						SeekStream(Tell());
-					_bufferSize = _stream->Read(_buffer.GetByteData(), token);
+					_bufferSize = _stream->Read(_buffer, token);
 					if (!_bufferSize || _inBufferOffset == _bufferSize)
 						break;
 				}

@@ -19,7 +19,7 @@ namespace stingray
 	{
 		if (_bufferOffset == _bufferSize)
 		{
-			const size_t size = _pipe->Read(_buffer.GetByteData(), token);
+			const size_t size = _pipe->Read(_buffer, token);
 			if (size == 0)
 				return 0;
 
