@@ -65,11 +65,11 @@ namespace stingray
 			return *_ptr;
 		}
 
-		bool equal(const ByteDataIterator &other) const						{ return _ptr == other._ptr; }
+		bool equal(const ByteDataIterator& other) const						{ return _ptr == other._ptr; }
 		void increment()													{ ++_ptr; }
 		void decrement()													{ --_ptr; }
 		void advance(difference_type n)										{ _ptr += n; }
-		difference_type distance_to(const ByteDataIterator &other) const	{ return other._ptr - _ptr; }
+		difference_type distance_to(const ByteDataIterator& other) const	{ return other._ptr - _ptr; }
 	};
 
 
@@ -154,45 +154,45 @@ namespace stingray
 		typedef std::reverse_iterator<iterator>									reverse_iterator;
 		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
 
-		BasicByteArray():
-			_data(make_shared_ptr<CollectionType>()), _offset(0), _sizeLimit(NoSizeLimit)
+		BasicByteArray()
+			: _data(make_shared_ptr<CollectionType>()), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
-		BasicByteArray(const CollectionTypePtr & data):
-			_data(data), _offset(0), _sizeLimit(NoSizeLimit)
+		BasicByteArray(const CollectionTypePtr& data)
+			: _data(data), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
-		explicit BasicByteArray(size_t size):
-			_data(make_shared_ptr<CollectionType>(size)), _offset(0), _sizeLimit(NoSizeLimit)
+		explicit BasicByteArray(size_t size)
+			: _data(make_shared_ptr<CollectionType>(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
-		BasicByteArray(const T* data, size_t size):
-			_data(make_shared_ptr<CollectionType>(data, data + size)), _offset(0), _sizeLimit(NoSizeLimit)
+		BasicByteArray(const T* data, size_t size)
+			: _data(make_shared_ptr<CollectionType>(data, data + size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		template < typename Range >
-		explicit BasicByteArray(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0):
-			_data(make_shared_ptr<CollectionType>(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
+		explicit BasicByteArray(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0)
+			: _data(make_shared_ptr<CollectionType>(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		template < typename InputIterator >
-		BasicByteArray(InputIterator first, InputIterator last):
-			_data(make_shared_ptr<CollectionType>(first, last)), _offset(0), _sizeLimit(NoSizeLimit)
+		BasicByteArray(InputIterator first, InputIterator last)
+			: _data(make_shared_ptr<CollectionType>(first, last)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		template < typename U >
-		BasicByteArray(const BasicByteArray<U>& other):
-			_data(other.GetData()), _offset(other.GetOffset()), _sizeLimit(other._sizeLimit)
+		BasicByteArray(const BasicByteArray<U>& other)
+			: _data(other.GetData()), _offset(other._offset), _sizeLimit(other._sizeLimit)
 		{ }
 
 		template < typename U >
-		BasicByteArray(const BasicByteArray<U>& other, size_t offset):
-			_data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
+		BasicByteArray(const BasicByteArray<U>& other, size_t offset)
+			: _data(other.GetData()), _offset(other._offset + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
 		{ STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size())); }
 
 		template < typename U >
-		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit):
-			_data(other.GetData()), _offset(other.GetOffset() + offset), _sizeLimit(sizeLimit)
+		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit)
+			: _data(other.GetData()), _offset(other._offset + offset), _sizeLimit(sizeLimit)
 		{
 			STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size()));
 			STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size(), IndexOutOfRangeException(_sizeLimit + offset, offset, _data->size()));
@@ -211,7 +211,7 @@ namespace stingray
 			}
 		}
 
-		inline T& operator[](size_t index) const
+		inline T& operator [] (size_t index) const
 		{
 			STINGRAYKIT_CHECK(index < size(), IndexOutOfRangeException(index, size()));
 			return (*_data)[index + _offset];
@@ -290,12 +290,12 @@ namespace stingray
 		inline T* data() const
 		{ return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
 
-		template<typename ObjectOStream>
-		void Serialize(ObjectOStream & ar) const
+		template < typename ObjectOStream >
+		void Serialize(ObjectOStream& ar) const
 		{ ar.Serialize("d", BasicByteData<T>(*this)); }
 
-		template<typename ObjectIStream>
-		void Deserialize(ObjectIStream & ar)
+		template < typename ObjectIStream >
+		void Deserialize(ObjectIStream& ar)
 		{
 			BasicByteArray data;
 			ar.Deserialize("o", data._offset, 0);
@@ -338,68 +338,68 @@ namespace stingray
 		typedef std::reverse_iterator<iterator>									reverse_iterator;
 		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
 
-		BasicByteData() :
-			_data(), _size()
+		BasicByteData()
+			: _data(), _size()
 		{ }
 
 		template < typename U >
-		BasicByteData(BasicByteData<U> data) :
-			_data(data.size() == 0 ? NULL : &data[0]), _size(data.size())
+		BasicByteData(BasicByteData<U> data)
+			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U >
-		BasicByteData(std::vector<U>& data) :
-			_data(data.empty() ? NULL : &data[0]), _size(data.size())
+		BasicByteData(std::vector<U>& data)
+			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U >
-		BasicByteData(const std::vector<U>& data) :
-			_data(data.empty() ? NULL : &data[0]), _size(data.size())
+		BasicByteData(const std::vector<U>& data)
+			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U, size_t N >
-		BasicByteData(array<U, N>& data) :
-			_data(data.empty() ? NULL : &data[0]), _size(data.size())
+		BasicByteData(array<U, N>& data)
+			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U, size_t N >
-		BasicByteData(const array<U, N>& data) :
-			_data(data.empty() ? NULL : &data[0]), _size(data.size())
+		BasicByteData(const array<U, N>& data)
+			: _data(data.empty() ? NULL : &data[0]), _size(data.size())
 		{ }
 
 		template < typename U >
-		BasicByteData(const BasicByteArray<U>& array) :
-			_data(array.data()), _size(array.size())
+		BasicByteData(const BasicByteArray<U>& array)
+			: _data(array.data()), _size(array.size())
 		{ }
 
 		template < typename U >
-		BasicByteData(const BasicByteArray<U>& array, size_t offset) :
-			_data(array.data() + offset), _size(array.size() - offset)
+		BasicByteData(const BasicByteArray<U>& array, size_t offset)
+			: _data(array.data() + offset), _size(array.size() - offset)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, array.size()); }
 
 		template < typename U >
-		BasicByteData(const BasicByteArray<U>& array, size_t offset, size_t size) :
-			_data(array.data() + offset), _size(size)
+		BasicByteData(const BasicByteArray<U>& array, size_t offset, size_t size)
+			: _data(array.data() + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + _size, array.size()); }
 
-		template<typename U, size_t N>
-		BasicByteData(U(&arr)[N]) :
-			_data(&arr[0]), _size(N)
+		template < typename U, size_t N >
+		BasicByteData(U(&arr)[N])
+			: _data(&arr[0]), _size(N)
 		{ }
 
-		BasicByteData(T* data, size_t size) :
-			_data(data), _size(size)
+		BasicByteData(T* data, size_t size)
+			: _data(data), _size(size)
 		{ }
 
-		BasicByteData(BasicByteData data, size_t offset) :
-			_data(data._data + offset), _size(data._size - offset)
+		BasicByteData(BasicByteData data, size_t offset)
+			: _data(data._data + offset), _size(data._size - offset)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset, data._size); }
 
-		BasicByteData(BasicByteData data, size_t offset, size_t size) :
-			_data(data._data + offset), _size(size)
+		BasicByteData(BasicByteData data, size_t offset, size_t size)
+			: _data(data._data + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size, data._size); }
 
-		inline T& operator[](size_t index) const
+		inline T& operator [] (size_t index) const
 		{
 			STINGRAYKIT_CHECK(index < _size, IndexOutOfRangeException(index, _size));
 			return _data[index];
