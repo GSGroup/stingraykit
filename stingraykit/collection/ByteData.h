@@ -122,6 +122,9 @@ namespace stingray
 	template < typename T >
 	class BasicByteArray
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(BasicByteArray);
+		STINGRAYKIT_DEFAULTMOVABLE(BasicByteArray);
+
 		template < typename U >
 		friend class BasicByteArray;
 
