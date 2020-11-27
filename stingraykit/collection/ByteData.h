@@ -201,11 +201,9 @@ namespace stingray
 
 		void RequireSize(size_t size)
 		{
+			STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit, NotImplementedException());
 			if (_data->size() < size + _offset)
-			{
-				STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit, NotImplementedException());
 				_data->resize(size + _offset);
-			}
 		}
 
 		inline T& operator [] (size_t index) const
@@ -236,7 +234,10 @@ namespace stingray
 		{ append(other.data(), other.data() + other.size()); }
 
 		void reserve(size_t n)
-		{ _data->reserve(_offset + n); }
+		{
+			STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit, NotImplementedException());
+			_data->reserve(_offset + n);
+		}
 
 		void swap(BasicByteArray& other)
 		{
