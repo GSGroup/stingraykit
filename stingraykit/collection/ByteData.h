@@ -213,10 +213,10 @@ namespace stingray
 		}
 
 		inline size_t size() const
-		{ return std::min(_data->size() - _offset, _sizeLimit); }
+		{ return _data->size() >= _offset ? std::min(_data->size() - _offset, _sizeLimit) : 0; }
 
 		inline bool empty() const
-		{ return ((int)(_data->size()) - (int)_offset) <= 0; }
+		{ return size() == 0; }
 
 		template < typename InputIterator >
 		void append(InputIterator first, InputIterator last)
