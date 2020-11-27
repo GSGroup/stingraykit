@@ -286,7 +286,7 @@ namespace stingray
 		{ return const_reverse_iterator(begin()); }
 
 		inline T* data() const
-		{ return (_data->empty() ? NULL : &(*_data)[0]) + _offset; }
+		{ return empty() ? NULL : &(*_data)[_offset]; }
 
 		template < typename ObjectOStream >
 		void Serialize(ObjectOStream& ar) const
