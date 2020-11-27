@@ -182,25 +182,22 @@ namespace stingray
 
 		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteArray(const BasicByteArray<U>& other)
-			: _data(other.GetData()), _offset(other._offset), _sizeLimit(other._sizeLimit)
+			: _data(other._data), _offset(other._offset), _sizeLimit(other._sizeLimit)
 		{ }
 
 		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset)
-			: _data(other.GetData()), _offset(other._offset + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
+			: _data(other._data), _offset(other._offset + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
 		{ STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size())); }
 
 		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit)
-			: _data(other.GetData()), _offset(other._offset + offset), _sizeLimit(sizeLimit)
+			: _data(other._data), _offset(other._offset + offset), _sizeLimit(sizeLimit)
 		{
 			STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size()));
 			STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size(), IndexOutOfRangeException(_sizeLimit + offset, offset, _data->size()));
 			STINGRAYKIT_CHECK(_sizeLimit + offset <= other._sizeLimit, IndexOutOfRangeException(_sizeLimit + offset, offset, other._sizeLimit));
 		}
-
-		inline size_t GetOffset() const { return _offset; }
-		inline CollectionTypePtr GetData() const { return _data; }
 
 		void RequireSize(size_t size)
 		{
