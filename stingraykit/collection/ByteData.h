@@ -305,7 +305,11 @@ namespace stingray
 		}
 
 		std::string ToString() const
-		{ return "BasicByteArray<" + TypeInfo(typeid(T)).GetName() + "> { size : " + stingray::ToString(_data->size()) + " }"; }
+		{
+			string_ostream stream;
+			stream << "BasicByteArray<" << TypeInfo(typeid(T)).GetName() << "> { size: " << stingray::ToString(size()) << " }";
+			return stream.str();
+		}
 
 		template < typename U >
 		bool operator == (const BasicByteArray<U>& other) const
