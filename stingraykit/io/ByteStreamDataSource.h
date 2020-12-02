@@ -26,7 +26,7 @@ namespace stingray
 	public:
 		explicit ByteStreamDataSource(const IByteStreamPtr& stream, size_t bufferSize = DefaultBufferSize)
 			: _stream(STINGRAYKIT_REQUIRE_NOT_NULL(stream)), _buffer(bufferSize)
-		{ }
+		{ STINGRAYKIT_CHECK(bufferSize != 0, ArgumentException("bufferSize")); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
 		{
@@ -38,7 +38,14 @@ namespace stingray
 			if (read != _buffer.size())
 				consumer.EndOfData(token);
 		}
+
+		void Seek(s64 offset, SeekMode mode = SeekMode::Begin)
+		{ _stream->Seek(offset, mode); }
+
+		u64 Tell() const
+		{ return _stream->Tell(); }
 	};
+	STINGRAYKIT_DECLARE_PTR(ByteStreamDataSource);
 
 }
 
