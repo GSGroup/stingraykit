@@ -93,8 +93,8 @@ namespace stingray
 #define STINGRAYKIT_DECLARE_ENUM_CLASS(ClassName) \
 		friend class stingray::Detail::EnumToStringMapInstance<ClassName>; \
 	public: \
-		std::string ToString() const					{ return stingray::Detail::EnumToStringMap<ClassName>::EnumToString(_enumVal); } \
-		static Enum FromString(const std::string& str)	{ return stingray::Detail::EnumToStringMap<ClassName>::EnumFromString(str); } \
+		std::string ToString() const						{ return stingray::Detail::EnumToStringMap<ClassName>::EnumToString(_enumVal); } \
+		static ClassName FromString(const std::string& str)	{ return stingray::Detail::EnumToStringMap<ClassName>::EnumFromString(str); } \
 		typedef stingray::Detail::EnumIterator<ClassName> const_iterator; \
 		static const_iterator begin()					{ return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
 		static const_iterator end()						{ return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
