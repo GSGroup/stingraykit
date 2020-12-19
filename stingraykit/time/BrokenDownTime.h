@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/Types.h>
 
 #include <string>
@@ -33,7 +32,7 @@ namespace stingray
 		s16		YearDay;
 		s16		Year;
 
-		BrokenDownTime(): Milliseconds(), Seconds(), Minutes(), Hours(), WeekDay(), MonthDay(), Month(1), YearDay(1), Year(1970)
+		BrokenDownTime(): Milliseconds(), Seconds(), Minutes(), Hours(), WeekDay(), MonthDay(1), Month(1), YearDay(1), Year(1970)
 		{ }
 
 		BrokenDownTime(s16 milliseconds, s16 seconds, s16 minutes, s16 hours, s16 weekDay, s16 monthDay, s16 month, s16 yearDay, s16 year) :
@@ -54,6 +53,5 @@ namespace stingray
 	/** @} */
 
 }
-
 
 #endif
