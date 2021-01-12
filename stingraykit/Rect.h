@@ -16,20 +16,20 @@ namespace stingray
 	struct Size
 	{
 		int Width, Height;
-		inline Size(): Width(), Height() {}
-		inline Size(int w, int h): Width(w), Height(h) {}
+		Size(): Width(), Height() {}
+		Size(int w, int h): Width(w), Height(h) {}
 
-		inline Size operator + (const Size& other) const	{ return Size(Width + other.Width, Height + other.Height); }
-		inline Size operator - (const Size& other) const	{ return Size(Width - other.Width, Height - other.Height); }
-		inline Size& operator += (const Size& other)		{ Width += other.Width; Height += other.Height; return *this; }
-		inline Size& operator -= (const Size& other)		{ Width -= other.Width; Height -= other.Height; return *this; }
-		inline Size operator * (int k)						{ return Size(Width * k, Height * k); }
-		inline Size operator / (int k)						{ return Size(Width / k, Height / k); }
-		inline Size operator / (const Size & other) const	{ return Size(Width / other.Width, Height / other.Height); }
-		inline bool Valid() const							{ return Width > 0 && Height > 0; }
+		Size operator + (const Size& other) const			{ return Size(Width + other.Width, Height + other.Height); }
+		Size operator - (const Size& other) const			{ return Size(Width - other.Width, Height - other.Height); }
+		Size& operator += (const Size& other)				{ Width += other.Width; Height += other.Height; return *this; }
+		Size& operator -= (const Size& other)				{ Width -= other.Width; Height -= other.Height; return *this; }
+		Size operator * (int k)								{ return Size(Width * k, Height * k); }
+		Size operator / (int k)								{ return Size(Width / k, Height / k); }
+		Size operator / (const Size & other) const			{ return Size(Width / other.Width, Height / other.Height); }
+		bool Valid() const									{ return Width > 0 && Height > 0; }
 
-		inline bool operator==(const Size &other) const		{ return Width == other.Width && Height == other.Height; }
-		inline bool operator!=(const Size &other) const		{ return !((*this) == other); }
+		bool operator==(const Size &other) const			{ return Width == other.Width && Height == other.Height; }
+		bool operator!=(const Size &other) const			{ return !((*this) == other); }
 
 		std::string ToString() const						{ return StringBuilder() % "(" % Width % ", " % Height % ")"; }
 
@@ -64,7 +64,7 @@ namespace stingray
 		BasicPosition<ValueType> GetRightBottom() const		{ return BasicPosition<ValueType>(X2, Y2); }
 		Size GetSize() const								{ return Size(W(), H()); }
 
-		inline bool Intersects(const BasicRect &other) const
+		bool Intersects(const BasicRect &other) const
 		{ return X1 <= other.X2 && X2 >= other.X1 && Y1 <= other.Y2 && Y2 >= other.Y1; }
 
 		BasicRect Intersect(const BasicRect& other) const
