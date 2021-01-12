@@ -15,9 +15,11 @@ namespace stingray
 
 	struct Size
 	{
-		int Width, Height;
-		Size(): Width(), Height() {}
-		Size(int w, int h): Width(w), Height(h) {}
+		int		Width;
+		int		Height;
+
+		Size() : Width(), Height() { }
+		Size(int width, int height) : Width(width), Height(height) { }
 
 		Size operator + (const Size& other) const			{ return Size(Width + other.Width, Height + other.Height); }
 		Size operator - (const Size& other) const			{ return Size(Width - other.Width, Height - other.Height); }
@@ -25,30 +27,40 @@ namespace stingray
 		Size& operator -= (const Size& other)				{ Width -= other.Width; Height -= other.Height; return *this; }
 		Size operator * (int k)								{ return Size(Width * k, Height * k); }
 		Size operator / (int k)								{ return Size(Width / k, Height / k); }
-		Size operator / (const Size & other) const			{ return Size(Width / other.Width, Height / other.Height); }
+		Size operator / (const Size& other) const			{ return Size(Width / other.Width, Height / other.Height); }
+
 		bool Valid() const									{ return Width > 0 && Height > 0; }
 
-		bool operator==(const Size &other) const			{ return Width == other.Width && Height == other.Height; }
-		bool operator!=(const Size &other) const			{ return !((*this) == other); }
+		bool operator == (const Size& other) const			{ return Width == other.Width && Height == other.Height; }
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(Size);
 
 		std::string ToString() const						{ return StringBuilder() % "(" % Width % ", " % Height % ")"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
-		{ ar.Serialize("w", Width).Serialize("h", Height); }
+		{
+			ar.Serialize("w", Width);
+			ar.Serialize("h", Height);
+		}
 
 		template < typename IStream >
 		void Deserialize(IStream& ar)
-		{ ar.Deserialize("w", Width).Deserialize("h", Height); }
+		{
+			ar.Deserialize("w", Width);
+			ar.Deserialize("h", Height);
+		}
 	};
 
 
-	template<typename ValueType_>
+	template < typename ValueType_ >
 	struct BasicRect
 	{
 		typedef ValueType_ ValueType;
 
-		ValueType X1, Y1, X2, Y2;
+		ValueType		X1;
+		ValueType		Y1;
+		ValueType		X2;
+		ValueType		Y2;
 
 		BasicRect() : X1(0), Y1(0), X2(0), Y2(0) { }
 		BasicRect(ValueType x1, ValueType y1, ValueType x2, ValueType y2) : X1(x1), Y1(y1), X2(x2), Y2(y2) { }
@@ -60,11 +72,13 @@ namespace stingray
 
 		BasicRect Move(BasicPosition<ValueType> d) const	{ return BasicRect(X1 + d.X, Y1 + d.Y, X2 + d.X, Y2 + d.Y); }
 		BasicRect Move(ValueType dx, ValueType dy) const	{ return BasicRect(X1 + dx, Y1 + dy, X2 + dx, Y2 + dy); }
+
 		BasicPosition<ValueType> GetTopLeft() const			{ return BasicPosition<ValueType>(X1, Y1); }
 		BasicPosition<ValueType> GetRightBottom() const		{ return BasicPosition<ValueType>(X2, Y2); }
+
 		Size GetSize() const								{ return Size(W(), H()); }
 
-		bool Intersects(const BasicRect &other) const
+		bool Intersects(const BasicRect& other) const
 		{ return X1 <= other.X2 && X2 >= other.X1 && Y1 <= other.Y2 && Y2 >= other.Y1; }
 
 		BasicRect Intersect(const BasicRect& other) const
@@ -74,15 +88,25 @@ namespace stingray
 		bool Valid() const									{ return X2 > X1 && Y2 > Y1; }
 
 		bool operator == (const BasicRect& other) const		{ return GetTopLeft() == other.GetTopLeft() && GetRightBottom() == other.GetRightBottom(); }
-		bool operator != (const BasicRect& other) const		{ return !((*this) == other); }
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicRect);
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
-		{ ar.Serialize("x1", X1).Serialize("y1", Y1).Serialize("x2", X2).Serialize("y2", Y2); }
+		{
+			ar.Serialize("x1", X1);
+			ar.Serialize("y1", Y1);
+			ar.Serialize("x2", X2);
+			ar.Serialize("y2", Y2);
+		}
 
 		template < typename IStream >
 		void Deserialize(IStream& ar)
-		{ ar.Deserialize("x1", X1).Deserialize("y1", Y1).Deserialize("x2", X2).Deserialize("y2", Y2); }
+		{
+			ar.Deserialize("x1", X1);
+			ar.Deserialize("y1", Y1);
+			ar.Deserialize("x2", X2);
+			ar.Deserialize("y2", Y2);
+		}
 	};
 	typedef BasicRect<int> Rect;
 
