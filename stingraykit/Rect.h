@@ -67,8 +67,8 @@ namespace stingray
 		BasicRect(ValueType w, ValueType h) : X1(0), Y1(0), X2(w), Y2(h) { }
 		BasicRect(Size size) : X1(0), Y1(0), X2(size.Width), Y2(size.Height) { }
 
-		ValueType W() const	{ return X2 - X1; }
-		ValueType H() const	{ return Y2 - Y1; }
+		ValueType GetWidth() const	{ return X2 - X1; }
+		ValueType GetHeight() const	{ return Y2 - Y1; }
 
 		BasicRect Move(BasicPosition<ValueType> d) const	{ return BasicRect(X1 + d.X, Y1 + d.Y, X2 + d.X, Y2 + d.Y); }
 		BasicRect Move(ValueType dx, ValueType dy) const	{ return BasicRect(X1 + dx, Y1 + dy, X2 + dx, Y2 + dy); }
@@ -76,7 +76,7 @@ namespace stingray
 		BasicPosition<ValueType> GetTopLeft() const			{ return BasicPosition<ValueType>(X1, Y1); }
 		BasicPosition<ValueType> GetRightBottom() const		{ return BasicPosition<ValueType>(X2, Y2); }
 
-		Size GetSize() const								{ return Size(W(), H()); }
+		Size GetSize() const								{ return Size(GetWidth(), GetHeight()); }
 
 		bool Intersects(const BasicRect& other) const
 		{ return X1 <= other.X2 && X2 >= other.X1 && Y1 <= other.Y2 && Y2 >= other.Y1; }
