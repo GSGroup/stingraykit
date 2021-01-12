@@ -25,8 +25,8 @@ namespace stingray
 		Size operator - (const Size& other) const			{ return Size(Width - other.Width, Height - other.Height); }
 		Size& operator += (const Size& other)				{ Width += other.Width; Height += other.Height; return *this; }
 		Size& operator -= (const Size& other)				{ Width -= other.Width; Height -= other.Height; return *this; }
-		Size operator * (int k)								{ return Size(Width * k, Height * k); }
-		Size operator / (int k)								{ return Size(Width / k, Height / k); }
+		Size operator * (int k) const						{ return Size(Width * k, Height * k); }
+		Size operator / (int k) const						{ return Size(Width / k, Height / k); }
 		Size operator / (const Size& other) const			{ return Size(Width / other.Width, Height / other.Height); }
 
 		bool Valid() const									{ return Width > 0 && Height > 0; }
