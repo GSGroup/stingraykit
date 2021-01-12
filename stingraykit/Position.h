@@ -8,18 +8,16 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/string/ToString.h>
-
 
 namespace stingray
 {
 
-
-	template<typename ValueType>
+	template < typename ValueType >
 	struct BasicPosition
 	{
-		ValueType X, Y;
+		ValueType	X;
+		ValueType	Y;
 
 		BasicPosition() : X(0), Y(0) { }
 		BasicPosition(ValueType x, ValueType y) : X(x), Y(y) { }
@@ -27,21 +25,25 @@ namespace stingray
 		std::string ToString() const						{ return StringBuilder() % "(" % X % ", " % Y % ")"; }
 
 		bool operator == (const BasicPosition& other) const	{ return X == other.X && Y == other.Y; }
-		bool operator != (const BasicPosition& other) const	{ return !((*this) == other); }
-
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicPosition);
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
-		{ ar.Serialize("x", X).Serialize("y", Y); }
+		{
+			ar.Serialize("x", X);
+			ar.Serialize("y", Y);
+		}
 
 		template < typename IStream >
 		void Deserialize(IStream& ar)
-		{ ar.Deserialize("x", X).Deserialize("y", Y); }
+		{
+			ar.Deserialize("x", X);
+			ar.Deserialize("y", Y);
+		}
 	};
+
 	typedef BasicPosition<int> Position;
 
-
 }
-
 
 #endif
