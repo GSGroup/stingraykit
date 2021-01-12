@@ -52,6 +52,37 @@ namespace stingray
 	};
 
 
+	struct SizeScale
+	{
+		int		WidthScale;
+		int		HeightScale;
+
+		SizeScale() : WidthScale(), HeightScale() { }
+		SizeScale(int widthScale, int heightScale) : WidthScale(widthScale), HeightScale(heightScale) { }
+
+		bool Valid() const									{ return WidthScale > 0 && HeightScale > 0; }
+
+		bool operator == (const SizeScale& other) const			{ return WidthScale == other.WidthScale && HeightScale == other.HeightScale; }
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(SizeScale);
+
+		std::string ToString() const						{ return StringBuilder() % "(" % WidthScale % ":" % HeightScale % ")"; }
+
+		template < typename OStream >
+		void Serialize(OStream& ar) const
+		{
+			ar.Serialize("ws", WidthScale);
+			ar.Serialize("hs", HeightScale);
+		}
+
+		template < typename IStream >
+		void Deserialize(IStream& ar)
+		{
+			ar.Deserialize("ws", WidthScale);
+			ar.Deserialize("hs", HeightScale);
+		}
+	};
+
+
 	template < typename ValueType_ >
 	struct BasicRect
 	{
