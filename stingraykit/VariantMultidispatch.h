@@ -83,6 +83,25 @@ namespace stingray
 		return apply_visitor(Detail::MultiDispatchVisitor<const Multivisitor_, VariantTypes, TypeList<>>(multivisitor, Tuple<VariantTypes>(var2), Tuple<TypeList<>>()), var1);
 	}
 
+
+	template < typename Multivisitor_ >
+	class Multidispatcher : public function_info<typename Multivisitor_::RetType, UnspecifiedParamTypes>
+	{
+	private:
+		Multivisitor_	_visitor;
+
+	public:
+		explicit Multidispatcher(const Multivisitor_& visitor) : _visitor(visitor) { }
+
+		template < typename VariantType1_, typename VariantType2_ >
+		typename Multivisitor_::RetType operator () (const VariantType1_& var1, const VariantType2_& var2) const { return Multidispatch(_visitor, var1, var2); }
+	};
+
+
+	template < typename Multivisitor_ >
+	Multidispatcher<Multivisitor_> MakeMultidispatcher(const Multivisitor_& visitor)
+	{ return Multidispatcher<Multivisitor_>(visitor); }
+
 	/** @} */
 
 }
