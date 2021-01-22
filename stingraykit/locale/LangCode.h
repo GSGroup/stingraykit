@@ -41,6 +41,7 @@ namespace stingray
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LangCode);
 
 		std::string ToString() const;
+		std::string To2LetterString() const;
 
 		static LangCode FromString(const std::string& code)
 		{ return code.size() == 2 ? From2Letter(code) : From3Letter(code); }

@@ -19,6 +19,10 @@ namespace stingray
 		{ return c >= 'a' && c <= 'z'? c - 'a' + 'A' : c; }
 
 
+		char DoToLower(char c)
+		{ return c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c; }
+
+
 		u32 ToUpper(u32 code)
 		{
 			if (code == 0)
@@ -71,6 +75,13 @@ namespace stingray
 			return std::string();
 
 		const char r[4] = { (char)((_code >> 16) & 0xff), (char)((_code >> 8) & 0xff), (char)((_code >> 0) & 0xff), 0 };
+		return r;
+	}
+
+
+	std::string LangCode::To2LetterString() const
+	{
+		const char r[3] = { DoToLower((char)((_code >> 16) & 0xff)), DoToLower((char)((_code >> 8) & 0xff)), 0 };
 		return r;
 	}
 
