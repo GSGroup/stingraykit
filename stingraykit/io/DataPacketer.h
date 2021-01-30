@@ -14,7 +14,6 @@
 namespace stingray
 {
 
-
 	class ConsumerDepacketer : public virtual IPacketConsumer<EmptyType>
 	{
 	private:
@@ -22,26 +21,23 @@ namespace stingray
 		IDataConsumer&		_consumer;
 
 	public:
-		ConsumerDepacketer(const IDataConsumerPtr& consumer)
+		explicit ConsumerDepacketer(const IDataConsumerPtr& consumer)
 			:	_lifeAssurance(consumer),
 				_consumer(*_lifeAssurance)
-		{}
+		{ }
 
-
-		ConsumerDepacketer(IDataConsumer& consumer)
+		explicit ConsumerDepacketer(IDataConsumer& consumer)
 			:	_lifeAssurance(null),
 				_consumer(consumer)
-		{}
+		{ }
 
-
-		virtual bool Process(const Packet<EmptyType>& packet, const ICancellationToken& token)
+		bool Process(const Packet<EmptyType>& packet, const ICancellationToken& token) override
 		{
 			ConsumeAll(_consumer, packet.GetData(), token);
 			return true;
 		}
 
-
-		virtual void EndOfData()
+		void EndOfData() override
 		{ _consumer.EndOfData(DummyCancellationToken()); }
 	};
 	STINGRAYKIT_DECLARE_PTR(ConsumerDepacketer);
@@ -49,7 +45,7 @@ namespace stingray
 
 	class ConsumerPacketer : public virtual IDataConsumer
 	{
-		typedef IPacketConsumer<EmptyType> PacketConsumer;
+		using PacketConsumer = IPacketConsumer<EmptyType>;
 		STINGRAYKIT_DECLARE_PTR(PacketConsumer);
 
 	private:
@@ -58,28 +54,25 @@ namespace stingray
 		optional<size_t>	_packetSize;
 
 	public:
-		ConsumerPacketer(const PacketConsumerPtr& consumer, optional<size_t> packetSize = null)
+		explicit ConsumerPacketer(const PacketConsumerPtr& consumer, optional<size_t> packetSize = null)
 			:	_lifeAssurance(consumer),
 				_consumer(*_lifeAssurance),
 				_packetSize(packetSize)
-		{}
+		{ }
 
-
-		ConsumerPacketer(PacketConsumer& consumer, optional<size_t> packetSize = null)
+		explicit ConsumerPacketer(PacketConsumer& consumer, optional<size_t> packetSize = null)
 			:	_lifeAssurance(null),
 				_consumer(consumer),
 				_packetSize(packetSize)
-		{}
+		{ }
 
-
-		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
+		size_t Process(ConstByteData data, const ICancellationToken& token) override
 		{
-			ConstByteData packetData(data, 0, (_packetSize ? *_packetSize : data.size()));
+			ConstByteData packetData(data, 0, _packetSize.get_value_or(data.size()));
 			return _consumer.Process(Packet<EmptyType>(packetData), token) ? packetData.size() : 0;
 		}
 
-
-		virtual void EndOfData(const ICancellationToken&)
+		void EndOfData(const ICancellationToken&) override
 		{ _consumer.EndOfData(); }
 	};
 	STINGRAYKIT_DECLARE_PTR(ConsumerPacketer);
@@ -93,19 +86,19 @@ namespace stingray
 		optional<size_t>		_packetSize;
 
 	public:
-		DataPacketer(const IDataSourcePtr& source, optional<size_t> packetSize = null)
+		explicit DataPacketer(const IDataSourcePtr& source, optional<size_t> packetSize = null)
 			:	_lifeAssurance(source),
 				_source(*_lifeAssurance),
 				_packetSize(packetSize)
 		{ }
 
-		DataPacketer(IDataSource& source, optional<size_t> packetSize = null)
+		explicit DataPacketer(IDataSource& source, optional<size_t> packetSize = null)
 			:	_lifeAssurance(null),
 				_source(source),
 				_packetSize(packetSize)
 		{ }
 
-		virtual void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token)
+		void Read(IPacketConsumer<EmptyType>& consumer, const ICancellationToken& token) override
 		{
 			ConsumerPacketer packeter(consumer, _packetSize);
 			_source.Read(packeter, token);
@@ -116,7 +109,7 @@ namespace stingray
 
 	class DataDepacketer : public virtual IDataSource
 	{
-		typedef IPacketSource<EmptyType> PacketSource;
+		using PacketSource = IPacketSource<EmptyType>;
 		STINGRAYKIT_DECLARE_PTR(PacketSource);
 
 	private:
@@ -124,17 +117,17 @@ namespace stingray
 		PacketSource&		_source;
 
 	public:
-		DataDepacketer(const PacketSourcePtr& source)
+		explicit DataDepacketer(const PacketSourcePtr& source)
 			:	_lifeAssurance(source),
 				_source(*_lifeAssurance)
 		{ }
 
-		DataDepacketer(PacketSource& source)
+		explicit DataDepacketer(PacketSource& source)
 			:	_lifeAssurance(null),
 				_source(source)
 		{ }
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{ ConsumerDepacketer depacketer(consumer); _source.Read(depacketer, token); }
 	};
 	STINGRAYKIT_DECLARE_PTR(DataDepacketer);
