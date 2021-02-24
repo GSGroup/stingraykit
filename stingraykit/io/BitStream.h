@@ -189,7 +189,7 @@ namespace stingray
 		}
 
 		template < size_t LengthPrefixSize >
-		void WriteLengthPrefixedArray(const ConstByteArray &data)
+		void WriteLengthPrefixedArray(ConstByteData data)
 		{
 			Write<LengthPrefixSize>(data.size());
 			WriteArray<8>(data.begin(), data.end());
