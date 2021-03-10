@@ -496,7 +496,7 @@ namespace stingray
 			}
 		}
 
-		virtual ThreadId GetId()
+		virtual ThreadId GetId() const
 		{ return _data->GetKernelId(); }
 
 		virtual IThreadInfoPtr GetThreadInfo() const

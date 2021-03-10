@@ -129,7 +129,7 @@ namespace stingray
 
 		virtual ~IThread() { }
 		virtual void Interrupt() = 0;
-		virtual ThreadId GetId() = 0;
+		virtual ThreadId GetId() const = 0;
 		virtual IThreadInfoPtr GetThreadInfo() const = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(IThread);

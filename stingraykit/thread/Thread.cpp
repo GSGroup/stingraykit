@@ -49,7 +49,7 @@ namespace stingray
 	void Thread::Interrupt()
 	{ _thread->Interrupt(); }
 
-	IThread::ThreadId Thread::GetId()
+	IThread::ThreadId Thread::GetId() const
 	{ return _thread->GetId(); }
 
 	void Thread::InterruptionPoint()

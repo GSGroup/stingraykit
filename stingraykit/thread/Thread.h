@@ -124,7 +124,7 @@ namespace stingray
 		~Thread();
 
 		void Interrupt();
-		ThreadId GetId();
+		ThreadId GetId() const;
 
 		static void InterruptionPoint();
 		static void Yield();
