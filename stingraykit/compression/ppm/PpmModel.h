@@ -236,7 +236,7 @@ namespace stingray
 
 			optional<SymbolCount> GetMinimalCount() const
 			{
-				optional<SymbolCount> myMinimal = _entries.empty() ? optional<SymbolCount>() : _entries.back().GetCount();
+				optional<SymbolCount> myMinimal = _entries.empty() ? null : make_optional_value(_entries.back().GetCount());
 				optional<SymbolCount> childMinimal = _childCompacificator.GetMinimalCount();
 				if (!myMinimal)
 					return childMinimal;
