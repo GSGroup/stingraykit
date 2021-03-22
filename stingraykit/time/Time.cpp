@@ -136,9 +136,22 @@ namespace stingray
 		STINGRAYKIT_CHECK(!str.empty(), FormatException(str));
 
 		const optional<char> sign = str[0] == '+' || str[0] == '-' ? make_optional_value(str[0]) : null;
+		const auto delimiterPos = str.find(':');
 
 		int hours, minutes;
-		STINGRAYKIT_CHECK(sscanf(str.c_str() + (sign ? 1 : 0), "%d:%d", &hours, &minutes) == 2, FormatException(str));
+		if (delimiterPos != std::string::npos)
+		{
+			STINGRAYKIT_CHECK(StringParse(sign ? str.substr(1) : str, "%1%:%2%", hours, minutes), FormatException(str));
+		}
+		else
+		{
+			const size_t baseIndex = sign ? 1 : 0;
+			const auto strSize = str.size();
+			STINGRAYKIT_CHECK(strSize == baseIndex + 2 || strSize == baseIndex + 4, FormatException(str));
+
+			hours = stingray::FromString<int>(str.substr(baseIndex, 2));
+			minutes = strSize > baseIndex + 2 ? stingray::FromString<int>(str.substr(baseIndex + 2, 2)) : 0;
+		}
 
 		const int value = hours * MinutesPerHour + minutes;
 		return TimeZone(!sign || *sign == '+' ? value : -value);
