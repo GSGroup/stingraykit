@@ -8,12 +8,12 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/io/BufferedDataConsumerBase.h>
+#include <stingraykit/io/BufferedDataConsumer.h>
 
 namespace stingray
 {
 
-	class DataBuffer : public virtual IDataBuffer, public BufferedDataConsumerBase
+	class DataBuffer : public virtual IDataBuffer
 	{
 	public:
 		struct Parameters
@@ -34,11 +34,15 @@ namespace stingray
 	private:
 		static NamedLogger		s_logger;
 
+		SharedCircularBufferPtr	_buffer;
+		BufferedDataConsumer	_consumer;
+
 		const size_t			_outputPacketSize;
 
 	public:
 		DataBuffer(bool discardOnOverflow, size_t size, Parameters parameters = Parameters())
-			:	BufferedDataConsumerBase(discardOnOverflow, size, parameters.InputPacketSize, parameters.RequiredFreeSpace),
+			:	_buffer(make_shared_ptr<SharedCircularBuffer>(size)),
+				_consumer(_buffer, discardOnOverflow, parameters.InputPacketSize, parameters.RequiredFreeSpace),
 				_outputPacketSize(parameters.OutputPacketSize)
 		{
 			STINGRAYKIT_CHECK(parameters.OutputPacketSize != 0, ArgumentException("parameters.OutputPacketSize", parameters.OutputPacketSize));
@@ -46,26 +50,27 @@ namespace stingray
 		}
 
 		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, Parameters parameters = Parameters())
-			:	BufferedDataConsumerBase(discardOnOverflow, storage, parameters.InputPacketSize, parameters.RequiredFreeSpace),
+			:	_buffer(make_shared_ptr<SharedCircularBuffer>(storage)),
+				_consumer(_buffer, discardOnOverflow, parameters.InputPacketSize, parameters.RequiredFreeSpace),
 				_outputPacketSize(parameters.OutputPacketSize)
 		{
 			STINGRAYKIT_CHECK(parameters.OutputPacketSize != 0, ArgumentException("parameters.OutputPacketSize", parameters.OutputPacketSize));
-			STINGRAYKIT_CHECK(_buffer.GetTotalSize() % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+			STINGRAYKIT_CHECK(_buffer->_buffer.GetTotalSize() % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
-			MutexLock l(_bufferMutex);
-			ReadLock rl(*this);
+			MutexLock l(_buffer->_bufferMutex);
+			SharedCircularBuffer::ReadLock rl(*_buffer);
 
-			BithreadCircularBuffer::Reader r = _buffer.Read();
+			BithreadCircularBuffer::Reader r = _buffer->_buffer.Read();
 
 			size_t packetized_size = r.size() / _outputPacketSize * _outputPacketSize;
 			if (packetized_size == 0)
 			{
-				if (_exception)
-					RethrowException(_exception);
-				else if (_eod)
+				if (_buffer->_exception)
+					RethrowException(_buffer->_exception);
+				else if (_buffer->_eod)
 				{
 					if (r.size() != 0)
 						s_logger.Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
@@ -74,13 +79,13 @@ namespace stingray
 					return;
 				}
 
-				_bufferEmpty.Wait(_bufferMutex, token);
+				_buffer->_bufferEmpty.Wait(_buffer->_bufferMutex, token);
 				return;
 			}
 
 			size_t processed_size = 0;
 			{
-				MutexUnlock ul(_bufferMutex);
+				MutexUnlock ul(_buffer->_bufferMutex);
 				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, packetized_size), token);
 			}
 
@@ -94,42 +99,48 @@ namespace stingray
 			}
 
 			r.Pop(processed_size);
-			_bufferFull.Broadcast();
+			_buffer->_bufferFull.Broadcast();
 		}
 
+		size_t Process(ConstByteData data, const ICancellationToken& token) override
+		{ return _consumer.Process(data, token); }
+
+		void EndOfData(const ICancellationToken& token) override
+		{ _consumer.EndOfData(token); }
+
 		size_t GetDataSize() const override
-		{ return BufferedDataConsumerBase::GetDataSize(); }
+		{ return _buffer->GetDataSize(); }
 
 		size_t GetFreeSize() const override
-		{ return BufferedDataConsumerBase::GetFreeSize(); }
+		{ return _buffer->GetFreeSize(); }
 
 		size_t GetStorageSize() const override
-		{ return BufferedDataConsumerBase::GetStorageSize(); }
+		{ return _buffer->GetStorageSize(); }
 
 		bool HasEndOfDataOrException() const override
-		{ return BufferedDataConsumerBase::HasEndOfDataOrException(); }
+		{ return _buffer->HasEndOfDataOrException(); }
 
 		void WaitForData(size_t threshold, const ICancellationToken& token) override
 		{
-			STINGRAYKIT_CHECK(threshold > 0 && threshold % _outputPacketSize == 0 && threshold < BufferedDataConsumerBase::GetStorageSize(),
+			STINGRAYKIT_CHECK(threshold > 0 && threshold % _outputPacketSize == 0 && threshold < _buffer->GetStorageSize(),
 					ArgumentException("threshold", threshold));
 
-			MutexLock l(_bufferMutex);
-			ReadLock rl(*this);
+			MutexLock l(_buffer->_bufferMutex);
+			SharedCircularBuffer::ReadLock rl(*_buffer);
 
-			while (BufferedDataConsumerBase::GetDataSize() < threshold && !_eod && !_exception)
-				if (_bufferEmpty.Wait(_bufferMutex, token) != ConditionWaitResult::Broadcasted)
+			while (GetDataSize() < threshold && !_buffer->_eod && !_buffer->_exception)
+				if (_buffer->_bufferEmpty.Wait(_buffer->_bufferMutex, token) != ConditionWaitResult::Broadcasted)
 					break;
 		}
 
 		void SetException(const std::exception& ex, const ICancellationToken& token) override
-		{ BufferedDataConsumerBase::SetException(ex, token); }
+		{ _buffer->SetException(ex, token); }
 
 		void Clear() override
-		{ BufferedDataConsumerBase::Clear(); }
+		{ _buffer->Clear(); }
 
 		signal_connector<void(size_t)> OnOverflow() const override
-		{ return BufferedDataConsumerBase::OnOverflow(); }
+		{ return _consumer.OnOverflow(); }
 	};
 	STINGRAYKIT_DECLARE_PTR(DataBuffer);
 
