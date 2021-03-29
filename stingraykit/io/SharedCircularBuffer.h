@@ -23,12 +23,11 @@ namespace stingray
 		class ReadLock;
 		class WriteLock;
 
-	public:
+	private:
 		BithreadCircularBuffer	_buffer;
 		bool					_eod;
 		ExceptionPtr			_exception;
 
-	private:
 		Mutex					_bufferMutex;
 		ConditionVariable		_bufferEmpty;
 		ConditionVariable		_bufferFull;
@@ -50,45 +49,6 @@ namespace stingray
 				_activeRead(false),
 				_activeWrites(0)
 		{ }
-
-		size_t GetDataSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetDataSize(); }
-		size_t GetFreeSize() const		{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
-		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
-
-		bool HasEndOfDataOrException() const	{ MutexLock l(_bufferMutex); return _eod || _exception; }
-
-		void SetEndOfData()
-		{
-			MutexLock l(_bufferMutex);
-
-			STINGRAYKIT_CHECK(!_exception, InvalidOperationException("Already got exception!"));
-
-			_eod = true;
-			_bufferEmpty.Broadcast();
-		}
-
-		void SetException(const std::exception& ex, const ICancellationToken& token)
-		{
-			MutexLock l(_bufferMutex);
-
-			STINGRAYKIT_CHECK(!_eod, InvalidOperationException("Already got EOD!"));
-
-			_exception = MakeExceptionPtr(ex);
-			_bufferEmpty.Broadcast();
-		}
-
-		void Clear()
-		{
-			MutexLock l(_bufferMutex);
-			STINGRAYKIT_CHECK(!_activeRead, InvalidOperationException("Simultaneous Read() and Clear()!"));
-			STINGRAYKIT_CHECK(_activeWrites == 0, InvalidOperationException("Simultaneous Process() and Clear()!"));
-
-			_buffer.Clear();
-			_eod = false;
-			_exception.reset();
-
-			_bufferFull.Broadcast();
-		}
 	};
 	STINGRAYKIT_DECLARE_PTR(SharedCircularBuffer);
 
@@ -105,6 +65,43 @@ namespace stingray
 
 	public:
 		BufferLock(SharedCircularBuffer& parent) : _parent(parent), _lock(parent._bufferMutex) { }
+
+		size_t GetDataSize() const		{ return _parent._buffer.GetDataSize(); }
+		size_t GetFreeSize() const		{ return _parent._buffer.GetFreeSize(); }
+		size_t GetStorageSize() const	{ return _parent._buffer.GetTotalSize(); }
+
+		bool IsEndOfData() const				{ return _parent._eod; }
+		bool HasException() const				{ return _parent._exception.is_initialized(); }
+		bool HasEndOfDataOrException() const	{ return _parent._eod || _parent._exception; }
+		void RethrowExceptionIfAny() const		{ if (_parent._exception) RethrowException(_parent._exception); }
+
+		void SetEndOfData()
+		{
+			STINGRAYKIT_CHECK(!_parent._exception, InvalidOperationException("Already got exception!"));
+
+			_parent._eod = true;
+			_parent._bufferEmpty.Broadcast();
+		}
+
+		void SetException(const std::exception& ex, const ICancellationToken& token)
+		{
+			STINGRAYKIT_CHECK(!_parent._eod, InvalidOperationException("Already got EOD!"));
+
+			_parent._exception = MakeExceptionPtr(ex);
+			_parent._bufferEmpty.Broadcast();
+		}
+
+		void Clear()
+		{
+			STINGRAYKIT_CHECK(!_parent._activeRead, InvalidOperationException("Simultaneous Read() and Clear()!"));
+			STINGRAYKIT_CHECK(_parent._activeWrites == 0, InvalidOperationException("Simultaneous Process() and Clear()!"));
+
+			_parent._buffer.Clear();
+			_parent._eod = false;
+			_parent._exception.reset();
+
+			_parent._bufferFull.Broadcast();
+		}
 	};
 
 

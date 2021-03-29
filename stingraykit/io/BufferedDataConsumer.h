@@ -41,8 +41,9 @@ namespace stingray
 				_requiredFreeSpace(requiredFreeSpace)
 		{
 			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
-			STINGRAYKIT_CHECK(_buffer->_buffer.GetTotalSize() % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
-			STINGRAYKIT_CHECK(_buffer->_buffer.GetTotalSize() >= requiredFreeSpace, "Buffer size less then required free space!");
+			const size_t totalSize = SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize();
+			STINGRAYKIT_CHECK(totalSize % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
+			STINGRAYKIT_CHECK(totalSize >= requiredFreeSpace, "Buffer size less then required free space!");
 		}
 
 		size_t Process(ConstByteData data, const ICancellationToken& token) override
@@ -57,12 +58,12 @@ namespace stingray
 			SharedCircularBuffer::BufferLock bl(*_buffer);
 			SharedCircularBuffer::WriteLock wl(bl);
 
-			STINGRAYKIT_CHECK(!_buffer->_eod, InvalidOperationException("Already got EOD!"));
-			STINGRAYKIT_CHECK(!_buffer->_exception, InvalidOperationException("Already got exception!"));
+			STINGRAYKIT_CHECK(!bl.IsEndOfData(), InvalidOperationException("Already got EOD!"));
+			STINGRAYKIT_CHECK(!bl.HasException(), InvalidOperationException("Already got exception!"));
 
 			BithreadCircularBuffer::Writer w = wl.Write();
 			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
-			if (packetized_size == 0 || _buffer->_buffer.GetFreeSize() < _requiredFreeSpace)
+			if (packetized_size == 0 || bl.GetFreeSize() < _requiredFreeSpace)
 			{
 				if (_discardOnOverflow)
 				{
@@ -87,7 +88,7 @@ namespace stingray
 		}
 
 		void EndOfData(const ICancellationToken&) override
-		{ _buffer->SetEndOfData(); }
+		{ SharedCircularBuffer::BufferLock(*_buffer).SetEndOfData(); }
 
 		signal_connector<void(size_t)> OnOverflow() const
 		{ return _onOverflow.connector(); }

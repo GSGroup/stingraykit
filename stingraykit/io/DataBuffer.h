@@ -62,35 +62,36 @@ namespace stingray
 		{ _consumer.EndOfData(token); }
 
 		size_t GetDataSize() const override
-		{ return _buffer->GetDataSize(); }
+		{ return SharedCircularBuffer::BufferLock(*_buffer).GetDataSize(); }
 
 		size_t GetFreeSize() const override
-		{ return _buffer->GetFreeSize(); }
+		{ return SharedCircularBuffer::BufferLock(*_buffer).GetFreeSize(); }
 
 		size_t GetStorageSize() const override
-		{ return _buffer->GetStorageSize(); }
+		{ return SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize(); }
 
 		bool HasEndOfDataOrException() const override
-		{ return _buffer->HasEndOfDataOrException(); }
+		{ return SharedCircularBuffer::BufferLock(*_buffer).HasEndOfDataOrException(); }
 
 		void WaitForData(size_t threshold, const ICancellationToken& token) override
 		{
-			STINGRAYKIT_CHECK(threshold > 0 && threshold % _source.GetOutputPacketSize() == 0 && threshold < _buffer->GetStorageSize(),
+			SharedCircularBuffer::BufferLock bl(*_buffer);
+
+			STINGRAYKIT_CHECK(threshold > 0 && threshold % _source.GetOutputPacketSize() == 0 && threshold < bl.GetStorageSize(),
 					ArgumentException("threshold", threshold));
 
-			SharedCircularBuffer::BufferLock bl(*_buffer);
 			SharedCircularBuffer::ReadLock rl(bl);
 
-			while (GetDataSize() < threshold && !_buffer->_eod && !_buffer->_exception)
+			while (bl.GetDataSize() < threshold && !bl.HasEndOfDataOrException())
 				if (rl.WaitEmpty(token) != ConditionWaitResult::Broadcasted)
 					break;
 		}
 
 		void SetException(const std::exception& ex, const ICancellationToken& token) override
-		{ _buffer->SetException(ex, token); }
+		{ SharedCircularBuffer::BufferLock(*_buffer).SetException(ex, token); }
 
 		void Clear() override
-		{ _buffer->Clear(); }
+		{ SharedCircularBuffer::BufferLock(*_buffer).Clear(); }
 
 		signal_connector<void(size_t)> OnOverflow() const override
 		{ return _consumer.OnOverflow(); }

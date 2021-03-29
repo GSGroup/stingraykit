@@ -22,7 +22,7 @@ namespace stingray
 				_outputPacketSize(outputPacketSize)
 		{
 			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
-			STINGRAYKIT_CHECK(_buffer->_buffer.GetTotalSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+			STINGRAYKIT_CHECK(SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
@@ -35,9 +35,8 @@ namespace stingray
 			size_t packetized_size = r.size() / _outputPacketSize * _outputPacketSize;
 			if (packetized_size == 0)
 			{
-				if (_buffer->_exception)
-					RethrowException(_buffer->_exception);
-				else if (_buffer->_eod)
+				bl.RethrowExceptionIfAny();
+				if (bl.IsEndOfData())
 				{
 					if (r.size() != 0)
 						s_logger.Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
