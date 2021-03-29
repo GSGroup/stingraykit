@@ -34,6 +34,9 @@ namespace stingray
 
 		const s64 SecondsBetweenNtpAndUnixEpochs = 2208988800ll;
 
+		const u32 WindowsTicksPerSecond = 10000000;
+		const u64 SecondsBetweenWindowsAndUnixEpochs = 11644473600;
+
 		u8 BcdValue(u8 byte)
 		{ return ((byte >> 4) & 0x0f) * 10 + (byte & 0x0f); }
 
@@ -317,6 +320,10 @@ namespace stingray
 
 	Time Time::FromNtpTimestamp(u64 timestamp)
 	{ return Time((timestamp - SecondsBetweenNtpAndUnixEpochs) * 1000); }
+
+
+	Time Time::FromWindowsFileTime(u64 windowsTicks)
+	{ return Time((windowsTicks / WindowsTicksPerSecond - SecondsBetweenWindowsAndUnixEpochs) * 1000 + windowsTicks % WindowsTicksPerSecond); }
 
 
 	Time Time::MJDtoEpoch(int mjd, u32 bcdTime)

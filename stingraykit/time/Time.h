@@ -178,6 +178,8 @@ namespace stingray
 		u64 ToNtpTimestamp() const;
 		static Time FromNtpTimestamp(u64 timestamp);
 
+		static Time FromWindowsFileTime(u64 windowsTicks);
+
 		static Time MJDtoEpoch(int mjd, u32 bcdTime = 0);
 		static TimeDuration BCDDurationToTimeDuration(u32 bcdTime);
 
