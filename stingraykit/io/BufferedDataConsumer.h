@@ -55,12 +55,12 @@ namespace stingray
 
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 			SharedCircularBuffer::BufferLock bl(*_buffer);
-			SharedCircularBuffer::WriteLock wl(*_buffer);
+			SharedCircularBuffer::WriteLock wl(bl);
 
 			STINGRAYKIT_CHECK(!_buffer->_eod, InvalidOperationException("Already got EOD!"));
 			STINGRAYKIT_CHECK(!_buffer->_exception, InvalidOperationException("Already got exception!"));
 
-			BithreadCircularBuffer::Writer w = _buffer->_buffer.Write();
+			BithreadCircularBuffer::Writer w = wl.Write();
 			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
 			if (packetized_size == 0 || _buffer->_buffer.GetFreeSize() < _requiredFreeSpace)
 			{
@@ -70,7 +70,7 @@ namespace stingray
 					return data.size();
 				}
 
-				_buffer->_bufferFull.Wait(_buffer->_bufferMutex, token);
+				wl.WaitFull(token);
 				return 0;
 			}
 
@@ -81,7 +81,7 @@ namespace stingray
 			}
 
 			w.Push(write_size);
-			_buffer->_bufferEmpty.Broadcast();
+			wl.BroadcastEmpty();
 
 			return write_size;
 		}

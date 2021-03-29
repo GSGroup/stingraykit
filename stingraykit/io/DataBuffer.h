@@ -79,10 +79,10 @@ namespace stingray
 					ArgumentException("threshold", threshold));
 
 			SharedCircularBuffer::BufferLock bl(*_buffer);
-			SharedCircularBuffer::ReadLock rl(*_buffer);
+			SharedCircularBuffer::ReadLock rl(bl);
 
 			while (GetDataSize() < threshold && !_buffer->_eod && !_buffer->_exception)
-				if (_buffer->_bufferEmpty.Wait(_buffer->_bufferMutex, token) != ConditionWaitResult::Broadcasted)
+				if (rl.WaitEmpty(token) != ConditionWaitResult::Broadcasted)
 					break;
 		}
 

@@ -20,46 +20,19 @@ namespace stingray
 	public:
 		class BufferLock;
 		class BufferUnlock;
-
-		class ReadLock
-		{
-		private:
-			SharedCircularBuffer&	_parent;
-
-		public:
-			ReadLock(SharedCircularBuffer& parent) : _parent(parent)
-			{
-				STINGRAYKIT_CHECK(!_parent._activeRead, InvalidOperationException("Simultaneous Read()!"));
-				_parent._activeRead = true;
-			}
-
-			~ReadLock()
-			{ _parent._activeRead = false; }
-		};
-
-		class WriteLock
-		{
-		private:
-			SharedCircularBuffer&	_parent;
-
-		public:
-			WriteLock(SharedCircularBuffer& parent) : _parent(parent)
-			{ ++_parent._activeWrites; }
-
-			~WriteLock()
-			{ --_parent._activeWrites; }
-		};
+		class ReadLock;
+		class WriteLock;
 
 	public:
 		BithreadCircularBuffer	_buffer;
 		bool					_eod;
 		ExceptionPtr			_exception;
 
+	private:
 		Mutex					_bufferMutex;
 		ConditionVariable		_bufferEmpty;
 		ConditionVariable		_bufferFull;
 
-	private:
 		bool					_activeRead;
 		size_t					_activeWrites;
 
@@ -123,6 +96,8 @@ namespace stingray
 	class SharedCircularBuffer::BufferLock
 	{
 		friend class SharedCircularBuffer::BufferUnlock;
+		friend class SharedCircularBuffer::ReadLock;
+		friend class SharedCircularBuffer::WriteLock;
 
 	private:
 		SharedCircularBuffer&	_parent;
@@ -140,6 +115,55 @@ namespace stingray
 
 	public:
 		BufferUnlock(BufferLock& lock) : _unlock(lock._lock) { }
+	};
+
+
+	class SharedCircularBuffer::ReadLock
+	{
+	private:
+		SharedCircularBuffer&	_parent;
+
+	public:
+		ReadLock(BufferLock& lock) : _parent(lock._parent)
+		{
+			STINGRAYKIT_CHECK(!_parent._activeRead, InvalidOperationException("Simultaneous Read()!"));
+			_parent._activeRead = true;
+		}
+
+		~ReadLock()
+		{ _parent._activeRead = false; }
+
+		BithreadCircularBuffer::Reader Read()
+		{ return _parent._buffer.Read(); }
+
+		ConditionWaitResult WaitEmpty(const ICancellationToken& token) const
+		{ return _parent._bufferEmpty.Wait(_parent._bufferMutex, token); }
+
+		void BroadcastFull()
+		{ _parent._bufferFull.Broadcast(); }
+	};
+
+
+	class SharedCircularBuffer::WriteLock
+	{
+	private:
+		SharedCircularBuffer&	_parent;
+
+	public:
+		WriteLock(BufferLock& lock) : _parent(lock._parent)
+		{ ++_parent._activeWrites; }
+
+		~WriteLock()
+		{ --_parent._activeWrites; }
+
+		BithreadCircularBuffer::Writer Write()
+		{ return _parent._buffer.Write(); }
+
+		ConditionWaitResult WaitFull(const ICancellationToken& token) const
+		{ return _parent._bufferFull.Wait(_parent._bufferMutex, token); }
+
+		void BroadcastEmpty()
+		{ _parent._bufferEmpty.Broadcast(); }
 	};
 
 }

@@ -28,9 +28,9 @@ namespace stingray
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
 			SharedCircularBuffer::BufferLock bl(*_buffer);
-			SharedCircularBuffer::ReadLock rl(*_buffer);
+			SharedCircularBuffer::ReadLock rl(bl);
 
-			BithreadCircularBuffer::Reader r = _buffer->_buffer.Read();
+			BithreadCircularBuffer::Reader r = rl.Read();
 
 			size_t packetized_size = r.size() / _outputPacketSize * _outputPacketSize;
 			if (packetized_size == 0)
@@ -46,7 +46,7 @@ namespace stingray
 					return;
 				}
 
-				_buffer->_bufferEmpty.Wait(_buffer->_bufferMutex, token);
+				rl.WaitEmpty(token);
 				return;
 			}
 
@@ -66,7 +66,7 @@ namespace stingray
 			}
 
 			r.Pop(processed_size);
-			_buffer->_bufferFull.Broadcast();
+			rl.BroadcastFull();
 		}
 
 		size_t GetOutputPacketSize() const
