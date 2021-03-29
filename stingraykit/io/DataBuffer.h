@@ -78,7 +78,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(threshold > 0 && threshold % _source.GetOutputPacketSize() == 0 && threshold < _buffer->GetStorageSize(),
 					ArgumentException("threshold", threshold));
 
-			MutexLock l(_buffer->_bufferMutex);
+			SharedCircularBuffer::BufferLock bl(*_buffer);
 			SharedCircularBuffer::ReadLock rl(*_buffer);
 
 			while (GetDataSize() < threshold && !_buffer->_eod && !_buffer->_exception)

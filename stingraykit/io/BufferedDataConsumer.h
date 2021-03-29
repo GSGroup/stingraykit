@@ -54,7 +54,7 @@ namespace stingray
 			}
 
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
-			MutexLock l2(_buffer->_bufferMutex);
+			SharedCircularBuffer::BufferLock bl(*_buffer);
 			SharedCircularBuffer::WriteLock wl(*_buffer);
 
 			STINGRAYKIT_CHECK(!_buffer->_eod, InvalidOperationException("Already got EOD!"));
@@ -76,7 +76,7 @@ namespace stingray
 
 			size_t write_size = std::min(data.size(), packetized_size);
 			{
-				MutexUnlock ul(_buffer->_bufferMutex);
+				SharedCircularBuffer::BufferUnlock ul(bl);
 				::memcpy(w.data(), data.data(), write_size);
 			}
 

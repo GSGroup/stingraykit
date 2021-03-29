@@ -18,6 +18,9 @@ namespace stingray
 	class SharedCircularBuffer
 	{
 	public:
+		class BufferLock;
+		class BufferUnlock;
+
 		class ReadLock
 		{
 		private:
@@ -115,6 +118,29 @@ namespace stingray
 		}
 	};
 	STINGRAYKIT_DECLARE_PTR(SharedCircularBuffer);
+
+
+	class SharedCircularBuffer::BufferLock
+	{
+		friend class SharedCircularBuffer::BufferUnlock;
+
+	private:
+		SharedCircularBuffer&	_parent;
+		MutexLock				_lock;
+
+	public:
+		BufferLock(SharedCircularBuffer& parent) : _parent(parent), _lock(parent._bufferMutex) { }
+	};
+
+
+	class SharedCircularBuffer::BufferUnlock
+	{
+	private:
+		MutexUnlock			_unlock;
+
+	public:
+		BufferUnlock(BufferLock& lock) : _unlock(lock._lock) { }
+	};
 
 }
 

@@ -27,7 +27,7 @@ namespace stingray
 
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
-			MutexLock l(_buffer->_bufferMutex);
+			SharedCircularBuffer::BufferLock bl(*_buffer);
 			SharedCircularBuffer::ReadLock rl(*_buffer);
 
 			BithreadCircularBuffer::Reader r = _buffer->_buffer.Read();
@@ -52,7 +52,7 @@ namespace stingray
 
 			size_t processed_size = 0;
 			{
-				MutexUnlock ul(_buffer->_bufferMutex);
+				SharedCircularBuffer::BufferUnlock ul(bl);
 				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, packetized_size), token);
 			}
 
