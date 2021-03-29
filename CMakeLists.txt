@@ -94,9 +94,9 @@ set(stingraykit_SRC
 	stingraykit/io/AsyncByteStream.cpp
 	stingraykit/io/BithreadCircularBuffer.cpp
 	stingraykit/io/BufferedDataConsumer.cpp
+	stingraykit/io/BufferedDataSource.cpp
 	stingraykit/io/BufferedPipe.cpp
 	stingraykit/io/ByteDataConsumer.cpp
-	stingraykit/io/DataBuffer.cpp
 	stingraykit/io/DataSourceReader.cpp
 	stingraykit/io/PipeDataSource.cpp
 	stingraykit/io/PipeReader.cpp

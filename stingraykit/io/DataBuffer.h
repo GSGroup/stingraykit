@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/io/BufferedDataConsumer.h>
+#include <stingraykit/io/BufferedDataSource.h>
 
 namespace stingray
 {
@@ -36,71 +37,23 @@ namespace stingray
 
 		SharedCircularBufferPtr	_buffer;
 		BufferedDataConsumer	_consumer;
-
-		const size_t			_outputPacketSize;
+		BufferedDataSource		_source;
 
 	public:
 		DataBuffer(bool discardOnOverflow, size_t size, Parameters parameters = Parameters())
 			:	_buffer(make_shared_ptr<SharedCircularBuffer>(size)),
 				_consumer(_buffer, discardOnOverflow, parameters.InputPacketSize, parameters.RequiredFreeSpace),
-				_outputPacketSize(parameters.OutputPacketSize)
-		{
-			STINGRAYKIT_CHECK(parameters.OutputPacketSize != 0, ArgumentException("parameters.OutputPacketSize", parameters.OutputPacketSize));
-			STINGRAYKIT_CHECK(size % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
-		}
+				_source(_buffer, parameters.OutputPacketSize)
+		{ }
 
 		DataBuffer(bool discardOnOverflow, const BytesOwner& storage, Parameters parameters = Parameters())
 			:	_buffer(make_shared_ptr<SharedCircularBuffer>(storage)),
 				_consumer(_buffer, discardOnOverflow, parameters.InputPacketSize, parameters.RequiredFreeSpace),
-				_outputPacketSize(parameters.OutputPacketSize)
-		{
-			STINGRAYKIT_CHECK(parameters.OutputPacketSize != 0, ArgumentException("parameters.OutputPacketSize", parameters.OutputPacketSize));
-			STINGRAYKIT_CHECK(_buffer->_buffer.GetTotalSize() % parameters.OutputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
-		}
+				_source(_buffer, parameters.OutputPacketSize)
+		{ }
 
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
-		{
-			MutexLock l(_buffer->_bufferMutex);
-			SharedCircularBuffer::ReadLock rl(*_buffer);
-
-			BithreadCircularBuffer::Reader r = _buffer->_buffer.Read();
-
-			size_t packetized_size = r.size() / _outputPacketSize * _outputPacketSize;
-			if (packetized_size == 0)
-			{
-				if (_buffer->_exception)
-					RethrowException(_buffer->_exception);
-				else if (_buffer->_eod)
-				{
-					if (r.size() != 0)
-						s_logger.Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
-
-					consumer.EndOfData(token);
-					return;
-				}
-
-				_buffer->_bufferEmpty.Wait(_buffer->_bufferMutex, token);
-				return;
-			}
-
-			size_t processed_size = 0;
-			{
-				MutexUnlock ul(_buffer->_bufferMutex);
-				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, packetized_size), token);
-			}
-
-			if (processed_size == 0)
-				return;
-
-			if (processed_size % _outputPacketSize != 0)
-			{
-				s_logger.Error() << "Processed size: " << processed_size << " is not a multiple of output packet size: " << _outputPacketSize;
-				processed_size = packetized_size;
-			}
-
-			r.Pop(processed_size);
-			_buffer->_bufferFull.Broadcast();
-		}
+		{ _source.Read(consumer, token); }
 
 		size_t Process(ConstByteData data, const ICancellationToken& token) override
 		{ return _consumer.Process(data, token); }
@@ -122,7 +75,7 @@ namespace stingray
 
 		void WaitForData(size_t threshold, const ICancellationToken& token) override
 		{
-			STINGRAYKIT_CHECK(threshold > 0 && threshold % _outputPacketSize == 0 && threshold < _buffer->GetStorageSize(),
+			STINGRAYKIT_CHECK(threshold > 0 && threshold % _source.GetOutputPacketSize() == 0 && threshold < _buffer->GetStorageSize(),
 					ArgumentException("threshold", threshold));
 
 			MutexLock l(_buffer->_bufferMutex);
