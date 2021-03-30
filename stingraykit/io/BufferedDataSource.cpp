@@ -12,4 +12,48 @@ namespace stingray
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(BufferedDataSource);
 
+
+	void BufferedDataSource::Read(IDataConsumer& consumer, const ICancellationToken& token)
+	{
+		SharedCircularBuffer::BufferLock bl(*_buffer);
+		SharedCircularBuffer::ReadLock rl(bl);
+
+		BithreadCircularBuffer::Reader r = rl.Read();
+
+		const size_t packetizedSize = r.size() / _outputPacketSize * _outputPacketSize;
+		if (packetizedSize == 0)
+		{
+			bl.RethrowExceptionIfAny();
+			if (bl.IsEndOfData())
+			{
+				if (r.size() != 0)
+					s_logger.Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
+
+				consumer.EndOfData(token);
+				return;
+			}
+
+			rl.WaitEmpty(token);
+			return;
+		}
+
+		size_t processedSize = 0;
+		{
+			SharedCircularBuffer::BufferUnlock ul(bl);
+			processedSize = consumer.Process(ConstByteData(r.GetData(), 0, packetizedSize), token);
+		}
+
+		if (processedSize == 0)
+			return;
+
+		if (processedSize % _outputPacketSize != 0)
+		{
+			s_logger.Error() << "Processed size: " << processedSize << " is not a multiple of output packet size: " << _outputPacketSize;
+			processedSize = packetizedSize;
+		}
+
+		r.Pop(processedSize);
+		rl.BroadcastFull();
+	}
+
 }

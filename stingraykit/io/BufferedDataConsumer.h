@@ -46,46 +46,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(totalSize >= requiredFreeSpace, "Buffer size less then required free space!");
 		}
 
-		size_t Process(ConstByteData data, const ICancellationToken& token) override
-		{
-			if (data.size() % _inputPacketSize != 0)
-			{
-				s_logger.Error() << "Data size: " << data.size() << " is not a multiple of input packet size: " << _inputPacketSize;
-				return data.size();
-			}
-
-			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
-			SharedCircularBuffer::BufferLock bl(*_buffer);
-			SharedCircularBuffer::WriteLock wl(bl);
-
-			STINGRAYKIT_CHECK(!bl.IsEndOfData(), InvalidOperationException("Already got EOD!"));
-			STINGRAYKIT_CHECK(!bl.HasException(), InvalidOperationException("Already got exception!"));
-
-			BithreadCircularBuffer::Writer w = wl.Write();
-			size_t packetized_size = w.size() / _inputPacketSize * _inputPacketSize;
-			if (packetized_size == 0 || bl.GetFreeSize() < _requiredFreeSpace)
-			{
-				if (_discardOnOverflow)
-				{
-					_onOverflow(data.size());
-					return data.size();
-				}
-
-				wl.WaitFull(token);
-				return 0;
-			}
-
-			size_t write_size = std::min(data.size(), packetized_size);
-			{
-				SharedCircularBuffer::BufferUnlock ul(bl);
-				::memcpy(w.data(), data.data(), write_size);
-			}
-
-			w.Push(write_size);
-			wl.BroadcastEmpty();
-
-			return write_size;
-		}
+		size_t Process(ConstByteData data, const ICancellationToken& token) override;
 
 		void EndOfData(const ICancellationToken&) override
 		{ SharedCircularBuffer::BufferLock(*_buffer).SetEndOfData(); }

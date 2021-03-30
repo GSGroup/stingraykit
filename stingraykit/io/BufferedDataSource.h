@@ -25,48 +25,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
-		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
-		{
-			SharedCircularBuffer::BufferLock bl(*_buffer);
-			SharedCircularBuffer::ReadLock rl(bl);
-
-			BithreadCircularBuffer::Reader r = rl.Read();
-
-			size_t packetized_size = r.size() / _outputPacketSize * _outputPacketSize;
-			if (packetized_size == 0)
-			{
-				bl.RethrowExceptionIfAny();
-				if (bl.IsEndOfData())
-				{
-					if (r.size() != 0)
-						s_logger.Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
-
-					consumer.EndOfData(token);
-					return;
-				}
-
-				rl.WaitEmpty(token);
-				return;
-			}
-
-			size_t processed_size = 0;
-			{
-				SharedCircularBuffer::BufferUnlock ul(bl);
-				processed_size = consumer.Process(ConstByteData(r.GetData(), 0, packetized_size), token);
-			}
-
-			if (processed_size == 0)
-				return;
-
-			if (processed_size % _outputPacketSize != 0)
-			{
-				s_logger.Error() << "Processed size: " << processed_size << " is not a multiple of output packet size: " << _outputPacketSize;
-				processed_size = packetized_size;
-			}
-
-			r.Pop(processed_size);
-			rl.BroadcastFull();
-		}
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override;
 
 		size_t GetOutputPacketSize() const
 		{ return _outputPacketSize; }
