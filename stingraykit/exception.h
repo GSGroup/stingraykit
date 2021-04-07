@@ -251,10 +251,10 @@ namespace stingray
 
 
 		template < typename T >
-		const T& RequireNotNull(const T& obj, const char* expr, ToolkitWhere where)
+		T&& RequireNotNull(T&& obj, const char* expr, ToolkitWhere where)
 		{
 			if (obj)
-				return obj;
+				return std::forward<T>(obj);
 
 			DebuggingHelper::BreakpointHere();
 			throw stingray::Detail::MakeException(NullPointerException(expr), where);
