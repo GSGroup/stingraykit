@@ -33,8 +33,6 @@ namespace stingray
 		};
 
 	private:
-		static NamedLogger		s_logger;
-
 		SharedCircularBufferPtr	_buffer;
 		BufferedDataConsumer	_consumer;
 		BufferedDataSource		_source;
