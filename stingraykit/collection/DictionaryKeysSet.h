@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/IObservableDictionary.h>
 #include <stingraykit/collection/IObservableSet.h>
+#include <stingraykit/collection/KeyValueEnumerableHelpers.h>
 #include <stingraykit/signal/signals.h>
 
 namespace stingray

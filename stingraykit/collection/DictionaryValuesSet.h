@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/ISet.h>
+#include <stingraykit/collection/KeyValueEnumerableHelpers.h>
 
 namespace stingray
 {

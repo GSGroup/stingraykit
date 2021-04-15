@@ -70,35 +70,6 @@ namespace stingray
 	struct IsInheritedIDictionary : public IsInherited2ParamTemplate<T, IDictionary>
 	{ };
 
-
-	template<typename EnumeratorType>
-	shared_ptr<IEnumerator<typename EnumeratorType::ItemType::KeyType> > KeysEnumerator(const shared_ptr<EnumeratorType>& enumerator)
-	{
-		typedef typename EnumeratorType::ItemType PairType;
-		return WrapEnumerator(enumerator, &PairType::GetKey);
-	}
-
-	template<typename EnumerableType>
-	shared_ptr<IEnumerable<typename EnumerableType::ItemType::KeyType> > KeysEnumerable(const shared_ptr<EnumerableType>& enumerable)
-	{
-		typedef typename EnumerableType::ItemType PairType;
-		return WrapEnumerable(enumerable, &PairType::GetKey);
-	}
-
-	template<typename EnumeratorType>
-	shared_ptr<IEnumerator<typename EnumeratorType::ItemType::ValueType> > ValuesEnumerator(const shared_ptr<EnumeratorType>& enumerator)
-	{
-		typedef typename EnumeratorType::ItemType PairType;
-		return WrapEnumerator(enumerator, &PairType::GetValue);
-	}
-
-	template<typename EnumerableType>
-	shared_ptr<IEnumerable<typename EnumerableType::ItemType::ValueType> > ValuesEnumerable(const shared_ptr<EnumerableType>& enumerable)
-	{
-		typedef typename EnumerableType::ItemType PairType;
-		return WrapEnumerable(enumerable, &PairType::GetValue);
-	}
-
 	/** @} */
 
 }
