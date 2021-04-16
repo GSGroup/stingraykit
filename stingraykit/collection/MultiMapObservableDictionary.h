@@ -125,10 +125,10 @@ namespace stingray
 			return Wrapped::GetAll(key);
 		}
 
-		virtual void Set(const KeyType& key, const ValueType& value)
+		virtual void Add(const KeyType& key, const ValueType& value)
 		{
 			signal_locker l(_onChanged);
-			Wrapped::Set(key, value);
+			Wrapped::Add(key, value);
 			_onChanged(CollectionOp::Added, key, value);
 		}
 

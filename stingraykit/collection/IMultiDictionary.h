@@ -59,7 +59,7 @@ namespace stingray
 
 		virtual ~IMultiDictionary() { }
 
-		virtual void Set(const KeyType& key, const ValueType& value) = 0;
+		virtual void Add(const KeyType& key, const ValueType& value) = 0;
 
 		virtual void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) = 0;
 		virtual bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value = null) = 0;

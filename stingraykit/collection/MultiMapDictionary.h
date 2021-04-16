@@ -71,7 +71,7 @@ namespace stingray
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			FOR_EACH(const PairType p IN enumerable)
-				Set(p.Key, p.Value);
+				Add(p.Key, p.Value);
 		}
 
 		explicit MultiMapDictionary(const shared_ptr<IEnumerator<PairType> >& enumerator)
@@ -79,7 +79,7 @@ namespace stingray
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			FOR_EACH(const PairType p IN enumerator)
-				Set(p.Key, p.Value);
+				Add(p.Key, p.Value);
 		}
 
 		MultiMapDictionary& operator = (const MultiMapDictionary& other)
@@ -152,7 +152,7 @@ namespace stingray
 			return WrapMapEnumerator(EnumeratorFromStlIterators(range.first, range.second, GetMapHolder()));
 		}
 
-		virtual void Set(const KeyType& key, const ValueType& value)
+		virtual void Add(const KeyType& key, const ValueType& value)
 		{ CopyOnWrite(); _map->insert(std::make_pair(key, value)); }
 
 		virtual void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
