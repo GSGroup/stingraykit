@@ -130,7 +130,7 @@ namespace stingray
 		static void Yield();
 		/** @deprecated */
 		static inline void Sleep(u32 milliseconds)		{ SleepMicroseconds(1000u * (u64)milliseconds); }
-		static inline void Sleep(TimeDuration duration)	{ SleepMicroseconds(1000u * duration.GetMilliseconds()); }
+		static inline void Sleep(TimeDuration duration)	{ SleepMicroseconds(duration.GetMicroseconds()); }
 		static void SleepMicroseconds(u64 microseconds);
 
 		static ThreadId GetCurrentThreadId();
