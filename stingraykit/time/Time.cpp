@@ -585,7 +585,7 @@ namespace stingray
 
 		std::string ToIso8601(TimeDuration timeDuration, const optional<Time>& base)
 		{
-			STINGRAYKIT_CHECK(timeDuration.GetMicroseconds() >= 0, ArgumentException("timeDuration", timeDuration));
+			STINGRAYKIT_CHECK(timeDuration >= TimeDuration(), ArgumentException("timeDuration", timeDuration));
 
 			s16 Years, Months, Days, Hours, Minutes, Seconds;
 
