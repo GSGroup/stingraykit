@@ -24,8 +24,8 @@ namespace stingray
 
 	NtpTimestamp NtpTimestamp::FromTime(const Time& time)
 	{
-		u32 integerPart = time.GetMilliseconds() / 1000 +  DifferenceBetweenUnixNtpTime;
-		u32 fractionPart = time.GetMilliseconds() / 1000 * ((u64)1 << 32);
+		u32 integerPart = time.GetSeconds() +  DifferenceBetweenUnixNtpTime;
+		u32 fractionPart = time.GetSeconds() * ((u64)1 << 32);
 
 		u64 timestamp = ((u64)integerPart << 32) | fractionPart;
 
