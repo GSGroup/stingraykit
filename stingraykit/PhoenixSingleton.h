@@ -56,8 +56,8 @@ namespace stingray
 			Spinlock l(s_lock);
 			InstanceType* instance = reinterpret_cast<InstanceType*>(AtomicInstance::Load(s_instance));
 			assert(instance);
-			CheckedDelete(instance);
 			AtomicInstance::Store(s_instance, (intptr_t)0);
+			CheckedDelete(instance);
 		}
 	};
 
