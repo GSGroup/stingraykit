@@ -7,48 +7,10 @@
 
 #include <stingraykit/io/BufferedDataConsumer.h>
 
+#include <string.h>
+
 namespace stingray
 {
-
-	class BufferedDataConsumer::WriteGuard
-	{
-	private:
-		BufferedDataConsumer&	_parent;
-		bool					_locked;
-
-	public:
-		WriteGuard(BufferedDataConsumer& parent) : _parent(parent), _locked(false) { }
-
-		ConditionWaitResult Wait(const ICancellationToken& token)
-		{
-			{
-				MutexLock l(_parent._writeMutex); // we need this mutex because write can be called simultaneously from several threads
-				while (!_parent._writeAllow)
-				{
-					const ConditionWaitResult result = _parent._writeCond.Wait(_parent._writeMutex, token);
-					if (result != ConditionWaitResult::Broadcasted)
-						return result;
-				}
-
-				_parent._writeAllow = false;
-			}
-
-			_locked = true;
-
-			return ConditionWaitResult::Broadcasted;
-		}
-
-		~WriteGuard()
-		{
-			if (_locked)
-			{
-				MutexLock l(_parent._writeMutex);
-				_parent._writeAllow = true;
-				_parent._writeCond.Broadcast();
-			}
-		}
-	};
-
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(BufferedDataConsumer);
 
@@ -60,10 +22,6 @@ namespace stingray
 			s_logger.Error() << "Data size: " << data.size() << " is not a multiple of input packet size: " << _inputPacketSize;
 			return data.size();
 		}
-
-		WriteGuard g(*this);
-		if (g.Wait(token) != ConditionWaitResult::Broadcasted)
-			return 0;
 
 		SharedCircularBuffer::BufferLock bl(*_buffer);
 		SharedCircularBuffer::WriteLock wl(bl);

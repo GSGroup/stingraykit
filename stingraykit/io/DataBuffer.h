@@ -36,6 +36,7 @@ namespace stingray
 		SharedCircularBufferPtr	_buffer;
 		BufferedDataConsumer	_consumer;
 		BufferedDataSource		_source;
+		SharedWriteSynchronizer	_writeSync;
 
 	public:
 		DataBuffer(bool discardOnOverflow, size_t size, Parameters parameters = Parameters())
@@ -54,7 +55,13 @@ namespace stingray
 		{ _source.Read(consumer, token); }
 
 		size_t Process(ConstByteData data, const ICancellationToken& token) override
-		{ return _consumer.Process(data, token); }
+		{
+			SharedWriteSynchronizer::WriteGuard g(_writeSync);
+			if (g.Wait(token) != ConditionWaitResult::Broadcasted)
+				return 0;
+
+			return _consumer.Process(data, token);
+		}
 
 		void EndOfData(const ICancellationToken& token) override
 		{ _consumer.EndOfData(token); }

@@ -162,6 +162,61 @@ namespace stingray
 		{ _parent._bufferEmpty.Broadcast(); }
 	};
 
+
+	class SharedWriteSynchronizer
+	{
+	public:
+		class WriteGuard;
+
+	private:
+		Mutex						_writeMutex;
+		bool						_writeAllow;
+		ConditionVariable			_writeCond;
+
+	public:
+		SharedWriteSynchronizer() : _writeAllow(true) { }
+	};
+
+
+	class SharedWriteSynchronizer::WriteGuard
+	{
+	private:
+		SharedWriteSynchronizer&	_parent;
+		bool						_locked;
+
+	public:
+		WriteGuard(SharedWriteSynchronizer& parent) : _parent(parent), _locked(false) { }
+
+		ConditionWaitResult Wait(const ICancellationToken& token)
+		{
+			{
+				MutexLock l(_parent._writeMutex); // we need this mutex because write can be called simultaneously from several threads
+				while (!_parent._writeAllow)
+				{
+					const ConditionWaitResult result = _parent._writeCond.Wait(_parent._writeMutex, token);
+					if (result != ConditionWaitResult::Broadcasted)
+						return result;
+				}
+
+				_parent._writeAllow = false;
+			}
+
+			_locked = true;
+
+			return ConditionWaitResult::Broadcasted;
+		}
+
+		~WriteGuard()
+		{
+			if (_locked)
+			{
+				MutexLock l(_parent._writeMutex);
+				_parent._writeAllow = true;
+				_parent._writeCond.Broadcast();
+			}
+		}
+	};
+
 }
 
 #endif
