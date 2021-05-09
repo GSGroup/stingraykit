@@ -69,7 +69,10 @@ namespace stingray
 		{ return SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize(); }
 
 		bool HasEndOfDataOrException() const override
-		{ return SharedCircularBuffer::BufferLock(*_buffer).HasEndOfDataOrException(); }
+		{
+			SharedCircularBuffer::BufferLock bl(*_buffer);
+			return bl.IsEndOfData() || bl.HasException();
+		}
 
 		void WaitForData(size_t threshold, const ICancellationToken& token) override
 		{
@@ -80,7 +83,7 @@ namespace stingray
 
 			SharedCircularBuffer::ReadLock rl(bl);
 
-			while (bl.GetDataSize() < threshold && !bl.HasEndOfDataOrException())
+			while (bl.GetDataSize() < threshold && !bl.IsEndOfData() && !bl.HasException())
 				if (rl.WaitEmpty(token) != ConditionWaitResult::Broadcasted)
 					break;
 		}

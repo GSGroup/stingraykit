@@ -72,7 +72,6 @@ namespace stingray
 
 		bool IsEndOfData() const				{ return _parent._eod; }
 		bool HasException() const				{ return _parent._exception.is_initialized(); }
-		bool HasEndOfDataOrException() const	{ return _parent._eod || _parent._exception; }
 		void RethrowExceptionIfAny() const		{ if (_parent._exception) RethrowException(_parent._exception); }
 
 		void SetEndOfData()
