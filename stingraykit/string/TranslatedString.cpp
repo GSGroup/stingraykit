@@ -81,6 +81,10 @@ namespace stingray
 	}
 
 
+	int TranslatedString::Compare(const TranslatedString& other) const
+	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
+
+
 	std::string TranslatedString::DoSelectTranslation(const std::vector<LangCode>& langCodes) const
 	{
 		for (std::vector<LangCode>::const_iterator it = langCodes.begin(); it != langCodes.end(); ++it)
@@ -88,10 +92,6 @@ namespace stingray
 				return GetTranslation(*it);
 		return "";
 	}
-
-
-	int TranslatedString::DoCompare(const TranslatedString& other) const
-	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
 
 
 	TranslatedString::Builder::Builder()

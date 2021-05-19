@@ -55,13 +55,11 @@ namespace stingray
 		std::string SelectTranslation(LangCode l0, LangCode l1, LangCode l2) const;
 		std::string SelectTranslation(const std::vector<LangCode>& langCodes) const;
 
-		bool operator < (const TranslatedString& other) const
-		{ return DoCompare(other) < 0; }
-		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TranslatedString);
+		int Compare(const TranslatedString& other) const;
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(TranslatedString);
 
 	private:
 		std::string DoSelectTranslation(const std::vector<LangCode>& langCodes) const;
-		int DoCompare(const TranslatedString& other) const;
 	};
 
 
