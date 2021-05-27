@@ -40,10 +40,19 @@ namespace stingray
 
 	std::string TranslatedString::GetTranslation(LangCode lang) const
 	{
-		if (lang == LangCode::Any)
-			return _dictionary->GetEnumerator()->Get().Value;
+		const optional<std::string> result = GetTranslation(lang);
+		STINGRAYKIT_CHECK(result, lang == LangCode::Any ? std::string("No translations") : StringBuilder() % "No translation for " % lang);
+		return *result;
+	}
 
-		return _dictionary->Get(lang);
+
+	optional<std::string> TranslatedString::TryGetTranslation(LangCode lang) const
+	{
+		if (lang == LangCode::Any)
+			return _dictionary->IsEmpty() ? null : make_optional_value(_dictionary->GetEnumerator()->Get().Value);
+
+		std::string result;
+		return _dictionary->TryGet(lang, result) ? make_optional_value(result) : null;
 	}
 
 
@@ -73,9 +82,9 @@ namespace stingray
 
 	std::string TranslatedString::SelectTranslation(const std::vector<LangCode>& langCodes) const
 	{
-		for (std::vector<LangCode>::const_iterator it = langCodes.begin(); it != langCodes.end(); ++it)
-			if (HasTranslation(*it))
-				return GetTranslation(*it);
+		for (const auto& lang : langCodes)
+			if (const optional<std::string> result = TryGetTranslation(lang))
+				return *result;
 
 		return "";
 	}

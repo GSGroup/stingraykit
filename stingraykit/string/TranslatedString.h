@@ -38,6 +38,7 @@ namespace stingray
 
 		bool HasTranslation(LangCode lang) const;
 		std::string GetTranslation(LangCode lang) const;
+		optional<std::string> TryGetTranslation(LangCode lang) const;
 
 		DictionaryPtr GetTranslations() const
 		{ return _dictionary; }
