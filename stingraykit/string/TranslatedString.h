@@ -57,9 +57,6 @@ namespace stingray
 
 		int Compare(const TranslatedString& other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(TranslatedString);
-
-	private:
-		std::string DoSelectTranslation(const std::vector<LangCode>& langCodes) const;
 	};
 
 

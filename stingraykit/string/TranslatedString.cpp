@@ -60,15 +60,15 @@ namespace stingray
 
 
 	std::string TranslatedString::SelectTranslation(LangCode l0) const
-	{ return DoSelectTranslation({ l0, LangCode::Any }); }
+	{ return SelectTranslation({ l0, LangCode::Any }); }
 
 
 	std::string TranslatedString::SelectTranslation(LangCode l0, LangCode l1) const
-	{ return DoSelectTranslation({ l0, l1, LangCode::Any }); }
+	{ return SelectTranslation({ l0, l1, LangCode::Any }); }
 
 
 	std::string TranslatedString::SelectTranslation(LangCode l0, LangCode l1, LangCode l2) const
-	{ return DoSelectTranslation({ l0, l1, l2, LangCode::Any }); }
+	{ return SelectTranslation({ l0, l1, l2, LangCode::Any }); }
 
 
 	std::string TranslatedString::SelectTranslation(const std::vector<LangCode>& langCodes) const
@@ -77,21 +77,12 @@ namespace stingray
 			if (HasTranslation(*it))
 				return GetTranslation(*it);
 
-		return GetTranslation(LangCode::Any);
+		return "";
 	}
 
 
 	int TranslatedString::Compare(const TranslatedString& other) const
 	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
-
-
-	std::string TranslatedString::DoSelectTranslation(const std::vector<LangCode>& langCodes) const
-	{
-		for (std::vector<LangCode>::const_iterator it = langCodes.begin(); it != langCodes.end(); ++it)
-			if (HasTranslation(*it))
-				return GetTranslation(*it);
-		return "";
-	}
 
 
 	TranslatedString::Builder::Builder()
