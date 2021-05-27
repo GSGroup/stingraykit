@@ -68,28 +68,6 @@ namespace stingray
 	{ return stingray::ToString(_dictionary); }
 
 
-	std::string TranslatedString::SelectTranslation(LangCode l0) const
-	{ return SelectTranslation({ l0, LangCode::Any }); }
-
-
-	std::string TranslatedString::SelectTranslation(LangCode l0, LangCode l1) const
-	{ return SelectTranslation({ l0, l1, LangCode::Any }); }
-
-
-	std::string TranslatedString::SelectTranslation(LangCode l0, LangCode l1, LangCode l2) const
-	{ return SelectTranslation({ l0, l1, l2, LangCode::Any }); }
-
-
-	std::string TranslatedString::SelectTranslation(const std::vector<LangCode>& langCodes) const
-	{
-		for (const auto& lang : langCodes)
-			if (const optional<std::string> result = TryGetTranslation(lang))
-				return *result;
-
-		return "";
-	}
-
-
 	int TranslatedString::Compare(const TranslatedString& other) const
 	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
 

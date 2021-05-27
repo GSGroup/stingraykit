@@ -51,10 +51,19 @@ namespace stingray
 
 		std::string ToString() const;
 
-		std::string SelectTranslation(LangCode l0) const;
-		std::string SelectTranslation(LangCode l0, LangCode l1) const;
-		std::string SelectTranslation(LangCode l0, LangCode l1, LangCode l2) const;
-		std::string SelectTranslation(const std::vector<LangCode>& langCodes) const;
+		template < typename... LangCodes >
+		std::string SelectTranslation(LangCode lang, LangCodes... langCodes) const
+		{ return SelectTranslation(std::initializer_list<LangCode>{ lang, langCodes..., LangCode::Any }); }
+
+		template < typename LangCodes >
+		auto SelectTranslation(const LangCodes& langCodes) const -> decltype(langCodes.begin(), langCodes.end(), std::string())
+		{
+			for (const auto& lang : langCodes)
+				if (const optional<std::string> result = TryGetTranslation(lang))
+					return *result;
+
+			return "";
+		}
 
 		int Compare(const TranslatedString& other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(TranslatedString);
