@@ -61,7 +61,7 @@ namespace stingray
 			{
 				const size_t pos = fragment.find('$');
 				const size_t index = FromString<size_t>(fragment.substr(0, pos));
-				STINGRAYKIT_CHECK(index > 0, "Format mismatch: parameters indices start from 1!");
+				STINGRAYKIT_CHECK(index > 0, "Parameters indices must start from 1");
 				const size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
 
 				Detail::ArgumentToString(ss, index - 1, width, args...);
