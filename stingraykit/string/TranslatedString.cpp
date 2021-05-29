@@ -40,7 +40,7 @@ namespace stingray
 
 	std::string TranslatedString::GetTranslation(LangCode lang) const
 	{
-		const optional<std::string> result = GetTranslation(lang);
+		const optional<std::string> result = TryGetTranslation(lang);
 		STINGRAYKIT_CHECK(result, lang == LangCode::Any ? std::string("No translations") : StringBuilder() % "No translation for " % lang);
 		return *result;
 	}
