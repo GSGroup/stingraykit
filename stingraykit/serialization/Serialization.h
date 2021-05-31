@@ -12,6 +12,7 @@
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IObservableDictionary.h>
 #include <stingraykit/collection/IObservableList.h>
+#include <stingraykit/collection/IObservableMultiDictionary.h>
 #include <stingraykit/collection/IObservableSet.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/collection/ITransactionalList.h>
@@ -412,6 +413,21 @@ namespace stingray
 			return *this;
 		}
 
+		template<typename K, typename V>
+		ObjectOStream& serialize(const IReadonlyMultiDictionary<K, V>& data)
+		{
+			typedef KeyValuePair<K, V> Pair;
+
+			std::vector<std::pair<K, V>> std_multimap;
+			std_multimap.reserve(data.GetCount());
+
+			FOR_EACH(Pair p IN data.GetEnumerator())
+				std_multimap.emplace_back(p.Key, p.Value);
+
+			Serialize(std_multimap);
+			return *this;
+		}
+
 		template<typename T>
 		ObjectOStream& serialize(const IReadonlyList<T> & data)
 		{
@@ -445,7 +461,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		typename EnableIf<!IsInheritedIReadonlyList<T>::Value && !IsInheritedIReadonlySet<T>::Value && !IsInheritedIReadonlyDictionary<T>::Value, ObjectOStream&>::ValueT serialize(const T &obj)
+		typename EnableIf<!IsInheritedIReadonlyList<T>::Value && !IsInheritedIReadonlySet<T>::Value && !IsInheritedIReadonlyDictionary<T>::Value && !IsInheritedIReadonlyMultiDictionary<T>::Value, ObjectOStream&>::ValueT serialize(const T &obj)
 		{
 			CollectionSerializer<T>::Serialize(*this, obj);
 			return *this;
@@ -800,6 +816,27 @@ namespace stingray
 			return *this;
 		}
 
+		template<typename K, typename V>
+		ObjectIStream& deserialize(IMultiDictionary<K, V>& data)
+		{
+			ObservableCollectionLockerPtr l;
+			if (IObservableMultiDictionary<K, V>* observable = dynamic_caster(&data))
+				l = observable->Lock();
+
+			data.Clear();
+
+			std::vector<std::pair<K, V>> std_multimap;
+			if (is_array())
+				Deserialize(std_multimap);
+			else
+				Deserialize("data", std_multimap);
+
+			for (auto cit = std_multimap.cbegin(); cit != std_multimap.cend(); ++cit)
+				data.Add(cit->first, cit->second);
+
+			return *this;
+		}
+
 		template<typename T>
 		ObjectIStream& deserialize(ISet<T> & data)
 		{
@@ -862,7 +899,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		typename EnableIf<!IsInheritedIList<T>::Value && !IsInheritedISet<T>::Value && !IsInheritedIDictionary<T>::Value, ObjectIStream&>::ValueT deserialize(T& value)
+		typename EnableIf<!IsInheritedIList<T>::Value && !IsInheritedISet<T>::Value && !IsInheritedIDictionary<T>::Value && !IsInheritedIMultiDictionary<T>::Value, ObjectIStream&>::ValueT deserialize(T& value)
 		{ return CollectionDeserializer<T>::Deserialize(_collection, *this, value); }
 
 		template<typename T>
