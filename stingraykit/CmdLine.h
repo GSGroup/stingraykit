@@ -4,7 +4,7 @@
 #include <stingraykit/function/function.h>
 #include <stingraykit/string/StringUtils.h>
 
-#include <stdlib.h>
+#include <set>
 
 namespace stingray
 {
