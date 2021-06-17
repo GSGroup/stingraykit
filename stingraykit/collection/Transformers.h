@@ -11,6 +11,8 @@
 #include <stingraykit/metaprogramming/EnableIf.h>
 #include <stingraykit/metaprogramming/TypeRelationships.h>
 
+#include <stddef.h>
+
 namespace stingray
 {
 
@@ -219,6 +221,34 @@ namespace stingray
 
 	inline CountTransformer Count()
 	{ return CountTransformer(); }
+
+
+	template <typename Arg_, typename Enabler = void>
+	struct TakeTransformerImpl;
+
+
+	struct TakeTransformer : public TransformerMarker
+	{
+		template <typename Arg_>
+		struct Dispatcher
+		{
+			typedef TakeTransformerImpl<Arg_> Impl;
+		};
+
+	private:
+		size_t		_count;
+
+	public:
+		TakeTransformer(size_t count) : _count(count)
+		{ }
+
+		size_t GetCount() const
+		{ return _count; }
+	};
+
+
+	inline TakeTransformer Take(size_t count)
+	{ return TakeTransformer(count); }
 
 }
 

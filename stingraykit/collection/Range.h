@@ -1164,6 +1164,16 @@ namespace stingray
 		{ return Range::Count(range); }
 	};
 
+
+	template < typename Range_ >
+	struct TakeTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
+	{
+		typedef Range::RangeTaker<Range_> ValueT;
+
+		static ValueT Do(const Range_& range, const TakeTransformer& action)
+		{ return Range::Take(range, action.GetCount()); }
+	};
+
 }
 
 #endif
