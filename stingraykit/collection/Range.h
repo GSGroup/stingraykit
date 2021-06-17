@@ -136,7 +136,7 @@ namespace stingray
 
 			Self& Move(int distance)
 			{
-				STINGRAYKIT_CHECK(GetPosition() + distance < GetSize(), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
+				STINGRAYKIT_CHECK(GetPosition() + distance <= GetSize(), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
 				std::advance(_it, distance);
 				return *this;
 			}
