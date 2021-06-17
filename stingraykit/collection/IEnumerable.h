@@ -93,6 +93,8 @@ namespace stingray
 					Next();
 			}
 
+			EnumerableToRange(EnumerableToRange&& range) = default;
+
 			bool Valid() const				{ return _enumerator->Valid(); }
 			typename base::ValueType Get()	{ return _enumerator->Get(); }
 
