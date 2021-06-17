@@ -730,6 +730,71 @@ namespace stingray
 		}
 
 
+		namespace Detail
+		{
+			template < typename ItemType >
+			class EnumeratorTaker : public IEnumerator<ItemType>
+			{
+				typedef shared_ptr<IEnumerator<ItemType>>							SrcEnumeratorPtr;
+
+			private:
+				SrcEnumeratorPtr	_src;
+				size_t				_index;
+				size_t				_count;
+
+			public:
+				EnumeratorTaker(const SrcEnumeratorPtr& src, size_t count)
+					: _src(src), _index(0), _count(count)
+				{ }
+
+				virtual bool Valid() const
+				{ return _src->Valid() && _index < _count; }
+
+				virtual ItemType Get() const
+				{
+					STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
+					return _src->Get();
+				}
+
+				virtual void Next()
+				{
+					STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
+					_src->Next();
+					++_index;
+				}
+			};
+
+
+			template < typename ItemType >
+			class EnumerableTaker : public IEnumerable<ItemType>
+			{
+				typedef shared_ptr<IEnumerable<ItemType>>							SrcEnumerablePtr;
+
+			private:
+				SrcEnumerablePtr	_src;
+				size_t				_count;
+
+			public:
+				EnumerableTaker(const SrcEnumerablePtr& src, size_t count)
+					: _src(src), _count(count)
+				{ }
+
+				virtual shared_ptr<IEnumerator<ItemType>> GetEnumerator() const
+				{ return make_shared_ptr<EnumeratorTaker<ItemType>>(_src->GetEnumerator(), _count); }
+			};
+		}
+
+
+		template < typename SrcEnumerator >
+		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType>> Take(const shared_ptr<SrcEnumerator>& enumerator, size_t count, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		{ return make_shared_ptr<Detail::EnumeratorTaker<typename SrcEnumerator::ItemType>>(enumerator, count); }
+
+
+		template < typename SrcEnumerable >
+		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType>> Take(const shared_ptr<SrcEnumerable>& enumerable, size_t count, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		{ return make_shared_ptr<Detail::EnumerableTaker<typename SrcEnumerable::ItemType>>(enumerable, count); }
+
+
 		template < typename T, typename PredicateFunc >
 		bool SequenceEqual(const shared_ptr<IEnumerator<T> >& first, const shared_ptr<IEnumerator<T> >& second, const PredicateFunc& equalPredicate)
 		{
