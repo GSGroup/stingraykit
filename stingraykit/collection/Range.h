@@ -393,6 +393,94 @@ namespace stingray
 		};
 
 
+		template < typename Range_ >
+		class RangeTaker : public RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category>
+		{
+			typedef RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category> base;
+			typedef RangeTaker<Range_> Self;
+
+		public:
+			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
+
+		private:
+			const Range_		_initial;
+			optional<Range_	>	_impl;
+			size_t				_index;
+			const size_t		_count;
+
+		public:
+			RangeTaker(const Range_& impl, size_t count)
+				: _initial(impl), _impl(impl), _index(0), _count(count)
+			{ }
+
+			bool Valid() const
+			{ return _impl->Valid() && _index < _count; }
+
+			typename base::ValueType Get()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
+				return _impl->Get();
+			}
+
+			bool Equals(const RangeTaker& other) const
+			{ return _initial == other._initial && _impl == other._impl && _index == other._index && _count == other._count; }
+
+			Self& First()
+			{
+				_impl.emplace(_initial);
+				_index = 0;
+				return *this;
+			}
+
+			Self& Last()
+			{
+				First();
+				Self prev(*this);
+
+				while (Valid())
+				{
+					Next();
+					if (Valid())
+						prev.Next();
+				}
+
+				_impl.emplace(*prev._impl);
+				_index = prev._index;
+				return *this;
+			}
+
+			Self& Next()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
+				_impl->Next();
+				++_index;
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				STINGRAYKIT_CHECK(_index > 0, "Prev() at first element");
+				_impl->Prev();
+				--_index;
+				return *this;
+			}
+
+			size_t GetPosition() const
+			{ return _index; }
+
+			size_t GetSize() const
+			{ return std::min(_initial.GetSize() - _initial.GetPosition(), _count); }
+
+			Self& Move(int distance)
+			{
+				STINGRAYKIT_CHECK(GetPosition() + distance <= GetSize(), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
+				_impl->Move(distance);
+				_index += distance;
+				return *this;
+			}
+		};
+
+
 		/// Doesn't support neither random-access nor equality check for now
 		template < typename Range_ >
 		class RangeCycler : public RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
@@ -702,6 +790,11 @@ namespace stingray
 		template < typename SrcRange_, typename Functor_ >
 		RangeTransformer<SrcRange_, Functor_> Transform(const SrcRange_& src, const Functor_& functor)
 		{ return RangeTransformer<SrcRange_, Functor_>(src, functor); }
+
+
+		template < typename Range_ >
+		RangeTaker<Range_> Take(const Range_& range, size_t count)
+		{ return RangeTaker<Range_>(range, count); }
 
 
 		namespace Detail
