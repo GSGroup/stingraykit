@@ -37,7 +37,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct ITransactionalSet : public virtual ISet<T>
+	struct ITransactionalSet : public virtual IReadonlySet<T>
 	{
 		typedef DiffEntry<T>				DiffEntryType;
 		typedef IEnumerable<DiffEntryType>	DiffType;
