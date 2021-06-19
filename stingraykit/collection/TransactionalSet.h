@@ -120,10 +120,10 @@ namespace stingray
 				_removedIter(transactionImpl->GetRemoved().begin())
 			{ _currentItemWasAdded = AddedValid() && (!ContainerValid() || Comparer()(*_addedIter, *_containerIter)); }
 
-			virtual bool Valid() const	{ CheckStamp(); return ContainerValid() || AddedValid(); }
-			virtual T Get() const		{ CheckStamp(); return _currentItemWasAdded ? *_addedIter : *_containerIter; }
+			bool Valid() const override	{ CheckStamp(); return ContainerValid() || AddedValid(); }
+			T Get() const override		{ CheckStamp(); return _currentItemWasAdded ? *_addedIter : *_containerIter; }
 
-			virtual void Next()
+			void Next() override
 			{
 				CheckStamp();
 
@@ -158,6 +158,7 @@ namespace stingray
 		class SetTransaction : public virtual ISetTransaction<T>
 		{
 			typedef ISetTransaction<T>					base;
+			typedef DiffEntry<T>						DiffEntryType;
 
 			typedef TransactionalSetImpl<T, Comparer>	SetImpl;
 			STINGRAYKIT_DECLARE_PTR(SetImpl);
@@ -177,31 +178,31 @@ namespace stingray
 				_transactionImpl(make_shared_ptr<TransactionImpl>(setImpl))
 			{ STINGRAYKIT_CHECK(!_setImpl->GetTransactionFlag(), "Another transaction exist!"); _setImpl->GetTransactionFlag() = true; }
 
-			virtual ~SetTransaction()
+			~SetTransaction() override
 			{ _setImpl->GetTransactionFlag() = false; }
 
-			virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
+			shared_ptr<IEnumerator<T> > GetEnumerator() const override
 			{ return make_shared_ptr<SetTransactionEnumerator<T, Comparer> >(_transactionImpl); }
 
-			virtual shared_ptr<IEnumerable<T> > Reverse() const
+			shared_ptr<IEnumerable<T> > Reverse() const override
 			{ STINGRAYKIT_THROW(NotImplementedException()); }
 
-			virtual shared_ptr<IEnumerator<T> > Find(const T& value) const
+			shared_ptr<IEnumerator<T> > Find(const T& value) const override
 			{ STINGRAYKIT_THROW(NotImplementedException()); }
 
-			virtual shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const
+			shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const override
 			{ STINGRAYKIT_THROW(NotImplementedException()); }
 
-			virtual size_t GetCount() const
+			size_t GetCount() const override
 			{ return GetContainer().size() + GetAdded().size() - GetRemoved().size(); }
 
-			virtual bool IsEmpty() const
+			bool IsEmpty() const override
 			{ return GetAdded().empty() && GetContainer().size() == GetRemoved().size(); }
 
-			virtual bool Contains(const T& value) const
+			bool Contains(const T& value) const override
 			{ return GetAdded().count(value) != 0 || (GetRemoved().count(value) == 0 && GetContainer().count(value) != 0); }
 
-			virtual void Add(const T& value)
+			void Add(const T& value) override
 			{
 				_transactionImpl->GetStamp()++;
 
@@ -215,7 +216,7 @@ namespace stingray
 				STINGRAYKIT_CHECK(GetAdded().insert(value).second, "Value already exists!");
 			}
 
-			virtual void Remove(const T& value)
+			void Remove(const T& value) override
 			{
 				_transactionImpl->GetStamp()++;
 
@@ -230,7 +231,7 @@ namespace stingray
 				STINGRAYKIT_CHECK(GetRemoved().insert(*it).second, "No such value!");
 			}
 
-			virtual bool TryRemove(const T& value)
+			bool TryRemove(const T& value) override
 			{
 				_transactionImpl->GetStamp()++;
 
@@ -246,7 +247,7 @@ namespace stingray
 				return GetRemoved().insert(*it).second;
 			}
 
-			virtual size_t RemoveWhere(const function<bool (const T&)>& pred)
+			size_t RemoveWhere(const function<bool (const T&)>& pred) override
 			{
 				_transactionImpl->GetStamp()++;
 				size_t ret = 0;
@@ -274,7 +275,7 @@ namespace stingray
 				return ret;
 			}
 
-			virtual void Clear()
+			void Clear() override
 			{
 				_transactionImpl->GetStamp()++;
 
@@ -282,7 +283,18 @@ namespace stingray
 				GetRemoved() = GetContainer();
 			}
 
-			virtual void Commit()
+			void Apply(const DiffEntryType& entry) override
+			{
+				switch (entry.Op)
+				{
+				case CollectionOp::Added:		Add(entry.Item); break;
+				case CollectionOp::Removed:		Remove(entry.Item); break;
+				case CollectionOp::Updated:
+					STINGRAYKIT_THROW(NotSupportedException());
+				}
+			}
+
+			void Commit() override
 			{
 				if (GetRemoved().empty() && GetAdded().empty())
 					return;
@@ -302,7 +314,7 @@ namespace stingray
 				GetRemoved().clear();
 			}
 
-			virtual void Revert()
+			void Revert() override
 			{
 				_transactionImpl->GetStamp()++;
 
@@ -310,7 +322,7 @@ namespace stingray
 				GetRemoved().clear();
 			}
 
-			virtual typename base::DiffTypePtr Diff() const
+			typename base::DiffTypePtr Diff() const override
 			{
 				typedef typename base::DiffEntryType DiffEntryType;
 				EnumerableBuilder<DiffEntryType> diff;
@@ -355,9 +367,9 @@ namespace stingray
 				_containerIter(setImpl->GetContainer().begin())
 			{ }
 
-			virtual bool Valid() const	{ CheckStamp(); return _containerIter != _setImpl->GetContainer().end(); }
-			virtual T Get() const		{ CheckStamp(); return *_containerIter; }
-			virtual void Next()			{ CheckStamp(); ++_containerIter; }
+			bool Valid() const override	{ CheckStamp(); return _containerIter != _setImpl->GetContainer().end(); }
+			T Get() const override		{ CheckStamp(); return *_containerIter; }
+			void Next() override		{ CheckStamp(); ++_containerIter; }
 
 		private:
 			void CheckStamp() const		{ STINGRAYKIT_CHECK(_stamp == _setImpl->GetStamp(), "Container was modified during enumeration!"); }
@@ -406,28 +418,28 @@ namespace stingray
 		TransactionalSet() : _setImpl(make_shared_ptr<SetImpl>())
 		{ }
 
-		virtual shared_ptr<IEnumerator<T> > GetEnumerator() const
+		shared_ptr<IEnumerator<T> > GetEnumerator() const override
 		{ return make_shared_ptr<Detail::SetEnumerator<T, Comparer> >(_setImpl); }
 
-		virtual shared_ptr<IEnumerable<T> > Reverse() const
+		shared_ptr<IEnumerable<T> > Reverse() const override
 		{ STINGRAYKIT_THROW(NotImplementedException()); }
 
-		virtual shared_ptr<IEnumerator<T> > Find(const T& value) const
+		shared_ptr<IEnumerator<T> > Find(const T& value) const override
 		{ STINGRAYKIT_THROW(NotImplementedException()); }
 
-		virtual shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const
+		shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const override
 		{ STINGRAYKIT_THROW(NotImplementedException()); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ MutexLock l(GetSyncRoot()); return GetContainer().size(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ MutexLock l(GetSyncRoot()); return GetContainer().empty(); }
 
-		virtual bool Contains(const T& value) const
+		bool Contains(const T& value) const override
 		{ MutexLock l(GetSyncRoot()); return GetContainer().find(value) != GetContainer().end(); }
 
-		virtual void Add(const T& value)
+		void Add(const T& value) override
 		{
 			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
@@ -438,7 +450,7 @@ namespace stingray
 			_setImpl->GetStamp()++;
 		}
 
-		virtual void Remove(const T& value)
+		void Remove(const T& value) override
 		{
 			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
@@ -453,7 +465,7 @@ namespace stingray
 			_setImpl->GetStamp()++;
 		}
 
-		virtual bool TryRemove(const T& value)
+		bool TryRemove(const T& value) override
 		{
 			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
@@ -470,7 +482,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual size_t RemoveWhere(const function<bool (const T&)>& pred)
+		size_t RemoveWhere(const function<bool (const T&)>& pred) override
 		{
 			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
@@ -498,7 +510,7 @@ namespace stingray
 			return ret;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			MutexLock l(GetSyncRoot());
 			TransactionToken token(_setImpl);
@@ -515,13 +527,13 @@ namespace stingray
 			_setImpl->GetStamp()++;
 		}
 
-		virtual typename base::TransactionTypePtr StartTransaction()
+		typename base::TransactionTypePtr StartTransaction() override
 		{ return make_shared_ptr<Detail::SetTransaction<T, Comparer> >(_setImpl); }
 
-		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const
+		signal_connector<void(const DiffTypePtr&)> OnChanged() const override
 		{ return _setImpl->OnChanged(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return _setImpl->GetStateMutex(); }
 
 	private:

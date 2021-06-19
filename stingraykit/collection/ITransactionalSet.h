@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/DiffEntry.h>
 #include <stingraykit/collection/ISet.h>
-#include <stingraykit/collection/ObservableCollectionLocker.h>
 #include <stingraykit/signal/signal_connector.h>
 
 namespace stingray
@@ -24,39 +23,22 @@ namespace stingray
 	template < typename T >
 	struct ISetTransaction : public virtual ISet<T>
 	{
-		typedef ISet<T>						base;
 		typedef DiffEntry<T>				DiffEntryType;
 		typedef IEnumerable<DiffEntryType>	DiffType;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
-		virtual void Commit() = 0;
-		virtual void Revert() = 0;
+		virtual void Apply(const DiffEntryType& entry) = 0;
 
 		virtual DiffTypePtr Diff() const = 0;
 
-		void Apply(const DiffEntryType& entry)
-		{
-			switch (entry.Op)
-			{
-			case CollectionOp::Added:
-				this->Add(entry.Item);
-				break;
-			case CollectionOp::Removed:
-				this->Remove(entry.Item);
-				break;
-			case CollectionOp::Updated:
-			default:
-				STINGRAYKIT_THROW(StringBuilder() % "Not supported CollectionOp: " % entry.Op);
-			}
-		}
+		virtual void Commit() = 0;
+		virtual void Revert() = 0;
 	};
 
 
 	template < typename T >
 	struct ITransactionalSet : public virtual ISet<T>
 	{
-		typedef IReadonlySet<T>				base;
-
 		typedef DiffEntry<T>				DiffEntryType;
 		typedef IEnumerable<DiffEntryType>	DiffType;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
@@ -74,6 +56,4 @@ namespace stingray
 
 }
 
-
 #endif
-
