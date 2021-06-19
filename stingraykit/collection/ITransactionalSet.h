@@ -37,19 +37,24 @@ namespace stingray
 
 
 	template < typename T >
-	struct ITransactionalSet : public virtual IReadonlySet<T>
+	struct IReadonlyTransactionalSet : public virtual IReadonlySet<T>
 	{
 		typedef DiffEntry<T>				DiffEntryType;
 		typedef IEnumerable<DiffEntryType>	DiffType;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
+		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const = 0;
+		virtual const Mutex& GetSyncRoot() const = 0;
+	};
+
+
+	template < typename T >
+	struct ITransactionalSet : public virtual IReadonlyTransactionalSet<T>
+	{
 		typedef ISetTransaction<T>			TransactionType;
 		STINGRAYKIT_DECLARE_PTR(TransactionType);
 
 		virtual TransactionTypePtr StartTransaction() = 0;
-
-		virtual signal_connector<void(const DiffTypePtr&)> OnChanged() const = 0;
-		virtual const Mutex& GetSyncRoot() const = 0;
 	};
 
 	/** @} */
