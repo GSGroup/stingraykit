@@ -26,19 +26,19 @@ namespace stingray
 			typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
 		public:
-			typedef T                          ValueType;
-			typedef std::set<T, Comparer>      Container;
-			typedef DiffEntry<T>               DiffEntryType;
-			typedef IEnumerable<DiffEntryType> DiffType;
+			typedef T							ValueType;
+			typedef std::set<T, Comparer>		Container;
+			typedef DiffEntry<T>				DiffEntryType;
+			typedef IEnumerable<DiffEntryType>	DiffType;
 			STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		private:
-			shared_ptr<Mutex>                                                                  _mutex;
-			Mutex                                                                              _transactionMutex;
-			Container                                                                          _container;
-			signal<void(const DiffTypePtr&), ExternalMutexPointer>                             _onChanged;
-			u64                                                                                _stamp;
-			bool                                                                               _transactionFlag;
+			shared_ptr<Mutex>																_mutex;
+			Mutex																			_transactionMutex;
+			Container																		_container;
+			signal<void(const DiffTypePtr&), ExternalMutexPointer>							_onChanged;
+			u64																				_stamp;
+			bool																			_transactionFlag;
 
 		public:
 			TransactionalSetImpl()
@@ -48,13 +48,13 @@ namespace stingray
 					_transactionFlag(false)
 			{ }
 
-			const Mutex& GetStateMutex() const                           { return *_mutex; }
-			const Mutex& GetTransactionMutex() const                     { return _transactionMutex; }
-			Container& GetContainer()                                    { return _container; }
-			signal_connector<void(const DiffTypePtr&)> OnChanged() const { return _onChanged.connector(); }
-			void InvokeOnChanged(const DiffTypePtr& diff)                { _onChanged(diff); }
-			u64& GetStamp()                                              { return _stamp; }
-			bool& GetTransactionFlag()                                   { return _transactionFlag; }
+			const Mutex& GetStateMutex() const								{ return *_mutex; }
+			const Mutex& GetTransactionMutex() const						{ return _transactionMutex; }
+			Container& GetContainer()										{ return _container; }
+			signal_connector<void(const DiffTypePtr&)> OnChanged() const	{ return _onChanged.connector(); }
+			void InvokeOnChanged(const DiffTypePtr& diff)					{ _onChanged(diff); }
+			u64& GetStamp()													{ return _stamp; }
+			bool& GetTransactionFlag()										{ return _transactionFlag; }
 
 		private:
 			void OnChangedPopulator(const function<void(const DiffTypePtr&)>& slot) const
@@ -77,21 +77,21 @@ namespace stingray
 			typedef typename SetImpl::Container       Container;
 
 		private:
-			SetImplPtr _setImpl;
-			MutexLock  _mutexLock;
-			Container  _added;
-			Container  _removed;
-			u64        _stamp;
+			SetImplPtr	_setImpl;
+			MutexLock	_mutexLock;
+			Container	_added;
+			Container	_removed;
+			u64			_stamp;
 
 		public:
 			SetTransactionImpl(const SetImplPtr& setImpl) :
 				_setImpl(setImpl), _mutexLock(setImpl->GetTransactionMutex()), _stamp(0)
 			{ }
 
-			Container& GetAdded()     { return _added; }
-			Container& GetRemoved()   { return _removed; }
-			Container& GetContainer() { return _setImpl->GetContainer(); }
-			u64& GetStamp()           { return _stamp; }
+			Container& GetAdded()		{ return _added; }
+			Container& GetRemoved()		{ return _removed; }
+			Container& GetContainer()	{ return _setImpl->GetContainer(); }
+			u64& GetStamp()				{ return _stamp; }
 		};
 
 
@@ -104,12 +104,12 @@ namespace stingray
 			typedef typename TransactionImpl::Container Container;
 
 		private:
-			TransactionImplPtr                 _transactionImpl;
-			u64                                _stamp;
-			typename Container::const_iterator _containerIter;
-			typename Container::const_iterator _addedIter;
-			typename Container::const_iterator _removedIter;
-			bool                               _currentItemWasAdded;
+			TransactionImplPtr					_transactionImpl;
+			u64									 _stamp;
+			typename Container::const_iterator	_containerIter;
+			typename Container::const_iterator	_addedIter;
+			typename Container::const_iterator	_removedIter;
+			bool								_currentItemWasAdded;
 
 		public:
 			SetTransactionEnumerator(const TransactionImplPtr& transactionImpl) :
@@ -120,8 +120,8 @@ namespace stingray
 				_removedIter(transactionImpl->GetRemoved().begin())
 			{ _currentItemWasAdded = AddedValid() && (!ContainerValid() || Comparer()(*_addedIter, *_containerIter)); }
 
-			virtual bool Valid() const { CheckStamp(); return ContainerValid() || AddedValid(); }
-			virtual T Get() const      { CheckStamp(); return _currentItemWasAdded ? *_addedIter : *_containerIter; }
+			virtual bool Valid() const	{ CheckStamp(); return ContainerValid() || AddedValid(); }
+			virtual T Get() const		{ CheckStamp(); return _currentItemWasAdded ? *_addedIter : *_containerIter; }
 
 			virtual void Next()
 			{
@@ -140,10 +140,10 @@ namespace stingray
 			}
 
 		private:
-			void CheckStamp() const     { STINGRAYKIT_CHECK(_stamp == _transactionImpl->GetStamp(), "Container was modified during enumeration!"); }
-			bool AddedValid() const     { return _addedIter != _transactionImpl->GetAdded().end(); }
-			bool RemovedValid() const   { return _removedIter != _transactionImpl->GetRemoved().end(); }
-			bool ContainerValid() const { return _containerIter != _transactionImpl->GetContainer().end(); }
+			void CheckStamp() const		{ STINGRAYKIT_CHECK(_stamp == _transactionImpl->GetStamp(), "Container was modified during enumeration!"); }
+			bool AddedValid() const		{ return _addedIter != _transactionImpl->GetAdded().end(); }
+			bool RemovedValid() const	{ return _removedIter != _transactionImpl->GetRemoved().end(); }
+			bool ContainerValid() const	{ return _containerIter != _transactionImpl->GetContainer().end(); }
 
 			void NextContainerItem()
 			{
@@ -157,19 +157,19 @@ namespace stingray
 		template < typename T, typename Comparer >
 		class SetTransaction : public virtual ISetTransaction<T>
 		{
-			typedef ISetTransaction<T>                base;
+			typedef ISetTransaction<T>					base;
 
-			typedef TransactionalSetImpl<T, Comparer> SetImpl;
+			typedef TransactionalSetImpl<T, Comparer>	SetImpl;
 			STINGRAYKIT_DECLARE_PTR(SetImpl);
 
-			typedef SetTransactionImpl<T, Comparer>   TransactionImpl;
+			typedef SetTransactionImpl<T, Comparer>		TransactionImpl;
 			STINGRAYKIT_DECLARE_PTR(TransactionImpl);
 
-			typedef typename SetImpl::Container       Container;
+			typedef typename SetImpl::Container			Container;
 
 		private:
-			SetImplPtr            _setImpl;
-			TransactionImplPtr    _transactionImpl;
+			SetImplPtr				_setImpl;
+			TransactionImplPtr		_transactionImpl;
 
 		public:
 			SetTransaction(const SetImplPtr& setImpl) :
@@ -322,30 +322,30 @@ namespace stingray
 			}
 
 		private:
-			Container& GetAdded()                 { return _transactionImpl->GetAdded(); }
-			const Container& GetAdded() const     { return _transactionImpl->GetAdded(); }
+			Container& GetAdded()					{ return _transactionImpl->GetAdded(); }
+			const Container& GetAdded() const		{ return _transactionImpl->GetAdded(); }
 
-			Container& GetRemoved()               { return _transactionImpl->GetRemoved(); }
-			const Container& GetRemoved() const   { return _transactionImpl->GetRemoved(); }
+			Container& GetRemoved()					{ return _transactionImpl->GetRemoved(); }
+			const Container& GetRemoved() const		{ return _transactionImpl->GetRemoved(); }
 
-			Container& GetContainer()             { return _transactionImpl->GetContainer(); }
-			const Container& GetContainer() const { return _transactionImpl->GetContainer(); }
+			Container& GetContainer()				{ return _transactionImpl->GetContainer(); }
+			const Container& GetContainer() const	{ return _transactionImpl->GetContainer(); }
 		};
 
 
 		template < typename T, typename Comparer >
 		struct SetEnumerator : public virtual IEnumerator<T>
 		{
-			typedef TransactionalSetImpl<T, Comparer> SetImpl;
+			typedef TransactionalSetImpl<T, Comparer>	SetImpl;
 			STINGRAYKIT_DECLARE_PTR(SetImpl);
 
-			typedef typename SetImpl::Container    Container;
+			typedef typename SetImpl::Container			Container;
 
 		private:
-			SetImplPtr                         _setImpl;
-			MutexLock                          _mutexLock;
-			u64                                _stamp;
-			typename Container::const_iterator _containerIter;
+			SetImplPtr							_setImpl;
+			MutexLock							_mutexLock;
+			u64									_stamp;
+			typename Container::const_iterator	_containerIter;
 
 		public:
 			SetEnumerator(const SetImplPtr& setImpl) :
@@ -355,12 +355,12 @@ namespace stingray
 				_containerIter(setImpl->GetContainer().begin())
 			{ }
 
-			virtual bool Valid() const { CheckStamp(); return _containerIter != _setImpl->GetContainer().end(); }
-			virtual T Get() const      { CheckStamp(); return *_containerIter; }
-			virtual void Next()        { CheckStamp(); ++_containerIter; }
+			virtual bool Valid() const	{ CheckStamp(); return _containerIter != _setImpl->GetContainer().end(); }
+			virtual T Get() const		{ CheckStamp(); return *_containerIter; }
+			virtual void Next()			{ CheckStamp(); ++_containerIter; }
 
 		private:
-			void CheckStamp() const     { STINGRAYKIT_CHECK(_stamp == _setImpl->GetStamp(), "Container was modified during enumeration!"); }
+			void CheckStamp() const		{ STINGRAYKIT_CHECK(_stamp == _setImpl->GetStamp(), "Container was modified during enumeration!"); }
 		};
 
 
@@ -387,17 +387,17 @@ namespace stingray
 	class TransactionalSet : public virtual ITransactionalSet<T>
 	{
 	public:
-		typedef ITransactionalSet<T>            base;
-		typedef typename base::DiffEntryType    DiffEntryType;
-		typedef typename base::DiffTypePtr        DiffTypePtr;
+		typedef ITransactionalSet<T>			base;
+		typedef typename base::DiffEntryType	DiffEntryType;
+		typedef typename base::DiffTypePtr		DiffTypePtr;
 
 	private:
-		typedef Detail::TransactionalSetImpl<T, Comparer> SetImpl;
+		typedef Detail::TransactionalSetImpl<T, Comparer>	SetImpl;
 		STINGRAYKIT_DECLARE_PTR(SetImpl);
 
-		typedef typename SetImpl::Container               Container;
+		typedef typename SetImpl::Container					Container;
 
-		typedef Detail::TransactionToken<T, Comparer>     TransactionToken;
+		typedef Detail::TransactionToken<T, Comparer>		TransactionToken;
 
 	private:
 		SetImplPtr    _setImpl;
@@ -525,8 +525,8 @@ namespace stingray
 		{ return _setImpl->GetStateMutex(); }
 
 	private:
-		Container& GetContainer()             { return _setImpl->GetContainer(); }
-		const Container& GetContainer() const { return _setImpl->GetContainer(); }
+		Container& GetContainer()				{ return _setImpl->GetContainer(); }
+		const Container& GetContainer() const	{ return _setImpl->GetContainer(); }
 	};
 }
 
