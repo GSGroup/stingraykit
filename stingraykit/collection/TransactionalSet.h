@@ -439,7 +439,7 @@ namespace stingray
 		bool Contains(const T& value) const override
 		{ MutexLock l(GetSyncRoot()); return GetContainer().find(value) != GetContainer().end(); }
 
-		typename base::TransactionTypePtr StartTransaction() override
+		typename base::TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) override
 		{ return make_shared_ptr<Detail::SetTransaction<T, Comparer> >(_setImpl); }
 
 		signal_connector<void(const DiffTypePtr&)> OnChanged() const override

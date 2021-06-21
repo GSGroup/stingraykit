@@ -54,7 +54,7 @@ namespace stingray
 		typedef ISetTransaction<T>			TransactionType;
 		STINGRAYKIT_DECLARE_PTR(TransactionType);
 
-		virtual TransactionTypePtr StartTransaction() = 0;
+		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) = 0;
 	};
 
 	/** @} */
