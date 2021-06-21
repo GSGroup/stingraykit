@@ -402,7 +402,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
 		{
 			MutexLock l(*_impl->Guard);
-			return EnumeratorFromStlIterators(_impl->Items->begin(), _impl->Items->end(), _impl->Items);
+			return EnumeratorFromStlContainer(*_impl->Items, _impl->Items);
 		}
 
 		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
