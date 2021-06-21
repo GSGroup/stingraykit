@@ -414,7 +414,7 @@ namespace stingray
 		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
 		{
 			MutexLock l(*_impl->Guard);
-			return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(_impl->Map->begin(), _impl->Map->end(), _impl->Map));
+			return Utils::WrapMapEnumerator(EnumeratorFromStlContainer(*_impl->Map, _impl->Map));
 		}
 
 		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
