@@ -733,6 +733,29 @@ namespace stingray
 		namespace Detail
 		{
 			template < typename ItemType >
+			shared_ptr<IEnumerator<ItemType>> SkipEnumerator(const shared_ptr<IEnumerator<ItemType>>& src, size_t count)
+			{
+				for (size_t index = 0; index < count && src->Valid(); ++index)
+					src->Next();
+
+				return src;
+			}
+		}
+
+
+		template < typename SrcEnumerator >
+		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType>> Skip(const shared_ptr<SrcEnumerator>& enumerator, size_t count, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		{ return Detail::SkipEnumerator(enumerator, count); }
+
+
+		template < typename SrcEnumerable >
+		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType>> Skip(const shared_ptr<SrcEnumerable>& enumerable, size_t count, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		{ return MakeSimpleEnumerable(Bind(&Detail::SkipEnumerator<typename SrcEnumerable::ItemType>, Bind(&SrcEnumerable::GetEnumerator, enumerable), count)); }
+
+
+		namespace Detail
+		{
+			template < typename ItemType >
 			class EnumeratorTaker : public IEnumerator<ItemType>
 			{
 				typedef shared_ptr<IEnumerator<ItemType>>							SrcEnumeratorPtr;
