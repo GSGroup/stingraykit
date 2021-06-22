@@ -78,12 +78,57 @@ namespace stingray
 			{ return StringBuilder() % "Starting transaction on " % TypeInfo(typeid(TransactionalSet)).GetClassName(); }
 		};
 
+		class ReverseEnumerable : public virtual IEnumerable<ValueType>
+		{
+		private:
+			const HolderPtr				_holder;
+
+		public:
+			explicit ReverseEnumerable(const HolderPtr& holder)
+				:	_holder(STINGRAYKIT_REQUIRE_NOT_NULL(holder))
+			{ }
+
+			shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
+			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
+		};
+
+		struct ForwardEnumerationDirection
+		{
+			using IteratorType = typename SetType::const_iterator;
+			using LessComparer = ValueLessComparer;
+
+			static IteratorType Begin(const SetType& items)
+			{ return items.begin(); }
+
+			static IteratorType End(const SetType& items)
+			{ return items.end(); }
+		};
+
+		struct ReverseEnumerationDirection
+		{
+			using IteratorType = typename SetType::const_reverse_iterator;
+
+			struct LessComparer : public function_info<bool, UnspecifiedParamTypes>
+			{
+				bool operator () (const ValueType& lhs, const ValueType& rhs) const
+				{ return ValueLessComparer()(rhs, lhs); }
+			};
+
+			static IteratorType Begin(const SetType& items)
+			{ return items.rbegin(); }
+
+			static IteratorType End(const SetType& items)
+			{ return items.rend(); }
+		};
+
+		template < typename EnumerationDirection >
 		class TransactionEnumerator : public virtual IEnumerator<ValueType>
 		{
 			STINGRAYKIT_NONCOPYABLE(TransactionEnumerator);
 
 		private:
-			using IteratorType = typename SetType::const_iterator;
+			using IteratorType = typename EnumerationDirection::IteratorType;
+			using LessComparer = typename EnumerationDirection::LessComparer;
 
 			struct EntryType
 			{
@@ -106,9 +151,9 @@ namespace stingray
 				:	_itemsHolder(STINGRAYKIT_REQUIRE_NOT_NULL(itemsHolder)),
 					_addedHolder(STINGRAYKIT_REQUIRE_NOT_NULL(addedHolder)),
 					_removedHolder(STINGRAYKIT_REQUIRE_NOT_NULL(removedHolder)),
-					_itemsIt(_itemsHolder->Items->begin()),
-					_addedIt(_addedHolder->Items->begin()),
-					_removedIt(_removedHolder->Items->begin())
+					_itemsIt(EnumerationDirection::Begin(*_itemsHolder->Items)),
+					_addedIt(EnumerationDirection::Begin(*_addedHolder->Items)),
+					_removedIt(EnumerationDirection::Begin(*_removedHolder->Items))
 			{
 				UpdateEntryType();
 				if (_entryType == EntryType::Removed)
@@ -150,27 +195,27 @@ namespace stingray
 		private:
 			void UpdateEntryType()
 			{
-				if (_itemsIt == _itemsHolder->Items->end())
+				if (_itemsIt == EnumerationDirection::End(*_itemsHolder->Items))
 				{
-					_entryType = _addedIt != _addedHolder->Items->end() ? EntryType::Added : EntryType::None;
+					_entryType = _addedIt != EnumerationDirection::End(*_addedHolder->Items) ? EntryType::Added : EntryType::None;
 					return;
 				}
 
-				if (_addedIt != _addedHolder->Items->end() && ValueLessComparer()(*_addedIt, *_itemsIt))
+				if (_addedIt != EnumerationDirection::End(*_addedHolder->Items) && LessComparer()(*_addedIt, *_itemsIt))
 				{
 					_entryType = EntryType::Added;
 					return;
 				}
 
-				if (_removedIt != _removedHolder->Items->end())
+				if (_removedIt != EnumerationDirection::End(*_removedHolder->Items))
 				{
-					if (ValueLessComparer()(*_itemsIt, *_removedIt))
+					if (LessComparer()(*_itemsIt, *_removedIt))
 					{
 						_entryType = EntryType::Items;
 						return;
 					}
 
-					STINGRAYKIT_CHECK(!ValueLessComparer()(*_removedIt, *_itemsIt), LogicException("Broken invariant: 'removed' must be equals to 'item'"));
+					STINGRAYKIT_CHECK(!LessComparer()(*_removedIt, *_itemsIt), LogicException("Broken invariant: 'removed' must be equals to 'item'"));
 					_entryType = EntryType::Removed;
 					return;
 				}
@@ -330,10 +375,10 @@ namespace stingray
 			}
 
 			shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
-			{ return make_shared_ptr<TransactionEnumerator>(_impl->GetItemsHolder(), GetAddedHolder(), GetRemovedHolder()); }
+			{ return make_shared_ptr<TransactionEnumerator<ForwardEnumerationDirection>>(_impl->GetItemsHolder(), GetAddedHolder(), GetRemovedHolder()); }
 
 			shared_ptr<IEnumerable<ValueType>> Reverse() const override
-			{ STINGRAYKIT_THROW(NotImplementedException()); }
+			{ return MakeSimpleEnumerable(Bind(MakeShared<TransactionEnumerator<ReverseEnumerationDirection>>(), _impl->GetItemsHolder(), GetAddedHolder(), GetRemovedHolder())); }
 
 			size_t GetCount() const override
 			{ return _impl->Items->size() - _removed->size() + _added->size(); }
@@ -501,7 +546,10 @@ namespace stingray
 		}
 
 		shared_ptr<IEnumerable<ValueType>> Reverse() const override
-		{ STINGRAYKIT_THROW(NotImplementedException()); }
+		{
+			MutexLock l(*_impl->Guard);
+			return make_shared_ptr<ReverseEnumerable>(_impl->GetItemsHolder());
+		}
 
 		size_t GetCount() const override
 		{
