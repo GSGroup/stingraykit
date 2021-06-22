@@ -224,6 +224,34 @@ namespace stingray
 
 
 	template <typename Arg_, typename Enabler = void>
+	struct DropTransformerImpl;
+
+
+	struct DropTransformer : public TransformerMarker
+	{
+		template <typename Arg_>
+		struct Dispatcher
+		{
+			typedef DropTransformerImpl<Arg_> Impl;
+		};
+
+	private:
+		size_t		_count;
+
+	public:
+		DropTransformer(size_t count) : _count(count)
+		{ }
+
+		size_t GetCount() const
+		{ return _count; }
+	};
+
+
+	inline DropTransformer Drop(size_t count)
+	{ return DropTransformer(count); }
+
+
+	template <typename Arg_, typename Enabler = void>
 	struct TakeTransformerImpl;
 
 

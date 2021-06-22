@@ -1251,6 +1251,16 @@ namespace stingray
 
 
 	template < typename Range_ >
+	struct DropTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
+	{
+		typedef Range::RangeDropper<Range_> ValueT;
+
+		static ValueT Do(const Range_& range, const DropTransformer& action)
+		{ return Range::Drop(range, action.GetCount()); }
+	};
+
+
+	template < typename Range_ >
 	struct TakeTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
 		typedef Range::RangeTaker<Range_> ValueT;
