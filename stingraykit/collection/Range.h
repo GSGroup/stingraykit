@@ -394,6 +394,86 @@ namespace stingray
 
 
 		template < typename Range_ >
+		class RangeDropper : public RangeBase<RangeDropper<Range_>, typename Range_::ValueType, typename Range_::Category>
+		{
+			typedef RangeBase<RangeDropper<Range_>, typename Range_::ValueType, typename Range_::Category> base;
+			typedef RangeDropper<Range_> Self;
+
+		public:
+			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
+
+		private:
+			const Range_		_initial;
+			optional<Range_	>	_impl;
+
+		public:
+			RangeDropper(const Range_& impl, size_t count)
+				: _initial(DoDrop(impl, count)), _impl(_initial)
+			{ }
+
+			bool Valid() const
+			{ return _impl->Valid(); }
+
+			typename base::ValueType Get()
+			{ return _impl->Get(); }
+
+			bool Equals(const RangeDropper& other) const
+			{ return _initial == other._initial && _impl == other._impl; }
+
+			Self& First()
+			{
+				_impl.emplace(_initial);
+				return *this;
+			}
+
+			Self& Last()
+			{
+				if (_initial.Valid())
+					_impl->Last();
+				else
+					_impl.emplace(_initial);
+
+				return *this;
+			}
+
+			Self& Next()
+			{
+				_impl->Next();
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				STINGRAYKIT_CHECK(*_impl != _initial, "Prev() at first element");
+				_impl->Prev();
+				return *this;
+			}
+
+			size_t GetPosition() const
+			{ return _impl->GetPosition() - _initial.GetPosition(); }
+
+			size_t GetSize() const
+			{ return _impl->GetSize() - _initial.GetPosition(); }
+
+			Self& Move(int distance)
+			{
+				STINGRAYKIT_CHECK(GetPosition() + distance <= GetSize(), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
+				_impl->Move(distance);
+				return *this;
+			}
+
+		private:
+			static Range_ DoDrop(const Range_& impl_, size_t count)
+			{
+				Range_ impl(impl_);
+				for (size_t index = 0; index < count && impl.Valid(); ++index)
+					impl.Next();
+				return impl;
+			}
+		};
+
+
+		template < typename Range_ >
 		class RangeTaker : public RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
 			typedef RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category> base;
@@ -790,6 +870,11 @@ namespace stingray
 		template < typename SrcRange_, typename Functor_ >
 		RangeTransformer<SrcRange_, Functor_> Transform(const SrcRange_& src, const Functor_& functor)
 		{ return RangeTransformer<SrcRange_, Functor_>(src, functor); }
+
+
+		template < typename Range_ >
+		RangeDropper<Range_> Drop(const Range_& range, size_t count)
+		{ return RangeDropper<Range_>(range, count); }
 
 
 		template < typename Range_ >
