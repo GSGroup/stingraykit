@@ -333,6 +333,9 @@ namespace stingray
 				return diff.Get();
 			}
 
+			bool IsDirty() const override
+			{ return !GetAdded().empty() || !GetRemoved().empty(); }
+
 		private:
 			Container& GetAdded()					{ return _transactionImpl->GetAdded(); }
 			const Container& GetAdded() const		{ return _transactionImpl->GetAdded(); }
