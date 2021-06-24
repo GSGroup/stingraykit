@@ -838,7 +838,7 @@ namespace stingray
 		case SCHED_OTHER:
 		case SCHED_BATCH:
 		case SCHED_IDLE:
-			STINGRAYKIT_CHECK(setpriority(PRIO_PROCESS, GetCurrentThreadId(), params.GetPriority()), SystemException("setpriority"));
+			STINGRAYKIT_CHECK(setpriority(PRIO_PROCESS, GetCurrentThreadId(), params.GetPriority()) == 0, SystemException("setpriority"));
 		case SCHED_RR:
 		case SCHED_FIFO:
 		default:
