@@ -493,11 +493,11 @@ namespace stingray
 
 				for (const ValueType& value : *_impl->Items)
 				{
-					if (!pred(value))
+					if (_removed->count(value) || !pred(value))
 						continue;
 
-					if (_removed->insert(value).second)
-						++ret;
+					_removed->insert(value);
+					++ret;
 				}
 
 				return ret;
