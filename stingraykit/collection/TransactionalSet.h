@@ -418,10 +418,10 @@ namespace stingray
 			{ return _impl->Items->size() - _removed->size() + _added->size(); }
 
 			bool IsEmpty() const override
-			{ return _impl->Items->size() == _removed->size() && _added->empty(); }
+			{ return _added->empty() && _impl->Items->size() == _removed->size(); }
 
 			bool Contains(const ValueType& value) const override
-			{ return (_impl->Items->count(value) && !_removed->count(value)) || _added->count(value); }
+			{ return _added->count(value) || (_impl->Items->count(value) && !_removed->count(value)); }
 
 			shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 			{
