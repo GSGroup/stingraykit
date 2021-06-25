@@ -834,12 +834,12 @@ namespace stingray
 
 
 		template < typename First, typename Second, typename PredicateFunc >
-		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second, const PredicateFunc& equalPredicate)
+		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second, const PredicateFunc& equalPredicate, typename EnableIf<!IsEnumerator<First>::Value || !IsEnumerator<Second>::Value, int>::ValueT dummy = 0)
 		{ return SequenceEqual(ToEnumerator(first), ToEnumerator(second), equalPredicate); }
 
 
 		template < typename First, typename Second >
-		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second)
+		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second, typename EnableIf<!IsEnumerator<First>::Value || !IsEnumerator<Second>::Value, int>::ValueT dummy = 0)
 		{ return SequenceEqual(ToEnumerator(first), ToEnumerator(second)); }
 
 
