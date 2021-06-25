@@ -12,7 +12,6 @@
 #include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
-#include <stingraykit/log/Logger.h>
 #include <stingraykit/signal/signals.h>
 
 namespace stingray
@@ -29,40 +28,42 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(TransactionalDictionary);
 
 	private:
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using EMP = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		typedef ITransactionalDictionary<KeyType_, ValueType_>	base;
+		using base = ITransactionalDictionary<KeyType_, ValueType_>;
 
-		typedef typename base::KeyType							KeyType;
-		typedef typename base::ValueType						ValueType;
-		typedef typename base::PairType							PairType;
+		using KeyType = typename base::KeyType;
+		using ValueType = typename base::ValueType;
+		using PairType = typename base::PairType;
 
-		typedef typename base::DiffEntryType					DiffEntryType;
-		typedef typename base::DiffTypePtr						DiffTypePtr;
-		typedef typename base::TransactionTypePtr				TransactionTypePtr;
+		using DiffEntryType = typename base::DiffEntryType;
+		using DiffTypePtr = typename base::DiffTypePtr;
+		using TransactionTypePtr = typename base::TransactionTypePtr;
 
-		typedef KeyLessComparer_								KeyLessComparer;
-		typedef ValueEqualsComparer_							ValueEqualsComparer;
+		using KeyLessComparer = KeyLessComparer_;
+		using ValueEqualsComparer = ValueEqualsComparer_;
 
 	private:
-		typedef std::map<KeyType, ValueType, KeyLessComparer>	MapType;
+		using MapType = std::map<KeyType, ValueType, KeyLessComparer>;
 		STINGRAYKIT_DECLARE_PTR(MapType);
 		STINGRAYKIT_DECLARE_CONST_PTR(MapType);
 
+		using MapValueType = typename MapType::value_type;
+
 		struct Utils
 		{
-			static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
+			static shared_ptr<IEnumerator<PairType>> WrapMapEnumerator(const shared_ptr<IEnumerator<MapValueType>>& mapEnumerator)
 			{ return WrapEnumerator(mapEnumerator); }
 
-			static DiffEntryType MakeDiffEntry(CollectionOp op, const typename MapType::value_type& pair)
+			static DiffEntryType MakeDiffEntry(CollectionOp op, const MapValueType& pair)
 			{ return stingray::MakeDiffEntry(op, PairType(pair)); }
 
 			static DiffTypePtr MakeDiff(const MapTypeConstPtr& oldMap, const MapTypeConstPtr& newMap)
 			{
-				typedef typename MapType::const_iterator cit;
+				using cit = typename MapType::const_iterator;
 
-				const shared_ptr<std::vector<DiffEntryType> > diff = make_shared_ptr<std::vector<DiffEntryType> >();
+				const shared_ptr<std::vector<DiffEntryType>> diff = make_shared_ptr<std::vector<DiffEntryType>>();
 
 				const cit oldEnd = oldMap->end();
 				const cit newEnd = newMap->end();
@@ -123,7 +124,7 @@ namespace stingray
 		public:
 			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 			{ return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
 		};
 
@@ -133,14 +134,14 @@ namespace stingray
 			MapTypeConstPtr												Map;
 			bool														HasTransaction;
 			ConditionVariable											TransactionCompleted;
-			signal<void (const DiffTypePtr&), ExternalMutexPointer>		OnChanged;
+			signal<void (const DiffTypePtr&), EMP>						OnChanged;
 
 		public:
 			ImplData()
 				:	Guard(make_shared_ptr<Mutex>()),
 					Map(make_shared_ptr<MapType>()),
 					HasTransaction(false),
-					OnChanged(ExternalMutexPointer(Guard), Bind(&ImplData::OnChangedPopulator, this, _1))
+					OnChanged(EMP(Guard), Bind(&ImplData::OnChangedPopulator, this, _1))
 			{ }
 
 		private:
@@ -185,35 +186,35 @@ namespace stingray
 				_oldMap = _impl->Map;
 			}
 
-			virtual ~Transaction()
+			~Transaction() override
 			{
 				MutexLock l(*_impl->Guard);
 				_impl->HasTransaction = false;
 				STINGRAYKIT_TRY_NO_MESSAGE(_impl->TransactionCompleted.Broadcast());
 			}
 
-			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 			{
 				const HolderPtr holder = GetMapHolder();
 				return Utils::WrapMapEnumerator(EnumeratorFromStlContainer(*holder->Map, holder));
 			}
 
-			virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+			shared_ptr<IEnumerable<PairType>> Reverse() const override
 			{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
 
-			virtual size_t GetCount() const
+			size_t GetCount() const override
 			{ return _newMap ? _newMap->size() : _oldMap->size(); }
 
-			virtual bool IsEmpty() const
+			bool IsEmpty() const override
 			{ return _newMap ? _newMap->empty() : _oldMap->empty(); }
 
-			virtual bool ContainsKey(const KeyType& key) const
+			bool ContainsKey(const KeyType& key) const override
 			{
 				const MapType& map = _newMap ? *_newMap : *_oldMap;
 				return map.find(key) != map.end();
 			}
 
-			virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+			shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 			{
 				const HolderPtr holder = GetMapHolder();
 
@@ -224,9 +225,9 @@ namespace stingray
 				return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(it, holder->Map->end(), holder));
 			}
 
-			virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+			shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 			{
-				typedef typename MapType::const_reverse_iterator cri;
+				using cri = typename MapType::const_reverse_iterator;
 
 				const HolderPtr holder = GetMapHolder();
 
@@ -237,7 +238,7 @@ namespace stingray
 				return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(cri(++it), cri(holder->Map->rend()), holder));
 			}
 
-			virtual ValueType Get(const KeyType& key) const
+			ValueType Get(const KeyType& key) const override
 			{
 				const MapType& map = _newMap ? *_newMap : *_oldMap;
 
@@ -247,7 +248,7 @@ namespace stingray
 				return it->second;
 			}
 
-			virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+			bool TryGet(const KeyType& key, ValueType& outValue) const override
 			{
 				const MapType& map = _newMap ? *_newMap : *_oldMap;
 
@@ -259,7 +260,7 @@ namespace stingray
 				return true;
 			}
 
-			virtual void Set(const KeyType& key, const ValueType& value)
+			void Set(const KeyType& key, const ValueType& value) override
 			{
 				CopyOnWrite();
 
@@ -270,10 +271,10 @@ namespace stingray
 					_newMap->insert(std::make_pair(key, value));
 			}
 
-			virtual void Remove(const KeyType& key)
+			void Remove(const KeyType& key) override
 			{ CopyOnWrite(); _newMap->erase(key); }
 
-			virtual bool TryRemove(const KeyType& key)
+			bool TryRemove(const KeyType& key) override
 			{
 				const MapType& map = _newMap ? *_newMap : *_oldMap;
 
@@ -286,7 +287,7 @@ namespace stingray
 				return true;
 			}
 
-			virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred)
+			size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 			{
 				CopyOnWrite();
 				size_t ret = 0;
@@ -302,7 +303,7 @@ namespace stingray
 				return ret;
 			}
 
-			virtual void Clear()
+			void Clear() override
 			{
 				_cachedDiff.reset();
 
@@ -315,23 +316,28 @@ namespace stingray
 				}
 			}
 
-			virtual void Apply(const DiffEntryType& entry)
+			void Apply(const DiffEntryType& entry) override
 			{
 				switch (entry.Op)
 				{
-				case CollectionOp::Added:
-					Set(entry.Item.Key, entry.Item.Value);
-					break;
-				case CollectionOp::Updated:
-					Set(entry.Item.Key, entry.Item.Value);
-					break;
-				case CollectionOp::Removed:
-					Remove(entry.Item.Key);
-					break;
+				case CollectionOp::Added:		Set(entry.Item.Key, entry.Item.Value); break;
+				case CollectionOp::Removed:		Remove(entry.Item.Key); break;
+				case CollectionOp::Updated:		Set(entry.Item.Key, entry.Item.Value); break;
 				}
 			}
 
-			virtual void Commit()
+			DiffTypePtr Diff() const override
+			{
+				if (_cachedDiff)
+					return _cachedDiff;
+
+				return _newMap ? _cachedDiff = Utils::MakeDiff(_oldMap, _newMap) : MakeEmptyEnumerable();
+			}
+
+			bool IsDirty() const override
+			{ return _newMap.is_initialized(); }
+
+			void Commit() override
 			{
 				if (_newMap)
 				{
@@ -354,19 +360,8 @@ namespace stingray
 				ResetWrite();
 			}
 
-			virtual void Revert()
+			void Revert() override
 			{ ResetWrite(); }
-
-			virtual DiffTypePtr Diff() const
-			{
-				if (_cachedDiff)
-					return _cachedDiff;
-
-				return _newMap ? _cachedDiff = Utils::MakeDiff(_oldMap, _newMap) : MakeEmptyEnumerable();
-			}
-
-			virtual bool IsDirty() const
-			{ return _newMap.is_initialized(); }
 
 		private:
 			HolderPtr GetMapHolder() const
@@ -411,37 +406,37 @@ namespace stingray
 			:	_impl(make_shared_ptr<ImplData>())
 		{ }
 
-		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 		{
 			MutexLock l(*_impl->Guard);
 			return Utils::WrapMapEnumerator(EnumeratorFromStlContainer(*_impl->Map, _impl->Map));
 		}
 
-		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		shared_ptr<IEnumerable<PairType>> Reverse() const override
 		{
 			MutexLock l(*_impl->Guard);
 			return make_shared_ptr<ReverseEnumerable>(make_shared_ptr<Holder>(_impl->Map));
 		}
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{
 			MutexLock l(*_impl->Guard);
 			return _impl->Map->size();
 		}
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{
 			MutexLock l(*_impl->Guard);
 			return _impl->Map->empty();
 		}
 
-		virtual bool ContainsKey(const KeyType& key) const
+		bool ContainsKey(const KeyType& key) const override
 		{
 			MutexLock l(*_impl->Guard);
 			return _impl->Map->find(key) != _impl->Map->end();
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
 			MutexLock l(*_impl->Guard);
 
@@ -452,9 +447,9 @@ namespace stingray
 			return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(it, _impl->Map->end(), _impl->Map));
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
-			typedef typename MapType::const_reverse_iterator cri;
+			using cri = typename MapType::const_reverse_iterator;
 
 			MutexLock l(*_impl->Guard);
 
@@ -465,7 +460,7 @@ namespace stingray
 			return Utils::WrapMapEnumerator(EnumeratorFromStlIterators(cri(++it), cri(_impl->Map->rend()), _impl->Map));
 		}
 
-		virtual ValueType Get(const KeyType& key) const
+		ValueType Get(const KeyType& key) const override
 		{
 			MutexLock l(*_impl->Guard);
 
@@ -475,7 +470,7 @@ namespace stingray
 			return it->second;
 		}
 
-		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+		bool TryGet(const KeyType& key, ValueType& outValue) const override
 		{
 			MutexLock l(*_impl->Guard);
 
@@ -487,13 +482,13 @@ namespace stingray
 			return true;
 		}
 
-		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken())
+		TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) override
 		{ return make_shared_ptr<Transaction>(_impl, token); }
 
-		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const
+		signal_connector<void (const DiffTypePtr&)> OnChanged() const override
 		{ return _impl->OnChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return *_impl->Guard; }
 	};
 
