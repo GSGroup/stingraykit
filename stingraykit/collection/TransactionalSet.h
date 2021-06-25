@@ -54,7 +54,7 @@ namespace stingray
 
 		struct Utils
 		{
-			static HolderPtr GetItemsHolder(const SetTypePtr& items, HolderWeakPtr& itemsHolder_)
+			static HolderPtr GetItemsHolder(const SetTypeConstPtr& items, HolderWeakPtr& itemsHolder_)
 			{
 				HolderPtr itemsHolder = itemsHolder_.lock();
 
@@ -544,7 +544,7 @@ namespace stingray
 					for (const ValueType& value : *_removed)
 						_impl->Items->erase(value);
 					for (const ValueType& value : *_added)
-						_impl->Items->insert(value);
+						STINGRAYKIT_CHECK(_impl->Items->insert(value).second, LogicException("Broken invariant: failed to add to items"));
 
 					_impl->OnChanged(diff);
 				}
@@ -576,7 +576,7 @@ namespace stingray
 		};
 
 	private:
-		ImplDataPtr							_impl;
+		const ImplDataPtr					_impl;
 
 	public:
 		TransactionalSet()
