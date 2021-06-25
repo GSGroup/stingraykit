@@ -111,18 +111,23 @@ namespace stingray
 
 		struct Holder
 		{
-			MapTypeConstPtr		Items;
-			Holder(const MapTypeConstPtr& items) : Items(items) { }
+			const MapTypeConstPtr		Items;
+
+			Holder(const MapTypeConstPtr& items)
+				:	Items(STINGRAYKIT_REQUIRE_NOT_NULL(items))
+			{ }
 		};
 		STINGRAYKIT_DECLARE_PTR(Holder);
 
 		class ReverseEnumerable : public virtual IEnumerable<PairType>
 		{
 		private:
-			HolderPtr		_holder;
+			const HolderPtr				_holder;
 
 		public:
-			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
+			ReverseEnumerable(const HolderPtr& holder)
+				:	_holder(STINGRAYKIT_REQUIRE_NOT_NULL(holder))
+			{ }
 
 			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 			{ return Utils::WrapEnumerator(EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder)); }
@@ -130,7 +135,7 @@ namespace stingray
 
 		struct ImplData
 		{
-			shared_ptr<Mutex>											Guard;
+			const shared_ptr<Mutex>										Guard;
 			MapTypeConstPtr												Items;
 			bool														HasTransaction;
 			ConditionVariable											TransactionCompleted;
@@ -268,7 +273,7 @@ namespace stingray
 				if (it != _newItems->end())
 					it->second = value;
 				else
-					_newItems->insert(std::make_pair(key, value));
+					_newItems->emplace(key, value);
 			}
 
 			void Remove(const KeyType& key) override
@@ -399,7 +404,7 @@ namespace stingray
 		};
 
 	private:
-		ImplDataPtr							_impl;
+		const ImplDataPtr					_impl;
 
 	public:
 		TransactionalDictionary()
