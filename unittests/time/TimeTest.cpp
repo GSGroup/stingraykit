@@ -51,6 +51,30 @@ TEST(TimeTest, TimeZone_FromString)
 }
 
 
+TEST(TimeTest, FromWindowsFileTime)
+{
+	{
+		const auto time = Time::FromWindowsFileTime(0);
+		ASSERT_EQ(time.GetMilliseconds(), -11644473600000);
+	}
+
+	{
+		const auto time = Time::FromWindowsFileTime(864003654321);
+		ASSERT_EQ(time.GetMilliseconds(), -11644383545679);
+
+		const auto bdt = time.BreakDown(TimeKind::Utc);
+
+		ASSERT_EQ(bdt.Year,			1601);
+		ASSERT_EQ(bdt.Month,		1);
+		ASSERT_EQ(bdt.MonthDay,		2);
+		ASSERT_EQ(bdt.Hours,		1);
+		ASSERT_EQ(bdt.Minutes,		0);
+		ASSERT_EQ(bdt.Seconds,		55);
+		ASSERT_EQ(bdt.Milliseconds,	-679);
+	}
+}
+
+
 TEST(TimeTest, MjdDate)
 {
 #if 0
