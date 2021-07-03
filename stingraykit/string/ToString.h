@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <ctype.h>
 #include <limits>
-#include <map>
 
 namespace stingray
 {
@@ -101,10 +100,12 @@ namespace stingray
 		STINGRAYKIT_DECLARE_METHOD_CHECK(begin);
 		STINGRAYKIT_DECLARE_METHOD_CHECK(end);
 
+		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(mapped_type);
+
 
 		struct TypeToStringObjectType
 		{
-			STINGRAYKIT_ENUM_VALUES(HasToString, Range, Enumerable, HasBeginEnd, IsException, Other, ProxyObjToStdStream);
+			STINGRAYKIT_ENUM_VALUES(HasToString, Range, Enumerable, IsMap, HasBeginEnd, IsException, Other, ProxyObjToStdStream);
 			STINGRAYKIT_DECLARE_ENUM_CLASS(TypeToStringObjectType);
 		};
 
@@ -119,21 +120,24 @@ namespace stingray
 							TypeToStringObjectType::Range :
 							(IsEnumerable<ObjectType>::Value ?
 								TypeToStringObjectType::Enumerable :
-								(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ?
-									TypeToStringObjectType::HasBeginEnd :
-									(IsInherited<ObjectType, std::exception>::Value ?
-										TypeToStringObjectType::IsException :
-										(
-											IsSame<u8, ObjectType>::Value
-												|| IsSame<EmptyType, ObjectType>::Value
-												|| IsSame<NullPtrType, ObjectType>::Value
-												|| IsSame<const char*, ObjectType>::Value
-												|| IsSharedPtr<ObjectType>::Value
-												|| Is1ParamTemplate<optional, ObjectType>::Value
-												|| Is1ParamTemplate<Tuple, ObjectType>::Value
-												|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
-											TypeToStringObjectType::Other :
-											TypeToStringObjectType::ProxyObjToStdStream
+								(HasNestedType_mapped_type<ObjectType>::Value ?
+									TypeToStringObjectType::IsMap :
+									(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ?
+										TypeToStringObjectType::HasBeginEnd :
+										(IsInherited<ObjectType, std::exception>::Value ?
+											TypeToStringObjectType::IsException :
+											(
+												IsSame<u8, ObjectType>::Value
+													|| IsSame<EmptyType, ObjectType>::Value
+													|| IsSame<NullPtrType, ObjectType>::Value
+													|| IsSame<const char*, ObjectType>::Value
+													|| IsSharedPtr<ObjectType>::Value
+													|| Is1ParamTemplate<optional, ObjectType>::Value
+													|| Is1ParamTemplate<Tuple, ObjectType>::Value
+													|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
+												TypeToStringObjectType::Other :
+												TypeToStringObjectType::ProxyObjToStdStream
+											)
 										)
 									)
 								)
@@ -167,13 +171,12 @@ namespace stingray
 		};
 
 
-		template< typename KeyType, typename ValueType, typename CompareType, typename AllocatorType >
-		struct TypeToStringSerializer<std::map<KeyType, ValueType, CompareType, AllocatorType>, TypeToStringObjectType::HasBeginEnd>
+		template< typename ObjectType>
+		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::IsMap>
 		{
-			typedef std::map<KeyType, ValueType, CompareType, AllocatorType>	MapType;
-			static void ToStringImpl(string_ostream & result, const MapType& object)
+			static void ToStringImpl(string_ostream & result, const ObjectType& object)
 			{
-				typename MapType::const_iterator it = object.begin(), iend = object.end();
+				typename ObjectType::const_iterator it = object.begin(), iend = object.end();
 				result << "{ ";
 				if (it != iend)
 				{

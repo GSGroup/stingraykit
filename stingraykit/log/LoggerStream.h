@@ -14,6 +14,8 @@
 
 #include <stingraykit/unique_ptr.h>
 
+#include <map>
+
 namespace stingray
 {
 

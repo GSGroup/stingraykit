@@ -11,6 +11,8 @@
 #include <stingraykit/collection/iterators.h>
 #include <stingraykit/thread/Thread.h>
 
+#include <map>
+
 namespace stingray
 {
 

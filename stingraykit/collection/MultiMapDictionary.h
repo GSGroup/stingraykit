@@ -14,6 +14,8 @@
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 #include <stingraykit/compare/comparers.h>
 
+#include <map>
+
 namespace stingray
 {
 
