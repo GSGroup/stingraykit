@@ -786,25 +786,6 @@ namespace stingray
 					++_index;
 				}
 			};
-
-
-			template < typename ItemType >
-			class EnumerableTaker : public IEnumerable<ItemType>
-			{
-				typedef shared_ptr<IEnumerable<ItemType>>							SrcEnumerablePtr;
-
-			private:
-				SrcEnumerablePtr	_src;
-				size_t				_count;
-
-			public:
-				EnumerableTaker(const SrcEnumerablePtr& src, size_t count)
-					: _src(src), _count(count)
-				{ }
-
-				virtual shared_ptr<IEnumerator<ItemType>> GetEnumerator() const
-				{ return make_shared_ptr<EnumeratorTaker<ItemType>>(_src->GetEnumerator(), _count); }
-			};
 		}
 
 
@@ -815,7 +796,7 @@ namespace stingray
 
 		template < typename SrcEnumerable >
 		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType>> Take(const shared_ptr<SrcEnumerable>& enumerable, size_t count, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
-		{ return make_shared_ptr<Detail::EnumerableTaker<typename SrcEnumerable::ItemType>>(enumerable, count); }
+		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorTaker<typename SrcEnumerable::ItemType>>(), Bind(&SrcEnumerable::GetEnumerator, enumerable), count)); }
 
 
 		template < typename T, typename PredicateFunc >
