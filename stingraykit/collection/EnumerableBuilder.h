@@ -15,13 +15,13 @@
 namespace stingray
 {
 
-	template<typename ItemType>
+	template < typename ItemType >
 	class EnumerableBuilder
 	{
-		typedef shared_ptr<IEnumerable<ItemType> > EnumerablePtr;
+		using EnumerablePtr = shared_ptr<IEnumerable<ItemType>>;
 
-		typedef typename GetParamPassingType<ItemType>::ValueT ItemPassingType;
-		typedef std::vector<ItemType> Container;
+		using ItemPassingType = typename GetParamPassingType<ItemType>::ValueT;
+		using Container = std::vector<ItemType>;
 
 	private:
 		shared_ptr<Container> _container;
@@ -30,7 +30,7 @@ namespace stingray
 		EnumerableBuilder() : _container(make_shared_ptr<Container>())
 		{ }
 
-		template <typename Iter>
+		template < typename Iter >
 		EnumerableBuilder(Iter first, Iter last) : _container(make_shared_ptr<Container>(first, last))
 		{ }
 
@@ -43,7 +43,7 @@ namespace stingray
 		EnumerableBuilder& Add(ItemPassingType val)
 		{ _container->push_back(val); return *this; }
 
-		template <typename Iter>
+		template < typename Iter >
 		EnumerableBuilder& Add(Iter first, Iter last)
 		{ std::copy(first, last, std::back_inserter(*_container)); return *this; }
 

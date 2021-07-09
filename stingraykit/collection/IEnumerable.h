@@ -13,7 +13,7 @@
 #include <stingraykit/collection/ToRange.h>
 
 #define STINGRAYKIT_DECLARE_ENUMERABLE(ClassName) \
-		typedef stingray::IEnumerable<ClassName>				ClassName##Enumerable; \
+		using ClassName##Enumerable = stingray::IEnumerable<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##Enumerable); \
 		STINGRAYKIT_DECLARE_ENUMERATOR(ClassName)
 
@@ -28,22 +28,22 @@ namespace stingray
 	template < typename T >
 	struct IEnumerable
 	{
-		typedef T ItemType;
+		using ItemType = T;
 
 		virtual ~IEnumerable() { }
 
-		virtual shared_ptr<IEnumerator<ItemType> > GetEnumerator() const = 0;
+		virtual shared_ptr<IEnumerator<ItemType>> GetEnumerator() const = 0;
 	};
 
 
 	template < typename T >
 	struct IReversableEnumerable : public virtual IEnumerable<T>
 	{
-		typedef T ItemType;
+		using ItemType = T;
 
-		virtual ~IReversableEnumerable() { }
+		~IReversableEnumerable() override { }
 
-		virtual shared_ptr<IEnumerable<ItemType> > Reverse() const = 0;
+		virtual shared_ptr<IEnumerable<ItemType>> Reverse() const = 0;
 	};
 
 
@@ -60,7 +60,7 @@ namespace stingray
 		template < typename T >
 		struct ToEnumeratorImpl<T, typename EnableIf<IsEnumerable<T>::Value, void>::ValueT>
 		{
-			typedef IEnumerator<typename T::ItemType>	ValueT;
+			using ValueT = IEnumerator<typename T::ItemType>;
 
 			static shared_ptr<ValueT> Do(const shared_ptr<T>& src) { return src->GetEnumerator(); }
 		};
@@ -72,14 +72,14 @@ namespace stingray
 			STINGRAYKIT_NONASSIGNABLE(EnumerableToRange);
 
 		private:
-			typedef Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag> base;
-			typedef EnumerableToRange<Enumerable_> Self;
+			using base = Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag>;
+			using Self = EnumerableToRange<Enumerable_>;
 
-			typedef shared_ptr<IEnumerator<typename Enumerable_::ItemType> > Enumerator;
+			using EnumeratorPtr = shared_ptr<IEnumerator<typename Enumerable_::ItemType>>;
 
 		private:
 			const Enumerable_&				_enumerable;
-			Enumerator						_enumerator;
+			EnumeratorPtr					_enumerator;
 			size_t							_index;
 
 		public:
@@ -126,10 +126,10 @@ namespace stingray
 		template < typename Enumerable_ >
 		struct ToRangeImpl<Enumerable_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
 		{
-			typedef EnumerableToRange<Enumerable_> ValueT;
+			using ValueT = EnumerableToRange<Enumerable_>;
 
-			static ValueT Do(const Enumerable_& r)
-			{ return ValueT(r); }
+			static ValueT Do(const Enumerable_& range)
+			{ return ValueT(range); }
 		};
 	}
 

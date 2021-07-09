@@ -11,7 +11,7 @@
 #include <stingraykit/collection/IEnumerable.h>
 
 #define STINGRAYKIT_DECLARE_COLLECTION(ClassName) \
-		typedef stingray::ICollection<ClassName>				ClassName##Collection; \
+		using ClassName##Collection = stingray::ICollection<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##Collection); \
 		STINGRAYKIT_DECLARE_ENUMERABLE(ClassName)
 
@@ -26,7 +26,7 @@ namespace stingray
 	template < typename T >
 	struct ICollection : public virtual IEnumerable<T>
 	{
-		virtual ~ICollection() { }
+		~ICollection() override { }
 
 		virtual size_t GetCount() const = 0;
 		virtual bool IsEmpty() const = 0;

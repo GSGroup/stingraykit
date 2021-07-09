@@ -11,7 +11,7 @@
 #include <stingraykit/shared_ptr.h>
 
 #define STINGRAYKIT_DECLARE_ENUMERATOR(ClassName) \
-		typedef stingray::IEnumerator<ClassName>				ClassName##Enumerator; \
+		using ClassName##Enumerator = stingray::IEnumerator<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##Enumerator)
 
 namespace stingray
@@ -25,7 +25,7 @@ namespace stingray
 	template < typename T >
 	struct IEnumerator
 	{
-		typedef T		ItemType;
+		using ItemType = T;
 
 		virtual ~IEnumerator() { }
 
@@ -47,7 +47,7 @@ namespace stingray
 		template < typename T >
 		struct ToEnumeratorImpl<T, typename EnableIf<IsEnumerator<T>::Value, void>::ValueT>
 		{
-			typedef IEnumerator<typename T::ItemType>	ValueT;
+			using ValueT = IEnumerator<typename T::ItemType>;
 
 			static shared_ptr<ValueT> Do(const shared_ptr<T>& src) { return src; }
 		};
