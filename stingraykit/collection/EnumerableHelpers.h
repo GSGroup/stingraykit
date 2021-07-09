@@ -302,6 +302,7 @@ namespace stingray
 #ifdef DOXYGEN_PREPROCESSOR
 
 		template <typename T> T Aggregate(const EnumerableOrEnumerator<T> src, const function<T (const T&, const T&)>& aggregateFunc);
+		template <typename T> T Aggregate(const EnumerableOrEnumerator<T> src, const T& initialValue, const function<T (const T&, const T&)>& aggregateFunc);
 
 		template <typename T> bool All(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
@@ -322,6 +323,9 @@ namespace stingray
 
 		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const T& val);
 		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+
+		template <typename T> T ElementAt(const EnumerableOrEnumerator<T> src, size_t index);
+		template <typename T> T ElementAtOrDefault(const EnumerableOrEnumerator<T> src, size_t index);
 
 		template < typename T > EnumerableOrEnumerator<T> DefaultIfEmpty(const EnumerableOrEnumerator<T>& src, const T& value = T());
 
@@ -348,6 +352,13 @@ namespace stingray
 		template < typename T, typename FunctorType > EnumerableOrEnumerator<typename FunctorType::RetType> Transform(const EnumerableOrEnumerator<T>& src, const FunctorType& f);
 
 		template < typename T > EnumerableOrEnumerator<T> Where(const EnumerableOrEnumerator<T>& src, const function<bool(const T&)>& predicate);
+
+		template < typename T > EnumerableOrEnumerator<T> Skip(const EnumerableOrEnumerator<T>& src, size_t count);
+
+		template < typename T > EnumerableOrEnumerator<T> Take(const EnumerableOrEnumerator<T>& src, size_t count);
+
+		template < typename T > bool SequenceEqual(const EnumerableOrEnumerator<T>& first, const EnumerableOrEnumerator<T>& second);
+		template < typename T > bool SequenceEqual(const EnumerableOrEnumerator<T>& first, const EnumerableOrEnumerator<T>& second, const function<bool(const T&, const T&)>& comparer);
 
 #else
 
