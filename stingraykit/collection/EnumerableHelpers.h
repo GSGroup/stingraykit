@@ -357,6 +357,8 @@ namespace stingray
 
 		template < typename T > EnumerableOrEnumerator<T> Take(const EnumerableOrEnumerator<T>& src, size_t count);
 
+		template < typename TResult, typename T > shared_ptr<IEnumerable<TResult>> Flatten(const EnumerableOrEnumerator<T>& enumerableOfEnumerables);
+
 		template < typename T > bool SequenceEqual(const EnumerableOrEnumerator<T>& first, const EnumerableOrEnumerator<T>& second);
 		template < typename T > bool SequenceEqual(const EnumerableOrEnumerator<T>& first, const EnumerableOrEnumerator<T>& second, const function<bool(const T&, const T&)>& comparer);
 
@@ -813,6 +815,68 @@ namespace stingray
 		template < typename SrcEnumerable >
 		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType>> Take(const shared_ptr<SrcEnumerable>& enumerable, size_t count, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
 		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorTaker<typename SrcEnumerable::ItemType>>(), Bind(&SrcEnumerable::GetEnumerator, enumerable), count)); }
+
+
+		namespace Detail
+		{
+			template < typename SrcType >
+			class EnumeratorFlattener : public virtual IEnumerator<typename SrcType::ValueType::ItemType>
+			{
+				using base = IEnumerator<typename SrcType::ValueType::ItemType>;
+
+				using SrcEnumeratorPtr = shared_ptr<IEnumerator<SrcType>>;
+				using DstEnumeratorPtr = shared_ptr<IEnumerator<typename base::ItemType>>;
+
+			private:
+				SrcEnumeratorPtr	_src;
+				DstEnumeratorPtr	_current;
+
+			public:
+				EnumeratorFlattener(const SrcEnumeratorPtr& src)
+					:	_src(STINGRAYKIT_REQUIRE_NOT_NULL(src))
+				{ UpdateCurrent(); }
+
+				bool Valid() const override
+				{ return _current && _current->Valid(); }
+
+				typename base::ItemType Get() const override
+				{
+					STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
+					return _current->Get();
+				}
+
+				void Next() override
+				{
+					STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
+
+					_current->Next();
+					if (_current->Valid())
+						return;
+
+					_src->Next();
+					UpdateCurrent();
+				}
+
+			private:
+				void UpdateCurrent()
+				{
+					if (_src->Valid())
+						_current = ToEnumerator(_src->Get());
+					else
+						_current.reset();
+				}
+			};
+		}
+
+
+		template < typename SrcEnumerator >
+		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType::ValueType::ItemType>> Flatten(const shared_ptr<SrcEnumerator>& enumeratorOfEnumerators, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		{ return make_shared_ptr<Detail::EnumeratorFlattener<typename SrcEnumerator::ItemType> >(enumeratorOfEnumerators); }
+
+
+		template < typename SrcEnumerable >
+		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType::ValueType::ItemType>> Flatten(const shared_ptr<SrcEnumerable>& enumerableOfEnumerables, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorFlattener<typename SrcEnumerable::ItemType>>(), Bind(&SrcEnumerable::GetEnumerator, enumerableOfEnumerables))); }
 
 
 		template < typename T, typename PredicateFunc >
