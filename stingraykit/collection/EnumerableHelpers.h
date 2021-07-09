@@ -273,7 +273,7 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename Functor_ >
-		class SimpleEnumerable : public IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType>
+		class SimpleEnumerable : public virtual IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType>
 		{
 			using base = IEnumerable<typename function_info<Functor_>::RetType::ValueType::ItemType>;
 
@@ -578,7 +578,7 @@ namespace stingray
 		namespace Detail
 		{
 			template < typename Dst_, typename SrcEnumerator_ >
-			class EnumeratorOfType : public IEnumerator<Dst_>
+			class EnumeratorOfType : public virtual IEnumerator<Dst_>
 			{
 				using Storage = RefStorage<Dst_>;
 
@@ -665,7 +665,7 @@ namespace stingray
 		namespace Detail
 		{
 			template < typename SrcType, typename FunctorType >
-			class EnumeratorTransformer : public IEnumerator<typename function_info<FunctorType>::RetType>
+			class EnumeratorTransformer : public virtual IEnumerator<typename function_info<FunctorType>::RetType>
 			{
 				using base = IEnumerator<typename function_info<FunctorType>::RetType>;
 				using SrcEnumeratorPtr = shared_ptr<IEnumerator<SrcType>>;
@@ -685,7 +685,7 @@ namespace stingray
 			};
 
 			template < typename SrcType, typename FunctorType >
-			class EnumerableTransformer : public IEnumerable<typename function_info<FunctorType>::RetType>
+			class EnumerableTransformer : public virtual IEnumerable<typename function_info<FunctorType>::RetType>
 			{
 				using base = IEnumerable<typename function_info<FunctorType>::RetType>;
 				using SrcEnumerablePtr = shared_ptr<IEnumerable<SrcType>>;
@@ -756,7 +756,7 @@ namespace stingray
 		namespace Detail
 		{
 			template < typename ItemType >
-			class EnumeratorTaker : public IEnumerator<ItemType>
+			class EnumeratorTaker : public virtual IEnumerator<ItemType>
 			{
 				using SrcEnumeratorPtr = shared_ptr<IEnumerator<ItemType>>;
 
