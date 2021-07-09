@@ -18,7 +18,7 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename SrcType, typename DestType >
-		class EnumeratorWrapper : public IEnumerator<DestType>
+		class EnumeratorWrapper : public virtual IEnumerator<DestType>
 		{
 			using SrcEnumeratorPtr = shared_ptr<IEnumerator<SrcType>>;
 			using ConstSrcTypeRef = typename AddConstLvalueReference<SrcType>::ValueT;
