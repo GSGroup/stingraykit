@@ -144,7 +144,8 @@ namespace stingray
 		EnumeratorPtr	_result;
 
 	public:
-		operator EnumeratorPtr () const { return _result; }
+		operator EnumeratorPtr () const { return Get(); }
+		EnumeratorPtr Get() const		{ return _result ? _result : MakeEmptyEnumerator(); }
 
 		EnumeratorJoiner& operator % (const EnumeratorPtr& enumerator)
 		{
