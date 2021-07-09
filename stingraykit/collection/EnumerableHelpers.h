@@ -841,13 +841,13 @@ namespace stingray
 
 				typename base::ItemType Get() const override
 				{
-					STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
+					STINGRAYKIT_CHECK(_current, "Enumerator is not valid!");
 					return _current->Get();
 				}
 
 				void Next() override
 				{
-					STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
+					STINGRAYKIT_CHECK(_current, "Enumerator is not valid!");
 
 					_current->Next();
 					if (_current->Valid())
