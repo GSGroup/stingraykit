@@ -107,26 +107,40 @@ namespace stingray
 		{
 			using TargetEnumeratorPtr = shared_ptr<IEnumerator<EnumeratedT>>;
 
-			TargetEnumeratorPtr _first, _second;
+		private:
+			TargetEnumeratorPtr		_first;
+			TargetEnumeratorPtr		_second;
 
 		public:
 			JoiningEnumerator(const TargetEnumeratorPtr& first, const TargetEnumeratorPtr& second)
-				:	_first(STINGRAYKIT_REQUIRE_NOT_NULL(first)),
-					_second(STINGRAYKIT_REQUIRE_NOT_NULL(second))
-			{ }
+			{
+				if (STINGRAYKIT_REQUIRE_NOT_NULL(first)->Valid())
+				{
+					_first = first;
+					_second = STINGRAYKIT_REQUIRE_NOT_NULL(second);
+				}
+				else
+					_first = STINGRAYKIT_REQUIRE_NOT_NULL(second);
+			}
 
 			bool Valid() const override
-			{ return _first->Valid() || _second->Valid(); }
+			{ return _first && _first->Valid(); }
 
 			EnumeratedT Get() const override
-			{ return _first->Valid() ? _first->Get() : _second->Get(); }
+			{
+				STINGRAYKIT_CHECK(_first, "Enumerator is not valid!");
+				return _first->Get();
+			}
 
 			void Next() override
 			{
+				STINGRAYKIT_CHECK(_first, "Enumerator is not valid!");
+				_first->Next();
 				if (_first->Valid())
-					_first->Next();
-				else
-					_second->Next();
+					return;
+
+				_first.swap(_second);
+				_second.reset();
 			}
 		};
 	}
