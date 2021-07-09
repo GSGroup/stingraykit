@@ -151,7 +151,7 @@ namespace stingray
 			if (_result)
 				_result = JoinEnumerators(_result, enumerator);
 			else
-				_result = enumerator;
+				_result = STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			return *this;
 		}
 	};
@@ -264,7 +264,7 @@ namespace stingray
 			if (_result)
 				_result = JoinEnumerables(_result, enumerable);
 			else
-				_result = enumerable;
+				_result = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
 			return *this;
 		}
 	};
@@ -676,7 +676,8 @@ namespace stingray
 
 			public:
 				EnumeratorTransformer(const SrcEnumeratorPtr& src, const FunctorType& functor)
-					: _src(src), _functor(functor)
+					:	_src(STINGRAYKIT_REQUIRE_NOT_NULL(src)),
+						_functor(functor)
 				{ }
 
 				bool Valid() const override						{ return _src->Valid(); }
@@ -696,7 +697,8 @@ namespace stingray
 
 			public:
 				EnumerableTransformer(const SrcEnumerablePtr& src, const FunctorType& functor)
-					: _src(src), _functor(functor)
+					:	_src(STINGRAYKIT_REQUIRE_NOT_NULL(src)),
+						_functor(functor)
 				{ }
 
 				shared_ptr<IEnumerator<typename base::ItemType>> GetEnumerator() const override
@@ -767,7 +769,9 @@ namespace stingray
 
 			public:
 				EnumeratorTaker(const SrcEnumeratorPtr& src, size_t count)
-					: _src(src), _index(0), _count(count)
+					:	_src(STINGRAYKIT_REQUIRE_NOT_NULL(src)),
+						_index(0),
+						_count(count)
 				{ }
 
 				bool Valid() const override

@@ -90,7 +90,7 @@ namespace stingray
 
 		public:
 			explicit EnumeratorWrapperProxy(const SrcEnumeratorPtr& srcEnumerator)
-				: _srcEnumerator(srcEnumerator)
+				: _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator))
 			{ }
 
 			template < typename DestType >
@@ -160,7 +160,7 @@ namespace stingray
 
 		public:
 			explicit EnumerableWrapperProxy(const SrcEnumerablePtr& srcEnumerable)
-				: _srcEnumerable(srcEnumerable)
+				: _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable))
 			{ }
 
 			template < typename DestType >

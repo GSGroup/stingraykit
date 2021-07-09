@@ -62,7 +62,7 @@ namespace stingray
 		{
 			using ValueT = IEnumerator<typename T::ItemType>;
 
-			static shared_ptr<ValueT> Do(const shared_ptr<T>& src) { return src->GetEnumerator(); }
+			static shared_ptr<ValueT> Do(const shared_ptr<T>& src) { return STINGRAYKIT_REQUIRE_NOT_NULL(src)->GetEnumerator(); }
 		};
 
 
