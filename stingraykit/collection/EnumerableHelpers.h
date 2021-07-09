@@ -834,7 +834,7 @@ namespace stingray
 			public:
 				EnumeratorFlattener(const SrcEnumeratorPtr& src)
 					:	_src(STINGRAYKIT_REQUIRE_NOT_NULL(src))
-				{ UpdateCurrent(); }
+				{ FindNext(); }
 
 				bool Valid() const override
 				{ return _current && _current->Valid(); }
@@ -853,17 +853,23 @@ namespace stingray
 					if (_current->Valid())
 						return;
 
+					_current.reset();
 					_src->Next();
-					UpdateCurrent();
+					FindNext();
 				}
 
 			private:
-				void UpdateCurrent()
+				void FindNext()
 				{
-					if (_src->Valid())
+					while (_src->Valid())
+					{
 						_current = ToEnumerator(_src->Get());
-					else
+						if (_current->Valid())
+							break;
+
 						_current.reset();
+						_src->Next();
+					}
 				}
 			};
 		}
