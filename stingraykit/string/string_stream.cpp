@@ -32,7 +32,7 @@ namespace stingray
 		size_t pos = sizeof(buf);
 		while (value >= 10)
 		{
-			u8 digit = value % 10;
+			const u8 digit = value % 10;
 			value /= 10;
 			buf[--pos] = digit + '0';
 		}
@@ -72,10 +72,9 @@ namespace stingray
 	void basic_string_ostream<char>::Insert(VALUE_TYPE value) \
 	{ \
 		char buf[32]; \
-		int r = snprintf(buf, sizeof(buf), VALUE_FORMAT, static_cast<VALUE_FORMAT_TYPE>(value)); \
-		if (r < 0) \
-			STINGRAYKIT_THROW("snprintf failed"); \
-		write(buf, r); \
+		const int result = snprintf(buf, sizeof(buf), VALUE_FORMAT, static_cast<VALUE_FORMAT_TYPE>(value)); \
+		STINGRAYKIT_CHECK(result >= 0, "snprintf failed for " VALUE_FORMAT); \
+		write(buf, result); \
 	} \
 	extern template void string_ostream::Insert(VALUE_TYPE)
 
