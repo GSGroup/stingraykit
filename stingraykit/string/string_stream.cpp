@@ -6,7 +6,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/string/string_stream.h>
+
 #include <stingraykit/exception.h>
+
 #include <stdio.h>
 
 namespace stingray
@@ -28,7 +30,7 @@ namespace stingray
 	{
 		char buf[32];
 		size_t pos = sizeof(buf);
-		while(value >= 10)
+		while (value >= 10)
 		{
 			u8 digit = value % 10;
 			value /= 10;
