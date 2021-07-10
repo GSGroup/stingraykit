@@ -117,8 +117,6 @@ namespace stingray
 		inline void push_back(value_type c) { Insert(c); }
 
 	private:
-		basic_string_ostream& operator<<(std::ios_base& (*__pf) (std::ios_base&));
-
 		void Insert(value_type value)
 		{ _buf.push_back(value); }
 
