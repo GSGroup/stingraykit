@@ -165,11 +165,11 @@ namespace stingray
 					ToString(result, *it);
 					++it;
 				}
-				while (it != iend)
+
+				for (; it != iend; ++it)
 				{
 					result << ", ";
 					ToString(result, *it);
-					++it;
 				}
 				result << "]";
 			}
@@ -192,6 +192,7 @@ namespace stingray
 					ToString(result, it->second);
 					++it;
 				}
+
 				for (; it != iend; ++it)
 				{
 					result << ", ";
@@ -211,17 +212,18 @@ namespace stingray
 			static void ToStringImpl(string_ostream& result, const IEnumerable<T>& enumerable)
 			{
 				const shared_ptr<IEnumerator<T>> en = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
+
 				result << "[";
 				if (en->Valid())
 				{
 					ToString(result, en->Get());
 					en->Next();
 				}
-				while (en->Valid())
+
+				for (; en->Valid(); en->Next())
 				{
 					result << ", ";
 					ToString(result, en->Get());
-					en->Next();
 				}
 				result << "]";
 			}
@@ -234,17 +236,18 @@ namespace stingray
 			static void ToStringImpl(string_ostream& result, const ObjectType& range)
 			{
 				ObjectType copy(range);
+
 				result << "[";
 				if (copy.Valid())
 				{
 					ToString(result, copy.Get());
 					copy.Next();
 				}
-				while (copy.Valid())
+
+				for (; copy.Valid(); copy.Next())
 				{
 					result << ", ";
 					ToString(result, copy.Get());
-					copy.Next();
 				}
 				result << "]";
 			}
