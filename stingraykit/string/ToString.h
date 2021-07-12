@@ -126,8 +126,7 @@ namespace stingray
 										(IsInherited<ObjectType, std::exception>::Value ?
 											TypeToStringObjectType::IsException :
 											(
-												IsSame<u8, ObjectType>::Value
-													|| IsSame<EmptyType, ObjectType>::Value
+												IsSame<EmptyType, ObjectType>::Value
 													|| IsSame<NullPtrType, ObjectType>::Value
 													|| IsSame<const char*, ObjectType>::Value
 													|| IsSharedPtr<ObjectType>::Value
@@ -259,14 +258,6 @@ namespace stingray
 		{
 			static void ToStringImpl(string_ostream& result, const ObjectType& val)
 			{ result << val; }
-		};
-
-
-		template<>
-		struct TypeToStringSerializer<u8, TypeToStringObjectType::Other>
-		{
-			static void ToStringImpl(string_ostream& result, u8 val)
-			{ result << (u16)val; }
 		};
 
 
