@@ -223,10 +223,11 @@ namespace stingray
 		ToolkitWhere	_where;
 		Backtrace		_backtrace;
 
-	public:
+	protected:
 		explicit BaseException(ToolkitWhere where) : _where(where)
 		{ }
 
+	public:
 		virtual ~BaseException() noexcept { }
 
 		virtual size_t GetLine() const				{ return _where.GetLine(); }
