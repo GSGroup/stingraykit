@@ -19,7 +19,7 @@
 	struct ExceptionClass : public stingray::Exception \
 	{ \
 		ExceptionClass() : stingray::Exception(Message) { } \
-		ExceptionClass(const std::string& message) : stingray::Exception(message + ": " + Message) { } \
+		explicit ExceptionClass(const std::string& message) : stingray::Exception(message + ": " + Message) { } \
 	}
 
 namespace stingray
@@ -32,7 +32,7 @@ namespace stingray
 	class Exception : public std::runtime_error
 	{
 	public:
-		Exception(const std::string& message) : std::runtime_error(message) { }
+		explicit Exception(const std::string& message) : std::runtime_error(message) { }
 	};
 
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
@@ -72,14 +72,14 @@ namespace stingray
 		LogicException() : std::logic_error("You're doing something wrong!")
 		{ DebuggingHelper::BreakpointHere(); }
 
-		LogicException(const std::string& message) : std::logic_error(message)
+		explicit LogicException(const std::string& message) : std::logic_error(message)
 		{ DebuggingHelper::BreakpointHere(); }
 	};
 
 	struct ArgumentException : public Exception
 	{
 		ArgumentException() : Exception("Invalid argument!") { }
-		ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
+		explicit ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
 
 		template < typename ArgumentType >
 		ArgumentException(const std::string& argName, const ArgumentType& argValue) : Exception(BuildErrorMessage(argName, argValue)) { }
@@ -97,7 +97,7 @@ namespace stingray
 	struct NullArgumentException : public Exception
 	{
 		NullArgumentException() : Exception("Null argument!") { }
-		NullArgumentException(const std::string& argName) : Exception("Null argument: " + argName) { }
+		explicit NullArgumentException(const std::string& argName) : Exception("Null argument: " + argName) { }
 	};
 
 	class IndexOutOfRangeException : public Exception
@@ -140,26 +140,26 @@ namespace stingray
 	struct FormatException : public Exception
 	{
 		FormatException() : Exception("Invalid format!") { }
-		FormatException(const std::string& expression) : Exception("Invalid format: " + expression) { }
+		explicit FormatException(const std::string& expression) : Exception("Invalid format: " + expression) { }
 	};
 
 	struct MalformedDataException : public Exception
 	{
 		MalformedDataException() : Exception("Malformed data!") { }
-		MalformedDataException(const std::string& message) : Exception(message) { }
+		explicit MalformedDataException(const std::string& message) : Exception(message) { }
 	};
 
 	struct MalformedJsonException : public MalformedDataException
 	{
 		MalformedJsonException() : MalformedDataException("Malformed json!") { }
-		MalformedJsonException(const std::string& message) : MalformedDataException(message) { }
+		explicit MalformedJsonException(const std::string& message) : MalformedDataException(message) { }
 	};
 
 	struct NullPointerException : public Exception
 	{
 		NullPointerException() : Exception("Accessing null pointer!")
 		{ DebuggingHelper::BreakpointHere(); }
-		NullPointerException(const std::string& expr) : Exception("Accessing null pointer: " + expr)
+		explicit NullPointerException(const std::string& expr) : Exception("Accessing null pointer: " + expr)
 		{ DebuggingHelper::BreakpointHere(); }
 	};
 
@@ -187,13 +187,13 @@ namespace stingray
 	struct KeyNotFoundException : public Exception
 	{
 		KeyNotFoundException() : Exception("Key not found!") { }
-		KeyNotFoundException(const std::string& keyStr) : Exception("Key '" + keyStr + "' not found!") { }
+		explicit KeyNotFoundException(const std::string& keyStr) : Exception("Key '" + keyStr + "' not found!") { }
 	};
 
 	struct FileNotFoundException : public Exception
 	{
 		FileNotFoundException() : Exception("File not found!") { }
-		FileNotFoundException(const std::string& path) : Exception("File '" + path + "' not found!") { }
+		explicit FileNotFoundException(const std::string& path) : Exception("File '" + path + "' not found!") { }
 	};
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NoSpaceLeftException, "No space left on device!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InputOutputException, "Input/output error on storage!");
@@ -224,7 +224,7 @@ namespace stingray
 		Backtrace		_backtrace;
 
 	public:
-		BaseException(ToolkitWhere where) : _where(where)
+		explicit BaseException(ToolkitWhere where) : _where(where)
 		{ }
 
 		virtual ~BaseException() noexcept { }

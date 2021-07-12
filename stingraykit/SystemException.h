@@ -19,7 +19,7 @@ namespace stingray
 		int	_error;
 
 	public:
-		SystemException(const std::string& message) noexcept;
+		explicit SystemException(const std::string& message) noexcept;
 		SystemException(const std::string& message, int err) noexcept;
 		SystemException(const std::string& message, const std::string& path, int err) noexcept;
 		virtual ~SystemException() noexcept { }

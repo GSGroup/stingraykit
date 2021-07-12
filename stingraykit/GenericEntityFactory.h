@@ -55,8 +55,8 @@ namespace stingray
 	{
 	public:
 		template < typename EntityTagType >
-		UnknownEntityTagException(EntityTagType tag) :
-			Exception("Unknown tag: " + tag.ToString())
+		explicit UnknownEntityTagException(EntityTagType tag)
+			: Exception("Unknown tag: " + tag.ToString())
 		{ }
 	};
 

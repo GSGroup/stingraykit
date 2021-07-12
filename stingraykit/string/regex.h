@@ -70,7 +70,7 @@ namespace stingray
 	struct regex_error : public Exception
 	{
 		regex_error() : Exception("regex error!") { }
-		regex_error(const std::string& msg) : Exception("regex error: " + msg) { }
+		explicit regex_error(const std::string& msg) : Exception("regex error: " + msg) { }
 	};
 
 

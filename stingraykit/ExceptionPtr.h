@@ -18,7 +18,7 @@ namespace stingray
 		std::string _what;
 
 	public:
-		RethrownException(const std::exception& ex) noexcept : _what(diagnostic_information(ex)) { }
+		explicit RethrownException(const std::exception& ex) noexcept : _what(diagnostic_information(ex)) { }
 		virtual ~RethrownException() noexcept { }
 
 		virtual const char* what() const noexcept { return _what.c_str(); }
