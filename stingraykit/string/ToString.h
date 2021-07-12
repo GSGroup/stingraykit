@@ -502,8 +502,11 @@ namespace stingray
 		template < typename T >
 		StringJoiner& operator % (const T& value)
 		{
-			if (!_builder.empty())
+			if (_builder.empty())
+				_builder % _prefix;
+			else
 				_builder % _separator;
+
 			_builder % value;
 			return *this;
 		}
@@ -513,7 +516,7 @@ namespace stingray
 		operator std::string () const { return ToString(); }
 
 		std::string ToString() const
-		{ return _prefix + _builder.ToString() + _suffix; }
+		{ return (_builder.empty() ? _prefix : _builder.ToString()) + _suffix; }
 	};
 
 }
