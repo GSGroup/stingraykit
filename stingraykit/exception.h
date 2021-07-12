@@ -57,7 +57,12 @@ namespace stingray
 		} while(false)
 
 #define STINGRAYKIT_RETHROW_WITH_MESSAGE(Message, ExceptionObj) \
-		throw stingray::Exception(stingray::ToString(Message) + ": " + diagnostic_information(ExceptionObj))
+		do { \
+			string_ostream stream; \
+			stream << stingray::ToString(Message) << ": "; \
+			diagnostic_information(stream, ExceptionObj); \
+			throw stingray::Exception(stream.str()); \
+		} while (false)
 
 #define STINGRAYKIT_WRAP_EXCEPTIONS(Message, ...) \
 		do { \
@@ -187,13 +192,29 @@ namespace stingray
 	struct KeyNotFoundException : public Exception
 	{
 		KeyNotFoundException() : Exception("Key not found!") { }
-		explicit KeyNotFoundException(const std::string& keyStr) : Exception("Key '" + keyStr + "' not found!") { }
+		explicit KeyNotFoundException(const std::string& keyStr) : Exception(BuildErrorMessage(keyStr)) { }
+
+	private:
+		static std::string BuildErrorMessage(const std::string& keyStr)
+		{
+			string_ostream stream;
+			stream << "Key '" << keyStr << "' not found!";
+			return stream.str();
+		}
 	};
 
 	struct FileNotFoundException : public Exception
 	{
 		FileNotFoundException() : Exception("File not found!") { }
-		explicit FileNotFoundException(const std::string& path) : Exception("File '" + path + "' not found!") { }
+		explicit FileNotFoundException(const std::string& path) : Exception(BuildErrorMessage(path)) { }
+
+	private:
+		static std::string BuildErrorMessage(const std::string& path)
+		{
+			string_ostream stream;
+			stream << "File '" << path << "' not found!";
+			return stream.str();
+		}
 	};
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NoSpaceLeftException, "No space left on device!");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InputOutputException, "Input/output error on storage!");

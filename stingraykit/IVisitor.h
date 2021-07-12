@@ -56,8 +56,17 @@ namespace stingray
 	{
 		template < typename VisitorType, typename VisitableType >
 		VisitorException(const VisitorType& visitor, const VisitableType& visitable)
-			: Exception(TypeInfo(visitor).GetName() + " can't visit " + TypeInfo(visitable).GetName())
+			: Exception(BuildErrorMessage(visitor, visitable))
 		{ }
+
+	private:
+		template < typename VisitorType, typename VisitableType >
+		static std::string BuildErrorMessage(const VisitorType& visitor, const VisitableType& visitable)
+		{
+			string_ostream stream;
+			stream << TypeInfo(visitor).GetName() << " can't visit " << TypeInfo(visitable).GetName();
+			return stream.str();
+		}
 	};
 
 
