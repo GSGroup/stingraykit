@@ -25,13 +25,13 @@ namespace stingray
 	{
 
 		template < typename T >
-		typename EnableIf<!std::numeric_limits<T>::is_specialized, T>::ValueT EvaluateHelper(const char c, const T& value, bool)
+		typename EnableIf<!std::numeric_limits<T>::is_specialized, T>::ValueT EvaluateHelper(char c, const T& value, bool)
 		{ return value * 10 + (c - '0'); }
 
 		template < typename T >
-		typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_signed, T>::ValueT EvaluateHelper(const char c, const T& value, bool negative)
+		typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_signed, T>::ValueT EvaluateHelper(char c, const T& value, bool negative)
 		{
-			s64 newValue = value * (s64) 10 + (c - '0');
+			const s64 newValue = value * (s64) 10 + (c - '0');
 			if (negative)
 				STINGRAYKIT_CHECK(((0 - newValue) >= (s64) std::numeric_limits<T>::min()), IndexOutOfRangeException(0 - newValue, std::numeric_limits<T>::min()));
 			else
@@ -40,10 +40,10 @@ namespace stingray
 		}
 
 		template < typename T >
-		typename EnableIf<std::numeric_limits<T>::is_specialized && !std::numeric_limits<T>::is_signed, T>::ValueT EvaluateHelper(const char c, const T& value, bool negative)
+		typename EnableIf<std::numeric_limits<T>::is_specialized && !std::numeric_limits<T>::is_signed, T>::ValueT EvaluateHelper(char c, const T& value, bool negative)
 		{
 			STINGRAYKIT_CHECK(!negative, "Value cannot be negative!");
-			u64 newValue = value * (u64) 10 + (c - '0');
+			const u64 newValue = value * (u64) 10 + (c - '0');
 			STINGRAYKIT_CHECK(newValue <= (u64) std::numeric_limits<T>::max(), IndexOutOfRangeException(newValue, std::numeric_limits<T>::max()));
 			return value * 10 + (c - '0');
 		}
@@ -72,11 +72,10 @@ namespace stingray
 
 		for (; index < str.size(); ++index)
 		{
-			char c = str[index];
-			if (c >= '0' && c <= '9')
-				value = Detail::EvaluateHelper(c, value, negative);
-			else
-				STINGRAYKIT_THROW(ArgumentException("str", str));
+			const char c = str[index];
+			STINGRAYKIT_CHECK(c >= '0' && c <= '9', ArgumentException("str", str));
+
+			value = Detail::EvaluateHelper(c, value, negative);
 		}
 
 		return negative ? (T)0 - value : value; //Dima told me to shut compiler up. Sorry.
@@ -132,7 +131,7 @@ namespace stingray
 													|| IsSame<NullPtrType, ObjectType>::Value
 													|| IsSame<const char*, ObjectType>::Value
 													|| IsSharedPtr<ObjectType>::Value
-													|| Is1ParamTemplate<optional, ObjectType>::Value
+													|| IsOptional<ObjectType>::Value
 													|| Is1ParamTemplate<Tuple, ObjectType>::Value
 													|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
 												TypeToStringObjectType::Other :
@@ -158,7 +157,7 @@ namespace stingray
 			static void ToStringImpl(string_ostream& result, const ObjectType& object)
 			{
 				typename ObjectType::const_iterator it = object.begin();
-				typename ObjectType::const_iterator iend = object.end();
+				const typename ObjectType::const_iterator iend = object.end();
 
 				result << "[";
 				if (it != iend)
@@ -179,7 +178,7 @@ namespace stingray
 			static void ToStringImpl(string_ostream& result, const ObjectType& object)
 			{
 				typename ObjectType::const_iterator it = object.begin();
-				typename ObjectType::const_iterator iend = object.end();
+				const typename ObjectType::const_iterator iend = object.end();
 
 				result << "{ ";
 				if (it != iend)
@@ -207,7 +206,7 @@ namespace stingray
 			template < typename T >
 			static void ToStringImpl(string_ostream& result, const IEnumerable<T>& enumerable)
 			{
-				shared_ptr<IEnumerator<T>> en = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
+				const shared_ptr<IEnumerator<T>> en = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
 				result << "[";
 				if (en->Valid())
 				{
@@ -323,7 +322,7 @@ namespace stingray
 			static void ToStringImpl(string_ostream& result, const optional<T>& opt)
 			{
 				if (opt)
-					ToString(result, opt.get());
+					ToString(result, *opt);
 				else
 					result << "null";
 			}
