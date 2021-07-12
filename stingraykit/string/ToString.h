@@ -183,14 +183,16 @@ namespace stingray
 				typename ObjectType::const_iterator it = object.begin();
 				const typename ObjectType::const_iterator iend = object.end();
 
-				result << "{ ";
 				if (it != iend)
 				{
+					result << "{ ";
 					ToString(result, it->first);
 					result << ": ";
 					ToString(result, it->second);
 					++it;
 				}
+				else
+					result << "{";
 
 				for (; it != iend; ++it)
 				{
@@ -335,7 +337,9 @@ namespace stingray
 			{
 				static void Call(string_ostream* result, const Tuple<Types>* tuple)
 				{
-					if (Index != 0)
+					if (Index == 0)
+						*result << " ";
+					else
 						*result << ", ";
 
 					ToString(*result, tuple->template Get<Index>());
@@ -344,7 +348,7 @@ namespace stingray
 
 			static void ToStringImpl(string_ostream& result, const Tuple<Types>& tuple)
 			{
-				result << "[ ";
+				result << "[";
 				For<GetTypeListLength<Types>::Value, Helper>::Do(&result, &tuple);
 				result << " ]";
 			}
