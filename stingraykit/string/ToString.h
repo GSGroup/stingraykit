@@ -142,196 +142,50 @@ namespace stingray
 		{ static const TypeToStringObjectType::Enum Value = ObjType; };
 
 
-		template < typename ObjectType, TypeToStringObjectType::Enum ObjType = TypeToStringObjectTypeGetter<ObjectType>::Value >
-		struct TypeToStringSerializer;
-
-
-		template < typename ObjectType >
-		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasBeginEnd>
-		{
-			static void ToStringImpl(string_ostream& result, const ObjectType& object)
-			{
-				typename ObjectType::const_iterator it = object.begin();
-				const typename ObjectType::const_iterator iend = object.end();
-
-				result << "[";
-				if (it != iend)
-				{
-					ToString(result, *it);
-					++it;
-				}
-
-				for (; it != iend; ++it)
-				{
-					result << ", ";
-					ToString(result, *it);
-				}
-				result << "]";
-			}
-		};
-
-
-		template < typename ObjectType >
-		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::IsMap>
-		{
-			static void ToStringImpl(string_ostream& result, const ObjectType& object)
-			{
-				typename ObjectType::const_iterator it = object.begin();
-				const typename ObjectType::const_iterator iend = object.end();
-
-				if (it != iend)
-				{
-					result << "{ ";
-					ToString(result, it->first);
-					result << ": ";
-					ToString(result, it->second);
-					++it;
-				}
-				else
-					result << "{";
-
-				for (; it != iend; ++it)
-				{
-					result << ", ";
-					ToString(result, it->first);
-					result << ": ";
-					ToString(result, it->second);
-				}
-				result << " }";
-			}
-		};
-
-
-		template < typename ObjectType >
-		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Enumerable>
-		{
-			template < typename T >
-			static void ToStringImpl(string_ostream& result, const IEnumerable<T>& enumerable)
-			{
-				const shared_ptr<IEnumerator<T>> en = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
-
-				result << "[";
-				if (en->Valid())
-				{
-					ToString(result, en->Get());
-					en->Next();
-				}
-
-				for (; en->Valid(); en->Next())
-				{
-					result << ", ";
-					ToString(result, en->Get());
-				}
-				result << "]";
-			}
-		};
-
-
-		template < typename ObjectType >
-		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Range>
-		{
-			static void ToStringImpl(string_ostream& result, const ObjectType& range)
-			{
-				ObjectType copy(range);
-
-				result << "[";
-				if (copy.Valid())
-				{
-					ToString(result, copy.Get());
-					copy.Next();
-				}
-
-				for (; copy.Valid(); copy.Next())
-				{
-					result << ", ";
-					ToString(result, copy.Get());
-				}
-				result << "]";
-			}
-		};
-
-
-		template < typename ObjectType >
-		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::ProxyObjToStdStream>
-		{
-			static void ToStringImpl(string_ostream& result, const ObjectType& val)
-			{ result << val; }
-		};
-
-
-		template<>
-		struct TypeToStringSerializer<std::string, TypeToStringObjectType::HasBeginEnd>
-		{
-			static void ToStringImpl(string_ostream& result, const std::string& str)
-			{ result << str; }
-		};
-
-
-		template<>
-		struct TypeToStringSerializer<string_view, TypeToStringObjectType::HasBeginEnd>
-		{
-			static void ToStringImpl(string_ostream & result, string_view str)
-			{ result << str; }
-		};
-
-
-		template<>
-		struct TypeToStringSerializer<EmptyType, TypeToStringObjectType::Other>
-		{
-			static void ToStringImpl(string_ostream& result, EmptyType val)
-			{ }
-		};
-
-
-		template<>
-		struct TypeToStringSerializer<NullPtrType, TypeToStringObjectType::Other>
-		{
-			static void ToStringImpl(string_ostream& result, NullPtrType ptr)
-			{ result << "null"; }
-		};
-
-
-		template<>
-		struct TypeToStringSerializer<const char*, TypeToStringObjectType::Other>
-		{
-			static void ToStringImpl(string_ostream& result, const char* str)
-			{ result << str; }
-		};
-
-
 		template < typename T >
-		struct TypeToStringSerializer<shared_ptr<T>, TypeToStringObjectType::Other>
+		struct TypeToStringSerializer
 		{
-			static void ToStringImpl(string_ostream& result, const shared_ptr<T>& ptr)
+		private:
+			struct MapItemPrinter
 			{
-				if (ptr)
-					ToString(result, *ptr);
-				else
-					result << "null";
-			}
-		};
+				template < typename K, typename V >
+				static auto Do(string_ostream& result, const std::pair<K, V>& pair)
+						-> decltype(ToString(result, pair.first), ToString(result, pair.second), void())
+				{
+					ToString(result, pair.first);
+					result << ": ";
+					ToString(result, pair.second);
+				}
+			};
 
-
-		template < typename T >
-		struct TypeToStringSerializer<optional<T>, TypeToStringObjectType::Other>
-		{
-			static void ToStringImpl(string_ostream& result, const optional<T>& opt)
+			struct CollectionItemPrinter
 			{
-				if (opt)
-					ToString(result, *opt);
-				else
-					result << "null";
-			}
-		};
+				template < typename ObjectType >
+				static auto Do(string_ostream& result, const ObjectType& object)
+						-> decltype(ToString(result, object))
+				{ ToString(result, object); }
+			};
 
+			template < size_t Size >
+			struct TypeToStringTester
+			{
+				static void Test(string_ostream& result);
 
-		template < typename Types >
-		struct TypeToStringSerializer<Tuple<Types>, TypeToStringObjectType::Other>
-		{
+				template < typename U0, typename... Us >
+				static auto Test(string_ostream& result, const U0& p0, const Us&... args)
+						-> decltype(ToString(result, p0), TypeToStringTester<sizeof...(Us)>::Test(result, args...), void());
+			};
+
+			template < typename Types, size_t... Index >
+			static auto TestTypeListToString(string_ostream& result, std::index_sequence<Index...>)
+					-> decltype(TypeToStringTester<sizeof...(Index)>::Test(result, std::declval<typename GetTypeListItem<Types, Index>::ValueT>()...), void());
+
 			template < size_t Index >
-			struct Helper
+			struct TuplePrinter
 			{
-				static void Call(string_ostream* result, const Tuple<Types>* tuple)
+				template < typename TupleType >
+				static auto Call(string_ostream* result, const TupleType* tuple)
+						-> decltype(ToString(*result, tuple->template Get<Index>()), void())
 				{
 					if (Index == 0)
 						*result << " ";
@@ -342,19 +196,132 @@ namespace stingray
 				}
 			};
 
-			static void ToStringImpl(string_ostream& result, const Tuple<Types>& tuple)
+			template < typename Range >
+			static void PrintRange(string_ostream& result, Range& range)
 			{
 				result << "[";
-				For<GetTypeListLength<Types>::Value, Helper>::Do(&result, &tuple);
-				result << " ]";
+				if (range.Valid())
+				{
+					ToString(result, range.Get());
+					range.Next();
+				}
+
+				for (; range.Valid(); range.Next())
+				{
+					result << ", ";
+					ToString(result, range.Get());
+				}
+				result << "]";
 			}
-		};
 
+			template < typename ItemPrinter, typename ObjectType, typename EnableIf<!IsSame<ObjectType, typename Decay<decltype(*std::declval<ObjectType>().begin())>::ValueT>::Value, bool>::ValueT = false >
+			static auto PrintStdCollection(string_ostream& result, const char* emptyPrefix, const char* prefix, const char* suffix, const ObjectType& items)
+					-> decltype(ItemPrinter::Do(result, *items.begin()), void())
+			{
+				typename ObjectType::const_iterator it = items.begin();
+				const typename ObjectType::const_iterator iend = items.end();
 
-		template < typename K, typename V >
-		struct TypeToStringSerializer<std::pair<K, V>, TypeToStringObjectType::Other>
-		{
-			static void ToStringImpl(string_ostream& result, const std::pair<K, V>& pair)
+				if (it != iend)
+				{
+					result << prefix;
+					ItemPrinter::Do(result, *it);
+					++it;
+				}
+				else
+					result << emptyPrefix;
+
+				for (; it != iend; ++it)
+				{
+					result << ", ";
+					ItemPrinter::Do(result, *it);
+				}
+				result << suffix;
+			}
+
+			template < typename ObjectType >
+			static auto StdCollectionToString(string_ostream& result, const ObjectType& object, int)
+					-> decltype(object.begin(), object.end(), PrintStdCollection<CollectionItemPrinter>(result, std::declval<const char*>(), std::declval<const char*>(), std::declval<const char*>(), object), void())
+			{ PrintStdCollection<CollectionItemPrinter>(result, "[", "[", "]", object); }
+
+			template < typename ObjectType >
+			static auto StdCollectionToString(string_ostream& result, const ObjectType& object, long)
+					-> decltype(result << object, void())
+			{ result << object; }
+
+			template < typename ObjectType >
+			static auto StdMapToString(string_ostream& result, const ObjectType& object, int)
+					-> decltype(std::declval<typename ObjectType::mapped_type>(), PrintStdCollection<MapItemPrinter>(result, std::declval<const char*>(), std::declval<const char*>(), std::declval<const char*>(), object), void())
+			{ PrintStdCollection<MapItemPrinter>(result, "{", "{ ", " }", object); }
+
+			template < typename ObjectType >
+			static auto StdMapToString(string_ostream& result, const ObjectType& object, long)
+					-> decltype(StdCollectionToString(result, object, 0), void())
+			{ StdCollectionToString(result, object, 0); }
+
+			template < typename ObjectType >
+			static auto SpecialToString(string_ostream& result, const ObjectType& range, typename EnableIf<IsRange<ObjectType>::Value, int>::ValueT)
+					-> decltype(ToString(result, std::declval<typename ObjectType::ValueType>()), void())
+			{
+				ObjectType copy(range);
+				PrintRange(result, copy);
+			}
+
+			template < typename ObjectType >
+			static auto SpecialToString(string_ostream& result, const ObjectType& enumerable, typename EnableIf<IsEnumerable<ObjectType>::Value, int>::ValueT)
+					-> decltype(ToString(result, std::declval<typename ObjectType::ItemType>()), void())
+			{
+				const shared_ptr<IEnumerator<typename ObjectType::ItemType>> en = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
+				PrintRange(result, *en);
+			}
+
+			template < typename ObjectType >
+			static auto SpecialToString(string_ostream& result, const ObjectType& object, typename EnableIf<IsSharedPtr<ObjectType>::Value || IsOptional<ObjectType>::Value, int>::ValueT)
+					-> decltype(ToString(result, *object), void())
+			{
+				if (object)
+					ToString(result, *object);
+				else
+					result << "null";
+			}
+
+			template < typename ObjectType >
+			static void SpecialToString(string_ostream& result, const ObjectType& ex, typename EnableIf<IsInherited<ObjectType, std::exception>::Value, int>::ValueT)
+			{ diagnostic_information(result, ex); }
+
+			template < typename ObjectType >
+			static auto SpecialToString(string_ostream& result, const ObjectType& object, long)
+					-> decltype(StdMapToString(result, object, 0), void())
+			{ StdMapToString(result, object, 0); }
+
+		public:
+			template < typename ObjectType >
+			static auto ToStringImpl(string_ostream& result, const ObjectType& object, int)
+					-> decltype(object.ToString(), void())
+			{ result << object.ToString(); }
+
+			template < typename ObjectType >
+			static auto ToStringImpl(string_ostream& result, const ObjectType& object, long)
+					-> decltype(SpecialToString(result, object, 0), void())
+			{ SpecialToString(result, object, 0); }
+
+			static void ToStringImpl(string_ostream& result, const char* str, long)
+			{ result << str; }
+
+			static void ToStringImpl(string_ostream& result, const std::string& str, long)
+			{ result << str; }
+
+			static void ToStringImpl(string_ostream& result, string_view str, long)
+			{ result << str; }
+
+			static void ToStringImpl(string_ostream& result, EmptyType val, long)
+			{ }
+
+			static void ToStringImpl(string_ostream& result, NullPtrType ptr, long)
+			{ result << "null"; }
+
+			template < typename K, typename V >
+			static auto ToStringImpl(string_ostream& result, const std::pair<K, V>& pair, long)
+					-> decltype(ToString(result, pair.first), ToString(result, pair.second), void())
 			{
 				result << "[ ";
 				ToString(result, pair.first);
@@ -362,22 +329,15 @@ namespace stingray
 				ToString(result, pair.second);
 				result << " ]";
 			}
-		};
 
-
-		template < typename ObjectType >
-		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::IsException>
-		{
-			static void ToStringImpl(string_ostream& result, const ObjectType& object)
-			{ return diagnostic_information(result, object); }
-		};
-
-
-		template < typename ObjectType >
-		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasToString>
-		{
-			static void ToStringImpl(string_ostream& result, const ObjectType& object)
-			{ result << object.ToString(); }
+			template < typename Types >
+			static auto ToStringImpl(string_ostream& result, const Tuple<Types>& tuple, long)
+					-> decltype(TestTypeListToString<Types>(result, std::make_index_sequence<GetTypeListLength<Types>::Value>()), void())
+			{
+				result << "[";
+				For<GetTypeListLength<Types>::Value, TuplePrinter>::Do(&result, &tuple);
+				result << " ]";
+			}
 		};
 
 
@@ -416,12 +376,14 @@ namespace stingray
 
 
 	template < typename T >
-	void ToString(string_ostream& result, const T& val)
-	{ Detail::TypeToStringSerializer<T>::ToStringImpl(result, val); }
+	auto ToString(string_ostream& result, const T& val)
+			-> decltype(Detail::TypeToStringSerializer<T>::ToStringImpl(result, val, 0), void())
+	{ Detail::TypeToStringSerializer<T>::ToStringImpl(result, val, 0); }
 
 
 	template < typename T >
-	std::string ToString(const T& val)
+	auto ToString(const T& val)
+			-> decltype(ToString(std::declval<string_ostream&>(), val), std::string())
 	{
 		string_ostream result;
 		ToString(result, val);

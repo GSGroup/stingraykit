@@ -13,12 +13,20 @@
 namespace stingray
 {
 
+	namespace Detail
+	{
+		template < typename T >
+		struct TypeToStringSerializer;
+	}
+
 	template < typename T >
-	void ToString(string_ostream& result, const T& val);
+	auto ToString(string_ostream& result, const T& val)
+			-> decltype(Detail::TypeToStringSerializer<T>::ToStringImpl(result, val, 0), void());
 
 
 	template < typename T >
-	std::string ToString(const T& val);
+	auto ToString(const T& val)
+			-> decltype(ToString(std::declval<string_ostream&>(), val), std::string());
 
 }
 
