@@ -67,7 +67,7 @@ namespace stingray
 
 		size_t index = 0;
 		negative = str[0] == '-';
-		if (str[0] == '+' || negative)
+		if (negative || str[0] == '+')
 			++index;
 
 		for (; index < str.size(); ++index)
