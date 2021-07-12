@@ -161,11 +161,15 @@ namespace stingray
 
 				result << "[";
 				if (it != iend)
-					ToString(result, *it++);
+				{
+					ToString(result, *it);
+					++it;
+				}
 				while (it != iend)
 				{
 					result << ", ";
-					ToString(result, *it++);
+					ToString(result, *it);
+					++it;
 				}
 				result << "]";
 			}
