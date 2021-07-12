@@ -101,8 +101,19 @@ namespace stingray
 			bool Equals(const Self& other) const
 			{ return &_enumerable == &other._enumerable && _index == other._index; }
 
-			Self& First()					{ _enumerator = _enumerable.GetEnumerator(); _index = 0; return *this; }
-			Self& Next()					{ _enumerator->Next(); ++_index; return *this; }
+			Self& First()
+			{
+				_enumerator = _enumerable.GetEnumerator();
+				_index = 0;
+				return *this;
+			}
+
+			Self& Next()
+			{
+				_enumerator->Next();
+				++_index;
+				return *this;
+			}
 
 			Self& Last()
 			{
