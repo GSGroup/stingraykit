@@ -92,56 +92,6 @@ namespace stingray
 	namespace Detail
 	{
 
-		STINGRAYKIT_DECLARE_METHOD_CHECK(begin);
-		STINGRAYKIT_DECLARE_METHOD_CHECK(end);
-
-		STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(mapped_type);
-
-
-		struct TypeToStringObjectType
-		{
-			STINGRAYKIT_ENUM_VALUES(HasToString, Range, Enumerable, IsMap, HasBeginEnd, IsException, Other, ProxyObjToStdStream);
-			STINGRAYKIT_DECLARE_ENUM_CLASS(TypeToStringObjectType);
-		};
-
-
-		template
-			<
-				typename ObjectType,
-				TypeToStringObjectType::Enum ObjType =
-					HasMethod_ToString<ObjectType>::Value ?
-						TypeToStringObjectType::HasToString :
-						(IsRange<ObjectType>::Value ?
-							TypeToStringObjectType::Range :
-							(IsEnumerable<ObjectType>::Value ?
-								TypeToStringObjectType::Enumerable :
-								(HasNestedType_mapped_type<ObjectType>::Value ?
-									TypeToStringObjectType::IsMap :
-									(HasMethod_begin<ObjectType>::Value && HasMethod_end<ObjectType>::Value ?
-										TypeToStringObjectType::HasBeginEnd :
-										(IsInherited<ObjectType, std::exception>::Value ?
-											TypeToStringObjectType::IsException :
-											(
-												IsSame<EmptyType, ObjectType>::Value
-													|| IsSame<NullPtrType, ObjectType>::Value
-													|| IsSame<const char*, ObjectType>::Value
-													|| IsSharedPtr<ObjectType>::Value
-													|| IsOptional<ObjectType>::Value
-													|| Is1ParamTemplate<Tuple, ObjectType>::Value
-													|| Is2ParamTemplate<std::pair, ObjectType>::Value ?
-												TypeToStringObjectType::Other :
-												TypeToStringObjectType::ProxyObjToStdStream
-											)
-										)
-									)
-								)
-							)
-						)
-			>
-		struct TypeToStringObjectTypeGetter
-		{ static const TypeToStringObjectType::Enum Value = ObjType; };
-
-
 		template < typename T >
 		struct TypeToStringSerializer
 		{
@@ -340,38 +290,6 @@ namespace stingray
 			}
 		};
 
-
-		template < typename T, Detail::TypeToStringObjectType::Enum ObjType = Detail::TypeToStringObjectTypeGetter<T>::Value >
-		struct IsStringRepresentableImpl : TrueType { };
-
-
-		template < typename T >
-		struct IsStringRepresentableImpl<T, Detail::TypeToStringObjectType::Enumerable> : IsStringRepresentableImpl<typename T::ItemType> { };
-
-
-		template < typename T >
-		struct IsStringRepresentableImpl<T, Detail::TypeToStringObjectType::HasBeginEnd> : IsStringRepresentableImpl<typename T::value_type> { };
-
-
-		template < >
-		struct IsStringRepresentableImpl<EmptyType, Detail::TypeToStringObjectType::Other> : TrueType { };
-
-
-		template < typename T >
-		struct IsStringRepresentableImpl<shared_ptr<T>, Detail::TypeToStringObjectType::Other> : IsStringRepresentableImpl<T> { };
-
-
-		template < typename T >
-		struct IsStringRepresentableImpl<optional<T>, Detail::TypeToStringObjectType::Other> : IsStringRepresentableImpl<T> { };
-
-
-		template < typename T, typename U >
-		struct IsStringRepresentableImpl<std::pair<T, U>, Detail::TypeToStringObjectType::Other> : integral_constant<bool, IsStringRepresentableImpl<T>::Value && IsStringRepresentableImpl<U>::Value> { };
-
-
-		template < typename T >
-		struct IsStringRepresentableImpl<T, Detail::TypeToStringObjectType::ProxyObjToStdStream > : TypeListContains<BuiltinTypes, T> { }; // TODO: Is this enough?
-
 	}
 
 
@@ -392,7 +310,17 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsStringRepresentable : Detail::IsStringRepresentableImpl<T> { };
+	struct IsStringRepresentable
+	{
+	private:
+		template < typename ObjectType >
+		static auto Deduce(const ObjectType& object, int) -> decltype(ToString(object), std::declval<YesType>());
+		template < typename ObjectType >
+		static NoType Deduce(const ObjectType& object, long);
+
+	public:
+		static const bool Value = sizeof(YesType) == sizeof(Deduce(std::declval<T>(), 0));
+	};
 
 
 	template < typename CharType >
