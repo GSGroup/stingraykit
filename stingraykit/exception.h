@@ -97,18 +97,22 @@ namespace stingray
 	{
 	public:
 		IndexOutOfRangeException() : Exception("Index out of range!") { }
-		IndexOutOfRangeException(u64 index, u64 size) : Exception(BuildErrorMessage(index, size)) { }
-		IndexOutOfRangeException(u64 index, u64 begin, u64 end) : Exception(BuildErrorMessage(index, begin, end)) { }
+		template < typename IndexType, typename SizeType >
+		IndexOutOfRangeException(IndexType index, SizeType size) : Exception(BuildErrorMessage(index, size)) { }
+		template < typename IndexType, typename LeftBoundaryType, typename RightBoundaryType >
+		IndexOutOfRangeException(IndexType index, LeftBoundaryType begin, RightBoundaryType end) : Exception(BuildErrorMessage(index, begin, end)) { }
 
 	private:
-		static std::string BuildErrorMessage(u64 index, u64 size)
+		template < typename IndexType, typename SizeType >
+		static std::string BuildErrorMessage(IndexType index, SizeType size)
 		{
 			string_ostream stream;
 			stream << "Index " << index << " out of range " << size;
 			return stream.str();
 		}
 
-		static std::string BuildErrorMessage(u64 index, u64 begin, u64 end)
+		template < typename IndexType, typename LeftBoundaryType, typename RightBoundaryType >
+		static std::string BuildErrorMessage(IndexType index, LeftBoundaryType begin, RightBoundaryType end)
 		{
 			string_ostream stream;
 			stream << "Index " << index << " out of range [" << begin << ", " << end << ")";
