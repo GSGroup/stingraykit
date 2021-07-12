@@ -57,7 +57,7 @@ namespace stingray
 	}
 
 	template < typename T, typename StringType >
-	typename EnableIf<!HasMethod_FromString<T>::Value && !IsSame<T, StringType>::Value, T>::ValueT FromString(const StringType & str)
+	typename EnableIf<!HasMethod_FromString<T>::Value && !IsSame<T, StringType>::Value, T>::ValueT FromString(const StringType& str)
 	{
 		if (str.empty()) //old from string behaved this way.
 			return 0;
@@ -65,30 +65,30 @@ namespace stingray
 		T value = (T)0;
 		bool negative = false;
 
-		size_t i = 0;
+		size_t index = 0;
 		negative = str[0] == '-';
 		if (str[0] == '+' || negative)
-			++i;
+			++index;
 
-		for(; i < str.size(); ++i)
+		for (; index < str.size(); ++index)
 		{
-			char c = str[i];
+			char c = str[index];
 			if (c >= '0' && c <= '9')
 				value = Detail::EvaluateHelper(c, value, negative);
 			else
 				STINGRAYKIT_THROW(ArgumentException("str", str));
 		}
 
-		return negative? (T)0 - value: value; //Dima told me to shut compiler up. Sorry.
+		return negative ? (T)0 - value : value; //Dima told me to shut compiler up. Sorry.
 	}
 
 	template < typename T, typename StringType >
-	typename EnableIf<IsSame<T, StringType>::Value, StringType>::ValueT FromString(const StringType & str)
+	typename EnableIf<IsSame<T, StringType>::Value, StringType>::ValueT FromString(const StringType& str)
 	{ return str; }
 
 
 	template < typename T >
-	void ToString(string_ostream & result, const T& val);
+	void ToString(string_ostream& result, const T& val);
 
 
 	STINGRAYKIT_DECLARE_METHOD_CHECK(ToString);
@@ -152,12 +152,14 @@ namespace stingray
 		struct TypeToStringSerializer;
 
 
-		template< typename ObjectType>
+		template < typename ObjectType >
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasBeginEnd>
 		{
-			static void ToStringImpl(string_ostream & result, const ObjectType& object)
+			static void ToStringImpl(string_ostream& result, const ObjectType& object)
 			{
-				typename ObjectType::const_iterator it = object.begin(), iend = object.end();
+				typename ObjectType::const_iterator it = object.begin();
+				typename ObjectType::const_iterator iend = object.end();
+
 				result << "[";
 				if (it != iend)
 					ToString(result, *it++);
@@ -171,12 +173,14 @@ namespace stingray
 		};
 
 
-		template< typename ObjectType>
+		template < typename ObjectType >
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::IsMap>
 		{
-			static void ToStringImpl(string_ostream & result, const ObjectType& object)
+			static void ToStringImpl(string_ostream& result, const ObjectType& object)
 			{
-				typename ObjectType::const_iterator it = object.begin(), iend = object.end();
+				typename ObjectType::const_iterator it = object.begin();
+				typename ObjectType::const_iterator iend = object.end();
+
 				result << "{ ";
 				if (it != iend)
 				{
@@ -197,34 +201,34 @@ namespace stingray
 		};
 
 
-		template<typename ObjectType>
+		template < typename ObjectType >
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Enumerable>
 		{
-			template <typename T>
-			static void ToStringImpl(string_ostream & result, const IEnumerable<T>& enumerable)
+			template < typename T >
+			static void ToStringImpl(string_ostream& result, const IEnumerable<T>& enumerable)
 			{
-				shared_ptr<IEnumerator<T> > e = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
+				shared_ptr<IEnumerator<T>> en = STINGRAYKIT_REQUIRE_NOT_NULL(enumerable.GetEnumerator());
 				result << "[";
-				if (e->Valid())
+				if (en->Valid())
 				{
-					ToString(result, e->Get());
-					e->Next();
+					ToString(result, en->Get());
+					en->Next();
 				}
-				while (e->Valid())
+				while (en->Valid())
 				{
 					result << ", ";
-					ToString(result, e->Get());
-					e->Next();
+					ToString(result, en->Get());
+					en->Next();
 				}
 				result << "]";
 			}
 		};
 
 
-		template<typename ObjectType>
+		template < typename ObjectType >
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::Range>
 		{
-			static void ToStringImpl(string_ostream & result, const ObjectType& range)
+			static void ToStringImpl(string_ostream& result, const ObjectType& range)
 			{
 				ObjectType copy(range);
 				result << "[";
@@ -244,20 +248,18 @@ namespace stingray
 		};
 
 
-		template< typename ObjectType>
+		template < typename ObjectType >
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::ProxyObjToStdStream>
 		{
-			static void ToStringImpl(string_ostream & result, const ObjectType& val)
-			{
-				result << val;
-			}
+			static void ToStringImpl(string_ostream& result, const ObjectType& val)
+			{ result << val; }
 		};
 
 
 		template<>
 		struct TypeToStringSerializer<u8, TypeToStringObjectType::Other>
 		{
-			static void ToStringImpl(string_ostream & result, u8 val)
+			static void ToStringImpl(string_ostream& result, u8 val)
 			{ result << (u16)val; }
 		};
 
@@ -265,7 +267,7 @@ namespace stingray
 		template<>
 		struct TypeToStringSerializer<std::string, TypeToStringObjectType::HasBeginEnd>
 		{
-			static void ToStringImpl(string_ostream & result, const std::string& str)
+			static void ToStringImpl(string_ostream& result, const std::string& str)
 			{ result << str; }
 		};
 
@@ -281,7 +283,7 @@ namespace stingray
 		template<>
 		struct TypeToStringSerializer<EmptyType, TypeToStringObjectType::Other>
 		{
-			static void ToStringImpl(string_ostream & result, EmptyType val)
+			static void ToStringImpl(string_ostream& result, EmptyType val)
 			{ }
 		};
 
@@ -289,7 +291,7 @@ namespace stingray
 		template<>
 		struct TypeToStringSerializer<NullPtrType, TypeToStringObjectType::Other>
 		{
-			static void ToStringImpl(string_ostream & result, NullPtrType ptr)
+			static void ToStringImpl(string_ostream& result, NullPtrType ptr)
 			{ result << "null"; }
 		};
 
@@ -297,15 +299,15 @@ namespace stingray
 		template<>
 		struct TypeToStringSerializer<const char*, TypeToStringObjectType::Other>
 		{
-			static void ToStringImpl(string_ostream & result, const char* str)
+			static void ToStringImpl(string_ostream& result, const char* str)
 			{ result << str; }
 		};
 
 
-		template<typename T>
+		template < typename T >
 		struct TypeToStringSerializer<shared_ptr<T>, TypeToStringObjectType::Other>
 		{
-			static void ToStringImpl(string_ostream & result, const shared_ptr<T>& ptr)
+			static void ToStringImpl(string_ostream& result, const shared_ptr<T>& ptr)
 			{
 				if (ptr)
 					ToString(result, *ptr);
@@ -315,10 +317,10 @@ namespace stingray
 		};
 
 
-		template<typename T>
+		template < typename T >
 		struct TypeToStringSerializer<optional<T>, TypeToStringObjectType::Other>
 		{
-			static void ToStringImpl(string_ostream & result, const optional<T>& opt)
+			static void ToStringImpl(string_ostream& result, const optional<T>& opt)
 			{
 				if (opt)
 					ToString(result, opt.get());
@@ -328,56 +330,56 @@ namespace stingray
 		};
 
 
-		template<typename Types_>
-		struct TypeToStringSerializer<Tuple<Types_>, TypeToStringObjectType::Other>
+		template < typename Types >
+		struct TypeToStringSerializer<Tuple<Types>, TypeToStringObjectType::Other>
 		{
-			template <size_t Index>
+			template < size_t Index >
 			struct Helper
 			{
-				static void Call(string_ostream* result, const Tuple<Types_>* t)
+				static void Call(string_ostream* result, const Tuple<Types>* tuple)
 				{
 					if (Index != 0)
 						*result << ", ";
 
-					ToString(*result, t->template Get<Index>());
+					ToString(*result, tuple->template Get<Index>());
 				}
 			};
 
-			static void ToStringImpl(string_ostream & result, const Tuple<Types_>& t)
+			static void ToStringImpl(string_ostream& result, const Tuple<Types>& tuple)
 			{
 				result << "[ ";
-				For<GetTypeListLength<Types_>::Value, Helper>::Do(&result, &t);
+				For<GetTypeListLength<Types>::Value, Helper>::Do(&result, &tuple);
 				result << " ]";
 			}
 		};
 
 
-		template<typename U, typename V>
-		struct TypeToStringSerializer<std::pair<U, V>, TypeToStringObjectType::Other>
+		template < typename K, typename V >
+		struct TypeToStringSerializer<std::pair<K, V>, TypeToStringObjectType::Other>
 		{
-			static void ToStringImpl(string_ostream & result, const std::pair<U, V>& p)
+			static void ToStringImpl(string_ostream& result, const std::pair<K, V>& pair)
 			{
 				result << "[ ";
-				ToString(result, p.first);
+				ToString(result, pair.first);
 				result << ", ";
-				ToString(result, p.second);
+				ToString(result, pair.second);
 				result << " ]";
 			}
 		};
 
 
-		template<typename ObjectType>
+		template < typename ObjectType >
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::IsException>
 		{
-			static void ToStringImpl(string_ostream & result, const ObjectType& object)
+			static void ToStringImpl(string_ostream& result, const ObjectType& object)
 			{ return diagnostic_information(result, object); }
 		};
 
 
-		template<typename ObjectType>
+		template < typename ObjectType >
 		struct TypeToStringSerializer<ObjectType, TypeToStringObjectType::HasToString>
 		{
-			static void ToStringImpl(string_ostream & result, const ObjectType& object)
+			static void ToStringImpl(string_ostream& result, const ObjectType& object)
 			{ result << object.ToString(); }
 		};
 
@@ -417,24 +419,28 @@ namespace stingray
 
 
 	template < typename T >
-	void ToString(string_ostream & result, const T& val)
+	void ToString(string_ostream& result, const T& val)
 	{ Detail::TypeToStringSerializer<T>::ToStringImpl(result, val); }
 
 
 	template < typename T >
 	std::string ToString(const T& val)
-	{ string_ostream result; ToString(result, val); return result.str(); }
+	{
+		string_ostream result;
+		ToString(result, val);
+		return result.str();
+	}
 
 
 	template < typename T >
 	struct IsStringRepresentable : Detail::IsStringRepresentableImpl<T> { };
 
 
-	template< typename CharType >
+	template < typename CharType >
 	class BasicStringBuilder
 	{
-		typedef basic_string_ostream<CharType>		StreamType;
-		typedef std::basic_string<CharType>			StringType;
+		using StreamType = basic_string_ostream<CharType>;
+		using StringType = std::basic_string<CharType>;
 
 	private:
 		StreamType	_stream;
@@ -443,14 +449,14 @@ namespace stingray
 		BasicStringBuilder()
 		{ }
 
-		template<typename ObjectType>
+		template < typename ObjectType >
 		typename EnableIf<!IsInt<ObjectType>::Value, BasicStringBuilder&>::ValueT operator % (const ObjectType& object)
 		{
 			stingray::ToString(_stream, object);
 			return *this;
 		}
 
-		template<typename T>
+		template < typename T >
 		typename EnableIf<IsInt<T>::Value, BasicStringBuilder&>::ValueT operator % (T object)
 		{
 			stingray::ToString(_stream, object);
@@ -459,7 +465,7 @@ namespace stingray
 
 		bool empty() const { return _stream.empty(); }
 
-		operator StringType() const
+		operator StringType () const
 		{ return _stream.str(); }
 
 		std::string ToString() const
@@ -467,8 +473,8 @@ namespace stingray
 	};
 
 
-	typedef BasicStringBuilder<char>	StringBuilder;
-	typedef BasicStringBuilder<wchar_t>	WideStringBuilder;
+	using StringBuilder = BasicStringBuilder<char>;
+	using WideStringBuilder = BasicStringBuilder<wchar_t>;
 
 
 	class StringJoiner
@@ -491,7 +497,7 @@ namespace stingray
 		{ }
 
 		template < typename T >
-		StringJoiner& operator% (const T& value)
+		StringJoiner& operator % (const T& value)
 		{
 			if (!_builder.empty())
 				_builder % _separator;
@@ -501,15 +507,12 @@ namespace stingray
 
 		bool empty() const { return _builder.empty(); }
 
-		operator std::string() const { return ToString(); }
+		operator std::string () const { return ToString(); }
 
 		std::string ToString() const
-		{
-			return _prefix + _builder.ToString() + _suffix;
-		}
+		{ return _prefix + _builder.ToString() + _suffix; }
 	};
 
 }
-
 
 #endif
