@@ -54,9 +54,10 @@ namespace stingray
 
 #define STINGRAYKIT_RETHROW_WITH_MESSAGE(Message, ExceptionObj) \
 		do { \
-			string_ostream stream; \
-			stream << stingray::ToString(Message) << ": "; \
-			diagnostic_information(stream, ExceptionObj); \
+			stingray::string_ostream stream; \
+			stingray::ToString(stream, Message); \
+			stream << ": "; \
+			stingray::diagnostic_information(stream, ExceptionObj); \
 			throw stingray::Exception(stream.str()); \
 		} while (false)
 
@@ -90,7 +91,9 @@ namespace stingray
 		static std::string BuildErrorMessage(const std::string& argName, const ArgumentType& argValue)
 		{
 			string_ostream stream;
-			stream << "Invalid argument '" << argName << "' value '" << ToString(argValue) << "'";
+			stream << "Invalid argument '" << argName << "' value '";
+			stingray::ToString(stream, argValue);
+			stream << "'";
 			return stream.str();
 		}
 	};
