@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/IEnumerable.h>
-#include <stingraykit/string/string_stream.h>
+#include <stingraykit/string/ToStringForward.h>
 #include <stingraykit/optional.h>
 
 #include <algorithm>
@@ -84,10 +84,6 @@ namespace stingray
 	template < typename T, typename StringType >
 	typename EnableIf<IsSame<T, StringType>::Value, StringType>::ValueT FromString(const StringType& str)
 	{ return str; }
-
-
-	template < typename T >
-	void ToString(string_ostream& result, const T& val);
 
 
 	STINGRAYKIT_DECLARE_METHOD_CHECK(ToString);

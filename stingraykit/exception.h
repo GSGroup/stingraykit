@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/diagnostics/Backtrace.h>
-#include <stingraykit/string/string_stream.h>
+#include <stingraykit/string/ToStringForward.h>
 #include <stingraykit/toolkit.h>
 
 #include <stdexcept>
@@ -24,10 +24,6 @@
 
 namespace stingray
 {
-
-	template < typename T >
-	std::string ToString(const T& val); // for ArgumentException; TODO find better workaround
-
 
 	class Exception : public std::runtime_error
 	{
