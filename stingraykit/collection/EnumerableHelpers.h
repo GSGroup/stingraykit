@@ -379,46 +379,46 @@ namespace stingray
 #else
 
 #define DETAIL_ENUMERABLE_HELPER_METHODS(TemplateDecl_, RetType_, Name_) \
-		TemplateDecl_ \
-		RetType_ Name_(IEnumerator<T>& enumerator); \
-		TemplateDecl_ \
-		RetType_ Name_(const shared_ptr<IEnumerator<T>>& enumerator) \
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(IEnumerator<ItemType>& enumerator); \
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(const shared_ptr<IEnumerator<ItemType>>& enumerator) \
 		{ return Name_(*enumerator); } \
-		TemplateDecl_ \
-		RetType_ Name_(const IEnumerable<T>& enumerable) \
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(const IEnumerable<ItemType>& enumerable) \
 		{ return Name_(*enumerable.GetEnumerator()); } \
-		TemplateDecl_ \
-		RetType_ Name_(const shared_ptr<IEnumerable<T>>& enumerable) \
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(const shared_ptr<IEnumerable<ItemType>>& enumerable) \
 		{ \
 			STINGRAYKIT_CHECK(enumerable, NullArgumentException("enumerable")); \
 			return Name_(*enumerable); \
 		} \
-		TemplateDecl_ \
-		RetType_ Name_(IEnumerator<T>& enumerator)
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(IEnumerator<ItemType>& enumerator)
 
 #define DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(TemplateDecl_, RetType_, Name_, ParamsDecl_, ParamsUsage_) \
-		TemplateDecl_ \
-		RetType_ Name_(IEnumerator<T>& enumerator, ParamsDecl_); \
-		TemplateDecl_ \
-		RetType_ Name_(const shared_ptr<IEnumerator<T>>& enumerator, ParamsDecl_) \
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(IEnumerator<ItemType>& enumerator, ParamsDecl_); \
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(const shared_ptr<IEnumerator<ItemType>>& enumerator, ParamsDecl_) \
 		{ return Name_(*enumerator, ParamsUsage_); } \
-		TemplateDecl_ \
-		RetType_ Name_(const IEnumerable<T>& enumerable, ParamsDecl_) \
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(const IEnumerable<ItemType>& enumerable, ParamsDecl_) \
 		{ return Name_(*enumerable.GetEnumerator(), ParamsUsage_); } \
-		TemplateDecl_ \
-		RetType_ Name_(const shared_ptr<IEnumerable<T>>& enumerable, ParamsDecl_) \
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(const shared_ptr<IEnumerable<ItemType>>& enumerable, ParamsDecl_) \
 		{ \
 			STINGRAYKIT_CHECK(enumerable, NullArgumentException("enumerable")); \
 			return Name_(*enumerable, ParamsUsage_); \
 		} \
-		TemplateDecl_ \
-		RetType_ Name_(IEnumerator<T>& enumerator, ParamsDecl_)
+		template < typename ItemType STINGRAYKIT_COMMA_IF(STINGRAYKIT_NARGS(TemplateDecl_)) TemplateDecl_ > \
+		RetType_ Name_(IEnumerator<ItemType>& enumerator, ParamsDecl_)
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename AggregateFunc>), T, Aggregate, MK_PARAM(const AggregateFunc& aggregateFunc), MK_PARAM(aggregateFunc))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename AggregateFunc), ItemType, Aggregate, MK_PARAM(const AggregateFunc& aggregateFunc), MK_PARAM(aggregateFunc))
 		{
 			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
-			T result = enumerator.Get();
+			ItemType result = enumerator.Get();
 			enumerator.Next();
 			for (; enumerator.Valid(); enumerator.Next())
 				result = FunctorInvoker::InvokeArgs(aggregateFunc, result, enumerator.Get());
@@ -426,16 +426,16 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename U, typename AggregateFunc>), U, Aggregate, MK_PARAM(const U& initialValue, const AggregateFunc& aggregateFunc), MK_PARAM(initialValue, aggregateFunc))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename ResultType, typename AggregateFunc), ResultType, Aggregate, MK_PARAM(const ResultType& initialValue, const AggregateFunc& aggregateFunc), MK_PARAM(initialValue, aggregateFunc))
 		{
-			U result = initialValue;
+			ResultType result = initialValue;
 			for (; enumerator.Valid(); enumerator.Next())
 				result = FunctorInvoker::InvokeArgs(aggregateFunc, result, enumerator.Get());
 			return result;
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), bool, All, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename PredicateFunc), bool, All, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 				if (!FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
@@ -444,10 +444,10 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), bool, Any)
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), bool, Any)
 		{ return enumerator.Valid(); }
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), bool, Any, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename PredicateFunc), bool, Any, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 				if (FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
@@ -466,7 +466,7 @@ namespace stingray
 		{ return Detail::EnumerableCaster<T>(enumerable); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename EqualPredicateFunc>), bool, Contains, MK_PARAM(const T& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename EqualPredicateFunc), bool, Contains, MK_PARAM(const ItemType& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 				if (FunctorInvoker::InvokeArgs(equalPredicate, enumerator.Get(), value))
@@ -475,11 +475,11 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), bool, Contains, MK_PARAM(const T& value), MK_PARAM(value))
-		{ return Contains(enumerator, value, std::equal_to<T>()); }
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(STINGRAYKIT_EMPTY(), bool, Contains, MK_PARAM(const ItemType& value), MK_PARAM(value))
+		{ return Contains(enumerator, value, std::equal_to<ItemType>()); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), size_t, Count)
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), size_t, Count)
 		{
 			size_t result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -487,7 +487,7 @@ namespace stingray
 			return result;
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), size_t, Count, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename PredicateFunc), size_t, Count, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			size_t result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -497,14 +497,14 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename Func>), void, ForEach, MK_PARAM(const Func& func), MK_PARAM(func))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename Func), void, ForEach, MK_PARAM(const Func& func), MK_PARAM(func))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 				FunctorInvoker::InvokeArgs(func, enumerator.Get());
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), optional<size_t>, IndexOf, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename PredicateFunc), optional<size_t>, IndexOf, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			size_t result = 0;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -516,11 +516,11 @@ namespace stingray
 			return null;
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), optional<size_t>, IndexOf, MK_PARAM(const T& val), MK_PARAM(val))
-		{ return IndexOf(enumerator, Bind(std::equal_to<T>(), val, _1)); }
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(STINGRAYKIT_EMPTY(), optional<size_t>, IndexOf, MK_PARAM(const ItemType& val), MK_PARAM(val))
+		{ return IndexOf(enumerator, Bind(std::equal_to<ItemType>(), val, _1)); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), T, ElementAt, MK_PARAM(size_t index), MK_PARAM(index))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(STINGRAYKIT_EMPTY(), ItemType, ElementAt, MK_PARAM(size_t index), MK_PARAM(index))
 		{
 			size_t current = 0;
 			for (; enumerator.Valid(); enumerator.Next(), ++current)
@@ -529,13 +529,13 @@ namespace stingray
 			STINGRAYKIT_THROW(IndexOutOfRangeException(index, current));
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T>), T, ElementAtOrDefault, MK_PARAM(size_t index), MK_PARAM(index))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(STINGRAYKIT_EMPTY(), ItemType, ElementAtOrDefault, MK_PARAM(size_t index), MK_PARAM(index))
 		{
 			size_t current = 0;
 			for (; enumerator.Valid(); enumerator.Next(), ++current)
 				if (index == current)
 					return enumerator.Get();
-			return T();
+			return ItemType();
 		}
 
 
@@ -549,13 +549,13 @@ namespace stingray
 		{ return MakeEmptyEnumerable(); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, First)
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, First)
 		{
 			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
 			return enumerator.Get();
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, First, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename PredicateFunc), ItemType, First, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			while (enumerator.Valid() && !FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
 				enumerator.Next();
@@ -564,38 +564,36 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, FirstOrDefault)
-		{
-			return enumerator.Valid() ? enumerator.Get() : T();
-		}
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, FirstOrDefault)
+		{ return enumerator.Valid() ? enumerator.Get() : ItemType(); }
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, FirstOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename PredicateFunc), ItemType, FirstOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 			{
-				const T result = enumerator.Get();
+				const ItemType result = enumerator.Get();
 				if (FunctorInvoker::InvokeArgs(predicate, result))
 					return result;
 			}
-			return T();
+			return ItemType();
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Last)
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, Last)
 		{
-			optional<T> result;
+			optional<ItemType> result;
 			for (; enumerator.Valid(); enumerator.Next())
 				result = enumerator.Get();
 			STINGRAYKIT_CHECK(result, InvalidOperationException());
 			return *result;
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, Last, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename PredicateFunc), ItemType, Last, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
-			optional<T> result;
+			optional<ItemType> result;
 			for (; enumerator.Valid(); enumerator.Next())
 			{
-				const T value = enumerator.Get();
+				const ItemType value = enumerator.Get();
 				if (FunctorInvoker::InvokeArgs(predicate, value))
 					result = value;
 			}
@@ -604,24 +602,24 @@ namespace stingray
 		}
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, LastOrDefault)
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, LastOrDefault)
 		{
-			optional<T> result;
+			optional<ItemType> result;
 			for (; enumerator.Valid(); enumerator.Next())
 				result = enumerator.Get();
-			return result ? *result : T();
+			return result ? *result : ItemType();
 		}
 
-		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(template <typename T, typename PredicateFunc>), T, LastOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
+		DETAIL_ENUMERABLE_HELPER_METHODS_WITH_PARAMS(MK_PARAM(typename PredicateFunc), ItemType, LastOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate))
 		{
-			optional<T> result;
+			optional<ItemType> result;
 			for (; enumerator.Valid(); enumerator.Next())
 			{
-				const T value = enumerator.Get();
+				const ItemType value = enumerator.Get();
 				if (FunctorInvoker::InvokeArgs(predicate, value))
 					result = value;
 			}
-			return result ? *result : T();
+			return result ? *result : ItemType();
 		}
 
 
@@ -702,10 +700,10 @@ namespace stingray
 		{ return enumerable->Reverse(); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(template <typename T>), T, Single)
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, Single)
 		{
 			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
-			T result = enumerator.Get();
+			const ItemType result = enumerator.Get();
 			enumerator.Next();
 			STINGRAYKIT_CHECK(!enumerator.Valid(), InvalidOperationException());
 			return result;
