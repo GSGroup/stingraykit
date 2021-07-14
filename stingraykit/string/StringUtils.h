@@ -269,15 +269,10 @@ namespace stingray
 	std::string Join(const std::string& separator, const Range& range_, UnaryOperator op)
 	{
 		Range range(range_);
-		StringBuilder sb;
+		StringJoiner sj(separator);
 		for (; range.Valid(); range.Next())
-		{
-			if (!sb.empty())
-				sb % separator;
-
-			sb % op(range.Get());
-		}
-		return sb;
+			sj % op(range.Get());
+		return sj;
 	}
 
 
@@ -354,8 +349,8 @@ namespace stingray
 			operator std::string () const
 			{
 				return Left ?
-						(std::string)String + std::string(String.size() < Width ? Width - String.size() : 0, Filler) :
-						std::string(String.size() < Width ? Width - String.size() : 0, Filler) + (std::string)String;
+						StringBuilder() % String % std::string(String.size() < Width ? Width - String.size() : 0, Filler) :
+						StringBuilder() % std::string(String.size() < Width ? Width - String.size() : 0, Filler) % String;
 			}
 		};
 
