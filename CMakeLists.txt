@@ -122,6 +122,7 @@ set(stingraykit_SRC
 	stingraykit/string/Unicode.cpp
 	stingraykit/string/regex.cpp
 	stingraykit/string/string_stream.cpp
+	stingraykit/string/string_view.cpp
 
 	stingraykit/thread/CancellationToken.cpp
 	stingraykit/thread/DummyCancellationToken.cpp

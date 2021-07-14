@@ -8,14 +8,22 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/exception.h>
+#include <stingraykit/core/NullPtrType.h>
 
 #include <limits>
 #include <string>
+
+#include <stddef.h>
 #include <string.h>
 
 namespace stingray
 {
+
+	namespace Detail
+	{
+		void StringViewCheckRange(size_t pos, size_t size);
+	}
+
 
 	template < typename CharT, typename Traits = std::char_traits<CharT> >
 	class basic_string_view
@@ -51,7 +59,7 @@ namespace stingray
 		const_reverse_iterator rbegin() const			{ return reverse_iterator(end()); }
 		const_reverse_iterator rend() const				{ return reverse_iterator(begin()); }
 
-		const_reference at(size_type pos) const			{ STINGRAYKIT_CHECK_RANGE(pos, size()); return _data[pos]; }
+		const_reference at(size_type pos) const			{ Detail::StringViewCheckRange(pos, size()); return _data[pos]; }
 		const_reference operator[](size_type pos) const { return _data[pos]; }
 		const_reference front() const					{ return _data[0]; }
 		const_reference back() const					{ return _data[size() - 1]; }
@@ -64,14 +72,14 @@ namespace stingray
 
 		void remove_prefix(size_type n)
 		{
-			STINGRAYKIT_CHECK_RANGE(n, size() + 1);
+			Detail::StringViewCheckRange(n, size() + 1);
 			_data += n;
 			_size -= n;
 		}
 
 		void remove_suffix(size_type n)
 		{
-			STINGRAYKIT_CHECK_RANGE(n, size() + 1);
+			Detail::StringViewCheckRange(n, size() + 1);
 			_size -= n;
 		}
 
@@ -86,7 +94,7 @@ namespace stingray
 
 		basic_string_view substr(size_type pos = 0, size_type count = npos) const
 		{
-			STINGRAYKIT_CHECK_RANGE(pos, size() + 1);
+			Detail::StringViewCheckRange(pos, size() + 1);
 			return basic_string_view(_data + pos, std::min(count, size() - pos));
 		}
 
