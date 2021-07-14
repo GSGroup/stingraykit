@@ -24,29 +24,58 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename T >
-		typename EnableIf<!std::numeric_limits<T>::is_specialized, T>::ValueT EvaluateHelper(char c, const T& value, bool)
-		{ return value * 10 + (c - '0'); }
+		template < typename T, typename Enabler = void >
+		struct SafeEvaluator;
 
 		template < typename T >
-		typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_signed, T>::ValueT EvaluateHelper(char c, const T& value, bool negative)
+		struct SafeEvaluator<T, typename EnableIf<!std::numeric_limits<T>::is_specialized, void>::ValueT>
 		{
-			const s64 newValue = value * (s64) 10 + (c - '0');
-			if (negative)
-				STINGRAYKIT_CHECK(((0 - newValue) >= (s64) std::numeric_limits<T>::min()), IndexOutOfRangeException(0 - newValue, std::numeric_limits<T>::min()));
-			else
-				STINGRAYKIT_CHECK((newValue <= (s64) std::numeric_limits<T>::max()), IndexOutOfRangeException(newValue, std::numeric_limits<T>::max()));
-			return value * 10 + (c - '0');
-		}
+			template < typename StringType >
+			static T Do(const StringType&, T value, T increment, bool)
+			{ return value * 10 + increment; }
+		};
 
 		template < typename T >
-		typename EnableIf<std::numeric_limits<T>::is_specialized && !std::numeric_limits<T>::is_signed, T>::ValueT EvaluateHelper(char c, const T& value, bool negative)
+		struct SafeEvaluator<T, typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_signed, void>::ValueT>
 		{
-			STINGRAYKIT_CHECK(!negative, "Value cannot be negative!");
-			const u64 newValue = value * (u64) 10 + (c - '0');
-			STINGRAYKIT_CHECK(newValue <= (u64) std::numeric_limits<T>::max(), IndexOutOfRangeException(newValue, std::numeric_limits<T>::max()));
-			return value * 10 + (c - '0');
-		}
+		private:
+			static constexpr T MinMultiplicand = std::numeric_limits<T>::min() / 10;
+			static constexpr T MinMultiplicandRemainder = std::numeric_limits<T>::min() % 10 * -1;
+			static constexpr T MaxMultiplicand = std::numeric_limits<T>::max() / 10;
+			static constexpr T MaxMultiplicandRemainder = std::numeric_limits<T>::max() % 10;
+
+			static_assert(MinMultiplicand < 0 && MinMultiplicandRemainder >= 0, "Deviant signed type detected");
+
+		public:
+			template < typename StringType >
+			static T Do(const StringType& str, T value, T increment, bool negative)
+			{
+				if (negative)
+					STINGRAYKIT_CHECK(value > MinMultiplicand || (value == MinMultiplicand && increment <= MinMultiplicandRemainder), IndexOutOfRangeException(str, std::numeric_limits<T>::min(), std::numeric_limits<T>::max()));
+				else
+					STINGRAYKIT_CHECK(value < MaxMultiplicand || (value == MaxMultiplicand && increment <= MaxMultiplicandRemainder), IndexOutOfRangeException(str, std::numeric_limits<T>::min(), std::numeric_limits<T>::max()));
+
+				return value * 10 + (negative ? -increment : increment);
+			}
+		};
+
+		template < typename T >
+		struct SafeEvaluator<T, typename EnableIf<std::numeric_limits<T>::is_specialized && !std::numeric_limits<T>::is_signed, void>::ValueT>
+		{
+		private:
+			static constexpr T MaxMultiplicand = std::numeric_limits<T>::max() / 10;
+			static constexpr T MaxMultiplicandRemainder = std::numeric_limits<T>::max() % 10;
+
+		public:
+			template < typename StringType >
+			static T Do(const StringType& str, T value, T increment, bool negative)
+			{
+				STINGRAYKIT_CHECK(!negative, IndexOutOfRangeException(str, 0, std::numeric_limits<T>::max()));
+				STINGRAYKIT_CHECK(value < MaxMultiplicand || (value == MaxMultiplicand && increment <= MaxMultiplicandRemainder), IndexOutOfRangeException(str, 0, std::numeric_limits<T>::max()));
+
+				return value * 10 + increment;
+			}
+		};
 
 		template < typename StringType >
 		struct TypeFromStringInterpreter
@@ -72,10 +101,10 @@ namespace stingray
 					const char c = str[index];
 					STINGRAYKIT_CHECK(c >= '0' && c <= '9', ArgumentException("str", str));
 
-					value = EvaluateHelper(c, value, negative);
+					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<ObjectType>(c - '0'), negative);
 				}
 
-				return negative ? static_cast<ObjectType>(0) - value : value; //Dima told me to shut compiler up. Sorry.
+				return value;
 			}
 
 			template < typename ObjectType, typename EnableIf<IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
