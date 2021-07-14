@@ -51,11 +51,10 @@ namespace stingray
 	public:
 		bool empty() const { return _buf.empty(); }
 
+		void clear() { _buf.clear(); }
+
 		std::string str() const
 		{ return std::string(_buf.begin(), _buf.end()); }
-
-		void str(const std::string& value)
-		{ _buf.assign(value.begin(), value.end()); }
 
 		basic_string_ostream& operator << (bool value)
 		{ Insert(value); return *this; }
