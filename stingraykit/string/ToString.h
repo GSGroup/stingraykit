@@ -271,6 +271,14 @@ namespace stingray
 
 
 		template<>
+		struct TypeToStringSerializer<string_view, TypeToStringObjectType::HasBeginEnd>
+		{
+			static void ToStringImpl(string_ostream & result, string_view str)
+			{ result << str; }
+		};
+
+
+		template<>
 		struct TypeToStringSerializer<EmptyType, TypeToStringObjectType::Other>
 		{
 			static void ToStringImpl(string_ostream & result, EmptyType val)
