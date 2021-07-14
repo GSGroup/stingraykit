@@ -326,6 +326,20 @@ namespace stingray
 	}
 
 
+	template < typename T, typename StringType = std::string >
+	struct IsFromStringInterpretable
+	{
+	private:
+		template < typename ObjectType >
+		static auto Deduce(int) -> decltype(FromString<ObjectType>(std::declval<StringType>()), std::declval<YesType>());
+		template < typename ObjectType >
+		static NoType Deduce(long);
+
+	public:
+		static const bool Value = sizeof(YesType) == sizeof(Deduce<T>(0));
+	};
+
+
 	template < typename T >
 	struct IsStringRepresentable
 	{
