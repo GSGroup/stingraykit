@@ -354,8 +354,8 @@ namespace stingray
 			}
 		};
 
-		template < typename StreamType, typename StringType, bool Left >
-		StreamType& operator << (StreamType& stream, const StringJustificator<StringType, Left>& sj)
+		template < typename StringType, bool Left >
+		string_ostream& operator << (string_ostream& stream, const StringJustificator<StringType, Left>& sj)
 		{
 			if (Left)
 				stream << sj.String;
