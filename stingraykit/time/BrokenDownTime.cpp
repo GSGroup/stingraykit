@@ -77,7 +77,7 @@ namespace stingray
 
 			void operator()(const std::string &pattern, size_t patternIndex, size_t offset) const
 			{
-				Stream.write(Format.data() + LastPosition, offset - LastPosition);
+				Stream << string_view(Format.data() + LastPosition, offset - LastPosition);
 				switch(patternIndex)
 				{
 					case 0: Stream << RightJustify(stingray::ToString(Bdt.MonthDay), 2, '0'); break;
@@ -119,7 +119,7 @@ namespace stingray
 		ReplaceContext context(*this, stream, format);
 
 		s_formatMatcher.Search(format, context);
-		stream.write(format.data() + context.LastPosition, format.size() - context.LastPosition);
+		stream << string_view(format.data() + context.LastPosition, format.size() - context.LastPosition);
 
 		return stream.str();
 	}

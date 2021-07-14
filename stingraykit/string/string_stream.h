@@ -115,12 +115,6 @@ namespace stingray
 		basic_string_ostream& operator << (const void* value)
 		{ Insert(value); return *this; }
 
-		void write(const_pointer data, size_t size)
-		{
-			reserve(size);
-			std::copy(data, data + size, std::back_inserter(_buf));
-		}
-
 		void push_back(value_type c) { Insert(c); }
 
 	private:

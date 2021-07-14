@@ -16,12 +16,7 @@ namespace stingray
 	template<>
 	template<>
 	void basic_string_ostream<char>::Insert(bool value)
-	{
-		if (value)
-			write("true", 4);
-		else
-			write("false", 5);
-	}
+	{ Insert(value ? string_view_type("true") : string_view_type("false")); }
 	extern template void string_ostream::Insert(bool);
 
 	template<>
@@ -37,7 +32,7 @@ namespace stingray
 			buf[--pos] = digit + '0';
 		}
 		buf[--pos] = value + '0';
-		write(buf + pos, sizeof(buf) - pos);
+		Insert(string_view_type(buf + pos, sizeof(buf) - pos));
 	}
 
 #define DECLARE_INSERT_UNSIGNED(VALUE_TYPE) \
@@ -74,7 +69,7 @@ namespace stingray
 		char buf[32]; \
 		const int result = snprintf(buf, sizeof(buf), VALUE_FORMAT, static_cast<VALUE_FORMAT_TYPE>(value)); \
 		STINGRAYKIT_CHECK(result >= 0, "snprintf failed for " VALUE_FORMAT); \
-		write(buf, result); \
+		Insert(string_view_type(buf, result)); \
 	} \
 	extern template void string_ostream::Insert(VALUE_TYPE)
 
