@@ -31,6 +31,8 @@ namespace stingray
 		using reference = value_type;
 		using pointer = value_type*;
 
+		using string_type = std::basic_string<value_type>;
+
 	private:
 		static const unsigned InplaceCapacity = 256;
 
@@ -53,8 +55,8 @@ namespace stingray
 
 		void clear() { _buf.clear(); }
 
-		std::string str() const
-		{ return std::string(_buf.begin(), _buf.end()); }
+		string_type str() const
+		{ return string_type(_buf.begin(), _buf.end()); }
 
 		basic_string_ostream& operator << (bool value)
 		{ Insert(value); return *this; }
@@ -89,7 +91,7 @@ namespace stingray
 		basic_string_ostream& operator << (unsigned long long value)
 		{ Insert(value); return *this; }
 
-		basic_string_ostream& operator << (const std::string& value)
+		basic_string_ostream& operator << (const string_type& value)
 		{ Insert(value); return *this; }
 
 		basic_string_ostream& operator << (float value)
@@ -125,7 +127,7 @@ namespace stingray
 				_buf.push_back(*value++);
 		}
 
-		void Insert(const std::basic_string<value_type>& value)
+		void Insert(const string_type& value)
 		{
 			reserve(value.size());
 			std::copy(value.begin(), value.end(), std::back_inserter(_buf));
