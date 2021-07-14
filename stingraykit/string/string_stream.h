@@ -16,6 +16,8 @@
 #	include <vector>
 #endif
 
+#include <stingraykit/string/string_view.h>
+
 #include <string>
 
 namespace stingray
@@ -32,6 +34,7 @@ namespace stingray
 		using pointer = value_type*;
 
 		using string_type = std::basic_string<value_type>;
+		using string_view_type = basic_string_view<value_type>;
 
 	private:
 		static const unsigned InplaceCapacity = 256;
@@ -92,6 +95,9 @@ namespace stingray
 		{ Insert(value); return *this; }
 
 		basic_string_ostream& operator << (const string_type& value)
+		{ Insert(string_view_type(value)); return *this; }
+
+		basic_string_ostream& operator << (string_view_type value)
 		{ Insert(value); return *this; }
 
 		basic_string_ostream& operator << (float value)
@@ -127,7 +133,7 @@ namespace stingray
 				_buf.push_back(*value++);
 		}
 
-		void Insert(const string_type& value)
+		void Insert(string_view_type value)
 		{
 			reserve(value.size());
 			std::copy(value.begin(), value.end(), std::back_inserter(_buf));
