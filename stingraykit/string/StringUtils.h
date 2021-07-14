@@ -266,8 +266,9 @@ namespace stingray
 
 
 	template < typename Range, typename UnaryOperator >
-	std::string Join(const std::string& separator, Range range, UnaryOperator op)
+	std::string Join(const std::string& separator, const Range& range_, UnaryOperator op)
 	{
+		Range range(range_);
 		StringBuilder sb;
 		for (; range.Valid(); range.Next())
 		{
@@ -281,17 +282,17 @@ namespace stingray
 
 
 	template < typename Range >
-	inline std::string Join(const std::string& separator, Range range)
+	inline std::string Join(const std::string& separator, const Range& range)
 	{ return Join(separator, range, lexical_cast<std::string, typename Range::ValueType>); }
 
 
 	template < typename InputIterator, typename UnaryOperator >
-	inline std::string Join(const std::string& separator, InputIterator first, InputIterator last, UnaryOperator op)
+	inline std::string Join(const std::string& separator, const InputIterator& first, const InputIterator& last, UnaryOperator op)
 	{ return Join(separator, ToRange(first, last), op); }
 
 
 	template < typename InputIterator >
-	inline std::string Join(const std::string& separator, InputIterator first, InputIterator last)
+	inline std::string Join(const std::string& separator, const InputIterator& first, const InputIterator& last)
 	{ return Join(separator, ToRange(first, last), lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
 
 
@@ -406,8 +407,9 @@ namespace stingray
 
 
 	template < typename TupleType, typename SourceRange_ >
-	SourceRange_ TupleFromStrings(const TupleType& tuple, SourceRange_ inputRange)
+	SourceRange_ TupleFromStrings(const TupleType& tuple, const SourceRange_& inputRange_)
 	{
+		SourceRange_ inputRange(inputRange_);
 		stingray::For<TupleType::Size, Detail::TupleFromStringsHelper<TupleType>::template Functor>::Do(tuple, &inputRange);
 		return inputRange;
 	}
