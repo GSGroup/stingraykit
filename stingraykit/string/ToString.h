@@ -48,42 +48,59 @@ namespace stingray
 			return value * 10 + (c - '0');
 		}
 
-	}
-
-	template < typename T >
-	typename EnableIf<HasMethod_FromString<T>::Value, T>::ValueT FromString(const std::string& str)
-	{
-		return T::FromString(str);
-	}
-
-	template < typename T, typename StringType >
-	typename EnableIf<!HasMethod_FromString<T>::Value && !IsSame<T, StringType>::Value, T>::ValueT FromString(const StringType& str)
-	{
-		if (str.empty()) //old from string behaved this way.
-			return 0;
-
-		T value = (T)0;
-		bool negative = false;
-
-		size_t index = 0;
-		negative = str[0] == '-';
-		if (negative || str[0] == '+')
-			++index;
-
-		for (; index < str.size(); ++index)
+		template < typename StringType >
+		struct TypeFromStringInterpreter
 		{
-			const char c = str[index];
-			STINGRAYKIT_CHECK(c >= '0' && c <= '9', ArgumentException("str", str));
+		private:
+			template < typename ObjectType, typename EnableIf<!IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
+			static auto ParseIntegralType(const StringType& str)
+					-> decltype(std::declval<ObjectType>() * 10, typename RemoveReference<decltype(std::declval<ObjectType>())>::ValueT())
+			{
+				if (str.empty()) //old from string behaved this way.
+					return 0;
 
-			value = Detail::EvaluateHelper(c, value, negative);
-		}
+				ObjectType value = 0;
+				bool negative = false;
 
-		return negative ? (T)0 - value : value; //Dima told me to shut compiler up. Sorry.
+				size_t index = 0;
+				negative = str[0] == '-';
+				if (negative || str[0] == '+')
+					++index;
+
+				for (; index < str.size(); ++index)
+				{
+					const char c = str[index];
+					STINGRAYKIT_CHECK(c >= '0' && c <= '9', ArgumentException("str", str));
+
+					value = EvaluateHelper(c, value, negative);
+				}
+
+				return negative ? static_cast<ObjectType>(0) - value : value; //Dima told me to shut compiler up. Sorry.
+			}
+
+			template < typename ObjectType, typename EnableIf<IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
+			static ObjectType ParseIntegralType(const StringType& str)
+			{ return str; }
+
+		public:
+			template < typename ObjectType >
+			static auto FromStringImpl(const StringType& str, int)
+					-> typename RemoveReference<decltype(ObjectType::FromString(str))>::ValueT
+			{ return ObjectType::FromString(str); }
+
+			template < typename ObjectType >
+			static auto FromStringImpl(const StringType& str, long)
+					-> typename RemoveReference<decltype(ParseIntegralType<ObjectType>(str))>::ValueT
+			{ return TypeFromStringInterpreter::template ParseIntegralType<ObjectType>(str); }
+		};
+
 	}
 
+
 	template < typename T, typename StringType >
-	typename EnableIf<IsSame<T, StringType>::Value, StringType>::ValueT FromString(const StringType& str)
-	{ return str; }
+	auto FromString(const StringType& str)
+			-> typename RemoveReference<decltype(Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0))>::ValueT
+	{ return Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0); }
 
 
 	STINGRAYKIT_DECLARE_METHOD_CHECK(ToString);
