@@ -266,29 +266,29 @@ namespace stingray
 
 
 	template < typename Range, typename UnaryOperator >
-	std::string Join(const std::string& separator, const Range& range_, UnaryOperator op)
+	std::string Join(const std::string& separator, const Range& range_, const UnaryOperator& op)
 	{
 		Range range(range_);
 		StringJoiner sj(separator);
 		for (; range.Valid(); range.Next())
-			sj % op(range.Get());
+			sj % FunctorInvoker::InvokeArgs(op, range.Get());
 		return sj;
 	}
 
 
 	template < typename Range >
 	inline std::string Join(const std::string& separator, const Range& range)
-	{ return Join(separator, range, lexical_cast<std::string, typename Range::ValueType>); }
+	{ return Join(separator, range, &lexical_cast<std::string, typename Range::ValueType>); }
 
 
 	template < typename InputIterator, typename UnaryOperator >
-	inline std::string Join(const std::string& separator, const InputIterator& first, const InputIterator& last, UnaryOperator op)
+	inline std::string Join(const std::string& separator, const InputIterator& first, const InputIterator& last, const UnaryOperator& op)
 	{ return Join(separator, ToRange(first, last), op); }
 
 
 	template < typename InputIterator >
 	inline std::string Join(const std::string& separator, const InputIterator& first, const InputIterator& last)
-	{ return Join(separator, ToRange(first, last), lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
+	{ return Join(separator, ToRange(first, last), &lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
 
 
 	inline std::string RightStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
@@ -310,7 +310,7 @@ namespace stingray
 
 
 	template < typename Transformer >
-	std::string Transform(const std::string& str, Transformer transformer)
+	std::string Transform(const std::string& str, const Transformer& transformer)
 	{
 		string_ostream result;
 		std::transform(str.begin(), str.end(), std::back_inserter(result), transformer);
@@ -319,11 +319,11 @@ namespace stingray
 
 
 	inline std::string ToLower(const std::string& str)
-	{ return Transform(str, ::tolower); }
+	{ return Transform(str, &::tolower); }
 
 
 	inline std::string ToUpper(const std::string& str)
-	{ return Transform(str, ::toupper); }
+	{ return Transform(str, &::toupper); }
 
 
 	inline std::string Capitalize(const std::string& str)
