@@ -1,6 +1,5 @@
 #include <stingraykit/string/StringUtils.h>
 
-
 namespace stingray
 {
 

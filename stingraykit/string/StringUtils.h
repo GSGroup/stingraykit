@@ -14,28 +14,22 @@
 #include <algorithm>
 #include <ctype.h>
 
-namespace std
-{
-	template < class Key, class T, class Compare, class Allocator > class map;
-}
-
-
 namespace stingray
 {
 
 	template < typename CharType >
 	std::basic_string<CharType>& ReplaceAll(std::basic_string<CharType>& str,
-					const std::basic_string<CharType>& replaceSeq,
-					const std::basic_string<CharType>& replaceTo,
-					Dummy dummy = Dummy())
+			const std::basic_string<CharType>& replaceSeq,
+			const std::basic_string<CharType>& replaceTo,
+			Dummy dummy = Dummy())
 	{
-		typedef std::basic_string<CharType>	StrType;
+		using StringType = std::basic_string<CharType>;
 
-		typename StrType::size_type i = str.find(replaceSeq);
-		while (i != StrType::npos)
+		typename StringType::size_type index = str.find(replaceSeq);
+		while (index != StringType::npos)
 		{
-			str.replace(i, replaceSeq.size(), replaceTo);
-			i = str.find(replaceSeq, i + replaceTo.size());
+			str.replace(index, replaceSeq.size(), replaceTo);
+			index = str.find(replaceSeq, index + replaceTo.size());
 		}
 		return str;
 	}
@@ -47,7 +41,7 @@ namespace stingray
 
 	inline std::string& ReplaceAll(std::string& str, char from, char to)
 	{
-		for(std::string::iterator it = str.begin(); it != str.end(); ++it)
+		for (std::string::iterator it = str.begin(); it != str.end(); ++it)
 			if (*it == from)
 				*it = to;
 		return str;
@@ -91,7 +85,7 @@ namespace stingray
 	{
 		if (str.length() < suffix.length())
 			return str;
-		return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0? str.substr(0, str.length() - suffix.length()) : str;
+		return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0 ? str.substr(0, str.length() - suffix.length()) : str;
 	}
 
 
@@ -110,41 +104,41 @@ namespace stingray
 	class StringRef
 	{
 	public:
-		typedef std::string::size_type	size_type;
+		using  size_type = std::string::size_type;
 
 		static const size_type npos = std::string::npos;
 
 	private:
-		const std::string *		_owner;
+		const std::string*		_owner;
 		std::string::size_type	_begin;
 		std::string::size_type	_end;
 
 	public:
-		inline StringRef(const std::string& owner, size_t begin = 0, size_t end = npos) : _owner(&owner), _begin(begin), _end(end != npos ? end : owner.size()) { }
+		StringRef(const std::string& owner, size_t begin = 0, size_t end = npos) : _owner(&owner), _begin(begin), _end(end != npos ? end : owner.size()) { }
 
-		inline bool empty() const		{ return _begin >= _end; }
-		inline size_type size() const	{ return _end >= _begin ? _end - _begin : 0; }
+		bool empty() const		{ return _begin >= _end; }
+		size_type size() const	{ return _end >= _begin ? _end - _begin : 0; }
 
-		inline size_type find(const char c, size_type pos = 0) const
+		size_type find(const char c, size_type pos = 0) const
 		{
-			size_type p = _owner->find(c, pos + _begin);
-			return (p >= _end) ? npos : p - _begin;
+			const size_type p = _owner->find(c, pos + _begin);
+			return p >= _end ? npos : p - _begin;
 		}
 
-		inline size_type find(const std::string& str, size_type pos = 0) const
+		size_type find(const std::string& str, size_type pos = 0) const
 		{
-			size_type p = _owner->find(str, pos + _begin);
-			return (p >= _end) ? npos : p - _begin;
+			const size_type p = _owner->find(str, pos + _begin);
+			return p >= _end ? npos : p - _begin;
 		}
 
 		StringRef substr(size_type pos = 0, size_type n = npos) const
-		{ return StringRef(*_owner, _begin + pos, n == npos? _end: _begin + pos + n ); }
+		{ return StringRef(*_owner, _begin + pos, n == npos ? _end : _begin + pos + n ); }
 
-		char operator[] (size_type index) const
+		char operator [] (size_type index) const
 		{ return (*_owner)[_begin + index]; }
 
-		inline std::string str() const { return str_substr(); }
-		operator std::string() const   { return str(); }
+		std::string str() const	{ return str_substr(); }
+		operator std::string () const	{ return str(); }
 
 		bool operator != (const std::string& other) const { return str() != other; }
 		bool operator == (const std::string& other) const { return str() == other; }
@@ -172,56 +166,60 @@ namespace stingray
 
 	class IsAnyOf
 	{
-		const std::string & _list;
+	private:
+		const std::string&		_list;
 
 	public:
-		IsAnyOf(const std::string & list): _list(list)
+		IsAnyOf(const std::string& list) : _list(list)
 		{ }
 
-		template<typename StringLikeObject>
-		Detail::DelimiterMatch operator()(const StringLikeObject & string, size_t startPos)
+		template < typename StringLikeObject >
+		Detail::DelimiterMatch operator () (const StringLikeObject& string, size_t startPos)
 		{ return Detail::DelimiterMatch(string.find_first_of(_list, startPos), 1); }
 	};
+
 
 	namespace Detail
 	{
 		class StaticSplitDelimiter
 		{
+		private:
 			std::string		_delimiter;
 
 		public:
-			StaticSplitDelimiter(const std::string &delimiter): _delimiter(delimiter) { }
+			StaticSplitDelimiter(const std::string& delimiter) : _delimiter(delimiter) { }
 
-			template<typename StringLikeObject>
-			Detail::DelimiterMatch operator()(const StringLikeObject &string, size_t startPos) const
+			template < typename StringLikeObject >
+			Detail::DelimiterMatch operator () (const StringLikeObject& string, size_t startPos) const
 			{ return Detail::DelimiterMatch(string.find(_delimiter, startPos), _delimiter.size()); }
 
 			size_t size() const
 			{ return _delimiter.size(); }
 		};
 
-		template<typename StringSearchType>
-		class SplitStringRange :
-			public Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>
+		template < typename StringSearchType >
+		class SplitStringRange
+			:	public Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>
 		{
-			typedef SplitStringRange<StringSearchType> Self;
-			typedef Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag> base;
+			using Self = SplitStringRange<StringSearchType>;
+			using base = Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>;
 
 		public:
-			typedef std::string				ValueType;
+			using ValueType = std::string;
+
 			static const size_t				NoLimit = 0;
 
 		private:
 			StringSearchType				_search;
-			const ValueType &				_string;
+			const ValueType&				_string;
 			size_t							_startPos;
 			DelimiterMatch					_next;
 			size_t							_results;
 			size_t							_resultsLimit;
 
 		public:
-			SplitStringRange(const StringSearchType &search, const ValueType &string, size_t limit) :
-				_search(search), _string(string), _startPos(0), _results(0), _resultsLimit(limit)
+			SplitStringRange(const StringSearchType& search, const ValueType& string, size_t limit)
+				: _search(search), _string(string), _startPos(0), _results(0), _resultsLimit(limit)
 			{ _next = _search(_string, _startPos); }
 
 			bool Valid() const
@@ -234,7 +232,11 @@ namespace stingray
 			{ return _startPos == other._startPos; }
 
 			Self& First()
-			{ _startPos = 0; _results = 0; return *this; }
+			{
+				_startPos = 0;
+				_results = 0;
+				return *this;
+			}
 
 			Self& Next()
 			{
@@ -250,16 +252,16 @@ namespace stingray
 		};
 
 
-		typedef SplitStringRange<StaticSplitDelimiter>	StaticDelimiterSplitStringRange;
-		typedef SplitStringRange<IsAnyOf>				IsAnyOfSplitStringRange;
+		using StaticDelimiterSplitStringRange = SplitStringRange<StaticSplitDelimiter>;
+		using IsAnyOfSplitStringRange = SplitStringRange<IsAnyOf>;
 	}
 
 
-	inline Detail::StaticDelimiterSplitStringRange Split(const std::string &string, const std::string &delimiter, size_t limit = Detail::StaticDelimiterSplitStringRange::NoLimit)
+	inline Detail::StaticDelimiterSplitStringRange Split(const std::string& string, const std::string& delimiter, size_t limit = Detail::StaticDelimiterSplitStringRange::NoLimit)
 	{ return Detail::StaticDelimiterSplitStringRange(Detail::StaticSplitDelimiter(delimiter), string, limit); }
 
 
-	inline Detail::IsAnyOfSplitStringRange Split(const std::string &string, const IsAnyOf &search, size_t limit = Detail::IsAnyOfSplitStringRange::NoLimit)
+	inline Detail::IsAnyOfSplitStringRange Split(const std::string& string, const IsAnyOf& search, size_t limit = Detail::IsAnyOfSplitStringRange::NoLimit)
 	{ return Detail::IsAnyOfSplitStringRange(search, string, limit); }
 
 
@@ -311,7 +313,7 @@ namespace stingray
 	{ return LeftStrip(RightStrip(str, chars), chars); }
 
 
-	template< typename Transformer >
+	template < typename Transformer >
 	std::string Transform(const std::string& str, Transformer transformer)
 	{
 		string_ostream result;
@@ -335,39 +337,40 @@ namespace stingray
 	inline std::string Uncapitalize(const std::string& str)
 	{ return str.empty() ? str : std::string(str).replace(0, 1, 1, ::tolower(str[0])); }
 
+
 	namespace Detail
 	{
 
-		template<typename StringType, bool Left>
+		template < typename StringType, bool Left >
 		struct StringJustificator
 		{
-			const StringType &	String;
+			const StringType&	String;
 			size_t				Width;
 			char				Filler;
 
-			StringJustificator(const StringType & str, size_t width, char ch): String(str), Width(width), Filler(ch) { }
+			StringJustificator(const StringType& str, size_t width, char ch) : String(str), Width(width), Filler(ch) { }
 
 			operator std::string () const
 			{
-				return Left?
-					(std::string)String + std::string(String.size() < Width? Width - String.size() : 0, Filler):
-					std::string(String.size() < Width? Width - String.size() : 0, Filler) + (std::string)String;
+				return Left ?
+						(std::string)String + std::string(String.size() < Width ? Width - String.size() : 0, Filler) :
+						std::string(String.size() < Width ? Width - String.size() : 0, Filler) + (std::string)String;
 			}
 		};
 
-		template<typename StreamType, typename StringType, bool Left>
-		StreamType & operator<< (StreamType & stream, const StringJustificator<StringType, Left> & rj)
+		template < typename StreamType, typename StringType, bool Left >
+		StreamType& operator << (StreamType& stream, const StringJustificator<StringType, Left>& sj)
 		{
 			if (Left)
-				stream << rj.String;
-			if (rj.String.size() < rj.Width)
+				stream << sj.String;
+			if (sj.String.size() < sj.Width)
 			{
-				size_t width = rj.Width - rj.String.size();
-				while(width--)
-					stream << rj.Filler;
+				size_t width = sj.Width - sj.String.size();
+				while (width--)
+					stream << sj.Filler;
 			}
 			if (!Left)
-				stream << rj.String;
+				stream << sj.String;
 			return stream;
 		}
 	}
@@ -381,15 +384,15 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename TupleType>
+		template < typename TupleType >
 		struct TupleFromStringsHelper
 		{
-			template<size_t Index>
+			template < size_t Index >
 			struct Functor
 			{
-				typedef typename GetTypeListItem<typename TupleType::Types, Index>::ValueT Type;
+				using Type = typename GetTypeListItem<typename TupleType::Types, Index>::ValueT;
 
-				template<typename Range_>
+				template < typename Range_ >
 				static void Call(const TupleType& tuple, Range_* range)
 				{
 					STINGRAYKIT_CHECK(range->Valid(), "not enough data to fill output range");
@@ -402,7 +405,7 @@ namespace stingray
 	}
 
 
-	template<typename TupleType, typename SourceRange_>
+	template < typename TupleType, typename SourceRange_ >
 	SourceRange_ TupleFromStrings(const TupleType& tuple, SourceRange_ inputRange)
 	{
 		stingray::For<TupleType::Size, Detail::TupleFromStringsHelper<TupleType>::template Functor>::Do(tuple, &inputRange);
@@ -413,6 +416,5 @@ namespace stingray
 	std::string::size_type EditDistance(const std::string& s1, const std::string& s2);
 
 }
-
 
 #endif
