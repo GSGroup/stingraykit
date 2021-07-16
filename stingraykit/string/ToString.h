@@ -183,9 +183,7 @@ namespace stingray
 				static auto Call(string_ostream* result, const TupleType* tuple)
 						-> decltype(ToString(*result, tuple->template Get<Index>()), void())
 				{
-					if (Index == 0)
-						*result << " ";
-					else
+					if (Index != 0)
 						*result << ", ";
 
 					ToString(*result, tuple->template Get<Index>());
@@ -319,20 +317,20 @@ namespace stingray
 			static auto ToStringImpl(string_ostream& result, const std::pair<K, V>& pair, long)
 					-> decltype(ToString(result, pair.first), ToString(result, pair.second), void())
 			{
-				result << "[ ";
+				result << "(";
 				ToString(result, pair.first);
 				result << ", ";
 				ToString(result, pair.second);
-				result << " ]";
+				result << ")";
 			}
 
 			template < typename Types >
 			static auto ToStringImpl(string_ostream& result, const Tuple<Types>& tuple, long)
 					-> decltype(TestTypeListToString<Types>(result, std::make_index_sequence<GetTypeListLength<Types>::Value>()), void())
 			{
-				result << "[";
+				result << "(";
 				For<GetTypeListLength<Types>::Value, TuplePrinter>::Do(&result, &tuple);
-				result << " ]";
+				result << ")";
 			}
 		};
 
