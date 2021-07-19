@@ -41,9 +41,9 @@ namespace stingray
 		{
 			template < typename T >
 			static auto Do(const std::string& str, T& value, int)
-					-> decltype(value = T::FromString(str), bool())
+					-> decltype(value = FromString<T>(str), bool())
 			{
-				try { value = T::FromString(str); }
+				try { value = FromString<T>(str); }
 				catch (const std::exception&) { return false; }
 				return true;
 			}
@@ -65,28 +65,14 @@ namespace stingray
 		};
 
 		template < typename T >
-		typename EnableIf<!IsInt<T>::Value, bool>::ValueT TryRead(const std::string& string, T& value)
+		bool TryRead(const std::string& string, T& value)
 		{ return FromStringReader::Do(string, value, 0); }
-
-		template < typename T >
-		typename EnableIf<IsInt<T>::Value, bool>::ValueT TryRead(const std::string& string, T& value)
-		{
-			try { value = FromString<T>(string); }
-			catch (const std::exception&) { return false; }
-			return true;
-		}
 
 		inline bool TryRead(const std::string& string, char& value)
 		{
 			if (string.length() != 1)
 				return false;
 			value = string[0];
-			return true;
-		}
-
-		inline bool TryRead(const std::string& string, std::string& value)
-		{
-			value = string;
 			return true;
 		}
 
