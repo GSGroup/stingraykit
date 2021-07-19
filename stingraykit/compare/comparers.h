@@ -26,7 +26,7 @@ namespace stingray
 			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
 
 			template < typename Lhs, typename Rhs >
-			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, int>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
+			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, int>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
 			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0)); }
 
 			template < typename Lhs, typename Rhs >
@@ -43,7 +43,7 @@ namespace stingray
 			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
 
 			template < typename Lhs, typename Rhs >
-			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
+			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
 			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (!lhs && rhs); }
 
 			template < typename Lhs, typename Rhs >
@@ -60,7 +60,7 @@ namespace stingray
 			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
 
 			template < typename Lhs, typename Rhs >
-			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
+			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
 			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (!lhs && !rhs); }
 
 			template < typename Lhs, typename Rhs >
@@ -77,7 +77,7 @@ namespace stingray
 			{ return static_cast<const Derived_&>(*this).DoCompare(lhs, rhs); }
 
 			template < typename Lhs, typename Rhs >
-			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs, const Dummy& dummy = Dummy()) const
+			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
 			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (lhs && !rhs); }
 
 			template < typename Lhs, typename Rhs >
