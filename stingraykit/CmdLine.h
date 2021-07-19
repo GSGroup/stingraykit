@@ -18,32 +18,22 @@ namespace stingray
 		using CustomCompleteFuncsMap = std::map<size_t, CustomCompleteFuncPtr>;
 
 
-		template < typename T >
-		struct IntCmdArgReader
+		struct CmdArgReader
 		{
-			static size_t Read(const char* str, size_t len, T& val)
+			template < typename T >
+			static auto Read(const char* str, size_t len, T& val, int)
+					-> decltype(val = FromString<T>(std::declval<std::string>()), size_t())
 			{
-				char* end_p = null;
-				s64 tmp = strtoll(str, &end_p, 10);
-				T tmp2 = (T)tmp;
-				if ((s64)tmp2 != tmp)
-					return 0;
-				val = tmp2;
-				return end_p - str;
+				std::string str_val;
+				size_t result = Read(str, len, str_val, 0);
+				try
+				{ val = FromString<T>(str_val); }
+				catch(const std::exception&)
+				{ return 0; }
+				return result;
 			}
-		};
 
-
-		template < typename T, bool THasFromString = HasMethod_FromString<T>::Value, bool TIsIntType = IsInt<T>::Value >
-		struct CmdArgReader;
-
-		template < typename T >
-		struct CmdArgReader<T, false, true> : public IntCmdArgReader<T> { };
-
-		template < >
-		struct CmdArgReader<std::string, false, false>
-		{
-			static size_t Read(const char* str, size_t len, std::string& val)
+			static size_t Read(const char* str, size_t len, std::string& val, int)
 			{
 				val.clear();
 				bool escaping = false;
@@ -64,15 +54,11 @@ namespace stingray
 				}
 				return i;
 			}
-		};
 
-		template < >
-		struct CmdArgReader<bool, false, true>
-		{
-			static size_t Read(const char* str, size_t len, bool& val)
+			static size_t Read(const char* str, size_t len, bool& val, int)
 			{
 				std::string str_val;
-				size_t result = CmdArgReader<std::string, false>::Read(str, len, str_val);
+				size_t result = Read(str, len, str_val, 0);
 				if (str_val == "on" || str_val == "true")
 				{
 					val = true;
@@ -85,48 +71,27 @@ namespace stingray
 				}
 				return 0;
 			}
-		};
 
-		template < typename T >
-		struct CmdArgReader<optional<T>, false, false>
-		{
-			static size_t Read(const char* str, size_t len, optional<T>& val)
+			template < typename T >
+			static size_t Read(const char* str, size_t len, optional<T>& val, long)
 			{
 				std::string str_val;
-				size_t result = CmdArgReader<std::string, false>::Read(str, len, str_val);
+				size_t result = Read(str, len, str_val, 0);
 				if (str_val == "none")
 				{
 					val = null;
 					return result;
 				}
 				T t_val = T();
-				size_t t_result = CmdArgReader<T>::Read(str_val.c_str(), str_val.size(), t_val);
+				size_t t_result = Read(str_val.c_str(), str_val.size(), t_val, 0);
 				if (t_result != str_val.size())
 					return 0;
 				val = t_val;
 				return result;
 			}
-		};
 
-		template < typename T >
-		struct CmdArgReader<T, true, false>
-		{
-			static size_t Read(const char* str, size_t len, T& val)
-			{
-				std::string str_val;
-				size_t result = CmdArgReader<std::string, false>::Read(str, len, str_val);
-				try
-				{ val = T::FromString(str_val); }
-				catch(const std::exception&)
-				{ return 0; }
-				return result;
-			}
-		};
-
-		template < typename T >
-		struct CmdArgReader<std::vector<T>, false, false>
-		{
-			static size_t Read(const char* str, size_t len, std::vector<T>& val)
+			template < typename T >
+			static size_t Read(const char* str, size_t len, std::vector<T>& val, long)
 			{
 				size_t result = 0;
 				if (len - result == 0 || str[result] != '[')
@@ -138,7 +103,7 @@ namespace stingray
 					T tmp;
 					while (len - result != 0 && str[result] == ' ')
 						++result;
-					size_t tmp_result = CmdArgReader<T>::Read(str + result, len - result, tmp);
+					size_t tmp_result = Read(str + result, len - result, tmp, 0);
 					if (tmp_result == 0)
 						return 0;
 					val.push_back(tmp);
@@ -161,11 +126,6 @@ namespace stingray
 		};
 
 
-		template < typename T >
-		size_t ReadCmdArg(const char* str, size_t len, T& val)
-		{ return CmdArgReader<T>::Read(str, len, val); }
-
-
 		template < typename T, size_t N, bool TIsUnknownType = !IsEnumClass<T>::Value && !IsSame<bool, T>::Value >
 		struct CmdArgCompleter
 		{
@@ -178,7 +138,7 @@ namespace stingray
 				if (it == customComplete.end())
 				{
 					std::string str_val;
-					size_t read_size = CmdArgReader<std::string, false>::Read(input.c_str(), input.size(), str_val);
+					size_t read_size = CmdArgReader::Read(input.c_str(), input.size(), str_val, 0);
 					if (input.size() > read_size)
 					{
 						input.erase(0, read_size + 1);
@@ -191,7 +151,7 @@ namespace stingray
 				std::set<std::string> pre_complete_list = complete_func();
 
 				std::string str_val;
-				size_t read_size = CmdArgReader<std::string, false>::Read(input.c_str(), input.size(), str_val);
+				size_t read_size = CmdArgReader::Read(input.c_str(), input.size(), str_val, 0);
 				bool got_exact_match = false;
 				std::set<std::string>::const_iterator iter = pre_complete_list.begin(), iend = pre_complete_list.end();
 				for(; iter != iend; ++iter)
@@ -229,7 +189,7 @@ namespace stingray
 					return CmdArgCompleter<T, N, true>::Complete(input, results, customComplete);
 
 				std::string str_val;
-				size_t read_size = CmdArgReader<std::string, false>::Read(input.c_str(), input.size(), str_val);
+				size_t read_size = CmdArgReader::Read(input.c_str(), input.size(), str_val, 0);
 				bool got_exact_match = false;
 				typename T::const_iterator iter = T::begin(), iend = T::end();
 				for(; iter != iend; ++iter)
@@ -261,7 +221,7 @@ namespace stingray
 					return CmdArgCompleter<bool, N, true>::Complete(input, results, customComplete);
 
 				std::string value;
-				const size_t size = CmdArgReader<std::string, false>::Read(input.c_str(), input.size(), value);
+				const size_t size = CmdArgReader::Read(input.c_str(), input.size(), value, 0);
 
 				bool got_exact_match = false;
 				const std::vector<std::string> variants = { "on", "off", "true", "false" };
@@ -380,7 +340,7 @@ namespace stingray
 					using ParamType = typename GetTypeListItem<ParamsList, N>::ValueT;
 
 					ParamType p = ParamType();
-					size_t bytes_read = Detail::ReadCmdArg(cmdPtr, tailLen, p);
+					size_t bytes_read = Detail::CmdArgReader::Read(cmdPtr, tailLen, p, 0);
 					if (bytes_read == 0)
 						return false;
 
