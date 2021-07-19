@@ -94,92 +94,106 @@ namespace stingray
 
 		struct Cmp : public CmpComparerBase<Cmp>
 		{
+		private:
 			template < typename T >
-			typename EnableIf<Detail::HasMethod_Compare<T>::Value, int>::ValueT DoCompare(const T& lhs, const T& rhs) const
-			{
-				if (&lhs == &rhs)
-					return 0;
-
-				return lhs.Compare(rhs);
-			}
+			auto DoCompareImpl(const T& lhs, const T& rhs, int) const
+					-> decltype(lhs.Compare(rhs), int())
+			{ return lhs.Compare(rhs); }
 
 			template < typename T >
-			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, int>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
+			auto DoCompareImpl(const T& lhs, const T& rhs, long) const
+					-> decltype(lhs < rhs, int())
 			{
-				if (&lhs == &rhs)
-					return 0;
-
 				if (lhs < rhs)
 					return -1;
 				if (rhs < lhs)
 					return 1;
 				return 0;
 			}
+
+		public:
+			template < typename T >
+			int DoCompare(const T& lhs, const T& rhs) const
+			{
+				if (&lhs == &rhs)
+					return 0;
+
+				return DoCompareImpl(lhs, rhs, 0);
+			}
 		};
 
 
 		struct Less : public LessComparerBase<Less>
 		{
+		private:
 			template < typename T >
-			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
+			auto DoCompareImpl(const T& lhs, const T& rhs, int) const
+					-> decltype(lhs.Compare(rhs), bool())
+			{ return lhs.Compare(rhs) < 0; }
+
+			template < typename T >
+			auto DoCompareImpl(const T& lhs, const T& rhs, long) const
+					-> decltype(lhs < rhs, bool())
+			{ return lhs < rhs; }
+
+		public:
+			template < typename T >
+			bool DoCompare(const T& lhs, const T& rhs) const
 			{
 				if (&lhs == &rhs)
 					return false;
 
-				return lhs.Compare(rhs) < 0;
-			}
-
-			template < typename T >
-			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
-			{
-				if (&lhs == &rhs)
-					return false;
-
-				return lhs < rhs;
+				return DoCompareImpl(lhs, rhs, 0);
 			}
 		};
 
 
 		struct Equals : public EqualsComparerBase<Equals>
 		{
+		private:
 			template < typename T >
-			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
+			auto DoCompareImpl(const T& lhs, const T& rhs, int) const
+					-> decltype(lhs.Compare(rhs), bool())
+			{ return lhs.Compare(rhs) == 0; }
+
+			template < typename T >
+			auto DoCompareImpl(const T& lhs, const T& rhs, long) const
+					-> decltype(lhs == rhs, bool())
+			{ return lhs == rhs; }
+
+		public:
+			template < typename T >
+			bool DoCompare(const T& lhs, const T& rhs) const
 			{
 				if (&lhs == &rhs)
 					return true;
 
-				return lhs.Compare(rhs) == 0;
-			}
-
-			template < typename T >
-			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
-			{
-				if (&lhs == &rhs)
-					return true;
-
-				return lhs == rhs;
+				return DoCompareImpl(lhs, rhs, 0);
 			}
 		};
 
 
 		struct Greater : public GreaterComparerBase<Greater>
 		{
+		private:
 			template < typename T >
-			typename EnableIf<Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
+			auto DoCompareImpl(const T& lhs, const T& rhs, int) const
+					-> decltype(lhs.Compare(rhs), bool())
+			{ return lhs.Compare(rhs) > 0; }
+
+			template < typename T >
+			auto DoCompareImpl(const T& lhs, const T& rhs, long) const
+					-> decltype(rhs < lhs, bool())
+			{ return rhs < lhs; }
+
+		public:
+			template < typename T >
+			bool DoCompare(const T& lhs, const T& rhs) const
 			{
 				if (&lhs == &rhs)
 					return false;
 
-				return lhs.Compare(rhs) > 0;
-			}
-
-			template < typename T >
-			typename EnableIf<!Detail::HasMethod_Compare<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs, const Dummy& dummy = Dummy()) const
-			{
-				if (&lhs == &rhs)
-					return false;
-
-				return rhs < lhs;
+				return DoCompareImpl(lhs, rhs, 0);
 			}
 		};
 
