@@ -37,31 +37,26 @@ namespace stingray
 		};
 
 
-		template < typename T, bool HasFromStringMethod = HasMethod_FromString<T>::Value >
-		struct FromStringImpl
+		struct FromStringReader
 		{
-			static bool Do(const std::string& str, T& value)
+			template < typename T >
+			static auto Do(const std::string& str, T& value, int)
+					-> decltype(value = T::FromString(str), bool())
 			{
 				try { value = T::FromString(str); }
 				catch (const std::exception&) { return false; }
 				return true;
 			}
-		};
 
-		template < typename T >
-		struct FromStringImpl<T, false>
-		{
-			static bool Do(const std::string& str, T& value)
+			template < typename T >
+			static bool Do(const std::string& str, T& value, long)
 			{
 				std::istringstream stream(str);
 				return (stream >> value).eof();
 			}
-		};
 
-		template < typename T, typename ConvertFunc >
-		struct FromStringImpl<ParseProxy<T, ConvertFunc>, false>
-		{
-			static bool Do(const std::string& str, ParseProxy<T, ConvertFunc>& adapter)
+			template < typename T, typename ConvertFunc >
+			static bool Do(const std::string& str, ParseProxy<T, ConvertFunc>& adapter, long)
 			{
 				try { adapter.Parse(str); }
 				catch (const std::exception& ex) { return false; }
@@ -69,10 +64,9 @@ namespace stingray
 			}
 		};
 
-
 		template < typename T >
 		typename EnableIf<!IsInt<T>::Value, bool>::ValueT TryRead(const std::string& string, T& value)
-		{ return FromStringImpl<T>::Do(string, value); }
+		{ return FromStringReader::Do(string, value, 0); }
 
 		template < typename T >
 		typename EnableIf<IsInt<T>::Value, bool>::ValueT TryRead(const std::string& string, T& value)
