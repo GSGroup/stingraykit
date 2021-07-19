@@ -105,17 +105,6 @@ namespace stingray
 	template < typename T >
 	class BasicByteData;
 
-	namespace ByteArrayUtils
-	{
-
-		STINGRAYKIT_DECLARE_METHOD_CHECK(begin);
-		STINGRAYKIT_DECLARE_METHOD_CHECK(end);
-
-		template < typename T >
-		struct HasBeginEndMethods : integral_constant<bool, HasMethod_begin<T>::Value && HasMethod_end<T>::Value> { };
-
-	}
-
 	/**
 	 * @brief An object that retains shared ownership of an array of bytes
 	 */
@@ -173,8 +162,8 @@ namespace stingray
 			: _data(make_shared_ptr<CollectionType>(data, data + size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
-		template < typename Range >
-		explicit BasicByteArray(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0)
+		template < typename Range, decltype(std::declval<Range>().begin(), std::declval<Range>().end(), bool()) = false >
+		explicit BasicByteArray(const Range& range)
 			: _data(make_shared_ptr<CollectionType>(range.begin(), range.end())), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
@@ -228,8 +217,8 @@ namespace stingray
 			_data->insert(_data->end(), first, last);
 		}
 
-		template < typename Range >
-		void append(const Range& range, typename EnableIf<ByteArrayUtils::HasBeginEndMethods<Range>::Value, Dummy>::ValueT* dummy = 0)
+		template < typename Range, decltype(std::declval<Range>().begin(), std::declval<Range>().end(), bool()) = false >
+		void append(const Range& range)
 		{ append(range.begin(), range.end()); }
 
 		template < typename U >
