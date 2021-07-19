@@ -126,10 +126,11 @@ namespace stingray
 		};
 
 
-		template < typename T, size_t N, bool TIsUnknownType = !IsEnumClass<T>::Value && !IsSame<bool, T>::Value >
+		template < size_t N >
 		struct CmdArgCompleter
 		{
-			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete)
+			template < typename T >
+			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete, long)
 			{
 				if (customComplete.empty())
 					return false;
@@ -178,15 +179,13 @@ namespace stingray
 					results.clear();
 				return ret;
 			}
-		};
 
-		template < typename T, size_t N >
-		struct CmdArgCompleter<T, N, false >
-		{
-			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete)
+			template < typename T >
+			static auto Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete, int)
+					-> decltype(std::declval<typename T::Enum>(), T::begin(), T::end(), bool())
 			{
 				if (customComplete.find(N) != customComplete.end())
-					return CmdArgCompleter<T, N, true>::Complete(input, results, customComplete);
+					return CmdArgCompleter<N>::Complete<T>(input, results, customComplete, 0);
 
 				std::string str_val;
 				size_t read_size = CmdArgReader::Read(input.c_str(), input.size(), str_val, 0);
@@ -210,15 +209,12 @@ namespace stingray
 					results.clear();
 				return ret;
 			}
-		};
 
-		template < size_t N >
-		struct CmdArgCompleter<bool, N, false>
-		{
-			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete)
+			template < typename T >
+			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete, typename EnableIf<IsSame<T, bool>::Value, int>::ValueT)
 			{
 				if (customComplete.find(N) != customComplete.end())
-					return CmdArgCompleter<bool, N, true>::Complete(input, results, customComplete);
+					return CmdArgCompleter<N>::Complete<T>(input, results, customComplete, 0);
 
 				std::string value;
 				const size_t size = CmdArgReader::Read(input.c_str(), input.size(), value, 0);
@@ -366,7 +362,7 @@ namespace stingray
 				static bool Call(std::string& input, CompletionResults& results, const Detail::CustomCompleteFuncsMap& customComplete)
 				{
 					using ParamType = typename GetTypeListItem<ParamsList, N>::ValueT;
-					return Detail::CmdArgCompleter<ParamType, N>::Complete(input, results, customComplete);
+					return Detail::CmdArgCompleter<N>::template Complete<ParamType>(input, results, customComplete, 0);
 				}
 			};
 
