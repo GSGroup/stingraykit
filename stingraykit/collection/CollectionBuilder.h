@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/metaprogramming/MethodCheck.h>
+#include <stingraykit/metaprogramming/TypeTraits.h>
 
 #include <map>
 #include <set>
@@ -21,27 +21,6 @@ namespace stingray
 	 * @addtogroup toolkit_collections
 	 * @{
 	 */
-
-
-	namespace Detail
-	{
-		STINGRAYKIT_DECLARE_METHOD_CHECK(push_back);
-
-		template < typename CollectionType, bool HasPushBack = HasMethod_push_back<CollectionType>::Value>
-		struct CollectionInserter
-		{
-			static void Insert(CollectionType& collection, typename AddConstLvalueReference<typename CollectionType::value_type>::ValueT val)
-			{ collection.push_back(val); }
-		};
-
-		template < typename CollectionType >
-		struct CollectionInserter<CollectionType, false>
-		{
-			static void Insert(CollectionType& collection, typename AddConstLvalueReference<typename CollectionType::value_type>::ValueT val)
-			{ collection.insert(val); }
-		};
-	}
-
 
 	template < typename CollectionType >
 	class CollectionBuilder
@@ -61,12 +40,21 @@ namespace stingray
 		operator const CollectionType& () const { return Get(); }
 
 		CollectionBuilder& operator % (ArgType val)
-		{ Detail::CollectionInserter<CollectionType>::Insert(_collection, val); return *this; }
+		{ InsertImpl(_collection, val, 0); return *this; }
 
 	private:
 		template < typename... Ts >
 		void Insert(const ArgType& a0, const Ts&... args) { *this % a0; Insert(args...); }
 		void Insert() { }
+
+		template < typename CollectionType_ >
+		static auto InsertImpl(CollectionType_& collection, ArgType val, int)
+				-> decltype(collection.push_back(val), void())
+		{ collection.push_back(val); }
+
+		template < typename CollectionType_ >
+		static void InsertImpl(CollectionType_& collection, ArgType val, long)
+		{ collection.insert(val); }
 	};
 
 
