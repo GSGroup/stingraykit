@@ -19,10 +19,24 @@ namespace stingray
 	 * @{
 	 */
 
-	STINGRAYKIT_DECLARE_METHOD_CHECK(GetThreadMicroseconds);
+	namespace Detail
+	{
+		template < typename ThreadEngineType >
+		struct ThreadEngineHasGetThreadMicroseconds
+		{
+		private:
+			template < typename T >
+			static auto Deduce(int) -> decltype((s64)T::GetThreadMicroseconds(), std::declval<YesType>());
+			template < typename T >
+			static NoType Deduce(long);
+
+		public:
+			static const bool Value = sizeof(YesType) == sizeof(Deduce<ThreadEngineType>(0));
+		};
+	}
 
 
-	template < typename ThreadEngineType, bool HasGetThreadMicroseconds = HasMethod_GetThreadMicroseconds<ThreadEngineType>::Value >
+	template < typename ThreadEngineType, bool HasGetThreadMicroseconds = Detail::ThreadEngineHasGetThreadMicroseconds<ThreadEngineType>::Value >
 	class BasicThreadTimeProfiler
 	{
 	private:
