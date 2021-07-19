@@ -48,10 +48,9 @@ namespace stingray
 
 	struct FuzzyEquals : public comparers::EqualsComparerBase<FuzzyEquals>
 	{
-		STINGRAYKIT_DECLARE_METHOD_CHECK(FuzzyEquals);
-
 		template < typename T >
-		typename EnableIf<HasMethod_FuzzyEquals<T>::Value, bool>::ValueT DoCompare(const T& lhs, const T& rhs) const
+		auto DoCompare(const T& lhs, const T& rhs) const
+				-> decltype(lhs.FuzzyEquals(rhs), bool())
 		{
 			if (&lhs == &rhs)
 				return true;
