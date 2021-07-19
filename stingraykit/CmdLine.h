@@ -13,9 +13,9 @@ namespace stingray
 	namespace Detail
 	{
 
-		typedef function<std::set<std::string>()>						CustomCompleteFunc;
-		typedef shared_ptr<CustomCompleteFunc>							CustomCompleteFuncPtr;
-		typedef std::map<size_t, CustomCompleteFuncPtr>					CustomCompleteFuncsMap;
+		using CustomCompleteFunc = function<std::set<std::string>()>;
+		using CustomCompleteFuncPtr = shared_ptr<CustomCompleteFunc>;
+		using CustomCompleteFuncsMap = std::map<size_t, CustomCompleteFuncPtr>;
 
 
 		template < typename T >
@@ -300,12 +300,13 @@ namespace stingray
 	class CmdLine
 	{
 	public:
-		typedef std::set<std::string> CompletionResults;
+		using CompletionResults = std::set<std::string>;
 
 	private:
 		struct ICommandHandler
 		{
 			virtual ~ICommandHandler() { }
+
 			virtual bool Execute(const std::string& cmd) = 0;
 			virtual void Complete(const std::string& cmd, CompletionResults& results) = 0;
 			virtual void AddCustomComplete(const CustomComplete& customComplete) = 0;
@@ -316,7 +317,7 @@ namespace stingray
 		template < typename StringsTuple, typename ParamsList >
 		class CmdHandler : public virtual ICommandHandler
 		{
-			typedef function<typename SignatureBuilder<void, ParamsList>::ValueT> HandlerFunc;
+			using HandlerFunc = function<typename SignatureBuilder<void, ParamsList>::ValueT>;
 
 			template < size_t N >
 			struct StringsParser
@@ -376,7 +377,7 @@ namespace stingray
 			{
 				static bool Call(Tuple<ParamsList>& args, const char*& cmdPtr, size_t& tailLen)
 				{
-					typedef typename GetTypeListItem<ParamsList, N>::ValueT	ParamType;
+					using ParamType = typename GetTypeListItem<ParamsList, N>::ValueT;
 
 					ParamType p = ParamType();
 					size_t bytes_read = Detail::ReadCmdArg(cmdPtr, tailLen, p);
@@ -404,7 +405,7 @@ namespace stingray
 			{
 				static bool Call(std::string& input, CompletionResults& results, const Detail::CustomCompleteFuncsMap& customComplete)
 				{
-					typedef typename GetTypeListItem<ParamsList, N>::ValueT	ParamType;
+					using ParamType = typename GetTypeListItem<ParamsList, N>::ValueT;
 					return Detail::CmdArgCompleter<ParamType, N>::Complete(input, results, customComplete);
 				}
 			};
@@ -419,7 +420,7 @@ namespace stingray
 				: _strings(strings), _handler(handler)
 			{ }
 
-			virtual void AddCustomComplete(const CustomComplete& customComplete)
+			void AddCustomComplete(const CustomComplete& customComplete) override
 			{
 				STINGRAYKIT_CHECK(_customComplete.find(customComplete.N) == _customComplete.end(),
 						StringBuilder() % "Custom complete func for argument #" % customComplete.N % " already registered!");
@@ -427,7 +428,7 @@ namespace stingray
 				_customComplete[customComplete.N] = make_shared_ptr<Detail::CustomCompleteFunc>(customComplete.Func);
 			}
 
-			virtual bool Execute(const std::string& cmd)
+			bool Execute(const std::string& cmd) override
 			{
 				const char* cmd_str = cmd.c_str();
 				size_t tail_len = cmd.size();
@@ -446,7 +447,7 @@ namespace stingray
 				return true;
 			}
 
-			virtual void Complete(const std::string& cmd, CompletionResults& results)
+			void Complete(const std::string& cmd, CompletionResults& results) override
 			{
 				std::string local(cmd);
 				if (!ForIf<GetTypeListLength<typename StringsTuple::Types>::Value, StringsCompleter>::Do(wrap_const_ref(_strings), wrap_ref(local), wrap_ref(results)))
@@ -458,12 +459,12 @@ namespace stingray
 		template < size_t Size >
 		struct StringsTupleCreator
 		{
-			template < size_t > struct Functor { typedef std::string ValueT; };
+			template < size_t > struct Functor { using ValueT = std::string; };
 
-			typedef Tuple<typename GenerateTypeList<Size, Functor>::ValueT> ValueT;
+			using ValueT = Tuple<typename GenerateTypeList<Size, Functor>::ValueT>;
 		};
 
-		typedef std::vector<ICommandHandlerPtr> 	Commands;
+		using Commands = std::vector<ICommandHandlerPtr>;
 
 	public:
 		class CustomCompleteFuncSetter
@@ -497,9 +498,9 @@ namespace stingray
 			template < typename HandlerFunc >
 			CustomCompleteFuncSetter operator = (const HandlerFunc& handlerFunc)
 			{
-				typedef typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, Decay>::ValueT DecayedParams;
+				using DecayedParams = typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, Decay>::ValueT;
 
-				const ICommandHandlerPtr ch = make_shared_ptr<CmdHandler<StringsTuple, DecayedParams> >(_strings, handlerFunc);
+				const ICommandHandlerPtr ch = make_shared_ptr<CmdHandler<StringsTuple, DecayedParams>>(_strings, handlerFunc);
 				_inst->_commands.push_back(ch);
 
 				return CustomCompleteFuncSetter(ch);
