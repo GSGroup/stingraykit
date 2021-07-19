@@ -28,15 +28,7 @@ namespace stingray
 		struct SafeEvaluator;
 
 		template < typename T >
-		struct SafeEvaluator<T, typename EnableIf<!std::numeric_limits<T>::is_specialized, void>::ValueT>
-		{
-			template < typename StringType >
-			static T Do(const StringType&, T value, T increment, bool)
-			{ return value * 10 + increment; }
-		};
-
-		template < typename T >
-		struct SafeEvaluator<T, typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_signed, void>::ValueT>
+		struct SafeEvaluator<T, typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer && std::numeric_limits<T>::is_signed, void>::ValueT>
 		{
 		private:
 			static constexpr T MinMultiplicand = std::numeric_limits<T>::min() / 10;
@@ -48,7 +40,8 @@ namespace stingray
 
 		public:
 			template < typename StringType >
-			static T Do(const StringType& str, T value, T increment, bool negative)
+			static auto Do(const StringType& str, T value, T increment, bool negative)
+					-> decltype(value * 10 + (negative ? -increment : increment), T())
 			{
 				if (negative)
 					STINGRAYKIT_CHECK(value > MinMultiplicand || (value == MinMultiplicand && increment <= MinMultiplicandRemainder), IndexOutOfRangeException(str, std::numeric_limits<T>::min(), std::numeric_limits<T>::max()));
@@ -60,7 +53,7 @@ namespace stingray
 		};
 
 		template < typename T >
-		struct SafeEvaluator<T, typename EnableIf<std::numeric_limits<T>::is_specialized && !std::numeric_limits<T>::is_signed, void>::ValueT>
+		struct SafeEvaluator<T, typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer && !std::numeric_limits<T>::is_signed, void>::ValueT>
 		{
 		private:
 			static constexpr T MaxMultiplicand = std::numeric_limits<T>::max() / 10;
@@ -68,7 +61,8 @@ namespace stingray
 
 		public:
 			template < typename StringType >
-			static T Do(const StringType& str, T value, T increment, bool negative)
+			static auto Do(const StringType& str, T value, T increment, bool negative)
+					-> decltype(value * 10 + increment, T())
 			{
 				STINGRAYKIT_CHECK(!negative, IndexOutOfRangeException(str, 0, std::numeric_limits<T>::max()));
 				STINGRAYKIT_CHECK(value < MaxMultiplicand || (value == MaxMultiplicand && increment <= MaxMultiplicandRemainder), IndexOutOfRangeException(str, 0, std::numeric_limits<T>::max()));
@@ -83,7 +77,7 @@ namespace stingray
 		private:
 			template < typename ObjectType, typename EnableIf<!IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
 			static auto ParseIntegralType(const StringType& str)
-					-> decltype(std::declval<ObjectType>() * 10, typename RemoveReference<decltype(std::declval<ObjectType>())>::ValueT())
+					-> decltype(SafeEvaluator<ObjectType>::Do(str, std::declval<ObjectType>(), std::declval<ObjectType>(), false), typename RemoveReference<decltype(std::declval<ObjectType>())>::ValueT())
 			{
 				if (str.empty()) //old from string behaved this way.
 					return 0;
@@ -120,7 +114,7 @@ namespace stingray
 			template < typename ObjectType >
 			static auto FromStringImpl(const StringType& str, long)
 					-> typename RemoveReference<decltype(ParseIntegralType<ObjectType>(str))>::ValueT
-			{ return TypeFromStringInterpreter::template ParseIntegralType<ObjectType>(str); }
+			{ return ParseIntegralType<ObjectType>(str); }
 		};
 
 	}
