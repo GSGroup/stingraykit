@@ -48,6 +48,14 @@ namespace stingray
 				return true;
 			}
 
+			static bool Do(const std::string& string, char& value, int)
+			{
+				if (string.length() != 1)
+					return false;
+				value = string[0];
+				return true;
+			}
+
 			template < typename T >
 			static bool Do(const std::string& str, T& value, long)
 			{
@@ -62,29 +70,17 @@ namespace stingray
 				catch (const std::exception& ex) { return false; }
 				return true;
 			}
+
+			template < typename T >
+			static bool Do(const std::string& string, optional<T>& value, long)
+			{
+				T val;
+				const bool result = Do(string, val, 0);
+				if (result)
+					value = val;
+				return result;
+			}
 		};
-
-		template < typename T >
-		bool TryRead(const std::string& string, T& value)
-		{ return FromStringReader::Do(string, value, 0); }
-
-		inline bool TryRead(const std::string& string, char& value)
-		{
-			if (string.length() != 1)
-				return false;
-			value = string[0];
-			return true;
-		}
-
-		template < typename T >
-		bool TryRead(const std::string& string, optional<T>& value)
-		{
-			T val;
-			const bool result = TryRead(string, val);
-			if (result)
-				value = val;
-			return result;
-		}
 
 		inline bool TryReadArgument(const std::string& string, size_t index)
 		{
@@ -103,7 +99,7 @@ namespace stingray
 			if (index)
 				return TryReadArgument(string, index - 1, args...);
 			else
-				return TryRead(string, p0);
+				return FromStringReader::Do(string, p0, 0);
 		}
 
 	}
