@@ -236,15 +236,17 @@ namespace stingray
 
 #undef DETAIL_STINGRAYKIT_DECL_BGP_OPERATOR
 
-		STINGRAYKIT_DECLARE_METHOD_CHECK(RequireSize);
-
-		template < typename ByteDataType_, bool CanResize = HasMethod_RequireSize<ByteDataType_>::Value >
 		struct ByteDataResizer
-		{ static void RequireSize(ByteDataType_& data, size_t size) { data.RequireSize(size); } };
+		{
+			template < typename ByteDataType_ >
+			static auto RequireSize(ByteDataType_& data, size_t size, int)
+					-> decltype(data.RequireSize(size), void())
+			{ data.RequireSize(size); }
 
-		template < typename ByteDataType_ >
-		struct ByteDataResizer<ByteDataType_, false>
-		{ static void RequireSize(ByteDataType_&, size_t) { } };
+			template < typename ByteDataType_ >
+			static void RequireSize(ByteDataType_&, size_t, long)
+			{ }
+		};
 
 		template < typename ByteDataType_, bool BigEndian, size_t OffsetBits, size_t SizeBits, bool UseMasks = ((OffsetBits | SizeBits) & 7) != 0 >
 		class BitsSetterImpl
@@ -270,7 +272,7 @@ namespace stingray
 				static_assert(SizeBits + OffsetBits >= OffsetBits, "SizeBits or OffsetBits is negative");
 
 				size_t required_size = (OffsetBits + SizeBits + 7) / 8;
-				ByteDataResizer<ByteDataType>::RequireSize(_buf, required_size);
+				ByteDataResizer::RequireSize(_buf, required_size, 0);
 				STINGRAYKIT_CHECK(required_size <= _buf.size(), IndexOutOfRangeException(required_size, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT			ShiftableT;
@@ -327,7 +329,7 @@ namespace stingray
 				static_assert(SizeBits + OffsetBits >= OffsetBits, "SizeBits or OffsetBits is negative");
 
 				size_t required_size = (OffsetBits + SizeBits + 7) / 8;
-				ByteDataResizer<ByteDataType>::RequireSize(_buf, required_size);
+				ByteDataResizer::RequireSize(_buf, required_size, 0);
 				STINGRAYKIT_CHECK(required_size <= _buf.size(), IndexOutOfRangeException(required_size, _buf.size()));
 
 				typedef typename ShiftableType<T>::ValueT			ShiftableT;
@@ -407,7 +409,7 @@ namespace stingray
 	private:
 		static const ByteDataType& BufResizer(ByteDataType& buf, size_t minSize)
 		{
-			Detail::ByteDataResizer<ByteDataType>::RequireSize(buf, minSize);
+			Detail::ByteDataResizer::RequireSize(buf, minSize, 0);
 			return buf;
 		}
 	};
