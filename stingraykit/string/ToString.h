@@ -30,18 +30,21 @@ namespace stingray
 		template < typename T >
 		struct SafeEvaluator<T, typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer && std::numeric_limits<T>::is_signed, void>::ValueT>
 		{
+		public:
+			using ValueType = typename If<std::numeric_limits<T>::digits < std::numeric_limits<s8>::digits, s8, T>::ValueT;
+
 		private:
-			static constexpr T MinMultiplicand = std::numeric_limits<T>::min() / 10;
-			static constexpr T MinMultiplicandRemainder = std::numeric_limits<T>::min() % 10 * -1;
-			static constexpr T MaxMultiplicand = std::numeric_limits<T>::max() / 10;
-			static constexpr T MaxMultiplicandRemainder = std::numeric_limits<T>::max() % 10;
+			static constexpr ValueType MinMultiplicand = std::numeric_limits<T>::min() / 10;
+			static constexpr ValueType MinMultiplicandRemainder = std::numeric_limits<T>::min() % 10 * -1;
+			static constexpr ValueType MaxMultiplicand = std::numeric_limits<T>::max() / 10;
+			static constexpr ValueType MaxMultiplicandRemainder = std::numeric_limits<T>::max() % 10;
 
 			static_assert(MinMultiplicand < 0 && MinMultiplicandRemainder >= 0, "Deviant signed type detected");
 
 		public:
 			template < typename StringType >
-			static auto Do(const StringType& str, T value, T increment, bool negative)
-					-> decltype(value * 10 + (negative ? -increment : increment), T())
+			static auto Do(const StringType& str, ValueType value, ValueType increment, bool negative)
+					-> decltype(value * 10 + (negative ? -increment : increment), ValueType())
 			{
 				if (negative)
 					STINGRAYKIT_CHECK(value > MinMultiplicand || (value == MinMultiplicand && increment <= MinMultiplicandRemainder), IndexOutOfRangeException(str, std::numeric_limits<T>::min(), std::numeric_limits<T>::max()));
@@ -55,17 +58,20 @@ namespace stingray
 		template < typename T >
 		struct SafeEvaluator<T, typename EnableIf<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer && !std::numeric_limits<T>::is_signed, void>::ValueT>
 		{
+		public:
+			using ValueType = typename If<std::numeric_limits<T>::digits < std::numeric_limits<u8>::digits, u8, T>::ValueT;
+
 		private:
-			static constexpr T MaxMultiplicand = std::numeric_limits<T>::max() / 10;
-			static constexpr T MaxMultiplicandRemainder = std::numeric_limits<T>::max() % 10;
+			static constexpr ValueType MaxMultiplicand = std::numeric_limits<T>::max() / 10;
+			static constexpr ValueType MaxMultiplicandRemainder = std::numeric_limits<T>::max() % 10;
 
 		public:
 			template < typename StringType >
-			static auto Do(const StringType& str, T value, T increment, bool negative)
-					-> decltype(value * 10 + increment, T())
+			static auto Do(const StringType& str, ValueType value, ValueType increment, bool negative)
+					-> decltype(value * 10 + increment, ValueType())
 			{
-				STINGRAYKIT_CHECK(!negative, IndexOutOfRangeException(str, 0, std::numeric_limits<T>::max()));
-				STINGRAYKIT_CHECK(value < MaxMultiplicand || (value == MaxMultiplicand && increment <= MaxMultiplicandRemainder), IndexOutOfRangeException(str, 0, std::numeric_limits<T>::max()));
+				STINGRAYKIT_CHECK(!negative, IndexOutOfRangeException(str, std::numeric_limits<T>::min(), std::numeric_limits<T>::max()));
+				STINGRAYKIT_CHECK(value < MaxMultiplicand || (value == MaxMultiplicand && increment <= MaxMultiplicandRemainder), IndexOutOfRangeException(str, std::numeric_limits<T>::min(), std::numeric_limits<T>::max()));
 
 				return value * 10 + increment;
 			}
@@ -77,7 +83,7 @@ namespace stingray
 		private:
 			template < typename ObjectType, typename EnableIf<!IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
 			static auto ParseIntegralType(const StringType& str)
-					-> decltype(SafeEvaluator<ObjectType>::Do(str, std::declval<ObjectType>(), std::declval<ObjectType>(), false), typename RemoveReference<decltype(std::declval<ObjectType>())>::ValueT())
+					-> decltype(SafeEvaluator<ObjectType>::Do(str, std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), false), typename RemoveReference<decltype(std::declval<ObjectType>())>::ValueT())
 			{
 				if (str.empty()) //old from string behaved this way.
 					return 0;
@@ -95,7 +101,7 @@ namespace stingray
 					const char c = str[index];
 					STINGRAYKIT_CHECK(c >= '0' && c <= '9', ArgumentException("str", str));
 
-					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<ObjectType>(c - '0'), negative);
+					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<typename SafeEvaluator<ObjectType>::ValueType>(c - '0'), negative);
 				}
 
 				return value;
