@@ -86,12 +86,6 @@ namespace stingray
 		};
 
 
-		namespace Detail
-		{
-			STINGRAYKIT_DECLARE_METHOD_CHECK(Compare);
-		}
-
-
 		struct Cmp : public CmpComparerBase<Cmp>
 		{
 		private:
