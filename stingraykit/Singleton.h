@@ -31,18 +31,29 @@ namespace stingray
 	private:
 		using InstancePtr = unique_ptr<T>;
 
+		struct InstanceHolder
+		{
+			InstancePtr		Inst;
+			bool			Created = false;
+
+			~InstanceHolder() { Inst.reset(); }
+		};
+
 	private:
 		static STINGRAYKIT_DECLARE_ONCE_FLAG(s_initFlag);
 
 	public:
 		static bool IsAlive()
-		{ return GetInstancePtr().is_initialized(); }
+		{ return GetInstanceHolder().Inst.is_initialized(); }
 
 		static T& Instance()
 		{
 			call_once(s_initFlag, &Singleton::InitInstance);
-			STINGRAYKIT_CHECK(GetInstancePtr(), StringBuilder() % "Singleton '" % TypeInfo(typeid(T)) % "' could not be created");
-			return *GetInstancePtr();
+
+			const InstanceHolder& holder = GetInstanceHolder();
+			STINGRAYKIT_CHECK(holder.Inst, StringBuilder() % "Singleton '" % TypeInfo(typeid(T)) % "' " % (holder.Created ? "already destroyed" : "could not be created"));
+
+			return *holder.Inst;
 		}
 
 		static const T& ConstInstance()
@@ -61,15 +72,18 @@ namespace stingray
 			catch(const std::exception& ex)
 			{ Logger::Error() << "An exception in " << TypeInfo(typeid(T)) << " singleton constructor:\n" << ex; }
 
-			GetInstancePtr() = std::move(ptr);
+			InstanceHolder& holder = GetInstanceHolder();
+
+			holder.Inst = std::move(ptr);
+			holder.Created = holder.Inst.is_initialized();
 		}
 
 		static void AssertInstance()
 		{ STINGRAYKIT_FATAL(StringBuilder() % "Singleton '" % TypeInfo(typeid(T)) % "' has not been created"); }
 
-		static InstancePtr& GetInstancePtr()
+		static InstanceHolder& GetInstanceHolder()
 		{
-			static InstancePtr inst;
+			static InstanceHolder inst;
 			return inst;
 		}
 	};
