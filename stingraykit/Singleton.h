@@ -13,7 +13,7 @@
 #include <stingraykit/unique_ptr.h>
 
 #define STINGRAYKIT_SINGLETON(ClassName) \
-		friend class ::stingray::Detail::SingletonInstanceHolder<ClassName>; \
+		friend void ::stingray::CheckedDelete<ClassName>(ClassName* t); \
 		friend class ::stingray::Singleton<ClassName>; \
 		STINGRAYKIT_NONCOPYABLE(ClassName)
 
@@ -25,25 +25,11 @@
 namespace stingray
 {
 
-	namespace Detail
-	{
-		template < typename T >
-		class SingletonInstanceHolder : public T
-		{
-			STINGRAYKIT_NONCOPYABLE(SingletonInstanceHolder);
-
-		public:
-			SingletonInstanceHolder()	{ }
-			T& Get()					{ return *this; }
-		};
-	}
-
 	template < typename T >
 	class Singleton
 	{
 	private:
-		using InstanceHolderType = Detail::SingletonInstanceHolder<T>;
-		using InstanceHolderTypePtr = unique_ptr<InstanceHolderType>;
+		using InstancePtr = unique_ptr<T>;
 
 	private:
 		static STINGRAYKIT_DECLARE_ONCE_FLAG(s_initFlag);
@@ -56,7 +42,7 @@ namespace stingray
 		{
 			call_once(s_initFlag, &Singleton::InitInstance);
 			STINGRAYKIT_CHECK(GetInstancePtr(), StringBuilder() % "Singleton '" % TypeInfo(typeid(T)) % "' could not be created");
-			return GetInstancePtr()->Get();
+			return *GetInstancePtr();
 		}
 
 		static const T& ConstInstance()
@@ -68,10 +54,10 @@ namespace stingray
 	private:
 		static void InitInstance()
 		{
-			InstanceHolderTypePtr ptr;
+			InstancePtr ptr;
 
 			try
-			{ ptr.reset(new InstanceHolderType()); }
+			{ ptr.reset(new T()); }
 			catch(const std::exception& ex)
 			{ Logger::Error() << "An exception in " << TypeInfo(typeid(T)) << " singleton constructor:\n" << ex; }
 
@@ -81,9 +67,9 @@ namespace stingray
 		static void AssertInstance()
 		{ STINGRAYKIT_FATAL(StringBuilder() % "Singleton '" % TypeInfo(typeid(T)) % "' has not been created"); }
 
-		static InstanceHolderTypePtr& GetInstancePtr()
+		static InstancePtr& GetInstancePtr()
 		{
-			static InstanceHolderTypePtr inst;
+			static InstancePtr inst;
 			return inst;
 		}
 	};
