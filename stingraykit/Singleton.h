@@ -55,8 +55,7 @@ namespace stingray
 		static T& Instance()
 		{
 			call_once(s_initFlag, &Singleton::InitInstance);
-			if (!GetInstancePtr())
-				STINGRAYKIT_THROW("Singleton '" + Demangle(typeid(T).name()) + "' could not be created!");
+			STINGRAYKIT_CHECK(GetInstancePtr(), StringBuilder() % "Singleton '" % TypeInfo(typeid(T)) % "' could not be created");
 			return GetInstancePtr()->Get();
 		}
 
@@ -70,15 +69,17 @@ namespace stingray
 		static void InitInstance()
 		{
 			InstanceHolderTypePtr ptr;
+
 			try
 			{ ptr.reset(new InstanceHolderType()); }
 			catch(const std::exception& ex)
-			{ Logger::Error() << "An exception in " << Demangle(typeid(T).name()) << " singleton constructor: " << ex; }
-			ptr.swap(GetInstancePtr());
+			{ Logger::Error() << "An exception in " << TypeInfo(typeid(T)) << " singleton constructor:\n" << ex; }
+
+			GetInstancePtr() = std::move(ptr);
 		}
 
 		static void AssertInstance()
-		{ STINGRAYKIT_FATAL("Singleton '" + Demangle(typeid(T).name()) + "' has not been created!"); }
+		{ STINGRAYKIT_FATAL(StringBuilder() % "Singleton '" % TypeInfo(typeid(T)) % "' has not been created"); }
 
 		static InstanceHolderTypePtr& GetInstancePtr()
 		{
