@@ -8,11 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/call_once.h>
 #include <stingraykit/unique_ptr.h>
-
 
 #define STINGRAYKIT_SINGLETON(ClassName) \
 		friend class ::stingray::Detail::SingletonInstanceHolder<ClassName>; \
@@ -24,13 +22,12 @@
 	private: \
 		ClassName() { }
 
-
 namespace stingray
 {
 
 	namespace Detail
 	{
-		template<typename T>
+		template < typename T >
 		class SingletonInstanceHolder : public T
 		{
 			STINGRAYKIT_NONCOPYABLE(SingletonInstanceHolder);
@@ -44,8 +41,8 @@ namespace stingray
 	template < typename T >
 	class Singleton
 	{
-		typedef Detail::SingletonInstanceHolder<T>	InstanceHolderType;
-		typedef unique_ptr<InstanceHolderType>		InstanceHolderTypePtr;
+		using InstanceHolderType = Detail::SingletonInstanceHolder<T>;
+		using InstanceHolderTypePtr = unique_ptr<InstanceHolderType>;
 
 		static void InitInstance()
 		{
@@ -58,9 +55,7 @@ namespace stingray
 		}
 
 		static void AssertInstance()
-		{
-			STINGRAYKIT_FATAL("Singleton '" + Demangle(typeid(T).name()) + "' has not been created!");
-		}
+		{ STINGRAYKIT_FATAL("Singleton '" + Demangle(typeid(T).name()) + "' has not been created!"); }
 
 		static InstanceHolderTypePtr& GetInstancePtr()
 		{
@@ -71,7 +66,8 @@ namespace stingray
 		static STINGRAYKIT_DECLARE_ONCE_FLAG(s_initFlag);
 
 	public:
-		static bool IsAlive() { return GetInstancePtr().is_initialized(); }
+		static bool IsAlive()
+		{ return GetInstancePtr().is_initialized(); }
 
 		static T& Instance()
 		{
@@ -88,8 +84,7 @@ namespace stingray
 		{ call_once(s_initFlag, &Singleton::AssertInstance); }
 	};
 
-
-	template< typename T >
+	template < typename T >
 	STINGRAYKIT_DEFINE_ONCE_FLAG(Singleton<T>::s_initFlag);
 
 
@@ -102,6 +97,5 @@ namespace stingray
 	template < typename T > struct IsSingleton : integral_constant<bool, sizeof(Detail::TestIsSingleton((T*)0)) == sizeof(YesType)> { };
 
 }
-
 
 #endif
