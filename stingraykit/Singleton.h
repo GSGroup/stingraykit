@@ -41,28 +41,11 @@ namespace stingray
 	template < typename T >
 	class Singleton
 	{
+	private:
 		using InstanceHolderType = Detail::SingletonInstanceHolder<T>;
 		using InstanceHolderTypePtr = unique_ptr<InstanceHolderType>;
 
-		static void InitInstance()
-		{
-			InstanceHolderTypePtr ptr;
-			try
-			{ ptr.reset(new InstanceHolderType()); }
-			catch(const std::exception& ex)
-			{ Logger::Error() << "An exception in " << Demangle(typeid(T).name()) << " singleton constructor: " << ex; }
-			ptr.swap(GetInstancePtr());
-		}
-
-		static void AssertInstance()
-		{ STINGRAYKIT_FATAL("Singleton '" + Demangle(typeid(T).name()) + "' has not been created!"); }
-
-		static InstanceHolderTypePtr& GetInstancePtr()
-		{
-			static InstanceHolderTypePtr inst;
-			return inst;
-		}
-
+	private:
 		static STINGRAYKIT_DECLARE_ONCE_FLAG(s_initFlag);
 
 	public:
@@ -82,6 +65,26 @@ namespace stingray
 
 		static void AssertInstanceCreated()
 		{ call_once(s_initFlag, &Singleton::AssertInstance); }
+
+	private:
+		static void InitInstance()
+		{
+			InstanceHolderTypePtr ptr;
+			try
+			{ ptr.reset(new InstanceHolderType()); }
+			catch(const std::exception& ex)
+			{ Logger::Error() << "An exception in " << Demangle(typeid(T).name()) << " singleton constructor: " << ex; }
+			ptr.swap(GetInstancePtr());
+		}
+
+		static void AssertInstance()
+		{ STINGRAYKIT_FATAL("Singleton '" + Demangle(typeid(T).name()) + "' has not been created!"); }
+
+		static InstanceHolderTypePtr& GetInstancePtr()
+		{
+			static InstanceHolderTypePtr inst;
+			return inst;
+		}
 	};
 
 	template < typename T >
