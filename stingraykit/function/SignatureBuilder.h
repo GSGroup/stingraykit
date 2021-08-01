@@ -27,10 +27,10 @@ namespace stingray
 	{
 	private:
 		template < size_t... Index >
-		static auto Deduce(std::index_sequence<Index...>) -> RetType (*)(typename GetTypeListItem<ParamTypes, Index>::ValueT...);
+		static auto Deduce(std::index_sequence<Index...>) -> RetType (&) (typename GetTypeListItem<ParamTypes, Index>::ValueT...);
 
 	public:
-		typedef typename RemoveReference<decltype(*Deduce(std::make_index_sequence<GetTypeListLength<ParamTypes>::Value>()))>::ValueT ValueT;
+		typedef typename RemoveReference<decltype(Deduce(std::make_index_sequence<GetTypeListLength<ParamTypes>::Value>()))>::ValueT ValueT;
 	};
 
 
