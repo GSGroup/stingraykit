@@ -40,6 +40,13 @@ namespace stingray
 		template < typename From, typename To > auto		TestIsConvertible(int) -> decltype(std::declval<void (&) (To)>()(std::declval<From>()), TrueType());
 		template < typename From, typename To > FalseType	TestIsConvertible(...);
 
+
+		template < typename To, typename... Args > auto        TestIsConstructible(int) -> decltype(To(std::declval<Args>()...), TrueType());
+		template < typename To, typename... Args > FalseType	TestIsConstructible(...);
+
+		template < typename To, typename From > auto        TestIsAssignable(int) -> decltype(std::declval<To>() = std::declval<From>(), TrueType());
+		template < typename To, typename From > FalseType	TestIsAssignable(...);
+
 	}
 
 	template < typename Derived, typename Base > struct IsInherited : If<IsSame<Derived, Base>::Value, integral_constant<bool, true>, Detail::IsInheritedImpl<Derived, Base> >::ValueT { };
@@ -50,6 +57,9 @@ namespace stingray
 
 
 	template < typename From, typename To > struct IsConvertible : integral_constant<bool, decltype(Detail::TestIsConvertible<From, To>(0))::Value> { };
+
+	template < typename To, typename... Args > struct IsConstructible : integral_constant<bool, decltype(Detail::TestIsConstructible<To, Args...>(0))::Value> { };
+	template < typename To, typename From > struct IsAssignable : integral_constant<bool, decltype(Detail::TestIsAssignable<To, From>(0))::Value> { };
 
 
 	template < template <typename> class Template, typename U > struct Is1ParamTemplate							: FalseType { };
