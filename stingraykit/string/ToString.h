@@ -353,32 +353,30 @@ namespace stingray
 	}
 
 
-	template < typename T, typename StringType = std::string >
-	struct IsFromStringInterpretable
+	namespace Detail
 	{
-	private:
-		template < typename ObjectType >
-		static auto Deduce(int) -> decltype(FromString<ObjectType>(std::declval<StringType>()), TrueType());
-		template < typename ObjectType >
-		static FalseType Deduce(long);
 
-	public:
-		static const bool Value = decltype(Deduce<T>(0))::Value;
-	};
+		template < typename T, typename StringType >
+		auto TestFromStringInterpretable(int) -> decltype(FromString<T>(std::declval<StringType>()), TrueType());
+		template < typename T, typename StringType >
+		FalseType TestFromStringInterpretable(long);
+
+		template < typename T >
+		static auto TestStringRepresentable(int) -> decltype(ToString(std::declval<T>()), TrueType());
+		template < typename T >
+		static FalseType TestStringRepresentable(long);
+
+	}
+
+
+	template < typename T, typename StringType = std::string >
+	struct IsFromStringInterpretable : integral_constant<bool, decltype(Detail::TestFromStringInterpretable<T, StringType>(0))::Value>
+	{ };
 
 
 	template < typename T >
-	struct IsStringRepresentable
-	{
-	private:
-		template < typename ObjectType >
-		static auto Deduce(const ObjectType& object, int) -> decltype(ToString(object), TrueType());
-		template < typename ObjectType >
-		static FalseType Deduce(const ObjectType& object, long);
-
-	public:
-		static const bool Value = decltype(Deduce(std::declval<T>(), 0))::Value;
-	};
+	struct IsStringRepresentable : integral_constant<bool, decltype(Detail::TestStringRepresentable<T>(0))::Value>
+	{ };
 
 
 	template < typename CharType >
