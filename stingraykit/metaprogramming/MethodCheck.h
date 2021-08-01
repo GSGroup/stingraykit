@@ -26,11 +26,11 @@ namespace stingray
 			template < typename V, V t > class Helper { }; \
 			\
 			template < typename U > \
-			static stingray::NoType	deduce(U*, Helper<void (BaseMixin::*)(), &U::Method_>* = 0); \
-			static stingray::YesType deduce(...); \
+			static stingray::FalseType deduce(U*, Helper<void (BaseMixin::*)(), &U::Method_>* = 0); \
+			static stingray::TrueType deduce(...); \
 			\
 		public: \
-			static const bool Value = (sizeof(stingray::YesType) == sizeof(deduce((Base*)0))); \
+			static const bool Value = decltype(deduce((Base*)0))::Value; \
 		}; \
 		\
 	public: \

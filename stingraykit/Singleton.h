@@ -95,10 +95,10 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename T >
-		YesType	TestIsSingleton(const Singleton<T>*);
-		NoType	TestIsSingleton(...);
+		TrueType	TestIsSingleton(const Singleton<T>*);
+		FalseType	TestIsSingleton(...);
 	}
-	template < typename T > struct IsSingleton : integral_constant<bool, sizeof(Detail::TestIsSingleton((T*)0)) == sizeof(YesType)> { };
+	template < typename T > struct IsSingleton : integral_constant<bool, decltype(Detail::TestIsSingleton((T*)0))::Value> { };
 
 }
 

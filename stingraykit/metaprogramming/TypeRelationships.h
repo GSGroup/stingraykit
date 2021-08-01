@@ -11,7 +11,6 @@
 #include <stingraykit/metaprogramming/If.h>
 #include <stingraykit/metaprogramming/IntegralConstant.h>
 #include <stingraykit/metaprogramming/TypeCompleteness.h>
-#include <stingraykit/metaprogramming/YesNo.h>
 
 namespace stingray
 {
@@ -22,33 +21,33 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename Base > YesType	TestIsInherited(const Base*);
-		template < typename Base > NoType	TestIsInherited(...);
+		template < typename Base > TrueType		TestIsInherited(const Base*);
+		template < typename Base > FalseType	TestIsInherited(...);
 
-		template < typename Derived, typename Base > struct IsInheritedImpl : integral_constant<bool, ( sizeof(TestIsInherited<Base>((const typename StaticAssertCompleteType<Derived>::ValueT*)0)) == sizeof(YesType) )> { };
-
-
-		template < template <typename> class Base, typename T >	YesType	TestIsInherited1ParamTemplate(const Base<T>*);
-		template < template <typename> class Base>				NoType	TestIsInherited1ParamTemplate(...);
+		template < typename Derived, typename Base > struct IsInheritedImpl : integral_constant<bool, decltype(TestIsInherited<Base>((const typename StaticAssertCompleteType<Derived>::ValueT*)0))::Value> { };
 
 
-		template < template <typename, typename> class Base, typename T1, typename T2 >	YesType	TestIsInherited2ParamTemplate(const Base<T1, T2>*);
-		template < template <typename, typename> class Base >							NoType	TestIsInherited2ParamTemplate(...);
+		template < template <typename> class Base, typename T >	TrueType	TestIsInherited1ParamTemplate(const Base<T>*);
+		template < template <typename> class Base>				FalseType	TestIsInherited1ParamTemplate(...);
 
 
-		template < typename T > YesType	TestIsConvertible(T);
-		template < typename T > NoType	TestIsConvertible(...);
+		template < template <typename, typename> class Base, typename T1, typename T2 >	TrueType	TestIsInherited2ParamTemplate(const Base<T1, T2>*);
+		template < template <typename, typename> class Base >							FalseType	TestIsInherited2ParamTemplate(...);
+
+
+		template < typename T > TrueType	TestIsConvertible(T);
+		template < typename T > FalseType	TestIsConvertible(...);
 
 	}
 
 	template < typename Derived, typename Base > struct IsInherited : If<IsSame<Derived, Base>::Value, integral_constant<bool, true>, Detail::IsInheritedImpl<Derived, Base> >::ValueT { };
 
 
-	template < typename Derived, template <typename > class Base>			struct IsInherited1ParamTemplate : integral_constant<bool, sizeof(Detail::TestIsInherited1ParamTemplate<Base>((const Derived*)0)) == sizeof(YesType)> { };
-	template < typename Derived, template <typename, typename > class Base>	struct IsInherited2ParamTemplate : integral_constant<bool, sizeof(Detail::TestIsInherited2ParamTemplate<Base>((const Derived*)0)) == sizeof(YesType)> { };
+	template < typename Derived, template <typename > class Base>			struct IsInherited1ParamTemplate : integral_constant<bool, decltype(Detail::TestIsInherited1ParamTemplate<Base>((const Derived*)0))::Value> { };
+	template < typename Derived, template <typename, typename > class Base>	struct IsInherited2ParamTemplate : integral_constant<bool, decltype(Detail::TestIsInherited2ParamTemplate<Base>((const Derived*)0))::Value> { };
 
 
-	template < typename From, typename To > struct IsConvertible : integral_constant<bool, sizeof(Detail::TestIsConvertible<To>(*((const From*)0))) == sizeof(YesType)> { };
+	template < typename From, typename To > struct IsConvertible : integral_constant<bool, decltype(Detail::TestIsConvertible<To>(*((const From*)0)))::Value> { };
 
 
 	template < template <typename> class Template, typename U > struct Is1ParamTemplate							: FalseType { };

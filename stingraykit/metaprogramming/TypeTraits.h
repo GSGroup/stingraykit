@@ -55,11 +55,11 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename T > YesType	TestIsClass(int T::*);
-		template < typename T > NoType	TestIsClass(...);
+		template < typename T > TrueType	TestIsClass(int T::*);
+		template < typename T > FalseType	TestIsClass(...);
 
 	}
-	template < typename T > struct IsClass											: integral_constant<bool, ( sizeof(Detail::TestIsClass<T>(0)) == sizeof(YesType) ) && !IsUnion<T>::Value> { };
+	template < typename T > struct IsClass											: integral_constant<bool, decltype(Detail::TestIsClass<T>(0))::Value && !IsUnion<T>::Value> { };
 
 	STINGRAYKIT_DECLARE_NESTED_TYPE_CHECK(Enum);
 	template < typename T > struct IsEnumClass										: HasNestedType_Enum<T> { };

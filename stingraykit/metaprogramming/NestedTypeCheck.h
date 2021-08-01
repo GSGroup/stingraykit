@@ -10,7 +10,6 @@
 
 #include <stingraykit/metaprogramming/IntToType.h>
 #include <stingraykit/metaprogramming/ReferenceTraits.h>
-#include <stingraykit/metaprogramming/YesNo.h>
 
 namespace stingray
 {
@@ -19,11 +18,11 @@ namespace stingray
 	template < typename T > \
 	class HasNestedType_##NestedType_ \
 	{ \
-		template < typename U > static stingray::YesType deduce(stingray::IntToType<sizeof(typename stingray::RemoveReference<typename U::NestedType_>::ValueT*)>*); \
-		template < typename U > static stingray::NoType deduce(...); \
+		template < typename U > static stingray::TrueType deduce(stingray::IntToType<sizeof(typename stingray::RemoveReference<typename U::NestedType_>::ValueT*)>*); \
+		template < typename U > static stingray::FalseType deduce(...); \
 		\
 	public: \
-		static const bool Value = sizeof(deduce<T>(0)) == sizeof(stingray::YesType); \
+		static const bool Value = decltype(deduce<T>(0))::Value; \
 	}
 
 }

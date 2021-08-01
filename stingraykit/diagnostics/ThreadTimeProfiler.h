@@ -26,12 +26,12 @@ namespace stingray
 		{
 		private:
 			template < typename T >
-			static auto Deduce(int) -> decltype((s64)T::GetThreadMicroseconds(), std::declval<YesType>());
+			static auto Deduce(int) -> decltype((s64)T::GetThreadMicroseconds(), TrueType());
 			template < typename T >
-			static NoType Deduce(long);
+			static FalseType Deduce(long);
 
 		public:
-			static const bool Value = sizeof(YesType) == sizeof(Deduce<ThreadEngineType>(0));
+			static const bool Value = decltype(Deduce<ThreadEngineType>(0))::Value;
 		};
 	}
 

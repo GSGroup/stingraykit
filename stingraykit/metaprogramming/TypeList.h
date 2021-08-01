@@ -368,12 +368,12 @@ namespace stingray
 	{
 	private:
 		template < typename V, typename N>
-		static YesType TestTypeList(const TypeListNode<V, N>*);
-		static YesType TestTypeList(const TypeListEndNode*);
-		static NoType TestTypeList(...);
+		static TrueType TestTypeList(const TypeListNode<V, N>*);
+		static TrueType TestTypeList(const TypeListEndNode*);
+		static FalseType TestTypeList(...);
 
 	public:
-		typedef typename Detail::ToTypeListImpl<T, sizeof(YesType) == sizeof(TestTypeList((const T*)0))>::ValueT		ValueT;
+		typedef typename Detail::ToTypeListImpl<T, decltype(TestTypeList((const T*)0))::Value>::ValueT		ValueT;
 	};
 
 }

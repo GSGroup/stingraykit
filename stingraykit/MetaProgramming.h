@@ -25,6 +25,5 @@
 #include <stingraykit/metaprogramming/TypeMapper.h>
 #include <stingraykit/metaprogramming/TypeRelationships.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
-#include <stingraykit/metaprogramming/YesNo.h>
 
 #endif

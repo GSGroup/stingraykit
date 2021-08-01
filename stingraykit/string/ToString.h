@@ -358,12 +358,12 @@ namespace stingray
 	{
 	private:
 		template < typename ObjectType >
-		static auto Deduce(int) -> decltype(FromString<ObjectType>(std::declval<StringType>()), std::declval<YesType>());
+		static auto Deduce(int) -> decltype(FromString<ObjectType>(std::declval<StringType>()), TrueType());
 		template < typename ObjectType >
-		static NoType Deduce(long);
+		static FalseType Deduce(long);
 
 	public:
-		static const bool Value = sizeof(YesType) == sizeof(Deduce<T>(0));
+		static const bool Value = decltype(Deduce<T>(0))::Value;
 	};
 
 
@@ -372,12 +372,12 @@ namespace stingray
 	{
 	private:
 		template < typename ObjectType >
-		static auto Deduce(const ObjectType& object, int) -> decltype(ToString(object), std::declval<YesType>());
+		static auto Deduce(const ObjectType& object, int) -> decltype(ToString(object), TrueType());
 		template < typename ObjectType >
-		static NoType Deduce(const ObjectType& object, long);
+		static FalseType Deduce(const ObjectType& object, long);
 
 	public:
-		static const bool Value = sizeof(YesType) == sizeof(Deduce(std::declval<T>(), 0));
+		static const bool Value = decltype(Deduce(std::declval<T>(), 0))::Value;
 	};
 
 
