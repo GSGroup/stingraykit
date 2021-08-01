@@ -12,6 +12,8 @@
 #include <stingraykit/metaprogramming/IntegralConstant.h>
 #include <stingraykit/metaprogramming/TypeCompleteness.h>
 
+#include <type_traits>
+
 namespace stingray
 {
 
@@ -35,8 +37,8 @@ namespace stingray
 		template < template <typename, typename> class Base >							FalseType	TestIsInherited2ParamTemplate(...);
 
 
-		template < typename T > TrueType	TestIsConvertible(T);
-		template < typename T > FalseType	TestIsConvertible(...);
+		template < typename From, typename To > auto		TestIsConvertible(int) -> decltype(std::declval<void (&) (To)>()(std::declval<From>()), TrueType());
+		template < typename From, typename To > FalseType	TestIsConvertible(...);
 
 	}
 
@@ -47,7 +49,7 @@ namespace stingray
 	template < typename Derived, template <typename, typename > class Base>	struct IsInherited2ParamTemplate : integral_constant<bool, decltype(Detail::TestIsInherited2ParamTemplate<Base>((const Derived*)0))::Value> { };
 
 
-	template < typename From, typename To > struct IsConvertible : integral_constant<bool, decltype(Detail::TestIsConvertible<To>(*((const From*)0)))::Value> { };
+	template < typename From, typename To > struct IsConvertible : integral_constant<bool, decltype(Detail::TestIsConvertible<From, To>(0))::Value> { };
 
 
 	template < template <typename> class Template, typename U > struct Is1ParamTemplate							: FalseType { };
