@@ -22,21 +22,13 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename ThreadEngineType >
-		struct ThreadEngineHasGetThreadMicroseconds
-		{
-		private:
-			template < typename T >
-			static auto Deduce(int) -> decltype((s64)T::GetThreadMicroseconds(), TrueType());
-			template < typename T >
-			static FalseType Deduce(long);
-
-		public:
-			static const bool Value = decltype(Deduce<ThreadEngineType>(0))::Value;
-		};
+		static auto TestHasGetThreadMicroseconds(int) -> decltype((s64)ThreadEngineType::GetThreadMicroseconds(), TrueType());
+		template < typename ThreadEngineType >
+		static FalseType TestHasGetThreadMicroseconds(long);
 	}
 
 
-	template < typename ThreadEngineType, bool HasGetThreadMicroseconds = Detail::ThreadEngineHasGetThreadMicroseconds<ThreadEngineType>::Value >
+	template < typename ThreadEngineType, bool HasGetThreadMicroseconds = decltype(Detail::TestHasGetThreadMicroseconds<ThreadEngineType>(0))::Value >
 	class BasicThreadTimeProfiler
 	{
 	private:
