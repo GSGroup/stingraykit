@@ -14,20 +14,21 @@ namespace stingray
 {
 
 	template < typename T >
-	struct optional
+	class optional
 	{
-		typedef typename Decay<T>::ValueT RawType;
+	public:
+		using RawType = typename Decay<T>::ValueT;
 
 	private:
 		StorageFor<RawType>	_value;
 		bool				_initialized;
 
 	public:
-		typedef RawType&		ParamType;
-		typedef const RawType&	ConstParamType;
-		typedef RawType&&		MoveParamType;
-		typedef RawType*		PtrParamType;
-		typedef const RawType*	ConstPtrParamType;
+		using ParamType = RawType&;
+		using ConstParamType = const RawType&;
+		using MoveParamType = RawType&&;
+		using PtrParamType = RawType*;
+		using ConstPtrParamType = const RawType*;
 
 	public:
 		optional() : _value(), _initialized(false)
@@ -183,11 +184,11 @@ namespace stingray
 	struct IsOptional : FalseType { };
 
 	template < typename T >
-	struct IsOptional<optional<T> > : TrueType { };
+	struct IsOptional<optional<T>> : TrueType { };
 
 
 	template < typename T >
-	struct IsNullable<optional<T> > : TrueType { };
+	struct IsNullable<optional<T>> : TrueType { };
 
 }
 
