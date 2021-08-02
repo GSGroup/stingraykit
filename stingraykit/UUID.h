@@ -18,29 +18,24 @@ namespace stingray
 	class UUID
 	{
 	public:
-		typedef array<u8, 16> DataType;
+		using DataType = array<u8, 16>;
 
 	private:
 		DataType _data;
 
 	public:
 		UUID() { }
-		explicit UUID(const DataType& data) : _data(data) { }
-		explicit UUID(ConstByteData data);
+		explicit UUID(ConstByteData data, bool setVersionAndVariant = false);
 
 		bool operator< (const UUID& other) const
 		{ return std::lexicographical_compare(_data.begin(), _data.end(), other._data.begin(), other._data.end()); }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(UUID);
 
-		static UUID Generate()
-		{ UUID uuid; std::generate(uuid._data.begin(), uuid._data.end(), std::rand); return uuid; }
-
+		static UUID Generate();
 		static UUID FromString(string_view str);
-
 		static string_view GetRepresentation();
 
 		std::string ToString() const;
-
 	};
 
 }
