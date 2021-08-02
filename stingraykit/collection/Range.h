@@ -354,18 +354,19 @@ namespace stingray
 
 
 		template < typename Range_, typename Functor_ >
-		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category>
+		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<typename Decay<typename function_info<Functor_>::RetType>::ValueT>::ValueT, typename Range_::Category>
 		{
 			typedef RangeTransformer<Range_, Functor_> Self;
-			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<typename function_info<Functor_>::RetType>::ValueT, typename Range_::Category> base;
+			typedef typename Decay<typename function_info<Functor_>::RetType>::ValueT RawValueType;
+			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<RawValueType>::ValueT, typename Range_::Category> base;
 
 		public:
 			static const bool ReturnsTemporary = true;
 
 		private:
-			Range_												_impl;
-			Functor_											_functor;
-			optional<typename function_info<Functor_>::RetType>	_cache;
+			Range_								_impl;
+			Functor_							_functor;
+			optional<RawValueType>				_cache;
 
 		public:
 			RangeTransformer(const Range_& impl, const Functor_& functor)
@@ -632,6 +633,7 @@ namespace stingray
 			typedef RangeSplitter<It_> Self;
 			typedef Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag> base;
 
+			typedef typename Decay<typename base::ValueType>::ValueT RawValueType;
 			typedef typename std::iterator_traits<It_>::difference_type DiffType;
 
 		private:
@@ -639,7 +641,7 @@ namespace stingray
 			const It_							_end;
 			const DiffType						_maxFragmentSize;
 			It_									_it;
-			optional<typename base::ValueType>	_value;
+			optional<RawValueType>				_value;
 
 		public:
 			RangeSplitter(const It_& begin, const It_& end, DiffType maxFragmentSize)
@@ -702,6 +704,8 @@ namespace stingray
 			typedef RangeZipper<FuncType_, RangeTypes_> Self;
 			typedef Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag> base;
 
+			typedef typename Decay<typename base::ValueType>::ValueT RawValueType;
+
 			static const size_t RangeCount = GetTypeListLength<RangeTypes_>::Value;
 
 			template < size_t Index_ >
@@ -755,7 +759,7 @@ namespace stingray
 		private:
 			FuncType_							_func;
 			Tuple<RangeTypes_>					_ranges;
-			optional<typename base::ValueType>	_value;
+			optional<RawValueType>				_value;
 
 		public:
 			RangeZipper(const FuncType_& func, const Tuple<RangeTypes_>& ranges) : _func(func), _ranges(ranges) { }
@@ -1032,9 +1036,9 @@ namespace stingray
 
 
 		template < typename Range_, class Comparer_ >
-		optional<typename Detail::RangeToValue<Range_>::ValueT> MinElement(Range_ range, Comparer_ comparer)
+		optional<typename Decay<typename Range_::ValueType>::ValueT> MinElement(Range_ range, Comparer_ comparer)
 		{
-			optional<typename Detail::RangeToValue<Range_>::ValueT> result;
+			optional<typename Decay<typename Range_::ValueType>::ValueT> result;
 			for (; range.Valid(); range.Next())
 				if (!result || comparer(range.Get(), *result))
 					result = range.Get();
@@ -1043,14 +1047,14 @@ namespace stingray
 
 
 		template < typename Range_ >
-		optional<typename Detail::RangeToValue<Range_>::ValueT> MinElement(Range_ range)
+		optional<typename Decay<typename Range_::ValueType>::ValueT> MinElement(Range_ range)
 		{ return MinElement(range, comparers::Less()); }
 
 
 		template < typename Range_, class Comparer_ >
-		optional<typename Detail::RangeToValue<Range_>::ValueT> MaxElement(Range_ range, Comparer_ comparer)
+		optional<typename Decay<typename Range_::ValueType>::ValueT> MaxElement(Range_ range, Comparer_ comparer)
 		{
-			optional<typename Detail::RangeToValue<Range_>::ValueT> result;
+			optional<typename Decay<typename Range_::ValueType>::ValueT> result;
 			for (; range.Valid(); range.Next())
 				if (!result || comparer(*result, range.Get()))
 					result = range.Get();
@@ -1059,14 +1063,14 @@ namespace stingray
 
 
 		template < typename Range_ >
-		optional<typename Detail::RangeToValue<Range_>::ValueT> MaxElement(Range_ range)
+		optional<typename Decay<typename Range_::ValueType>::ValueT> MaxElement(Range_ range)
 		{ return MaxElement(range, comparers::Less()); }
 
 
 		template < typename Range_, typename Functor_ >
-		optional<typename Detail::RangeToValue<Range_>::ValueT> Fold(Range_ range, const Functor_& functor)
+		optional<typename Decay<typename Range_::ValueType>::ValueT> Fold(Range_ range, const Functor_& functor)
 		{
-			optional<typename Detail::RangeToValue<Range_>::ValueT> result;
+			optional<typename Decay<typename Range_::ValueType>::ValueT> result;
 			for (; range.Valid(); range.Next())
 				result = result ? FunctorInvoker::InvokeArgs(functor, *result, range.Get()) : range.Get();
 			return result;
