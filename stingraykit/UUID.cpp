@@ -22,14 +22,50 @@ namespace stingray
 
 		const string_view Format(FormatStr);
 
+		constexpr u8 Version = 0x40;
+
+		constexpr u8 VersionMask = 0x0f;
+
+		constexpr u8 Variant = 0x80;
+
+		constexpr u8 VariantMask = 0x3f;
+
+		void SetVersionAndVariant(UUID::DataType& data)
+		{
+			data[6] &= VersionMask;
+			data[6] |= Version;
+
+			data[8] &= VariantMask;
+			data[8] |= Variant;
+		}
+
 	}
 
 
-	UUID::UUID(ConstByteData data)
+	UUID::UUID(const DataType& data, bool setVersionAndVariant)
+		: _data(data)
+	{
+		if (setVersionAndVariant)
+			SetVersionAndVariant(_data);
+	}
+
+
+	UUID::UUID(ConstByteData data, bool setVersionAndVariant)
 	{
 		STINGRAYKIT_CHECK(data.size() == DataType::Size, ArgumentException("data.size()", data.size()));
 
 		std::copy(data.begin(), data.end(), _data.begin());
+		if (setVersionAndVariant)
+			SetVersionAndVariant(_data);
+	}
+
+
+	UUID UUID::Generate()
+	{
+		UUID uuid;
+		std::generate(uuid._data.begin(), uuid._data.end(), std::rand);
+		SetVersionAndVariant(uuid._data);
+		return uuid;
 	}
 
 
