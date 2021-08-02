@@ -36,7 +36,7 @@ namespace stingray
 		explicit unique_ptr(T* rawPtr = 0) : _rawPtr(rawPtr)
 		{ }
 
-		unique_ptr(const NullPtrType&) : _rawPtr()
+		unique_ptr(NullPtrType) : _rawPtr()
 		{ }
 
 		unique_ptr(unique_ptr&& other) : _rawPtr(other.release())
@@ -97,7 +97,7 @@ namespace stingray
 		explicit unique_ptr(T* rawPtr = 0) : _rawPtr(rawPtr)
 		{ }
 
-		unique_ptr(const NullPtrType&) : _rawPtr()
+		unique_ptr(NullPtrType) : _rawPtr()
 		{ }
 
 		unique_ptr(unique_ptr<T[]>&& other) : _rawPtr(other.release())

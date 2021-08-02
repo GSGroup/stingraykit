@@ -33,7 +33,7 @@ namespace stingray
 		optional() : _value(), _initialized(false)
 		{ }
 
-		optional(const NullPtrType&) : _value(), _initialized(false)
+		optional(NullPtrType) : _value(), _initialized(false)
 		{ }
 
 		optional(ConstParamType value) : _value(), _initialized(true)
@@ -56,7 +56,7 @@ namespace stingray
 
 		~optional()										{ reset(); }
 
-		optional& operator = (const NullPtrType&)		{ reset();					return *this; }
+		optional& operator = (NullPtrType)				{ reset();					return *this; }
 		optional& operator = (ConstParamType value)		{ assign(value);			return *this; }
 		optional& operator = (MoveParamType value)		{ assign(std::move(value));	return *this; }
 		optional& operator = (const optional& other)	{ assign(other);			return *this; }

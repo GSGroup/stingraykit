@@ -56,7 +56,7 @@ namespace stingray
 		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
 
 	public:
-		FutureExecutionTester(const NullPtrType&) // always allows func execution
+		FutureExecutionTester(NullPtrType) // always allows func execution
 		{ }
 
 		bool IsDummy() const

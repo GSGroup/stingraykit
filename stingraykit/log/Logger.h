@@ -178,7 +178,7 @@ namespace stingray
 			NamedLoggerAccessor(NamedLogger& logger) : _logger(&logger)
 			{ }
 
-			NamedLoggerAccessor& operator = (NullPtrType& n)
+			NamedLoggerAccessor& operator = (NullPtrType)
 			{ return *this; }
 
 			NamedLoggerAccessor& operator = (NamedLogger& logger)

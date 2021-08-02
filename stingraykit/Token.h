@@ -34,7 +34,7 @@ namespace stingray
 		Token()
 		{ }
 
-		Token(const NullPtrType&)
+		Token(NullPtrType)
 		{ }
 
 		template < typename T >

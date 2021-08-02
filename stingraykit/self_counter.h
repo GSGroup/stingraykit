@@ -49,7 +49,7 @@ namespace stingray
 			: _rawPtr(rawPtr)
 		{ }
 
-		self_count_ptr(const NullPtrType&)
+		self_count_ptr(NullPtrType)
 			: _rawPtr()
 		{ }
 

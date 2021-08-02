@@ -199,11 +199,11 @@ namespace stingray
 				: ConnectionPolicyControl_(connectionPolicy)
 			{ }
 
-			SignalImpl(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler)
+			SignalImpl(NullPtrType, const ExceptionHandlerFunc& exceptionHandler)
 				: ExceptionPolicy_(exceptionHandler)
 			{ }
 
-			SignalImpl(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy)
+			SignalImpl(NullPtrType, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy)
 				: ExceptionPolicy_(exceptionHandler), ConnectionPolicyControl_(connectionPolicy)
 			{ }
 
@@ -331,17 +331,17 @@ namespace stingray
 	public:
 		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { }
 
-		signal(const NullPtrType&, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(connectionPolicy)) { }
-		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
-		signal(const NullPtrType&, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { }
+		signal(NullPtrType, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(connectionPolicy)) { }
+		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
+		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { }
 
 		signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { }
-		signal(const PopulatorFunc& sendCurrentState, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { }
+		signal(const PopulatorFunc& sendCurrentState, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { }
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { }
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler, connectionPolicy)) { }
 
 		signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { }
-		signal(const ThreadingPolicy& threadingPolicy, const NullPtrType&, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { }
+		signal(const ThreadingPolicy& threadingPolicy, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { }
 		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { }
 		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState, connectionPolicy)) { }
 
@@ -547,7 +547,7 @@ namespace stingray
 		 * signal<void(int)> some_signal(null, &MyExceptionHandler, ConnectionPolicy::Any);
 		 * @endcode
 		 * */
-		explicit signal(const NullPtrType& sendCurrentState,
+		explicit signal(NullPtrType sendCurrentState,
 						const ExceptionHandlerFunc& exceptionHandler,
 						ConnectionPolicy connectionPolicy = ConnectionPolicy::Any);
 
@@ -567,7 +567,7 @@ namespace stingray
 		 * @endcode
 		 * */
 		explicit signal(const SendCurrentStateFunc& sendCurrentState,
-						const NullPtrType& exceptionHandler,
+						NullPtrType exceptionHandler,
 						ConnectionPolicy connectionPolicy = ConnectionPolicy::Any);
 
 		/**

@@ -333,7 +333,7 @@ namespace stingray
 		shared_ptr() : _rawPtr()
 		{ }
 
-		shared_ptr(const NullPtrType&) : _rawPtr()
+		shared_ptr(NullPtrType) : _rawPtr()
 		{ }
 
 		shared_ptr(const shared_ptr<T>& other)
@@ -511,7 +511,7 @@ namespace stingray
 		weak_ptr() : _rawPtr()
 		{ }
 
-		weak_ptr(const NullPtrType&) : _rawPtr()
+		weak_ptr(NullPtrType) : _rawPtr()
 		{ }
 
 		template < typename U >

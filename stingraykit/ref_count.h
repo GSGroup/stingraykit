@@ -60,7 +60,7 @@ namespace stingray
 		Data		*_value;
 
 	public:
-		inline basic_ref_count(const NullPtrType&) : _value()
+		inline basic_ref_count(NullPtrType) : _value()
 		{ }
 
 		inline basic_ref_count() : _value(new Data)
