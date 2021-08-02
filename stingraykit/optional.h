@@ -73,11 +73,17 @@ namespace stingray
 		optional(NullPtrType) : _value(), _initialized(false)
 		{ }
 
-		optional(ConstParamType value) : _value(), _initialized(true)
-		{ _value.Ctor(value); }
+		template < typename U = T, typename EnableIf<
+				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
+				IsConstructible<T, U>::Value && IsConvertible<U, T>::Value, bool>::ValueT = true >
+		optional(U&& value) : _value(), _initialized(true)
+		{ _value.Ctor(std::forward<U>(value)); }
 
-		optional(MoveParamType value) : _value(), _initialized(true)
-		{ _value.Ctor(std::move(value)); }
+		template < typename U = T, typename EnableIf<
+				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
+				IsConstructible<T, U>::Value && !IsConvertible<U, T>::Value, bool>::ValueT = false >
+		explicit optional(U&& value) : _value(), _initialized(true)
+		{ _value.Ctor(std::forward<U>(value)); }
 
 		DETAIL_OPTIONAL_COPY_CTOR(const optional&)
 		DETAIL_OPTIONAL_MOVE_CTOR(optional&&)
@@ -85,8 +91,12 @@ namespace stingray
 		~optional()										{ reset(); }
 
 		optional& operator = (NullPtrType)				{ reset();					return *this; }
-		optional& operator = (ConstParamType value)		{ assign(value);			return *this; }
-		optional& operator = (MoveParamType value)		{ assign(std::move(value));	return *this; }
+
+		template < typename U = T, typename EnableIf<
+				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
+				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = true >
+		optional& operator = (U&& value)				{ assign(std::forward<U>(value)); return *this; }
+
 		optional& operator = (const optional& other)	{ assign(other);			return *this; }
 		optional& operator = (optional&& other)			{ assign(std::move(other));	return *this; }
 
@@ -131,24 +141,16 @@ namespace stingray
 			return comparers::Cmp()(is_initialized(), other.is_initialized());
 		}
 
-		void assign(ConstParamType value)
+		template < typename U = T, typename EnableIf<
+				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
+				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = true >
+		void assign(U&& value)
 		{
 			if (_initialized)
-				_value.Ref() = value;
+				_value.Ref() = std::forward<U>(value);
 			else
 			{
-				_value.Ctor(value);
-				_initialized = true;
-			}
-		}
-
-		void assign(MoveParamType value)
-		{
-			if (_initialized)
-				_value.Ref() = std::move(value);
-			else
-			{
-				_value.Ctor(std::move(value));
+				_value.Ctor(std::forward<U>(value));
 				_initialized = true;
 			}
 		}
