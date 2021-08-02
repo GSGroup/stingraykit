@@ -11,7 +11,6 @@
 #include <stingraykit/string/ToString.h>
 
 #include <algorithm>
-#include <cstdlib>
 
 namespace stingray
 {
@@ -40,17 +39,17 @@ namespace stingray
 
 		UUID result;
 
-		DataType::iterator res_it = result._data.begin();
-		string_view::const_pointer str_it = str.data();
-		for (string_view::const_iterator fmt_it = Format.begin(), end = Format.end(); fmt_it != end; ++fmt_it, ++str_it)
+		DataType::iterator resIt = result._data.begin();
+		string_view::const_pointer strIt = str.data();
+		for (string_view::const_iterator fmtIt = Format.begin(), end = Format.end(); fmtIt != end; ++fmtIt, ++strIt)
 		{
-			if (*fmt_it == 'X')
+			if (*fmtIt == 'X')
 			{
-				*res_it++ = FromHex<u8>(string_view(str_it++, 2));
-				++fmt_it;
+				*resIt++ = FromHex<u8>(string_view(strIt++, 2));
+				++fmtIt;
 			}
 			else
-				STINGRAYKIT_CHECK(*str_it == *fmt_it, FormatException(StringBuilder() % "expected '" % *fmt_it % "'!"));
+				STINGRAYKIT_CHECK(*strIt == *fmtIt, FormatException(StringBuilder() % "expected '" % *fmtIt % "'!"));
 		}
 
 		return result;
@@ -62,15 +61,15 @@ namespace stingray
 		std::string result;
 		result.reserve(Format.length());
 
-		DataType::const_iterator data_it = _data.begin();
-		for (string_view::const_iterator fmt_it = Format.begin(), end = Format.end(); fmt_it != end; ++fmt_it)
-			if (*fmt_it == 'X')
+		DataType::const_iterator dataIt = _data.begin();
+		for (string_view::const_iterator fmtIt = Format.begin(), end = Format.end(); fmtIt != end; ++fmtIt)
+			if (*fmtIt == 'X')
 			{
-				result += ToHex(*data_it++, 2);
-				++fmt_it;
+				result += ToHex(*dataIt++, 2);
+				++fmtIt;
 			}
 			else
-				result += *fmt_it;
+				result += *fmtIt;
 
 		return result;
 	}

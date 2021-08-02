@@ -18,7 +18,7 @@ namespace stingray
 	class UUID
 	{
 	public:
-		typedef array<u8, 16> DataType;
+		using DataType = array<u8, 16>;
 
 	private:
 		DataType _data;
@@ -40,7 +40,6 @@ namespace stingray
 		static string_view GetRepresentation();
 
 		std::string ToString() const;
-
 	};
 
 }
