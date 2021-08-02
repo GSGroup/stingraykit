@@ -13,6 +13,39 @@
 namespace stingray
 {
 
+#define DETAIL_OPTIONAL_COPY_CTOR(OtherType_) \
+		optional(OtherType_ other) : _value(), _initialized(other.is_initialized()) \
+		{ \
+			if (other.is_initialized()) \
+				_value.Ctor(other.get()); \
+		}
+
+#define DETAIL_OPTIONAL_MOVE_CTOR(OtherType_) \
+		optional(OtherType_ other) : _value(), _initialized(other.is_initialized()) \
+		{ \
+			if (other.is_initialized()) \
+				_value.Ctor(std::move(other.get())); \
+		}
+
+#define DETAIL_OPTIONAL_COPY_ASSIGN(OtherType_) \
+		void assign(OtherType_ other) \
+		{ \
+			if (other.is_initialized()) \
+				assign(other.get()); \
+			else \
+				reset(); \
+		}
+
+#define DETAIL_OPTIONAL_MOVE_ASSIGN(OtherType_) \
+		void assign(OtherType_ other) \
+		{ \
+			if (other.is_initialized()) \
+				assign(std::move(other.get())); \
+			else \
+				reset(); \
+		}
+
+
 	template < typename T >
 	class optional
 	{
@@ -46,17 +79,8 @@ namespace stingray
 		optional(MoveParamType value) : _value(), _initialized(true)
 		{ _value.Ctor(std::move(value)); }
 
-		optional(const optional& other) : _value(), _initialized(other.is_initialized())
-		{
-			if (other.is_initialized())
-				_value.Ctor(other.get());
-		}
-
-		optional(optional&& other) : _value(), _initialized(other.is_initialized())
-		{
-			if (other.is_initialized())
-				_value.Ctor(std::move(other.get()));
-		}
+		DETAIL_OPTIONAL_COPY_CTOR(const optional&)
+		DETAIL_OPTIONAL_MOVE_CTOR(optional&&)
 
 		~optional()										{ reset(); }
 
@@ -129,21 +153,8 @@ namespace stingray
 			}
 		}
 
-		void assign(const optional& other)
-		{
-			if (other.is_initialized())
-				assign(other.get());
-			else
-				reset();
-		}
-
-		void assign(optional&& other)
-		{
-			if (other.is_initialized())
-				assign(std::move(other.get()));
-			else
-				reset();
-		}
+		DETAIL_OPTIONAL_COPY_ASSIGN(const optional&)
+		DETAIL_OPTIONAL_MOVE_ASSIGN(optional&&)
 
 		template < typename... Us >
 		void emplace(Us&&... args)
@@ -156,6 +167,12 @@ namespace stingray
 	private:
 		void CheckInitialized() const				{ STINGRAYKIT_CHECK(is_initialized(), "Not initialized!"); }
 	};
+
+
+#undef DETAIL_OPTIONAL_COPY_CTOR
+#undef DETAIL_OPTIONAL_MOVE_CTOR
+#undef DETAIL_OPTIONAL_COPY_ASSIGN
+#undef DETAIL_OPTIONAL_MOVE_ASSIGN
 
 
 	template < typename T >
