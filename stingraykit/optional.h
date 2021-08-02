@@ -13,6 +13,37 @@
 namespace stingray
 {
 
+	template < typename T >
+	class optional;
+
+
+	namespace Detail
+	{
+		template < typename To, typename From >
+		struct IsConstructibleFromOptional
+			:	integral_constant<bool,
+					IsConvertible<optional<From>&, To>::Value ||
+					IsConvertible<optional<From>&&, To>::Value ||
+					IsConvertible<const optional<From>&, To>::Value ||
+					IsConvertible<const optional<From>&&, To>::Value ||
+					IsConstructible<To, optional<From>&>::Value ||
+					IsConstructible<To, optional<From>&&>::Value ||
+					IsConstructible<To, const optional<From>&>::Value ||
+					IsConstructible<To, const optional<From>&&>::Value>
+		{ };
+
+		template < typename To, typename From >
+		struct IsAssignableFromOptional
+			:	integral_constant<bool,
+					IsConstructibleFromOptional<To, From>::Value ||
+					IsAssignable<To&, optional<From>&>::Value ||
+					IsAssignable<To&, optional<From>&&>::Value ||
+					IsAssignable<To&, const optional<From>&>::Value ||
+					IsAssignable<To&, const optional<From>&&>::Value>
+		{ };
+	}
+
+
 #define DETAIL_OPTIONAL_COPY_CTOR(OtherType_) \
 		optional(OtherType_ other) : _value(), _initialized(other.is_initialized()) \
 		{ \
@@ -88,6 +119,26 @@ namespace stingray
 		DETAIL_OPTIONAL_COPY_CTOR(const optional&)
 		DETAIL_OPTIONAL_MOVE_CTOR(optional&&)
 
+		template < typename U, typename EnableIf<
+				!Detail::IsConstructibleFromOptional<T, U>::Value &&
+				IsConstructible<T, const U&>::Value && IsConvertible<const U&, T>::Value, bool>::ValueT = true >
+		DETAIL_OPTIONAL_COPY_CTOR(const optional<U>&)
+
+		template < typename U, typename EnableIf<
+				!Detail::IsConstructibleFromOptional<T, U>::Value &&
+				IsConstructible<T, const U&>::Value && !IsConvertible<const U&, T>::Value, bool>::ValueT = false >
+		explicit DETAIL_OPTIONAL_COPY_CTOR(const optional<U>&)
+
+		template < typename U, typename EnableIf<
+				!Detail::IsConstructibleFromOptional<T, U>::Value &&
+				IsConstructible<T, U>::Value && IsConvertible<U, T>::Value, bool>::ValueT = true >
+		DETAIL_OPTIONAL_MOVE_CTOR(optional<U>&&)
+
+		template < typename U, typename EnableIf<
+				!Detail::IsConstructibleFromOptional<T, U>::Value &&
+				IsConstructible<T, U>::Value && !IsConvertible<U, T>::Value, bool>::ValueT = false >
+		explicit DETAIL_OPTIONAL_MOVE_CTOR(optional<U>&&)
+
 		~optional()										{ reset(); }
 
 		optional& operator = (NullPtrType)				{ reset();					return *this; }
@@ -99,6 +150,16 @@ namespace stingray
 
 		optional& operator = (const optional& other)	{ assign(other);			return *this; }
 		optional& operator = (optional&& other)			{ assign(std::move(other));	return *this; }
+
+		template < typename U, typename EnableIf<
+				!Detail::IsAssignableFromOptional<T, U>::Value &&
+				IsConstructible<T, const U&>::Value && IsAssignable<T&, const U&>::Value, bool>::ValueT = true >
+		optional& operator = (const optional<U>& other)	{ assign(other);			return *this; }
+
+		template < typename U, typename EnableIf<
+				!Detail::IsAssignableFromOptional<T, U>::Value &&
+				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = false >
+		optional& operator = (optional<U>&& other)		{ assign(std::move(other));	return *this; }
 
 		ConstParamType get() const						{ CheckInitialized(); return _value.Ref(); }
 		ParamType get()									{ CheckInitialized(); return _value.Ref(); }
@@ -157,6 +218,16 @@ namespace stingray
 
 		DETAIL_OPTIONAL_COPY_ASSIGN(const optional&)
 		DETAIL_OPTIONAL_MOVE_ASSIGN(optional&&)
+
+		template < typename U, typename EnableIf<
+				!Detail::IsAssignableFromOptional<T, U>::Value &&
+				IsConstructible<T, const U&>::Value && IsAssignable<T&, const U&>::Value, bool>::ValueT = true >
+		DETAIL_OPTIONAL_COPY_ASSIGN(const optional<U>&)
+
+		template < typename U, typename EnableIf<
+				!Detail::IsAssignableFromOptional<T, U>::Value &&
+				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = false >
+		DETAIL_OPTIONAL_MOVE_ASSIGN(optional<U>&&)
 
 		template < typename... Us >
 		void emplace(Us&&... args)
