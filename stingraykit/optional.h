@@ -16,19 +16,22 @@ namespace stingray
 	template < typename T >
 	class optional
 	{
+		static_assert(!IsSame<typename Decay<T>::ValueT, NullPtrType>::Value, "T can't be NullPtrType");
+		static_assert(!IsReference<T>::Value, "T can't be reference");
+
 	public:
-		using RawType = typename Decay<T>::ValueT;
+		using ValueT = T;
 
 	private:
-		StorageFor<RawType>	_value;
+		StorageFor<T>		_value;
 		bool				_initialized;
 
 	public:
-		using ParamType = RawType&;
-		using ConstParamType = const RawType&;
-		using MoveParamType = RawType&&;
-		using PtrParamType = RawType*;
-		using ConstPtrParamType = const RawType*;
+		using ParamType = T&;
+		using ConstParamType = const T&;
+		using MoveParamType = T&&;
+		using PtrParamType = T*;
+		using ConstPtrParamType = const T*;
 
 	public:
 		optional() : _value(), _initialized(false)
