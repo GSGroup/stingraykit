@@ -25,7 +25,6 @@ namespace stingray
 
 	public:
 		UUID() { }
-		explicit UUID(const DataType& data, bool setVersionAndVariant = false);
 		explicit UUID(ConstByteData data, bool setVersionAndVariant = false);
 
 		bool operator< (const UUID& other) const

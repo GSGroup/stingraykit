@@ -42,14 +42,6 @@ namespace stingray
 	}
 
 
-	UUID::UUID(const DataType& data, bool setVersionAndVariant)
-		: _data(data)
-	{
-		if (setVersionAndVariant)
-			SetVersionAndVariant(_data);
-	}
-
-
 	UUID::UUID(ConstByteData data, bool setVersionAndVariant)
 	{
 		STINGRAYKIT_CHECK(data.size() == DataType::Size, ArgumentException("data.size()", data.size()));
