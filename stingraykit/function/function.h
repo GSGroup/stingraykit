@@ -147,7 +147,9 @@ namespace stingray
 		{ }
 
 	public:
-		template < typename FunctorType, typename EnableIf<!IsSame<typename Decay<FunctorType>::ValueT, MyType>::Value, bool>::ValueT = false >
+		template < typename FunctorType,
+				typename EnableIf<!IsSame<typename Decay<FunctorType>::ValueT, MyType>::Value &&
+						!IsSame<typename function_info<typename Decay<FunctorType>::ValueT>::RetType, UnspecifiedRetType>::Value, bool>::ValueT = false >
 		function(FunctorType&& func)
 			: _invokable(make_self_count_ptr<Detail::Invokable<FunctorType, R, Ts...>>(std::forward<FunctorType>(func)))
 		{ }
