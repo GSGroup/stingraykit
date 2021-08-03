@@ -23,7 +23,8 @@ namespace stingray
 
 	std::string Version::ToString() const
 	{
-		StringBuilder builder = StringBuilder() % _major % '.' % _minor;
+		StringBuilder builder;
+		builder % _major % '.' % _minor;
 		if (_build)
 			builder % '.' % *_build;
 		return builder;

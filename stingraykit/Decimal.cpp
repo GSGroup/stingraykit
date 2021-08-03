@@ -77,7 +77,8 @@ namespace stingray
 		if (integralPart.empty() || integralPart == "-")
 			integralPart.append("0");
 
-		StringBuilder builder = StringBuilder() % integralPart;
+		StringBuilder builder;
+		builder % integralPart;
 
 		if (!fractionalPart.empty())
 			builder % "." % fractionalPart;
