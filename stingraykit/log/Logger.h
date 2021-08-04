@@ -162,7 +162,7 @@ namespace stingray
 		LoggerStream Warning()	const { return Stream(LogLevel::Warning); }
 		LoggerStream Error()	const { return Stream(LogLevel::Error); }
 
-		void Log(LogLevel logLevel, const std::string& text);
+		void Log(LogLevel logLevel, const std::string& text) const;
 	};
 
 
@@ -186,15 +186,15 @@ namespace stingray
 			NamedLoggerAccessor& operator = (NamedLogger& logger)
 			{ _logger = &logger; return *this; }
 
-			LogLevel GetLogLevel() const			{ return _logger ? _logger->GetLogLevel() : Logger::GetLogLevel(); }
+			LogLevel GetLogLevel() const					{ return _logger ? _logger->GetLogLevel() : Logger::GetLogLevel(); }
 
-			LoggerStream Stream(LogLevel logLevel)	{ return _logger ? _logger->Stream(logLevel) : Logger::Stream(logLevel); }
+			LoggerStream Stream(LogLevel logLevel) const	{ return _logger ? _logger->Stream(logLevel) : Logger::Stream(logLevel); }
 
-			LoggerStream Trace()					{ return _logger ? _logger->Trace() : Logger::Trace(); }
-			LoggerStream Debug()					{ return _logger ? _logger->Debug() : Logger::Debug(); }
-			LoggerStream Info()						{ return _logger ? _logger->Info() : Logger::Info(); }
-			LoggerStream Warning()					{ return _logger ? _logger->Warning() : Logger::Warning(); }
-			LoggerStream Error()					{ return _logger ? _logger->Error() : Logger::Error(); }
+			LoggerStream Trace() const						{ return _logger ? _logger->Trace() : Logger::Trace(); }
+			LoggerStream Debug() const						{ return _logger ? _logger->Debug() : Logger::Debug(); }
+			LoggerStream Info() const						{ return _logger ? _logger->Info() : Logger::Info(); }
+			LoggerStream Warning() const					{ return _logger ? _logger->Warning() : Logger::Warning(); }
+			LoggerStream Error() const						{ return _logger ? _logger->Error() : Logger::Error(); }
 		};
 	}
 

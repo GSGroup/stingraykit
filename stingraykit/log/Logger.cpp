@@ -357,7 +357,7 @@ namespace stingray
 	{ return LoggerStream(&_params, GetLogLevel(), logLevel, &_duplicatingLogsFilter, &Logger::DoLog); }
 
 
-	void NamedLogger::Log(LogLevel logLevel, const std::string& message)
+	void NamedLogger::Log(LogLevel logLevel, const std::string& message) const
 	{ Stream(logLevel) << message; }
 
 	/////////////////////////////////////////////////////////////////
