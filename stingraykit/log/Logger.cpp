@@ -398,12 +398,12 @@ namespace stingray
 	{ Logger::Stream(logLevel) << _action << "..."; }
 
 
-	ActionLogger::ActionLogger(NamedLogger& namedLogger, const std::string& action)
+	ActionLogger::ActionLogger(const NamedLogger& namedLogger, const std::string& action)
 		: _namedLogger(&namedLogger), _logLevel(LogLevel::Info), _action(action)
 	{ _namedLogger->Info() << _action << "..."; }
 
 
-	ActionLogger::ActionLogger(NamedLogger& namedLogger, LogLevel logLevel, const std::string& action)
+	ActionLogger::ActionLogger(const NamedLogger& namedLogger, LogLevel logLevel, const std::string& action)
 		: _namedLogger(&namedLogger), _logLevel(logLevel), _action(action)
 	{ _namedLogger->Stream(logLevel) << _action << "..."; }
 

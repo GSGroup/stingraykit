@@ -171,19 +171,19 @@ namespace stingray
 		struct NamedLoggerAccessor
 		{
 		private:
-			NamedLogger* _logger;
+			const NamedLogger*		_logger;
 
 		public:
 			NamedLoggerAccessor() : _logger(null)
 			{ }
 
-			NamedLoggerAccessor(NamedLogger& logger) : _logger(&logger)
+			NamedLoggerAccessor(const NamedLogger& logger) : _logger(&logger)
 			{ }
 
 			NamedLoggerAccessor& operator = (NullPtrType)
 			{ return *this; }
 
-			NamedLoggerAccessor& operator = (NamedLogger& logger)
+			NamedLoggerAccessor& operator = (const NamedLogger& logger)
 			{ _logger = &logger; return *this; }
 
 			LogLevel GetLogLevel() const					{ return _logger ? _logger->GetLogLevel() : Logger::GetLogLevel(); }
@@ -202,16 +202,16 @@ namespace stingray
 	class ActionLogger
 	{
 	private:
-		NamedLogger*	_namedLogger;
-		LogLevel		_logLevel;
-		std::string		_action;
-		ElapsedTime		_elapsedTime;
+		const NamedLogger*		_namedLogger;
+		LogLevel				_logLevel;
+		std::string				_action;
+		ElapsedTime				_elapsedTime;
 
 	public:
 		ActionLogger(const std::string& action);
 		ActionLogger(LogLevel logLevel, const std::string& action);
-		ActionLogger(NamedLogger& namedLogger, const std::string& action);
-		ActionLogger(NamedLogger& namedLogger, LogLevel logLevel, const std::string& action);
+		ActionLogger(const NamedLogger& namedLogger, const std::string& action);
+		ActionLogger(const NamedLogger& namedLogger, LogLevel logLevel, const std::string& action);
 		~ActionLogger();
 	};
 
