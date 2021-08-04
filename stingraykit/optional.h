@@ -271,8 +271,18 @@ namespace stingray
 
 
 	template < typename T >
-	optional<typename Decay<T>::ValueT> make_optional_value(T&& t)
-	{ return optional<typename Decay<T>::ValueT>(std::forward<T>(t)); }
+	optional<typename Decay<T>::ValueT> make_optional_value(T&& value)
+	{ return optional<typename Decay<T>::ValueT>(std::forward<T>(value)); }
+
+
+	template < typename T, typename... Us >
+	optional<T> make_optional_value(Us&&... args)
+	{ return optional<T>(InPlace, std::forward<Us>(args)...); }
+
+
+	template < typename T, typename U, typename... Us >
+	optional<T> make_optional_value(std::initializer_list<U> il, Us&&... args)
+	{ return optional<T>(InPlace, il, std::forward<Us>(args)...); }
 
 
 	template < typename CompareFunc >
