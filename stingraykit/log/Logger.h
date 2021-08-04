@@ -100,6 +100,8 @@ namespace stingray
 
 	class NamedLogger
 	{
+		STINGRAYKIT_NONCOPYABLE(NamedLogger);
+
 		struct OptionalLogLevel
 		{
 			STINGRAYKIT_ENUM_VALUES
