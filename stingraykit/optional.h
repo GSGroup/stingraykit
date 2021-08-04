@@ -229,11 +229,21 @@ namespace stingray
 				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = false >
 		DETAIL_OPTIONAL_MOVE_ASSIGN(optional<U>&&)
 
-		template < typename... Us >
+		template < typename... Us,
+				typename EnableIf<IsConstructible<T, Us...>::Value, bool>::ValueT = true>
 		void emplace(Us&&... args)
 		{
 			reset();
 			_value.Ctor(std::forward<Us>(args)...);
+			_initialized = true;
+		}
+
+		template < typename U, typename... Us,
+				typename EnableIf<IsConstructible<T, std::initializer_list<U>&, Us...>::Value, bool>::ValueT = true>
+		void emplace(std::initializer_list<U> il, Us&&... args)
+		{
+			reset();
+			_value.Ctor(il, std::forward<Us>(args)...);
 			_initialized = true;
 		}
 
