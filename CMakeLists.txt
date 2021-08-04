@@ -81,6 +81,7 @@ set(stingraykit_SRC
 	stingraykit/shared_ptr.cpp
 	stingraykit/toolkit.cpp
 
+	stingraykit/core/InPlaceType.cpp
 	stingraykit/core/NullPtrType.cpp
 
 	stingraykit/diagnostics/AbortWrap.cpp
