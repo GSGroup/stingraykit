@@ -10,6 +10,6 @@
 namespace stingray
 {
 
-	NullPtrType null;
+	const NullPtrType null;
 
 }

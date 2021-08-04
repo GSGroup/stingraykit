@@ -18,7 +18,7 @@ namespace stingray
 		{ return 0; }
 	};
 
-	extern NullPtrType null;
+	extern const NullPtrType null;
 
 }
 
