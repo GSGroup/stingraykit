@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/compare/comparers.h>
+#include <stingraykit/core/InPlaceType.h>
 
 namespace stingray
 {
@@ -81,6 +82,7 @@ namespace stingray
 	class optional
 	{
 		static_assert(!IsSame<typename Decay<T>::ValueT, NullPtrType>::Value, "T can't be NullPtrType");
+		static_assert(!IsSame<typename Decay<T>::ValueT, InPlaceType>::Value, "T can't be InPlaceType");
 		static_assert(!IsReference<T>::Value, "T can't be reference");
 
 	public:
@@ -105,16 +107,26 @@ namespace stingray
 		{ }
 
 		template < typename U = T, typename EnableIf<
-				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
+				!IsSame<typename Decay<U>::ValueT, optional>::Value && !IsSame<typename Decay<U>::ValueT, InPlaceType>::Value &&
 				IsConstructible<T, U>::Value && IsConvertible<U, T>::Value, bool>::ValueT = true >
 		optional(U&& value) : _value(), _initialized(true)
 		{ _value.Ctor(std::forward<U>(value)); }
 
 		template < typename U = T, typename EnableIf<
-				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
+				!IsSame<typename Decay<U>::ValueT, optional>::Value && !IsSame<typename Decay<U>::ValueT, InPlaceType>::Value &&
 				IsConstructible<T, U>::Value && !IsConvertible<U, T>::Value, bool>::ValueT = false >
 		explicit optional(U&& value) : _value(), _initialized(true)
 		{ _value.Ctor(std::forward<U>(value)); }
+
+		template < typename... Us,
+			   typename EnableIf<IsConstructible<T, Us...>::Value, bool>::ValueT = true >
+		explicit optional(InPlaceType, Us&&... args) : _value(), _initialized(true)
+		{ _value.Ctor(std::forward<Us>(args)...); }
+
+		template < typename U, typename... Us,
+			   typename EnableIf<IsConstructible<T, std::initializer_list<U>&, Us...>::Value, bool>::ValueT = false >
+		explicit optional(InPlaceType, std::initializer_list<U> il, Us&&... args) : _value(), _initialized(true)
+		{ _value.Ctor(il, std::forward<Us>(args)...); }
 
 		DETAIL_OPTIONAL_COPY_CTOR(const optional&)
 		DETAIL_OPTIONAL_MOVE_CTOR(optional&&)
