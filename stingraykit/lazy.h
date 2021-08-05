@@ -8,9 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <stingraykit/function/function.h>
-
+#include <stingraykit/function/FunctorInvoker.h>
 
 namespace stingray
 {
@@ -19,33 +17,34 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T >
-	class LazyVal
+	namespace Detail
 	{
-		typedef function<T()>	Func;
+		template < typename FuncType >
+		class LazyVal
+		{
+		private:
+			FuncType	_func;
 
-	private:
-		Func	_func;
+		public:
+			LazyVal(const FuncType& func)
+				: _func(func)
+			{ }
 
-	public:
-		LazyVal(const Func& func)
-			: _func(func)
-		{ }
+			LazyVal(FuncType&& func)
+				: _func(std::move(func))
+			{ }
 
-		LazyVal(Func&& func)
-			: _func(std::move(func))
-		{ }
-
-		operator T() const { return _func(); }
-	};
+			operator typename function_info<FuncType>::RetType () const
+			{ return FunctorInvoker::InvokeArgs(_func); }
+		};
+	}
 
 
 	template < typename FuncType >
-	LazyVal<typename function_info<typename Decay<FuncType>::ValueT>::RetType> lazy(FuncType&& func)
-	{ return LazyVal<typename function_info<typename Decay<FuncType>::ValueT>::RetType>(std::forward<FuncType>(func)); }
+	Detail::LazyVal<typename Decay<FuncType>::ValueT> lazy(FuncType&& func)
+	{ return Detail::LazyVal<typename Decay<FuncType>::ValueT>(std::forward<FuncType>(func)); }
 
 	/** @} */
 }
-
 
 #endif
