@@ -173,8 +173,9 @@ namespace stingray
 				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = false >
 		optional& operator = (optional<U>&& other)		{ assign(std::move(other));	return *this; }
 
-		ConstParamType get() const						{ CheckInitialized(); return _value.Ref(); }
-		ParamType get()									{ CheckInitialized(); return _value.Ref(); }
+		ConstParamType get() const &					{ CheckInitialized(); return _value.Ref(); }
+		ParamType get() &								{ CheckInitialized(); return _value.Ref(); }
+		MoveParamType get() &&							{ CheckInitialized(); return std::move(_value.Ref()); }
 
 		ConstParamType get_value_or(ConstParamType value) const { return is_initialized() ? _value.Ref() : value; }
 
@@ -184,8 +185,9 @@ namespace stingray
 		ConstPtrParamType operator -> () const			{ return get_ptr(); }
 		PtrParamType operator -> ()						{ return get_ptr(); }
 
-		ConstParamType operator * () const				{ return get(); }
-		ParamType operator * ()							{ return get(); }
+		ConstParamType operator * () const &			{ return get(); }
+		ParamType operator * () &						{ return get(); }
+		MoveParamType operator * () &&					{ return std::move(*this).get(); }
 
 		void reset()
 		{
