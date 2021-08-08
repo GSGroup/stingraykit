@@ -216,6 +216,27 @@ namespace stingray
 			return comparers::Cmp()(is_initialized(), other.is_initialized());
 		}
 
+		void swap(optional& other)
+		{
+			using std::swap;
+
+			if (is_initialized())
+			{
+				if (other.is_initialized())
+					swap(get(), other.get());
+				else
+				{
+					other.assign(std::move(*this).get());
+					reset();
+				}
+			}
+			else if (other.is_initialized())
+			{
+				assign(std::move(other).get());
+				other.reset();
+			}
+		}
+
 		template < typename U = T, typename EnableIf<
 				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
 				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = true >
@@ -270,6 +291,11 @@ namespace stingray
 #undef DETAIL_OPTIONAL_MOVE_CTOR
 #undef DETAIL_OPTIONAL_COPY_ASSIGN
 #undef DETAIL_OPTIONAL_MOVE_ASSIGN
+
+
+	template < typename T >
+	void swap(optional<T>& lhs, optional<T>& rhs)
+	{ lhs.swap(rhs); }
 
 
 	template < typename T >
