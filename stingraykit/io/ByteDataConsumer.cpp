@@ -2,10 +2,8 @@
 
 #include <string.h>
 
-
 namespace stingray
 {
-
 
 	ByteDataConsumer::ByteDataConsumer(ByteData destination)
 		:	_destination(destination),
@@ -21,6 +19,5 @@ namespace stingray
 
 		return data.size();
 	}
-
 
 }
