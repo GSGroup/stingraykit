@@ -177,11 +177,13 @@ namespace stingray
 		ParamType get() &								{ CheckInitialized(); return _value.Ref(); }
 		MoveParamType get() &&							{ CheckInitialized(); return std::move(_value.Ref()); }
 
-		ConstParamType get_value_or(ConstParamType value) const &
-		{ return is_initialized() ? _value.Ref() : value; }
+		template < typename U >
+		T get_value_or(U&& value) const &
+		{ return is_initialized() ? _value.Ref() : static_cast<T>(std::forward<U>(value)); }
 
-		MoveParamType get_value_or(MoveParamType value) &&
-		{ return is_initialized() ? std::move(_value.Ref()) : std::move(value); }
+		template < typename U >
+		T get_value_or(U&& value) &&
+		{ return is_initialized() ? std::move(_value.Ref()) : static_cast<T>(std::forward<U>(value)); }
 
 		ConstPtrParamType get_ptr() const				{ CheckInitialized(); return &_value.Ref(); }
 		PtrParamType get_ptr()							{ CheckInitialized(); return &_value.Ref(); }
