@@ -207,14 +207,6 @@ namespace stingray
 		bool is_initialized() const						{ return _initialized; }
 		explicit operator bool () const					{ return is_initialized(); }
 
-		bool operator == (const optional& rhs) const
-		{ return is_initialized() ? rhs.is_initialized() && get() == rhs.get() : !rhs.is_initialized(); }
-		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(optional);
-
-		bool operator < (const optional& rhs) const
-		{ return rhs.is_initialized() && (!is_initialized() || (get() < rhs.get())); }
-		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(optional);
-
 		int Compare(const optional& other) const
 		{
 			if (is_initialized() && other.is_initialized())
@@ -297,6 +289,50 @@ namespace stingray
 #undef DETAIL_OPTIONAL_MOVE_CTOR
 #undef DETAIL_OPTIONAL_COPY_ASSIGN
 #undef DETAIL_OPTIONAL_MOVE_ASSIGN
+
+
+	template < typename T >
+	bool operator == (const optional<T>& lhs, NullPtrType)
+	{ return !lhs.is_initialized(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T >), optional<T>, NullPtrType);
+
+
+	template < typename T >
+	bool operator < (const optional<T>& lhs, NullPtrType)
+	{ return false; }
+	template < typename T >
+	bool operator < (NullPtrType, const optional<T>& rhs)
+	{ return rhs.is_initialized(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename T >), optional<T>, NullPtrType);
+	STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename T >), NullPtrType, optional<T>);
+
+
+	template < typename T, typename U >
+	bool operator == (const optional<T>& lhs, const U& rhs)
+	{ return lhs.is_initialized() && lhs.get() == rhs; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T, typename U >), optional<T>, U);
+
+
+	template < typename T, typename U >
+	bool operator < (const optional<T>& lhs, const U& rhs)
+	{ return !lhs.is_initialized() || lhs.get() < rhs; }
+	template < typename T, typename U >
+	bool operator < (const T& lhs, const optional<U>& rhs)
+	{ return rhs.is_initialized() && lhs < rhs.get(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename T, typename U >), optional<T>, U);
+	STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename T, typename U >), T, optional<U>);
+
+
+	template < typename T, typename U >
+	bool operator == (const optional<T>& lhs, const optional<U>& rhs)
+	{ return lhs.is_initialized() ? rhs.is_initialized() && lhs.get() == rhs.get() : !rhs.is_initialized(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T, typename U >), optional<T>, optional<U>);
+
+
+	template < typename T, typename U >
+	bool operator < (const optional<T>& lhs, const optional<U>& rhs)
+	{ return rhs.is_initialized() && (!lhs.is_initialized() || (lhs.get() < rhs.get())); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename T, typename U >), optional<T>, optional<U>);
 
 
 	template < typename T >
