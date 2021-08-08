@@ -81,7 +81,7 @@ namespace stingray
 
 #define STINGRAYKIT_ENUM_VALUES(...) \
 	private: \
-		inline static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
+		static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
 		{ \
 			stingray::Detail::EnumValueHolder __VA_ARGS__; \
 			stingray::Detail::EnumValueHolder values[] = { __VA_ARGS__ }; \
@@ -102,16 +102,16 @@ namespace stingray
 		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
 		Enum val() const { return _enumVal; } \
-		template<typename T> inline bool operator<(T other) const { \
+		template<typename T> bool operator<(T other) const { \
 			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
 			return _enumVal < other._enumVal; \
 		} \
-		template<typename T> inline bool operator==(T other) const { \
+		template<typename T> bool operator==(T other) const { \
 			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
 			return _enumVal == other._enumVal; \
 		} \
-		inline bool operator==(Enum value) const { return _enumVal == value; } \
-		template<typename T> inline bool operator!=(T other) const { \
+		bool operator==(Enum value) const { return _enumVal == value; } \
+		template<typename T> bool operator!=(T other) const { \
 			return !(*this == other); \
 		} \
 	private: \
@@ -129,45 +129,45 @@ namespace stingray
 
 #define STINGRAYKIT_DECLARE_ENUM_CLASS_MEMBER_BIT_OPERATORS(ClassName_) \
 	public: \
-		inline ClassName_& operator |= (ClassName_::Enum r) \
+		ClassName_& operator |= (ClassName_::Enum r) \
 		{ return *this = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(val()) | static_cast<int>(r))); } \
-		inline ClassName_& operator &= (ClassName_::Enum r) \
+		ClassName_& operator &= (ClassName_::Enum r) \
 		{ return *this = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(val()) & static_cast<int>(r))); } \
-		inline ClassName_ operator | (ClassName_::Enum r) \
+		ClassName_ operator | (ClassName_::Enum r) \
 		{ ClassName_ result(*this); return result |= r; } \
-		inline ClassName_ operator & (ClassName_::Enum r) \
+		ClassName_ operator & (ClassName_::Enum r) \
 		{ ClassName_ result(*this); return result &= r; }
 
 #define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
-		inline bool operator > (const ClassName& other) const \
+		bool operator > (const ClassName& other) const \
 		{ return other < (*this); } \
-		inline bool operator <= (const ClassName& other) const \
+		bool operator <= (const ClassName& other) const \
 		{ return !(other < (*this)); } \
-		inline bool operator >= (const ClassName& other) const \
+		bool operator >= (const ClassName& other) const \
 		{ return !((*this) < other); } \
-		inline bool operator != (const ClassName& other) const \
+		bool operator != (const ClassName& other) const \
 		{ return (other < (*this)) || ((*this) < other); } \
-		inline bool operator == (const ClassName& other) const \
+		bool operator == (const ClassName& other) const \
 		{ return !(other != (*this)); }
 
 #define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(ClassName) \
-		inline bool operator <  (const ClassName& other) const { return Compare(other) <  0; } \
-		inline bool operator >  (const ClassName& other) const { return Compare(other) >  0; } \
-		inline bool operator <= (const ClassName& other) const { return Compare(other) <= 0; } \
-		inline bool operator >= (const ClassName& other) const { return Compare(other) >= 0; } \
-		inline bool operator == (const ClassName& other) const { return Compare(other) == 0; } \
-		inline bool operator != (const ClassName& other) const { return Compare(other) != 0; }
+		bool operator <  (const ClassName& other) const { return Compare(other) <  0; } \
+		bool operator >  (const ClassName& other) const { return Compare(other) >  0; } \
+		bool operator <= (const ClassName& other) const { return Compare(other) <= 0; } \
+		bool operator >= (const ClassName& other) const { return Compare(other) >= 0; } \
+		bool operator == (const ClassName& other) const { return Compare(other) == 0; } \
+		bool operator != (const ClassName& other) const { return Compare(other) != 0; }
 
 #define STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(ClassName) \
-		inline bool operator != (const ClassName& other) const \
+		bool operator != (const ClassName& other) const \
 		{ return !(*this == other); }
 
 #define STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(ClassName) \
-		inline bool operator > (const ClassName& other) const \
+		bool operator > (const ClassName& other) const \
 		{ return other < *this; } \
-		inline bool operator <= (const ClassName& other) const \
+		bool operator <= (const ClassName& other) const \
 		{ return !(other < *this); } \
-		inline bool operator >= (const ClassName& other) const \
+		bool operator >= (const ClassName& other) const \
 		{ return !(*this < other); }
 
 #define STINGRAYKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(TemplateArgs, ClassName) \
@@ -221,7 +221,7 @@ namespace stingray
 	struct InstanceOfTester
 	{
 		template < typename DestType >
-		static inline bool Test(const SrcType& obj)
+		static bool Test(const SrcType& obj)
 		{ return (dynamic_cast<const DestType*>(&obj) != 0); }
 	};
 
@@ -230,13 +230,13 @@ namespace stingray
 	struct InstanceOfTester<T*>
 	{
 		template < typename DestType >
-		static inline bool Test(const T* ptr)
+		static bool Test(const T* ptr)
 		{ return (dynamic_cast<const DestType*>(ptr) != 0); }
 	};
 
 
 	template < typename DestType, typename SrcType >
-	bool inline InstanceOf(const SrcType& obj)
+	bool InstanceOf(const SrcType& obj)
 	{ return InstanceOfTester<SrcType>::template Test<DestType>(obj); }
 
 
@@ -250,7 +250,7 @@ namespace stingray
 		typedef bool RetType;
 
 		template < typename Something > // There is also InstanceOf for shared_ptrs somewhere in shared_ptr.h
-		inline bool operator () (const Something& obj) const
+		bool operator () (const Something& obj) const
 		{
 			static_assert(!Is1ParamTemplate<shared_ptr, DestType>::Value, "This will actually test your instance for shared_ptr. This is probably not what you wanted");
 			return InstanceOf<DestType>(obj);
@@ -264,7 +264,7 @@ namespace stingray
 
 
 	template < typename T, size_t Size >
-	inline size_t ArraySize(const T (&) [Size]) { return Size; }
+	size_t ArraySize(const T (&) [Size]) { return Size; }
 
 
 	struct CollectionOp
