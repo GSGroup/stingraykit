@@ -183,13 +183,32 @@ namespace stingray
 		bool operator >= (const ClassName& other) const \
 		{ return !(*this < other); }
 
-#define STINGRAYKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(TemplateArgs, ClassName) \
-		TemplateArgs inline bool operator <  (const ClassName& lhs, const ClassName& rhs) { return lhs <  rhs; } \
-		TemplateArgs inline bool operator >  (const ClassName& lhs, const ClassName& rhs) { return lhs >  rhs; } \
-		TemplateArgs inline bool operator <= (const ClassName& lhs, const ClassName& rhs) { return lhs <= rhs; } \
-		TemplateArgs inline bool operator >= (const ClassName& lhs, const ClassName& rhs) { return lhs >= rhs; } \
-		TemplateArgs inline bool operator != (const ClassName& lhs, const ClassName& rhs) { return lhs != rhs; } \
-		TemplateArgs inline bool operator == (const ClassName& lhs, const ClassName& rhs) { return lhs == rhs; }
+#define STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(TemplateOrInlineDecl, LeftClassName, RightClassName) \
+		TemplateOrInlineDecl \
+		bool operator != (const LeftClassName& lhs, const RightClassName& rhs) \
+		{ return !(lhs == rhs); }
+
+#define STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(TemplateOrInlineDecl, LeftClassName, RightClassName) \
+		TemplateOrInlineDecl \
+		bool operator > (const LeftClassName& lhs, const RightClassName& rhs) \
+		{ return rhs < lhs; } \
+		TemplateOrInlineDecl \
+		bool operator <= (const LeftClassName& lhs, const RightClassName& rhs) \
+		{ return !(rhs < lhs); } \
+		TemplateOrInlineDecl \
+		bool operator >= (const LeftClassName& lhs, const RightClassName& rhs) \
+		{ return !(lhs < rhs); }
+
+#define STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(TemplateOrInlineDecl, FirstClassName, SecondClassName) \
+		TemplateOrInlineDecl \
+		bool operator == (const SecondClassName& lhs, const FirstClassName& rhs) \
+		{ return rhs == lhs; } \
+		TemplateOrInlineDecl \
+		bool operator != (const FirstClassName& lhs, const SecondClassName& rhs) \
+		{ return !(lhs == rhs); } \
+		TemplateOrInlineDecl \
+		bool operator != (const SecondClassName& lhs, const FirstClassName& rhs) \
+		{ return !(rhs == lhs); }
 
 
 namespace stingray
