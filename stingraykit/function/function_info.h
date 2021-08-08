@@ -86,11 +86,59 @@ namespace stingray
 	};
 
 
+	template < typename C, typename R, typename... Ts > struct function_type<R (C::*)(Ts...) &, NullType>
+	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
+
+	template < typename C, typename R, typename... Ts >
+	struct function_info<R (C::*)(Ts...) &, NullType> : function_type<R (C::*)(Ts...) &>
+	{
+		typedef R									RetType;
+		typedef TypeList<C*, Ts...>					ParamTypes;
+		typedef R Signature(C*, Ts...);
+	};
+
+
+	template < typename C, typename R, typename... Ts > struct function_type<R (C::*)(Ts...) &&, NullType>
+	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
+
+	template < typename C, typename R, typename... Ts >
+	struct function_info<R (C::*)(Ts...) &&, NullType> : function_type<R (C::*)(Ts...) &&>
+	{
+		typedef R									RetType;
+		typedef TypeList<C*, Ts...>					ParamTypes;
+		typedef R Signature(C*, Ts...);
+	};
+
+
 	template < typename C, typename R, typename... Ts > struct function_type<R (C::*)(Ts...) const, NullType>
 	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
 
 	template < typename C, typename R, typename... Ts >
 	struct function_info<R (C::*)(Ts...) const, NullType> : function_type<R (C::*)(Ts...) const>
+	{
+		typedef R											RetType;
+		typedef TypeList<const C*, Ts...>					ParamTypes;
+		typedef R Signature(const C*, Ts...);
+	};
+
+
+	template < typename C, typename R, typename... Ts > struct function_type<R (C::*)(Ts...) const &, NullType>
+	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
+
+	template < typename C, typename R, typename... Ts >
+	struct function_info<R (C::*)(Ts...) const &, NullType> : function_type<R (C::*)(Ts...) const &>
+	{
+		typedef R											RetType;
+		typedef TypeList<const C*, Ts...>					ParamTypes;
+		typedef R Signature(const C*, Ts...);
+	};
+
+
+	template < typename C, typename R, typename... Ts > struct function_type<R (C::*)(Ts...) const &&, NullType>
+	{ static const FunctionType::Enum Type = FunctionType::MethodPtr; };
+
+	template < typename C, typename R, typename... Ts >
+	struct function_info<R (C::*)(Ts...) const &&, NullType> : function_type<R (C::*)(Ts...) const &&>
 	{
 		typedef R											RetType;
 		typedef TypeList<const C*, Ts...>					ParamTypes;
