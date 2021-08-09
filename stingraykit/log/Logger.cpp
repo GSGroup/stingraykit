@@ -12,6 +12,7 @@
 #include <stingraykit/time/TimeEngine.h>
 #include <stingraykit/FunctionToken.h>
 #include <stingraykit/SafeSingleton.h>
+#include <stingraykit/lazy.h>
 
 #include <string.h>
 
@@ -321,10 +322,7 @@ namespace stingray
 
 
 	LogLevel NamedLogger::GetLogLevel() const
-	{
-		optional<LogLevel> logLevel = OptionalLogLevel::ToLogLevel(_logLevel.load(MemoryOrderRelaxed));
-		return logLevel ? *logLevel : Logger::GetLogLevel();
-	}
+	{ return OptionalLogLevel::ToLogLevel(_logLevel.load(MemoryOrderRelaxed)).get_value_or(lazy(&Logger::GetLogLevel)); }
 
 
 	void NamedLogger::SetLogLevel(optional<LogLevel> logLevel)
