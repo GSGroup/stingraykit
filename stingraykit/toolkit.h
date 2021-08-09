@@ -168,7 +168,7 @@ namespace stingray
 		inline bool operator <= (const ClassName& other) const \
 		{ return !(other < *this); } \
 		inline bool operator >= (const ClassName& other) const \
-		{ return !(*this < other); } \
+		{ return !(*this < other); }
 
 #define STINGRAYKIT_GENERATE_FREE_COMPARISON_OPERATORS_FOR_TEMPLATE_CLASS(TemplateArgs, ClassName) \
 		TemplateArgs inline bool operator <  (const ClassName& lhs, const ClassName& rhs) { return lhs <  rhs; } \
