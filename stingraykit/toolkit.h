@@ -93,26 +93,34 @@ namespace stingray
 #define STINGRAYKIT_DECLARE_ENUM_CLASS(ClassName) \
 		friend class stingray::Detail::EnumToStringMapInstance<ClassName>; \
 	public: \
+		using const_iterator = stingray::Detail::EnumIterator<ClassName>; \
+		ClassName() : _enumVal() \
+		{ \
+			const std::vector<int>& values = stingray::Detail::EnumToStringMap<ClassName>::GetEnumValues(); \
+			if (!values.empty()) \
+				_enumVal = static_cast<Enum>(values.front()); \
+		} \
+		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
+		static const_iterator begin()						{ return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
+		static const_iterator end()							{ return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
 		std::string ToString() const						{ return stingray::Detail::EnumToStringMap<ClassName>::EnumToString(_enumVal); } \
 		static ClassName FromString(const std::string& str)	{ return stingray::Detail::EnumToStringMap<ClassName>::EnumFromString(str); } \
-		typedef stingray::Detail::EnumIterator<ClassName> const_iterator; \
-		static const_iterator begin()					{ return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
-		static const_iterator end()						{ return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
-		ClassName() : _enumVal() { const std::vector<int>& v = stingray::Detail::EnumToStringMap<ClassName>::GetEnumValues(); if (!v.empty()) _enumVal = static_cast<Enum>(v.front()); } \
-		ClassName(Enum enumVal) : _enumVal(enumVal) { } \
 		operator Enum () const { return _enumVal; } \
 		Enum val() const { return _enumVal; } \
-		template<typename T> bool operator<(T other) const { \
-			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
-			return _enumVal < other._enumVal; \
-		} \
-		template<typename T> bool operator==(T other) const { \
+		bool operator == (Enum other) const { return _enumVal == other; } \
+		template < typename T > \
+		bool operator == (T other) const \
+		{ \
 			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
 			return _enumVal == other._enumVal; \
 		} \
-		bool operator==(Enum value) const { return _enumVal == value; } \
-		template<typename T> bool operator!=(T other) const { \
-			return !(*this == other); \
+		template < typename T > \
+		bool operator != (T other) const { return !(*this == other); } \
+		template < typename T > \
+		bool operator < (T other) const \
+		{ \
+			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
+			return _enumVal < other._enumVal; \
 		} \
 	private: \
 		Enum _enumVal
@@ -140,15 +148,15 @@ namespace stingray
 
 #define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
 		bool operator > (const ClassName& other) const \
-		{ return other < (*this); } \
+		{ return other < *this; } \
 		bool operator <= (const ClassName& other) const \
-		{ return !(other < (*this)); } \
+		{ return !(other < *this); } \
 		bool operator >= (const ClassName& other) const \
-		{ return !((*this) < other); } \
+		{ return !(*this < other); } \
 		bool operator != (const ClassName& other) const \
-		{ return (other < (*this)) || ((*this) < other); } \
+		{ return (other < *this) || (*this < other); } \
 		bool operator == (const ClassName& other) const \
-		{ return !(other != (*this)); }
+		{ return !(other != *this); }
 
 #define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(ClassName) \
 		bool operator <  (const ClassName& other) const { return Compare(other) <  0; } \
