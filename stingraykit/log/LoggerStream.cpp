@@ -16,8 +16,8 @@ namespace stingray
 	{
 		bool HideDuplicatingLogs::KeyType::operator < (const KeyType& other) const
 		{
-			if (Line < other.Line)
-				return true;
+			if (Line != other.Line)
+				return Line < other.Line;
 			return strcmp(Filename, other.Filename) < 0;
 		}
 	}
