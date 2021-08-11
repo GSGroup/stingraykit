@@ -207,12 +207,14 @@ namespace stingray
 		bool is_initialized() const						{ return _initialized; }
 		explicit operator bool () const					{ return is_initialized(); }
 
+		int Compare(NullPtrType) const
+		{ return is_initialized() ? 1 : 0; }
+
+		int Compare(const T& other) const
+		{ return is_initialized() ? comparers::Cmp()(get(), other) : -1; }
+
 		int Compare(const optional& other) const
-		{
-			if (is_initialized() && other.is_initialized())
-				return comparers::Cmp()(get(), other.get());
-			return comparers::Cmp()(is_initialized(), other.is_initialized());
-		}
+		{ return other.is_initialized() ? Compare(other.get()) : Compare(null); }
 
 		void swap(optional& other)
 		{
@@ -365,11 +367,27 @@ namespace stingray
 		explicit OptionalCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc) { }
 
 		template < typename T >
-		int operator () (const optional<T>& lhs, const optional<T>& rhs) const
+		int operator () (const optional<T>& lhs, NullPtrType) const
+		{ return lhs ? 1 : 0; }
+
+		template < typename T >
+		int operator () (NullPtrType, const optional<T>& rhs) const
+		{ return -(*this)(rhs, null); }
+
+		template < typename T >
+		int operator () (const optional<T>& lhs, const T& rhs) const
 		{
 			static_assert(IsSame<typename function_info<CompareFunc>::RetType, int>::Value, "Expected Cmp comparer");
-			return (lhs && rhs) ? _compareFunc(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0));
+			return lhs ? _compareFunc(*lhs, rhs) : -1;
 		}
+
+		template < typename T >
+		int operator () (const T& lhs, const optional<T>& rhs) const
+		{ return -(*this)(rhs, lhs); }
+
+		template < typename T >
+		int operator () (const optional<T>& lhs, const optional<T>& rhs) const
+		{ return rhs ? (*this)(lhs, *rhs) : (*this)(lhs, null); }
 	};
 
 
