@@ -108,22 +108,21 @@ namespace stingray
 		operator Enum () const { return _enumVal; } \
 		Enum val() const { return _enumVal; } \
 		bool operator == (Enum other) const { return _enumVal == other; } \
-		template < typename T > \
-		bool operator == (T other) const \
-		{ \
-			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
-			return _enumVal == other._enumVal; \
-		} \
+		bool operator < (Enum other) const { return _enumVal < other; } \
+		DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, ==) \
 		template < typename T > \
 		bool operator != (T other) const { return !(*this == other); } \
-		template < typename T > \
-		bool operator < (T other) const \
-		{ \
-			static_assert(stingray::IsSame<Enum, typename T::Enum>::Value, "Invalid enum used"); \
-			return _enumVal < other._enumVal; \
-		} \
+		DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, <) \
 	private: \
 		Enum _enumVal
+
+#define DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, OP) \
+		template < typename T > \
+		bool operator OP (T other) const \
+		{ \
+			static_assert(stingray::IsInherited<T, ClassName>::Value, "Invalid enum used"); \
+			return *this OP (Enum)other; \
+		}
 
 #define STINGRAYKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
 		inline ClassName_& operator |= (ClassName_& l, ClassName_::Enum r) \
