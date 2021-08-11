@@ -228,7 +228,7 @@ namespace stingray
 			typename base::ValueType Get()
 			{ return StringRef(_string, _startPos, _next.Position); }
 
-			bool Equal(const SplitStringRange& other) const
+			bool Equals(const SplitStringRange& other) const
 			{ return _startPos == other._startPos; }
 
 			Self& First()
