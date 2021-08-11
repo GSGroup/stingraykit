@@ -109,10 +109,16 @@ namespace stingray
 		Enum val() const { return _enumVal; } \
 		bool operator == (Enum other) const { return _enumVal == other; } \
 		bool operator < (Enum other) const { return _enumVal < other; } \
+		bool operator > (Enum other) const { return _enumVal > other; } \
 		DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, ==) \
 		template < typename T > \
 		bool operator != (T other) const { return !(*this == other); } \
 		DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, <) \
+		DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, >) \
+		template < typename T > \
+		bool operator <= (T other) const { return !(*this > other); } \
+		template < typename T > \
+		bool operator >= (T other) const { return !(*this < other); } \
 	private: \
 		Enum _enumVal
 
