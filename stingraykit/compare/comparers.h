@@ -301,6 +301,14 @@ namespace stingray
 		using ClassName##Equals = stingray::comparers::CmpToEquals<ClassName##Cmp> ; \
 		using ClassName##Greater = stingray::comparers::CmpToGreater<ClassName##Cmp>
 
+#define STINGRAYKIT_DECLARE_TEMPLATE_COMPARERS(ClassName, TemplateDecl, TemplateUsage) \
+		template < TemplateDecl > \
+		using ClassName##Less = stingray::comparers::CmpToLess<ClassName##Cmp<TemplateUsage>> ; \
+		template < TemplateDecl > \
+		using ClassName##Equals = stingray::comparers::CmpToEquals<ClassName##Cmp<TemplateUsage>> ; \
+		template < TemplateDecl > \
+		using ClassName##Greater = stingray::comparers::CmpToGreater<ClassName##Cmp<TemplateUsage>>
+
 	}
 
 
