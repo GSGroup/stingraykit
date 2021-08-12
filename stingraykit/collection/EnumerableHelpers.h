@@ -923,42 +923,6 @@ namespace stingray
 		{ return SequenceEqual(ToEnumerator(first), ToEnumerator(second)); }
 
 
-		template < typename CompareFunc >
-		class SequenceCmp : public function_info<int, UnspecifiedParamTypes>
-		{
-		private:
-			CompareFunc	_compareFunc;
-
-		public:
-			SequenceCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc)
-			{ }
-
-			template < typename T >
-			int operator () (const shared_ptr<T>& first, const shared_ptr<T>& second) const
-			{
-				shared_ptr<IEnumerator<typename T::ItemType>> l(first->GetEnumerator()), r(second->GetEnumerator());
-				for (; l->Valid(); l->Next(), r->Next())
-				{
-					if (!r->Valid())
-						return 1;
-
-					const int itemResult = _compareFunc(l->Get(), r->Get());
-					if (itemResult != 0)
-						return itemResult;
-				}
-				return r->Valid() ? -1 : 0;
-			}
-		};
-
-
-		inline SequenceCmp<ComparableCmp> MakeSequenceCmp()
-		{ return SequenceCmp<ComparableCmp>(); }
-
-
-		template < typename CompareFunc >
-		SequenceCmp<CompareFunc> MakeSequenceCmp(const CompareFunc& compareFunc)
-		{ return SequenceCmp<CompareFunc>(compareFunc); }
-
 #undef DETAIL_ENUMERABLE_HELPER_METHODS
 
 #endif
