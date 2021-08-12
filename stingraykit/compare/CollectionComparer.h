@@ -43,6 +43,7 @@ namespace stingray
 
 
 	using CollectionCmp = CollectionComparer<comparers::Cmp>;
+	STINGRAYKIT_DECLARE_COMPARERS(Collection);
 
 }
 
