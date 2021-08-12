@@ -54,9 +54,7 @@ namespace stingray
 		int DoCompare(const std::string& str1, const std::string& str2) const
 		{ return _collator->Compare(str1, str2); }
 	};
-	template < bool CaseSensitive > struct UnicodeLess : public comparers::CmpToLess<UnicodeCmp<CaseSensitive> > { };
-	template < bool CaseSensitive > struct UnicodeEquals : public comparers::CmpToEquals<UnicodeCmp<CaseSensitive> > { };
-	template < bool CaseSensitive > struct UnicodeGreater : public comparers::CmpToGreater<UnicodeCmp<CaseSensitive> > { };
+	STINGRAYKIT_DECLARE_TEMPLATE_COMPARERS(Unicode, bool CaseSensitive, CaseSensitive);
 
 }
 
