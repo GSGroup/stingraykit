@@ -7,8 +7,8 @@
 
 #include <stingraykit/string/TranslatedString.h>
 
-#include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/MapDictionary.h>
+#include <stingraykit/compare/CollectionComparer.h>
 #include <stingraykit/serialization/Serialization.h>
 
 namespace stingray
@@ -69,7 +69,7 @@ namespace stingray
 
 
 	int TranslatedString::Compare(const TranslatedString& other) const
-	{ return Enumerable::MakeSequenceCmp(comparers::Cmp())(_dictionary, other._dictionary); }
+	{ return CollectionCmp()(_dictionary, other._dictionary); }
 
 
 	TranslatedString::Builder::Builder()
