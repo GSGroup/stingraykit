@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_COMPARE_COLLECTIONCMP_H
-#define STINGRAYKIT_COMPARE_COLLECTIONCMP_H
+#ifndef STINGRAYKIT_COMPARE_COLLECTIONCOMPARER_H
+#define STINGRAYKIT_COMPARE_COLLECTIONCOMPARER_H
 
 // Copyright (c) 2011 - 2019, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -14,8 +14,8 @@
 namespace stingray
 {
 
-	template < typename ItemCmp = comparers::Cmp >
-	struct CollectionCmp : public comparers::CmpComparerBase<CollectionCmp<ItemCmp> >
+	template < typename ItemCmp >
+	struct CollectionComparer : public comparers::CmpComparerBase<CollectionComparer<ItemCmp> >
 	{
 		template < typename T >
 		int DoCompare(const T& lhs, const T& rhs) const
@@ -40,6 +40,9 @@ namespace stingray
 			return rhs ? -1 : 0;
 		}
 	};
+
+
+	using CollectionCmp = CollectionComparer<comparers::Cmp>;
 
 }
 
