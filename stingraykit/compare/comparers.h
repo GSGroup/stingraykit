@@ -297,9 +297,9 @@ namespace stingray
 
 
 #define STINGRAYKIT_DECLARE_COMPARERS(ClassName) \
-	typedef stingray::comparers::CmpToLess<ClassName##Cmp> ClassName##Less; \
-	typedef stingray::comparers::CmpToEquals<ClassName##Cmp> ClassName##Equals; \
-	typedef stingray::comparers::CmpToGreater<ClassName##Cmp> ClassName##Greater;
+		using ClassName##Less = stingray::comparers::CmpToLess<ClassName##Cmp> ; \
+		using ClassName##Equals = stingray::comparers::CmpToEquals<ClassName##Cmp> ; \
+		using ClassName##Greater = stingray::comparers::CmpToGreater<ClassName##Cmp>
 
 	}
 
