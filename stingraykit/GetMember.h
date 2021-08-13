@@ -8,9 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/function/function_info.h>
-
 
 namespace stingray
 {
@@ -21,16 +19,16 @@ namespace stingray
 		template < typename C, typename T >
 		class MemberGetter : public function_info<typename RemoveConst<T>::ValueT(const C&)>
 		{
-			typedef T C::*MemberPointer;
+			using MemberPointer = T C::*;
 
 		private:
 			MemberPointer	_member;
 
 		public:
-			MemberGetter(MemberPointer member) : _member(member) { }
+			explicit MemberGetter(MemberPointer member) : _member(member) { }
 
-			T operator()(const C& c) const				{ return c.*_member; }
-			T operator()(const shared_ptr<C>& c) const	{ return (*c).*_member; }
+			T operator () (const C& c) const				{ return c.*_member; }
+			T operator () (const shared_ptr<C>& c) const	{ return (*c).*_member; }
 		};
 
 	}
@@ -39,6 +37,5 @@ namespace stingray
 	Detail::MemberGetter<C, T> GetMember(T C::* const member) { return Detail::MemberGetter<C, T>(member); }
 
 }
-
 
 #endif
