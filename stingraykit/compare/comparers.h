@@ -89,8 +89,8 @@ namespace stingray
 		struct Cmp : public CmpComparerBase<Cmp>
 		{
 		private:
-			template < typename T >
-			auto DoCompareImpl(const T& lhs, const T& rhs, int) const
+			template < typename Lhs, typename Rhs >
+			auto DoCompareImpl(const Lhs& lhs, const Rhs& rhs, int) const
 					-> decltype(lhs.Compare(rhs), int())
 			{ return lhs.Compare(rhs); }
 
@@ -106,6 +106,10 @@ namespace stingray
 			}
 
 		public:
+			template < typename Lhs, typename Rhs >
+			int DoCompare(const Lhs& lhs, const Rhs& rhs) const
+			{ return DoCompareImpl(lhs, rhs, 0); }
+
 			template < typename T >
 			int DoCompare(const T& lhs, const T& rhs) const
 			{
@@ -120,8 +124,8 @@ namespace stingray
 		struct Less : public LessComparerBase<Less>
 		{
 		private:
-			template < typename T >
-			auto DoCompareImpl(const T& lhs, const T& rhs, int) const
+			template < typename Lhs, typename Rhs >
+			auto DoCompareImpl(const Lhs& lhs, const Rhs& rhs, int) const
 					-> decltype(lhs.Compare(rhs), bool())
 			{ return lhs.Compare(rhs) < 0; }
 
@@ -131,6 +135,10 @@ namespace stingray
 			{ return lhs < rhs; }
 
 		public:
+			template < typename Lhs, typename Rhs >
+			bool DoCompare(const Lhs& lhs, const Rhs& rhs) const
+			{ return DoCompareImpl(lhs, rhs, 0); }
+
 			template < typename T >
 			bool DoCompare(const T& lhs, const T& rhs) const
 			{
@@ -145,8 +153,8 @@ namespace stingray
 		struct Equals : public EqualsComparerBase<Equals>
 		{
 		private:
-			template < typename T >
-			auto DoCompareImpl(const T& lhs, const T& rhs, int) const
+			template < typename Lhs, typename Rhs >
+			auto DoCompareImpl(const Lhs& lhs, const Rhs& rhs, int) const
 					-> decltype(lhs.Compare(rhs), bool())
 			{ return lhs.Compare(rhs) == 0; }
 
@@ -156,6 +164,10 @@ namespace stingray
 			{ return lhs == rhs; }
 
 		public:
+			template < typename Lhs, typename Rhs >
+			bool DoCompare(const Lhs& lhs, const Rhs& rhs) const
+			{ return DoCompareImpl(lhs, rhs, 0); }
+
 			template < typename T >
 			bool DoCompare(const T& lhs, const T& rhs) const
 			{
@@ -170,8 +182,8 @@ namespace stingray
 		struct Greater : public GreaterComparerBase<Greater>
 		{
 		private:
-			template < typename T >
-			auto DoCompareImpl(const T& lhs, const T& rhs, int) const
+			template < typename Lhs, typename Rhs >
+			auto DoCompareImpl(const Lhs& lhs, const Rhs& rhs, int) const
 					-> decltype(lhs.Compare(rhs), bool())
 			{ return lhs.Compare(rhs) > 0; }
 
@@ -181,6 +193,10 @@ namespace stingray
 			{ return rhs < lhs; }
 
 		public:
+			template < typename Lhs, typename Rhs >
+			bool DoCompare(const Lhs& lhs, const Rhs& rhs) const
+			{ return DoCompareImpl(lhs, rhs, 0); }
+
 			template < typename T >
 			bool DoCompare(const T& lhs, const T& rhs) const
 			{
