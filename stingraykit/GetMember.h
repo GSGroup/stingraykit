@@ -17,7 +17,7 @@ namespace stingray
 	{
 
 		template < typename C, typename T >
-		class MemberGetter : public function_info<typename RemoveConst<T>::ValueT(const C&)>
+		class MemberGetter : public function_info<typename RemoveConst<T>::ValueT, UnspecifiedParamTypes>
 		{
 			using MemberPointer = T C::*;
 
