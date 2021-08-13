@@ -19,6 +19,7 @@ namespace stingray
 		template < typename C, typename T >
 		class MemberGetter : public function_info<typename RemoveConst<T>::ValueT, UnspecifiedParamTypes>
 		{
+			using base = function_info<typename RemoveConst<T>::ValueT, UnspecifiedParamTypes>;
 			using MemberPointer = T C::*;
 
 		private:
@@ -27,8 +28,8 @@ namespace stingray
 		public:
 			explicit MemberGetter(MemberPointer member) : _member(member) { }
 
-			T operator () (const C& c) const				{ return c.*_member; }
-			T operator () (const shared_ptr<C>& c) const	{ return (*c).*_member; }
+			typename base::RetType operator () (const C& c) const				{ return c.*_member; }
+			typename base::RetType operator () (const shared_ptr<C>& c) const	{ return (*c).*_member; }
 		};
 
 	}
