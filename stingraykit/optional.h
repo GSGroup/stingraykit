@@ -389,6 +389,7 @@ namespace stingray
 		int operator () (const optional<T>& lhs, const optional<T>& rhs) const
 		{ return rhs ? (*this)(lhs, *rhs) : (*this)(lhs, null); }
 	};
+	STINGRAYKIT_DECLARE_TEMPLATE_COMPARERS(Optional, typename CompareFunc, CompareFunc);
 
 
 	template < typename CompareFunc >
