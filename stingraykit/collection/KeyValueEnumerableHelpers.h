@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/EnumerableWrapper.h>
+#include <stingraykit/GetMember.h>
 
 namespace stingray
 {
@@ -17,28 +18,28 @@ namespace stingray
 	shared_ptr<IEnumerator<typename EnumeratorType::ItemType::KeyType> > KeysEnumerator(const shared_ptr<EnumeratorType>& enumerator)
 	{
 		typedef typename EnumeratorType::ItemType PairType;
-		return WrapEnumerator(enumerator, &PairType::GetKey);
+		return WrapEnumerator(enumerator, GetMember(&PairType::Key));
 	}
 
 	template<typename EnumerableType>
 	shared_ptr<IEnumerable<typename EnumerableType::ItemType::KeyType> > KeysEnumerable(const shared_ptr<EnumerableType>& enumerable)
 	{
 		typedef typename EnumerableType::ItemType PairType;
-		return WrapEnumerable(enumerable, &PairType::GetKey);
+		return WrapEnumerable(enumerable, GetMember(&PairType::Key));
 	}
 
 	template<typename EnumeratorType>
 	shared_ptr<IEnumerator<typename EnumeratorType::ItemType::ValueType> > ValuesEnumerator(const shared_ptr<EnumeratorType>& enumerator)
 	{
 		typedef typename EnumeratorType::ItemType PairType;
-		return WrapEnumerator(enumerator, &PairType::GetValue);
+		return WrapEnumerator(enumerator, GetMember(&PairType::Value));
 	}
 
 	template<typename EnumerableType>
 	shared_ptr<IEnumerable<typename EnumerableType::ItemType::ValueType> > ValuesEnumerable(const shared_ptr<EnumerableType>& enumerable)
 	{
 		typedef typename EnumerableType::ItemType PairType;
-		return WrapEnumerable(enumerable, &PairType::GetValue);
+		return WrapEnumerable(enumerable, GetMember(&PairType::Value));
 	}
 
 }
