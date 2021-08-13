@@ -43,9 +43,6 @@ namespace stingray
 		int Compare(const KeyValuePair& other) const
 		{ return CompareMembersCmp(&KeyValuePair::Key, &KeyValuePair::Value)(*this, other); }
 
-		KeyType GetKey() const			{ return Key; }
-		ValueType GetValue() const		{ return Value; }
-
 		std::string ToString() const	{ return StringBuilder() % Key % " -> " % Value; }
 	};
 
