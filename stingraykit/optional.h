@@ -365,8 +365,11 @@ namespace stingray
 		explicit OptionalCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc) { }
 
 		template < typename T >
-		int operator() (const optional<T>& lhs, const optional<T>& rhs) const
-		{ return (lhs && rhs) ? _compareFunc(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0)); }
+		int operator () (const optional<T>& lhs, const optional<T>& rhs) const
+		{
+			static_assert(IsSame<typename function_info<CompareFunc>::RetType, int>::Value, "Expected Cmp comparer");
+			return (lhs && rhs) ? _compareFunc(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0));
+		}
 	};
 
 
