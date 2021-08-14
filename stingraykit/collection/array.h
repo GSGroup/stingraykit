@@ -23,31 +23,39 @@ namespace stingray
 	template < typename T, size_t N >
 	class array
 	{
-		T					_data[N];
+	public:
+		using value_type = T;
+
+		using iterator = T*;
+		using const_iterator = const T*;
+
+		using reference = T&;
+		using const_reference = const T&;
+
+		using size_type = size_t;
+		using difference_type = ptrdiff_t;
 
 	public:
 		static const size_t Size = N;
 
-		typedef T			value_type;
-		typedef T*			iterator;
-		typedef const T*	const_iterator;
-		typedef T&			reference;
-		typedef const T&	const_reference;
-		typedef size_t		size_type;
-		typedef ptrdiff_t	difference_type;
+	private:
+		T					_data[N];
 
-		const_iterator begin() const	{ return _data; }
-		const_iterator cbegin() const	{ return _data; }
-		iterator begin()				{ return _data; }
-
-		const_iterator end() const	{ return _data + N; }
-		const_iterator cend() const	{ return _data + N; }
-		iterator end()				{ return _data + N; }
-
+	public:
 		array() : _data() { }
-		void assign(const array& other)			{ std::copy(other.begin(), other.end(), begin()); }
 		array(const array& other)				{ assign(other); }
+
 		array& operator = (const array& other)	{ assign(other); return *this; }
+
+		void assign(const array& other)			{ std::copy(other.begin(), other.end(), begin()); }
+
+		const_iterator begin() const			{ return _data; }
+		const_iterator cbegin() const			{ return _data; }
+		iterator begin()						{ return _data; }
+
+		const_iterator end() const				{ return _data + N; }
+		const_iterator cend() const				{ return _data + N; }
+		iterator end()							{ return _data + N; }
 
 		reference front()						{ return _data[0]; }
 		const_reference front() const			{ return _data[0]; }
