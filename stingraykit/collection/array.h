@@ -11,7 +11,6 @@
 #include <stingraykit/toolkit.h>
 
 #include <algorithm>
-#include <stdexcept>
 
 namespace stingray
 {
@@ -19,6 +18,12 @@ namespace stingray
 	 * @addtogroup toolkit_collections
 	 * @{
 	 */
+
+	namespace Detail
+	{
+		void StaticArrayCheckRange(size_t pos, size_t size);
+	}
+
 
 	template < typename T, size_t N >
 	class array
@@ -66,8 +71,8 @@ namespace stingray
 		value_type* data()						{ return _data; }
 		const value_type* data() const			{ return _data; }
 
-		reference at(size_type offset)							{ _check_index(offset); return _data[offset]; }
-		const_reference at(size_type offset) const				{ _check_index(offset); return _data[offset]; }
+		reference at(size_type offset)							{ Detail::StaticArrayCheckRange(offset, N); return _data[offset]; }
+		const_reference at(size_type offset) const				{ Detail::StaticArrayCheckRange(offset, N); return _data[offset]; }
 
 		reference operator [] (size_type offset)				{ return _data[offset]; }
 		const_reference operator [] (size_type offset) const	{ return _data[offset]; }
@@ -90,13 +95,6 @@ namespace stingray
 		bool operator < (const array& other) const
 		{ return std::lexicographical_compare(begin(), end(), other.begin(), other.end()); }
 		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(array);
-
-	private:
-		static void _check_index(size_type off)
-		{
-			if (off >= N)
-				throw std::range_error("array index is out of range");
-		}
 	};
 
 	/** @} */
