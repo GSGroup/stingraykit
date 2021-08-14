@@ -1,0 +1,36 @@
+project(stingraykit-test)
+
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/build)
+
+file(GLOB_RECURSE STINGRAYKIT_TEST_SOURCES unittests/*.cpp)
+
+if (PARENT_DIRECTORY_PATH)
+	message(STATUS "Propagating stingraykit-test sources to ${PARENT_DIRECTORY_PATH}")
+	set(STINGRAYKIT_TEST_SOURCES ${STINGRAYKIT_TEST_SOURCES} PARENT_SCOPE)
+else (PARENT_DIRECTORY_PATH)
+	if (NOT GOOGLETEST_ROOT AND EXISTS "/usr/src/googletest")
+		set(GOOGLETEST_ROOT "/usr/src/googletest")
+	endif (NOT GOOGLETEST_ROOT AND EXISTS "/usr/src/googletest")
+
+	if (NOT GOOGLETEST_ROOT)
+		message(WARNING "Skip tests build. GOOGLETEST_ROOT is not set")
+	else (NOT GOOGLETEST_ROOT)
+		message(STATUS "Using GoogleTest from ${GOOGLETEST_ROOT}")
+
+		add_subdirectory(${GOOGLETEST_ROOT} ${CMAKE_CURRENT_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
+		include_directories(${GOOGLETEST_ROOT}/googletest/include ${GOOGLETEST_ROOT}/googlemock/include)
+
+		list(APPEND STINGRAYKIT_TEST_SOURCES Test.cpp)
+		set_source_files_properties(${STINGRAYKIT_TEST_SOURCES} PROPERTIES COMPILE_FLAGS "${COMMON_SOURCES_FLAGS} ${STINGRAY_NO_ASM_CODE_FLAGS} -Werror -Wno-error=cpp -DSTINGRAY_LIB_SOURCE")
+
+		add_executable(stingraykit-test EXCLUDE_FROM_ALL ${STINGRAYKIT_TEST_SOURCES})
+
+		target_link_libraries(stingraykit-test gtest gmock stingraykit ${STINGRAYKIT_LIBS})
+
+		add_custom_target(install-stingraykit-test DEPENDS stingraykit-test)
+
+		if (STINGRAY_USE_BACKTRACE AND NOT STINGRAY_USE_BFD_BACKTRACE)
+			target_link_libraries(stingraykit-test -Wl,-Map,${EXECUTABLE_OUTPUT_PATH}/stingraykit-test.map)
+		endif (STINGRAY_USE_BACKTRACE AND NOT STINGRAY_USE_BFD_BACKTRACE)
+	endif (NOT GOOGLETEST_ROOT)
+endif (PARENT_DIRECTORY_PATH)
