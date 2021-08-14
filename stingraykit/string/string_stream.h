@@ -8,17 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#define STRING_STREAM_USES_INPLACE_VECTOR (PLATFORM_LINUX)
-
-#if STRING_STREAM_USES_INPLACE_VECTOR
-#	include <stingraykit/collection/inplace_vector.h>
-#else
-#	include <vector>
-#endif
-
+#include <stingraykit/collection/inplace_vector.h>
 #include <stingraykit/string/string_view.h>
-
-#include <string>
 
 namespace stingray
 {
@@ -39,11 +30,7 @@ namespace stingray
 	private:
 		static const unsigned InplaceCapacity = 256;
 
-#if STRING_STREAM_USES_INPLACE_VECTOR
 		inplace_vector<value_type, InplaceCapacity>	_buf;
-#else
-		std::vector<value_type>						_buf;
-#endif
 
 		void reserve(size_t size)
 		{
