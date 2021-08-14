@@ -13,8 +13,6 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include <stddef.h>
-
 namespace stingray
 {
 	/**
@@ -22,13 +20,14 @@ namespace stingray
 	 * @{
 	 */
 
-	template<typename T, size_t N>
+	template < typename T, size_t N >
 	class array
 	{
 		T					_data[N];
 
 	public:
 		static const size_t Size = N;
+
 		typedef T			value_type;
 		typedef T*			iterator;
 		typedef const T*	const_iterator;
@@ -45,10 +44,10 @@ namespace stingray
 		const_iterator cend() const	{ return _data + N; }
 		iterator end()				{ return _data + N; }
 
-		array(): _data() {}
-		void assign(const array &other)			{ std::copy(other.begin(), other.end(), begin()); }
+		array() : _data() { }
+		void assign(const array& other)			{ std::copy(other.begin(), other.end(), begin()); }
 		array(const array& other)				{ assign(other); }
-		array& operator=(const array& other)	{ assign(other); return *this; }
+		array& operator = (const array& other)	{ assign(other); return *this; }
 
 		reference front()						{ return _data[0]; }
 		const_reference front() const			{ return _data[0]; }
@@ -56,28 +55,32 @@ namespace stingray
 		reference back()						{ return _data[N - 1]; }
 		const_reference back() const			{ return _data[N - 1]; }
 
-		value_type *data()						{ return _data; }
-		const value_type *data() const			{ return _data; }
+		value_type* data()						{ return _data; }
+		const value_type* data() const			{ return _data; }
 
-		reference at(size_type off)				{ _check_index(off); return _data[off]; }
-		const_reference at(size_type off) const	{ _check_index(off); return _data[off]; }
-		reference operator[](size_type off)		{ return _data[off]; }
-		const_reference operator[](size_type off) const { return _data[off]; }
+		reference at(size_type offset)							{ _check_index(offset); return _data[offset]; }
+		const_reference at(size_type offset) const				{ _check_index(offset); return _data[offset]; }
 
-		void fill(const value_type & value)		{ std::fill(begin(), end(), value); }
+		reference operator [] (size_type offset)				{ return _data[offset]; }
+		const_reference operator [] (size_type offset) const	{ return _data[offset]; }
+
+		void fill(const value_type& value)		{ std::fill(begin(), end(), value); }
 
 		static size_type size()					{ return N; }
 		static size_type max_size()				{ return N; }
 		static bool empty()						{ return N == 0; }
 
-		void swap(array &other)					{ for(size_type i = 0; i < N; ++i) std::swap(_data[i], other._data[i]); }
+		void swap(array& other)
+		{
+			for (size_type index = 0; index < N; ++index)
+				std::swap(_data[index], other._data[index]);
+		}
 
 		bool operator == (const array& other) const { return std::equal(data(), data() + size(), other.data()); }
 		bool operator != (const array& other) const { return !(*this == other); }
 
 		bool operator < (const array& other) const
 		{ return std::lexicographical_compare(data(), data() + size(), other.data(), other.data() + other.size()); }
-
 		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(array);
 
 	private:
