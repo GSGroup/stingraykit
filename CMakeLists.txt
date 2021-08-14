@@ -449,8 +449,6 @@ set_source_files_properties(${stingraykit_SRC} PROPERTIES COMPILE_FLAGS "${COMMO
 
 add_library(stingraykit STATIC ${stingraykit_SRC})
 
-add_custom_command(OUTPUT ${CMAKE_INSTALL_PREFIX}/system/ COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/system/)
-
 get_directory_property(PARENT_DIRECTORY_PATH PARENT_DIRECTORY)
 if (PARENT_DIRECTORY_PATH)
 	message(STATUS "Building stingraykit integrated to ${PARENT_DIRECTORY_PATH}")
