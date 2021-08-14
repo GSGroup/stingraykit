@@ -84,11 +84,11 @@ namespace stingray
 				std::swap(_data[index], other._data[index]);
 		}
 
-		bool operator == (const array& other) const { return std::equal(data(), data() + size(), other.data()); }
-		bool operator != (const array& other) const { return !(*this == other); }
+		bool operator == (const array& other) const { return std::equal(begin(), end(), other.begin()); }
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(array);
 
 		bool operator < (const array& other) const
-		{ return std::lexicographical_compare(data(), data() + size(), other.data(), other.data() + other.size()); }
+		{ return std::lexicographical_compare(begin(), end(), other.begin(), other.end()); }
 		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(array);
 
 	private:
