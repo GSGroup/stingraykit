@@ -19,6 +19,9 @@ namespace stingray
 		static const ValueT Value = Value_;
 	};
 
+	template < typename T_, T_ Value_ >
+	const T_ integral_constant<T_, Value_>::Value;
+
 
 	using TrueType = integral_constant<bool, true>;
 	using FalseType = integral_constant<bool, false>;
