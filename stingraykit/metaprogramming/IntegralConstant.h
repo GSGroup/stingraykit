@@ -11,17 +11,20 @@
 namespace stingray
 {
 
-	template<typename T_, T_ Value_>
+	template < typename T_, T_ Value_ >
 	struct integral_constant
 	{
-		typedef T_ ValueT;
+		using ValueT = T_;
+
 		static const ValueT Value = Value_;
 	};
 
-	typedef integral_constant<bool, true>	TrueType;
-	typedef integral_constant<bool, false>	FalseType;
 
-	template<typename Val1, typename Val2>
+	using TrueType = integral_constant<bool, true>;
+	using FalseType = integral_constant<bool, false>;
+
+
+	template < typename Val1, typename Val2 >
 	struct integral_constant_less : integral_constant<bool, Val1::Value < Val2::Value> { };
 
 }
