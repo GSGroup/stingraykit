@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 
+if (POLICY CMP0048)
+	cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
 project(stingraykit)
