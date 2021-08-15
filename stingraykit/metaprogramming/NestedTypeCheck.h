@@ -23,7 +23,9 @@ namespace stingray
 		\
 	public: \
 		static const bool Value = decltype(deduce<T>(0))::Value; \
-	}
+	}; \
+	template < typename T > \
+	const bool HasNestedType_##NestedType_<T>::Value
 
 }
 
