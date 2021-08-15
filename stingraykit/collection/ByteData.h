@@ -82,9 +82,9 @@ namespace stingray
 			typedef ByteDataIterator<T>			iterator;
 			typedef ByteDataIterator<const T>	const_iterator;
 
-			static inline iterator CreateIterator(T* ptr, T* begin, T* end)
+			static iterator CreateIterator(T* ptr, T* begin, T* end)
 			{ return iterator(ptr, begin, end); }
-			static inline const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
+			static const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
 			{ return const_iterator(ptr, begin, end); }
 		};
 #else
@@ -94,9 +94,9 @@ namespace stingray
 			typedef T*			iterator;
 			typedef const T*	const_iterator;
 
-			static inline iterator CreateIterator(T* ptr, T* begin, T* end)
+			static iterator CreateIterator(T* ptr, T* begin, T* end)
 			{ (void)begin; (void)end; return iterator(ptr); }
-			static inline const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
+			static const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
 			{ (void)begin; (void)end; return const_iterator(ptr); }
 		};
 #endif
@@ -198,16 +198,16 @@ namespace stingray
 				_data->resize(size + _offset);
 		}
 
-		inline T& operator [] (size_t index) const
+		T& operator [] (size_t index) const
 		{
 			STINGRAYKIT_CHECK(index < size(), IndexOutOfRangeException(index, size()));
 			return (*_data)[index + _offset];
 		}
 
-		inline size_t size() const
+		size_t size() const
 		{ return _data->size() >= _offset ? std::min(_data->size() - _offset, _sizeLimit) : 0; }
 
-		inline bool empty() const
+		bool empty() const
 		{ return size() == 0; }
 
 		template < typename InputIterator >
@@ -277,7 +277,7 @@ namespace stingray
 		const_reverse_iterator rend() const
 		{ return const_reverse_iterator(begin()); }
 
-		inline T* data() const
+		T* data() const
 		{ return empty() ? NULL : &(*_data)[_offset]; }
 
 		template < typename ObjectOStream >
@@ -393,18 +393,18 @@ namespace stingray
 			: _data(data._data + offset), _size(size)
 		{ DETAIL_BYTEDATA_INDEX_CHECK(offset + size, data._size); }
 
-		inline T& operator [] (size_t index) const
+		T& operator [] (size_t index) const
 		{
 			STINGRAYKIT_CHECK(index < _size, IndexOutOfRangeException(index, _size));
 			return _data[index];
 		}
 
-		inline T* data() const			{ return _data; }
+		T* data() const			{ return _data; }
 
-		inline size_t size() const
+		size_t size() const
 		{ return _size; }
 
-		inline bool empty() const
+		bool empty() const
 		{ return _size == 0; }
 
 		iterator begin() const
