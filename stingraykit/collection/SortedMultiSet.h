@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/IMultiSet.h>
+#include <stingraykit/function/function.h>
 
 #include <set>
 

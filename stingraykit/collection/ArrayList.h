@@ -10,9 +10,9 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/IList.h>
+#include <stingraykit/function/function.h>
 
 #include <algorithm>
-#include <vector>
 
 namespace stingray
 {

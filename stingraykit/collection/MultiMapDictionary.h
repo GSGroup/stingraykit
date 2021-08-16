@@ -13,6 +13,7 @@
 #include <stingraykit/collection/IMultiDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 #include <stingraykit/compare/comparers.h>
+#include <stingraykit/function/function.h>
 
 #include <map>
 

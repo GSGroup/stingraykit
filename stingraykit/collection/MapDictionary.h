@@ -14,6 +14,7 @@
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
 #include <stingraykit/collection/flat_map.h>
 #include <stingraykit/compare/comparers.h>
+#include <stingraykit/function/function.h>
 
 #include <map>
 

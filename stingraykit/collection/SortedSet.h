@@ -11,6 +11,7 @@
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ISet.h>
 #include <stingraykit/collection/flat_set.h>
+#include <stingraykit/function/function.h>
 
 #include <set>
 
