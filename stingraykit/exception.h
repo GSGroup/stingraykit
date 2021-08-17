@@ -227,9 +227,6 @@ namespace stingray
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InputOutputException, "Input/output error on storage!");
 
 
-#define STINGRAYKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, STINGRAYKIT_WHERE)
-
-
 	namespace Detail
 	{
 
@@ -299,11 +296,24 @@ namespace stingray
 			DebuggingHelper::BreakpointHere();
 			throw stingray::Detail::MakeException(NullPointerException(expr), where);
 		}
+
+		template < typename T >
+		T&& RequireInitialized(T&& obj, const char* expr, ToolkitWhere where)
+		{
+			if (obj)
+				return std::forward<T>(obj);
+
+			DebuggingHelper::BreakpointHere();
+			throw stingray::Detail::MakeException(NotInitializedException(expr), where);
+		}
 	}
 
 
 #define STINGRAYKIT_MAKE_EXCEPTION(...) ::stingray::Detail::MakeException(__VA_ARGS__, STINGRAYKIT_WHERE)
 #define STINGRAYKIT_THROW(...) throw ::stingray::Detail::MakeException(__VA_ARGS__, STINGRAYKIT_WHERE)
+
+#define STINGRAYKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, STINGRAYKIT_WHERE)
+#define STINGRAYKIT_REQUIRE_INITIALIZED(Expr_) stingray::Detail::RequireInitialized(Expr_, #Expr_, STINGRAYKIT_WHERE)
 
 
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
