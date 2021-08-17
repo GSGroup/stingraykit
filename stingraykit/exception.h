@@ -167,6 +167,14 @@ namespace stingray
 		{ DebuggingHelper::BreakpointHere(); }
 	};
 
+	struct NotInitializedException : public Exception
+	{
+		NotInitializedException() : Exception("Accessing not initialized object!")
+		{ DebuggingHelper::BreakpointHere(); }
+		explicit NotInitializedException(const std::string& expr) : Exception("Accessing not initialized object: " + expr)
+		{ DebuggingHelper::BreakpointHere(); }
+	};
+
 	struct InvalidCastException : public std::bad_cast
 	{
 	private:
