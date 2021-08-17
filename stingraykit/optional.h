@@ -283,7 +283,7 @@ namespace stingray
 		}
 
 	private:
-		void CheckInitialized() const				{ STINGRAYKIT_CHECK(is_initialized(), "Not initialized!"); }
+		void CheckInitialized() const				{ STINGRAYKIT_CHECK(is_initialized(), NotInitializedException()); }
 	};
 
 
