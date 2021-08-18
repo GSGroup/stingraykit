@@ -1,5 +1,5 @@
-#ifndef STINGRAY_UNITTESTS_DUMMY_H
-#define STINGRAY_UNITTESTS_DUMMY_H
+#ifndef UNITTESTS_DUMMY_H
+#define UNITTESTS_DUMMY_H
 
 #include <stingraykit/log/Logger.h>
 
