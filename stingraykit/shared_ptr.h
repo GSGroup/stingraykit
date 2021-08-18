@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/TypeErasure.h>
-#include <stingraykit/TypeInfo.h>
 #include <stingraykit/aligned_storage.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>

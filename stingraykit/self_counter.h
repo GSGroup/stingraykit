@@ -12,6 +12,7 @@
 #include <stingraykit/thread/atomic/AtomicInt.h>
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/exception.h>
+#include <stingraykit/TypeInfo.h>
 
 #define STINGRAYKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
 
@@ -152,7 +153,7 @@ namespace stingray
 
 	private:
 		void check_ptr() const
-		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
+		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("self_count_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
 	};
 
 

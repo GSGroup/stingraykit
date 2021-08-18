@@ -10,6 +10,7 @@
 
 #include <stingraykit/core/Dummy.h>
 #include <stingraykit/exception.h>
+#include <stingraykit/TypeInfo.h>
 
 namespace stingray
 {
@@ -78,7 +79,7 @@ namespace stingray
 
 	private:
 		void check_ptr() const
-		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
+		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("unique_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
 	};
 
 
@@ -138,7 +139,7 @@ namespace stingray
 
 	private:
 		void check_ptr() const
-		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException()); }
+		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("unique_ptr<" + TypeInfo(typeid(T)).GetName() + "[]>")); }
 	};
 
 
