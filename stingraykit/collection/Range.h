@@ -1273,6 +1273,69 @@ namespace stingray
 		{ return Range::Take(range, action.GetCount()); }
 	};
 
+
+	namespace Detail
+	{
+
+		template < typename Range_ >
+		class StlRangeAdapter : public std::iterator<std::input_iterator_tag, typename Range_::value_type, typename Range_::difference_type, typename Range_::pointer, typename Range_::reference>
+		{
+		private:
+			optional<Range_>		_range;
+
+		public:
+			StlRangeAdapter() // This means the end of a collection
+			{ }
+
+			StlRangeAdapter(const Range_& range)
+				:	_range(range)
+			{ }
+
+			StlRangeAdapter& operator ++ ()
+			{
+				STINGRAYKIT_CHECK(_range, "Trying to increment an invalid range!");
+				_range->Next();
+				return *this;
+			}
+
+			typename Range_::value_type operator * ()
+			{
+				STINGRAYKIT_CHECK(_range, "Trying to dereference an invalid range!");
+				return _range->Get();
+			}
+
+			bool operator != (const StlRangeAdapter& other) const
+			{
+				STINGRAYKIT_CHECK(!_range || !other._range, LogicException("Invalid comparison!"));
+				return (_range && _range->Valid()) != (other._range && other._range->Valid());
+			}
+
+			bool operator == (const StlRangeAdapter& other) const
+			{ return !(*this != other); }
+
+			// whatever
+		};
+
+		template < typename Range_ >
+		class RangeBasedForRangeAdapter
+		{
+		private:
+			Range_		_range;
+
+		public:
+			explicit RangeBasedForRangeAdapter(const Range_& range) : _range(range) { }
+
+			StlRangeAdapter<Range_> begin() const	{ return StlRangeAdapter<Range_>(_range); }
+			StlRangeAdapter<Range_> end() const		{ return StlRangeAdapter<Range_>(); }
+		};
+
+	}
+
+
+	template < typename Range_ >
+	Detail::RangeBasedForRangeAdapter<Range_> IterableRange(const Range_& range)
+	{ return Detail::RangeBasedForRangeAdapter<Range_>(range); }
+
 }
 
 #endif
