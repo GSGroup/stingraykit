@@ -75,6 +75,35 @@ namespace stingray
 	inline StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerable<T> >&/* enumerator*/)
 	{ return StlEnumeratorAdapter<T>(); }
 
+
+	namespace Detail
+	{
+
+		template < typename T >
+		class RangeBasedForEnumeratorAdapter
+		{
+		private:
+			shared_ptr<IEnumerator<T>>	_enumerator;
+
+		public:
+			explicit RangeBasedForEnumeratorAdapter(const shared_ptr<IEnumerator<T>>& enumerator) : _enumerator(STINGRAYKIT_REQUIRE_NOT_NULL(enumerator)) { }
+
+			StlEnumeratorAdapter<T> begin() const	{ return Wrap(_enumerator); }
+			StlEnumeratorAdapter<T> end() const		{ return WrapEnd(_enumerator); }
+		};
+
+	}
+
+
+	template < typename T >
+	Detail::RangeBasedForEnumeratorAdapter<T> IterableEnumerable(const shared_ptr<IEnumerator<T>>& enumerator)
+	{ return Detail::RangeBasedForEnumeratorAdapter<T>(enumerator); }
+
+
+	template < typename T >
+	Detail::RangeBasedForEnumeratorAdapter<T> IterableEnumerable(const shared_ptr<IEnumerable<T>>& enumerable)
+	{ return Detail::RangeBasedForEnumeratorAdapter<T>(enumerable->GetEnumerator()); }
+
 	/** @} */
 
 }
