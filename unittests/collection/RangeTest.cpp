@@ -91,6 +91,29 @@ namespace
 	};
 	STINGRAYKIT_DECLARE_PTR(Derived2);
 
+
+	struct InvalidRange : public Range::RangeBase<InvalidRange, bool, std::forward_iterator_tag>
+	{
+		typedef RangeBase<InvalidRange, int, std::forward_iterator_tag> base;
+		typedef InvalidRange Self;
+
+		bool Valid() const             			{ return true; }
+		typename base::ValueType Get()			{ return true; }
+
+		bool Equals(const Self& other) const	{ return false; }
+		Self& First()							{ return *this = Self(); }
+		Self& Last()							{ return Next(); }
+		Self& Next()                		    { STINGRAYKIT_THROW("Must not iterate"); }
+	};
+
+
+	template < typename Range_ >
+	void StartIterate(Range_ range)
+	{
+		for (int i : range)
+			break;
+	}
+
 }
 
 TEST(RangeTest, Ranges)
@@ -296,5 +319,21 @@ TEST(RangeTest, Polymorphic)
 	{
 		int seq[] = {53, 1, 7};
 		CheckRange(ToRange(v) | OfType<Derived2Ptr>() | Transform(&Derived2::GetValue), std::begin(seq), std::end(seq));
+	}
+}
+
+
+TEST(RangeTest, ForBasedLoop)
+{
+	ASSERT_ANY_THROW(StartIterate(InvalidRange()));
+	ASSERT_NO_THROW(StartIterate(IterableRange(InvalidRange())));
+
+	{
+		int r[] = { 0, 1, 2, 3, 4 };
+		int j = 0;
+		for (int i : IterableRange(ToRange(r)))
+			ASSERT_EQ(j++, i);
+
+		ASSERT_EQ(j, 5);
 	}
 }
