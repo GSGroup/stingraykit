@@ -22,32 +22,34 @@ namespace stingray
 	class StlEnumeratorAdapter : public std::iterator<std::input_iterator_tag, T>
 	{
 	private:
-		shared_ptr<IEnumerator<T> >		_enumerator;
+		shared_ptr<IEnumerator<T>>		_enumerator;
 
 	public:
 		StlEnumeratorAdapter() // This means the end of a collection
 		{ }
 
-		StlEnumeratorAdapter(const shared_ptr<IEnumerator<T> >& enumerator)
-			: _enumerator(enumerator)
+		StlEnumeratorAdapter(const shared_ptr<IEnumerator<T>>& enumerator)
+			: _enumerator(STINGRAYKIT_REQUIRE_NOT_NULL(enumerator))
 		{ }
 
-		const StlEnumeratorAdapter& operator ++ ()
+		StlEnumeratorAdapter& operator ++ ()
 		{
-			if (_enumerator->Valid()) // Should we throw if _enumerator is not valid?
-				_enumerator->Next();
+			STINGRAYKIT_CHECK(_enumerator, "Trying to increment an invalid enumerator!");
+			_enumerator->Next();
 			return *this;
 		}
 
 		T operator * () const
 		{
-			if (!_enumerator || !_enumerator->Valid())
-				STINGRAYKIT_THROW(std::runtime_error("Trying to dereference an invalid enumerator!"));
+			STINGRAYKIT_CHECK(_enumerator, "Trying to dereference an invalid enumerator!");
 			return _enumerator->Get();
 		}
 
 		bool operator != (const StlEnumeratorAdapter& other) const
-		{ return (_enumerator && _enumerator->Valid()) != (other._enumerator && other._enumerator->Valid()); }
+		{
+			STINGRAYKIT_CHECK(!_enumerator || !other._enumerator, LogicException("Invalid comparison!"));
+			return (_enumerator && _enumerator->Valid()) != (other._enumerator && other._enumerator->Valid());
+		}
 
 		bool operator == (const StlEnumeratorAdapter& other) const
 		{ return !(*this != other); }
@@ -57,22 +59,22 @@ namespace stingray
 
 
 	template < typename T >
-	inline StlEnumeratorAdapter<T> Wrap(const shared_ptr<IEnumerator<T> >& enumerator)
+	StlEnumeratorAdapter<T> Wrap(const shared_ptr<IEnumerator<T>>& enumerator)
 	{ return StlEnumeratorAdapter<T>(enumerator); }
 
 
 	template < typename T >
-	inline StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerator<T> >&/* enumerator*/)
+	StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerator<T>>& /*enumerator*/)
 	{ return StlEnumeratorAdapter<T>(); }
 
 
 	template < typename T >
-	inline StlEnumeratorAdapter<T> Wrap(const shared_ptr<IEnumerable<T> >& enumerable)
+	StlEnumeratorAdapter<T> Wrap(const shared_ptr<IEnumerable<T>>& enumerable)
 	{ return StlEnumeratorAdapter<T>(enumerable->GetEnumerator()); }
 
 
 	template < typename T >
-	inline StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerable<T> >&/* enumerator*/)
+	StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerable<T>>& /*enumerable*/)
 	{ return StlEnumeratorAdapter<T>(); }
 
 
