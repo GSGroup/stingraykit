@@ -95,8 +95,8 @@ namespace stingray
 
 			EnumerableToRange(EnumerableToRange&& range) = default;
 
-			bool Valid() const				{ return _enumerator->Valid(); }
-			typename base::ValueType Get()	{ return _enumerator->Get(); }
+			bool Valid() const							{ return _enumerator->Valid(); }
+			typename base::ValueType Get() const		{ return _enumerator->Get(); }
 
 			bool Equals(const Self& other) const
 			{ return &_enumerable == &other._enumerable && _index == other._index; }

@@ -59,8 +59,8 @@ namespace stingray
 			static const bool ReturnsTemporary = false;
 
 		public:
-			ValueType		operator *  ()								{ return GetDerived().Get(); }
-			ArrowProxy<ValueType> operator -> ()						{ return GetDerived().Get(); }
+			ValueType		operator *  () const						{ return GetDerived().Get(); }
+			ArrowProxy<ValueType> operator -> () const					{ return GetDerived().Get(); }
 
 			Derived&		operator ++ ()								{ GetDerived().Next(); return GetDerived(); }
 			Derived			operator ++ (int)							{ Derived result(GetDerived()); GetDerived().Next(); return result; }

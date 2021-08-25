@@ -98,7 +98,7 @@ namespace
 		typedef InvalidRange Self;
 
 		bool Valid() const             			{ return true; }
-		typename base::ValueType Get()			{ return true; }
+		typename base::ValueType Get() const	{ return true; }
 
 		bool Equals(const Self& other) const	{ return false; }
 		Self& First()							{ return *this = Self(); }

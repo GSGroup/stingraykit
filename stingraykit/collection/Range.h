@@ -27,15 +27,15 @@ namespace stingray
 		//    typedef ValueType_ ValueType;
 		//
 		//    bool Valid() const;
-		//    ValueType Get();
+		//    ValueType Get() const;
 		//
 		//    bool Equals(const Self& other) const;
 		//
 		//    Self& First();
 		//    Self& Next();
 		//
-		//    ValueType operator * ()                       { return Get(); }
-		//    ArrowProxy<ValueType_> operator -> ()         { return Get(); }
+		//    ValueType operator * () const                      { return Get(); }
+		//    ArrowProxy<ValueType_> operator -> () const        { return Get(); }
 		//
 		//    Self& operator ++ ()                          { Next(); return *this; }
 		//    Self operator ++ (int)                        { Self result(*this); Next(); return result; }
@@ -84,11 +84,11 @@ namespace stingray
 		public:
 			OutputIteratorRange(const Iterator_& it) : _it(it) { }
 
-			bool Valid() const	{ return true; }
-			ValueType Get()		{ return *_it; }
+			bool Valid() const			{ return true; }
+			ValueType Get() const		{ return *_it; }
 
-			void First()		{ static_assert(sizeof(Iterator_) < 0, "No first in output range"); }
-			void Next()			{ ++_it; }
+			void First()				{ static_assert(sizeof(Iterator_) < 0, "No first in output range"); }
+			void Next()					{ ++_it; }
 		};
 
 
@@ -110,7 +110,7 @@ namespace stingray
 			bool Valid() const
 			{ return _it != _end; }
 
-			typename base::ValueType Get()
+			typename base::ValueType Get() const
 			{ STINGRAYKIT_CHECK(Valid(), "Get() behind last element"); return *_it; }
 
 			bool Equals(const IteratorRange& other) const
@@ -173,7 +173,7 @@ namespace stingray
 			{ FindNext(); }
 
 			bool Valid() const								{ return _impl.Valid(); }
-			typename base::ValueType Get()					{ return _impl.Get(); }
+			typename base::ValueType Get() const			{ return _impl.Get(); }
 			bool Equals(const RangeFilter& other) const		{ return _impl == other._impl; }
 			Self& First()									{ _impl.First(); FindNext(); return *this; }
 			Self& Last()									{ _impl.Last(); FindPrev(); return *this; }
@@ -205,14 +205,14 @@ namespace stingray
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
 
 		private:
-			Range_			_impl;
-			optional<Dst_>	_cache;
+			Range_						_impl;
+			mutable optional<Dst_>		_cache;
 
 		public:
 			RangeCaster(const Range_& impl) : _impl(impl) { }
 
 			bool Valid() const								{ return _impl.Valid(); }
-			typename base::ValueType Get()					{ DoCast(); return *_cache; }
+			typename base::ValueType Get() const			{ DoCast(); return *_cache; }
 			bool Equals(const RangeCaster& other) const		{ return _impl == other._impl; }
 			Self& First()									{ _impl.First(); _cache.reset(); return *this; }
 			Self& Next()									{ _impl.Next(); _cache.reset(); return *this; }
@@ -224,7 +224,7 @@ namespace stingray
 			Self& Move(int distance)						{ _impl.Move(distance); _cache.reset(); return *this; }
 
 		private:
-			void DoCast()
+			void DoCast() const
 			{
 				if (!_cache)
 				{
@@ -253,7 +253,7 @@ namespace stingray
 			RangeOfType(const Range_& impl) : _impl(impl) { FindNext(); }
 
 			bool Valid() const								{ return _impl.Valid(); }
-			typename base::ValueType Get()					{ return Storage::Unwrap(_dst); }
+			typename base::ValueType Get() const			{ return Storage::Unwrap(_dst); }
 			bool Equals(const RangeOfType& other) const		{ return _impl == other._impl; }
 			Self& First()									{ _impl.First(); FindNext(); return *this; }
 			Self& Next()									{ _impl.Next(); FindNext(); return *this; }
@@ -304,7 +304,7 @@ namespace stingray
 			bool Valid() const
 			{ return !_implBeforeBegin && _impl.Valid(); }
 
-			typename base::ValueType Get()
+			typename base::ValueType Get() const
 			{ STINGRAYKIT_CHECK(!_implBeforeBegin, "range at the end!"); return _impl.Get(); }
 
 			bool Equals(const RangeReverser& other) const
@@ -366,7 +366,7 @@ namespace stingray
 		private:
 			Range_								_impl;
 			Functor_							_functor;
-			optional<RawValueType>				_cache;
+			mutable optional<RawValueType>		_cache;
 
 		public:
 			RangeTransformer(const Range_& impl, const Functor_& functor)
@@ -374,7 +374,7 @@ namespace stingray
 			{ }
 
 			bool Valid() const									{ return _impl.Valid(); }
-			typename base::ValueType Get()						{ DoTransform(); return *_cache; }
+			typename base::ValueType Get() const				{ DoTransform(); return *_cache; }
 			bool Equals(const RangeTransformer& other) const	{ return _impl == other._impl; }
 			Self& First()										{ _impl.First(); _cache.reset(); return *this; }
 			Self& Next()										{ _impl.Next(); _cache.reset(); return *this; }
@@ -386,7 +386,7 @@ namespace stingray
 			Self& Move(int distance)							{ _impl.Move(distance); _cache.reset(); return *this; }
 
 		private:
-			void DoTransform()
+			void DoTransform() const
 			{
 				if (!_cache)
 					_cache.emplace(FunctorInvoker::InvokeArgs(_functor, _impl.Get()));
@@ -415,7 +415,7 @@ namespace stingray
 			bool Valid() const
 			{ return _impl->Valid(); }
 
-			typename base::ValueType Get()
+			typename base::ValueType Get() const
 			{ return _impl->Get(); }
 
 			bool Equals(const RangeDropper& other) const
@@ -497,7 +497,7 @@ namespace stingray
 			bool Valid() const
 			{ return _impl->Valid() && _index < _count; }
 
-			typename base::ValueType Get()
+			typename base::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
 				return _impl->Get();
@@ -580,7 +580,7 @@ namespace stingray
 			bool Valid() const
 			{ return true; }
 
-			typename base::ValueType Get()
+			typename base::ValueType Get() const
 			{ return _impl.Get(); }
 
 			bool Equals(const RangeCycler& other) const
@@ -641,7 +641,7 @@ namespace stingray
 			const It_							_end;
 			const DiffType						_maxFragmentSize;
 			It_									_it;
-			optional<RawValueType>				_value;
+			mutable optional<RawValueType>		_value;
 
 		public:
 			RangeSplitter(const It_& begin, const It_& end, DiffType maxFragmentSize)
@@ -651,7 +651,7 @@ namespace stingray
 			bool Valid() const
 			{ return _it != _end; }
 
-			typename base::ValueType Get()
+			typename base::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
 				if (!_value)
@@ -746,10 +746,10 @@ namespace stingray
 				typedef typename TypeListTransform<RangeTypes_, GetValueType>::ValueT Types;
 
 			private:
-				Tuple<RangeTypes_>&	_ranges;
+				const Tuple<RangeTypes_>&	_ranges;
 
 			public:
-				explicit ValuesGetter(Tuple<RangeTypes_>& ranges) : _ranges(ranges) { }
+				explicit ValuesGetter(const Tuple<RangeTypes_>& ranges) : _ranges(ranges) { }
 
 				template < int Index_ >
 				typename GetTypeListItem<Types, Index_>::ValueT Get() const
@@ -759,7 +759,7 @@ namespace stingray
 		private:
 			FuncType_							_func;
 			Tuple<RangeTypes_>					_ranges;
-			optional<RawValueType>				_value;
+			mutable optional<RawValueType>		_value;
 
 		public:
 			RangeZipper(const FuncType_& func, const Tuple<RangeTypes_>& ranges) : _func(func), _ranges(ranges) { }
@@ -767,7 +767,7 @@ namespace stingray
 			bool Valid() const
 			{ return ForIf<RangeCount, CallValid>::Do(_ranges); }
 
-			typename base::ValueType Get()
+			typename base::ValueType Get() const
 			{
 				if (!_value)
 				{
@@ -852,7 +852,7 @@ namespace stingray
 
 
 		template < typename Range_ >
-		typename Decay<typename Range_::ValueType>::ValueT FirstOrDefault(Range_ range)
+		typename Decay<typename Range_::ValueType>::ValueT FirstOrDefault(const Range_& range)
 		{ return range.Valid() ? range.Get() : typename Decay<typename Range_::ValueType>::ValueT(); }
 
 
@@ -1298,7 +1298,7 @@ namespace stingray
 				return *this;
 			}
 
-			typename Range_::value_type operator * ()
+			typename Range_::value_type operator * () const
 			{
 				STINGRAYKIT_CHECK(_range, "Trying to dereference an invalid range!");
 				return _range->Get();

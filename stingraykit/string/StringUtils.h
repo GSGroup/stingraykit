@@ -225,7 +225,7 @@ namespace stingray
 			bool Valid() const
 			{ return _startPos != std::string::npos; }
 
-			typename base::ValueType Get()
+			typename base::ValueType Get() const
 			{ return StringRef(_string, _startPos, _next.Position); }
 
 			bool Equals(const SplitStringRange& other) const
