@@ -17,14 +17,15 @@ namespace stingray
 	template < typename ValueType_ >
 	struct IReadonlyObservableValue
 	{
-		using ParamPassingType = typename GetParamPassingType<ValueType_>::ValueT;
+		using ValueType = ValueType_;
+		using ParamPassingType = typename GetParamPassingType<ValueType>::ValueT;
 
 		using OnChangedSignature = void (ParamPassingType);
 
 	public:
 		virtual ~IReadonlyObservableValue() { }
 
-		virtual ValueType_ Get() const = 0;
+		virtual ValueType Get() const = 0;
 
 		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
 		virtual const Mutex& GetSyncRoot() const = 0;
@@ -38,6 +39,7 @@ namespace stingray
 		using Base = IReadonlyObservableValue<ValueType_>;
 
 	public:
+		using ValueType = typename Base::ValueType;
 		using ParamPassingType = typename Base::ParamPassingType;
 		using OnChangedSignature = typename Base::OnChangedSignature;
 
