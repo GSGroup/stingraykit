@@ -32,6 +32,10 @@ namespace stingray
 	};
 
 
+	template < typename T >
+	struct IsReadonlyObservableValue : IsInherited1ParamTemplate<T, IReadonlyObservableValue> { };
+
+
 	template < typename ValueType_ >
 	struct IObservableValue : public virtual IReadonlyObservableValue<ValueType_>
 	{
@@ -46,6 +50,10 @@ namespace stingray
 	public:
 		virtual void Set(ParamPassingType value) = 0;
 	};
+
+
+	template < typename T >
+	struct IsObservableValue : IsInherited1ParamTemplate<T, IObservableValue> { };
 
 }
 
