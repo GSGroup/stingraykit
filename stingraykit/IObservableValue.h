@@ -17,9 +17,9 @@ namespace stingray
 	template < typename ValueType_ >
 	struct IReadonlyObservableValue
 	{
-		typedef typename GetParamPassingType<ValueType_>::ValueT ParamPassingType;
+		using ParamPassingType = typename GetParamPassingType<ValueType_>::ValueT;
 
-		typedef void OnChangedSignature(ParamPassingType);
+		using OnChangedSignature = void (ParamPassingType);
 
 	public:
 		virtual ~IReadonlyObservableValue() { }
@@ -35,11 +35,11 @@ namespace stingray
 	struct IObservableValue : public virtual IReadonlyObservableValue<ValueType_>
 	{
 	private:
-		typedef IReadonlyObservableValue<ValueType_> Base;
+		using Base = IReadonlyObservableValue<ValueType_>;
 
 	public:
-		typedef typename Base::ParamPassingType ParamPassingType;
-		typedef typename Base::OnChangedSignature OnChangedSignature;
+		using ParamPassingType = typename Base::ParamPassingType;
+		using OnChangedSignature = typename Base::OnChangedSignature;
 
 	public:
 		virtual void Set(ParamPassingType value) = 0;
