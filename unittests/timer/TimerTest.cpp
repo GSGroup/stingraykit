@@ -107,3 +107,28 @@ TEST(TimerTest, SeparatedScheduleAndExecuting)
 	{ Logger::Error() << STINGRAYKIT_WHERE << ": " << ex; }
 	Logger::Info() << "TestSeparatedScheduleAndExecuting completed";
 }
+
+
+TEST(TimerTest, DISABLED_ScheduledFunctionDeath)
+{
+	Timer timer("timerTest");
+
+	shared_ptr<TimerDummy> param = make_shared_ptr<TimerDummy>();
+	for (int i = 0; i < 1000; ++i)
+	{
+		const int ConnectionsCount = 10;
+		std::vector<Token> connections;
+		for (int j = 0; j < ConnectionsCount; ++j)
+			connections.push_back(timer.SetTimeout(TimeDuration(i), Bind(&NopFunc, param)));
+
+		for (int j = 0; j < ConnectionsCount; ++j)
+		{
+			int index = (i + j) % ConnectionsCount;
+			connections[index].Reset();
+		}
+		connections.clear();
+
+		ASSERT_EQ(param.unique(), true);
+	}
+	Logger::Info() << "TestScheduledFunctionDeath completed";
+}
