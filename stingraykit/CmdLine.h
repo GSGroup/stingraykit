@@ -1,10 +1,9 @@
 #ifndef STINGRAYKIT_CMDLINE_H
 #define STINGRAYKIT_CMDLINE_H
 
-#include <stingraykit/collection/IList.h>
+#include <stingraykit/collection/IObservableDictionary.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/string/StringUtils.h>
-#include <stingraykit/Token.h>
 
 #include <map>
 #include <set>
@@ -268,6 +267,8 @@ namespace stingray
 			virtual bool Execute(const std::string& cmd) = 0;
 			virtual void Complete(const std::string& cmd, CompletionResults& results) const = 0;
 			virtual void AddCustomComplete(const CustomComplete& customComplete) = 0;
+
+			virtual void Release() = 0;
 		};
 		STINGRAYKIT_DECLARE_PTR(ICommandHandler);
 
@@ -371,7 +372,8 @@ namespace stingray
 		private:
 			StringsTuple					_strings;
 			Detail::CustomCompleteFuncsMap	_customComplete;
-			HandlerFunc						_handler;
+			optional<HandlerFunc>			_handler;
+			TaskLifeToken					_taskLife;
 
 		public:
 			CmdHandler(const StringsTuple& strings, const HandlerFunc& handler)
@@ -380,6 +382,9 @@ namespace stingray
 
 			void AddCustomComplete(const CustomComplete& customComplete) override
 			{
+				LocalExecutionGuard guard(_taskLife.GetExecutionTester());
+				STINGRAYKIT_CHECK(guard, "Handler already released");
+
 				STINGRAYKIT_CHECK(_customComplete.find(customComplete.N) == _customComplete.end(),
 						StringBuilder() % "Custom complete func for argument #" % customComplete.N % " already registered!");
 
@@ -400,8 +405,11 @@ namespace stingray
 				if (tail_len != 0)
 					return false;
 
-				FunctorInvoker::Invoke(_handler, args);
+				LocalExecutionGuard guard(_taskLife.GetExecutionTester());
+				if (!guard)
+					return false;
 
+				FunctorInvoker::Invoke(*_handler, args);
 				return true;
 			}
 
@@ -410,7 +418,17 @@ namespace stingray
 				std::string local(cmd);
 				if (!ForIf<GetTypeListLength<typename StringsTuple::Types>::Value, StringsCompleter>::Do(wrap_const_ref(_strings), wrap_ref(local), wrap_ref(results)))
 					return;
-				ForIf<GetTypeListLength<ParamsList>::Value, ArgsCompleter>::Do(wrap_ref(local), wrap_ref(results), wrap_const_ref(_customComplete));
+
+				LocalExecutionGuard guard(_taskLife.GetExecutionTester());
+				if (guard)
+					ForIf<GetTypeListLength<ParamsList>::Value, ArgsCompleter>::Do(wrap_ref(local), wrap_ref(results), wrap_const_ref(_customComplete));
+			}
+
+			void Release() override
+			{
+				_taskLife.Release();
+				_handler.reset();
+				_customComplete.clear();
 			}
 		};
 
@@ -422,28 +440,30 @@ namespace stingray
 			using ValueT = Tuple<typename GenerateTypeList<Size, Functor>::ValueT>;
 		};
 
-		using Commands = IList<ICommandHandlerPtr>;
+		using Commands = IObservableDictionary<size_t, ICommandHandlerPtr>;
 		STINGRAYKIT_DECLARE_PTR(Commands);
 
 	public:
 		class CustomCompleteFuncSetter
 		{
 		private:
-			ICommandHandlerPtr		_cmdHandler;
+			ICommandHandlerPtr		_handler;
+			Token					_token;
 
 		public:
-			CustomCompleteFuncSetter(const ICommandHandlerPtr& cmdHandler)
-				: _cmdHandler(STINGRAYKIT_REQUIRE_NOT_NULL(cmdHandler))
+			CustomCompleteFuncSetter(const ICommandHandlerPtr& handler, const Token& token)
+				:	_handler(STINGRAYKIT_REQUIRE_NOT_NULL(handler)),
+					_token(token)
 			{ }
 
 			CustomCompleteFuncSetter& operator % (const CustomComplete& customComplete)
 			{
-				_cmdHandler->AddCustomComplete(customComplete);
+				_handler->AddCustomComplete(customComplete);
 				return *this;
 			}
 
 			operator Token () const
-			{ return null; }
+			{ return _token; }
 		};
 
 		template < typename StringsTuple >
@@ -465,9 +485,9 @@ namespace stingray
 				using DecayedParams = typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, Decay>::ValueT;
 
 				const ICommandHandlerPtr handler = make_shared_ptr<CmdHandler<StringsTuple, DecayedParams>>(_strings, handlerFunc);
-				_commands->Add(handler);
+				const Token token = Register(_commands, handler);
 
-				return CustomCompleteFuncSetter(handler);
+				return CustomCompleteFuncSetter(handler, token);
 			}
 		};
 
@@ -488,6 +508,9 @@ namespace stingray
 		template < typename StringsTuple >
 		HandlerInserter<StringsTuple> HandlerImpl(const StringsTuple& s)
 		{ return HandlerInserter<StringsTuple>(_commands, s); }
+
+		static Token Register(const CommandsPtr& commands, const ICommandHandlerPtr& handler);
+		static void Unregister(const CommandsPtr& commands, size_t key);
 	};
 
 }
