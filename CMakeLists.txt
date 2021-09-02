@@ -70,6 +70,7 @@ endif()
 set(stingraykit_SRC
 	stingraykit/ActionTransaction.cpp
 	stingraykit/BigNum.cpp
+	stingraykit/CmdLine.cpp
 	stingraykit/Decimal.cpp
 	stingraykit/EnumToString.cpp
 	stingraykit/Factory.cpp

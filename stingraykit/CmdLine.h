@@ -1,6 +1,7 @@
 #ifndef STINGRAYKIT_CMDLINE_H
 #define STINGRAYKIT_CMDLINE_H
 
+#include <stingraykit/collection/IList.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/string/StringUtils.h>
 
@@ -420,7 +421,8 @@ namespace stingray
 			using ValueT = Tuple<typename GenerateTypeList<Size, Functor>::ValueT>;
 		};
 
-		using Commands = std::vector<ICommandHandlerPtr>;
+		using Commands = IList<ICommandHandlerPtr>;
+		STINGRAYKIT_DECLARE_PTR(Commands);
 
 	public:
 		class CustomCompleteFuncSetter
@@ -443,47 +445,36 @@ namespace stingray
 		template < typename StringsTuple >
 		class HandlerInserter
 		{
-			friend class CmdLine;
-
-			CmdLine*			_inst;
-			StringsTuple	_strings;
-
-			HandlerInserter(CmdLine* inst, const StringsTuple& strings) : _inst(inst), _strings(strings) { }
+		private:
+			CommandsPtr			_commands;
+			StringsTuple		_strings;
 
 		public:
+			HandlerInserter(const CommandsPtr& commands, const StringsTuple& strings)
+				:	_commands(STINGRAYKIT_REQUIRE_NOT_NULL(commands)),
+					_strings(strings)
+			{ }
+
 			template < typename HandlerFunc >
 			CustomCompleteFuncSetter operator = (const HandlerFunc& handlerFunc)
 			{
 				using DecayedParams = typename TypeListTransform<typename function_info<HandlerFunc>::ParamTypes, Decay>::ValueT;
 
-				const ICommandHandlerPtr ch = make_shared_ptr<CmdHandler<StringsTuple, DecayedParams>>(_strings, handlerFunc);
-				_inst->_commands.push_back(ch);
+				const ICommandHandlerPtr handler = make_shared_ptr<CmdHandler<StringsTuple, DecayedParams>>(_strings, handlerFunc);
+				_commands->Add(handler);
 
-				return CustomCompleteFuncSetter(ch);
+				return CustomCompleteFuncSetter(handler);
 			}
 		};
 
 	private:
-		Commands		_commands;
+		CommandsPtr			_commands;
 
 	public:
-		bool Execute(const std::string& cmd)
-		{
-			if (!cmd.empty() && cmd[0] == '#')
-				return true;
+		CmdLine();
 
-			for (Commands::const_iterator it = _commands.begin(); it != _commands.end(); ++it)
-				if ((*it)->Execute(cmd))
-					return true;
-
-			return false;
-		}
-
-		void Complete(const std::string& cmd, CompletionResults& results) const
-		{
-			for (Commands::const_iterator it = _commands.begin(); it != _commands.end(); ++it)
-				(*it)->Complete(cmd, results);
-		}
+		bool Execute(const std::string& cmd);
+		void Complete(const std::string& cmd, CompletionResults& results) const;
 
 		template < typename T0, typename... Ts >
 		HandlerInserter<typename StringsTupleCreator<sizeof...(Ts) + 1>::ValueT> Handler(const T0& p0, const Ts&... args)
@@ -492,7 +483,7 @@ namespace stingray
 	private:
 		template < typename StringsTuple >
 		HandlerInserter<StringsTuple> HandlerImpl(const StringsTuple& s)
-		{ return HandlerInserter<StringsTuple>(this, s); }
+		{ return HandlerInserter<StringsTuple>(_commands, s); }
 	};
 
 }
