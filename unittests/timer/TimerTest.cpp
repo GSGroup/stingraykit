@@ -109,14 +109,14 @@ TEST(TimerTest, SeparatedScheduleAndExecuting)
 }
 
 
-TEST(TimerTest, DISABLED_ScheduledFunctionDeath)
+TEST(TimerTest, ScheduledFunctionDeath)
 {
 	Timer timer("timerTest");
 
 	shared_ptr<TimerDummy> param = make_shared_ptr<TimerDummy>();
 	for (int i = 0; i < 1000; ++i)
 	{
-		const int ConnectionsCount = 10;
+		const int ConnectionsCount = 100;
 		std::vector<Token> connections;
 		for (int j = 0; j < ConnectionsCount; ++j)
 			connections.push_back(timer.SetTimeout(TimeDuration(i), Bind(&NopFunc, param)));

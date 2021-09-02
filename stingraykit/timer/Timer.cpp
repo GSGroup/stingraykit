@@ -51,7 +51,7 @@ namespace stingray
 		typedef CallbackQueue::iterator		QueueIterator;
 
 	private:
-		TaskType					_task;
+		optional<TaskType>			_task;
 		TimeDuration				_timeToTrigger;
 		optional<TimeDuration>		_period;
 		TaskLifeToken				_token;
@@ -76,9 +76,13 @@ namespace stingray
 				_erased(false)
 		{ }
 
-		const TaskType& GetTask() const							{ return _task; }
+		const TaskType& GetTask() const							{ return *STINGRAYKIT_REQUIRE_INITIALIZED(_task); }
 		FutureExecutionTester GetExecutionTester() const 		{ return _token.GetExecutionTester(); }
-		void Release()											{ _token.Release(); }
+		void Release()
+		{
+			_token.Release();
+			_task.reset();
+		}
 
 		bool IsPeriodic() const									{ return _period.is_initialized(); }
 		void Restart(const TimeDuration& currentTime)			{ _timeToTrigger = currentTime + *STINGRAYKIT_REQUIRE_INITIALIZED(_period); }
