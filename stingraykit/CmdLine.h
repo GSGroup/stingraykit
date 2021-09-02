@@ -264,7 +264,7 @@ namespace stingray
 			virtual ~ICommandHandler() { }
 
 			virtual bool Execute(const std::string& cmd) = 0;
-			virtual void Complete(const std::string& cmd, CompletionResults& results) = 0;
+			virtual void Complete(const std::string& cmd, CompletionResults& results) const = 0;
 			virtual void AddCustomComplete(const CustomComplete& customComplete) = 0;
 		};
 		STINGRAYKIT_DECLARE_PTR(ICommandHandler);
@@ -403,7 +403,7 @@ namespace stingray
 				return true;
 			}
 
-			void Complete(const std::string& cmd, CompletionResults& results) override
+			void Complete(const std::string& cmd, CompletionResults& results) const override
 			{
 				std::string local(cmd);
 				if (!ForIf<GetTypeListLength<typename StringsTuple::Types>::Value, StringsCompleter>::Do(wrap_const_ref(_strings), wrap_ref(local), wrap_ref(results)))
