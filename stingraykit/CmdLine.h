@@ -4,6 +4,7 @@
 #include <stingraykit/collection/IList.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/string/StringUtils.h>
+#include <stingraykit/Token.h>
 
 #include <map>
 #include <set>
@@ -440,6 +441,9 @@ namespace stingray
 				_cmdHandler->AddCustomComplete(customComplete);
 				return *this;
 			}
+
+			operator Token () const
+			{ return null; }
 		};
 
 		template < typename StringsTuple >
