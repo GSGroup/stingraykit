@@ -81,11 +81,7 @@ namespace stingray
 		void Release()											{ _token.Release(); }
 
 		bool IsPeriodic() const									{ return _period.is_initialized(); }
-		void Restart(const TimeDuration& currentTime)
-		{
-			STINGRAYKIT_CHECK(_period, "CallbackInfo::Restart internal error: _period is set!");
-			_timeToTrigger = currentTime + *_period;
-		}
+		void Restart(const TimeDuration& currentTime)			{ _timeToTrigger = currentTime + *STINGRAYKIT_REQUIRE_INITIALIZED(_period); }
 		TimeDuration GetTimeToTrigger() const					{ return _timeToTrigger; }
 	};
 
