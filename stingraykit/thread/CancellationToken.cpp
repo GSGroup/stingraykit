@@ -118,7 +118,7 @@ namespace stingray
 	{ _impl->Reset(); }
 
 
-	Token CancellationToken::GetCancellator() const
+	Token CancellationToken::GetCancellator()
 	{ return MakeFunctionToken(Bind(&Impl::Cancel, _impl)); }
 
 

@@ -58,7 +58,7 @@ namespace stingray
 		void Cancel();
 		void Reset();
 
-		Token GetCancellator() const;
+		Token GetCancellator();
 
 		virtual bool Sleep(optional<TimeDuration> duration) const;
 
