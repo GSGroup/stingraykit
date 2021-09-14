@@ -225,10 +225,6 @@ namespace stingray
 	}
 
 
-	NamedLogger::~NamedLogger()
-	{ _token.Reset(); }
-
-
 	/////////////////////////////////////////////////////////////////
 
 

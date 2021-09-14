@@ -136,7 +136,6 @@ namespace stingray
 
 	public:
 		NamedLogger(const char* name);
-		~NamedLogger();
 
 		const char* GetName() const { return _params.GetName(); }
 
