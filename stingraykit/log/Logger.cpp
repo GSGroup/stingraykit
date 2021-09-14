@@ -218,7 +218,7 @@ namespace stingray
 	};
 
 
-	u32 LogLevelHolder::s_logLevel = (u32)LogLevel::Info;
+	u32 LogLevelHolder::s_logLevel = (u32)LogLevel::STINGRAY_DEFAULT_LOGLEVEL;
 
 
 	void Logger::SetLogLevel(LogLevel logLevel)
@@ -284,7 +284,7 @@ namespace stingray
 	void Logger::DoLog(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& text)
 	{
 		const LoggerImplPtr logger = LoggerSingleton::Instance();
-		const LogLevel ll = logger ? GetLogLevel() : LogLevel(LogLevel::Info);
+		const LogLevel ll = logger ? GetLogLevel() : LogLevel(LogLevel::STINGRAY_DEFAULT_LOGLEVEL);
 		if (!loggerParams && logLevel < ll) // NamedLogger LoggerStream checks the log level in its destructor
 			return;
 
