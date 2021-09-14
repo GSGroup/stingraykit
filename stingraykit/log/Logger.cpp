@@ -304,9 +304,9 @@ namespace stingray
 	/////////////////////////////////////////////////////////////////
 
 
-	NamedLogger::NamedLogger(const char* name)
+	NamedLogger::NamedLogger(const char* name, optional<LogLevel> logLevel)
 		:	_params(name),
-			_logLevel(OptionalLogLevel::Null)
+			_logLevel(OptionalLogLevel::FromLogLevel(logLevel))
 	{
 		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
 		{

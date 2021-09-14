@@ -25,6 +25,7 @@ namespace stingray
 
 #define DETAIL_DEFINE_NAMED_LOGGER_1(ClassName) stingray::NamedLogger ClassName::s_logger(#ClassName)
 #define DETAIL_DEFINE_NAMED_LOGGER_2(ClassName, LoggerName) stingray::NamedLogger ClassName::s_logger(LoggerName)
+#define DETAIL_DEFINE_NAMED_LOGGER_3(ClassName, LoggerName, LogLevel_) stingray::NamedLogger ClassName::s_logger(LoggerName, stingray::LogLevel::LogLevel_)
 
 #define STINGRAYKIT_DEFINE_NAMED_LOGGER(...) STINGRAYKIT_CAT(DETAIL_DEFINE_NAMED_LOGGER_, STINGRAYKIT_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
@@ -135,7 +136,7 @@ namespace stingray
 		Token							_token;
 
 	public:
-		NamedLogger(const char* name);
+		NamedLogger(const char* name, optional<LogLevel> logLevel = null);
 
 		const char* GetName() const { return _params.GetName(); }
 
