@@ -283,8 +283,8 @@ namespace stingray
 
 	void Logger::DoLog(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& text)
 	{
-		LoggerImplPtr logger = LoggerSingleton::Instance();
-		LogLevel ll = logger ? GetLogLevel() : LogLevel(LogLevel::Debug);
+		const LoggerImplPtr logger = LoggerSingleton::Instance();
+		const LogLevel ll = logger ? GetLogLevel() : LogLevel(LogLevel::Info);
 		if (!loggerParams && logLevel < ll) // NamedLogger LoggerStream checks the log level in its destructor
 			return;
 
