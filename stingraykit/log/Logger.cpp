@@ -212,22 +212,6 @@ namespace stingray
 	/////////////////////////////////////////////////////////////////
 
 
-	NamedLogger::NamedLogger(const char* name)
-		:	_params(name),
-			_logLevel(OptionalLogLevel::Null)
-	{
-		LoggerImplPtr logger = LoggerSingleton::Instance();
-		if (logger)
-		{
-			NamedLoggerRegistryPtr r(logger, &(logger->GetRegistry()));
-			_token = MakeFunctionToken(Bind(&NamedLoggerRegistry::Unregister, r, r->Register(_params.GetName(), this)));
-		}
-	}
-
-
-	/////////////////////////////////////////////////////////////////
-
-
 	struct LogLevelHolder
 	{
 		static u32 s_logLevel;
@@ -314,6 +298,21 @@ namespace stingray
 			logger->Log(*msg);
 		else
 			SystemLogger::Log(*msg);
+	}
+
+
+	/////////////////////////////////////////////////////////////////
+
+
+	NamedLogger::NamedLogger(const char* name)
+		:	_params(name),
+			_logLevel(OptionalLogLevel::Null)
+	{
+		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
+		{
+			const NamedLoggerRegistryPtr r(logger, &(logger->GetRegistry()));
+			_token = MakeFunctionToken(Bind(&NamedLoggerRegistry::Unregister, r, r->Register(_params.GetName(), this)));
+		}
 	}
 
 
