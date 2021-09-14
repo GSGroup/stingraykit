@@ -19,7 +19,7 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class DictionaryKeysSet : public virtual IReadonlySet<KeyType_>
 	{
-		typedef IDictionary<KeyType_, ValueType_> DictionaryType;
+		typedef IReadonlyDictionary<KeyType_, ValueType_> DictionaryType;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
 		typedef KeyType_ ValueType;
@@ -60,7 +60,7 @@ namespace stingray
 	{
 		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
 
-		typedef IObservableDictionary<KeyType_, ValueType_> DictionaryType;
+		typedef IReadonlyObservableDictionary<KeyType_, ValueType_> DictionaryType;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
 		typedef KeyType_ ValueType;
