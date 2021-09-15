@@ -13,37 +13,28 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/signal/signals.h>
 
-#include <string.h>
-
 namespace stingray
 {
 
 	class BufferedDataConsumer : public virtual IDataConsumer
 	{
-		class WriteGuard;
-
 	private:
 		static NamedLogger			s_logger;
 
 		SharedCircularBufferPtr		_buffer;
 
 		bool						_discardOnOverflow;
-		signal<void(size_t)>		_onOverflow;
+		signal<void (size_t)>		_onOverflow;
 
 		const size_t				_inputPacketSize;
 		size_t						_requiredFreeSpace;
-
-		Mutex						_writeMutex;
-		bool						_writeAllow;
-		ConditionVariable			_writeCond;
 
 	public:
 		BufferedDataConsumer(const SharedCircularBufferPtr& buffer, bool discardOnOverflow, size_t inputPacketSize, size_t requiredFreeSpace = 0)
 			:	_buffer(STINGRAYKIT_REQUIRE_NOT_NULL(buffer)),
 				_discardOnOverflow(discardOnOverflow),
 				_inputPacketSize(inputPacketSize),
-				_requiredFreeSpace(requiredFreeSpace),
-				_writeAllow(true)
+				_requiredFreeSpace(requiredFreeSpace)
 		{
 			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
 			const size_t totalSize = SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize();
@@ -56,7 +47,7 @@ namespace stingray
 		void EndOfData(const ICancellationToken&) override
 		{ SharedCircularBuffer::BufferLock(*_buffer).SetEndOfData(); }
 
-		signal_connector<void(size_t)> OnOverflow() const
+		signal_connector<void (size_t)> OnOverflow() const
 		{ return _onOverflow.connector(); }
 	};
 

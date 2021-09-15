@@ -3,7 +3,6 @@
 
 #include <stingraykit/io/IDataSource.h>
 
-
 namespace stingray
 {
 
@@ -14,13 +13,13 @@ namespace stingray
 		bool				_eod;
 
 	public:
-		ByteDataConsumer(ByteData destination);
+		explicit ByteDataConsumer(ByteData destination);
 
-		bool IsFull() { return _destination.empty(); }
-		bool IsEndOfData() { return _eod; }
+		size_t Process(ConstByteData data, const ICancellationToken&) override;
+		void EndOfData(const ICancellationToken&) override { _eod = true; }
 
-		virtual size_t Process(ConstByteData data, const ICancellationToken&);
-		virtual void EndOfData(const ICancellationToken&) { _eod = true; }
+		bool IsFull() const { return _destination.empty(); }
+		bool IsEndOfData() const { return _eod; }
 	};
 	STINGRAYKIT_DECLARE_PTR(ByteDataConsumer);
 
