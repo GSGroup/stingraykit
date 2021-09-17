@@ -351,8 +351,8 @@ namespace stingray
 
 
 	ActionLogger::ActionLogger(const std::string& action)
-		: _namedLogger(NULL), _logLevel(LogLevel::Info), _action(action)
-	{ Logger::Info() << _action << "..."; }
+		: ActionLogger(LogLevel::Info, action)
+	{ }
 
 
 	ActionLogger::ActionLogger(LogLevel logLevel, const std::string& action)
@@ -361,8 +361,8 @@ namespace stingray
 
 
 	ActionLogger::ActionLogger(const NamedLogger& namedLogger, const std::string& action)
-		: _namedLogger(&namedLogger), _logLevel(LogLevel::Info), _action(action)
-	{ _namedLogger->Info() << _action << "..."; }
+		: ActionLogger(namedLogger, LogLevel::Info, action)
+	{ }
 
 
 	ActionLogger::ActionLogger(const NamedLogger& namedLogger, LogLevel logLevel, const std::string& action)
