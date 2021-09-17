@@ -134,7 +134,6 @@ namespace stingray
 				_settings.erase(it);
 		}
 	};
-	STINGRAYKIT_DECLARE_PTR(NamedLoggerRegistry);
 
 
 	class LoggerImpl
@@ -304,10 +303,7 @@ namespace stingray
 			_logLevel(OptionalLogLevel::FromLogLevel(logLevel))
 	{
 		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
-		{
-			const NamedLoggerRegistryPtr r(logger, &(logger->GetRegistry()));
-			_token = MakeFunctionToken(Bind(&NamedLoggerRegistry::Unregister, r, r->Register(_params.GetName(), this)));
-		}
+			_token = MakeFunctionToken(Bind(&NamedLoggerRegistry::Unregister, Bind(&LoggerImpl::GetRegistry, logger), logger->GetRegistry().Register(_params.GetName(), this)));
 	}
 
 
