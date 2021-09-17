@@ -50,11 +50,11 @@ namespace stingray
 		{
 			struct StrLess
 			{
-				bool operator() (const char* l, const char* r) const { return strcmp(l, r) < 0; }
+				bool operator () (const char* l, const char* r) const { return strcmp(l, r) < 0; }
 			};
 
-			typedef std::map<std::string, NamedLoggerSettings>			SettingsRegistry;
-			typedef std::multimap<const char*, NamedLogger*, StrLess>	ObjectsRegistry;
+			using SettingsRegistry = std::map<std::string, NamedLoggerSettings>;
+			using ObjectsRegistry = std::multimap<const char*, NamedLogger*, StrLess>;
 
 		private:
 			Mutex				_mutex;
@@ -62,9 +62,6 @@ namespace stingray
 			ObjectsRegistry		_objects;
 
 		public:
-			NamedLoggerRegistry()
-			{ }
-
 			ObjectsRegistry::const_iterator Register(const char* loggerName, NamedLogger* logger)
 			{
 				MutexLock l(_mutex);
@@ -132,7 +129,7 @@ namespace stingray
 
 		class LoggerImpl
 		{
-			typedef std::vector<ILoggerSinkPtr>							SinksBundle;
+			using SinksBundle = std::vector<ILoggerSinkPtr>;
 
 		private:
 			SinksBundle				_sinks;
@@ -140,12 +137,6 @@ namespace stingray
 			NamedLoggerRegistry		_registry;
 
 		public:
-			LoggerImpl()
-			{ }
-
-			~LoggerImpl()
-			{ }
-
 			void AddSink(const ILoggerSinkPtr& sink)
 			{
 				MutexLock l(_logMutex);
@@ -198,7 +189,7 @@ namespace stingray
 		};
 		STINGRAYKIT_DECLARE_PTR(LoggerImpl);
 
-		typedef SafeSingleton<LoggerImpl> LoggerSingleton;
+		using LoggerSingleton = SafeSingleton<LoggerImpl>;
 
 	}
 
@@ -232,32 +223,28 @@ namespace stingray
 
 	void Logger::SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel)
 	{
-		LoggerImplPtr logger = LoggerSingleton::Instance();
-		if (logger)
+		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
 			logger->GetRegistry().SetLogLevel(loggerName, logLevel);
 	}
 
 
 	void Logger::EnableBacktrace(const std::string& loggerName, bool enable)
 	{
-		LoggerImplPtr logger = LoggerSingleton::Instance();
-		if (logger)
+		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
 			logger->GetRegistry().EnableBacktrace(loggerName, enable);
 	}
 
 
 	void Logger::EnableHighlight(const std::string& loggerName, bool enable)
 	{
-		LoggerImplPtr logger = LoggerSingleton::Instance();
-		if (logger)
+		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
 			logger->GetRegistry().EnableHighlight(loggerName, enable);
 	}
 
 
 	std::set<std::string> Logger::GetLoggerNames()
 	{
-		LoggerImplPtr logger = LoggerSingleton::Instance();
-		if (logger)
+		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
 			return logger->GetRegistry().GetLoggerNames();
 		else
 			return std::set<std::string>();
@@ -266,7 +253,7 @@ namespace stingray
 
 	Token Logger::AddSink(const ILoggerSinkPtr& sink)
 	{
-		LoggerImplPtr logger = LoggerSingleton::Instance();
+		const LoggerImplPtr logger = LoggerSingleton::Instance();
 		if (!logger)
 			return null;
 
@@ -354,8 +341,14 @@ namespace stingray
 				s64 ms = 0;
 				int mms = 0;
 
-				try { s64 e = _elapsed.ElapsedMicroseconds(); ms = e / 1000; mms = e % 1000; }
-				catch (const std::exception&) { }
+				try
+				{
+					const s64 elapsed = _elapsed.ElapsedMicroseconds();
+					ms = elapsed / 1000;
+					mms = elapsed % 1000;
+				}
+				catch (const std::exception&)
+				{ }
 
 				return StringBuilder() % ms % "." % mms;
 			}
