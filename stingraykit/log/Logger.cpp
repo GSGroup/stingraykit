@@ -191,30 +191,23 @@ namespace stingray
 
 		using LoggerSingleton = SafeSingleton<LoggerImpl>;
 
+		u32 GlobalLogLevel = (u32)LogLevel::STINGRAY_DEFAULT_LOGLEVEL;
+
 	}
 
 
 	/////////////////////////////////////////////////////////////////
 
 
-	struct LogLevelHolder
-	{
-		static u32 s_logLevel;
-	};
-
-
-	u32 LogLevelHolder::s_logLevel = (u32)LogLevel::STINGRAY_DEFAULT_LOGLEVEL;
-
-
 	void Logger::SetLogLevel(LogLevel logLevel)
 	{
-		AtomicU32::Store(LogLevelHolder::s_logLevel, (u32)logLevel.val(), MemoryOrderRelaxed);
+		AtomicU32::Store(GlobalLogLevel, (u32)logLevel.val(), MemoryOrderRelaxed);
 		Stream(logLevel) << "Log level is " << logLevel;
 	}
 
 
 	LogLevel Logger::GetLogLevel()
-	{ return (LogLevel::Enum)AtomicU32::Load(LogLevelHolder::s_logLevel, MemoryOrderRelaxed); }
+	{ return (LogLevel::Enum)AtomicU32::Load(GlobalLogLevel, MemoryOrderRelaxed); }
 
 
 	LoggerStream Logger::Stream(LogLevel logLevel, DuplicatingLogsFilter* duplicatingLogsFilter)
