@@ -283,18 +283,13 @@ namespace stingray
 
 	void Logger::DoLog(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& text)
 	{
-		const LoggerImplPtr logger = LoggerSingleton::Instance();
-		const LogLevel ll = logger ? GetLogLevel() : LogLevel(LogLevel::STINGRAY_DEFAULT_LOGLEVEL);
-		if (!loggerParams && logLevel < ll) // NamedLogger LoggerStream checks the log level in its destructor
-			return;
-
 		optional<LoggerMessage> msg;
 		if (loggerParams)
 			msg.emplace(loggerParams->GetName(), logLevel, loggerParams->BacktraceEnabled() ? StringBuilder() % text % ": " % Backtrace() : text, loggerParams->HighlightEnabled());
 		else
 			msg.emplace(logLevel, text, false);
 
-		if (logger)
+		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
 			logger->Log(*msg);
 		else
 			SystemLogger::Log(*msg);
