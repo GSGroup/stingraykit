@@ -382,15 +382,12 @@ namespace stingray
 					Logger::Stream(_logLevel) << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 			}
 			catch (const std::exception&)
-			{ return; }
+			{ }
 		}
+		else if (_namedLogger)
+			_namedLogger->Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 		else
-		{
-			if (_namedLogger)
-				_namedLogger->Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
-			else
-				Logger::Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
-		}
+			Logger::Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 	}
 
 
