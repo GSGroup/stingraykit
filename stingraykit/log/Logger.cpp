@@ -19,13 +19,6 @@
 namespace stingray
 {
 
-	namespace Detail {
-	namespace LoggerDetail
-	{
-		NullPtrType		s_logger; // Static logger fallback
-	}}
-
-
 	struct NamedLoggerSettings
 	{
 	private:
@@ -411,6 +404,16 @@ namespace stingray
 				Logger::Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 		}
 	}
+
+
+	/////////////////////////////////////////////////////////////////
+
+
+	namespace Detail {
+	namespace LoggerDetail
+	{
+		NullPtrType		s_logger; // Static logger fallback
+	}}
 
 
 	/////////////////////////////////////////////////////////////////
