@@ -343,7 +343,7 @@ namespace stingray
 				catch (const std::exception&)
 				{ }
 
-				return StringBuilder() % ms % "." % mms;
+				return StringFormat("%1%.%2$3%", ms, mms);
 			}
 		};
 
