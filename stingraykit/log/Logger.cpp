@@ -405,31 +405,27 @@ namespace stingray
 
 
 	Tracer::Tracer(const Detail::NamedLoggerAccessor& logger, const char* funcName)
-		: _logger(logger), _logLevel(logger.GetLogLevel()), _funcName(funcName)
+		: _logger(logger), _funcName(funcName)
 	{
-		if (_logLevel > LogLevel::Trace)
+		if (_logger.GetLogLevel() > LogLevel::Trace)
 			return;
 
-		_startTime = TimeEngine::GetMonotonicMicroseconds();
+		_elapsedTime.emplace();
 		_logger.Trace() << "TRACER: entering function '" << _funcName << "'";
 	}
 
 
 	Tracer::~Tracer()
 	{
-		if (_logLevel > LogLevel::Trace)
+		if (!_elapsedTime)
 			return;
 
 		try
 		{
-			s64 e = TimeEngine::GetMonotonicMicroseconds() - _startTime;
-			s64 ms = e / 1000;
-			int mms = e % 1000;
-
 			if (std::uncaught_exception())
-				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' due to an exception (" << StringFormat("%1%.%2$3%", ms, mms) << " ms)";
+				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' due to an exception (" << ElapsedMillisecondsToString(*_elapsedTime) << " ms)";
 			else
-				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' (" << StringFormat("%1%.%2$3%", ms, mms) << " ms)";
+				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' (" << ElapsedMillisecondsToString(*_elapsedTime) << " ms)";
 		}
 		catch (const std::exception&)
 		{ }
