@@ -208,6 +208,57 @@ namespace stingray
 	Tuple<typename TypeListReverse<typename Decay<TupleLikeObject_>::ValueT::Types>::ValueT> ReverseTuple(TupleLikeObject_&& src)
 	{ return Tuple<typename TypeListReverse<typename Decay<TupleLikeObject_>::ValueT::Types>::ValueT>::CreateFromTupleLikeObject(Detail::TupleReverser<TupleLikeObject_>(std::forward<TupleLikeObject_>(src))); }
 
+
+	namespace Detail
+	{
+		template < typename TupleLikeObject_, template <typename> class Predicate_ >
+		class TupleFilter
+		{
+			using SrcTypes = typename Decay<TupleLikeObject_>::ValueT::Types;
+
+			template < typename Type, size_t InvertedIndex >
+			using ToTypeWithIndex = TypeList<Type, IntToType<GetTypeListLength<SrcTypes>::Value - InvertedIndex - 1>>;
+
+			template < typename Type, typename ResultTypes >
+			using ToMyType = TypeListMerge<TypeList<TypeList<ToTypeWithIndex<Type, GetTypeListLength<ResultTypes>::Value>>, ResultTypes>>;
+
+			template < typename TypeWithIndex >
+			using ToType = GetTypeListItem<TypeWithIndex, 0>;
+
+			template < typename TypeWithIndex >
+			using ToIndex = GetTypeListItem<TypeWithIndex, 1>;
+
+			template < typename TypeWithIndex >
+			using MyPredicate = Predicate_<typename ToType<TypeWithIndex>::ValueT>;
+
+			using SrcTypesWithIndexes = typename TypeListAccumulate<SrcTypes, ToMyType, TypeList<>>::ValueT;
+			using MyTypesWithIndexes = typename TypeListCopyIf<SrcTypesWithIndexes, MyPredicate>::ValueT;
+
+		public:
+			using Types = typename TypeListTransform<MyTypesWithIndexes, ToType>::ValueT;
+
+		private:
+			TupleLikeObject_&&		_src;
+
+		public:
+			TupleFilter(TupleLikeObject_&& src) : _src(std::forward<TupleLikeObject_>(src)) { }
+
+			template < size_t Index >
+			const typename GetTypeListItem<Types, Index>::ValueT& Get() const &
+			{ return _src.template Get<ToIndex<typename GetTypeListItem<MyTypesWithIndexes, Index>::ValueT>::ValueT::Value>(); }
+
+			template < size_t Index >
+			typename EnableIf<IsNonConstRvalueReference<TupleLikeObject_&&>::Value, typename GetTypeListItem<Types, Index>::ValueT>::ValueT&& Get() &&
+			{ return std::move(_src).template Get<ToIndex<typename GetTypeListItem<MyTypesWithIndexes, Index>::ValueT>::ValueT::Value>(); }
+		};
+
+	}
+
+
+	template < template <typename> class Predicate_, typename TupleLikeObject_ >
+	Tuple<typename TypeListCopyIf<typename Decay<TupleLikeObject_>::ValueT::Types, Predicate_>::ValueT> FilterTuple(TupleLikeObject_&& src)
+	{ return Tuple<typename TypeListCopyIf<typename Decay<TupleLikeObject_>::ValueT::Types, Predicate_>::ValueT>::CreateFromTupleLikeObject(Detail::TupleFilter<TupleLikeObject_, Predicate_>(std::forward<TupleLikeObject_>(src))); }
+
 }
 
 #endif
