@@ -440,9 +440,9 @@ namespace stingray
 		{ return make_shared_ptr<Detail::JoiningEnumerable<T>>(first, second); }
 
 
-		template < typename CastTo, typename T >
-		shared_ptr<IEnumerable<CastTo>> Cast(const shared_ptr<IEnumerable<T>>& enumerable)
-		{ return Detail::EnumerableCaster<T>(enumerable); }
+		template < typename CastTo, typename SrcEnumerable >
+		shared_ptr<IEnumerable<CastTo>> Cast(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		{ return Detail::EnumerableCaster<typename SrcEnumerable::ItemType>(enumerable); }
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename EqualPredicateFunc), bool, Contains, MK_PARAM(const ItemType& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate),
