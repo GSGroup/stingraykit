@@ -2,9 +2,11 @@
 #include <stingraykit/BitsGetter.h>
 #include <stingraykit/io/BitStream.h>
 
-#include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 using namespace stingray;
+
+using ::testing::ElementsAre;
 
 TEST(BitsGetterTest, OutOfBoundsException)
 {
@@ -163,13 +165,7 @@ TEST(BitsGetterTest, BigEndianBitsSetter)
 	bits.Set< 8, 16>(0x2233u);
 	bits.Set<24, 32>(0x44556677u);
 
-	ASSERT_EQ(buffer[0], 0x11u);
-	ASSERT_EQ(buffer[1], 0x22u);
-	ASSERT_EQ(buffer[2], 0x33u);
-	ASSERT_EQ(buffer[3], 0x44u);
-	ASSERT_EQ(buffer[4], 0x55u);
-	ASSERT_EQ(buffer[5], 0x66u);
-	ASSERT_EQ(buffer[6], 0x77u);
+	ASSERT_THAT(buffer, ElementsAre(0x11u, 0x22u, 0x33u, 0x44u, 0x55u, 0x66u, 0x77u));
 }
 
 
@@ -183,13 +179,7 @@ TEST(BitsGetterTest, LittleEndianBitsSetter)
 	bits.Set< 8, 16>(0x2233u);
 	bits.Set<24, 32>(0x44556677u);
 
-	ASSERT_EQ(buffer[0], 0x11u);
-	ASSERT_EQ(buffer[1], 0x33u);
-	ASSERT_EQ(buffer[2], 0x22u);
-	ASSERT_EQ(buffer[3], 0x77u);
-	ASSERT_EQ(buffer[4], 0x66u);
-	ASSERT_EQ(buffer[5], 0x55u);
-	ASSERT_EQ(buffer[6], 0x44u);
+	ASSERT_THAT(buffer, ElementsAre(0x11u, 0x33u, 0x22u, 0x77u, 0x66u, 0x55u, 0x44u));
 
 	u8 buffer2[] = { 0, 0 };
 
@@ -200,8 +190,7 @@ TEST(BitsGetterTest, LittleEndianBitsSetter)
 	bits2.Set< 8, 1>(0x1u);
 	bits2.Set<14, 2>(0x3u);
 
-	ASSERT_EQ(buffer2[0], 0xc7u); //implementation does not reverse mbr bit order
-	ASSERT_EQ(buffer2[1], 0x83u);
+	ASSERT_THAT(buffer2, ElementsAre(0xc7u, 0x83u)); //implementation does not reverse mbr bit order
 }
 
 
@@ -239,13 +228,7 @@ TEST(BitsGetterTest, BigEndianBitStreamWrite)
 	stream.Write<16>(0x2233u);
 	stream.Write<32>(0x44556677u);
 
-	ASSERT_EQ(buffer[0], 0x11u);
-	ASSERT_EQ(buffer[1], 0x22u);
-	ASSERT_EQ(buffer[2], 0x33u);
-	ASSERT_EQ(buffer[3], 0x44u);
-	ASSERT_EQ(buffer[4], 0x55u);
-	ASSERT_EQ(buffer[5], 0x66u);
-	ASSERT_EQ(buffer[6], 0x77u);
+	ASSERT_THAT(buffer, ElementsAre(0x11u, 0x22u, 0x33u, 0x44u, 0x55u, 0x66u, 0x77u));
 }
 
 
@@ -259,11 +242,5 @@ TEST(BitsGetterTest, LittleEndianBitStreamWrite)
 	stream.Write<16>(0x2233u);
 	stream.Write<32>(0x44556677u);
 
-	ASSERT_EQ(buffer[0], 0x11u);
-	ASSERT_EQ(buffer[1], 0x33u);
-	ASSERT_EQ(buffer[2], 0x22u);
-	ASSERT_EQ(buffer[3], 0x77u);
-	ASSERT_EQ(buffer[4], 0x66u);
-	ASSERT_EQ(buffer[5], 0x55u);
-	ASSERT_EQ(buffer[6], 0x44u);
+	ASSERT_THAT(buffer, ElementsAre(0x11u, 0x33u, 0x22u, 0x77u, 0x66u, 0x55u, 0x44u));
 }

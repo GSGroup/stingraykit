@@ -4,11 +4,11 @@
 #include <stingraykit/string/StringUtils.h>
 #include <stingraykit/PointerTupleBuilder.h>
 
-#include <gtest/gtest.h>
-
-#include <cmath>
+#include <gmock/gmock-matchers.h>
 
 using namespace stingray;
+
+using ::testing::ElementsAre;
 
 TEST(StringUtilsTest, Contains_Substring_ReturnsTrue)
 {
@@ -63,46 +63,22 @@ TEST(StringUtilsTest, Split)
 	std::vector<std::string> result;
 
 	Copy(Split("/a//b/", "/"), std::back_inserter(result));
-
-	ASSERT_EQ(result.size(), 5u);
-
-	ASSERT_EQ(result[0], "");
-	ASSERT_EQ(result[1], "a");
-	ASSERT_EQ(result[2], "");
-	ASSERT_EQ(result[3], "b");
-	ASSERT_EQ(result[4], "");
+	ASSERT_THAT(result, ElementsAre("", "a", "", "b", ""));
 
 	result.clear();
 
 	Copy(Split("ab//cd/e/f/.g/.", "/", 5), std::back_inserter(result));
-
-	ASSERT_EQ(result.size(), 6u);
-
-	ASSERT_EQ(result[0], "ab");
-	ASSERT_EQ(result[1], "");
-	ASSERT_EQ(result[2], "cd");
-	ASSERT_EQ(result[3], "e");
-	ASSERT_EQ(result[4], "f");
-	ASSERT_EQ(result[5], ".g/.");
+	ASSERT_THAT(result, ElementsAre("ab", "", "cd", "e", "f", ".g/."));
 
 	result.clear();
 
 	Copy(Split("a/b/c/d", "/", 1), std::back_inserter(result));
-
-	ASSERT_EQ(result.size(), 2u);
-
-	ASSERT_EQ(result[0], "a");
-	ASSERT_EQ(result[1], "b/c/d");
+	ASSERT_THAT(result, ElementsAre("a", "b/c/d"));
 
 	result.clear();
+
 	Copy(Split("a,b.c;d", IsAnyOf(",.;"), 5), std::back_inserter(result));
-
-	ASSERT_EQ(result.size(), 4u);
-
-	ASSERT_EQ(result[0], "a");
-	ASSERT_EQ(result[1], "b");
-	ASSERT_EQ(result[2], "c");
-	ASSERT_EQ(result[3], "d");
+	ASSERT_THAT(result, ElementsAre("a", "b", "c", "d"));
 
 	std::string a, b;
 	int c;
