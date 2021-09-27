@@ -80,6 +80,11 @@ TEST(StringUtilsTest, Split)
 	Copy(Split("a,b.c;d", IsAnyOf(",.;"), 5), std::back_inserter(result));
 	ASSERT_THAT(result, ElementsAre("a", "b", "c", "d"));
 
+	result.clear();
+
+	Copy(Split("", "/"), std::back_inserter(result));
+	ASSERT_THAT(result, ElementsAre(""));
+
 	std::string a, b;
 	int c;
 	TupleFromStrings((PointerTupleBuilder() % a % b % c).Get(), Split("hello world 22", " "));
