@@ -122,16 +122,20 @@ namespace stingray
 		{
 			std::vector<std::string> v;
 			Copy(Split(str, ".", 2), std::back_inserter(v));
-			STINGRAYKIT_CHECK(v.size() == 1 || v.size() == 2, ArgumentException("str", str));
-			if (v.size() == 1)
+			switch (v.size())
+			{
+			case 1:
 				return stingray::FromString<value_type>(v[0]);
-			else
+			case 2:
 			{
 				fixed_point integral_part = stingray::FromString<value_type>(v[0]);
 				fixed_point fractional_part = stingray::FromString<value_type>(v[1]);
 				for (size_t i = 0; i < v[1].size(); ++i)
 					fractional_part /= 10;
 				return integral_part + fractional_part;
+			}
+			default:
+				STINGRAYKIT_THROW(ArgumentException("str", str));
 			}
 		}
 	};
