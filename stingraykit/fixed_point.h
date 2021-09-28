@@ -121,7 +121,7 @@ namespace stingray
 		static fixed_point FromString(const std::string& str)
 		{
 			std::vector<std::string> v;
-			Copy(Split(str, "."), std::back_inserter(v));
+			Copy(Split(str, ".", 2), std::back_inserter(v));
 			STINGRAYKIT_CHECK(v.size() == 1 || v.size() == 2, ArgumentException("str", str));
 			if (v.size() == 1)
 				return stingray::FromString<value_type>(v[0]);
