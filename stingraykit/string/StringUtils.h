@@ -406,6 +406,7 @@ namespace stingray
 	{
 		SourceRange_ inputRange(inputRange_);
 		stingray::For<TupleType::Size, Detail::TupleFromStringsHelper<TupleType>::template Functor>::Do(tuple, &inputRange);
+		STINGRAYKIT_CHECK(!inputRange.Valid(), "incompletely parsed input range");
 		return inputRange;
 	}
 
