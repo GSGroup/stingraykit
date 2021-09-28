@@ -42,7 +42,7 @@ namespace stingray
 	Decimal::Decimal(const std::string& str)
 	{
 		std::vector<std::string> fractions;
-		Copy(Split(str, "."), std::back_inserter(fractions));
+		Copy(Split(str, ".", 2), std::back_inserter(fractions));
 		STINGRAYKIT_CHECK_RANGE(fractions.size(), 1, 3);
 
 		const s64 integralPart = stingray::FromString<s64>(fractions[0]);
