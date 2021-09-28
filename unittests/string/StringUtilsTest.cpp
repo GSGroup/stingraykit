@@ -91,6 +91,10 @@ TEST(StringUtilsTest, Split)
 	ASSERT_EQ(a, "hello");
 	ASSERT_EQ(b, "world");
 	ASSERT_EQ(c, 22);
+
+	ASSERT_ANY_THROW(TupleFromStrings((PointerTupleBuilder() % a % b % c).Get(), Split("hello world", " ")));
+
+	ASSERT_ANY_THROW(TupleFromStrings((PointerTupleBuilder() % a % b % c).Get(), Split("hello world 22 33", " ")));
 }
 
 
