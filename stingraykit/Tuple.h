@@ -179,6 +179,11 @@ namespace stingray
 	{ return Tuple<TypeList<typename UnwrapReferenceDecay<Ts>::ValueT...>>(std::forward<Ts>(args)...); }
 
 
+	template < typename... Ts >
+	Tuple<TypeList<Ts&&...>> ForwardAsTuple(Ts&&... args)
+	{ return Tuple<TypeList<Ts&&...>>(std::forward<Ts>(args)...); }
+
+
 	namespace Detail
 	{
 		template < typename TupleLikeObject_ >
