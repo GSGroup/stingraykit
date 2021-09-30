@@ -12,6 +12,7 @@
 #include <stingraykit/core/NonCopyable.h>
 #include <stingraykit/metaprogramming/EnableIf.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
+#include <stingraykit/reference.h>
 #include <stingraykit/Types.h>
 
 #include <utility>
@@ -174,8 +175,8 @@ namespace stingray
 
 
 	template < typename... Ts >
-	Tuple<TypeList<Ts...>> MakeTuple(Ts&&... args)
-	{ return Tuple<TypeList<Ts...>>(std::forward<Ts>(args)...); }
+	Tuple<TypeList<typename UnwrapReferenceDecay<Ts>::ValueT...>> MakeTuple(Ts&&... args)
+	{ return Tuple<TypeList<typename UnwrapReferenceDecay<Ts>::ValueT...>>(std::forward<Ts>(args)...); }
 
 
 	namespace Detail
