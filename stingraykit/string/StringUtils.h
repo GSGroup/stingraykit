@@ -226,7 +226,10 @@ namespace stingray
 			{ return _startPos != std::string::npos; }
 
 			typename base::ValueType Get() const
-			{ return StringRef(_string, _startPos, _next.Position); }
+			{
+				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
+				return StringRef(_string, _startPos, _next.Position);
+			}
 
 			bool Equals(const SplitStringRange& other) const
 			{ return _startPos == other._startPos; }
