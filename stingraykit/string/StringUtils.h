@@ -395,8 +395,7 @@ namespace stingray
 				static void Call(const TupleType& tuple, Range_* range)
 				{
 					STINGRAYKIT_CHECK(range->Valid(), "not enough data to fill output range");
-					Type ptr = tuple.template Get<Index>();
-					*ptr = lexical_cast<typename RemovePointer<Type>::ValueT>(range->Get());
+					tuple.template Get<Index>() = lexical_cast<typename RemoveReference<Type>::ValueT>(range->Get());
 					range->Next();
 				}
 			};

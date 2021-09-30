@@ -2,7 +2,6 @@
 #include <stingraykit/string/AhoCorasick.h>
 #include <stingraykit/string/Hex.h>
 #include <stingraykit/string/StringUtils.h>
-#include <stingraykit/PointerTupleBuilder.h>
 
 #include <gmock/gmock-matchers.h>
 
@@ -87,14 +86,14 @@ TEST(StringUtilsTest, Split)
 
 	std::string a, b;
 	int c;
-	TupleFromStrings((PointerTupleBuilder() % a % b % c).Get(), Split("hello world 22", " "));
+	TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world 22", " "));
 	ASSERT_EQ(a, "hello");
 	ASSERT_EQ(b, "world");
 	ASSERT_EQ(c, 22);
 
-	ASSERT_ANY_THROW(TupleFromStrings((PointerTupleBuilder() % a % b % c).Get(), Split("hello world", " ")));
+	ASSERT_ANY_THROW(TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world", " ")));
 
-	ASSERT_ANY_THROW(TupleFromStrings((PointerTupleBuilder() % a % b % c).Get(), Split("hello world 22 33", " ")));
+	ASSERT_ANY_THROW(TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world 22 33", " ")));
 }
 
 
@@ -107,11 +106,11 @@ TEST(StringUtilsTest, OutputRange)
 	data[0] = 42;
 	data[1] = -42;
 	int a, b;
-	TupleFromStrings((PointerTupleBuilder() % a % b).Get(), ToRange(data));
+	TupleFromStrings(ForwardAsTuple(a, b), ToRange(data));
 	ASSERT_EQ(a,  42);
 	ASSERT_EQ(b, -42);
 
-	TupleFromStrings((PointerTupleBuilder() % a % b).Get(), ToRange(data) | Transform(&IntAbs));
+	TupleFromStrings(ForwardAsTuple(a, b), ToRange(data) | Transform(&IntAbs));
 	ASSERT_EQ(a, 42);
 	ASSERT_EQ(b, 42);
 }
