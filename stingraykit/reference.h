@@ -32,6 +32,19 @@ namespace stingray
 
 
 	template < typename T >
+	struct UnwrapReference
+	{ using ValueT = T; };
+
+	template < typename T >
+	struct UnwrapReference<reference<T>>
+	{ using ValueT = T&; };
+
+	template < typename T >
+	struct UnwrapReferenceDecay
+	{ using ValueT = typename UnwrapReference<typename Decay<T>::ValueT>::ValueT; };
+
+
+	template < typename T >
 	reference<T> wrap_ref(T& obj)
 	{ return reference<T>(obj); }
 
@@ -44,6 +57,7 @@ namespace stingray
 
 	template < typename T >
 	reference<const T> wrap_const_ref(const T&& obj) = delete;
+
 
 	template < typename T >
 	struct ToPointer<reference<T> >
