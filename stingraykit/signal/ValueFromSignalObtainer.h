@@ -87,39 +87,55 @@ namespace stingray
 
 
 	template < typename... Ts >
-	class TupleFromSignalObtainer : public function_info<void (const Ts&...)>
+	class TupleFromSignalObtainer
 	{
-		using Types = TypeList<Ts...>;
-		using TupleType = Tuple<Types>;
-		using TPtr = unique_ptr<TupleType>;
-		using TPtrPtr = shared_ptr<TPtr>;
+		STINGRAYKIT_NONCOPYABLE(TupleFromSignalObtainer);
 
 	private:
-		TPtrPtr		_vals;
+		using Types = TypeList<Ts...>;
+		using TupleType = Tuple<Types>;
+
+		class Invoker : public function_info<void, UnspecifiedParamTypes>
+		{
+		private:
+			TupleFromSignalObtainer&	_inst;
+
+		public:
+			explicit Invoker(TupleFromSignalObtainer& inst) : _inst(inst) { }
+
+			template < typename... Us >
+			void operator () (Us&&... vals) const
+			{
+				STINGRAYKIT_CHECK(!_inst._vals, "Value already set!");
+				_inst._vals.emplace(std::forward<Us>(vals)...);
+			}
+		};
+
+	private:
+		optional<TupleType>		_vals;
 
 	public:
-		TupleFromSignalObtainer() : _vals(make_shared_ptr<TPtr>()) { }
+		TupleFromSignalObtainer() { }
 
-		void operator () (const Ts&... vals) const
-		{
-			STINGRAYKIT_CHECK(!*_vals, "Value already set!");
-			_vals->reset(new TupleType(vals...));
-		}
+		auto GetInvoker() { return Invoker(*this); }
+
+		template < typename... Us >
+		operator function<void (Us...)> () { return GetInvoker(); }
 
 		template < size_t Index >
 		const typename GetTypeListItem<Types, Index>::ValueT& GetValue() const
 		{
-			STINGRAYKIT_CHECK(*_vals, "Value is not set!");
-			return (*_vals)->template Get<Index>();
+			STINGRAYKIT_CHECK(_vals, "Value is not set!");
+			return _vals->template Get<Index>();
 		}
 
 		const TupleType& GetValues() const
 		{
-			STINGRAYKIT_CHECK(*_vals, "Value is not set!");
-			return **_vals;
+			STINGRAYKIT_CHECK(_vals, "Value is not set!");
+			return *_vals;
 		}
 
-		bool HasValues() const { return _vals->is_initialized(); }
+		bool HasValues() const { return _vals.is_initialized(); }
 	};
 
 
