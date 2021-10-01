@@ -71,6 +71,7 @@ TEST(ValueFromSignal, Collector)
 {
 	stingray::signal<void (CollectionOp, bool)> s1;
 	stingray::signal<void (CollectionOp, bool)> s2(&PopulateBoolCollection);
+	stingray::signal<void (bool)> s3(&PopulateBool);
 
 	ValuesFromSignalCollector<std::list<bool> > collector;
 
@@ -79,6 +80,9 @@ TEST(ValueFromSignal, Collector)
 
 	s2.SendCurrentState(collector);
 	ASSERT_EQ(collector.GetValues().size(), 2u);
+
+	s3.SendCurrentState(collector);
+	ASSERT_EQ(collector.GetValues().size(), 3u);
 }
 
 
