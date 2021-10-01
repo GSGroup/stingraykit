@@ -16,6 +16,9 @@ namespace stingray
 
 	class TimedCancellationToken : public ICancellationToken
 	{
+		STINGRAYKIT_NONCOPYABLE(TimedCancellationToken);
+
+	private:
 		class ProxyCancellationRegistrator : public CancellationRegistratorBase
 		{
 		private:
