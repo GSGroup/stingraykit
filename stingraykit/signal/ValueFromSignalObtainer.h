@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/signal/signal_connector.h>
+#include <stingraykit/Tuple.h>
 #include <stingraykit/unique_ptr.h>
 
 namespace stingray
@@ -58,6 +59,61 @@ namespace stingray
 	template < typename T >
 	std::vector<typename Decay<T>::ValueT> GetVectorFromSignal(const signal_connector<void (CollectionOp, T)>& connector)
 	{ return GetValuesFromSignal<std::vector<typename Decay<T>::ValueT> >(connector); }
+
+
+	template < typename... Ts >
+	class TupleFromSignalObtainer : public function_info<void (const Ts&...)>
+	{
+		using Types = TypeList<Ts...>;
+		using TupleType = Tuple<Types>;
+		using TPtr = unique_ptr<TupleType>;
+		using TPtrPtr = shared_ptr<TPtr>;
+
+	private:
+		TPtrPtr		_vals;
+
+	public:
+		TupleFromSignalObtainer() : _vals(make_shared_ptr<TPtr>()) { }
+
+		void operator () (const Ts&... vals) const
+		{
+			STINGRAYKIT_CHECK(!*_vals, "Value already set!");
+			_vals->reset(new TupleType(vals...));
+		}
+
+		template < size_t Index >
+		const typename GetTypeListItem<Types, Index>::ValueT& GetValue() const
+		{
+			STINGRAYKIT_CHECK(*_vals, "Value is not set!");
+			return (*_vals)->template Get<Index>();
+		}
+
+		const TupleType& GetValues() const
+		{
+			STINGRAYKIT_CHECK(*_vals, "Value is not set!");
+			return **_vals;
+		}
+
+		bool HasValues() const { return _vals->is_initialized(); }
+	};
+
+
+	template < typename... Ts >
+	optional<Tuple<TypeList<typename Decay<Ts>::ValueT...>>> GetTupleFromSignal(const signal_connector<void (Ts...)>& connector)
+	{
+		TupleFromSignalObtainer<typename Decay<Ts>::ValueT...> obtainer;
+		connector.SendCurrentState(obtainer);
+		return obtainer.HasValues() ? make_optional_value(obtainer.GetValues()) : null;
+	}
+
+
+	template < typename... Ts >
+	bool HasTupleInSignal(const signal_connector<void (Ts...)>& connector)
+	{
+		TupleFromSignalObtainer<typename Decay<Ts>::ValueT...> obtainer;
+		connector.SendCurrentState(obtainer);
+		return obtainer.HasValues();
+	}
 
 
 	template < typename T >
