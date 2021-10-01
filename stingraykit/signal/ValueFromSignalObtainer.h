@@ -22,23 +22,48 @@ namespace stingray
 	 */
 
 	template < typename CollectionType >
-	class ValuesFromSignalCollector : public function_info<void(const typename CollectionType::value_type&)>
+	class ValuesFromSignalCollector
 	{
-		typedef CollectionBuilder<CollectionType>	Builder;
-		typedef typename CollectionType::value_type	ValueType;
-		typedef shared_ptr<Builder>					BuilderPtr;
+		STINGRAYKIT_NONCOPYABLE(ValuesFromSignalCollector);
 
 	private:
-		BuilderPtr	_val;
+		using Builder = CollectionBuilder<CollectionType>;
+
+		class Invoker : public function_info<void, UnspecifiedParamTypes>
+		{
+		private:
+			ValuesFromSignalCollector&	_inst;
+
+		public:
+			explicit Invoker(ValuesFromSignalCollector& inst) : _inst(inst) { }
+
+			template < typename U >
+			void operator () (U&& val) const { _inst._val % std::forward<U>(val); }
+
+			template < typename U >
+			void operator () (CollectionOp op, U&& val) const
+			{
+				STINGRAYKIT_CHECK(op == CollectionOp::Added, ArgumentException("op", op));
+				_inst._val % std::forward<U>(val);
+			}
+		};
+
+	private:
+		Builder				_val;
 
 	public:
-		ValuesFromSignalCollector() : _val(make_shared_ptr<Builder>()) { }
+		ValuesFromSignalCollector() { }
 
-		void operator() (const ValueType& val) const { (*_val) % val; }
-		void operator() (CollectionOp op, const ValueType& val) const { STINGRAYKIT_CHECK(op == CollectionOp::Added, "Invalid CollectionOp!"); (*_val) % val; }
+		auto GetInvoker() { return Invoker(*this); }
+
+		template < typename U >
+		operator function<void (U)> () { return GetInvoker(); }
+
+		template < typename U >
+		operator function<void (CollectionOp op, U)> () { return GetInvoker(); }
 
 		const CollectionType* operator -> () const	{ return &GetValues(); }
-		const CollectionType& GetValues() const { return *_val; }
+		const CollectionType& GetValues() const { return _val; }
 	};
 
 
