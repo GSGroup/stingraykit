@@ -27,6 +27,10 @@ void PopulateBoolCollection(const function<void (CollectionOp, bool)>& slot)
 }
 
 
+void PopulateMultiple(const function<void (int, const std::string&, bool)>& slot)
+{ slot(42, "test", true); }
+
+
 TEST(ValueFromSignal, Obtainer)
 {
 	stingray::signal<void (bool)> s1;
@@ -74,6 +78,25 @@ TEST(ValueFromSignal, Collector)
 }
 
 
+TEST(ValueFromSignal, Tuple)
+{
+	stingray::signal<void (int, const std::string&, bool)> s1;
+	stingray::signal<void (int, const std::string&, bool)> s2(&PopulateMultiple);
+
+	TupleFromSignalObtainer<int, const std::string&, bool> obtainer;
+
+	s1.SendCurrentState(obtainer);
+	ASSERT_FALSE(obtainer.HasValues());
+	ASSERT_ANY_THROW(obtainer.GetValues());
+
+	s2.SendCurrentState(obtainer);
+	ASSERT_TRUE(obtainer.HasValues());
+	ASSERT_EQ(obtainer.GetValue<0>(), 42);
+	ASSERT_EQ(obtainer.GetValue<1>(), "test");
+	ASSERT_EQ(obtainer.GetValue<2>(), true);
+}
+
+
 TEST(ValueFromSignal, Getter)
 {
 	stingray::signal<void (bool)> s1;
@@ -113,4 +136,17 @@ TEST(ValueFromSignal, CollectorGetter)
 
 	ASSERT_EQ(GetValuesFromSignal<std::list<bool> >(s1.connector()).size(), 0u);
 	ASSERT_EQ(GetValuesFromSignal<std::list<bool> >(s2.connector()).size(), 2u);
+}
+
+
+TEST(ValueFromSignal, TupleGetter)
+{
+	stingray::signal<void (int, const std::string&, bool)> s1;
+	stingray::signal<void (int, const std::string&, bool)> s2(&PopulateMultiple);
+
+	ASSERT_FALSE(HasTupleInSignal(s1.connector()));
+	ASSERT_EQ(GetTupleFromSignal(s1.connector()), null);
+
+	ASSERT_TRUE(HasTupleInSignal(s2.connector()));
+	ASSERT_TRUE(TupleEquals()(*GetTupleFromSignal(s2.connector()), MakeTuple(42, std::string("test"), true)));
 }
