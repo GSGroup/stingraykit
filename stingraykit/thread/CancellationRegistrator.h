@@ -9,6 +9,8 @@ namespace stingray
 
 	class CancellationRegistratorBase
 	{
+		STINGRAYKIT_NONCOPYABLE(CancellationRegistratorBase);
+
 	private:
 		const ICancellationToken&	_token;
 		bool						_registered;
@@ -51,8 +53,6 @@ namespace stingray
 
 	class CancellationRegistrator : public CancellationRegistratorBase
 	{
-		STINGRAYKIT_NONCOPYABLE(CancellationRegistrator);
-
 	private:
 		ICancellationHandler& _handler;
 
