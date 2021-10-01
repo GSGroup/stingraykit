@@ -45,6 +45,8 @@ TEST(ValueFromSignal, Obtainer)
 	s2.SendCurrentState(obtainer);
 	ASSERT_EQ(obtainer.HasValue(), true);
 	ASSERT_EQ(obtainer.GetValue(), true);
+
+	ASSERT_ANY_THROW(PopulateBool(obtainer));
 }
 
 
@@ -60,6 +62,8 @@ TEST(ValueFromSignal, ObtainerVoid)
 
 	s2.SendCurrentState(obtainer);
 	ASSERT_EQ(obtainer.HasValue(), true);
+
+	ASSERT_ANY_THROW(PopulateVoid(obtainer));
 }
 
 
@@ -94,6 +98,8 @@ TEST(ValueFromSignal, Tuple)
 	ASSERT_EQ(obtainer.GetValue<0>(), 42);
 	ASSERT_EQ(obtainer.GetValue<1>(), "test");
 	ASSERT_EQ(obtainer.GetValue<2>(), true);
+
+	ASSERT_ANY_THROW(PopulateMultiple(obtainer));
 }
 
 
