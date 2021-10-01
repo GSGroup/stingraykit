@@ -83,7 +83,7 @@ TEST(ValueFromSignal, Tuple)
 	stingray::signal<void (int, const std::string&, bool)> s1;
 	stingray::signal<void (int, const std::string&, bool)> s2(&PopulateMultiple);
 
-	TupleFromSignalObtainer<int, const std::string&, bool> obtainer;
+	TupleFromSignalObtainer<int, std::string, bool> obtainer;
 
 	s1.SendCurrentState(obtainer);
 	ASSERT_FALSE(obtainer.HasValues());
