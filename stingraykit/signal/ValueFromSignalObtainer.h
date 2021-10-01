@@ -117,53 +117,82 @@ namespace stingray
 
 
 	template < typename T >
-	class ValueFromSignalObtainer : public function_info<void(const T&)>
+	class ValueFromSignalObtainer
 	{
-		typedef unique_ptr<T>		TPtr;
-		typedef shared_ptr<TPtr>	TPtrPtr;
+		STINGRAYKIT_NONCOPYABLE(ValueFromSignalObtainer);
 
 	private:
-		TPtrPtr	_val;
+		class Invoker : public function_info<void, UnspecifiedParamTypes>
+		{
+		private:
+			ValueFromSignalObtainer&	_inst;
+
+		public:
+			explicit Invoker(ValueFromSignalObtainer& inst) : _inst(inst) { }
+
+			template < typename U >
+			void operator () (U&& val) const
+			{
+				STINGRAYKIT_CHECK(!_inst._val, "Value already set!");
+				_inst._val.emplace(std::forward<U>(val));
+			}
+		};
+
+	private:
+		optional<T>			_val;
 
 	public:
-		ValueFromSignalObtainer() : _val(make_shared_ptr<TPtr>()) { }
+		ValueFromSignalObtainer() { }
 
-		void operator() (const T& val) const
-		{
-			STINGRAYKIT_CHECK(!*_val, "Value already set!");
-			_val->reset(new T(val));
-		}
+		auto GetInvoker() { return Invoker(*this); }
+
+		template < typename U >
+		operator function<void (U)> () { return GetInvoker(); }
 
 		const T* operator -> () const { return &GetValue(); }
 
 		const T& GetValue() const
 		{
-			STINGRAYKIT_CHECK(*_val, "Value is not set!");
-			return **_val;
+			STINGRAYKIT_CHECK(_val, "Value is not set!");
+			return *_val;
 		}
 
-		bool HasValue() const { return _val->is_initialized(); }
+		bool HasValue() const { return _val.is_initialized(); }
 	};
 
 
 	template < >
-	class ValueFromSignalObtainer<void> : public function_info<void()>
+	class ValueFromSignalObtainer<void>
 	{
-		typedef shared_ptr<bool>	TPtrPtr;
+		STINGRAYKIT_NONCOPYABLE(ValueFromSignalObtainer);
 
 	private:
-		TPtrPtr	_val;
+		class Invoker : public function_info<void, UnspecifiedParamTypes>
+		{
+		private:
+			ValueFromSignalObtainer&	_inst;
+
+		public:
+			explicit Invoker(ValueFromSignalObtainer& inst) : _inst(inst) { }
+
+			void operator () () const
+			{
+				STINGRAYKIT_CHECK(!_inst._val, "Value already set!");
+				_inst._val = true;
+			}
+		};
+
+	private:
+		bool				_val;
 
 	public:
-		ValueFromSignalObtainer() : _val(make_shared_ptr<bool>()) { }
+		ValueFromSignalObtainer() : _val(false) { }
 
-		void operator() () const
-		{
-			STINGRAYKIT_CHECK(!*_val, "Value already set!");
-			*_val = true;
-		}
+		auto GetInvoker() { return Invoker(*this); }
 
-		bool HasValue() const { return *_val; }
+		operator function<void ()> () { return GetInvoker(); }
+
+		bool HasValue() const { return _val; }
 	};
 
 
