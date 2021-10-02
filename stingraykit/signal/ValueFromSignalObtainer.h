@@ -134,7 +134,7 @@ namespace stingray
 			_val->reset(new T(val));
 		}
 
-		const T* operator -> () const	{ return *GetValue(); }
+		const T* operator -> () const { return &GetValue(); }
 
 		const T& GetValue() const
 		{
