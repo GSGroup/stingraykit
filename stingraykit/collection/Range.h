@@ -1319,14 +1319,17 @@ namespace stingray
 		template < typename Range_ >
 		class RangeBasedForRangeAdapter
 		{
+		public:
+			using const_iterator = StlRangeAdapter<Range_>;
+
 		private:
 			Range_		_range;
 
 		public:
 			explicit RangeBasedForRangeAdapter(const Range_& range) : _range(range) { }
 
-			StlRangeAdapter<Range_> begin() const	{ return StlRangeAdapter<Range_>(_range); }
-			StlRangeAdapter<Range_> end() const		{ return StlRangeAdapter<Range_>(); }
+			const_iterator begin() const	{ return StlRangeAdapter<Range_>(_range); }
+			const_iterator end() const		{ return StlRangeAdapter<Range_>(); }
 		};
 
 	}
