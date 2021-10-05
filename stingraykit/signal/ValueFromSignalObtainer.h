@@ -73,12 +73,26 @@ namespace stingray
 
 
 	template < typename CollectionType, typename T >
+	CollectionType GetValuesFromSignal(const signal_connector<void (T)>& connector)
+	{
+		ValuesFromSignalCollector<CollectionType> collector;
+		connector.SendCurrentState(collector);
+		return collector.GetValues();
+	}
+
+
+	template < typename CollectionType, typename T >
 	CollectionType GetValuesFromSignal(const signal_connector<void (CollectionOp, T)>& connector)
 	{
 		ValuesFromSignalCollector<CollectionType> collector;
 		connector.SendCurrentState(collector);
 		return collector.GetValues();
 	}
+
+
+	template < typename T >
+	std::vector<typename Decay<T>::ValueT> GetVectorFromSignal(const signal_connector<void (T)>& connector)
+	{ return GetValuesFromSignal<std::vector<typename Decay<T>::ValueT> >(connector); }
 
 
 	template < typename T >
