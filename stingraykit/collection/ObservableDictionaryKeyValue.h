@@ -97,7 +97,7 @@ namespace stingray
 				_key(key)
 		{ }
 
-		virtual void Set(const ParamPassingType& value)
+		virtual void Set(ParamPassingType value)
 		{
 			if (value)
 				DoSet<ValueType_>(value);
