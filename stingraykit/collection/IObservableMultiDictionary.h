@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/IMultiDictionary.h>
 #include <stingraykit/collection/ObservableCollectionLocker.h>
-#include <stingraykit/metaprogramming/ParamPassingType.h>
 #include <stingraykit/signal/signal_connector.h>
 
 namespace stingray
