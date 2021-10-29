@@ -10,6 +10,7 @@
 
 #include <stingraykit/compare/comparers.h>
 #include <stingraykit/core/InPlaceType.h>
+#include <stingraykit/metaprogramming/ParamPassingType.h>
 
 namespace stingray
 {
@@ -406,6 +407,13 @@ namespace stingray
 
 	template < typename T >
 	struct IsNullable<optional<T>> : TrueType { };
+
+
+	namespace Detail
+	{
+		template < typename T >
+		struct PassByRef<T, typename EnableIf<IsOptional<T>::Value, void>::ValueT> : integral_constant<bool, PassByRef<typename T::ValueT>::Value> { };
+	}
 
 }
 
