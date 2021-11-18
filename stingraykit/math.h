@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/exception.h>
 
 namespace stingray
@@ -31,13 +30,13 @@ namespace stingray
 		return boundary * (value / boundary);
 	}
 
-	inline size_t Gcd(size_t a, size_t b) { return b ? Gcd(b, a % b) : a; }
+	constexpr size_t Gcd(size_t a, size_t b) { return b ? Gcd(b, a % b) : a; }
 
-	inline size_t Lcm(size_t a, size_t b) { return a / Gcd(a, b) * b; }
+	constexpr size_t Lcm(size_t a, size_t b) { return a / Gcd(a, b) * b; }
 
-	template<typename T> inline T Max(T a, T b) { return std::max<T>(a, b); }
+	template < typename T > constexpr T Max(T a, T b) { return std::max<T>(a, b); }
 
-	template<typename T> inline T Min(T a, T b) { return std::min<T>(a, b); }
+	template < typename T > constexpr T Min(T a, T b) { return std::min<T>(a, b); }
 
 }
 
