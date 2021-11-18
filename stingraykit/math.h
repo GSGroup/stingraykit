@@ -19,13 +19,13 @@ namespace stingray
 	inline s32	Abs(s32 val)	{ return val >= 0 ? val : -val; }
 	inline s64	Abs(s64 val)	{ return val >= 0 ? val : -val; }
 
-	template<typename T> inline T AlignUp(T value, T boundary)
+	template < typename T > constexpr T AlignUp(T value, T boundary)
 	{
 		STINGRAYKIT_CHECK(boundary != 0, ArgumentException("boundary"));
 		return boundary * ((value + boundary - 1) / boundary);
 	}
 
-	template<typename T> inline T AlignDown(T value, T boundary)
+	template < typename T > constexpr T AlignDown(T value, T boundary)
 	{
 		STINGRAYKIT_CHECK(boundary != 0, ArgumentException("boundary"));
 		return boundary * (value / boundary);
