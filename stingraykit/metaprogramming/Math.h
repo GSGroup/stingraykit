@@ -19,21 +19,6 @@ namespace stingray
 	template<typename ResultT, ResultT Base>
 	struct CompileTimeExponent<ResultT, Base, 0> : integral_constant<ResultT, 1> { };
 
-
-	template <unsigned int Val, unsigned int Boundary>
-	struct CompileTimeAlignDown
-	{
-		static_assert(Boundary != 0, "Aligning to zero boundary");
-		static const unsigned int Value = Boundary * (Val / Boundary);
-	};
-
-	template <unsigned int Val, unsigned int Boundary>
-	struct CompileTimeAlignUp
-	{
-		static_assert(Boundary != 0, "Aligning to zero boundary");
-		static const unsigned int Value = Boundary * ((Val + Boundary - 1) / Boundary);
-	};
-
 }
 
 #endif
