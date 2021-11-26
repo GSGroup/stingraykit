@@ -46,6 +46,30 @@ namespace stingray
 		STINGRAYKIT_CHECK(readed == data.size(), InputOutputException(StringBuilder() % "Readed only " % readed % " of " % data.size()));
 	}
 
+
+	template < typename StreamType >
+	ConstByteArray ReadToEnd(StreamType&& stream, size_t initialSize, const ICancellationToken& token = DummyCancellationToken())
+	{
+		STINGRAYKIT_CHECK(initialSize, ArgumentException("initialSize"));
+
+		size_t offset = 0;
+		ByteArray buffer(initialSize);
+
+		while (token)
+		{
+			const ByteData toRead(buffer, offset);
+			const size_t readed = ReadAll(stream, toRead, token);
+
+			offset += readed;
+			if (readed != toRead.size())
+				break;
+
+			buffer.RequireSize(buffer.size() * 2);
+		}
+
+		return ConstByteArray(buffer, 0, offset);
+	}
+
 }
 
 #endif
