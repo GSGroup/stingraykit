@@ -10,56 +10,51 @@
 
 #include <stingraykit/exception.h>
 
-#include <sstream>
-
 namespace stingray
 {
 
 	class StringReader
 	{
-		class StreamPeeker
-		{
-		private:
-			std::istringstream&	_stream;
-
-		public:
-			explicit StreamPeeker(std::istringstream& stream)
-				: _stream(stream)
-			{ }
-
-			~StreamPeeker()
-			{ _stream.peek(); }
-		};
-
 	private:
-		std::istringstream		_stream;
+		std::string			_text;
+		size_t				_pos;
 
 	public:
 		StringReader(const std::string& text)
-			: _stream(text)
+			:	_text(text),
+				_pos(0)
 		{ }
 
 		std::string ReadLine()
 		{
-			StreamPeeker peeker(_stream);
+			size_t newPos = _pos;
+			size_t delimeterSize = 0;
 
-			std::string result;
-
-			for (char ch; _stream.get(ch); )
+			while (newPos < _text.size())
 			{
+				const char ch = _text[newPos];
+
 				if (ch == '\n')
-					return result;
+				{
+					delimeterSize = 1;
+					break;
+				}
 
 				if (ch == '\r')
 				{
-					if (_stream.peek() == '\n')
-						_stream.get();
+					if ((newPos + 1) < _text.size() && _text[newPos + 1] == '\n')
+						delimeterSize = 2;
+					else
+						delimeterSize = 1;
 
-					return result;
+					break;
 				}
 
-				result.push_back(ch);
+				++newPos;
 			}
+
+			const std::string result = _text.substr(_pos, newPos - _pos);
+			_pos = newPos + delimeterSize;
 
 			return result;
 		}
@@ -67,10 +62,10 @@ namespace stingray
 		std::string::value_type Peek()
 		{
 			STINGRAYKIT_CHECK(!IsEndOfString(), InvalidOperationException("EOF"));
-			return _stream.peek();
+			return _text[_pos];
 		}
 
-		bool IsEndOfString() const { return _stream.eof(); }
+		bool IsEndOfString() const { return _pos == _text.size(); }
 	};
 
 }
