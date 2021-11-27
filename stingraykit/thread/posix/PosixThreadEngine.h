@@ -60,7 +60,6 @@ namespace stingray
 	class PosixThreadEngine
 	{
 	public:
-		typedef std::vector<ThreadStats>					ThreadStatsVec;
 		typedef function<void(const ICancellationToken&)>	FuncType;
 		typedef PosixCallOnce::OnceNativeType				OnceNativeType;
 
@@ -81,7 +80,7 @@ namespace stingray
 		static void SetCurrentThreadName(const std::string& name);
 		static const std::string& GetCurrentThreadName();
 
-		static ThreadStatsVec GetThreadsStats();
+		static ThreadStatsVector GetThreadsStats();
 
 		static optional<SystemStats> GetSystemStats();
 

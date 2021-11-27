@@ -192,6 +192,7 @@ namespace stingray
 		ThreadCpuStats GetCpuStats() const			{ return _cpuStats; }
 		ThreadCpuStats GetChildrenCpuStats() const	{ return _childrenCpuStats; }
 	};
+	using ThreadStatsVector = std::vector<ThreadStats>;
 
 
 	class SystemStats

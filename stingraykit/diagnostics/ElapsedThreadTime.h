@@ -56,9 +56,9 @@ namespace stingray
 	private:
 		ThreadCpuStats GetThreadStats() const
 		{
-			Thread::ThreadStatsVec stats = Thread::GetStats();
+			ThreadStatsVector stats = Thread::GetStats();
 
-			Thread::ThreadStatsVec::iterator it = std::find_if(stats.begin(), stats.end(), CompareMemberToValue<std::equal_to>(&ThreadStats::GetThreadId, _threadId));
+			ThreadStatsVector::iterator it = std::find_if(stats.begin(), stats.end(), CompareMemberToValue<std::equal_to>(&ThreadStats::GetThreadId, _threadId));
 			STINGRAYKIT_ASSERT(it != stats.end());
 
 			return (*it).GetCpuStats();

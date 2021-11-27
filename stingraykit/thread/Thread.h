@@ -140,8 +140,7 @@ namespace stingray
 
 		static ThreadSchedulingParams GetCurrentThreadPriority();
 
-		typedef std::vector<ThreadStats> ThreadStatsVec;
-		static ThreadStatsVec GetStats();
+		static ThreadStatsVector GetStats();
 
 		static optional<SystemStats> GetSystemStats();
 	};

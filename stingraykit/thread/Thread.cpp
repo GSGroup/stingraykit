@@ -76,7 +76,7 @@ namespace stingray
 	ThreadSchedulingParams GetCurrentThreadPriority()
 	{ return ThreadEngine::GetCurrentThreadPriority(); }
 
-	Thread::ThreadStatsVec Thread::GetStats()
+	ThreadStatsVector Thread::GetStats()
 	{ return ThreadEngine::GetThreadsStats(); }
 
 	optional<SystemStats> Thread::GetSystemStats()

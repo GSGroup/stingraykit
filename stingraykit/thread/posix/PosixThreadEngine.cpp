@@ -422,7 +422,7 @@ namespace stingray
 			int ret = pthread_create(&id, &PosixThreadAttr::Get()->Get(), &PosixThread::ThreadFuncStatic, this);
 			if (ret != 0)
 			{
-				std::vector<ThreadStats> stats = Thread::GetStats();
+				ThreadStatsVector stats = Thread::GetStats();
 				Logger::Info() << "Thread stats: ";
 				{
 					Logger::Info() << StringBuilder() %
@@ -434,7 +434,7 @@ namespace stingray
 						LeftJustify("C_STIME", 8, '.') %
 						LeftJustify("PARENT", 8, '.');
 				}
-				for (std::vector<ThreadStats>::const_iterator it = stats.begin(); it != stats.end(); ++it)
+				for (ThreadStatsVector::const_iterator it = stats.begin(); it != stats.end(); ++it)
 				{
 					Logger::Info() << StringBuilder() %
 						LeftJustify(ToString(it->GetThreadId()), 12) %
@@ -715,9 +715,9 @@ namespace stingray
 	{ return ThreadNameAccessor::Get(); }
 
 
-	PosixThreadEngine::ThreadStatsVec PosixThreadEngine::GetThreadsStats()
+	ThreadStatsVector PosixThreadEngine::GetThreadsStats()
 	{
-		ThreadStatsVec result;
+		ThreadStatsVector result;
 
 		shared_ptr<ThreadsRegistry> registry = SafeSingleton<ThreadsRegistry>::Instance();
 
