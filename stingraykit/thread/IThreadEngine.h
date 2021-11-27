@@ -152,10 +152,23 @@ namespace stingray
 			return *this;
 		}
 
+		ThreadCpuStats& operator -= (const ThreadCpuStats& other)
+		{
+			_uTime -= other._uTime;
+			_sTime -= other._sTime;
+			return *this;
+		}
+
 		ThreadCpuStats operator + (const ThreadCpuStats& other)
 		{
 			ThreadCpuStats result(*this);
 			return result += other;
+		}
+
+		ThreadCpuStats operator - (const ThreadCpuStats& other)
+		{
+			ThreadCpuStats result(*this);
+			return result -= other;
 		}
 
 		TimeDuration GetUserTime() const	{ return _uTime; }
