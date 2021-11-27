@@ -191,6 +191,9 @@ namespace stingray
 
 		ThreadCpuStats GetCpuStats() const			{ return _cpuStats; }
 		ThreadCpuStats GetChildrenCpuStats() const	{ return _childrenCpuStats; }
+
+		std::string ToString() const
+		{ return StringBuilder() % "{ tid: " % _threadId % ", parent: " % _parentId % ", name: " % _threadName % ", stats: " % _cpuStats % ", children: " % _childrenCpuStats % " }"; }
 	};
 	using ThreadStatsVector = std::vector<ThreadStats>;
 
