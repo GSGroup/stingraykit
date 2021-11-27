@@ -71,9 +71,6 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ITLSUserData);
 
 
-	struct ICancellationToken;
-
-
 	class TLSData
 	{
 	private:
