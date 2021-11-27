@@ -125,7 +125,7 @@ namespace stingray
 
 	struct IThread
 	{
-		typedef u64	ThreadId;
+		using ThreadId = u64;
 
 		virtual ~IThread() { }
 		virtual void Interrupt() = 0;
@@ -180,12 +180,12 @@ namespace stingray
 		ThreadCpuStats	_childrenCpuStats;
 
 	public:
-		ThreadStats(u64 threadId, u64 parentId, const std::string& threadName, ThreadCpuStats cpuStats, ThreadCpuStats childrenCpuStats) :
-			_threadId(threadId),
-			_parentId(parentId),
-			_threadName(threadName),
-			_cpuStats(cpuStats),
-			_childrenCpuStats(childrenCpuStats)
+		ThreadStats(u64 threadId, u64 parentId, const std::string& threadName, ThreadCpuStats cpuStats, ThreadCpuStats childrenCpuStats)
+			:	_threadId(threadId),
+				_parentId(parentId),
+				_threadName(threadName),
+				_cpuStats(cpuStats),
+				_childrenCpuStats(childrenCpuStats)
 		{ }
 
 		u64 GetThreadId() const						{ return _threadId; }
@@ -200,14 +200,17 @@ namespace stingray
 	class SystemStats
 	{
 	private:
-		u64 _user;
-		u64 _system;
-		u64 _iowait;
-		u64 _idle;
+		u64		_user;
+		u64		_system;
+		u64		_iowait;
+		u64		_idle;
 
 	public:
-		SystemStats(u64 user, u64 system, u64 iowait, u64 idle) :
-			_user(user), _system(system), _iowait(iowait), _idle(idle)
+		SystemStats(u64 user, u64 system, u64 iowait, u64 idle)
+			:	_user(user),
+				_system(system),
+				_iowait(iowait),
+				_idle(idle)
 		{ }
 
 		u64 GetUser() const	{ return _user; }
