@@ -54,7 +54,7 @@ namespace stingray
 
 	public:
 		DataTaker(const IDataSourcePtr& source, size_t count, bool discardRest = false)
-			:	_source(source),
+			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
 				_leftToTake(count),
 				_discardRest(discardRest)
 		{ }
@@ -65,6 +65,58 @@ namespace stingray
 			while (token && taker.GetLeftToTake())
 				_source->Read(taker, token);
 			_leftToTake = taker.GetLeftToTake();
+		}
+	};
+
+
+	class SkippingConsumer : public virtual IDataConsumer
+	{
+	private:
+		IDataConsumer&	_consumer;
+		size_t			_leftToSkip;
+
+	public:
+		SkippingConsumer(IDataConsumer& consumer, size_t count) : _consumer(consumer), _leftToSkip(count) { }
+
+		size_t Process(ConstByteData data, const ICancellationToken& token) override
+		{
+			const size_t skipped = std::min(_leftToSkip, data.size());
+			_leftToSkip -= skipped;
+
+			if (data.size() > skipped)
+				ConsumeAll(_consumer, ConstByteData(data, skipped), token);
+
+			return data.size();
+		}
+
+		void EndOfData(const ICancellationToken& token) override
+		{
+			_leftToSkip = 0;
+			_consumer.EndOfData(token);
+		}
+
+		size_t GetLeftToSkip() const { return _leftToSkip; }
+	};
+
+
+	class DataSkipper : public virtual IDataSource
+	{
+	private:
+		IDataSourcePtr	_source;
+		size_t			_leftToSkip;
+
+	public:
+		DataSkipper(const IDataSourcePtr& source, size_t count)
+			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
+				_leftToSkip(count)
+		{ }
+
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
+		{
+			SkippingConsumer skipper(consumer, _leftToSkip);
+			while (token && skipper.GetLeftToSkip())
+				_source->Read(skipper, token);
+			_leftToSkip = skipper.GetLeftToSkip();
 		}
 	};
 
