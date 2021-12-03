@@ -35,12 +35,14 @@ namespace stingray
 			typedef TypeList<Src::Fail, Dst::Fail> DefaultMapping;
 		};
 
+		const icu::UnicodeString Rules = "&е < ё <<< Ё";
+
 	}
 
 	UnicodeCollator::UnicodeCollator(bool caseSensitive)
 	{
 		UErrorCode success = U_ZERO_ERROR;
-		_collator.reset(icu::Collator::createInstance(success));
+		_collator.reset(new icu::RuleBasedCollator(Rules, success));
 		STINGRAYKIT_CHECK(success != U_FILE_ACCESS_ERROR, "file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
 		STINGRAYKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
 

@@ -12,7 +12,7 @@
 #include <stingraykit/unique_ptr.h>
 
 #ifdef HAVE_ICU_I18N
-#	include <unicode/coll.h>
+#	include <unicode/tblcoll.h>
 #endif
 
 namespace stingray
@@ -24,9 +24,9 @@ namespace stingray
 
 	private:
 #ifdef HAVE_ICU_I18N
-		unique_ptr<icu::Collator>	_collator;
+		unique_ptr<icu::RuleBasedCollator>	_collator;
 #else
-		bool						_caseSensitive;
+		bool								_caseSensitive;
 #endif
 
 	public:
