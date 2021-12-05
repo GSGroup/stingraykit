@@ -30,49 +30,50 @@ namespace stingray
 
 	LoggerStream::~LoggerStream()
 	{
-		if (_stream)
+		if (!_stream)
+			return;
+
+		if (std::uncaught_exception())
 		{
-			if (std::uncaught_exception())
-			{
-				try
-				{ DoLog(_stream->str()); }
-				catch (const std::exception&)
-				{ return; }
-			}
-			else
-				DoLog(_stream->str());
+			try
+			{ DoLog(_stream->str()); }
+			catch (const std::exception&)
+			{ }
 		}
+		else
+			DoLog(_stream->str());
 	}
 
 
 	void LoggerStream::DoLog(const std::string& message)
 	{
-		if (_duplicatingLogsFilter && _hideDuplicatingLogs)
+		if (!_duplicatingLogsFilter || !_hideDuplicatingLogs)
 		{
-			DuplicatingLogsFilter::StringCounter* str_cnt = _duplicatingLogsFilter->Get(_hideDuplicatingLogs->Key);
-			if (str_cnt->Count < 0)
-			{
-				DoLogImpl(message); // Displaying first message
-				str_cnt->Reset(message);
-			}
-			else if (str_cnt->Count >= 0 && str_cnt->Str != message)
-			{
-				if (str_cnt->Count > 0)
-					DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
-				DoLogImpl(message); // Displaying first message
-				str_cnt->Reset(message);
-			}
-			else if (str_cnt->Count >= _hideDuplicatingLogs->Count && str_cnt->Str == message)
-			{
-				if (str_cnt->Count > 0)
-					DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
-				str_cnt->Reset(message);
-			}
-			else
-				++str_cnt->Count;
+			DoLogImpl(message);
+			return;
+		}
+
+		DuplicatingLogsFilter::StringCounter* str_cnt = _duplicatingLogsFilter->Get(_hideDuplicatingLogs->Key);
+		if (str_cnt->Count < 0)
+		{
+			DoLogImpl(message); // Displaying first message
+			str_cnt->Reset(message);
+		}
+		else if (str_cnt->Count >= 0 && str_cnt->Str != message)
+		{
+			if (str_cnt->Count > 0)
+				DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
+			DoLogImpl(message); // Displaying first message
+			str_cnt->Reset(message);
+		}
+		else if (str_cnt->Count >= _hideDuplicatingLogs->Count && str_cnt->Str == message)
+		{
+			if (str_cnt->Count > 0)
+				DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
+			str_cnt->Reset(message);
 		}
 		else
-			DoLogImpl(message);
+			++str_cnt->Count;
 	}
 
 
