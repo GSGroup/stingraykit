@@ -374,17 +374,8 @@ namespace stingray
 	{
 		try
 		{
-			if (std::uncaught_exception())
-			{
-				if (_namedLogger)
-					_namedLogger->Stream(_logLevel) << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
-				else
-					Logger::Stream(_logLevel) << _action << " completed with exception in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
-			}
-			else if (_namedLogger)
-				_namedLogger->Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
-			else
-				Logger::Stream(_logLevel) << _action << " completed in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
+			(_namedLogger ? _namedLogger->Stream(_logLevel) : Logger::Stream(_logLevel))
+					<< _action << " completed" << (std::uncaught_exception() ? " with exception" : "") << " in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 		}
 		catch (const std::exception&)
 		{ }
@@ -421,12 +412,7 @@ namespace stingray
 			return;
 
 		try
-		{
-			if (std::uncaught_exception())
-				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' due to an exception (" << ElapsedMillisecondsToString(*_elapsedTime) << " ms)";
-			else
-				_logger.Trace() << "TRACER: leaving function '" << _funcName << "' (" << ElapsedMillisecondsToString(*_elapsedTime) << " ms)";
-		}
+		{ _logger.Trace() << "TRACER: leaving function '" << _funcName << "'" << (std::uncaught_exception() ? " due to an exception" : "") << " (" << ElapsedMillisecondsToString(*_elapsedTime) << " ms)"; }
 		catch (const std::exception&)
 		{ }
 	}
