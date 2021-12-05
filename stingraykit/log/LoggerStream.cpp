@@ -30,7 +30,7 @@ namespace stingray
 
 	LoggerStream::~LoggerStream()
 	{
-		if (_stream && _streamLogLevel >= _loggerLogLevel)
+		if (_stream)
 		{
 			if (std::uncaught_exception())
 			{
