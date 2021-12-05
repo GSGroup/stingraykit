@@ -49,22 +49,24 @@ namespace stingray
 		}
 
 		DuplicatingLogsFilter::StringCounter* str_cnt = _duplicatingLogsFilter->Get(_hideDuplicatingLogs->Key);
+
 		if (str_cnt->Count < 0)
 		{
 			DoLogImpl(message); // Displaying first message
 			str_cnt->Reset(message);
+			return;
 		}
-		else if (str_cnt->Str != message)
+
+		const bool newMessage = str_cnt->Str != message;
+
+		if (newMessage || str_cnt->Count >= _hideDuplicatingLogs->Count)
 		{
 			if (str_cnt->Count > 0)
 				DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
-			DoLogImpl(message); // Displaying first message
-			str_cnt->Reset(message);
-		}
-		else if (str_cnt->Count >= _hideDuplicatingLogs->Count)
-		{
-			if (str_cnt->Count > 0)
-				DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
+
+			if (newMessage)
+				DoLogImpl(message); // Displaying first message
+
 			str_cnt->Reset(message);
 		}
 		else
