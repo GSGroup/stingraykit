@@ -33,15 +33,10 @@ namespace stingray
 		if (!_stream)
 			return;
 
-		if (std::uncaught_exception())
-		{
-			try
-			{ DoLog(_stream->str()); }
-			catch (const std::exception&)
-			{ }
-		}
-		else
-			DoLog(_stream->str());
+		try
+		{ DoLog(_stream->str()); }
+		catch (const std::exception&)
+		{ }
 	}
 
 
