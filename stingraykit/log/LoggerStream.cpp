@@ -50,7 +50,7 @@ namespace stingray
 
 		DuplicatingLogsFilter::StringCounter* str_cnt = _duplicatingLogsFilter->Get(_hideDuplicatingLogs->Key);
 
-		if (str_cnt->Count < 0)
+		if (!str_cnt->Count)
 		{
 			DoLogImpl(message); // Displaying first message
 			str_cnt->Reset(message);
@@ -61,7 +61,7 @@ namespace stingray
 
 		if (newMessage || str_cnt->Count >= _hideDuplicatingLogs->Count)
 		{
-			if (str_cnt->Count > 0)
+			if (str_cnt->Count > 0u)
 				DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
 
 			if (newMessage)
@@ -70,7 +70,7 @@ namespace stingray
 			str_cnt->Reset(message);
 		}
 		else
-			++str_cnt->Count;
+			++*str_cnt->Count;
 	}
 
 

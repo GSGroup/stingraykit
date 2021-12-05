@@ -35,15 +35,15 @@ namespace stingray
 				bool operator < (const KeyType& other) const;
 			};
 
-			const int				Count;
+			const unsigned			Count;
 			const KeyType			Key;
 			DuplicatingLogsFilter	*Filter;
 
-			HideDuplicatingLogs(int count, const char* filename, int line)
+			HideDuplicatingLogs(unsigned count, const char* filename, int line)
 				: Count(count), Key(filename, line), Filter(NULL)
 			{ }
 
-			HideDuplicatingLogs(int count, const char* filename, int line, DuplicatingLogsFilter& filter)
+			HideDuplicatingLogs(unsigned count, const char* filename, int line, DuplicatingLogsFilter& filter)
 				: Count(count), Key(filename, line), Filter(&filter)
 			{ }
 		};
@@ -54,10 +54,10 @@ namespace stingray
 	public:
 		struct StringCounter
 		{
-			std::string		Str;
-			int				Count;
+			std::string				Str;
+			optional<unsigned>		Count;
 
-			StringCounter(const std::string& str = "") : Str(str), Count(-1) { }
+			StringCounter(const std::string& str = "") : Str(str) { }
 
 			void Reset(const std::string& str)
 			{
