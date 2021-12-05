@@ -54,14 +54,14 @@ namespace stingray
 			DoLogImpl(message); // Displaying first message
 			str_cnt->Reset(message);
 		}
-		else if (str_cnt->Count >= 0 && str_cnt->Str != message)
+		else if (str_cnt->Str != message)
 		{
 			if (str_cnt->Count > 0)
 				DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
 			DoLogImpl(message); // Displaying first message
 			str_cnt->Reset(message);
 		}
-		else if (str_cnt->Count >= _hideDuplicatingLogs->Count && str_cnt->Str == message)
+		else if (str_cnt->Count >= _hideDuplicatingLogs->Count)
 		{
 			if (str_cnt->Count > 0)
 				DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
