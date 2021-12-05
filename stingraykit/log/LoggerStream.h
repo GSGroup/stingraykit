@@ -57,13 +57,18 @@ namespace stingray
 			std::string		Str;
 			int				Count;
 
-			StringCounter(const std::string& str = "") :Str(str), Count(-1) { }
-			void Reset(const std::string& str) { Str = str; Count = 0; }
+			StringCounter(const std::string& str = "") : Str(str), Count(-1) { }
+
+			void Reset(const std::string& str)
+			{
+				Str = str;
+				Count = 0;
+			}
 		};
 
 	private:
-		typedef Detail::HideDuplicatingLogs::KeyType		KeyType;
-		typedef std::map<KeyType, StringCounter>			LastMessagesMap;
+		using KeyType = Detail::HideDuplicatingLogs::KeyType;
+		using LastMessagesMap = std::map<KeyType, StringCounter>;
 
 	private:
 		LastMessagesMap		_lastMessages;
@@ -82,7 +87,7 @@ namespace stingray
 		STINGRAYKIT_DEFAULTMOVABLE(LoggerStream);
 
 	public:
-		typedef void LogFunction(const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& message);
+		using LogFunction = void (const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& message);
 
 	private:
 		const NamedLoggerParams*				_loggerParams;
