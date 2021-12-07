@@ -144,7 +144,7 @@ namespace posix
 						unsigned line;
 						if (bfd_find_nearest_line(bfd.abfd, section, symbols, addr - vma, &filename, &functionname, &line))
 						{
-							backtrace << "0x" << Hex(vma) << "\t" << filename << ":" << line << "\t";
+							backtrace << "0x" << ToHex(vma) << "\t" << filename << ":" << line << "\t";
 #if BACKTRACE_DEMANGLE
 							int status;
 							char *buf = abi::__cxa_demangle(functionname, 0, 0, &status);
@@ -161,7 +161,7 @@ namespace posix
 						else
 						{
 							//show only addr
-							backtrace << "0x" << Hex(vma) << "?" << "\n";
+							backtrace << "0x" << ToHex(vma) << "?" << "\n";
 						}
 					}
 				}
