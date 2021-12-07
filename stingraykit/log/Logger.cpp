@@ -130,6 +130,7 @@ namespace stingray
 		class LoggerImpl
 		{
 			using SinksBundle = std::vector<ILoggerSinkPtr>;
+			using LocalSinksBundle = inplace_vector<ILoggerSinkPtr, 16>;
 
 		private:
 			SinksBundle				_sinks;
@@ -157,10 +158,10 @@ namespace stingray
 				{
 					EnableInterruptionPoints eip(false);
 
-					SinksBundle sinks;
+					LocalSinksBundle sinks;
 					{
 						MutexLock l(_logMutex);
-						sinks = _sinks;
+						std::copy(_sinks.begin(), _sinks.end(), std::back_inserter(sinks));
 					}
 
 					if (sinks.empty())
@@ -176,12 +177,12 @@ namespace stingray
 			{ return _registry; }
 
 		private:
-			static void PutMessageToSinks(const SinksBundle& sinks, const LoggerMessage& message)
+			static void PutMessageToSinks(const LocalSinksBundle& sinks, const LoggerMessage& message)
 			{
-				for (SinksBundle::const_iterator it = sinks.begin(); it != sinks.end(); ++it)
+				for (const ILoggerSinkPtr& sink : sinks)
 				{
 					try
-					{ (*it)->Log(message); }
+					{ sink->Log(message); }
 					catch (const std::exception&)
 					{ }
 				}
