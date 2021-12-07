@@ -11,9 +11,6 @@
 #include <stingraykit/ScopeExit.h>
 #include <stingraykit/function/bind.h>
 
-#include <stdarg.h>
-#include <stdio.h>
-
 #if defined(__GNUC__) || defined(__clang__)
 #	include <cxxabi.h>
 #endif
@@ -62,22 +59,3 @@ namespace stingray
 #endif
 
 }
-
-#ifdef _STLP_DEBUG_MESSAGE
-	void __stl_debug_message(const char * format_str, ...)
-	{
-		va_list args;
-		va_start(args, format_str);
-
-		stingray::array<char, 4096> buffer;
-		int count = vsnprintf(buffer.data(), buffer.size(), format_str, args);
-		if (count > 0)
-		{
-			std::string str(buffer.data(), count);
-			stingray::Logger::Error() << str << stingray::Backtrace().Get();
-		}
-		else
-			stingray::Logger::Error() << "Can't form stlport error message!\n" << stingray::Backtrace().Get();
-		va_end(args);
-	}
-#endif
