@@ -7,10 +7,10 @@
 
 #include <stingraykit/thread/posix/Backtrace.h>
 
-#include <stingraykit/thread/Thread.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/thread/Thread.h>
 #include <stingraykit/string/Hex.h>
-#include <stingraykit/ScopeExit.h>
+#include <stingraykit/Holder.h>
 
 #ifdef HAVE_BFD_BACKTRACE
 #	include <bfd.h>
@@ -146,9 +146,11 @@ namespace posix
 						{
 							backtrace << "0x" << ToHex(vma) << "\t" << filename << ":" << line << "\t";
 #if BACKTRACE_DEMANGLE
-							int status;
-							char *buf = abi::__cxa_demangle(functionname, 0, 0, &status);
-							ScopeExitInvoker sei(Bind(&free, buf));
+							int status = 0;
+							ScopedHolder<void*> holder(&free);
+							char* buf = abi::__cxa_demangle(functionname, 0, 0, &status);
+							if (buf)
+								holder.Set(buf);
 							if (buf && status == 0)
 								backtrace << buf;
 							else

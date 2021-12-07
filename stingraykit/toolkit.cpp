@@ -7,9 +7,9 @@
 
 #include <stingraykit/toolkit.h>
 
-#include <stingraykit/log/Logger.h>
-#include <stingraykit/ScopeExit.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/log/Logger.h>
+#include <stingraykit/Holder.h>
 
 #if defined(__GNUC__) || defined(__clang__)
 #	include <cxxabi.h>
@@ -52,9 +52,13 @@ namespace stingray
 	std::string Demangle(const std::string& s)
 	{
 		int status = 0;
+		ScopedHolder<void*> holder(&free);
+
 		char* result = abi::__cxa_demangle(s.c_str(), 0, 0, &status);
-		ScopeExitInvoker sei(Bind(&free, result));
-		return (status != 0) ? s : std::string(result);
+		if (result)
+			holder.Set(result);
+
+		return status != 0 ? s : result;
 	}
 #endif
 
