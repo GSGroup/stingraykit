@@ -28,7 +28,11 @@ namespace stingray
 		string_ostream backtrace;
 
 		for (size_t i = 0; i < _size; ++i)
-			backtrace << ToHex(_backtrace[i], sizeof(uintptr_t) * 2) << " ";
+		{
+			if (i > 0)
+				backtrace << " ";
+			backtrace << ToHex(_backtrace[i], sizeof(uintptr_t) * 2);
+		}
 
 		return backtrace.str();
 	}

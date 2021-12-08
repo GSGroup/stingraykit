@@ -180,7 +180,11 @@ namespace posix
 		string_ostream backtrace;
 
 		for(size_t i = 0; i < _backtrace.size(); ++i)
-			backtrace << ToHex((uintptr_t)_backtrace[i], sizeof(uintptr_t) * 2) << " ";
+		{
+			if (i > 0)
+				backtrace << " ";
+			backtrace << ToHex((uintptr_t)_backtrace[i], sizeof(uintptr_t) * 2);
+		}
 
 		return backtrace.str();
 	}
