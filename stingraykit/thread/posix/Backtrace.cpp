@@ -7,8 +7,6 @@
 
 #include <stingraykit/thread/posix/Backtrace.h>
 
-#include <stingraykit/function/bind.h>
-#include <stingraykit/thread/Thread.h>
 #include <stingraykit/string/Hex.h>
 #include <stingraykit/Holder.h>
 
@@ -182,7 +180,7 @@ namespace posix
 		string_ostream backtrace;
 
 		for(size_t i = 0; i < _backtrace.size(); ++i)
-			backtrace << ToHex((unsigned long)_backtrace[i], 8) << " ";
+			backtrace << ToHex((uintptr_t)_backtrace[i], sizeof(uintptr_t) * 2) << " ";
 
 		return backtrace.str();
 	}

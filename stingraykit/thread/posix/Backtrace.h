@@ -17,7 +17,7 @@ namespace posix
 
 	class Backtrace
 	{
-		std::vector<void *> _backtrace;
+		std::vector<void*>	_backtrace;
 
 	public:
 		Backtrace();

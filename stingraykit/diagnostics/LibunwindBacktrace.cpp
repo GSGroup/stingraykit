@@ -1,7 +1,6 @@
 #include <stingraykit/diagnostics/LibunwindBacktrace.h>
 
 #include <stingraykit/string/Hex.h>
-#include <stingraykit/string/string_stream.h>
 
 #include <libunwind.h>
 
@@ -27,8 +26,9 @@ namespace stingray
 	std::string LibunwindBacktrace::Get() const
 	{
 		string_ostream backtrace;
+
 		for (size_t i = 0; i < _size; ++i)
-			backtrace << Hex(_backtrace[i], 8).ToString() << " ";
+			backtrace << ToHex(_backtrace[i], sizeof(uintptr_t) * 2) << " ";
 
 		return backtrace.str();
 	}

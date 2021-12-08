@@ -1,8 +1,6 @@
 #ifndef STINGRAYKIT_DIAGNOSTICS_LIBUNWINDBACKTRACE_H
 #define STINGRAYKIT_DIAGNOSTICS_LIBUNWINDBACKTRACE_H
 
-#include <string>
-
 #include <stingraykit/collection/array.h>
 
 namespace stingray
@@ -11,9 +9,9 @@ namespace stingray
 	class LibunwindBacktrace
 	{
 	public:
-		static const unsigned MaxFrames = 64;
+		static const size_t MaxFrames = 64;
 
-		typedef array<unsigned, MaxFrames>	BacktraceArray;
+		using BacktraceArray = array<uintptr_t, MaxFrames>;
 
 	private:
 		BacktraceArray	_backtrace;

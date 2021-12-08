@@ -7,12 +7,9 @@
 
 #include <stingraykit/diagnostics/gcc/Backtrace.h>
 
-#include <unwind.h>
-
-#include <stingraykit/log/Logger.h>
 #include <stingraykit/string/Hex.h>
-#include <stingraykit/string/string_stream.h>
 
+#include <unwind.h>
 
 namespace stingray {
 namespace gcc
@@ -75,8 +72,9 @@ namespace gcc
 	std::string Backtrace::Get() const
 	{
 		string_ostream backtrace;
+
 		for (size_t i = 0; i < _size; ++i)
-			backtrace << Hex(_backtrace[i], 8).ToString() << " ";
+			backtrace << ToHex(_backtrace[i], sizeof(uintptr_t) * 2) << " ";
 
 		return backtrace.str();
 	}
