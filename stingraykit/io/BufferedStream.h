@@ -73,6 +73,7 @@ namespace stingray
 			{
 			case SeekMode::Current:
 				offset += Tell();
+				// fallthrough
 			case SeekMode::Begin:
 				if (!SeekInBuffer(static_cast<u64>(offset)))
 					SeekStream(static_cast<u64>(offset));
