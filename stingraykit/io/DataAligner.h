@@ -13,11 +13,13 @@ namespace stingray
 		IDataSourcePtr	_source;
 		size_t			_alignment;
 		ByteArray		_buffer;
+		bool			_useBuffer;
 
 	public:
-		DataAligner(const IDataSourcePtr& source, size_t alignment)
+		DataAligner(const IDataSourcePtr& source, size_t alignment, bool useBuffer = true)
 			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
-				_alignment(alignment)
+				_alignment(alignment),
+				_useBuffer(useBuffer)
 		{ STINGRAYKIT_CHECK(_alignment != 0, ArgumentException("alignment")); }
 
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
@@ -31,7 +33,7 @@ namespace stingray
 				size_t processed = ConsumeAll(consumer, ConstByteData(data, 0, AlignDown(data.size(), _alignment)), token);
 
 				const size_t remainder = data.size() - processed;
-				if (token && remainder)
+				if (_useBuffer && token && remainder)
 				{
 					_buffer.append(ConstByteData(data, processed, remainder));
 					processed += remainder;
