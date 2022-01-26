@@ -12,11 +12,11 @@ namespace stingray
 	{
 	private:
 		IDataConsumer&	_consumer;
-		size_t			_leftToTake;
+		u64				_leftToTake;
 		bool			_discardRest;
 
 	public:
-		TakingConsumer(IDataConsumer& consumer, size_t count, bool discardRest = false)
+		TakingConsumer(IDataConsumer& consumer, u64 count, bool discardRest = false)
 			:	_consumer(consumer),
 				_leftToTake(count),
 				_discardRest(discardRest)
@@ -24,7 +24,7 @@ namespace stingray
 
 		size_t Process(ConstByteData data, const ICancellationToken& token) override
 		{
-			const size_t size = std::min(_leftToTake, data.size());
+			const size_t size = std::min(_leftToTake, (u64)data.size());
 			if (!size)
 				return _discardRest ? data.size() : 0;
 
@@ -40,7 +40,7 @@ namespace stingray
 			_consumer.EndOfData(token);
 		}
 
-		size_t GetLeftToTake() const
+		u64 GetLeftToTake() const
 		{ return _leftToTake; }
 	};
 
@@ -49,11 +49,11 @@ namespace stingray
 	{
 	private:
 		IDataSourcePtr	_source;
-		size_t			_leftToTake;
+		u64				_leftToTake;
 		bool			_discardRest;
 
 	public:
-		DataTaker(const IDataSourcePtr& source, size_t count, bool discardRest = false)
+		DataTaker(const IDataSourcePtr& source, u64 count, bool discardRest = false)
 			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
 				_leftToTake(count),
 				_discardRest(discardRest)
@@ -73,11 +73,11 @@ namespace stingray
 	{
 	private:
 		IDataConsumer&	_consumer;
-		size_t			_leftToSkip;
+		u64				_leftToSkip;
 		bool			_processRest;
 
 	public:
-		SkippingConsumer(IDataConsumer& consumer, size_t count, bool processRest = false)
+		SkippingConsumer(IDataConsumer& consumer, u64 count, bool processRest = false)
 			:	_consumer(consumer),
 				_leftToSkip(count),
 				_processRest(processRest)
@@ -85,7 +85,7 @@ namespace stingray
 
 		size_t Process(ConstByteData data, const ICancellationToken& token) override
 		{
-			const size_t skipped = std::min(_leftToSkip, data.size());
+			const size_t skipped = std::min(_leftToSkip, (u64)data.size());
 			_leftToSkip -= skipped;
 
 			if (data.size() > skipped && _processRest)
@@ -100,7 +100,7 @@ namespace stingray
 			_consumer.EndOfData(token);
 		}
 
-		size_t GetLeftToSkip() const { return _leftToSkip; }
+		u64 GetLeftToSkip() const { return _leftToSkip; }
 	};
 
 
@@ -108,11 +108,11 @@ namespace stingray
 	{
 	private:
 		IDataSourcePtr	_source;
-		size_t			_leftToSkip;
+		u64				_leftToSkip;
 		bool			_processRest;
 
 	public:
-		DataSkipper(const IDataSourcePtr& source, size_t count, bool processRest = false)
+		DataSkipper(const IDataSourcePtr& source, u64 count, bool processRest = false)
 			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
 				_leftToSkip(count),
 				_processRest(processRest)
