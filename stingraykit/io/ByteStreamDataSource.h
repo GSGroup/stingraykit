@@ -35,7 +35,7 @@ namespace stingray
 			if (read != 0)
 				ConsumeAll(consumer, ConstByteData(_buffer, 0, read), token);
 
-			if (read != _buffer.size())
+			if (token && read != _buffer.size())
 				consumer.EndOfData(token);
 		}
 
