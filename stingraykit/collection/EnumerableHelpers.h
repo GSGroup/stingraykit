@@ -11,7 +11,6 @@
 #include <stingraykit/collection/EnumerableWrapper.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/Transformers.h>
-#include <stingraykit/compare/Comparable.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/RefStorage.h>
 
@@ -145,9 +144,11 @@ namespace stingray
 		};
 	}
 
+
 	template < typename EnumeratedT >
 	shared_ptr<IEnumerator<EnumeratedT>> JoinEnumerators(const shared_ptr<IEnumerator<EnumeratedT>>& first, const shared_ptr<IEnumerator<EnumeratedT>>& second)
 	{ return make_shared_ptr<Detail::JoiningEnumerator<EnumeratedT>>(first, second); }
+
 
 	template < typename EnumeratedT >
 	class EnumeratorJoiner
@@ -242,6 +243,7 @@ namespace stingray
 		{
 			using TargetEnumerablePtr = shared_ptr<IEnumerable<EnumeratedT>>;
 
+		private:
 			TargetEnumerablePtr		_first;
 			TargetEnumerablePtr		_second;
 
