@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/collection/DiffEntry.h>
 #include <stingraykit/collection/EnumerableWrapper.h>
 #include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/Transformers.h>
@@ -898,6 +899,111 @@ namespace stingray
 		template < typename SrcEnumerable >
 		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType::ValueType::ItemType>> Flatten(const shared_ptr<SrcEnumerable>& enumerableOfEnumerables, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
 		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorFlattener<typename SrcEnumerable::ItemType>>(), Bind(&SrcEnumerable::GetEnumerator, enumerableOfEnumerables))); }
+
+
+		namespace Detail
+		{
+			template < typename EnumeratedT, typename ComparerT >
+			class EnumeratorDiff : public virtual IEnumerator<DiffEntry<EnumeratedT>>
+			{
+				using TargetEnumeratorPtr = shared_ptr<IEnumerator<EnumeratedT>>;
+
+				struct EntryType
+				{
+					STINGRAYKIT_ENUM_VALUES(None, Added, Removed);
+					STINGRAYKIT_DECLARE_ENUM_CLASS(EntryType);
+				};
+
+			private:
+				TargetEnumeratorPtr		_src;
+				TargetEnumeratorPtr		_dst;
+				ComparerT				_comparer;
+
+				EntryType				_entryType;
+
+			public:
+				EnumeratorDiff(const TargetEnumeratorPtr& src, const TargetEnumeratorPtr& dst, const ComparerT& comparer)
+					:	_src(STINGRAYKIT_REQUIRE_NOT_NULL(src)),
+						_dst(STINGRAYKIT_REQUIRE_NOT_NULL(dst)),
+						_comparer(comparer)
+				{ FindNext(); }
+
+				bool Valid() const override
+				{ return _entryType != EntryType::None; }
+
+				DiffEntry<EnumeratedT> Get() const override
+				{
+					switch (_entryType)
+					{
+					case EntryType::Added:		return MakeDiffEntry(CollectionOp::Added, _dst->Get());
+					case EntryType::Removed:	return MakeDiffEntry(CollectionOp::Removed, _src->Get());
+					default:
+						break;
+					}
+
+					STINGRAYKIT_THROW("Enumerator is not valid!");
+				}
+
+				void Next() override
+				{
+					switch (_entryType)
+					{
+					case EntryType::Added:		_dst->Next(); break;
+					case EntryType::Removed:	_src->Next(); break;
+					default:
+						STINGRAYKIT_THROW("Enumerator is not valid!");
+					}
+
+					_entryType = EntryType::None;
+					FindNext();
+				}
+
+			private:
+				void FindNext()
+				{
+					static_assert(IsSame<typename function_info<ComparerT>::RetType, int>::Value, "Expected Cmp comparer");
+
+					while (_entryType == EntryType::None)
+					{
+						if (_src->Valid())
+						{
+							if (_dst->Valid())
+							{
+								const int result = _comparer(_src->Get(), _dst->Get());
+
+								if (result < 0)
+									_entryType = EntryType::Removed;
+								else if (result > 0)
+									_entryType = EntryType::Added;
+								else
+								{
+									_src->Next();
+									_dst->Next();
+									continue;
+								}
+							}
+							else
+								_entryType = EntryType::Removed;
+						}
+						else if (_dst->Valid())
+							_entryType = EntryType::Added;
+						else
+							break;
+					}
+				}
+
+			};
+		}
+
+
+		template < typename EnumeratorT, typename ComparerT, typename EnableIf<IsEnumerator<EnumeratorT>::Value, int>::ValueT = 0 >
+		shared_ptr<IEnumerator<DiffEntry<typename EnumeratorT::ItemType>>> Diff(const shared_ptr<EnumeratorT>& src, const shared_ptr<EnumeratorT>& dst, const ComparerT& comparer)
+		{ return make_shared_ptr<Detail::EnumeratorDiff<typename EnumeratorT::ItemType, ComparerT>>(src, dst, comparer); }
+
+
+		template < typename EnumerableT, typename ComparerT, typename EnableIf<IsEnumerable<EnumerableT>::Value, int>::ValueT = 0 >
+		shared_ptr<IEnumerable<DiffEntry<typename EnumerableT::ItemType>>> Diff(const shared_ptr<EnumerableT>& src, const shared_ptr<EnumerableT>& dst, const ComparerT& comparer)
+		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorDiff<typename EnumerableT::ItemType, ComparerT>>(), Bind(&EnumerableT::GetEnumerator, src), Bind(&EnumerableT::GetEnumerator, dst), comparer)); }
 
 
 		template < typename T, typename PredicateFunc >
