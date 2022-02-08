@@ -186,7 +186,7 @@ namespace stingray
 					-> decltype(std::declval<typename T::Enum>(), T::begin(), T::end(), bool())
 			{
 				if (customComplete.find(N) != customComplete.end())
-					return CmdArgCompleter<N>::Complete<T>(input, results, customComplete, 0);
+					return CmdArgCompleter<N>::Complete<T>(input, results, customComplete, 0L);
 
 				std::string str_val;
 				size_t read_size = CmdArgReader::Read(input.c_str(), input.size(), str_val, 0);
@@ -215,7 +215,7 @@ namespace stingray
 			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete, typename EnableIf<IsSame<T, bool>::Value, int>::ValueT)
 			{
 				if (customComplete.find(N) != customComplete.end())
-					return CmdArgCompleter<N>::Complete<T>(input, results, customComplete, 0);
+					return CmdArgCompleter<N>::Complete<T>(input, results, customComplete, 0L);
 
 				std::string value;
 				const size_t size = CmdArgReader::Read(input.c_str(), input.size(), value, 0);
