@@ -28,8 +28,8 @@ namespace stingray
 		public:
 			explicit MemberGetter(MemberPointer member) : _member(member) { }
 
-			typename base::RetType operator () (const C& c) const				{ return c.*_member; }
-			typename base::RetType operator () (const shared_ptr<C>& c) const	{ return (*c).*_member; }
+			typename base::RetType operator () (const C& c) const						{ return c.*_member; }
+			typename base::RetType operator () (const shared_ptr<const C>& c) const		{ return (*c).*_member; }
 		};
 
 	}
