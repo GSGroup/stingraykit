@@ -1072,7 +1072,13 @@ namespace stingray
 		{
 			optional<typename Decay<typename Range_::ValueType>::ValueT> result;
 			for (; range.Valid(); range.Next())
-				result = result ? FunctorInvoker::InvokeArgs(functor, *result, range.Get()) : range.Get();
+			{
+				if (result)
+					result = FunctorInvoker::InvokeArgs(functor, *result, range.Get());
+				else
+					result = range.Get();
+			}
+
 			return result;
 		}
 
