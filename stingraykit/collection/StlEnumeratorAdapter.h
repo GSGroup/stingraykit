@@ -58,24 +58,24 @@ namespace stingray
 	};
 
 
-	template < typename T >
-	StlEnumeratorAdapter<T> Wrap(const shared_ptr<IEnumerator<T>>& enumerator)
-	{ return StlEnumeratorAdapter<T>(enumerator); }
+	template < typename SrcEnumerator >
+	StlEnumeratorAdapter<typename SrcEnumerator::ItemType> Wrap(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+	{ return StlEnumeratorAdapter<typename SrcEnumerator::ItemType>(enumerator); }
 
 
-	template < typename T >
-	StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerator<T>>& /*enumerator*/)
-	{ return StlEnumeratorAdapter<T>(); }
+	template < typename SrcEnumerator >
+	StlEnumeratorAdapter<typename SrcEnumerator::ItemType> WrapEnd(const shared_ptr<SrcEnumerator>& /*enumerator*/, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+	{ return StlEnumeratorAdapter<typename SrcEnumerator::ItemType>(); }
 
 
-	template < typename T >
-	StlEnumeratorAdapter<T> Wrap(const shared_ptr<IEnumerable<T>>& enumerable)
-	{ return StlEnumeratorAdapter<T>(enumerable->GetEnumerator()); }
+	template < typename SrcEnumerable >
+	StlEnumeratorAdapter<typename SrcEnumerable::ItemType> Wrap(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+	{ return StlEnumeratorAdapter<typename SrcEnumerable::ItemType>(enumerable->GetEnumerator()); }
 
 
-	template < typename T >
-	StlEnumeratorAdapter<T> WrapEnd(const shared_ptr<IEnumerable<T>>& /*enumerable*/)
-	{ return StlEnumeratorAdapter<T>(); }
+	template < typename SrcEnumerable >
+	StlEnumeratorAdapter<typename SrcEnumerable::ItemType> WrapEnd(const shared_ptr<SrcEnumerable>& /*enumerable*/, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+	{ return StlEnumeratorAdapter<typename SrcEnumerable::ItemType>(); }
 
 
 	namespace Detail
