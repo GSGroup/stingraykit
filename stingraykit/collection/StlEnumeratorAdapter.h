@@ -97,14 +97,14 @@ namespace stingray
 	}
 
 
-	template < typename T >
-	Detail::RangeBasedForEnumeratorAdapter<T> IterableEnumerable(const shared_ptr<IEnumerator<T>>& enumerator)
-	{ return Detail::RangeBasedForEnumeratorAdapter<T>(enumerator); }
+	template < typename SrcEnumerator >
+	Detail::RangeBasedForEnumeratorAdapter<typename SrcEnumerator::ItemType> IterableEnumerable(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+	{ return Detail::RangeBasedForEnumeratorAdapter<typename SrcEnumerator::ItemType>(enumerator); }
 
 
-	template < typename T >
-	Detail::RangeBasedForEnumeratorAdapter<T> IterableEnumerable(const shared_ptr<IEnumerable<T>>& enumerable)
-	{ return Detail::RangeBasedForEnumeratorAdapter<T>(enumerable->GetEnumerator()); }
+	template < typename SrcEnumerable >
+	Detail::RangeBasedForEnumeratorAdapter<typename SrcEnumerable::ItemType> IterableEnumerable(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+	{ return Detail::RangeBasedForEnumeratorAdapter<typename SrcEnumerable::ItemType>(enumerable->GetEnumerator()); }
 
 	/** @} */
 
