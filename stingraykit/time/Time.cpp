@@ -350,7 +350,7 @@ namespace stingray
 
 
 	int Time::DaysTo(const Time& endTime) const
-	{ return (Time::FromBrokenDownTime((*this).BreakDown().GetDayStart()).GetMilliseconds() - Time::FromBrokenDownTime(endTime.BreakDown().GetDayStart()).GetMilliseconds()) / (24 * 60 * 60 * 1000); }
+	{ return (Time::FromBrokenDownTime(BreakDown().GetDayStart()) - Time::FromBrokenDownTime(endTime.BreakDown().GetDayStart())) / TimeDuration::Day(); }
 
 
 	void Time::Serialize(ObjectOStream& ar) const
