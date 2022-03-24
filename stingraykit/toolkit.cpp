@@ -22,6 +22,13 @@ namespace stingray
 	{ return StringBuilder() % _functionName % " (" % _file % ":" % _line % ")"; }
 
 
+	namespace Detail
+	{
+		void ArrayCheckRange(size_t pos, size_t size)
+		{ STINGRAYKIT_CHECK_RANGE(pos, size); }
+	}
+
+
 	void DebuggingHelper::BreakpointHere()
 	{ }
 

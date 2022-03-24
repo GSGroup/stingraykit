@@ -299,6 +299,19 @@ namespace stingray
 	size_t ArraySize(const T (&) [Size]) { return Size; }
 
 
+	namespace Detail
+	{
+		void ArrayCheckRange(size_t index, size_t size);
+	}
+
+	template < typename T, size_t Size >
+	T& ArrayGet(T (&array) [Size], size_t index)
+	{
+		Detail::ArrayCheckRange(index, Size);
+		return array[index];
+	}
+
+
 	struct CollectionOp
 	{
 		STINGRAYKIT_ENUM_VALUES
