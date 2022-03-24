@@ -22,17 +22,6 @@ namespace stingray
 	{ return StringBuilder() % _functionName % " (" % _file % ":" % _line % ")"; }
 
 
-	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex)
-	{
-		const std::string backtrace = tkit_ex.GetBacktrace();
-		result << "\n  in function '" << tkit_ex.GetFunctionName() << "'" <<
-			"\n  in file '" << tkit_ex.GetFilename() << "' at line " << ToString(tkit_ex.GetLine());
-
-		if (!backtrace.empty())
-			result << "\n" << backtrace;
-	}
-
-
 	void DebuggingHelper::BreakpointHere()
 	{ }
 

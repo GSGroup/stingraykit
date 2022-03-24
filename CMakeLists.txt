@@ -94,6 +94,7 @@ set(stingraykit_SRC
 	stingraykit/UUID.cpp
 	stingraykit/Version.cpp
 	stingraykit/any.cpp
+	stingraykit/exception.cpp
 	stingraykit/self_counter.cpp
 	stingraykit/shared_ptr.cpp
 	stingraykit/toolkit.cpp
