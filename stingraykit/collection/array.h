@@ -19,12 +19,6 @@ namespace stingray
 	 * @{
 	 */
 
-	namespace Detail
-	{
-		void StaticArrayCheckRange(size_t pos, size_t size);
-	}
-
-
 	template < typename T, size_t N >
 	class array
 	{
@@ -71,8 +65,8 @@ namespace stingray
 		value_type* data()						{ return _data; }
 		const value_type* data() const			{ return _data; }
 
-		reference at(size_type offset)							{ Detail::StaticArrayCheckRange(offset, N); return _data[offset]; }
-		const_reference at(size_type offset) const				{ Detail::StaticArrayCheckRange(offset, N); return _data[offset]; }
+		reference at(size_type offset)							{ return ArrayGet(_data, offset); }
+		const_reference at(size_type offset) const				{ return ArrayGet(_data, offset); }
 
 		reference operator [] (size_type offset)				{ return _data[offset]; }
 		const_reference operator [] (size_type offset) const	{ return _data[offset]; }

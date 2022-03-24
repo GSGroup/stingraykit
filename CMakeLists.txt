@@ -99,8 +99,6 @@ set(stingraykit_SRC
 	stingraykit/shared_ptr.cpp
 	stingraykit/toolkit.cpp
 
-	stingraykit/collection/array.cpp
-
 	stingraykit/core/InPlaceType.cpp
 	stingraykit/core/NullPtrType.cpp
 
