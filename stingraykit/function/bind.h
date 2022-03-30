@@ -269,8 +269,8 @@ namespace stingray
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, _binderParams); }
 
 				template < size_t Index >
-				typename EnableIf<IsNonConstRvalueReference<typename GetParamType<typename GetTypeListItem<Types, Index>::ValueT, BinderParams, true>::ValueT>::Value ||
-								IsBinder<typename GetTypeListItem<Types, Index>::ValueT>::Value,
+				typename EnableIf<(!IsBinder<typename GetTypeListItem<Types, Index>::ValueT>::Value && IsNonConstRvalueReference<typename GetParamType<typename GetTypeListItem<Types, Index>::ValueT, BinderParams, true>::ValueT>::Value) ||
+								(IsBinder<typename GetTypeListItem<Types, Index>::ValueT>::Value && !IsReference<typename GetParamType<typename GetTypeListItem<Types, Index>::ValueT, BinderParams, true>::ValueT>::Value),
 						typename GetParamType<typename GetTypeListItem<Types, Index>::ValueT, BinderParams, true>::ValueT>::ValueT Get() &&
 				{ return ParamSelector<AllParameters, BinderParams, Index>::Get(_boundParams, std::move(_binderParams)); }
 			};
