@@ -18,30 +18,31 @@ namespace stingray
 
 		struct ReplaceContext
 		{
-			const BrokenDownTime &	Bdt;
-			string_ostream &		Stream;
+			const BrokenDownTime&	Bdt;
+			string_ostream&			Stream;
 			mutable size_t			LastPosition;
-			const std::string &		Format;
+			const std::string&		Format;
 
-
-			ReplaceContext(const BrokenDownTime & bdt, string_ostream & stream, const std::string & format):
-				Bdt(bdt), Stream(stream), LastPosition(0), Format(format)
+			ReplaceContext(const BrokenDownTime& bdt, string_ostream& stream, const std::string& format)
+				: Bdt(bdt), Stream(stream), LastPosition(0), Format(format)
 			{ }
 
-			void operator()(const std::string &pattern, size_t patternIndex, size_t offset) const
+			void operator () (const std::string& pattern, size_t patternIndex, size_t offset) const
 			{
 				Stream << string_view(Format.data() + LastPosition, offset - LastPosition);
-				switch(patternIndex)
+
+				switch (patternIndex)
 				{
-					case 0: Stream << RightJustify(stingray::ToString(Bdt.MonthDay), 2, '0'); break;
-					case 1: Stream << RightJustify(stingray::ToString(Bdt.Month), 2, '0'); break;
-					case 2:
-					case 3: Stream << RightJustify(stingray::ToString(Bdt.Year), 4, '0'); break;
-					case 4: Stream << RightJustify(stingray::ToString(Bdt.Hours), 2, '0'); break;
-					case 5: Stream << RightJustify(stingray::ToString(Bdt.Minutes), 2, '0'); break;
-					case 6: Stream << RightJustify(stingray::ToString(Bdt.Seconds), 2, '0'); break;
-					case 7: Stream << RightJustify(stingray::ToString(Bdt.Milliseconds), 3, '0'); break;
+				case 0: Stream << RightJustify(stingray::ToString(Bdt.MonthDay), 2, '0'); break;
+				case 1: Stream << RightJustify(stingray::ToString(Bdt.Month), 2, '0'); break;
+				case 2:
+				case 3: Stream << RightJustify(stingray::ToString(Bdt.Year), 4, '0'); break;
+				case 4: Stream << RightJustify(stingray::ToString(Bdt.Hours), 2, '0'); break;
+				case 5: Stream << RightJustify(stingray::ToString(Bdt.Minutes), 2, '0'); break;
+				case 6: Stream << RightJustify(stingray::ToString(Bdt.Seconds), 2, '0'); break;
+				case 7: Stream << RightJustify(stingray::ToString(Bdt.Milliseconds), 3, '0'); break;
 				}
+
 				LastPosition = offset + pattern.size();
 			}
 		};
@@ -51,7 +52,8 @@ namespace stingray
 
 	class BrokenDownTime::FormatMatcher
 	{
-		AhoCorasick _aho;
+	private:
+		AhoCorasick		_aho;
 
 	public:
 		FormatMatcher()
@@ -67,8 +69,8 @@ namespace stingray
 			_aho.Build();
 		}
 
-		template<typename CallbackType>
-		void Search(const std::string & text, const CallbackType & callback) const
+		template < typename CallbackType >
+		void Search(const std::string& text, const CallbackType& callback) const
 		{ _aho.Search(text, callback); }
 	};
 
@@ -82,7 +84,8 @@ namespace stingray
 
 	int BrokenDownTime::GetMaxDaysInMonth() const
 	{
-		static int daysPerMonths[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+		static int daysPerMonths[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
 		if (Month == 2 && Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0))
 			return 29;
 		else
@@ -92,14 +95,14 @@ namespace stingray
 
 	int BrokenDownTime::GetMaxDaysInMonth(int year, int month)
 	{
-		BrokenDownTime t;
-		t.Year = year;
-		t.Month = month;
-		return t.GetMaxDaysInMonth();
+		BrokenDownTime bdt;
+		bdt.Year = year;
+		bdt.Month = month;
+		return bdt.GetMaxDaysInMonth();
 	}
 
 
-	std::string BrokenDownTime::ToString(const std::string & format) const
+	std::string BrokenDownTime::ToString(const std::string& format) const
 	{
 		if (format.empty())
 		{

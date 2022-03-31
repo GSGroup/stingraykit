@@ -39,16 +39,19 @@ namespace stingray
 		s16		YearDay;
 		s16		Year;
 
-		BrokenDownTime(): Milliseconds(), Seconds(), Minutes(), Hours(), WeekDay(), MonthDay(1), Month(1), YearDay(1), Year(1970)
+		BrokenDownTime()
+			: Milliseconds(), Seconds(), Minutes(), Hours(), WeekDay(), MonthDay(1), Month(1), YearDay(1), Year(1970)
 		{ }
 
-		BrokenDownTime(s16 milliseconds, s16 seconds, s16 minutes, s16 hours, s16 weekDay, s16 monthDay, s16 month, s16 yearDay, s16 year) :
-			Milliseconds(milliseconds), Seconds(seconds), Minutes(minutes), Hours(hours), WeekDay(weekDay), MonthDay(monthDay), Month(month), YearDay(yearDay), Year(year)
+		BrokenDownTime(s16 milliseconds, s16 seconds, s16 minutes, s16 hours, s16 weekDay, s16 monthDay, s16 month, s16 yearDay, s16 year)
+			: Milliseconds(milliseconds), Seconds(seconds), Minutes(minutes), Hours(hours), WeekDay(weekDay), MonthDay(monthDay), Month(month), YearDay(yearDay), Year(year)
 		{ }
 
 		BrokenDownTime GetDayStart();
+
 		int GetMaxDaysInMonth() const;
 		static int GetMaxDaysInMonth(int year, int month);
+
 		std::string ToString(const std::string& format = std::string()) const;
 	};
 
