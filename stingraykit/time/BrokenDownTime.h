@@ -22,6 +22,13 @@ namespace stingray
 
 	struct BrokenDownTime
 	{
+	private:
+		class FormatMatcher;
+
+	private:
+		static FormatMatcher	s_formatMatcher;
+
+	public:
 		s16		Milliseconds;
 		s16		Seconds;
 		s16		Minutes;
@@ -43,11 +50,6 @@ namespace stingray
 		int GetMaxDaysInMonth() const;
 		static int GetMaxDaysInMonth(int year, int month);
 		std::string ToString(const std::string& format = std::string()) const;
-
-		class FormatMatcher;
-
-	private:
-		static FormatMatcher s_formatMatcher;
 	};
 
 	/** @} */
