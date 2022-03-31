@@ -75,16 +75,16 @@ namespace stingray
 	};
 
 
-	BrokenDownTime::FormatMatcher BrokenDownTime::s_formatMatcher;
+	const BrokenDownTime::FormatMatcher BrokenDownTime::s_formatMatcher;
 
 
-	BrokenDownTime BrokenDownTime::GetDayStart()
+	BrokenDownTime BrokenDownTime::GetDayStart() const
 	{ return BrokenDownTime(0, 0, 0, 0, WeekDay, MonthDay, Month, YearDay, Year); }
 
 
 	int BrokenDownTime::GetMaxDaysInMonth() const
 	{
-		static int daysPerMonths[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+		static const int daysPerMonths[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 		if (Month == 2 && Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0))
 			return 29;

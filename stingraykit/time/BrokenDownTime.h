@@ -26,7 +26,7 @@ namespace stingray
 		class FormatMatcher;
 
 	private:
-		static FormatMatcher	s_formatMatcher;
+		static const FormatMatcher	s_formatMatcher;
 
 	public:
 		s16		Milliseconds;
@@ -47,7 +47,7 @@ namespace stingray
 			: Milliseconds(milliseconds), Seconds(seconds), Minutes(minutes), Hours(hours), WeekDay(weekDay), MonthDay(monthDay), Month(month), YearDay(yearDay), Year(year)
 		{ }
 
-		BrokenDownTime GetDayStart();
+		BrokenDownTime GetDayStart() const;
 
 		int GetMaxDaysInMonth() const;
 		static int GetMaxDaysInMonth(int year, int month);
