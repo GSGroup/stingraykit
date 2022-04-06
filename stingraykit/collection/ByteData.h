@@ -287,9 +287,9 @@ namespace stingray
 		template < typename ObjectIStream >
 		void Deserialize(ObjectIStream& ar)
 		{
-			BasicByteArray data;
+			BasicByteArray<NonConstType> data;
 			ar.Deserialize("o", data._offset, 0);
-			ar.Deserialize("d", const_cast<std::vector<NonConstType> &>(*data._data));
+			ar.Deserialize("d", *data._data);
 			*this = data;
 		}
 
