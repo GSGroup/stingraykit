@@ -31,11 +31,11 @@ namespace stingray
 		const T&		_mutex;
 
 	public:
-		inline GenericMutexLock(const T& mutex)
+		GenericMutexLock(const T& mutex)
 			:	_mutex(mutex)
 		{ _mutex.Lock(); }
 
-		inline ~GenericMutexLock()
+		~GenericMutexLock()
 		{
 			try
 			{ _mutex.Unlock(); }
@@ -53,15 +53,15 @@ namespace stingray
 		const T&		_mutex;
 
 	public:
-		inline GenericMutexUnlock(GenericMutexLock<T>& mutexLock)
+		GenericMutexUnlock(GenericMutexLock<T>& mutexLock)
 			:	_mutex(mutexLock._mutex)
 		{ _mutex.Unlock(); }
 
-		inline GenericMutexUnlock(const T& mutex)
+		GenericMutexUnlock(const T& mutex)
 			: _mutex(mutex)
 		{ _mutex.Unlock(); }
 
-		inline ~GenericMutexUnlock()
+		~GenericMutexUnlock()
 		{
 			try
 			{ _mutex.Lock(); }
