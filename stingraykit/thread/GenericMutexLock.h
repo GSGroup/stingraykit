@@ -19,30 +19,32 @@ namespace stingray
 	 * @{
 	 */
 
-	template<typename T>
+	template < typename T >
 	class GenericMutexLock
 	{
 		STINGRAYKIT_NONCOPYABLE(GenericMutexLock);
-		template <typename U> friend class GenericMutexUnlock;
+
+		template < typename U >
+		friend class GenericMutexUnlock;
 
 	private:
 		const T&		_mutex;
 
 	public:
 		inline GenericMutexLock(const T& mutex)
-			: _mutex(mutex)
+			:	_mutex(mutex)
 		{ _mutex.Lock(); }
 
 		inline ~GenericMutexLock()
 		{
 			try
 			{ _mutex.Unlock(); }
-			catch(const std::exception& ex)
+			catch (const std::exception& ex)
 			{ STINGRAYKIT_FATAL("Couldn't unlock mutex in ~MutexLock()\n" + diagnostic_information(ex)); }
 		}
 	};
 
-	template<typename T>
+	template < typename T >
 	class GenericMutexUnlock
 	{
 		STINGRAYKIT_NONCOPYABLE(GenericMutexUnlock);
@@ -52,7 +54,7 @@ namespace stingray
 
 	public:
 		inline GenericMutexUnlock(GenericMutexLock<T>& mutexLock)
-			: _mutex(mutexLock._mutex)
+			:	_mutex(mutexLock._mutex)
 		{ _mutex.Unlock(); }
 
 		inline GenericMutexUnlock(const T& mutex)
@@ -63,7 +65,7 @@ namespace stingray
 		{
 			try
 			{ _mutex.Lock(); }
-			catch(const std::exception& ex)
+			catch (const std::exception& ex)
 			{ STINGRAYKIT_FATAL("Couldn't lock mutex in ~MutexUnlock()"); }
 		}
 	};
