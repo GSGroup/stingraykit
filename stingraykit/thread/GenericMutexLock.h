@@ -53,7 +53,7 @@ namespace stingray
 		const T&		_mutex;
 
 	public:
-		GenericMutexUnlock(GenericMutexLock<T>& mutexLock)
+		GenericMutexUnlock(const GenericMutexLock<T>& mutexLock)
 			:	_mutex(mutexLock._mutex)
 		{ _mutex.Unlock(); }
 
