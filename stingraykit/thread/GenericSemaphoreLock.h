@@ -28,11 +28,11 @@ namespace stingray
 		T&		_semaphore;
 
 	public:
-		inline GenericSemaphoreLock(const T& semaphore)
+		GenericSemaphoreLock(const T& semaphore)
 			: _semaphore(const_cast<T &>(semaphore))
 		{ _semaphore.Wait(); }
 
-		inline ~GenericSemaphoreLock()
+		~GenericSemaphoreLock()
 		{
 			try
 			{ _semaphore.Signal(); }
