@@ -20,9 +20,6 @@ namespace stingray
 	 */
 
 	template<typename T>
-	class GenericMutexUnlock;
-
-	template<typename T>
 	class GenericMutexLock
 	{
 		STINGRAYKIT_NONCOPYABLE(GenericMutexLock);
