@@ -25,11 +25,11 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(GenericSemaphoreLock);
 
 	private:
-		T&		_semaphore;
+		const T&		_semaphore;
 
 	public:
 		GenericSemaphoreLock(const T& semaphore)
-			: _semaphore(const_cast<T &>(semaphore))
+			: _semaphore(semaphore)
 		{ _semaphore.Wait(); }
 
 		~GenericSemaphoreLock()
