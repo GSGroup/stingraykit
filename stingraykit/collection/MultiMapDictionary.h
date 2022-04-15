@@ -12,6 +12,7 @@
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IMultiDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
+#include <stingraykit/collection/iterators.h>
 #include <stingraykit/compare/comparers.h>
 #include <stingraykit/function/function.h>
 
@@ -145,14 +146,14 @@ namespace stingray
 			return true;
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > GetAll(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<ValueType> > GetAll(const KeyType& key) const
 		{
 			typedef typename MapType::const_iterator cit;
 			std::pair<cit, cit> range = _map->equal_range(key);
 			if (range.first == range.second)
 				return MakeEmptyEnumerator();
 
-			return WrapMapEnumerator(EnumeratorFromStlIterators(range.first, range.second, GetMapHolder()));
+			return EnumeratorFromStlIterators(values_iterator(range.first), values_iterator(range.second), GetMapHolder());
 		}
 
 		virtual void Add(const KeyType& key, const ValueType& value)

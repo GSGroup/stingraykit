@@ -40,7 +40,7 @@ namespace stingray
 		virtual ValueType GetFirst(const KeyType& key) const = 0;
 		virtual bool TryGetFirst(const KeyType& key, ValueType& outValue) const = 0;
 
-		virtual shared_ptr<IEnumerator<PairType> > GetAll(const KeyType& key) const = 0;
+		virtual shared_ptr<IEnumerator<ValueType> > GetAll(const KeyType& key) const = 0;
 	};
 
 

@@ -119,7 +119,7 @@ namespace stingray
 			return Wrapped::TryGetFirst(key, outValue);
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > GetAll(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<ValueType> > GetAll(const KeyType& key) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::GetAll(key);
@@ -135,16 +135,16 @@ namespace stingray
 		virtual void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
 		{ MultiMapObservableDictionary::TryRemoveFirst(key, value); }
 
-		virtual bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
+		virtual bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value_ = null)
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(PairType v IN Wrapped::GetAll(key))
+			FOR_EACH(ValueType value IN Wrapped::GetAll(key))
 			{
-				if (value && !ValueCompareType_()(*value, v.Value))
+				if (value_ && !ValueCompareType_()(*value_, value))
 					continue;
 
-				Wrapped::RemoveFirst(v.Key, v.Value);
-				_onChanged(CollectionOp::Removed, v.Key, v.Value);
+				Wrapped::RemoveFirst(key, value);
+				_onChanged(CollectionOp::Removed, key, value);
 				return true;
 			}
 			return false;
