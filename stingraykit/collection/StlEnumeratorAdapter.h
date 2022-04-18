@@ -84,14 +84,17 @@ namespace stingray
 		template < typename T >
 		class RangeBasedForEnumeratorAdapter
 		{
+		public:
+			using const_iterator = StlEnumeratorAdapter<T>;
+
 		private:
 			shared_ptr<IEnumerator<T>>	_enumerator;
 
 		public:
 			explicit RangeBasedForEnumeratorAdapter(const shared_ptr<IEnumerator<T>>& enumerator) : _enumerator(STINGRAYKIT_REQUIRE_NOT_NULL(enumerator)) { }
 
-			StlEnumeratorAdapter<T> begin() const	{ return Wrap(_enumerator); }
-			StlEnumeratorAdapter<T> end() const		{ return WrapEnd(_enumerator); }
+			const_iterator begin() const	{ return Wrap(_enumerator); }
+			const_iterator end() const		{ return WrapEnd(_enumerator); }
 		};
 
 	}
