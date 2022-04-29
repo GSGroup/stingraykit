@@ -40,7 +40,7 @@ TEST(TransactionalDictionaryTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, (EnumerableTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), (EnumerableTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), (DictionaryType::DiffTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
+	ASSERT_FALSE(GetValueFromSignal(s->OnChanged()));
 
 	// 2
 

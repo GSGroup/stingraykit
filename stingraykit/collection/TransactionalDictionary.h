@@ -212,7 +212,10 @@ namespace stingray
 
 		private:
 			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
-			{ slot(WrapEnumerable(EnumerableFromStlContainer(*Items, GetItemsHolder()), Bind(&Utils::MakeDiffEntry, CollectionOp::Added, _1))); }
+			{
+				if (!Items->empty())
+					slot(WrapEnumerable(EnumerableFromStlContainer(*Items, GetItemsHolder()), Bind(&Utils::MakeDiffEntry, CollectionOp::Added, _1)));
+			}
 		};
 		STINGRAYKIT_DECLARE_PTR(ImplData);
 
