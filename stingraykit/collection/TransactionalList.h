@@ -138,7 +138,10 @@ namespace stingray
 
 		private:
 			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
-			{ slot(MakeSimpleEnumerable(Bind(MakeShared<PopulatorEnumerator>(), Items))); }
+			{
+				if (!Items->empty())
+					slot(MakeSimpleEnumerable(Bind(MakeShared<PopulatorEnumerator>(), Items)));
+			}
 		};
 		STINGRAYKIT_DECLARE_PTR(ImplData);
 
