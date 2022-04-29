@@ -247,7 +247,7 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, (EnumerableTypePtr)MakeEmptyEnumerable()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), (EnumerableTypePtr)MakeEmptyEnumerable()));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), (SetType::DiffTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
+	ASSERT_FALSE(GetValueFromSignal(s->OnChanged()));
 
 	// 2
 
