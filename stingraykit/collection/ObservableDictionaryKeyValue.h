@@ -17,21 +17,21 @@ namespace stingray
 
 	template < typename KeyType_, typename ValueType_, typename EqualsCmp_ >
 	class ReadonlyObservableDictionaryKeyValue
-		:	public virtual IReadonlyObservableValue<typename If<IsNullable<ValueType_>::Value, ValueType_, optional<ValueType_> >::ValueT>
+		:	public virtual IReadonlyObservableValue<typename If<IsNullable<ValueType_>::Value, ValueType_, optional<ValueType_>>::ValueT>
 	{
-		typedef ReadonlyObservableDictionaryKeyValue Self;
+		using Self = ReadonlyObservableDictionaryKeyValue;
 
-		typedef typename If<IsNullable<ValueType_>::Value, ValueType_, optional<ValueType_> >::ValueT ValueType;
+		using ValueType = typename If<IsNullable<ValueType_>::Value, ValueType_, optional<ValueType_>>::ValueT;
 
-		typedef IReadonlyObservableValue<ValueType> Base;
+		using Base = IReadonlyObservableValue<ValueType>;
 
-		typedef typename Base::ParamPassingType ParamPassingType;
-		typedef typename Base::OnChangedSignature OnChangedSignature;
+		using ParamPassingType = typename Base::ParamPassingType;
+		using OnChangedSignature = typename Base::OnChangedSignature;
 
-		typedef IReadonlyObservableDictionary<KeyType_, ValueType_> DictionaryType;
+		using DictionaryType = IReadonlyObservableDictionary<KeyType_, ValueType_>;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	private:
 		DictionaryTypePtr									_dict;
@@ -48,16 +48,16 @@ namespace stingray
 				_connection(_dict->OnChanged().connect(Bind(&Self::InvokeOnChanged, this, _1, _2, _3), false))
 		{ }
 
-		virtual ValueType Get() const
+		ValueType Get() const override
 		{
 			ValueType_ value;
 			return _dict->TryGet(_key, value) ? ValueType(value) : null;
 		}
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
+		signal_connector<OnChangedSignature> OnChanged() const override
 		{ return _onChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return _dict->GetSyncRoot(); }
 
 	private:
@@ -74,17 +74,17 @@ namespace stingray
 
 	template < typename KeyType_, typename ValueType_, typename EqualsCmp_ >
 	class ObservableDictionaryKeyValue
-		:	public virtual IObservableValue<typename If<IsNullable<ValueType_>::Value, ValueType_, optional<ValueType_> >::ValueT>,
+		:	public virtual IObservableValue<typename If<IsNullable<ValueType_>::Value, ValueType_, optional<ValueType_>>::ValueT>,
 			public ReadonlyObservableDictionaryKeyValue<KeyType_, ValueType_, EqualsCmp_>
 	{
-		typedef typename If<IsNullable<ValueType_>::Value, ValueType_, optional<ValueType_> >::ValueT ValueType;
+		using ValueType = typename If<IsNullable<ValueType_>::Value, ValueType_, optional<ValueType_>>::ValueT;
 
-		typedef IObservableDictionary<KeyType_, ValueType_> DictionaryType;
+		using DictionaryType = IObservableDictionary<KeyType_, ValueType_>;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
-		typedef IObservableValue<ValueType> Base;
+		using Base = IObservableValue<ValueType>;
 
-		typedef typename Base::ParamPassingType ParamPassingType;
+		using ParamPassingType = typename Base::ParamPassingType;
 
 	private:
 		DictionaryTypePtr		_dict;
@@ -97,7 +97,7 @@ namespace stingray
 				_key(key)
 		{ }
 
-		virtual void Set(ParamPassingType value)
+		void Set(ParamPassingType value) override
 		{
 			if (value)
 				DoSet<ValueType_>(value);
@@ -117,22 +117,22 @@ namespace stingray
 
 
 	template < typename KeyType, typename ValueType, typename EqualsCmp >
-	shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> > GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key, const EqualsCmp& equalsCmp)
-	{ return make_shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> >(dict, key); }
+	shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp>> GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType>>& dict, const KeyType& key, const EqualsCmp& equalsCmp)
+	{ return make_shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp>>(dict, key); }
 
 
 	template < typename KeyType, typename ValueType >
-	shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, comparers::Equals> > GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key)
+	shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, comparers::Equals>> GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType>>& dict, const KeyType& key)
 	{ return GetDictionaryKeyValue(dict, key, comparers::Equals()); }
 
 
 	template < typename KeyType, typename ValueType, typename EqualsCmp >
-	shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> > GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key, const EqualsCmp& equalsCmp)
-	{ return make_shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp> >(dict, key); }
+	shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp>> GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType>>& dict, const KeyType& key, const EqualsCmp& equalsCmp)
+	{ return make_shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp>>(dict, key); }
 
 
 	template < typename KeyType, typename ValueType >
-	shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, comparers::Equals> > GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType> >& dict, const KeyType& key)
+	shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, comparers::Equals>> GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType>>& dict, const KeyType& key)
 	{ return GetDictionaryKeyValue(dict, key, comparers::Equals()); }
 
 }
