@@ -118,23 +118,23 @@ namespace stingray
 	};
 
 
-	template < typename KeyType, typename ValueType, typename EqualsCmp >
-	shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp>> GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType>>& dict, const KeyType& key, const EqualsCmp& equalsCmp)
-	{ return make_shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp>>(dict, key, equalsCmp); }
+	template < typename DictionaryType, typename EqualsCmp, typename EnableIf<IsInheritedIReadonlyObservableDictionary<DictionaryType>::Value && !IsInheritedIObservableDictionary<DictionaryType>::Value, int>::ValueT = 0 >
+	auto GetDictionaryKeyValue(const shared_ptr<DictionaryType>& dict, const typename DictionaryType::KeyType& key, const EqualsCmp& equalsCmp)
+	{ return make_shared_ptr<ReadonlyObservableDictionaryKeyValue<typename DictionaryType::KeyType, typename DictionaryType::ValueType, EqualsCmp>>(dict, key, equalsCmp); }
 
 
-	template < typename KeyType, typename ValueType >
-	shared_ptr<ReadonlyObservableDictionaryKeyValue<KeyType, ValueType, comparers::Equals>> GetDictionaryKeyValue(const shared_ptr<IReadonlyObservableDictionary<KeyType, ValueType>>& dict, const KeyType& key)
+	template < typename DictionaryType, typename EnableIf<IsInheritedIReadonlyObservableDictionary<DictionaryType>::Value && !IsInheritedIObservableDictionary<DictionaryType>::Value, int>::ValueT = 0 >
+	auto GetDictionaryKeyValue(const shared_ptr<DictionaryType>& dict, const typename DictionaryType::KeyType& key)
 	{ return GetDictionaryKeyValue(dict, key, comparers::Equals()); }
 
 
-	template < typename KeyType, typename ValueType, typename EqualsCmp >
-	shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp>> GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType>>& dict, const KeyType& key, const EqualsCmp& equalsCmp)
-	{ return make_shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, EqualsCmp>>(dict, key, equalsCmp); }
+	template < typename DictionaryType, typename EqualsCmp, typename EnableIf<IsInheritedIObservableDictionary<DictionaryType>::Value, int>::ValueT = 0 >
+	auto GetDictionaryKeyValue(const shared_ptr<DictionaryType>& dict, const typename DictionaryType::KeyType& key, const EqualsCmp& equalsCmp)
+	{ return make_shared_ptr<ObservableDictionaryKeyValue<typename DictionaryType::KeyType, typename DictionaryType::ValueType, EqualsCmp>>(dict, key, equalsCmp); }
 
 
-	template < typename KeyType, typename ValueType >
-	shared_ptr<ObservableDictionaryKeyValue<KeyType, ValueType, comparers::Equals>> GetDictionaryKeyValue(const shared_ptr<IObservableDictionary<KeyType, ValueType>>& dict, const KeyType& key)
+	template < typename DictionaryType, typename EnableIf<IsInheritedIObservableDictionary<DictionaryType>::Value, int>::ValueT = 0 >
+	auto GetDictionaryKeyValue(const shared_ptr<DictionaryType>& dict, const typename DictionaryType::KeyType& key)
 	{ return GetDictionaryKeyValue(dict, key, comparers::Equals()); }
 
 }
