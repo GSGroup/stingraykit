@@ -25,13 +25,13 @@ namespace stingray
 	template < typename ValueType_ >
 	struct IListTransaction : public virtual IList<ValueType_>
 	{
-		typedef IList<ValueType_>							base;
+		using base = IList<ValueType_>;
 
-		typedef typename base::ValueType					ValueType;
-		typedef KeyValuePair<size_t, ValueType>				PairType;
+		using ValueType = typename base::ValueType;
+		using PairType = KeyValuePair<size_t, ValueType>;
 
-		typedef DiffEntry<PairType>							DiffEntryType;
-		typedef IEnumerable<DiffEntryType>					DiffType;
+		using DiffEntryType = DiffEntry<PairType>;
+		using DiffType = IEnumerable<DiffEntryType>;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		virtual void Apply(const DiffEntryType& entry) = 0;
@@ -47,13 +47,13 @@ namespace stingray
 	template < typename ValueType_ >
 	struct IReadonlyTransactionalList : public virtual IReadonlyList<ValueType_>
 	{
-		typedef IReadonlyList<ValueType_>					base;
+		using base = IReadonlyList<ValueType_>;
 
-		typedef typename base::ValueType					ValueType;
-		typedef KeyValuePair<size_t, ValueType>				PairType;
+		using ValueType = typename base::ValueType;
+		using PairType = KeyValuePair<size_t, ValueType>;
 
-		typedef DiffEntry<PairType>							DiffEntryType;
-		typedef IEnumerable<DiffEntryType>					DiffType;
+		using DiffEntryType = DiffEntry<PairType>;
+		using DiffType = IEnumerable<DiffEntryType>;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const = 0;
@@ -67,7 +67,7 @@ namespace stingray
 	template < typename ValueType_ >
 	struct ITransactionalList : public virtual IReadonlyTransactionalList<ValueType_>
 	{
-		typedef IListTransaction<ValueType_> TransactionType;
+		using TransactionType = IListTransaction<ValueType_>;
 		STINGRAYKIT_DECLARE_PTR(TransactionType);
 
 		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) = 0;

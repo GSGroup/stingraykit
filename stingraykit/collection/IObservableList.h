@@ -24,7 +24,7 @@ namespace stingray
 	struct IReadonlyObservableList
 		:	public virtual IReadonlyList<ValueType_>
 	{
-		typedef void OnChangedSignature(CollectionOp, size_t, const ValueType_&);
+		using OnChangedSignature = void (CollectionOp, size_t, const ValueType_&);
 
 		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
 		virtual const Mutex& GetSyncRoot() const = 0;

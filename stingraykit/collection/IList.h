@@ -12,7 +12,7 @@
 #include <stingraykit/optional.h>
 
 #define STINGRAYKIT_DECLARE_LIST(ClassName) \
-		typedef stingray::IList<ClassName>				ClassName##List; \
+		using ClassName##List = stingray::IList<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##List); \
 		STINGRAYKIT_DECLARE_COLLECTION(ClassName)
 
@@ -27,9 +27,9 @@ namespace stingray
 	template < typename T >
 	struct IReadonlyList : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
 	{
-		typedef T	ValueType;
+		using ValueType = T;
 
-		virtual ~IReadonlyList() { }
+		~IReadonlyList() override { }
 
 		virtual bool Contains(const ValueType& value) const = 0;
 		virtual optional<size_t> IndexOf(const ValueType& value) const = 0;
@@ -47,9 +47,9 @@ namespace stingray
 	template < typename T >
 	struct IList : public virtual IReadonlyList<T>
 	{
-		typedef T	ValueType;
+		using ValueType = T;
 
-		virtual ~IList() { }
+		~IList() override { }
 
 		virtual void Add(const ValueType& value) = 0;
 		virtual void Set(size_t index, const ValueType& value) = 0;
