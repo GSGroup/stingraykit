@@ -11,7 +11,7 @@
 #include <stingraykit/collection/ICollection.h>
 
 #define STINGRAYKIT_DECLARE_SET(ClassName) \
-		typedef stingray::ISet<ClassName> ClassName##Set; \
+		using ClassName##Set = stingray::ISet<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##Set); \
 		STINGRAYKIT_DECLARE_COLLECTION(ClassName)
 
@@ -26,14 +26,14 @@ namespace stingray
 	template < typename T >
 	struct IReadonlySet : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
 	{
-		typedef T	ValueType;
+		using ValueType = T;
 
-		virtual ~IReadonlySet() { }
+		~IReadonlySet() override { }
 
 		virtual bool Contains(const ValueType& value) const = 0;
 
-		virtual shared_ptr<IEnumerator<T> > Find(const T& value) const = 0;
-		virtual shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const = 0;
+		virtual shared_ptr<IEnumerator<T>> Find(const T& value) const = 0;
+		virtual shared_ptr<IEnumerator<T>> ReverseFind(const T& value) const = 0;
 	};
 
 
@@ -45,9 +45,9 @@ namespace stingray
 	template < typename T >
 	struct ISet : public virtual IReadonlySet<T>
 	{
-		typedef T	ValueType;
+		using ValueType = T;
 
-		virtual ~ISet() { }
+		~ISet() override { }
 
 		virtual void Add(const ValueType& value) = 0;
 

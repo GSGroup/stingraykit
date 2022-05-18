@@ -23,8 +23,8 @@ namespace stingray
 	template < typename T >
 	struct ISetTransaction : public virtual ISet<T>
 	{
-		typedef DiffEntry<T>				DiffEntryType;
-		typedef IEnumerable<DiffEntryType>	DiffType;
+		using DiffEntryType = DiffEntry<T>;
+		using DiffType = IEnumerable<DiffEntryType>;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		virtual void Apply(const DiffEntryType& entry) = 0;
@@ -40,8 +40,8 @@ namespace stingray
 	template < typename T >
 	struct IReadonlyTransactionalSet : public virtual IReadonlySet<T>
 	{
-		typedef DiffEntry<T>				DiffEntryType;
-		typedef IEnumerable<DiffEntryType>	DiffType;
+		using DiffEntryType = DiffEntry<T>;
+		using DiffType = IEnumerable<DiffEntryType>;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const = 0;
@@ -52,7 +52,7 @@ namespace stingray
 	template < typename T >
 	struct ITransactionalSet : public virtual IReadonlyTransactionalSet<T>
 	{
-		typedef ISetTransaction<T>			TransactionType;
+		using TransactionType = ISetTransaction<T>;
 		STINGRAYKIT_DECLARE_PTR(TransactionType);
 
 		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) = 0;

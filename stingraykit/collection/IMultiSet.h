@@ -11,7 +11,7 @@
 #include <stingraykit/collection/ICollection.h>
 
 #define STINGRAYKIT_DECLARE_MULTISET(ClassName) \
-		typedef stingray::IMultiSet<ClassName> ClassName##MultiSet; \
+		using ClassName##MultiSet = stingray::IMultiSet<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##MultiSet); \
 		STINGRAYKIT_DECLARE_COLLECTION(ClassName)
 
@@ -26,15 +26,15 @@ namespace stingray
 	template < typename T >
 	struct IReadonlyMultiSet : public virtual ICollection<T>, public virtual IReversableEnumerable<T>
 	{
-		typedef T	ValueType;
+		using ValueType = T;
 
-		virtual ~IReadonlyMultiSet() { }
+		~IReadonlyMultiSet() override { }
 
 		virtual bool Contains(const ValueType& value) const = 0;
 		virtual size_t Count(const ValueType& value) const = 0;
 
-		virtual shared_ptr<IEnumerator<T> > Find(const T& value) const = 0;
-		virtual shared_ptr<IEnumerator<T> > ReverseFind(const T& value) const = 0;
+		virtual shared_ptr<IEnumerator<T>> Find(const T& value) const = 0;
+		virtual shared_ptr<IEnumerator<T>> ReverseFind(const T& value) const = 0;
 	};
 
 
@@ -46,9 +46,9 @@ namespace stingray
 	template < typename T >
 	struct IMultiSet : public virtual IReadonlyMultiSet<T>
 	{
-		typedef T	ValueType;
+		using ValueType = T;
 
-		virtual ~IMultiSet() { }
+		~IMultiSet() override { }
 
 		virtual void Add(const ValueType& value) = 0;
 
