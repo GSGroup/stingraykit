@@ -24,9 +24,9 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	struct IDictionaryTransaction : public virtual IDictionary<KeyType_, ValueType_>
 	{
-		typedef IDictionary<KeyType_, ValueType_>			base;
-		typedef DiffEntry<typename base::PairType>			DiffEntryType;
-		typedef IEnumerable<DiffEntryType>					DiffType;
+		using base = IDictionary<KeyType_, ValueType_>;
+		using DiffEntryType = DiffEntry<typename base::PairType>;
+		using DiffType = IEnumerable<DiffEntryType>;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		virtual void Apply(const DiffEntryType& entry) = 0;
@@ -42,9 +42,9 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	struct IReadonlyTransactionalDictionary : public virtual IReadonlyDictionary<KeyType_, ValueType_>
 	{
-		typedef IReadonlyDictionary<KeyType_, ValueType_>	base;
-		typedef DiffEntry<typename base::PairType>			DiffEntryType;
-		typedef IEnumerable<DiffEntryType>					DiffType;
+		using base = IReadonlyDictionary<KeyType_, ValueType_>;
+		using DiffEntryType = DiffEntry<typename base::PairType>;
+		using DiffType = IEnumerable<DiffEntryType>;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
 		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const = 0;
@@ -58,7 +58,7 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	struct ITransactionalDictionary : public virtual IReadonlyTransactionalDictionary<KeyType_, ValueType_>
 	{
-		typedef IDictionaryTransaction<KeyType_, ValueType_> TransactionType;
+		using TransactionType = IDictionaryTransaction<KeyType_, ValueType_>;
 		STINGRAYKIT_DECLARE_PTR(TransactionType);
 
 		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) = 0;

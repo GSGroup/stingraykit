@@ -21,26 +21,26 @@ namespace stingray
 	 */
 
 	template < typename KeyType_, typename ValueType_ >
-	struct IReadonlyMultiDictionary :
-		public virtual ICollection<KeyValuePair<KeyType_, ValueType_> >,
-		public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_> >
+	struct IReadonlyMultiDictionary
+		:	public virtual ICollection<KeyValuePair<KeyType_, ValueType_>>,
+			public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_>>
 	{
-		typedef KeyType_							KeyType;
-		typedef ValueType_							ValueType;
-		typedef KeyValuePair<KeyType, ValueType>	PairType;
+		using KeyType = KeyType_;
+		using ValueType = ValueType_;
+		using PairType = KeyValuePair<KeyType, ValueType>;
 
-		virtual ~IReadonlyMultiDictionary() { }
+		~IReadonlyMultiDictionary() override { }
 
 		virtual bool ContainsKey(const KeyType& key) const = 0;
 		virtual size_t CountKey(const KeyType& key) const = 0;
 
-		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const = 0;
-		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const = 0;
+		virtual shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const = 0;
+		virtual shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const = 0;
 
 		virtual ValueType GetFirst(const KeyType& key) const = 0;
 		virtual bool TryGetFirst(const KeyType& key, ValueType& outValue) const = 0;
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetAll(const KeyType& key) const = 0;
+		virtual shared_ptr<IEnumerator<ValueType>> GetAll(const KeyType& key) const = 0;
 	};
 
 
@@ -50,14 +50,14 @@ namespace stingray
 
 
 	template < typename KeyType_, typename ValueType_ >
-	struct IMultiDictionary :
-		public virtual IReadonlyMultiDictionary<KeyType_, ValueType_>
+	struct IMultiDictionary
+		:	public virtual IReadonlyMultiDictionary<KeyType_, ValueType_>
 	{
-		typedef KeyType_							KeyType;
-		typedef ValueType_							ValueType;
-		typedef KeyValuePair<KeyType, ValueType>	PairType;
+		using KeyType = KeyType_;
+		using ValueType = ValueType_;
+		using PairType = KeyValuePair<KeyType, ValueType>;
 
-		virtual ~IMultiDictionary() { }
+		~IMultiDictionary() override { }
 
 		virtual void Add(const KeyType& key, const ValueType& value) = 0;
 

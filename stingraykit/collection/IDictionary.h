@@ -21,19 +21,19 @@ namespace stingray
 
 	template < typename KeyType_, typename ValueType_ >
 	struct IReadonlyDictionary
-		:	public virtual ICollection<KeyValuePair<KeyType_, ValueType_> >,
-			public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_> >
+		:	public virtual ICollection<KeyValuePair<KeyType_, ValueType_>>,
+			public virtual IReversableEnumerable<KeyValuePair<KeyType_, ValueType_>>
 	{
-		typedef KeyType_							KeyType;
-		typedef ValueType_							ValueType;
-		typedef KeyValuePair<KeyType, ValueType>	PairType;
+		using KeyType = KeyType_;
+		using ValueType = ValueType_;
+		using PairType = KeyValuePair<KeyType, ValueType>;
 
-		virtual ~IReadonlyDictionary() { }
+		~IReadonlyDictionary() override { }
 
 		virtual bool ContainsKey(const KeyType& key) const = 0;
 
-		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const = 0;
-		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const = 0;
+		virtual shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const = 0;
+		virtual shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const = 0;
 
 		virtual ValueType Get(const KeyType& key) const = 0;
 		virtual bool TryGet(const KeyType& key, ValueType& outValue) const = 0;
@@ -49,11 +49,11 @@ namespace stingray
 	struct IDictionary
 		:	public virtual IReadonlyDictionary<KeyType_, ValueType_>
 	{
-		typedef KeyType_							KeyType;
-		typedef ValueType_							ValueType;
-		typedef KeyValuePair<KeyType, ValueType>	PairType;
+		using KeyType = KeyType_;
+		using ValueType = ValueType_;
+		using PairType = KeyValuePair<KeyType, ValueType>;
 
-		virtual ~IDictionary() { }
+		~IDictionary() override { }
 
 		virtual void Set(const KeyType& key, const ValueType& value) = 0;
 

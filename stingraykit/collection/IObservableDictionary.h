@@ -24,9 +24,9 @@ namespace stingray
 	struct IReadonlyObservableDictionary
 		:	public virtual IReadonlyDictionary<KeyType_, ValueType_>
 	{
-		typedef typename GetParamPassingType<KeyType_>::ValueT		KeyPassingType;
-		typedef typename GetParamPassingType<ValueType_>::ValueT	ValuePassingType;
-		typedef void OnChangedSignature(CollectionOp, KeyPassingType, ValuePassingType);
+		using KeyPassingType = typename GetParamPassingType<KeyType_>::ValueT;
+		using ValuePassingType = typename GetParamPassingType<ValueType_>::ValueT;
+		using OnChangedSignature = void (CollectionOp, KeyPassingType, ValuePassingType);
 
 	public:
 		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
