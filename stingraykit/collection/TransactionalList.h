@@ -28,22 +28,22 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(TransactionalList);
 
 	private:
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		typedef ITransactionalList<ValueType_>					base;
+		using base = ITransactionalList<ValueType_>;
 
-		typedef typename base::ValueType						ValueType;
-		typedef typename base::PairType							PairType;
+		using ValueType = typename base::ValueType;
+		using PairType = typename base::PairType;
 
-		typedef typename base::DiffEntryType					DiffEntryType;
-		typedef typename base::DiffTypePtr						DiffTypePtr;
-		typedef typename base::TransactionTypePtr				TransactionTypePtr;
+		using DiffEntryType = typename base::DiffEntryType;
+		using DiffTypePtr = typename base::DiffTypePtr;
+		using TransactionTypePtr = typename base::TransactionTypePtr;
 
-		typedef ValueEqualsComparer_							ValueEqualsComparer;
+		using ValueEqualsComparer = ValueEqualsComparer_;
 
 	private:
-		typedef std::vector<ValueType>							VectorType;
+		using VectorType = std::vector<ValueType>;
 		STINGRAYKIT_DECLARE_PTR(VectorType);
 		STINGRAYKIT_DECLARE_CONST_PTR(VectorType);
 
@@ -51,7 +51,7 @@ namespace stingray
 		{
 			static DiffTypePtr MakeDiff(const VectorTypeConstPtr& oldItems, const VectorTypeConstPtr& newItems)
 			{
-				const shared_ptr<std::vector<DiffEntryType> > diff = make_shared_ptr<std::vector<DiffEntryType> >();
+				const shared_ptr<std::vector<DiffEntryType>> diff = make_shared_ptr<std::vector<DiffEntryType>>();
 
 				const size_t oldSize = oldItems->size();
 				const size_t newSize = newItems->size();
@@ -93,7 +93,7 @@ namespace stingray
 		public:
 			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+			shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
 		};
 
@@ -102,7 +102,7 @@ namespace stingray
 			STINGRAYKIT_NONCOPYABLE(PopulatorEnumerator);
 
 		private:
-			typedef typename VectorType::const_iterator cit;
+			using cit = typename VectorType::const_iterator;
 
 		private:
 			VectorTypeConstPtr	_items;
@@ -115,9 +115,21 @@ namespace stingray
 				: _items(items), _current(_items->begin()), _index(0), _end(_items->end())
 			{ }
 
-			virtual bool Valid() const			{ return _current != _end; }
-			virtual DiffEntryType Get() const	{ STINGRAYKIT_CHECK(_current != _end, "Enumerator is not valid!"); return MakeDiffEntry(CollectionOp::Added, PairType(_index, *_current)); }
-			virtual void Next()					{ STINGRAYKIT_CHECK(_current != _end, "Enumerator is not valid!"); ++_current; ++_index; }
+			bool Valid() const override
+			{ return _current != _end; }
+
+			DiffEntryType Get() const override
+			{
+				STINGRAYKIT_CHECK(_current != _end, "Enumerator is not valid!");
+				return MakeDiffEntry(CollectionOp::Added, PairType(_index, *_current));
+			}
+
+			void Next() override
+			{
+				STINGRAYKIT_CHECK(_current != _end, "Enumerator is not valid!");
+				++_current;
+				++_index;
+			}
 		};
 
 		struct ImplData
@@ -181,35 +193,35 @@ namespace stingray
 				_oldItems = _impl->Items;
 			}
 
-			virtual ~Transaction()
+			~Transaction() override
 			{
 				MutexLock l(*_impl->Guard);
 				_impl->HasTransaction = false;
 				STINGRAYKIT_TRY_NO_MESSAGE(_impl->TransactionCompleted.Broadcast());
 			}
 
-			virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+			shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 			{
 				const HolderPtr holder = GetItemsHolder();
 				return EnumeratorFromStlContainer(*holder->Items, holder);
 			}
 
-			virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+			shared_ptr<IEnumerable<ValueType>> Reverse() const override
 			{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
-			virtual size_t GetCount() const
+			size_t GetCount() const override
 			{ return _newItems ? _newItems->size() : _oldItems->size(); }
 
-			virtual bool IsEmpty() const
+			bool IsEmpty() const override
 			{ return _newItems ? _newItems->empty() : _oldItems->empty(); }
 
-			virtual bool Contains(const ValueType& value) const
+			bool Contains(const ValueType& value) const override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 				return std::find(items.begin(), items.end(), value) != items.end();
 			}
 
-			virtual optional<size_t> IndexOf(const ValueType& value) const
+			optional<size_t> IndexOf(const ValueType& value) const override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 
@@ -217,7 +229,7 @@ namespace stingray
 				return it == items.end() ? optional<size_t>() : std::distance(items.begin(), it);
 			}
 
-			virtual ValueType Get(size_t index) const
+			ValueType Get(size_t index) const override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 
@@ -225,7 +237,7 @@ namespace stingray
 				return items[index];
 			}
 
-			virtual bool TryGet(size_t index, ValueType& value) const
+			bool TryGet(size_t index, ValueType& value) const override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 
@@ -236,13 +248,13 @@ namespace stingray
 				return true;
 			}
 
-			virtual void Add(const ValueType& value)
+			void Add(const ValueType& value) override
 			{
 				CopyOnWrite();
 				_newItems->push_back(value);
 			}
 
-			virtual void Set(size_t index, const ValueType& value)
+			void Set(size_t index, const ValueType& value) override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 				STINGRAYKIT_CHECK(index < items.size(), IndexOutOfRangeException(index, items.size()));
@@ -251,7 +263,7 @@ namespace stingray
 				(*_newItems)[index] = value;
 			}
 
-			virtual void Insert(size_t index, const ValueType& value)
+			void Insert(size_t index, const ValueType& value) override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 				STINGRAYKIT_CHECK(index <= items.size(), IndexOutOfRangeException(index, items.size()));
@@ -260,7 +272,7 @@ namespace stingray
 				_newItems->insert(std::next(_newItems->begin(), index), value);
 			}
 
-			virtual void RemoveAt(size_t index)
+			void RemoveAt(size_t index) override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 				STINGRAYKIT_CHECK(index < items.size(), IndexOutOfRangeException(index, items.size()));
@@ -269,7 +281,7 @@ namespace stingray
 				_newItems->erase(std::next(_newItems->begin(), index));
 			}
 
-			virtual bool TryRemove(const ValueType& value)
+			bool TryRemove(const ValueType& value) override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 
@@ -284,7 +296,7 @@ namespace stingray
 				return true;
 			}
 
-			virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
+			size_t RemoveAll(const function<bool (const ValueType&)>& pred) override
 			{
 				CopyOnWrite();
 				const typename VectorType::iterator it = std::remove_if(_newItems->begin(), _newItems->end(), pred);
@@ -293,7 +305,7 @@ namespace stingray
 				return ret;
 			}
 
-			virtual void Clear()
+			void Clear() override
 			{
 				_cachedDiff.reset();
 
@@ -306,7 +318,7 @@ namespace stingray
 				}
 			}
 
-			virtual void Apply(const DiffEntryType& entry)
+			void Apply(const DiffEntryType& entry) override
 			{
 				switch (entry.Op)
 				{
@@ -322,7 +334,7 @@ namespace stingray
 				}
 			}
 
-			virtual void Commit()
+			void Commit() override
 			{
 				if (_newItems)
 				{
@@ -345,10 +357,10 @@ namespace stingray
 				ResetWrite();
 			}
 
-			virtual void Revert()
+			void Revert() override
 			{ ResetWrite(); }
 
-			virtual DiffTypePtr Diff() const
+			DiffTypePtr Diff() const override
 			{
 				if (_cachedDiff)
 					return _cachedDiff;
@@ -356,7 +368,7 @@ namespace stingray
 				return _newItems ? _cachedDiff = Utils::MakeDiff(_oldItems, _newItems) : MakeEmptyEnumerable();
 			}
 
-			virtual bool IsDirty() const
+			bool IsDirty() const override
 			{ return _newItems.is_initialized(); }
 
 		private:
@@ -402,37 +414,37 @@ namespace stingray
 			:	_impl(make_shared_ptr<ImplData>())
 		{ }
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{
 			MutexLock l(*_impl->Guard);
 			return EnumeratorFromStlContainer(*_impl->Items, _impl->Items);
 		}
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{
 			MutexLock l(*_impl->Guard);
 			return make_shared_ptr<ReverseEnumerable>(make_shared_ptr<Holder>(_impl->Items));
 		}
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{
 			MutexLock l(*_impl->Guard);
 			return _impl->Items->size();
 		}
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{
 			MutexLock l(*_impl->Guard);
 			return _impl->Items->empty();
 		}
 
-		virtual bool Contains(const ValueType& value) const
+		bool Contains(const ValueType& value) const override
 		{
 			MutexLock l(*_impl->Guard);
 			return std::find(_impl->Items->begin(), _impl->Items->end(), value) != _impl->Items->end();
 		}
 
-		virtual optional<size_t> IndexOf(const ValueType& value) const
+		optional<size_t> IndexOf(const ValueType& value) const override
 		{
 			MutexLock l(*_impl->Guard);
 
@@ -440,7 +452,7 @@ namespace stingray
 			return it == _impl->Items->end() ? optional<size_t>() : std::distance(_impl->Items->begin(), it);
 		}
 
-		virtual ValueType Get(size_t index) const
+		ValueType Get(size_t index) const override
 		{
 			MutexLock l(*_impl->Guard);
 
@@ -448,7 +460,7 @@ namespace stingray
 			return (*_impl->Items)[index];
 		}
 
-		virtual bool TryGet(size_t index, ValueType& value) const
+		bool TryGet(size_t index, ValueType& value) const override
 		{
 			MutexLock l(*_impl->Guard);
 
@@ -459,13 +471,13 @@ namespace stingray
 			return true;
 		}
 
-		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken())
+		TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) override
 		{ return make_shared_ptr<Transaction>(_impl, token); }
 
-		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const
+		signal_connector<void (const DiffTypePtr&)> OnChanged() const override
 		{ return _impl->OnChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return *_impl->Guard; }
 	};
 
