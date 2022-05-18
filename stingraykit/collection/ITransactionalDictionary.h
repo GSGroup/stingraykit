@@ -55,6 +55,11 @@ namespace stingray
 	};
 
 
+	template < typename T >
+	struct IsInheritedIReadonlyTransactionalDictionary : public IsInherited2ParamTemplate<T, IReadonlyTransactionalDictionary>
+	{ };
+
+
 	template < typename KeyType_, typename ValueType_ >
 	struct ITransactionalDictionary : public virtual IReadonlyTransactionalDictionary<KeyType_, ValueType_>
 	{
@@ -63,6 +68,11 @@ namespace stingray
 
 		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) = 0;
 	};
+
+
+	template < typename T >
+	struct IsInheritedITransactionalDictionary : public IsInherited2ParamTemplate<T, ITransactionalDictionary>
+	{ };
 
 	/** @} */
 

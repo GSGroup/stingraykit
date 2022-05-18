@@ -37,10 +37,20 @@ namespace stingray
 	};
 
 
+	template < typename T >
+	struct IsInheritedIReadonlyObservableDictionary : public IsInherited2ParamTemplate<T, IReadonlyObservableDictionary>
+	{ };
+
+
 	template < typename KeyType_, typename ValueType_ >
 	struct IObservableDictionary
 		:	public virtual IDictionary<KeyType_, ValueType_>,
 			public virtual IReadonlyObservableDictionary<KeyType_, ValueType_>
+	{ };
+
+
+	template < typename T >
+	struct IsInheritedIObservableDictionary : public IsInherited2ParamTemplate<T, IObservableDictionary>
 	{ };
 
 	/** @} */

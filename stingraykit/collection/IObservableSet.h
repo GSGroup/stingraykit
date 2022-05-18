@@ -34,10 +34,20 @@ namespace stingray
 	};
 
 
+	template < typename T >
+	struct IsInheritedIReadonlyObservableSet : public IsInherited1ParamTemplate<T, IReadonlyObservableSet>
+	{ };
+
+
 	template < typename ValueType_ >
 	struct IObservableSet
 		:	public virtual ISet<ValueType_>,
 			public virtual IReadonlyObservableSet<ValueType_>
+	{ };
+
+
+	template < typename T >
+	struct IsInheritedIObservableSet : public IsInherited1ParamTemplate<T, IObservableSet>
 	{ };
 
 	/** @} */

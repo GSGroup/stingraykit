@@ -50,6 +50,11 @@ namespace stingray
 
 
 	template < typename T >
+	struct IsInheritedIReadonlyTransactionalSet : public IsInherited1ParamTemplate<T, IReadonlyTransactionalSet>
+	{ };
+
+
+	template < typename T >
 	struct ITransactionalSet : public virtual IReadonlyTransactionalSet<T>
 	{
 		using TransactionType = ISetTransaction<T>;
@@ -57,6 +62,11 @@ namespace stingray
 
 		virtual TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) = 0;
 	};
+
+
+	template < typename T >
+	struct IsInheritedITransactionalSet : public IsInherited1ParamTemplate<T, ITransactionalSet>
+	{ };
 
 	/** @} */
 
