@@ -21,21 +21,21 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename KeyType, typename SrcType, typename DestType, typename SrcDictionaryType = IReadonlyDictionary<KeyType, SrcType> >
+	template < typename KeyType, typename SrcType, typename DestType, typename SrcDictionaryType = IReadonlyDictionary<KeyType, SrcType>>
 	class DictionaryCaster : public virtual IReadonlyDictionary<KeyType, DestType>
 	{
-		typedef IReadonlyDictionary<KeyType, DestType> base;
-		typedef DictionaryCaster<KeyType, SrcType, DestType, SrcDictionaryType> Self;
+		using base = IReadonlyDictionary<KeyType, DestType>;
+		using Self = DictionaryCaster<KeyType, SrcType, DestType, SrcDictionaryType>;
 
 		STINGRAYKIT_DECLARE_PTR(SrcDictionaryType);
 
 	public:
-		typedef function<DestType (const SrcType&)> Caster;
-		typedef function<bool (const DestType&, SrcType&)> BackCaster;
+		using Caster = function<DestType (const SrcType&)>;
+		using BackCaster = function<bool (const DestType&, SrcType&)>;
 
 	protected:
-		typedef typename SrcDictionaryType::PairType SrcPairType;
-		typedef typename base::PairType DestPairType;
+		using SrcPairType = typename SrcDictionaryType::PairType;
+		using DestPairType = typename base::PairType;
 
 	protected:
 		const SrcDictionaryTypePtr							_wrapped;
@@ -47,31 +47,31 @@ namespace stingray
 			: _wrapped(STINGRAYKIT_REQUIRE_NOT_NULL(wrapped)), _caster(caster), _backCaster(backCaster)
 		{ }
 
-		virtual shared_ptr<IEnumerator<DestPairType> > GetEnumerator() const
+		shared_ptr<IEnumerator<DestPairType>> GetEnumerator() const override
 		{ return WrapEnumerator(_wrapped->GetEnumerator(), Bind(&Self::PairCast, _caster, _1)); }
 
-		virtual shared_ptr<IEnumerable<DestPairType> > Reverse() const
+		shared_ptr<IEnumerable<DestPairType>> Reverse() const override
 		{ return WrapEnumerable(_wrapped->Reverse(), Bind(&Self::PairCast, _caster, _1)); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _wrapped->GetCount(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _wrapped->IsEmpty(); }
 
-		virtual bool ContainsKey(const KeyType& key) const
+		bool ContainsKey(const KeyType& key) const override
 		{ return _wrapped->ContainsKey(key); }
 
-		virtual shared_ptr<IEnumerator<DestPairType> > Find(const KeyType& key) const
+		shared_ptr<IEnumerator<DestPairType>> Find(const KeyType& key) const override
 		{ return WrapEnumerator(_wrapped->Find(key), Bind(&Self::PairCast, _caster, _1)); }
 
-		virtual shared_ptr<IEnumerator<DestPairType> > ReverseFind(const KeyType& key) const
+		shared_ptr<IEnumerator<DestPairType>> ReverseFind(const KeyType& key) const override
 		{ return WrapEnumerator(_wrapped->ReverseFind(key), Bind(&Self::PairCast, _caster, _1)); }
 
-		virtual DestType Get(const KeyType& key) const
+		DestType Get(const KeyType& key) const override
 		{ return _caster(_wrapped->Get(key)); }
 
-		virtual bool TryGet(const KeyType& key, DestType& value) const
+		bool TryGet(const KeyType& key, DestType& value) const override
 		{
 			SrcType value_;
 			if (_wrapped->TryGet(key, value_))
@@ -89,39 +89,39 @@ namespace stingray
 
 
 	template < typename KeyType, typename SrcType, typename DestType >
-	class ObservableDictionaryCaster : public DictionaryCaster<KeyType, SrcType, DestType, IReadonlyObservableDictionary<KeyType, SrcType> >, public virtual IReadonlyObservableDictionary<KeyType, DestType>
+	class ObservableDictionaryCaster : public DictionaryCaster<KeyType, SrcType, DestType, IReadonlyObservableDictionary<KeyType, SrcType>>, public virtual IReadonlyObservableDictionary<KeyType, DestType>
 	{
-		typedef DictionaryCaster<KeyType, SrcType, DestType, IReadonlyObservableDictionary<KeyType, SrcType> > base;
-		typedef ObservableDictionaryCaster<KeyType, SrcType, DestType> Self;
+		using base = DictionaryCaster<KeyType, SrcType, DestType, IReadonlyObservableDictionary<KeyType, SrcType>>;
+		using Self = ObservableDictionaryCaster<KeyType, SrcType, DestType>;
 
-		typedef IReadonlyObservableDictionary<KeyType, SrcType> SrcDictionaryType;
+		using SrcDictionaryType = IReadonlyObservableDictionary<KeyType, SrcType>;
 		STINGRAYKIT_DECLARE_PTR(SrcDictionaryType);
 
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		typedef typename IReadonlyObservableDictionary<KeyType, DestType>::OnChangedSignature OnChangedSignature;
+		using OnChangedSignature = typename IReadonlyObservableDictionary<KeyType, DestType>::OnChangedSignature;
 
-		typedef typename base::DestPairType DestPairType;
+		using DestPairType = typename base::DestPairType;
 
-		typedef typename base::Caster Caster;
-		typedef typename base::BackCaster BackCaster;
+		using Caster = typename base::Caster;
+		using BackCaster = typename base::BackCaster;
 
 	private:
 		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 		const Token											_connection;
 
 	public:
-		explicit ObservableDictionaryCaster(const SrcDictionaryTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
+		ObservableDictionaryCaster(const SrcDictionaryTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
 			:	base(wrapped, caster, backCaster),
 				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(base::_wrapped, &base::_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
 				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ChangedHandler, this, _1, _2, _3)))
 		{ }
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
+		signal_connector<OnChangedSignature> OnChanged() const override
 		{ return _onChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return base::_wrapped->GetSyncRoot(); }
 
 	private:
@@ -142,8 +142,8 @@ namespace stingray
 		template < typename SrcDictionaryType >
 		class DictionaryCasterProxy
 		{
-			typedef typename SrcDictionaryType::KeyType KeyType;
-			typedef typename SrcDictionaryType::ValueType SrcType;
+			using KeyType = typename SrcDictionaryType::KeyType;
+			using SrcType = typename SrcDictionaryType::ValueType;
 
 		private:
 			shared_ptr<SrcDictionaryType>	_srcDictionary;
@@ -153,12 +153,12 @@ namespace stingray
 			{ }
 
 			template < typename DestType >
-			operator shared_ptr<IReadonlyDictionary<KeyType, DestType> > () const
-			{ return make_shared_ptr<DictionaryCaster<KeyType, SrcType, DestType> >(_srcDictionary, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
+			operator shared_ptr<IReadonlyDictionary<KeyType, DestType>> () const
+			{ return make_shared_ptr<DictionaryCaster<KeyType, SrcType, DestType>>(_srcDictionary, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
 
 			template < typename DestType >
-			operator shared_ptr<IReadonlyObservableDictionary<KeyType, DestType> > () const
-			{ return make_shared_ptr<ObservableDictionaryCaster<KeyType, SrcType, DestType> >(_srcDictionary, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
+			operator shared_ptr<IReadonlyObservableDictionary<KeyType, DestType>> () const
+			{ return make_shared_ptr<ObservableDictionaryCaster<KeyType, SrcType, DestType>>(_srcDictionary, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
 
 		private:
 			template < typename DestType >
