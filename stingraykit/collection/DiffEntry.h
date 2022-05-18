@@ -14,10 +14,10 @@
 namespace stingray
 {
 
-	template< typename T >
+	template < typename T >
 	struct DiffEntry
 	{
-		typedef T ItemType;
+		using ItemType = T;
 
 		CollectionOp	Op;
 		ItemType		Item;
@@ -34,7 +34,7 @@ namespace stingray
 	};
 
 
-	template< typename T >
+	template < typename T >
 	DiffEntry<T> MakeDiffEntry(CollectionOp op, const T& item)
 	{ return DiffEntry<T>(op, item); }
 
