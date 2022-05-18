@@ -34,6 +34,9 @@ namespace stingray
 
 		using DiffEntryType = typename base::DiffEntryType;
 		using DiffTypePtr = typename base::DiffTypePtr;
+
+		using OnChangedSignature = typename base::OnChangedSignature;
+
 		using TransactionTypePtr = typename base::TransactionTypePtr;
 
 		using ValueLessComparer = ValueLessComparer_;
@@ -175,7 +178,7 @@ namespace stingray
 
 			bool										HasTransaction;
 			ConditionVariable							TransactionCompleted;
-			signal<void (const DiffTypePtr&), EMP>		OnChanged;
+			signal<OnChangedSignature, EMP>				OnChanged;
 
 		public:
 			ImplData()
@@ -192,7 +195,7 @@ namespace stingray
 			}
 
 		private:
-			void OnChangedPopulator(const function<void (const DiffTypePtr&)>& slot) const
+			void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 			{
 				if (!Items->empty())
 					slot(WrapEnumerable(EnumerableFromStlContainer(*Items, GetItemsHolder()), Bind(&MakeDiffEntry<ValueType>, CollectionOp::Added, _1)));
@@ -476,7 +479,7 @@ namespace stingray
 		TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) override
 		{ return make_shared_ptr<Transaction>(_impl, token); }
 
-		signal_connector<void (const DiffTypePtr&)> OnChanged() const override
+		signal_connector<OnChangedSignature> OnChanged() const override
 		{ return _impl->OnChanged.connector(); }
 
 		const Mutex& GetSyncRoot() const override

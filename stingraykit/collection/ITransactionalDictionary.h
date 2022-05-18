@@ -47,7 +47,9 @@ namespace stingray
 		using DiffType = IEnumerable<DiffEntryType>;
 		STINGRAYKIT_DECLARE_PTR(DiffType);
 
-		virtual signal_connector<void (const DiffTypePtr&)> OnChanged() const = 0;
+		using OnChangedSignature = void (const DiffTypePtr&);
+
+		virtual signal_connector<OnChangedSignature> OnChanged() const = 0;
 		virtual const Mutex& GetSyncRoot() const = 0;
 
 		ObservableCollectionLockerPtr Lock() const
