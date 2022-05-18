@@ -11,6 +11,7 @@
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IObservableList.h>
+#include <stingraykit/collection/ITransactionalList.h>
 #include <stingraykit/signal/signals.h>
 
 namespace stingray
@@ -91,10 +92,12 @@ namespace stingray
 		using SrcListType = IReadonlyObservableList<SrcType>;
 		STINGRAYKIT_DECLARE_PTR(SrcListType);
 
+		using DestListType = IReadonlyObservableList<DestType>;
+
 		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		using OnChangedSignature = typename IReadonlyObservableList<DestType>::OnChangedSignature;
+		using OnChangedSignature = typename DestListType::OnChangedSignature;
 
 		using Caster = typename base::Caster;
 		using BackCaster = typename base::BackCaster;
@@ -129,6 +132,54 @@ namespace stingray
 	};
 
 
+	template < typename SrcType, typename DestType >
+	class TransactionalListCaster : public ListCaster<SrcType, DestType, IReadonlyTransactionalList<SrcType>>, public virtual IReadonlyTransactionalList<DestType>
+	{
+		using base = ListCaster<SrcType, DestType, IReadonlyTransactionalList<SrcType>>;
+		using Self = TransactionalListCaster<SrcType, DestType>;
+
+		using SrcListType = IReadonlyTransactionalList<SrcType>;
+		STINGRAYKIT_DECLARE_PTR(SrcListType);
+
+		using DestListType = IReadonlyTransactionalList<DestType>;
+
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
+
+	public:
+		using OnChangedSignature = typename DestListType::OnChangedSignature;
+
+		using Caster = typename base::Caster;
+		using BackCaster = typename base::BackCaster;
+
+	private:
+		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
+		const Token											_connection;
+
+	public:
+		TransactionalListCaster(const SrcListTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
+			:	base(wrapped, caster, backCaster),
+				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(base::_wrapped, &base::_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
+				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ConvertDiffAndInvoke, this, _onChanged.invoker(), _1)))
+		{ }
+
+		signal_connector<OnChangedSignature> OnChanged() const override
+		{ return _onChanged.connector(); }
+
+		const Mutex& GetSyncRoot() const override
+		{ return base::_wrapped->GetSyncRoot(); }
+
+	private:
+		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
+		{ base::_wrapped->OnChanged().SendCurrentState(Bind(&Self::ConvertDiffAndInvoke, this, slot, _1)); }
+
+		void ConvertDiffAndInvoke(const function<OnChangedSignature>& slot, const typename SrcListType::DiffTypePtr& diff) const
+		{ slot(Enumerable::Transform(diff, Bind(&Self::ConvertDiffEntry, base::_caster, _1))); }
+
+		static typename DestListType::DiffEntryType ConvertDiffEntry(const Caster& caster, const typename SrcListType::DiffEntryType& entry)
+		{ return MakeDiffEntry(entry.Op, typename DestListType::PairType(entry.Item.Key, caster(entry.Item.Value))); }
+	};
+
+
 	namespace Detail
 	{
 
@@ -151,6 +202,10 @@ namespace stingray
 			template < typename DestType >
 			operator shared_ptr<IReadonlyObservableList<DestType>> () const
 			{ return make_shared_ptr<ObservableListCaster<SrcType, DestType>>(_srcList, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
+
+			template < typename DestType >
+			operator shared_ptr<IReadonlyTransactionalList<DestType>> () const
+			{ return make_shared_ptr<TransactionalListCaster<SrcType, DestType>>(_srcList, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
 
 		private:
 			template < typename DestType >
