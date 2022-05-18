@@ -21,16 +21,16 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename SrcType, typename DestType, typename SrcSetType = IReadonlySet<SrcType> >
+	template < typename SrcType, typename DestType, typename SrcSetType = IReadonlySet<SrcType>>
 	class SetCaster : public virtual IReadonlySet<DestType>
 	{
-		typedef SetCaster<SrcType, DestType, SrcSetType> Self;
+		using Self = SetCaster<SrcType, DestType, SrcSetType>;
 
 		STINGRAYKIT_DECLARE_PTR(SrcSetType);
 
 	public:
-		typedef function<DestType (const SrcType&)> Caster;
-		typedef function<bool (const DestType&, SrcType&)> BackCaster;
+		using Caster = function<DestType (const SrcType&)>;
+		using BackCaster = function<bool (const DestType&, SrcType&)>;
 
 	protected:
 		const SrcSetTypePtr									_wrapped;
@@ -42,25 +42,25 @@ namespace stingray
 			: _wrapped(STINGRAYKIT_REQUIRE_NOT_NULL(wrapped)), _caster(caster), _backCaster(backCaster)
 		{ }
 
-		virtual shared_ptr<IEnumerator<DestType> > GetEnumerator() const
+		shared_ptr<IEnumerator<DestType>> GetEnumerator() const override
 		{ return WrapEnumerator(_wrapped->GetEnumerator(), _caster); }
 
-		virtual shared_ptr<IEnumerable<DestType> > Reverse() const
+		shared_ptr<IEnumerable<DestType>> Reverse() const override
 		{ return WrapEnumerable(_wrapped->Reverse(), _caster); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _wrapped->GetCount(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _wrapped->IsEmpty(); }
 
-		virtual bool Contains(const DestType& value) const
+		bool Contains(const DestType& value) const override
 		{
 			SrcType value_;
 			return _backCaster(value, value_) ? _wrapped->Contains(value_) : false;
 		}
 
-		virtual shared_ptr<IEnumerator<DestType> > Find(const DestType& value) const
+		shared_ptr<IEnumerator<DestType>> Find(const DestType& value) const override
 		{
 			SrcType value_;
 			if (_backCaster(value, value_))
@@ -68,7 +68,7 @@ namespace stingray
 			return MakeEmptyEnumerator();
 		}
 
-		virtual shared_ptr<IEnumerator<DestType> > ReverseFind(const DestType& value) const
+		shared_ptr<IEnumerator<DestType>> ReverseFind(const DestType& value) const override
 		{
 			SrcType value_;
 			if (_backCaster(value, value_))
@@ -79,37 +79,37 @@ namespace stingray
 
 
 	template < typename SrcType, typename DestType >
-	class ObservableSetCaster : public SetCaster<SrcType, DestType, IReadonlyObservableSet<SrcType> >, public virtual IReadonlyObservableSet<DestType>
+	class ObservableSetCaster : public SetCaster<SrcType, DestType, IReadonlyObservableSet<SrcType>>, public virtual IReadonlyObservableSet<DestType>
 	{
-		typedef SetCaster<SrcType, DestType, IReadonlyObservableSet<SrcType> > base;
-		typedef ObservableSetCaster<SrcType, DestType> Self;
+		using base = SetCaster<SrcType, DestType, IReadonlyObservableSet<SrcType>>;
+		using Self = ObservableSetCaster<SrcType, DestType>;
 
-		typedef IReadonlyObservableSet<SrcType> SrcSetType;
+		using SrcSetType = IReadonlyObservableSet<SrcType>;
 		STINGRAYKIT_DECLARE_PTR(SrcSetType);
 
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		typedef typename IReadonlyObservableSet<DestType>::OnChangedSignature OnChangedSignature;
+		using OnChangedSignature = typename IReadonlyObservableSet<DestType>::OnChangedSignature;
 
-		typedef typename base::Caster Caster;
-		typedef typename base::BackCaster BackCaster;
+		using Caster = typename base::Caster;
+		using BackCaster = typename base::BackCaster;
 
 	private:
 		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 		const Token											_connection;
 
 	public:
-		explicit ObservableSetCaster(const SrcSetTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
+		ObservableSetCaster(const SrcSetTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
 			:	base(wrapped, caster, backCaster),
 				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(base::_wrapped, &base::_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
 				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ChangedHandler, this, _1, _2)))
 		{ }
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
+		signal_connector<OnChangedSignature> OnChanged() const override
 		{ return _onChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return base::_wrapped->GetSyncRoot(); }
 
 	private:
@@ -130,7 +130,7 @@ namespace stingray
 		template < typename SrcSetType >
 		class SetCasterProxy
 		{
-			typedef typename SrcSetType::ItemType SrcType;
+			using SrcType = typename SrcSetType::ItemType;
 
 		private:
 			shared_ptr<SrcSetType>	_srcSet;
@@ -140,12 +140,12 @@ namespace stingray
 			{ }
 
 			template < typename DestType >
-			operator shared_ptr<IReadonlySet<DestType> > () const
-			{ return make_shared_ptr<SetCaster<SrcType, DestType> >(_srcSet, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
+			operator shared_ptr<IReadonlySet<DestType>> () const
+			{ return make_shared_ptr<SetCaster<SrcType, DestType>>(_srcSet, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
 
 			template < typename DestType >
-			operator shared_ptr<IReadonlyObservableSet<DestType> > () const
-			{ return make_shared_ptr<ObservableSetCaster<SrcType, DestType> >(_srcSet, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
+			operator shared_ptr<IReadonlyObservableSet<DestType>> () const
+			{ return make_shared_ptr<ObservableSetCaster<SrcType, DestType>>(_srcSet, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
 
 		private:
 			template < typename DestType >
