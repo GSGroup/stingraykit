@@ -11,6 +11,7 @@
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IObservableDictionary.h>
+#include <stingraykit/collection/ITransactionalDictionary.h>
 #include <stingraykit/signal/signals.h>
 
 namespace stingray
@@ -97,10 +98,12 @@ namespace stingray
 		using SrcDictionaryType = IReadonlyObservableDictionary<KeyType, SrcType>;
 		STINGRAYKIT_DECLARE_PTR(SrcDictionaryType);
 
+		using DestDictionaryType = IReadonlyObservableDictionary<KeyType, DestType>;
+
 		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		using OnChangedSignature = typename IReadonlyObservableDictionary<KeyType, DestType>::OnChangedSignature;
+		using OnChangedSignature = typename DestDictionaryType::OnChangedSignature;
 
 		using DestPairType = typename base::DestPairType;
 
@@ -136,6 +139,56 @@ namespace stingray
 	};
 
 
+	template < typename KeyType, typename SrcType, typename DestType >
+	class TransactionalDictionaryCaster : public DictionaryCaster<KeyType, SrcType, DestType, IReadonlyTransactionalDictionary<KeyType, SrcType>>, public virtual IReadonlyTransactionalDictionary<KeyType, DestType>
+	{
+		using base = DictionaryCaster<KeyType, SrcType, DestType, IReadonlyTransactionalDictionary<KeyType, SrcType>>;
+		using Self = TransactionalDictionaryCaster<KeyType, SrcType, DestType>;
+
+		using SrcDictionaryType = IReadonlyTransactionalDictionary<KeyType, SrcType>;
+		STINGRAYKIT_DECLARE_PTR(SrcDictionaryType);
+
+		using DestDictionaryType = IReadonlyTransactionalDictionary<KeyType, DestType>;
+
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
+
+	public:
+		using OnChangedSignature = typename DestDictionaryType::OnChangedSignature;
+
+		using DestPairType = typename base::DestPairType;
+
+		using Caster = typename base::Caster;
+		using BackCaster = typename base::BackCaster;
+
+	private:
+		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
+		const Token											_connection;
+
+	public:
+		TransactionalDictionaryCaster(const SrcDictionaryTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
+			:	base(wrapped, caster, backCaster),
+				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(base::_wrapped, &base::_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
+				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ConvertDiffAndInvoke, this, _onChanged.invoker(), _1)))
+		{ }
+
+		signal_connector<OnChangedSignature> OnChanged() const override
+		{ return _onChanged.connector(); }
+
+		const Mutex& GetSyncRoot() const override
+		{ return base::_wrapped->GetSyncRoot(); }
+
+	private:
+		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
+		{ base::_wrapped->OnChanged().SendCurrentState(Bind(&Self::ConvertDiffAndInvoke, this, slot, _1)); }
+
+		void ConvertDiffAndInvoke(const function<OnChangedSignature>& slot, const typename SrcDictionaryType::DiffTypePtr& diff) const
+		{ slot(Enumerable::Transform(diff, Bind(&Self::ConvertDiffEntry, base::_caster, _1))); }
+
+		static typename DestDictionaryType::DiffEntryType ConvertDiffEntry(const Caster& caster, const typename SrcDictionaryType::DiffEntryType& entry)
+		{ return MakeDiffEntry(entry.Op, typename DestDictionaryType::PairType(entry.Item.Key, caster(entry.Item.Value))); }
+	};
+
+
 	namespace Detail
 	{
 
@@ -159,6 +212,10 @@ namespace stingray
 			template < typename DestType >
 			operator shared_ptr<IReadonlyObservableDictionary<KeyType, DestType>> () const
 			{ return make_shared_ptr<ObservableDictionaryCaster<KeyType, SrcType, DestType>>(_srcDictionary, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
+
+			template < typename DestType >
+			operator shared_ptr<IReadonlyTransactionalDictionary<KeyType, DestType>> () const
+			{ return make_shared_ptr<TransactionalDictionaryCaster<KeyType, SrcType, DestType>>(_srcDictionary, &DefaultCast<DestType>, &DefaultBackCast<DestType>); }
 
 		private:
 			template < typename DestType >
