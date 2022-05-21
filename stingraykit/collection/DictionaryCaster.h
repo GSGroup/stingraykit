@@ -118,7 +118,7 @@ namespace stingray
 		ObservableDictionaryCaster(const SrcDictionaryTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
 			:	base(wrapped, caster, backCaster),
 				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(base::_wrapped, &base::_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
-				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ChangedHandler, this, _1, _2, _3)))
+				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ChangedHandler, this, _1, _2, _3), false))
 		{ }
 
 		signal_connector<OnChangedSignature> OnChanged() const override
@@ -168,7 +168,7 @@ namespace stingray
 		TransactionalDictionaryCaster(const SrcDictionaryTypePtr& wrapped, const Caster& caster, const BackCaster& backCaster)
 			:	base(wrapped, caster, backCaster),
 				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(base::_wrapped, &base::_wrapped->GetSyncRoot())), Bind(&Self::OnChangedPopulator, this, _1)),
-				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ConvertDiffAndInvoke, this, _onChanged.invoker(), _1)))
+				_connection(base::_wrapped->OnChanged().connect(Bind(&Self::ConvertDiffAndInvoke, this, _onChanged.invoker(), _1), false))
 		{ }
 
 		signal_connector<OnChangedSignature> OnChanged() const override
