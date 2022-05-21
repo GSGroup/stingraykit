@@ -19,38 +19,38 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class DictionaryKeysSet : public virtual IReadonlySet<KeyType_>
 	{
-		typedef IReadonlyDictionary<KeyType_, ValueType_> DictionaryType;
+		using DictionaryType = IReadonlyDictionary<KeyType_, ValueType_>;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
-		typedef KeyType_ ValueType;
+		using ValueType = KeyType_;
 
 	private:
-		DictionaryTypePtr	_dict;
+		const DictionaryTypePtr		_dict;
 
 	public:
 		explicit DictionaryKeysSet(const DictionaryTypePtr& dict)
-			: _dict(STINGRAYKIT_REQUIRE_NOT_NULL(dict))
+			:	_dict(STINGRAYKIT_REQUIRE_NOT_NULL(dict))
 		{ }
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{ return KeysEnumerator(_dict->GetEnumerator()); }
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{ return KeysEnumerable(_dict->Reverse()); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _dict->GetCount(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _dict->IsEmpty(); }
 
-		virtual bool Contains(const ValueType& value) const
+		bool Contains(const ValueType& value) const override
 		{ return _dict->ContainsKey(value); }
 
-		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{ return KeysEnumerator(_dict->Find(value)); }
 
-		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{ return KeysEnumerator(_dict->ReverseFind(value)); }
 	};
 
@@ -58,17 +58,17 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class ObservableDictionaryKeysSet : public virtual IReadonlyObservableSet<KeyType_>
 	{
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
-		typedef IReadonlyObservableDictionary<KeyType_, ValueType_> DictionaryType;
+		using DictionaryType = IReadonlyObservableDictionary<KeyType_, ValueType_>;
 		STINGRAYKIT_DECLARE_PTR(DictionaryType);
 
-		typedef KeyType_ ValueType;
+		using ValueType = KeyType_;
 
 	private:
-		DictionaryTypePtr													_dict;
+		const DictionaryTypePtr												_dict;
 		signal<void (CollectionOp, const ValueType&), ExternalMutexPointer>	_onChanged;
-		Token																_connection;
+		const Token															_connection;
 
 	public:
 		explicit ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
@@ -77,36 +77,39 @@ namespace stingray
 				_connection(_dict->OnChanged().connect(Bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2)))
 		{ }
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{ return KeysEnumerator(_dict->GetEnumerator()); }
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{ return KeysEnumerable(_dict->Reverse()); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _dict->GetCount(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _dict->IsEmpty(); }
 
-		virtual bool Contains(const ValueType& value) const
+		bool Contains(const ValueType& value) const override
 		{ return _dict->ContainsKey(value); }
 
-		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{ return KeysEnumerator(_dict->Find(value)); }
 
-		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{ return KeysEnumerator(_dict->ReverseFind(value)); }
 
-		virtual signal_connector<void(CollectionOp, const ValueType&)> OnChanged() const
+		signal_connector<void (CollectionOp, const ValueType&)> OnChanged() const override
 		{ return _onChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return _dict->GetSyncRoot(); }
 
 	private:
 		void InvokeOnChanged(CollectionOp op, const ValueType& val)
-		{ if (op != CollectionOp::Updated) _onChanged(op, val); }
+		{
+			if (op != CollectionOp::Updated)
+				_onChanged(op, val);
+		}
 
 		void OnChangedPopulator(const function<void (CollectionOp, const ValueType&)> slot) const
 		{ _dict->OnChanged().SendCurrentState(Bind(slot, _1, _2)); }
@@ -114,12 +117,12 @@ namespace stingray
 
 
 	template < typename DictionaryType >
-	shared_ptr<DictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType> > GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<!IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
-	{ return make_shared_ptr<DictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType> >(dict); }
+	shared_ptr<DictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<!IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
+	{ return make_shared_ptr<DictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>>(dict); }
 
 	template < typename DictionaryType >
-	shared_ptr<ObservableDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType> > GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
-	{ return make_shared_ptr<ObservableDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType> >(dict); }
+	shared_ptr<ObservableDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
+	{ return make_shared_ptr<ObservableDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>>(dict); }
 
 }
 
