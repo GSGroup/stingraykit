@@ -117,11 +117,11 @@ namespace stingray
 
 
 	template < typename DictionaryType >
-	shared_ptr<DictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<!IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
+	shared_ptr<IReadonlySet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<!IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
 	{ return make_shared_ptr<DictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>>(dict); }
 
 	template < typename DictionaryType >
-	shared_ptr<ObservableDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
+	shared_ptr<IReadonlyObservableSet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
 	{ return make_shared_ptr<ObservableDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>>(dict); }
 
 }
