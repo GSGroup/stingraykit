@@ -77,7 +77,7 @@ namespace stingray
 		explicit ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
 			:	_dict(STINGRAYKIT_REQUIRE_NOT_NULL(dict)),
 				_onChanged(ExternalMutexPointer(shared_ptr<const Mutex>(_dict, &_dict->GetSyncRoot())), Bind(&ObservableDictionaryKeysSet::OnChangedPopulator, this, _1)),
-				_connection(_dict->OnChanged().connect(Bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2)))
+				_connection(_dict->OnChanged().connect(Bind(&ObservableDictionaryKeysSet::InvokeOnChanged, this, _1, _2), false))
 		{ }
 
 		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
