@@ -119,12 +119,14 @@ namespace stingray
 	};
 
 
-	template < typename DictionaryType >
-	shared_ptr<IReadonlySet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<!IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
+	template < typename DictionaryType,
+			typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyDictionary>::Value &&
+					!IsInherited2ParamTemplate<DictionaryType, IReadonlyObservableDictionary>::Value, int>::ValueT dummy = 0 >
+	shared_ptr<IReadonlySet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict)
 	{ return make_shared_ptr<DictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>>(dict); }
 
-	template < typename DictionaryType >
-	shared_ptr<IReadonlyObservableSet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IObservableDictionary>::Value, int>::ValueT dummy = 0)
+	template < typename DictionaryType, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyObservableDictionary>::Value, int>::ValueT dummy = 0 >
+	shared_ptr<IReadonlyObservableSet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict)
 	{ return make_shared_ptr<ObservableDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>>(dict); }
 
 }
