@@ -105,10 +105,10 @@ namespace stingray
 		{ return _dict->GetSyncRoot(); }
 
 	private:
-		virtual void InvokeOnChanged(CollectionOp op, const ValueType& val)
+		void InvokeOnChanged(CollectionOp op, const ValueType& val)
 		{ if (op != CollectionOp::Updated) _onChanged(op, val); }
 
-		virtual void OnChangedPopulator(const function<void(CollectionOp, const ValueType&)> slot) const
+		void OnChangedPopulator(const function<void (CollectionOp, const ValueType&)> slot) const
 		{ _dict->OnChanged().SendCurrentState(Bind(slot, _1, _2)); }
 	};
 
