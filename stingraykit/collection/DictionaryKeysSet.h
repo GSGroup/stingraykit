@@ -58,6 +58,9 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	class ObservableDictionaryKeysSet : public virtual IReadonlyObservableSet<KeyType_>
 	{
+		using SetType = IReadonlyObservableSet<KeyType_>;
+		using OnChangedSignature = typename SetType::OnChangedSignature;
+
 		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 		using DictionaryType = IReadonlyObservableDictionary<KeyType_, ValueType_>;
@@ -66,9 +69,9 @@ namespace stingray
 		using ValueType = KeyType_;
 
 	private:
-		const DictionaryTypePtr												_dict;
-		signal<void (CollectionOp, const ValueType&), ExternalMutexPointer>	_onChanged;
-		const Token															_connection;
+		const DictionaryTypePtr								_dict;
+		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
+		const Token											_connection;
 
 	public:
 		explicit ObservableDictionaryKeysSet(const DictionaryTypePtr& dict)
@@ -98,7 +101,7 @@ namespace stingray
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{ return KeysEnumerator(_dict->ReverseFind(value)); }
 
-		signal_connector<void (CollectionOp, const ValueType&)> OnChanged() const override
+		signal_connector<OnChangedSignature> OnChanged() const override
 		{ return _onChanged.connector(); }
 
 		const Mutex& GetSyncRoot() const override
@@ -111,7 +114,7 @@ namespace stingray
 				_onChanged(op, val);
 		}
 
-		void OnChangedPopulator(const function<void (CollectionOp, const ValueType&)> slot) const
+		void OnChangedPopulator(const function<OnChangedSignature> slot) const
 		{ _dict->OnChanged().SendCurrentState(Bind(slot, _1, _2)); }
 	};
 
