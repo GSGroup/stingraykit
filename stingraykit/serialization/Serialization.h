@@ -251,14 +251,16 @@ namespace stingray
 		{
 			CollectionSerializeWithSerialize,
 			CollectionSerializeWithSerializeAsValue,
-			CollectionSerializeWithBeginEnd
+			CollectionSerializeWithBeginEnd,
+			CollectionSerializeRange
 		};
 
 		template <typename CollectionType, CollectionSerializationType ObjectType =
-			HasMethod_Serialize<CollectionType>::Value ? CollectionSerializeWithSerialize : (
-				HasMethod_SerializeAsValue<CollectionType>::Value ? CollectionSerializeWithSerializeAsValue : (
-					(HasMethod_begin<CollectionType>::Value && HasMethod_end<CollectionType>::Value) ? CollectionSerializeWithBeginEnd :
-						CollectionSerializeWithSerialize))
+				HasMethod_Serialize<CollectionType>::Value ? CollectionSerializeWithSerialize :
+						HasMethod_SerializeAsValue<CollectionType>::Value ? CollectionSerializeWithSerializeAsValue :
+								IsRange<CollectionType>::Value ? CollectionSerializeRange :
+										HasMethod_begin<CollectionType>::Value && HasMethod_end<CollectionType>::Value ? CollectionSerializeWithBeginEnd :
+												CollectionSerializeWithSerialize
 		>
 		struct CollectionSerializer;
 
@@ -267,6 +269,13 @@ namespace stingray
 		{
 			static void Serialize(ObjectOStream& dst, const CollectionType &collection)
 			{ dst.serialize(collection.begin(), collection.end()); }
+		};
+
+		template< typename CollectionType>
+		struct CollectionSerializer<CollectionType, CollectionSerializeRange>
+		{
+			static void Serialize(ObjectOStream& dst, const CollectionType &collection)
+			{ dst.serialize(collection, Dummy()); }
 		};
 
 		template< typename CollectionType>
@@ -398,6 +407,17 @@ namespace stingray
 			BeginList();
 			for(Iterator it = begin; it != end; ++it)
 				Serialize(implicit_cast<const typename Iterator::value_type&>(*it));
+			EndList();
+		}
+
+		template < typename Range, typename EnableIf<IsRange<Range>::Value, int>::ValueT = 0 >
+		void serialize(const Range& range, Dummy)
+		{
+			Range copy(range);
+
+			BeginList();
+			for (; copy.Valid(); copy.Next())
+				Serialize(implicit_cast<const typename Range::ValueType&>(copy.Get()));
 			EndList();
 		}
 
