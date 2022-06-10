@@ -1,22 +1,20 @@
-#include <stingraykit/log/Logger.h>
 #include <stingraykit/VariantMultidispatch.h>
 #include <stingraykit/variant.h>
 
-#include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 using namespace stingray;
+
+using testing::Pair;
 
 namespace
 {
 
-	struct Visitor : static_visitor<int>
+	struct Visitor : static_visitor<std::pair<std::string, std::string>>
 	{
 		template < typename T1, typename T2 >
-		int operator () (const T1& p1, const T2& p2) const
-		{
-			Logger::Info() << "p1: " << Demangle(typeid(p1).name()) << " { " << p1 << " }, p2: " << Demangle(typeid(p2).name()) << " { " << p2 << " }";
-			return Demangle(typeid(p1).name()).size();
-		}
+		std::pair<std::string, std::string> operator () (const T1& p1, const T2& p2) const
+		{ return std::make_pair(ToString(p1), ToString(p2)); }
 	};
 
 	struct SVisitor : public static_visitor<int>
@@ -127,11 +125,11 @@ TEST(VariantTest, VisitorApplierReturnRef)
 
 TEST(VariantTest, Multidispatch)
 {
-//	typedef variant<TypeList<int, std::string> >		Variant1Type;
-//	typedef variant<TypeList<char, double> >			Variant2Type;
+	using Variant1Type = variant<TypeList<int, std::string>>;
+	using Variant2Type = variant<TypeList<char, double>>;
 
-//	Logger::Info() << "multivisitor result: " << Multidispatch(Visitor(), Variant1Type(1),						Variant2Type('z'));
-//	Logger::Info() << "multivisitor result: " << Multidispatch(Visitor(), Variant1Type(std::string("test")),	Variant2Type(3.14));
-//	Logger::Info() << "multivisitor result: " << Multidispatch(Visitor(), Variant1Type(1),						Variant2Type(3.14));
-//	Logger::Info() << "multivisitor result: " << Multidispatch(Visitor(), Variant1Type(std::string("test")),	Variant2Type('z'));
+	ASSERT_THAT(Multidispatch(Visitor(), Variant1Type(1), Variant2Type('z')), Pair("1", "z"));
+	ASSERT_THAT(Multidispatch(Visitor(), Variant1Type(std::string("test")), Variant2Type(3.14)), Pair("test", "3.14"));
+	ASSERT_THAT(Multidispatch(Visitor(), Variant1Type(1), Variant2Type(3.14)), Pair("1", "3.14"));
+	ASSERT_THAT(Multidispatch(Visitor(), Variant1Type(std::string("test")), Variant2Type('z')), Pair("test", "z"));
 }
