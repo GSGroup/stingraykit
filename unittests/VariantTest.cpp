@@ -25,6 +25,24 @@ namespace
 		int operator () (int) const { return 1; }
 	};
 
+	template < size_t Index >
+	class StringHolder
+	{
+	private:
+		std::string	_str;
+
+	public:
+		StringHolder() : _str(ToString(Index)) { }
+
+		const std::string& GetStr() const { return _str; }
+	};
+
+	struct StringHolderVisitor : public static_visitor<const std::string&>
+	{
+		template < typename StringHolder_ >
+		const std::string& operator () (const StringHolder_& holder) const { return holder.GetStr(); }
+	};
+
 }
 
 
@@ -89,6 +107,21 @@ TEST(VariantTest, VisitorApplier)
 
 	int seq[] = { 0, 1, 1 };
 	ASSERT_TRUE(std::equal(r.begin(), r.end(), std::begin(seq), std::end(seq)));
+}
+
+
+TEST(VariantTest, VisitorApplierReturnRef)
+{
+	variant<TypeList<StringHolder<0>, StringHolder<3>, StringHolder<2>, StringHolder<5>>> var;
+
+	ASSERT_EQ(&apply_visitor(StringHolderVisitor(), var), &var.get<StringHolder<0>>().GetStr());
+	var = StringHolder<2>();
+	ASSERT_EQ(&apply_visitor(StringHolderVisitor(), var), &var.get<StringHolder<2>>().GetStr());
+	var = StringHolder<5>();
+	ASSERT_EQ(&apply_visitor(StringHolderVisitor(), var), &var.get<StringHolder<5>>().GetStr());
+	var = StringHolder<3>();
+	ASSERT_EQ(&apply_visitor(StringHolderVisitor(), var), &var.get<StringHolder<3>>().GetStr());
+
 }
 
 
