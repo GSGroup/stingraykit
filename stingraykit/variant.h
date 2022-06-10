@@ -47,6 +47,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename Base >
 		struct InheritanceTester
 		{
@@ -57,11 +58,10 @@ namespace stingray
 		template < typename TypeList, typename Type >
 		struct TypeListFilterInheritedTypes
 		{
-			typedef typename TypeListCopyIf<TypeList, InheritanceTester<Type>::template Predicate>::ValueT ValueT;
+			using ValueT = typename TypeListCopyIf<TypeList, InheritanceTester<Type>::template Predicate>::ValueT;
 
 			static const bool IsEmpty = GetTypeListLength<ValueT>::Value == 0;
 		};
-
 
 		template < typename Visitor, typename Variant, bool HasRetType = !IsSame<typename Visitor::RetType, void>::Value >
 		struct VariantFunctorApplier
@@ -80,7 +80,7 @@ namespace stingray
 
 			static typename Visitor::RetType Apply(const Visitor& v, Variant& var)
 			{
-				typedef typename Visitor::RetType RetType;
+				using RetType = typename Visitor::RetType;
 				optional<RetType> result;
 				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(v, wrap_ref(var), wrap_ref(result)))
 					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
@@ -110,15 +110,14 @@ namespace stingray
 			}
 		};
 
-
 		template < typename TypeList_ >
 		struct VariantBase
 		{
-			typedef TypeList_					Types;
+			using Types = TypeList_;
 
 		protected:
-			typedef VariantBase<Types>			MyType;
-			typedef MultiStorageFor<Types>		Storage;
+			using MyType = VariantBase<Types>;
+			using Storage = MultiStorageFor<Types>;
 
 			size_t	_type;
 			Storage _storage;
@@ -215,8 +214,7 @@ namespace stingray
 				Visitor& _visitor;
 
 			public:
-				VisitorApplier(Visitor& v) : _visitor(v)
-				{ }
+				VisitorApplier(Visitor& v) : _visitor(v) { }
 
 				template < typename T >
 				typename Visitor::RetType Call(MyType& t) const			{ return _visitor(t._storage.template Ref<T>()); }
@@ -261,9 +259,7 @@ namespace stingray
 
 			template < typename T >
 			void CheckCanContain() const
-			{
-				static_assert(TypeListContains<Types, T>::Value, "Invalid type for variant");
-			}
+			{ static_assert(TypeListContains<Types, T>::Value, "Invalid type for variant"); }
 
 			template < typename T >
 			void CheckCanContainInheritedType() const
@@ -289,14 +285,12 @@ namespace stingray
 				const VariantType&	_rhs;
 
 			public:
-				ComparerVisitor(const VariantType& rhs) : _rhs(rhs)
-				{ }
+				ComparerVisitor(const VariantType& rhs) : _rhs(rhs) { }
 
 				template < typename T >
 				bool operator () (const T& t) const { return ComparerType<T>()(t, _rhs.template get<T>()); }
 			};
 		};
-
 
 		template < typename TypeList_, bool StringableTypeList = TypeListAllOf<TypeList_, IsStringRepresentable>::Value >
 		struct StringRepresentableVariant : public VariantBase<TypeList_>
@@ -322,9 +316,9 @@ namespace stingray
 	template < typename TypeList, bool CanBeEmpty = TypeListContains<TypeList, EmptyType>::Value >
 	class variant : public Detail::StringRepresentableVariant<TypeList>
 	{
-		typedef Detail::VariantBase<TypeList>	base;
-		typedef variant<TypeList, CanBeEmpty>	MyType;
-		typedef typename TypeList::ValueT		DefaultType;
+		using base = Detail::VariantBase<TypeList>;
+		using MyType = variant<TypeList, CanBeEmpty>;
+		using DefaultType = typename TypeList::ValueT;
 
 	public:
 		variant()
@@ -385,7 +379,7 @@ namespace stingray
 
 		bool operator == (const variant& other) const
 		{
-			typedef typename base::template ComparerVisitor<MyType, std::equal_to> VisitorType;
+			using VisitorType = typename base::template ComparerVisitor<MyType, std::equal_to>;
 			if (this->which() != other.which())
 				return false;
 			return this->ApplyVisitor(VisitorType(other));
@@ -395,7 +389,7 @@ namespace stingray
 
 		bool operator < (const variant& other) const
 		{
-			typedef typename base::template ComparerVisitor<MyType, std::less> VisitorType;
+			using VisitorType = typename base::template ComparerVisitor<MyType, std::less>;
 			if (this->which() != other.which())
 				return this->which() < other.which();
 			return this->ApplyVisitor(VisitorType(other));
@@ -425,8 +419,7 @@ namespace stingray
 			MyType& _target;
 
 		public:
-			CopyCtorVisitor(MyType& t) : _target(t)
-			{ }
+			CopyCtorVisitor(MyType& t) : _target(t) { }
 
 			template < typename T >
 			void operator () (const T& t) const { _target.AssignVal(t); }
@@ -441,8 +434,7 @@ namespace stingray
 			MyType& _target;
 
 		public:
-			MoveCtorVisitor(MyType& t) : _target(t)
-			{ }
+			MoveCtorVisitor(MyType& t) : _target(t) { }
 
 			template < typename T >
 			void operator () (T& t) const
@@ -460,9 +452,9 @@ namespace stingray
 	template < typename TypeList >
 	class variant<TypeList, true> : public Detail::StringRepresentableVariant<TypeList>
 	{
-		typedef Detail::VariantBase<TypeList>	base;
-		typedef variant<TypeList, true>			MyType;
-		typedef EmptyType						DefaultType;
+		using base = Detail::VariantBase<TypeList>;
+		using MyType = variant<TypeList, true>;
+		using DefaultType = EmptyType;
 
 	public:
 		variant()
@@ -523,7 +515,7 @@ namespace stingray
 
 		bool operator == (const variant& other) const
 		{
-			typedef typename base::template ComparerVisitor<MyType, std::equal_to> VisitorType;
+			using VisitorType = typename base::template ComparerVisitor<MyType, std::equal_to>;
 			if (this->which() != other.which())
 				return false;
 			return this->ApplyVisitor(VisitorType(other));
@@ -533,7 +525,7 @@ namespace stingray
 
 		bool operator < (const variant& other) const
 		{
-			typedef typename base::template ComparerVisitor<MyType, std::less> VisitorType;
+			using VisitorType = typename base::template ComparerVisitor<MyType, std::less>;
 			if (this->which() != other.which())
 				return this->which() < other.which();
 			return this->ApplyVisitor(VisitorType(other));
@@ -579,8 +571,7 @@ namespace stingray
 			MyType& _target;
 
 		public:
-			CopyCtorVisitor(MyType& t) : _target(t)
-			{ }
+			CopyCtorVisitor(MyType& t) : _target(t) { }
 
 			template < typename T >
 			void operator () (const T& t) const { _target.AssignVal(t); }
@@ -595,8 +586,7 @@ namespace stingray
 			MyType& _target;
 
 		public:
-			MoveCtorVisitor(MyType& t) : _target(t)
-			{ }
+			MoveCtorVisitor(MyType& t) : _target(t) { }
 
 			template < typename T >
 			void operator () (T& t) const
@@ -615,29 +605,36 @@ namespace stingray
 	T* variant_get(variant<TypeList>* v)
 	{ return v->template get_ptr<T>(); }
 
+
 	template < typename T, typename TypeList >
 	const T* variant_get(const variant<TypeList>* v)
 	{ return v->template get_ptr<T>(); }
+
 
 	template < typename T, typename TypeList >
 	T& variant_get(variant<TypeList>& v)
 	{ return v.template get<T>(); }
 
+
 	template < typename T, typename TypeList >
 	const T& variant_get(const variant<TypeList>& v)
 	{ return v.template get<const T>(); }
+
 
 	template < typename Visitor, typename TypeList >
 	typename Visitor::RetType apply_visitor(Visitor& visitor, variant<TypeList>& v)
 	{ return v.ApplyVisitor(visitor); }
 
+
 	template < typename Visitor, typename TypeList >
 	typename Visitor::RetType apply_visitor(const Visitor& visitor, variant<TypeList>& v)
 	{ return v.ApplyVisitor(visitor); }
 
+
 	template < typename Visitor, typename TypeList >
 	typename Visitor::RetType apply_visitor(Visitor& visitor, const variant<TypeList>& v)
 	{ return v.ApplyVisitor(visitor); }
+
 
 	template < typename Visitor, typename TypeList >
 	typename Visitor::RetType apply_visitor(const Visitor& visitor, const variant<TypeList>& v)
