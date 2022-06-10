@@ -66,26 +66,18 @@ namespace stingray
 		template < typename Visitor, typename Variant, bool HasRetType = !IsSame<typename Visitor::RetType, void>::Value >
 		struct VariantFunctorApplier
 		{
-			template < size_t Index >
-			struct ApplierHelper
-			{
-				static bool Call(const Visitor& visitor, Variant& var, optional<typename Visitor::RetType>& result)
-				{
-					if (var.which() != Index)
-						return true;
-					result = visitor.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(var);
-					return false; // stop ForIf
-				}
-			};
-
+			template < size_t Index = 0, typename EnableIf<Index < GetTypeListLength<typename Variant::Types>::Value, int>::ValueT = 0 >
 			static typename Visitor::RetType Apply(const Visitor& visitor, Variant& var)
 			{
-				using RetType = typename Visitor::RetType;
-				optional<RetType> result;
-				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(visitor, wrap_ref(var), wrap_ref(result)))
-					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
-				return *result;
+				if (var.which() == Index)
+					return visitor.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(var);
+				else
+					return Apply<Index + 1>(visitor, var);
 			}
+
+			template < size_t Index = 0, typename EnableIf<Index >= GetTypeListLength<typename Variant::Types>::Value, int>::ValueT = 0 >
+			static typename Visitor::RetType Apply(const Visitor& visitor, Variant& var)
+			{ STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which()); }
 		};
 
 		template < typename Visitor, typename Variant >
