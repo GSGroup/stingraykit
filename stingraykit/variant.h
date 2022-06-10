@@ -63,10 +63,10 @@ namespace stingray
 			static const bool IsEmpty = GetTypeListLength<ValueT>::Value == 0;
 		};
 
-		template < typename Visitor, typename Variant, bool HasRetType = !IsSame<typename Visitor::RetType, void>::Value >
+		template < typename Visitor, typename Variant >
 		struct VariantFunctorApplier
 		{
-			template < size_t Index = 0, typename EnableIf<Index < GetTypeListLength<typename Variant::Types>::Value, int>::ValueT = 0 >
+			template < size_t Index = 0, typename EnableIf<Index < GetTypeListLength<typename Variant::Types>::Value && !IsSame<typename Visitor::RetType, void>::Value, int>::ValueT = 0 >
 			static typename Visitor::RetType Apply(const Visitor& visitor, Variant& var)
 			{
 				if (var.which() == Index)
@@ -75,31 +75,18 @@ namespace stingray
 					return Apply<Index + 1>(visitor, var);
 			}
 
+			template < size_t Index = 0, typename EnableIf<Index < GetTypeListLength<typename Variant::Types>::Value && IsSame<typename Visitor::RetType, void>::Value, int>::ValueT = 0 >
+			static typename Visitor::RetType Apply(const Visitor& visitor, Variant& var)
+			{
+				if (var.which() == Index)
+					visitor.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(var);
+				else
+					Apply<Index + 1>(visitor, var);
+			}
+
 			template < size_t Index = 0, typename EnableIf<Index >= GetTypeListLength<typename Variant::Types>::Value, int>::ValueT = 0 >
 			static typename Visitor::RetType Apply(const Visitor& visitor, Variant& var)
 			{ STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which()); }
-		};
-
-		template < typename Visitor, typename Variant >
-		struct VariantFunctorApplier<Visitor, Variant, false>
-		{
-			template < size_t Index >
-			struct ApplierHelper
-			{
-				static bool Call(const Visitor& visitor, Variant& var)
-				{
-					if (var.which() != Index)
-						return true;
-					visitor.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(var);
-					return false; // stop ForIf
-				}
-			};
-
-			static void Apply(const Visitor& visitor, Variant& var)
-			{
-				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(visitor, wrap_ref(var)))
-					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
-			}
 		};
 
 		template < typename TypeList_ >
