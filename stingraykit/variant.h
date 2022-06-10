@@ -69,20 +69,20 @@ namespace stingray
 			template < size_t Index >
 			struct ApplierHelper
 			{
-				static bool Call(const Visitor& v, Variant& t, optional<typename Visitor::RetType>& result)
+				static bool Call(const Visitor& visitor, Variant& var, optional<typename Visitor::RetType>& result)
 				{
-					if (t.which() != Index)
+					if (var.which() != Index)
 						return true;
-					result = v.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(t);
+					result = visitor.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(var);
 					return false; // stop ForIf
 				}
 			};
 
-			static typename Visitor::RetType Apply(const Visitor& v, Variant& var)
+			static typename Visitor::RetType Apply(const Visitor& visitor, Variant& var)
 			{
 				using RetType = typename Visitor::RetType;
 				optional<RetType> result;
-				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(v, wrap_ref(var), wrap_ref(result)))
+				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(visitor, wrap_ref(var), wrap_ref(result)))
 					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 				return *result;
 			}
@@ -94,18 +94,18 @@ namespace stingray
 			template < size_t Index >
 			struct ApplierHelper
 			{
-				static bool Call(const Visitor& v, Variant& t)
+				static bool Call(const Visitor& visitor, Variant& var)
 				{
-					if (t.which() != Index)
+					if (var.which() != Index)
 						return true;
-					v.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(t);
+					visitor.template Call<typename GetTypeListItem<typename Variant::Types, Index>::ValueT>(var);
 					return false; // stop ForIf
 				}
 			};
 
-			static void Apply(const Visitor& v, Variant& var)
+			static void Apply(const Visitor& visitor, Variant& var)
 			{
-				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(v, wrap_ref(var)))
+				if (ForIf<GetTypeListLength<typename Variant::Types>::Value, ApplierHelper>::Do(visitor, wrap_ref(var)))
 					STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which());
 			}
 		};
@@ -130,30 +130,30 @@ namespace stingray
 			{ return *STINGRAYKIT_REQUIRE_NOT_NULL(ApplyVisitor(GetTypeInfoVisitor())); }
 
 			template < typename Visitor >
-			typename Visitor::RetType ApplyVisitor(Visitor& v)
+			typename Visitor::RetType ApplyVisitor(Visitor& visitor)
 			{
-				VisitorApplier<Visitor> applier(v);
+				VisitorApplier<Visitor> applier(visitor);
 				return ApplyFunctor(applier);
 			}
 
 			template < typename Visitor >
-			typename Visitor::RetType ApplyVisitor(const Visitor& v)
+			typename Visitor::RetType ApplyVisitor(const Visitor& visitor)
 			{
-				VisitorApplier<const Visitor> applier(v);
+				VisitorApplier<const Visitor> applier(visitor);
 				return ApplyFunctor(applier);
 			}
 
 			template < typename Visitor >
-			typename Visitor::RetType ApplyVisitor(Visitor& v) const
+			typename Visitor::RetType ApplyVisitor(Visitor& visitor) const
 			{
-				VisitorApplier<Visitor> applier(v);
+				VisitorApplier<Visitor> applier(visitor);
 				return ApplyFunctor(applier);
 			}
 
 			template < typename Visitor >
-			typename Visitor::RetType ApplyVisitor(const Visitor& v) const
+			typename Visitor::RetType ApplyVisitor(const Visitor& visitor) const
 			{
-				VisitorApplier<const Visitor> applier(v);
+				VisitorApplier<const Visitor> applier(visitor);
 				return ApplyFunctor(applier);
 			}
 
@@ -200,12 +200,12 @@ namespace stingray
 
 		protected:
 			template < typename Visitor >
-			typename Visitor::RetType ApplyFunctor(const Visitor& v)
-			{ return Detail::VariantFunctorApplier<Visitor, MyType>::Apply(v, wrap_ref(*this)); }
+			typename Visitor::RetType ApplyFunctor(const Visitor& visitor)
+			{ return Detail::VariantFunctorApplier<Visitor, MyType>::Apply(visitor, wrap_ref(*this)); }
 
 			template < typename Visitor >
-			typename Visitor::RetType ApplyFunctor(const Visitor& v) const
-			{ return Detail::VariantFunctorApplier<Visitor, const MyType>::Apply(v, *this); }
+			typename Visitor::RetType ApplyFunctor(const Visitor& visitor) const
+			{ return Detail::VariantFunctorApplier<Visitor, const MyType>::Apply(visitor, *this); }
 
 			template < typename Visitor >
 			struct VisitorApplier : static_visitor<typename Visitor::RetType>
@@ -214,19 +214,19 @@ namespace stingray
 				Visitor& _visitor;
 
 			public:
-				VisitorApplier(Visitor& v) : _visitor(v) { }
+				VisitorApplier(Visitor& visitor) : _visitor(visitor) { }
 
 				template < typename T >
-				typename Visitor::RetType Call(MyType& t) const			{ return _visitor(t._storage.template Ref<T>()); }
+				typename Visitor::RetType Call(MyType& var) const		{ return _visitor(var._storage.template Ref<T>()); }
 
 				template < typename T >
-				typename Visitor::RetType Call(const MyType& t) const	{ return _visitor(t._storage.template Ref<T>()); }
+				typename Visitor::RetType Call(const MyType& var) const	{ return _visitor(var._storage.template Ref<T>()); }
 			};
 
 			struct DestructorFunctor : static_visitor<>
 			{
 				template < typename T >
-				void Call(MyType& t) const { STINGRAYKIT_ASSURE_NOTHROW("Destructor of variant item threw an exception: ", t._storage.template Dtor<T>()); }
+				void Call(MyType& var) const { STINGRAYKIT_ASSURE_NOTHROW("Destructor of variant item threw an exception: ", var._storage.template Dtor<T>()); }
 			};
 
 			template < typename DesiredType >
@@ -246,15 +246,15 @@ namespace stingray
 			template < typename T >
 			T* GetPtr()
 			{
-				GetPointerVisitor<T> v;
-				return ApplyVisitor(v);
+				GetPointerVisitor<T> visitor;
+				return ApplyVisitor(visitor);
 			}
 
 			template < typename T >
 			const T* GetPtr() const
 			{
-				GetPointerVisitor<const T> v;
-				return ApplyVisitor(v);
+				GetPointerVisitor<const T> visitor;
+				return ApplyVisitor(visitor);
 			}
 
 			template < typename T >
@@ -275,7 +275,7 @@ namespace stingray
 			struct GetTypeInfoVisitor : static_visitor<const std::type_info*>
 			{
 				template < typename T >
-				const std::type_info* operator()(const T& t) const { return &typeid(T); }
+				const std::type_info* operator()(const T& val) const { return &typeid(T); }
 			};
 
 			template < typename VariantType, template <typename> class ComparerType >
@@ -288,7 +288,7 @@ namespace stingray
 				ComparerVisitor(const VariantType& rhs) : _rhs(rhs) { }
 
 				template < typename T >
-				bool operator () (const T& t) const { return ComparerType<T>()(t, _rhs.template get<T>()); }
+				bool operator () (const T& lhs) const { return ComparerType<T>()(lhs, _rhs.template get<T>()); }
 			};
 		};
 
@@ -299,7 +299,7 @@ namespace stingray
 			struct ToStringVisitor : static_visitor<std::string>
 			{
 				template < typename T >
-				std::string operator () (const T& t) const { return stingray::ToString(t); }
+				std::string operator () (const T& val) const { return stingray::ToString(val); }
 			};
 
 		public:
@@ -419,10 +419,10 @@ namespace stingray
 			MyType& _target;
 
 		public:
-			CopyCtorVisitor(MyType& t) : _target(t) { }
+			CopyCtorVisitor(MyType& target) : _target(target) { }
 
 			template < typename T >
-			void operator () (const T& t) const { _target.AssignVal(t); }
+			void operator () (const T& val) const { _target.AssignVal(val); }
 		};
 
 		void Assign(const MyType& other)
@@ -434,13 +434,13 @@ namespace stingray
 			MyType& _target;
 
 		public:
-			MoveCtorVisitor(MyType& t) : _target(t) { }
+			MoveCtorVisitor(MyType& target) : _target(target) { }
 
 			template < typename T >
-			void operator () (T& t) const
+			void operator () (T& val) const
 			{
 				static_assert(!IsConst<T>::Value, "Move won't work");
-				_target.AssignVal(std::move(t));
+				_target.AssignVal(std::move(val));
 			}
 		};
 
@@ -571,10 +571,10 @@ namespace stingray
 			MyType& _target;
 
 		public:
-			CopyCtorVisitor(MyType& t) : _target(t) { }
+			CopyCtorVisitor(MyType& target) : _target(target) { }
 
 			template < typename T >
-			void operator () (const T& t) const { _target.AssignVal(t); }
+			void operator () (const T& val) const { _target.AssignVal(val); }
 		};
 
 		void Assign(const MyType& other)
@@ -586,13 +586,13 @@ namespace stingray
 			MyType& _target;
 
 		public:
-			MoveCtorVisitor(MyType& t) : _target(t) { }
+			MoveCtorVisitor(MyType& target) : _target(target) { }
 
 			template < typename T >
-			void operator () (T& t) const
+			void operator () (T& val) const
 			{
 				static_assert(!IsConst<T>::Value, "Move won't work");
-				_target.AssignVal(std::move(t));
+				_target.AssignVal(std::move(val));
 			}
 		};
 
@@ -602,43 +602,43 @@ namespace stingray
 
 
 	template < typename T, typename TypeList >
-	T* variant_get(variant<TypeList>* v)
-	{ return v->template get_ptr<T>(); }
+	T* variant_get(variant<TypeList>* var)
+	{ return var->template get_ptr<T>(); }
 
 
 	template < typename T, typename TypeList >
-	const T* variant_get(const variant<TypeList>* v)
-	{ return v->template get_ptr<T>(); }
+	const T* variant_get(const variant<TypeList>* var)
+	{ return var->template get_ptr<T>(); }
 
 
 	template < typename T, typename TypeList >
-	T& variant_get(variant<TypeList>& v)
-	{ return v.template get<T>(); }
+	T& variant_get(variant<TypeList>& var)
+	{ return var.template get<T>(); }
 
 
 	template < typename T, typename TypeList >
-	const T& variant_get(const variant<TypeList>& v)
-	{ return v.template get<const T>(); }
+	const T& variant_get(const variant<TypeList>& var)
+	{ return var.template get<const T>(); }
 
 
 	template < typename Visitor, typename TypeList >
-	typename Visitor::RetType apply_visitor(Visitor& visitor, variant<TypeList>& v)
-	{ return v.ApplyVisitor(visitor); }
+	typename Visitor::RetType apply_visitor(Visitor& visitor, variant<TypeList>& var)
+	{ return var.ApplyVisitor(visitor); }
 
 
 	template < typename Visitor, typename TypeList >
-	typename Visitor::RetType apply_visitor(const Visitor& visitor, variant<TypeList>& v)
-	{ return v.ApplyVisitor(visitor); }
+	typename Visitor::RetType apply_visitor(const Visitor& visitor, variant<TypeList>& var)
+	{ return var.ApplyVisitor(visitor); }
 
 
 	template < typename Visitor, typename TypeList >
-	typename Visitor::RetType apply_visitor(Visitor& visitor, const variant<TypeList>& v)
-	{ return v.ApplyVisitor(visitor); }
+	typename Visitor::RetType apply_visitor(Visitor& visitor, const variant<TypeList>& var)
+	{ return var.ApplyVisitor(visitor); }
 
 
 	template < typename Visitor, typename TypeList >
-	typename Visitor::RetType apply_visitor(const Visitor& visitor, const variant<TypeList>& v)
-	{ return v.ApplyVisitor(visitor); }
+	typename Visitor::RetType apply_visitor(const Visitor& visitor, const variant<TypeList>& var)
+	{ return var.ApplyVisitor(visitor); }
 
 
 	template < typename Visitor >
@@ -651,7 +651,7 @@ namespace stingray
 		explicit VisitorApplier(const Visitor& visitor) : _visitor(visitor) { }
 
 		template < typename Variant >
-		typename Visitor::RetType operator () (const Variant& v) const { return apply_visitor(_visitor, v); }
+		typename Visitor::RetType operator () (const Variant& var) const { return apply_visitor(_visitor, var); }
 	};
 
 
