@@ -19,7 +19,6 @@ namespace
 		}
 	};
 
-
 	struct SVisitor : public static_visitor<int>
 	{
 		int operator () (const std::string&) const { return 0; }
@@ -31,7 +30,7 @@ namespace
 
 TEST(VariantTest, Variant)
 {
-	typedef variant<TypeList<int, std::string> > VType;
+	using VType = variant<TypeList<int, std::string>>;
 	VType v_default;
 	VType v_int((int)42);
 	VType v_string(std::string("1234"));
@@ -67,7 +66,7 @@ TEST(VariantTest, Variant)
 	ASSERT_TRUE(v_emplace.get_ptr<std::string>());
 	ASSERT_EQ(v_emplace.get<std::string>(), "x");
 
-	typedef variant<TypeList<EmptyType, int, std::string> > VEmpty;
+	using VEmpty = variant<TypeList<EmptyType, int, std::string>>;
 	VEmpty v_empty;
 	ASSERT_TRUE(v_empty.empty());
 	v_empty.emplace<int>(42);
@@ -78,7 +77,7 @@ TEST(VariantTest, Variant)
 
 TEST(VariantTest, VisitorApplier)
 {
-	typedef variant<TypeList<int, std::string> > VType;
+	using VType = variant<TypeList<int, std::string>>;
 
 	std::vector<VType> v;
 	v.push_back(VType(std::string("1234")));
