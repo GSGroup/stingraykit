@@ -3,7 +3,7 @@
 #include <stingraykit/string/Hex.h>
 #include <stingraykit/string/StringUtils.h>
 
-#include <gmock/gmock-matchers.h>
+#include <unittests/RangeMatcher.h>
 
 using namespace stingray;
 
@@ -59,30 +59,11 @@ TEST(StringUtilsTest, EndsWith)
 
 TEST(StringUtilsTest, Split)
 {
-	std::vector<std::string> result;
-
-	Copy(Split("/a//b/", "/"), std::back_inserter(result));
-	ASSERT_THAT(result, ElementsAre("", "a", "", "b", ""));
-
-	result.clear();
-
-	Copy(Split("ab//cd/e/f/.g/.", "/", 5), std::back_inserter(result));
-	ASSERT_THAT(result, ElementsAre("ab", "", "cd", "e", "f", ".g/."));
-
-	result.clear();
-
-	Copy(Split("a/b/c/d", "/", 1), std::back_inserter(result));
-	ASSERT_THAT(result, ElementsAre("a", "b/c/d"));
-
-	result.clear();
-
-	Copy(Split("a,b.c;d", IsAnyOf(",.;"), 5), std::back_inserter(result));
-	ASSERT_THAT(result, ElementsAre("a", "b", "c", "d"));
-
-	result.clear();
-
-	Copy(Split("", "/"), std::back_inserter(result));
-	ASSERT_THAT(result, ElementsAre(""));
+	ASSERT_THAT(Split("/a//b/", "/"), MatchRange(ElementsAre("", "a", "", "b", "")));
+	ASSERT_THAT(Split("ab//cd/e/f/.g/.", "/", 5), MatchRange(ElementsAre("ab", "", "cd", "e", "f", ".g/.")));
+	ASSERT_THAT(Split("a/b/c/d", "/", 1), MatchRange(ElementsAre("a", "b/c/d")));
+	ASSERT_THAT(Split("a,b.c;d", IsAnyOf(",.;"), 5), MatchRange(ElementsAre("a", "b", "c", "d")));
+	ASSERT_THAT(Split("", "/"), MatchRange(ElementsAre("")));
 
 	std::string a, b;
 	int c;
