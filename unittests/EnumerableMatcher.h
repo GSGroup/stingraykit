@@ -4,7 +4,6 @@
 #include <stingraykit/collection/StlEnumeratorAdapter.h>
 
 #include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
 
 namespace stingray
 {
@@ -19,7 +18,6 @@ namespace stingray
 			template < typename EnumerablePtr >
 			class Impl : public testing::MatcherInterface<EnumerablePtr>
 			{
-			public:
 				using Container = std::vector<typename Decay<EnumerablePtr>::ValueT::ValueType::ItemType>;
 
 			private:
