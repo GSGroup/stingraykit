@@ -19,8 +19,10 @@
 
 namespace stingray
 {
+
 	namespace Range
 	{
+
 		//template <typename ValueType_>
 		//struct ForwardRange
 		//{
@@ -79,7 +81,7 @@ namespace stingray
 			using ValueType = typename std::iterator_traits<Iterator_>::reference;
 
 		private:
-			Iterator_ _it;
+			Iterator_	_it;
 
 		public:
 			OutputIteratorRange(const Iterator_& it) : _it(it) { }
@@ -93,8 +95,7 @@ namespace stingray
 
 
 		template < typename It_ >
-		class IteratorRange :
-			public RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>
+		class IteratorRange : public RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>
 		{
 			using Self = IteratorRange<It_>;
 			using base = RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>;
@@ -405,7 +406,7 @@ namespace stingray
 
 		private:
 			const Range_		_initial;
-			optional<Range_	>	_impl;
+			optional<Range_>	_impl;
 
 		public:
 			RangeDropper(const Range_& impl, size_t count)
@@ -485,7 +486,7 @@ namespace stingray
 
 		private:
 			const Range_		_initial;
-			optional<Range_	>	_impl;
+			optional<Range_>	_impl;
 			size_t				_index;
 			const size_t		_count;
 
@@ -1112,6 +1113,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename T, typename Enabler >
 		struct ToRangeImpl
 		{
@@ -1121,7 +1123,6 @@ namespace stingray
 			static ValueT Do(T& collection)
 			{ return ValueT(std::begin(collection), std::begin(collection), std::end(collection)); }
 		};
-
 
 		template < typename ArrayType_ >
 		struct ToRangeImpl<ArrayType_, typename EnableIf<IsArray<ArrayType_>::Value, void>::ValueT>
@@ -1133,7 +1134,6 @@ namespace stingray
 			{ return ValueT(std::begin(arr), std::begin(arr), std::end(arr)); }
 		};
 
-
 		template < typename IterType_ >
 		struct ToRangeImpl<std::pair<IterType_, IterType_>, void>
 		{
@@ -1142,7 +1142,6 @@ namespace stingray
 			static ValueT Do(std::pair<IterType_, IterType_>& p)
 			{ return ValueT(p.first, p.first, p.second); }
 		};
-
 
 		template < typename IterType_ >
 		struct ToRangeImpl<const std::pair<IterType_, IterType_>, void>
@@ -1153,7 +1152,6 @@ namespace stingray
 			{ return ValueT(p.first, p.first, p.second); }
 		};
 
-
 		template < typename Range_ >
 		struct ToRangeImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 		{
@@ -1162,6 +1160,7 @@ namespace stingray
 			static ValueT Do(const Range_& r)
 			{ return r; }
 		};
+
 	}
 
 
