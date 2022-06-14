@@ -24,7 +24,7 @@ namespace stingray
 		//template <typename ValueType_>
 		//struct ForwardRange
 		//{
-		//    typedef ValueType_ ValueType;
+		//    using ValueType = ValueType_;
 		//
 		//    bool Valid() const;
 		//    ValueType Get() const;
@@ -76,7 +76,7 @@ namespace stingray
 		class OutputIteratorRange
 		{
 		public:
-			typedef typename std::iterator_traits<Iterator_>::reference ValueType;
+			using ValueType = typename std::iterator_traits<Iterator_>::reference;
 
 		private:
 			Iterator_ _it;
@@ -96,8 +96,8 @@ namespace stingray
 		class IteratorRange :
 			public RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>
 		{
-			typedef IteratorRange<It_> Self;
-			typedef RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category> base;
+			using Self = IteratorRange<It_>;
+			using base = RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>;
 
 		private:
 			const It_		_begin;
@@ -146,19 +146,19 @@ namespace stingray
 		/// @brief Since filtering items removes random-access property from range, we need to appropriately change category
 		template < typename Category_ >
 		struct RangeFilterCategoryHelper
-		{ typedef Category_ ValueT; };
+		{ using ValueT = Category_; };
 
 
 		template < >
 		struct RangeFilterCategoryHelper<std::random_access_iterator_tag>
-		{ typedef std::bidirectional_iterator_tag ValueT; };
+		{ using ValueT = std::bidirectional_iterator_tag; };
 
 
 		template < typename Range_, typename Predicate_ >
 		class RangeFilter : public RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
-			typedef RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT> base;
-			typedef RangeFilter<Range_, Predicate_> Self;
+			using base = RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>;
+			using Self = RangeFilter<Range_, Predicate_>;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -198,8 +198,8 @@ namespace stingray
 		template < typename Dst_, typename Range_ >
 		class RangeCaster : public RangeBase<RangeCaster<Dst_, Range_>, Dst_, typename Range_::Category>
 		{
-			typedef RangeCaster<Dst_, Range_> Self;
-			typedef RangeBase<RangeCaster<Dst_, Range_>, Dst_, typename Range_::Category> base;
+			using Self = RangeCaster<Dst_, Range_>;
+			using base = RangeBase<RangeCaster<Dst_, Range_>, Dst_, typename Range_::Category>;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -238,9 +238,9 @@ namespace stingray
 		template < typename Dst_, typename Range_ >
 		class RangeOfType : public RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
-			typedef RangeOfType<Dst_, Range_> Self;
-			typedef RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT> base;
-			typedef RefStorage<Dst_> Storage;
+			using Self = RangeOfType<Dst_, Range_>;
+			using base = RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>;
+			using Storage = RefStorage<Dst_>;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -286,8 +286,8 @@ namespace stingray
 		template < typename Range_ >
 		class RangeReverser : public RangeBase<RangeReverser<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
-			typedef RangeReverser<Range_> Self;
-			typedef RangeBase<RangeReverser<Range_>, typename Range_::ValueType, typename Range_::Category> base;
+			using Self = RangeReverser<Range_>;
+			using base = RangeBase<RangeReverser<Range_>, typename Range_::ValueType, typename Range_::Category>;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -356,9 +356,9 @@ namespace stingray
 		template < typename Range_, typename Functor_ >
 		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<typename Decay<typename function_info<Functor_>::RetType>::ValueT>::ValueT, typename Range_::Category>
 		{
-			typedef RangeTransformer<Range_, Functor_> Self;
-			typedef typename Decay<typename function_info<Functor_>::RetType>::ValueT RawValueType;
-			typedef RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<RawValueType>::ValueT, typename Range_::Category> base;
+			using Self = RangeTransformer<Range_, Functor_>;
+			using RawValueType = typename Decay<typename function_info<Functor_>::RetType>::ValueT;
+			using base = RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<RawValueType>::ValueT, typename Range_::Category>;
 
 		public:
 			static const bool ReturnsTemporary = true;
@@ -397,8 +397,8 @@ namespace stingray
 		template < typename Range_ >
 		class RangeDropper : public RangeBase<RangeDropper<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
-			typedef RangeBase<RangeDropper<Range_>, typename Range_::ValueType, typename Range_::Category> base;
-			typedef RangeDropper<Range_> Self;
+			using base = RangeBase<RangeDropper<Range_>, typename Range_::ValueType, typename Range_::Category>;
+			using Self = RangeDropper<Range_>;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -477,8 +477,8 @@ namespace stingray
 		template < typename Range_ >
 		class RangeTaker : public RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
-			typedef RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category> base;
-			typedef RangeTaker<Range_> Self;
+			using base = RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category>;
+			using Self = RangeTaker<Range_>;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -566,8 +566,8 @@ namespace stingray
 		template < typename Range_ >
 		class RangeCycler : public RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
-			typedef RangeCycler<Range_> Self;
-			typedef RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT> base;
+			using Self = RangeCycler<Range_>;
+			using base = RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>;
 
 		private:
 			Range_ _impl;
@@ -630,11 +630,11 @@ namespace stingray
 		template < typename It_ >
 		class RangeSplitter : public Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag>
 		{
-			typedef RangeSplitter<It_> Self;
-			typedef Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag> base;
+			using Self = RangeSplitter<It_>;
+			using base = Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag>;
 
-			typedef typename Decay<typename base::ValueType>::ValueT RawValueType;
-			typedef typename std::iterator_traits<It_>::difference_type DiffType;
+			using RawValueType = typename Decay<typename base::ValueType>::ValueT;
+			using DiffType = typename std::iterator_traits<It_>::difference_type;
 
 		private:
 			const It_							_begin;
@@ -701,10 +701,10 @@ namespace stingray
 		template < typename FuncType_, typename RangeTypes_ >
 		class RangeZipper : public Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag>
 		{
-			typedef RangeZipper<FuncType_, RangeTypes_> Self;
-			typedef Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag> base;
+			using Self = RangeZipper<FuncType_, RangeTypes_>;
+			using base = Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag>;
 
-			typedef typename Decay<typename base::ValueType>::ValueT RawValueType;
+			using RawValueType = typename Decay<typename base::ValueType>::ValueT;
 
 			static const size_t RangeCount = GetTypeListLength<RangeTypes_>::Value;
 
@@ -740,10 +740,10 @@ namespace stingray
 			{
 				template < typename Range_ >
 				struct GetValueType
-				{ typedef typename Range_::ValueType ValueT; };
+				{ using ValueT = typename Range_::ValueType; };
 
 			public:
-				typedef typename TypeListTransform<RangeTypes_, GetValueType>::ValueT Types;
+				using Types = typename TypeListTransform<RangeTypes_, GetValueType>::ValueT;
 
 			private:
 				const Tuple<RangeTypes_>&	_ranges;
@@ -891,7 +891,7 @@ namespace stingray
 			template < typename Src_ >
 			struct MapKeysFunctor
 			{
-				typedef typename RemoveReference<Src_>::ValueT::first_type RetType;
+				using RetType = typename RemoveReference<Src_>::ValueT::first_type;
 				RetType operator() (const Src_& src) const
 				{ return src.first; }
 			};
@@ -899,7 +899,7 @@ namespace stingray
 			template < typename Src_ >
 			struct MapValuesFunctor
 			{
-				typedef typename RemoveReference<Src_>::ValueT::second_type RetType;
+				using RetType = typename RemoveReference<Src_>::ValueT::second_type;
 				RetType operator() (const Src_& src) const
 				{ return src.second; }
 			};
@@ -998,7 +998,7 @@ namespace stingray
 			template < typename Range_ >
 			struct RangeToValue
 			{
-				typedef typename If<Range_::ReturnsTemporary, typename Decay<typename Range_::ValueType>::ValueT, typename Range_::ValueType>::ValueT ValueT;
+				using ValueT = typename If<Range_::ReturnsTemporary, typename Decay<typename Range_::ValueType>::ValueT, typename Range_::ValueType>::ValueT;
 			};
 		}
 
@@ -1115,8 +1115,8 @@ namespace stingray
 		template < typename T, typename Enabler >
 		struct ToRangeImpl
 		{
-			typedef typename If<IsConst<T>::Value, typename T::const_iterator, typename T::iterator>::ValueT IterType;
-			typedef Range::IteratorRange<IterType> ValueT;
+			using IterType = typename If<IsConst<T>::Value, typename T::const_iterator, typename T::iterator>::ValueT;
+			using ValueT = Range::IteratorRange<IterType>;
 
 			static ValueT Do(T& collection)
 			{ return ValueT(std::begin(collection), std::begin(collection), std::end(collection)); }
@@ -1126,8 +1126,8 @@ namespace stingray
 		template < typename ArrayType_ >
 		struct ToRangeImpl<ArrayType_, typename EnableIf<IsArray<ArrayType_>::Value, void>::ValueT>
 		{
-			typedef typename RemoveExtent<ArrayType_>::ValueT MemberType;
-			typedef Range::IteratorRange<MemberType*> ValueT;
+			using MemberType = typename RemoveExtent<ArrayType_>::ValueT;
+			using ValueT = Range::IteratorRange<MemberType*>;
 
 			static ValueT Do(ArrayType_& arr)
 			{ return ValueT(std::begin(arr), std::begin(arr), std::end(arr)); }
@@ -1137,7 +1137,7 @@ namespace stingray
 		template < typename IterType_ >
 		struct ToRangeImpl<std::pair<IterType_, IterType_>, void>
 		{
-			typedef Range::IteratorRange<IterType_> ValueT;
+			using ValueT = Range::IteratorRange<IterType_>;
 
 			static ValueT Do(std::pair<IterType_, IterType_>& p)
 			{ return ValueT(p.first, p.first, p.second); }
@@ -1147,7 +1147,7 @@ namespace stingray
 		template < typename IterType_ >
 		struct ToRangeImpl<const std::pair<IterType_, IterType_>, void>
 		{
-			typedef Range::IteratorRange<IterType_> ValueT;
+			using ValueT = Range::IteratorRange<IterType_>;
 
 			static ValueT Do(const std::pair<IterType_, IterType_>& p)
 			{ return ValueT(p.first, p.first, p.second); }
@@ -1157,7 +1157,7 @@ namespace stingray
 		template < typename Range_ >
 		struct ToRangeImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 		{
-			typedef Range_ ValueT;
+			using ValueT = Range_;
 
 			static ValueT Do(const Range_& r)
 			{ return r; }
@@ -1173,7 +1173,7 @@ namespace stingray
 	template < typename Range_ >
 	struct FirstTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef typename Range_::ValueType ValueT;
+		using ValueT = typename Range_::ValueType;
 
 		static ValueT Do(const Range_& range)
 		{ return Range::First(range); }
@@ -1183,7 +1183,7 @@ namespace stingray
 	template < typename Range_ >
 	struct FirstOrDefaultTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef typename Decay<typename Range_::ValueType>::ValueT ValueT;
+		using ValueT = typename Decay<typename Range_::ValueType>::ValueT;
 
 		static ValueT Do(const Range_& range, const FirstOrDefaultTransformer& action)
 		{ return Range::FirstOrDefault(range); }
@@ -1193,7 +1193,7 @@ namespace stingray
 	template < typename Range_, typename Predicate_ >
 	struct FilterTransformerImpl<Range_, Predicate_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef Range::RangeFilter<Range_, Predicate_> ValueT;
+		using ValueT = Range::RangeFilter<Range_, Predicate_>;
 
 		static ValueT Do(const Range_& range, const FilterTransformer<Predicate_>& action)
 		{ return ValueT(range, action.GetPredicate()); }
@@ -1203,7 +1203,7 @@ namespace stingray
 	template < typename Range_ >
 	struct ReverseTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef Range::RangeReverser<Range_> ValueT;
+		using ValueT = Range::RangeReverser<Range_>;
 
 		static ValueT Do(const Range_& range, const ReverseTransformer& action)
 		{ return ValueT(range); }
@@ -1213,7 +1213,7 @@ namespace stingray
 	template < typename Range_, typename Functor_ >
 	struct TransformTransformerImpl<Range_, Functor_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef Range::RangeTransformer<Range_, Functor_> ValueT;
+		using ValueT = Range::RangeTransformer<Range_, Functor_>;
 
 		static ValueT Do(const Range_& range, const TransformTransformer<Functor_>& action)
 		{ return ValueT(range, action.GetFunctor()); }
@@ -1223,7 +1223,7 @@ namespace stingray
 	template < typename Range_, typename Dst_ >
 	struct CastTransformerImpl<Range_, Dst_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef Range::RangeCaster<Dst_, Range_> ValueT;
+		using ValueT = Range::RangeCaster<Dst_, Range_>;
 
 		static ValueT Do(const Range_& range, const CastTransformer<Dst_>& action)
 		{ return ValueT(range); }
@@ -1233,7 +1233,7 @@ namespace stingray
 	template < typename Range_, typename Dst_ >
 	struct OfTypeTransformerImpl<Range_, Dst_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef Range::RangeOfType<Dst_, Range_> ValueT;
+		using ValueT = Range::RangeOfType<Dst_, Range_>;
 
 		static ValueT Do(const Range_& range, const OfTypeTransformer<Dst_>& action)
 		{ return ValueT(range); }
@@ -1243,7 +1243,7 @@ namespace stingray
 	template < typename Range_ >
 	struct AnyTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef bool ValueT;
+		using ValueT = bool;
 
 		static ValueT Do(const Range_& range, const AnyTransformer& action)
 		{ return range.Valid(); }
@@ -1253,7 +1253,7 @@ namespace stingray
 	template < typename Range_ >
 	struct CountTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef size_t ValueT;
+		using ValueT = size_t;
 
 		static ValueT Do(const Range_& range, const CountTransformer& action)
 		{ return Range::Count(range); }
@@ -1263,7 +1263,7 @@ namespace stingray
 	template < typename Range_ >
 	struct DropTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef Range::RangeDropper<Range_> ValueT;
+		using ValueT = Range::RangeDropper<Range_>;
 
 		static ValueT Do(const Range_& range, const DropTransformer& action)
 		{ return Range::Drop(range, action.GetCount()); }
@@ -1273,7 +1273,7 @@ namespace stingray
 	template < typename Range_ >
 	struct TakeTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		typedef Range::RangeTaker<Range_> ValueT;
+		using ValueT = Range::RangeTaker<Range_>;
 
 		static ValueT Do(const Range_& range, const TakeTransformer& action)
 		{ return Range::Take(range, action.GetCount()); }
