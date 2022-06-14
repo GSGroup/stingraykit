@@ -1,10 +1,11 @@
 #include <stingraykit/VariantMultidispatch.h>
 #include <stingraykit/variant.h>
 
-#include <gmock/gmock-matchers.h>
+#include <unittests/RangeMatcher.h>
 
 using namespace stingray;
 
+using testing::ElementsAre;
 using testing::Pair;
 
 namespace
@@ -94,17 +95,9 @@ TEST(VariantTest, Variant)
 TEST(VariantTest, VisitorApplier)
 {
 	using VType = variant<TypeList<int, std::string>>;
+	const std::vector<VType> v{ std::string("1234"), 42, 0 };
 
-	std::vector<VType> v;
-	v.push_back(VType(std::string("1234")));
-	v.push_back(VType(42));
-	v.push_back(VType(0));
-
-	std::vector<int> r;
-	std::transform(v.begin(), v.end(), std::back_inserter(r), make_visitor_applier(SVisitor()));
-
-	int seq[] = { 0, 1, 1 };
-	ASSERT_TRUE(std::equal(r.begin(), r.end(), std::begin(seq), std::end(seq)));
+	ASSERT_THAT(ToRange(v) | Transform(make_visitor_applier(SVisitor())), MatchRange(ElementsAre(0, 1, 1)));
 }
 
 
