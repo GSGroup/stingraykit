@@ -1,10 +1,23 @@
-#include <stingraykit/collection/Range.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/function/functional.h>
 
-#include <gtest/gtest.h>
+#include <unittests/RangeMatcher.h>
+
+#include <gmock/gmock-more-matchers.h>
 
 using namespace stingray;
+
+using ::testing::ElementsAre;
+using ::testing::IsEmpty;
+
+namespace stingray
+{
+
+	template < typename Range_, typename EnableIf<IsRange<Range_>::Value, bool>::ValueT = false >
+	std::ostream& operator << (std::ostream& os, const Range_& val)
+	{ return os << ToString(val); }
+
+}
 
 namespace
 {
@@ -336,4 +349,33 @@ TEST(RangeTest, ForBasedLoop)
 
 		ASSERT_EQ(j, 5);
 	}
+}
+
+
+TEST(RangeTest, Concat)
+{
+	const std::vector<int> v1{ 0, 1, 2 };
+	const std::vector<int> v2{ 3, 4 };
+	const std::vector<int> vEmpty;
+
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2)), MatchRange(ElementsAre(0, 1, 2, 3, 4)));
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2)) | Reverse(), MatchRange(ElementsAre(4, 3, 2, 1, 0)));
+
+	ASSERT_THAT(Concat(ToRange(vEmpty), ToRange(vEmpty)), MatchRange(IsEmpty()));
+	ASSERT_THAT(Concat(ToRange(vEmpty), ToRange(vEmpty)) | Reverse(), MatchRange(IsEmpty()));
+
+	ASSERT_THAT(Concat(ToRange(vEmpty), ToRange(v1), ToRange(v2)), MatchRange(ElementsAre(0, 1, 2, 3, 4)));
+	ASSERT_THAT(Concat(ToRange(vEmpty), ToRange(v1), ToRange(v2)) | Reverse(), MatchRange(ElementsAre(4, 3, 2, 1, 0)));
+
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(vEmpty), ToRange(v2)), MatchRange(ElementsAre(0, 1, 2, 3, 4)));
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(vEmpty), ToRange(v2)) | Reverse(), MatchRange(ElementsAre(4, 3, 2, 1, 0)));
+
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2), ToRange(vEmpty)), MatchRange(ElementsAre(0, 1, 2, 3, 4)));
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2), ToRange(vEmpty)) | Reverse(), MatchRange(ElementsAre(4, 3, 2, 1, 0)));
+
+	ASSERT_THAT(Concat(ToRange(v1) | Filter(Bind(std::less<int>(), 0, _1)), ToRange(v2)), MatchRange(ElementsAre(1, 2, 3, 4)));
+	ASSERT_THAT(Concat(ToRange(v1) | Filter(Bind(std::less<int>(), 0, _1)), ToRange(v2)) | Reverse(), MatchRange(ElementsAre(4, 3, 2, 1)));
+
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2) | Filter(Bind(std::less<int>(), 3, _1))), MatchRange(ElementsAre(0, 1, 2, 4)));
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2) | Filter(Bind(std::less<int>(), 3, _1))) | Reverse(), MatchRange(ElementsAre(4, 2, 1, 0)));
 }
