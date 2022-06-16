@@ -16,6 +16,7 @@
 #include <stingraykit/math.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/RefStorage.h>
+#include <stingraykit/variant.h>
 
 namespace stingray
 {
@@ -823,6 +824,173 @@ namespace stingray
 		};
 
 
+		template < typename RangeTypes >
+		struct RangeConcaterCategoryHelper
+		{
+			template < typename RangeType >
+			struct ToCategory
+			{ using ValueT = typename RangeType::Category; };
+
+			template < typename LhsCategory, typename RhsCategory >
+			struct AccumulateFunc
+			{ using ValueT = typename If<IsInherited<LhsCategory, RhsCategory>::Value, RhsCategory, LhsCategory>::ValueT; };
+
+			using ValueT = typename TypeListAccumulate<typename TypeListTransform<RangeTypes, ToCategory>::ValueT, AccumulateFunc, std::bidirectional_iterator_tag>::ValueT;
+		};
+
+
+		template < typename RangeTypes >
+		class RangeConcater : public Range::RangeBase<RangeConcater<RangeTypes>, typename RangeTypes::ValueT::ValueType, typename RangeConcaterCategoryHelper<RangeTypes>::ValueT>
+		{
+			using Self = RangeConcater<RangeTypes>;
+			using base = Range::RangeBase<RangeConcater<RangeTypes>, typename RangeTypes::ValueT::ValueType, typename RangeConcaterCategoryHelper<RangeTypes>::ValueT>;
+
+			using TupleType = Tuple<RangeTypes>;
+
+			static const size_t RangeCount = GetTypeListLength<RangeTypes>::Value;
+
+			template < typename T, int Index_ >
+			struct IndexedType
+			{
+				using Type = T;
+
+				static const int Index = Index_;
+
+				Type Value;
+
+				IndexedType(const Type& val) : Value(val) { }
+
+				bool operator == (const IndexedType& other) const { return Value == other.Value; }
+			};
+
+			template < size_t Index >
+			struct Indexer
+			{ using ValueT = IndexedType<typename GetTypeListItem<RangeTypes, Index>::ValueT, Index>; };
+
+			using IndexedRangeTypes = typename GenerateTypeList<RangeCount, Indexer>::ValueT;
+			using VariantRanges = variant<IndexedRangeTypes>;
+
+			template < bool Forward >
+			class RangeGetter
+			{
+			private:
+				const TupleType&	_ranges;
+
+			public:
+				explicit RangeGetter(const TupleType& ranges) : _ranges(ranges) { }
+
+				template < size_t Index >
+				optional<VariantRanges> GetNext() const
+				{ return Get<Forward ? Index + 1 : (Index > 0) ? Index - 1 : RangeCount>(); }
+
+				template < size_t Index = 0, typename EnableIf<Forward && Index < RangeCount, int>::ValueT = 0 >
+				optional<VariantRanges> Get() const
+				{
+					using IndexedRange = typename GetTypeListItem<IndexedRangeTypes, Index>::ValueT;
+					const auto& range = _ranges.template Get<Index>();
+					return range.Valid() ? IndexedRange(range) : GetNext<Index>();
+				}
+
+				template < size_t Index = RangeCount - 1, typename EnableIf<!Forward && Index < RangeCount, int>::ValueT = 0 >
+				optional<VariantRanges> Get() const
+				{
+					using IndexedRange = typename GetTypeListItem<IndexedRangeTypes, Index>::ValueT;
+					const auto range = typename IndexedRange::Type(_ranges.template Get<Index>()).Last();
+					return range.Valid() ? IndexedRange(range) : GetNext<Index>();
+				}
+
+				template < size_t Index = 0, typename EnableIf<Index >= RangeCount, int>::ValueT = 0 >
+				optional<VariantRanges> Get() const
+				{ return null; }
+			};
+
+			struct ValueVisitor : public static_visitor<typename base::ValueType>
+			{
+				template < typename IndexedRange >
+				typename base::ValueType operator () (const IndexedRange& range) const { return range.Value.Get(); }
+			};
+
+			template < bool Forward >
+			class IterateVisitor : public static_visitor<>
+			{
+			private:
+				Self&	_inst;
+
+			public:
+				explicit IterateVisitor(Self& inst) : _inst(inst) { }
+
+				template < typename IndexedRange >
+				void operator () (IndexedRange& range) const
+				{
+					if (!Next<Forward>(range))
+						_inst._currentRange = RangeGetter<Forward>(_inst._ranges).template GetNext<IndexedRange::Index>();
+				}
+
+			private:
+				template < bool Forward_, typename IndexedRange, typename EnableIf<Forward_, int>::ValueT = 0 >
+				bool Next(IndexedRange& range) const
+				{ return range.Value.Next().Valid(); }
+
+				template < bool Forward_, typename IndexedRange, typename EnableIf<!Forward_, int>::ValueT = 0 >
+				bool Next(IndexedRange& range) const
+				{
+					if (range.Value == typename IndexedRange::Type(range.Value).First())
+						return false;
+
+					range.Value.Prev();
+					return true;
+				}
+			};
+
+		private:
+			TupleType				_ranges;
+			optional<VariantRanges>	_currentRange;
+
+		public:
+			RangeConcater(const Tuple<RangeTypes>& ranges)
+				:	_ranges(ranges)
+			{ First(); }
+
+			bool Valid() const
+			{ return _currentRange.is_initialized(); }
+
+			typename base::ValueType Get() const
+			{
+				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
+				return apply_visitor(ValueVisitor(), *_currentRange);
+			}
+
+			bool Equals(const RangeConcater& other) const
+			{ return TupleEquals()(_ranges, other._ranges) && _currentRange == other._currentRange; }
+
+			Self& First()
+			{
+				_currentRange = RangeGetter<true>(_ranges).Get();
+				return *this;
+			}
+
+			Self& Next()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
+				apply_visitor(IterateVisitor<true>(*this), *_currentRange);
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
+				apply_visitor(IterateVisitor<false>(*this), *_currentRange);
+				return *this;
+			}
+
+			Self& Last()
+			{
+				_currentRange = RangeGetter<false>(_ranges).Get();
+				return *this;
+			}
+		};
+
+
 		template < typename SrcRange_, typename DstRange_ >
 		typename EnableIf<IsRange<DstRange_>::Value, DstRange_>::ValueT Copy(SrcRange_ src, DstRange_ dst)
 		{
@@ -1107,6 +1275,11 @@ namespace stingray
 		template < typename FuncType, typename... RangeTypes >
 		RangeZipper<FuncType, TypeList<RangeTypes...>> Zip(const FuncType& func, const RangeTypes&... ranges)
 		{ return RangeZipper<FuncType, TypeList<RangeTypes...>>(func, MakeTuple(ranges...)); }
+
+
+		template < typename Range0, typename... RangeTypes >
+		RangeConcater<TypeList<Range0, RangeTypes...>> Concat(const Range0& range0, const RangeTypes&... ranges)
+		{ return RangeConcater<TypeList<Range0, RangeTypes...>>(MakeTuple(range0, ranges...)); }
 
 	}
 
