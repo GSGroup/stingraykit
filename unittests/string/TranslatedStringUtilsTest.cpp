@@ -26,3 +26,29 @@ TEST(TranslatedStringUtilsTest, Format)
 		ASSERT_EQ(res, exp);
 	}
 }
+
+
+TEST(TranslatedStringUtilsTest, Builder)
+{
+	{
+		TranslatedStringBuilder b(LangCode::Any);
+		b % TranslatedString::Builder().AddTranslation(LangCode::Any, "Start ").Get();
+		b % 42;
+		b % " finish";
+
+		const TranslatedString exp = TranslatedString::Builder().AddTranslation(LangCode::Any, "Start 42 finish");
+		ASSERT_EQ(b.Get(), exp);
+	}
+
+	{
+		TranslatedStringBuilder b(LangCode::Eng(), LangCode::Rus());
+		b % TranslatedString::Builder().AddTranslation(LangCode::Eng(), "Start ").AddTranslation(LangCode::Rus(), "Начало ").Get();
+		b % 42;
+		b % " finish";
+
+		const TranslatedString exp = TranslatedString::Builder()
+				.AddTranslation(LangCode::Eng(), "Start 42 finish")
+				.AddTranslation(LangCode::Rus(), "Начало 42 finish");
+		ASSERT_EQ(b.Get(), exp);
+	}
+}
