@@ -75,6 +75,23 @@ namespace stingray
 		{ return Get(); }
 	};
 
+
+	template < typename LangCodes, typename Range >
+	auto Join(const LangCodes& langs, const std::string& separator, const Range& range)
+			-> decltype(std::declval<LangCodes>().begin(), std::declval<LangCodes>().end(), TranslatedString())
+	{
+		bool empty = true;
+		TranslatedStringBuilder tsb(langs);
+		for (const auto& item : range)
+		{
+			if (!empty)
+				tsb % separator;
+			tsb % item;
+			empty = false;
+		}
+		return tsb;
+	}
+
 }
 
 #endif

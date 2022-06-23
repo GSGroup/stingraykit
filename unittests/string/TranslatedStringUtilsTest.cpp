@@ -1,5 +1,7 @@
 #include <stingraykit/string/TranslatedStringUtils.h>
 
+#include <stingraykit/collection/ToRange.h>
+
 #include <gtest/gtest.h>
 
 using namespace stingray;
@@ -51,4 +53,22 @@ TEST(TranslatedStringUtilsTest, Builder)
 				.AddTranslation(LangCode::Rus(), "Начало 42 finish");
 		ASSERT_EQ(b.Get(), exp);
 	}
+}
+
+
+TEST(TranslatedStringUtilsTest, Join)
+{
+	const std::vector<TranslatedString> range =
+	{
+		TranslatedString::Builder().AddTranslation(LangCode::Eng(), "first").AddTranslation(LangCode::Rus(), "первый").Get(),
+		TranslatedString::Builder().AddTranslation(LangCode::Eng(), "second").AddTranslation(LangCode::Rus(), "второй").Get(),
+		TranslatedString::Builder().AddTranslation(LangCode::Eng(), "third").AddTranslation(LangCode::Rus(), "третий").Get()
+	};
+
+	const TranslatedString res = Join(std::initializer_list<LangCode>{ LangCode::Eng(), LangCode::Rus() }, ", ", ToRange(range));
+	const TranslatedString exp = TranslatedString::Builder()
+			.AddTranslation(LangCode::Eng(), "first, second, third")
+			.AddTranslation(LangCode::Rus(), "первый, второй, третий");
+
+	ASSERT_EQ(res, exp);
 }
