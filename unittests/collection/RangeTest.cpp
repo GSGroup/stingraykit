@@ -9,6 +9,7 @@ using namespace stingray;
 
 using ::testing::ElementsAre;
 using ::testing::IsEmpty;
+using ::testing::Pair;
 
 namespace stingray
 {
@@ -378,4 +379,24 @@ TEST(RangeTest, Concat)
 
 	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2) | Filter(Bind(std::less<int>(), 3, _1))), MatchRange(ElementsAre(0, 1, 2, 4)));
 	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2) | Filter(Bind(std::less<int>(), 3, _1))) | Reverse(), MatchRange(ElementsAre(4, 2, 1, 0)));
+}
+
+
+TEST(RangeTest, Single)
+{
+	int val = 1;
+	ASSERT_THAT(Range::Single(val), MatchRange(ElementsAre(1)));
+	ASSERT_THAT(Range::Single(val) | Filter(Bind(std::greater<int>(), 3, _1)), MatchRange(ElementsAre(1)));
+	ASSERT_THAT(Range::Single(val) | Filter(Bind(std::less<int>(), 3, _1)), MatchRange(IsEmpty()));
+	ASSERT_THAT(Range::Single(val) | Reverse(), MatchRange(ElementsAre(1)));
+	ASSERT_THAT(Range::Single(val) | Drop(0), MatchRange(ElementsAre(1)));
+	ASSERT_THAT(Range::Single(val) | Drop(1), MatchRange(IsEmpty()));
+
+	std::string str = "test";
+	ASSERT_THAT(Range::Single(str), MatchRange(ElementsAre("test")));
+	ASSERT_THAT(Range::Single("test"), MatchRange(ElementsAre("test")));
+	ASSERT_THAT(Range::Single(std::string("test")), MatchRange(ElementsAre("test")));
+
+	const auto range = Range::Single<std::pair<int, std::string>>(1, "test");
+	ASSERT_THAT(range, MatchRange(ElementsAre(Pair(1, "test"))));
 }
