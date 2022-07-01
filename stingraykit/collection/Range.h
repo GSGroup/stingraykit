@@ -991,6 +991,76 @@ namespace stingray
 		};
 
 
+		template < typename T >
+		class RangeSingle : public Range::RangeBase<RangeSingle<T>, const T&, std::random_access_iterator_tag>
+		{
+			using Self = RangeSingle<T>;
+			using base = Range::RangeBase<RangeSingle<T>, const T&, std::random_access_iterator_tag>;
+
+		private:
+			T		_value;
+			bool	_valid;
+
+		public:
+			template < typename U = T, typename EnableIf<!IsSame<typename Decay<U>::ValueT, InPlaceType>::Value && IsConstructible<T, U>::Value, bool>::ValueT = true >
+			explicit RangeSingle(U&& value) : _value(std::forward<U>(value)), _valid(true) { }
+
+			template < typename... Us, typename EnableIf<IsConstructible<T, Us...>::Value, bool>::ValueT = true >
+			explicit RangeSingle(InPlaceType, Us&&... args) : _value(std::forward<Us>(args)...), _valid(true) { }
+
+			bool Valid() const
+			{ return _valid; }
+
+			typename base::ValueType Get() const
+			{
+				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
+				return _value;
+			}
+
+			bool Equals(const RangeSingle& other) const
+			{ return _valid == other._valid && _value == other._value; }
+
+			Self& First()
+			{
+				_valid = true;
+				return *this;
+			}
+
+			Self& Next()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
+				_valid = false;
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				STINGRAYKIT_CHECK(!Valid(), "Prev() at first element");
+				_valid = true;
+				return *this;
+			}
+
+			Self& Last()
+			{
+				_valid = true;
+				return *this;
+			}
+
+			size_t GetPosition() const
+			{ return _valid ? 0 : 1; }
+
+			size_t GetSize() const
+			{ return 1; }
+
+			Self& Move(int distance)
+			{
+				STINGRAYKIT_CHECK(GetPosition() + distance <= GetSize(), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
+				_valid = GetPosition() + distance == 0;
+				return *this;
+			}
+		};
+
+
 		template < typename SrcRange_, typename DstRange_ >
 		typename EnableIf<IsRange<DstRange_>::Value, DstRange_>::ValueT Copy(SrcRange_ src, DstRange_ dst)
 		{
@@ -1280,6 +1350,15 @@ namespace stingray
 		template < typename Range0, typename... RangeTypes >
 		RangeConcater<TypeList<Range0, RangeTypes...>> Concat(const Range0& range0, const RangeTypes&... ranges)
 		{ return RangeConcater<TypeList<Range0, RangeTypes...>>(MakeTuple(range0, ranges...)); }
+
+
+		template < typename T >
+		RangeSingle<typename Decay<T>::ValueT> Single(T&& value)
+		{ return RangeSingle<typename Decay<T>::ValueT>(std::forward<T>(value)); }
+
+		template < typename T, typename... Us >
+		RangeSingle<T> Single(Us&&... args)
+		{ return RangeSingle<T>(InPlace, std::forward<Us>(args)...); }
 
 	}
 
