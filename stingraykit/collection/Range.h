@@ -85,7 +85,7 @@ namespace stingray
 			Iterator_	_it;
 
 		public:
-			OutputIteratorRange(const Iterator_& it) : _it(it) { }
+			explicit OutputIteratorRange(const Iterator_& it) : _it(it) { }
 
 			bool Valid() const			{ return true; }
 			ValueType Get() const		{ return *_it; }
@@ -211,7 +211,7 @@ namespace stingray
 			mutable optional<Dst_>		_cache;
 
 		public:
-			RangeCaster(const Range_& impl) : _impl(impl) { }
+			explicit RangeCaster(const Range_& impl) : _impl(impl) { }
 
 			bool Valid() const								{ return _impl.Valid(); }
 			typename base::ValueType Get() const			{ DoCast(); return *_cache; }
@@ -252,7 +252,7 @@ namespace stingray
 			typename Storage::ValueType		_dst;
 
 		public:
-			RangeOfType(const Range_& impl) : _impl(impl) { FindNext(); }
+			explicit RangeOfType(const Range_& impl) : _impl(impl) { FindNext(); }
 
 			bool Valid() const								{ return _impl.Valid(); }
 			typename base::ValueType Get() const			{ return Storage::Unwrap(_dst); }
@@ -575,7 +575,7 @@ namespace stingray
 			Range_ _impl;
 
 		public:
-			RangeCycler(const Range_& impl)
+			explicit RangeCycler(const Range_& impl)
 				: _impl(impl)
 			{ STINGRAYKIT_CHECK(_impl.Valid(), "Can't cycle empty range!"); }
 
@@ -947,7 +947,7 @@ namespace stingray
 			optional<VariantRanges>	_currentRange;
 
 		public:
-			RangeConcater(const Tuple<RangeTypes>& ranges)
+			explicit RangeConcater(const Tuple<RangeTypes>& ranges)
 				:	_ranges(ranges)
 			{ First(); }
 
