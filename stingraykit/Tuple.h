@@ -103,7 +103,7 @@ namespace stingray
 
 		const ValueType& GetHead() const & { return _val; }
 		ValueType& GetHead() & { return _val; }
-		ValueType&& GetHead() && { return std::move(_val); }
+		ValueType&& GetHead() && { return std::forward<ValueType>(_val); }
 
 		const Tail& GetTail() const & { return _tail; }
 		Tail& GetTail() & { return _tail; }
