@@ -84,7 +84,7 @@ namespace stingray
 
 		template < typename OtherTypeList_, typename EnableIf<!IsSame<Tuple<OtherTypeList_>, typename Decay<ValueType>::ValueT>::Value && !IsSame<OtherTypeList_, TypeListEndNode>::Value, bool>::ValueT = false >
 		Tuple(Tuple<OtherTypeList_>&& other)
-			: _val(std::move(other.GetHead())), _tail(std::move(other.GetTail()))
+			: _val(std::forward<typename OtherTypeList_::ValueT>(other.GetHead())), _tail(std::move(other.GetTail()))
 		{ }
 
 		template < typename TupleLikeObject >
