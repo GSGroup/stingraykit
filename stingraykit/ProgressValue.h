@@ -21,7 +21,11 @@ namespace stingray
 		s64		Current;
 		s64		Total;
 
-		ProgressValue(s64 current = 0, s64 total = 0)
+		ProgressValue()
+			: Current(0), Total(0)
+		{ }
+
+		ProgressValue(s64 current, s64 total)
 			: Current(current), Total(total)
 		{ }
 
