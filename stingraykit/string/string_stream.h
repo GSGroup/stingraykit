@@ -110,8 +110,13 @@ namespace stingray
 
 		void Insert(const char* value)
 		{
-			while (*value)
-				_buf.push_back(*value++);
+			if (value)
+			{
+				while (*value)
+					_buf.push_back(*value++);
+			}
+			else
+				Insert(static_cast<const void*>(value));
 		}
 
 		void Insert(string_view_type value)

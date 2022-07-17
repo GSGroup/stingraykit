@@ -83,6 +83,6 @@ DECLARE_INTEGRAL_INSERT(long long);
 DECLARE_INSERT_PRINTF(long double,	"%.16Lg",	long double);
 DECLARE_INSERT_PRINTF(double,		"%.16g",	double);
 DECLARE_INSERT_PRINTF(float,		"%.7g",		double);
-DECLARE_INSERT_PRINTF(const void *,	"%p",		const void *);
+DECLARE_INSERT_PRINTF(const void*,	"%p",		const void*);
 
 }
