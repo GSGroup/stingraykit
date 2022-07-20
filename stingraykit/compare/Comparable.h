@@ -26,7 +26,7 @@ namespace stingray
 	template < typename T >
 	struct Comparable : public virtual IComparable
 	{
-		virtual int Compare(const IComparable& other) const
+		int Compare(const IComparable& other) const override
 		{
 			if (this == &other)
 				return 0;

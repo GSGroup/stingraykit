@@ -24,7 +24,7 @@ namespace stingray
 	template < typename T >
 	struct FuzzyEquatable : public virtual IFuzzyEquatable
 	{
-		virtual bool FuzzyEquals(const IFuzzyEquatable& other) const
+		bool FuzzyEquals(const IFuzzyEquatable& other) const override
 		{
 			const std::type_info& thisType = typeid(*this);
 			const std::type_info& otherType = typeid(other);
