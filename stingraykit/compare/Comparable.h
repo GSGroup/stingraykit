@@ -51,6 +51,15 @@ namespace stingray
 		virtual int DoCompare(const T& other) const = 0;
 	};
 
+
+	template < typename T >
+	struct IndifferentlyComparable : public Comparable<T>
+	{
+	protected:
+		int DoCompare(const T& other) const override
+		{ return 0; }
+	};
+
 }
 
 #endif
