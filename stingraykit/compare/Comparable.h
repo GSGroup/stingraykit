@@ -31,20 +31,20 @@ namespace stingray
 			if (this == &other)
 				return 0;
 
-			const std::type_info& my_type = typeid(*this);
-			const std::type_info& other_type = typeid(other);
+			const std::type_info& thisType = typeid(*this);
+			const std::type_info& otherType = typeid(other);
 
-			if (my_type != other_type)
-				return my_type.before(other_type) ? -1 : 1;
+			if (thisType != otherType)
+				return thisType.before(otherType) ? -1 : 1;
 
 			//avoiding dynamic_cast here
-			const char* this_ptr = reinterpret_cast<const char*>(this);
-			const char* this_icomparable = reinterpret_cast<const char*>(static_cast<const IComparable*>(this));
-			const ptrdiff_t delta = this_ptr - this_icomparable; //distance between Comparable and IComparable for this type.
-			const char* other_icomparable = reinterpret_cast<const char*>(&other);
-			const Comparable<T>* other_ptr = reinterpret_cast<const Comparable<T>*>(other_icomparable + delta);
+			const char* thisPtr = reinterpret_cast<const char*>(this);
+			const char* thisIComparable = reinterpret_cast<const char*>(static_cast<const IComparable*>(this));
+			const ptrdiff_t delta = thisPtr - thisIComparable; //distance between Comparable and IComparable for this type.
+			const char* otherIComparable = reinterpret_cast<const char*>(&other);
+			const Comparable<T>* otherPtr = reinterpret_cast<const Comparable<T>*>(otherIComparable + delta);
 
-			return DoCompare(*static_cast<const T*>(other_ptr));
+			return DoCompare(*static_cast<const T*>(otherPtr));
 		}
 
 	protected:
