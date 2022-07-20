@@ -38,13 +38,13 @@ namespace stingray
 				return my_type.before(other_type) ? -1 : 1;
 
 			//avoiding dynamic_cast here
-			const char * this_ptr = reinterpret_cast<const char *>(this);
-			const char * this_icomparable = reinterpret_cast<const char *>(static_cast<const IComparable *>(this));
+			const char* this_ptr = reinterpret_cast<const char*>(this);
+			const char* this_icomparable = reinterpret_cast<const char*>(static_cast<const IComparable*>(this));
 			const ptrdiff_t delta = this_ptr - this_icomparable; //distance between Comparable and IComparable for this type.
-			const char * other_icomparable = reinterpret_cast<const char *>(&other);
-			const Comparable<T> *other_ptr = reinterpret_cast<const Comparable<T> *>(other_icomparable + delta);
+			const char* other_icomparable = reinterpret_cast<const char*>(&other);
+			const Comparable<T>* other_ptr = reinterpret_cast<const Comparable<T>*>(other_icomparable + delta);
 
-			return this->DoCompare(*static_cast<const T*>(other_ptr));
+			return DoCompare(*static_cast<const T*>(other_ptr));
 		}
 
 	protected:

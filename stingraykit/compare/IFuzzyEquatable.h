@@ -21,7 +21,7 @@ namespace stingray
 	};
 
 
-	template<typename T>
+	template < typename T >
 	struct FuzzyEquatable : public virtual IFuzzyEquatable
 	{
 		virtual bool FuzzyEquals(const IFuzzyEquatable& other) const
@@ -32,13 +32,13 @@ namespace stingray
 				return false;
 
 			//avoiding dynamic_cast here
-			const char * this_ptr = reinterpret_cast<const char *>(this);
-			const char * this_ifuzzyequatable = reinterpret_cast<const char *>(static_cast<const IFuzzyEquatable *>(this));
+			const char* this_ptr = reinterpret_cast<const char*>(this);
+			const char* this_ifuzzyequatable = reinterpret_cast<const char*>(static_cast<const IFuzzyEquatable*>(this));
 			const ptrdiff_t delta = this_ptr - this_ifuzzyequatable; //distance between FuzzyEquatable and IFuzzyEquatable for this type.
-			const char * other_ifuzzyequatable = reinterpret_cast<const char *>(&other);
-			const FuzzyEquatable<T> *other_ptr = reinterpret_cast<const FuzzyEquatable<T> *>(other_ifuzzyequatable + delta);
+			const char* other_ifuzzyequatable = reinterpret_cast<const char*>(&other);
+			const FuzzyEquatable<T>* other_ptr = reinterpret_cast<const FuzzyEquatable<T>*>(other_ifuzzyequatable + delta);
 
-			return this->DoFuzzyEquals(*static_cast<const T*>(other_ptr));
+			return DoFuzzyEquals(*static_cast<const T*>(other_ptr));
 		}
 
 	protected:
