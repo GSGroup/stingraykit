@@ -12,8 +12,7 @@
 
 #define STINGRAYKIT_FATAL(message) \
 	do { \
-		std::string msg = STINGRAYKIT_WHERE.ToString() + std::string(": ") + std::string(message); \
-		stingray::DebuggingHelper::TerminateWithMessage(msg); \
+		stingray::DebuggingHelper::TerminateWithMessage(STINGRAYKIT_WHERE, message); \
 	} while(0)
 
 #endif

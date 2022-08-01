@@ -33,9 +33,9 @@ namespace stingray
 	{ }
 
 
-	void DebuggingHelper::TerminateWithMessage(const std::string& str) noexcept
+	void DebuggingHelper::TerminateWithMessage(ToolkitWhere where, const std::string& message) noexcept
 	{
-		Logger::Error() << "Terminate was requested: " << str << "\nbacktrace: " << Backtrace();
+		Logger::Error() << "Terminate was requested from " << where << "\nbacktrace: " << Backtrace() << "\n" << message;
 		std::terminate();
 	}
 
