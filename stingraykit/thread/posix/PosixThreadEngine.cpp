@@ -329,11 +329,10 @@ namespace stingray
 						}
 					}
 
-					std::string backtrace = Backtrace().Get();
 					PTELogger.Warning() << "Could not lock mutex (0x" << Hex(this, 8) << ", owned by "  << (ownerName.empty() ? ToString(owner) : "'" + ownerName + "'") << ", current thread id: " << PosixThreadEngine::GetCurrentThreadId() << ", owner thread id: " << ownerId << ") for "
 						<< (lock_full_duration.tv_sec ? ToString(lock_full_duration.tv_sec) + " s " : "")
 						<< (lock_full_duration.tv_nsec ? ToString(lock_full_duration.tv_nsec / 1000000) + " ms" : "")
-						<< ", there is probably a deadlock" << (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace));
+						<< ", there is probably a deadlock\nbacktrace: " << Backtrace();
 				}
 			}
 			else

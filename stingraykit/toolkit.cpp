@@ -35,8 +35,7 @@ namespace stingray
 
 	void DebuggingHelper::TerminateWithMessage(const std::string& str) noexcept
 	{
-		const std::string backtrace = Backtrace().Get();
-		Logger::Error() << "Terminate was requested: " << str << (backtrace.empty() ? "" : ("\nbacktrace: " + backtrace));
+		Logger::Error() << "Terminate was requested: " << str << "\nbacktrace: " << Backtrace();
 		std::terminate();
 	}
 
