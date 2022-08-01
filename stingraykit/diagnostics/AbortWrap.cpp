@@ -15,7 +15,7 @@ extern "C" void __wrap_abort(ssize_t size)
 {
 	using namespace stingray;
 
-	Logger::Error() << "Abort called: " << Backtrace().Get();
+	Logger::Error() << "Abort called: " << Backtrace();
 
 	__real_abort();
 }

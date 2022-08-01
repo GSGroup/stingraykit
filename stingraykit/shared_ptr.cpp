@@ -17,9 +17,9 @@ namespace stingray
 	namespace Detail
 	{
 		void DoLogAddRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal)
-		{ Logger::Warning() << "[shared_ptr] +++ Addrefed " << className << " (obj: 0x" << Hex(objPtrVal, 8) << ", shared_ptr: 0x" << Hex(sharedPtrPtrVal, 8) << "), new value = " << refs << "\n" << Backtrace().Get(); }
+		{ Logger::Warning() << "[shared_ptr] +++ Addrefed " << className << " (obj: 0x" << Hex(objPtrVal, 8) << ", shared_ptr: 0x" << Hex(sharedPtrPtrVal, 8) << "), new value = " << refs << "\n" << Backtrace(); }
 
 		void DoLogReleaseRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal)
-		{ Logger::Warning() << "[shared_ptr] --- Released " << className << " (obj: 0x" << Hex(objPtrVal, 8) << ", shared_ptr: 0x" << Hex(sharedPtrPtrVal, 8) << "), new value = " << refs << "\n" << Backtrace().Get(); }
+		{ Logger::Warning() << "[shared_ptr] --- Released " << className << " (obj: 0x" << Hex(objPtrVal, 8) << ", shared_ptr: 0x" << Hex(sharedPtrPtrVal, 8) << "), new value = " << refs << "\n" << Backtrace(); }
 	}
 }
