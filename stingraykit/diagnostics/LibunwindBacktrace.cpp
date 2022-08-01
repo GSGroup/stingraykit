@@ -25,6 +25,9 @@ namespace stingray
 
 	std::string LibunwindBacktrace::Get() const
 	{
+		if (_size == 0)
+			return "<empty>";
+
 		string_ostream backtrace;
 
 		for (size_t i = 0; i < _size; ++i)

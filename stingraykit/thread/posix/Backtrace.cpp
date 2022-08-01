@@ -127,6 +127,9 @@ namespace posix
 		if (!symbols)
 			return "cannot load symbols";
 
+		if (_backtrace.size() == 0)
+			return "<empty>";
+
 		string_ostream backtrace;
 		try
 		{
@@ -177,6 +180,9 @@ namespace posix
 
 	std::string Backtrace::Get() const
 	{
+		if (_backtrace.size() == 0)
+			return "<empty>";
+
 		string_ostream backtrace;
 
 		for(size_t i = 0; i < _backtrace.size(); ++i)
