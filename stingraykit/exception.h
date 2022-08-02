@@ -306,6 +306,9 @@ namespace stingray
 			DebuggingHelper::BreakpointHere();
 			throw MakeException(NotInitializedException(expr), where);
 		}
+
+
+		void AppendExtendedDiagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 	}
 
 
@@ -315,8 +318,6 @@ namespace stingray
 #define STINGRAYKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, STINGRAYKIT_WHERE)
 #define STINGRAYKIT_REQUIRE_INITIALIZED(Expr_) stingray::Detail::RequireInitialized(Expr_, #Expr_, STINGRAYKIT_WHERE)
 
-
-	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 
 	template < typename ExceptionType >
 	void diagnostic_information(string_ostream& result, const ExceptionType& ex)
@@ -331,7 +332,7 @@ namespace stingray
 			result << "Unknown exception: " << exName;
 
 		if (tkit_ex)
-			_append_extended_diagnostics(result, *tkit_ex);
+			Detail::AppendExtendedDiagnostics(result, *tkit_ex);
 	}
 
 	template < typename ExceptionType >

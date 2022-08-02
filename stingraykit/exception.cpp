@@ -10,11 +10,16 @@
 namespace stingray
 {
 
-	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex)
+	namespace Detail
 	{
-		result << "\n  in function '" << tkit_ex.GetFunctionName() << "'"
-				<< "\n  in file '" << tkit_ex.GetFilename() << "' at line " << tkit_ex.GetLine()
-				<< "\n" << tkit_ex.GetBacktrace();
+
+		void AppendExtendedDiagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex)
+		{
+			result << "\n  in function '" << tkit_ex.GetFunctionName() << "'"
+					<< "\n  in file '" << tkit_ex.GetFilename() << "' at line " << tkit_ex.GetLine()
+					<< "\n" << tkit_ex.GetBacktrace();
+		}
+
 	}
 
 }
