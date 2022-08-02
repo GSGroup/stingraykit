@@ -323,12 +323,12 @@ namespace stingray
 	{
 		const Detail::IToolkitException* tkit_ex = dynamic_cast<const Detail::IToolkitException*>(&ex);
 		const std::exception* std_ex = dynamic_cast<const std::exception*>(&ex);
-		const std::type_info& ex_ti = typeid(ex);
+		const std::string& exName = Demangle(typeid(ex).name());
 
 		if (std_ex)
-			result << Demangle(ex_ti.name()) << "\n" << std_ex->what();
+			result << exName << "\n" << std_ex->what();
 		else
-			result << "Unknown exception: " << Demangle(ex_ti.name());
+			result << "Unknown exception: " << exName;
 
 		if (tkit_ex)
 			_append_extended_diagnostics(result, *tkit_ex);
