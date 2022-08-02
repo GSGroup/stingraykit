@@ -274,7 +274,7 @@ namespace stingray
 	namespace Detail
 	{
 		template < typename BaseException >
-		inline typename EnableIf<IsInherited<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, ToolkitWhere where)
+		typename EnableIf<IsInherited<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, ToolkitWhere where)
 		{
 			static_assert(IsInherited<BaseException, std::exception>::Value, "Invalid exception type");
 			return ExceptionWrapper<BaseException>(ex, where);
@@ -319,7 +319,7 @@ namespace stingray
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex);
 
 	template < typename ExceptionType >
-	inline void diagnostic_information(string_ostream& result, const ExceptionType& ex)
+	void diagnostic_information(string_ostream& result, const ExceptionType& ex)
 	{
 		const Detail::IToolkitException* tkit_ex = dynamic_cast<const Detail::IToolkitException*>(&ex);
 		const std::exception* std_ex = dynamic_cast<const std::exception*>(&ex);
@@ -335,7 +335,7 @@ namespace stingray
 	}
 
 	template < typename ExceptionType >
-	inline std::string diagnostic_information(const ExceptionType& ex)
+	std::string diagnostic_information(const ExceptionType& ex)
 	{
 		string_ostream result;
 		diagnostic_information(result, ex);
