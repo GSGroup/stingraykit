@@ -12,12 +12,9 @@ namespace stingray
 
 	void _append_extended_diagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex)
 	{
-		const std::string backtrace = tkit_ex.GetBacktrace();
-		result << "\n  in function '" << tkit_ex.GetFunctionName() << "'" <<
-			"\n  in file '" << tkit_ex.GetFilename() << "' at line " << tkit_ex.GetLine();
-
-		if (!backtrace.empty())
-			result << "\n" << backtrace;
+		result << "\n  in function '" << tkit_ex.GetFunctionName() << "'"
+				<< "\n  in file '" << tkit_ex.GetFilename() << "' at line " << tkit_ex.GetLine()
+				<< "\n" << tkit_ex.GetBacktrace();
 	}
 
 }
