@@ -294,7 +294,7 @@ namespace stingray
 				return std::forward<T>(obj);
 
 			DebuggingHelper::BreakpointHere();
-			throw stingray::Detail::MakeException(NullPointerException(expr), where);
+			throw MakeException(NullPointerException(expr), where);
 		}
 
 		template < typename T >
@@ -304,7 +304,7 @@ namespace stingray
 				return std::forward<T>(obj);
 
 			DebuggingHelper::BreakpointHere();
-			throw stingray::Detail::MakeException(NotInitializedException(expr), where);
+			throw MakeException(NotInitializedException(expr), where);
 		}
 	}
 
