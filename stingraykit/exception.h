@@ -183,9 +183,9 @@ namespace stingray
 	public:
 		InvalidCastException() : _message("Invalid cast!") { }
 		InvalidCastException(const std::string& source, const std::string& target) : _message(BuildErrorMessage(source, target)) { }
-		virtual ~InvalidCastException() noexcept { }
+		~InvalidCastException() noexcept override { }
 
-		virtual const char* what() const noexcept { return _message.c_str(); }
+		const char* what() const noexcept override { return _message.c_str(); }
 
 	private:
 		static std::string BuildErrorMessage(const std::string& source, const std::string& target)
@@ -253,12 +253,12 @@ namespace stingray
 		{ }
 
 	public:
-		virtual ~BaseException() noexcept { }
+		~BaseException() noexcept override { }
 
-		virtual size_t GetLine() const				{ return _where.GetLine(); }
-		virtual const char* GetFilename() const		{ return _where.GetFilename(); }
-		virtual const char* GetFunctionName() const	{ return _where.GetFunctionName(); }
-		virtual std::string GetBacktrace() const	{ return _backtrace.Get(); }
+		size_t GetLine() const override					{ return _where.GetLine(); }
+		const char* GetFilename() const override		{ return _where.GetFilename(); }
+		const char* GetFunctionName() const override	{ return _where.GetFunctionName(); }
+		std::string GetBacktrace() const override		{ return _backtrace.Get(); }
 	};
 
 	template < typename UserBaseException >
