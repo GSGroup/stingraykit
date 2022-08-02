@@ -7,8 +7,6 @@
 
 #include <stingraykit/exception.h>
 
-#include <stingraykit/string/ToString.h>
-
 namespace stingray
 {
 
@@ -16,7 +14,7 @@ namespace stingray
 	{
 		const std::string backtrace = tkit_ex.GetBacktrace();
 		result << "\n  in function '" << tkit_ex.GetFunctionName() << "'" <<
-			"\n  in file '" << tkit_ex.GetFilename() << "' at line " << ToString(tkit_ex.GetLine());
+			"\n  in file '" << tkit_ex.GetFilename() << "' at line " << tkit_ex.GetLine();
 
 		if (!backtrace.empty())
 			result << "\n" << backtrace;
