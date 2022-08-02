@@ -141,6 +141,27 @@ namespace stingray
 	STINGRAYKIT_MACRODISPATCH(DETAIL_STINGRAYKIT_CHECK_RANGE_, __VA_ARGS__)
 
 
+	class IntegerOverflowException : public Exception
+	{
+	public:
+		IntegerOverflowException() : Exception("Integer overflow!") { }
+		template < typename IntegerType, typename IncrementType >
+		IntegerOverflowException(IntegerType value, IncrementType increment) : Exception(BuildErrorMessage(value, increment)) { }
+
+	private:
+		template < typename IntegerType, typename IncrementType >
+		static std::string BuildErrorMessage(IntegerType value, IncrementType increment)
+		{
+			string_ostream stream;
+			stream << "Integer value (" << value << " + " << increment << ") will ";
+			if (increment >= 0)
+				stream << "overflow " << std::numeric_limits<IntegerType>::max();
+			else
+				stream << "underflow " << std::numeric_limits<IntegerType>::min();
+			return stream.str();
+		}
+	};
+
 	struct FormatException : public Exception
 	{
 		FormatException() : Exception("Invalid format!") { }
@@ -287,6 +308,28 @@ namespace stingray
 		{ return MakeException(Exception(message), where); }
 
 
+		template < typename IntegerType, typename IncrementType >
+		void CheckIntegerOverflow(IntegerType value, IncrementType increment, ToolkitWhere where)
+		{
+			constexpr auto valueMax = std::numeric_limits<typename std::make_unsigned<IntegerType>::type>::max();
+			constexpr auto incrementMax = std::numeric_limits<typename std::make_unsigned<IncrementType>::type>::max();
+
+			static_assert(IsSame<IntegerType, IncrementType>::Value
+							|| (std::is_unsigned<IntegerType>::value && valueMax >= incrementMax)
+							|| (std::is_signed<IntegerType>::value && std::is_unsigned<IncrementType>::value && valueMax > incrementMax)
+							|| (std::is_signed<IntegerType>::value && std::is_signed<IncrementType>::value && valueMax >= incrementMax),
+					"Increment must have same or lesser type than value");
+
+			if (increment > 0)
+			{
+				if (value > std::numeric_limits<IntegerType>::max() - increment)
+					throw MakeException(IntegerOverflowException(value, increment), where);
+			}
+			else if (increment < 0 && value < std::numeric_limits<IntegerType>::min() - increment)
+				throw MakeException(IntegerOverflowException(value, increment), where);
+		}
+
+
 		template < typename T >
 		T&& RequireNotNull(T&& obj, const char* expr, ToolkitWhere where)
 		{
@@ -314,6 +357,8 @@ namespace stingray
 
 #define STINGRAYKIT_MAKE_EXCEPTION(...) ::stingray::Detail::MakeException(__VA_ARGS__, STINGRAYKIT_WHERE)
 #define STINGRAYKIT_THROW(...) throw ::stingray::Detail::MakeException(__VA_ARGS__, STINGRAYKIT_WHERE)
+
+#define STINGRAYKIT_CHECK_INTEGER_OVERFLOW(Value, Increment) stingray::Detail::CheckIntegerOverflow(Value, Increment, STINGRAYKIT_WHERE)
 
 #define STINGRAYKIT_REQUIRE_NOT_NULL(Expr_) stingray::Detail::RequireNotNull(Expr_, #Expr_, STINGRAYKIT_WHERE)
 #define STINGRAYKIT_REQUIRE_INITIALIZED(Expr_) stingray::Detail::RequireInitialized(Expr_, #Expr_, STINGRAYKIT_WHERE)
