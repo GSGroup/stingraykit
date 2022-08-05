@@ -1,5 +1,5 @@
-#ifndef UNITTESTS_ENUMERABLEMATCHER_H
-#define UNITTESTS_ENUMERABLEMATCHER_H
+#ifndef UNITTESTS_RANGEMATCHER_H
+#define UNITTESTS_RANGEMATCHER_H
 
 #include <stingraykit/collection/Range.h>
 
