@@ -8,21 +8,24 @@
 #include <stingraykit/Factory.h>
 #include <stingraykit/string/StringUtils.h>
 
-
 namespace stingray
 {
 
 	FactoryContext::FactoryContext() { }
+
+
 	FactoryContext::FactoryContext(const FactoryContextPtr& baseContext)
-			: _baseContext(baseContext)
-		{ }
+		: _baseContext(baseContext)
+	{ }
 
 
-	std::string Factory::RemoveTypePrefix(const std::string & type, const std::string &prefix)
+	std::string Factory::RemoveTypePrefix(const std::string& type, const std::string& prefix)
 	{ return RemovePrefix(type, prefix); }
 
-	std::string Factory::RemoveTypeSuffix(const std::string & type, const std::string &suffix)
+
+	std::string Factory::RemoveTypeSuffix(const std::string& type, const std::string& suffix)
 	{ return RemoveSuffix(type, suffix); }
+
 
 	std::string FactoryContext::GetClassName(const std::type_info& info) const
 	{

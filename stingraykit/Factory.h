@@ -8,20 +8,26 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/Singleton.h>
 #include <stingraykit/dynamic_caster.h>
-
 
 namespace stingray
 {
 
-	namespace Detail { class Factory; }
+	namespace Detail
+	{
+
+		class Factory;
+
+	}
+
 
 	class Factory;
 
+
 	class FactoryContext;
 	STINGRAYKIT_DECLARE_PTR(FactoryContext);
+
 
 	class FactoryContext
 	{
@@ -45,8 +51,8 @@ namespace stingray
 		};
 
 	private:
-		typedef std::map<std::string, IFactoryObjectCreatorUniqPtr> ObjectCreatorsRegistry;
-		typedef std::map<TypeInfo, std::string> ClassNamesRegistry;
+		using ObjectCreatorsRegistry = std::map<std::string, IFactoryObjectCreatorUniqPtr>;
+		using ClassNamesRegistry = std::map<TypeInfo, std::string>;
 
 		friend class Detail::Factory;
 
@@ -83,6 +89,7 @@ namespace stingray
 
 		IFactoryObjectUniqPtr Create(const std::string& name);
 	};
+
 
 	namespace Detail
 	{
@@ -121,7 +128,8 @@ namespace stingray
 			void RegisterTypes();
 		};
 
-	} //Detail
+	}
+
 
 	class Factory : public Singleton<Factory>
 	{
@@ -141,8 +149,8 @@ namespace stingray
 		FactoryContextPtr InheritRootContext() const
 		{ return Detail::Factory::Instance().InheritRootContext(); }
 
-		static std::string RemoveTypeSuffix(const std::string & type, const std::string &suffix);
-		static std::string RemoveTypePrefix(const std::string & type, const std::string &prefix);
+		static std::string RemoveTypeSuffix(const std::string& type, const std::string& suffix);
+		static std::string RemoveTypePrefix(const std::string& type, const std::string& prefix);
 	};
 
 }
@@ -150,7 +158,7 @@ namespace stingray
 
 #define STINGRAYKIT_REGISTER_CLASS(Class_) \
 	friend class stingray::FactoryContext::FactoryObjectCreator<Class_>; \
-	virtual std::string GetClassName() const { return stingray::Factory::RemoveTypePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
+	std::string GetClassName() const override { return stingray::Factory::RemoveTypePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
 
 
 #define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_) stingray::Detail::Factory::Instance().Register<Class_>(ClassName_)
