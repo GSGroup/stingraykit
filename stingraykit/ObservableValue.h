@@ -95,7 +95,7 @@ namespace stingray
 	private:
 		T													_val;
 		EqualsCmp											_equalsCmp;
-		const shared_ptr<Mutex>								_mutex;
+		const shared_ptr<const Mutex>						_mutex;
 		PopulationPolicy<T, EqualsCmp>						_populationPolicy;
 		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 
@@ -107,7 +107,7 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableValue::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit ObservableValue(const shared_ptr<Mutex>& mutex, ParamPassingType val = T(), const PopulationPolicySpecifier& populationPolicySpecifier = PopulationPolicySpecifier())
+		explicit ObservableValue(const shared_ptr<const Mutex>& mutex, ParamPassingType val = T(), const PopulationPolicySpecifier& populationPolicySpecifier = PopulationPolicySpecifier())
 			:	_val(val),
 				_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
 				_populationPolicy(populationPolicySpecifier),
