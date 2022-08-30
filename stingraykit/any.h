@@ -46,7 +46,7 @@ namespace stingray
 
 		struct IObjectHolder : public virtual ISerializable, public virtual IFactoryObject
 		{
-			virtual ~IObjectHolder() { }
+			~IObjectHolder() override { }
 
 			virtual IObjectHolder* Clone() const = 0;
 			virtual std::string ToString() const = 0;
@@ -79,8 +79,8 @@ namespace stingray
 			ObjectHolderBase(const T& object) : Object(object) { }
 			ObjectHolderBase(T&& object) : Object(std::move(object)) { }
 
-			virtual IObjectHolder* Clone() const				{ return new ObjectHolder<T>(Object); }
-			virtual std::string ToString() const				{ return ObjectToString<T>::ToString(Object); }
+			IObjectHolder* Clone() const override				{ return new ObjectHolder<T>(Object); }
+			std::string ToString() const override				{ return ObjectToString<T>::ToString(Object); }
 		};
 
 		template < typename T >
@@ -89,11 +89,11 @@ namespace stingray
 			ObjectHolder(const T& object) : ObjectHolderBase<T>(object) { }
 			ObjectHolder(T&& object) : ObjectHolderBase<T>(std::move(object)) { }
 
-			virtual void Serialize(ObjectOStream& ar) const		{ STINGRAYKIT_THROW(NotSupportedException()); }
-			virtual void Deserialize(ObjectIStream& ar)			{ STINGRAYKIT_THROW(NotSupportedException()); }
-			virtual bool IsSerializable() const					{ return false; }
+			void Serialize(ObjectOStream& ar) const override		{ STINGRAYKIT_THROW(NotSupportedException()); }
+			void Deserialize(ObjectIStream& ar) override			{ STINGRAYKIT_THROW(NotSupportedException()); }
+			bool IsSerializable() const override					{ return false; }
 
-			virtual std::string GetClassName() const { STINGRAYKIT_THROW(NotImplementedException()); }
+			std::string GetClassName() const override { STINGRAYKIT_THROW(NotImplementedException()); }
 		};
 
 		template < >
@@ -103,9 +103,9 @@ namespace stingray
 			ObjectHolder(const ISerializablePtr& object) : ObjectHolderBase<ISerializablePtr>(object) { }
 			ObjectHolder(ISerializablePtr&& object) : ObjectHolderBase<ISerializablePtr>(std::move(object)) { }
 
-			virtual void Serialize(ObjectOStream& ar) const;
-			virtual void Deserialize(ObjectIStream& ar);
-			virtual bool IsSerializable() const					{ return true; }
+			void Serialize(ObjectOStream& ar) const override;
+			void Deserialize(ObjectIStream& ar) override;
+			bool IsSerializable() const override					{ return true; }
 
 			STINGRAYKIT_REGISTER_CLASS(ObjectHolder<ISerializablePtr>);
 		};
@@ -120,9 +120,9 @@ namespace stingray
 				ObjectHolder() { } \
 				ObjectHolder(const __VA_ARGS__& object) : ObjectHolderBase<__VA_ARGS__>(object) { } \
 				ObjectHolder(__VA_ARGS__&& object) : ObjectHolderBase<__VA_ARGS__>(std::move(object)) { } \
-				virtual void Serialize(ObjectOStream& ar) const; \
-				virtual void Deserialize(ObjectIStream& ar); \
-				virtual bool IsSerializable() const	{ return true; } \
+				void Serialize(ObjectOStream& ar) const override; \
+				void Deserialize(ObjectIStream& ar) override; \
+				bool IsSerializable() const override	{ return true; } \
 				STINGRAYKIT_REGISTER_CLASS(ObjectHolder<__VA_ARGS__>); \
 			}; \
 		}}}
@@ -344,9 +344,9 @@ namespace stingray
 		std::string		_message;
 	public:
 		bad_any_cast(const std::string& from, const std::string& to) : _message(StringBuilder() % "Bad 'any' cast from " % from % " to " % to % "!") { }
-		virtual ~bad_any_cast() noexcept { }
+		~bad_any_cast() noexcept override { }
 
-		virtual const char* what() const noexcept { return _message.c_str(); }
+		const char* what() const noexcept override { return _message.c_str(); }
 	};
 
 
