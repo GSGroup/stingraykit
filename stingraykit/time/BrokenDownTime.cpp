@@ -84,12 +84,12 @@ namespace stingray
 
 	int BrokenDownTime::GetMaxDaysInMonth() const
 	{
-		static const int daysPerMonths[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+		static const int daysPerMonths[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 		if (Month == 2 && Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0))
 			return 29;
 		else
-			return daysPerMonths[Month - 1];
+			return ArrayGet(daysPerMonths, Month - 1);
 	}
 
 
