@@ -7,6 +7,7 @@
 
 #include <stingraykit/time/BrokenDownTime.h>
 
+#include <stingraykit/compare/MemberListComparer.h>
 #include <stingraykit/string/AhoCorasick.h>
 #include <stingraykit/string/StringUtils.h>
 
@@ -99,6 +100,21 @@ namespace stingray
 		bdt.Year = year;
 		bdt.Month = month;
 		return bdt.GetMaxDaysInMonth();
+	}
+
+
+	int BrokenDownTime::Compare(const BrokenDownTime& other) const
+	{
+		return CompareMembersCmp(
+				&BrokenDownTime::Milliseconds,
+				&BrokenDownTime::Seconds,
+				&BrokenDownTime::Minutes,
+				&BrokenDownTime::Hours,
+				&BrokenDownTime::WeekDay,
+				&BrokenDownTime::MonthDay,
+				&BrokenDownTime::Month,
+				&BrokenDownTime::YearDay,
+				&BrokenDownTime::Year)(*this, other);
 	}
 
 
