@@ -187,6 +187,7 @@ namespace stingray
 		u32 GetBCDTime(TimeKind kind = TimeKind::Local) const;
 
 		int DaysTo(const Time& endTime) const;
+		int DaysTo(const BrokenDownTime& endTime) const;
 
 		void Serialize(ObjectOStream& ar) const;
 		void Deserialize(ObjectIStream& ar);
