@@ -95,6 +95,7 @@ set(stingraykit_SRC
 	stingraykit/Version.cpp
 	stingraykit/any.cpp
 	stingraykit/exception.cpp
+	stingraykit/math.cpp
 	stingraykit/self_counter.cpp
 	stingraykit/shared_ptr.cpp
 	stingraykit/toolkit.cpp

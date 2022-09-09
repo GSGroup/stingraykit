@@ -38,6 +38,15 @@ namespace stingray
 
 	template < typename T > constexpr T Min(T a, T b) { return std::min<T>(a, b); }
 
+	struct FractionRemainder
+	{
+		u64				Remainder = 0;
+		unsigned		Precision = 0;
+		bool			IsOverflow = false;
+	};
+
+	FractionRemainder CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned precision, unsigned radix = 10);
+
 }
 
 #endif
