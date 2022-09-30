@@ -6,9 +6,10 @@ using namespace stingray;
 
 namespace
 {
-	typedef std::vector<std::string>	Vector;
-	typedef std::set<std::string>		Set;
-	typedef flat_set<std::string>		FlatSet;
+
+	using Vector = std::vector<std::string>;
+	using Set = std::set<std::string>;
+	using FlatSet = flat_set<std::string>;
 
 	template <class Collection, class Compare>
 	bool IsSorted(const Collection& testee, const Compare& cmp)

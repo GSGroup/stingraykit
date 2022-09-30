@@ -6,9 +6,10 @@ using namespace stingray;
 
 namespace
 {
-	typedef std::vector<std::pair<std::string, std::string> >	Vector;
-	typedef std::map<std::string, std::string>					Map;
-	typedef flat_map<std::string, std::string>					FlatMap;
+
+	using Vector = std::vector<std::pair<std::string, std::string>>;
+	using Map = std::map<std::string, std::string>;
+	using FlatMap = flat_map<std::string, std::string>;
 
 	template <class Collection, class Compare>
 	bool IsSorted(const Collection& testee, const Compare& cmp)

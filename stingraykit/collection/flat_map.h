@@ -13,35 +13,35 @@
 namespace stingray
 {
 
-	template < class Key, class Value, class Compare = std::less<Key>, class Allocator = std::allocator<std::pair<Key, Value> > >
+	template < class Key, class Value, class Compare = std::less<Key>, class Allocator = std::allocator<std::pair<Key, Value>> >
 	class flat_map
 	{
 	public:
-		typedef Key														key_type;
-		typedef Value													mapped_type;
-		typedef std::pair<Key, Value>									value_type;
+		using key_type = Key;
+		using mapped_type = Value;
+		using value_type = std::pair<Key, Value>;
 
 	private:
-		typedef std::vector<value_type, Allocator>						Container;
+		using Container = std::vector<value_type, Allocator>;
 
 	public:
-		typedef typename Container::size_type							size_type;
-		typedef typename Container::difference_type						difference_type;
-		typedef Compare													key_compare;
-		typedef Allocator												allocator_type;
-		typedef typename Allocator::reference							reference;
-		typedef typename Allocator::const_reference						const_reference;
-		typedef typename Allocator::pointer								pointer;
-		typedef typename Allocator::const_pointer						const_pointer;
-		typedef typename Container::iterator							iterator;
-		typedef typename Container::const_iterator						const_iterator;
-		typedef typename Container::reverse_iterator					reverse_iterator;
-		typedef typename Container::const_reverse_iterator				const_reverse_iterator;
+		using size_type = typename Container::size_type;
+		using difference_type = typename Container::difference_type;
+		using key_compare = Compare;
+		using allocator_type = Allocator;
+		using reference = typename Allocator::reference;
+		using const_reference = typename Allocator::const_reference;
+		using pointer = typename Allocator::pointer;
+		using const_pointer = typename Allocator::const_pointer;
+		using iterator = typename Container::iterator;
+		using const_iterator = typename Container::const_iterator;
+		using reverse_iterator = typename Container::reverse_iterator;
+		using const_reverse_iterator = typename Container::const_reverse_iterator;
 
 	private:
 		struct CompareImpl
 		{
-			Compare _cmp;
+			Compare		_cmp;
 
 		public:
 			CompareImpl(Compare comp) : _cmp(comp) { }
@@ -58,16 +58,15 @@ namespace stingray
 			friend class flat_map;
 
 		private:
-			Compare _cmp;
+			Compare		_cmp;
 
 		protected:
 			value_compare(Compare comp) : _cmp(comp) { }
 
 		public:
-			bool operator() (const value_type& lhs, const value_type& rhs) const
+			bool operator () (const value_type& lhs, const value_type& rhs) const
 			{ return _cmp(lhs.first, rhs.first); }
 		};
-
 
 	private:
 		Container		_container;
@@ -130,7 +129,6 @@ namespace stingray
 				return _container.insert(hint, value);
 			return insert(value).first;
 		}
-
 
 		template < class InputIterator >
 		void insert(InputIterator first, InputIterator last)
@@ -198,46 +196,52 @@ namespace stingray
 			return result->second;
 		}
 
-		iterator lower_bound(const Key& key)										{ return std::lower_bound(begin(), end(), key, _cmp); }
-		const_iterator lower_bound(const Key& key) const							{ return std::lower_bound(begin(), end(), key, _cmp); }
-		iterator upper_bound(const Key& key)										{ return std::upper_bound(begin(), end(), key, _cmp); }
-		const_iterator upper_bound(const Key& key) const							{ return std::upper_bound(begin(), end(), key, _cmp); }
+		iterator lower_bound(const Key& key)											{ return std::lower_bound(begin(), end(), key, _cmp); }
+		const_iterator lower_bound(const Key& key) const								{ return std::lower_bound(begin(), end(), key, _cmp); }
+		iterator upper_bound(const Key& key)											{ return std::upper_bound(begin(), end(), key, _cmp); }
+		const_iterator upper_bound(const Key& key) const								{ return std::upper_bound(begin(), end(), key, _cmp); }
 
-		std::pair<iterator,iterator> equal_range(const Key& key)					{ return std::equal_range(begin(), end(), key, _cmp); }
-		std::pair<const_iterator,const_iterator> equal_range(const Key& key) const	{ return std::equal_range(begin(), end(), key, _cmp); }
+		std::pair<iterator, iterator> equal_range(const Key& key)						{ return std::equal_range(begin(), end(), key, _cmp); }
+		std::pair<const_iterator, const_iterator> equal_range(const Key& key) const		{ return std::equal_range(begin(), end(), key, _cmp); }
 
-		key_compare key_comp() const												{ return _cmp._cmp; }
-		value_compare value_comp() const											{ return value_compare(_cmp._cmp); }
+		key_compare key_comp() const													{ return _cmp._cmp; }
+		value_compare value_comp() const												{ return value_compare(_cmp._cmp); }
 
-		void reserve(size_type size)												{ _container.reserve(size); }
+		void reserve(size_type size)													{ _container.reserve(size); }
 
 		template < class K, class V, class C, class A > friend bool operator == (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
 		template < class K, class V, class C, class A > friend bool operator != (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
-		template < class K, class V, class C, class A > friend bool operator <  (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
+		template < class K, class V, class C, class A > friend bool operator < (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
 		template < class K, class V, class C, class A > friend bool operator <= (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
-		template < class K, class V, class C, class A > friend bool operator >  (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
+		template < class K, class V, class C, class A > friend bool operator > (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
 		template < class K, class V, class C, class A > friend bool operator >= (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
 	};
+
 
 	template < class K, class V, class C, class A >
 	bool operator == (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
 	{ return lhs._container == rhs._container; }
 
+
 	template < class K, class V, class C, class A >
 	bool operator != (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
 	{ return lhs._container != rhs._container; }
+
 
 	template < class K, class V, class C, class A >
 	bool operator < (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
 	{ return lhs._container < rhs._container; }
 
+
 	template < class K, class V, class C, class A >
 	bool operator <= (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
 	{ return lhs._container <= rhs._container; }
 
+
 	template < class K, class V, class C, class A >
 	bool operator > (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
 	{ return lhs._container > rhs._container; }
+
 
 	template < class K, class V, class C, class A >
 	bool operator >= (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
