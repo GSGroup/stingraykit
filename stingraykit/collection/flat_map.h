@@ -210,42 +210,20 @@ namespace stingray
 		void reserve(size_type size)													{ _container.reserve(size); }
 
 		template < class K, class V, class C, class A > friend bool operator == (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
-		template < class K, class V, class C, class A > friend bool operator != (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
 		template < class K, class V, class C, class A > friend bool operator < (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
-		template < class K, class V, class C, class A > friend bool operator <= (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
-		template < class K, class V, class C, class A > friend bool operator > (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
-		template < class K, class V, class C, class A > friend bool operator >= (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
 	};
 
 
 	template < class K, class V, class C, class A >
 	bool operator == (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
 	{ return lhs._container == rhs._container; }
-
-
-	template < class K, class V, class C, class A >
-	bool operator != (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
-	{ return lhs._container != rhs._container; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < class K, class V, class C, class A >), MK_PARAM(flat_map<K, V, C, A>), MK_PARAM(flat_map<K, V, C, A>));
 
 
 	template < class K, class V, class C, class A >
 	bool operator < (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
 	{ return lhs._container < rhs._container; }
-
-
-	template < class K, class V, class C, class A >
-	bool operator <= (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
-	{ return lhs._container <= rhs._container; }
-
-
-	template < class K, class V, class C, class A >
-	bool operator > (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
-	{ return lhs._container > rhs._container; }
-
-
-	template < class K, class V, class C, class A >
-	bool operator >= (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
-	{ return lhs._container >= rhs._container; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < class K, class V, class C, class A >), MK_PARAM(flat_map<K, V, C, A>), MK_PARAM(flat_map<K, V, C, A>));
 
 }
 
