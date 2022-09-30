@@ -18,6 +18,9 @@ namespace stingray
 	template < class Key, class Compare = std::less<Key>, class Allocator = std::allocator<Key> >
 	class flat_set
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(flat_set);
+		STINGRAYKIT_DEFAULTMOVABLE(flat_set);
+
 	public:
 		using key_type = Key;
 		using value_type = Key;
@@ -57,17 +60,6 @@ namespace stingray
 		flat_set(std::initializer_list<value_type> list, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
 			: _container(alloc), _cmp(comp)
 		{ insert(list.begin(), list.end()); }
-
-		flat_set(const flat_set& other)
-			: _container(other._container), _cmp(other._cmp)
-		{ }
-
-		flat_set& operator = (const flat_set& other)
-		{
-			_container = other._container;
-			_cmp = other._cmp;
-			return *this;
-		}
 
 		allocator_type get_allocator() const	{ return _container.get_allocator(); }
 

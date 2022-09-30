@@ -16,6 +16,9 @@ namespace stingray
 	template < class Key, class Value, class Compare = std::less<Key>, class Allocator = std::allocator<std::pair<Key, Value>> >
 	class flat_map
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(flat_map);
+		STINGRAYKIT_DEFAULTMOVABLE(flat_map);
+
 	public:
 		using key_type = Key;
 		using mapped_type = Value;
@@ -85,17 +88,6 @@ namespace stingray
 		flat_map(std::initializer_list<value_type> list, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
 			: _container(alloc), _cmp(comp)
 		{ insert(list.begin(), list.end()); }
-
-		flat_map(const flat_map& other)
-			: _container(other._container), _cmp(other._cmp)
-		{ }
-
-		flat_map& operator = (const flat_map& other)
-		{
-			_container = other._container;
-			_cmp = other._cmp;
-			return *this;
-		}
 
 		allocator_type get_allocator() const	{ return _container.get_allocator(); }
 
