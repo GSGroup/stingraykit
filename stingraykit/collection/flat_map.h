@@ -91,19 +91,45 @@ namespace stingray
 
 		allocator_type get_allocator() const	{ return _container.get_allocator(); }
 
+		Value& at(const Key& key)
+		{
+			iterator result = find(key);
+			STINGRAYKIT_CHECK(result != end(), CreateKeyNotFoundException(key));
+			return result->second;
+		}
+
+		const Value& at(const Key& key) const
+		{
+			const_iterator result = find(key);
+			STINGRAYKIT_CHECK(result != end(), CreateKeyNotFoundException(key));
+			return result->second;
+		}
+
+		Value& operator [] (const Key& key)
+		{
+			iterator result = find(key);
+			if (result == end())
+				result = insert(std::make_pair(key, Value())).first;
+			return result->second;
+		}
+
 		iterator begin()						{ return _container.begin(); }
 		const_iterator begin() const			{ return _container.begin(); }
+
 		iterator end()							{ return _container.end(); }
 		const_iterator end() const				{ return _container.end(); }
 
 		reverse_iterator rbegin()				{ return _container.rbegin(); }
 		const_reverse_iterator rbegin() const	{ return _container.rbegin(); }
+
 		reverse_iterator rend()					{ return _container.rend(); }
 		const_reverse_iterator rend() const		{ return _container.rend(); }
 
 		bool empty() const						{ return _container.empty(); }
 		size_type size() const					{ return _container.size(); }
 		size_type max_size() const				{ return _container.max_size(); }
+
+		void reserve(size_type size)			{ _container.reserve(size); }
 
 		void clear()							{ _container.clear(); }
 
@@ -129,7 +155,13 @@ namespace stingray
 				insert(*(first++));
 		}
 
-		size_type erase(const key_type& key)
+		void erase(iterator pos)
+		{ _container.erase(pos); }
+
+		void erase(iterator first, iterator last)
+		{ _container.erase(first, last); }
+
+		size_type erase(const Key& key)
 		{
 			iterator result(find(key));
 			if (result == end())
@@ -138,14 +170,14 @@ namespace stingray
 			return 1;
 		}
 
-		void erase(iterator pos)						{ _container.erase(pos); }
-		void erase(iterator first, iterator last)		{ _container.erase(first, last); }
-
 		void swap(flat_map& other)
 		{
 			_container.swap(other._container);
 			std::swap(_cmp, other._cmp);
 		}
+
+		size_type count(const Key& key) const
+		{ return find(key) == end() ? 0 : 1; }
 
 		iterator find(const Key& key)
 		{
@@ -163,43 +195,17 @@ namespace stingray
 			return result;
 		}
 
-		size_type count(const Key& key) const
-		{ return find(key) == end() ? 0 : 1; }
-
-		Value& at(const Key& key)
-		{
-			iterator result = find(key);
-			STINGRAYKIT_CHECK(result != end(), CreateKeyNotFoundException(key));
-			return result->second;
-		}
-
-		const Value& at(const Key& key) const
-		{
-			const_iterator result = find(key);
-			STINGRAYKIT_CHECK(result != end(), CreateKeyNotFoundException(key));
-			return result->second;
-		}
-
-		Value& operator [] (const Key& key)
-		{
-			iterator result = find(key);
-			if (result == end())
-				result = insert(std::make_pair(key, Value())).first;
-			return result->second;
-		}
-
-		iterator lower_bound(const Key& key)											{ return std::lower_bound(begin(), end(), key, _cmp); }
-		const_iterator lower_bound(const Key& key) const								{ return std::lower_bound(begin(), end(), key, _cmp); }
-		iterator upper_bound(const Key& key)											{ return std::upper_bound(begin(), end(), key, _cmp); }
-		const_iterator upper_bound(const Key& key) const								{ return std::upper_bound(begin(), end(), key, _cmp); }
-
 		std::pair<iterator, iterator> equal_range(const Key& key)						{ return std::equal_range(begin(), end(), key, _cmp); }
 		std::pair<const_iterator, const_iterator> equal_range(const Key& key) const		{ return std::equal_range(begin(), end(), key, _cmp); }
 
+		iterator lower_bound(const Key& key)											{ return std::lower_bound(begin(), end(), key, _cmp); }
+		const_iterator lower_bound(const Key& key) const								{ return std::lower_bound(begin(), end(), key, _cmp); }
+
+		iterator upper_bound(const Key& key)											{ return std::upper_bound(begin(), end(), key, _cmp); }
+		const_iterator upper_bound(const Key& key) const								{ return std::upper_bound(begin(), end(), key, _cmp); }
+
 		key_compare key_comp() const													{ return _cmp._cmp; }
 		value_compare value_comp() const												{ return value_compare(_cmp._cmp); }
-
-		void reserve(size_type size)													{ _container.reserve(size); }
 
 		template < class K, class V, class C, class A > friend bool operator == (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
 		template < class K, class V, class C, class A > friend bool operator < (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
