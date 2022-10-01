@@ -65,15 +65,19 @@ namespace stingray
 
 		iterator begin()						{ return _container.begin(); }
 		const_iterator begin() const			{ return _container.begin(); }
+		const_iterator cbegin() const			{ return _container.cbegin(); }
 
 		iterator end()							{ return _container.end(); }
 		const_iterator end() const				{ return _container.end(); }
+		const_iterator cend() const				{ return _container.cend(); }
 
 		reverse_iterator rbegin()				{ return _container.rbegin(); }
 		const_reverse_iterator rbegin() const	{ return _container.rbegin(); }
+		const_reverse_iterator crbegin() const	{ return _container.crbegin(); }
 
 		reverse_iterator rend()					{ return _container.rend(); }
 		const_reverse_iterator rend() const		{ return _container.rend(); }
+		const_reverse_iterator crend() const	{ return _container.crend(); }
 
 		bool empty() const						{ return _container.empty(); }
 		size_type size() const					{ return _container.size(); }
