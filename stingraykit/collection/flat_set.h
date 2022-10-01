@@ -109,11 +109,11 @@ namespace stingray
 				insert(*(first++));
 		}
 
-		void erase(iterator pos)
-		{ _container.erase(pos); }
+		iterator erase(const_iterator pos)
+		{ return _container.erase(pos); }
 
-		void erase(iterator first, iterator last)
-		{ _container.erase(first, last); }
+		iterator erase(const_iterator first, const_iterator last)
+		{ return _container.erase(first, last); }
 
 		size_type erase(const Key& key)
 		{

@@ -174,18 +174,20 @@ TEST(FlatMapTest, Removal)
 	}
 	{
 		FlatMap testee(GetSampleFlatMap());
-		FlatMap::iterator first = testee.find("Russians");
+		FlatMap::const_iterator first = testee.find("Russians");
 		ASSERT_TRUE(first != testee.end());
-		testee.erase(first);
+		FlatMap::const_iterator next = testee.erase(first);
+		ASSERT_EQ(next->first, "Ukrainians");
 		ASSERT_FALSE(testee.count("Russians"));
 	}
 	{
 		FlatMap testee(GetSampleFlatMap());
-		FlatMap::iterator first = testee.find("Americans");
-		FlatMap::iterator last = testee.find("Japaneses");
+		FlatMap::const_iterator first = testee.find("Americans");
+		FlatMap::const_iterator last = testee.find("Japaneses");
 		ASSERT_TRUE(first != testee.end());
 		ASSERT_TRUE(last != testee.end());
-		testee.erase(first, last);
+		FlatMap::const_iterator next = testee.erase(first, last);
+		ASSERT_EQ(next->first, "Japaneses");
 		ASSERT_FALSE(testee.erase("Americans"));
 		ASSERT_TRUE(testee.count("Japaneses"));
 	}

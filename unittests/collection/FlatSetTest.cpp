@@ -149,18 +149,20 @@ TEST(FlatSetTest, Removal)
 	}
 	{
 		FlatSet testee(GetSampleFlatSet());
-		FlatSet::iterator first = testee.find("Russians");
+		FlatSet::const_iterator first = testee.find("Russians");
 		ASSERT_TRUE(first != testee.end());
-		testee.erase(first);
+		FlatSet::const_iterator next = testee.erase(first);
+		ASSERT_EQ(*next, "Ukrainians");
 		ASSERT_FALSE(testee.count("Russians"));
 	}
 	{
 		FlatSet testee(GetSampleFlatSet());
-		FlatSet::iterator first = testee.find("Americans");
-		FlatSet::iterator last = testee.find("Japaneses");
+		FlatSet::const_iterator first = testee.find("Americans");
+		FlatSet::const_iterator last = testee.find("Japaneses");
 		ASSERT_TRUE(first != testee.end());
 		ASSERT_TRUE(last != testee.end());
-		testee.erase(first, last);
+		FlatSet::const_iterator next = testee.erase(first, last);
+		ASSERT_EQ(*next, "Japaneses");
 		ASSERT_FALSE(testee.erase("Americans"));
 		ASSERT_TRUE(testee.count("Japaneses"));
 	}
