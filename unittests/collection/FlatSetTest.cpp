@@ -70,6 +70,16 @@ TEST(FlatSetTest, Assignment)
 
 		ASSERT_THAT(testee2, ElementsAre("Americans", "Australians", "Japaneses", "Russians", "Ukrainians"));
 	}
+	{
+		const std::initializer_list<std::string> values{"one", "two", "three", "four", "four", "three"};
+
+		FlatSet testee;
+		testee = values;
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
+
+		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
+	}
 }
 
 TEST(FlatSetTest, Insertion)

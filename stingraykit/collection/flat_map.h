@@ -89,6 +89,13 @@ namespace stingray
 			: _container(alloc), _cmp(comp)
 		{ insert(list.begin(), list.end()); }
 
+		flat_map& operator = (std::initializer_list<value_type> list)
+		{
+			clear();
+			insert(list.begin(), list.end());
+			return *this;
+		}
+
 		allocator_type get_allocator() const	{ return _container.get_allocator(); }
 
 		Value& at(const Key& key)

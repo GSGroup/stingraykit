@@ -84,6 +84,16 @@ TEST(FlatMapTest, Assignment)
 		ASSERT_THAT(testee2, ElementsAre(std::make_pair("Americans", "God blessed nation!"), std::make_pair("Australians", "Got no idea why they don't fall!"),
 				std::make_pair("Japaneses", "Nation presented us anime!"), std::make_pair("Russians", "Greatest nation in the world!"), std::make_pair("Ukrainians", "Salo Ukraine! Geroyam Salo!")));
 	}
+	{
+		const std::initializer_list<std::pair<std::string, std::string>> values{ { "one", "jaws" }, { "two", "bite" }, { "three", "claws" }, { "four", "catch" }, { "four", "dup" }, { "three", "dup" } };
+
+		FlatMap testee;
+		testee = values;
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
+	}
 }
 
 TEST(FlatMapTest, Insertion)
