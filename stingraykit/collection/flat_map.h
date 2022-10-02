@@ -114,9 +114,17 @@ namespace stingray
 
 		Value& operator [] (const Key& key)
 		{
-			iterator result = find(key);
-			if (result == end())
-				result = insert(std::make_pair(key, Value())).first;
+			iterator result(lower_bound(key));
+			if (result == end() || _cmp(key, result->first))
+				result = _container.emplace(result, key, Value());
+			return result->second;
+		}
+
+		Value& operator [] (Key&& key)
+		{
+			iterator result(lower_bound(key));
+			if (result == end() || _cmp(key, result->first))
+				result = _container.emplace(result, std::move(key), Value());
 			return result->second;
 		}
 

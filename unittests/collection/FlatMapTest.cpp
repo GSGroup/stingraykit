@@ -96,6 +96,41 @@ TEST(FlatMapTest, Assignment)
 	}
 }
 
+TEST(FlatMapTest, Brackets)
+{
+	{
+		FlatMap testee;
+
+		std::string one("one");
+		testee[std::move(one)] = "jaws";
+		EXPECT_TRUE(one.empty());
+
+		std::string two("two");
+		testee[std::move(two)] = "bite";
+		EXPECT_TRUE(two.empty());
+
+		std::string three("three");
+		testee[std::move(three)] = "claws";
+		EXPECT_TRUE(three.empty());
+
+		std::string four("four");
+		testee[std::move(four)] = "catch";
+		EXPECT_TRUE(four.empty());
+
+		std::string four2("four");
+		testee[std::move(four2)] = "dup";
+		EXPECT_FALSE(four2.empty());
+
+		std::string three2("three");
+		testee[std::move(three2)] = "dup";
+		EXPECT_FALSE(three2.empty());
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "dup"), std::make_pair("one", "jaws"), std::make_pair("three", "dup"), std::make_pair("two", "bite")));
+	}
+}
+
 TEST(FlatMapTest, Insertion)
 {
 	{
