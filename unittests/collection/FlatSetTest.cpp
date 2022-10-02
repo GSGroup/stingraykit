@@ -11,15 +11,6 @@ namespace
 	using Set = std::set<std::string>;
 	using FlatSet = flat_set<std::string>;
 
-	template <class Collection, class Compare>
-	bool IsSorted(const Collection& testee, const Compare& cmp)
-	{
-		for (typename Collection::const_iterator cur = testee.begin(), next = ++testee.begin(); next != testee.end(); ++cur, ++next)
-			if (!cmp(*cur, *next))
-				return false;
-		return true;
-	}
-
 	Vector GetUnorderedVectorImpl()
 	{
 		Vector vec;
@@ -87,7 +78,7 @@ TEST(FlatSetTest, Construction)
 
 		FlatSet testee(vec.begin(), vec.end());
 		EXPECT_EQ(testee.size(), (size_t)4);
-		EXPECT_TRUE(IsSorted(testee, testee.key_comp()));
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
 	}
 	{
 		Set set;
@@ -99,7 +90,7 @@ TEST(FlatSetTest, Construction)
 		set.insert("three");
 
 		FlatSet testee(set.begin(), set.end());
-		EXPECT_TRUE(IsSorted(testee, testee.key_comp()));
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
 		EXPECT_TRUE(std::equal(set.begin(), set.end(), testee.begin()));
 	}
 	{
@@ -111,7 +102,7 @@ TEST(FlatSetTest, Construction)
 		EXPECT_FALSE(testee.insert("four").second);
 		EXPECT_FALSE(testee.insert("three").second);
 
-		EXPECT_TRUE(IsSorted(testee, testee.key_comp()));
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
 	}
 	{
 		FlatSet testee1 = GetSampleFlatSet();
@@ -137,7 +128,7 @@ TEST(FlatSetTest, Lookup)
 		sample.insert(*it);
 	}
 
-	EXPECT_TRUE(IsSorted(testee, testee.key_comp()));
+	EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
 	EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin()));
 
 	for (Set::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)

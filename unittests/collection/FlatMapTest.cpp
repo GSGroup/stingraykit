@@ -11,15 +11,6 @@ namespace
 	using Map = std::map<std::string, std::string>;
 	using FlatMap = flat_map<std::string, std::string>;
 
-	template <class Collection, class Compare>
-	bool IsSorted(const Collection& testee, const Compare& cmp)
-	{
-		for (typename Collection::const_iterator cur = testee.begin(), next = ++testee.begin(); next != testee.end(); ++cur, ++next)
-			if (!cmp(*cur, *next))
-				return false;
-		return true;
-	}
-
 	Vector GetUnorderedVectorImpl()
 	{
 		Vector vec;
@@ -94,7 +85,7 @@ TEST(FlatMapTest, Construction)
 
 		FlatMap testee(vec.begin(), vec.end());
 		EXPECT_EQ(testee.size(), (size_t)4);
-		EXPECT_TRUE(IsSorted(testee, testee.value_comp()));
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 	}
 	{
 		Map map;
@@ -106,7 +97,7 @@ TEST(FlatMapTest, Construction)
 		map.insert(std::make_pair("three", "dup"));
 
 		FlatMap testee(map.begin(), map.end());
-		EXPECT_TRUE(IsSorted(testee, testee.value_comp()));
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 		EXPECT_TRUE(std::equal(map.begin(), map.end(), testee.begin(), PairEquals()));
 	}
 	{
@@ -118,7 +109,7 @@ TEST(FlatMapTest, Construction)
 		EXPECT_FALSE(testee.insert(std::make_pair("four", "dup")).second);
 		EXPECT_FALSE(testee.insert(std::make_pair("three", "dup")).second);
 
-		EXPECT_TRUE(IsSorted(testee, testee.value_comp()));
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 	}
 	{
 		FlatMap testee1 = GetSampleFlatMap();
@@ -144,7 +135,7 @@ TEST(FlatMapTest, Lookup)
 		sample.insert(*it);
 	}
 
-	EXPECT_TRUE(IsSorted(testee, testee.value_comp()));
+	EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 	EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), PairEquals()));
 
 	for (Map::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)
