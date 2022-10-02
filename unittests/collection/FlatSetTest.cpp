@@ -161,6 +161,37 @@ TEST(FlatSetTest, Insertion)
 	}
 }
 
+TEST(FlatSetTest, Emplacing)
+{
+	{
+		FlatSet testee;
+		EXPECT_TRUE(testee.emplace("one").second);
+		EXPECT_TRUE(testee.emplace("two").second);
+		EXPECT_TRUE(testee.emplace("three").second);
+		EXPECT_TRUE(testee.emplace("four").second);
+		EXPECT_FALSE(testee.emplace("four").second);
+		EXPECT_FALSE(testee.emplace("three").second);
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
+
+		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
+	}
+	{
+		FlatSet testee;
+
+		testee.emplace_hint(testee.end(), "one");
+		testee.emplace_hint(testee.end(), "two");
+		testee.emplace_hint(testee.begin(), "three");
+		testee.emplace_hint(testee.begin(), "four");
+		testee.emplace_hint(testee.end(), "four");
+		testee.emplace_hint(testee.end(), "three");
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
+
+		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
+	}
+}
+
 TEST(FlatSetTest, Lookup)
 {
 	Vector unordered = GetUnorderedVector();

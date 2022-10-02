@@ -222,6 +222,37 @@ TEST(FlatMapTest, Insertion)
 	}
 }
 
+TEST(FlatMapTest, Emplacing)
+{
+	{
+		FlatMap testee;
+		EXPECT_TRUE(testee.emplace(std::make_pair("one", "jaws")).second);
+		EXPECT_TRUE(testee.emplace(std::make_pair("two", "bite")).second);
+		EXPECT_TRUE(testee.emplace(std::make_pair("three", "claws")).second);
+		EXPECT_TRUE(testee.emplace(std::make_pair("four", "catch")).second);
+		EXPECT_FALSE(testee.emplace(std::make_pair("four", "dup")).second);
+		EXPECT_FALSE(testee.emplace(std::make_pair("three", "dup")).second);
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
+	}
+	{
+		FlatMap testee;
+
+		testee.emplace_hint(testee.end(), "one", "jaws");
+		testee.emplace_hint(testee.end(), "two", "bite");
+		testee.emplace_hint(testee.begin(), "three", "claws");
+		testee.emplace_hint(testee.begin(), "four", "catch");
+		testee.emplace_hint(testee.end(), "four", "dup");
+		testee.emplace_hint(testee.end(), "three", "dup");
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
+	}
+}
+
 TEST(FlatMapTest, Lookup)
 {
 	Vector unordered = GetUnorderedVector();

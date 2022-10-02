@@ -134,6 +134,25 @@ namespace stingray
 		void insert(std::initializer_list<value_type> list)
 		{ insert(list.begin(), list.end()); }
 
+		template < typename... Ts >
+		std::pair<iterator, bool> emplace(Ts&&... args)
+		{
+			value_type value(std::forward<Ts>(args)...);
+			const iterator result(lower_bound(value));
+			if (result == end() || _cmp(value, *result))
+				return std::make_pair(_container.insert(result, std::move(value)), true);
+			return std::make_pair(result, false);
+		}
+
+		template < typename... Ts >
+		iterator emplace_hint(const_iterator hint, Ts&&... args)
+		{
+			value_type value(std::forward<Ts>(args)...);
+			if ((hint == begin() || _cmp(*(hint - 1), value)) && (hint == end() || _cmp(value, *hint)))
+				return _container.insert(hint, std::move(value));
+			return insert(std::move(value)).first;
+		}
+
 		iterator erase(const_iterator pos)
 		{ return _container.erase(pos); }
 
