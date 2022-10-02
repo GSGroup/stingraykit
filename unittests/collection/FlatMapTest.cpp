@@ -111,6 +111,80 @@ TEST(FlatMapTest, Insertion)
 
 		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
 	}
+	{
+		FlatMap testee;
+
+		FlatMap::value_type one("one", "jaws");
+		EXPECT_TRUE(testee.insert(std::move(one)).second);
+		EXPECT_TRUE(one.first.empty());
+		EXPECT_TRUE(one.second.empty());
+
+		FlatMap::value_type two("two", "bite");
+		EXPECT_TRUE(testee.insert(std::move(two)).second);
+		EXPECT_TRUE(two.first.empty());
+		EXPECT_TRUE(two.second.empty());
+
+		FlatMap::value_type three("three", "claws");
+		EXPECT_TRUE(testee.insert(std::move(three)).second);
+		EXPECT_TRUE(three.first.empty());
+		EXPECT_TRUE(three.second.empty());
+
+		FlatMap::value_type four("four", "catch");
+		EXPECT_TRUE(testee.insert(std::move(four)).second);
+		EXPECT_TRUE(four.first.empty());
+		EXPECT_TRUE(four.second.empty());
+
+		FlatMap::value_type four2("four", "dup");
+		EXPECT_FALSE(testee.insert(std::move(four2)).second);
+		EXPECT_FALSE(four2.first.empty());
+		EXPECT_FALSE(four2.second.empty());
+
+		FlatMap::value_type three2("three", "dup");
+		EXPECT_FALSE(testee.insert(std::move(three2)).second);
+		EXPECT_FALSE(three2.first.empty());
+		EXPECT_FALSE(three2.second.empty());
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
+	}
+	{
+		FlatMap testee;
+
+		FlatMap::value_type one("one", "jaws");
+		testee.insert(testee.end(), std::move(one));
+		EXPECT_TRUE(one.first.empty());
+		EXPECT_TRUE(one.second.empty());
+
+		FlatMap::value_type two("two", "bite");
+		testee.insert(testee.end(), std::move(two));
+		EXPECT_TRUE(two.first.empty());
+		EXPECT_TRUE(two.second.empty());
+
+		FlatMap::value_type three("three", "claws");
+		testee.insert(testee.begin(), std::move(three));
+		EXPECT_TRUE(three.first.empty());
+		EXPECT_TRUE(three.second.empty());
+
+		FlatMap::value_type four("four", "catch");
+		testee.insert(testee.begin(), std::move(four));
+		EXPECT_TRUE(four.first.empty());
+		EXPECT_TRUE(four.second.empty());
+
+		FlatMap::value_type four2("four", "dup");
+		testee.insert(testee.end(), std::move(four2));
+		EXPECT_FALSE(four2.first.empty());
+		EXPECT_FALSE(four2.second.empty());
+
+		FlatMap::value_type three2("three", "dup");
+		testee.insert(testee.end(), std::move(three2));
+		EXPECT_FALSE(three2.first.empty());
+		EXPECT_FALSE(three2.second.empty());
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
+	}
 }
 
 TEST(FlatMapTest, Lookup)

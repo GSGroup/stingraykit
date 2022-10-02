@@ -97,6 +97,68 @@ TEST(FlatSetTest, Insertion)
 
 		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
 	}
+	{
+		FlatSet testee;
+
+		std::string one("one");
+		EXPECT_TRUE(testee.insert(std::move(one)).second);
+		EXPECT_TRUE(one.empty());
+
+		std::string two("two");
+		EXPECT_TRUE(testee.insert(std::move(two)).second);
+		EXPECT_TRUE(two.empty());
+
+		std::string three("three");
+		EXPECT_TRUE(testee.insert(std::move(three)).second);
+		EXPECT_TRUE(three.empty());
+
+		std::string four("four");
+		EXPECT_TRUE(testee.insert(std::move(four)).second);
+		EXPECT_TRUE(four.empty());
+
+		std::string four2("four");
+		EXPECT_FALSE(testee.insert(std::move(four2)).second);
+		EXPECT_FALSE(four2.empty());
+
+		std::string three2("three");
+		EXPECT_FALSE(testee.insert(std::move(three2)).second);
+		EXPECT_FALSE(three2.empty());
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
+
+		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
+	}
+	{
+		FlatSet testee;
+
+		std::string one("one");
+		testee.insert(testee.end(), std::move(one));
+		EXPECT_TRUE(one.empty());
+
+		std::string two("two");
+		testee.insert(testee.end(), std::move(two));
+		EXPECT_TRUE(two.empty());
+
+		std::string three("three");
+		testee.insert(testee.begin(), std::move(three));
+		EXPECT_TRUE(three.empty());
+
+		std::string four("four");
+		testee.insert(testee.begin(), std::move(four));
+		EXPECT_TRUE(four.empty());
+
+		std::string four2("four");
+		testee.insert(testee.end(), std::move(four2));
+		EXPECT_FALSE(four2.empty());
+
+		std::string three2("three");
+		testee.insert(testee.end(), std::move(three2));
+		EXPECT_FALSE(three2.empty());
+
+		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
+
+		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
+	}
 }
 
 TEST(FlatSetTest, Lookup)

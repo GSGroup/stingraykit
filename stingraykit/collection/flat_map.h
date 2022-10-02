@@ -152,11 +152,26 @@ namespace stingray
 			return std::make_pair(result, false);
 		}
 
-		iterator insert(iterator hint, const value_type& value)
+		std::pair<iterator, bool> insert(value_type&& value)
+		{
+			const iterator result(lower_bound(value.first));
+			if (result == end() || _cmp(value.first, result->first))
+				return std::make_pair(_container.insert(result, std::move(value)), true);
+			return std::make_pair(result, false);
+		}
+
+		iterator insert(const_iterator hint, const value_type& value)
 		{
 			if ((hint == begin() || _cmp(*(hint - 1), value)) && (hint == end() || _cmp(value, *hint)))
 				return _container.insert(hint, value);
 			return insert(value).first;
+		}
+
+		iterator insert(const_iterator hint, value_type&& value)
+		{
+			if ((hint == begin() || _cmp(*(hint - 1), value)) && (hint == end() || _cmp(value, *hint)))
+				return _container.insert(hint, std::move(value));
+			return insert(std::move(value)).first;
 		}
 
 		template < class InputIterator >
@@ -165,6 +180,9 @@ namespace stingray
 			while (first != last)
 				insert(*(first++));
 		}
+
+		void insert(std::initializer_list<value_type> list)
+		{ insert(list.begin(), list.end()); }
 
 		iterator erase(iterator pos)
 		{ return _container.erase(pos); }
