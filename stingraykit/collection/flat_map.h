@@ -93,14 +93,14 @@ namespace stingray
 
 		Value& at(const Key& key)
 		{
-			iterator result = find(key);
+			const iterator result = find(key);
 			STINGRAYKIT_CHECK(result != end(), CreateKeyNotFoundException(key));
 			return result->second;
 		}
 
 		const Value& at(const Key& key) const
 		{
-			const_iterator result = find(key);
+			const const_iterator result = find(key);
 			STINGRAYKIT_CHECK(result != end(), CreateKeyNotFoundException(key));
 			return result->second;
 		}
@@ -135,7 +135,7 @@ namespace stingray
 
 		std::pair<iterator, bool> insert(const value_type& value)
 		{
-			iterator result(lower_bound(value.first));
+			const iterator result(lower_bound(value.first));
 			if (result == end() || _cmp(value.first, result->first))
 				return std::make_pair(_container.insert(result, value), true);
 			return std::make_pair(result, false);
@@ -163,7 +163,7 @@ namespace stingray
 
 		size_type erase(const Key& key)
 		{
-			iterator result(find(key));
+			const iterator result(find(key));
 			if (result == end())
 				return 0;
 			erase(result);
@@ -181,17 +181,17 @@ namespace stingray
 
 		iterator find(const Key& key)
 		{
-			iterator result(lower_bound(key));
+			const iterator result(lower_bound(key));
 			if (result != end() && _cmp(key, result->first))
-				result = end();
+				return end();
 			return result;
 		}
 
 		const_iterator find(const Key& key) const
 		{
-			const_iterator result(lower_bound(key));
+			const const_iterator result(lower_bound(key));
 			if (result != end() && _cmp(key, result->first))
-				result = end();
+				return end();
 			return result;
 		}
 

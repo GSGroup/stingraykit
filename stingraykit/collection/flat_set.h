@@ -85,7 +85,7 @@ namespace stingray
 
 		std::pair<iterator, bool> insert(const value_type& value)
 		{
-			iterator result(lower_bound(value));
+			const iterator result(lower_bound(value));
 			if (result == end() || _cmp(value, *result))
 				return std::make_pair(_container.insert(result, value), true);
 			return std::make_pair(result, false);
@@ -113,7 +113,7 @@ namespace stingray
 
 		size_type erase(const Key& key)
 		{
-			iterator result(find(key));
+			const iterator result(find(key));
 			if (result == end())
 				return 0;
 			erase(result);
@@ -131,17 +131,17 @@ namespace stingray
 
 		iterator find(const Key& key)
 		{
-			iterator result(lower_bound(key));
+			const iterator result(lower_bound(key));
 			if (result != end() && _cmp(key, *result))
-				result = end();
+				return end();
 			return result;
 		}
 
 		const_iterator find(const Key& key) const
 		{
-			const_iterator result(lower_bound(key));
+			const const_iterator result(lower_bound(key));
 			if (result != end() && _cmp(key, *result))
-				result = end();
+				return end();
 			return result;
 		}
 
