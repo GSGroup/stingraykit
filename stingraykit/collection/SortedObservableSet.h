@@ -19,30 +19,12 @@ namespace stingray
 	 * @{
 	 */
 
-	template <
-			typename ValueType_,
-			typename CompareType_ = comparers::Less,
-			template <class, class, class> class SetType_ = std::set,
-			typename AllocatorType_ = std::allocator<ValueType_>
-			>
-	struct SortedObservableSet
-		:	public ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_>>
-	{
-		using base = ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_>>;
-
-		SortedObservableSet() : base() { }
-		explicit SortedObservableSet(const shared_ptr<IEnumerable<typename base::ValueType>>& enumerable) : base(enumerable) { }
-		explicit SortedObservableSet(const shared_ptr<IEnumerator<typename base::ValueType>>& enumerator) : base(enumerator) { }
-	};
+	template < typename ValueType, typename CompareType = comparers::Less >
+	using SortedObservableSet = ObservableSetWrapper<SortedSet<ValueType, CompareType>>;
 
 
-	template <
-			typename T,
-			typename CompareType = comparers::Less,
-			typename AllocatorType = typename flat_set<T, CompareType>::allocator_type
-			>
-	struct FlatSortedObservableSet
-	{ using Type = SortedObservableSet<T, CompareType, flat_set, AllocatorType>; };
+	template < typename ValueType, typename CompareType = comparers::Less >
+	using FlatSortedObservableSet = ObservableSetWrapper<typename FlatSortedSet<ValueType, CompareType>::Type>;
 
 	/** @} */
 

@@ -19,32 +19,12 @@ namespace stingray
 	 * @{
 	 */
 
-	template <
-			typename KeyType_,
-			typename ValueType_ ,
-			typename CompareType_ = comparers::Less,
-			template <class, class, class, class> class MapType_ = std::map,
-			typename AllocatorType_ = std::allocator<std::pair<const KeyType_, ValueType_>>
-			>
-	struct MapObservableDictionary
-		:	public ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_>>
-	{
-		using base = ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_>>;
-
-		MapObservableDictionary() : base() { }
-		explicit MapObservableDictionary(const shared_ptr<IEnumerable<typename base::PairType>>& enumerable) : base(enumerable) { }
-		explicit MapObservableDictionary(const shared_ptr<IEnumerator<typename base::PairType>>& enumerator) : base(enumerator) { }
-	};
+	template < typename KeyType, typename ValueType, typename CompareType = comparers::Less >
+	using MapObservableDictionary = ObservableDictionaryWrapper<MapDictionary<KeyType, ValueType, CompareType>>;
 
 
-	template <
-			typename KeyType,
-			typename ValueType,
-			typename CompareType = comparers::Less,
-			typename AllocatorType = typename flat_map<KeyType, ValueType, CompareType>::allocator_type
-			>
-	struct FlatMapObservableDictionary
-	{ using Type = MapObservableDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>; };
+	template < typename KeyType, typename ValueType, typename CompareType = comparers::Less >
+	using FlatMapObservableDictionary = ObservableDictionaryWrapper<typename FlatMapDictionary<KeyType, ValueType, CompareType>::Type>;
 
 	/** @} */
 

@@ -19,16 +19,8 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename ValueType_ >
-	struct ArrayObservableList
-		:	public ObservableListWrapper<ArrayList<ValueType_>>
-	{
-		using base = ObservableListWrapper<ArrayList<ValueType_>>;
-
-		ArrayObservableList() : base() { }
-		explicit ArrayObservableList(const shared_ptr<IEnumerable<typename base::ValueType>>& enumerable) : base(enumerable) { }
-		explicit ArrayObservableList(const shared_ptr<IEnumerator<typename base::ValueType>>& enumerator) : base(enumerator) { }
-	};
+	template < typename ValueType >
+	using ArrayObservableList = ObservableListWrapper<ArrayList<ValueType>>;
 
 	/** @} */
 
