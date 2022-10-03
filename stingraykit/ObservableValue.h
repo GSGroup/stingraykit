@@ -38,7 +38,7 @@ namespace stingray
 		class ConditionalPopulation
 		{
 		public:
-			typedef ConditionalPopulationPolicySpecifier<T> Specifier;
+			using Specifier = ConditionalPopulationPolicySpecifier<T>;
 
 		private:
 			T		_defaultValue;
@@ -54,7 +54,7 @@ namespace stingray
 		template < typename T, typename EqualsCmp >
 		struct MandatoryPopulation
 		{
-			typedef EmptyType Specifier;
+			using Specifier = EmptyType;
 
 			explicit MandatoryPopulation(const Specifier&) { }
 
@@ -65,7 +65,7 @@ namespace stingray
 		template < typename T, typename EqualsCmp >
 		struct DisabledPopulation
 		{
-			typedef EmptyType Specifier;
+			using Specifier = EmptyType;
 
 			explicit DisabledPopulation(const Specifier&) { }
 
@@ -77,20 +77,20 @@ namespace stingray
 
 
 	template < typename T, typename EqualsCmp = comparers::Equals, template < typename, typename > class PopulationPolicy = ObservableValuePolicies::MandatoryPopulation>
-	class ObservableValue : public virtual IObservableValue<T>
+	class ObservableValue final : public virtual IObservableValue<T>
 	{
 		STINGRAYKIT_NONCOPYABLE(ObservableValue);
 
 	private:
-		typedef IObservableValue<T> Base;
+		using Base = IObservableValue<T>;
 
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
-		typedef typename PopulationPolicy<T, EqualsCmp>::Specifier PopulationPolicySpecifier;
+		using PopulationPolicySpecifier = typename PopulationPolicy<T, EqualsCmp>::Specifier;
 
 	public:
-		typedef typename Base::ParamPassingType ParamPassingType;
-		typedef typename Base::OnChangedSignature OnChangedSignature;
+		using ParamPassingType = typename Base::ParamPassingType;
+		using OnChangedSignature = typename Base::OnChangedSignature;
 
 	private:
 		T													_val;
@@ -120,10 +120,10 @@ namespace stingray
 			return *this;
 		}
 
-		operator T() const
+		operator T () const
 		{ return Get(); }
 
-		virtual void Set(ParamPassingType val)
+		void Set(ParamPassingType val) override
 		{
 			signal_locker l(_onChanged);
 			if (_equalsCmp(_val, val))
@@ -132,16 +132,16 @@ namespace stingray
 			_onChanged(_val);
 		}
 
-		virtual T Get() const
+		T Get() const override
 		{
 			signal_locker l(_onChanged);
 			return _val;
 		}
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
+		signal_connector<OnChangedSignature> OnChanged() const override
 		{ return _onChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return *_mutex; }
 
 	private:
