@@ -83,7 +83,8 @@ namespace stingray
 
 		struct Holder
 		{
-			VectorTypeConstPtr		Items;
+			const VectorTypeConstPtr		Items;
+
 			Holder(const VectorTypeConstPtr& items) : Items(items) { }
 		};
 		STINGRAYKIT_DECLARE_PTR(Holder);
@@ -91,7 +92,7 @@ namespace stingray
 		class ReverseEnumerable : public virtual IEnumerable<ValueType>
 		{
 		private:
-			HolderPtr		_holder;
+			const HolderPtr					_holder;
 
 		public:
 			ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }

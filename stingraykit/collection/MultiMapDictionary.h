@@ -42,16 +42,18 @@ namespace stingray
 	private:
 		struct Holder
 		{
-			MapTypePtr		Map;
+			const MapTypePtr		Map;
 
 			explicit Holder(const MapTypePtr& map) : Map(map) { }
 		};
 		STINGRAYKIT_DECLARE_PTR(Holder);
 
-		struct ReverseEnumerable : public virtual IEnumerable<PairType>
+		class ReverseEnumerable : public virtual IEnumerable<PairType>
 		{
-			HolderPtr		_holder;
+		private:
+			const HolderPtr			_holder;
 
+		public:
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
 			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
