@@ -25,16 +25,16 @@ namespace stingray
 		:	public MultiMapDictionary<KeyType_, ValueType_, KeyCompareType_, ValueCompareType_>,
 			public virtual IObservableMultiDictionary<KeyType_, ValueType_>
 	{
-		typedef MultiMapDictionary<KeyType_, ValueType_, KeyCompareType_, ValueCompareType_> Wrapped;
+		using Wrapped = MultiMapDictionary<KeyType_, ValueType_, KeyCompareType_, ValueCompareType_>;
 
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		typedef typename Wrapped::KeyType							KeyType;
-		typedef typename Wrapped::ValueType							ValueType;
-		typedef typename Wrapped::PairType							PairType;
-		typedef IObservableMultiDictionary<KeyType, ValueType>		ObservableInterface;
-		typedef typename ObservableInterface::OnChangedSignature	OnChangedSignature;
+		using KeyType = typename Wrapped::KeyType;
+		using ValueType = typename Wrapped::ValueType;
+		using PairType = typename Wrapped::PairType;
+		using ObservableInterface = IObservableMultiDictionary<KeyType, ValueType>;
+		using OnChangedSignature = typename ObservableInterface::OnChangedSignature;
 
 	private:
 		shared_ptr<Mutex>									_mutex;

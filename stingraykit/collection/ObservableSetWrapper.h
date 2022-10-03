@@ -25,12 +25,12 @@ namespace stingray
 		:	public Wrapped_,
 			public virtual IObservableSet<typename Wrapped_::ValueType>
 	{
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		typedef typename Wrapped_::ValueType						ValueType;
-		typedef IObservableSet<ValueType>							ObservableInterface;
-		typedef typename ObservableInterface::OnChangedSignature	OnChangedSignature;
+		using ValueType = typename Wrapped_::ValueType;
+		using ObservableInterface = IObservableSet<ValueType>;
+		using OnChangedSignature = typename ObservableInterface::OnChangedSignature;
 
 	private:
 		shared_ptr<Mutex>										_mutex;

@@ -32,10 +32,10 @@ namespace stingray
 	class SortedSet : public virtual ISet<T>
 	{
 	public:
-		typedef typename ISet<T>::ValueType				ValueType;
+		using ValueType = typename ISet<T>::ValueType;
 
 	private:
-		typedef SetType_<ValueType, CompareType_, AllocatorType_>		SetType;
+		using SetType = SetType_<ValueType, CompareType_, AllocatorType_>;
 		STINGRAYKIT_DECLARE_PTR(SetType);
 
 		struct Holder
@@ -111,7 +111,7 @@ namespace stingray
 
 		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
 		{
-			typedef typename SetType::const_reverse_iterator cri;
+			using cri = typename SetType::const_reverse_iterator;
 
 			typename SetType::const_iterator it = _items->find(value);
 			if (it == _items->end())
@@ -201,7 +201,7 @@ namespace stingray
 			typename AllocatorType = typename flat_set<T, CompareType>::allocator_type
 			>
 	struct FlatSortedSet
-	{ typedef SortedSet<T, CompareType, flat_set, AllocatorType>		Type; };
+	{ using Type = SortedSet<T, CompareType, flat_set, AllocatorType>; };
 
 	/** @} */
 

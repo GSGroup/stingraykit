@@ -23,7 +23,7 @@ namespace stingray
 	struct ArrayObservableList
 		:	public ObservableListWrapper<ArrayList<ValueType_> >
 	{
-		typedef ObservableListWrapper<ArrayList<ValueType_> > base;
+		using base = ObservableListWrapper<ArrayList<ValueType_> >;
 
 		ArrayObservableList() : base() { }
 		explicit ArrayObservableList(const shared_ptr<IEnumerable<typename base::ValueType> >& enumerable) : base(enumerable) { }

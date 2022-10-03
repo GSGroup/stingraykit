@@ -36,13 +36,13 @@ namespace stingray
 	class MapDictionary : public virtual IDictionary<KeyType_, ValueType_>
 	{
 	public:
-		typedef KeyType_									KeyType;
-		typedef ValueType_									ValueType;
-		typedef CompareType_								CompareType;
-		typedef AllocatorType_								AllocatorType;
+		using KeyType = KeyType_;
+		using ValueType = ValueType_;
+		using CompareType = CompareType_;
+		using AllocatorType = AllocatorType_;
 
-		typedef KeyValuePair<KeyType, ValueType>							PairType;
-		typedef MapType_<KeyType, ValueType, CompareType, AllocatorType>	MapType;
+		using PairType = KeyValuePair<KeyType, ValueType>;
+		using MapType = MapType_<KeyType, ValueType, CompareType, AllocatorType>;
 		STINGRAYKIT_DECLARE_PTR(MapType);
 
 	private:
@@ -112,7 +112,7 @@ namespace stingray
 
 		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
 		{
-			typedef typename MapType::const_iterator cit;
+			using cit = typename MapType::const_iterator;
 
 			cit it = _map->find(key);
 			if (it == _map->end())
@@ -123,7 +123,7 @@ namespace stingray
 
 		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
 		{
-			typedef typename MapType::const_reverse_iterator cri;
+			using cri = typename MapType::const_reverse_iterator;
 
 			typename MapType::const_iterator it = _map->find(key);
 			if (it == _map->end())
@@ -240,7 +240,7 @@ namespace stingray
 			typename AllocatorType = typename flat_map<KeyType, ValueType, CompareType>::allocator_type
 			>
 	struct FlatMapDictionary
-	{ typedef MapDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>		Type; };
+	{ using Type = MapDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>; };
 
 	/** @} */
 

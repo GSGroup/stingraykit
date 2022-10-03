@@ -28,7 +28,7 @@ namespace stingray
 	struct SortedObservableSet
 		:	public ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_> >
 	{
-		typedef ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_> > base;
+		using base = ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_> >;
 
 		SortedObservableSet() : base() { }
 		explicit SortedObservableSet(const shared_ptr<IEnumerable<typename base::ValueType> >& enumerable) : base(enumerable) { }
@@ -42,7 +42,7 @@ namespace stingray
 			typename AllocatorType = typename flat_set<T, CompareType>::allocator_type
 			>
 	struct FlatSortedObservableSet
-	{ typedef SortedObservableSet<T, CompareType, flat_set, AllocatorType>		Type; };
+	{ using Type = SortedObservableSet<T, CompareType, flat_set, AllocatorType>; };
 
 	/** @} */
 

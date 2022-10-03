@@ -26,14 +26,14 @@ namespace stingray
 		:	public SortedMultiSet<ValueType_, CompareType_>,
 			public virtual IObservableMultiSet<ValueType_>
 	{
-		typedef SortedMultiSet<ValueType_, CompareType_> Wrapped;
+		using Wrapped = SortedMultiSet<ValueType_, CompareType_>;
 
-		typedef signal_policies::threading::ExternalMutexPointer ExternalMutexPointer;
+		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
 	public:
-		typedef typename Wrapped::ValueType							ValueType;
-		typedef IObservableMultiSet<ValueType>						ObservableInterface;
-		typedef typename ObservableInterface::OnChangedSignature	OnChangedSignature;
+		using ValueType = typename Wrapped::ValueType;
+		using ObservableInterface = IObservableMultiSet<ValueType>;
+		using OnChangedSignature = typename ObservableInterface::OnChangedSignature;
 
 	private:
 		shared_ptr<Mutex>										_mutex;

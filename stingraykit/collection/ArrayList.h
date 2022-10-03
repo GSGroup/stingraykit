@@ -26,10 +26,10 @@ namespace stingray
 	class ArrayList : public virtual IList<T>
 	{
 	public:
-		typedef typename IList<T>::ValueType				ValueType;
+		using ValueType = typename IList<T>::ValueType;
 
 	private:
-		typedef std::vector<ValueType>						VectorType;
+		using VectorType = std::vector<ValueType>;
 		STINGRAYKIT_DECLARE_PTR(VectorType);
 
 		struct Holder
@@ -90,7 +90,7 @@ namespace stingray
 
 		virtual optional<size_t> IndexOf(const ValueType& value) const
 		{
-			typedef typename VectorType::const_iterator cit;
+			using cit = typename VectorType::const_iterator;
 
 			const cit it = std::find(_items->begin(), _items->end(), value);
 			return it == _items->end() ? optional<size_t>() : std::distance(cit(_items->begin()), it);
@@ -140,7 +140,7 @@ namespace stingray
 
 		virtual bool TryRemove(const ValueType& value)
 		{
-			typedef typename VectorType::const_iterator cit;
+			using cit = typename VectorType::const_iterator;
 
 			const cit it = std::find(_items->begin(), _items->end(), value);
 			if (it == _items->end())

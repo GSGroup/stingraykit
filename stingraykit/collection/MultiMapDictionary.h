@@ -30,13 +30,13 @@ namespace stingray
 	class MultiMapDictionary : public virtual IMultiDictionary<KeyType_, ValueType_>
 	{
 	public:
-		typedef KeyType_									KeyType;
-		typedef ValueType_									ValueType;
-		typedef KeyCompareType_								KeyCompareType;
-		typedef ValueCompareType_							ValueCompareType;
+		using KeyType = KeyType_;
+		using ValueType = ValueType_;
+		using KeyCompareType = KeyCompareType_;
+		using ValueCompareType = ValueCompareType_;
 
-		typedef KeyValuePair<KeyType, ValueType>							PairType;
-		typedef std::multimap<KeyType, ValueType, KeyCompareType>			MapType;
+		using PairType = KeyValuePair<KeyType, ValueType>;
+		using MapType = std::multimap<KeyType, ValueType, KeyCompareType>;
 		STINGRAYKIT_DECLARE_PTR(MapType);
 
 	private:
@@ -109,7 +109,7 @@ namespace stingray
 
 		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
 		{
-			typedef typename MapType::const_iterator cit;
+			using cit = typename MapType::const_iterator;
 
 			cit it = _map->lower_bound(key);
 			if (it == _map->end() || KeyCompareType()(key, it->first))
@@ -120,7 +120,7 @@ namespace stingray
 
 		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
 		{
-			typedef typename MapType::const_reverse_iterator cri;
+			using cri = typename MapType::const_reverse_iterator;
 
 			typename MapType::const_iterator it = _map->upper_bound(key);
 			if (it == _map->end() || KeyCompareType()(cri(it)->first, key))
@@ -148,7 +148,7 @@ namespace stingray
 
 		virtual shared_ptr<IEnumerator<ValueType> > GetAll(const KeyType& key) const
 		{
-			typedef typename MapType::const_iterator cit;
+			using cit = typename MapType::const_iterator;
 			std::pair<cit, cit> range = _map->equal_range(key);
 			if (range.first == range.second)
 				return MakeEmptyEnumerator();
@@ -205,7 +205,7 @@ namespace stingray
 		bool DoRemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
 		{
 			CopyOnWrite();
-			typedef typename MapType::iterator mit;
+			using mit = typename MapType::iterator;
 			std::pair<mit, mit> range = _map->equal_range(key);
 			for (mit it = range.first; it != range.second; ++it)
 			{

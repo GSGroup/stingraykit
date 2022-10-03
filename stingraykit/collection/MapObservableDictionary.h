@@ -29,7 +29,7 @@ namespace stingray
 	struct MapObservableDictionary
 		:	public ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_> >
 	{
-		typedef ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_> > base;
+		using base = ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_> >;
 
 		MapObservableDictionary() : base() { }
 		explicit MapObservableDictionary(const shared_ptr<IEnumerable<typename base::PairType> >& enumerable) : base(enumerable) { }
@@ -44,7 +44,7 @@ namespace stingray
 			typename AllocatorType = typename flat_map<KeyType, ValueType, CompareType>::allocator_type
 			>
 	struct FlatMapObservableDictionary
-	{ typedef MapObservableDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>		Type; };
+	{ using Type = MapObservableDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>; };
 
 	/** @} */
 

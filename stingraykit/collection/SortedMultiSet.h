@@ -26,10 +26,10 @@ namespace stingray
 	class SortedMultiSet : public virtual IMultiSet<T>
 	{
 	public:
-		typedef typename IMultiSet<T>::ValueType				ValueType;
+		using ValueType = typename IMultiSet<T>::ValueType;
 
 	private:
-		typedef std::multiset<ValueType, CompareType_>	SetType;
+		using SetType = std::multiset<ValueType, CompareType_>;
 		STINGRAYKIT_DECLARE_PTR(SetType);
 
 		struct Holder
@@ -108,7 +108,7 @@ namespace stingray
 
 		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
 		{
-			typedef typename SetType::const_reverse_iterator cri;
+			using cri = typename SetType::const_reverse_iterator;
 
 			typename SetType::const_iterator it = _items->upper_bound(value);
 			if (it == _items->end() || CompareType_()(*cri(it), value))
