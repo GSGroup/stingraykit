@@ -140,12 +140,13 @@ namespace stingray
 			size_t ret = 0;
 			for (auto it = _items->begin(); it != _items->end(); )
 			{
-				const auto cur = it++;
-				if (!pred(*cur))
-					continue;
-
-				_items->erase(cur);
-				++ret;
+				if (pred(*it))
+				{
+					it = _items->erase(it);
+					++ret;
+				}
+				else
+					++it;
 			}
 			return ret;
 		}

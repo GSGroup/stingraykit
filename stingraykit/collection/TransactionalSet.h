@@ -322,12 +322,13 @@ namespace stingray
 
 				for (auto it = _added->begin(); it != _added->end(); )
 				{
-					const auto cur = it++;
-					if (!pred(*cur))
-						continue;
-
-					_added->erase(cur);
-					++ret;
+					if (pred(*it))
+					{
+						it = _added->erase(it);
+						++ret;
+					}
+					else
+						++it;
 				}
 
 				for (const ValueType& value : *_impl->Items)

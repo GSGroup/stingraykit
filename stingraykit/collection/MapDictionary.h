@@ -178,12 +178,13 @@ namespace stingray
 			size_t ret = 0;
 			for (auto it = _map->begin(); it != _map->end(); )
 			{
-				const auto cur = it++;
-				if (!pred(cur->first, cur->second))
-					continue;
-
-				_map->erase(cur);
-				++ret;
+				if (pred(it->first, it->second))
+				{
+					it = _map->erase(it);
+					++ret;
+				}
+				else
+					++it;
 			}
 			return ret;
 		}
