@@ -54,7 +54,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
+			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 			{ return WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
 		};
 
@@ -89,25 +89,25 @@ namespace stingray
 		MultiMapDictionary& operator = (const MultiMapDictionary& other)
 		{ CopyMap(other._map); return *this; }
 
-		virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
+		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 		{ return WrapMapEnumerator(EnumeratorFromStlContainer(*_map, GetMapHolder())); }
 
-		virtual shared_ptr<IEnumerable<PairType>> Reverse() const
+		shared_ptr<IEnumerable<PairType>> Reverse() const override
 		{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _map->size(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _map->empty(); }
 
-		virtual bool ContainsKey(const KeyType& key) const
+		bool ContainsKey(const KeyType& key) const override
 		{ return _map->find(key) != _map->end(); }
 
-		virtual size_t CountKey(const KeyType& key) const
+		size_t CountKey(const KeyType& key) const override
 		{ return _map->count(key); }
 
-		virtual shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const
+		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
 			using cit = typename MapType::const_iterator;
 
@@ -118,7 +118,7 @@ namespace stingray
 			return WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_map->end()), GetMapHolder()));
 		}
 
-		virtual shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const
+		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
 			using cri = typename MapType::const_reverse_iterator;
 
@@ -129,14 +129,14 @@ namespace stingray
 			return WrapMapEnumerator(EnumeratorFromStlIterators(cri(it), cri(_map->rend()), GetMapHolder()));
 		}
 
-		virtual ValueType GetFirst(const KeyType& key) const
+		ValueType GetFirst(const KeyType& key) const override
 		{
 			typename MapType::const_iterator it = _map->lower_bound(key);
 			STINGRAYKIT_CHECK(it != _map->end() && !KeyCompareType()(key, it->first), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
-		virtual bool TryGetFirst(const KeyType& key, ValueType& outValue) const
+		bool TryGetFirst(const KeyType& key, ValueType& outValue) const override
 		{
 			typename MapType::const_iterator it = _map->lower_bound(key);
 			if (it == _map->end() || KeyCompareType()(key, it->first))
@@ -146,7 +146,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType>> GetAll(const KeyType& key) const
+		shared_ptr<IEnumerator<ValueType>> GetAll(const KeyType& key) const override
 		{
 			using cit = typename MapType::const_iterator;
 			std::pair<cit, cit> range = _map->equal_range(key);
@@ -156,25 +156,25 @@ namespace stingray
 			return EnumeratorFromStlIterators(values_iterator(range.first), values_iterator(range.second), GetMapHolder());
 		}
 
-		virtual void Add(const KeyType& key, const ValueType& value)
+		void Add(const KeyType& key, const ValueType& value) override
 		{
 			CopyOnWrite();
 			_map->insert(std::make_pair(key, value));
 		}
 
-		virtual void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
+		void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
 		{ DoRemoveFirst(key, value); }
 
-		virtual bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
+		bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
 		{ return DoRemoveFirst(key, value); }
 
-		virtual size_t RemoveAll(const KeyType& key)
+		size_t RemoveAll(const KeyType& key) override
 		{
 			CopyOnWrite();
 			return _map->erase(key);
 		}
 
-		virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred)
+		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 		{
 			CopyOnWrite();
 			size_t ret = 0;
@@ -190,7 +190,7 @@ namespace stingray
 			return ret;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			if (_mapHolder.expired())
 				_map->clear();

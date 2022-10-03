@@ -55,49 +55,49 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::GetEnumerator();
 		}
 
-		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Reverse();
 		}
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::GetCount();
 		}
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::IsEmpty();
 		}
 
-		virtual bool Contains(const ValueType& value) const
+		bool Contains(const ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Contains(value);
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Find(value);
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::ReverseFind(value);
 		}
 
-		virtual void Add(const ValueType& value)
+		void Add(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			bool signal = !Wrapped_::Contains(value);
@@ -106,10 +106,10 @@ namespace stingray
 				_onChanged(CollectionOp::Added, value);
 		}
 
-		virtual void Remove(const ValueType& value)
+		void Remove(const ValueType& value) override
 		{ TryRemove(value); }
 
-		virtual bool TryRemove(const ValueType& value)
+		bool TryRemove(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			if (!Wrapped_::TryRemove(value))
@@ -119,7 +119,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
+		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
 		{
 			signal_locker l(_onChanged);
 			size_t ret = 0;
@@ -132,7 +132,7 @@ namespace stingray
 			return ret;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			signal_locker l(_onChanged);
 			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator())
@@ -142,10 +142,10 @@ namespace stingray
 			}
 		}
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
+		signal_connector<OnChangedSignature> OnChanged() const override
 		{ return _onChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return *_mutex; }
 
 	private:

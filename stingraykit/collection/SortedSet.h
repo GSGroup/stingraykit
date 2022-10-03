@@ -52,7 +52,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
+			shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
 		};
 
@@ -85,22 +85,22 @@ namespace stingray
 		SortedSet& operator = (const SortedSet& other)
 		{ CopyItems(other._items); return *this; }
 
-		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 
-		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _items->size(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _items->empty(); }
 
-		virtual bool Contains(const ValueType& value) const
+		bool Contains(const ValueType& value) const override
 		{ return _items->find(value) != _items->end(); }
 
-		virtual shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
 			typename SetType::const_iterator it = _items->find(value);
 			if (it == _items->end())
@@ -109,7 +109,7 @@ namespace stingray
 			return EnumeratorFromStlIterators(it, _items->end(), GetItemsHolder());
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
 			using cri = typename SetType::const_reverse_iterator;
 
@@ -120,19 +120,19 @@ namespace stingray
 			return EnumeratorFromStlIterators(cri(++it), _items->rend(), GetItemsHolder());
 		}
 
-		virtual void Add(const ValueType& value)
+		void Add(const ValueType& value) override
 		{
 			CopyOnWrite();
 			_items->insert(value);
 		}
 
-		virtual void Remove(const ValueType& value)
+		void Remove(const ValueType& value) override
 		{
 			CopyOnWrite();
 			_items->erase(value);
 		}
 
-		virtual bool TryRemove(const ValueType& value)
+		bool TryRemove(const ValueType& value) override
 		{
 			typename SetType::iterator it = _items->find(value);
 			if (it == _items->end())
@@ -143,7 +143,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
+		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
 		{
 			CopyOnWrite();
 			size_t ret = 0;
@@ -159,7 +159,7 @@ namespace stingray
 			return ret;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			if (_itemsHolder.expired())
 				_items->clear();

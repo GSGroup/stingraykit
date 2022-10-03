@@ -46,7 +46,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
+			shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
 		};
 
@@ -79,25 +79,25 @@ namespace stingray
 		SortedMultiSet& operator = (const SortedMultiSet& other)
 		{ CopyItems(other._items); return *this; }
 
-		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 
-		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _items->size(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _items->empty(); }
 
-		virtual bool Contains(const ValueType& value) const
+		bool Contains(const ValueType& value) const override
 		{ return _items->find(value) != _items->end(); }
 
-		virtual size_t Count(const ValueType& value) const
+		size_t Count(const ValueType& value) const override
 		{ return _items->count(value); }
 
-		virtual shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
 			typename SetType::iterator it = _items->lower_bound(value);
 			if (it == _items->end() || CompareType_()(value, *it))
@@ -106,7 +106,7 @@ namespace stingray
 			return EnumeratorFromStlIterators(it, _items->end(), GetItemsHolder());
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const
+		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
 			using cri = typename SetType::const_reverse_iterator;
 
@@ -117,25 +117,25 @@ namespace stingray
 			return EnumeratorFromStlIterators(cri(it), _items->rend(), GetItemsHolder());
 		}
 
-		virtual void Add(const ValueType& value)
+		void Add(const ValueType& value) override
 		{
 			CopyOnWrite();
 			_items->insert(value);
 		}
 
-		virtual void RemoveFirst(const ValueType& value)
+		void RemoveFirst(const ValueType& value) override
 		{ DoRemoveFirst(value); }
 
-		virtual bool TryRemoveFirst(const ValueType& value)
+		bool TryRemoveFirst(const ValueType& value) override
 		{ return DoRemoveFirst(value); }
 
-		virtual size_t RemoveAll(const ValueType& value)
+		size_t RemoveAll(const ValueType& value) override
 		{
 			CopyOnWrite();
 			return _items->erase(value);
 		}
 
-		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred)
+		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
 		{
 			CopyOnWrite();
 			size_t ret = 0;
@@ -151,7 +151,7 @@ namespace stingray
 			return ret;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			if (_itemsHolder.expired())
 				_items->clear();

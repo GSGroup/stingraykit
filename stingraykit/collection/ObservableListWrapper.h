@@ -55,76 +55,76 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::GetEnumerator();
 		}
 
-		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Reverse();
 		}
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::GetCount();
 		}
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::IsEmpty();
 		}
 
-		virtual bool Contains(const ValueType& value) const
+		bool Contains(const ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Contains(value);
 		}
 
-		virtual optional<size_t> IndexOf(const ValueType& obj) const
+		optional<size_t> IndexOf(const ValueType& obj) const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::IndexOf(obj);
 		}
 
-		virtual ValueType Get(size_t index) const
+		ValueType Get(size_t index) const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Get(index);
 		}
 
-		virtual bool TryGet(size_t index, ValueType& value) const
+		bool TryGet(size_t index, ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::TryGet(index, value);
 		}
 
-		virtual void Add(const ValueType& value)
+		void Add(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			Wrapped_::Add(value);
 			_onChanged(CollectionOp::Added, Wrapped_::GetCount() - 1, value);
 		}
 
-		virtual void Set(size_t index, const ValueType& value)
+		void Set(size_t index, const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			Wrapped_::Set(index, value);
 			_onChanged(CollectionOp::Updated, index, value);
 		}
 
-		virtual void Insert(size_t index, const ValueType& value)
+		void Insert(size_t index, const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			Wrapped_::Insert(index, value);
 			_onChanged(CollectionOp::Added, index, value);
 		}
 
-		virtual void RemoveAt(size_t index)
+		void RemoveAt(size_t index) override
 		{
 			signal_locker l(_onChanged);
 			ValueType value = Wrapped_::Get(index);
@@ -132,7 +132,7 @@ namespace stingray
 			_onChanged(CollectionOp::Removed, index, value);
 		}
 
-		virtual bool TryRemove(const ValueType& value)
+		bool TryRemove(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			if (const optional<size_t> index = Wrapped_::IndexOf(value))
@@ -143,7 +143,7 @@ namespace stingray
 			return false;
 		}
 
-		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
+		size_t RemoveAll(const function<bool (const ValueType&)>& pred) override
 		{
 			signal_locker l(_onChanged);
 			const size_t count = Wrapped_::GetCount();
@@ -162,17 +162,17 @@ namespace stingray
 			return ret;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			signal_locker l(_onChanged);
 			while (!Wrapped_::IsEmpty())
 				RemoveAt(0);
 		}
 
-		virtual signal_connector<OnChangedSignature> OnChanged() const
+		signal_connector<OnChangedSignature> OnChanged() const override
 		{ return _onChanged.connector(); }
 
-		virtual const Mutex& GetSyncRoot() const
+		const Mutex& GetSyncRoot() const override
 		{ return *_mutex; }
 
 	private:

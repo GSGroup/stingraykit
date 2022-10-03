@@ -46,7 +46,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
+			shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
 		};
 
@@ -73,22 +73,22 @@ namespace stingray
 		ArrayList& operator = (const ArrayList& other)
 		{ CopyItems(other._items); return *this; }
 
-		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 
-		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _items->size(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _items->empty(); }
 
-		virtual bool Contains(const ValueType& value) const
+		bool Contains(const ValueType& value) const override
 		{ return std::find(_items->begin(), _items->end(), value) != _items->end(); }
 
-		virtual optional<size_t> IndexOf(const ValueType& value) const
+		optional<size_t> IndexOf(const ValueType& value) const override
 		{
 			using cit = typename VectorType::const_iterator;
 
@@ -96,13 +96,13 @@ namespace stingray
 			return it == _items->end() ? optional<size_t>() : std::distance(cit(_items->begin()), it);
 		}
 
-		virtual ValueType Get(size_t index) const
+		ValueType Get(size_t index) const override
 		{
 			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			return (*_items)[index];
 		}
 
-		virtual bool TryGet(size_t index, ValueType& value) const
+		bool TryGet(size_t index, ValueType& value) const override
 		{
 			if (index >= _items->size())
 				return false;
@@ -111,34 +111,34 @@ namespace stingray
 			return true;
 		}
 
-		virtual void Add(const ValueType& value)
+		void Add(const ValueType& value) override
 		{
 			CopyOnWrite();
 			_items->push_back(value);
 		}
 
-		virtual void Set(size_t index, const ValueType& value)
+		void Set(size_t index, const ValueType& value) override
 		{
 			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
 			(*_items)[index] = value;
 		}
 
-		virtual void Insert(size_t index, const ValueType& value)
+		void Insert(size_t index, const ValueType& value) override
 		{
 			STINGRAYKIT_CHECK(index <= _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
 			_items->insert(std::next(_items->begin(), index), value);
 		}
 
-		virtual void RemoveAt(size_t index)
+		void RemoveAt(size_t index) override
 		{
 			STINGRAYKIT_CHECK(index < _items->size(), IndexOutOfRangeException(index, _items->size()));
 			CopyOnWrite();
 			_items->erase(std::next(_items->begin(), index));
 		}
 
-		virtual bool TryRemove(const ValueType& value)
+		bool TryRemove(const ValueType& value) override
 		{
 			using cit = typename VectorType::const_iterator;
 
@@ -153,7 +153,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred)
+		size_t RemoveAll(const function<bool (const ValueType&)>& pred) override
 		{
 			CopyOnWrite();
 			const typename VectorType::iterator it = std::remove_if(_items->begin(), _items->end(), pred);
@@ -162,7 +162,7 @@ namespace stingray
 			return ret;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			if (_itemsHolder.expired())
 				_items->clear();

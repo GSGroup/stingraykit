@@ -60,7 +60,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
+			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 			{ return WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
 		};
 
@@ -95,22 +95,22 @@ namespace stingray
 		MapDictionary& operator = (const MapDictionary& other)
 		{ CopyMap(other._map); return *this; }
 
-		virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
+		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 		{ return WrapMapEnumerator(EnumeratorFromStlContainer(*_map, GetMapHolder())); }
 
-		virtual shared_ptr<IEnumerable<PairType>> Reverse() const
+		shared_ptr<IEnumerable<PairType>> Reverse() const override
 		{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
 
-		virtual size_t GetCount() const
+		size_t GetCount() const override
 		{ return _map->size(); }
 
-		virtual bool IsEmpty() const
+		bool IsEmpty() const override
 		{ return _map->empty(); }
 
-		virtual bool ContainsKey(const KeyType& key) const
+		bool ContainsKey(const KeyType& key) const override
 		{ return _map->find(key) != _map->end(); }
 
-		virtual shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const
+		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
 			using cit = typename MapType::const_iterator;
 
@@ -121,7 +121,7 @@ namespace stingray
 			return WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_map->end()), GetMapHolder()));
 		}
 
-		virtual shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const
+		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
 			using cri = typename MapType::const_reverse_iterator;
 
@@ -132,14 +132,14 @@ namespace stingray
 			return WrapMapEnumerator(EnumeratorFromStlIterators(cri(++it), cri(_map->rend()), GetMapHolder()));
 		}
 
-		virtual ValueType Get(const KeyType& key) const
+		ValueType Get(const KeyType& key) const override
 		{
 			typename MapType::const_iterator it = _map->find(key);
 			STINGRAYKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
-		virtual bool TryGet(const KeyType& key, ValueType& outValue) const
+		bool TryGet(const KeyType& key, ValueType& outValue) const override
 		{
 			typename MapType::const_iterator it = _map->find(key);
 			if (it != _map->end())
@@ -151,7 +151,7 @@ namespace stingray
 				return false;
 		}
 
-		virtual void Set(const KeyType& key, const ValueType& value)
+		void Set(const KeyType& key, const ValueType& value) override
 		{
 			CopyOnWrite();
 			typename MapType::iterator it = _map->find(key);
@@ -161,13 +161,13 @@ namespace stingray
 				_map->insert(std::make_pair(key, value));
 		}
 
-		virtual void Remove(const KeyType& key)
+		void Remove(const KeyType& key) override
 		{
 			CopyOnWrite();
 			_map->erase(key);
 		}
 
-		virtual bool TryRemove(const KeyType& key)
+		bool TryRemove(const KeyType& key) override
 		{
 			typename MapType::iterator it = _map->find(key);
 			if (it == _map->end())
@@ -178,7 +178,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred)
+		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 		{
 			CopyOnWrite();
 			size_t ret = 0;
@@ -194,7 +194,7 @@ namespace stingray
 			return ret;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			if (_mapHolder.expired())
 				_map->clear();
