@@ -154,7 +154,7 @@ namespace stingray
 		void Add(const KeyType& key, const ValueType& value) override
 		{
 			CopyOnWrite();
-			_map->insert(std::make_pair(key, value));
+			_map->emplace(key, value);
 		}
 
 		void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override

@@ -152,7 +152,7 @@ namespace stingray
 			if (it != _map->end())
 				it->second = value;
 			else
-				_map->insert(std::make_pair(key, value));
+				_map->emplace(key, value);
 		}
 
 		void Remove(const KeyType& key) override

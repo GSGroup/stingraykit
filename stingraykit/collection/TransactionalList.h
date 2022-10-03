@@ -62,15 +62,15 @@ namespace stingray
 				for (size_t index = 0, tailIndex = 0; index < oldSize || index < newSize; ++index)
 				{
 					if (index >= newSize)
-						diff->push_back(MakeDiffEntry(CollectionOp::Removed, PairType(index - tailIndex++, (*oldItems)[index])));
+						diff->emplace_back(CollectionOp::Removed, PairType(index - tailIndex++, (*oldItems)[index]));
 					else if (index >= oldSize)
-						diff->push_back(MakeDiffEntry(CollectionOp::Added, PairType(index, (*newItems)[index])));
+						diff->emplace_back(CollectionOp::Added, PairType(index, (*newItems)[index]));
 					else if (!ValueEqualsComparer()((*oldItems)[index], (*newItems)[index]))
 					{
 						// TODO: fix Updated handling
-						//diff->push_back(MakeDiffEntry(CollectionOp::Updated, *newIt));
-						diff->push_back(MakeDiffEntry(CollectionOp::Removed, PairType(index, (*oldItems)[index])));
-						diff->push_back(MakeDiffEntry(CollectionOp::Added, PairType(index, (*newItems)[index])));
+						//diff->emplace_back(CollectionOp::Updated, *newIt);
+						diff->emplace_back(CollectionOp::Removed, PairType(index, (*oldItems)[index]));
+						diff->emplace_back(CollectionOp::Added, PairType(index, (*newItems)[index]));
 					}
 				}
 
