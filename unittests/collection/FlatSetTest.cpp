@@ -1,8 +1,10 @@
 #include <stingraykit/collection/flat_set.h>
 
-#include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 using namespace stingray;
+
+using ::testing::ElementsAre;
 
 namespace
 {
@@ -40,6 +42,8 @@ TEST(FlatSetTest, Construction)
 		FlatSet testee(vec.begin(), vec.end());
 		EXPECT_EQ(testee.size(), (size_t)4);
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
+
+		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
 	}
 	{
 		const Set set = { "one", "two", "three", "four", "four", "three" };
@@ -47,18 +51,24 @@ TEST(FlatSetTest, Construction)
 		FlatSet testee(set.begin(), set.end());
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
 		EXPECT_TRUE(std::equal(set.begin(), set.end(), testee.begin(), testee.end()));
+
+		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
 	}
 }
 
 TEST(FlatSetTest, Assignment)
 {
 	{
-		FlatSet testee1 = GetSampleFlatSet();
+		const FlatSet testee1 = GetSampleFlatSet();
+
 		FlatSet testee2;
 		FlatSet testee3;
 		testee2 = testee1;
 		testee3 = testee1;
+
 		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), testee3.end()));
+
+		ASSERT_THAT(testee2, ElementsAre("Americans", "Australians", "Japaneses", "Russians", "Ukrainians"));
 	}
 }
 
@@ -74,6 +84,8 @@ TEST(FlatSetTest, Insertion)
 		EXPECT_FALSE(testee.insert("three").second);
 
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
+
+		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
 	}
 }
 

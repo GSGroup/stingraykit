@@ -1,8 +1,10 @@
 #include <stingraykit/collection/flat_map.h>
 
-#include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 using namespace stingray;
+
+using ::testing::ElementsAre;
 
 namespace
 {
@@ -53,6 +55,8 @@ TEST(FlatMapTest, Construction)
 		FlatMap testee(vec.begin(), vec.end());
 		EXPECT_EQ(testee.size(), (size_t)4);
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
 	}
 	{
 		const Map map = { { "one", "jaws" }, { "two", "bite" }, { "three", "claws" }, { "four", "catch" }, { "four", "dup" }, { "three", "dup" } };
@@ -60,18 +64,25 @@ TEST(FlatMapTest, Construction)
 		FlatMap testee(map.begin(), map.end());
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 		EXPECT_TRUE(std::equal(map.begin(), map.end(), testee.begin(), testee.end(), PairEquals()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
 	}
 }
 
 TEST(FlatMapTest, Assignment)
 {
 	{
-		FlatMap testee1 = GetSampleFlatMap();
+		const FlatMap testee1 = GetSampleFlatMap();
+
 		FlatMap testee2;
 		FlatMap testee3;
 		testee2 = testee1;
 		testee3 = testee1;
+
 		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), testee3.end(), PairEquals()));
+
+		ASSERT_THAT(testee2, ElementsAre(std::make_pair("Americans", "God blessed nation!"), std::make_pair("Australians", "Got no idea why they don't fall!"),
+				std::make_pair("Japaneses", "Nation presented us anime!"), std::make_pair("Russians", "Greatest nation in the world!"), std::make_pair("Ukrainians", "Salo Ukraine! Geroyam Salo!")));
 	}
 }
 
@@ -87,6 +98,8 @@ TEST(FlatMapTest, Insertion)
 		EXPECT_FALSE(testee.insert(std::make_pair("three", "dup")).second);
 
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
 	}
 }
 
