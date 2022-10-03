@@ -12,7 +12,6 @@
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
-#include <stingraykit/collection/flat_map.h>
 #include <stingraykit/compare/comparers.h>
 #include <stingraykit/function/function.h>
 
@@ -226,16 +225,6 @@ namespace stingray
 		static shared_ptr<IEnumerator<PairType>> WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type>>& mapEnumerator)
 		{ return WrapEnumerator(mapEnumerator); }
 	};
-
-
-	template <
-			typename KeyType,
-			typename ValueType,
-			typename CompareType = comparers::Less,
-			typename AllocatorType = typename flat_map<KeyType, ValueType, CompareType>::allocator_type
-			>
-	struct FlatMapDictionary
-	{ using Type = MapDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>; };
 
 	/** @} */
 

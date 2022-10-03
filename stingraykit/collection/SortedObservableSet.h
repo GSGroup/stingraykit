@@ -22,10 +22,6 @@ namespace stingray
 	template < typename ValueType, typename CompareType = comparers::Less >
 	using SortedObservableSet = ObservableSetWrapper<SortedSet<ValueType, CompareType>>;
 
-
-	template < typename ValueType, typename CompareType = comparers::Less >
-	using FlatSortedObservableSet = ObservableSetWrapper<typename FlatSortedSet<ValueType, CompareType>::Type>;
-
 	/** @} */
 
 }

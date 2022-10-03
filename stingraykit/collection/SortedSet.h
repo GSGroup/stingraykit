@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ISet.h>
-#include <stingraykit/collection/flat_set.h>
 #include <stingraykit/function/function.h>
 
 #include <set>
@@ -192,18 +191,8 @@ namespace stingray
 		}
 	};
 
-
-	template <
-			typename T,
-			typename CompareType = comparers::Less,
-			typename AllocatorType = typename flat_set<T, CompareType>::allocator_type
-			>
-	struct FlatSortedSet
-	{ using Type = SortedSet<T, CompareType, flat_set, AllocatorType>; };
-
 	/** @} */
 
 }
-
 
 #endif

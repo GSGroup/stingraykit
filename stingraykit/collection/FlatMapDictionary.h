@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_COLLECTION_MAPOBSERVABLEDICTIONARY_H
-#define STINGRAYKIT_COLLECTION_MAPOBSERVABLEDICTIONARY_H
+#ifndef STINGRAYKIT_COLLECTION_FLATMAPDICTIONARY_H
+#define STINGRAYKIT_COLLECTION_FLATMAPDICTIONARY_H
 
 // Copyright (c) 2011 - 2019, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/MapDictionary.h>
-#include <stingraykit/collection/ObservableDictionaryWrapper.h>
+#include <stingraykit/collection/flat_map.h>
 
 namespace stingray
 {
@@ -19,8 +19,14 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename KeyType, typename ValueType, typename CompareType = comparers::Less >
-	using MapObservableDictionary = ObservableDictionaryWrapper<MapDictionary<KeyType, ValueType, CompareType>>;
+	template <
+			typename KeyType,
+			typename ValueType,
+			typename CompareType = comparers::Less,
+			typename AllocatorType = typename flat_map<KeyType, ValueType, CompareType>::allocator_type
+			>
+	struct FlatMapDictionary
+	{ using Type = MapDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>; };
 
 	/** @} */
 
