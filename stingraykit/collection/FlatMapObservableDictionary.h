@@ -20,7 +20,7 @@ namespace stingray
 	 */
 
 	template < typename KeyType, typename ValueType, typename CompareType = comparers::Less >
-	using FlatMapObservableDictionary = ObservableDictionaryWrapper<typename FlatMapDictionary<KeyType, ValueType, CompareType>::Type>;
+	using FlatMapObservableDictionary = ObservableDictionaryWrapper<FlatMapDictionary<KeyType, ValueType, CompareType>>;
 
 	/** @} */
 

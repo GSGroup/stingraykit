@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/MapDictionary.h>
+#include <stingraykit/collection/GenericDictionary.h>
 #include <stingraykit/collection/flat_map.h>
 
 namespace stingray
@@ -19,14 +19,8 @@ namespace stingray
 	 * @{
 	 */
 
-	template <
-			typename KeyType,
-			typename ValueType,
-			typename CompareType = comparers::Less,
-			typename AllocatorType = typename flat_map<KeyType, ValueType, CompareType>::allocator_type
-			>
-	struct FlatMapDictionary
-	{ using Type = MapDictionary<KeyType, ValueType, CompareType, flat_map, AllocatorType>; };
+	template < typename KeyType, typename ValueType, typename CompareType = comparers::Less >
+	using FlatMapDictionary = GenericDictionary<flat_map<KeyType, ValueType, CompareType>>;
 
 	/** @} */
 
