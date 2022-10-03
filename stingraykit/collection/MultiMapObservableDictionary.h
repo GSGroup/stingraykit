@@ -21,7 +21,7 @@ namespace stingray
 	 */
 
 	template < typename KeyType_, typename ValueType_ , typename KeyCompareType_ = comparers::Less, typename ValueCompareType_ = comparers::Equals >
-	struct MultiMapObservableDictionary
+	class MultiMapObservableDictionary
 		:	public MultiMapDictionary<KeyType_, ValueType_, KeyCompareType_, ValueCompareType_>,
 			public virtual IObservableMultiDictionary<KeyType_, ValueType_>
 	{

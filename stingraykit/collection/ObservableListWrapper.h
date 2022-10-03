@@ -21,7 +21,7 @@ namespace stingray
 	 */
 
 	template < typename Wrapped_ >
-	struct ObservableListWrapper
+	class ObservableListWrapper
 		:	public Wrapped_,
 			public virtual IObservableList<typename Wrapped_::ValueType>
 	{

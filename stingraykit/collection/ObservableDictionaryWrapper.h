@@ -21,7 +21,7 @@ namespace stingray
 	 */
 
 	template < typename Wrapped_ >
-	struct ObservableDictionaryWrapper
+	class ObservableDictionaryWrapper
 		:	public Wrapped_,
 			public virtual IObservableDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
