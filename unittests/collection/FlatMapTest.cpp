@@ -11,43 +11,16 @@ namespace
 	using Map = std::map<std::string, std::string>;
 	using FlatMap = flat_map<std::string, std::string>;
 
-	Vector GetUnorderedVectorImpl()
-	{
-		Vector vec;
-		vec.push_back(std::make_pair("one", "jaws"));
-		vec.push_back(std::make_pair("two", "bite"));
-		vec.push_back(std::make_pair("three", "claws"));
-		vec.push_back(std::make_pair("four", "catch"));
-		vec.push_back(std::make_pair("five", "blow"));
-		vec.push_back(std::make_pair("six", "job"));
-		vec.push_back(std::make_pair("seven", "two"));
-		vec.push_back(std::make_pair("eight", "girls"));
-		vec.push_back(std::make_pair("nine", "one"));
-		vec.push_back(std::make_pair("ten", "cup"));
-		return vec;
-	}
-
 	Vector GetUnorderedVector()
 	{
-		static Vector vec = GetUnorderedVectorImpl();
-		return vec;
-	}
-
-	FlatMap GetSampleFlatMapImpl()
-	{
-		FlatMap map;
-		map.insert(std::make_pair("Americans", "God blessed nation!"));
-		map.insert(std::make_pair("Australians", "Got no idea why they don't fall!"));
-		map.insert(std::make_pair("Japaneses", "Nation presented us anime!"));
-		map.insert(std::make_pair("Russians", "Greatest nation in the world!"));
-		map.insert(std::make_pair("Ukrainians", "Salo Ukraine! Geroyam Salo!"));
-		return map;
+		return { { "one", "jaws" }, { "two", "bite" }, { "three", "claws" }, { "four", "catch" }, { "five", "blow" },
+				{ "six", "job" }, { "seven", "two" }, { "eight", "girls" }, { "nine", "one" }, { "ten", "cup"} };
 	}
 
 	FlatMap GetSampleFlatMap()
 	{
-		static FlatMap map = GetSampleFlatMapImpl();
-		return map;
+		return { { "Americans", "God blessed nation!" }, { "Australians", "Got no idea why they don't fall!" }, { "Japaneses", "Nation presented us anime!" },
+				{ "Russians", "Greatest nation in the world!" }, { "Ukrainians", "Salo Ukraine! Geroyam Salo!" } };
 	}
 
 	struct PairEquals
@@ -75,26 +48,14 @@ TEST(FlatMapTest, Construction)
 		EXPECT_TRUE(testee.empty());
 	}
 	{
-		Vector vec;
-		vec.push_back(std::make_pair("one", "jaws"));
-		vec.push_back(std::make_pair("two", "bite"));
-		vec.push_back(std::make_pair("three", "claws"));
-		vec.push_back(std::make_pair("four", "catch"));
-		vec.push_back(std::make_pair("four", "dup"));
-		vec.push_back(std::make_pair("three", "dup"));
+		const Vector vec = { { "one", "jaws" }, { "two", "bite" }, { "three", "claws" }, { "four", "catch" }, { "four", "dup" }, { "three", "dup" } };
 
 		FlatMap testee(vec.begin(), vec.end());
 		EXPECT_EQ(testee.size(), (size_t)4);
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 	}
 	{
-		Map map;
-		map.insert(std::make_pair("one", "jaws"));
-		map.insert(std::make_pair("two", "bite"));
-		map.insert(std::make_pair("three", "claws"));
-		map.insert(std::make_pair("four", "catch"));
-		map.insert(std::make_pair("four", "dup"));
-		map.insert(std::make_pair("three", "dup"));
+		const Map map = { { "one", "jaws" }, { "two", "bite" }, { "three", "claws" }, { "four", "catch" }, { "four", "dup" }, { "three", "dup" } };
 
 		FlatMap testee(map.begin(), map.end());
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));

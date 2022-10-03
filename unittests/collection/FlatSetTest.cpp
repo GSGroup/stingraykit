@@ -11,44 +11,11 @@ namespace
 	using Set = std::set<std::string>;
 	using FlatSet = flat_set<std::string>;
 
-	Vector GetUnorderedVectorImpl()
-	{
-		Vector vec;
-		vec.push_back("one");
-		vec.push_back("two");
-		vec.push_back("three");
-		vec.push_back("four");
-		vec.push_back("five");
-		vec.push_back("six");
-		vec.push_back("seven");
-		vec.push_back("eight");
-		vec.push_back("nine");
-		vec.push_back("ten");
-		return vec;
-	}
-
 	Vector GetUnorderedVector()
-	{
-		static Vector vec = GetUnorderedVectorImpl();
-		return vec;
-	}
-
-	FlatSet GetSampleFlatSetImpl()
-	{
-		FlatSet set;
-		set.insert("Americans");
-		set.insert("Australians");
-		set.insert("Japaneses");
-		set.insert("Russians");
-		set.insert("Ukrainians");
-		return set;
-	}
+	{ return { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" }; }
 
 	FlatSet GetSampleFlatSet()
-	{
-		static FlatSet set = GetSampleFlatSetImpl();
-		return set;
-	}
+	{ return { "Americans", "Australians", "Japaneses", "Russians", "Ukrainians" }; }
 
 }
 
@@ -68,26 +35,14 @@ TEST(FlatSetTest, Construction)
 		EXPECT_TRUE(testee.empty());
 	}
 	{
-		Vector vec;
-		vec.push_back("one");
-		vec.push_back("two");
-		vec.push_back("three");
-		vec.push_back("four");
-		vec.push_back("four");
-		vec.push_back("three");
+		const Vector vec = { "one", "two", "three", "four", "four", "three" };
 
 		FlatSet testee(vec.begin(), vec.end());
 		EXPECT_EQ(testee.size(), (size_t)4);
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
 	}
 	{
-		Set set;
-		set.insert("one");
-		set.insert("two");
-		set.insert("three");
-		set.insert("four");
-		set.insert("four");
-		set.insert("three");
+		const Set set = { "one", "two", "three", "four", "four", "three" };
 
 		FlatSet testee(set.begin(), set.end());
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
