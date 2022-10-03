@@ -101,10 +101,7 @@ namespace stingray
 
 	public:
 		explicit ObservableValue(ParamPassingType val = T(), const PopulationPolicySpecifier& populationPolicySpecifier = PopulationPolicySpecifier())
-			:	_val(val),
-				_mutex(make_shared_ptr<Mutex>()),
-				_populationPolicy(populationPolicySpecifier),
-				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableValue::OnChangedPopulator, this, _1))
+			:	ObservableValue(make_shared_ptr<Mutex>(), val, populationPolicySpecifier)
 		{ }
 
 		explicit ObservableValue(const shared_ptr<const Mutex>& mutex, ParamPassingType val = T(), const PopulationPolicySpecifier& populationPolicySpecifier = PopulationPolicySpecifier())
