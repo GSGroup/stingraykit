@@ -37,6 +37,10 @@ TEST(FlatSetTest, Construction)
 		EXPECT_TRUE(testee.empty());
 	}
 	{
+		FlatSet testee((FlatSet::allocator_type()));
+		EXPECT_TRUE(testee.empty());
+	}
+	{
 		const Vector vec = { "one", "two", "three", "four", "four", "three" };
 
 		FlatSet testee(vec.begin(), vec.end());
@@ -53,6 +57,19 @@ TEST(FlatSetTest, Construction)
 		EXPECT_TRUE(std::equal(set.begin(), set.end(), testee.begin(), testee.end()));
 
 		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
+	}
+	{
+		FlatSet testee1 = GetSampleFlatSet();
+
+		FlatSet testee2(testee1, FlatSet::allocator_type());
+		EXPECT_FALSE(testee1.empty());
+
+		FlatSet testee3(std::move(testee1), FlatSet::allocator_type());
+		EXPECT_TRUE(testee1.empty());
+
+		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), testee3.end()));
+
+		ASSERT_THAT(testee2, ElementsAre("Americans", "Australians", "Japaneses", "Russians", "Ukrainians"));
 	}
 }
 

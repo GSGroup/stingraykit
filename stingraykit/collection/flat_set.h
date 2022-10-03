@@ -48,8 +48,15 @@ namespace stingray
 		Compare			_cmp;
 
 	public:
-		explicit flat_set(const Compare& comp = Compare(), const Allocator& alloc = Allocator())
+		flat_set()
+		{ }
+
+		explicit flat_set(const Compare& comp, const Allocator& alloc = Allocator())
 			: _container(alloc), _cmp(comp)
+		{ }
+
+		explicit flat_set(const Allocator& alloc)
+			: flat_set(Compare(), alloc)
 		{ }
 
 		template < class InputIterator >
@@ -57,9 +64,26 @@ namespace stingray
 			: _container(alloc), _cmp(comp)
 		{ insert(first, last); }
 
+		template < class InputIterator >
+		flat_set(InputIterator first, InputIterator last, const Allocator& alloc)
+			: flat_set(first, last, Compare(), alloc)
+		{ }
+
+		flat_set(const flat_set& other, const Allocator& alloc)
+			: _container(other._container, alloc), _cmp(Compare())
+		{ }
+
+		flat_set(flat_set&& other, const Allocator& alloc)
+			: _container(std::move(other._container), alloc), _cmp(Compare())
+		{ }
+
 		flat_set(std::initializer_list<value_type> list, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
 			: _container(alloc), _cmp(comp)
 		{ insert(list.begin(), list.end()); }
+
+		flat_set(std::initializer_list<value_type> list, const Allocator& alloc)
+			: flat_set(list, Compare(), alloc)
+		{ }
 
 		flat_set& operator = (std::initializer_list<value_type> list)
 		{

@@ -50,6 +50,10 @@ TEST(FlatMapTest, Construction)
 		EXPECT_TRUE(testee.empty());
 	}
 	{
+		FlatMap testee((FlatMap::allocator_type()));
+		EXPECT_TRUE(testee.empty());
+	}
+	{
 		const Vector vec = { { "one", "jaws" }, { "two", "bite" }, { "three", "claws" }, { "four", "catch" }, { "four", "dup" }, { "three", "dup" } };
 
 		FlatMap testee(vec.begin(), vec.end());
@@ -66,6 +70,20 @@ TEST(FlatMapTest, Construction)
 		EXPECT_TRUE(std::equal(map.begin(), map.end(), testee.begin(), testee.end(), PairEquals()));
 
 		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
+	}
+	{
+		FlatMap testee1 = GetSampleFlatMap();
+
+		FlatMap testee2(testee1, FlatMap::allocator_type());
+		EXPECT_FALSE(testee1.empty());
+
+		FlatMap testee3(std::move(testee1), FlatMap::allocator_type());
+		EXPECT_TRUE(testee1.empty());
+
+		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), testee3.end()));
+
+		ASSERT_THAT(testee2, ElementsAre(std::make_pair("Americans", "God blessed nation!"), std::make_pair("Australians", "Got no idea why they don't fall!"),
+				std::make_pair("Japaneses", "Nation presented us anime!"), std::make_pair("Russians", "Greatest nation in the world!"), std::make_pair("Ukrainians", "Salo Ukraine! Geroyam Salo!")));
 	}
 }
 

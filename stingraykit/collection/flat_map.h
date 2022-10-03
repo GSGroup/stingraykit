@@ -76,8 +76,16 @@ namespace stingray
 		CompareImpl		_cmp;
 
 	public:
-		explicit flat_map(const Compare& comp = Compare(), const Allocator& alloc = Allocator())
+		flat_map()
+			: _cmp(Compare())
+		{ }
+
+		explicit flat_map(const Compare& comp, const Allocator& alloc = Allocator())
 			: _container(alloc), _cmp(comp)
+		{ }
+
+		explicit flat_map(const Allocator& alloc)
+			: flat_map(Compare(), alloc)
 		{ }
 
 		template < class InputIterator >
@@ -85,9 +93,26 @@ namespace stingray
 			: _container(alloc), _cmp(comp)
 		{ insert(first, last); }
 
+		template < class InputIterator >
+		flat_map(InputIterator first, InputIterator last, const Allocator& alloc)
+			: flat_map(first, last, Compare(), alloc)
+		{ }
+
+		flat_map(const flat_map& other, const Allocator& alloc)
+			: _container(other._container, alloc), _cmp(Compare())
+		{ }
+
+		flat_map(flat_map&& other, const Allocator& alloc)
+			: _container(std::move(other._container), alloc), _cmp(Compare())
+		{ }
+
 		flat_map(std::initializer_list<value_type> list, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
 			: _container(alloc), _cmp(comp)
 		{ insert(list.begin(), list.end()); }
+
+		flat_map(std::initializer_list<value_type> list, const Allocator& alloc)
+			: flat_map(list, Compare(), alloc)
+		{ }
 
 		flat_map& operator = (std::initializer_list<value_type> list)
 		{
