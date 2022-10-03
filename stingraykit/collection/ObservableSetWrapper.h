@@ -21,9 +21,7 @@ namespace stingray
 	 */
 
 	template < typename Wrapped_ >
-	class ObservableSetWrapper
-		:	public Wrapped_,
-			public virtual IObservableSet<typename Wrapped_::ValueType>
+	class ObservableSetWrapper : public virtual IObservableSet<typename Wrapped_::ValueType>
 	{
 		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
@@ -33,24 +31,24 @@ namespace stingray
 		using OnChangedSignature = typename ObservableInterface::OnChangedSignature;
 
 	private:
+		Wrapped_												_wrapped;
 		shared_ptr<Mutex>										_mutex;
 		signal<OnChangedSignature, ExternalMutexPointer>		_onChanged;
 
 	public:
 		ObservableSetWrapper()
-			:	Wrapped_(),
-				_mutex(make_shared_ptr<Mutex>()),
+			:	_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit ObservableSetWrapper(const shared_ptr<IEnumerable<ValueType>>& enumerable)
-			:	Wrapped_(enumerable),
+			:	_wrapped(enumerable),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit ObservableSetWrapper(const shared_ptr<IEnumerator<ValueType>>& enumerator)
-			:	Wrapped_(enumerator),
+			:	_wrapped(enumerator),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
@@ -58,50 +56,50 @@ namespace stingray
 		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::GetEnumerator();
+			return _wrapped.GetEnumerator();
 		}
 
 		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Reverse();
+			return _wrapped.Reverse();
 		}
 
 		size_t GetCount() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::GetCount();
+			return _wrapped.GetCount();
 		}
 
 		bool IsEmpty() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::IsEmpty();
+			return _wrapped.IsEmpty();
 		}
 
 		bool Contains(const ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Contains(value);
+			return _wrapped.Contains(value);
 		}
 
 		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Find(value);
+			return _wrapped.Find(value);
 		}
 
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::ReverseFind(value);
+			return _wrapped.ReverseFind(value);
 		}
 
 		void Add(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			bool signal = !Wrapped_::Contains(value);
-			Wrapped_::Add(value);
+			bool signal = !_wrapped.Contains(value);
+			_wrapped.Add(value);
 			if (signal)
 				_onChanged(CollectionOp::Added, value);
 		}
@@ -112,7 +110,7 @@ namespace stingray
 		bool TryRemove(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			if (!Wrapped_::TryRemove(value))
+			if (!_wrapped.TryRemove(value))
 				return false;
 
 			_onChanged(CollectionOp::Removed, value);
@@ -123,9 +121,9 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			size_t ret = 0;
-			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator() WHERE pred(v))
+			FOR_EACH(ValueType v IN _wrapped.GetEnumerator() WHERE pred(v))
 			{
-				Wrapped_::Remove(v);
+				_wrapped.Remove(v);
 				_onChanged(CollectionOp::Removed, v);
 				++ret;
 			}
@@ -135,9 +133,9 @@ namespace stingray
 		void Clear() override
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator())
+			FOR_EACH(ValueType v IN _wrapped.GetEnumerator())
 			{
-				Wrapped_::Remove(v);
+				_wrapped.Remove(v);
 				_onChanged(CollectionOp::Removed, v);
 			}
 		}
@@ -151,7 +149,7 @@ namespace stingray
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{
-			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator())
+			FOR_EACH(ValueType v IN _wrapped.GetEnumerator())
 				slot(CollectionOp::Added, v);
 		}
 	};

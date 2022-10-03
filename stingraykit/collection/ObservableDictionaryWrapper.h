@@ -21,9 +21,7 @@ namespace stingray
 	 */
 
 	template < typename Wrapped_ >
-	class ObservableDictionaryWrapper
-		:	public Wrapped_,
-			public virtual IObservableDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
+	class ObservableDictionaryWrapper : public virtual IObservableDictionary<typename Wrapped_::KeyType, typename Wrapped_::ValueType>
 	{
 		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
@@ -35,24 +33,24 @@ namespace stingray
 		using OnChangedSignature = typename ObservableInterface::OnChangedSignature;
 
 	private:
+		Wrapped_											_wrapped;
 		shared_ptr<Mutex>									_mutex;
 		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 
 	public:
 		ObservableDictionaryWrapper()
-			:	Wrapped_(),
-				_mutex(make_shared_ptr<Mutex>()),
+			:	_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit ObservableDictionaryWrapper(const shared_ptr<IEnumerable<PairType>>& enumerable)
-			:	Wrapped_(enumerable),
+			:	_wrapped(enumerable),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit ObservableDictionaryWrapper(const shared_ptr<IEnumerator<PairType>>& enumerator)
-			:	Wrapped_(enumerator),
+			:	_wrapped(enumerator),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableDictionaryWrapper::OnChangedPopulator, this, _1))
 		{ }
@@ -60,62 +58,62 @@ namespace stingray
 		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::GetEnumerator();
+			return _wrapped.GetEnumerator();
 		}
 
 		shared_ptr<IEnumerable<PairType>> Reverse() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Reverse();
+			return _wrapped.Reverse();
 		}
 
 		size_t GetCount() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::GetCount();
+			return _wrapped.GetCount();
 		}
 
 		bool IsEmpty() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::IsEmpty();
+			return _wrapped.IsEmpty();
 		}
 
 		bool ContainsKey(const KeyType& key) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::ContainsKey(key);
+			return _wrapped.ContainsKey(key);
 		}
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Find(key);
+			return _wrapped.Find(key);
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::ReverseFind(key);
+			return _wrapped.ReverseFind(key);
 		}
 
 		ValueType Get(const KeyType& key) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Get(key);
+			return _wrapped.Get(key);
 		}
 
 		bool TryGet(const KeyType& key, ValueType& outValue) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::TryGet(key, outValue);
+			return _wrapped.TryGet(key, outValue);
 		}
 
 		void Set(const KeyType& key, const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			bool update = Wrapped_::ContainsKey(key);
-			Wrapped_::Set(key, value);
+			bool update = _wrapped.ContainsKey(key);
+			_wrapped.Set(key, value);
 			_onChanged(update ? CollectionOp::Updated : CollectionOp::Added, key, value);
 		}
 
@@ -126,10 +124,10 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			ValueType value;
-			if (!Wrapped_::TryGet(key, value))
+			if (!_wrapped.TryGet(key, value))
 				return false;
 
-			Wrapped_::Remove(key);
+			_wrapped.Remove(key);
 			_onChanged(CollectionOp::Removed, key, value);
 			return true;
 		}
@@ -138,9 +136,9 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			size_t ret = 0;
-			FOR_EACH(PairType v IN Wrapped_::GetEnumerator() WHERE pred(v.Key, v.Value))
+			FOR_EACH(PairType v IN _wrapped.GetEnumerator() WHERE pred(v.Key, v.Value))
 			{
-				Wrapped_::Remove(v.Key);
+				_wrapped.Remove(v.Key);
 				_onChanged(CollectionOp::Removed, v.Key, v.Value);
 				++ret;
 			}
@@ -150,9 +148,9 @@ namespace stingray
 		void Clear() override
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(PairType v IN Wrapped_::GetEnumerator())
+			FOR_EACH(PairType v IN _wrapped.GetEnumerator())
 			{
-				Wrapped_::Remove(v.Key);
+				_wrapped.Remove(v.Key);
 				_onChanged(CollectionOp::Removed, v.Key, v.Value);
 			}
 		}
@@ -166,7 +164,7 @@ namespace stingray
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{
-			FOR_EACH(PairType p IN Wrapped_::GetEnumerator())
+			FOR_EACH(PairType p IN _wrapped.GetEnumerator())
 				slot(CollectionOp::Added, p.Key, p.Value);
 		}
 	};

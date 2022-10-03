@@ -21,9 +21,7 @@ namespace stingray
 	 */
 
 	template < typename Wrapped_ >
-	class ObservableListWrapper
-		:	public Wrapped_,
-			public virtual IObservableList<typename Wrapped_::ValueType>
+	class ObservableListWrapper : public virtual IObservableList<typename Wrapped_::ValueType>
 	{
 		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 
@@ -33,24 +31,24 @@ namespace stingray
 		using OnChangedSignature = typename ObservableInterface::OnChangedSignature;
 
 	private:
+		Wrapped_											_wrapped;
 		shared_ptr<Mutex>									_mutex;
 		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
 
 	public:
 		ObservableListWrapper()
-			:	Wrapped_(),
-				_mutex(make_shared_ptr<Mutex>()),
+			:	_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit ObservableListWrapper(const shared_ptr<IEnumerable<ValueType>>& enumerable)
-			:	Wrapped_(enumerable),
+			:	_wrapped(enumerable),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit ObservableListWrapper(const shared_ptr<IEnumerator<ValueType>>& enumerator)
-			:	Wrapped_(enumerator),
+			:	_wrapped(enumerator),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
@@ -58,84 +56,84 @@ namespace stingray
 		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::GetEnumerator();
+			return _wrapped.GetEnumerator();
 		}
 
 		shared_ptr<IEnumerable<ValueType>> Reverse() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Reverse();
+			return _wrapped.Reverse();
 		}
 
 		size_t GetCount() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::GetCount();
+			return _wrapped.GetCount();
 		}
 
 		bool IsEmpty() const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::IsEmpty();
+			return _wrapped.IsEmpty();
 		}
 
 		bool Contains(const ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Contains(value);
+			return _wrapped.Contains(value);
 		}
 
 		optional<size_t> IndexOf(const ValueType& obj) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::IndexOf(obj);
+			return _wrapped.IndexOf(obj);
 		}
 
 		ValueType Get(size_t index) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::Get(index);
+			return _wrapped.Get(index);
 		}
 
 		bool TryGet(size_t index, ValueType& value) const override
 		{
 			signal_locker l(_onChanged);
-			return Wrapped_::TryGet(index, value);
+			return _wrapped.TryGet(index, value);
 		}
 
 		void Add(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			Wrapped_::Add(value);
-			_onChanged(CollectionOp::Added, Wrapped_::GetCount() - 1, value);
+			_wrapped.Add(value);
+			_onChanged(CollectionOp::Added, _wrapped.GetCount() - 1, value);
 		}
 
 		void Set(size_t index, const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			Wrapped_::Set(index, value);
+			_wrapped.Set(index, value);
 			_onChanged(CollectionOp::Updated, index, value);
 		}
 
 		void Insert(size_t index, const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			Wrapped_::Insert(index, value);
+			_wrapped.Insert(index, value);
 			_onChanged(CollectionOp::Added, index, value);
 		}
 
 		void RemoveAt(size_t index) override
 		{
 			signal_locker l(_onChanged);
-			ValueType value = Wrapped_::Get(index);
-			Wrapped_::RemoveAt(index);
+			ValueType value = _wrapped.Get(index);
+			_wrapped.RemoveAt(index);
 			_onChanged(CollectionOp::Removed, index, value);
 		}
 
 		bool TryRemove(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			if (const optional<size_t> index = Wrapped_::IndexOf(value))
+			if (const optional<size_t> index = _wrapped.IndexOf(value))
 			{
 				RemoveAt(*index);
 				return true;
@@ -146,16 +144,16 @@ namespace stingray
 		size_t RemoveAll(const function<bool (const ValueType&)>& pred) override
 		{
 			signal_locker l(_onChanged);
-			const size_t count = Wrapped_::GetCount();
+			const size_t count = _wrapped.GetCount();
 			size_t ret = 0;
 			for (size_t index = 0; index < count; ++index)
 			{
 				const size_t realIndex = index - ret;
-				const ValueType value = Wrapped_::Get(realIndex);
+				const ValueType value = _wrapped.Get(realIndex);
 				if (!pred(value))
 					continue;
 
-				Wrapped_::RemoveAt(realIndex);
+				_wrapped.RemoveAt(realIndex);
 				_onChanged(CollectionOp::Removed, realIndex, value);
 				++ret;
 			}
@@ -165,7 +163,7 @@ namespace stingray
 		void Clear() override
 		{
 			signal_locker l(_onChanged);
-			while (!Wrapped_::IsEmpty())
+			while (!_wrapped.IsEmpty())
 				RemoveAt(0);
 		}
 
@@ -179,7 +177,7 @@ namespace stingray
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{
 			size_t i = 0;
-			FOR_EACH(ValueType v IN Wrapped_::GetEnumerator())
+			FOR_EACH(ValueType v IN _wrapped.GetEnumerator())
 				slot(CollectionOp::Added, i++, v);
 		}
 	};
