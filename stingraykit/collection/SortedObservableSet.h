@@ -26,13 +26,13 @@ namespace stingray
 			typename AllocatorType_ = std::allocator<ValueType_>
 			>
 	struct SortedObservableSet
-		:	public ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_> >
+		:	public ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_>>
 	{
-		using base = ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_> >;
+		using base = ObservableSetWrapper<SortedSet<ValueType_, CompareType_, SetType_, AllocatorType_>>;
 
 		SortedObservableSet() : base() { }
-		explicit SortedObservableSet(const shared_ptr<IEnumerable<typename base::ValueType> >& enumerable) : base(enumerable) { }
-		explicit SortedObservableSet(const shared_ptr<IEnumerator<typename base::ValueType> >& enumerator) : base(enumerator) { }
+		explicit SortedObservableSet(const shared_ptr<IEnumerable<typename base::ValueType>>& enumerable) : base(enumerable) { }
+		explicit SortedObservableSet(const shared_ptr<IEnumerator<typename base::ValueType>>& enumerator) : base(enumerator) { }
 	};
 
 

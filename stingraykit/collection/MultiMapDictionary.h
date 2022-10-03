@@ -54,7 +54,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+			virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
 			{ return WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
 		};
 
@@ -70,7 +70,7 @@ namespace stingray
 		MultiMapDictionary(const MultiMapDictionary& other)
 		{ CopyMap(other._map); }
 
-		explicit MultiMapDictionary(const shared_ptr<IEnumerable<PairType> >& enumerable)
+		explicit MultiMapDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
 			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
@@ -78,7 +78,7 @@ namespace stingray
 				Add(p.Key, p.Value);
 		}
 
-		explicit MultiMapDictionary(const shared_ptr<IEnumerator<PairType> >& enumerator)
+		explicit MultiMapDictionary(const shared_ptr<IEnumerator<PairType>>& enumerator)
 			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
@@ -89,10 +89,10 @@ namespace stingray
 		MultiMapDictionary& operator = (const MultiMapDictionary& other)
 		{ CopyMap(other._map); return *this; }
 
-		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+		virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
 		{ return WrapMapEnumerator(EnumeratorFromStlContainer(*_map, GetMapHolder())); }
 
-		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		virtual shared_ptr<IEnumerable<PairType>> Reverse() const
 		{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
 
 		virtual size_t GetCount() const
@@ -107,7 +107,7 @@ namespace stingray
 		virtual size_t CountKey(const KeyType& key) const
 		{ return _map->count(key); }
 
-		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const
 		{
 			using cit = typename MapType::const_iterator;
 
@@ -118,7 +118,7 @@ namespace stingray
 			return WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_map->end()), GetMapHolder()));
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const
 		{
 			using cri = typename MapType::const_reverse_iterator;
 
@@ -146,7 +146,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetAll(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<ValueType>> GetAll(const KeyType& key) const
 		{
 			using cit = typename MapType::const_iterator;
 			std::pair<cit, cit> range = _map->equal_range(key);
@@ -240,7 +240,7 @@ namespace stingray
 				CopyMap(_map);
 		}
 
-		static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
+		static shared_ptr<IEnumerator<PairType>> WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type>>& mapEnumerator)
 		{ return WrapEnumerator(mapEnumerator); }
 	};
 

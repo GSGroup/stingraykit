@@ -31,7 +31,7 @@ namespace stingray
 			typename ValueType_,
 			typename CompareType_ = comparers::Less,
 			template <class, class, class, class> class MapType_ = std::map,
-			typename AllocatorType_ = std::allocator<std::pair<const KeyType_, ValueType_> >
+			typename AllocatorType_ = std::allocator<std::pair<const KeyType_, ValueType_>>
 			>
 	class MapDictionary : public virtual IDictionary<KeyType_, ValueType_>
 	{
@@ -60,7 +60,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+			virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
 			{ return WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
 		};
 
@@ -76,7 +76,7 @@ namespace stingray
 		MapDictionary(const MapDictionary& other)
 		{ CopyMap(other._map); }
 
-		explicit MapDictionary(const shared_ptr<IEnumerable<PairType> >& enumerable)
+		explicit MapDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
 			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
@@ -84,7 +84,7 @@ namespace stingray
 				Set(p.Key, p.Value);
 		}
 
-		explicit MapDictionary(const shared_ptr<IEnumerator<PairType> >& enumerator)
+		explicit MapDictionary(const shared_ptr<IEnumerator<PairType>>& enumerator)
 			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
@@ -95,10 +95,10 @@ namespace stingray
 		MapDictionary& operator = (const MapDictionary& other)
 		{ CopyMap(other._map); return *this; }
 
-		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+		virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
 		{ return WrapMapEnumerator(EnumeratorFromStlContainer(*_map, GetMapHolder())); }
 
-		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		virtual shared_ptr<IEnumerable<PairType>> Reverse() const
 		{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
 
 		virtual size_t GetCount() const
@@ -110,7 +110,7 @@ namespace stingray
 		virtual bool ContainsKey(const KeyType& key) const
 		{ return _map->find(key) != _map->end(); }
 
-		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const
 		{
 			using cit = typename MapType::const_iterator;
 
@@ -121,7 +121,7 @@ namespace stingray
 			return WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_map->end()), GetMapHolder()));
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const
 		{
 			using cri = typename MapType::const_reverse_iterator;
 
@@ -228,7 +228,7 @@ namespace stingray
 				CopyMap(_map);
 		}
 
-		static shared_ptr<IEnumerator<PairType> > WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type> >& mapEnumerator)
+		static shared_ptr<IEnumerator<PairType>> WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type>>& mapEnumerator)
 		{ return WrapEnumerator(mapEnumerator); }
 	};
 

@@ -47,25 +47,25 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit MultiMapObservableDictionary(const shared_ptr<IEnumerable<PairType> >& enumerable)
+		explicit MultiMapObservableDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
 			:	Wrapped(enumerable),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit MultiMapObservableDictionary(const shared_ptr<IEnumerator<PairType> >& enumerator)
+		explicit MultiMapObservableDictionary(const shared_ptr<IEnumerator<PairType>>& enumerator)
 			:	Wrapped(enumerator),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual shared_ptr<IEnumerator<PairType> > GetEnumerator() const
+		virtual shared_ptr<IEnumerator<PairType>> GetEnumerator() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::GetEnumerator();
 		}
 
-		virtual shared_ptr<IEnumerable<PairType> > Reverse() const
+		virtual shared_ptr<IEnumerable<PairType>> Reverse() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::Reverse();
@@ -95,13 +95,13 @@ namespace stingray
 			return Wrapped::CountKey(key);
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > Find(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::Find(key);
 		}
 
-		virtual shared_ptr<IEnumerator<PairType> > ReverseFind(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::ReverseFind(key);
@@ -119,7 +119,7 @@ namespace stingray
 			return Wrapped::TryGetFirst(key, outValue);
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetAll(const KeyType& key) const
+		virtual shared_ptr<IEnumerator<ValueType>> GetAll(const KeyType& key) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::GetAll(key);

@@ -43,25 +43,25 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit ObservableListWrapper(const shared_ptr<IEnumerator<ValueType> >& enumerator)
+		explicit ObservableListWrapper(const shared_ptr<IEnumerator<ValueType>>& enumerator)
 			:	Wrapped_(enumerator),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit ObservableListWrapper(const shared_ptr<IEnumerable<ValueType> >& enumerable)
+		explicit ObservableListWrapper(const shared_ptr<IEnumerable<ValueType>>& enumerable)
 			:	Wrapped_(enumerable),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableListWrapper::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::GetEnumerator();
 		}
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped_::Reverse();

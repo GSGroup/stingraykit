@@ -46,7 +46,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+			virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
 			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
 		};
 
@@ -59,11 +59,11 @@ namespace stingray
 			:	_items(make_shared_ptr<VectorType>())
 		{ }
 
-		explicit ArrayList(const shared_ptr<IEnumerator<ValueType> >& enumerator)
+		explicit ArrayList(const shared_ptr<IEnumerator<ValueType>>& enumerator)
 			:	_items(make_shared_ptr<VectorType>())
 		{ Enumerable::ForEach(enumerator, Bind(&ArrayList::Add, this, _1)); }
 
-		explicit ArrayList(const shared_ptr<IEnumerable<ValueType> >& enumerable)
+		explicit ArrayList(const shared_ptr<IEnumerable<ValueType>>& enumerable)
 			:	_items(make_shared_ptr<VectorType>())
 		{ Enumerable::ForEach(enumerable, Bind(&ArrayList::Add, this, _1)); }
 
@@ -73,10 +73,10 @@ namespace stingray
 		ArrayList& operator = (const ArrayList& other)
 		{ CopyItems(other._items); return *this; }
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
 		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
 		virtual size_t GetCount() const

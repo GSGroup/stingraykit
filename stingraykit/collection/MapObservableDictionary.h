@@ -24,16 +24,16 @@ namespace stingray
 			typename ValueType_ ,
 			typename CompareType_ = comparers::Less,
 			template <class, class, class, class> class MapType_ = std::map,
-			typename AllocatorType_ = std::allocator<std::pair<const KeyType_, ValueType_> >
+			typename AllocatorType_ = std::allocator<std::pair<const KeyType_, ValueType_>>
 			>
 	struct MapObservableDictionary
-		:	public ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_> >
+		:	public ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_>>
 	{
-		using base = ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_> >;
+		using base = ObservableDictionaryWrapper<MapDictionary<KeyType_, ValueType_, CompareType_, MapType_, AllocatorType_>>;
 
 		MapObservableDictionary() : base() { }
-		explicit MapObservableDictionary(const shared_ptr<IEnumerable<typename base::PairType> >& enumerable) : base(enumerable) { }
-		explicit MapObservableDictionary(const shared_ptr<IEnumerator<typename base::PairType> >& enumerator) : base(enumerator) { }
+		explicit MapObservableDictionary(const shared_ptr<IEnumerable<typename base::PairType>>& enumerable) : base(enumerable) { }
+		explicit MapObservableDictionary(const shared_ptr<IEnumerator<typename base::PairType>>& enumerator) : base(enumerator) { }
 	};
 
 

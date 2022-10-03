@@ -46,7 +46,7 @@ namespace stingray
 
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
-			virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+			virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
 			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
 		};
 
@@ -62,14 +62,14 @@ namespace stingray
 		SortedMultiSet(const SortedMultiSet& other)
 		{ CopyItems(other._items); }
 
-		explicit SortedMultiSet(const shared_ptr<IEnumerator<T> >& enumerator)
+		explicit SortedMultiSet(const shared_ptr<IEnumerator<T>>& enumerator)
 			:	_items(make_shared_ptr<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			Enumerable::ForEach(enumerator, Bind(&SortedMultiSet::Add, this, _1));
 		}
 
-		explicit SortedMultiSet(const shared_ptr<IEnumerable<T> >& enumerable)
+		explicit SortedMultiSet(const shared_ptr<IEnumerable<T>>& enumerable)
 			:	_items(make_shared_ptr<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
@@ -79,10 +79,10 @@ namespace stingray
 		SortedMultiSet& operator = (const SortedMultiSet& other)
 		{ CopyItems(other._items); return *this; }
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
 		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
 		virtual size_t GetCount() const
@@ -97,7 +97,7 @@ namespace stingray
 		virtual size_t Count(const ValueType& value) const
 		{ return _items->count(value); }
 
-		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
+		virtual shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const
 		{
 			typename SetType::iterator it = _items->lower_bound(value);
 			if (it == _items->end() || CompareType_()(value, *it))
@@ -106,7 +106,7 @@ namespace stingray
 			return EnumeratorFromStlIterators(it, _items->end(), GetItemsHolder());
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
+		virtual shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const
 		{
 			using cri = typename SetType::const_reverse_iterator;
 

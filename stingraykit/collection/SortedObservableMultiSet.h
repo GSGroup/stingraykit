@@ -46,25 +46,25 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit SortedObservableMultiSet(const shared_ptr<IEnumerator<ValueType> >& enumerator)
+		explicit SortedObservableMultiSet(const shared_ptr<IEnumerator<ValueType>>& enumerator)
 			:	Wrapped(enumerator),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit SortedObservableMultiSet(const shared_ptr<IEnumerable<ValueType> >& enumerable)
+		explicit SortedObservableMultiSet(const shared_ptr<IEnumerable<ValueType>>& enumerable)
 			:	Wrapped(enumerable),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
 		{ }
 
-		virtual shared_ptr<IEnumerator<ValueType> > GetEnumerator() const
+		virtual shared_ptr<IEnumerator<ValueType>> GetEnumerator() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::GetEnumerator();
 		}
 
-		virtual shared_ptr<IEnumerable<ValueType> > Reverse() const
+		virtual shared_ptr<IEnumerable<ValueType>> Reverse() const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::Reverse();
@@ -94,13 +94,13 @@ namespace stingray
 			return Wrapped::Count(value);
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType> > Find(const ValueType& value) const
+		virtual shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::Find(value);
 		}
 
-		virtual shared_ptr<IEnumerator<ValueType> > ReverseFind(const ValueType& value) const
+		virtual shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const
 		{
 			signal_locker l(_onChanged);
 			return Wrapped::ReverseFind(value);
