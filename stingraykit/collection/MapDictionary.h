@@ -79,12 +79,8 @@ namespace stingray
 		{ CopyMap(other._map); }
 
 		explicit MapDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
-			:	_map(make_shared_ptr<MapType>())
-		{
-			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
-			FOR_EACH(const PairType p IN enumerable)
-				Set(p.Key, p.Value);
-		}
+			:	MapDictionary(STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)->GetEnumerator())
+		{ }
 
 		explicit MapDictionary(const shared_ptr<IEnumerator<PairType>>& enumerator)
 			:	_map(make_shared_ptr<MapType>())

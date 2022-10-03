@@ -46,14 +46,14 @@ namespace stingray
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit SortedObservableMultiSet(const shared_ptr<IEnumerator<ValueType>>& enumerator)
-			:	Wrapped(enumerator),
+		explicit SortedObservableMultiSet(const shared_ptr<IEnumerable<ValueType>>& enumerable)
+			:	Wrapped(enumerable),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
 		{ }
 
-		explicit SortedObservableMultiSet(const shared_ptr<IEnumerable<ValueType>>& enumerable)
-			:	Wrapped(enumerable),
+		explicit SortedObservableMultiSet(const shared_ptr<IEnumerator<ValueType>>& enumerator)
+			:	Wrapped(enumerator),
 				_mutex(make_shared_ptr<Mutex>()),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
 		{ }

@@ -64,18 +64,15 @@ namespace stingray
 		SortedMultiSet(const SortedMultiSet& other)
 		{ CopyItems(other._items); }
 
+		explicit SortedMultiSet(const shared_ptr<IEnumerable<T>>& enumerable)
+			:	SortedMultiSet(STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)->GetEnumerator())
+		{ }
+
 		explicit SortedMultiSet(const shared_ptr<IEnumerator<T>>& enumerator)
 			:	_items(make_shared_ptr<SetType>())
 		{
 			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
 			Enumerable::ForEach(enumerator, Bind(&SortedMultiSet::Add, this, _1));
-		}
-
-		explicit SortedMultiSet(const shared_ptr<IEnumerable<T>>& enumerable)
-			:	_items(make_shared_ptr<SetType>())
-		{
-			STINGRAYKIT_REQUIRE_NOT_NULL(enumerable);
-			Enumerable::ForEach(enumerable, Bind(&SortedMultiSet::Add, this, _1));
 		}
 
 		SortedMultiSet& operator = (const SortedMultiSet& other)
