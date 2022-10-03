@@ -157,7 +157,10 @@ namespace stingray
 		}
 
 		virtual void Add(const KeyType& key, const ValueType& value)
-		{ CopyOnWrite(); _map->insert(std::make_pair(key, value)); }
+		{
+			CopyOnWrite();
+			_map->insert(std::make_pair(key, value));
+		}
 
 		virtual void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
 		{ DoRemoveFirst(key, value); }

@@ -118,7 +118,10 @@ namespace stingray
 		}
 
 		virtual void Add(const ValueType& value)
-		{ CopyOnWrite(); _items->insert(value); }
+		{
+			CopyOnWrite();
+			_items->insert(value);
+		}
 
 		virtual void RemoveFirst(const ValueType& value)
 		{ DoRemoveFirst(value); }

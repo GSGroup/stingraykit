@@ -162,7 +162,10 @@ namespace stingray
 		}
 
 		virtual void Remove(const KeyType& key)
-		{ CopyOnWrite(); _map->erase(key); }
+		{
+			CopyOnWrite();
+			_map->erase(key);
+		}
 
 		virtual bool TryRemove(const KeyType& key)
 		{

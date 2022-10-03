@@ -121,10 +121,16 @@ namespace stingray
 		}
 
 		virtual void Add(const ValueType& value)
-		{ CopyOnWrite(); _items->insert(value); }
+		{
+			CopyOnWrite();
+			_items->insert(value);
+		}
 
 		virtual void Remove(const ValueType& value)
-		{ CopyOnWrite(); _items->erase(value); }
+		{
+			CopyOnWrite();
+			_items->erase(value);
+		}
 
 		virtual bool TryRemove(const ValueType& value)
 		{
