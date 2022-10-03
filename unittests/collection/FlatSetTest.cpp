@@ -48,6 +48,22 @@ TEST(FlatSetTest, Construction)
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
 		EXPECT_TRUE(std::equal(set.begin(), set.end(), testee.begin()));
 	}
+}
+
+TEST(FlatSetTest, Assignment)
+{
+	{
+		FlatSet testee1 = GetSampleFlatSet();
+		FlatSet testee2;
+		FlatSet testee3;
+		testee2 = testee1;
+		testee3 = testee1;
+		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin()));
+	}
+}
+
+TEST(FlatSetTest, Insertion)
+{
 	{
 		FlatSet testee;
 		EXPECT_TRUE(testee.insert("one").second);
@@ -58,14 +74,6 @@ TEST(FlatSetTest, Construction)
 		EXPECT_FALSE(testee.insert("three").second);
 
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
-	}
-	{
-		FlatSet testee1 = GetSampleFlatSet();
-		FlatSet testee2;
-		FlatSet testee3;
-		testee2 = testee1;
-		testee3 = testee1;
-		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin()));
 	}
 }
 

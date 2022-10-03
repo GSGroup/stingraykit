@@ -61,6 +61,22 @@ TEST(FlatMapTest, Construction)
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
 		EXPECT_TRUE(std::equal(map.begin(), map.end(), testee.begin(), PairEquals()));
 	}
+}
+
+TEST(FlatMapTest, Assignment)
+{
+	{
+		FlatMap testee1 = GetSampleFlatMap();
+		FlatMap testee2;
+		FlatMap testee3;
+		testee2 = testee1;
+		testee3 = testee1;
+		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), PairEquals()));
+	}
+}
+
+TEST(FlatMapTest, Insertion)
+{
 	{
 		FlatMap testee;
 		EXPECT_TRUE(testee.insert(std::make_pair("one", "jaws")).second);
@@ -71,14 +87,6 @@ TEST(FlatMapTest, Construction)
 		EXPECT_FALSE(testee.insert(std::make_pair("three", "dup")).second);
 
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
-	}
-	{
-		FlatMap testee1 = GetSampleFlatMap();
-		FlatMap testee2;
-		FlatMap testee3;
-		testee2 = testee1;
-		testee3 = testee1;
-		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), PairEquals()));
 	}
 }
 
