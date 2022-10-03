@@ -46,7 +46,7 @@ TEST(FlatSetTest, Construction)
 
 		FlatSet testee(set.begin(), set.end());
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
-		EXPECT_TRUE(std::equal(set.begin(), set.end(), testee.begin()));
+		EXPECT_TRUE(std::equal(set.begin(), set.end(), testee.begin(), testee.end()));
 	}
 }
 
@@ -58,7 +58,7 @@ TEST(FlatSetTest, Assignment)
 		FlatSet testee3;
 		testee2 = testee1;
 		testee3 = testee1;
-		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin()));
+		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), testee3.end()));
 	}
 }
 
@@ -92,7 +92,7 @@ TEST(FlatSetTest, Lookup)
 	}
 
 	EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
-	EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin()));
+	EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end()));
 
 	for (Set::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)
 	{

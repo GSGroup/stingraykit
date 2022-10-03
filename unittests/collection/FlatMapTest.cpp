@@ -59,7 +59,7 @@ TEST(FlatMapTest, Construction)
 
 		FlatMap testee(map.begin(), map.end());
 		EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
-		EXPECT_TRUE(std::equal(map.begin(), map.end(), testee.begin(), PairEquals()));
+		EXPECT_TRUE(std::equal(map.begin(), map.end(), testee.begin(), testee.end(), PairEquals()));
 	}
 }
 
@@ -71,7 +71,7 @@ TEST(FlatMapTest, Assignment)
 		FlatMap testee3;
 		testee2 = testee1;
 		testee3 = testee1;
-		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), PairEquals()));
+		EXPECT_TRUE(std::equal(testee2.begin(), testee2.end(), testee3.begin(), testee3.end(), PairEquals()));
 	}
 }
 
@@ -105,7 +105,7 @@ TEST(FlatMapTest, Lookup)
 	}
 
 	EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
-	EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), PairEquals()));
+	EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairEquals()));
 
 	for (Map::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)
 	{
