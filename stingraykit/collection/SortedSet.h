@@ -77,7 +77,7 @@ namespace stingray
 		explicit SortedSet(const shared_ptr<IEnumerator<ValueType>>& enumerator)
 			:	_items(make_shared_ptr<SetType>())
 		{
-			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
+			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 			Enumerable::ForEach(enumerator, Bind(&SortedSet::Add, this, _1));
 		}
 

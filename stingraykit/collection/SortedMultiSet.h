@@ -71,7 +71,7 @@ namespace stingray
 		explicit SortedMultiSet(const shared_ptr<IEnumerator<T>>& enumerator)
 			:	_items(make_shared_ptr<SetType>())
 		{
-			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
+			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 			Enumerable::ForEach(enumerator, Bind(&SortedMultiSet::Add, this, _1));
 		}
 

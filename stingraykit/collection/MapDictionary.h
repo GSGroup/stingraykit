@@ -85,7 +85,7 @@ namespace stingray
 		explicit MapDictionary(const shared_ptr<IEnumerator<PairType>>& enumerator)
 			:	_map(make_shared_ptr<MapType>())
 		{
-			STINGRAYKIT_REQUIRE_NOT_NULL(enumerator);
+			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 			FOR_EACH(const PairType p IN enumerator)
 				Set(p.Key, p.Value);
 		}
