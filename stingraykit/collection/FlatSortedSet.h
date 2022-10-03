@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/SortedSet.h>
+#include <stingraykit/collection/GenericSet.h>
 #include <stingraykit/collection/flat_set.h>
 
 namespace stingray
@@ -19,13 +19,8 @@ namespace stingray
 	 * @{
 	 */
 
-	template <
-			typename T,
-			typename CompareType = comparers::Less,
-			typename AllocatorType = typename flat_set<T, CompareType>::allocator_type
-			>
-	struct FlatSortedSet
-	{ using Type = SortedSet<T, CompareType, flat_set, AllocatorType>; };
+	template < typename ValueType, typename CompareType = comparers::Less >
+	using FlatSortedSet = GenericSet<flat_set<ValueType, CompareType>>;
 
 	/** @} */
 
