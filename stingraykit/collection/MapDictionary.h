@@ -110,36 +110,32 @@ namespace stingray
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
-			using cit = typename MapType::const_iterator;
-
-			cit it = _map->find(key);
+			const auto it = _map->find(key);
 			if (it == _map->end())
 				return MakeEmptyEnumerator();
 
-			return WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_map->end()), GetMapHolder()));
+			return WrapMapEnumerator(EnumeratorFromStlIterators(it, _map->end(), GetMapHolder()));
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
-			using cri = typename MapType::const_reverse_iterator;
-
-			typename MapType::const_iterator it = _map->find(key);
+			auto it = _map->find(key);
 			if (it == _map->end())
 				return MakeEmptyEnumerator();
 
-			return WrapMapEnumerator(EnumeratorFromStlIterators(cri(++it), cri(_map->rend()), GetMapHolder()));
+			return WrapMapEnumerator(EnumeratorFromStlIterators(typename MapType::const_reverse_iterator(++it), _map->crend(), GetMapHolder()));
 		}
 
 		ValueType Get(const KeyType& key) const override
 		{
-			typename MapType::const_iterator it = _map->find(key);
+			const auto it = _map->find(key);
 			STINGRAYKIT_CHECK(it != _map->end(), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
 		bool TryGet(const KeyType& key, ValueType& outValue) const override
 		{
-			typename MapType::const_iterator it = _map->find(key);
+			const auto it = _map->find(key);
 			if (it != _map->end())
 			{
 				outValue = it->second;
@@ -152,7 +148,7 @@ namespace stingray
 		void Set(const KeyType& key, const ValueType& value) override
 		{
 			CopyOnWrite();
-			typename MapType::iterator it = _map->find(key);
+			const auto it = _map->find(key);
 			if (it != _map->end())
 				it->second = value;
 			else
@@ -167,7 +163,7 @@ namespace stingray
 
 		bool TryRemove(const KeyType& key) override
 		{
-			typename MapType::iterator it = _map->find(key);
+			const auto it = _map->find(key);
 			if (it == _map->end())
 				return false;
 
@@ -180,9 +176,9 @@ namespace stingray
 		{
 			CopyOnWrite();
 			size_t ret = 0;
-			for (typename MapType::iterator it = _map->begin(); it != _map->end(); )
+			for (auto it = _map->begin(); it != _map->end(); )
 			{
-				const typename MapType::iterator cur = it++;
+				const auto cur = it++;
 				if (!pred(cur->first, cur->second))
 					continue;
 

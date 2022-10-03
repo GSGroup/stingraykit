@@ -98,7 +98,7 @@ namespace stingray
 
 		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
-			typename SetType::iterator it = _items->lower_bound(value);
+			const auto it = _items->lower_bound(value);
 			if (it == _items->end() || CompareType_()(value, *it))
 				return MakeEmptyEnumerator();
 
@@ -109,11 +109,11 @@ namespace stingray
 		{
 			using cri = typename SetType::const_reverse_iterator;
 
-			typename SetType::const_iterator it = _items->upper_bound(value);
+			const auto it = _items->upper_bound(value);
 			if (it == _items->end() || CompareType_()(*cri(it), value))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(cri(it), _items->rend(), GetItemsHolder());
+			return EnumeratorFromStlIterators(cri(it), _items->crend(), GetItemsHolder());
 		}
 
 		void Add(const ValueType& value) override
@@ -138,9 +138,9 @@ namespace stingray
 		{
 			CopyOnWrite();
 			size_t ret = 0;
-			for (typename SetType::iterator it = _items->begin(); it != _items->end(); )
+			for (auto it = _items->begin(); it != _items->end(); )
 			{
-				const typename SetType::iterator cur = it++;
+				const auto cur = it++;
 				if (!pred(*cur))
 					continue;
 
@@ -164,7 +164,7 @@ namespace stingray
 	private:
 		bool DoRemoveFirst(const ValueType& value)
 		{
-			typename SetType::iterator it = _items->lower_bound(value);
+			const auto it = _items->lower_bound(value);
 			if (it == _items->end() || CompareType_()(value, *it))
 				return false;
 

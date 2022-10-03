@@ -180,7 +180,7 @@ namespace stingray
 
 			IteratorType Begin(const typename base::CollectionType& holder)
 			{
-				typename MapType::const_iterator itemsIt = holder.Items->lower_bound(Key);
+				auto itemsIt = holder.Items->lower_bound(Key);
 
 				if (itemsIt == holder.Items->end() || KeyLessComparer()(Key, itemsIt->first))
 					return IteratorType(itemsIt);
@@ -299,11 +299,11 @@ namespace stingray
 
 			ValueType Get(const KeyType& key) const override
 			{
-				const typename MapType::const_iterator addedIt = _added->find(key);
+				const auto addedIt = _added->find(key);
 				if (addedIt != _added->end())
 					return addedIt->second;
 
-				const typename MapType::const_iterator itemsIt = _impl->Items->find(key);
+				const auto itemsIt = _impl->Items->find(key);
 				if (itemsIt != _impl->Items->end() && !_removed->count(key))
 					return itemsIt->second;
 
@@ -312,14 +312,14 @@ namespace stingray
 
 			bool TryGet(const KeyType& key, ValueType& outValue) const override
 			{
-				const typename MapType::const_iterator addedIt = _added->find(key);
+				const auto addedIt = _added->find(key);
 				if (addedIt != _added->end())
 				{
 					outValue = addedIt->second;
 					return true;
 				}
 
-				const typename MapType::const_iterator itemsIt = _impl->Items->find(key);
+				const auto itemsIt = _impl->Items->find(key);
 				if (itemsIt != _impl->Items->end() && !_removed->count(key))
 				{
 					outValue = itemsIt->second;
@@ -331,7 +331,7 @@ namespace stingray
 
 			void Set(const KeyType& key, const ValueType& value) override
 			{
-				const typename MapType::const_iterator itemsIt = _impl->Items->find(key);
+				const auto itemsIt = _impl->Items->find(key);
 				if (itemsIt != _impl->Items->end())
 				{
 					if (ValueEqualsComparer()(value, itemsIt->second))
@@ -358,7 +358,7 @@ namespace stingray
 					}
 				}
 
-				const typename MapType::const_iterator addedIt = _added->find(key);
+				const auto addedIt = _added->find(key);
 				if (addedIt != _added->end())
 				{
 					if (!ValueEqualsComparer()(value, addedIt->second))
@@ -389,7 +389,7 @@ namespace stingray
 				if (_removed->count(key))
 					return false;
 
-				const typename MapType::const_iterator itemsIt = _impl->Items->find(key);
+				const auto itemsIt = _impl->Items->find(key);
 				if (itemsIt != _impl->Items->end())
 				{
 					CopyRemovedOnWrite(_removed.get());
@@ -407,9 +407,9 @@ namespace stingray
 
 				size_t ret = 0;
 
-				for (typename MapType::iterator it = _added->begin(); it != _added->end(); )
+				for (auto it = _added->begin(); it != _added->end(); )
 				{
-					const typename MapType::iterator cur = it++;
+					const auto cur = it++;
 					if (!pred(cur->first, cur->second))
 						continue;
 
@@ -541,31 +541,29 @@ namespace stingray
 		{
 			MutexLock l(*_impl->Guard);
 
-			const typename MapType::const_iterator it = _impl->Items->find(key);
+			const auto it = _impl->Items->find(key);
 			if (it == _impl->Items->end())
 				return MakeEmptyEnumerator();
 
-			return Utils::WrapEnumerator(EnumeratorFromStlIterators(it, _impl->Items->cend(), _impl->GetItemsHolder()));
+			return Utils::WrapEnumerator(EnumeratorFromStlIterators(it, _impl->Items->end(), _impl->GetItemsHolder()));
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
-			using cri = typename MapType::const_reverse_iterator;
-
 			MutexLock l(*_impl->Guard);
 
-			typename MapType::const_iterator it = _impl->Items->find(key);
+			auto it = _impl->Items->find(key);
 			if (it == _impl->Items->end())
 				return MakeEmptyEnumerator();
 
-			return Utils::WrapEnumerator(EnumeratorFromStlIterators(cri(++it), _impl->Items->crend(), _impl->GetItemsHolder()));
+			return Utils::WrapEnumerator(EnumeratorFromStlIterators(typename MapType::const_reverse_iterator(++it), _impl->Items->crend(), _impl->GetItemsHolder()));
 		}
 
 		ValueType Get(const KeyType& key) const override
 		{
 			MutexLock l(*_impl->Guard);
 
-			const typename MapType::const_iterator it = _impl->Items->find(key);
+			const auto it = _impl->Items->find(key);
 			STINGRAYKIT_CHECK(it != _impl->Items->end(), CreateKeyNotFoundException(key));
 
 			return it->second;
@@ -575,7 +573,7 @@ namespace stingray
 		{
 			MutexLock l(*_impl->Guard);
 
-			const typename MapType::const_iterator it = _impl->Items->find(key);
+			const auto it = _impl->Items->find(key);
 			if (it == _impl->Items->end())
 				return false;
 

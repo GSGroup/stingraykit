@@ -229,7 +229,7 @@ namespace stingray
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 
-				const typename VectorType::const_iterator it = std::find(items.begin(), items.end(), value);
+				const auto it = std::find(items.begin(), items.end(), value);
 				return it == items.end() ? null : make_optional_value(std::distance(items.begin(), it));
 			}
 
@@ -289,7 +289,7 @@ namespace stingray
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 
-				const typename VectorType::const_iterator it = std::find(items.begin(), items.end(), value);
+				const auto it = std::find(items.begin(), items.end(), value);
 				if (it == items.end())
 					return false;
 
@@ -303,7 +303,7 @@ namespace stingray
 			size_t RemoveAll(const function<bool (const ValueType&)>& pred) override
 			{
 				CopyOnWrite();
-				const typename VectorType::iterator it = std::remove_if(_newItems->begin(), _newItems->end(), pred);
+				const auto it = std::remove_if(_newItems->begin(), _newItems->end(), pred);
 				const size_t ret = std::distance(it, _newItems->end());
 				_newItems->erase(it, _newItems->end());
 				return ret;
@@ -452,7 +452,7 @@ namespace stingray
 		{
 			MutexLock l(*_impl->Guard);
 
-			const typename VectorType::const_iterator it = std::find(_impl->Items->begin(), _impl->Items->end(), value);
+			const auto it = std::find(_impl->Items->begin(), _impl->Items->end(), value);
 			return it == _impl->Items->end() ? null : make_optional_value(std::distance(_impl->Items->begin(), it));
 		}
 

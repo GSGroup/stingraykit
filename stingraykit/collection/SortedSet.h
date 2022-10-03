@@ -101,7 +101,7 @@ namespace stingray
 
 		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
-			typename SetType::const_iterator it = _items->find(value);
+			const auto it = _items->find(value);
 			if (it == _items->end())
 				return MakeEmptyEnumerator();
 
@@ -110,13 +110,11 @@ namespace stingray
 
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
-			using cri = typename SetType::const_reverse_iterator;
-
-			typename SetType::const_iterator it = _items->find(value);
+			auto it = _items->find(value);
 			if (it == _items->end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(cri(++it), _items->rend(), GetItemsHolder());
+			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), _items->crend(), GetItemsHolder());
 		}
 
 		void Add(const ValueType& value) override
@@ -133,7 +131,7 @@ namespace stingray
 
 		bool TryRemove(const ValueType& value) override
 		{
-			typename SetType::iterator it = _items->find(value);
+			const auto it = _items->find(value);
 			if (it == _items->end())
 				return false;
 
@@ -146,9 +144,9 @@ namespace stingray
 		{
 			CopyOnWrite();
 			size_t ret = 0;
-			for (typename SetType::iterator it = _items->begin(); it != _items->end(); )
+			for (auto it = _items->begin(); it != _items->end(); )
 			{
-				const typename SetType::iterator cur = it++;
+				const auto cur = it++;
 				if (!pred(*cur))
 					continue;
 

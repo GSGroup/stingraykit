@@ -160,7 +160,7 @@ namespace stingray
 
 			IteratorType Begin(const typename base::CollectionType& holder)
 			{
-				typename SetType::const_iterator itemsIt = holder.Items->lower_bound(Value);
+				auto itemsIt = holder.Items->lower_bound(Value);
 
 				if (itemsIt == holder.Items->end() || ValueLessComparer()(Value, *itemsIt))
 					return IteratorType(itemsIt);
@@ -320,9 +320,9 @@ namespace stingray
 
 				size_t ret = 0;
 
-				for (typename SetType::iterator it = _added->begin(); it != _added->end(); )
+				for (auto it = _added->begin(); it != _added->end(); )
 				{
-					const typename SetType::iterator cur = it++;
+					const auto cur = it++;
 					if (!pred(*cur))
 						continue;
 
@@ -456,7 +456,7 @@ namespace stingray
 		{
 			MutexLock l(*_impl->Guard);
 
-			const typename SetType::const_iterator it = _impl->Items->find(value);
+			const auto it = _impl->Items->find(value);
 			if (it == _impl->Items->end())
 				return MakeEmptyEnumerator();
 
@@ -465,15 +465,13 @@ namespace stingray
 
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
-			using cri = typename SetType::const_reverse_iterator;
-
 			MutexLock l(*_impl->Guard);
 
-			typename SetType::const_iterator it = _impl->Items->find(value);
+			auto it = _impl->Items->find(value);
 			if (it == _impl->Items->end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(cri(++it), _impl->Items->rend(), _impl->GetItemsHolder());
+			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), _impl->Items->crend(), _impl->GetItemsHolder());
 		}
 
 		TransactionTypePtr StartTransaction(const ICancellationToken& token = DummyCancellationToken()) override

@@ -95,10 +95,8 @@ namespace stingray
 
 		optional<size_t> IndexOf(const ValueType& value) const override
 		{
-			using cit = typename VectorType::const_iterator;
-
-			const cit it = std::find(_items->begin(), _items->end(), value);
-			return it == _items->end() ? null : make_optional_value(std::distance(cit(_items->begin()), it));
+			const auto it = std::find(_items->begin(), _items->end(), value);
+			return it == _items->end() ? null : make_optional_value(std::distance(_items->begin(), it));
 		}
 
 		ValueType Get(size_t index) const override
@@ -145,13 +143,11 @@ namespace stingray
 
 		bool TryRemove(const ValueType& value) override
 		{
-			using cit = typename VectorType::const_iterator;
-
-			const cit it = std::find(_items->begin(), _items->end(), value);
+			const auto it = std::find(_items->begin(), _items->end(), value);
 			if (it == _items->end())
 				return false;
 
-			const size_t index = std::distance(cit(_items->begin()), it);
+			const size_t index = std::distance(_items->begin(), it);
 
 			CopyOnWrite();
 			_items->erase(std::next(_items->begin(), index));
@@ -161,7 +157,7 @@ namespace stingray
 		size_t RemoveAll(const function<bool (const ValueType&)>& pred) override
 		{
 			CopyOnWrite();
-			const typename VectorType::iterator it = std::remove_if(_items->begin(), _items->end(), pred);
+			const auto it = std::remove_if(_items->begin(), _items->end(), pred);
 			const size_t ret = std::distance(it, _items->end());
 			_items->erase(it, _items->end());
 			return ret;

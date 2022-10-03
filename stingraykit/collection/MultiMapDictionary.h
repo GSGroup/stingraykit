@@ -107,36 +107,34 @@ namespace stingray
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
-			using cit = typename MapType::const_iterator;
-
-			cit it = _map->lower_bound(key);
+			const auto it = _map->lower_bound(key);
 			if (it == _map->end() || KeyCompareType()(key, it->first))
 				return MakeEmptyEnumerator();
 
-			return WrapMapEnumerator(EnumeratorFromStlIterators(it, cit(_map->end()), GetMapHolder()));
+			return WrapMapEnumerator(EnumeratorFromStlIterators(it, _map->end(), GetMapHolder()));
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
 			using cri = typename MapType::const_reverse_iterator;
 
-			typename MapType::const_iterator it = _map->upper_bound(key);
+			const auto it = _map->upper_bound(key);
 			if (it == _map->end() || KeyCompareType()(cri(it)->first, key))
 				return MakeEmptyEnumerator();
 
-			return WrapMapEnumerator(EnumeratorFromStlIterators(cri(it), cri(_map->rend()), GetMapHolder()));
+			return WrapMapEnumerator(EnumeratorFromStlIterators(cri(it), _map->crend(), GetMapHolder()));
 		}
 
 		ValueType GetFirst(const KeyType& key) const override
 		{
-			typename MapType::const_iterator it = _map->lower_bound(key);
+			const auto it = _map->lower_bound(key);
 			STINGRAYKIT_CHECK(it != _map->end() && !KeyCompareType()(key, it->first), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
 		bool TryGetFirst(const KeyType& key, ValueType& outValue) const override
 		{
-			typename MapType::const_iterator it = _map->lower_bound(key);
+			const auto it = _map->lower_bound(key);
 			if (it == _map->end() || KeyCompareType()(key, it->first))
 				return false;
 
@@ -146,8 +144,7 @@ namespace stingray
 
 		shared_ptr<IEnumerator<ValueType>> GetAll(const KeyType& key) const override
 		{
-			using cit = typename MapType::const_iterator;
-			std::pair<cit, cit> range = _map->equal_range(key);
+			const auto range = _map->equal_range(key);
 			if (range.first == range.second)
 				return MakeEmptyEnumerator();
 
@@ -176,9 +173,9 @@ namespace stingray
 		{
 			CopyOnWrite();
 			size_t ret = 0;
-			for (typename MapType::iterator it = _map->begin(); it != _map->end(); )
+			for (auto it = _map->begin(); it != _map->end(); )
 			{
-				const typename MapType::iterator cur = it++;
+				const auto cur = it++;
 				if (!pred(cur->first, cur->second))
 					continue;
 
@@ -203,9 +200,8 @@ namespace stingray
 		bool DoRemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
 		{
 			CopyOnWrite();
-			using mit = typename MapType::iterator;
-			std::pair<mit, mit> range = _map->equal_range(key);
-			for (mit it = range.first; it != range.second; ++it)
+			const auto range = _map->equal_range(key);
+			for (auto it = range.first; it != range.second; ++it)
 			{
 				if (value && !ValueCompareType()(*value, it->second))
 					continue;
