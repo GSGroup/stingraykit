@@ -98,7 +98,7 @@ namespace stingray
 			using cit = typename VectorType::const_iterator;
 
 			const cit it = std::find(_items->begin(), _items->end(), value);
-			return it == _items->end() ? optional<size_t>() : std::distance(cit(_items->begin()), it);
+			return it == _items->end() ? null : make_optional_value(std::distance(cit(_items->begin()), it));
 		}
 
 		ValueType Get(size_t index) const override

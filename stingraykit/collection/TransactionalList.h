@@ -230,7 +230,7 @@ namespace stingray
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 
 				const typename VectorType::const_iterator it = std::find(items.begin(), items.end(), value);
-				return it == items.end() ? optional<size_t>() : std::distance(items.begin(), it);
+				return it == items.end() ? null : make_optional_value(std::distance(items.begin(), it));
 			}
 
 			ValueType Get(size_t index) const override
@@ -453,7 +453,7 @@ namespace stingray
 			MutexLock l(*_impl->Guard);
 
 			const typename VectorType::const_iterator it = std::find(_impl->Items->begin(), _impl->Items->end(), value);
-			return it == _impl->Items->end() ? optional<size_t>() : std::distance(_impl->Items->begin(), it);
+			return it == _impl->Items->end() ? null : make_optional_value(std::distance(_impl->Items->begin(), it));
 		}
 
 		ValueType Get(size_t index) const override
