@@ -34,25 +34,37 @@ namespace stingray
 		using OnChangedSignature = typename ObservableInterface::OnChangedSignature;
 
 	private:
-		Wrapped												_wrapped;
-		shared_ptr<Mutex>									_mutex;
-		signal<OnChangedSignature, ExternalMutexPointer>	_onChanged;
+		Wrapped													_wrapped;
+		shared_ptr<const Mutex>									_mutex;
+		signal<OnChangedSignature, ExternalMutexPointer>		_onChanged;
 
 	public:
 		MultiMapObservableDictionary()
-			:	_mutex(make_shared_ptr<Mutex>()),
+			:	MultiMapObservableDictionary(make_shared_ptr<Mutex>())
+		{ }
+
+		explicit MultiMapObservableDictionary(const shared_ptr<const Mutex>& mutex)
+			:	_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit MultiMapObservableDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
-			:	_wrapped(enumerable),
-				_mutex(make_shared_ptr<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
+			:	MultiMapObservableDictionary(make_shared_ptr<Mutex>(), enumerable)
 		{ }
 
 		explicit MultiMapObservableDictionary(const shared_ptr<IEnumerator<PairType>>& enumerator)
+			:	MultiMapObservableDictionary(make_shared_ptr<Mutex>(), enumerator)
+		{ }
+
+		MultiMapObservableDictionary(const shared_ptr<const Mutex>& mutex, const shared_ptr<IEnumerable<PairType>>& enumerable)
+			:	_wrapped(enumerable),
+				_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
+		{ }
+
+		MultiMapObservableDictionary(const shared_ptr<const Mutex>& mutex, const shared_ptr<IEnumerator<PairType>>& enumerator)
 			:	_wrapped(enumerator),
-				_mutex(make_shared_ptr<Mutex>()),
+				_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&MultiMapObservableDictionary::OnChangedPopulator, this, _1))
 		{ }
 

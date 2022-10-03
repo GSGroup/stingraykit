@@ -34,24 +34,36 @@ namespace stingray
 
 	private:
 		Wrapped													_wrapped;
-		shared_ptr<Mutex>										_mutex;
+		shared_ptr<const Mutex>									_mutex;
 		signal<OnChangedSignature, ExternalMutexPointer>		_onChanged;
 
 	public:
 		SortedObservableMultiSet()
-			:	_mutex(make_shared_ptr<Mutex>()),
+			:	SortedObservableMultiSet(make_shared_ptr<Mutex>())
+		{ }
+
+		explicit SortedObservableMultiSet(const shared_ptr<const Mutex>& mutex)
+			:	_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit SortedObservableMultiSet(const shared_ptr<IEnumerable<ValueType>>& enumerable)
-			:	_wrapped(enumerable),
-				_mutex(make_shared_ptr<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
+			:	SortedObservableMultiSet(make_shared_ptr<Mutex>(), enumerable)
 		{ }
 
 		explicit SortedObservableMultiSet(const shared_ptr<IEnumerator<ValueType>>& enumerator)
+			:	SortedObservableMultiSet(make_shared_ptr<Mutex>(), enumerator)
+		{ }
+
+		SortedObservableMultiSet(const shared_ptr<const Mutex>& mutex, const shared_ptr<IEnumerable<ValueType>>& enumerable)
+			:	_wrapped(enumerable),
+				_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
+		{ }
+
+		SortedObservableMultiSet(const shared_ptr<const Mutex>& mutex, const shared_ptr<IEnumerator<ValueType>>& enumerator)
 			:	_wrapped(enumerator),
-				_mutex(make_shared_ptr<Mutex>()),
+				_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&SortedObservableMultiSet::OnChangedPopulator, this, _1))
 		{ }
 

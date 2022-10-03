@@ -32,24 +32,36 @@ namespace stingray
 
 	private:
 		Wrapped_												_wrapped;
-		shared_ptr<Mutex>										_mutex;
+		shared_ptr<const Mutex>									_mutex;
 		signal<OnChangedSignature, ExternalMutexPointer>		_onChanged;
 
 	public:
 		ObservableSetWrapper()
-			:	_mutex(make_shared_ptr<Mutex>()),
+			:	ObservableSetWrapper(make_shared_ptr<Mutex>())
+		{ }
+
+		explicit ObservableSetWrapper(const shared_ptr<const Mutex>& mutex)
+			:	_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
 		explicit ObservableSetWrapper(const shared_ptr<IEnumerable<ValueType>>& enumerable)
-			:	_wrapped(enumerable),
-				_mutex(make_shared_ptr<Mutex>()),
-				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+			:	ObservableSetWrapper(make_shared_ptr<Mutex>(), enumerable)
 		{ }
 
 		explicit ObservableSetWrapper(const shared_ptr<IEnumerator<ValueType>>& enumerator)
+			:	ObservableSetWrapper(make_shared_ptr<Mutex>(), enumerator)
+		{ }
+
+		ObservableSetWrapper(const shared_ptr<const Mutex>& mutex, const shared_ptr<IEnumerable<ValueType>>& enumerable)
+			:	_wrapped(enumerable),
+				_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
+				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
+		{ }
+
+		ObservableSetWrapper(const shared_ptr<const Mutex>& mutex, const shared_ptr<IEnumerator<ValueType>>& enumerator)
 			:	_wrapped(enumerator),
-				_mutex(make_shared_ptr<Mutex>()),
+				_mutex(STINGRAYKIT_REQUIRE_NOT_NULL(mutex)),
 				_onChanged(ExternalMutexPointer(_mutex), Bind(&ObservableSetWrapper::OnChangedPopulator, this, _1))
 		{ }
 
