@@ -38,9 +38,9 @@ namespace stingray
 		using const_reference = typename Allocator::const_reference;
 		using pointer = typename Allocator::pointer;
 		using const_pointer = typename Allocator::const_pointer;
-		using iterator = typename Container::iterator;
+		using iterator = typename Container::const_iterator; // const_iterator isn't error here
 		using const_iterator = typename Container::const_iterator;
-		using reverse_iterator = typename Container::reverse_iterator;
+		using reverse_iterator = typename Container::const_reverse_iterator;
 		using const_reverse_iterator = typename Container::const_reverse_iterator;
 
 	private:
