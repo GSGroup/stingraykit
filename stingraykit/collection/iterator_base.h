@@ -136,11 +136,11 @@ namespace stingray
 		bool operator < (const Derived& other) const
 		{ return GetDerived().distance_to(other) > 0; }
 
-		bool operator <= (const Derived& other) const
-		{ return ((*this < other) || (*this == other)); }
-
 		bool operator > (const Derived& other) const
-		{ return !((*this < other) || (*this == other)); }
+		{ return other < GetDerived(); }
+
+		bool operator <= (const Derived& other) const
+		{ return !(other < GetDerived()); }
 
 		bool operator >= (const Derived& other) const
 		{ return !(*this < other); }
