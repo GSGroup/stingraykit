@@ -177,8 +177,8 @@ namespace stingray
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{
 			size_t i = 0;
-			FOR_EACH(ValueType v IN _wrapped.GetEnumerator())
-				slot(CollectionOp::Added, i++, v);
+			FOR_EACH(const ValueType value IN _wrapped.GetEnumerator())
+				slot(CollectionOp::Added, i++, value);
 		}
 	};
 

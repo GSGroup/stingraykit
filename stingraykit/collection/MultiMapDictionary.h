@@ -80,8 +80,8 @@ namespace stingray
 			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
-			FOR_EACH(const PairType p IN enumerator)
-				Add(p.Key, p.Value);
+			FOR_EACH(const PairType pair IN enumerator)
+				Add(pair.Key, pair.Value);
 		}
 
 		MultiMapDictionary& operator = (const MultiMapDictionary& other)

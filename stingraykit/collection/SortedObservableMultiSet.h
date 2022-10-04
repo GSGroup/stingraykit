@@ -113,29 +113,29 @@ namespace stingray
 		void RemoveFirst(const ValueType& value) override
 		{ SortedObservableMultiSet::TryRemoveFirst(value); }
 
-		bool TryRemoveFirst(const ValueType& value) override
+		bool TryRemoveFirst(const ValueType& value_) override
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(ValueType v IN _wrapped.Find(value))
+			FOR_EACH(const ValueType value IN _wrapped.Find(value_))
 			{
-				_wrapped.RemoveFirst(v);
-				_onChanged(CollectionOp::Removed, v);
+				_wrapped.RemoveFirst(value);
+				_onChanged(CollectionOp::Removed, value);
 				return true;
 			}
 			return false;
 		}
 
-		size_t RemoveAll(const ValueType& value) override
+		size_t RemoveAll(const ValueType& value_) override
 		{
 			signal_locker l(_onChanged);
 			size_t ret = 0;
-			FOR_EACH(ValueType v IN _wrapped.Find(value))
+			FOR_EACH(const ValueType value IN _wrapped.Find(value_))
 			{
-				if (CompareType_()(v, value) || CompareType_()(value, v))
+				if (CompareType_()(value, value_) || CompareType_()(value_, value))
 					break;
 
-				_wrapped.RemoveFirst(v);
-				_onChanged(CollectionOp::Removed, v);
+				_wrapped.RemoveFirst(value);
+				_onChanged(CollectionOp::Removed, value);
 				++ret;
 			}
 			return ret;
@@ -145,10 +145,10 @@ namespace stingray
 		{
 			signal_locker l(_onChanged);
 			size_t ret = 0;
-			FOR_EACH(ValueType v IN _wrapped.GetEnumerator() WHERE pred(v))
+			FOR_EACH(const ValueType value IN _wrapped.GetEnumerator() WHERE pred(value))
 			{
-				_wrapped.RemoveFirst(v);
-				_onChanged(CollectionOp::Removed, v);
+				_wrapped.RemoveFirst(value);
+				_onChanged(CollectionOp::Removed, value);
 				++ret;
 			}
 			return ret;
@@ -157,10 +157,10 @@ namespace stingray
 		void Clear() override
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(ValueType v IN _wrapped.GetEnumerator())
+			FOR_EACH(const ValueType value IN _wrapped.GetEnumerator())
 			{
-				_wrapped.RemoveFirst(v);
-				_onChanged(CollectionOp::Removed, v);
+				_wrapped.RemoveFirst(value);
+				_onChanged(CollectionOp::Removed, value);
 			}
 		}
 
@@ -173,8 +173,8 @@ namespace stingray
 	private:
 		void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 		{
-			FOR_EACH(ValueType v IN _wrapped.GetEnumerator())
-				slot(CollectionOp::Added, v);
+			FOR_EACH(const ValueType value IN _wrapped.GetEnumerator())
+				slot(CollectionOp::Added, value);
 		}
 	};
 
