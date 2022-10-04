@@ -37,11 +37,13 @@ namespace stingray
 	 * @endcode
 	 */
 
-	template < typename Derived_t, typename T, typename Category_t,
-			typename Distance_t = std::ptrdiff_t, typename Pointer_t = T*, typename Reference_t = T& >
-	class iterator_base : public std::iterator<Category_t, T, Distance_t, Pointer_t, Reference_t>
+	template < typename Derived_, typename ValueType_, typename Category_,
+			typename Distance_ = std::ptrdiff_t, typename Pointer_ = ValueType_*, typename Reference_ = ValueType_& >
+	class iterator_base : public std::iterator<Category_, ValueType_, Distance_, Pointer_, Reference_>
 	{
-		using base = std::iterator<Category_t, T, Distance_t, Pointer_t, Reference_t>;
+		using base = std::iterator<Category_, ValueType_, Distance_, Pointer_, Reference_>;
+
+		using Derived = Derived_;
 
 	public:
 		using iterator_category = typename base::iterator_category;
@@ -64,29 +66,29 @@ namespace stingray
 		const pointer operator -> () const
 		{ return &GetDerived().dereference(); }
 
-		Derived_t& operator ++ ()
+		Derived& operator ++ ()
 		{
 			GetDerived().increment();
 			return GetDerived();
 		}
 
-		Derived_t operator ++ (int)
+		Derived operator ++ (int)
 		{
-			Derived_t result(GetDerived());
+			Derived result(GetDerived());
 			GetDerived().increment();
 			return result;
 		}
 
 		// Bidirectional iterator requirements
-		Derived_t& operator -- ()
+		Derived& operator -- ()
 		{
 			GetDerived().decrement();
 			return GetDerived();
 		}
 
-		Derived_t operator -- (int)
+		Derived operator -- (int)
 		{
-			Derived_t result(GetDerived());
+			Derived result(GetDerived());
 			GetDerived().decrement();
 			return result;
 		}
@@ -94,64 +96,64 @@ namespace stingray
 		// Random access iterator requirements
 		reference operator [] (const difference_type& diff) const
 		{
-			Derived_t result(GetDerived());
+			Derived result(GetDerived());
 			result.advance(diff);
 			return result.dereference();
 		}
 
-		Derived_t& operator += (const difference_type& diff)
+		Derived& operator += (const difference_type& diff)
 		{
 			GetDerived().advance(diff);
 			return GetDerived();
 		}
 
-		Derived_t operator + (const difference_type& diff) const
+		Derived operator + (const difference_type& diff) const
 		{
-			Derived_t result(GetDerived());
+			Derived result(GetDerived());
 			return result += diff;
 		}
 
-		Derived_t& operator -= (const difference_type& diff)
+		Derived& operator -= (const difference_type& diff)
 		{ return GetDerived() += -diff; }
 
-		Derived_t operator-(const difference_type& diff) const
+		Derived operator-(const difference_type& diff) const
 		{
-			Derived_t result(GetDerived());
+			Derived result(GetDerived());
 			return result -= diff;
 		}
 
-		difference_type operator - (const Derived_t& other) const
+		difference_type operator - (const Derived& other) const
 		{ return other.distance_to(GetDerived()); }
 
 		// Forward iterator requirements
-		bool operator == (const Derived_t& other) const
+		bool operator == (const Derived& other) const
 		{ return GetDerived().equal(other); }
 
-		bool operator != (const Derived_t& other) const
+		bool operator != (const Derived& other) const
 		{ return !(*this == other); }
 
 		// Random access iterator requirements
-		bool operator < (const Derived_t& other) const
+		bool operator < (const Derived& other) const
 		{ return GetDerived().distance_to(other) > 0; }
 
-		bool operator <= (const Derived_t& other) const
+		bool operator <= (const Derived& other) const
 		{ return ((*this < other) || (*this == other)); }
 
-		bool operator > (const Derived_t& other) const
+		bool operator > (const Derived& other) const
 		{ return !((*this < other) || (*this == other)); }
 
-		bool operator >= (const Derived_t& other) const
+		bool operator >= (const Derived& other) const
 		{ return !(*this < other); }
 
 	protected:
 		~iterator_base() { }
 
 	private:
-		Derived_t& GetDerived()
-		{ return static_cast<Derived_t&>(*this); }
+		Derived& GetDerived()
+		{ return static_cast<Derived&>(*this); }
 
-		const Derived_t& GetDerived() const
-		{ return static_cast<const Derived_t&>(*this); }
+		const Derived& GetDerived() const
+		{ return static_cast<const Derived&>(*this); }
 	};
 
 	/** @} */
