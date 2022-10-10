@@ -31,6 +31,10 @@ namespace stingray
 
 		static Version FromString(const std::string& version);
 
+		unsigned GetMajor() const { return _major; }
+		unsigned GetMinor() const { return _minor; }
+		optional<unsigned> GetBuild() const { return _build; }
+
 		std::string ToString() const;
 
 		bool operator < (const Version& other) const
