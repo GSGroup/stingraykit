@@ -13,7 +13,7 @@
 namespace stingray
 {
 
-	template < class Key, class Value, class Compare = std::less<Key>, class Allocator = std::allocator<std::pair<Key, Value>> >
+	template < class Key, class T, class Compare = std::less<Key>, class Allocator = std::allocator<std::pair<Key, T>> >
 	class flat_map
 	{
 		STINGRAYKIT_DEFAULTCOPYABLE(flat_map);
@@ -21,8 +21,8 @@ namespace stingray
 
 	public:
 		using key_type = Key;
-		using mapped_type = Value;
-		using value_type = std::pair<Key, Value>;
+		using mapped_type = T;
+		using value_type = std::pair<Key, T>;
 
 	private:
 		using Container = std::vector<value_type, Allocator>;
@@ -123,33 +123,33 @@ namespace stingray
 
 		allocator_type get_allocator() const	{ return _container.get_allocator(); }
 
-		Value& at(const Key& key)
+		T& at(const Key& key)
 		{
 			const iterator result = find(key);
 			STINGRAYKIT_CHECK(result != end(), CreateKeyNotFoundException(key));
 			return result->second;
 		}
 
-		const Value& at(const Key& key) const
+		const T& at(const Key& key) const
 		{
 			const const_iterator result = find(key);
 			STINGRAYKIT_CHECK(result != end(), CreateKeyNotFoundException(key));
 			return result->second;
 		}
 
-		Value& operator [] (const Key& key)
+		T& operator [] (const Key& key)
 		{
 			iterator result(lower_bound(key));
 			if (result == end() || _cmp(key, result->first))
-				result = _container.emplace(result, key, Value());
+				result = _container.emplace(result, key, T());
 			return result->second;
 		}
 
-		Value& operator [] (Key&& key)
+		T& operator [] (Key&& key)
 		{
 			iterator result(lower_bound(key));
 			if (result == end() || _cmp(key, result->first))
-				result = _container.emplace(result, std::move(key), Value());
+				result = _container.emplace(result, std::move(key), T());
 			return result->second;
 		}
 
@@ -291,21 +291,23 @@ namespace stingray
 		key_compare key_comp() const													{ return _cmp._cmp; }
 		value_compare value_comp() const												{ return value_compare(_cmp._cmp); }
 
-		template < class K, class V, class C, class A > friend bool operator == (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
-		template < class K, class V, class C, class A > friend bool operator < (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs);
+		template < class K, class T_, class C, class A >
+		friend bool operator == (const flat_map<K, T_, C, A>& lhs, const flat_map<K, T_, C, A>& rhs);
+		template < class K, class T_, class C, class A >
+		friend bool operator < (const flat_map<K, T_, C, A>& lhs, const flat_map<K, T_, C, A>& rhs);
 	};
 
 
-	template < class K, class V, class C, class A >
-	bool operator == (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
+	template < class K, class T, class C, class A >
+	bool operator == (const flat_map<K, T, C, A>& lhs, const flat_map<K, T, C, A>& rhs)
 	{ return lhs._container == rhs._container; }
-	STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < class K, class V, class C, class A >), MK_PARAM(flat_map<K, V, C, A>), MK_PARAM(flat_map<K, V, C, A>));
+	STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < class K, class T, class C, class A >), MK_PARAM(flat_map<K, T, C, A>), MK_PARAM(flat_map<K, T, C, A>));
 
 
-	template < class K, class V, class C, class A >
-	bool operator < (const flat_map<K, V, C, A>& lhs, const flat_map<K, V, C, A>& rhs)
+	template < class K, class T, class C, class A >
+	bool operator < (const flat_map<K, T, C, A>& lhs, const flat_map<K, T, C, A>& rhs)
 	{ return lhs._container < rhs._container; }
-	STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < class K, class V, class C, class A >), MK_PARAM(flat_map<K, V, C, A>), MK_PARAM(flat_map<K, V, C, A>));
+	STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < class K, class T, class C, class A >), MK_PARAM(flat_map<K, T, C, A>), MK_PARAM(flat_map<K, T, C, A>));
 
 }
 
