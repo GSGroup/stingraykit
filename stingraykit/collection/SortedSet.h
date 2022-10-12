@@ -20,8 +20,8 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename ValueType, typename CompareType_ = comparers::Less >
-	using SortedSet = GenericSet<std::set<ValueType, CompareType_>>;
+	template < typename ValueType, typename CompareType = comparers::Less >
+	using SortedSet = GenericSet<std::set<ValueType, CompareType>>;
 
 	/** @} */
 
