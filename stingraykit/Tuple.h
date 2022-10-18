@@ -22,6 +22,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename Tuple_, size_t Index >
 		struct TupleItemGetter
 		{
@@ -47,10 +48,12 @@ namespace stingray
 			static typename Tuple_::ValueType&& Get(Tuple_&& tuple)
 			{ return std::move(tuple).GetHead(); }
 		};
+
 	}
 
 
 	struct TupleConstructorTag { };
+
 
 	template < typename TypeList_ >
 	class Tuple
@@ -59,9 +62,9 @@ namespace stingray
 		STINGRAYKIT_DEFAULTMOVABLE(Tuple);
 
 	public:
-		typedef TypeList_						Types;
-		typedef Tuple<typename Types::Next>		Tail;
-		typedef typename Types::ValueT			ValueType;
+		using Types = TypeList_;
+		using Tail = Tuple<typename Types::Next>;
+		using ValueType = typename Types::ValueT;
 
 		static const size_t Size = Tail::Size + 1;
 
@@ -154,7 +157,7 @@ namespace stingray
 		STINGRAYKIT_DEFAULTMOVABLE(Tuple<TypeListEndNode>);
 
 	public:
-		typedef TypeListEndNode				Types;
+		using Types = TypeListEndNode;
 
 		static const size_t Size = 0;
 
@@ -186,12 +189,13 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename TupleLikeObject_ >
 		class TupleReverser
 		{
 		public:
-			typedef typename Decay<TupleLikeObject_>::ValueT::Types		SrcTypes;
-			typedef typename TypeListReverse<SrcTypes>::ValueT			Types;
+			using SrcTypes = typename Decay<TupleLikeObject_>::ValueT::Types;
+			using Types = typename TypeListReverse<SrcTypes>::ValueT;
 
 		private:
 			TupleLikeObject_&&		_src;
@@ -207,6 +211,7 @@ namespace stingray
 			typename EnableIf<IsNonConstRvalueReference<TupleLikeObject_&&>::Value, typename GetTypeListItem<Types, Index>::ValueT>::ValueT&& Get() &&
 			{ return std::move(_src).template Get<GetTypeListLength<SrcTypes>::Value - (Index + 1)>(); }
 		};
+
 	}
 
 
@@ -217,6 +222,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename TupleLikeObject_, template <typename> class Predicate_ >
 		class TupleFilter
 		{
