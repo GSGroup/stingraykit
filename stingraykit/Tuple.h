@@ -190,6 +190,75 @@ namespace stingray
 	namespace Detail
 	{
 
+		template < typename TupleOfTuples >
+		struct GetHeadSize
+		{ static const size_t Value = Decay<typename TupleOfTuples::ValueType>::ValueT::Size; };
+
+		template < >
+		struct GetHeadSize<Tuple<TypeListEndNode>>
+		{ static const size_t Value = 0; };
+
+		template < typename TupleOfTuples, size_t Index, bool = Index >= GetHeadSize<TupleOfTuples>::Value >
+		struct TupleOfTuplesIndexes
+		{
+			using Next = TupleOfTuplesIndexes<typename TupleOfTuples::Tail, Index - GetHeadSize<TupleOfTuples>::Value>;
+
+			static const size_t TupleIndex = Next::TupleIndex + 1;
+			static const size_t ValueIndex = Next::ValueIndex;
+		};
+
+		template < typename TupleOfTuples, size_t Index >
+		struct TupleOfTuplesIndexes<TupleOfTuples, Index, false>
+		{
+			static const size_t TupleIndex = 0;
+			static const size_t ValueIndex = Index;
+		};
+
+		template < typename... Tuples >
+		class TupleConcater
+		{
+			template < typename Tuple >
+			struct GetTupleTypeList
+			{ using ValueT = typename Decay<Tuple>::ValueT::Types; };
+
+		public:
+			using Types = typename TypeListMerge<typename TypeListTransform<TypeList<Tuples...>, GetTupleTypeList>::ValueT>::ValueT;
+
+		private:
+			using TupleOfTuplesTypes = TypeList<Tuples...>;
+			using TupleOfTuples = Tuple<TupleOfTuplesTypes>;
+
+		private:
+			TupleOfTuples	_tuples;
+
+		public:
+			explicit TupleConcater(Tuples&&... tuples) : _tuples(std::forward<Tuples>(tuples)...) { }
+
+			template < size_t Index, typename Indexes = TupleOfTuplesIndexes<TupleOfTuples, Index> >
+			const typename GetTypeListItem<Types, Index>::ValueT& Get() const &
+			{ return _tuples.template Get<Indexes::TupleIndex>().template Get<Indexes::ValueIndex>(); }
+
+			template < size_t Index, typename Indexes = TupleOfTuplesIndexes<TupleOfTuples, Index> >
+			typename EnableIf<
+					IsNonConstRvalueReference<typename GetTypeListItem<TupleOfTuplesTypes, Indexes::TupleIndex>::ValueT&&>::Value,
+					typename GetTypeListItem<Types, Index>::ValueT>::ValueT&& Get() &&
+			{ return std::move(_tuples).template Get<Indexes::TupleIndex>().template Get<Indexes::ValueIndex>(); }
+		};
+
+	}
+
+
+	template < typename... Tuples >
+	auto ConcatTuples(Tuples&&... tuples)
+	{
+		using TupleConcater = Detail::TupleConcater<Tuples...>;
+		return Tuple<typename TupleConcater::Types>::CreateFromTupleLikeObject(TupleConcater(std::forward<Tuples>(tuples)...));
+	}
+
+
+	namespace Detail
+	{
+
 		template < typename TupleLikeObject_ >
 		class TupleReverser
 		{
