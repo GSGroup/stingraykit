@@ -42,10 +42,9 @@ namespace stingray
 			template < typename T >
 			typename Multivisitor_::RetType operator() (T& val) const
 			{
-				typedef TypeListNode<T&, ResolvedTypes_>	NewResolvedTypes;
 				return apply_visitor(
-					MultiDispatchVisitor<Multivisitor_, typename VariantTypes_::Next, NewResolvedTypes>
-						(_multivisitor, _yetToResolve.GetTail(), Tuple<NewResolvedTypes>(val, _resolved)), // Have to reverse the tuple in the end
+					MultiDispatchVisitor<Multivisitor_, typename VariantTypes_::Next, TypeListNode<T&, ResolvedTypes_>>
+						(_multivisitor, _yetToResolve.GetTail(), ConcatTuples(ForwardAsTuple(val), _resolved)), // Have to reverse the tuple in the end
 					_yetToResolve.GetHead());
 			}
 		};
@@ -68,10 +67,7 @@ namespace stingray
 
 			template < typename T >
 			typename Multivisitor_::RetType operator() (T& val) const
-			{
-				typedef TypeListNode<T&, ResolvedTypes_>	NewResolvedTypes;
-				return FunctorInvoker::Invoke(_multivisitor, ReverseTuple(Tuple<NewResolvedTypes>(val, _resolved)));
-			}
+			{ return FunctorInvoker::Invoke(_multivisitor, ReverseTuple(ConcatTuples(ForwardAsTuple(val), _resolved))); }
 		};
 	}
 
