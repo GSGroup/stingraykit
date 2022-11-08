@@ -49,6 +49,26 @@ namespace stingray
 			{ return std::move(tuple).GetHead(); }
 		};
 
+		template < typename ToTypes, typename FromTypes >
+		struct IsConstructibleTypes
+		{
+			static const bool Value =
+					IsConstructible<typename ToTypes::ValueT, typename FromTypes::ValueT>::Value &&
+					IsConstructibleTypes<typename ToTypes::Next, typename FromTypes::Next>::Value;
+		};
+
+		template < typename ToTypes >
+		struct IsConstructibleTypes<ToTypes, TypeListEndNode>
+		{ static const bool Value = false; };
+
+		template < typename FromTypes >
+		struct IsConstructibleTypes<TypeListEndNode, FromTypes>
+		{ static const bool Value = false; };
+
+		template < >
+		struct IsConstructibleTypes<TypeListEndNode, TypeListEndNode>
+		{ static const bool Value = true; };
+
 	}
 
 
@@ -75,7 +95,10 @@ namespace stingray
 	public:
 		Tuple() : _val(), _tail() { }
 
-		template < typename T0, typename... Ts, typename EnableIf<!IsSame<typename Decay<T0>::ValueT, TupleConstructorTag>::Value && !IsSame<typename Decay<T0>::ValueT, Tuple<Types>>::Value, bool>::ValueT = false >
+		template < typename T0, typename... Ts, typename EnableIf<
+				!IsSame<typename Decay<T0>::ValueT, TupleConstructorTag>::Value &&
+				!IsSame<typename Decay<T0>::ValueT, Tuple<Types>>::Value &&
+				Detail::IsConstructibleTypes<Types, TypeList<T0, Ts...>>::Value, bool>::ValueT = false >
 		Tuple(T0&& p0, Ts&&... args)
 			: _val(std::forward<T0>(p0)), _tail(std::forward<Ts>(args)...)
 		{ }
