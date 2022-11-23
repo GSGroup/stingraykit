@@ -19,12 +19,17 @@ namespace stingray
 
 	SystemProfiler::~SystemProfiler()
 	{
-		const s64 elapsedMs = _elapsed.ElapsedMilliseconds();
-		if (elapsedMs < _thresholdMs)
-			return;
-
-		Logger::Stream(_criticalMs >= _thresholdMs && elapsedMs > _criticalMs ? LogLevel::Warning : LogLevel::Info)
-				<< _message << ": " << elapsedMs << " ms";
+		try
+		{
+			const s64 elapsedMs = _elapsed.ElapsedMilliseconds();
+			if (elapsedMs >= _thresholdMs)
+			{
+				Logger::Stream(_criticalMs >= _thresholdMs && elapsedMs > _criticalMs ? LogLevel::Warning : LogLevel::Info)
+						<< _message << ": " << elapsedMs << " ms";
+			}
+		}
+		catch (const std::exception&)
+		{ }
 	}
 
 }
