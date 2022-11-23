@@ -7,11 +7,10 @@
 
 #include <stingraykit/diagnostics/SystemProfiler.h>
 
-#include <time.h>
-
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/SystemException.h>
 
+#include <time.h>
 
 namespace stingray
 {
@@ -47,13 +46,12 @@ namespace stingray
 
 	SystemProfiler::~SystemProfiler()
 	{
-		s64 elapsed_ms = (_impl->GetMicroseconds() - _start) / 1000;
-
-		if (elapsed_ms < _thresholdMs)
+		const s64 elapsedMs = (_impl->GetMicroseconds() - _start) / 1000;
+		if (elapsedMs < _thresholdMs)
 			return;
 
-		LogLevel ll = (_criticalMs >= _thresholdMs && elapsed_ms > _criticalMs) ? LogLevel::Warning : LogLevel::Info;
-		Logger::Stream(ll) << _message << ": " << elapsed_ms << " ms";
+		Logger::Stream(_criticalMs >= _thresholdMs && elapsedMs > _criticalMs ? LogLevel::Warning : LogLevel::Info)
+				<< _message << ": " << elapsedMs << " ms";
 	}
 
 }
