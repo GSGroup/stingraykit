@@ -8,45 +8,18 @@
 #include <stingraykit/diagnostics/SystemProfiler.h>
 
 #include <stingraykit/log/Logger.h>
-#include <stingraykit/SystemException.h>
-
-#include <time.h>
 
 namespace stingray
 {
 
-#ifdef PLATFORM_POSIX
-	class SystemProfiler::Impl
-	{
-	public:
-		s64 GetMicroseconds() const
-		{
-			struct timespec ts = {};
-			if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1)
-				throw SystemException("clock_gettime");
-			return (s64)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
-		}
-	};
-
-#else
-
-	class SystemProfiler::Impl
-	{
-	public:
-		s64 GetMicroseconds() const { return 0; }
-	};
-
-#endif
-
-
 	SystemProfiler::SystemProfiler(const std::string& message, s64 thresholdMs, s64 criticalMs)
-		: _impl(new Impl()), _message(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
-	{ _start = _impl->GetMicroseconds(); }
+		: _message(message), _thresholdMs(thresholdMs), _criticalMs(criticalMs)
+	{ }
 
 
 	SystemProfiler::~SystemProfiler()
 	{
-		const s64 elapsedMs = (_impl->GetMicroseconds() - _start) / 1000;
+		const s64 elapsedMs = _elapsed.ElapsedMilliseconds();
 		if (elapsedMs < _thresholdMs)
 			return;
 

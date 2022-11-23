@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/unique_ptr.h>
+#include <stingraykit/time/ElapsedTime.h>
 
 namespace stingray
 {
@@ -23,14 +23,10 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(SystemProfiler);
 
 	private:
-		class Impl;
-
-	private:
-		unique_ptr<Impl>		_impl;
 		std::string				_message;
 		s64						_thresholdMs;
 		s64						_criticalMs;
-		s64						_start;
+		ElapsedTime				_elapsed;
 
 	public:
 		SystemProfiler(const std::string& message, s64 thresholdMs, s64 criticalMs = 0);
