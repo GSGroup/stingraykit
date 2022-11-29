@@ -30,8 +30,8 @@ namespace stingray
 		bool					_highlight;
 
 	public:
-		LoggerMessage(const LogLevel& logLevel, const std::string& message, bool highlight);
-		LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message, bool highlight);
+		LoggerMessage(const LogLevel& logLevel, const std::string& message, bool highlight = false);
+		LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message, bool highlight = false);
 
 		bool Highlight() const				{ return _highlight; }
 		bool HasLoggerName() const			{ return _loggerName.is_initialized(); }

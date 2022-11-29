@@ -262,7 +262,7 @@ namespace stingray
 		if (loggerParams)
 			msg.emplace(loggerParams->GetName(), logLevel, loggerParams->BacktraceEnabled() ? StringBuilder() % text % ": " % Backtrace() : text, loggerParams->HighlightEnabled());
 		else
-			msg.emplace(logLevel, text, false);
+			msg.emplace(logLevel, text);
 
 		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
 			logger->Log(*msg);

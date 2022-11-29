@@ -80,7 +80,7 @@ namespace stingray
 			{
 				StringBuilder message;
 				message % "An exception in " % Demangle(typeid(T).name()) % " singleton constructor: " % ex;
-				SystemLogger::Log(LoggerMessage(LogLevel::Error, message, false));
+				SystemLogger::Log(LoggerMessage(LogLevel::Error, message));
 			}
 		}
 
