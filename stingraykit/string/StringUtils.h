@@ -67,7 +67,7 @@ namespace stingray
 
 
 	inline std::string ExtractPrefix(const std::string& str, size_t prefixLength)
-	{ return str.substr(0, std::min(str.length(), prefixLength)); }
+	{ return str.substr(0, prefixLength); }
 
 
 	inline std::string ExtractSuffix(const std::string& str, size_t suffixLength)
@@ -78,7 +78,7 @@ namespace stingray
 
 
 	inline std::string RemovePrefix(const std::string& str, const std::string& prefix)
-	{ return str.compare(0, prefix.length(), prefix) == 0? str.substr(prefix.length()) : str; }
+	{ return str.compare(0, prefix.length(), prefix) == 0 ? str.substr(prefix.length()) : str; }
 
 
 	inline std::string RemoveSuffix(const std::string& str, const std::string& suffix)
