@@ -43,6 +43,7 @@ namespace stingray
 	public:
 		array() : _data() { }
 		array(const array& other)				{ assign(other); }
+		array(const T (& list)[N])				{ std::copy(std::begin(list), std::end(list), begin()); }
 
 		array& operator = (const array& other)	{ assign(other); return *this; }
 
@@ -73,9 +74,9 @@ namespace stingray
 
 		void fill(const value_type& value)		{ std::fill(begin(), end(), value); }
 
-		static size_type size()					{ return N; }
-		static size_type max_size()				{ return N; }
-		static bool empty()						{ return N == 0; }
+		static constexpr size_type size()					{ return N; }
+		static constexpr size_type max_size()				{ return N; }
+		static constexpr bool empty()						{ return N == 0; }
 
 		void swap(array& other)
 		{
