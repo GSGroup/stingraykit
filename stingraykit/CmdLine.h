@@ -133,9 +133,6 @@ namespace stingray
 			template < typename T >
 			static bool Complete(std::string& input, std::set<std::string>& results, const CustomCompleteFuncsMap& customComplete, long)
 			{
-				if (customComplete.empty())
-					return false;
-
 				CustomCompleteFuncsMap::const_iterator it = customComplete.find(N);
 				if (it == customComplete.end())
 				{
