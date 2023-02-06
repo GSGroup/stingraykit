@@ -11,6 +11,8 @@
 #include <stingraykit/locale/LocaleString.h>
 #include <stingraykit/string/string_view.h>
 
+#include <stingraykit/optional.h>
+
 namespace stingray
 {
 
@@ -32,6 +34,8 @@ namespace stingray
 		///\return pointer to unpack function, null for unsupported encoding.
 		static UnpackFunc GetUnpackFunc(const LocaleString& str, size_t& bomSize);
 		static UnpackFunc GetUnpackFunc(Encoding encoding);
+
+		static optional<Encoding> GetEncoding(const string_view& str, size_t& bomSize);
 
 		static void PackUtf8(std::string& dst, u32 ucs, u32 invalidCharReplacement);
 
