@@ -25,8 +25,8 @@ namespace stingray
 		static LocaleString FromUtf8(const std::string& str);
 		static int Compare(const LocaleString& a, const LocaleString& b);
 
-		typedef u32 (*UnpackFunc)(string_view::const_iterator& it, const string_view::const_iterator& end);
-		typedef void (*PackFunc)(std::string& str, u32 unicode, char invalidCharReplacement);
+		using UnpackFunc = u32 (*)(string_view::const_iterator& it, const string_view::const_iterator& end);
+		using PackFunc = void (*)(std::string& str, u32 unicode, char invalidCharReplacement);
 
 		///example for(it = str.begin(); it != str.end(); ) { u32 ucs_char = (*unpack)(it, str.end()); }
 		///\return pointer to unpack function, null for unsupported encoding.

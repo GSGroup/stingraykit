@@ -17,7 +17,6 @@ namespace stingray
 
 		const u32 InvalidCharacter = ~0;
 
-
 		u32 Unpack_CP1251(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
@@ -36,13 +35,11 @@ namespace stingray
 			return c < 0x80 ? c : table_80[c - 0x80];
 		}
 
-
 		u32 Unpack_ISO_8859_1(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
 			return c;
 		}
-
 
 		u32 Unpack_ISO_8859_2(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -58,7 +55,6 @@ namespace stingray
 			};
 			return c < 0xa0 ? c : table_a0_100[c - 0xa0];
 		}
-
 
 		u32 Unpack_ISO_8859_3(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -78,7 +74,6 @@ namespace stingray
 			return r != 0xffff ? r : InvalidCharacter;
 		}
 
-
 		u32 Unpack_ISO_8859_4(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
@@ -94,7 +89,6 @@ namespace stingray
 			return c < 0xa0 ? c : table_a0[c - 0xa0];
 		}
 
-
 		u32 Unpack_ISO_8859_5(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
@@ -109,7 +103,6 @@ namespace stingray
 			};
 			return c < 0xa0 ? c : table_a0[c - 0xa0];
 		}
-
 
 		u32 Unpack_ISO_8859_6(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -129,7 +122,6 @@ namespace stingray
 			return r != 0xffff ? r : InvalidCharacter;
 		}
 
-
 		u32 Unpack_ISO_8859_7(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
@@ -147,7 +139,6 @@ namespace stingray
 			u16 r = table_a0[c - 0xa0];
 			return r != 0xffff ? r : InvalidCharacter;
 		}
-
 
 		u32 Unpack_ISO_8859_8(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -167,7 +158,6 @@ namespace stingray
 			return r != 0xffff ? r : InvalidCharacter;
 		}
 
-
 		u32 Unpack_ISO_8859_9(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
@@ -179,7 +169,6 @@ namespace stingray
 			};
 			return c < 0xd0 ? c : table_d0[c - 0xd0];
 		}
-
 
 		u32 Unpack_ISO_8859_10(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -196,7 +185,6 @@ namespace stingray
 			return c < 0xa0 ? c : table_a0[c - 0xa0];
 		}
 
-
 		u32 Unpack_ISO_8859_11(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
@@ -206,7 +194,6 @@ namespace stingray
 				return InvalidCharacter;
 			return 0x0d60 + c;
 		}
-
 
 		u32 Unpack_ISO_8859_13(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -223,7 +210,6 @@ namespace stingray
 			return c < 0xa0 ? c : table_a0[c - 0xa0];
 		}
 
-
 		u32 Unpack_ISO_8859_14(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
@@ -239,7 +225,6 @@ namespace stingray
 			return c < 0xa0 ? c : table_a0[c - 0xa0];
 		}
 
-
 		u32 Unpack_ISO_8859_15(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
@@ -250,7 +235,6 @@ namespace stingray
 			};
 			return (c < 0xa0 || c >= 0xc0) ? c : table_a0_c0[c - 0xa0];
 		}
-
 
 		u32 Unpack_ISO_8859_16(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -266,7 +250,6 @@ namespace stingray
 			};
 			return c < 0xa0 ? c : table_a0[c - 0xa0];
 		}
-
 
 		u32 Unpack_ISO_10646_utf8(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -298,7 +281,6 @@ namespace stingray
 			return InvalidCharacter;
 		}
 
-
 		u32 Unpack_ISO_10646_utf16be(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			unsigned char c0 = (unsigned char)*it++;
@@ -322,7 +304,6 @@ namespace stingray
 
 			return ((c0 & 0x03) << 18) | (c1 << 10) | ((c2 & 0x03) << 8) | c3;
 		}
-
 
 		u32 Unpack_ISO_10646_utf16le(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -348,7 +329,6 @@ namespace stingray
 			return ((c1 & 0x03) << 18) | (c0 << 10) | ((c3 & 0x03) << 8) | c2;
 		}
 
-
 		u32 Unpack_ISO_10646_utf32be(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u32 ucs = 0;
@@ -362,7 +342,6 @@ namespace stingray
 			return ucs < 0x110000 ? ucs : InvalidCharacter;
 		}
 
-
 		u32 Unpack_ISO_10646_utf32le(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u32 ucs = 0;
@@ -374,7 +353,6 @@ namespace stingray
 			}
 			return ucs < 0x110000 ? ucs : InvalidCharacter;
 		}
-
 
 		u32 Unpack_CP866(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
@@ -400,13 +378,11 @@ namespace stingray
 				return InvalidCharacter;
 		}
 
-
 		u32 Unpack_ASCII(string_view::const_iterator& it, const string_view::const_iterator& end)
 		{
 			u8 c = (u8)*it++;
 			return c < 0x80 ? c : InvalidCharacter;
 		}
-
 
 		void Pack_CP866(std::string& str, u32 unicode, char invalidCharReplacement)
 		{
@@ -442,7 +418,6 @@ namespace stingray
 				}
 			}
 		}
-
 
 		void Pack_ASCII(std::string& str, u32 unicode, char invalidCharReplacement)
 		{
