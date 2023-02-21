@@ -52,7 +52,7 @@ namespace stingray
 
 		TimeDuration& operator -= (TimeDuration other)			{ _microseconds -= other._microseconds; return *this; }
 		TimeDuration operator - (TimeDuration other) const		{ TimeDuration result(*this); return result -= other; }
-		TimeDuration operator - () const						{ return TimeDuration(-GetMilliseconds()); }
+		TimeDuration operator - () const						{ return TimeDuration(-_microseconds, Dummy()); }
 
 		TimeDuration& operator *= (int multiplier)				{ _microseconds *= multiplier; return *this; }
 		TimeDuration operator * (int multiplier) const			{ TimeDuration result(*this); return result *= multiplier; }
