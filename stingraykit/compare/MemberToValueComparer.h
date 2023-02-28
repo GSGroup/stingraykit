@@ -45,6 +45,8 @@ namespace stingray
 		template < typename T > static const T& Process(const shared_ptr<const T>& t)		{ return *t; }
 		template < typename T > static const T& Process(const self_count_ptr<T>& t)			{ return *t; }
 		template < typename T > static const T& Process(const self_count_ptr<const T>& t)	{ return *t; }
+		template < typename T > static const T& Process(const unique_ptr<T>& t)				{ return *t; }
+		template < typename T > static const T& Process(const unique_ptr<const T>& t)		{ return *t; }
 	};
 
 	struct NoDereferencing
