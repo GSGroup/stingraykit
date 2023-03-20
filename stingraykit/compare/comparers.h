@@ -313,15 +313,15 @@ namespace stingray
 
 
 #define STINGRAYKIT_DECLARE_COMPARERS(ClassName) \
-		using ClassName##Less = stingray::comparers::CmpToLess<ClassName##Cmp> ; \
-		using ClassName##Equals = stingray::comparers::CmpToEquals<ClassName##Cmp> ; \
+		using ClassName##Less = stingray::comparers::CmpToLess<ClassName##Cmp>; \
+		using ClassName##Equals = stingray::comparers::CmpToEquals<ClassName##Cmp>; \
 		using ClassName##Greater = stingray::comparers::CmpToGreater<ClassName##Cmp>
 
 #define STINGRAYKIT_DECLARE_TEMPLATE_COMPARERS(ClassName, TemplateDecl, TemplateUsage) \
 		template < TemplateDecl > \
-		using ClassName##Less = stingray::comparers::CmpToLess<ClassName##Cmp<TemplateUsage>> ; \
+		using ClassName##Less = stingray::comparers::CmpToLess<ClassName##Cmp<TemplateUsage>>; \
 		template < TemplateDecl > \
-		using ClassName##Equals = stingray::comparers::CmpToEquals<ClassName##Cmp<TemplateUsage>> ; \
+		using ClassName##Equals = stingray::comparers::CmpToEquals<ClassName##Cmp<TemplateUsage>>; \
 		template < TemplateDecl > \
 		using ClassName##Greater = stingray::comparers::CmpToGreater<ClassName##Cmp<TemplateUsage>>
 
@@ -366,6 +366,10 @@ namespace stingray
 			return TupleCmp<CompareFunc>(_compareFunc)(lhs.GetTail(), rhs.GetTail());
 		}
 	};
+	template < typename CompareFunc >
+	using TupleLess = comparers::CmpToLess<TupleCmp<CompareFunc>>;
+	template < typename CompareFunc >
+	using TupleGreater = comparers::CmpToGreater<TupleCmp<CompareFunc>>;
 
 
 	struct TupleEquals : public function_info<bool, UnspecifiedParamTypes>
