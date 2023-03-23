@@ -47,7 +47,7 @@ namespace stingray
 		Size operator / (int k) const							{ return Size(Width / k, Height / k); }
 		Size operator / (const Size& other) const				{ return Size(Width / other.Width, Height / other.Height); }
 
-		std::string ToString() const							{ return StringBuilder() % "(" % Width % ", " % Height % ")"; }
+		std::string ToString() const							{ return StringBuilder() % Width % "x" % Height; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
@@ -78,7 +78,7 @@ namespace stingray
 		bool operator == (const SizeScale& other) const			{ return WidthScale == other.WidthScale && HeightScale == other.HeightScale; }
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(SizeScale);
 
-		std::string ToString() const							{ return StringBuilder() % "(" % WidthScale % ":" % HeightScale % ")"; }
+		std::string ToString() const							{ return StringBuilder() % WidthScale % ":" % HeightScale; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
@@ -108,7 +108,7 @@ namespace stingray
 		bool operator == (const BasicPosition& other) const		{ return X == other.X && Y == other.Y; }
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicPosition);
 
-		std::string ToString() const							{ return StringBuilder() % "(" % X % ", " % Y % ")"; }
+		std::string ToString() const							{ return StringBuilder() % "[" % X % ", " % Y % "]"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
@@ -164,7 +164,7 @@ namespace stingray
 		bool Intersects(const BasicRect& other) const
 		{ return X1 <= other.X2 && X2 >= other.X1 && Y1 <= other.Y2 && Y2 >= other.Y1; }
 
-		std::string ToString() const								{ return StringBuilder() % "(" % GetTopLeft() % ", " % GetRightBottom() % ")"; }
+		std::string ToString() const								{ return StringBuilder() % "[" % X1 % ", " % Y1 % ", "  % X2 % ", " % Y2 % "]"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
