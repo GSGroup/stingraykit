@@ -21,18 +21,20 @@ namespace stingray
 		Size() : Width(), Height() { }
 		Size(int width, int height) : Width(width), Height(height) { }
 
-		Size operator + (const Size& other) const			{ return Size(Width + other.Width, Height + other.Height); }
-		Size operator - (const Size& other) const			{ return Size(Width - other.Width, Height - other.Height); }
-		Size& operator += (const Size& other)				{ Width += other.Width; Height += other.Height; return *this; }
-		Size& operator -= (const Size& other)				{ Width -= other.Width; Height -= other.Height; return *this; }
-		Size operator * (int k) const						{ return Size(Width * k, Height * k); }
-		Size operator / (int k) const						{ return Size(Width / k, Height / k); }
-		Size operator / (const Size& other) const			{ return Size(Width / other.Width, Height / other.Height); }
-
 		bool Valid() const									{ return Width > 0 && Height > 0; }
 
 		bool operator == (const Size& other) const			{ return Width == other.Width && Height == other.Height; }
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(Size);
+
+		Size operator + (const Size& other) const			{ return Size(Width + other.Width, Height + other.Height); }
+		Size operator - (const Size& other) const			{ return Size(Width - other.Width, Height - other.Height); }
+
+		Size& operator += (const Size& other)				{ Width += other.Width; Height += other.Height; return *this; }
+		Size& operator -= (const Size& other)				{ Width -= other.Width; Height -= other.Height; return *this; }
+
+		Size operator * (int k) const						{ return Size(Width * k, Height * k); }
+		Size operator / (int k) const						{ return Size(Width / k, Height / k); }
+		Size operator / (const Size& other) const			{ return Size(Width / other.Width, Height / other.Height); }
 
 		std::string ToString() const						{ return StringBuilder() % "(" % Width % ", " % Height % ")"; }
 
@@ -92,10 +94,10 @@ namespace stingray
 		BasicPosition() : X(0), Y(0) { }
 		BasicPosition(ValueType x, ValueType y) : X(x), Y(y) { }
 
-		std::string ToString() const						{ return StringBuilder() % "(" % X % ", " % Y % ")"; }
-
 		bool operator == (const BasicPosition& other) const	{ return X == other.X && Y == other.Y; }
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicPosition);
+
+		std::string ToString() const						{ return StringBuilder() % "(" % X % ", " % Y % ")"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
@@ -125,32 +127,33 @@ namespace stingray
 		ValueType		Y2;
 
 		BasicRect() : X1(0), Y1(0), X2(0), Y2(0) { }
-		BasicRect(ValueType x1, ValueType y1, ValueType x2, ValueType y2) : X1(x1), Y1(y1), X2(x2), Y2(y2) { }
-		BasicRect(ValueType w, ValueType h) : X1(0), Y1(0), X2(w), Y2(h) { }
 		BasicRect(Size size) : X1(0), Y1(0), X2(size.Width), Y2(size.Height) { }
+		BasicRect(ValueType w, ValueType h) : X1(0), Y1(0), X2(w), Y2(h) { }
+		BasicRect(ValueType x1, ValueType y1, ValueType x2, ValueType y2) : X1(x1), Y1(y1), X2(x2), Y2(y2) { }
+
+		bool Valid() const									{ return X2 > X1 && Y2 > Y1; }
+
+		Size GetSize() const								{ return Size(GetWidth(), GetHeight()); }
 
 		ValueType GetWidth() const	{ return X2 - X1; }
 		ValueType GetHeight() const	{ return Y2 - Y1; }
 
-		BasicRect Move(BasicPosition<ValueType> d) const	{ return BasicRect(X1 + d.X, Y1 + d.Y, X2 + d.X, Y2 + d.Y); }
-		BasicRect Move(ValueType dx, ValueType dy) const	{ return BasicRect(X1 + dx, Y1 + dy, X2 + dx, Y2 + dy); }
-
 		BasicPosition<ValueType> GetTopLeft() const			{ return BasicPosition<ValueType>(X1, Y1); }
 		BasicPosition<ValueType> GetRightBottom() const		{ return BasicPosition<ValueType>(X2, Y2); }
 
-		Size GetSize() const								{ return Size(GetWidth(), GetHeight()); }
+		bool operator == (const BasicRect& other) const		{ return GetTopLeft() == other.GetTopLeft() && GetRightBottom() == other.GetRightBottom(); }
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicRect);
 
-		bool Intersects(const BasicRect& other) const
-		{ return X1 <= other.X2 && X2 >= other.X1 && Y1 <= other.Y2 && Y2 >= other.Y1; }
+		BasicRect Move(BasicPosition<ValueType> d) const	{ return BasicRect(X1 + d.X, Y1 + d.Y, X2 + d.X, Y2 + d.Y); }
+		BasicRect Move(ValueType dx, ValueType dy) const	{ return BasicRect(X1 + dx, Y1 + dy, X2 + dx, Y2 + dy); }
 
 		BasicRect Intersect(const BasicRect& other) const
 		{ return BasicRect(std::max(X1, other.X1), std::max(Y1, other.Y1), std::min(X2, other.X2), std::min(Y2, other.Y2)); }
 
-		std::string ToString() const						{ return StringBuilder() % "(" % GetTopLeft() % ", " % GetRightBottom() % ")"; }
-		bool Valid() const									{ return X2 > X1 && Y2 > Y1; }
+		bool Intersects(const BasicRect& other) const
+		{ return X1 <= other.X2 && X2 >= other.X1 && Y1 <= other.Y2 && Y2 >= other.Y1; }
 
-		bool operator == (const BasicRect& other) const		{ return GetTopLeft() == other.GetTopLeft() && GetRightBottom() == other.GetRightBottom(); }
-		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicRect);
+		std::string ToString() const						{ return StringBuilder() % "(" % GetTopLeft() % ", " % GetRightBottom() % ")"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
