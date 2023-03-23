@@ -21,22 +21,33 @@ namespace stingray
 		Size() : Width(), Height() { }
 		Size(int width, int height) : Width(width), Height(height) { }
 
-		bool Valid() const									{ return Width > 0 && Height > 0; }
+		bool Valid() const										{ return Width > 0 && Height > 0; }
 
-		bool operator == (const Size& other) const			{ return Width == other.Width && Height == other.Height; }
+		bool operator == (const Size& other) const				{ return Width == other.Width && Height == other.Height; }
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(Size);
 
-		Size operator + (const Size& other) const			{ return Size(Width + other.Width, Height + other.Height); }
-		Size operator - (const Size& other) const			{ return Size(Width - other.Width, Height - other.Height); }
+		Size operator + (const Size& other) const				{ return Size(Width + other.Width, Height + other.Height); }
+		Size operator - (const Size& other) const				{ return Size(Width - other.Width, Height - other.Height); }
 
-		Size& operator += (const Size& other)				{ Width += other.Width; Height += other.Height; return *this; }
-		Size& operator -= (const Size& other)				{ Width -= other.Width; Height -= other.Height; return *this; }
+		Size& operator += (const Size& other)
+		{
+			Width += other.Width;
+			Height += other.Height;
+			return *this;
+		}
 
-		Size operator * (int k) const						{ return Size(Width * k, Height * k); }
-		Size operator / (int k) const						{ return Size(Width / k, Height / k); }
-		Size operator / (const Size& other) const			{ return Size(Width / other.Width, Height / other.Height); }
+		Size& operator -= (const Size& other)
+		{
+			Width -= other.Width;
+			Height -= other.Height;
+			return *this;
+		}
 
-		std::string ToString() const						{ return StringBuilder() % "(" % Width % ", " % Height % ")"; }
+		Size operator * (int k) const							{ return Size(Width * k, Height * k); }
+		Size operator / (int k) const							{ return Size(Width / k, Height / k); }
+		Size operator / (const Size& other) const				{ return Size(Width / other.Width, Height / other.Height); }
+
+		std::string ToString() const							{ return StringBuilder() % "(" % Width % ", " % Height % ")"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
@@ -62,12 +73,12 @@ namespace stingray
 		SizeScale() : WidthScale(), HeightScale() { }
 		SizeScale(int widthScale, int heightScale) : WidthScale(widthScale), HeightScale(heightScale) { }
 
-		bool Valid() const									{ return WidthScale > 0 && HeightScale > 0; }
+		bool Valid() const										{ return WidthScale > 0 && HeightScale > 0; }
 
 		bool operator == (const SizeScale& other) const			{ return WidthScale == other.WidthScale && HeightScale == other.HeightScale; }
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(SizeScale);
 
-		std::string ToString() const						{ return StringBuilder() % "(" % WidthScale % ":" % HeightScale % ")"; }
+		std::string ToString() const							{ return StringBuilder() % "(" % WidthScale % ":" % HeightScale % ")"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
@@ -88,16 +99,16 @@ namespace stingray
 	template < typename ValueType >
 	struct BasicPosition
 	{
-		ValueType	X;
-		ValueType	Y;
+		ValueType		X;
+		ValueType		Y;
 
 		BasicPosition() : X(0), Y(0) { }
 		BasicPosition(ValueType x, ValueType y) : X(x), Y(y) { }
 
-		bool operator == (const BasicPosition& other) const	{ return X == other.X && Y == other.Y; }
+		bool operator == (const BasicPosition& other) const		{ return X == other.X && Y == other.Y; }
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicPosition);
 
-		std::string ToString() const						{ return StringBuilder() % "(" % X % ", " % Y % ")"; }
+		std::string ToString() const							{ return StringBuilder() % "(" % X % ", " % Y % ")"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
@@ -113,13 +124,13 @@ namespace stingray
 			ar.Deserialize("y", Y);
 		}
 	};
-	typedef BasicPosition<int> Position;
+	using Position = BasicPosition<int>;
 
 
 	template < typename ValueType_ >
 	struct BasicRect
 	{
-		typedef ValueType_ ValueType;
+		using ValueType = ValueType_;
 
 		ValueType		X1;
 		ValueType		Y1;
@@ -131,21 +142,21 @@ namespace stingray
 		BasicRect(ValueType w, ValueType h) : X1(0), Y1(0), X2(w), Y2(h) { }
 		BasicRect(ValueType x1, ValueType y1, ValueType x2, ValueType y2) : X1(x1), Y1(y1), X2(x2), Y2(y2) { }
 
-		bool Valid() const									{ return X2 > X1 && Y2 > Y1; }
+		bool Valid() const											{ return X1 < X2 && Y1 < Y2; }
 
-		Size GetSize() const								{ return Size(GetWidth(), GetHeight()); }
+		Size GetSize() const										{ return Size(GetWidth(), GetHeight()); }
 
-		ValueType GetWidth() const	{ return X2 - X1; }
-		ValueType GetHeight() const	{ return Y2 - Y1; }
+		ValueType GetWidth() const									{ return X2 - X1; }
+		ValueType GetHeight() const									{ return Y2 - Y1; }
 
-		BasicPosition<ValueType> GetTopLeft() const			{ return BasicPosition<ValueType>(X1, Y1); }
-		BasicPosition<ValueType> GetRightBottom() const		{ return BasicPosition<ValueType>(X2, Y2); }
+		BasicPosition<ValueType> GetTopLeft() const					{ return BasicPosition<ValueType>(X1, Y1); }
+		BasicPosition<ValueType> GetRightBottom() const				{ return BasicPosition<ValueType>(X2, Y2); }
 
-		bool operator == (const BasicRect& other) const		{ return GetTopLeft() == other.GetTopLeft() && GetRightBottom() == other.GetRightBottom(); }
+		bool operator == (const BasicRect& other) const				{ return GetTopLeft() == other.GetTopLeft() && GetRightBottom() == other.GetRightBottom(); }
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicRect);
 
-		BasicRect Move(BasicPosition<ValueType> d) const	{ return BasicRect(X1 + d.X, Y1 + d.Y, X2 + d.X, Y2 + d.Y); }
-		BasicRect Move(ValueType dx, ValueType dy) const	{ return BasicRect(X1 + dx, Y1 + dy, X2 + dx, Y2 + dy); }
+		BasicRect Move(const BasicPosition<ValueType>& pos) const	{ return BasicRect(X1 + pos.X, Y1 + pos.Y, X2 + pos.X, Y2 + pos.Y); }
+		BasicRect Move(ValueType dx, ValueType dy) const			{ return BasicRect(X1 + dx, Y1 + dy, X2 + dx, Y2 + dy); }
 
 		BasicRect Intersect(const BasicRect& other) const
 		{ return BasicRect(std::max(X1, other.X1), std::max(Y1, other.Y1), std::min(X2, other.X2), std::min(Y2, other.Y2)); }
@@ -153,7 +164,7 @@ namespace stingray
 		bool Intersects(const BasicRect& other) const
 		{ return X1 <= other.X2 && X2 >= other.X1 && Y1 <= other.Y2 && Y2 >= other.Y1; }
 
-		std::string ToString() const						{ return StringBuilder() % "(" % GetTopLeft() % ", " % GetRightBottom() % ")"; }
+		std::string ToString() const								{ return StringBuilder() % "(" % GetTopLeft() % ", " % GetRightBottom() % ")"; }
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
@@ -173,7 +184,7 @@ namespace stingray
 			ar.Deserialize("y2", Y2);
 		}
 	};
-	typedef BasicRect<int> Rect;
+	using Rect = BasicRect<int>;
 
 }
 
