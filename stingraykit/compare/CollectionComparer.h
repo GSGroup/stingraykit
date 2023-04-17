@@ -17,16 +17,16 @@ namespace stingray
 	template < typename ItemCmp >
 	struct CollectionComparer : public comparers::CmpComparerBase<CollectionComparer<ItemCmp> >
 	{
-		template < typename T >
-		int DoCompare(const T& lhs, const T& rhs) const
+		template < typename Lhs, typename Rhs >
+		int DoCompare(const Lhs& lhs, const Rhs& rhs) const
 		{
 			static_assert(IsSame<typename function_info<ItemCmp>::RetType, int>::Value, "Expected Cmp comparer");
 			return DoCompareRanges(ToRange(lhs), ToRange(rhs));
 		}
 
 	private:
-		template < typename Range_ >
-		int DoCompareRanges(Range_ lhs, Range_ rhs) const
+		template < typename LhsRange, typename RhsRange >
+		int DoCompareRanges(LhsRange lhs, RhsRange rhs) const
 		{
 			for (; lhs; ++lhs, ++rhs)
 			{
