@@ -234,6 +234,7 @@ if ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")
 
 	if (CMAKE_C_COMPILER_ID MATCHES "Clang")
 		set(COMMON_CXX_FLAGS "${COMMON_CXX_FLAGS} -Qunused-arguments -Wno-overloaded-virtual -Wno-shift-count-overflow")
+		set(COMMON_LINK_OPTS "${COMMON_LINK_OPTS} -no-pie")
 	endif (CMAKE_C_COMPILER_ID MATCHES "Clang")
 
 	CHECK_CXX_COMPILER_FLAG("-fstack-protector-all" HAVE_STACK_PROTECTOR)
