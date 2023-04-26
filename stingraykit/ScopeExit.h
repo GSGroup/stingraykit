@@ -11,7 +11,6 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/function/function.h>
 #include <stingraykit/Macro.h>
-#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -49,7 +48,8 @@ namespace stingray
 			STINGRAYKIT_CAT(__ScopeExitFunc, __LINE__) (STINGRAYKIT_CAT(__ScopeExitArgs, __LINE__) args) : STINGRAYKIT_CAT(__ScopeExitArgs, __LINE__)(args) { } \
 			~STINGRAYKIT_CAT(__ScopeExitFunc, __LINE__) () { STINGRAYKIT_TRY("Unhandled exception in " TO_STRING(STINGRAYKIT_CAT(__ScopeExitFunc, __LINE__)), Dtor()); } \
 			\
-			void Dtor() {
+			void Dtor() \
+			{
 
 	/** @brief End of the code that should be executed at the scope exit */
 #define STINGRAYKIT_SCOPE_EXIT_END \
@@ -64,8 +64,9 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ScopeExitInvoker);
 
 	private:
-		typedef function<void ()>	FuncType;
+		using FuncType = function<void ()>;
 
+	private:
 		optional<FuncType>			_func;
 
 	public:
@@ -211,7 +212,5 @@ namespace stingray
 		} __scope_exit_args(ParamName1_, ParamName2_, ParamName3_, ParamName4_, ParamName5_, ParamName6_, ParamName7_, ParamName8_, ParamName9_, ParamName10_);
 
 }
-
-
 
 #endif
