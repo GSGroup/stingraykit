@@ -63,7 +63,7 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(ScopeExitInvoker);
 
-	private:
+	public:
 		using FuncType = function<void ()>;
 
 	private:
