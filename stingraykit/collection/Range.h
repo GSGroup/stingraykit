@@ -1426,7 +1426,7 @@ namespace stingray
 	{
 		using ValueT = typename Range_::ValueType;
 
-		static ValueT Do(const Range_& range)
+		static ValueT Do(const Range_& range, const FirstTransformer& action)
 		{ return Range::First(range); }
 	};
 
