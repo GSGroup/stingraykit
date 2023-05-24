@@ -116,7 +116,7 @@ namespace stingray
 		Derived& operator -= (const difference_type& diff)
 		{ return GetDerived() += -diff; }
 
-		Derived operator-(const difference_type& diff) const
+		Derived operator - (const difference_type& diff) const
 		{
 			Derived result(GetDerived());
 			return result -= diff;
