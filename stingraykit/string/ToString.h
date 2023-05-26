@@ -420,8 +420,35 @@ namespace stingray
 	using WideStringBuilder = BasicStringBuilder<wchar_t>;
 
 
+	template < bool EnableSeparator >
+	struct SeparatorEnablerType { };
+
+
+	extern const SeparatorEnablerType<true> Sep;
+	extern const SeparatorEnablerType<false> NoSep;
+
+
 	class StringJoiner
 	{
+		template < bool EnableSeparator >
+		class SeparatorEnabler
+		{
+		private:
+			StringJoiner&		_inst;
+
+		public:
+			explicit SeparatorEnabler(StringJoiner& inst)
+				:	_inst(inst)
+			{ }
+
+			template < typename T >
+			StringJoiner& operator % (const T& value)
+			{
+				_inst.Append(value, EnableSeparator);
+				return _inst;
+			}
+		};
+
 	private:
 		StringBuilder	_builder;
 
@@ -430,26 +457,31 @@ namespace stingray
 		std::string		_prefix;
 		std::string		_suffix;
 
+		bool			_enableSeparator;
+
 	public:
-		explicit StringJoiner(const std::string& separator)
-			: _separator(separator)
+		explicit StringJoiner(const std::string& separator, bool enableSeparator = true)
+			:	_separator(separator),
+				_enableSeparator(enableSeparator)
 		{ }
 
-		StringJoiner(const std::string& separator, const std::string& prefix, const std::string& suffix)
-			: _separator(separator), _prefix(prefix), _suffix(suffix)
+		StringJoiner(const std::string& separator, const std::string& prefix, const std::string& suffix, bool enableSeparator = true)
+			:	_separator(separator),
+				_prefix(prefix),
+				_suffix(suffix),
+				_enableSeparator(enableSeparator)
 		{ }
 
 		template < typename T >
 		StringJoiner& operator % (const T& value)
 		{
-			if (_builder.empty())
-				_builder % _prefix;
-			else
-				_builder % _separator;
-
-			_builder % value;
+			Append(value, _enableSeparator);
 			return *this;
 		}
+
+		template < bool EnableSeparator >
+		SeparatorEnabler<EnableSeparator> operator % (SeparatorEnablerType<EnableSeparator>)
+		{ return SeparatorEnabler<EnableSeparator>(*this); }
 
 		bool empty() const { return _builder.empty(); }
 
@@ -457,6 +489,18 @@ namespace stingray
 
 		std::string ToString() const
 		{ return (_builder.empty() ? _prefix : _builder.ToString()) + _suffix; }
+
+	private:
+		template < typename T >
+		void Append(const T& value, bool enableSeparator)
+		{
+			if (_builder.empty())
+				_builder % _prefix;
+			else if (enableSeparator)
+				_builder % _separator;
+
+			_builder % value;
+		}
 	};
 
 }
