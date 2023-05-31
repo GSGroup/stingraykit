@@ -18,6 +18,9 @@ namespace stingray
 	template < typename T >
 	class BasicBytesOwner
 	{
+		template < typename >
+		friend class BasicBytesOwner;
+
 		class Storage : public IToken
 		{
 		private:
@@ -49,15 +52,26 @@ namespace stingray
 		{ }
 
 		BasicBytesOwner(DataType data, const Token& lifeAssurance)
-			: _data(data), _lifeAssurance(lifeAssurance)
+			:	_data(data),
+				_lifeAssurance(lifeAssurance)
 		{ }
 
-		BasicBytesOwner(const BasicBytesOwner& other, size_t offset)
-			: _data(other._data, offset), _lifeAssurance(other._lifeAssurance)
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		BasicBytesOwner(const BasicBytesOwner<U>& other)
+			:	_data(other._data),
+				_lifeAssurance(other._lifeAssurance)
 		{ }
 
-		BasicBytesOwner(const BasicBytesOwner& other, size_t offset, size_t size)
-			: _data(other._data, offset, size), _lifeAssurance(other._lifeAssurance)
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		BasicBytesOwner(const BasicBytesOwner<U>& other, size_t offset)
+			:	_data(other._data, offset),
+				_lifeAssurance(other._lifeAssurance)
+		{ }
+
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		BasicBytesOwner(const BasicBytesOwner<U>& other, size_t offset, size_t size)
+			:	_data(other._data, offset, size),
+				_lifeAssurance(other._lifeAssurance)
 		{ }
 
 		T& operator [] (size_t index) const				{ return _data[index]; }
