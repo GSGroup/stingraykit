@@ -62,7 +62,7 @@ public: \
 	void T##_erase(const T##_key_type &key) \
 	{ \
 		T##_iterator i ( _##T.find(key) ); \
-		erase(i); \
+		T##_erase(i); \
 	}
 
 	template <typename left_collection_type_, typename right_collection_type_>
