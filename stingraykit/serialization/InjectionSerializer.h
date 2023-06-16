@@ -52,14 +52,19 @@ namespace stingray
 
 	private:
 		unique_ptr<ObjectIStream>		_stream;
+		SettingsValueSelfCountPtr		_value;
 
 	public:
 		explicit InjectionSerializer(unique_ptr<ObjectIStream>&& stream)
 			:	_stream(std::move(STINGRAYKIT_REQUIRE_NOT_NULL(stream)))
 		{ }
 
+		explicit InjectionSerializer(const SettingsValueSelfCountPtr& value)
+			:	_value(STINGRAYKIT_REQUIRE_NOT_NULL(value))
+		{ }
+
 		void SerializeAsValue(ObjectOStream& ar) const
-		{ apply_visitor(Visitor(ar.GetRawObjectStream()), *_stream->Root()); }
+		{ apply_visitor(Visitor(ar.GetRawObjectStream()), _stream ? *_stream->Root() : *_value); }
 	};
 
 }
