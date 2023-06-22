@@ -8,10 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/collection/ByteData.h>
 #include <stingraykit/serialization/FloatString.h>
 #include <stingraykit/serialization/SettingsValueForward.h>
 #include <stingraykit/serialization/SettingsValueException.h>
-#include <stingraykit/collection/ByteData.h>
 #include <stingraykit/variant.h>
 
 namespace stingray
@@ -21,19 +21,18 @@ namespace stingray
 	 * @addtogroup core_settings
 	 * @{
 	 */
-	typedef TypeList<EmptyType, bool, s64, FloatString, std::string, ByteArray, SettingsValueList, SettingsValueMap> SettingsValueTypes;
 
-	class SettingsValue : public self_counter<SettingsValue>, public variant<SettingsValueTypes>
+	using SettingsValueTypes = TypeList<EmptyType, bool, s64, FloatString, std::string, ByteArray, SettingsValueList, SettingsValueMap>;
+
+	class SettingsValue final : public self_counter<SettingsValue>, public variant<SettingsValueTypes>
 	{
 		STINGRAYKIT_NONCOPYABLE(SettingsValue);
 
 	public:
-		SettingsValue()
-		{ }
+		SettingsValue() { }
 
 		template < typename T >
-		SettingsValue(const T &val): variant<SettingsValueTypes>(val)
-		{ }
+		SettingsValue(const T& value) : variant<SettingsValueTypes>(value) { }
 	};
 
 	/** @} */
@@ -41,4 +40,3 @@ namespace stingray
 }
 
 #endif
-
