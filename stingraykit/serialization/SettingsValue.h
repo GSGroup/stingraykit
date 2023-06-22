@@ -32,7 +32,7 @@ namespace stingray
 		SettingsValue() { }
 
 		template < typename T >
-		SettingsValue(const T& value) : variant<SettingsValueTypes>(value) { }
+		SettingsValue(T&& value) : variant<SettingsValueTypes>(std::forward<T>(value)) { }
 	};
 
 	/** @} */
