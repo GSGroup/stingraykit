@@ -14,8 +14,6 @@
 #include <stingraykit/SafeSingleton.h>
 #include <stingraykit/lazy.h>
 
-#include <string.h>
-
 namespace stingray
 {
 
@@ -48,13 +46,8 @@ namespace stingray
 
 		class NamedLoggerRegistry
 		{
-			struct StrLess
-			{
-				bool operator () (const char* l, const char* r) const { return strcmp(l, r) < 0; }
-			};
-
 			using SettingsRegistry = std::map<std::string, NamedLoggerSettings>;
-			using ObjectsRegistry = std::multimap<const char*, NamedLogger*, StrLess>;
+			using ObjectsRegistry = std::multimap<string_view, NamedLogger*>;
 
 		private:
 			Mutex				_mutex;
@@ -84,7 +77,9 @@ namespace stingray
 			std::set<std::string> GetLoggerNames() const
 			{
 				MutexLock l(_mutex);
-				return std::set<std::string>(keys_iterator(_objects.begin()), keys_iterator(_objects.end()));
+				std::set<std::string> result;
+				Copy(MapKeys(ToRange(_objects)) | Transform(&string_view::copy), std::inserter(result, result.end()));
+				return result;
 			}
 
 			void SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel)
