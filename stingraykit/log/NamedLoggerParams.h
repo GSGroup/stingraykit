@@ -16,15 +16,16 @@ namespace stingray
 	class NamedLoggerParams
 	{
 	private:
-		const char*						_name;
+		std::string						_name;
 		atomic<bool>					_backtrace;
 		atomic<bool>					_highlight;
 
 	public:
-		NamedLoggerParams(const char* name) : _name(name), _backtrace(false), _highlight(false)
+		NamedLoggerParams(const std::string& name)
+			: _name(name), _backtrace(false), _highlight(false)
 		{ }
 
-		const char* GetName() const			{ return _name; }
+		const std::string& GetName() const	{ return _name; }
 
 		bool BacktraceEnabled() const		{ return _backtrace; }
 		void EnableBacktrace(bool enable)	{ _backtrace = enable; }

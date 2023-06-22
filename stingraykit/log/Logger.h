@@ -136,9 +136,9 @@ namespace stingray
 		Token							_token;
 
 	public:
-		NamedLogger(const char* name, optional<LogLevel> logLevel = null);
+		NamedLogger(const std::string& name, optional<LogLevel> logLevel = null);
 
-		const char* GetName() const { return _params.GetName(); }
+		const std::string& GetName() const { return _params.GetName(); }
 
 		/// @brief Gets log level for NamedLogger
 		/// @returns NamedLogger log level if it has one, or global Logger log level otherwise

@@ -269,7 +269,7 @@ namespace stingray
 	/////////////////////////////////////////////////////////////////
 
 
-	NamedLogger::NamedLogger(const char* name, optional<LogLevel> logLevel)
+	NamedLogger::NamedLogger(const std::string& name, optional<LogLevel> logLevel)
 		:	_params(name),
 			_logLevel(OptionalLogLevel::FromLogLevel(logLevel))
 	{
