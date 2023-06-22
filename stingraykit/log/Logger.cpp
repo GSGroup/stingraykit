@@ -62,17 +62,17 @@ namespace stingray
 			ObjectsRegistry		_objects;
 
 		public:
-			ObjectsRegistry::const_iterator Register(const char* loggerName, NamedLogger* logger)
+			ObjectsRegistry::const_iterator Register(NamedLogger* logger)
 			{
 				MutexLock l(_mutex);
-				const SettingsRegistry::const_iterator it = _settings.find(loggerName);
+				const SettingsRegistry::const_iterator it = _settings.find(logger->GetName());
 				if (it != _settings.end())
 				{
 					logger->SetLogLevel(it->second.GetLogLevel());
 					logger->EnableBacktrace(it->second.BacktraceEnabled());
 					logger->EnableHighlight(it->second.HighlightEnabled());
 				}
-				return _objects.emplace(loggerName, logger);
+				return _objects.emplace(logger->GetName(), logger);
 			}
 
 			void Unregister(ObjectsRegistry::const_iterator it)
@@ -279,7 +279,7 @@ namespace stingray
 			_logLevel(OptionalLogLevel::FromLogLevel(logLevel))
 	{
 		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
-			_token = MakeFunctionToken(Bind(&NamedLoggerRegistry::Unregister, Bind(&LoggerImpl::GetRegistry, logger), logger->GetRegistry().Register(_params.GetName(), this)));
+			_token = MakeFunctionToken(Bind(&NamedLoggerRegistry::Unregister, Bind(&LoggerImpl::GetRegistry, logger), logger->GetRegistry().Register(this)));
 	}
 
 
