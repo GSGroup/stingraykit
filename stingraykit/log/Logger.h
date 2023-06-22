@@ -86,6 +86,8 @@ namespace stingray
 		/// @name Named loggers control
 		/// @{
 		static void SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel);
+		static optional<LogLevel> GetLogLevel(const std::string& loggerName);
+
 		static void EnableBacktrace(const std::string& loggerName, bool enable);
 		static void EnableHighlight(const std::string& loggerName, bool enable);
 

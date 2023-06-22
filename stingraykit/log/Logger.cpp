@@ -95,6 +95,13 @@ namespace stingray
 					_settings.erase(it);
 			}
 
+			optional<LogLevel> GetLogLevel(const std::string& loggerName) const
+			{
+				MutexLock l(_mutex);
+				const SettingsRegistry::const_iterator it = _settings.find(loggerName);
+				return it != _settings.end() ? it->second.GetLogLevel() : null;
+			}
+
 			void EnableBacktrace(const std::string& loggerName, bool enable)
 			{
 				MutexLock l(_mutex);
@@ -217,6 +224,14 @@ namespace stingray
 	}
 
 
+	optional<LogLevel> Logger::GetLogLevel(const std::string& loggerName)
+	{
+		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
+			return logger->GetRegistry().GetLogLevel(loggerName);
+		return null;
+	}
+
+
 	void Logger::EnableBacktrace(const std::string& loggerName, bool enable)
 	{
 		if (const LoggerImplPtr logger = LoggerSingleton::Instance())
@@ -279,7 +294,11 @@ namespace stingray
 
 
 	LogLevel NamedLogger::GetLogLevel() const
-	{ return OptionalLogLevel::ToLogLevel(_logLevel.load(MemoryOrderRelaxed)).get_value_or(lazy(&Logger::GetLogLevel)); }
+	{
+		if (const auto logLevel = OptionalLogLevel::ToLogLevel(_logLevel.load(MemoryOrderRelaxed)))
+			return *logLevel;
+		return Logger::GetLogLevel();
+	}
 
 
 	void NamedLogger::SetLogLevel(optional<LogLevel> logLevel)
