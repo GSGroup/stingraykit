@@ -33,6 +33,9 @@ namespace stingray
 
 		template < typename T >
 		SettingsValue(T&& value) : variant<SettingsValueTypes>(std::forward<T>(value)) { }
+
+		SettingsValueSelfCountPtr Clone() const
+		{ return make_self_count_ptr<SettingsValue>(*static_cast<const variant<SettingsValueTypes>*>(this)); }
 	};
 
 	/** @} */
