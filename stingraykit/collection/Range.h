@@ -1267,7 +1267,7 @@ namespace stingray
 		template < typename Range_ >
 		typename Decay<typename Range_::ValueType>::ValueT Sum(Range_ range)
 		{
-			typename Decay<typename Range_::ValueType>::ValueT result = 0;
+			typename Decay<typename Range_::ValueType>::ValueT result = typename Decay<typename Range_::ValueType>::ValueT();
 			for (; range.Valid(); range.Next())
 				result += range.Get();
 			return result;
