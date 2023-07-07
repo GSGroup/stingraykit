@@ -77,7 +77,7 @@ namespace stingray
 
 		s64 abs_ms = Absolute().GetMilliseconds();
 		s64 hours = has_hours ? abs_ms / Hour().GetMilliseconds() : 0;
-		s64 minutes = (abs_ms - hours * Hour().GetMilliseconds()) / Minute().GetMilliseconds();
+		s64 minutes = abs_ms % Hour().GetMilliseconds() / Minute().GetMilliseconds();
 		s64 seconds = abs_ms % Minute().GetMilliseconds() / Second().GetMilliseconds();
 		s64 milliseconds = abs_ms % Second().GetMilliseconds();
 
