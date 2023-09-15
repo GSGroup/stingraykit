@@ -12,6 +12,39 @@
 namespace stingray
 {
 
+	namespace
+	{
+
+		FractionInfo RoundFraction(u64 fraction, unsigned precision, unsigned targetPrecision, unsigned radix)
+		{
+			const unsigned overflowThreshold = radix / 2 + radix % 2;
+
+			bool wasOverflow = false;
+			for (; precision > targetPrecision; --precision)
+			{
+				const bool isOverflow = fraction % radix >= overflowThreshold;
+				wasOverflow |= isOverflow;
+
+				fraction = fraction / radix + (isOverflow ? 1 : 0);
+			}
+
+			if (!wasOverflow)
+				return { fraction, precision, false };
+
+			u64 precisionBase = 1;
+			for (unsigned index = 0; index < precision; ++index)
+				precisionBase *= radix;
+
+			const bool isOverflow = fraction >= precisionBase;
+			if (isOverflow)
+				fraction -= precisionBase;
+
+			return { fraction, fraction == 0 ? 0 : precision, isOverflow };
+		}
+
+	}
+
+
 	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned targetPrecision, unsigned radix)
 	{
 		STINGRAYKIT_CHECK(divisor != 0, ArgumentException("divisor"));
@@ -22,7 +55,6 @@ namespace stingray
 			return { 0, 0, false };
 
 		const u64 maxMultiplicand = std::numeric_limits<u64>::max() / radix;
-		const unsigned overflowThreshold = radix / 2 + radix % 2;
 
 		unsigned precision = 0;
 		for (; remainder <= maxMultiplicand; ++precision)
@@ -30,27 +62,7 @@ namespace stingray
 
 		remainder /= divisor;
 
-		bool wasOverflow = false;
-		for (; precision > targetPrecision; --precision)
-		{
-			const bool isOverflow = remainder % radix >= overflowThreshold;
-			wasOverflow |= isOverflow;
-
-			remainder = remainder / radix + (isOverflow ? 1 : 0);
-		}
-
-		if (!wasOverflow)
-			return { remainder, precision, false };
-
-		u64 precisionBase = 1;
-		for (unsigned index = 0; index < precision; ++index)
-			precisionBase *= radix;
-
-		const bool isOverflow = remainder >= precisionBase;
-		if (isOverflow)
-			remainder -= precisionBase;
-
-		return { remainder, remainder == 0 ? 0 : precision, isOverflow };
+		return RoundFraction(remainder, precision, targetPrecision, radix);
 	}
 
 }
