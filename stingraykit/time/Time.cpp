@@ -100,7 +100,7 @@ namespace stingray
 		int value = 0;
 		char units = 0;
 		const int components = sscanf(str.c_str(), "%d%c", &value, &units);
-		STINGRAYKIT_CHECK(components > 0, "Invalid time duration format");
+		STINGRAYKIT_CHECK(components > 0, FormatException(str));
 
 		switch (units)
 		{
@@ -117,7 +117,7 @@ namespace stingray
 			return TimeDuration(value);
 		}
 
-		STINGRAYKIT_THROW("Could not parse TimeDuration!");
+		STINGRAYKIT_THROW(FormatException(str));
 	}
 
 
@@ -255,7 +255,7 @@ namespace stingray
 				else
 				{
 					components = sscanf(str.c_str(), "%hd-%hd-%hdT%hd:%hd:%hd%c%hd:%hd", &year, &month, &day, &hour, &minute, &second, &utcSign, &utcHour, &utcMinute);
-					STINGRAYKIT_CHECK(components >= 3, "Unknown time format!");
+					STINGRAYKIT_CHECK(components >= 3, FormatException(str));
 
 					haveDate = true;
 					if (components >= 5)
@@ -271,9 +271,9 @@ namespace stingray
 				}
 			}
 		}
-		STINGRAYKIT_CHECK(haveDate || haveTime, "Could not parse Time!");
-		STINGRAYKIT_CHECK(!(!haveTime && haveSeconds), "Have seconds without hours and minutes!");
-		STINGRAYKIT_CHECK(!haveUtcSign || ((utcSign == 'Z' && !haveUtcHours && !haveUtcMinutes) || ((utcSign == '+' || utcSign == '-') && haveUtcHours && !(!haveUtcHours && haveUtcMinutes))), "Malformed UTC suffix");
+		STINGRAYKIT_CHECK(haveDate || haveTime, FormatException(str));
+		STINGRAYKIT_CHECK(!(!haveTime && haveSeconds), FormatException(str));
+		STINGRAYKIT_CHECK(!haveUtcSign || ((utcSign == 'Z' && !haveUtcHours && !haveUtcMinutes) || ((utcSign == '+' || utcSign == '-') && haveUtcHours && !(!haveUtcHours && haveUtcMinutes))), FormatException(str));
 
 		BrokenDownTime bdt;
 		if (haveDate)
@@ -309,7 +309,7 @@ namespace stingray
 					bdt.Minutes -= minutesFromUtc;
 			}
 			else
-				STINGRAYKIT_CHECK(utcSign == 'Z', "Unknown UTC sign!");
+				STINGRAYKIT_CHECK(utcSign == 'Z', FormatException(str));
 		}
 
 		return FromBrokenDownTime(bdt, haveUtcSign ? TimeKind(TimeKind::Utc) : kind);
@@ -397,7 +397,7 @@ namespace stingray
 			if (!result)
 				result = TryFromDate(uppercase);
 
-			STINGRAYKIT_CHECK(result, FormatException(uppercase));
+			STINGRAYKIT_CHECK(result, FormatException(str));
 
 			const s16 milliseconds = (result->Seconds - double(s16(result->Seconds))) * 1000.;
 			const BrokenDownTime brokenDown(milliseconds, (s16)result->Seconds, result->Minutes, result->Hours, 0, result->Day, result->Month, 0, result->Year);
