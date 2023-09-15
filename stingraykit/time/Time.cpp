@@ -272,8 +272,13 @@ namespace stingray
 			}
 		}
 		STINGRAYKIT_CHECK(haveDate || haveTime, FormatException(str));
-		STINGRAYKIT_CHECK(!(!haveTime && haveSeconds), FormatException(str));
-		STINGRAYKIT_CHECK(!haveUtcSign || ((utcSign == 'Z' && !haveUtcHours && !haveUtcMinutes) || ((utcSign == '+' || utcSign == '-') && haveUtcHours && !(!haveUtcHours && haveUtcMinutes))), FormatException(str));
+		STINGRAYKIT_CHECK(haveTime || !haveSeconds, FormatException(str));
+
+		STINGRAYKIT_CHECK(
+				!haveUtcSign
+						|| ((utcSign == 'Z' && !haveUtcHours && !haveUtcMinutes)
+								|| ((utcSign == '+' || utcSign == '-') && haveUtcHours)),
+				FormatException(str));
 
 		BrokenDownTime bdt;
 		if (haveDate)
