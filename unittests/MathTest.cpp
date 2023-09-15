@@ -96,3 +96,50 @@ TEST(MathTest, FractionRemainder)
 	CHECK_REMAINDER(2038898ull, 1048576ull, 1, 0, 0, true);
 	CHECK_REMAINDER(2038898ull, 1048576ull, 0, 0, 0, true);
 }
+
+
+#define CHECK_FRACTION(FractionStr, TargetPrecision, ResultFraction, ResultPrecision, ResultIsOverflow) \
+		ASSERT_THAT(ParseDecimalFraction(FractionStr, TargetPrecision), \
+					AllOf( \
+						   Field(&FractionInfo::Fraction, ResultFraction), \
+						   Field(&FractionInfo::Precision, ResultPrecision), \
+						   Field(&FractionInfo::IsOverflow, ResultIsOverflow)))
+
+TEST(MathTest, DecimalFraction)
+{
+	ASSERT_ANY_THROW(ParseDecimalFraction("18446744073709551616", 20));
+
+	CHECK_FRACTION("18446744073709551615", 20, 18446744073709551615ull, 20, false);
+	ASSERT_ANY_THROW(ParseDecimalFraction("18446744073709551615", 21));
+	CHECK_FRACTION("18446744073709551615", 3, 185, 3, false);
+	CHECK_FRACTION("18446744073709551615", 2, 19, 2, false);
+	CHECK_FRACTION("18446744073709551615", 1, 2, 1, false);
+
+	CHECK_FRACTION("18446744073709551614", 20, 18446744073709551614ull, 20, false);
+	ASSERT_ANY_THROW(ParseDecimalFraction("18446744073709551614", 21));
+
+	CHECK_FRACTION("1844674407370955162", 19, 1844674407370955162ull, 19, false);
+	ASSERT_ANY_THROW(ParseDecimalFraction("1844674407370955162", 20));
+	CHECK_FRACTION("1844674407370955161", 20, 18446744073709551610ull, 20, false);
+
+	CHECK_FRACTION("87654", 6, 876540, 6, false);
+	CHECK_FRACTION("87654", 5, 87654, 5, false);
+	CHECK_FRACTION("87654", 4, 8765, 4, false);
+	CHECK_FRACTION("87654", 3, 877, 3, false);
+	CHECK_FRACTION("87654", 2, 88, 2, false);
+	CHECK_FRACTION("87654", 1, 9, 1, false);
+	CHECK_FRACTION("87654", 0, 0, 0, true);
+
+	CHECK_FRACTION("987654", 8, 98765400, 8, false);
+	CHECK_FRACTION("987654", 7, 9876540, 7, false);
+	CHECK_FRACTION("987654", 6, 987654, 6, false);
+	CHECK_FRACTION("987654", 5, 98765, 5, false);
+	CHECK_FRACTION("987654", 4, 9877, 4, false);
+	CHECK_FRACTION("987654", 3, 988, 3, false);
+	CHECK_FRACTION("987654", 2, 99, 2, false);
+	CHECK_FRACTION("987654", 1, 0, 0, true);
+	CHECK_FRACTION("987654", 0, 0, 0, true);
+
+	CHECK_FRACTION("000000000000000000000000", 30, 0, 0, false);
+	CHECK_FRACTION("0", 20, 0, 0, false);
+}

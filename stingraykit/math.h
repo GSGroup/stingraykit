@@ -47,6 +47,8 @@ namespace stingray
 
 	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned targetPrecision, unsigned radix = 10);
 
+	FractionInfo ParseDecimalFraction(const std::string& fractionStr, unsigned targetPrecision);
+
 }
 
 #endif

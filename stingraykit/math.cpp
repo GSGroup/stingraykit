@@ -7,7 +7,7 @@
 
 #include <stingraykit/math.h>
 
-#include <stingraykit/string/ToString.h>
+#include <stingraykit/string/StringUtils.h>
 
 namespace stingray
 {
@@ -63,6 +63,27 @@ namespace stingray
 		remainder /= divisor;
 
 		return RoundFraction(remainder, precision, targetPrecision, radix);
+	}
+
+
+	FractionInfo ParseDecimalFraction(const std::string& fractionStr, unsigned targetPrecision)
+	{
+		constexpr unsigned Radix = 10;
+		constexpr u64 MaxMultiplicand = std::numeric_limits<u64>::max() / Radix;
+
+		u64 fraction = FromString<u64>(fractionStr);
+		if (fraction == 0)
+			return { 0, 0, false };
+
+		unsigned precision = fractionStr.size();
+
+		for (; precision < targetPrecision; ++precision)
+		{
+			STINGRAYKIT_CHECK(fraction <= MaxMultiplicand, IndexOutOfRangeException(StringBuilder() % RightJustify(ToString(fraction), precision, '0') % "0", std::numeric_limits<u64>::max()));
+			fraction *= Radix;
+		}
+
+		return RoundFraction(fraction, precision, targetPrecision, Radix);
 	}
 
 }
