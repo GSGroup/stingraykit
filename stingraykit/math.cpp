@@ -12,7 +12,7 @@
 namespace stingray
 {
 
-	FractionRemainder CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned precision_, unsigned radix)
+	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned precision_, unsigned radix)
 	{
 		STINGRAYKIT_CHECK(divisor != 0, ArgumentException("divisor"));
 		STINGRAYKIT_CHECK(radix > 1, ArgumentException("radix", radix));

@@ -10,9 +10,9 @@ using namespace stingray;
 #define CHECK_REMAINDER(Dividend, Divisor, Precision_, ResultRemainder, ResultPrecision, ResultIsOverflow) \
 		ASSERT_THAT(CalculateFractionRemainder(Dividend, Divisor, Precision_), \
 				AllOf( \
-						Field(&FractionRemainder::Remainder, ResultRemainder), \
-						Field(&FractionRemainder::Precision, ResultPrecision), \
-						Field(&FractionRemainder::IsOverflow, ResultIsOverflow)))
+						Field(&FractionInfo::Fraction, ResultRemainder), \
+						Field(&FractionInfo::Precision, ResultPrecision), \
+						Field(&FractionInfo::IsOverflow, ResultIsOverflow)))
 
 TEST(MathTest, FractionRemainder)
 {
