@@ -12,7 +12,6 @@
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/StringParse.h>
 #include <stingraykit/time/TimeEngine.h>
-#include <stingraykit/log/Logger.h>
 #include <stingraykit/math.h>
 
 #include <stdio.h>
@@ -268,9 +267,6 @@ namespace stingray
 		STINGRAYKIT_CHECK((haveDate || haveTime), "Could not parse Time!");
 		STINGRAYKIT_CHECK(!(!haveTime && haveSeconds), "Have seconds without hours and minutes!");
 		STINGRAYKIT_CHECK(!haveUtcSign || ((utcSign == 'Z' && !haveUtcHours && !haveUtcMinutes) || ((utcSign == '+' || utcSign == '-') && haveUtcHours && !(!haveUtcHours && haveUtcMinutes))), "Malformed UTC suffix");
-
-		if (haveUtcSign)
-			Logger::Debug() << "Time::FromString: time kind parameter will be ignored because time string have UTC sign";
 
 		BrokenDownTime bdt;
 		if (haveDate)
