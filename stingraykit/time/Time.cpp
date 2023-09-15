@@ -71,16 +71,16 @@ namespace stingray
 		if (GetMilliseconds() < 0)
 			result.insert(0, "-");
 
-		std::string hours_placeholder = "hh";
-		bool has_hours = std::search(result.begin(), result.end(), hours_placeholder.begin(), hours_placeholder.end()) != result.end();
+		std::string hoursPlaceholder = "hh";
+		bool hasHours = std::search(result.begin(), result.end(), hoursPlaceholder.begin(), hoursPlaceholder.end()) != result.end();
 
-		s64 abs_ms = Absolute().GetMilliseconds();
-		s64 hours = has_hours ? abs_ms / Hour().GetMilliseconds() : 0;
-		s64 minutes = (abs_ms - hours * Hour().GetMilliseconds()) / Minute().GetMilliseconds();
-		s64 seconds = abs_ms % Minute().GetMilliseconds() / Second().GetMilliseconds();
-		s64 milliseconds = abs_ms % Second().GetMilliseconds();
+		s64 absMs = Absolute().GetMilliseconds();
+		s64 hours = hasHours ? absMs / Hour().GetMilliseconds() : 0;
+		s64 minutes = (absMs - hours * Hour().GetMilliseconds()) / Minute().GetMilliseconds();
+		s64 seconds = absMs % Minute().GetMilliseconds() / Second().GetMilliseconds();
+		s64 milliseconds = absMs % Second().GetMilliseconds();
 
-		if (has_hours)
+		if (hasHours)
 			ReplaceAll(result, "hh", StringFormat("%1$2%", hours));
 		else
 			ReplaceAll(result, "hh", "");
@@ -92,27 +92,27 @@ namespace stingray
 	}
 
 
-	TimeDuration TimeDuration::FromString(const std::string& s)
+	TimeDuration TimeDuration::FromString(const std::string& str)
 	{
-		int n = 0;
-		char c = 0;
-		int components = sscanf(s.c_str(), "%d%c", &n, &c);
+		int value = 0;
+		char units = 0;
+		int components = sscanf(str.c_str(), "%d%c", &value, &units);
 		if (components < 1)
 			STINGRAYKIT_THROW("Invalid time duration format");
 
-		switch (c)
+		switch (units)
 		{
 		case 'H':
 		case 'h':
-			return FromHours(n);
+			return FromHours(value);
 		case 'M':
 		case 'm':
-			return FromMinutes(n);
+			return FromMinutes(value);
 		case 'S':
 		case 's':
-			return FromSeconds(n);
+			return FromSeconds(value);
 		case 0:
-			return TimeDuration(n);
+			return TimeDuration(value);
 		}
 
 		STINGRAYKIT_THROW("Could not parse TimeDuration!");
@@ -196,13 +196,13 @@ namespace stingray
 	{ return BreakDown(kind).ToString(format); }
 
 
-	Time Time::FromString(const std::string& s, TimeKind kind)
+	Time Time::FromString(const std::string& str, TimeKind kind)
 	{
-		if (s == "now")
+		if (str == "now")
 			return Time::Now();
 
-		if (s.size() > 4 && s.substr(0, 4) == "now+")
-			return Time::Now() + TimeDuration::FromString(s.substr(4));
+		if (str.size() > 4 && str.substr(0, 4) == "now+")
+			return Time::Now() + TimeDuration::FromString(str.substr(4));
 
 		s16 year = 0;
 		s16 month = 0;
@@ -221,7 +221,7 @@ namespace stingray
 		bool haveUtcHours = false;
 		bool haveUtcMinutes = false;
 
-		int components = sscanf(s.c_str(), "%hd.%hd.%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
+		int components = sscanf(str.c_str(), "%hd.%hd.%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
 		if (components >= 3)
 		{
 			haveDate = true;
@@ -232,7 +232,7 @@ namespace stingray
 		}
 		else
 		{
-			components = sscanf(s.c_str(), "%hd/%hd/%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
+			components = sscanf(str.c_str(), "%hd/%hd/%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
 			if (components >= 3)
 			{
 				haveDate = true;
@@ -243,7 +243,7 @@ namespace stingray
 			}
 			else
 			{
-				components = sscanf(s.c_str(), "%hd:%hd:%hd", &hour, &minute, &second);
+				components = sscanf(str.c_str(), "%hd:%hd:%hd", &hour, &minute, &second);
 				if (components >= 2)
 				{
 					haveTime = true;
@@ -252,7 +252,7 @@ namespace stingray
 				}
 				else
 				{
-					components = sscanf(s.c_str(), "%hd-%hd-%hdT%hd:%hd:%hd%c%hd:%hd", &year, &month, &day, &hour, &minute, &second, &utcSign, &utcHour, &utcMinute);
+					components = sscanf(str.c_str(), "%hd-%hd-%hdT%hd:%hd:%hd%c%hd:%hd", &year, &month, &day, &hour, &minute, &second, &utcSign, &utcHour, &utcMinute);
 					if (components >= 3)
 					{
 						haveDate = true;
@@ -389,9 +389,9 @@ namespace stingray
 				{ }
 			};
 
-			Time operator () (const std::string& format) const
+			Time operator () (const std::string& str) const
 			{
-				const std::string uppercase = ToUpper(format); // Rfc3339 5.6 NOTE
+				const std::string uppercase = ToUpper(str); // Rfc3339 5.6 NOTE
 
 				optional<ParseResult> result = TryFromDateTime(uppercase);
 
@@ -412,26 +412,26 @@ namespace stingray
 			}
 
 		private:
-			optional<ParseResult> TryFromDateTime(const std::string& format) const
+			optional<ParseResult> TryFromDateTime(const std::string& str) const
 			{
 				ParseResult result;
 
-				if (!StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%Z", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds)
-						&& !StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
+				if (!StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%Z", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds)
+						&& !StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
 					return null;
 
 				return result;
 			}
 
-			optional<ParseResult> TryFromDateTimeWithOffset(const std::string& format) const
+			optional<ParseResult> TryFromDateTimeWithOffset(const std::string& str) const
 			{
 				ParseResult result;
 
 				const size_t SignPosFromEnd = 5;
-				if (format.size() <= SignPosFromEnd)
+				if (str.size() <= SignPosFromEnd)
 					return null;
 
-				const char sign = format[format.size() - 1 - SignPosFromEnd];
+				const char sign = str[str.size() - 1 - SignPosFromEnd];
 				const s8 multiplier = sign == '+' ? 1 : sign == '-' ? -1 : 0;
 				if (multiplier == 0)
 					return null;
@@ -439,7 +439,7 @@ namespace stingray
 				s16 offsetHours = 0;
 				s16 offsetMinutes = 0;
 				const bool success = StringParse(
-						format,
+						str,
 						StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
 						result.Year,
 						result.Month,
@@ -459,10 +459,10 @@ namespace stingray
 				return result;
 			}
 
-			optional<ParseResult> TryFromDate(const std::string& format) const
+			optional<ParseResult> TryFromDate(const std::string& str) const
 			{
 				ParseResult result;
-				if (!StringParse(format, "%1%-%2%-%3%", result.Year, result.Month, result.Day))
+				if (!StringParse(str, "%1%-%2%-%3%", result.Year, result.Month, result.Day))
 					return null;
 
 				return result;
@@ -474,8 +474,8 @@ namespace stingray
 		{ return time.BreakDown(TimeKind::Utc).ToString("YYYY-MM-ddThh:mm:ss.lllZ"); }
 
 
-		Time FromIso8601(const std::string& format)
-		{ return FromIso8601Impl()(format); }
+		Time FromIso8601(const std::string& str)
+		{ return FromIso8601Impl()(str); }
 
 	}
 
@@ -524,77 +524,77 @@ namespace stingray
 			ParseResult		_result;
 
 		public:
-			TimeDuration operator () (const std::string& format, Time base)
+			TimeDuration operator () (const std::string& str, Time base)
 			{
-				const std::string uppercase = ToUpper(format);
+				const std::string uppercase = ToUpper(str);
 
 				smatch m;
 				if (!regex_search(uppercase, m, regex("^P([0-9WYMDTHS]{2,})$")))
-					STINGRAYKIT_THROW(FormatException(format));
+					STINGRAYKIT_THROW(FormatException(str));
 
 				if (!TryFromDateTime(m[1]) && !TryFromWeek(m[1]))
-					STINGRAYKIT_THROW(FormatException(format));
+					STINGRAYKIT_THROW(FormatException(str));
 
 				return _result.ToTimeDuration(base, TimeKind::Utc);
 			}
 
 		private:
-			bool TryFromDateTime(const std::string& format)
+			bool TryFromDateTime(const std::string& str)
 			{
 				smatch m;
-				if (regex_search(format, m, regex("^(.*)T(.*)$")))
+				if (regex_search(str, m, regex("^(.*)T(.*)$")))
 					return !m[2].empty() && TryFromTime(m[2]) && (m[1].empty() || TryFromDate(m[1]));
 				else
-					return TryFromDate(format);
+					return TryFromDate(str);
 			}
 
-			bool TryFromWeek(const std::string& format)
-			{ return StringParse(format, "%1%W", _result.Weeks); }
+			bool TryFromWeek(const std::string& str)
+			{ return StringParse(str, "%1%W", _result.Weeks); }
 
-			bool TryFromTime(std::string format)
+			bool TryFromTime(std::string str)
 			{
-				if (Contains(format, "H"))
+				if (Contains(str, "H"))
 				{
-					if (EndsWith(format, "H"))
-						return StringParse(format, "%1%H", _result.Hours);
+					if (EndsWith(str, "H"))
+						return StringParse(str, "%1%H", _result.Hours);
 
-					if (!StringParse(format, "%1%H%2%", _result.Hours, format))
+					if (!StringParse(str, "%1%H%2%", _result.Hours, str))
 						return false;
 				}
 
-				if (Contains(format, "M"))
+				if (Contains(str, "M"))
 				{
-					if (EndsWith(format, "M"))
-						return StringParse(format, "%1%M", _result.Minutes);
+					if (EndsWith(str, "M"))
+						return StringParse(str, "%1%M", _result.Minutes);
 
-					if (!StringParse(format, "%1%M%2%", _result.Minutes, format))
+					if (!StringParse(str, "%1%M%2%", _result.Minutes, str))
 						return false;
 				}
 
-				return StringParse(format, "%1%S", _result.Seconds);
+				return StringParse(str, "%1%S", _result.Seconds);
 			}
 
-			bool TryFromDate(std::string format)
+			bool TryFromDate(std::string str)
 			{
-				if (Contains(format, "Y"))
+				if (Contains(str, "Y"))
 				{
-					if (EndsWith(format, "Y"))
-						return StringParse(format, "%1%Y", _result.Years);
+					if (EndsWith(str, "Y"))
+						return StringParse(str, "%1%Y", _result.Years);
 
-					if (!StringParse(format, "%1%Y%2%", _result.Years, format))
+					if (!StringParse(str, "%1%Y%2%", _result.Years, str))
 						return false;
 				}
 
-				if (Contains(format, "M"))
+				if (Contains(str, "M"))
 				{
-					if (EndsWith(format, "M"))
-						return StringParse(format, "%1%M", _result.Months);
+					if (EndsWith(str, "M"))
+						return StringParse(str, "%1%M", _result.Months);
 
-					if (!StringParse(format, "%1%M%2%", _result.Months, format))
+					if (!StringParse(str, "%1%M%2%", _result.Months, str))
 						return false;
 				}
 
-				return StringParse(format, "%1%D", _result.Days);
+				return StringParse(str, "%1%D", _result.Days);
 			}
 		};
 
@@ -603,9 +603,9 @@ namespace stingray
 		{ return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0) ? 366 : 365; }
 
 
-		std::string ToIso8601(TimeDuration timeDuration, const optional<Time>& base)
+		std::string ToIso8601(TimeDuration duration, const optional<Time>& base)
 		{
-			STINGRAYKIT_CHECK(timeDuration >= TimeDuration(), ArgumentException("timeDuration", timeDuration));
+			STINGRAYKIT_CHECK(duration >= TimeDuration(), ArgumentException("duration", duration));
 
 			s16 Years = 0;
 			s16 Months = 0;
@@ -619,18 +619,18 @@ namespace stingray
 				Years	= 0;
 				Months	= 0;
 				Days	= 0;
-				Hours	= timeDuration.GetHours();
-				Minutes	= timeDuration.GetMinutes() % MinutesPerHour;
-				Seconds	= timeDuration.GetSeconds() % SecondsPerMinute;
+				Hours	= duration.GetHours();
+				Minutes	= duration.GetMinutes() % MinutesPerHour;
+				Seconds	= duration.GetSeconds() % SecondsPerMinute;
 			}
 			else
 			{
 				Years	= 0;
 				Months	= 0;
-				Days	= timeDuration.GetDays();
-				Hours	= timeDuration.GetHours() % HoursPerDay;
-				Minutes	= timeDuration.GetMinutes() % MinutesPerHour;
-				Seconds	= timeDuration.GetSeconds() % SecondsPerMinute;
+				Days	= duration.GetDays();
+				Hours	= duration.GetHours() % HoursPerDay;
+				Minutes	= duration.GetMinutes() % MinutesPerHour;
+				Seconds	= duration.GetSeconds() % SecondsPerMinute;
 
 				BrokenDownTime bdt = base->BreakDown(TimeKind::Utc);
 				int size = 0;
@@ -701,8 +701,8 @@ namespace stingray
 		}
 
 
-		TimeDuration FromIso8601(const std::string& format, Time base)
-		{ return FromIso8601Impl()(format, base); };
+		TimeDuration FromIso8601(const std::string& str, Time base)
+		{ return FromIso8601Impl()(str, base); };
 
 	}
 

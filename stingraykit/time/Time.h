@@ -69,7 +69,7 @@ namespace stingray
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
 
 		std::string ToString(const std::string& format = std::string()) const;
-		static TimeDuration FromString(const std::string& s);
+		static TimeDuration FromString(const std::string& str);
 
 		static TimeDuration FromMicroseconds(s64 microseconds)	{ return TimeDuration(microseconds, Dummy()); }
 		static TimeDuration FromMilliseconds(s64 milliseconds)	{ return TimeDuration(milliseconds); }
@@ -173,7 +173,7 @@ namespace stingray
 		static Time FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind = TimeKind::Local);
 
 		std::string ToString(const std::string& format = std::string(), TimeKind kind = TimeKind::Local) const;
-		static Time FromString(const std::string& s, TimeKind kind = TimeKind::Local);
+		static Time FromString(const std::string& str, TimeKind kind = TimeKind::Local);
 
 		u64 ToNtpTimestamp() const;
 		static Time FromNtpTimestamp(u64 timestamp);
@@ -198,7 +198,7 @@ namespace stingray
 	{
 
 		std::string ToIso8601(const Time& time);
-		Time FromIso8601(const std::string& format);
+		Time FromIso8601(const std::string& str);
 
 	}
 
@@ -207,7 +207,7 @@ namespace stingray
 	{
 
 		std::string ToIso8601(TimeDuration timeDuration, const optional<Time>& base = null);
-		TimeDuration FromIso8601(const std::string& format, Time base = Time());
+		TimeDuration FromIso8601(const std::string& str, Time base = Time());
 
 	}
 
