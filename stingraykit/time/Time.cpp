@@ -515,38 +515,37 @@ namespace stingray
 			}
 		};
 
-	private:
-		ParseResult		_result;
-
 	public:
-		TimeDuration operator () (const std::string& str, Time base)
+		TimeDuration operator () (const std::string& str, Time base) const
 		{
 			const std::string uppercase = ToUpper(str);
+
+			ParseResult result;
 
 			smatch m;
 			if (!regex_search(uppercase, m, regex("^P([0-9WYMDTHS]{2,})$")))
 				STINGRAYKIT_THROW(FormatException(str));
 
-			if (!TryFromDateTime(m[1]) && !TryFromWeek(m[1]))
+			if (!TryFromDateTime(m[1], result) && !TryFromWeek(m[1], result))
 				STINGRAYKIT_THROW(FormatException(str));
 
-			return _result.ToTimeDuration(base, TimeKind::Utc);
+			return result.ToTimeDuration(base, TimeKind::Utc);
 		}
 
 	private:
-		bool TryFromDateTime(const std::string& str)
+		static bool TryFromDateTime(const std::string& str, ParseResult& result)
 		{
 			smatch m;
 			if (regex_search(str, m, regex("^(.*)T(.*)$")))
-				return !m[2].empty() && TryFromTime(m[2]) && (m[1].empty() || TryFromDate(m[1]));
+				return !m[2].empty() && TryFromTime(m[2], result) && (m[1].empty() || TryFromDate(m[1], result));
 			else
-				return TryFromDate(str);
+				return TryFromDate(str, result);
 		}
 
-		bool TryFromWeek(const std::string& str)
-		{ return StringParse(str, "%1%W", _result.Weeks); }
+		static bool TryFromWeek(const std::string& str, ParseResult& result)
+		{ return StringParse(str, "%1%W", result.Weeks); }
 
-		bool TryFromTime(const std::string& str)
+		static bool TryFromTime(const std::string& str, ParseResult& result)
 		{
 			std::string toParse = str;
 			std::string remaining;
@@ -554,9 +553,9 @@ namespace stingray
 			if (Contains(toParse, "H"))
 			{
 				if (EndsWith(toParse, "H"))
-					return StringParse(toParse, "%1%H", _result.Hours);
+					return StringParse(toParse, "%1%H", result.Hours);
 
-				if (!StringParse(toParse, "%1%H%2%", _result.Hours, remaining))
+				if (!StringParse(toParse, "%1%H%2%", result.Hours, remaining))
 					return false;
 
 				toParse = remaining;
@@ -566,19 +565,19 @@ namespace stingray
 			if (Contains(toParse, "M"))
 			{
 				if (EndsWith(toParse, "M"))
-					return StringParse(toParse, "%1%M", _result.Minutes);
+					return StringParse(toParse, "%1%M", result.Minutes);
 
-				if (!StringParse(toParse, "%1%M%2%", _result.Minutes, remaining))
+				if (!StringParse(toParse, "%1%M%2%", result.Minutes, remaining))
 					return false;
 
 				toParse = remaining;
 				remaining.clear();
 			}
 
-			return StringParse(toParse, "%1%S", _result.Seconds);
+			return StringParse(toParse, "%1%S", result.Seconds);
 		}
 
-		bool TryFromDate(const std::string& str)
+		static bool TryFromDate(const std::string& str, ParseResult& result)
 		{
 			std::string toParse = str;
 			std::string remaining;
@@ -586,9 +585,9 @@ namespace stingray
 			if (Contains(toParse, "Y"))
 			{
 				if (EndsWith(toParse, "Y"))
-					return StringParse(toParse, "%1%Y", _result.Years);
+					return StringParse(toParse, "%1%Y", result.Years);
 
-				if (!StringParse(toParse, "%1%Y%2%", _result.Years, remaining))
+				if (!StringParse(toParse, "%1%Y%2%", result.Years, remaining))
 					return false;
 
 				toParse = remaining;
@@ -598,16 +597,16 @@ namespace stingray
 			if (Contains(toParse, "M"))
 			{
 				if (EndsWith(toParse, "M"))
-					return StringParse(toParse, "%1%M", _result.Months);
+					return StringParse(toParse, "%1%M", result.Months);
 
-				if (!StringParse(toParse, "%1%M%2%", _result.Months, remaining))
+				if (!StringParse(toParse, "%1%M%2%", result.Months, remaining))
 					return false;
 
 				toParse = remaining;
 				remaining.clear();
 			}
 
-			return StringParse(toParse, "%1%D", _result.Days);
+			return StringParse(toParse, "%1%D", result.Days);
 		}
 	};
 
