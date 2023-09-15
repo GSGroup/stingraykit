@@ -381,7 +381,7 @@ namespace stingray
 			s16					Day;
 			s16					Hours;
 			s16					Minutes;
-			double				Seconds;
+			TimeDuration		Seconds;
 			TimeDuration		Offset;
 
 			ParseResult()
@@ -404,8 +404,8 @@ namespace stingray
 
 			STINGRAYKIT_CHECK(result, FormatException(str));
 
-			const s16 milliseconds = (result->Seconds - double(s16(result->Seconds))) * 1000.;
-			const BrokenDownTime brokenDown(milliseconds, (s16)result->Seconds, result->Minutes, result->Hours, 0, result->Day, result->Month, 0, result->Year);
+			const TimeDuration seconds = result->Seconds.RoundToMilliseconds();
+			const BrokenDownTime brokenDown((seconds % TimeDuration::Second()).GetMilliseconds(), seconds.GetSeconds(), result->Minutes, result->Hours, 0, result->Day, result->Month, 0, result->Year);
 			const Time local = Time::FromBrokenDownTime(brokenDown, TimeKind::Utc);
 
 			return local - result->Offset;
@@ -415,9 +415,10 @@ namespace stingray
 		static optional<ParseResult> TryFromDateTime(const std::string& str)
 		{
 			ParseResult result;
+			auto secondsProxy = MakeParseProxy(result.Seconds, &ParseSeconds);
 
-			if (!StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%Z", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds)
-					&& !StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
+			if (!StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%Z", result.Year, result.Month, result.Day, result.Hours, result.Minutes, secondsProxy)
+					&& !StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%", result.Year, result.Month, result.Day, result.Hours, result.Minutes, secondsProxy))
 				return null;
 
 			return result;
@@ -436,6 +437,7 @@ namespace stingray
 			if (multiplier == 0)
 				return null;
 
+			auto secondsProxy = MakeParseProxy(result.Seconds, &ParseSeconds);
 			s16 offsetHours = 0;
 			s16 offsetMinutes = 0;
 			const bool success = StringParse(
@@ -446,7 +448,7 @@ namespace stingray
 					result.Day,
 					result.Hours,
 					result.Minutes,
-					result.Seconds,
+					secondsProxy,
 					offsetHours,
 					offsetMinutes);
 
@@ -464,6 +466,30 @@ namespace stingray
 			ParseResult result;
 			if (!StringParse(str, "%1%-%2%-%3%", result.Year, result.Month, result.Day))
 				return null;
+
+			return result;
+		}
+
+		static TimeDuration ParseSeconds(const std::string& secondsStr)
+		{
+			u64 seconds = 0;
+			std::string fractionStr;
+
+			STINGRAYKIT_CHECK(
+					StringParse(secondsStr, "%1%.%2%", seconds, fractionStr)
+							|| StringParse(secondsStr, "%1%", seconds),
+					FormatException(secondsStr));
+
+			TimeDuration result = TimeDuration::FromSeconds(seconds);
+
+			if (!fractionStr.empty())
+			{
+				const FractionInfo fraction = ParseDecimalFraction(fractionStr, 6);
+
+				result += TimeDuration::FromMicroseconds(fraction.Fraction);
+				if (fraction.IsOverflow)
+					result += TimeDuration::Second();
+			}
 
 			return result;
 		}
