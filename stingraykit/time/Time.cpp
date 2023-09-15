@@ -203,8 +203,8 @@ namespace stingray
 		if (str == "now")
 			return Time::Now();
 
-		if (str.size() > 4 && str.substr(0, 4) == "now+")
-			return Time::Now() + TimeDuration::FromString(str.substr(4));
+		if (StartsWith(str, "now+"))
+			return Time::Now() + TimeDuration::FromString(RemovePrefix(str, "now+"));
 
 		s16 year = 0;
 		s16 month = 0;
