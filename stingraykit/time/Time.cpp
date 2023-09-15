@@ -470,6 +470,16 @@ namespace stingray
 	};
 
 
+	int TimeCmp::operator () (Time lhs, Time rhs) const
+	{
+		const TimeDuration distance = lhs > rhs ? lhs - rhs : rhs - lhs;
+		if (distance <= _allowedJitter)
+			return 0;
+
+		return comparers::Cmp()(lhs, rhs);
+	}
+
+
 	std::string TimeUtility::ToIso8601(const Time& time)
 	{ return time.BreakDown(TimeKind::Utc).ToString("YYYY-MM-ddThh:mm:ss.lllZ"); }
 

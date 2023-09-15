@@ -195,6 +195,19 @@ namespace stingray
 	};
 
 
+	class TimeCmp : public function_info<int, UnspecifiedParamTypes>
+	{
+	private:
+		TimeDuration			_allowedJitter;
+
+	public:
+		TimeCmp(TimeDuration allowedJitter = TimeDuration()) : _allowedJitter(allowedJitter) { }
+
+		int operator () (Time lhs, Time rhs) const;
+	};
+	STINGRAYKIT_DECLARE_COMPARERS(Time);
+
+
 	class TimeUtility
 	{
 		class FromIso8601Impl;
