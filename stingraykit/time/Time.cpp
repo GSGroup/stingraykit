@@ -94,7 +94,7 @@ namespace stingray
 
 	TimeDuration TimeDuration::FromString(const std::string& s)
 	{
-		int n;
+		int n = 0;
 		char c = 0;
 		int components = sscanf(s.c_str(), "%d%c", &n, &c);
 		if (components < 1)
@@ -142,8 +142,8 @@ namespace stingray
 		const optional<char> sign = str[0] == '+' || str[0] == '-' ? make_optional_value(str[0]) : null;
 		const auto delimiterPos = str.find(':');
 
-		int hours;
-		int minutes;
+		int hours = 0;
+		int minutes = 0;
 		if (delimiterPos != std::string::npos)
 			STINGRAYKIT_CHECK(StringParse(sign ? str.substr(1) : str, "%1%:%2%", hours, minutes), FormatException(str));
 		else
@@ -204,15 +204,15 @@ namespace stingray
 		if (s.size() > 4 && s.substr(0, 4) == "now+")
 			return Time::Now() + TimeDuration::FromString(s.substr(4));
 
-		s16 year;
-		s16 month;
-		s16 day;
-		s16 hour;
-		s16 minute;
-		s16 second;
-		char utcSign;
-		s16 utcHour;
-		s16 utcMinute;
+		s16 year = 0;
+		s16 month = 0;
+		s16 day = 0;
+		s16 hour = 0;
+		s16 minute = 0;
+		s16 second = 0;
+		char utcSign = 0;
+		s16 utcHour = 0;
+		s16 utcMinute = 0;
 
 		bool haveDate = false;
 		bool haveTime = false;
@@ -436,8 +436,8 @@ namespace stingray
 				if (multiplier == 0)
 					return null;
 
-				s16 offsetHours;
-				s16 offsetMinutes;
+				s16 offsetHours = 0;
+				s16 offsetMinutes = 0;
 				const bool success = StringParse(
 						format,
 						StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
@@ -607,12 +607,12 @@ namespace stingray
 		{
 			STINGRAYKIT_CHECK(timeDuration >= TimeDuration(), ArgumentException("timeDuration", timeDuration));
 
-			s16 Years;
-			s16 Months;
-			s16 Days;
-			s16 Hours;
-			s16 Minutes;
-			s16 Seconds;
+			s16 Years = 0;
+			s16 Months = 0;
+			s16 Days = 0;
+			s16 Hours = 0;
+			s16 Minutes = 0;
+			s16 Seconds = 0;
 
 			if (!base)
 			{
@@ -633,7 +633,7 @@ namespace stingray
 				Seconds	= timeDuration.GetSeconds() % SecondsPerMinute;
 
 				BrokenDownTime bdt = base->BreakDown(TimeKind::Utc);
-				int size;
+				int size = 0;
 
 				if (bdt.Month > 2 || (bdt.Month == 2 && bdt.MonthDay == 29))
 					bdt.Year++;
