@@ -74,14 +74,14 @@ namespace stingray
 		if (GetMilliseconds() < 0)
 			result.insert(0, "-");
 
-		std::string hoursPlaceholder = "hh";
-		bool hasHours = std::search(result.begin(), result.end(), hoursPlaceholder.begin(), hoursPlaceholder.end()) != result.end();
+		const std::string hoursPlaceholder = "hh";
+		const bool hasHours = std::search(result.begin(), result.end(), hoursPlaceholder.begin(), hoursPlaceholder.end()) != result.end();
 
-		s64 absMs = Absolute().GetMilliseconds();
-		s64 hours = hasHours ? absMs / Hour().GetMilliseconds() : 0;
-		s64 minutes = (absMs - hours * Hour().GetMilliseconds()) / Minute().GetMilliseconds();
-		s64 seconds = absMs % Minute().GetMilliseconds() / Second().GetMilliseconds();
-		s64 milliseconds = absMs % Second().GetMilliseconds();
+		const s64 absMs = Absolute().GetMilliseconds();
+		const s64 hours = hasHours ? absMs / Hour().GetMilliseconds() : 0;
+		const s64 minutes = (absMs - hours * Hour().GetMilliseconds()) / Minute().GetMilliseconds();
+		const s64 seconds = absMs % Minute().GetMilliseconds() / Second().GetMilliseconds();
+		const s64 milliseconds = absMs % Second().GetMilliseconds();
 
 		if (hasHours)
 			ReplaceAll(result, "hh", StringFormat("%1$2%", hours));
@@ -99,7 +99,7 @@ namespace stingray
 	{
 		int value = 0;
 		char units = 0;
-		int components = sscanf(str.c_str(), "%d%c", &value, &units);
+		const int components = sscanf(str.c_str(), "%d%c", &value, &units);
 		if (components < 1)
 			STINGRAYKIT_THROW("Invalid time duration format");
 
@@ -307,7 +307,7 @@ namespace stingray
 			kind = TimeKind::Utc;
 			if (utcSign == '+' || utcSign == '-')
 			{
-				s16 minutesFromUtc = (haveUtcHours ? (utcHour * MinutesPerHour) : 0) + (haveUtcMinutes ? utcMinute : 0);
+				const s16 minutesFromUtc = (haveUtcHours ? (utcHour * MinutesPerHour) : 0) + (haveUtcMinutes ? utcMinute : 0);
 				if (utcSign == '-')
 					bdt.Minutes += minutesFromUtc;
 				else
