@@ -100,8 +100,7 @@ namespace stingray
 		int value = 0;
 		char units = 0;
 		const int components = sscanf(str.c_str(), "%d%c", &value, &units);
-		if (components < 1)
-			STINGRAYKIT_THROW("Invalid time duration format");
+		STINGRAYKIT_CHECK(components > 0, "Invalid time duration format");
 
 		switch (units)
 		{
@@ -256,22 +255,19 @@ namespace stingray
 				else
 				{
 					components = sscanf(str.c_str(), "%hd-%hd-%hdT%hd:%hd:%hd%c%hd:%hd", &year, &month, &day, &hour, &minute, &second, &utcSign, &utcHour, &utcMinute);
-					if (components >= 3)
-					{
-						haveDate = true;
-						if (components >= 5)
-							haveTime = true;
-						if (components >= 6)
-							haveSeconds = true;
-						if (components >= 7)
-							haveUtcSign = true;
-						if (components >= 8)
-							haveUtcHours = true;
-						if (components >= 9)
-							haveUtcMinutes = true;
-					}
-					else
-						STINGRAYKIT_THROW("Unknown time format!");
+					STINGRAYKIT_CHECK(components >= 3, "Unknown time format!");
+
+					haveDate = true;
+					if (components >= 5)
+						haveTime = true;
+					if (components >= 6)
+						haveSeconds = true;
+					if (components >= 7)
+						haveUtcSign = true;
+					if (components >= 8)
+						haveUtcHours = true;
+					if (components >= 9)
+						haveUtcMinutes = true;
 				}
 			}
 		}
@@ -312,8 +308,8 @@ namespace stingray
 				else
 					bdt.Minutes -= minutesFromUtc;
 			}
-			else if (utcSign != 'Z')
-				STINGRAYKIT_THROW("Unknown UTC sign!");
+			else
+				STINGRAYKIT_CHECK(utcSign == 'Z', "Unknown UTC sign!");
 		}
 
 		return FromBrokenDownTime(bdt, haveUtcSign ? TimeKind(TimeKind::Utc) : kind);
@@ -401,8 +397,7 @@ namespace stingray
 			if (!result)
 				result = TryFromDate(uppercase);
 
-			if (!result)
-				STINGRAYKIT_THROW(FormatException(uppercase));
+			STINGRAYKIT_CHECK(result, FormatException(uppercase));
 
 			const s16 milliseconds = (result->Seconds - double(s16(result->Seconds))) * 1000.;
 			const BrokenDownTime brokenDown(milliseconds, (s16)result->Seconds, result->Minutes, result->Hours, 0, result->Day, result->Month, 0, result->Year);
@@ -523,11 +518,8 @@ namespace stingray
 			ParseResult result;
 
 			smatch m;
-			if (!regex_search(uppercase, m, regex("^P([0-9WYMDTHS]{2,})$")))
-				STINGRAYKIT_THROW(FormatException(str));
-
-			if (!TryFromDateTime(m[1], result) && !TryFromWeek(m[1], result))
-				STINGRAYKIT_THROW(FormatException(str));
+			STINGRAYKIT_CHECK(regex_search(uppercase, m, regex("^P([0-9WYMDTHS]{2,})$")), FormatException(str));
+			STINGRAYKIT_CHECK(TryFromDateTime(m[1], result) || TryFromWeek(m[1], result), FormatException(str));
 
 			return result.ToTimeDuration(base, TimeKind::Utc);
 		}
