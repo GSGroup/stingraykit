@@ -194,22 +194,24 @@ namespace stingray
 	};
 
 
-	namespace TimeUtility
+	class TimeUtility
 	{
+		class FromIso8601Impl;
 
-		std::string ToIso8601(const Time& time);
-		Time FromIso8601(const std::string& str);
+	public:
+		static std::string ToIso8601(const Time& time);
+		static Time FromIso8601(const std::string& str);
+	};
 
-	}
 
-
-	namespace TimeDurationUtility
+	class TimeDurationUtility
 	{
+		class FromIso8601Impl;
 
-		std::string ToIso8601(TimeDuration timeDuration, const optional<Time>& base = null);
-		TimeDuration FromIso8601(const std::string& str, Time base = Time());
-
-	}
+	public:
+		static std::string ToIso8601(TimeDuration timeDuration, const optional<Time>& base = null);
+		static TimeDuration FromIso8601(const std::string& str, Time base = Time());
+	};
 
 	/** @} */
 
