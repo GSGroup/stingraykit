@@ -101,6 +101,9 @@ namespace stingray
 		const int components = sscanf(str.c_str(), "%d%c", &value, &units);
 		STINGRAYKIT_CHECK(components > 0, FormatException(str));
 
+		if (components == 1)
+			return TimeDuration(value);
+
 		switch (units)
 		{
 		case 'H':
@@ -112,8 +115,6 @@ namespace stingray
 		case 'S':
 		case 's':
 			return FromSeconds(value);
-		case 0:
-			return TimeDuration(value);
 		}
 
 		STINGRAYKIT_THROW(FormatException(str));
