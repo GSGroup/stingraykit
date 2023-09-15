@@ -304,7 +304,6 @@ namespace stingray
 
 		if (haveUtcSign)
 		{
-			kind = TimeKind::Utc;
 			if (utcSign == '+' || utcSign == '-')
 			{
 				const s16 minutesFromUtc = (haveUtcHours ? (utcHour * MinutesPerHour) : 0) + (haveUtcMinutes ? utcMinute : 0);
@@ -317,7 +316,7 @@ namespace stingray
 				STINGRAYKIT_THROW("Unknown UTC sign!");
 		}
 
-		return FromBrokenDownTime(bdt, kind);
+		return FromBrokenDownTime(bdt, haveUtcSign ? TimeKind(TimeKind::Utc) : kind);
 	}
 
 
@@ -547,50 +546,68 @@ namespace stingray
 		bool TryFromWeek(const std::string& str)
 		{ return StringParse(str, "%1%W", _result.Weeks); }
 
-		bool TryFromTime(std::string str)
+		bool TryFromTime(const std::string& str)
 		{
-			if (Contains(str, "H"))
-			{
-				if (EndsWith(str, "H"))
-					return StringParse(str, "%1%H", _result.Hours);
+			std::string toParse = str;
+			std::string remaining;
 
-				if (!StringParse(str, "%1%H%2%", _result.Hours, str))
+			if (Contains(toParse, "H"))
+			{
+				if (EndsWith(toParse, "H"))
+					return StringParse(toParse, "%1%H", _result.Hours);
+
+				if (!StringParse(toParse, "%1%H%2%", _result.Hours, remaining))
 					return false;
+
+				toParse = remaining;
+				remaining.clear();
 			}
 
-			if (Contains(str, "M"))
+			if (Contains(toParse, "M"))
 			{
-				if (EndsWith(str, "M"))
-					return StringParse(str, "%1%M", _result.Minutes);
+				if (EndsWith(toParse, "M"))
+					return StringParse(toParse, "%1%M", _result.Minutes);
 
-				if (!StringParse(str, "%1%M%2%", _result.Minutes, str))
+				if (!StringParse(toParse, "%1%M%2%", _result.Minutes, remaining))
 					return false;
+
+				toParse = remaining;
+				remaining.clear();
 			}
 
-			return StringParse(str, "%1%S", _result.Seconds);
+			return StringParse(toParse, "%1%S", _result.Seconds);
 		}
 
-		bool TryFromDate(std::string str)
+		bool TryFromDate(const std::string& str)
 		{
-			if (Contains(str, "Y"))
-			{
-				if (EndsWith(str, "Y"))
-					return StringParse(str, "%1%Y", _result.Years);
+			std::string toParse = str;
+			std::string remaining;
 
-				if (!StringParse(str, "%1%Y%2%", _result.Years, str))
+			if (Contains(toParse, "Y"))
+			{
+				if (EndsWith(toParse, "Y"))
+					return StringParse(toParse, "%1%Y", _result.Years);
+
+				if (!StringParse(toParse, "%1%Y%2%", _result.Years, remaining))
 					return false;
+
+				toParse = remaining;
+				remaining.clear();
 			}
 
-			if (Contains(str, "M"))
+			if (Contains(toParse, "M"))
 			{
-				if (EndsWith(str, "M"))
-					return StringParse(str, "%1%M", _result.Months);
+				if (EndsWith(toParse, "M"))
+					return StringParse(toParse, "%1%M", _result.Months);
 
-				if (!StringParse(str, "%1%M%2%", _result.Months, str))
+				if (!StringParse(toParse, "%1%M%2%", _result.Months, remaining))
 					return false;
+
+				toParse = remaining;
+				remaining.clear();
 			}
 
-			return StringParse(str, "%1%D", _result.Days);
+			return StringParse(toParse, "%1%D", _result.Days);
 		}
 	};
 
