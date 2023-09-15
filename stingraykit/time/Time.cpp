@@ -99,6 +99,7 @@ namespace stingray
 		int components = sscanf(s.c_str(), "%d%c", &n, &c);
 		if (components < 1)
 			STINGRAYKIT_THROW("Invalid time duration format");
+
 		switch (c)
 		{
 		case 'H':
@@ -112,7 +113,8 @@ namespace stingray
 			return FromSeconds(n);
 		case 0:
 			return TimeDuration(n);
-		};
+		}
+
 		STINGRAYKIT_THROW("Could not parse TimeDuration!");
 	}
 
@@ -128,7 +130,7 @@ namespace stingray
 
 	std::string TimeZone::ToString() const
 	{
-		const std::string sign = _minutesFromUtc > 0 ? "+" : (_minutesFromUtc < 0 ? "-" : "");
+		const std::string sign = _minutesFromUtc > 0 ? "+" : _minutesFromUtc < 0 ? "-" : "";
 		return StringBuilder() % sign % (Abs(_minutesFromUtc) / MinutesPerHour) % ":" % (Abs(_minutesFromUtc) % MinutesPerHour);
 	}
 
@@ -140,11 +142,10 @@ namespace stingray
 		const optional<char> sign = str[0] == '+' || str[0] == '-' ? make_optional_value(str[0]) : null;
 		const auto delimiterPos = str.find(':');
 
-		int hours, minutes;
+		int hours;
+		int minutes;
 		if (delimiterPos != std::string::npos)
-		{
 			STINGRAYKIT_CHECK(StringParse(sign ? str.substr(1) : str, "%1%:%2%", hours, minutes), FormatException(str));
-		}
 		else
 		{
 			const size_t baseIndex = sign ? 1 : 0;
@@ -179,14 +180,14 @@ namespace stingray
 
 	BrokenDownTime Time::BreakDown(TimeKind kind) const
 	{
-		const s64 offset = kind == TimeKind::Utc? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
+		const s64 offset = kind == TimeKind::Utc ? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
 		return TimeEngine::BrokenDownFromMilliseconds(_milliseconds + offset);
 	}
 
 
 	Time Time::FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind)
 	{
-		const s64 offset = kind == TimeKind::Utc? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
+		const s64 offset = kind == TimeKind::Utc ? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
 		return Time(TimeEngine::MillisecondsFromBrokenDown(bdt) - offset);
 	}
 
@@ -199,13 +200,20 @@ namespace stingray
 	{
 		if (s == "now")
 			return Time::Now();
+
 		if (s.size() > 4 && s.substr(0, 4) == "now+")
 			return Time::Now() + TimeDuration::FromString(s.substr(4));
 
-		s16 year, month, day;
-		s16 hour, minute, second;
+		s16 year;
+		s16 month;
+		s16 day;
+		s16 hour;
+		s16 minute;
+		s16 second;
 		char utcSign;
-		s16 utcHour, utcMinute;
+		s16 utcHour;
+		s16 utcMinute;
+
 		bool haveDate = false;
 		bool haveTime = false;
 		bool haveSeconds = false;
@@ -264,7 +272,7 @@ namespace stingray
 				}
 			}
 		}
-		STINGRAYKIT_CHECK((haveDate || haveTime), "Could not parse Time!");
+		STINGRAYKIT_CHECK(haveDate || haveTime, "Could not parse Time!");
 		STINGRAYKIT_CHECK(!(!haveTime && haveSeconds), "Have seconds without hours and minutes!");
 		STINGRAYKIT_CHECK(!haveUtcSign || ((utcSign == 'Z' && !haveUtcHours && !haveUtcMinutes) || ((utcSign == '+' || utcSign == '-') && haveUtcHours && !(!haveUtcHours && haveUtcMinutes))), "Malformed UTC suffix");
 
@@ -273,7 +281,7 @@ namespace stingray
 		{
 			bdt.MonthDay		= day;
 			bdt.Month			= month;
-			bdt.Year			= (year > 100 ? year : (year > 30 ? 1900 + year : 2000 + year));
+			bdt.Year			= year > 100 ? year : year > 30 ? 1900 + year : 2000 + year;
 		}
 		else
 		{
@@ -294,7 +302,7 @@ namespace stingray
 		if (haveUtcSign)
 		{
 			kind = TimeKind::Utc;
-			if ((utcSign == '+') || (utcSign == '-'))
+			if (utcSign == '+' || utcSign == '-')
 			{
 				s16 minutesFromUtc = (haveUtcHours ? (utcHour * MinutesPerHour) : 0) + (haveUtcMinutes ? utcMinute : 0);
 				if (utcSign == '-')
@@ -368,34 +376,33 @@ namespace stingray
 		{
 			struct ParseResult
 			{
-				s16 Year;
-				s16 Month;
-				s16 Day;
-				s16 Hours;
-				s16 Minutes;
-				double Seconds;
-				TimeDuration Offset;
+				s16					Year;
+				s16					Month;
+				s16					Day;
+				s16					Hours;
+				s16					Minutes;
+				double				Seconds;
+				TimeDuration		Offset;
 
 				ParseResult()
-					:	Year(),
-						Month(),
-						Day(),
-						Hours(),
-						Minutes(),
-						Seconds(),
-						Offset()
+					: Year(0), Month(0), Day(0), Hours(0), Minutes(0), Seconds(0), Offset()
 				{ }
 			};
 
-			Time operator()(const std::string& format) const
+			Time operator () (const std::string& format) const
 			{
 				const std::string uppercase = ToUpper(format); // Rfc3339 5.6 NOTE
 
-				optional<ParseResult> result;
-				if (!(result = TryFromDateTime(uppercase)))
-					if (!(result = TryFromDateTimeWithOffset(uppercase)))
-						if (!(result = TryFromDate(uppercase)))
-							STINGRAYKIT_THROW(FormatException(uppercase));
+				optional<ParseResult> result = TryFromDateTime(uppercase);
+
+				if (!result)
+					result = TryFromDateTimeWithOffset(uppercase);
+
+				if (!result)
+					result = TryFromDate(uppercase);
+
+				if (!result)
+					STINGRAYKIT_THROW(FormatException(uppercase));
 
 				const s16 milliseconds = (result->Seconds - double(s16(result->Seconds))) * 1000.;
 				const BrokenDownTime brokenDown(milliseconds, (s16)result->Seconds, result->Minutes, result->Hours, 0, result->Day, result->Month, 0, result->Year);
@@ -408,9 +415,10 @@ namespace stingray
 			optional<ParseResult> TryFromDateTime(const std::string& format) const
 			{
 				ParseResult result;
-				if (!StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%Z", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
-					if (!StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
-						return null;
+
+				if (!StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%Z", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds)
+						&& !StringParse(format, "%1%-%2%-%3%T%4%:%5%:%6%", result.Year, result.Month, result.Day, result.Hours, result.Minutes, result.Seconds))
+					return null;
 
 				return result;
 			}
@@ -424,21 +432,24 @@ namespace stingray
 					return null;
 
 				const char sign = format[format.size() - 1 - SignPosFromEnd];
-				const s8 multiplier = sign == '+' ? 1 : (sign == '-' ? -1 : 0);
+				const s8 multiplier = sign == '+' ? 1 : sign == '-' ? -1 : 0;
 				if (multiplier == 0)
 					return null;
 
 				s16 offsetHours;
 				s16 offsetMinutes;
-				const bool success = StringParse(format, StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
-										result.Year,
-										result.Month,
-										result.Day,
-										result.Hours,
-										result.Minutes,
-										result.Seconds,
-										offsetHours,
-										offsetMinutes);
+				const bool success = StringParse(
+						format,
+						StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
+						result.Year,
+						result.Month,
+						result.Day,
+						result.Hours,
+						result.Minutes,
+						result.Seconds,
+						offsetHours,
+						offsetMinutes);
+
 				if (!success)
 					return null;
 
@@ -476,13 +487,13 @@ namespace stingray
 		{
 			struct ParseResult
 			{
-				s16 Years;
-				s16 Months;
-				s16 Weeks;
-				s16 Days;
-				s16 Hours;
-				s16 Minutes;
-				s16 Seconds;
+				s16					Years;
+				s16					Months;
+				s16					Weeks;
+				s16					Days;
+				s16					Hours;
+				s16					Minutes;
+				s16					Seconds;
 
 				ParseResult()
 					: Years(0), Months(0), Weeks(0), Days(0), Hours(0), Minutes(0), Seconds(0)
@@ -494,24 +505,26 @@ namespace stingray
 						return TimeDuration::FromDays(Weeks * DaysPerWeek + Days) + TimeDuration::FromHours(Hours) + TimeDuration::FromMinutes(Minutes) + TimeDuration::FromSeconds(Seconds);
 
 					const BrokenDownTime bdt = base.BreakDown(kind);
-					return Time::FromBrokenDownTime(BrokenDownTime(
-							bdt.Milliseconds,
-							bdt.Seconds + Seconds,
-							bdt.Minutes + Minutes,
-							bdt.Hours + Hours,
-							bdt.WeekDay,
-							bdt.MonthDay + Weeks * DaysPerWeek + Days,
-							bdt.Month + Months,
-							bdt.YearDay,
-							bdt.Year + Years), kind) - base;
+					return Time::FromBrokenDownTime(
+							BrokenDownTime(
+									bdt.Milliseconds,
+									bdt.Seconds + Seconds,
+									bdt.Minutes + Minutes,
+									bdt.Hours + Hours,
+									bdt.WeekDay,
+									bdt.MonthDay + Weeks * DaysPerWeek + Days,
+									bdt.Month + Months,
+									bdt.YearDay,
+									bdt.Year + Years),
+							kind) - base;
 				}
 			};
 
 		private:
-			ParseResult _result;
+			ParseResult		_result;
 
 		public:
-			TimeDuration operator()(const std::string& format, Time base)
+			TimeDuration operator () (const std::string& format, Time base)
 			{
 				const std::string uppercase = ToUpper(format);
 
@@ -594,7 +607,12 @@ namespace stingray
 		{
 			STINGRAYKIT_CHECK(timeDuration >= TimeDuration(), ArgumentException("timeDuration", timeDuration));
 
-			s16 Years, Months, Days, Hours, Minutes, Seconds;
+			s16 Years;
+			s16 Months;
+			s16 Days;
+			s16 Hours;
+			s16 Minutes;
+			s16 Seconds;
 
 			if (!base)
 			{
