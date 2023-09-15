@@ -12,7 +12,7 @@
 namespace stingray
 {
 
-	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned precision_, unsigned radix)
+	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned targetPrecision, unsigned radix)
 	{
 		STINGRAYKIT_CHECK(divisor != 0, ArgumentException("divisor"));
 		STINGRAYKIT_CHECK(radix > 1, ArgumentException("radix", radix));
@@ -31,7 +31,7 @@ namespace stingray
 		remainder /= divisor;
 
 		bool wasOverflow = false;
-		for (; precision > precision_; --precision)
+		for (; precision > targetPrecision; --precision)
 		{
 			const bool isOverflow = remainder % radix >= overflowThreshold;
 			wasOverflow |= isOverflow;

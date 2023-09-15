@@ -45,7 +45,7 @@ namespace stingray
 		bool			IsOverflow = false;
 	};
 
-	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned precision, unsigned radix = 10);
+	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned targetPrecision, unsigned radix = 10);
 
 }
 

@@ -7,8 +7,8 @@ using ::testing::Field;
 
 using namespace stingray;
 
-#define CHECK_REMAINDER(Dividend, Divisor, Precision_, ResultRemainder, ResultPrecision, ResultIsOverflow) \
-		ASSERT_THAT(CalculateFractionRemainder(Dividend, Divisor, Precision_), \
+#define CHECK_REMAINDER(Dividend, Divisor, TargetPrecision, ResultRemainder, ResultPrecision, ResultIsOverflow) \
+		ASSERT_THAT(CalculateFractionRemainder(Dividend, Divisor, TargetPrecision), \
 				AllOf( \
 						Field(&FractionInfo::Fraction, ResultRemainder), \
 						Field(&FractionInfo::Precision, ResultPrecision), \
