@@ -64,8 +64,7 @@ TEST(StringParseTest, Enum)
 	ASSERT_TRUE(StringParse("Log level is Debug", "Log level is %1%", loglevel));
 	ASSERT_EQ(loglevel, LogLevel::Debug);
 
-	auto proxy = MakeParseProxy(loglevel, &LogLevelConverter::Do);
-	ASSERT_TRUE(StringParse("Log level is trace", "Log level is %1%", proxy));
+	ASSERT_TRUE(StringParse("Log level is trace", "Log level is %1%", *MakeParseProxy(loglevel, &LogLevelConverter::Do)));
 	ASSERT_EQ(loglevel, LogLevel::Trace);
 }
 

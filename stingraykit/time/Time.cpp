@@ -437,7 +437,6 @@ namespace stingray
 			if (multiplier == 0)
 				return null;
 
-			auto secondsProxy = MakeParseProxy(result.Seconds, &ParseSeconds);
 			s16 offsetHours = 0;
 			s16 offsetMinutes = 0;
 			const bool success = StringParse(
@@ -448,7 +447,7 @@ namespace stingray
 					result.Day,
 					result.Hours,
 					result.Minutes,
-					secondsProxy,
+					*MakeParseProxy(result.Seconds, &ParseSeconds),
 					offsetHours,
 					offsetMinutes);
 
