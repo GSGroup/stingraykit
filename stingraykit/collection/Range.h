@@ -276,7 +276,7 @@ namespace stingray
 			bool Equals(const RangeOfType& other) const		{ return _impl == other._impl; }
 			Self& First()									{ _impl.First(); FindNext(); return *this; }
 			Self& Next()									{ _impl.Next(); FindNext(); return *this; }
-			Self& Last()									{ _impl.Last(); FindPrev(); return *this; }
+			Self& Last()									{ _impl.Last(); FindPrevOrInvalidate(); return *this; }
 			Self& Prev()									{ _impl.Prev(); FindPrev(); return *this; }
 
 		private:
@@ -297,6 +297,25 @@ namespace stingray
 					_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_impl.Get()));
 					if (_dst)
 						return;
+				}
+			}
+
+			void FindPrevOrInvalidate()
+			{
+				const Range_ first(Range_(_impl).First());
+
+				for ( ; _impl.Valid(); _impl.Prev())
+				{
+					_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_impl.Get()));
+					if (_dst)
+						break;
+
+					if (_impl == first)
+					{
+						_impl.Last();
+						_impl.Next();
+						break;
+					}
 				}
 			}
 		};

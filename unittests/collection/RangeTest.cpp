@@ -400,12 +400,12 @@ TEST(RangeTest, OfType)
 	ASSERT_EQ(emptyRange.begin(), emptyRange.end());
 
 	ASSERT_THAT(ToRange(invalid) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue), MatchRange(ElementsAre()));
-//	ASSERT_THAT(ToRange(invalid) | OfType<Derived1Ptr>() | Reverse() | Transform(&Derived1::GetValue), MatchRange(ElementsAre()));
+	ASSERT_THAT(ToRange(invalid) | OfType<Derived1Ptr>() | Reverse() | Transform(&Derived1::GetValue), MatchRange(ElementsAre()));
 
 	auto invalidRange = ToRange(invalid) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue);
 	ASSERT_FALSE(invalidRange.Valid());
-//	ASSERT_FALSE(invalidRange.Last().Valid());
-//	ASSERT_EQ(invalidRange.begin(), invalidRange.end());
+	ASSERT_FALSE(invalidRange.Last().Valid());
+	ASSERT_EQ(invalidRange.begin(), invalidRange.end());
 
 	ASSERT_THAT(ToRange(mixed) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue), MatchRange(ElementsAre(1, 2)));
 	ASSERT_THAT(ToRange(mixed) | OfType<Derived1Ptr>() | Reverse() | Transform(&Derived1::GetValue), MatchRange(ElementsAre(2, 1)));
