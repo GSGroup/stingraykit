@@ -178,8 +178,8 @@ namespace stingray
 			typename base::ValueType Get() const			{ return _impl.Get(); }
 			bool Equals(const RangeFilter& other) const		{ return _impl == other._impl; }
 			Self& First()									{ _impl.First(); FindNext(); return *this; }
-			Self& Last()									{ _impl.Last(); FindPrev(); return *this; }
 			Self& Next()									{ _impl.Next(); FindNext(); return *this; }
+			Self& Last()									{ _impl.Last(); FindPrevOrInvalidate(); return *this; }
 			Self& Prev()									{ _impl.Prev(); FindPrev(); return *this; }
 
 		private:
@@ -193,6 +193,23 @@ namespace stingray
 			{
 				while (_impl.Valid() && !FunctorInvoker::InvokeArgs(_predicate, _impl.Get()))
 					_impl.Prev();
+			}
+
+			void FindPrevOrInvalidate()
+			{
+				const Range_ first(Range_(_impl).First());
+
+				while (_impl.Valid() && !FunctorInvoker::InvokeArgs(_predicate, _impl.Get()))
+				{
+					if (_impl == first)
+					{
+						_impl.Last();
+						_impl.Next();
+						break;
+					}
+					else
+						_impl.Prev();
+				}
 			}
 		};
 

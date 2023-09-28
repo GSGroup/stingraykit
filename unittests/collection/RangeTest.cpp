@@ -368,12 +368,12 @@ TEST(RangeTest, Filter)
 	ASSERT_EQ(emptyRange.begin(), emptyRange.end());
 
 	ASSERT_THAT(ToRange(invalid) | Filter(&implicit_cast<bool>), MatchRange(ElementsAre()));
-//	ASSERT_THAT(ToRange(invalid) | Filter(&implicit_cast<bool>) | Reverse(), MatchRange(ElementsAre()));
+	ASSERT_THAT(ToRange(invalid) | Filter(&implicit_cast<bool>) | Reverse(), MatchRange(ElementsAre()));
 
 	auto invalidRange = ToRange(invalid) | Filter(&implicit_cast<bool>);
 	ASSERT_FALSE(invalidRange.Valid());
-//	ASSERT_FALSE(invalidRange.Last().Valid());
-//	ASSERT_EQ(invalidRange.begin(), invalidRange.end());
+	ASSERT_FALSE(invalidRange.Last().Valid());
+	ASSERT_EQ(invalidRange.begin(), invalidRange.end());
 
 	ASSERT_THAT(ToRange(mixed) | Filter(&implicit_cast<bool>), MatchRange(ElementsAre(1, 2)));
 	ASSERT_THAT(ToRange(mixed) | Filter(&implicit_cast<bool>) | Reverse(), MatchRange(ElementsAre(2, 1)));
