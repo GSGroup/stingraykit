@@ -353,6 +353,38 @@ TEST(RangeTest, ForBasedLoop)
 }
 
 
+TEST(RangeTest, Filter)
+{
+	std::vector<bool> empty;
+	std::vector<bool> invalid = { false };
+	std::vector<int> mixed = { 0, 1, 2, 0 };
+
+	ASSERT_THAT(ToRange(empty) | Filter(&implicit_cast<bool>), MatchRange(ElementsAre()));
+	ASSERT_THAT(ToRange(empty) | Filter(&implicit_cast<bool>) | Reverse(), MatchRange(ElementsAre()));
+
+	auto emptyRange = ToRange(empty) | Filter(&implicit_cast<bool>);
+	ASSERT_FALSE(emptyRange.Valid());
+	ASSERT_FALSE(emptyRange.Last().Valid());
+	ASSERT_EQ(emptyRange.begin(), emptyRange.end());
+
+	ASSERT_THAT(ToRange(invalid) | Filter(&implicit_cast<bool>), MatchRange(ElementsAre()));
+//	ASSERT_THAT(ToRange(invalid) | Filter(&implicit_cast<bool>) | Reverse(), MatchRange(ElementsAre()));
+
+	auto invalidRange = ToRange(invalid) | Filter(&implicit_cast<bool>);
+	ASSERT_FALSE(invalidRange.Valid());
+//	ASSERT_FALSE(invalidRange.Last().Valid());
+//	ASSERT_EQ(invalidRange.begin(), invalidRange.end());
+
+	ASSERT_THAT(ToRange(mixed) | Filter(&implicit_cast<bool>), MatchRange(ElementsAre(1, 2)));
+	ASSERT_THAT(ToRange(mixed) | Filter(&implicit_cast<bool>) | Reverse(), MatchRange(ElementsAre(2, 1)));
+
+	auto mixedRange = ToRange(mixed) | Filter(&implicit_cast<bool>);
+	ASSERT_TRUE(mixedRange.Valid());
+	ASSERT_TRUE(mixedRange.Last().Valid());
+	ASSERT_EQ(std::next(mixedRange.begin(), 2), mixedRange.end());
+}
+
+
 TEST(RangeTest, Concat)
 {
 	const std::vector<int> v1{ 0, 1, 2 };
