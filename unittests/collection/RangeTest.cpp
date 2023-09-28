@@ -385,6 +385,38 @@ TEST(RangeTest, Filter)
 }
 
 
+TEST(RangeTest, OfType)
+{
+	std::vector<BasePtr> empty;
+	std::vector<BasePtr> invalid = { make_shared_ptr<Derived2>(0) };
+	std::vector<BasePtr> mixed = { make_shared_ptr<Derived2>(0), make_shared_ptr<Derived1>(1), make_shared_ptr<Derived1>(2), make_shared_ptr<Derived2>(0) };
+
+	ASSERT_THAT(ToRange(empty) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue), MatchRange(ElementsAre()));
+	ASSERT_THAT(ToRange(empty) | OfType<Derived1Ptr>() | Reverse() | Transform(&Derived1::GetValue), MatchRange(ElementsAre()));
+
+	auto emptyRange = ToRange(empty) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue);
+	ASSERT_FALSE(emptyRange.Valid());
+	ASSERT_FALSE(emptyRange.Last().Valid());
+	ASSERT_EQ(emptyRange.begin(), emptyRange.end());
+
+	ASSERT_THAT(ToRange(invalid) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue), MatchRange(ElementsAre()));
+//	ASSERT_THAT(ToRange(invalid) | OfType<Derived1Ptr>() | Reverse() | Transform(&Derived1::GetValue), MatchRange(ElementsAre()));
+
+	auto invalidRange = ToRange(invalid) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue);
+	ASSERT_FALSE(invalidRange.Valid());
+//	ASSERT_FALSE(invalidRange.Last().Valid());
+//	ASSERT_EQ(invalidRange.begin(), invalidRange.end());
+
+	ASSERT_THAT(ToRange(mixed) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue), MatchRange(ElementsAre(1, 2)));
+	ASSERT_THAT(ToRange(mixed) | OfType<Derived1Ptr>() | Reverse() | Transform(&Derived1::GetValue), MatchRange(ElementsAre(2, 1)));
+
+	auto mixedRange = ToRange(mixed) | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue);
+	ASSERT_TRUE(mixedRange.Valid());
+	ASSERT_TRUE(mixedRange.Last().Valid());
+	ASSERT_EQ(std::next(mixedRange.begin(), 2), mixedRange.end());
+}
+
+
 TEST(RangeTest, Concat)
 {
 	const std::vector<int> v1{ 0, 1, 2 };
