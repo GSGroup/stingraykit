@@ -448,7 +448,7 @@ namespace stingray
 		{ return Detail::EnumerableCaster<typename SrcEnumerable::ItemType>(enumerable); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename EqualPredicateFunc), bool, Contains, MK_PARAM(const ItemType& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate),
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EqualPredicateFunc), bool, Contains, MK_PARAM(const ValueType& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate),
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 				if (FunctorInvoker::InvokeArgs(equalPredicate, enumerator.Get(), value))
@@ -457,7 +457,7 @@ namespace stingray
 		})
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), bool, Contains, MK_PARAM(const ItemType& value), MK_PARAM(value),
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EnableIf<IsConvertible<ValueType, ItemType>::Value, int>::ValueT = 0), bool, Contains, MK_PARAM(const ValueType& value), MK_PARAM(value),
 		{ return Contains(enumerator, value, std::equal_to<ItemType>()); })
 
 
