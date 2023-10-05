@@ -79,6 +79,9 @@ namespace stingray
 
 		void Deserialize(ObjectIStream& ar)
 		{ For<TupleType::Size, SerializationHelper::DeserializeTuple>::Do(wrap_ref(ar), wrap_ref(_tuple)); }
+
+		SerializationHelper& operator * ()
+		{ return *this; }
 	};
 
 
