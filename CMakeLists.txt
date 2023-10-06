@@ -234,6 +234,10 @@ if ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID MATCHES "Clang")
 	endif (CMAKE_C_COMPILER_ID MATCHES "GNU")
 
 	if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+		if (COMPILER_VERSION_MAJOR LESS 4)
+			message(FATAL_ERROR "Clang version ${COMPILER_VERSION} is not supported, 4.x ow newer required")
+		endif (COMPILER_VERSION_MAJOR LESS 4)
+
 		set(COMMON_CXX_FLAGS "${COMMON_CXX_FLAGS} -Qunused-arguments -Wno-overloaded-virtual -Wno-shift-count-overflow")
 		set(COMMON_LINK_OPTS "${COMMON_LINK_OPTS} -no-pie")
 	endif (CMAKE_C_COMPILER_ID MATCHES "Clang")
