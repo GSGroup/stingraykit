@@ -44,7 +44,10 @@ namespace stingray
 			if (c0 <= 0x7f)
 				return c0;
 
-			STINGRAYKIT_CHECK(c0 != 0xc0 && c0 != 0xc1 && c0 < 0xf5 && it != _end, MalformedUtf8Exception());
+			STINGRAYKIT_CHECK(c0 != 0xc0, MalformedUtf8Exception());
+			STINGRAYKIT_CHECK(c0 != 0xc1, MalformedUtf8Exception());
+			STINGRAYKIT_CHECK(c0 < 0xf5, MalformedUtf8Exception());
+			STINGRAYKIT_CHECK(it != _end, MalformedUtf8Exception());
 
 			const u8 c1 = (u8)*it++;
 			if (c0 >= 0xc2 && c0 <= 0xdf)
