@@ -20,10 +20,13 @@ namespace stingray
 	class Utf8IteratorRange : public Range::RangeBase<Utf8IteratorRange<ContainerType>, u32, std::bidirectional_iterator_tag>
 	{
 	private:
-		typedef Utf8IteratorRange<ContainerType>		Self;
-		typedef typename ContainerType::const_iterator	IteratorType;
+		using Self = Utf8IteratorRange<ContainerType>;
+		using IteratorType = typename ContainerType::const_iterator;
 
-		IteratorType _begin, _end, _it;
+	private:
+		IteratorType			_begin;
+		IteratorType			_end;
+		IteratorType			_it;
 
 	public:
 		Utf8IteratorRange(const ContainerType& data) : _begin(data.begin()), _end(data.end()), _it(_begin)
@@ -75,13 +78,18 @@ namespace stingray
 		{ _it = _begin; return *this; }
 
 		Self& Last()
-		{ _it = _end; if (_it != _begin) --_it; return *this; }
+		{
+			_it = _end;
+			if (_it != _begin)
+				--_it;
+			return *this;
+		}
 
 		Self& Next()
 		{
 			STINGRAYKIT_CHECK(_it != _end, "Next() behind last element");
 			++_it;
-			while ( (_it != _end) && (((u8)(*_it) & 0xc0) == 0x80) )
+			while (_it != _end && ((u8)*_it & 0xc0) == 0x80)
 				++_it;
 			return *this;
 		}
@@ -90,7 +98,7 @@ namespace stingray
 		{
 			STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
 			--_it;
-			while ( (_it != _begin) && (((u8)(*_it) & 0xc0) == 0x80) )
+			while (_it != _begin && ((u8)*_it & 0xc0) == 0x80)
 				--_it;
 			return *this;
 		}
