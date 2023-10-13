@@ -40,25 +40,25 @@ namespace stingray
 			STINGRAYKIT_CHECK(_it != _end, "Get() behind last element");
 
 			IteratorType it = _it;
-			u8 c0 = (u8)*it++;
+			const u8 c0 = (u8)*it++;
 			if (c0 <= 0x7f)
 				return c0;
 
 			STINGRAYKIT_CHECK(c0 != 0xc0 && c0 != 0xc1 && c0 < 0xf5 && it != _end, MalformedUtf8Exception());
 
-			u8 c1 = (u8)*it++;
+			const u8 c1 = (u8)*it++;
 			if (c0 >= 0xc2 && c0 <= 0xdf)
 				return ((c0 & 0x1f) << 6) | (c1 & 0x3f);
 
 			STINGRAYKIT_CHECK(it != _end, MalformedUtf8Exception());
 
-			u8 c2 = (u8)*it++;
+			const u8 c2 = (u8)*it++;
 			if (c0 >= 0xe0 && c0 <= 0xef)
 				return ((c0 & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
 
 			STINGRAYKIT_CHECK(it != _end, MalformedUtf8Exception());
 
-			u8 c3 = (u8)*it++;
+			const u8 c3 = (u8)*it++;
 			if (c0 >= 0xf0 && c0 <= 0xf4)
 				return ((c0 & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
 
