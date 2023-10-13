@@ -98,10 +98,40 @@ namespace stingray
 		Self& Next()
 		{
 			STINGRAYKIT_CHECK(_it != _end, "Next() behind last element");
-			++_it;
-			while (_it != _end && ((u8)*_it & 0xc0) == 0x80)
-				++_it;
-			return *this;
+
+			const u8 c0 = (u8)*_it++;
+			if (c0 <= 0x7f)
+				return *this;
+
+			STINGRAYKIT_CHECK((c0 & 0xc0) != 0x80, MalformedUtf8Exception());
+			STINGRAYKIT_CHECK(c0 != 0xc0, MalformedUtf8Exception());
+			STINGRAYKIT_CHECK(c0 != 0xc1, MalformedUtf8Exception());
+			STINGRAYKIT_CHECK(c0 < 0xf5, MalformedUtf8Exception());
+			STINGRAYKIT_CHECK(_it != _end, MalformedUtf8Exception());
+
+			const u8 c1 = (u8)*_it++;
+			STINGRAYKIT_CHECK((c1 & 0xc0) == 0x80, MalformedUtf8Exception());
+
+			if (c0 >= 0xc2 && c0 <= 0xdf)
+				return *this;
+
+			STINGRAYKIT_CHECK(_it != _end, MalformedUtf8Exception());
+
+			const u8 c2 = (u8)*_it++;
+			STINGRAYKIT_CHECK((c2 & 0xc0) == 0x80, MalformedUtf8Exception());
+
+			if (c0 >= 0xe0 && c0 <= 0xef)
+				return *this;
+
+			STINGRAYKIT_CHECK(_it != _end, MalformedUtf8Exception());
+
+			const u8 c3 = (u8)*_it++;
+			STINGRAYKIT_CHECK((c3 & 0xc0) == 0x80, MalformedUtf8Exception());
+
+			if (c0 >= 0xf0 && c0 <= 0xf4)
+				return *this;
+
+			STINGRAYKIT_THROW(MalformedUtf8Exception());
 		}
 
 		Self& Prev()
