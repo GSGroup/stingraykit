@@ -138,9 +138,34 @@ namespace stingray
 		{
 			STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
 			--_it;
-			while (_it != _begin && ((u8)*_it & 0xc0) == 0x80)
-				--_it;
-			return *this;
+
+			for (size_t count = 0; count < 4; ++count, --_it)
+			{
+				const u8 c0 = (u8)*_it;
+
+				if ((c0 & 0xc0) != 0x80)
+				{
+					STINGRAYKIT_CHECK(c0 != 0xc0, MalformedUtf8Exception());
+					STINGRAYKIT_CHECK(c0 != 0xc1, MalformedUtf8Exception());
+					STINGRAYKIT_CHECK(c0 < 0xf5, MalformedUtf8Exception());
+
+					switch (count)
+					{
+					case 0:			STINGRAYKIT_CHECK(c0 <= 0x7f, MalformedUtf8Exception()); break;
+					case 1:			STINGRAYKIT_CHECK(c0 >= 0xc2 && c0 <= 0xdf, MalformedUtf8Exception()); break;
+					case 2:			STINGRAYKIT_CHECK(c0 >= 0xe0 && c0 <= 0xef, MalformedUtf8Exception()); break;
+					case 3:			STINGRAYKIT_CHECK(c0 >= 0xf0 && c0 <= 0xf4, MalformedUtf8Exception()); break;
+					default:		STINGRAYKIT_THROW(MalformedUtf8Exception());
+					}
+
+					return *this;
+				}
+
+				if (_it == _begin)
+					break;
+			}
+
+			STINGRAYKIT_THROW(MalformedUtf8Exception());
 		}
 	};
 
