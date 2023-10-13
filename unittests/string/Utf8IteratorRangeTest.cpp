@@ -274,3 +274,46 @@ TEST(Utf8IteratorRangeTest, Prev)
 		ASSERT_ANY_THROW(range.Prev());
 	}
 }
+
+
+TEST(Utf8IteratorRangeTest, Last)
+{
+	{
+		const std::string str;
+		Utf8IteratorRange<std::string> range(str, str.end());
+
+		ASSERT_NO_THROW(range.Last());
+		ASSERT_ANY_THROW(range.Get());
+	}
+
+	{
+		const std::string str("TestString");
+		Utf8IteratorRange<std::string> range(str);
+
+		ASSERT_NO_THROW(range.Last());
+		ASSERT_EQ(range.Get(), 'g');
+	}
+
+	{
+		const std::string str("TestСтрока");
+		Utf8IteratorRange<std::string> range(str);
+
+		ASSERT_NO_THROW(range.Last());
+		ASSERT_EQ(range.Get(), L'а');
+	}
+
+	{
+		const std::string str("ТестString");
+		Utf8IteratorRange<std::string> range(str);
+
+		ASSERT_NO_THROW(range.Last());
+		ASSERT_EQ(range.Get(), 'g');
+	}
+
+	{
+		const std::string str("\x92\xa5\xe1\xe2\x91\xe2\xe0\xae\xaa\xa0"); // ТестСтрока in CP866
+		Utf8IteratorRange<std::string> range(str);
+
+		ASSERT_ANY_THROW(range.Last());
+	}
+}

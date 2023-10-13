@@ -91,7 +91,7 @@ namespace stingray
 		{
 			_it = _end;
 			if (_it != _begin)
-				--_it;
+				Prev();
 			return *this;
 		}
 
