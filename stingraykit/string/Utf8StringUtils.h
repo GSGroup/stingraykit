@@ -18,6 +18,17 @@ namespace stingray
 	{ return Count(Utf8IteratorRange<std::string>(str)); }
 
 
+	inline bool Utf8Validate(const std::string& str)
+	{
+		try
+		{ Utf8Strlen(str); }
+		catch (const std::exception& ex)
+		{ return false; }
+
+		return true;
+	}
+
+
 	template < bool IndexBySymbols >
 	std::string Utf8Substring(const std::string& str, size_t pos, size_t count = std::string::npos)
 	{

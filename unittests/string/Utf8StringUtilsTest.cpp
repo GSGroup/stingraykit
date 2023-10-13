@@ -12,6 +12,17 @@ TEST(Utf8StringUtilsTest, Utf8Strlen)
 }
 
 
+TEST(Utf8StringUtilsTest, Utf8Validate)
+{
+	ASSERT_TRUE(Utf8Validate("TestString"));
+	ASSERT_TRUE(Utf8Validate("TestСтрока"));
+	ASSERT_TRUE(Utf8Validate("ТестString"));
+
+	ASSERT_FALSE(Utf8Validate("Test\x91\xe2\xe0\xae\xaa\xa0")); // TestСтрока in CP866
+	ASSERT_FALSE(Utf8Validate("\x92\xa5\xe1\xe2String")); // ТестString in CP866
+}
+
+
 TEST(Utf8StringUtilsTest, Utf8SubstringByChars)
 {
 	ASSERT_EQ(Utf8Substring<false>("TestString", 0, std::string::npos), "TestString");
