@@ -558,7 +558,7 @@ namespace stingray
 			ParseResult result;
 
 			smatch m;
-			STINGRAYKIT_CHECK(regex_search(uppercase, m, regex("^P([0-9WYMDTHS]{2,})$")), FormatException(str));
+			STINGRAYKIT_CHECK(regex_search(uppercase, m, regex(R"(^P([0-9WYMDTHS]{2,})$)")), FormatException(str));
 			STINGRAYKIT_CHECK(TryFromDateTime(m[1], result) || TryFromWeek(m[1], result), FormatException(str));
 
 			return result.ToTimeDuration(base, TimeKind::Utc);
@@ -568,7 +568,7 @@ namespace stingray
 		static bool TryFromDateTime(const std::string& str, ParseResult& result)
 		{
 			smatch m;
-			if (regex_search(str, m, regex("^(.*)T(.*)$")))
+			if (regex_search(str, m, regex(R"(^(.*)T(.*)$)")))
 				return !m[2].empty() && TryFromTime(m[2], result) && (m[1].empty() || TryFromDate(m[1], result));
 			else
 				return TryFromDate(str, result);

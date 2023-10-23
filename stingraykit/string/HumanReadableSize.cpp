@@ -8,8 +8,8 @@ namespace stingray
 	namespace
 	{
 
-		const std::string Suffixes("kMGTPE");
-		const regex FromHumanRegexp(std::string("^(\\d+)") + "([" + Suffixes + "])$");
+		const std::string Suffixes(R"(kMGTPE)");
+		const regex FromHumanRegexp(R"(^(\d+)([)" + Suffixes + R"(])$)");
 
 	}
 
