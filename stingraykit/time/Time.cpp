@@ -515,6 +515,9 @@ namespace stingray
 
 	class TimeDurationUtility::FromIso8601Impl
 	{
+		static const regex FormatRegex;
+		static const regex DateTimeRegex;
+
 		struct ParseResult
 		{
 			s16					Years;
@@ -558,7 +561,7 @@ namespace stingray
 			ParseResult result;
 
 			smatch m;
-			STINGRAYKIT_CHECK(regex_search(uppercase, m, regex(R"(^P([0-9WYMDTHS]{2,})$)")), FormatException(str));
+			STINGRAYKIT_CHECK(regex_search(uppercase, m, FormatRegex), FormatException(str));
 			STINGRAYKIT_CHECK(TryFromDateTime(m[1], result) || TryFromWeek(m[1], result), FormatException(str));
 
 			return result.ToTimeDuration(base, TimeKind::Utc);
@@ -568,7 +571,7 @@ namespace stingray
 		static bool TryFromDateTime(const std::string& str, ParseResult& result)
 		{
 			smatch m;
-			if (regex_search(str, m, regex(R"(^(.*)T(.*)$)")))
+			if (regex_search(str, m, DateTimeRegex))
 				return !m[2].empty() && TryFromTime(m[2], result) && (m[1].empty() || TryFromDate(m[1], result));
 			else
 				return TryFromDate(str, result);
@@ -641,6 +644,9 @@ namespace stingray
 			return StringParse(toParse, "%1%D", result.Days);
 		}
 	};
+
+	const regex TimeDurationUtility::FromIso8601Impl::FormatRegex(R"(^P([0-9WYMDTHS]{2,})$)");
+	const regex TimeDurationUtility::FromIso8601Impl::DateTimeRegex(R"(^(.*)T(.*)$)");
 
 
 	std::string TimeDurationUtility::ToIso8601(TimeDuration duration, const optional<Time>& base)
