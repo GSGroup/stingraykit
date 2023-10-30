@@ -34,9 +34,11 @@ namespace stingray
 	private:
 		u64							_pageSize;
 		PagesContainer				_pages;
+
 		u64							_startOffset;
 		u64							_endOffset;
 		u64							_popOffset;
+
 		Mutex						_readMutex;
 		Mutex						_writeMutex;
 		Mutex						_mutex;
@@ -46,23 +48,23 @@ namespace stingray
 		{
 			MutexLock lr(_readMutex);
 
-			u64 page_idx;
-			u64 page_offset;
+			u64 pageIndex;
+			u64 offsetInPage;
 
 			{
 				MutexLock l(_mutex);
 
-				page_idx = _startOffset / _pageSize;
-				page_offset = _startOffset % _pageSize;
+				pageIndex = _startOffset / _pageSize;
+				offsetInPage = _startOffset % _pageSize;
 			}
 
-			size_t consumed = ReadFromPage(page_idx, page_offset, consumer, token);
+			const size_t processed = ReadFromPage(pageIndex, offsetInPage, consumer, token);
 
 			if (!token)
 				return;
 
 			MutexLock l(_mutex);
-			_startOffset += consumed;
+			_startOffset += processed;
 		}
 
 		u64 GetSize(bool absolute = false) const
@@ -80,31 +82,31 @@ namespace stingray
 		{
 			MutexLock lw(_writeMutex);
 
-			u64 new_end_offset;
-			u64 page_idx = 0;
-			u64 page_write_size;
-			u64 page_offset;
+			u64 newEndOffset;
+			u64 pageIndexFromEnd = 0;
+			u64 pageWriteSize;
+			u64 offsetInPage;
 
 			{
 				MutexLock l(_mutex);
 
-				page_write_size = std::min(_endOffset, (u64)data.size());
-				page_offset = _endOffset == 0 ? 0 : _pageSize - _endOffset;
+				pageWriteSize = std::min(_endOffset, (u64)data.size());
+				offsetInPage = _endOffset == 0 ? 0 : _pageSize - _endOffset;
 
-				for (; data.size() > _endOffset; _endOffset += _pageSize, ++page_idx)
+				for (; data.size() > _endOffset; _endOffset += _pageSize, ++pageIndexFromEnd)
 					_pages.push_back(CreatePage());
 
-				new_end_offset = _endOffset - data.size();
+				newEndOffset = _endOffset - data.size();
 			}
 
-			ScopeExitInvoker sei(Bind(&PagedBuffer::SetEndOffset, this, new_end_offset));
+			ScopeExitInvoker sei(Bind(&PagedBuffer::SetEndOffset, this, newEndOffset));
 
-			WriteToPage(page_idx--, page_offset, ConstByteData(data, 0, page_write_size));
+			WriteToPage(pageIndexFromEnd--, offsetInPage, ConstByteData(data, 0, pageWriteSize));
 
-			for (u64 data_offset = page_write_size; data_offset < data.size(); data_offset += page_write_size, --page_idx)
+			for (u64 offset = pageWriteSize; offset < data.size(); offset += pageWriteSize, --pageIndexFromEnd)
 			{
-				page_write_size = std::min(_pageSize, (u64)data.size() - data_offset);
-				WriteToPage(page_idx, 0, ConstByteData(data, data_offset, page_write_size));
+				pageWriteSize = std::min(_pageSize, (u64)data.size() - offset);
+				WriteToPage(pageIndexFromEnd, 0, ConstByteData(data, offset, pageWriteSize));
 			}
 		}
 
@@ -160,28 +162,28 @@ namespace stingray
 			}
 		}
 
-		void WriteToPage(u64 pageIdxFromEnd, u64 offsetInPage, ConstByteData data)
+		void WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data)
 		{
 			if (data.empty())
 				return;
 
-			IPagePtr p;
+			IPagePtr page;
 			{
 				MutexLock l(_mutex);
-				p = _pages.at(_pages.size() - pageIdxFromEnd - 1);
+				page = _pages.at(_pages.size() - pageIndexFromEnd - 1);
 			}
-			if (p->Write(offsetInPage, data) != data.size())
+			if (page->Write(offsetInPage, data) != data.size())
 				STINGRAYKIT_THROW(InputOutputException("Page write failed!"));
 		}
 
-		size_t ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, IDataConsumer& consumer, const ICancellationToken& token) const
+		size_t ReadFromPage(u64 pageIndex, u64 offsetInPage, IDataConsumer& consumer, const ICancellationToken& token) const
 		{
-			IPagePtr p;
+			IPagePtr page;
 			{
 				MutexLock l(_mutex);
-				p = _pages.at(pageIdxFromStart);
+				page = _pages.at(pageIndex);
 			}
-			return p->Read(offsetInPage, consumer, token);
+			return page->Read(offsetInPage, consumer, token);
 		}
 	};
 
