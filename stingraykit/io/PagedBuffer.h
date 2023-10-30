@@ -18,7 +18,7 @@ namespace stingray
 
 	class PagedBuffer : public virtual IDataSource
 	{
-	public:
+	protected:
 		struct IPage
 		{
 			virtual ~IPage() { }
@@ -29,7 +29,7 @@ namespace stingray
 		STINGRAYKIT_DECLARE_PTR(IPage);
 
 	private:
-		typedef std::deque<IPagePtr> PagesContainer;
+		using PagesContainer = std::deque<IPagePtr>;
 
 	private:
 		u64							_pageSize;
@@ -42,16 +42,6 @@ namespace stingray
 		Mutex						_mutex;
 
 	public:
-		PagedBuffer(u64 pageSize)
-			:	_pageSize(pageSize),
-				_startOffset(0),
-				_endOffset(0),
-				_popOffset(0)
-		{ }
-
-		virtual ~PagedBuffer()
-		{ }
-
 		void Push(const ConstByteData& data)
 		{
 			MutexLock lw(_writeMutex);
@@ -84,7 +74,7 @@ namespace stingray
 			}
 		}
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
 			MutexLock lr(_readMutex);
 
@@ -138,9 +128,17 @@ namespace stingray
 			return _pageSize * _pages.size() - _startOffset - _endOffset;
 		}
 
-	private:
+	protected:
+		explicit PagedBuffer(u64 pageSize)
+			:	_pageSize(pageSize),
+				_startOffset(0),
+				_endOffset(0),
+				_popOffset(0)
+		{ }
+
 		virtual IPagePtr CreatePage() = 0;
 
+	private:
 		void SetEndOffset(u64 newEndOffset)
 		{
 			MutexLock l(_mutex);
