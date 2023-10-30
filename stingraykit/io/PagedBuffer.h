@@ -26,11 +26,10 @@ namespace stingray
 			virtual size_t Read(u64 offset, IDataConsumer& consumer, const ICancellationToken& token) = 0;
 			virtual size_t Write(u64 offset, ConstByteData data) = 0;
 		};
-		typedef IPage Page;
-		STINGRAYKIT_DECLARE_PTR(Page);
+		STINGRAYKIT_DECLARE_PTR(IPage);
 
 	private:
-		typedef std::deque<PagePtr> PagesContainer;
+		typedef std::deque<IPagePtr> PagesContainer;
 
 	private:
 		u64							_pageSize;
@@ -140,7 +139,7 @@ namespace stingray
 		}
 
 	private:
-		virtual PagePtr CreatePage() = 0;
+		virtual IPagePtr CreatePage() = 0;
 
 		void SetEndOffset(u64 newEndOffset)
 		{
@@ -168,7 +167,7 @@ namespace stingray
 			if (data.empty())
 				return;
 
-			PagePtr p;
+			IPagePtr p;
 			{
 				MutexLock l(_mutex);
 				p = _pages.at(_pages.size() - pageIdxFromEnd - 1);
@@ -179,7 +178,7 @@ namespace stingray
 
 		size_t ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, IDataConsumer& consumer, const ICancellationToken& token) const
 		{
-			PagePtr p;
+			IPagePtr p;
 			{
 				MutexLock l(_mutex);
 				p = _pages.at(pageIdxFromStart);
