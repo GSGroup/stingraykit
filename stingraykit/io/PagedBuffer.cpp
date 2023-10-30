@@ -41,7 +41,7 @@ namespace stingray
 		MutexLock l(_mutex);
 
 		if (absolute)
-			return _pageSize * _pages.size() - _endOffset - _popOffset;
+			return _pageSize * _pages.size() - _popOffset - _endOffset;
 
 		return _pageSize * _pages.size() - _startOffset - _endOffset;
 	}
@@ -62,7 +62,7 @@ namespace stingray
 			pageWriteSize = std::min(_endOffset, (u64)data.size());
 			offsetInPage = _endOffset == 0 ? 0 : _pageSize - _endOffset;
 
-			for (; data.size() > _endOffset; _endOffset += _pageSize, ++pageIndexFromEnd)
+			for (; _endOffset < data.size(); _endOffset += _pageSize, ++pageIndexFromEnd)
 				_pages.push_back(CreatePage());
 
 			newEndOffset = _endOffset - data.size();
@@ -89,7 +89,7 @@ namespace stingray
 		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 
-		const u64 absoluteSize = _pageSize * _pages.size() - _endOffset - _popOffset;
+		const u64 absoluteSize = _pageSize * _pages.size() - _popOffset - _endOffset;
 		STINGRAYKIT_CHECK(size <= absoluteSize, IndexOutOfRangeException(size, absoluteSize));
 
 		_popOffset = _popOffset + size;
@@ -109,7 +109,9 @@ namespace stingray
 		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 
-		STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset - _popOffset, IndexOutOfRangeException(offset, _pageSize * _pages.size() - _endOffset - _popOffset));
+		const u64 absoluteSize = _pageSize * _pages.size() - _popOffset - _endOffset;
+		STINGRAYKIT_CHECK(offset <= absoluteSize, IndexOutOfRangeException(offset, absoluteSize));
+
 		_startOffset = _popOffset + offset;
 	}
 
