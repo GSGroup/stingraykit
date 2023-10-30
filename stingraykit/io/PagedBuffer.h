@@ -42,6 +42,40 @@ namespace stingray
 		Mutex						_mutex;
 
 	public:
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
+		{
+			MutexLock lr(_readMutex);
+
+			u64 page_idx;
+			u64 page_offset;
+
+			{
+				MutexLock l(_mutex);
+
+				page_idx = _startOffset / _pageSize;
+				page_offset = _startOffset % _pageSize;
+			}
+
+			size_t consumed = ReadFromPage(page_idx, page_offset, consumer, token);
+
+			if (!token)
+				return;
+
+			MutexLock l(_mutex);
+			_startOffset += consumed;
+		}
+
+		u64 GetSize(bool absolute = false) const
+		{
+			MutexLock lr(_readMutex);
+			MutexLock l(_mutex);
+
+			if (absolute)
+				return _pageSize * _pages.size() - _endOffset - _popOffset;
+
+			return _pageSize * _pages.size() - _startOffset - _endOffset;
+		}
+
 		void Push(const ConstByteData& data)
 		{
 			MutexLock lw(_writeMutex);
@@ -74,38 +108,6 @@ namespace stingray
 			}
 		}
 
-		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
-		{
-			MutexLock lr(_readMutex);
-
-			u64 page_idx;
-			u64 page_offset;
-
-			{
-				MutexLock l(_mutex);
-
-				page_idx = _startOffset / _pageSize;
-				page_offset = _startOffset % _pageSize;
-			}
-
-			size_t consumed = ReadFromPage(page_idx, page_offset, consumer, token);
-
-			if (!token)
-				return;
-
-			MutexLock l(_mutex);
-			_startOffset += consumed;
-		}
-
-		void Seek(u64 offset)
-		{
-			MutexLock lr(_readMutex);
-			MutexLock l(_mutex);
-
-			STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset - _popOffset, IndexOutOfRangeException(offset, _pageSize * _pages.size() - _endOffset - _popOffset));
-			_startOffset = _popOffset + offset;
-		}
-
 		void Pop(u64 size)
 		{
 			MutexLock lr(_readMutex);
@@ -117,15 +119,13 @@ namespace stingray
 			SetPopOffset(_popOffset + size);
 		}
 
-		u64 GetSize(bool absolute = false) const
+		void Seek(u64 offset)
 		{
 			MutexLock lr(_readMutex);
 			MutexLock l(_mutex);
 
-			if (absolute)
-				return _pageSize * _pages.size() - _endOffset - _popOffset;
-
-			return _pageSize * _pages.size() - _startOffset - _endOffset;
+			STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset - _popOffset, IndexOutOfRangeException(offset, _pageSize * _pages.size() - _endOffset - _popOffset));
+			_startOffset = _popOffset + offset;
 		}
 
 	protected:
