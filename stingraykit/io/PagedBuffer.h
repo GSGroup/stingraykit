@@ -13,9 +13,7 @@
 #include <stingraykit/ScopeExit.h>
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/io/IDataSource.h>
-#include <stingraykit/io/ByteDataConsumer.h>
 #include <stingraykit/signal/signals.h>
-#include <stingraykit/thread/DummyCancellationToken.h>
 
 namespace stingray
 {
@@ -80,37 +78,6 @@ namespace stingray
 			{
 				page_write_size = std::min(_pageSize, (u64)data.size() - data_offset);
 				WriteToPage(page_idx, 0, ConstByteData(data, data_offset, page_write_size));
-			}
-		}
-
-		void Get(const ByteData& data)
-		{
-			MutexLock lr(_readMutex);
-
-			u64 page_idx, page_read_size, page_offset;
-			{
-				MutexLock l(_mutex);
-
-				STINGRAYKIT_CHECK(data.size() <= GetSize(), IndexOutOfRangeException());
-
-				page_idx = _startOffset / _pageSize;
-				page_offset = _startOffset % _pageSize;
-				page_read_size = std::min(_pageSize - _startOffset % _pageSize, (u64)data.size());
-			}
-
-			u64 data_offset = 0;
-			ReadFromPage(page_idx++, page_offset, ByteData(data, data_offset, page_read_size));
-			data_offset += page_read_size;
-
-			for (; data_offset < data.size(); data_offset += page_read_size, ++page_idx)
-			{
-				page_read_size = std::min(_pageSize, data.size() - data_offset);
-				ReadFromPage(page_idx, 0, ByteData(data, data_offset, page_read_size));
-			}
-
-			{
-				MutexLock l(_mutex);
-				_startOffset += data.size();
 			}
 		}
 
@@ -204,21 +171,6 @@ namespace stingray
 			}
 			if (p->Write(offsetInPage, data) != data.size())
 				STINGRAYKIT_THROW(InputOutputException("Page write failed!"));
-		}
-
-		void ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, ByteData data) const
-		{
-			if (data.empty())
-				return;
-
-			PagePtr p;
-			{
-				MutexLock l(_mutex);
-				p = _pages.at(pageIdxFromStart);
-			}
-			ByteDataConsumer consumer(data);
-			if (p->Read(offsetInPage, consumer, DummyCancellationToken()) != data.size())
-				STINGRAYKIT_THROW(InputOutputException("Page read failed!"));
 		}
 
 		size_t ReadFromPage(u64 pageIdxFromStart, u64 offsetInPage, IDataConsumer& consumer, const ICancellationToken& token) const
