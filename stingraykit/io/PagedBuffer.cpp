@@ -69,7 +69,11 @@ namespace stingray
 			newEndOffset = _endOffset - data.size();
 		}
 
-		ScopeExitInvoker sei(Bind(&PagedBuffer::SetEndOffset, this, newEndOffset));
+		PagedBuffer* self = this;
+		STINGRAYKIT_SCOPE_EXIT(MK_PARAM(PagedBuffer*, self), MK_PARAM(u64, newEndOffset))
+			MutexLock l(self->_mutex);
+			self->_endOffset = newEndOffset;
+		STINGRAYKIT_SCOPE_EXIT_END;
 
 		WriteToPage(pageIndexFromEnd--, offsetInPage, ConstByteData(data, 0, pageWriteSize));
 
@@ -109,13 +113,6 @@ namespace stingray
 			_endOffset(0),
 			_popOffset(0)
 	{ }
-
-
-	void PagedBuffer::SetEndOffset(u64 newEndOffset)
-	{
-		MutexLock l(_mutex);
-		_endOffset = newEndOffset;
-	}
 
 
 	void PagedBuffer::SetPopOffset(u64 newPopOffset)

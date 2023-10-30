@@ -58,7 +58,6 @@ namespace stingray
 		virtual IPagePtr CreatePage() = 0;
 
 	private:
-		void SetEndOffset(u64 newEndOffset);
 		void SetPopOffset(u64 newPopOffset);
 
 		void WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data);
