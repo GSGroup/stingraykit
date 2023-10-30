@@ -8,16 +8,13 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <deque>
-
-#include <stingraykit/ScopeExit.h>
-#include <stingraykit/collection/ByteData.h>
 #include <stingraykit/io/IDataSource.h>
-#include <stingraykit/signal/signals.h>
+#include <stingraykit/ScopeExit.h>
+
+#include <deque>
 
 namespace stingray
 {
-
 
 	class PagedBuffer : public virtual IDataSource
 	{
@@ -36,19 +33,21 @@ namespace stingray
 		typedef std::deque<PagePtr> PagesContainer;
 
 	private:
-		u64				_pageSize;
-		PagesContainer	_pages;
-		u64				_startOffset, _endOffset, _popOffset;
-		Mutex			_readMutex;
-		Mutex			_writeMutex;
-		Mutex			_mutex;
+		u64							_pageSize;
+		PagesContainer				_pages;
+		u64							_startOffset;
+		u64							_endOffset;
+		u64							_popOffset;
+		Mutex						_readMutex;
+		Mutex						_writeMutex;
+		Mutex						_mutex;
 
 	public:
-		PagedBuffer(u64 pageSize) :
-			_pageSize(pageSize),
-			_startOffset(0),
-			_endOffset(0),
-			_popOffset(0)
+		PagedBuffer(u64 pageSize)
+			:	_pageSize(pageSize),
+				_startOffset(0),
+				_endOffset(0),
+				_popOffset(0)
 		{ }
 
 		virtual ~PagedBuffer()
@@ -58,7 +57,11 @@ namespace stingray
 		{
 			MutexLock lw(_writeMutex);
 
-			u64 new_end_offset, page_idx = 0, page_write_size, page_offset;
+			u64 new_end_offset;
+			u64 page_idx = 0;
+			u64 page_write_size;
+			u64 page_offset;
+
 			{
 				MutexLock l(_mutex);
 
@@ -70,6 +73,7 @@ namespace stingray
 
 				new_end_offset = _endOffset - data.size();
 			}
+
 			ScopeExitInvoker sei(Bind(&PagedBuffer::SetEndOffset, this, new_end_offset));
 
 			WriteToPage(page_idx--, page_offset, ConstByteData(data, 0, page_write_size));
@@ -85,7 +89,9 @@ namespace stingray
 		{
 			MutexLock lr(_readMutex);
 
-			u64 page_idx, page_offset;
+			u64 page_idx;
+			u64 page_offset;
+
 			{
 				MutexLock l(_mutex);
 
@@ -98,18 +104,16 @@ namespace stingray
 			if (!token)
 				return;
 
-			{
-				MutexLock l(_mutex);
-				_startOffset += consumed;
-			}
+			MutexLock l(_mutex);
+			_startOffset += consumed;
 		}
 
 		void Seek(u64 offset)
 		{
 			MutexLock lr(_readMutex);
 			MutexLock l(_mutex);
-			STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset - _popOffset, IndexOutOfRangeException(offset, _pageSize * _pages.size() - _endOffset - _popOffset));
 
+			STINGRAYKIT_CHECK(offset <= _pageSize * _pages.size() - _endOffset - _popOffset, IndexOutOfRangeException(offset, _pageSize * _pages.size() - _endOffset - _popOffset));
 			_startOffset = _popOffset + offset;
 		}
 
@@ -147,6 +151,7 @@ namespace stingray
 		void SetPopOffset(u64 newPopOffset)
 		{
 			MutexLock l(_mutex);
+
 			_popOffset = newPopOffset;
 			if (_startOffset < _popOffset)
 				_startOffset = _popOffset;
@@ -154,7 +159,6 @@ namespace stingray
 			for (; _popOffset >= _pageSize; _popOffset -= _pageSize, _startOffset -= _pageSize)
 			{
 				STINGRAYKIT_CHECK(_startOffset >= _pageSize, StringBuilder() % "Internal error: _startOffset is less than _pageSize while popping. _startOffset: " % _startOffset % ", _pageSize: " % _pageSize % ".");
-
 				_pages.pop_front();
 			}
 		}
@@ -184,9 +188,6 @@ namespace stingray
 		}
 	};
 
-
 }
 
-
 #endif
-
