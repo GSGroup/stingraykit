@@ -97,10 +97,7 @@ namespace stingray
 			_startOffset = _popOffset;
 
 		for (; _popOffset >= _pageSize; _popOffset -= _pageSize, _startOffset -= _pageSize)
-		{
-			STINGRAYKIT_CHECK(_startOffset >= _pageSize, StringBuilder() % "Internal error: _startOffset is less than _pageSize while popping. _startOffset: " % _startOffset % ", _pageSize: " % _pageSize % ".");
 			_pages.pop_front();
-		}
 	}
 
 
