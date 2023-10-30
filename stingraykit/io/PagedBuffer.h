@@ -23,7 +23,7 @@ namespace stingray
 			virtual ~IPage() { }
 
 			virtual size_t Read(u64 offset, IDataConsumer& consumer, const ICancellationToken& token) = 0;
-			virtual size_t Write(u64 offset, ConstByteData data) = 0;
+			virtual size_t Write(u64 offset, ConstByteData data, const ICancellationToken& token) = 0;
 		};
 		STINGRAYKIT_DECLARE_PTR(IPage);
 
@@ -47,7 +47,7 @@ namespace stingray
 
 		u64 GetSize(bool absolute = false) const;
 
-		void Push(const ConstByteData& data);
+		void Push(const ConstByteData& data, const ICancellationToken& token);
 		void Pop(u64 size);
 
 		void Seek(u64 offset);
@@ -58,7 +58,7 @@ namespace stingray
 		virtual IPagePtr CreatePage() = 0;
 
 	private:
-		void WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data);
+		void WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data, const ICancellationToken& token);
 	};
 
 }

@@ -47,7 +47,7 @@ namespace stingray
 	}
 
 
-	void PagedBuffer::Push(const ConstByteData& data)
+	void PagedBuffer::Push(const ConstByteData& data, const ICancellationToken& token)
 	{
 		MutexLock lw(_writeMutex);
 
@@ -74,12 +74,12 @@ namespace stingray
 			self->_endOffset = newEndOffset;
 		STINGRAYKIT_SCOPE_EXIT_END;
 
-		WriteToPage(pageIndexFromEnd--, offsetInPage, ConstByteData(data, 0, pageWriteSize));
+		WriteToPage(pageIndexFromEnd--, offsetInPage, ConstByteData(data, 0, pageWriteSize), token);
 
 		for (u64 offset = pageWriteSize; offset < data.size(); offset += pageWriteSize, --pageIndexFromEnd)
 		{
 			pageWriteSize = std::min(_pageSize, (u64)data.size() - offset);
-			WriteToPage(pageIndexFromEnd, 0, ConstByteData(data, offset, pageWriteSize));
+			WriteToPage(pageIndexFromEnd, 0, ConstByteData(data, offset, pageWriteSize), token);
 		}
 	}
 
@@ -122,7 +122,7 @@ namespace stingray
 	{ }
 
 
-	void PagedBuffer::WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data)
+	void PagedBuffer::WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data, const ICancellationToken& token)
 	{
 		if (data.empty())
 			return;
@@ -132,7 +132,7 @@ namespace stingray
 			MutexLock l(_mutex);
 			page = _pages.at(_pages.size() - pageIndexFromEnd - 1);
 		}
-		if (page->Write(offsetInPage, data) != data.size())
+		if (page->Write(offsetInPage, data, token) != data.size())
 			STINGRAYKIT_THROW(InputOutputException("Page write failed!"));
 	}
 
