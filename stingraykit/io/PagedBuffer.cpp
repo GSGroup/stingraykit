@@ -16,17 +16,16 @@ namespace stingray
 	{
 		MutexLock lr(_readMutex);
 
-		u64 pageIndex;
+		IPagePtr page;
 		u64 offsetInPage;
 
 		{
 			MutexLock l(_mutex);
-
-			pageIndex = _startOffset / _pageSize;
+			page = _pages.at(_startOffset / _pageSize);
 			offsetInPage = _startOffset % _pageSize;
 		}
 
-		const size_t processed = ReadFromPage(pageIndex, offsetInPage, consumer, token);
+		const size_t processed = page->Read(offsetInPage, consumer, token);
 
 		if (!token)
 			return;
@@ -93,7 +92,15 @@ namespace stingray
 		const u64 absoluteSize = _pageSize * _pages.size() - _endOffset - _popOffset;
 		STINGRAYKIT_CHECK(size <= absoluteSize, IndexOutOfRangeException(size, absoluteSize));
 
-		SetPopOffset(_popOffset + size);
+		_popOffset = _popOffset + size;
+		if (_startOffset < _popOffset)
+			_startOffset = _popOffset;
+
+		for (; _popOffset >= _pageSize; _popOffset -= _pageSize, _startOffset -= _pageSize)
+		{
+			STINGRAYKIT_CHECK(_startOffset >= _pageSize, StringBuilder() % "Internal error: _startOffset is less than _pageSize while popping. _startOffset: " % _startOffset % ", _pageSize: " % _pageSize % ".");
+			_pages.pop_front();
+		}
 	}
 
 
@@ -115,22 +122,6 @@ namespace stingray
 	{ }
 
 
-	void PagedBuffer::SetPopOffset(u64 newPopOffset)
-	{
-		MutexLock l(_mutex);
-
-		_popOffset = newPopOffset;
-		if (_startOffset < _popOffset)
-			_startOffset = _popOffset;
-
-		for (; _popOffset >= _pageSize; _popOffset -= _pageSize, _startOffset -= _pageSize)
-		{
-			STINGRAYKIT_CHECK(_startOffset >= _pageSize, StringBuilder() % "Internal error: _startOffset is less than _pageSize while popping. _startOffset: " % _startOffset % ", _pageSize: " % _pageSize % ".");
-			_pages.pop_front();
-		}
-	}
-
-
 	void PagedBuffer::WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data)
 	{
 		if (data.empty())
@@ -143,17 +134,6 @@ namespace stingray
 		}
 		if (page->Write(offsetInPage, data) != data.size())
 			STINGRAYKIT_THROW(InputOutputException("Page write failed!"));
-	}
-
-
-	size_t PagedBuffer::ReadFromPage(u64 pageIndex, u64 offsetInPage, IDataConsumer& consumer, const ICancellationToken& token) const
-	{
-		IPagePtr page;
-		{
-			MutexLock l(_mutex);
-			page = _pages.at(pageIndex);
-		}
-		return page->Read(offsetInPage, consumer, token);
 	}
 
 }
