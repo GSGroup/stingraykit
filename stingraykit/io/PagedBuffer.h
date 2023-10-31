@@ -28,6 +28,8 @@ namespace stingray
 		STINGRAYKIT_DECLARE_PTR(IPage);
 
 	private:
+		class ReadLock;
+
 		using PagesContainer = std::deque<IPagePtr>;
 
 	private:
@@ -38,9 +40,10 @@ namespace stingray
 		u64							_currentOffset;
 		u64							_tailSize;
 
-		Mutex						_readMutex;
-		Mutex						_writeMutex;
 		Mutex						_mutex;
+		bool						_activeRead;
+
+		Mutex						_writeMutex;
 
 	public:
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override;

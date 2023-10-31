@@ -10,32 +10,49 @@
 namespace stingray
 {
 
-	void PagedBuffer::Read(IDataConsumer& consumer, const ICancellationToken& token)
+	class PagedBuffer::ReadLock
 	{
-		MutexLock lr(_readMutex);
+	private:
+		PagedBuffer&		_parent;
 
-		IPagePtr page;
-		u64 offsetInPage;
-
+	public:
+		ReadLock(PagedBuffer& parent) : _parent(parent)
 		{
-			MutexLock l(_mutex);
-			page = _pages.at(_currentOffset / _pageSize);
-			offsetInPage = _currentOffset % _pageSize;
+			STINGRAYKIT_CHECK(!_parent._activeRead, InvalidOperationException("Simultaneous Read()!"));
+			_parent._activeRead = true;
 		}
 
-		const size_t processed = page->Read(offsetInPage, consumer, token);
+		~ReadLock()
+		{ _parent._activeRead = false; }
+	};
 
-		if (!token)
-			return;
 
+	void PagedBuffer::Read(IDataConsumer& consumer, const ICancellationToken& token)
+	{
 		MutexLock l(_mutex);
-		_currentOffset += processed;
+		ReadLock rl(*this);
+
+		const IPagePtr page = _pages.at(_currentOffset / _pageSize);
+		const u64 offset = _currentOffset % _pageSize;
+
+		const u64 currentOffset = _currentOffset;
+		size_t processed = 0;
+
+		{
+			MutexUnlock ul(l);
+
+			processed = page->Read(offset, consumer, token);
+			if (!token)
+				return;
+		}
+
+		if (_currentOffset == currentOffset)
+			_currentOffset += processed;
 	}
 
 
 	u64 PagedBuffer::GetStorageSize() const
 	{
-		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 		return _pageSize * _pages.size() - _startOffset - _tailSize;
 	}
@@ -43,7 +60,6 @@ namespace stingray
 
 	u64 PagedBuffer::GetUnreadSize() const
 	{
-		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 		return _pageSize * _pages.size() - _currentOffset - _tailSize;
 	}
@@ -100,7 +116,6 @@ namespace stingray
 
 	void PagedBuffer::Pop(u64 size)
 	{
-		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 
 		const u64 storageSize = _pageSize * _pages.size() - _startOffset - _tailSize;
@@ -125,7 +140,6 @@ namespace stingray
 
 	void PagedBuffer::Seek(u64 offset)
 	{
-		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 
 		const u64 storageSize = _pageSize * _pages.size() - _startOffset - _tailSize;
@@ -139,7 +153,8 @@ namespace stingray
 		:	_pageSize(pageSize),
 			_startOffset(0),
 			_currentOffset(0),
-			_tailSize(0)
+			_tailSize(0),
+			_activeRead(false)
 	{ }
 
 }
