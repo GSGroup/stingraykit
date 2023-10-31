@@ -165,7 +165,7 @@ namespace stingray
 	{
 		MutexLock l(_mutex);
 
-		const u64 storageSize = _pageSize * _pages.size() - _startOffset - _tailSize;
+		const u64 storageSize = GetStorageSize();
 		STINGRAYKIT_CHECK(size <= storageSize, IndexOutOfRangeException(size, storageSize));
 
 		auto newBeginIt = _pages.begin();
@@ -189,7 +189,7 @@ namespace stingray
 	{
 		MutexLock l(_mutex);
 
-		const u64 storageSize = _pageSize * _pages.size() - _startOffset - _tailSize;
+		const u64 storageSize = GetStorageSize();
 		STINGRAYKIT_CHECK(offset <= storageSize, IndexOutOfRangeException(offset, storageSize));
 
 		_currentOffset = _startOffset + offset;
