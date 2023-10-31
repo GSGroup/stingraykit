@@ -88,6 +88,13 @@ namespace stingray
 				return;
 		}
 
+		const size_t remainder = processed % _chunkSize;
+		if (remainder != 0)
+		{
+			Log(LogLevel::Error) << "Read: processed size " << processed << " is not a multiple of chunk size " << _chunkSize;
+			processed -= remainder;
+		}
+
 		if (_currentOffset == currentOffset)
 			_currentOffset += processed;
 	}
@@ -170,6 +177,7 @@ namespace stingray
 
 		const u64 storageSize = GetStorageSize();
 		STINGRAYKIT_CHECK(size <= storageSize, IndexOutOfRangeException(size, storageSize));
+		STINGRAYKIT_CHECK(size % _chunkSize == 0, ArgumentException("size", size));
 
 		auto newBeginIt = _pages.begin();
 		u64 newStartOffset = _startOffset + size;
@@ -194,6 +202,7 @@ namespace stingray
 
 		const u64 storageSize = GetStorageSize();
 		STINGRAYKIT_CHECK(offset <= storageSize, IndexOutOfRangeException(offset, storageSize));
+		STINGRAYKIT_CHECK(offset % _chunkSize == 0, ArgumentException("offset", offset));
 
 		_currentOffset = _startOffset + offset;
 	}
@@ -208,7 +217,12 @@ namespace stingray
 			_tailSize(0),
 			_activeRead(false),
 			_activeWrite(false)
-	{ }
+	{
+		STINGRAYKIT_CHECK(!name.empty(), ArgumentException("name"));
+		STINGRAYKIT_CHECK(pageSize > 0, ArgumentException("pageSize"));
+		STINGRAYKIT_CHECK(chunkSize > 0, ArgumentException("chunkSize"));
+		STINGRAYKIT_CHECK(pageSize % chunkSize == 0, ArgumentException("(pageSize, chunkSize)", MakeTuple(pageSize, chunkSize)));
+	}
 
 
 	LoggerStream PagedBuffer::Log(LogLevel logLevel) const
