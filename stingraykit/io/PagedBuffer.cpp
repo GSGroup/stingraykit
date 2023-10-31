@@ -74,7 +74,11 @@ namespace stingray
 		MutexLock l(_mutex);
 		ReadLock rl(*this);
 
-		const IPagePtr page = _pages.at(_currentOffset / _pageSize);
+		const u64 pageIndex = _currentOffset / _pageSize;
+		STINGRAYKIT_CHECK(pageIndex < _pages.size(),
+				LogicException(StringBuilder() % "Broken invariant: current offset " % _currentOffset % " gives page index " % pageIndex % " that is out of range " % _pages.size()));
+
+		const IPagePtr page = _pages[pageIndex];
 		const u64 offset = _currentOffset % _pageSize;
 
 		const u64 currentOffset = _currentOffset;
