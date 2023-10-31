@@ -95,8 +95,7 @@ namespace stingray
 			MutexUnlock ul(l);
 
 			processed = page->Read(offset, consumer, token);
-			if (!token)
-				return;
+			STINGRAYKIT_CHECK_CANCELLATION(token);
 		}
 
 		const size_t remainder = processed % _chunkSize;
