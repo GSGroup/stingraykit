@@ -45,7 +45,8 @@ namespace stingray
 	public:
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override;
 
-		u64 GetSize(bool absolute = false) const;
+		u64 GetStorageSize() const;
+		u64 GetUnreadSize() const;
 
 		void Push(const ConstByteData& data, const ICancellationToken& token);
 		void Pop(u64 size);

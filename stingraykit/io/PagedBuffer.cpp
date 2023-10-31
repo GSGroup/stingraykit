@@ -35,14 +35,18 @@ namespace stingray
 	}
 
 
-	u64 PagedBuffer::GetSize(bool absolute) const
+	u64 PagedBuffer::GetStorageSize() const
 	{
 		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
+		return _pageSize * _pages.size() - _startOffset - _tailSize;
+	}
 
-		if (absolute)
-			return _pageSize * _pages.size() - _startOffset - _tailSize;
 
+	u64 PagedBuffer::GetUnreadSize() const
+	{
+		MutexLock lr(_readMutex);
+		MutexLock l(_mutex);
 		return _pageSize * _pages.size() - _currentOffset - _tailSize;
 	}
 
@@ -89,8 +93,8 @@ namespace stingray
 		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 
-		const u64 absoluteSize = _pageSize * _pages.size() - _startOffset - _tailSize;
-		STINGRAYKIT_CHECK(size <= absoluteSize, IndexOutOfRangeException(size, absoluteSize));
+		const u64 storageSize = _pageSize * _pages.size() - _startOffset - _tailSize;
+		STINGRAYKIT_CHECK(size <= storageSize, IndexOutOfRangeException(size, storageSize));
 
 		_startOffset = _startOffset + size;
 		if (_currentOffset < _startOffset)
@@ -106,8 +110,8 @@ namespace stingray
 		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 
-		const u64 absoluteSize = _pageSize * _pages.size() - _startOffset - _tailSize;
-		STINGRAYKIT_CHECK(offset <= absoluteSize, IndexOutOfRangeException(offset, absoluteSize));
+		const u64 storageSize = _pageSize * _pages.size() - _startOffset - _tailSize;
+		STINGRAYKIT_CHECK(offset <= storageSize, IndexOutOfRangeException(offset, storageSize));
 
 		_currentOffset = _startOffset + offset;
 	}
