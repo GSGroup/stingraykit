@@ -131,8 +131,9 @@ namespace stingray
 			MutexLock l(_mutex);
 			page = _pages.at(_pages.size() - pageIndexFromEnd - 1);
 		}
-		if (page->Write(offsetInPage, data, token) != data.size())
-			STINGRAYKIT_THROW(InputOutputException("Page write failed!"));
+
+		const size_t written = page->Write(offsetInPage, data, token);
+		STINGRAYKIT_CHECK(written == data.size(), InputOutputException(StringBuilder() % "Written only " % written % " of " % data.size()));
 	}
 
 }
