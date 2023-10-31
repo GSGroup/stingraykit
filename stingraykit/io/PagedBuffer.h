@@ -29,6 +29,7 @@ namespace stingray
 
 	private:
 		class ReadLock;
+		class WriteGuard;
 
 		using PagesContainer = std::deque<IPagePtr>;
 
@@ -44,6 +45,8 @@ namespace stingray
 		bool						_activeRead;
 
 		Mutex						_writeMutex;
+		bool						_activeWrite;
+		ConditionVariable			_writeCond;
 
 	public:
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override;

@@ -27,6 +27,45 @@ namespace stingray
 	};
 
 
+	class PagedBuffer::WriteGuard
+	{
+	private:
+		PagedBuffer&		_parent;
+		bool				_locked;
+
+	public:
+		WriteGuard(PagedBuffer& parent) : _parent(parent), _locked(false) { }
+
+		ConditionWaitResult Wait(const ICancellationToken& token)
+		{
+			{
+				MutexLock l(_parent._writeMutex);
+				while (_parent._activeWrite)
+				{
+					const ConditionWaitResult result = _parent._writeCond.Wait(_parent._writeMutex, token);
+					if (result != ConditionWaitResult::Broadcasted)
+						return result;
+				}
+
+				_parent._activeWrite = true;
+			}
+
+			_locked = true;
+			return ConditionWaitResult::Broadcasted;
+		}
+
+		~WriteGuard()
+		{
+			if (_locked)
+			{
+				MutexLock l(_parent._writeMutex);
+				_parent._activeWrite = false;
+				_parent._writeCond.Broadcast();
+			}
+		}
+	};
+
+
 	void PagedBuffer::Read(IDataConsumer& consumer, const ICancellationToken& token)
 	{
 		MutexLock l(_mutex);
@@ -67,7 +106,15 @@ namespace stingray
 
 	void PagedBuffer::Push(const ConstByteData& data, const ICancellationToken& token)
 	{
-		MutexLock lw(_writeMutex);
+		WriteGuard g(*this);
+
+		switch (g.Wait(token))
+		{
+		case ConditionWaitResult::Broadcasted:	break;
+		case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
+		case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
+		}
+
 		MutexLock l(_mutex);
 
 		STINGRAYKIT_CHECK(!_pages.empty() || _tailSize == 0, LogicException("Broken invariant: no pages while tail size is non-zero"));
@@ -154,7 +201,8 @@ namespace stingray
 			_startOffset(0),
 			_currentOffset(0),
 			_tailSize(0),
-			_activeRead(false)
+			_activeRead(false),
+			_activeWrite(false)
 	{ }
 
 }
