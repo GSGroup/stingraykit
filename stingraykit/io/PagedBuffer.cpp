@@ -145,7 +145,7 @@ namespace stingray
 
 			while (offset < data.size())
 			{
-				newPages.push_back(CreatePage());
+				newPages.push_back(CreatePage(_chunkSize));
 
 				const size_t toWrite = std::min(_pageSize, (u64)data.size() - offset);
 				const size_t written = newPages.back()->Write(0, ConstByteData(data, offset, toWrite), token);
@@ -196,8 +196,9 @@ namespace stingray
 	}
 
 
-	PagedBuffer::PagedBuffer(u64 pageSize)
+	PagedBuffer::PagedBuffer(u64 pageSize, size_t chunkSize)
 		:	_pageSize(pageSize),
+			_chunkSize(chunkSize),
 			_startOffset(0),
 			_currentOffset(0),
 			_tailSize(0),

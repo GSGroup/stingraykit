@@ -35,6 +35,8 @@ namespace stingray
 
 	private:
 		const u64					_pageSize;
+		const size_t				_chunkSize;
+
 		PagesContainer				_pages;
 
 		u64							_startOffset;
@@ -60,9 +62,9 @@ namespace stingray
 		void Seek(u64 offset);
 
 	protected:
-		explicit PagedBuffer(u64 pageSize);
+		PagedBuffer(u64 pageSize, size_t chunkSize);
 
-		virtual IPagePtr CreatePage() = 0;
+		virtual IPagePtr CreatePage(size_t chunkSize) = 0;
 	};
 
 }
