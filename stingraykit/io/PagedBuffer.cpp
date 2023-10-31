@@ -96,12 +96,20 @@ namespace stingray
 		const u64 storageSize = _pageSize * _pages.size() - _startOffset - _tailSize;
 		STINGRAYKIT_CHECK(size <= storageSize, IndexOutOfRangeException(size, storageSize));
 
-		_startOffset = _startOffset + size;
-		if (_currentOffset < _startOffset)
-			_currentOffset = _startOffset;
+		auto newBeginIt = _pages.begin();
+		u64 newStartOffset = _startOffset + size;
+		u64 newCurrentOffset = std::max(newStartOffset, _currentOffset);
 
-		for (; _startOffset >= _pageSize; _startOffset -= _pageSize, _currentOffset -= _pageSize)
-			_pages.pop_front();
+		while (newStartOffset >= _pageSize)
+		{
+			++newBeginIt;
+			newStartOffset -= _pageSize;
+			newCurrentOffset -= _pageSize;
+		}
+
+		_pages.erase(_pages.begin(), newBeginIt);
+		_startOffset = newStartOffset;
+		_currentOffset = newCurrentOffset;
 	}
 
 
