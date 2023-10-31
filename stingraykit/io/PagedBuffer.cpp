@@ -66,6 +66,9 @@ namespace stingray
 	};
 
 
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(PagedBuffer);
+
+
 	void PagedBuffer::Read(IDataConsumer& consumer, const ICancellationToken& token)
 	{
 		MutexLock l(_mutex);
@@ -196,8 +199,9 @@ namespace stingray
 	}
 
 
-	PagedBuffer::PagedBuffer(u64 pageSize, size_t chunkSize)
-		:	_pageSize(pageSize),
+	PagedBuffer::PagedBuffer(const std::string& name, u64 pageSize, size_t chunkSize)
+		:	_name(name),
+			_pageSize(pageSize),
 			_chunkSize(chunkSize),
 			_startOffset(0),
 			_currentOffset(0),
@@ -205,5 +209,13 @@ namespace stingray
 			_activeRead(false),
 			_activeWrite(false)
 	{ }
+
+
+	LoggerStream PagedBuffer::Log(LogLevel logLevel) const
+	{
+		LoggerStream stream(s_logger.Stream(logLevel));
+		stream << "[" << _name << "] ";
+		return stream;
+	}
 
 }

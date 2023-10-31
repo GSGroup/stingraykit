@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/io/IDataSource.h>
+#include <stingraykit/log/Logger.h>
 
 #include <deque>
 
@@ -34,6 +35,9 @@ namespace stingray
 		using PagesContainer = std::deque<IPagePtr>;
 
 	private:
+		static NamedLogger			s_logger;
+
+		const std::string			_name;
 		const u64					_pageSize;
 		const size_t				_chunkSize;
 
@@ -62,9 +66,11 @@ namespace stingray
 		void Seek(u64 offset);
 
 	protected:
-		PagedBuffer(u64 pageSize, size_t chunkSize);
+		PagedBuffer(const std::string& name, u64 pageSize, size_t chunkSize);
 
 		virtual IPagePtr CreatePage(size_t chunkSize) = 0;
+
+		LoggerStream Log(LogLevel logLevel) const;
 	};
 
 }
