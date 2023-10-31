@@ -31,7 +31,7 @@ namespace stingray
 		using PagesContainer = std::deque<IPagePtr>;
 
 	private:
-		u64							_pageSize;
+		const u64					_pageSize;
 		PagesContainer				_pages;
 
 		u64							_startOffset;
@@ -57,9 +57,6 @@ namespace stingray
 		explicit PagedBuffer(u64 pageSize);
 
 		virtual IPagePtr CreatePage() = 0;
-
-	private:
-		void WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data, const ICancellationToken& token);
 	};
 
 }

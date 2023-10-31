@@ -7,8 +7,6 @@
 
 #include <stingraykit/io/PagedBuffer.h>
 
-#include <stingraykit/ScopeExit.h>
-
 namespace stingray
 {
 
@@ -54,37 +52,49 @@ namespace stingray
 	void PagedBuffer::Push(const ConstByteData& data, const ICancellationToken& token)
 	{
 		MutexLock lw(_writeMutex);
+		MutexLock l(_mutex);
 
-		u64 newTailSize;
-		u64 pageIndexFromEnd = 0;
-		u64 pageWriteSize;
-		u64 offsetInPage;
+		STINGRAYKIT_CHECK(!_pages.empty() || _tailSize == 0, LogicException("Broken invariant: no pages while tail size is non-zero"));
 
+		size_t offset = 0;
+
+		if (_tailSize > 0)
 		{
-			MutexLock l(_mutex);
+			const IPagePtr tailPage = _pages.back();
+			const size_t toWrite = std::min(_tailSize, (u64)data.size());
 
-			pageWriteSize = std::min(_tailSize, (u64)data.size());
-			offsetInPage = _tailSize == 0 ? 0 : _pageSize - _tailSize;
+			{
+				MutexUnlock ul(l);
 
-			for (; _tailSize < data.size(); _tailSize += _pageSize, ++pageIndexFromEnd)
-				_pages.push_back(CreatePage());
+				const size_t written = tailPage->Write(_pageSize - _tailSize, ConstByteData(data, offset, toWrite), token);
+				STINGRAYKIT_CHECK(written == toWrite, InputOutputException(StringBuilder() % "Written only " % written % " of " % toWrite));
+			}
 
-			newTailSize = _tailSize - data.size();
+			_tailSize -= toWrite;
+			offset += toWrite;
 		}
 
-		PagedBuffer* self = this;
-		STINGRAYKIT_SCOPE_EXIT(MK_PARAM(PagedBuffer*, self), MK_PARAM(u64, newTailSize))
-			MutexLock l(self->_mutex);
-			self->_tailSize = newTailSize;
-		STINGRAYKIT_SCOPE_EXIT_END;
+		std::vector<IPagePtr> newPages;
+		u64 newTailSize = _tailSize;
 
-		WriteToPage(pageIndexFromEnd--, offsetInPage, ConstByteData(data, 0, pageWriteSize), token);
-
-		for (u64 offset = pageWriteSize; offset < data.size(); offset += pageWriteSize, --pageIndexFromEnd)
 		{
-			pageWriteSize = std::min(_pageSize, (u64)data.size() - offset);
-			WriteToPage(pageIndexFromEnd, 0, ConstByteData(data, offset, pageWriteSize), token);
+			MutexUnlock ul(l);
+
+			while (offset < data.size())
+			{
+				newPages.push_back(CreatePage());
+
+				const size_t toWrite = std::min(_pageSize, (u64)data.size() - offset);
+				const size_t written = newPages.back()->Write(0, ConstByteData(data, offset, toWrite), token);
+				STINGRAYKIT_CHECK(written == toWrite, InputOutputException(StringBuilder() % "Written only " % written % " of " % toWrite));
+
+				newTailSize = _pageSize - toWrite;
+				offset += toWrite;
+			}
 		}
+
+		_pages.insert(_pages.end(), newPages.begin(), newPages.end());
+		_tailSize = newTailSize;
 	}
 
 
@@ -131,21 +141,5 @@ namespace stingray
 			_currentOffset(0),
 			_tailSize(0)
 	{ }
-
-
-	void PagedBuffer::WriteToPage(u64 pageIndexFromEnd, u64 offsetInPage, ConstByteData data, const ICancellationToken& token)
-	{
-		if (data.empty())
-			return;
-
-		IPagePtr page;
-		{
-			MutexLock l(_mutex);
-			page = _pages.at(_pages.size() - pageIndexFromEnd - 1);
-		}
-
-		const size_t written = page->Write(offsetInPage, data, token);
-		STINGRAYKIT_CHECK(written == data.size(), InputOutputException(StringBuilder() % "Written only " % written % " of " % data.size()));
-	}
 
 }
