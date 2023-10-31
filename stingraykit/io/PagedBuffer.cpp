@@ -74,6 +74,12 @@ namespace stingray
 		MutexLock l(_mutex);
 		ReadLock rl(*this);
 
+		if (GetUnreadSize() < _chunkSize)
+		{
+			_dataPushed.Wait(_mutex, token);
+			return;
+		}
+
 		const u64 pageIndex = _currentOffset / _pageSize;
 		STINGRAYKIT_CHECK(pageIndex < _pages.size(),
 				LogicException(StringBuilder() % "Broken invariant: current offset " % _currentOffset % " gives page index " % pageIndex % " that is out of range " % _pages.size()));
@@ -149,6 +155,8 @@ namespace stingray
 
 			_tailSize -= toWrite;
 			offset += toWrite;
+
+			_dataPushed.Broadcast();
 		}
 
 		std::vector<IPagePtr> newPages;
@@ -170,8 +178,13 @@ namespace stingray
 			}
 		}
 
-		_pages.insert(_pages.end(), newPages.begin(), newPages.end());
-		_tailSize = newTailSize;
+		if (!newPages.empty())
+		{
+			_pages.insert(_pages.end(), newPages.begin(), newPages.end());
+			_tailSize = newTailSize;
+
+			_dataPushed.Broadcast();
+		}
 	}
 
 

@@ -49,6 +49,7 @@ namespace stingray
 
 		Mutex						_mutex;
 		bool						_activeRead;
+		ConditionVariable			_dataPushed;
 
 		Mutex						_writeMutex;
 		bool						_activeWrite;
