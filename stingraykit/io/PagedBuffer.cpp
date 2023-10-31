@@ -74,7 +74,8 @@ namespace stingray
 		MutexLock l(_mutex);
 		ReadLock rl(*this);
 
-		if (GetUnreadSize() < _chunkSize)
+		const u64 unreadSize = _pageSize * _pages.size() - _currentOffset - _tailSize;
+		if (unreadSize < _chunkSize)
 		{
 			_dataPushed.Wait(_mutex, token);
 			return;
@@ -114,13 +115,6 @@ namespace stingray
 	{
 		MutexLock l(_mutex);
 		return _pageSize * _pages.size() - _startOffset - _tailSize;
-	}
-
-
-	u64 PagedBuffer::GetUnreadSize() const
-	{
-		MutexLock l(_mutex);
-		return _pageSize * _pages.size() - _currentOffset - _tailSize;
 	}
 
 
