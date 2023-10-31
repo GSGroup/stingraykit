@@ -118,6 +118,7 @@ set(stingraykit_SRC
 	stingraykit/io/BufferedPipe.cpp
 	stingraykit/io/ByteDataConsumer.cpp
 	stingraykit/io/DataSourceReader.cpp
+	stingraykit/io/PagedBuffer.cpp
 	stingraykit/io/PipeDataSource.cpp
 	stingraykit/io/PipeReader.cpp
 
