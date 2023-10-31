@@ -21,8 +21,8 @@ namespace stingray
 
 		{
 			MutexLock l(_mutex);
-			page = _pages.at(_startOffset / _pageSize);
-			offsetInPage = _startOffset % _pageSize;
+			page = _pages.at(_currentOffset / _pageSize);
+			offsetInPage = _currentOffset % _pageSize;
 		}
 
 		const size_t processed = page->Read(offsetInPage, consumer, token);
@@ -31,7 +31,7 @@ namespace stingray
 			return;
 
 		MutexLock l(_mutex);
-		_startOffset += processed;
+		_currentOffset += processed;
 	}
 
 
@@ -41,9 +41,9 @@ namespace stingray
 		MutexLock l(_mutex);
 
 		if (absolute)
-			return _pageSize * _pages.size() - _popOffset - _endOffset;
+			return _pageSize * _pages.size() - _startOffset - _tailSize;
 
-		return _pageSize * _pages.size() - _startOffset - _endOffset;
+		return _pageSize * _pages.size() - _currentOffset - _tailSize;
 	}
 
 
@@ -51,7 +51,7 @@ namespace stingray
 	{
 		MutexLock lw(_writeMutex);
 
-		u64 newEndOffset;
+		u64 newTailSize;
 		u64 pageIndexFromEnd = 0;
 		u64 pageWriteSize;
 		u64 offsetInPage;
@@ -59,19 +59,19 @@ namespace stingray
 		{
 			MutexLock l(_mutex);
 
-			pageWriteSize = std::min(_endOffset, (u64)data.size());
-			offsetInPage = _endOffset == 0 ? 0 : _pageSize - _endOffset;
+			pageWriteSize = std::min(_tailSize, (u64)data.size());
+			offsetInPage = _tailSize == 0 ? 0 : _pageSize - _tailSize;
 
-			for (; _endOffset < data.size(); _endOffset += _pageSize, ++pageIndexFromEnd)
+			for (; _tailSize < data.size(); _tailSize += _pageSize, ++pageIndexFromEnd)
 				_pages.push_back(CreatePage());
 
-			newEndOffset = _endOffset - data.size();
+			newTailSize = _tailSize - data.size();
 		}
 
 		PagedBuffer* self = this;
-		STINGRAYKIT_SCOPE_EXIT(MK_PARAM(PagedBuffer*, self), MK_PARAM(u64, newEndOffset))
+		STINGRAYKIT_SCOPE_EXIT(MK_PARAM(PagedBuffer*, self), MK_PARAM(u64, newTailSize))
 			MutexLock l(self->_mutex);
-			self->_endOffset = newEndOffset;
+			self->_tailSize = newTailSize;
 		STINGRAYKIT_SCOPE_EXIT_END;
 
 		WriteToPage(pageIndexFromEnd--, offsetInPage, ConstByteData(data, 0, pageWriteSize), token);
@@ -89,14 +89,14 @@ namespace stingray
 		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 
-		const u64 absoluteSize = _pageSize * _pages.size() - _popOffset - _endOffset;
+		const u64 absoluteSize = _pageSize * _pages.size() - _startOffset - _tailSize;
 		STINGRAYKIT_CHECK(size <= absoluteSize, IndexOutOfRangeException(size, absoluteSize));
 
-		_popOffset = _popOffset + size;
-		if (_startOffset < _popOffset)
-			_startOffset = _popOffset;
+		_startOffset = _startOffset + size;
+		if (_currentOffset < _startOffset)
+			_currentOffset = _startOffset;
 
-		for (; _popOffset >= _pageSize; _popOffset -= _pageSize, _startOffset -= _pageSize)
+		for (; _startOffset >= _pageSize; _startOffset -= _pageSize, _currentOffset -= _pageSize)
 			_pages.pop_front();
 	}
 
@@ -106,18 +106,18 @@ namespace stingray
 		MutexLock lr(_readMutex);
 		MutexLock l(_mutex);
 
-		const u64 absoluteSize = _pageSize * _pages.size() - _popOffset - _endOffset;
+		const u64 absoluteSize = _pageSize * _pages.size() - _startOffset - _tailSize;
 		STINGRAYKIT_CHECK(offset <= absoluteSize, IndexOutOfRangeException(offset, absoluteSize));
 
-		_startOffset = _popOffset + offset;
+		_currentOffset = _startOffset + offset;
 	}
 
 
 	PagedBuffer::PagedBuffer(u64 pageSize)
 		:	_pageSize(pageSize),
 			_startOffset(0),
-			_endOffset(0),
-			_popOffset(0)
+			_currentOffset(0),
+			_tailSize(0)
 	{ }
 
 

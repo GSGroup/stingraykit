@@ -35,8 +35,8 @@ namespace stingray
 		PagesContainer				_pages;
 
 		u64							_startOffset;
-		u64							_endOffset;
-		u64							_popOffset;
+		u64							_currentOffset;
+		u64							_tailSize;
 
 		Mutex						_readMutex;
 		Mutex						_writeMutex;
