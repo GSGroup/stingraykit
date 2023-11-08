@@ -87,8 +87,17 @@ namespace stingray
 			for (size_t i = 0; i < matches.size(); ++i)
 			{
 				RegexMatch& submatch = matches[i];
-				m._results.push_back(str.substr(submatch.Begin, submatch.GetLength()));
-				m._positions.push_back(submatch.Begin);
+
+				if (submatch.Begin >= 0)
+				{
+					m._results.push_back(str.substr(submatch.Begin, submatch.GetLength()));
+					m._positions.push_back(submatch.Begin);
+				}
+				else
+				{
+					m._results.emplace_back();
+					m._positions.push_back(str.size());
+				}
 			}
 			return true;
 		}
@@ -164,7 +173,7 @@ namespace stingray
 
 		bool DoMatch(const char* str, RegexMatchVec& matches) const
 		{
-			std::vector<regmatch_t> posix_matches(32);
+			std::vector<regmatch_t> posix_matches(_regex.re_nsub + 1);
 			int ret = regexec(&_regex, str, posix_matches.size(), posix_matches.data(), 0);
 
 			if (ret == REG_NOMATCH)
@@ -173,13 +182,8 @@ namespace stingray
 			if (ret != 0)
 				STINGRAYKIT_THROW(StringBuilder() % "Could not execute regex '" % _str % "' for string '" % str % "', ret = " % ret % "\n" % GetRegexError(_regex, ret));
 
-			int count = 0;
-			while (posix_matches[count].rm_so >= 0)
-				++count;
-
-
-			matches.resize(count);
-			for (int i = 0; i < count; ++i)
+			matches.resize(posix_matches.size());
+			for (size_t i = 0; i < posix_matches.size(); ++i)
 			{
 				matches[i].Begin = posix_matches[i].rm_so;
 				matches[i].End = posix_matches[i].rm_eo;
