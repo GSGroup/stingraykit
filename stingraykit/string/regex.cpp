@@ -93,7 +93,7 @@ namespace stingray
 			return true;
 		}
 
-		std::string Replace(const std::string& str, const regex& re, const std::string& replacement, regex_constants::match_flag_type flags)
+		std::string Replace(const std::string& str, const std::string& replacement, regex_constants::match_flag_type flags)
 		{
 			STINGRAYKIT_CHECK((flags & ~regex_constants::format_first_only) == 0, NotImplementedException());
 
@@ -226,7 +226,7 @@ namespace stingray
 
 	std::string regex_replace(const std::string& str, const regex& re, const std::string& replacement, regex_constants::match_flag_type flags)
 	{
-		return re._impl->Replace(str, re, replacement, flags);
+		return re._impl->Replace(str, replacement, flags);
 	}
 
 }
