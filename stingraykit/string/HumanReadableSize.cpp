@@ -43,18 +43,15 @@ namespace stingray
 
 	u64 FromHumanReadableSize(const std::string& str)
 	{
-		u64 num;
 		try
-		{
-			num = FromString<u64>(str);
-			return num;
-		}
-		catch (const std::exception &) { }
+		{ return FromString<u64>(str); }
+		catch (const std::exception&)
+		{ }
 
 		smatch m;
 		if (regex_search(str, m, FromHumanRegexp))
 		{
-			num = FromString<u64>(m[1]);
+			const u64 num = FromString<u64>(m[1]);
 			const std::string suffix = FromString<std::string>(m[2]);
 
 			for (size_t i = 0; i < Suffixes.size(); ++i)
