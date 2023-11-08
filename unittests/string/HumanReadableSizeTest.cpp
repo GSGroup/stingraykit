@@ -35,4 +35,6 @@ TEST(HumanReadableSize, FromHumanReadableSize)
 	ASSERT_EQ(FromHumanReadableSize("2k"), (u64)2 << 10);
 	ASSERT_EQ(FromHumanReadableSize("76M"), (u64)76 << 20);
 	ASSERT_EQ(FromHumanReadableSize("160G"), (u64)160 << 30);
+
+	ASSERT_ANY_THROW(FromHumanReadableSize("123Z"));
 }
