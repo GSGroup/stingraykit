@@ -106,7 +106,7 @@ namespace stingray
 			}
 
 			{
-				MutexUnlock ul(_bufferMutex);
+				MutexUnlock ul2(l2);
 				::memcpy(w.data(), data.data(), data.size());
 			}
 			PacketInfo p(data.size(), packet.GetMetadata());
@@ -153,7 +153,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(p.Size <= r.size(), "Not enough data in packet buffer, need: " + ToString(p.Size) + ", got: " + ToString(r.size()));
 			bool processed = false;
 			{
-				MutexUnlock ul(_bufferMutex);
+				MutexUnlock ul(l);
 				processed = consumer.Process(Packet<MetadataType>(ConstByteData(r.GetData(), 0, p.Size), p.Metadata), token);
 			}
 
