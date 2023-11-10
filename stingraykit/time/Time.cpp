@@ -8,11 +8,12 @@
 #include <stingraykit/time/Time.h>
 
 #include <stingraykit/serialization/Serialization.h>
-#include <stingraykit/string/regex.h>
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/StringParse.h>
 #include <stingraykit/time/TimeEngine.h>
 #include <stingraykit/math.h>
+
+#include <regex>
 
 #include <stdio.h>
 
@@ -515,8 +516,8 @@ namespace stingray
 
 	class TimeDurationUtility::FromIso8601Impl
 	{
-		static const regex FormatRegex;
-		static const regex DateTimeRegex;
+		static const std::regex FormatRegex;
+		static const std::regex DateTimeRegex;
 
 		struct ParseResult
 		{
@@ -560,9 +561,9 @@ namespace stingray
 
 			ParseResult result;
 
-			smatch m;
-			STINGRAYKIT_CHECK(regex_search(uppercase, m, FormatRegex), FormatException(str));
-			STINGRAYKIT_CHECK(TryFromDateTime(m[1], result) || TryFromWeek(m[1], result), FormatException(str));
+			std::smatch match;
+			STINGRAYKIT_CHECK(std::regex_match(uppercase, match, FormatRegex), FormatException(str));
+			STINGRAYKIT_CHECK(TryFromDateTime(match.str(1), result) || TryFromWeek(match.str(1), result), FormatException(str));
 
 			return result.ToTimeDuration(base, TimeKind::Utc);
 		}
@@ -570,9 +571,11 @@ namespace stingray
 	private:
 		static bool TryFromDateTime(const std::string& str, ParseResult& result)
 		{
-			smatch m;
-			if (regex_search(str, m, DateTimeRegex))
-				return !m[2].empty() && TryFromTime(m[2], result) && (m[1].empty() || TryFromDate(m[1], result));
+			std::smatch match;
+			if (std::regex_match(str, match, DateTimeRegex))
+				return match[2].first != match[2].second
+						&& TryFromTime(match.str(2), result)
+						&& (match[1].first == match[1].second || TryFromDate(match.str(1), result));
 			else
 				return TryFromDate(str, result);
 		}
@@ -645,8 +648,8 @@ namespace stingray
 		}
 	};
 
-	const regex TimeDurationUtility::FromIso8601Impl::FormatRegex(R"(^P([0-9WYMDTHS]{2,})$)");
-	const regex TimeDurationUtility::FromIso8601Impl::DateTimeRegex(R"(^(.*)T(.*)$)");
+	const std::regex TimeDurationUtility::FromIso8601Impl::FormatRegex(R"(P([WYMDTHS\d]{2,}))", std::regex::optimize);
+	const std::regex TimeDurationUtility::FromIso8601Impl::DateTimeRegex(R"((.*)T(.*))", std::regex::optimize);
 
 
 	std::string TimeDurationUtility::ToIso8601(TimeDuration duration, const optional<Time>& base)
