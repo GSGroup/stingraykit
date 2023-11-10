@@ -1,6 +1,7 @@
 #include <stingraykit/string/HumanReadableSize.h>
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/string/regex.h>
+
+#include <regex>
 
 namespace stingray
 {
@@ -9,7 +10,7 @@ namespace stingray
 	{
 
 		const std::string Suffixes(R"(kMGTPE)");
-		const regex FromHumanRegexp(R"(^(\d+)([)" + Suffixes + R"(])$)");
+		const std::regex FromHumanRegex(R"((\d+)([)" + Suffixes + R"(]))");
 
 	}
 
@@ -48,14 +49,14 @@ namespace stingray
 		catch (const std::exception&)
 		{ }
 
-		smatch m;
-		if (regex_search(str, m, FromHumanRegexp))
+		std::smatch match;
+		if (std::regex_match(str, match, FromHumanRegex))
 		{
-			const u64 num = FromString<u64>(m[1]);
-			const std::string suffix = FromString<std::string>(m[2]);
+			const u64 num = FromString<u64>(match.str(1));
+			const char suffix = *match[2].first;
 
 			for (size_t i = 0; i < Suffixes.size(); ++i)
-				if (suffix[0] == Suffixes[i])
+				if (suffix == Suffixes[i])
 					return num * ((u64)1 << (10 * (i + 1)));
 		}
 
