@@ -142,7 +142,6 @@ set(stingraykit_SRC
 	stingraykit/string/ToString.cpp
 	stingraykit/string/TranslatedString.cpp
 	stingraykit/string/Unicode.cpp
-	stingraykit/string/regex.cpp
 	stingraykit/string/string_stream.cpp
 	stingraykit/string/string_view.cpp
 
