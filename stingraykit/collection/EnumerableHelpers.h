@@ -617,7 +617,7 @@ namespace stingray
 				typename Storage::ValueType _dst;
 
 			public:
-				EnumeratorOfType(const SrcEnumerator_& srcEnumerator) : _srcEnumerator(srcEnumerator)
+				EnumeratorOfType(const SrcEnumerator_& srcEnumerator) : _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator))
 				{ FindNext(); }
 
 				bool Valid() const override
@@ -638,11 +638,11 @@ namespace stingray
 			private:
 				void FindNext()
 				{
-					for ( ; _srcEnumerator->Valid(); _srcEnumerator->Next())
+					for (; _srcEnumerator->Valid(); _srcEnumerator->Next())
 					{
 						_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_srcEnumerator->Get()));
 						if (_dst)
-							return;
+							break;
 					}
 				}
 			};
