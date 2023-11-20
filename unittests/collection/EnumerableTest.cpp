@@ -3,9 +3,13 @@
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/StlEnumeratorAdapter.h>
 
+#include <unittests/EnumerableMatcher.h>
+
 #include <gtest/gtest.h>
 
 using namespace stingray;
+
+using ::testing::ElementsAre;
 
 namespace
 {
@@ -179,5 +183,46 @@ TEST(EnumerableTest, Contains)
 
 		ASSERT_TRUE(Enumerable::Contains(en, 2));
 		ASSERT_FALSE(Enumerable::Contains(en, 5));
+	}
+}
+
+
+TEST(EnumerableTest, Polymorphic)
+{
+	{
+		const auto en = (EnumerableBuilder<BasePtr>()
+				% make_shared_ptr<Derived1>(1)
+				% make_shared_ptr<Derived1>(2)
+				% make_shared_ptr<Derived1>(3)
+				% make_shared_ptr<Derived1>(42)).Get();
+
+		ASSERT_THAT(
+				en | Cast<Derived1Ptr>() | Transform(&Derived1::GetValue),
+				MatchEnumerable(ElementsAre(1, 2, 3, 42)));
+
+#if 0
+		ASSERT_TRUE(Enumerable::Any(en | Cast<Derived2Ptr>()));
+		ASSERT_ANY_THROW(Enumerable::First(en | Cast<Derived2Ptr>()));
+#endif
+	}
+
+	{
+		const auto en = (EnumerableBuilder<BasePtr>()
+				% make_shared_ptr<Derived1>(1)
+				% make_shared_ptr<Derived1>(2)
+				% make_shared_ptr<Derived1>(3)
+				% make_shared_ptr<Derived1>(42)
+				% make_shared_ptr<Derived2>(53)
+				% make_shared_ptr<Derived2>(1)
+				% make_shared_ptr<Derived1>(37)
+				% make_shared_ptr<Derived2>(7)).Get();
+
+		ASSERT_THAT(
+			en | OfType<Derived1Ptr>() | Transform(&Derived1::GetValue),
+			MatchEnumerable(ElementsAre(1, 2, 3, 42, 37)));
+
+		ASSERT_THAT(
+			en | OfType<Derived2Ptr>() | Transform(&Derived2::GetValue),
+			MatchEnumerable(ElementsAre(53, 1, 7)));
 	}
 }
