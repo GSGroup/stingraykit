@@ -607,6 +607,7 @@ namespace stingray
 			{
 			private:
 				SrcEnumerator_              _srcEnumerator;
+				mutable optional<Dst_>		_cache;
 
 			public:
 				EnumeratorCaster(const SrcEnumerator_& srcEnumerator) : _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator))
@@ -616,10 +617,24 @@ namespace stingray
 				{ return _srcEnumerator->Valid(); }
 
 				Dst_ Get() const override
-				{ return STINGRAYKIT_CHECKED_DYNAMIC_CASTER(_srcEnumerator->Get()); }
+				{
+					STINGRAYKIT_CHECK(_srcEnumerator->Valid(), "Enumerator is not valid!");
+					DoCast();
+					return *_cache;
+				}
 
 				void Next() override
-				{ _srcEnumerator->Next(); }
+				{
+					_srcEnumerator->Next();
+					_cache.reset();
+				}
+
+			private:
+				void DoCast() const
+				{
+					if (!_cache)
+						_cache = implicit_cast<Dst_>(STINGRAYKIT_CHECKED_DYNAMIC_CASTER(_srcEnumerator->Get()));
+				}
 			};
 		}
 
