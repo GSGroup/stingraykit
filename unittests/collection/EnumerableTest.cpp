@@ -200,10 +200,8 @@ TEST(EnumerableTest, Polymorphic)
 				en | Cast<Derived1Ptr>() | Transform(&Derived1::GetValue),
 				MatchEnumerable(ElementsAre(1, 2, 3, 42)));
 
-#if 0
 		ASSERT_TRUE(Enumerable::Any(en | Cast<Derived2Ptr>()));
 		ASSERT_ANY_THROW(Enumerable::First(en | Cast<Derived2Ptr>()));
-#endif
 	}
 
 	{

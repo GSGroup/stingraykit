@@ -620,12 +620,12 @@ namespace stingray
 
 				template < typename DestType >
 				operator shared_ptr<IEnumerable<DestType>> () const
-				{ return WrapEnumerable(_srcEnumerable, &EnumerableCaster::Cast<DestType>, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()); }
+				{ return WrapEnumerable(_srcEnumerable, &EnumerableCaster::Cast<DestType>); }
 
 			private:
 				template < typename DestType >
 				static DestType Cast(ConstSrcTypeRef src)
-				{ return dynamic_caster(src); }
+				{ return STINGRAYKIT_CHECKED_DYNAMIC_CASTER(src); }
 			};
 		}
 
