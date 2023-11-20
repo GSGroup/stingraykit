@@ -50,10 +50,10 @@ TEST(EnumerableTest, ForBasedLoop)
 	}
 
 	{
-		EnumerableBuilder<int> b;
-		b % 0 % 1 % 2 % 3 % 4;
+		const auto en = (EnumerableBuilder<int>() % 0 % 1 % 2 % 3 % 4).Get();
+
 		int j = 0;
-		for (int i : IterableEnumerable(b.Get()))
+		for (int i : IterableEnumerable(en))
 			ASSERT_EQ(j++, i);
 
 		ASSERT_EQ(j, 5);
@@ -64,29 +64,26 @@ TEST(EnumerableTest, ForBasedLoop)
 TEST(EnumerableTest, Contains)
 {
 	{
-		EnumerableBuilder<int> b;
-		b % 0 % 1 % 2 % 3 % 4;
+		const auto en = (EnumerableBuilder<int>() % 0 % 1 % 2 % 3 % 4).Get();
 
-		ASSERT_TRUE(Enumerable::Contains(b.Get(), 2));
-		ASSERT_FALSE(Enumerable::Contains(b.Get(), 5));
+		ASSERT_TRUE(Enumerable::Contains(en, 2));
+		ASSERT_FALSE(Enumerable::Contains(en, 5));
 	}
 
 	{
-		EnumerableBuilder<ValueHolderPtr> b;
-		b % make_shared_ptr<ValueHolder>(0) % make_shared_ptr<ValueHolder>(1) % make_shared_ptr<ValueHolder>(2) % make_shared_ptr<ValueHolder>(3) % make_shared_ptr<ValueHolder>(4);
+		const auto en = (EnumerableBuilder<ValueHolderPtr>() % make_shared_ptr<ValueHolder>(0) % make_shared_ptr<ValueHolder>(1) % make_shared_ptr<ValueHolder>(2) % make_shared_ptr<ValueHolder>(3) % make_shared_ptr<ValueHolder>(4)).Get();
 
-		ASSERT_TRUE(Enumerable::Contains(b.Get() | Transform(&ValueHolder::GetValue), 2));
-		ASSERT_FALSE(Enumerable::Contains(b.Get() | Transform(&ValueHolder::GetValue), 5));
+		ASSERT_TRUE(Enumerable::Contains(en | Transform(&ValueHolder::GetValue), 2));
+		ASSERT_FALSE(Enumerable::Contains(en | Transform(&ValueHolder::GetValue), 5));
 
-		ASSERT_TRUE(Enumerable::Contains(b.Get() | Transform(&ValueHolder::GetValueRef), 2));
-		ASSERT_FALSE(Enumerable::Contains(b.Get() | Transform(&ValueHolder::GetValueRef), 5));
+		ASSERT_TRUE(Enumerable::Contains(en | Transform(&ValueHolder::GetValueRef), 2));
+		ASSERT_FALSE(Enumerable::Contains(en | Transform(&ValueHolder::GetValueRef), 5));
 	}
 
 	{
-		EnumerableBuilder<ValueHolder> b;
-		b % ValueHolder(0) % ValueHolder(1) % ValueHolder(2) % ValueHolder(3) % ValueHolder(4);
+		const auto en = (EnumerableBuilder<ValueHolder>() % ValueHolder(0) % ValueHolder(1) % ValueHolder(2) % ValueHolder(3) % ValueHolder(4)).Get();
 
-		ASSERT_TRUE(Enumerable::Contains(b.Get(), 2));
-		ASSERT_FALSE(Enumerable::Contains(b.Get(), 5));
+		ASSERT_TRUE(Enumerable::Contains(en, 2));
+		ASSERT_FALSE(Enumerable::Contains(en, 5));
 	}
 }
