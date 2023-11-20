@@ -53,6 +53,36 @@ namespace stingray
 		bool ForEachItemFilter(bool dummy, const T& val) { return static_cast<bool>(val); }
 		inline bool ForEachItemFilter(bool dummy) { return true; }
 
+		template < typename SrcType >
+		class ForEachEnumeratorCasterProxy
+		{
+			using SrcEnumeratorPtr = shared_ptr<IEnumerator<SrcType>>;
+			using ConstSrcTypeRef = typename AddConstLvalueReference<SrcType>::ValueT;
+
+		private:
+			SrcEnumeratorPtr			_srcEnumerator;
+
+		public:
+			ForEachEnumeratorCasterProxy(const SrcEnumeratorPtr& srcEnumerator) : _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator))
+			{ }
+
+			operator SrcEnumeratorPtr () const
+			{ return _srcEnumerator; }
+
+			template < typename DestType >
+			operator shared_ptr<IEnumerator<DestType>> () const
+			{ return WrapEnumerator(_srcEnumerator, &ForEachEnumeratorCasterProxy::Cast<DestType>, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()); }
+
+		private:
+			template < typename DestType >
+			static DestType Cast(ConstSrcTypeRef src)
+			{ return dynamic_caster(src); }
+		};
+
+		template < typename SrcEnumeratorType >
+		ForEachEnumeratorCasterProxy<typename SrcEnumeratorType::ItemType> GetForEachEnumeratorCaster(const shared_ptr<SrcEnumeratorType>& enumerator)
+		{ return ForEachEnumeratorCasterProxy<typename SrcEnumeratorType::ItemType>(enumerator); }
+
 	}
 
 
@@ -60,7 +90,7 @@ namespace stingray
 #define WHERE ,
 #define FOR_EACH__IMPL(ItemDecl_, SomethingToEnumerate_, ...) \
 		for (bool __broken__ = false; !__broken__; __broken__ = true) \
-			for (::stingray::shared_ptr<::stingray::IEnumerator<typename ::stingray::Detail::GetItemTypeFromItemDecl<void (*) (ItemDecl_)>::ValueT>> __en__(::stingray::GetEnumeratorCaster(::stingray::ToEnumerator(SomethingToEnumerate_))); \
+			for (::stingray::shared_ptr<::stingray::IEnumerator<typename ::stingray::Detail::GetItemTypeFromItemDecl<void (*) (ItemDecl_)>::ValueT>> __en__(::stingray::Detail::GetForEachEnumeratorCaster(::stingray::ToEnumerator(SomethingToEnumerate_))); \
 					__en__ && __en__->Valid() && !__broken__; \
 					__en__->Next()) \
 				 for (bool __dummy_bool__ = true; __dummy_bool__ && !__broken__; ) \
