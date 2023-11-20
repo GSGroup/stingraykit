@@ -173,41 +173,6 @@ namespace stingray
 	shared_ptr<IEnumerable<typename function_info<CasterFunc>::RetType>> WrapEnumerable(const shared_ptr<SrcEnumerableType>& src, const CasterFunc& caster, const FilterPredicate& filter)
 	{ return make_shared_ptr<Detail::EnumerableWrapper<typename SrcEnumerableType::ItemType, CasterFunc, FilterPredicate>>(src, caster, filter); }
 
-
-	namespace Detail
-	{
-		template < typename SrcType >
-		class EnumerableCaster
-		{
-			using SrcEnumerablePtr = shared_ptr<IEnumerable<SrcType>>;
-			using ConstSrcTypeRef = typename AddConstLvalueReference<SrcType>::ValueT;
-
-		private:
-			SrcEnumerablePtr			_srcEnumerable;
-
-		public:
-			EnumerableCaster(const SrcEnumerablePtr& srcEnumerable) : _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable))
-			{ }
-
-			operator SrcEnumerablePtr () const
-			{ return _srcEnumerable; }
-
-			template < typename DestType >
-			operator shared_ptr<IEnumerable<DestType>> () const
-			{ return WrapEnumerable(_srcEnumerable, &EnumerableCaster::Cast<DestType>, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()); }
-
-		private:
-			template < typename DestType >
-			static DestType Cast(ConstSrcTypeRef src)
-			{ return dynamic_caster(src); }
-		};
-	}
-
-
-	template < typename SrcEnumerableType >
-	Detail::EnumerableCaster<typename SrcEnumerableType::ItemType> GetEnumerableCaster(const shared_ptr<SrcEnumerableType>& enumerable)
-	{ return Detail::EnumerableCaster<typename SrcEnumerableType::ItemType>(enumerable); }
-
 }
 
 #endif

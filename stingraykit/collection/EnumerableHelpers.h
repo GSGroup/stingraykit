@@ -443,11 +443,6 @@ namespace stingray
 		{ return make_shared_ptr<Detail::JoiningEnumerable<T>>(first, second); }
 
 
-		template < typename CastTo, typename SrcEnumerable >
-		shared_ptr<IEnumerable<CastTo>> Cast(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
-		{ return Detail::EnumerableCaster<typename SrcEnumerable::ItemType>(enumerable); }
-
-
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EqualPredicateFunc), bool, Contains, MK_PARAM(const ValueType& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate),
 		{
 			for (; enumerator.Valid(); enumerator.Next())
@@ -603,6 +598,41 @@ namespace stingray
 			}
 			return result ? *result : ItemType();
 		})
+
+
+		namespace Detail
+		{
+			template < typename SrcType >
+			class EnumerableCaster
+			{
+				using SrcEnumerablePtr = shared_ptr<IEnumerable<SrcType>>;
+				using ConstSrcTypeRef = typename AddConstLvalueReference<SrcType>::ValueT;
+
+			private:
+				SrcEnumerablePtr			_srcEnumerable;
+
+			public:
+				EnumerableCaster(const SrcEnumerablePtr& srcEnumerable) : _srcEnumerable(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerable))
+				{ }
+
+				operator SrcEnumerablePtr () const
+				{ return _srcEnumerable; }
+
+				template < typename DestType >
+				operator shared_ptr<IEnumerable<DestType>> () const
+				{ return WrapEnumerable(_srcEnumerable, &EnumerableCaster::Cast<DestType>, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()); }
+
+			private:
+				template < typename DestType >
+				static DestType Cast(ConstSrcTypeRef src)
+				{ return dynamic_caster(src); }
+			};
+		}
+
+
+		template < typename CastTo, typename SrcEnumerable >
+		shared_ptr<IEnumerable<CastTo>> Cast(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		{ return Detail::EnumerableCaster<typename SrcEnumerable::ItemType>(enumerable); }
 
 
 		namespace Detail
@@ -1036,6 +1066,11 @@ namespace stingray
 #endif
 
 	}
+
+
+	template < typename SrcEnumerableType >
+	Enumerable::Detail::EnumerableCaster<typename SrcEnumerableType::ItemType> GetEnumerableCaster(const shared_ptr<SrcEnumerableType>& enumerable)
+	{ return Enumerable::Detail::EnumerableCaster<typename SrcEnumerableType::ItemType>(enumerable); }
 
 
 	template < typename Enumerable_ >
