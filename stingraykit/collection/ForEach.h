@@ -8,7 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/EnumerableWrapper.h>
+#include <stingraykit/collection/IEnumerable.h>
+#include <stingraykit/RefStorage.h>
 
 namespace stingray
 {
@@ -53,14 +54,53 @@ namespace stingray
 		bool ForEachItemFilter(bool dummy, const T& val) { return static_cast<bool>(val); }
 		inline bool ForEachItemFilter(bool dummy) { return true; }
 
+		template < typename DestType, typename SrcEnumeratorPtr >
+		class ForEachEnumeratorCaster : public virtual IEnumerator<DestType>
+		{
+			using Storage = RefStorage<DestType>;
+
+		private:
+			SrcEnumeratorPtr				_srcEnumerator;
+			typename Storage::ValueType		_dst;
+
+		public:
+			ForEachEnumeratorCaster(const SrcEnumeratorPtr& srcEnumerator) : _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator))
+			{ FindNext(); }
+
+			bool Valid() const override
+			{ return _srcEnumerator->Valid(); }
+
+			DestType Get() const override
+			{
+				STINGRAYKIT_CHECK(_srcEnumerator->Valid(), "Enumerator is not valid");
+				return Storage::Unwrap(_dst);
+			}
+
+			void Next() override
+			{
+				_srcEnumerator->Next();
+				FindNext();
+			}
+
+		private:
+			void FindNext()
+			{
+				for (; _srcEnumerator->Valid(); _srcEnumerator->Next())
+				{
+					_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_srcEnumerator->Get()));
+					if (_dst)
+						break;
+				}
+			}
+		};
+
 		template < typename SrcType >
 		class ForEachEnumeratorCasterProxy
 		{
 			using SrcEnumeratorPtr = shared_ptr<IEnumerator<SrcType>>;
-			using ConstSrcTypeRef = typename AddConstLvalueReference<SrcType>::ValueT;
 
 		private:
-			SrcEnumeratorPtr			_srcEnumerator;
+			SrcEnumeratorPtr				_srcEnumerator;
 
 		public:
 			ForEachEnumeratorCasterProxy(const SrcEnumeratorPtr& srcEnumerator) : _srcEnumerator(STINGRAYKIT_REQUIRE_NOT_NULL(srcEnumerator))
@@ -71,12 +111,7 @@ namespace stingray
 
 			template < typename DestType >
 			operator shared_ptr<IEnumerator<DestType>> () const
-			{ return WrapEnumerator(_srcEnumerator, &ForEachEnumeratorCasterProxy::Cast<DestType>, InstanceOfPredicate<typename GetSharedPtrParam<DestType>::ValueT>()); }
-
-		private:
-			template < typename DestType >
-			static DestType Cast(ConstSrcTypeRef src)
-			{ return dynamic_caster(src); }
+			{ return make_shared_ptr<ForEachEnumeratorCaster<DestType, SrcEnumeratorPtr>>(_srcEnumerator); }
 		};
 
 		template < typename SrcEnumeratorType >
