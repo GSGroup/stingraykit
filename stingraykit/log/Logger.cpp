@@ -270,7 +270,7 @@ namespace stingray
 	{
 		optional<LoggerMessage> msg;
 		if (loggerParams)
-			msg.emplace(loggerParams->GetName(), logLevel, loggerParams->BacktraceEnabled() ? StringBuilder() % text % ": " % Backtrace() : text, loggerParams->HighlightEnabled());
+			msg.emplace(loggerParams->GetName(), logLevel, loggerParams->BacktraceEnabled() ? StringBuilder() % text % "\n" % Backtrace() : text, loggerParams->HighlightEnabled());
 		else
 			msg.emplace(logLevel, text);
 
