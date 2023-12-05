@@ -950,6 +950,8 @@ namespace stingray
 			template < typename EnumeratedT, typename ComparerT >
 			class EnumeratorDiff : public virtual IEnumerator<DiffEntry<EnumeratedT>>
 			{
+				static_assert(comparers::IsCmpComparer<ComparerT>::Value, "Expected Cmp comparer");
+
 				using TargetEnumeratorPtr = shared_ptr<IEnumerator<EnumeratedT>>;
 
 				struct EntryType
@@ -1005,8 +1007,6 @@ namespace stingray
 			private:
 				void FindNext()
 				{
-					static_assert(IsSame<typename function_info<ComparerT>::RetType, int>::Value, "Expected Cmp comparer");
-
 					while (_entryType == EntryType::None)
 					{
 						if (_src->Valid())

@@ -361,6 +361,8 @@ namespace stingray
 	template < typename CompareFunc >
 	class OptionalCmp : public comparers::CmpComparerInfo
 	{
+		static_assert(comparers::IsCmpComparer<CompareFunc>::Value, "Expected Cmp comparer");
+
 	private:
 		const CompareFunc	_compareFunc;
 
@@ -377,10 +379,7 @@ namespace stingray
 
 		template < typename T >
 		int operator () (const optional<T>& lhs, const T& rhs) const
-		{
-			static_assert(IsSame<typename function_info<CompareFunc>::RetType, int>::Value, "Expected Cmp comparer");
-			return lhs ? _compareFunc(*lhs, rhs) : -1;
-		}
+		{ return lhs ? _compareFunc(*lhs, rhs) : -1; }
 
 		template < typename T >
 		int operator () (const T& lhs, const optional<T>& rhs) const

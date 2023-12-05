@@ -302,6 +302,8 @@ namespace stingray
 		template < typename CmpComparer_ >
 		struct CmpToLess : public RelationalComparerInfo
 		{
+			static_assert(IsCmpComparer<CmpComparer_>::Value, "Expected Cmp comparer");
+
 		private:
 			CmpComparer_	_comparer;
 
@@ -314,16 +316,15 @@ namespace stingray
 
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
-			{
-				static_assert(IsSame<typename function_info<CmpComparer_>::RetType, int>::Value, "Expected Cmp comparer");
-				return _comparer(lhs, rhs) < 0;
-			}
+			{ return _comparer(lhs, rhs) < 0; }
 		};
 
 
 		template < typename CmpComparer_ >
 		struct CmpToGreater : public RelationalComparerInfo
 		{
+			static_assert(IsCmpComparer<CmpComparer_>::Value, "Expected Cmp comparer");
+
 		private:
 			CmpComparer_	_comparer;
 
@@ -336,16 +337,15 @@ namespace stingray
 
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
-			{
-				static_assert(IsSame<typename function_info<CmpComparer_>::RetType, int>::Value, "Expected Cmp comparer");
-				return _comparer(lhs, rhs) > 0;
-			}
+			{ return _comparer(lhs, rhs) > 0; }
 		};
 
 
 		template < typename CmpComparer_ >
 		struct CmpToEquals : public EqualsComparerInfo
 		{
+			static_assert(IsCmpComparer<CmpComparer_>::Value, "Expected Cmp comparer");
+
 		private:
 			CmpComparer_	_comparer;
 
@@ -358,10 +358,7 @@ namespace stingray
 
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
-			{
-				static_assert(IsSame<typename function_info<CmpComparer_>::RetType, int>::Value, "Expected Cmp comparer");
-				return _comparer(lhs, rhs) == 0;
-			}
+			{ return _comparer(lhs, rhs) == 0; }
 		};
 
 

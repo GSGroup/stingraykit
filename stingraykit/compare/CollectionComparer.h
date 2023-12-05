@@ -17,12 +17,11 @@ namespace stingray
 	template < typename ItemCmp >
 	struct CollectionComparer : public comparers::CmpComparerBase<CollectionComparer<ItemCmp> >
 	{
+		static_assert(comparers::IsCmpComparer<ItemCmp>::Value, "Expected Cmp comparer");
+
 		template < typename Lhs, typename Rhs >
 		int DoCompare(const Lhs& lhs, const Rhs& rhs) const
-		{
-			static_assert(IsSame<typename function_info<ItemCmp>::RetType, int>::Value, "Expected Cmp comparer");
-			return DoCompareRanges(ToRange(lhs), ToRange(rhs));
-		}
+		{ return DoCompareRanges(ToRange(lhs), ToRange(rhs)); }
 
 	private:
 		template < typename LhsRange, typename RhsRange >
