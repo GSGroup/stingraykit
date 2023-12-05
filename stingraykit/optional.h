@@ -359,7 +359,7 @@ namespace stingray
 
 
 	template < typename CompareFunc >
-	class OptionalCmp : public function_info<int, UnspecifiedParamTypes>
+	class OptionalCmp : public comparers::CmpComparerInfo
 	{
 	private:
 		const CompareFunc	_compareFunc;

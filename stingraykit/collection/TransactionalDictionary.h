@@ -118,7 +118,7 @@ namespace stingray
 			using CollectionType = Holder;
 			using IteratorType = typename MapType::const_iterator;
 
-			struct LessComparer : public function_info<bool, UnspecifiedParamTypes>
+			struct LessComparer : public comparers::RelationalComparerInfo
 			{
 				bool operator () (const MapValueType& lhs, const MapValueType& rhs) const
 				{ return KeyLessComparer()(lhs.first, rhs.first); }
@@ -153,7 +153,7 @@ namespace stingray
 			using CollectionType = Holder;
 			using IteratorType = typename MapType::const_reverse_iterator;
 
-			struct LessComparer : public function_info<bool, UnspecifiedParamTypes>
+			struct LessComparer : public comparers::RelationalComparerInfo
 			{
 				bool operator () (const MapValueType& lhs, const MapValueType& rhs) const
 				{ return KeyLessComparer()(rhs.first, lhs.first); }

@@ -195,7 +195,7 @@ namespace stingray
 	};
 
 
-	class TimeCmp : public function_info<int, UnspecifiedParamTypes>
+	class TimeCmp : public comparers::CmpComparerInfo
 	{
 	private:
 		TimeDuration			_allowedJitter;

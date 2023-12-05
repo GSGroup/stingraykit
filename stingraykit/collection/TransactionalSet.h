@@ -133,7 +133,7 @@ namespace stingray
 			using CollectionType = Holder;
 			using IteratorType = typename SetType::const_reverse_iterator;
 
-			struct LessComparer : public function_info<bool, UnspecifiedParamTypes>
+			struct LessComparer : public comparers::RelationalComparerInfo
 			{
 				bool operator () (const ValueType& lhs, const ValueType& rhs) const
 				{ return ValueLessComparer()(rhs, lhs); }

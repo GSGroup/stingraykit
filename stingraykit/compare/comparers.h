@@ -239,7 +239,7 @@ namespace stingray
 
 
 		template < typename CmpComparer_ >
-		struct CmpToLess : public function_info<bool, UnspecifiedParamTypes>
+		struct CmpToLess : public RelationalComparerInfo
 		{
 		private:
 			CmpComparer_	_comparer;
@@ -261,7 +261,7 @@ namespace stingray
 
 
 		template < typename CmpComparer_ >
-		struct CmpToGreater : public function_info<bool, UnspecifiedParamTypes>
+		struct CmpToGreater : public RelationalComparerInfo
 		{
 		private:
 			CmpComparer_	_comparer;
@@ -283,7 +283,7 @@ namespace stingray
 
 
 		template < typename CmpComparer_ >
-		struct CmpToEquals : public function_info<bool, UnspecifiedParamTypes>
+		struct CmpToEquals : public EqualsComparerInfo
 		{
 		private:
 			CmpComparer_	_comparer;
@@ -305,7 +305,7 @@ namespace stingray
 
 
 		template < typename LessComparer_ >
-		struct LessToEquals : public function_info<bool, UnspecifiedParamTypes>
+		struct LessToEquals : public EqualsComparerInfo
 		{
 		private:
 			LessComparer_	_lessComparer;
@@ -324,7 +324,7 @@ namespace stingray
 
 
 		template < typename LessComparer_ >
-		struct LessToCmp : public function_info<int, UnspecifiedParamTypes>
+		struct LessToCmp : public CmpComparerInfo
 		{
 		private:
 			LessComparer_	_lessComparer;
@@ -358,7 +358,7 @@ namespace stingray
 	}
 
 
-	struct OwnerCmp : public function_info<int, UnspecifiedParamTypes>
+	struct OwnerCmp : public comparers::CmpComparerInfo
 	{
 		template < typename Lhs, typename Rhs >
 		int operator () (const Lhs& lhs, const Rhs& rhs) const
@@ -367,7 +367,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_COMPARERS(Owner);
 
 
-	struct PointerCmp : public function_info<int, UnspecifiedParamTypes>
+	struct PointerCmp : public comparers::CmpComparerInfo
 	{
 		template < typename Lhs, typename Rhs >
 		int operator () (const shared_ptr<Lhs>& lhs, const shared_ptr<Rhs>& rhs) const
@@ -377,7 +377,7 @@ namespace stingray
 
 
 	template < typename CompareFunc >
-	class TupleCmp : public function_info<int, UnspecifiedParamTypes>
+	class TupleCmp : public comparers::CmpComparerInfo
 	{
 	private:
 		CompareFunc		_compareFunc;
@@ -402,7 +402,7 @@ namespace stingray
 	using TupleGreater = comparers::CmpToGreater<TupleCmp<CompareFunc>>;
 
 
-	struct TupleEquals : public function_info<bool, UnspecifiedParamTypes>
+	struct TupleEquals : public comparers::EqualsComparerInfo
 	{
 		bool operator () (const Tuple<TypeList<>>&, const Tuple<TypeList<>>&) const
 		{ return true; }
