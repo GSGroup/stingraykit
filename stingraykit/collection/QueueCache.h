@@ -28,6 +28,8 @@ namespace stingray
 	template < typename Key_, typename Value_, QueueEvictionPolicy::Enum EvictionPolicy_, typename SizeMapper_ = DefaultCacheSizeMapper, typename Less_ = comparers::Less >
 	class QueueCache : public virtual ICache<Key_, Value_>
 	{
+		static_assert(comparers::IsRelationalComparer<Less_>::Value, "Expected Relational comparer");
+
 		typedef ICache<Key_, Value_> Base;
 
 		typedef typename Base::KeyPassingType KeyPassingType;

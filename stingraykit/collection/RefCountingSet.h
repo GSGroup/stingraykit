@@ -19,6 +19,8 @@ namespace stingray
 	template < typename Key_, typename Comparer_ = comparers::Less >
 	class RefCountingSet
 	{
+		static_assert(comparers::IsRelationalComparer<Comparer_>::Value, "Expected Relational comparer");
+
 		typedef std::map<Key_, size_t, Comparer_> Impl;
 
 	public:

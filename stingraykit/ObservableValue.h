@@ -79,6 +79,8 @@ namespace stingray
 	template < typename T, typename EqualsCmp = comparers::Equals, template < typename, typename > class PopulationPolicy = ObservableValuePolicies::MandatoryPopulation>
 	class ObservableValue final : public virtual IObservableValue<T>
 	{
+		static_assert(comparers::IsEqualsComparer<EqualsCmp>::Value, "Expected Equals comparer");
+
 		STINGRAYKIT_NONCOPYABLE(ObservableValue);
 
 	private:

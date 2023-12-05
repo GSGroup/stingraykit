@@ -20,6 +20,8 @@ namespace stingray
 	template < typename Key_, typename Value_, typename Comparer_ = comparers::Less >
 	class RefCountingMap
 	{
+		static_assert(comparers::IsRelationalComparer<Comparer_>::Value, "Expected Relational comparer");
+
 		struct ValueHolder
 		{
 			size_t	References;

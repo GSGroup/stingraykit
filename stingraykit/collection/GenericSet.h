@@ -23,6 +23,8 @@ namespace stingray
 	template < typename SetType_ >
 	class GenericSet : public virtual ISet<typename SetType_::value_type>
 	{
+		static_assert(comparers::IsRelationalComparer<typename SetType_::value_compare>::Value, "Expected Relational comparer");
+
 	public:
 		using ValueType = typename SetType_::value_type;
 

@@ -26,6 +26,9 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_, typename KeyLessComparer_ = comparers::Less, typename ValueEqualsComparer_ = comparers::Equals >
 	class TransactionalDictionary : public virtual ITransactionalDictionary<KeyType_, ValueType_>
 	{
+		static_assert(comparers::IsRelationalComparer<KeyLessComparer_>::Value, "Expected Relational comparer");
+		static_assert(comparers::IsEqualsComparer<ValueEqualsComparer_>::Value, "Expected Equals comparer");
+
 		STINGRAYKIT_NONCOPYABLE(TransactionalDictionary);
 
 	private:

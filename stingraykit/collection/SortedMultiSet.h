@@ -25,6 +25,8 @@ namespace stingray
 	template < typename T , typename CompareType_ = comparers::Less >
 	class SortedMultiSet : public virtual IMultiSet<T>
 	{
+		static_assert(comparers::IsRelationalComparer<CompareType_>::Value, "Expected Relational comparer");
+
 	public:
 		using ValueType = typename IMultiSet<T>::ValueType;
 

@@ -24,6 +24,8 @@ namespace stingray
 	template < typename ValueType_, typename CompareType_ = comparers::Less >
 	class SortedObservableMultiSet : public virtual IObservableMultiSet<ValueType_>
 	{
+		static_assert(comparers::IsRelationalComparer<CompareType_>::Value, "Expected Relational comparer");
+
 		using Wrapped = SortedMultiSet<ValueType_, CompareType_>;
 		using ExternalMutexPointer = signal_policies::threading::ExternalMutexPointer;
 

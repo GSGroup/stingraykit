@@ -29,6 +29,9 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_, typename KeyCompareType_ = comparers::Less, typename ValueCompareType_ = comparers::Equals >
 	class MultiMapDictionary : public virtual IMultiDictionary<KeyType_, ValueType_>
 	{
+		static_assert(comparers::IsRelationalComparer<KeyCompareType_>::Value, "Expected Relational comparer");
+		static_assert(comparers::IsEqualsComparer<ValueCompareType_>::Value, "Expected Equals comparer");
+
 	public:
 		using KeyType = KeyType_;
 		using ValueType = ValueType_;

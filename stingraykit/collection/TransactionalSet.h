@@ -22,6 +22,8 @@ namespace stingray
 	template < typename ValueType_, typename ValueLessComparer_ = comparers::Less >
 	class TransactionalSet : public virtual ITransactionalSet<ValueType_>
 	{
+		static_assert(comparers::IsRelationalComparer<ValueLessComparer_>::Value, "Expected Relational comparer");
+
 		STINGRAYKIT_NONCOPYABLE(TransactionalSet);
 
 	private:

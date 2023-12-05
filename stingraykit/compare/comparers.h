@@ -365,6 +365,8 @@ namespace stingray
 		template < typename LessComparer_ >
 		struct LessToEquals : public EqualsComparerInfo
 		{
+			static_assert(IsRelationalComparer<LessComparer_>::Value, "Expected Relational comparer");
+
 		private:
 			LessComparer_	_lessComparer;
 
@@ -384,6 +386,8 @@ namespace stingray
 		template < typename LessComparer_ >
 		struct LessToCmp : public CmpComparerInfo
 		{
+			static_assert(IsRelationalComparer<LessComparer_>::Value, "Expected Relational comparer");
+
 		private:
 			LessComparer_	_lessComparer;
 
@@ -437,6 +441,8 @@ namespace stingray
 	template < typename CompareFunc >
 	class TupleCmp : public comparers::CmpComparerInfo
 	{
+		static_assert(comparers::IsCmpComparer<CompareFunc>::Value, "Expected Cmp comparer");
+
 	private:
 		CompareFunc		_compareFunc;
 

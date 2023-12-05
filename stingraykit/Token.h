@@ -230,6 +230,8 @@ namespace stingray
 	template < typename Key, typename Compare = comparers::Less >
 	class ThreadlessTokenMap
 	{
+		static_assert(comparers::IsRelationalComparer<Compare>::Value, "Expected Relational comparer");
+
 		STINGRAYKIT_NONCOPYABLE(ThreadlessTokenMap);
 
 	private:
@@ -284,6 +286,8 @@ namespace stingray
 	template < typename Key, typename Compare = comparers::Less >
 	class TokenMap
 	{
+		static_assert(comparers::IsRelationalComparer<Compare>::Value, "Expected Relational comparer");
+
 		STINGRAYKIT_NONCOPYABLE(TokenMap);
 
 	private:

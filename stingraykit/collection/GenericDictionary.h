@@ -25,6 +25,8 @@ namespace stingray
 	template < typename MapType_ >
 	class GenericDictionary : public virtual IDictionary<typename MapType_::key_type, typename MapType_::mapped_type>
 	{
+		static_assert(comparers::IsRelationalComparer<typename MapType_::key_compare>::Value, "Expected Relational comparer");
+
 	public:
 		using KeyType = typename MapType_::key_type;
 		using ValueType = typename MapType_::mapped_type;
