@@ -18,8 +18,38 @@ namespace stingray
 	namespace comparers
 	{
 
+		namespace Detail
+		{
+
+			struct ComparerType
+			{
+				STINGRAYKIT_ENUM_VALUES(Cmp, Relational, Equals, RelationalEquals);
+				STINGRAYKIT_DECLARE_ENUM_CLASS(ComparerType);
+			};
+
+			template < ComparerType::Enum Type_, typename RetType_ = typename If<Type_ == ComparerType::Cmp, int, bool>::ValueT >
+			struct ComparerInfoBase : public function_info<RetType_, UnspecifiedParamTypes>
+			{
+				static constexpr ComparerType::Enum CmpType = Type_;
+			};
+
+		}
+
+
+		using CmpComparerInfo = Detail::ComparerInfoBase<Detail::ComparerType::Cmp>;
+
+
+		using RelationalComparerInfo = Detail::ComparerInfoBase<Detail::ComparerType::Relational>;
+
+
+		using EqualsComparerInfo = Detail::ComparerInfoBase<Detail::ComparerType::Equals>;
+
+
+		using RelationalEqualsComparerInfo = Detail::ComparerInfoBase<Detail::ComparerType::RelationalEquals>;
+
+
 		template < typename Derived_ >
-		struct CmpComparerBase : public function_info<int, UnspecifiedParamTypes>
+		struct CmpComparerBase : public CmpComparerInfo
 		{
 			template < typename Lhs, typename Rhs >
 			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, int>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
@@ -36,7 +66,7 @@ namespace stingray
 
 
 		template < typename Derived_ >
-		struct LessComparerBase : public function_info<bool, UnspecifiedParamTypes>
+		struct LessComparerBase : public RelationalComparerInfo
 		{
 			template < typename Lhs, typename Rhs >
 			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
@@ -53,7 +83,7 @@ namespace stingray
 
 
 		template < typename Derived_ >
-		struct EqualsComparerBase : public function_info<bool, UnspecifiedParamTypes>
+		struct EqualsComparerBase : public EqualsComparerInfo
 		{
 			template < typename Lhs, typename Rhs >
 			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
@@ -70,7 +100,7 @@ namespace stingray
 
 
 		template < typename Derived_ >
-		struct GreaterComparerBase : public function_info<bool, UnspecifiedParamTypes>
+		struct GreaterComparerBase : public RelationalComparerInfo
 		{
 			template < typename Lhs, typename Rhs >
 			typename EnableIf<!IsSharedPtr<Lhs>::Value || !IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
