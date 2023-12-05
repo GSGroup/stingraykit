@@ -353,7 +353,7 @@ namespace stingray
 		CompareFunc		_compareFunc;
 
 	public:
-		explicit TupleCmp(const CompareFunc& compareFunc = comparers::Cmp()) : _compareFunc(compareFunc) { }
+		explicit TupleCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc) { }
 
 		int operator () (const Tuple<TypeList<>>&, const Tuple<TypeList<>>&) const
 		{ return 0; }
