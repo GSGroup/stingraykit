@@ -33,19 +33,80 @@ namespace stingray
 				static constexpr ComparerType::Enum CmpType = Type_;
 			};
 
+			template < typename Comparer >
+			auto TestComparerHasCmpType(int) -> decltype(Comparer::CmpType, TrueType());
+			template < typename Comparer >
+			FalseType TestComparerHasCmpType(long);
+
 		}
 
 
 		using CmpComparerInfo = Detail::ComparerInfoBase<Detail::ComparerType::Cmp>;
 
+		template < typename Comparer_, bool HasCmpType = decltype(Detail::TestComparerHasCmpType<Comparer_>(0))::Value >
+		struct IsCmpComparer : public FalseType
+		{ };
+
+		template < typename Comparer_ >
+		struct IsCmpComparer<Comparer_, true> : public integral_constant<bool, Comparer_::CmpType == Detail::ComparerType::Cmp && IsSame<typename function_info<Comparer_>::RetType, int>::Value>
+		{ };
+
 
 		using RelationalComparerInfo = Detail::ComparerInfoBase<Detail::ComparerType::Relational>;
+
+		template < typename Comparer_, bool HasCmpType = decltype(Detail::TestComparerHasCmpType<Comparer_>(0))::Value >
+		struct IsRelationalComparer : public FalseType
+		{ };
+
+		template < typename Comparer_ >
+		struct IsRelationalComparer<Comparer_, true> : public integral_constant<bool, Comparer_::CmpType == Detail::ComparerType::Relational && IsSame<typename function_info<Comparer_>::RetType, bool>::Value>
+		{ };
+
+		template < typename T, bool HasCmpType >
+		struct IsRelationalComparer<std::less<T>, HasCmpType> : public TrueType
+		{ };
+
+		template < typename T, bool HasCmpType >
+		struct IsRelationalComparer<std::greater<T>, HasCmpType> : public TrueType
+		{ };
 
 
 		using EqualsComparerInfo = Detail::ComparerInfoBase<Detail::ComparerType::Equals>;
 
+		template < typename Comparer_, bool HasCmpType = decltype(Detail::TestComparerHasCmpType<Comparer_>(0))::Value >
+		struct IsEqualsComparer : public FalseType
+		{ };
+
+		template < typename Comparer_ >
+		struct IsEqualsComparer<Comparer_, true> : public integral_constant<bool, Comparer_::CmpType == Detail::ComparerType::Equals && IsSame<typename function_info<Comparer_>::RetType, bool>::Value>
+		{ };
+
+		template < typename T, bool HasCmpType >
+		struct IsEqualsComparer<std::equal_to<T>, HasCmpType> : public TrueType
+		{ };
+
+		template < typename T, bool HasCmpType >
+		struct IsEqualsComparer<std::not_equal_to<T>, HasCmpType> : public TrueType
+		{ };
+
 
 		using RelationalEqualsComparerInfo = Detail::ComparerInfoBase<Detail::ComparerType::RelationalEquals>;
+
+		template < typename Comparer_, bool HasCmpType = decltype(Detail::TestComparerHasCmpType<Comparer_>(0))::Value >
+		struct IsRelationalEqualsComparer : public FalseType
+		{ };
+
+		template < typename Comparer_ >
+		struct IsRelationalEqualsComparer<Comparer_, true> : public integral_constant<bool, Comparer_::CmpType == Detail::ComparerType::RelationalEquals && IsSame<typename function_info<Comparer_>::RetType, bool>::Value>
+		{ };
+
+		template < typename T, bool HasCmpType >
+		struct IsRelationalEqualsComparer<std::less_equal<T>, HasCmpType> : public TrueType
+		{ };
+
+		template < typename T, bool HasCmpType >
+		struct IsRelationalEqualsComparer<std::greater_equal<T>, HasCmpType> : public TrueType
+		{ };
 
 
 		template < typename Derived_ >
