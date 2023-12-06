@@ -109,6 +109,27 @@ namespace stingray
 		{ };
 
 
+		template < typename Comparer_, typename Enabler = void >
+		struct ComparerInfo : public function_info<typename function_info<Comparer_>::RetType, UnspecifiedParamTypes>
+		{ };
+
+		template < typename Comparer_ >
+		struct ComparerInfo<Comparer_, typename EnableIf<IsCmpComparer<Comparer_>::Value, void>::ValueT> : public CmpComparerInfo
+		{ };
+
+		template < typename Comparer_ >
+		struct ComparerInfo<Comparer_, typename EnableIf<IsRelationalComparer<Comparer_>::Value, void>::ValueT> : public RelationalComparerInfo
+		{ };
+
+		template < typename Comparer_ >
+		struct ComparerInfo<Comparer_, typename EnableIf<IsEqualsComparer<Comparer_>::Value, void>::ValueT> : public EqualsComparerInfo
+		{ };
+
+		template < typename Comparer_ >
+		struct ComparerInfo<Comparer_, typename EnableIf<IsRelationalEqualsComparer<Comparer_>::Value, void>::ValueT> : public RelationalEqualsComparerInfo
+		{ };
+
+
 		template < typename Derived_ >
 		struct CmpComparerBase : public CmpComparerInfo
 		{
