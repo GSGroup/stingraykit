@@ -48,29 +48,29 @@ namespace stingray
 			return;
 		}
 
-		DuplicatingLogsFilter::StringCounter* str_cnt = _duplicatingLogsFilter->Get(_hideDuplicatingLogs->Key);
+		DuplicatingLogsFilter::StringCounter* stringCounter = _duplicatingLogsFilter->Get(_hideDuplicatingLogs->Key);
 
-		if (!str_cnt->Count)
+		if (!stringCounter->Count)
 		{
 			DoLogImpl(message); // Displaying first message
-			str_cnt->Reset(message);
+			stringCounter->Reset(message);
 			return;
 		}
 
-		const bool newMessage = str_cnt->Str != message;
+		const bool newMessage = stringCounter->Str != message;
 
-		if (newMessage || str_cnt->Count >= _hideDuplicatingLogs->Count)
+		if (newMessage || stringCounter->Count >= _hideDuplicatingLogs->Count)
 		{
-			if (str_cnt->Count > 0u)
-				DoLogImpl(StringBuilder() % str_cnt->Str % " (" % str_cnt->Count % " times)");
+			if (stringCounter->Count > 0u)
+				DoLogImpl(StringBuilder() % stringCounter->Str % " (" % stringCounter->Count % " times)");
 
 			if (newMessage)
 				DoLogImpl(message); // Displaying first message
 
-			str_cnt->Reset(message);
+			stringCounter->Reset(message);
 		}
 		else
-			++*str_cnt->Count;
+			++*stringCounter->Count;
 	}
 
 

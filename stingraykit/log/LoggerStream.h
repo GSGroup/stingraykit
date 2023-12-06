@@ -27,17 +27,17 @@ namespace stingray
 		{
 			struct KeyType
 			{
-				const char* const	Filename;
-				const int			Line;
+				const char* const						Filename;
+				const int								Line;
 
 				KeyType(const char* filename, int line) : Filename(filename), Line(line) { }
 
 				bool operator < (const KeyType& other) const;
 			};
 
-			const unsigned			Count;
-			const KeyType			Key;
-			DuplicatingLogsFilter	*Filter;
+			const unsigned								Count;
+			const KeyType								Key;
+			DuplicatingLogsFilter*						Filter;
 
 			HideDuplicatingLogs(unsigned count, const char* filename, int line)
 				: Count(count), Key(filename, line), Filter(NULL)
@@ -54,8 +54,8 @@ namespace stingray
 	public:
 		struct StringCounter
 		{
-			std::string				Str;
-			optional<unsigned>		Count;
+			std::string									Str;
+			optional<unsigned>							Count;
 
 			StringCounter(const std::string& str = "") : Str(str) { }
 
@@ -71,7 +71,7 @@ namespace stingray
 		using LastMessagesMap = std::map<KeyType, StringCounter>;
 
 	private:
-		LastMessagesMap		_lastMessages;
+		LastMessagesMap									_lastMessages;
 
 	public:
 		StringCounter* Get(const KeyType& key) { return &_lastMessages[key]; }
@@ -90,13 +90,13 @@ namespace stingray
 		using LogFunction = void (const NamedLoggerParams* loggerParams, LogLevel logLevel, const std::string& message);
 
 	private:
-		const NamedLoggerParams*				_loggerParams;
-		LogLevel								_loggerLogLevel;
-		LogLevel								_streamLogLevel;
-		unique_ptr<string_ostream>				_stream;
-		DuplicatingLogsFilter*					_duplicatingLogsFilter;
-		unique_ptr<Detail::HideDuplicatingLogs>	_hideDuplicatingLogs;
-		LogFunction*							_logFunction;
+		const NamedLoggerParams*						_loggerParams;
+		LogLevel										_loggerLogLevel;
+		LogLevel										_streamLogLevel;
+		unique_ptr<string_ostream>						_stream;
+		DuplicatingLogsFilter*							_duplicatingLogsFilter;
+		unique_ptr<Detail::HideDuplicatingLogs>			_hideDuplicatingLogs;
+		LogFunction*									_logFunction;
 
 	public:
 		LoggerStream(const NamedLoggerParams* loggerParams, LogLevel loggerLogLevel, LogLevel streamLogLevel, DuplicatingLogsFilter* duplicatingLogsFilter, LogFunction* logFunction);
