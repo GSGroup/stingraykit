@@ -58,29 +58,29 @@ namespace stingray
 	};
 
 
-	template < typename MemberPointerT, typename ComparerT >
-	struct CustomMemberComparerWrapper : public function_info<ComparerT>
+	template < typename MemberPointer, typename Comparer >
+	struct CustomMemberComparerWrapper : public function_info<Comparer>
 	{
-		using Extractor = MemberExtractor<MemberPointerT>;
+		using Extractor = MemberExtractor<MemberPointer>;
 
 	private:
-		MemberPointerT _memberPointer;
-		ComparerT _comparer;
+		MemberPointer	_ptr;
+		Comparer		_comparer;
 
 	public:
-		CustomMemberComparerWrapper(MemberPointerT memberPointer, ComparerT comparer)
-			: _memberPointer(memberPointer), _comparer(comparer)
+		CustomMemberComparerWrapper(MemberPointer ptr, Comparer comparer)
+			: _ptr(ptr), _comparer(comparer)
 		{ }
 
 		template < typename ClassType >
-		typename function_info<ComparerT>::RetType Compare(const ClassType& lhs, const ClassType& rhs) const
-		{ return _comparer(Extractor::GetValue(lhs, _memberPointer), Extractor::GetValue(rhs, _memberPointer)); }
+		typename function_info<Comparer>::RetType Compare(const ClassType& lhs, const ClassType& rhs) const
+		{ return _comparer(Extractor::GetValue(lhs, _ptr), Extractor::GetValue(rhs, _ptr)); }
 	};
 
 
-	template < typename MemberPointerT, typename ComparerT >
-	CustomMemberComparerWrapper<MemberPointerT, ComparerT> CustomMemberComparer(MemberPointerT pointer, ComparerT comparer)
-	{ return CustomMemberComparerWrapper<MemberPointerT, ComparerT>(pointer, comparer); }
+	template < typename MemberPointer, typename Comparer >
+	CustomMemberComparerWrapper<MemberPointer, Comparer> CustomMemberComparer(MemberPointer ptr, Comparer comparer)
+	{ return CustomMemberComparerWrapper<MemberPointer, Comparer>(ptr, comparer); }
 
 
 
@@ -104,16 +104,16 @@ namespace stingray
 		template < typename T >
 		bool operator () (MemberType value, const T& obj) const
 		{
-			const ClassType& deref_obj(DereferencingManager::Process(obj));
-			return _comparer(value, Extractor::GetValue(deref_obj, _ptr));
+			const ClassType& derefObj(DereferencingManager::Process(obj));
+			return _comparer(value, Extractor::GetValue(derefObj, _ptr));
 		}
 
 		// Used for lower_bound
 		template < typename T >
 		bool operator () (const T& obj, MemberType value) const
 		{
-			const ClassType& deref_obj(DereferencingManager::Process(obj));
-			return _comparer(Extractor::GetValue(deref_obj, _ptr), value);
+			const ClassType& derefObj(DereferencingManager::Process(obj));
+			return _comparer(Extractor::GetValue(derefObj, _ptr), value);
 		}
 	};
 
@@ -135,15 +135,15 @@ namespace stingray
 		Comparer		_comparer;
 
 	public:
-		MemberToValueComparer(MemberPointer ptr, ValueType memberValue, Comparer comparer = Comparer())
-			: _ptr(ptr), _value(memberValue), _comparer(comparer)
+		MemberToValueComparer(MemberPointer ptr, ValueType value, Comparer comparer = Comparer())
+			: _ptr(ptr), _value(value), _comparer(comparer)
 		{ }
 
 		template < typename T >
 		bool operator () (const T& obj) const
 		{
-			const ClassType& deref_obj(DereferencingManager::Process(obj));
-			return _comparer(Extractor::GetValue(deref_obj, _ptr), _value);
+			const ClassType& derefObj(DereferencingManager::Process(obj));
+			return _comparer(Extractor::GetValue(derefObj, _ptr), _value);
 		}
 	};
 

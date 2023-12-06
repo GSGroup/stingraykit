@@ -20,17 +20,17 @@ namespace stingray
 		template < typename MemberPointerTuple >
 		struct MemberListComparerImpl
 		{
-			template < typename ClassType, typename MemberPointerType >
-			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const MemberPointerType& pointer)
+			template < typename ClassType, typename MemberPointer >
+			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const MemberPointer& ptr)
 			{
-				using Extractor = MemberExtractor<MemberPointerType>;
-				return comparers::Cmp()(Extractor::GetValue(lhs, pointer), Extractor::GetValue(rhs, pointer));
+				using Extractor = MemberExtractor<MemberPointer>;
+				return comparers::Cmp()(Extractor::GetValue(lhs, ptr), Extractor::GetValue(rhs, ptr));
 			}
 
-			template < typename ClassType, typename MemberPointerT, typename ComparerT >
-			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const CustomMemberComparerWrapper<MemberPointerT, ComparerT>& comparer)
+			template < typename ClassType, typename MemberPointer, typename Comparer >
+			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const CustomMemberComparerWrapper<MemberPointer, Comparer>& comparer)
 			{
-				static_assert(IsSame<typename function_info<ComparerT>::RetType, int>::Value, "Expected Cmp comparer");
+				static_assert(IsSame<typename function_info<Comparer>::RetType, int>::Value, "Expected Cmp comparer");
 				return comparer.Compare(lhs, rhs);
 			}
 
