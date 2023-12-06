@@ -30,7 +30,7 @@ namespace stingray
 			template < typename ClassType, typename MemberPointer, typename Comparer >
 			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const CustomMemberComparerWrapper<MemberPointer, Comparer>& comparer)
 			{
-				static_assert(comparers::IsCmpComparer<Comparer>::Value, "Expected Cmp comparer");
+				static_assert(comparers::IsCmpComparer<CustomMemberComparerWrapper<MemberPointer, Comparer>>::Value, "Expected Cmp comparer");
 				return comparer(lhs, rhs);
 			}
 
