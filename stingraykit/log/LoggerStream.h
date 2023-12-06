@@ -41,11 +41,11 @@ namespace stingray
 
 			HideDuplicatingLogs(unsigned count, const char* filename, int line)
 				: Count(count), Key(filename, line), Filter(NULL)
-			{ }
+			{ STINGRAYKIT_CHECK(Count > 0, ArgumentException("count")); }
 
 			HideDuplicatingLogs(unsigned count, const char* filename, int line, DuplicatingLogsFilter& filter)
 				: Count(count), Key(filename, line), Filter(&filter)
-			{ }
+			{ STINGRAYKIT_CHECK(Count > 0, ArgumentException("count")); }
 		};
 	}
 
