@@ -59,7 +59,7 @@ namespace stingray
 
 
 	template < typename MemberPointer, typename Comparer >
-	struct CustomMemberComparerWrapper : public function_info<Comparer>
+	struct CustomMemberComparerWrapper : public function_info<typename function_info<Comparer>::RetType, UnspecifiedParamTypes>
 	{
 		using Extractor = MemberExtractor<MemberPointer>;
 
@@ -73,7 +73,7 @@ namespace stingray
 		{ }
 
 		template < typename ClassType >
-		typename function_info<Comparer>::RetType Compare(const ClassType& lhs, const ClassType& rhs) const
+		typename function_info<Comparer>::RetType operator () (const ClassType& lhs, const ClassType& rhs) const
 		{ return _comparer(Extractor::GetValue(lhs, _ptr), Extractor::GetValue(rhs, _ptr)); }
 	};
 

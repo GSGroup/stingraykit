@@ -31,7 +31,7 @@ namespace stingray
 			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const CustomMemberComparerWrapper<MemberPointer, Comparer>& comparer)
 			{
 				static_assert(IsSame<typename function_info<Comparer>::RetType, int>::Value, "Expected Cmp comparer");
-				return comparer.Compare(lhs, rhs);
+				return comparer(lhs, rhs);
 			}
 
 			template < typename ClassType >
