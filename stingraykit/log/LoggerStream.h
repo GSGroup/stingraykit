@@ -11,6 +11,7 @@
 #include <stingraykit/log/LogLevel.h>
 #include <stingraykit/log/NamedLoggerParams.h>
 #include <stingraykit/string/ToString.h>
+#include <stingraykit/time/ElapsedTime.h>
 
 #include <stingraykit/unique_ptr.h>
 
@@ -36,6 +37,7 @@ namespace stingray
 			};
 
 			const unsigned								Count;
+			const optional<TimeDuration>				Interval;
 			const KeyType								Key;
 			DuplicatingLogsFilter*						Filter;
 
@@ -43,9 +45,17 @@ namespace stingray
 				: Count(count), Key(filename, line), Filter(NULL)
 			{ STINGRAYKIT_CHECK(Count > 0, ArgumentException("count")); }
 
+			HideDuplicatingLogs(TimeDuration interval, const char* filename, int line)
+				: Count(std::numeric_limits<unsigned>::max()), Interval(interval), Key(filename, line), Filter(NULL)
+			{ STINGRAYKIT_CHECK(Interval > TimeDuration(), ArgumentException("interval", Interval)); }
+
 			HideDuplicatingLogs(unsigned count, const char* filename, int line, DuplicatingLogsFilter& filter)
 				: Count(count), Key(filename, line), Filter(&filter)
 			{ STINGRAYKIT_CHECK(Count > 0, ArgumentException("count")); }
+
+			HideDuplicatingLogs(TimeDuration interval, const char* filename, int line, DuplicatingLogsFilter& filter)
+				: Count(std::numeric_limits<unsigned>::max()), Interval(interval), Key(filename, line), Filter(&filter)
+			{ STINGRAYKIT_CHECK(Interval > TimeDuration(), ArgumentException("interval", Interval)); }
 		};
 	}
 
@@ -56,13 +66,19 @@ namespace stingray
 		{
 			std::string									Str;
 			optional<unsigned>							Count;
+			optional<ElapsedTime>						Elapsed;
 
 			StringCounter(const std::string& str = "") : Str(str) { }
 
-			void Reset(const std::string& str)
+			void Reset(const std::string& str, bool hasInterval)
 			{
 				Str = str;
 				Count = 0;
+
+				if (hasInterval)
+					Elapsed.emplace();
+				else
+					Elapsed.reset();
 			}
 		};
 
@@ -78,7 +94,7 @@ namespace stingray
 	};
 
 
-#define STINGRAYKIT_HIDE_DUPLICATING_LOGS(N_, ...) stingray::Detail::HideDuplicatingLogs(N_, __FILE__, __LINE__, ##__VA_ARGS__)
+#define STINGRAYKIT_HIDE_DUPLICATING_LOGS(CountOrInterval, ...) stingray::Detail::HideDuplicatingLogs(CountOrInterval, __FILE__, __LINE__, ##__VA_ARGS__)
 
 
 	class LoggerStream

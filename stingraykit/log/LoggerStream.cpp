@@ -53,13 +53,15 @@ namespace stingray
 		if (!stringCounter->Count)
 		{
 			DoLogImpl(message); // Displaying first message
-			stringCounter->Reset(message);
+			stringCounter->Reset(message, _hideDuplicatingLogs->Interval.is_initialized());
 			return;
 		}
 
 		const bool newMessage = stringCounter->Str != message;
 
-		if (newMessage || stringCounter->Count >= _hideDuplicatingLogs->Count)
+		if (newMessage
+				|| stringCounter->Count >= _hideDuplicatingLogs->Count
+				|| (stringCounter->Elapsed && stringCounter->Elapsed->Elapsed() >= _hideDuplicatingLogs->Interval))
 		{
 			if (stringCounter->Count > 0u)
 				DoLogImpl(StringBuilder() % stringCounter->Str % " (" % stringCounter->Count % " times)");
@@ -67,7 +69,7 @@ namespace stingray
 			if (newMessage)
 				DoLogImpl(message); // Displaying first message
 
-			stringCounter->Reset(message);
+			stringCounter->Reset(message, _hideDuplicatingLogs->Interval.is_initialized());
 		}
 		else
 			++*stringCounter->Count;
