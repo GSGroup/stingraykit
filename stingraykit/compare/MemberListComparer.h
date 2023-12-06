@@ -23,7 +23,7 @@ namespace stingray
 			template < typename ClassType, typename MemberPointerType >
 			static int CompareMember(const ClassType& lhs, const ClassType& rhs, const MemberPointerType& pointer)
 			{
-				typedef MemberExtractor<MemberPointerType> Extractor;
+				using Extractor = MemberExtractor<MemberPointerType>;
 				return comparers::Cmp()(Extractor::GetValue(lhs, pointer), Extractor::GetValue(rhs, pointer));
 			}
 
@@ -47,7 +47,7 @@ namespace stingray
 
 
 		template < >
-		struct MemberListComparerImpl<Tuple<TypeListEndNode> >
+		struct MemberListComparerImpl<Tuple<TypeListEndNode>>
 		{
 			template < typename ClassType >
 			static int Do(const ClassType& lhs, const ClassType& rhs, const Tuple<TypeListEndNode>& tuple)
@@ -57,7 +57,7 @@ namespace stingray
 
 
 	template < typename MemberPointerTuple >
-	struct MemberListComparer : public comparers::CmpComparerBase<MemberListComparer<MemberPointerTuple> >
+	struct MemberListComparer : public comparers::CmpComparerBase<MemberListComparer<MemberPointerTuple>>
 	{
 	private:
 		MemberPointerTuple _memberPointerList;

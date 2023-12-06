@@ -21,20 +21,23 @@ namespace stingray
 	template < typename C, typename T >
 	struct MemberExtractor<T (C::*)() const>
 	{
-		typedef T MemberType;
-		typedef C ClassType;
-		typedef MemberType (ClassType::*MemberPointer)() const;
-		static MemberType GetValue(const ClassType &obj, MemberPointer ptr) { return (obj.*ptr)(); }
+		using MemberType = T;
+		using ClassType = C;
+		using MemberPointer = MemberType (ClassType::*)() const;
+
+		static MemberType GetValue(const ClassType& obj, MemberPointer ptr) { return (obj.*ptr)(); }
 	};
 
 	template < typename C, typename T >
 	struct MemberExtractor<T C::*>
 	{
-		typedef T MemberType;
-		typedef C ClassType;
-		typedef MemberType ClassType::*MemberPointer;
-		static const MemberType& GetValue(const ClassType &obj, MemberPointer ptr) { return obj.*ptr; }
+		using MemberType = T;
+		using ClassType = C;
+		using MemberPointer = MemberType ClassType::*;
+
+		static const MemberType& GetValue(const ClassType& obj, MemberPointer ptr) { return obj.*ptr; }
 	};
+
 
 	struct AllowDereferencing
 	{
@@ -51,14 +54,14 @@ namespace stingray
 
 	struct NoDereferencing
 	{
-		template < typename T > static const T& Process(const T& t)				{ return t; }
+		template < typename T > static const T& Process(const T& t)							{ return t; }
 	};
 
 
 	template < typename MemberPointerT, typename ComparerT >
 	struct CustomMemberComparerWrapper : public function_info<ComparerT>
 	{
-		typedef MemberExtractor<MemberPointerT> Extractor;
+		using Extractor = MemberExtractor<MemberPointerT>;
 
 	private:
 		MemberPointerT _memberPointer;
@@ -84,9 +87,9 @@ namespace stingray
 	template < typename MemberPointer, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
 	struct MemberExtractorComparer
 	{
-		typedef MemberExtractor<MemberPointer>		Extractor;
-		typedef typename Extractor::MemberType		MemberType;
-		typedef typename Extractor::ClassType		ClassType;
+		using Extractor = MemberExtractor<MemberPointer>;
+		using MemberType = typename Extractor::MemberType;
+		using ClassType = typename Extractor::ClassType;
 
 	private:
 		MemberPointer	_ptr;
@@ -123,8 +126,8 @@ namespace stingray
 	template < typename MemberPointer, typename ValueType, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
 	struct MemberToValueComparer : public function_info<bool, UnspecifiedParamTypes>
 	{
-		typedef MemberExtractor<MemberPointer>		Extractor;
-		typedef typename Extractor::ClassType		ClassType;
+		using Extractor = MemberExtractor<MemberPointer>;
+		using ClassType = typename Extractor::ClassType;
 
 	private:
 		MemberPointer	_ptr;
@@ -146,8 +149,8 @@ namespace stingray
 
 
 	template < template < typename > class Comparer, typename MemberPointer, typename ValueType >
-	MemberToValueComparer<MemberPointer, ValueType, Comparer<typename MemberExtractor<MemberPointer>::MemberType> > CompareMemberToValue(MemberPointer ptr, ValueType value)
-	{ return MemberToValueComparer<MemberPointer, ValueType, Comparer<typename MemberExtractor<MemberPointer>::MemberType> >(ptr, value); }
+	MemberToValueComparer<MemberPointer, ValueType, Comparer<typename MemberExtractor<MemberPointer>::MemberType>> CompareMemberToValue(MemberPointer ptr, ValueType value)
+	{ return MemberToValueComparer<MemberPointer, ValueType, Comparer<typename MemberExtractor<MemberPointer>::MemberType>>(ptr, value); }
 
 	template < typename Comparer, typename MemberPointer, typename ValueType >
 	MemberToValueComparer<MemberPointer, ValueType, Comparer> CompareMemberToValue(MemberPointer ptr, ValueType value, Comparer cmp = Comparer())
