@@ -85,7 +85,7 @@ namespace stingray
 
 
 	template < typename MemberPointer, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
-	struct MemberExtractorComparer
+	struct MemberExtractorComparer : public function_info<typename function_info<Comparer>::RetType, UnspecifiedParamTypes>
 	{
 		using Extractor = MemberExtractor<MemberPointer>;
 		using MemberType = typename Extractor::MemberType;
@@ -102,7 +102,7 @@ namespace stingray
 
 		// Used for upper_bound
 		template < typename T >
-		bool operator () (MemberType value, const T& obj) const
+		typename function_info<Comparer>::RetType operator () (MemberType value, const T& obj) const
 		{
 			const ClassType& derefObj(DereferencingManager::Process(obj));
 			return _comparer(value, Extractor::GetValue(derefObj, _ptr));
@@ -110,7 +110,7 @@ namespace stingray
 
 		// Used for lower_bound
 		template < typename T >
-		bool operator () (const T& obj, MemberType value) const
+		typename function_info<Comparer>::RetType operator () (const T& obj, MemberType value) const
 		{
 			const ClassType& derefObj(DereferencingManager::Process(obj));
 			return _comparer(Extractor::GetValue(derefObj, _ptr), value);
@@ -124,7 +124,7 @@ namespace stingray
 
 
 	template < typename MemberPointer, typename ValueType, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
-	struct MemberToValueComparer : public function_info<bool, UnspecifiedParamTypes>
+	struct MemberToValueComparer : public function_info<typename function_info<Comparer>::RetType, UnspecifiedParamTypes>
 	{
 		using Extractor = MemberExtractor<MemberPointer>;
 		using ClassType = typename Extractor::ClassType;
@@ -140,7 +140,7 @@ namespace stingray
 		{ }
 
 		template < typename T >
-		bool operator () (const T& obj) const
+		typename function_info<Comparer>::RetType operator () (const T& obj) const
 		{
 			const ClassType& derefObj(DereferencingManager::Process(obj));
 			return _comparer(Extractor::GetValue(derefObj, _ptr), _value);
