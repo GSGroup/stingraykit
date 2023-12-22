@@ -85,6 +85,8 @@ namespace stingray
 		static TimeDuration FromHours(int hours)				{ return Hour() * hours; }
 		static TimeDuration FromDays(int days)					{ return Day() * days; }
 
+		static TimeDuration FromBcdDuration(u32 bcdDuration);
+
 		static TimeDuration Min() { return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::min()); }
 		static TimeDuration Max() { return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::max()); }
 	};
@@ -181,8 +183,7 @@ namespace stingray
 
 		static Time FromWindowsFileTime(u64 windowsTicks);
 
-		static Time MjdToEpoch(int mjd, u32 bcdTime = 0);
-		static TimeDuration BcdDurationToTimeDuration(u32 bcdTime);
+		static Time MjdToEpoch(int mjd, u32 bcdDuration = 0);
 
 		int GetMjd() const;
 		u32 GetBcdTime(TimeKind kind = TimeKind::Local) const;

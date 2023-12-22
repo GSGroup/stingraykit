@@ -122,6 +122,15 @@ namespace stingray
 	}
 
 
+	TimeDuration TimeDuration::FromBcdDuration(u32 bcdDuration)
+	{
+		return TimeDuration(s64(1000)
+				* (SecondsPerHour * BcdValue((bcdDuration >> 16) & 0xff)
+						+ SecondsPerMinute * BcdValue((bcdDuration >> 8) & 0xff)
+						+ BcdValue(bcdDuration & 0xff)));
+	}
+
+
 	TimeZone::TimeZone(s16 minutes)
 		: _minutesFromUtc(minutes)
 	{ STINGRAYKIT_CHECK(minutes >= -12 * MinutesPerHour && minutes <= 14 * MinutesPerHour, ArgumentException("minutes", minutes)); }
@@ -334,16 +343,8 @@ namespace stingray
 	{ return Time((windowsTicks / WindowsTicksPerSecond - SecondsBetweenWindowsAndUnixEpochs) * 1000 + windowsTicks % WindowsTicksPerSecond); }
 
 
-	Time Time::MjdToEpoch(int mjd, u32 bcdTime)
-	{ return Time(s64(mjd - DaysSinceMjd) * SecondsPerDay * 1000) + BcdDurationToTimeDuration(bcdTime); }
-
-
-	TimeDuration Time::BcdDurationToTimeDuration(u32 bcdTime)
-	{
-		return TimeDuration(s64(1000) * (SecondsPerHour * BcdValue((bcdTime >> 16) & 0xff) +
-				SecondsPerMinute * BcdValue((bcdTime >> 8) & 0xff) +
-				BcdValue(bcdTime & 0xff)));
-	}
+	Time Time::MjdToEpoch(int mjd, u32 bcdDuration)
+	{ return Time(s64(mjd - DaysSinceMjd) * SecondsPerDay * 1000) + TimeDuration::FromBcdDuration(bcdDuration); }
 
 
 	int Time::GetMjd() const
