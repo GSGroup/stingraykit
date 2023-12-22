@@ -79,7 +79,7 @@ TEST(TimeTest, MjdDate)
 {
 #if 0
 		{
-			BrokenDownTime bdt = Time::MJDtoEpoch(0).BreakDown(TimeKind::Utc);
+			BrokenDownTime bdt = Time::MjdToEpoch(0).BreakDown(TimeKind::Utc);
 			ASSERT_EQ(bdt.Year			, 1858);
 			ASSERT_EQ(bdt.Month			, 11);
 			ASSERT_EQ(bdt.MonthDay		, 17);
@@ -90,7 +90,7 @@ TEST(TimeTest, MjdDate)
 		}
 #endif
 		{
-			BrokenDownTime bdt = Time::MJDtoEpoch(57023).BreakDown(TimeKind::Utc); //2015-01-01
+			BrokenDownTime bdt = Time::MjdToEpoch(57023).BreakDown(TimeKind::Utc); //2015-01-01
 			ASSERT_EQ(bdt.Year			, 2015);
 			ASSERT_EQ(bdt.Month			, 1);
 			ASSERT_EQ(bdt.MonthDay		, 1);
@@ -100,7 +100,7 @@ TEST(TimeTest, MjdDate)
 			ASSERT_EQ(bdt.Milliseconds	, 0);
 		}
 		{
-			BrokenDownTime bdt = Time::MJDtoEpoch(60676).BreakDown(TimeKind::Utc); //2025-01-01
+			BrokenDownTime bdt = Time::MjdToEpoch(60676).BreakDown(TimeKind::Utc); //2025-01-01
 			ASSERT_EQ(bdt.Year			, 2025);
 			ASSERT_EQ(bdt.Month			, 1);
 			ASSERT_EQ(bdt.MonthDay		, 1);

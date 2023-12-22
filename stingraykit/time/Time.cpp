@@ -334,11 +334,11 @@ namespace stingray
 	{ return Time((windowsTicks / WindowsTicksPerSecond - SecondsBetweenWindowsAndUnixEpochs) * 1000 + windowsTicks % WindowsTicksPerSecond); }
 
 
-	Time Time::MJDtoEpoch(int mjd, u32 bcdTime)
-	{ return Time(s64(mjd - DaysSinceMjd) * SecondsPerDay * 1000) + BCDDurationToTimeDuration(bcdTime); }
+	Time Time::MjdToEpoch(int mjd, u32 bcdTime)
+	{ return Time(s64(mjd - DaysSinceMjd) * SecondsPerDay * 1000) + BcdDurationToTimeDuration(bcdTime); }
 
 
-	TimeDuration Time::BCDDurationToTimeDuration(u32 bcdTime)
+	TimeDuration Time::BcdDurationToTimeDuration(u32 bcdTime)
 	{
 		return TimeDuration(s64(1000) * (SecondsPerHour * BcdValue((bcdTime >> 16) & 0xff) +
 				SecondsPerMinute * BcdValue((bcdTime >> 8) & 0xff) +
@@ -346,11 +346,11 @@ namespace stingray
 	}
 
 
-	int Time::GetMJD() const
+	int Time::GetMjd() const
 	{ return DaysSinceMjd + _milliseconds / (1000 * SecondsPerDay); }
 
 
-	u32 Time::GetBCDTime(TimeKind kind) const
+	u32 Time::GetBcdTime(TimeKind kind) const
 	{
 		const BrokenDownTime bdt(BreakDown(kind));
 		return (BcdEncode(bdt.Hours) << 16) + (BcdEncode(bdt.Minutes) << 8) + BcdEncode(bdt.Seconds);

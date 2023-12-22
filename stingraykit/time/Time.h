@@ -181,11 +181,11 @@ namespace stingray
 
 		static Time FromWindowsFileTime(u64 windowsTicks);
 
-		static Time MJDtoEpoch(int mjd, u32 bcdTime = 0);
-		static TimeDuration BCDDurationToTimeDuration(u32 bcdTime);
+		static Time MjdToEpoch(int mjd, u32 bcdTime = 0);
+		static TimeDuration BcdDurationToTimeDuration(u32 bcdTime);
 
-		int GetMJD() const;
-		u32 GetBCDTime(TimeKind kind = TimeKind::Local) const;
+		int GetMjd() const;
+		u32 GetBcdTime(TimeKind kind = TimeKind::Local) const;
 
 		int DaysTo(const Time& endTime) const;
 		int DaysTo(const BrokenDownTime& endTime) const;
