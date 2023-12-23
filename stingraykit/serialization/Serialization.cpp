@@ -58,9 +58,9 @@ namespace stingray
 
 	void ObjectIStream::deserialize(std::vector<u8> & data)
 	{
-		if (_root->contains<ByteArray>())
+		if (_root->contains<ConstByteArray>())
 		{
-			ConstByteData storage = _root->get<ByteArray>();
+			ConstByteData storage = _root->get<ConstByteArray>();
 			data.assign(storage.begin(), storage.end());
 		}
 		else if (_root->contains<std::string>())

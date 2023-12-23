@@ -22,7 +22,7 @@ namespace stingray
 	 * @{
 	 */
 
-	using SettingsValueTypes = TypeList<EmptyType, bool, s64, FloatString, std::string, ByteArray, SettingsValueList, SettingsValueMap>;
+	using SettingsValueTypes = TypeList<EmptyType, bool, s64, FloatString, std::string, ConstByteArray, SettingsValueList, SettingsValueMap>;
 
 	class SettingsValue final : public self_counter<SettingsValue>, public variant<SettingsValueTypes>
 	{
