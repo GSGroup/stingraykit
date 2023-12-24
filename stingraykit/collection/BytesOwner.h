@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/Token.h>
-#include <stingraykit/unique_ptr.h>
 
 namespace stingray
 {
@@ -21,31 +20,35 @@ namespace stingray
 		template < typename >
 		friend class BasicBytesOwner;
 
-		class Storage : public IToken
+	private:
+		using DataType = BasicByteData<T>;
+
+	public:
+		using value_type = T;
+
+		using iterator = typename DataType::iterator;
+		using const_iterator = typename DataType::const_iterator;
+
+		using reverse_iterator = typename DataType::reverse_iterator;
+		using const_reverse_iterator = typename DataType::const_reverse_iterator;
+
+	private:
+		using DeconstT = typename RemoveConst<T>::ValueT;
+
+		class Storage final : public virtual IToken
 		{
 		private:
-			unique_ptr<T[]>	_data;
+			unique_ptr<T[]>		_data;
 
 		public:
-			Storage(unique_ptr<T[]>&& data) : _data(std::move(data))
+			Storage(unique_ptr<T[]>&& data)
+				:	_data(std::move(data))
 			{ }
 		};
 
-		typedef BasicByteData<T>							DataType;
-		typedef typename RemoveConst<T>::ValueT				DeconstT;
-
-	public:
-		typedef T											value_type;
-
-		typedef typename DataType::iterator					iterator;
-		typedef typename DataType::const_iterator			const_iterator;
-
-		typedef typename DataType::reverse_iterator			reverse_iterator;
-		typedef typename DataType::const_reverse_iterator	const_reverse_iterator;
-
 	private:
-		DataType	_data;
-		Token		_lifeAssurance;
+		DataType				_data;
+		Token					_lifeAssurance;
 
 	public:
 		BasicBytesOwner()
@@ -118,8 +121,9 @@ namespace stingray
 		}
 	};
 
-	typedef BasicBytesOwner<const u8>	ConstBytesOwner;
-	typedef BasicBytesOwner<u8>			BytesOwner;
+
+	using ConstBytesOwner = BasicBytesOwner<const u8>;
+	using BytesOwner = BasicBytesOwner<u8>;
 
 }
 
