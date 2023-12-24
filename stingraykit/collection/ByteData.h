@@ -16,7 +16,6 @@
 
 #define DETAIL_BYTEDATA_INDEX_CHECK(Arg1, Arg2) STINGRAYKIT_CHECK((Arg1) <= (Arg2), IndexOutOfRangeException(Arg1, Arg2))
 
-
 namespace stingray
 {
 	/**
@@ -28,20 +27,20 @@ namespace stingray
 	template < typename T >
 	class ByteDataIterator : public iterator_base<ByteDataIterator<T>, T, std::random_access_iterator_tag>
 	{
-		typedef iterator_base<ByteDataIterator, T, std::random_access_iterator_tag>		base;
+		using base = iterator_base<ByteDataIterator, T, std::random_access_iterator_tag>;
 
 		template < typename U >
 		friend class ByteDataIterator;
 
 	public:
-		typedef typename base::pointer													pointer;
-		typedef typename base::reference												reference;
-		typedef typename base::difference_type											difference_type;
+		using pointer = typename base::pointer;
+		using reference = typename base::reference;
+		using difference_type = typename base::difference_type;
 
 	private:
-		pointer _ptr;
-		pointer _begin;
-		pointer _end;
+		pointer					_ptr;
+		pointer					_begin;
+		pointer					_end;
 
 	public:
 		ByteDataIterator() : _ptr(), _begin(), _end() { }
@@ -76,11 +75,11 @@ namespace stingray
 	namespace Detail
 	{
 #if !defined(PRODUCTION_BUILD)
-		template<typename T>
+		template < typename T >
 		struct ByteDataIteratorSelector
 		{
-			typedef ByteDataIterator<T>			iterator;
-			typedef ByteDataIterator<const T>	const_iterator;
+			using iterator = ByteDataIterator<T>;
+			using const_iterator = ByteDataIterator<const T>;
 
 			static iterator CreateIterator(T* ptr, T* begin, T* end)
 			{ return iterator(ptr, begin, end); }
@@ -88,11 +87,11 @@ namespace stingray
 			{ return const_iterator(ptr, begin, end); }
 		};
 #else
-		template<typename T>
+		template < typename T >
 		struct ByteDataIteratorSelector
 		{
-			typedef T*			iterator;
-			typedef const T*	const_iterator;
+			using iterator = T*;
+			using const_iterator = const T*;
 
 			static iterator CreateIterator(T* ptr, T* begin, T* end)
 			{ (void)begin; (void)end; return iterator(ptr); }
@@ -117,17 +116,20 @@ namespace stingray
 		template < typename U >
 		friend class BasicByteArray;
 
-		typedef typename RemoveConst<T>::ValueT NonConstType;
+	private:
+		using NonConstType = typename RemoveConst<T>::ValueT;
 
 	public:
-		typedef typename
-			If<
-				IsConst<T>::Value,
-				const std::vector<NonConstType>,
-				std::vector<T>
-			>::ValueT	CollectionType;
+		using value_type = T;
 
-		typedef shared_ptr<CollectionType>		CollectionTypePtr;
+		using iterator = typename Detail::ByteDataIteratorSelector<T>::iterator;
+		using const_iterator = typename Detail::ByteDataIteratorSelector<T>::const_iterator;
+
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+		using CollectionType = typename If<IsConst<T>::Value, const std::vector<NonConstType>, std::vector<T>>::ValueT;
+		STINGRAYKIT_DECLARE_PTR(CollectionType);
 
 	private:
 		static const size_t NoSizeLimit = ~(size_t)0;
@@ -138,14 +140,6 @@ namespace stingray
 		size_t					_sizeLimit;
 
 	public:
-		typedef T																value_type;
-
-		typedef typename Detail::ByteDataIteratorSelector<T>::iterator			iterator;
-		typedef typename Detail::ByteDataIteratorSelector<T>::const_iterator	const_iterator;
-
-		typedef std::reverse_iterator<iterator>									reverse_iterator;
-		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
-
 		BasicByteArray()
 			: _data(make_shared_ptr<CollectionType>()), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
@@ -319,19 +313,20 @@ namespace stingray
 	template < typename T >
 	class BasicByteData
 	{
+	public:
+		using value_type = T;
+
+		using iterator = typename Detail::ByteDataIteratorSelector<T>::iterator;
+		using const_iterator = typename Detail::ByteDataIteratorSelector<T>::const_iterator;
+
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
 	private:
-		T*		_data;
-		size_t	_size;
+		T*						_data;
+		size_t					_size;
 
 	public:
-		typedef T																value_type;
-
-		typedef typename Detail::ByteDataIteratorSelector<T>::iterator			iterator;
-		typedef typename Detail::ByteDataIteratorSelector<T>::const_iterator	const_iterator;
-
-		typedef std::reverse_iterator<iterator>									reverse_iterator;
-		typedef std::reverse_iterator<const_iterator>							const_reverse_iterator;
-
 		BasicByteData()
 			: _data(), _size()
 		{ }
@@ -431,11 +426,12 @@ namespace stingray
 	};
 
 
-	typedef BasicByteData<const u8>			ConstByteData;
-	typedef BasicByteData<u8>				ByteData;
+	using ConstByteData = BasicByteData<const u8>;
+	using ByteData = BasicByteData<u8>;
 
-	typedef BasicByteArray<const u8>		ConstByteArray;
-	typedef BasicByteArray<u8>				ByteArray;
+
+	using ConstByteArray = BasicByteArray<const u8>;
+	using ByteArray = BasicByteArray<u8>;
 
 	/** @} */
 
