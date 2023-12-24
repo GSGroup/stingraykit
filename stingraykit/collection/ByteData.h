@@ -145,7 +145,7 @@ namespace stingray
 		{ }
 
 		BasicByteArray(const CollectionTypePtr& data)
-			: _data(data), _offset(0), _sizeLimit(NoSizeLimit)
+			: _data(STINGRAYKIT_REQUIRE_NOT_NULL(data)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		explicit BasicByteArray(size_t size)
