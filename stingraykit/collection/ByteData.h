@@ -148,6 +148,10 @@ namespace stingray
 			: _data(STINGRAYKIT_REQUIRE_NOT_NULL(data)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
+		BasicByteArray(CollectionTypePtr&& data)
+			: _data(std::move(STINGRAYKIT_REQUIRE_NOT_NULL(data))), _offset(0), _sizeLimit(NoSizeLimit)
+		{ }
+
 		explicit BasicByteArray(size_t size)
 			: _data(make_shared_ptr<CollectionType>(size)), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
@@ -172,13 +176,32 @@ namespace stingray
 		{ }
 
 		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		BasicByteArray(BasicByteArray<U>&& other)
+			: _data(std::move(other._data)), _offset(other._offset), _sizeLimit(other._sizeLimit)
+		{ }
+
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset)
 			: _data(other._data), _offset(other._offset + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
 		{ STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size())); }
 
 		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		BasicByteArray(BasicByteArray<U>&& other, size_t offset)
+			: _data(std::move(other._data)), _offset(other._offset + offset), _sizeLimit(other._sizeLimit == NoSizeLimit ? NoSizeLimit : other._sizeLimit - offset)
+		{ STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size())); }
+
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
 		BasicByteArray(const BasicByteArray<U>& other, size_t offset, size_t sizeLimit)
 			: _data(other._data), _offset(other._offset + offset), _sizeLimit(sizeLimit)
+		{
+			STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size()));
+			STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size(), IndexOutOfRangeException(_sizeLimit + offset, offset, _data->size()));
+			STINGRAYKIT_CHECK(_sizeLimit + offset <= other._sizeLimit, IndexOutOfRangeException(_sizeLimit + offset, offset, other._sizeLimit));
+		}
+
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		BasicByteArray(BasicByteArray<U>&& other, size_t offset, size_t sizeLimit)
+			: _data(std::move(other._data)), _offset(other._offset + offset), _sizeLimit(sizeLimit)
 		{
 			STINGRAYKIT_CHECK(_data->size() >= _offset, IndexOutOfRangeException(_offset, _data->size()));
 			STINGRAYKIT_CHECK(_sizeLimit == NoSizeLimit || _sizeLimit + offset <= _data->size(), IndexOutOfRangeException(_sizeLimit + offset, offset, _data->size()));
