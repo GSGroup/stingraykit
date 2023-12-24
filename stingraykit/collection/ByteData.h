@@ -45,7 +45,7 @@ namespace stingray
 	public:
 		ByteDataIterator() : _ptr(), _begin(), _end() { }
 
-		ByteDataIterator(const pointer ptr, const pointer begin, const pointer end)
+		ByteDataIterator(pointer ptr, pointer begin, pointer end)
 			:	_ptr(ptr),
 				_begin(begin),
 				_end(end)
@@ -67,7 +67,7 @@ namespace stingray
 		bool equal(const ByteDataIterator& other) const						{ return _ptr == other._ptr; }
 		void increment()													{ ++_ptr; }
 		void decrement()													{ --_ptr; }
-		void advance(difference_type n)										{ _ptr += n; }
+		void advance(difference_type delta)									{ _ptr += delta; }
 		difference_type distance_to(const ByteDataIterator& other) const	{ return other._ptr - _ptr; }
 	};
 
