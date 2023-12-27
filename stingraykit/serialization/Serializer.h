@@ -153,6 +153,12 @@ namespace stingray
 		{ Serialization<Tag, T, void>::Deserialize(ar, Object); }
 
 		Deserializer& operator * () { return *this; }
+
+		Deserializer& operator = (const T& object)
+		{
+			Object = object;
+			return *this;
+		}
 	};
 
 	template < typename Tag, typename T >
@@ -167,6 +173,12 @@ namespace stingray
 		{ Serialization<Tag, T, void>::DeserializeAsValue(ar, Object); }
 
 		Deserializer& operator * () { return *this; }
+
+		Deserializer& operator = (const T& object)
+		{
+			Object = object;
+			return *this;
+		}
 	};
 
 	template < typename Tag, typename T >
