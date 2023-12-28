@@ -16,10 +16,10 @@ namespace stingray
 {
 
 #define STINGRAYKIT_DECLARE_UNIQ_PTR(ClassName) \
-		typedef stingray::unique_ptr<ClassName>			ClassName##UniqPtr
+		using ClassName##UniqPtr = stingray::unique_ptr<ClassName>
 
 #define STINGRAYKIT_DECLARE_CONST_UNIQ_PTR(ClassName) \
-		typedef stingray::unique_ptr<const ClassName>	ClassName##ConstUniqPtr
+		using ClassName##ConstUniqPtr = stingray::unique_ptr<const ClassName>
 
 
 	template < typename T >
@@ -28,10 +28,10 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(unique_ptr);
 
 	public:
-		typedef T ValueType;
+		using ValueType = T;
 
 	private:
-		T* _rawPtr;
+		T*		_rawPtr;
 
 	public:
 		explicit unique_ptr(T* rawPtr = 0) : _rawPtr(rawPtr)
@@ -51,11 +51,17 @@ namespace stingray
 		{ CheckedDelete(_rawPtr); }
 
 		unique_ptr& operator = (unique_ptr&& other)
-		{ reset(other.release()); return *this; }
+		{
+			reset(other.release());
+			return *this;
+		}
 
 		template < typename U >
 		typename EnableIf<IsInherited<U, T>::Value, unique_ptr&>::ValueT operator = (unique_ptr<U>&& other)
-		{ reset(other.release()); return *this; }
+		{
+			reset(other.release());
+			return *this;
+		}
 
 		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
 		bool operator != (T* ptr) const							{ return !(*this == ptr); }
@@ -66,10 +72,28 @@ namespace stingray
 		explicit operator bool () const							{ return is_initialized(); }
 
 		T* get() const											{ return _rawPtr; }
-		T* operator -> () const									{ check_ptr(); return _rawPtr; }
-		T& operator * () const									{ check_ptr(); return *_rawPtr; }
-		T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }
-		void swap(unique_ptr& other)							{ std::swap(_rawPtr, other._rawPtr); }
+
+		T* operator -> () const
+		{
+			check_ptr();
+			return _rawPtr;
+		}
+
+		T& operator * () const
+		{
+			check_ptr();
+			return *_rawPtr;
+		}
+
+		T* release()
+		{
+			T* ptr = _rawPtr;
+			_rawPtr = 0;
+			return ptr;
+		}
+
+		void swap(unique_ptr& other)
+		{ std::swap(_rawPtr, other._rawPtr); }
 
 		void reset(T* ptr = 0)
 		{
@@ -89,10 +113,10 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(unique_ptr);
 
 	public:
-		typedef T ValueType;
+		using ValueType = T;
 
 	private:
-		T* _rawPtr;
+		T*		_rawPtr;
 
 	public:
 		explicit unique_ptr(T* rawPtr = 0) : _rawPtr(rawPtr)
@@ -112,11 +136,17 @@ namespace stingray
 		{ CheckedArrayDelete(_rawPtr); }
 
 		unique_ptr& operator = (unique_ptr<T[]>&& other)
-		{ reset(other.release()); return *this; }
+		{
+			reset(other.release());
+			return *this;
+		}
 
 		template < typename U >
 		typename EnableIf<IsInherited<U*, T*>::Value, unique_ptr&>::ValueT operator = (unique_ptr<U[]>&& other)
-		{ reset(other.release()); return *this; }
+		{
+			reset(other.release());
+			return *this;
+		}
 
 		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
 		bool operator != (T* ptr) const							{ return !(*this == ptr); }
@@ -127,9 +157,22 @@ namespace stingray
 		explicit operator bool () const							{ return is_initialized(); }
 
 		T* get() const											{ return _rawPtr; }
-		T& operator [] (size_t i) const							{ check_ptr(); return _rawPtr[i]; }
-		T* release()											{ T* ptr = _rawPtr; _rawPtr = 0; return ptr; }
-		void swap(unique_ptr<T[]>& other)						{ std::swap(_rawPtr, other._rawPtr); }
+
+		T& operator [] (size_t i) const
+		{
+			check_ptr();
+			return _rawPtr[i];
+		}
+
+		T* release()
+		{
+			T* ptr = _rawPtr;
+			_rawPtr = 0;
+			return ptr;
+		}
+
+		void swap(unique_ptr<T[]>& other)
+		{ std::swap(_rawPtr, other._rawPtr); }
 
 		void reset(T* ptr = 0)
 		{
@@ -148,12 +191,12 @@ namespace stingray
 
 		template < typename T >
 		struct MakeUnique
-		{ typedef unique_ptr<T> ObjectPtr; };
+		{ using ObjectPtr = unique_ptr<T>; };
 
 
 		template < typename T >
 		struct MakeUnique<T[]>
-		{ typedef unique_ptr<T[]> ArrayPtr; };
+		{ using ArrayPtr = unique_ptr<T[]>; };
 
 
 		template < typename T, size_t Size >
