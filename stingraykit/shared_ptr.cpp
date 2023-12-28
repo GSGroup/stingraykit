@@ -11,7 +11,6 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/string/Hex.h>
 
-
 namespace stingray
 {
 	namespace Detail

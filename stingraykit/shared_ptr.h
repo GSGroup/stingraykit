@@ -19,12 +19,12 @@ namespace stingray
 
 
 #define STINGRAYKIT_DECLARE_PTR(ClassName) \
-		typedef stingray::shared_ptr<ClassName>			ClassName##Ptr; \
-		typedef stingray::weak_ptr<ClassName>			ClassName##WeakPtr
+		using ClassName##Ptr = stingray::shared_ptr<ClassName>; \
+		using ClassName##WeakPtr = stingray::weak_ptr<ClassName>
 
 #define STINGRAYKIT_DECLARE_CONST_PTR(ClassName) \
-		typedef stingray::shared_ptr<const ClassName>	ClassName##ConstPtr; \
-		typedef stingray::weak_ptr<const ClassName>		ClassName##ConstWeakPtr
+		using ClassName##ConstPtr = stingray::shared_ptr<const ClassName>; \
+		using ClassName##ConstWeakPtr = stingray::weak_ptr<const ClassName>
 
 
 	template < typename T >
@@ -47,8 +47,8 @@ namespace stingray
 	{
 		struct ISharedPtrData : public TypeErasureBase
 		{
-			AtomicU32::Type _strongReferences;
-			AtomicU32::Type _weakReferences;
+			AtomicU32::Type			_strongReferences;
+			AtomicU32::Type			_weakReferences;
 
 			ISharedPtrData() : _strongReferences(1), _weakReferences(1)
 			{ }
@@ -59,7 +59,7 @@ namespace stingray
 		class DefaultSharedPtrData : public ISharedPtrData
 		{
 		private:
-			T*	_ptr;
+			T*						_ptr;
 
 		public:
 			DefaultSharedPtrData(T* ptr) : _ptr(ptr)
@@ -73,11 +73,11 @@ namespace stingray
 		template < typename T, typename Deleter >
 		class DeleterSharedPtrData : public ISharedPtrData
 		{
-			typedef typename Decay<Deleter>::ValueT DeleterType;
+			using DeleterType = typename Decay<Deleter>::ValueT;
 
 		private:
-			T*			_ptr;
-			DeleterType	_deleter;
+			T*						_ptr;
+			DeleterType				_deleter;
 
 		public:
 			DeleterSharedPtrData(T* ptr, Deleter&& deleter) : _ptr(ptr), _deleter(std::forward<Deleter>(deleter))
@@ -92,7 +92,7 @@ namespace stingray
 		class InplaceSharedPtrData : public ISharedPtrData
 		{
 		private:
-			StorageFor<T>	_storage;
+			StorageFor<T>			_storage;
 
 		public:
 			template < typename... Ts >
@@ -270,11 +270,11 @@ namespace stingray
 		friend struct MakeShared;
 
 	public:
-		typedef T ValueType;
+		using ValueType = T;
 
 	private:
-		T*						_rawPtr;
-		Detail::SharedPtrImpl	_impl;
+		T*							_rawPtr;
+		Detail::SharedPtrImpl		_impl;
 
 	private:
 		shared_ptr(T* rawPtr, const Detail::SharedPtrImpl& impl, const Dummy&)
@@ -458,8 +458,18 @@ namespace stingray
 		}
 
 		T* get() const				{ return _rawPtr; }
-		T* operator -> () const		{ check_ptr(); return _rawPtr; }
-		T& operator * () const		{ check_ptr(); return *_rawPtr; }
+
+		T* operator -> () const
+		{
+			check_ptr();
+			return _rawPtr;
+		}
+
+		T& operator * () const
+		{
+			check_ptr();
+			return *_rawPtr;
+		}
 
 		template < typename U >
 		bool owner_before(const shared_ptr<U>& other) const
@@ -503,8 +513,8 @@ namespace stingray
 		friend class shared_ptr;
 
 	private:
-		T*								_rawPtr;
-		mutable Detail::SharedPtrImpl	_impl;
+		T*									_rawPtr;
+		mutable Detail::SharedPtrImpl		_impl;
 
 	public:
 		weak_ptr() : _rawPtr()
@@ -637,11 +647,11 @@ namespace stingray
 
 	template < typename T >
 	struct GetSharedPtrParam<shared_ptr<T> >
-	{ typedef T	ValueT; };
+	{ using ValueT = T; };
 
 	template < typename T >
 	struct GetSharedPtrParam<const shared_ptr<T> >
-	{ typedef T	ValueT; };
+	{ using ValueT = T; };
 
 
 	template < typename WeakPtrT >
@@ -649,21 +659,21 @@ namespace stingray
 
 	template < typename T >
 	struct GetWeakPtrParam<weak_ptr<T> >
-	{ typedef T	ValueT; };
+	{ using ValueT = T; };
 
 	template < typename T >
 	struct GetWeakPtrParam<const weak_ptr<T> >
-	{ typedef T	ValueT; };
+	{ using ValueT = T; };
 
 
 	template < typename T >
 	struct ToSharedPtr
-	{ typedef shared_ptr<T>	ValueT; };
+	{ using ValueT = shared_ptr<T>; };
 
 
 	template < typename T >
 	struct ToPointer<shared_ptr<T> >
-	{ typedef T* ValueT; };
+	{ using ValueT = T*; };
 
 	template < typename T >
 	T* to_pointer(const shared_ptr<T>& ptr)
@@ -680,7 +690,7 @@ namespace stingray
 		class WeakPtrToPointerProxy
 		{
 		private:
-			shared_ptr<T>	_sharedPtr;
+			shared_ptr<T>			_sharedPtr;
 
 		public:
 			WeakPtrToPointerProxy(const weak_ptr<T>& weakPtr)
@@ -693,7 +703,7 @@ namespace stingray
 
 	template < typename T >
 	struct ToPointer<weak_ptr<T> >
-	{ typedef Detail::WeakPtrToPointerProxy<T> ValueT; };
+	{ using ValueT = Detail::WeakPtrToPointerProxy<T>; };
 
 	template < typename T >
 	Detail::WeakPtrToPointerProxy<T> to_pointer(const weak_ptr<T>& ptr)
@@ -724,7 +734,7 @@ namespace stingray
 		class DynamicCasterImpl<Src_, typename EnableIf<IsSharedPtr<Src_>::Value, void>::ValueT>
 		{
 		private:
-			Src_ _src;
+			Src_					_src;
 
 		public:
 			explicit DynamicCasterImpl(const Src_& src) : _src(src)
@@ -749,7 +759,7 @@ namespace stingray
 	template < typename ObjType >
 	struct MakeShared
 	{
-		typedef shared_ptr<ObjType> RetType;
+		using RetType = shared_ptr<ObjType>;
 
 		template < typename... Ts >
 		shared_ptr<ObjType> operator () (Ts&&... args) const
