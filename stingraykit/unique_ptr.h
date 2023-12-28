@@ -44,7 +44,7 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		unique_ptr(unique_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0) : _rawPtr(other.release())
+		unique_ptr(unique_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0) : _rawPtr(other.release())
 		{ }
 
 		~unique_ptr()
@@ -57,7 +57,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, unique_ptr&>::ValueT operator = (unique_ptr<U>&& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, unique_ptr&>::ValueT operator = (unique_ptr<U>&& other)
 		{
 			reset(other.release());
 			return *this;
@@ -129,7 +129,7 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		unique_ptr(unique_ptr<U[]>&& other, typename EnableIf<IsInherited<U*, T*>::Value, Dummy>::ValueT* = 0) : _rawPtr(other.release())
+		unique_ptr(unique_ptr<U[]>&& other, typename EnableIf<IsConvertible<U(*)[], T(*)[]>::Value, Dummy>::ValueT* = 0) : _rawPtr(other.release())
 		{ }
 
 		~unique_ptr()
@@ -142,7 +142,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U*, T*>::Value, unique_ptr&>::ValueT operator = (unique_ptr<U[]>&& other)
+		typename EnableIf<IsConvertible<U(*)[], T(*)[]>::Value, unique_ptr&>::ValueT operator = (unique_ptr<U[]>&& other)
 		{
 			reset(other.release());
 			return *this;
