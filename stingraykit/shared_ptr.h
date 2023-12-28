@@ -317,7 +317,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		shared_ptr(unique_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+		shared_ptr(unique_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other.get())
 		{
 			if (!_rawPtr)
@@ -344,12 +344,12 @@ namespace stingray
 		{ other._rawPtr = null; }
 
 		template < typename U >
-		shared_ptr(const shared_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+		shared_ptr(const shared_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
 
 		template < typename U >
-		shared_ptr(shared_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+		shared_ptr(shared_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
 		{ other._rawPtr = null; }
 
@@ -391,7 +391,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, shared_ptr&>::ValueT operator = (const shared_ptr<U>& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, shared_ptr&>::ValueT operator = (const shared_ptr<U>& other)
 		{
 			shared_ptr tmp(other);
 			swap(tmp);
@@ -399,7 +399,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, shared_ptr&>::ValueT operator = (shared_ptr<U>&& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, shared_ptr&>::ValueT operator = (shared_ptr<U>&& other)
 		{
 			shared_ptr tmp(std::move(other));
 			swap(tmp);
@@ -407,7 +407,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, shared_ptr&>::ValueT operator = (unique_ptr<U>&& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, shared_ptr&>::ValueT operator = (unique_ptr<U>&& other)
 		{
 			shared_ptr tmp(std::move(other));
 			swap(tmp);
@@ -524,7 +524,7 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		weak_ptr(const shared_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+		weak_ptr(const shared_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
 
@@ -537,12 +537,12 @@ namespace stingray
 		{ other._rawPtr = null; }
 
 		template < typename U >
-		weak_ptr(const weak_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+		weak_ptr(const weak_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
 
 		template < typename U >
-		weak_ptr(weak_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+		weak_ptr(weak_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
 		{ other._rawPtr = null; }
 
@@ -564,7 +564,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, weak_ptr&>::ValueT operator = (const shared_ptr<U>& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, weak_ptr&>::ValueT operator = (const shared_ptr<U>& other)
 		{
 			weak_ptr tmp(other);
 			swap(tmp);
@@ -572,7 +572,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, weak_ptr&>::ValueT operator = (const weak_ptr<U>& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, weak_ptr&>::ValueT operator = (const weak_ptr<U>& other)
 		{
 			weak_ptr tmp(other);
 			swap(tmp);
@@ -580,7 +580,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, weak_ptr&>::ValueT operator = (weak_ptr<U>&& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, weak_ptr&>::ValueT operator = (weak_ptr<U>&& other)
 		{
 			weak_ptr tmp(std::move(other));
 			swap(tmp);
