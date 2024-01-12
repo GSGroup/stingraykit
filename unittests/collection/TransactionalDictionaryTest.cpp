@@ -548,7 +548,6 @@ TEST(TransactionalDictionaryTest, Test2)
 
 	const DiffEntry<EntryType> seq19[] = {{CollectionOp::Added, {2, "2"}}, {CollectionOp::Added, {4, "4"}}};
 	const auto seq19En = EnumerableFromStlIterators(std::begin(seq19), std::end(seq19));
-	const auto seq19Ren = EnumerableFromStlIterators(std::rbegin(seq19), std::rend(seq19));
 
 	CHECK_NOT_CONTAINS(tr, 2);
 	tr->Set(2, "2");
@@ -600,7 +599,6 @@ TEST(TransactionalDictionaryTest, Test2)
 
 	const DiffEntry<EntryType> seq20[] = {{CollectionOp::Removed, {0, "00"}}, {CollectionOp::Removed, {6, "66"}}};
 	const auto seq20En = EnumerableFromStlIterators(std::begin(seq20), std::end(seq20));
-	const auto seq20Ren = EnumerableFromStlIterators(std::rbegin(seq20), std::rend(seq20));
 
 	CHECK_CONTAINS(tr, 0, "00");
 	ASSERT_TRUE(tr->TryRemove(0));
@@ -653,7 +651,6 @@ TEST(TransactionalDictionaryTest, Test2)
 
 	const DiffEntry<EntryType> seq23[] = {{CollectionOp::Added, {0, "0"}}};
 	const auto seq23En = EnumerableFromStlIterators(std::begin(seq23), std::end(seq23));
-	const auto seq23Ren = EnumerableFromStlIterators(std::rbegin(seq23), std::rend(seq23));
 
 	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, (DictionaryType::DiffTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
 	diff1 = tr->Diff();
@@ -679,7 +676,6 @@ TEST(TransactionalDictionaryTest, Test2)
 
 	const DiffEntry<EntryType> seq25[] = {{CollectionOp::Added, {0, "00"}}};
 	const auto seq25En = EnumerableFromStlIterators(std::begin(seq25), std::end(seq25));
-	const auto seq25Ren = EnumerableFromStlIterators(std::rbegin(seq25), std::rend(seq25));
 
 	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq23En, comparers::Equals()));
 	diff1 = tr->Diff();
@@ -749,7 +745,6 @@ TEST(TransactionalDictionaryTest, Test2)
 
 	const DiffEntry<EntryType> seq29[] = {{CollectionOp::Removed, {3, "33"}}};
 	const auto seq29En = EnumerableFromStlIterators(std::begin(seq29), std::end(seq29));
-	const auto seq29Ren = EnumerableFromStlIterators(std::rbegin(seq29), std::rend(seq29));
 
 	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, (DictionaryType::DiffTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
 	diff1 = tr->Diff();
@@ -771,7 +766,6 @@ TEST(TransactionalDictionaryTest, Test2)
 
 	const DiffEntry<EntryType> seq30[] = {{CollectionOp::Removed, {3, "33"}}, {CollectionOp::Added, {3, "3"}}};
 	const auto seq30En = EnumerableFromStlIterators(std::begin(seq30), std::end(seq30));
-	const auto seq30Ren = EnumerableFromStlIterators(std::rbegin(seq30), std::rend(seq30));
 
 	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq29En, comparers::Equals()));
 	diff1 = tr->Diff();

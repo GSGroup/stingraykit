@@ -657,7 +657,6 @@ TEST(TransactionalSetTest, Test2)
 
 	const DiffEntry<int> seq19[] = {{CollectionOp::Added, 2}, {CollectionOp::Added, 4}};
 	const auto seq19En = EnumerableFromStlIterators(std::begin(seq19), std::end(seq19));
-	const auto seq19Ren = EnumerableFromStlIterators(std::rbegin(seq19), std::rend(seq19));
 
 	ASSERT_FALSE(tr->Contains(2));
 	tr->Add(2);
@@ -705,7 +704,6 @@ TEST(TransactionalSetTest, Test2)
 
 	const DiffEntry<int> seq20[] = {{CollectionOp::Removed, 0}, {CollectionOp::Removed, 6}};
 	const auto seq20En = EnumerableFromStlIterators(std::begin(seq20), std::end(seq20));
-	const auto seq20Ren = EnumerableFromStlIterators(std::rbegin(seq20), std::rend(seq20));
 
 	ASSERT_TRUE(tr->Contains(0));
 	ASSERT_TRUE(tr->TryRemove(0));
