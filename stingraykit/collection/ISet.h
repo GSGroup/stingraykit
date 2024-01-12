@@ -49,7 +49,7 @@ namespace stingray
 
 		~ISet() override { }
 
-		virtual void Add(const ValueType& value) = 0;
+		virtual bool Add(const ValueType& value) = 0;
 
 		virtual bool Remove(const ValueType& value) = 0;
 		virtual size_t RemoveWhere(const function<bool (const ValueType&)>& pred) = 0;

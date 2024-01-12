@@ -107,13 +107,14 @@ namespace stingray
 			return _wrapped.ReverseFind(value);
 		}
 
-		void Add(const ValueType& value) override
+		bool Add(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			const bool add = !_wrapped.Contains(value);
 			_wrapped.Add(value);
 			if (add)
 				_onChanged(CollectionOp::Added, value);
+			return add;
 		}
 
 		bool Remove(const ValueType& value) override

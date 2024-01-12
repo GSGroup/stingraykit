@@ -280,18 +280,22 @@ namespace stingray
 					return MakeEmptyEnumerator();
 			}
 
-			void Add(const ValueType& value) override
+			bool Add(const ValueType& value) override
 			{
 				if (_removed->count(value))
 				{
 					CopyRemovedOnWrite(_removed.get());
 					_removed->erase(value);
+					return true;
 				}
 				else if (!_added->count(value) && !_impl->Items->count(value))
 				{
 					CopyAddedOnWrite(_added.get());
 					_added->insert(value);
+					return true;
 				}
+
+				return false;
 			}
 
 			bool Remove(const ValueType& value) override

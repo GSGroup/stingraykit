@@ -111,8 +111,8 @@ namespace stingray
 			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), _items->crend(), GetItemsHolder());
 		}
 
-		void Add(const ValueType& value) override
-		{ DoAdd<SetType>(value, 0); }
+		bool Add(const ValueType& value) override
+		{ return DoAdd<SetType>(value, 0); }
 
 		bool Remove(const ValueType& value) override
 		{
@@ -158,23 +158,25 @@ namespace stingray
 
 	private:
 		template < typename SetType__ >
-		auto DoAdd(const ValueType& value, int) -> decltype(std::declval<SetType__>().lower_bound(value), void())
+		auto DoAdd(const ValueType& value, int) -> decltype(std::declval<SetType__>().lower_bound(value), bool())
 		{
 			const auto it = _items->lower_bound(value);
 			if (it != _items->end() && !typename SetType__::value_compare()(value, *it))
-				return;
+				return false;
 
 			if (CopyOnWrite())
 				_items->insert(value);
 			else
 				_items->insert(it, value);
+
+			return true;
 		}
 
 		template < typename SetType__ >
-		void DoAdd(const ValueType& value, long)
+		bool DoAdd(const ValueType& value, long)
 		{
 			CopyOnWrite();
-			_items->insert(value);
+			return _items->insert(value).second;
 		}
 
 		void CopyItems(const SetTypePtr& items)

@@ -44,7 +44,7 @@ TEST(TransactionalSetTest, Test1)
 	Token t = s->OnChanged().connect(Bind(&DiffCollector::Do, &dc, _1));
 
 	shared_ptr<ISetTransaction<int> > tr = s->StartTransaction();
-	tr->Add(1);
+	ASSERT_TRUE(tr->Add(1));
 	tr->Commit();
 	tr.reset();
 
@@ -64,7 +64,7 @@ TEST(TransactionalSetTest, Test1)
 	}
 
 	tr = s->StartTransaction();
-	tr->Add(42);
+	ASSERT_TRUE(tr->Add(42));
 	tr->Commit();
 	tr.reset();
 
@@ -92,7 +92,7 @@ TEST(TransactionalSetTest, Test1)
 		ASSERT_TRUE(Enumerable::SequenceEqual(tr, EnumerableFromStlIterators(std::begin(seq), std::end(seq))));
 	}
 
-	tr->Add(37);
+	ASSERT_TRUE(tr->Add(37));
 
 	ASSERT_TRUE(!tr->IsEmpty());
 	ASSERT_EQ(tr->GetCount(), 3u);
@@ -112,7 +112,7 @@ TEST(TransactionalSetTest, Test1)
 		ASSERT_TRUE(Enumerable::SequenceEqual(s, EnumerableFromStlIterators(std::begin(seq), std::end(seq))));
 	}
 
-	tr->Add(51);
+	ASSERT_TRUE(tr->Add(51));
 
 	ASSERT_TRUE(!tr->IsEmpty());
 	ASSERT_EQ(tr->GetCount(), 4u);
@@ -191,7 +191,7 @@ TEST(TransactionalSetTest, Test1)
 		ASSERT_TRUE(Enumerable::SequenceEqual(s, EnumerableFromStlIterators(std::begin(seq), std::end(seq))));
 	}
 
-	tr->Add(13);
+	ASSERT_TRUE(tr->Add(13));
 
 	ASSERT_TRUE(!tr->IsEmpty());
 	ASSERT_EQ(tr->GetCount(), 3u);
@@ -260,31 +260,31 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq1Ren = EnumerableFromStlIterators(std::rbegin(seq1), std::rend(seq1));
 
 	ASSERT_FALSE(tr->Contains(1));
-	tr->Add(1);
+	ASSERT_TRUE(tr->Add(1));
 	ASSERT_TRUE(tr->Contains(1));
 	ASSERT_EQ(tr->GetCount(), 1u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, Enumerable::Take(seq1En, 1)));
 
 	ASSERT_FALSE(tr->Contains(2));
-	tr->Add(2);
+	ASSERT_TRUE(tr->Add(2));
 	ASSERT_TRUE(tr->Contains(2));
 	ASSERT_EQ(tr->GetCount(), 2u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, Enumerable::Take(seq1En, 2)));
 
 	ASSERT_FALSE(tr->Contains(3));
-	tr->Add(3);
+	ASSERT_TRUE(tr->Add(3));
 	ASSERT_TRUE(tr->Contains(3));
 	ASSERT_EQ(tr->GetCount(), 3u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, Enumerable::Take(seq1En, 3)));
 
 	ASSERT_FALSE(tr->Contains(4));
-	tr->Add(4);
+	ASSERT_TRUE(tr->Add(4));
 	ASSERT_TRUE(tr->Contains(4));
 	ASSERT_EQ(tr->GetCount(), 4u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, Enumerable::Take(seq1En, 4)));
 
 	ASSERT_FALSE(tr->Contains(5));
-	tr->Add(5);
+	ASSERT_TRUE(tr->Add(5));
 	ASSERT_TRUE(tr->Contains(5));
 	ASSERT_EQ(tr->GetCount(), 5u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq1En));
@@ -351,13 +351,13 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq4En = EnumerableFromStlIterators(std::begin(seq4), std::end(seq4));
 
 	ASSERT_FALSE(tr->Contains(2));
-	tr->Add(2);
+	ASSERT_TRUE(tr->Add(2));
 	ASSERT_TRUE(tr->Contains(2));
 	ASSERT_EQ(tr->GetCount(), 4u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq4En));
 
 	ASSERT_FALSE(tr->Contains(4));
-	tr->Add(4);
+	ASSERT_TRUE(tr->Add(4));
 	ASSERT_TRUE(tr->Contains(4));
 	ASSERT_EQ(tr->GetCount(), 5u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq1En));
@@ -441,12 +441,12 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq9En = EnumerableFromStlIterators(std::begin(seq9), std::end(seq9));
 
 	ASSERT_FALSE(tr->Contains(1));
-	tr->Add(1);
+	ASSERT_TRUE(tr->Add(1));
 	ASSERT_TRUE(tr->Contains(1));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq9En));
 
 	ASSERT_TRUE(tr->Contains(2));
-	tr->Add(2);
+	ASSERT_FALSE(tr->Add(2));
 	ASSERT_TRUE(tr->Contains(2));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq9En));
 
@@ -454,17 +454,22 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq10En = EnumerableFromStlIterators(std::begin(seq10), std::end(seq10));
 
 	ASSERT_FALSE(tr->Contains(3));
-	tr->Add(3);
+	ASSERT_TRUE(tr->Add(3));
 	ASSERT_TRUE(tr->Contains(3));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq10En));
 
 	ASSERT_TRUE(tr->Contains(4));
-	tr->Add(4);
+	ASSERT_FALSE(tr->Add(4));
 	ASSERT_TRUE(tr->Contains(4));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq10En));
 
 	ASSERT_FALSE(tr->Contains(5));
-	tr->Add(5);
+	ASSERT_TRUE(tr->Add(5));
+	ASSERT_TRUE(tr->Contains(5));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq1En));
+
+	ASSERT_TRUE(tr->Contains(5));
+	ASSERT_FALSE(tr->Add(5));
 	ASSERT_TRUE(tr->Contains(5));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq1En));
 
@@ -520,7 +525,7 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq11Ren = EnumerableFromStlIterators(std::rbegin(seq11), std::rend(seq11));
 
 	ASSERT_FALSE(tr->Contains(0));
-	tr->Add(0);
+	ASSERT_TRUE(tr->Add(0));
 	ASSERT_TRUE(tr->Contains(0));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq11En));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq11Ren));
@@ -550,7 +555,7 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq14Ren = EnumerableFromStlIterators(std::rbegin(seq14), std::rend(seq14));
 
 	ASSERT_FALSE(tr->Contains(6));
-	tr->Add(6);
+	ASSERT_TRUE(tr->Add(6));
 	ASSERT_TRUE(tr->Contains(6));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq14En));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq14Ren));
@@ -659,12 +664,12 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq19En = EnumerableFromStlIterators(std::begin(seq19), std::end(seq19));
 
 	ASSERT_FALSE(tr->Contains(2));
-	tr->Add(2);
+	ASSERT_TRUE(tr->Add(2));
 	ASSERT_TRUE(tr->Contains(2));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), Enumerable::Take(seq19En, 1), comparers::Equals()));
 
 	ASSERT_FALSE(tr->Contains(4));
-	tr->Add(4);
+	ASSERT_TRUE(tr->Add(4));
 	ASSERT_TRUE(tr->Contains(4));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), seq19En, comparers::Equals()));
 
