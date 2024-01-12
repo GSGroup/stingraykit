@@ -110,9 +110,9 @@ namespace stingray
 		void Add(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			bool signal = !_wrapped.Contains(value);
+			const bool add = !_wrapped.Contains(value);
 			_wrapped.Add(value);
-			if (signal)
+			if (add)
 				_onChanged(CollectionOp::Added, value);
 		}
 

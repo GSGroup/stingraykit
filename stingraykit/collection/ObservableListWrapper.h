@@ -137,7 +137,7 @@ namespace stingray
 		void RemoveAt(size_t index) override
 		{
 			signal_locker l(_onChanged);
-			ValueType value = _wrapped.Get(index);
+			const ValueType value = _wrapped.Get(index);
 			_wrapped.RemoveAt(index);
 			_onChanged(CollectionOp::Removed, index, value);
 		}

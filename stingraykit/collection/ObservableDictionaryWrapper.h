@@ -124,7 +124,7 @@ namespace stingray
 		void Set(const KeyType& key, const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			bool update = _wrapped.ContainsKey(key);
+			const bool update = _wrapped.ContainsKey(key);
 			_wrapped.Set(key, value);
 			_onChanged(update ? CollectionOp::Updated : CollectionOp::Added, key, value);
 		}
