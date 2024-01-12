@@ -135,6 +135,9 @@ namespace stingray
 				return false;
 		}
 
+		bool Add(const KeyType& key, const ValueType& value) override
+		{ return DoAdd<MapType>(key, value, 0); }
+
 		void Set(const KeyType& key, const ValueType& value) override
 		{ DoSet<MapType>(key, value, 0); }
 
@@ -181,6 +184,28 @@ namespace stingray
 		}
 
 	private:
+		template < typename MapType__ >
+		auto DoAdd(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), bool())
+		{
+			const auto it = _map->lower_bound(key);
+			if (it != _map->end() && !typename MapType__::key_compare()(key, it->first))
+				return false;
+
+			if (CopyOnWrite())
+				_map->emplace(key, value);
+			else
+				_map->emplace_hint(it, key, value);
+
+			return true;
+		}
+
+		template < typename MapType__ >
+		bool DoAdd(const KeyType& key, const ValueType& value, long)
+		{
+			CopyOnWrite();
+			return _map->emplace(key, value).second;
+		}
+
 		template < typename MapType__ >
 		auto DoSet(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), void())
 		{

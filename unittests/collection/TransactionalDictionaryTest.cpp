@@ -788,4 +788,115 @@ TEST(TransactionalDictionaryTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq3En, Bind(&MakeDiffEntry<EntryType>, CollectionOp::Added, _1)), comparers::Equals()));
 
 	// 25
+
+	tr = s->StartTransaction();
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq3En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq3Ren, comparers::Equals()));
+
+	diff1 = tr->Diff();
+
+	CHECK_NOT_CONTAINS(tr, 0);
+	ASSERT_TRUE(tr->Add(0, "0"));
+	CHECK_CONTAINS(tr, 0, "0");
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq13En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq13Ren, comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, (DictionaryType::DiffTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
+	diff1 = tr->Diff();
+
+	CHECK_CONTAINS(tr, 0, "0");
+	ASSERT_FALSE(tr->Add(0, "00"));
+	CHECK_CONTAINS(tr, 0, "0");
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq13En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq13Ren, comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq23En, comparers::Equals()));
+	diff1 = tr->Diff();
+
+	CHECK_CONTAINS(tr, 1, "1");
+	ASSERT_FALSE(tr->Add(1, "11"));
+	CHECK_CONTAINS(tr, 1, "1");
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq13En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq13Ren, comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq23En, comparers::Equals()));
+	diff1 = tr->Diff();
+
+	const EntryType seq31[] = {{0, "0"}, {3, "3"}, {5, "5"}};
+	const auto seq31En = EnumerableFromStlIterators(std::begin(seq31), std::end(seq31));
+	const auto seq31Ren = EnumerableFromStlIterators(std::rbegin(seq31), std::rend(seq31));
+
+	CHECK_CONTAINS(tr, 1, "1");
+	ASSERT_TRUE(tr->Remove(1));
+	CHECK_NOT_CONTAINS(tr, 1);
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq31En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq31Ren, comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq23En, comparers::Equals()));
+	diff1 = tr->Diff();
+
+	const DiffEntry<EntryType> seq32[] = {{CollectionOp::Added, {0, "0"}}, {CollectionOp::Removed, {1, "1"}}};
+	const auto seq32En = EnumerableFromStlIterators(std::begin(seq32), std::end(seq32));
+
+	CHECK_NOT_CONTAINS(tr, 1);
+	ASSERT_TRUE(tr->Add(1, "1"));
+	CHECK_CONTAINS(tr, 1, "1");
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq13En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq13Ren, comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq32En, comparers::Equals()));
+	diff1 = tr->Diff();
+
+	CHECK_CONTAINS(tr, 5, "5");
+	ASSERT_TRUE(tr->Remove(5));
+	CHECK_NOT_CONTAINS(tr, 5);
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, Enumerable::Take(seq13En, 3), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), Enumerable::Skip(seq13Ren, 1), comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq23En, comparers::Equals()));
+	diff1 = tr->Diff();
+
+	const EntryType seq33[] = {{0, "0"}, {1, "1"}, {3, "3"}, {5, "55"}};
+	const auto seq33En = EnumerableFromStlIterators(std::begin(seq33), std::end(seq33));
+	const auto seq33Ren = EnumerableFromStlIterators(std::rbegin(seq33), std::rend(seq33));
+
+	const DiffEntry<EntryType> seq35[] = {{CollectionOp::Added, {0, "0"}}, {CollectionOp::Removed, {5, "5"}}, {CollectionOp::Added, {5, "55"}}};
+	const auto seq35En = EnumerableFromStlIterators(std::begin(seq35), std::end(seq35));
+
+	CHECK_NOT_CONTAINS(tr, 5);
+	ASSERT_TRUE(tr->Add(5, "55"));
+	CHECK_CONTAINS(tr, 5, "55");
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq33En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq33Ren, comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, Enumerable::Take(seq35En, 2), comparers::Equals()));
+	diff1 = tr->Diff();
+
+	CHECK_CONTAINS(tr, 5, "55");
+	ASSERT_FALSE(tr->Add(5, "5"));
+	CHECK_CONTAINS(tr, 5, "55");
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq33En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq33Ren, comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq35En, comparers::Equals()));
+	diff1 = tr->Diff();
+
+	tr->Commit();
+	tr.reset();
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, seq35En, comparers::Equals()));
+	diff1.reset();
+
+	// 26
+
+	ASSERT_FALSE(s->IsEmpty());
+	ASSERT_EQ(s->GetCount(), 4u);
+	ASSERT_EQ(Enumerable::Count(s), 4u);
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(s, seq33En, comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), seq33Ren, comparers::Equals()));
+
+	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq33En, Bind(&MakeDiffEntry<EntryType>, CollectionOp::Added, _1)), comparers::Equals()));
+
+	// 27
 }

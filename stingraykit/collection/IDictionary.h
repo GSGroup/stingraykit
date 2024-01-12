@@ -55,6 +55,7 @@ namespace stingray
 
 		~IDictionary() override { }
 
+		virtual bool Add(const KeyType& key, const ValueType& value) = 0;
 		virtual void Set(const KeyType& key, const ValueType& value) = 0;
 
 		virtual bool Remove(const KeyType& key) = 0;

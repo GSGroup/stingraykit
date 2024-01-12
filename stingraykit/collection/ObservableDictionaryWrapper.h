@@ -121,6 +121,16 @@ namespace stingray
 			return _wrapped.TryGet(key, outValue);
 		}
 
+		bool Add(const KeyType& key, const ValueType& value) override
+		{
+			signal_locker l(_onChanged);
+			if (!_wrapped.Add(key, value))
+				return false;
+
+			_onChanged(CollectionOp::Added, key, value);
+			return true;
+		}
+
 		void Set(const KeyType& key, const ValueType& value) override
 		{
 			signal_locker l(_onChanged);

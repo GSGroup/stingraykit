@@ -332,6 +332,29 @@ namespace stingray
 				return false;
 			}
 
+			bool Add(const KeyType& key, const ValueType& value) override
+			{
+				const auto itemsIt = _impl->Items->find(key);
+				if (itemsIt != _impl->Items->end())
+				{
+					if (!_removed->count(key) || _added->count(key))
+						return false;
+
+					if (ValueEqualsComparer()(value, itemsIt->second))
+					{
+						CopyRemovedOnWrite(_removed.get());
+						_removed->erase(key);
+						return true;
+					}
+				}
+				else if (_added->count(key))
+					return false;
+
+				CopyAddedOnWrite(_added.get());
+				_added->emplace(key, value);
+				return true;
+			}
+
 			void Set(const KeyType& key, const ValueType& value) override
 			{
 				const auto itemsIt = _impl->Items->find(key);
