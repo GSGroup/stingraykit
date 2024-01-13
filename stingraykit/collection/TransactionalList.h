@@ -283,7 +283,7 @@ namespace stingray
 				_newItems->erase(std::next(_newItems->begin(), index));
 			}
 
-			bool TryRemove(const ValueType& value) override
+			bool Remove(const ValueType& value) override
 			{
 				const VectorType& items = _newItems ? *_newItems : *_oldItems;
 

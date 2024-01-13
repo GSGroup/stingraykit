@@ -141,7 +141,7 @@ namespace stingray
 			_items->erase(std::next(_items->begin(), index));
 		}
 
-		bool TryRemove(const ValueType& value) override
+		bool Remove(const ValueType& value) override
 		{
 			const auto it = std::find(_items->begin(), _items->end(), value);
 			if (it == _items->end())

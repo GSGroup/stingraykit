@@ -142,7 +142,7 @@ namespace stingray
 			_onChanged(CollectionOp::Removed, index, value);
 		}
 
-		bool TryRemove(const ValueType& value) override
+		bool Remove(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			if (const optional<size_t> index = _wrapped.IndexOf(value))

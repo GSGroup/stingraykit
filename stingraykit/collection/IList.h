@@ -56,7 +56,7 @@ namespace stingray
 		virtual void Insert(size_t index, const ValueType& value) = 0;
 
 		virtual void RemoveAt(size_t index) = 0;
-		virtual bool TryRemove(const ValueType& value) = 0;
+		virtual bool Remove(const ValueType& value) = 0;
 		virtual size_t RemoveAll(const function<bool (const ValueType&)>& pred) = 0;
 
 		virtual void Clear() = 0;
