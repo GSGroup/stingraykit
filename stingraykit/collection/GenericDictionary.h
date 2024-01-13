@@ -157,8 +157,11 @@ namespace stingray
 			if (it == _map->end())
 				return false;
 
-			CopyOnWrite();
-			_map->erase(key);
+			if (CopyOnWrite())
+				_map->erase(key);
+			else
+				_map->erase(it);
+
 			return true;
 		}
 
@@ -207,10 +210,13 @@ namespace stingray
 			return mapHolder;
 		}
 
-		void CopyOnWrite()
+		bool CopyOnWrite()
 		{
-			if (!_mapHolder.expired())
-				CopyMap(_map);
+			if (_mapHolder.expired())
+				return false;
+
+			CopyMap(_map);
+			return true;
 		}
 
 		static shared_ptr<IEnumerator<PairType>> WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type>>& mapEnumerator)

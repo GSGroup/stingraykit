@@ -129,8 +129,11 @@ namespace stingray
 			if (it == _items->end())
 				return false;
 
-			CopyOnWrite();
-			_items->erase(value);
+			if (CopyOnWrite())
+				_items->erase(value);
+			else
+				_items->erase(it);
+
 			return true;
 		}
 
@@ -179,10 +182,13 @@ namespace stingray
 			return itemsHolder;
 		}
 
-		void CopyOnWrite()
+		bool CopyOnWrite()
 		{
-			if (!_itemsHolder.expired())
-				CopyItems(_items);
+			if (_itemsHolder.expired())
+				return false;
+
+			CopyItems(_items);
+			return true;
 		}
 	};
 
