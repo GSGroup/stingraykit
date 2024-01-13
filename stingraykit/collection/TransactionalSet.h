@@ -294,8 +294,8 @@ namespace stingray
 				}
 			}
 
-			void Remove(const ValueType& value) override
-			{ TryRemove(value); }
+			bool Remove(const ValueType& value) override
+			{ return TryRemove(value); }
 
 			bool TryRemove(const ValueType& value) override
 			{

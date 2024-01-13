@@ -116,8 +116,8 @@ namespace stingray
 				_onChanged(CollectionOp::Added, value);
 		}
 
-		void Remove(const ValueType& value) override
-		{ TryRemove(value); }
+		bool Remove(const ValueType& value) override
+		{ return TryRemove(value); }
 
 		bool TryRemove(const ValueType& value) override
 		{

@@ -117,11 +117,8 @@ namespace stingray
 			_items->insert(value);
 		}
 
-		void Remove(const ValueType& value) override
-		{
-			CopyOnWrite();
-			_items->erase(value);
-		}
+		bool Remove(const ValueType& value) override
+		{ return TryRemove(value); }
 
 		bool TryRemove(const ValueType& value) override
 		{

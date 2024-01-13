@@ -145,11 +145,8 @@ namespace stingray
 				_map->emplace(key, value);
 		}
 
-		void Remove(const KeyType& key) override
-		{
-			CopyOnWrite();
-			_map->erase(key);
-		}
+		bool Remove(const KeyType& key) override
+		{ return TryRemove(key); }
 
 		bool TryRemove(const KeyType& key) override
 		{

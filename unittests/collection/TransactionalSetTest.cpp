@@ -152,7 +152,7 @@ TEST(TransactionalSetTest, Test1)
 	}
 
 	tr = s->StartTransaction();
-	tr->Remove(37);
+	ASSERT_TRUE(tr->Remove(37));
 
 	ASSERT_TRUE(!tr->IsEmpty());
 	ASSERT_EQ(tr->GetCount(), 3u);
@@ -172,7 +172,7 @@ TEST(TransactionalSetTest, Test1)
 		ASSERT_TRUE(Enumerable::SequenceEqual(s, EnumerableFromStlIterators(std::begin(seq), std::end(seq))));
 	}
 
-	tr->Remove(42);
+	ASSERT_TRUE(tr->Remove(42));
 
 	ASSERT_TRUE(!tr->IsEmpty());
 	ASSERT_EQ(tr->GetCount(), 2u);
@@ -292,7 +292,7 @@ TEST(TransactionalSetTest, Test2)
 	SetType::DiffTypePtr diff1 = tr->Diff();
 
 	ASSERT_FALSE(tr->Contains(6));
-	tr->Remove(6);
+	ASSERT_FALSE(tr->Remove(6));
 	ASSERT_FALSE(tr->Contains(6));
 	ASSERT_EQ(tr->GetCount(), 5u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq1En));
@@ -301,7 +301,7 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq2En = EnumerableFromStlIterators(std::begin(seq2), std::end(seq2));
 
 	ASSERT_TRUE(tr->Contains(2));
-	tr->Remove(2);
+	ASSERT_TRUE(tr->Remove(2));
 	ASSERT_FALSE(tr->Contains(2));
 	ASSERT_EQ(tr->GetCount(), 4u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq2En));
@@ -311,7 +311,7 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq3Ren = EnumerableFromStlIterators(std::rbegin(seq3), std::rend(seq3));
 
 	ASSERT_TRUE(tr->Contains(4));
-	tr->Remove(4);
+	ASSERT_TRUE(tr->Remove(4));
 	ASSERT_FALSE(tr->Contains(4));
 	ASSERT_EQ(tr->GetCount(), 3u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq3En));
@@ -368,7 +368,7 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq5En = EnumerableFromStlIterators(std::begin(seq5), std::end(seq5));
 
 	ASSERT_TRUE(tr->Contains(1));
-	tr->Remove(1);
+	ASSERT_TRUE(tr->Remove(1));
 	ASSERT_FALSE(tr->Contains(1));
 	ASSERT_EQ(tr->GetCount(), 4u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq5En));
@@ -377,13 +377,13 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq6En = EnumerableFromStlIterators(std::begin(seq6), std::end(seq6));
 
 	ASSERT_TRUE(tr->Contains(3));
-	tr->Remove(3);
+	ASSERT_TRUE(tr->Remove(3));
 	ASSERT_FALSE(tr->Contains(3));
 	ASSERT_EQ(tr->GetCount(), 3u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq6En));
 
 	ASSERT_FALSE(tr->Contains(3));
-	tr->Remove(3);
+	ASSERT_FALSE(tr->Remove(3));
 	ASSERT_FALSE(tr->Contains(3));
 	ASSERT_EQ(tr->GetCount(), 3u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq6En));
@@ -393,13 +393,13 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq7Ren = EnumerableFromStlIterators(std::rbegin(seq7), std::rend(seq7));
 
 	ASSERT_TRUE(tr->Contains(5));
-	tr->Remove(5);
+	ASSERT_TRUE(tr->Remove(5));
 	ASSERT_FALSE(tr->Contains(5));
 	ASSERT_EQ(tr->GetCount(), 2u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq7En));
 
 	ASSERT_FALSE(tr->Contains(5));
-	tr->Remove(5);
+	ASSERT_FALSE(tr->Remove(5));
 	ASSERT_FALSE(tr->Contains(5));
 	ASSERT_EQ(tr->GetCount(), 2u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq7En));
@@ -530,7 +530,7 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq12Ren = EnumerableFromStlIterators(std::rbegin(seq12), std::rend(seq12));
 
 	ASSERT_TRUE(tr->Contains(2));
-	tr->Remove(2);
+	ASSERT_TRUE(tr->Remove(2));
 	ASSERT_FALSE(tr->Contains(2));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq12En));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq12Ren));
@@ -540,7 +540,7 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq13Ren = EnumerableFromStlIterators(std::rbegin(seq13), std::rend(seq13));
 
 	ASSERT_TRUE(tr->Contains(4));
-	tr->Remove(4);
+	ASSERT_TRUE(tr->Remove(4));
 	ASSERT_FALSE(tr->Contains(2));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq13En));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq13Ren));
@@ -608,15 +608,15 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq14Ren));
 
 	ASSERT_TRUE(tr->Contains(1));
-	tr->Remove(1);
+	ASSERT_TRUE(tr->Remove(1));
 	ASSERT_FALSE(tr->Contains(1));
 
 	ASSERT_TRUE(tr->Contains(3));
-	tr->Remove(3);
+	ASSERT_TRUE(tr->Remove(3));
 	ASSERT_FALSE(tr->Contains(3));
 
 	ASSERT_TRUE(tr->Contains(5));
-	tr->Remove(5);
+	ASSERT_TRUE(tr->Remove(5));
 	ASSERT_FALSE(tr->Contains(5));
 
 	const DiffEntry<int> seq16[] = {{CollectionOp::Removed, 1}, {CollectionOp::Removed, 3}, {CollectionOp::Removed, 5}};

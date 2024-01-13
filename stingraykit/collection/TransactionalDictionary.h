@@ -377,8 +377,8 @@ namespace stingray
 				}
 			}
 
-			void Remove(const KeyType& key) override
-			{ TryRemove(key); }
+			bool Remove(const KeyType& key) override
+			{ return TryRemove(key); }
 
 			bool TryRemove(const KeyType& key) override
 			{

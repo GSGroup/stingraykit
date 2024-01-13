@@ -57,7 +57,7 @@ namespace stingray
 
 		virtual void Set(const KeyType& key, const ValueType& value) = 0;
 
-		virtual void Remove(const KeyType& key) = 0;
+		virtual bool Remove(const KeyType& key) = 0;
 		virtual bool TryRemove(const KeyType& key) = 0;
 
 		virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) = 0;
