@@ -147,16 +147,23 @@ namespace stingray
 		bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value_ = null) override
 		{
 			signal_locker l(_onChanged);
+
+			optional<ValueType> toRemove;
 			FOR_EACH(const ValueType value IN _wrapped.GetAll(key))
 			{
 				if (value_ && !ValueCompareType_()(*value_, value))
 					continue;
 
-				_wrapped.RemoveFirst(key, value);
-				_onChanged(CollectionOp::Removed, key, value);
-				return true;
+				toRemove = value;
+				break;
 			}
-			return false;
+
+			if (!toRemove)
+				return false;
+
+			_wrapped.RemoveFirst(key, toRemove);
+			_onChanged(CollectionOp::Removed, key, *toRemove);
+			return true;
 		}
 
 		size_t RemoveAll(const KeyType& key) override

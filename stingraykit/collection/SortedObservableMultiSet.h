@@ -127,16 +127,14 @@ namespace stingray
 		bool RemoveFirst(const ValueType& value) override
 		{ return SortedObservableMultiSet::TryRemoveFirst(value); }
 
-		bool TryRemoveFirst(const ValueType& value_) override
+		bool TryRemoveFirst(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			FOR_EACH(const ValueType value IN _wrapped.Find(value_))
-			{
-				_wrapped.RemoveFirst(value);
-				_onChanged(CollectionOp::Removed, value);
-				return true;
-			}
-			return false;
+			if (!_wrapped.RemoveFirst(value))
+				return false;
+
+			_onChanged(CollectionOp::Removed, value);
+			return true;
 		}
 
 		size_t RemoveAll(const ValueType& value_) override
