@@ -67,8 +67,6 @@ namespace stingray
 						diff->emplace_back(CollectionOp::Added, PairType(index, (*newItems)[index]));
 					else if (!ValueEqualsComparer()((*oldItems)[index], (*newItems)[index]))
 					{
-						// TODO: fix Updated handling
-						//diff->emplace_back(CollectionOp::Updated, *newIt);
 						diff->emplace_back(CollectionOp::Removed, PairType(index, (*oldItems)[index]));
 						diff->emplace_back(CollectionOp::Added, PairType(index, (*newItems)[index]));
 					}
