@@ -90,9 +90,9 @@ namespace stingray
 				stampedValue = StampedValue(value, newStamp);
 			}
 			else
-				dictionaryIter = _dictionary.insert(std::make_pair(key, StampedValue(value, newStamp))).first;
+				dictionaryIter = _dictionary.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(value, newStamp)).first;
 
-			_queue.insert(std::make_pair(newStamp, dictionaryIter));
+			_queue.emplace(newStamp, dictionaryIter);
 			_size += _sizeMapper(value);
 
 			EvictExpired();
@@ -149,7 +149,7 @@ namespace stingray
 			const StampType newStamp = MakeStamp();
 
 			_queue.erase(value.Stamp);
-			_queue.insert(std::make_pair(newStamp, iter));
+			_queue.emplace(newStamp, iter);
 			value.Stamp = newStamp;
 
 			out = value.Value;
