@@ -141,10 +141,7 @@ namespace stingray
 			_onChanged(CollectionOp::Added, key, value);
 		}
 
-		bool RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
-		{ return MultiMapObservableDictionary::TryRemoveFirst(key, value); }
-
-		bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value_ = null) override
+		bool RemoveFirst(const KeyType& key, const optional<ValueType>& value_ = null) override
 		{
 			signal_locker l(_onChanged);
 

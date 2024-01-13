@@ -125,10 +125,18 @@ namespace stingray
 		}
 
 		bool RemoveFirst(const ValueType& value) override
-		{ return DoRemoveFirst(value); }
+		{
+			const auto it = _items->lower_bound(value);
+			if (it == _items->end() || CompareType_()(value, *it))
+				return false;
 
-		bool TryRemoveFirst(const ValueType& value) override
-		{ return DoRemoveFirst(value); }
+			if (CopyOnWrite())
+				_items->erase(_items->lower_bound(value));
+			else
+				_items->erase(it);
+
+			return true;
+		}
 
 		size_t RemoveAll(const ValueType& value) override
 		{
@@ -178,20 +186,6 @@ namespace stingray
 		}
 
 	private:
-		bool DoRemoveFirst(const ValueType& value)
-		{
-			const auto it = _items->lower_bound(value);
-			if (it == _items->end() || CompareType_()(value, *it))
-				return false;
-
-			if (CopyOnWrite())
-				_items->erase(_items->lower_bound(value));
-			else
-				_items->erase(it);
-
-			return true;
-		}
-
 		void CopyItems(const SetTypePtr& items)
 		{
 			_items = make_shared_ptr<SetType>(*items);

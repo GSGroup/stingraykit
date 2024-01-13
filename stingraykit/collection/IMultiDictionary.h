@@ -62,10 +62,7 @@ namespace stingray
 		virtual void Add(const KeyType& key, const ValueType& value) = 0;
 
 		virtual bool RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) = 0;
-		virtual bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value = null) = 0;
-
 		virtual size_t RemoveAll(const KeyType& key) = 0;
-
 		virtual size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) = 0;
 
 		virtual void Clear() = 0;

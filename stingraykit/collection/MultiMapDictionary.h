@@ -161,10 +161,25 @@ namespace stingray
 		}
 
 		bool RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
-		{ return DoRemoveFirst(key, value); }
+		{
+			const auto range = _map->equal_range(key);
 
-		bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
-		{ return DoRemoveFirst(key, value); }
+			size_t offset = 0;
+			for (auto it = range.first; it != range.second; ++it, ++offset)
+			{
+				if (value && !ValueCompareType()(*value, it->second))
+					continue;
+
+				if (CopyOnWrite())
+					_map->erase(std::next(_map->lower_bound(key), offset));
+				else
+					_map->erase(it);
+
+				return true;
+			}
+
+			return false;
+		}
 
 		size_t RemoveAll(const KeyType& key) override
 		{
@@ -214,27 +229,6 @@ namespace stingray
 		}
 
 	private:
-		bool DoRemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
-		{
-			const auto range = _map->equal_range(key);
-
-			size_t offset = 0;
-			for (auto it = range.first; it != range.second; ++it, ++offset)
-			{
-				if (value && !ValueCompareType()(*value, it->second))
-					continue;
-
-				if (CopyOnWrite())
-					_map->erase(std::next(_map->lower_bound(key), offset));
-				else
-					_map->erase(it);
-
-				return true;
-			}
-
-			return false;
-		}
-
 		void CopyMap(const MapTypePtr& map)
 		{
 			_map = make_shared_ptr<MapType>(*map);

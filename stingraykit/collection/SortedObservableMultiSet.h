@@ -125,9 +125,6 @@ namespace stingray
 		}
 
 		bool RemoveFirst(const ValueType& value) override
-		{ return SortedObservableMultiSet::TryRemoveFirst(value); }
-
-		bool TryRemoveFirst(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
 			if (!_wrapped.RemoveFirst(value))
