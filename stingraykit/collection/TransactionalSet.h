@@ -295,9 +295,6 @@ namespace stingray
 			}
 
 			bool Remove(const ValueType& value) override
-			{ return TryRemove(value); }
-
-			bool TryRemove(const ValueType& value) override
 			{
 				if (_added->count(value))
 				{

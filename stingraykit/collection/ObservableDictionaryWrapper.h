@@ -130,9 +130,6 @@ namespace stingray
 		}
 
 		bool Remove(const KeyType& key) override
-		{ return TryRemove(key); }
-
-		bool TryRemove(const KeyType& key) override
 		{
 			signal_locker l(_onChanged);
 			ValueType value;

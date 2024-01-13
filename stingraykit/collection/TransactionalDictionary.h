@@ -378,9 +378,6 @@ namespace stingray
 			}
 
 			bool Remove(const KeyType& key) override
-			{ return TryRemove(key); }
-
-			bool TryRemove(const KeyType& key) override
 			{
 				if (_added->count(key))
 				{

@@ -118,9 +118,6 @@ namespace stingray
 		}
 
 		bool Remove(const ValueType& value) override
-		{ return TryRemove(value); }
-
-		bool TryRemove(const ValueType& value) override
 		{
 			const auto it = _items->find(value);
 			if (it == _items->end())
