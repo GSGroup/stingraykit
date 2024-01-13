@@ -19,7 +19,7 @@ namespace
 
 TEST(LruCacheTest, EmptyCache)
 {
-	typedef LruCache<s32, s32>::ValueT Cache;
+	using Cache = LruCache<s32, s32>;
 
 	const size_t Capacity = 0;
 
@@ -44,7 +44,7 @@ TEST(LruCacheTest, EmptyCache)
 
 TEST(LruCacheTest, Filling)
 {
-	typedef LruCache<s32, s32>::ValueT Cache;
+	using Cache = LruCache<s32, s32>;
 
 	const size_t Capacity = 10;
 
@@ -87,7 +87,7 @@ TEST(LruCacheTest, Filling)
 
 TEST(LruCacheTest, Eviction)
 {
-	typedef LruCache<s32, s32>::ValueT Cache;
+	using Cache = LruCache<s32, s32>;
 
 	const size_t Capacity = 10;
 
@@ -258,7 +258,7 @@ namespace
 
 TEST(LruCacheTest, ZeroSizeMapping)
 {
-	typedef LruCache<s32, std::string, StringSizeMapper>::ValueT Cache;
+	using Cache = LruCache<s32, std::string, StringSizeMapper>;
 
 	const size_t Capacity = 0;
 
@@ -275,7 +275,7 @@ TEST(LruCacheTest, ZeroSizeMapping)
 
 TEST(LruCacheTest, SizeMapping)
 {
-	typedef LruCache<s32, std::string, StringSizeMapper>::ValueT Cache;
+	using Cache = LruCache<s32, std::string, StringSizeMapper>;
 
 	const size_t Capacity = 30;
 

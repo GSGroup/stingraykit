@@ -19,7 +19,7 @@ namespace
 
 TEST(TwoQueueCacheTest, DegenerativeSizes)
 {
-	typedef TwoQueueCache<s32, s32> Cache;
+	using Cache = TwoQueueCache<s32, s32>;
 
 	{
 		const size_t InQueueCapacity = 0;
@@ -181,7 +181,7 @@ TEST(TwoQueueCacheTest, DegenerativeSizes)
 
 TEST(TwoQueueCacheTest, Eviction)
 {
-	typedef TwoQueueCache<s32, s32> Cache;
+	using Cache = TwoQueueCache<s32, s32>;
 
 	const size_t InQueueCapacity = 5;
 	const size_t OutQueueCapacity = 5;
@@ -314,7 +314,7 @@ namespace
 
 TEST(TwoQueueCacheTest, ZeroSizeMapping)
 {
-	typedef TwoQueueCache<s32, std::string, StringSizeMapper> Cache;
+	using Cache = TwoQueueCache<s32, std::string, StringSizeMapper>;
 
 	const size_t Capacity = 0;
 
@@ -331,7 +331,7 @@ TEST(TwoQueueCacheTest, ZeroSizeMapping)
 
 TEST(TwoQueueCacheTest, SizeMapping)
 {
-	typedef TwoQueueCache<s32, std::string, StringSizeMapper> Cache;
+	using Cache = TwoQueueCache<s32, std::string, StringSizeMapper>;
 
 	const size_t InQueueCapacity = 10;
 	const size_t OutQueueCapacity = 20;

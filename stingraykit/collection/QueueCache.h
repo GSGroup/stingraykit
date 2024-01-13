@@ -26,18 +26,18 @@ namespace stingray
 
 
 	template < typename Key_, typename Value_, QueueEvictionPolicy::Enum EvictionPolicy_, typename SizeMapper_ = DefaultCacheSizeMapper, typename Less_ = comparers::Less >
-	class QueueCache : public virtual ICache<Key_, Value_>
+	class QueueCache final : public virtual ICache<Key_, Value_>
 	{
 		static_assert(comparers::IsRelationalComparer<Less_>::Value, "Expected Relational comparer");
 
-		typedef ICache<Key_, Value_> Base;
+		using Base = ICache<Key_, Value_>;
 
-		typedef typename Base::KeyPassingType KeyPassingType;
-		typedef typename Base::ValuePassingType ValuePassingType;
+		using KeyPassingType = typename Base::KeyPassingType;
+		using ValuePassingType = typename Base::ValuePassingType;
 
-		typedef typename Base::OnEvictedSignature OnEvictedSignature;
+		using OnEvictedSignature = typename Base::OnEvictedSignature;
 
-		typedef u64 StampType;
+		using StampType = u64;
 
 		struct StampedValue
 		{
@@ -51,8 +51,8 @@ namespace stingray
 			{ }
 		};
 
-		typedef std::map<Key_, StampedValue, Less_> Dictionary;
-		typedef std::map<StampType, typename Dictionary::iterator> Queue;
+		using Dictionary = std::map<Key_, StampedValue, Less_>;
+		using Queue = std::map<StampType, typename Dictionary::iterator>;
 
 	private:
 		size_t							_capacity;
@@ -73,10 +73,10 @@ namespace stingray
 				_monotonic()
 		{ }
 
-		virtual bool TryGet(KeyPassingType key, Value_& out)
+		bool TryGet(KeyPassingType key, Value_& out) override
 		{ return DoTryGet<EvictionPolicy_>(key, out); }
 
-		virtual void Set(KeyPassingType key, ValuePassingType value)
+		void Set(KeyPassingType key, ValuePassingType value) override
 		{
 			const StampType newStamp = MakeStamp();
 
@@ -98,7 +98,7 @@ namespace stingray
 			EvictExpired();
 		}
 
-		virtual bool TryRemove(KeyPassingType key)
+		bool TryRemove(KeyPassingType key) override
 		{
 			const typename Dictionary::iterator dictionaryIter = _dictionary.find(key);
 			if (dictionaryIter == _dictionary.end())
@@ -111,7 +111,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual void Clear()
+		void Clear() override
 		{
 			_size = 0;
 			_queue.clear();
@@ -119,10 +119,10 @@ namespace stingray
 			_monotonic = 0;
 		}
 
-		virtual size_t GetSize() const
+		size_t GetSize() const override
 		{ return _size; }
 
-		virtual signal_connector<OnEvictedSignature> OnEvicted() const
+		signal_connector<OnEvictedSignature> OnEvicted() const override
 		{ return _onEvicted.connector(); }
 
 	private:
@@ -187,17 +187,11 @@ namespace stingray
 
 
 	template < typename Key_, typename Value_, typename SizeMapper_ = DefaultCacheSizeMapper, typename Less_ = comparers::Less >
-	struct FifoCache
-	{
-		typedef QueueCache<Key_, Value_, QueueEvictionPolicy::Fifo, SizeMapper_, Less_> ValueT;
-	};
+	using FifoCache = QueueCache<Key_, Value_, QueueEvictionPolicy::Fifo, SizeMapper_, Less_>;
 
 
 	template < typename Key_, typename Value_, typename SizeMapper_ = DefaultCacheSizeMapper, typename Less_ = comparers::Less >
-	struct LruCache
-	{
-		typedef QueueCache<Key_, Value_, QueueEvictionPolicy::Lru, SizeMapper_, Less_> ValueT;
-	};
+	using LruCache = QueueCache<Key_, Value_, QueueEvictionPolicy::Lru, SizeMapper_, Less_>;
 
 }
 

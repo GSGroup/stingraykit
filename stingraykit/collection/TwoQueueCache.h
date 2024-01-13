@@ -14,17 +14,17 @@ namespace stingray
 {
 
 	template < typename Key_, typename Value_, typename SizeMapper_ = DefaultCacheSizeMapper, typename Less_ = comparers::Less >
-	class TwoQueueCache : public virtual ICache<Key_, Value_>
+	class TwoQueueCache final : public virtual ICache<Key_, Value_>
 	{
-		typedef ICache<Key_, Value_> Base;
+		using Base = ICache<Key_, Value_>;
 
-		typedef typename Base::KeyPassingType KeyPassingType;
-		typedef typename Base::ValuePassingType ValuePassingType;
+		using KeyPassingType = typename Base::KeyPassingType;
+		using ValuePassingType = typename Base::ValuePassingType;
 
-		typedef typename Base::OnEvictedSignature OnEvictedSignature;
+		using OnEvictedSignature = typename Base::OnEvictedSignature;
 
-		typedef typename LruCache<Key_, Value_, SizeMapper_, Less_>::ValueT HotCache;
-		typedef typename FifoCache<Key_, Value_, SizeMapper_, Less_>::ValueT Queue;
+		using HotCache = LruCache<Key_, Value_, SizeMapper_, Less_>;
+		using Queue = FifoCache<Key_, Value_, SizeMapper_, Less_>;
 
 	private:
 		Queue							_inQueue;
@@ -46,7 +46,7 @@ namespace stingray
 			_connections += _hotCache.OnEvicted().connect(_onEvicted.invoker());
 		}
 
-		virtual bool TryGet(KeyPassingType key, Value_& out)
+		bool TryGet(KeyPassingType key, Value_& out) override
 		{
 			if (_hotCache.TryGet(key, out) || _inQueue.TryGet(key, out))
 				return true;
@@ -60,7 +60,7 @@ namespace stingray
 			return true;
 		}
 
-		virtual void Set(KeyPassingType key, ValuePassingType value)
+		void Set(KeyPassingType key, ValuePassingType value) override
 		{
 			if (!_hotCache.TryRemove(key))
 				_outQueue.TryRemove(key);
@@ -68,20 +68,20 @@ namespace stingray
 			_inQueue.Set(key, value);
 		}
 
-		virtual bool TryRemove(KeyPassingType key)
+		bool TryRemove(KeyPassingType key) override
 		{ return _hotCache.TryRemove(key) || _outQueue.TryRemove(key) || _inQueue.TryRemove(key); }
 
-		virtual void Clear()
+		void Clear() override
 		{
 			_hotCache.Clear();
 			_outQueue.Clear();
 			_inQueue.Clear();
 		}
 
-		virtual size_t GetSize() const
+		size_t GetSize() const override
 		{ return _hotCache.GetSize() + _inQueue.GetSize() + _outQueue.GetSize(); }
 
-		virtual signal_connector<OnEvictedSignature> OnEvicted() const
+		signal_connector<OnEvictedSignature> OnEvicted() const override
 		{ return _onEvicted.connector(); }
 	};
 

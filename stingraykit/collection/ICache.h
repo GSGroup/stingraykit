@@ -16,10 +16,10 @@ namespace stingray
 	template < typename Key_, typename Value_ >
 	struct ICache
 	{
-		typedef typename GetParamPassingType<Key_>::ValueT KeyPassingType;
-		typedef typename GetParamPassingType<Value_>::ValueT ValuePassingType;
+		using KeyPassingType = typename GetParamPassingType<Key_>::ValueT;
+		using ValuePassingType = typename GetParamPassingType<Value_>::ValueT;
 
-		typedef void OnEvictedSignature(KeyPassingType, ValuePassingType);
+		using OnEvictedSignature = void (KeyPassingType, ValuePassingType);
 
 	public:
 		virtual ~ICache() { }

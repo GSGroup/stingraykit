@@ -19,7 +19,7 @@ namespace
 
 TEST(FifoCacheTest, EmptyCache)
 {
-	typedef FifoCache<s32, s32>::ValueT Cache;
+	using Cache = FifoCache<s32, s32>;
 
 	const size_t Capacity = 0;
 
@@ -44,7 +44,7 @@ TEST(FifoCacheTest, EmptyCache)
 
 TEST(FifoCacheTest, Filling)
 {
-	typedef FifoCache<s32, s32>::ValueT Cache;
+	using Cache = FifoCache<s32, s32>;
 
 	const size_t Capacity = 10;
 
@@ -87,7 +87,7 @@ TEST(FifoCacheTest, Filling)
 
 TEST(FifoCacheTest, Eviction)
 {
-	typedef FifoCache<s32, s32>::ValueT Cache;
+	using Cache = FifoCache<s32, s32>;
 
 	const size_t Capacity = 10;
 
@@ -220,7 +220,7 @@ namespace
 
 TEST(FifoCacheTest, ZeroSizeMapping)
 {
-	typedef FifoCache<s32, std::string, StringSizeMapper>::ValueT Cache;
+	using Cache = FifoCache<s32, std::string, StringSizeMapper>;
 
 	const size_t Capacity = 0;
 
@@ -237,7 +237,7 @@ TEST(FifoCacheTest, ZeroSizeMapping)
 
 TEST(FifoCacheTest, SizeMapping)
 {
-	typedef FifoCache<s32, std::string, StringSizeMapper>::ValueT Cache;
+	using Cache = FifoCache<s32, std::string, StringSizeMapper> ;
 
 	const size_t Capacity = 30;
 
