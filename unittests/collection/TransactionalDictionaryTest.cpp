@@ -562,17 +562,17 @@ TEST(TransactionalDictionaryTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), seq19En, comparers::Equals()));
 
 	CHECK_CONTAINS(tr, 2, "2");
-	ASSERT_TRUE(tr->TryRemove(2));
+	ASSERT_TRUE(tr->Remove(2));
 	CHECK_NOT_CONTAINS(tr, 2);
-	ASSERT_FALSE(tr->TryRemove(2));
+	ASSERT_FALSE(tr->Remove(2));
 	CHECK_NOT_CONTAINS(tr, 2);
 	ASSERT_EQ(tr->GetCount(), 6u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), Enumerable::Skip(seq19En, 1), comparers::Equals()));
 
 	CHECK_CONTAINS(tr, 4, "4");
-	ASSERT_TRUE(tr->TryRemove(4));
+	ASSERT_TRUE(tr->Remove(4));
 	CHECK_NOT_CONTAINS(tr, 4);
-	ASSERT_FALSE(tr->TryRemove(4));
+	ASSERT_FALSE(tr->Remove(4));
 	CHECK_NOT_CONTAINS(tr, 4);
 	ASSERT_EQ(tr->GetCount(), 5u);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), (DictionaryType::DiffTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
@@ -601,16 +601,16 @@ TEST(TransactionalDictionaryTest, Test2)
 	const auto seq20En = EnumerableFromStlIterators(std::begin(seq20), std::end(seq20));
 
 	CHECK_CONTAINS(tr, 0, "00");
-	ASSERT_TRUE(tr->TryRemove(0));
+	ASSERT_TRUE(tr->Remove(0));
 	CHECK_NOT_CONTAINS(tr, 0);
-	ASSERT_FALSE(tr->TryRemove(0));
+	ASSERT_FALSE(tr->Remove(0));
 	CHECK_NOT_CONTAINS(tr, 0);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), Enumerable::Take(seq20En, 1), comparers::Equals()));
 
 	CHECK_CONTAINS(tr, 6, "66");
-	ASSERT_TRUE(tr->TryRemove(6));
+	ASSERT_TRUE(tr->Remove(6));
 	CHECK_NOT_CONTAINS(tr, 6);
-	ASSERT_FALSE(tr->TryRemove(6));
+	ASSERT_FALSE(tr->Remove(6));
 	CHECK_NOT_CONTAINS(tr, 6);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), seq20En, comparers::Equals()));
 
@@ -716,7 +716,7 @@ TEST(TransactionalDictionaryTest, Test2)
 	diff1 = tr->Diff();
 
 	CHECK_CONTAINS(tr, 0, "00");
-	ASSERT_TRUE(tr->TryRemove(0));
+	ASSERT_TRUE(tr->Remove(0));
 	CHECK_NOT_CONTAINS(tr, 0);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq21En, comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq21Ren, comparers::Equals()));
@@ -725,7 +725,7 @@ TEST(TransactionalDictionaryTest, Test2)
 	diff1 = tr->Diff();
 
 	CHECK_NOT_CONTAINS(tr, 0);
-	ASSERT_FALSE(tr->TryRemove(0));
+	ASSERT_FALSE(tr->Remove(0));
 	CHECK_NOT_CONTAINS(tr, 0);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq21En, comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq21Ren, comparers::Equals()));
@@ -738,7 +738,7 @@ TEST(TransactionalDictionaryTest, Test2)
 	const auto seq28Ren = EnumerableFromStlIterators(std::rbegin(seq28), std::rend(seq28));
 
 	CHECK_CONTAINS(tr, 3, "33");
-	ASSERT_TRUE(tr->TryRemove(3));
+	ASSERT_TRUE(tr->Remove(3));
 	CHECK_NOT_CONTAINS(tr, 3);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq28En, comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq28Ren, comparers::Equals()));
@@ -750,7 +750,7 @@ TEST(TransactionalDictionaryTest, Test2)
 	diff1 = tr->Diff();
 
 	CHECK_NOT_CONTAINS(tr, 3);
-	ASSERT_FALSE(tr->TryRemove(3));
+	ASSERT_FALSE(tr->Remove(3));
 	CHECK_NOT_CONTAINS(tr, 3);
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr, seq28En, comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Reverse(), seq28Ren, comparers::Equals()));

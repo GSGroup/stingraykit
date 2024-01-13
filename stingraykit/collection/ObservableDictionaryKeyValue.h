@@ -104,7 +104,7 @@ namespace stingray
 			if (value)
 				DoSet<ValueType_>(value);
 			else
-				_dict->TryRemove(_key);
+				_dict->Remove(_key);
 		}
 
 	private:
