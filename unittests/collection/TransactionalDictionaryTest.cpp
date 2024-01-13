@@ -25,6 +25,8 @@ using namespace stingray;
 
 TEST(TransactionalDictionaryTest, Test2)
 {
+	// FIXME: split this mess to smaller functions and remove '--param max-gcse-memory' compiler option
+
 	using DictionaryType = ITransactionalDictionary<int, std::string>;
 	using EntryType = DictionaryType::PairType;
 	using EnumerableTypePtr = shared_ptr<IEnumerable<EntryType>>;
