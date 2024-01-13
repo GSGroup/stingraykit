@@ -154,12 +154,12 @@ TEST(LruCacheTest, Eviction)
 	ASSERT_EQ(*CacheGet(cache, 7), 7);
 	ASSERT_EQ(*CacheGet(cache, 6), 6);
 
-	ASSERT_TRUE(cache.TryRemove(2));
-	ASSERT_TRUE(cache.TryRemove(4));
-	ASSERT_TRUE(cache.TryRemove(6));
-	ASSERT_FALSE(cache.TryRemove(4));
-	ASSERT_FALSE(cache.TryRemove(6));
-	ASSERT_FALSE(cache.TryRemove(21));
+	ASSERT_TRUE(cache.Remove(2));
+	ASSERT_TRUE(cache.Remove(4));
+	ASSERT_TRUE(cache.Remove(6));
+	ASSERT_FALSE(cache.Remove(4));
+	ASSERT_FALSE(cache.Remove(6));
+	ASSERT_FALSE(cache.Remove(21));
 
 	ASSERT_EQ(cache.GetSize(), size_t(7));
 
@@ -193,13 +193,13 @@ TEST(LruCacheTest, Eviction)
 	ASSERT_EQ(*CacheGet(cache, 7), 7);
 	ASSERT_EQ(*CacheGet(cache, 16), 16);
 
-	ASSERT_FALSE(cache.TryRemove(1));
-	ASSERT_TRUE(cache.TryRemove(2));
-	ASSERT_FALSE(cache.TryRemove(3));
-	ASSERT_TRUE(cache.TryRemove(4));
-	ASSERT_FALSE(cache.TryRemove(5));
-	ASSERT_TRUE(cache.TryRemove(6));
-	ASSERT_TRUE(cache.TryRemove(7));
+	ASSERT_FALSE(cache.Remove(1));
+	ASSERT_TRUE(cache.Remove(2));
+	ASSERT_FALSE(cache.Remove(3));
+	ASSERT_TRUE(cache.Remove(4));
+	ASSERT_FALSE(cache.Remove(5));
+	ASSERT_TRUE(cache.Remove(6));
+	ASSERT_TRUE(cache.Remove(7));
 
 	ASSERT_EQ(cache.GetSize(), size_t(6));
 
@@ -229,16 +229,16 @@ TEST(LruCacheTest, Eviction)
 	ASSERT_EQ(*CacheGet(cache, 26), 26);
 	ASSERT_EQ(*CacheGet(cache, 27), 27);
 
-	ASSERT_TRUE(cache.TryRemove(27));
-	ASSERT_TRUE(cache.TryRemove(25));
-	ASSERT_TRUE(cache.TryRemove(23));
-	ASSERT_TRUE(cache.TryRemove(21));
-	ASSERT_TRUE(cache.TryRemove(16));
-	ASSERT_TRUE(cache.TryRemove(8));
-	ASSERT_TRUE(cache.TryRemove(20));
-	ASSERT_TRUE(cache.TryRemove(22));
-	ASSERT_TRUE(cache.TryRemove(24));
-	ASSERT_TRUE(cache.TryRemove(26));
+	ASSERT_TRUE(cache.Remove(27));
+	ASSERT_TRUE(cache.Remove(25));
+	ASSERT_TRUE(cache.Remove(23));
+	ASSERT_TRUE(cache.Remove(21));
+	ASSERT_TRUE(cache.Remove(16));
+	ASSERT_TRUE(cache.Remove(8));
+	ASSERT_TRUE(cache.Remove(20));
+	ASSERT_TRUE(cache.Remove(22));
+	ASSERT_TRUE(cache.Remove(24));
+	ASSERT_TRUE(cache.Remove(26));
 
 	ASSERT_EQ(cache.GetSize(), size_t(0));
 }
@@ -306,8 +306,8 @@ TEST(LruCacheTest, SizeMapping)
 	ASSERT_EQ(cache.GetSize(), size_t(1));
 	cache.Set(9, "");
 	ASSERT_EQ(cache.GetSize(), size_t(0));
-	cache.TryRemove(8);
+	cache.Remove(8);
 	ASSERT_EQ(cache.GetSize(), size_t(0));
-	cache.TryRemove(9);
+	cache.Remove(9);
 	ASSERT_EQ(cache.GetSize(), size_t(0));
 }

@@ -254,10 +254,10 @@ TEST(TwoQueueCacheTest, Eviction)
 
 	ASSERT_EQ(cache.GetSize(), size_t(12));
 
-	ASSERT_TRUE(cache.TryRemove(5));
-	ASSERT_TRUE(cache.TryRemove(1));
-	ASSERT_FALSE(cache.TryRemove(5));
-	ASSERT_FALSE(cache.TryRemove(1));
+	ASSERT_TRUE(cache.Remove(5));
+	ASSERT_TRUE(cache.Remove(1));
+	ASSERT_FALSE(cache.Remove(5));
+	ASSERT_FALSE(cache.Remove(1));
 
 	ASSERT_EQ(cache.GetSize(), size_t(10));
 
@@ -269,8 +269,8 @@ TEST(TwoQueueCacheTest, Eviction)
 
 	ASSERT_EQ(cache.GetSize(), size_t(15));
 
-	ASSERT_TRUE(cache.TryRemove(7));
-	ASSERT_TRUE(cache.TryRemove(13));
+	ASSERT_TRUE(cache.Remove(7));
+	ASSERT_TRUE(cache.Remove(13));
 
 	ASSERT_EQ(cache.GetSize(), size_t(13));
 
@@ -282,19 +282,19 @@ TEST(TwoQueueCacheTest, Eviction)
 
 	ASSERT_EQ(cache.GetSize(), size_t(13));
 
-	ASSERT_TRUE(cache.TryRemove(25));
-	ASSERT_TRUE(cache.TryRemove(24));
-	ASSERT_TRUE(cache.TryRemove(23));
-	ASSERT_TRUE(cache.TryRemove(22));
-	ASSERT_TRUE(cache.TryRemove(21));
-	ASSERT_TRUE(cache.TryRemove(2));
-	ASSERT_TRUE(cache.TryRemove(3));
-	ASSERT_TRUE(cache.TryRemove(4));
-	ASSERT_TRUE(cache.TryRemove(14));
-	ASSERT_TRUE(cache.TryRemove(12));
-	ASSERT_TRUE(cache.TryRemove(6));
-	ASSERT_TRUE(cache.TryRemove(15));
-	ASSERT_TRUE(cache.TryRemove(11));
+	ASSERT_TRUE(cache.Remove(25));
+	ASSERT_TRUE(cache.Remove(24));
+	ASSERT_TRUE(cache.Remove(23));
+	ASSERT_TRUE(cache.Remove(22));
+	ASSERT_TRUE(cache.Remove(21));
+	ASSERT_TRUE(cache.Remove(2));
+	ASSERT_TRUE(cache.Remove(3));
+	ASSERT_TRUE(cache.Remove(4));
+	ASSERT_TRUE(cache.Remove(14));
+	ASSERT_TRUE(cache.Remove(12));
+	ASSERT_TRUE(cache.Remove(6));
+	ASSERT_TRUE(cache.Remove(15));
+	ASSERT_TRUE(cache.Remove(11));
 
 	ASSERT_EQ(cache.GetSize(), size_t(0));
 }

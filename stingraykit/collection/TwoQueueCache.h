@@ -54,7 +54,7 @@ namespace stingray
 			if (!_outQueue.TryGet(key, out))
 				return false;
 
-			_outQueue.TryRemove(key);
+			_outQueue.Remove(key);
 			_hotCache.Set(key, out);
 
 			return true;
@@ -62,14 +62,14 @@ namespace stingray
 
 		void Set(KeyPassingType key, ValuePassingType value) override
 		{
-			if (!_hotCache.TryRemove(key))
-				_outQueue.TryRemove(key);
+			if (!_hotCache.Remove(key))
+				_outQueue.Remove(key);
 
 			_inQueue.Set(key, value);
 		}
 
-		bool TryRemove(KeyPassingType key) override
-		{ return _hotCache.TryRemove(key) || _outQueue.TryRemove(key) || _inQueue.TryRemove(key); }
+		bool Remove(KeyPassingType key) override
+		{ return _hotCache.Remove(key) || _outQueue.Remove(key) || _inQueue.Remove(key); }
 
 		void Clear() override
 		{

@@ -26,7 +26,7 @@ namespace stingray
 
 		virtual bool TryGet(KeyPassingType key, Value_& out) = 0;
 		virtual void Set(KeyPassingType key, ValuePassingType value) = 0;
-		virtual bool TryRemove(KeyPassingType key) = 0;
+		virtual bool Remove(KeyPassingType key) = 0;
 
 		virtual void Clear() = 0;
 

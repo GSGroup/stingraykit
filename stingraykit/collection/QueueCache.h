@@ -98,7 +98,7 @@ namespace stingray
 			EvictExpired();
 		}
 
-		bool TryRemove(KeyPassingType key) override
+		bool Remove(KeyPassingType key) override
 		{
 			const typename Dictionary::iterator dictionaryIter = _dictionary.find(key);
 			if (dictionaryIter == _dictionary.end())

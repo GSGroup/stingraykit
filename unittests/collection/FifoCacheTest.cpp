@@ -154,13 +154,13 @@ TEST(FifoCacheTest, Eviction)
 	ASSERT_EQ(*CacheGet(cache, 2), 2);
 	ASSERT_EQ(*CacheGet(cache, 1), 1);
 
-	ASSERT_TRUE(cache.TryRemove(12));
-	ASSERT_TRUE(cache.TryRemove(4));
-	ASSERT_TRUE(cache.TryRemove(2));
-	ASSERT_FALSE(cache.TryRemove(4));
-	ASSERT_FALSE(cache.TryRemove(2));
-	ASSERT_FALSE(cache.TryRemove(6));
-	ASSERT_FALSE(cache.TryRemove(21));
+	ASSERT_TRUE(cache.Remove(12));
+	ASSERT_TRUE(cache.Remove(4));
+	ASSERT_TRUE(cache.Remove(2));
+	ASSERT_FALSE(cache.Remove(4));
+	ASSERT_FALSE(cache.Remove(2));
+	ASSERT_FALSE(cache.Remove(6));
+	ASSERT_FALSE(cache.Remove(21));
 
 	ASSERT_EQ(cache.GetSize(), size_t(7));
 
@@ -191,16 +191,16 @@ TEST(FifoCacheTest, Eviction)
 	ASSERT_EQ(*CacheGet(cache, 9), 9);
 	ASSERT_EQ(*CacheGet(cache, 10), 10);
 
-	ASSERT_TRUE(cache.TryRemove(15));
-	ASSERT_TRUE(cache.TryRemove(5));
-	ASSERT_TRUE(cache.TryRemove(3));
-	ASSERT_TRUE(cache.TryRemove(1));
-	ASSERT_TRUE(cache.TryRemove(4));
-	ASSERT_TRUE(cache.TryRemove(6));
-	ASSERT_TRUE(cache.TryRemove(7));
-	ASSERT_TRUE(cache.TryRemove(8));
-	ASSERT_TRUE(cache.TryRemove(9));
-	ASSERT_TRUE(cache.TryRemove(10));
+	ASSERT_TRUE(cache.Remove(15));
+	ASSERT_TRUE(cache.Remove(5));
+	ASSERT_TRUE(cache.Remove(3));
+	ASSERT_TRUE(cache.Remove(1));
+	ASSERT_TRUE(cache.Remove(4));
+	ASSERT_TRUE(cache.Remove(6));
+	ASSERT_TRUE(cache.Remove(7));
+	ASSERT_TRUE(cache.Remove(8));
+	ASSERT_TRUE(cache.Remove(9));
+	ASSERT_TRUE(cache.Remove(10));
 
 	ASSERT_EQ(cache.GetSize(), size_t(0));
 }
@@ -268,8 +268,8 @@ TEST(FifoCacheTest, SizeMapping)
 	ASSERT_EQ(cache.GetSize(), size_t(1));
 	cache.Set(9, "");
 	ASSERT_EQ(cache.GetSize(), size_t(0));
-	cache.TryRemove(8);
+	cache.Remove(8);
 	ASSERT_EQ(cache.GetSize(), size_t(0));
-	cache.TryRemove(9);
+	cache.Remove(9);
 	ASSERT_EQ(cache.GetSize(), size_t(0));
 }
