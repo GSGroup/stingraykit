@@ -669,16 +669,16 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), seq19En, comparers::Equals()));
 
 	ASSERT_TRUE(tr->Contains(2));
-	ASSERT_TRUE(tr->TryRemove(2));
+	ASSERT_TRUE(tr->Remove(2));
 	ASSERT_FALSE(tr->Contains(2));
-	ASSERT_FALSE(tr->TryRemove(2));
+	ASSERT_FALSE(tr->Remove(2));
 	ASSERT_FALSE(tr->Contains(2));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), Enumerable::Skip(seq19En, 1), comparers::Equals()));
 
 	ASSERT_TRUE(tr->Contains(4));
-	ASSERT_TRUE(tr->TryRemove(4));
+	ASSERT_TRUE(tr->Remove(4));
 	ASSERT_FALSE(tr->Contains(4));
-	ASSERT_FALSE(tr->TryRemove(4));
+	ASSERT_FALSE(tr->Remove(4));
 	ASSERT_FALSE(tr->Contains(4));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), (SetType::DiffTypePtr)MakeEmptyEnumerable(), comparers::Equals()));
 
@@ -706,16 +706,16 @@ TEST(TransactionalSetTest, Test2)
 	const auto seq20En = EnumerableFromStlIterators(std::begin(seq20), std::end(seq20));
 
 	ASSERT_TRUE(tr->Contains(0));
-	ASSERT_TRUE(tr->TryRemove(0));
+	ASSERT_TRUE(tr->Remove(0));
 	ASSERT_FALSE(tr->Contains(0));
-	ASSERT_FALSE(tr->TryRemove(0));
+	ASSERT_FALSE(tr->Remove(0));
 	ASSERT_FALSE(tr->Contains(0));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), Enumerable::Take(seq20En, 1), comparers::Equals()));
 
 	ASSERT_TRUE(tr->Contains(6));
-	ASSERT_TRUE(tr->TryRemove(6));
+	ASSERT_TRUE(tr->Remove(6));
 	ASSERT_FALSE(tr->Contains(6));
-	ASSERT_FALSE(tr->TryRemove(6));
+	ASSERT_FALSE(tr->Remove(6));
 	ASSERT_FALSE(tr->Contains(6));
 	ASSERT_TRUE(Enumerable::SequenceEqual(tr->Diff(), seq20En, comparers::Equals()));
 

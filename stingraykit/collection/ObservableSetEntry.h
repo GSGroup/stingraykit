@@ -83,7 +83,7 @@ namespace stingray
 			if (value)
 				_set->Add(_key);
 			else
-				_set->TryRemove(_key);
+				_set->Remove(_key);
 		}
 	};
 

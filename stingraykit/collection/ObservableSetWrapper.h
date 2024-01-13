@@ -122,7 +122,7 @@ namespace stingray
 		bool TryRemove(const ValueType& value) override
 		{
 			signal_locker l(_onChanged);
-			if (!_wrapped.TryRemove(value))
+			if (!_wrapped.Remove(value))
 				return false;
 
 			_onChanged(CollectionOp::Removed, value);
