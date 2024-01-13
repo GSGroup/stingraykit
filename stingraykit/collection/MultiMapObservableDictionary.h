@@ -141,8 +141,8 @@ namespace stingray
 			_onChanged(CollectionOp::Added, key, value);
 		}
 
-		void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
-		{ MultiMapObservableDictionary::TryRemoveFirst(key, value); }
+		bool RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
+		{ return MultiMapObservableDictionary::TryRemoveFirst(key, value); }
 
 		bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value_ = null) override
 		{

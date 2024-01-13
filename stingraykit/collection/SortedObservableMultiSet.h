@@ -124,8 +124,8 @@ namespace stingray
 			_onChanged(CollectionOp::Added, value);
 		}
 
-		void RemoveFirst(const ValueType& value) override
-		{ SortedObservableMultiSet::TryRemoveFirst(value); }
+		bool RemoveFirst(const ValueType& value) override
+		{ return SortedObservableMultiSet::TryRemoveFirst(value); }
 
 		bool TryRemoveFirst(const ValueType& value_) override
 		{

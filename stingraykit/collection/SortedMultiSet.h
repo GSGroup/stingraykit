@@ -124,8 +124,8 @@ namespace stingray
 			_items->insert(value);
 		}
 
-		void RemoveFirst(const ValueType& value) override
-		{ DoRemoveFirst(value); }
+		bool RemoveFirst(const ValueType& value) override
+		{ return DoRemoveFirst(value); }
 
 		bool TryRemoveFirst(const ValueType& value) override
 		{ return DoRemoveFirst(value); }

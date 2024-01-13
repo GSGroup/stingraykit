@@ -160,8 +160,8 @@ namespace stingray
 			_map->emplace(key, value);
 		}
 
-		void RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
-		{ DoRemoveFirst(key, value); }
+		bool RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
+		{ return DoRemoveFirst(key, value); }
 
 		bool TryRemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
 		{ return DoRemoveFirst(key, value); }
