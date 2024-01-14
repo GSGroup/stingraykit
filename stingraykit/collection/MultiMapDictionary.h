@@ -168,8 +168,21 @@ namespace stingray
 
 		size_t RemoveAll(const KeyType& key) override
 		{
-			CopyOnWrite();
-			return _map->erase(key);
+			const auto range = _map->equal_range(key);
+			if (range.first == range.second)
+				return 0;
+
+			if (CopyOnWrite())
+				return _map->erase(key);
+
+			size_t ret = 0;
+			for (auto it = range.first; it != range.second; )
+			{
+				it = _map->erase(it);
+				++ret;
+			}
+
+			return ret;
 		}
 
 		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
@@ -203,16 +216,22 @@ namespace stingray
 	private:
 		bool DoRemoveFirst(const KeyType& key, const optional<ValueType>& value = null)
 		{
-			CopyOnWrite();
 			const auto range = _map->equal_range(key);
-			for (auto it = range.first; it != range.second; ++it)
+
+			size_t offset = 0;
+			for (auto it = range.first; it != range.second; ++it, ++offset)
 			{
 				if (value && !ValueCompareType()(*value, it->second))
 					continue;
 
-				_map->erase(it);
+				if (CopyOnWrite())
+					_map->erase(std::next(_map->lower_bound(key), offset));
+				else
+					_map->erase(it);
+
 				return true;
 			}
+
 			return false;
 		}
 
@@ -232,10 +251,13 @@ namespace stingray
 			return mapHolder;
 		}
 
-		void CopyOnWrite()
+		bool CopyOnWrite()
 		{
-			if (!_mapHolder.expired())
-				CopyMap(_map);
+			if (_mapHolder.expired())
+				return false;
+
+			CopyMap(_map);
+			return true;
 		}
 
 		static shared_ptr<IEnumerator<PairType>> WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type>>& mapEnumerator)

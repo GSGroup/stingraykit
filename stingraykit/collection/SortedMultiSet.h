@@ -132,8 +132,21 @@ namespace stingray
 
 		size_t RemoveAll(const ValueType& value) override
 		{
-			CopyOnWrite();
-			return _items->erase(value);
+			const auto range = _items->equal_range(value);
+			if (range.first == range.second)
+				return 0;
+
+			if (CopyOnWrite())
+				return _items->erase(value);
+
+			size_t ret = 0;
+			for (auto it = range.first; it != range.second; )
+			{
+				it = _items->erase(it);
+				++ret;
+			}
+
+			return ret;
 		}
 
 		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
@@ -171,8 +184,11 @@ namespace stingray
 			if (it == _items->end() || CompareType_()(value, *it))
 				return false;
 
-			CopyOnWrite();
-			_items->erase(_items->lower_bound(value));
+			if (CopyOnWrite())
+				_items->erase(_items->lower_bound(value));
+			else
+				_items->erase(it);
+
 			return true;
 		}
 
@@ -192,10 +208,13 @@ namespace stingray
 			return itemsHolder;
 		}
 
-		void CopyOnWrite()
+		bool CopyOnWrite()
 		{
-			if (!_itemsHolder.expired())
-				CopyItems(_items);
+			if (_itemsHolder.expired())
+				return false;
+
+			CopyItems(_items);
+			return true;
 		}
 	};
 
