@@ -136,14 +136,7 @@ namespace stingray
 		}
 
 		void Set(const KeyType& key, const ValueType& value) override
-		{
-			CopyOnWrite();
-			const auto it = _map->find(key);
-			if (it != _map->end())
-				it->second = value;
-			else
-				_map->emplace(key, value);
-		}
+		{ DoSet<MapType>(key, value, 0); }
 
 		bool Remove(const KeyType& key) override
 		{
@@ -188,6 +181,28 @@ namespace stingray
 		}
 
 	private:
+		template < typename MapType__ >
+		auto DoSet(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), void())
+		{
+			CopyOnWrite();
+			const auto it = _map->lower_bound(key);
+			if (it != _map->end() && !typename MapType__::key_compare()(key, it->first))
+				it->second = value;
+			else
+				_map->emplace_hint(it, key, value);
+		}
+
+		template < typename MapType__ >
+		void DoSet(const KeyType& key, const ValueType& value, long)
+		{
+			CopyOnWrite();
+			const auto it = _map->find(key);
+			if (it != _map->end())
+				it->second = value;
+			else
+				_map->emplace(key, value);
+		}
+
 		void CopyMap(const MapTypePtr& map)
 		{
 			_map = make_shared_ptr<MapType>(*map);
