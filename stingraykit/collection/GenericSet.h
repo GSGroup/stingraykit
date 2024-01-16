@@ -112,10 +112,7 @@ namespace stingray
 		}
 
 		void Add(const ValueType& value) override
-		{
-			CopyOnWrite();
-			_items->insert(value);
-		}
+		{ DoAdd<SetType>(value, 0); }
 
 		bool Remove(const ValueType& value) override
 		{
@@ -160,6 +157,26 @@ namespace stingray
 		}
 
 	private:
+		template < typename SetType__ >
+		auto DoAdd(const ValueType& value, int) -> decltype(std::declval<SetType__>().lower_bound(value), void())
+		{
+			const auto it = _items->lower_bound(value);
+			if (it != _items->end() && !typename SetType__::value_compare()(value, *it))
+				return;
+
+			if (CopyOnWrite())
+				_items->insert(value);
+			else
+				_items->insert(it, value);
+		}
+
+		template < typename SetType__ >
+		void DoAdd(const ValueType& value, long)
+		{
+			CopyOnWrite();
+			_items->insert(value);
+		}
+
 		void CopyItems(const SetTypePtr& items)
 		{
 			_items = make_shared_ptr<SetType>(*items);
