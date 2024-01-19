@@ -65,7 +65,7 @@ namespace stingray
 		{ std::swap(_rawPtr, other._rawPtr); }
 
 		template < typename U >
-		self_count_ptr(const self_count_ptr<U>& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+		self_count_ptr(const self_count_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr)
 		{
 			if (_rawPtr)
@@ -73,7 +73,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		self_count_ptr(self_count_ptr<U>&& other, typename EnableIf<IsInherited<U, T>::Value, Dummy>::ValueT* = 0)
+		self_count_ptr(self_count_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
 			: _rawPtr(other._rawPtr)
 		{ other._rawPtr = 0; }
 
@@ -111,7 +111,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, self_count_ptr&>::ValueT operator = (const self_count_ptr<U>& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, self_count_ptr&>::ValueT operator = (const self_count_ptr<U>& other)
 		{
 			self_count_ptr<T> tmp(other);
 			swap(tmp);
@@ -119,7 +119,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		typename EnableIf<IsInherited<U, T>::Value, self_count_ptr&>::ValueT operator = (self_count_ptr<U>&& other)
+		typename EnableIf<IsConvertible<U*, T*>::Value, self_count_ptr&>::ValueT operator = (self_count_ptr<U>&& other)
 		{
 			self_count_ptr<T> tmp(std::move(other));
 			swap(tmp);
