@@ -173,15 +173,7 @@ namespace stingray
 	private:
 		mutable AtomicS32::Type		_value;
 
-	protected:
-		~self_counter()
-		{ }
-
 	public:
-		self_counter()
-			: _value(1)
-		{ }
-
 		self_count_ptr<T> self_count_ptr_from_this()
 		{
 			add_ref();
@@ -210,6 +202,14 @@ namespace stingray
 
 		int value() const
 		{ return _value; }
+
+	protected:
+		self_counter()
+			: _value(1)
+		{ }
+
+		~self_counter()
+		{ }
 	};
 
 
