@@ -10,7 +10,6 @@
 
 #include <stingraykit/core/Dummy.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
-#include <stingraykit/CheckedDelete.h>
 #include <stingraykit/exception.h>
 #include <stingraykit/TypeInfo.h>
 
@@ -40,10 +39,10 @@ namespace stingray
 		friend class self_count_ptr;
 
 	public:
-		typedef T ValueType;
+		using ValueType = T;
 
 	private:
-		T*				_rawPtr;
+		T*							_rawPtr;
 
 	public:
 		explicit self_count_ptr(T* rawPtr = 0)
@@ -133,18 +132,29 @@ namespace stingray
 		bool is_initialized() const									{ return _rawPtr != 0; }
 		explicit operator bool () const								{ return is_initialized(); }
 
+		bool unique() const											{ return _rawPtr ? _rawPtr->value() == 1 : true; }
+
 		void reset(T* ptr = 0)
 		{
 			self_count_ptr<T> tmp(ptr);
 			swap(tmp);
 		}
 
-		void swap(self_count_ptr<T>& other) { std::swap(_rawPtr, other._rawPtr); }
+		void swap(self_count_ptr<T>& other)							{ std::swap(_rawPtr, other._rawPtr); }
 
-		T* get() const					{ return _rawPtr; }
-		T* operator -> () const			{ check_ptr(); return _rawPtr; }
-		T& operator * () const			{ check_ptr(); return *_rawPtr; }
-		bool unique() const				{ return _rawPtr ? _rawPtr->value() == 1 : true; }
+		T* get() const												{ return _rawPtr; }
+
+		T* operator -> () const
+		{
+			check_ptr();
+			return _rawPtr;
+		}
+
+		T& operator * () const
+		{
+			check_ptr();
+			return *_rawPtr;
+		}
 
 		bool owner_before(const self_count_ptr& other) const
 		{ return get() < other.get(); }
@@ -161,14 +171,15 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(self_counter);
 
 	private:
-		mutable AtomicS32::Type	_value;
+		mutable AtomicS32::Type		_value;
 
 	protected:
 		~self_counter()
 		{ }
 
 	public:
-		self_counter() : _value(1)
+		self_counter()
+			: _value(1)
 		{ }
 
 		self_count_ptr<T> self_count_ptr_from_this()
@@ -203,8 +214,8 @@ namespace stingray
 
 
 	template < typename T >
-	struct ToPointer<self_count_ptr<T> >
-	{ typedef T* ValueT; };
+	struct ToPointer<self_count_ptr<T>>
+	{ using ValueT = T*; };
 
 
 	template < typename T >
@@ -222,7 +233,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsNullable<self_count_ptr<T> > : public TrueType { };
+	struct IsNullable<self_count_ptr<T>> : public TrueType { };
 
 }
 
