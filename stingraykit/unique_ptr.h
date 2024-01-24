@@ -63,9 +63,6 @@ namespace stingray
 			return *this;
 		}
 
-		bool operator == (const unique_ptr& other) const		{ return other == _rawPtr; }
-		bool operator != (const unique_ptr& other) const		{ return !(*this == other); }
-
 		bool is_initialized() const								{ return _rawPtr != 0; }
 		explicit operator bool () const							{ return is_initialized(); }
 
@@ -146,9 +143,6 @@ namespace stingray
 			return *this;
 		}
 
-		bool operator == (const unique_ptr<T[]>& other) const	{ return other == _rawPtr; }
-		bool operator != (const unique_ptr<T[]>& other) const	{ return !(*this == other); }
-
 		bool is_initialized() const								{ return _rawPtr != 0; }
 		explicit operator bool () const							{ return is_initialized(); }
 
@@ -180,6 +174,18 @@ namespace stingray
 		void check_ptr() const
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("unique_ptr<" + TypeInfo(typeid(T)).GetName() + "[]>")); }
 	};
+
+
+	template < typename T >
+	bool operator == (const unique_ptr<T>& lhs, NullPtrType)
+	{ return !lhs.is_initialized(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T >), unique_ptr<T>, NullPtrType);
+
+
+	template < typename T, typename U >
+	bool operator == (const unique_ptr<T>& lhs, const unique_ptr<U>& rhs)
+	{ return lhs.get() == rhs.get(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T, typename U >), unique_ptr<T>, unique_ptr<U>);
 
 
 	namespace Detail

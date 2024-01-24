@@ -414,9 +414,6 @@ namespace stingray
 			return *this;
 		}
 
-		bool operator == (const shared_ptr& other) const		{ return _rawPtr == other._rawPtr; }
-		bool operator != (const shared_ptr& other) const		{ return !(*this == other); }
-
 		bool is_initialized() const								{ return _rawPtr != 0; }
 		explicit operator bool () const							{ return is_initialized(); }
 
@@ -493,6 +490,18 @@ namespace stingray
 		void check_ptr() const
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("shared_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
 	};
+
+
+	template < typename T >
+	bool operator == (const shared_ptr<T>& lhs, NullPtrType)
+	{ return !lhs.is_initialized(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T >), shared_ptr<T>, NullPtrType);
+
+
+	template < typename T, typename U >
+	bool operator == (const shared_ptr<T>& lhs, const shared_ptr<U>& rhs)
+	{ return lhs.get() == rhs.get(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T, typename U >), shared_ptr<T>, shared_ptr<U>);
 
 
 	template < typename T >

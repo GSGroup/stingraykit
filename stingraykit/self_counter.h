@@ -126,9 +126,6 @@ namespace stingray
 			return *this;
 		}
 
-		bool operator == (const self_count_ptr<T>& other) const		{ return other == _rawPtr; }
-		bool operator != (const self_count_ptr<T>& other) const		{ return !(*this == other); }
-
 		bool is_initialized() const									{ return _rawPtr != 0; }
 		explicit operator bool () const								{ return is_initialized(); }
 
@@ -165,6 +162,18 @@ namespace stingray
 		void check_ptr() const
 		{ STINGRAYKIT_CHECK(_rawPtr, NullPointerException("self_count_ptr<" + TypeInfo(typeid(T)).GetName() + ">")); }
 	};
+
+
+	template < typename T >
+	bool operator == (const self_count_ptr<T>& lhs, NullPtrType)
+	{ return !lhs.is_initialized(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T >), self_count_ptr<T>, NullPtrType);
+
+
+	template < typename T, typename U >
+	bool operator == (const self_count_ptr<T>& lhs, const self_count_ptr<U>& rhs)
+	{ return lhs.get() == rhs.get(); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename T, typename U >), self_count_ptr<T>, self_count_ptr<U>);
 
 
 	template < typename T >
