@@ -157,7 +157,8 @@ namespace stingray
 			return *_rawPtr;
 		}
 
-		bool owner_before(const self_count_ptr& other) const
+		template < typename U >
+		bool owner_before(const self_count_ptr<U>& other) const
 		{ return get() < other.get(); }
 
 	private:
