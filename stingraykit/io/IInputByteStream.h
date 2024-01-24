@@ -25,7 +25,7 @@ namespace stingray
 
 
 	template < typename StreamType >
-	inline size_t ReadAll(StreamType&& stream, ByteData data, const ICancellationToken& token = DummyCancellationToken())
+	size_t ReadAll(StreamType&& stream, ByteData data, const ICancellationToken& token = DummyCancellationToken())
 	{
 		size_t total = 0;
 		optional<size_t> readed;
@@ -40,7 +40,7 @@ namespace stingray
 
 
 	template < typename StreamType >
-	inline void CheckedReadAll(StreamType&& stream, ByteData data, const ICancellationToken& token = DummyCancellationToken())
+	void CheckedReadAll(StreamType&& stream, ByteData data, const ICancellationToken& token = DummyCancellationToken())
 	{
 		const size_t readed = ReadAll(std::forward<StreamType>(stream), data, token);
 		STINGRAYKIT_CHECK(readed == data.size(), InputOutputException(StringBuilder() % "Readed only " % readed % " of " % data.size()));

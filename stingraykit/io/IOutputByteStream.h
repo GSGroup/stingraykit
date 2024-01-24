@@ -25,7 +25,7 @@ namespace stingray
 
 
 	template < typename StreamType >
-	inline size_t WriteAll(StreamType&& stream, ConstByteData data, const ICancellationToken& token = DummyCancellationToken())
+	size_t WriteAll(StreamType&& stream, ConstByteData data, const ICancellationToken& token = DummyCancellationToken())
 	{
 		size_t total = 0;
 		optional<size_t> written;
@@ -40,7 +40,7 @@ namespace stingray
 
 
 	template < typename StreamType >
-	inline void CheckedWriteAll(StreamType&& stream, ConstByteData data, const ICancellationToken& token = DummyCancellationToken())
+	void CheckedWriteAll(StreamType&& stream, ConstByteData data, const ICancellationToken& token = DummyCancellationToken())
 	{
 		const size_t written = WriteAll(std::forward<StreamType>(stream), data, token);
 		STINGRAYKIT_CHECK(written == data.size(), InputOutputException(StringBuilder() % "Written only " % written % " of " % data.size()));
