@@ -127,8 +127,6 @@ namespace stingray
 			return *this;
 		}
 
-		bool operator == (T* ptr) const								{ return _rawPtr == ptr; }
-		bool operator != (T* ptr) const								{ return !(*this == ptr); }
 		bool operator == (const self_count_ptr<T>& other) const		{ return other == _rawPtr; }
 		bool operator != (const self_count_ptr<T>& other) const		{ return !(*this == other); }
 

@@ -414,8 +414,6 @@ namespace stingray
 			return *this;
 		}
 
-		bool operator == (const T* ptr) const					{ return _rawPtr == ptr; }
-		bool operator != (const T* ptr) const					{ return !(*this == ptr); }
 		bool operator == (const shared_ptr& other) const		{ return _rawPtr == other._rawPtr; }
 		bool operator != (const shared_ptr& other) const		{ return !(*this == other); }
 

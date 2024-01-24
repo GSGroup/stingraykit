@@ -63,8 +63,6 @@ namespace stingray
 			return *this;
 		}
 
-		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
-		bool operator != (T* ptr) const							{ return !(*this == ptr); }
 		bool operator == (const unique_ptr& other) const		{ return other == _rawPtr; }
 		bool operator != (const unique_ptr& other) const		{ return !(*this == other); }
 
@@ -148,8 +146,6 @@ namespace stingray
 			return *this;
 		}
 
-		bool operator == (T* ptr) const							{ return _rawPtr == ptr; }
-		bool operator != (T* ptr) const							{ return !(*this == ptr); }
 		bool operator == (const unique_ptr<T[]>& other) const	{ return other == _rawPtr; }
 		bool operator != (const unique_ptr<T[]>& other) const	{ return !(*this == other); }
 
