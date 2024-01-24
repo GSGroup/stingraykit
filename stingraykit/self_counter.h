@@ -181,6 +181,9 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(self_counter);
 
+		template < typename U >
+		friend class self_count_ptr;
+
 	private:
 		mutable AtomicS32::Type		_value;
 
@@ -197,6 +200,18 @@ namespace stingray
 			return self_count_ptr<const T>(static_cast<const T*>(this));
 		}
 
+		int use_count() const
+		{ return _value; }
+
+	protected:
+		self_counter()
+			: _value(1)
+		{ }
+
+		~self_counter()
+		{ }
+
+	private:
 		void add_ref() const
 		{
 			const s32 count = AtomicS32::Inc(_value); (void)count;
@@ -216,17 +231,6 @@ namespace stingray
 				STINGRAYKIT_ANNOTATE_HAPPENS_BEFORE(&_value);
 			STINGRAYKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckReleaseRef(count));
 		}
-
-		int use_count() const
-		{ return _value; }
-
-	protected:
-		self_counter()
-			: _value(1)
-		{ }
-
-		~self_counter()
-		{ }
 	};
 
 
