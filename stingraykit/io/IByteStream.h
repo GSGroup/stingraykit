@@ -26,7 +26,7 @@ namespace stingray
 
 
 	template < typename StreamType >
-	optional<std::string> ReadLine(StreamType& stream, const ICancellationToken& token = DummyCancellationToken())
+	optional<std::string> ReadLine(StreamType&& stream, const ICancellationToken& token = DummyCancellationToken())
 	{
 		optional<string_ostream> result;
 
