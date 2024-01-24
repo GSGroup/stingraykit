@@ -139,7 +139,7 @@ namespace stingray
 
 			template < typename Lhs, typename Rhs >
 			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, int>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
-			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (lhs ? 1 : (rhs ? -1 : 0)); }
+			{ return lhs && rhs ? Compare(*lhs, *rhs) : lhs ? 1 : rhs ? -1 : 0; }
 
 			template < typename Lhs, typename Rhs >
 			int operator () (const Lhs& lhs, const Rhs& rhs) const
@@ -156,7 +156,7 @@ namespace stingray
 
 			template < typename Lhs, typename Rhs >
 			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
-			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (!lhs && rhs); }
+			{ return lhs && rhs ? Compare(*lhs, *rhs) : !lhs && rhs; }
 
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
@@ -173,7 +173,7 @@ namespace stingray
 
 			template < typename Lhs, typename Rhs >
 			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
-			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (!lhs && !rhs); }
+			{ return lhs && rhs ? Compare(*lhs, *rhs) : !lhs && !rhs; }
 
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
@@ -190,7 +190,7 @@ namespace stingray
 
 			template < typename Lhs, typename Rhs >
 			typename EnableIf<IsSharedPtr<Lhs>::Value && IsSharedPtr<Rhs>::Value, bool>::ValueT Compare(const Lhs& lhs, const Rhs& rhs) const
-			{ return (lhs && rhs) ? Compare(*lhs, *rhs) : (lhs && !rhs); }
+			{ return lhs && rhs ? Compare(*lhs, *rhs) : lhs && !rhs; }
 
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
@@ -421,7 +421,7 @@ namespace stingray
 
 			template < typename Lhs, typename Rhs >
 			int operator () (const Lhs& lhs, const Rhs& rhs) const
-			{ return _lessComparer(lhs, rhs) ? -1 : (_lessComparer(rhs, lhs) ? 1 : 0); }
+			{ return _lessComparer(lhs, rhs) ? -1 : _lessComparer(rhs, lhs) ? 1 : 0; }
 		};
 
 
@@ -445,7 +445,7 @@ namespace stingray
 	{
 		template < typename Lhs, typename Rhs >
 		int operator () (const Lhs& lhs, const Rhs& rhs) const
-		{ return lhs.owner_before(rhs) ? -1 : (rhs.owner_before(lhs) ? 1 : 0); }
+		{ return lhs.owner_before(rhs) ? -1 : rhs.owner_before(lhs) ? 1 : 0; }
 	};
 	STINGRAYKIT_DECLARE_COMPARERS(Owner);
 
