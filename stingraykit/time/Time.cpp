@@ -85,8 +85,6 @@ namespace stingray
 
 		if (hasHours)
 			ReplaceAll(result, "hh", StringFormat("%1$2%", hours));
-		else
-			ReplaceAll(result, "hh", "");
 
 		ReplaceAll(result, "mm", StringFormat("%1$2%", minutes));
 		ReplaceAll(result, "ss", StringFormat("%1$2%", seconds));
