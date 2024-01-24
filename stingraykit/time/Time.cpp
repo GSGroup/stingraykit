@@ -75,7 +75,7 @@ namespace stingray
 		if (GetMilliseconds() < 0)
 			result.insert(0, "-");
 
-		const bool hasHours = result.find("hh") != std::string::npos;
+		const bool hasHours = result.find('h') != std::string::npos;
 
 		const s64 absMs = Absolute().GetMilliseconds();
 		const s64 hours = hasHours ? absMs / Hour().GetMilliseconds() : 0;
@@ -84,11 +84,19 @@ namespace stingray
 		const s64 milliseconds = absMs % Second().GetMilliseconds();
 
 		if (hasHours)
+		{
 			ReplaceAll(result, "hh", StringFormat("%1$2%", hours));
+			ReplaceAll(result, "h", stingray::ToString(hours));
+		}
 
 		ReplaceAll(result, "mm", StringFormat("%1$2%", minutes));
+		ReplaceAll(result, "m", stingray::ToString(minutes));
+
 		ReplaceAll(result, "ss", StringFormat("%1$2%", seconds));
+		ReplaceAll(result, "s", stingray::ToString(seconds));
+
 		ReplaceAll(result, "lll", StringFormat("%1$3%", milliseconds));
+
 		return result;
 	}
 

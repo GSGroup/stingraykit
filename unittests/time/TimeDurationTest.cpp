@@ -49,21 +49,29 @@ TEST(TimeDurationTest, ToString)
 
 	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString(), "00:00:01.000");
 	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString("ss"), "01");
+	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString("s"), "1");
 	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString(), "00:00:59.000");
 	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString("ss"), "59");
+	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString("s"), "59");
 
 	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString(), "00:01:00.000");
 	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString("mm"), "01");
+	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString("m"), "1");
 	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString(), "00:59:00.000");
 	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString("mm"), "59");
+	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString("m"), "59");
 
 	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString(), "01:00:00.000");
 	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString("hh"), "01");
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString("h"), "1");
 	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString(), "999:00:00.000");
 	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString("hh"), "999");
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString("h"), "999");
 
 	ASSERT_EQ(TimeDuration(MillisecondsPerHour + MillisecondsPerMinute + MillisecondsPerSecond + 1).ToString(), "01:01:01.001");
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour + MillisecondsPerMinute + MillisecondsPerSecond + 1).ToString("h:m:s.lll"), "1:1:1.001");
 	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59 + 999).ToString(), "999:59:59.999");
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59 + 999).ToString("h:m:s.lll"), "999:59:59.999");
 }
 
 
