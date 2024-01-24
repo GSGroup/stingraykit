@@ -191,6 +191,12 @@ namespace stingray
 			return self_count_ptr<T>(static_cast<T*>(this));
 		}
 
+		self_count_ptr<const T> self_count_ptr_from_this() const
+		{
+			add_ref();
+			return self_count_ptr<const T>(static_cast<const T*>(this));
+		}
+
 		void add_ref() const
 		{
 			const s32 count = AtomicS32::Inc(_value); (void)count;
