@@ -132,7 +132,8 @@ namespace stingray
 		bool is_initialized() const									{ return _rawPtr != 0; }
 		explicit operator bool () const								{ return is_initialized(); }
 
-		bool unique() const											{ return _rawPtr ? _rawPtr->value() == 1 : true; }
+		bool unique() const											{ return use_count() == 1; }
+		size_t use_count() const									{ return _rawPtr ? _rawPtr->use_count() : 0; }
 
 		void reset(T* ptr = 0)
 		{
@@ -200,7 +201,7 @@ namespace stingray
 			STINGRAYKIT_DEBUG_ONLY(Detail::SelfCounterHelper::CheckReleaseRef(count));
 		}
 
-		int value() const
+		int use_count() const
 		{ return _value; }
 
 	protected:
