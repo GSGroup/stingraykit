@@ -40,6 +40,33 @@ TEST(TimeDurationTest, FromMeasurmentUnit)
 }
 
 
+TEST(TimeDurationTest, ToString)
+{
+	ASSERT_EQ(TimeDuration(1).ToString(), "00:00:00.001");
+	ASSERT_EQ(TimeDuration(1).ToString("lll"), "001");
+	ASSERT_EQ(TimeDuration(999).ToString(), "00:00:00.999");
+	ASSERT_EQ(TimeDuration(999).ToString("lll"), "999");
+
+	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString(), "00:00:01.000");
+	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString("ss"), "01");
+	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString(), "00:00:59.000");
+	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString("ss"), "59");
+
+	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString(), "00:01:00.000");
+	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString("mm"), "01");
+	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString(), "00:59:00.000");
+	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString("mm"), "59");
+
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString(), "01:00:00.000");
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString("hh"), "01");
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString(), "999:00:00.000");
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString("hh"), "999");
+
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour + MillisecondsPerMinute + MillisecondsPerSecond + 1).ToString(), "01:01:01.001");
+	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59 + 999).ToString(), "999:59:59.999");
+}
+
+
 TEST(TimeDurationTest, FromIso8601)
 {
 	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3D"), TimeDuration::FromDays(3));
