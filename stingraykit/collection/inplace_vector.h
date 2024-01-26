@@ -107,7 +107,10 @@ namespace stingray
 		void assign(InputIterator first, InputIterator last)
 		{
 			clear();
-			reserve(std::distance(first, last));
+
+			if (IsInherited<typename std::iterator_traits<InputIterator>::iterator_category, std::random_access_iterator_tag>::Value)
+				reserve(std::distance(first, last));
+
 			std::copy(first, last, std::back_inserter(*this));
 		}
 
