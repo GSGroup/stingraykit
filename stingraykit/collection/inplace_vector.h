@@ -23,22 +23,9 @@ namespace stingray
 	template < typename T, size_t InplaceCapacity_ >
 	class inplace_vector
 	{
-	public:
-		static const size_t InplaceCapacity = InplaceCapacity_;
-
-		typedef	T									value_type;
-		typedef ptrdiff_t							difference_type;
-		typedef value_type*							pointer;
-		typedef value_type&							reference;
-		typedef const value_type*					const_pointer;
-		typedef const value_type&					const_reference;
+		static_assert(InplaceCapacity_ != 0, "Invalid inplace capacity");
 
 	private:
-		size_t									_staticStorageSize;
-		array<StorageFor<T>, InplaceCapacity>	_staticStorage;
-		std::vector<T>							_dynamicStorage;
-
-	public:
 		template < typename OwnerType, typename ValueType >
 		class inplace_vector_iterator : public iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>
 		{
@@ -69,8 +56,10 @@ namespace stingray
 
 			void increment()
 			{ ++_offset; }
+
 			void decrement()
 			{ --_offset; }
+
 			void advance(typename base::difference_type diff)
 			{ _offset += diff; }
 
@@ -78,28 +67,41 @@ namespace stingray
 			{ return other._offset - _offset; }
 		};
 
+	public:
+		typedef	T									value_type;
+		typedef ptrdiff_t							difference_type;
+		typedef value_type&							reference;
+		typedef const value_type&					const_reference;
+		typedef value_type*							pointer;
+		typedef const value_type*					const_pointer;
 		typedef inplace_vector_iterator<inplace_vector, value_type>					iterator;
 		typedef inplace_vector_iterator<const inplace_vector, const value_type>		const_iterator;
 
+	public:
+		static const size_t InplaceCapacity = InplaceCapacity_;
+
+	private:
+		size_t									_staticStorageSize;
+		array<StorageFor<T>, InplaceCapacity>	_staticStorage;
+		std::vector<T>							_dynamicStorage;
+
+	public:
 		inplace_vector()
 			: _staticStorageSize(0)
-		{ static_assert(InplaceCapacity_ != 0, "Invalid inplace capacity"); }
-
-		size_t capacity() const
-		{ return InplaceCapacity + _dynamicStorage.capacity(); }
-
-		void clear()
-		{
-			_dynamicStorage.clear();
-			for (size_t i = 0; i < _staticStorageSize; ++i)
-				_staticStorage[i].Dtor();
-			_staticStorageSize = 0;
-		}
+		{ }
 
 		~inplace_vector()
 		{
 			for (size_t i = 0; i < _staticStorageSize; ++i)
 				_staticStorage[i].Dtor();
+		}
+
+		template < typename assign_iterator_type >
+		void assign(assign_iterator_type begin, assign_iterator_type end)
+		{
+			clear();
+			reserve(std::distance(begin, end));
+			std::copy(begin, end, std::back_inserter(*this));
 		}
 
 		T& at(size_t index)
@@ -114,24 +116,14 @@ namespace stingray
 		const T& operator [] (size_t index) const
 		{ return at(index); }
 
-		void push_back(const T& value)
-		{
-			if (_staticStorageSize < InplaceCapacity)
-				_staticStorage[_staticStorageSize++].Ctor(value);
-			else
-				_dynamicStorage.push_back(value);
-		}
+		iterator begin()						{ return iterator(*this, 0); }
+		const_iterator begin() const			{ return const_iterator(*this, 0); }
 
-		template < typename assign_iterator_type >
-		void assign(assign_iterator_type begin, assign_iterator_type end)
-		{
-			clear();
-			reserve(std::distance(begin, end));
-			std::copy(begin, end, std::back_inserter(*this));
-		}
+		iterator end()							{ return iterator(*this, size()); }
+		const_iterator end() const				{ return const_iterator(*this, size()); }
 
-		size_t size() const { return _staticStorageSize + _dynamicStorage.size(); }
-		bool empty() const { return size() == 0; }
+		bool empty() const						{ return size() == 0; }
+		size_t size() const						{ return _staticStorageSize + _dynamicStorage.size(); }
 
 		void reserve(size_t capacity)
 		{
@@ -141,16 +133,23 @@ namespace stingray
 				_dynamicStorage.reserve(0);
 		}
 
-		const_iterator begin() const
-		{ return const_iterator(*this, 0); }
-		iterator begin()
-		{ return iterator(*this, 0); }
+		size_t capacity() const					{ return InplaceCapacity + _dynamicStorage.capacity(); }
 
-		const_iterator end() const
-		{ return const_iterator(*this, size()); }
-		iterator end()
-		{ return iterator(*this, size()); }
+		void clear()
+		{
+			_dynamicStorage.clear();
+			for (size_t i = 0; i < _staticStorageSize; ++i)
+				_staticStorage[i].Dtor();
+			_staticStorageSize = 0;
+		}
 
+		void push_back(const T& value)
+		{
+			if (_staticStorageSize < InplaceCapacity)
+				_staticStorage[_staticStorageSize++].Ctor(value);
+			else
+				_dynamicStorage.push_back(value);
+		}
 	};
 
 	/** @} */
