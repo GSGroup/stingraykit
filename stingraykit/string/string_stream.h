@@ -30,15 +30,7 @@ namespace stingray
 	private:
 		static const unsigned InplaceCapacity = 256;
 
-		inplace_vector<value_type, InplaceCapacity>	_buf;
-
-		void reserve(size_t size)
-		{
-			//reserving data in InplaceCapacity bytes chunks
-			const size_t capacity = _buf.capacity();
-			if (_buf.size() + size > capacity)
-				_buf.reserve(capacity + (size + InplaceCapacity - 1) / InplaceCapacity * InplaceCapacity);
-		}
+		inplace_vector<value_type, InplaceCapacity>		_buf;
 
 	public:
 		bool empty() const { return _buf.empty(); }
@@ -105,6 +97,14 @@ namespace stingray
 		void push_back(value_type c) { Insert(c); }
 
 	private:
+		void Reserve(size_t size)
+		{
+			//reserving data in InplaceCapacity bytes chunks
+			const size_t capacity = _buf.capacity();
+			if (_buf.size() + size > capacity)
+				_buf.reserve(capacity + (size + InplaceCapacity - 1) / InplaceCapacity * InplaceCapacity);
+		}
+
 		void Insert(value_type value)
 		{ _buf.push_back(value); }
 
@@ -121,7 +121,7 @@ namespace stingray
 
 		void Insert(string_view_type value)
 		{
-			reserve(value.size());
+			Reserve(value.size());
 			std::copy(value.begin(), value.end(), std::back_inserter(_buf));
 		}
 
