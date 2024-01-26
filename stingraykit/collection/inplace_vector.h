@@ -27,31 +27,31 @@ namespace stingray
 
 	private:
 		template < typename OwnerType, typename ValueType >
-		class inplace_vector_iterator : public iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>
+		class Iterator : public iterator_base<Iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>
 		{
-			using base = iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>;
+			using base = iterator_base<Iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>;
 
 			template < typename OtherOwnerType, typename OtherValueType >
-			friend class inplace_vector_iterator;
+			friend class Iterator;
 
 		private:
 			OwnerType&				_owner;
 			size_t					_offset;
 
 		public:
-			inplace_vector_iterator(OwnerType& owner, size_t offset)
+			Iterator(OwnerType& owner, size_t offset)
 				: _owner(owner), _offset(offset)
 			{ }
 
 			template < typename OtherOwnerType, typename OtherValueType >
-			inplace_vector_iterator(const inplace_vector_iterator<OtherOwnerType, OtherValueType>& other)
+			Iterator(const Iterator<OtherOwnerType, OtherValueType>& other)
 				: _owner(other._owner), _offset(other._offset)
 			{ }
 
 			typename base::reference dereference() const
 			{ return _owner.at(_offset); }
 
-			bool equal(const inplace_vector_iterator& other) const
+			bool equal(const Iterator& other) const
 			{ return _offset == other._offset; }
 
 			void increment()
@@ -63,7 +63,7 @@ namespace stingray
 			void advance(typename base::difference_type diff)
 			{ _offset += diff; }
 
-			typename base::difference_type distance_to(const inplace_vector_iterator& other) const
+			typename base::difference_type distance_to(const Iterator& other) const
 			{ return other._offset - _offset; }
 		};
 
@@ -74,8 +74,8 @@ namespace stingray
 		using const_reference = const value_type&;
 		using pointer = value_type*;
 		using const_pointer = const value_type*;
-		using iterator = inplace_vector_iterator<inplace_vector, value_type>;
-		using const_iterator = inplace_vector_iterator<const inplace_vector, const value_type>;
+		using iterator = Iterator<inplace_vector, value_type>;
+		using const_iterator = Iterator<const inplace_vector, const value_type>;
 
 	public:
 		static const size_t InplaceCapacity = InplaceCapacity_;
@@ -92,16 +92,16 @@ namespace stingray
 
 		~inplace_vector()
 		{
-			for (size_t i = 0; i < _staticStorageSize; ++i)
-				_staticStorage[i].Dtor();
+			for (size_t index = 0; index < _staticStorageSize; ++index)
+				_staticStorage[index].Dtor();
 		}
 
-		template < typename assign_iterator_type >
-		void assign(assign_iterator_type begin, assign_iterator_type end)
+		template < typename InputIterator >
+		void assign(InputIterator first, InputIterator last)
 		{
 			clear();
-			reserve(std::distance(begin, end));
-			std::copy(begin, end, std::back_inserter(*this));
+			reserve(std::distance(first, last));
+			std::copy(first, last, std::back_inserter(*this));
 		}
 
 		T& at(size_t index)
@@ -138,8 +138,8 @@ namespace stingray
 		void clear()
 		{
 			_dynamicStorage.clear();
-			for (size_t i = 0; i < _staticStorageSize; ++i)
-				_staticStorage[i].Dtor();
+			for (size_t index = 0; index < _staticStorageSize; ++index)
+				_staticStorage[index].Dtor();
 			_staticStorageSize = 0;
 		}
 
