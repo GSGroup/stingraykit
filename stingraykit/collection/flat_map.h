@@ -210,7 +210,7 @@ namespace stingray
 		template < class InputIterator >
 		void insert(InputIterator first, InputIterator last)
 		{
-			if (IsSame<typename std::iterator_traits<InputIterator>::iterator_category, std::random_access_iterator_tag>::Value)
+			if (IsInherited<typename std::iterator_traits<InputIterator>::iterator_category, std::random_access_iterator_tag>::Value)
 				reserve(size() + std::distance(first, last));
 
 			while (first != last)
