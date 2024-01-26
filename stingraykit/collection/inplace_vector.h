@@ -81,6 +81,8 @@ namespace stingray
 		using const_pointer = const value_type*;
 		using iterator = Iterator<false>;
 		using const_iterator = Iterator<true>;
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 	public:
 		static const size_t InplaceCapacity = InplaceCapacity_;
@@ -134,6 +136,14 @@ namespace stingray
 		iterator end()							{ return iterator(*this, size()); }
 		const_iterator end() const				{ return const_iterator(*this, size()); }
 		const_iterator cend() const				{ return const_iterator(*this, size()); }
+
+		reverse_iterator rbegin()				{ return reverse_iterator(end()); }
+		const_reverse_iterator rbegin() const	{ return const_reverse_iterator(end()); }
+		const_reverse_iterator crbegin() const	{ return const_reverse_iterator(cend()); }
+
+		reverse_iterator rend()					{ return reverse_iterator(begin()); }
+		const_reverse_iterator rend() const		{ return const_reverse_iterator(begin()); }
+		const_reverse_iterator crend() const	{ return const_reverse_iterator(cbegin()); }
 
 		bool empty() const						{ return size() == 0; }
 		size_t size() const						{ return _staticStorageSize + _dynamicStorage.size(); }

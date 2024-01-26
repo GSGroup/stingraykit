@@ -42,6 +42,15 @@ TEST(InplaceVectorTest, Empty)
 	ASSERT_EQ(testee.cbegin(), testee.cend());
 	ASSERT_EQ(std::distance(testee.cbegin(), testee.cend()), 0);
 
+	ASSERT_EQ(testee.rbegin(), testee.rend());
+	ASSERT_EQ(std::distance(testee.rbegin(), testee.rend()), 0);
+
+	ASSERT_EQ(const_testee.rbegin(), const_testee.rend());
+	ASSERT_EQ(std::distance(const_testee.rbegin(), const_testee.rend()), 0);
+
+	ASSERT_EQ(testee.crbegin(), testee.crend());
+	ASSERT_EQ(std::distance(testee.crbegin(), testee.crend()), 0);
+
 	ASSERT_TRUE(testee.empty());
 	ASSERT_EQ(testee.size(), 0);
 
@@ -95,6 +104,15 @@ TEST(InplaceVectorTest, Assign)
 	ASSERT_NE(testee.cbegin(), testee.cend());
 	ASSERT_EQ(std::distance(testee.cbegin(), testee.cend()), 10);
 
+	ASSERT_NE(testee.rbegin(), testee.rend());
+	ASSERT_EQ(std::distance(testee.rbegin(), testee.rend()), 10);
+
+	ASSERT_NE(const_testee.rbegin(), const_testee.rend());
+	ASSERT_EQ(std::distance(const_testee.rbegin(), const_testee.rend()), 10);
+
+	ASSERT_NE(testee.crbegin(), testee.crend());
+	ASSERT_EQ(std::distance(testee.crbegin(), testee.crend()), 10);
+
 	ASSERT_FALSE(testee.empty());
 	ASSERT_EQ(testee.size(), 10);
 
@@ -103,6 +121,10 @@ TEST(InplaceVectorTest, Assign)
 	ASSERT_THAT(testee, ElementsAre("000", "1", "2", "3", "4", "555", "6", "7", "8", "9"));
 	ASSERT_THAT(const_testee, ElementsAre("000", "1", "2", "3", "4", "555", "6", "7", "8", "9"));
 	ASSERT_THAT(ToRange(testee.cbegin(), testee.cend()), MatchRange(ElementsAre("000", "1", "2", "3", "4", "555", "6", "7", "8", "9")));
+
+	ASSERT_THAT(ToRange(testee.rbegin(), testee.rend()), MatchRange(ElementsAre("9", "8", "7", "6", "555", "4", "3", "2", "1", "000")));
+	ASSERT_THAT(ToRange(const_testee.rbegin(), const_testee.rend()), MatchRange(ElementsAre("9", "8", "7", "6", "555", "4", "3", "2", "1", "000")));
+	ASSERT_THAT(ToRange(testee.crbegin(), testee.crend()), MatchRange(ElementsAre("9", "8", "7", "6", "555", "4", "3", "2", "1", "000")));
 }
 
 
@@ -137,4 +159,8 @@ TEST(InplaceVectorTest, PushBack)
 	ASSERT_THAT(testee, ElementsAre("0", "1", "2", "3"));
 	ASSERT_THAT(const_testee, ElementsAre("0", "1", "2", "3"));
 	ASSERT_THAT(ToRange(testee.cbegin(), testee.cend()), MatchRange(ElementsAre("0", "1", "2", "3")));
+
+	ASSERT_THAT(ToRange(testee.rbegin(), testee.rend()), MatchRange(ElementsAre("3", "2", "1", "0")));
+	ASSERT_THAT(ToRange(const_testee.rbegin(), const_testee.rend()), MatchRange(ElementsAre("3", "2", "1", "0")));
+	ASSERT_THAT(ToRange(testee.crbegin(), testee.crend()), MatchRange(ElementsAre("3", "2", "1", "0")));
 }
