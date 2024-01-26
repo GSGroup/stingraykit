@@ -25,13 +25,18 @@ namespace stingray
 	{
 		static_assert(InplaceCapacity_ != 0, "Invalid inplace capacity");
 
-	private:
-		template < typename OwnerType, typename ValueType >
-		class Iterator : public iterator_base<Iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>
-		{
-			using base = iterator_base<Iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>;
+	public:
+		using value_type = T;
 
-			template < typename OtherOwnerType, typename OtherValueType >
+	private:
+		template < bool Const >
+		class Iterator : public iterator_base<Iterator<Const>, typename If<Const, const value_type, value_type>::ValueT, std::random_access_iterator_tag>
+		{
+			using base = iterator_base<Iterator<Const>, typename If<Const, const value_type, value_type>::ValueT, std::random_access_iterator_tag>;
+
+			using OwnerType = typename If<Const, const inplace_vector, inplace_vector>::ValueT;
+
+			template < bool Const_ >
 			friend class Iterator;
 
 		private:
@@ -43,8 +48,8 @@ namespace stingray
 				: _owner(owner), _offset(offset)
 			{ }
 
-			template < typename OtherOwnerType, typename OtherValueType >
-			Iterator(const Iterator<OtherOwnerType, OtherValueType>& other)
+			template < bool Const_, typename EnableIf<Const && !Const_, int>::ValueT = 0 >
+			Iterator(const Iterator<Const_>& other)
 				: _owner(other._owner), _offset(other._offset)
 			{ }
 
@@ -68,15 +73,14 @@ namespace stingray
 		};
 
 	public:
-		using value_type = T;
 		using size_type = size_t;
 		using difference_type = ptrdiff_t;
 		using reference = value_type&;
 		using const_reference = const value_type&;
 		using pointer = value_type*;
 		using const_pointer = const value_type*;
-		using iterator = Iterator<inplace_vector, value_type>;
-		using const_iterator = Iterator<const inplace_vector, const value_type>;
+		using iterator = Iterator<false>;
+		using const_iterator = Iterator<true>;
 
 	public:
 		static const size_t InplaceCapacity = InplaceCapacity_;
