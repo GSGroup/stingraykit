@@ -16,6 +16,30 @@ using namespace stingray;
 using ::testing::ElementsAre;
 
 
+namespace
+{
+
+	const std::string ThrowOnCopying = "ThrowOnCopying";
+
+	struct ThrowableTestObject
+	{
+		std::string			Action;
+
+		explicit ThrowableTestObject(const std::string& action)
+			:	Action(action)
+		{ }
+
+		ThrowableTestObject(const ThrowableTestObject& other)
+			:	Action(other.Action)
+		{ STINGRAYKIT_CHECK(Action != ThrowOnCopying, Action); }
+
+		bool operator == (const ThrowableTestObject& other) const
+		{ return Action == other.Action; }
+	};
+
+}
+
+
 TEST(InplaceVectorTest, Empty)
 {
 	inplace_vector<std::string, 5> testee;
@@ -169,4 +193,32 @@ TEST(InplaceVectorTest, PushBack)
 	ASSERT_THAT(ToRange(testee.rbegin(), testee.rend()), MatchRange(ElementsAre("3", "2", "1", "0")));
 	ASSERT_THAT(ToRange(const_testee.rbegin(), const_testee.rend()), MatchRange(ElementsAre("3", "2", "1", "0")));
 	ASSERT_THAT(ToRange(testee.crbegin(), testee.crend()), MatchRange(ElementsAre("3", "2", "1", "0")));
+}
+
+
+TEST(InplaceVectorTest, PushBackException)
+{
+	inplace_vector<ThrowableTestObject, 2> testee;
+
+	ASSERT_EQ(testee.size(), 0);
+
+	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("0")));
+	ASSERT_EQ(testee.size(), 1);
+
+	ASSERT_ANY_THROW(testee.push_back(ThrowableTestObject(ThrowOnCopying)));
+	ASSERT_EQ(testee.size(), 1);
+
+	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("1")));
+	ASSERT_EQ(testee.size(), 2);
+
+	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("2")));
+	ASSERT_EQ(testee.size(), 3);
+
+	ASSERT_ANY_THROW(testee.push_back(ThrowableTestObject(ThrowOnCopying)));
+	ASSERT_EQ(testee.size(), 3);
+
+	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("3")));
+	ASSERT_EQ(testee.size(), 4);
+
+	ASSERT_THAT(testee, ElementsAre(ThrowableTestObject("0"), ThrowableTestObject("1"), ThrowableTestObject("2"), ThrowableTestObject("3")));
 }

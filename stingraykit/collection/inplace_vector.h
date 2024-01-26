@@ -178,7 +178,10 @@ namespace stingray
 		void push_back(const_reference value)
 		{
 			if (_staticStorageSize < InplaceCapacity)
-				_staticStorage[_staticStorageSize++].Ctor(value);
+			{
+				_staticStorage[_staticStorageSize].Ctor(value);
+				++_staticStorageSize;
+			}
 			else
 				_dynamicStorage.push_back(value);
 		}
