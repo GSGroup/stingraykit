@@ -110,10 +110,16 @@ namespace stingray
 		}
 
 		reference at(size_t index)
-		{ return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
+		{
+			Detail::ArrayCheckRange(index, size());
+			return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage[index - _staticStorageSize];
+		}
 
 		const_reference at(size_t index) const
-		{ return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
+		{
+			Detail::ArrayCheckRange(index, size());
+			return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage[index - _staticStorageSize];
+		}
 
 		reference operator [] (size_t index)
 		{ return at(index); }
