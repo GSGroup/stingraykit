@@ -29,7 +29,7 @@ namespace stingray
 		template < typename OwnerType, typename ValueType >
 		class inplace_vector_iterator : public iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>
 		{
-			typedef iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag> base;
+			using base = iterator_base<inplace_vector_iterator<OwnerType, ValueType>, ValueType, std::random_access_iterator_tag>;
 
 			template < typename OtherOwnerType, typename OtherValueType >
 			friend class inplace_vector_iterator;
@@ -68,14 +68,14 @@ namespace stingray
 		};
 
 	public:
-		typedef	T									value_type;
-		typedef ptrdiff_t							difference_type;
-		typedef value_type&							reference;
-		typedef const value_type&					const_reference;
-		typedef value_type*							pointer;
-		typedef const value_type*					const_pointer;
-		typedef inplace_vector_iterator<inplace_vector, value_type>					iterator;
-		typedef inplace_vector_iterator<const inplace_vector, const value_type>		const_iterator;
+		using value_type = T;
+		using difference_type = ptrdiff_t;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+		using iterator = inplace_vector_iterator<inplace_vector, value_type>;
+		using const_iterator = inplace_vector_iterator<const inplace_vector, const value_type>;
 
 	public:
 		static const size_t InplaceCapacity = InplaceCapacity_;
@@ -105,10 +105,10 @@ namespace stingray
 		}
 
 		T& at(size_t index)
-		{ return (index < _staticStorageSize) ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
+		{ return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
 
 		const T& at(size_t index) const
-		{ return (index < _staticStorageSize) ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
+		{ return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
 
 		T& operator [] (size_t index)
 		{ return at(index); }
