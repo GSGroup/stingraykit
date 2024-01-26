@@ -19,6 +19,7 @@ using ::testing::ElementsAre;
 namespace
 {
 
+	const std::string ThrowOnCreation = "ThrowOnCreation";
 	const std::string ThrowOnCopying = "ThrowOnCopying";
 
 	struct ThrowableTestObject
@@ -27,7 +28,7 @@ namespace
 
 		explicit ThrowableTestObject(const std::string& action)
 			:	Action(action)
-		{ }
+		{ STINGRAYKIT_CHECK(Action != ThrowOnCreation, Action); }
 
 		ThrowableTestObject(const ThrowableTestObject& other)
 			:	Action(other.Action)
@@ -218,6 +219,72 @@ TEST(InplaceVectorTest, PushBackException)
 	ASSERT_EQ(testee.size(), 3);
 
 	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("3")));
+	ASSERT_EQ(testee.size(), 4);
+
+	ASSERT_THAT(testee, ElementsAre(ThrowableTestObject("0"), ThrowableTestObject("1"), ThrowableTestObject("2"), ThrowableTestObject("3")));
+}
+
+
+TEST(InplaceVectorTest, EmplaceBack)
+{
+	inplace_vector<std::string, 2> testee;
+	const auto& const_testee = testee;
+
+	ASSERT_TRUE(testee.empty());
+	ASSERT_EQ(testee.size(), 0);
+
+	testee.emplace_back("0");
+
+	ASSERT_FALSE(testee.empty());
+	ASSERT_EQ(testee.size(), 1);
+
+	testee.emplace_back("1");
+
+	ASSERT_FALSE(testee.empty());
+	ASSERT_EQ(testee.size(), 2);
+
+	testee.emplace_back("2");
+
+	ASSERT_FALSE(testee.empty());
+	ASSERT_EQ(testee.size(), 3);
+
+	testee.emplace_back("3");
+
+	ASSERT_FALSE(testee.empty());
+	ASSERT_EQ(testee.size(), 4);
+
+	ASSERT_THAT(testee, ElementsAre("0", "1", "2", "3"));
+	ASSERT_THAT(const_testee, ElementsAre("0", "1", "2", "3"));
+	ASSERT_THAT(ToRange(testee.cbegin(), testee.cend()), MatchRange(ElementsAre("0", "1", "2", "3")));
+
+	ASSERT_THAT(ToRange(testee.rbegin(), testee.rend()), MatchRange(ElementsAre("3", "2", "1", "0")));
+	ASSERT_THAT(ToRange(const_testee.rbegin(), const_testee.rend()), MatchRange(ElementsAre("3", "2", "1", "0")));
+	ASSERT_THAT(ToRange(testee.crbegin(), testee.crend()), MatchRange(ElementsAre("3", "2", "1", "0")));
+}
+
+
+TEST(InplaceVectorTest, EmplaceBackException)
+{
+	inplace_vector<ThrowableTestObject, 2> testee;
+
+	ASSERT_EQ(testee.size(), 0);
+
+	ASSERT_NO_THROW(testee.emplace_back("0"));
+	ASSERT_EQ(testee.size(), 1);
+
+	ASSERT_ANY_THROW(testee.emplace_back(ThrowOnCreation));
+	ASSERT_EQ(testee.size(), 1);
+
+	ASSERT_NO_THROW(testee.emplace_back("1"));
+	ASSERT_EQ(testee.size(), 2);
+
+	ASSERT_NO_THROW(testee.emplace_back("2"));
+	ASSERT_EQ(testee.size(), 3);
+
+	ASSERT_ANY_THROW(testee.emplace_back(ThrowOnCreation));
+	ASSERT_EQ(testee.size(), 3);
+
+	ASSERT_NO_THROW(testee.emplace_back("3"));
 	ASSERT_EQ(testee.size(), 4);
 
 	ASSERT_THAT(testee, ElementsAre(ThrowableTestObject("0"), ThrowableTestObject("1"), ThrowableTestObject("2"), ThrowableTestObject("3")));
