@@ -95,7 +95,7 @@ namespace stingray
 
 	public:
 		inplace_vector()
-			: _staticStorageSize(0)
+			: _staticStorageSize(0), _staticStorage(uninitialized_array_tag())
 		{ }
 
 		~inplace_vector()
