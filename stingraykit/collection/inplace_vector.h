@@ -129,6 +129,12 @@ namespace stingray
 		const_reference operator [] (size_t index) const
 		{ return at(index); }
 
+		reference front()						{ return *begin(); }
+		const_reference front() const			{ return *begin(); }
+
+		reference back()						{ return *rbegin(); }
+		const_reference back() const			{ return *rbegin(); }
+
 		iterator begin()						{ return iterator(*this, 0); }
 		const_iterator begin() const			{ return const_iterator(*this, 0); }
 		const_iterator cbegin() const			{ return const_iterator(*this, 0); }

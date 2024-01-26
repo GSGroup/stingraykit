@@ -95,6 +95,12 @@ TEST(InplaceVectorTest, Assign)
 	ASSERT_EQ(testee[0], "000");
 	ASSERT_EQ(testee[5], "555");
 
+	ASSERT_EQ(testee.front(), "000");
+	ASSERT_EQ(const_testee.front(), "000");
+
+	ASSERT_EQ(testee.back(), "9");
+	ASSERT_EQ(const_testee.back(), "9");
+
 	ASSERT_NE(testee.begin(), testee.end());
 	ASSERT_EQ(std::distance(testee.begin(), testee.end()), 10);
 
