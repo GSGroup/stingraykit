@@ -129,9 +129,11 @@ namespace stingray
 
 		iterator begin()						{ return iterator(*this, 0); }
 		const_iterator begin() const			{ return const_iterator(*this, 0); }
+		const_iterator cbegin() const			{ return const_iterator(*this, 0); }
 
 		iterator end()							{ return iterator(*this, size()); }
 		const_iterator end() const				{ return const_iterator(*this, size()); }
+		const_iterator cend() const				{ return const_iterator(*this, size()); }
 
 		bool empty() const						{ return size() == 0; }
 		size_t size() const						{ return _staticStorageSize + _dynamicStorage.size(); }

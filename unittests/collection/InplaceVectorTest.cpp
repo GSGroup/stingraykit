@@ -5,7 +5,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/inplace_vector.h>
+#include <stingraykit/collection/Range.h>
+
+#include <unittests/RangeMatcher.h>
 
 #include <gmock/gmock-matchers.h>
 
@@ -36,6 +38,9 @@ TEST(InplaceVectorTest, Empty)
 
 	ASSERT_EQ(const_testee.begin(), const_testee.end());
 	ASSERT_EQ(std::distance(const_testee.begin(), const_testee.end()), 0);
+
+	ASSERT_EQ(testee.cbegin(), testee.cend());
+	ASSERT_EQ(std::distance(testee.cbegin(), testee.cend()), 0);
 
 	ASSERT_TRUE(testee.empty());
 	ASSERT_EQ(testee.size(), 0);
@@ -87,6 +92,9 @@ TEST(InplaceVectorTest, Assign)
 	ASSERT_NE(const_testee.begin(), const_testee.end());
 	ASSERT_EQ(std::distance(const_testee.begin(), const_testee.end()), 10);
 
+	ASSERT_NE(testee.cbegin(), testee.cend());
+	ASSERT_EQ(std::distance(testee.cbegin(), testee.cend()), 10);
+
 	ASSERT_FALSE(testee.empty());
 	ASSERT_EQ(testee.size(), 10);
 
@@ -94,6 +102,7 @@ TEST(InplaceVectorTest, Assign)
 
 	ASSERT_THAT(testee, ElementsAre("000", "1", "2", "3", "4", "555", "6", "7", "8", "9"));
 	ASSERT_THAT(const_testee, ElementsAre("000", "1", "2", "3", "4", "555", "6", "7", "8", "9"));
+	ASSERT_THAT(ToRange(testee.cbegin(), testee.cend()), MatchRange(ElementsAre("000", "1", "2", "3", "4", "555", "6", "7", "8", "9")));
 }
 
 
@@ -127,4 +136,5 @@ TEST(InplaceVectorTest, PushBack)
 
 	ASSERT_THAT(testee, ElementsAre("0", "1", "2", "3"));
 	ASSERT_THAT(const_testee, ElementsAre("0", "1", "2", "3"));
+	ASSERT_THAT(ToRange(testee.cbegin(), testee.cend()), MatchRange(ElementsAre("0", "1", "2", "3")));
 }
