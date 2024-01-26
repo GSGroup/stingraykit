@@ -69,6 +69,7 @@ namespace stingray
 
 	public:
 		using value_type = T;
+		using size_type = size_t;
 		using difference_type = ptrdiff_t;
 		using reference = value_type&;
 		using const_reference = const value_type&;
@@ -81,9 +82,9 @@ namespace stingray
 		static const size_t InplaceCapacity = InplaceCapacity_;
 
 	private:
-		size_t									_staticStorageSize;
-		array<StorageFor<T>, InplaceCapacity>	_staticStorage;
-		std::vector<T>							_dynamicStorage;
+		size_t												_staticStorageSize;
+		array<StorageFor<value_type>, InplaceCapacity>		_staticStorage;
+		std::vector<value_type>								_dynamicStorage;
 
 	public:
 		inplace_vector()
@@ -104,16 +105,16 @@ namespace stingray
 			std::copy(first, last, std::back_inserter(*this));
 		}
 
-		T& at(size_t index)
+		reference at(size_t index)
 		{ return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
 
-		const T& at(size_t index) const
+		const_reference at(size_t index) const
 		{ return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage.at(index - _staticStorageSize); }
 
-		T& operator [] (size_t index)
+		reference operator [] (size_t index)
 		{ return at(index); }
 
-		const T& operator [] (size_t index) const
+		const_reference operator [] (size_t index) const
 		{ return at(index); }
 
 		iterator begin()						{ return iterator(*this, 0); }
@@ -143,7 +144,7 @@ namespace stingray
 			_staticStorageSize = 0;
 		}
 
-		void push_back(const T& value)
+		void push_back(const_reference value)
 		{
 			if (_staticStorageSize < InplaceCapacity)
 				_staticStorage[_staticStorageSize++].Ctor(value);
