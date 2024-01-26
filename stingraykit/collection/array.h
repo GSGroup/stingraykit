@@ -19,6 +19,10 @@ namespace stingray
 	 * @{
 	 */
 
+	struct uninitialized_array_tag
+	{ };
+
+
 	template < typename T, size_t N >
 	class array
 	{
@@ -42,6 +46,7 @@ namespace stingray
 
 	public:
 		array() : _data() { }
+		explicit array(uninitialized_array_tag) { }
 		array(const array& other)				{ assign(other); }
 		array(const T (& list)[N])				{ std::copy(std::begin(list), std::end(list), begin()); }
 
