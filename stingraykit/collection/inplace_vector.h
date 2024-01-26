@@ -88,9 +88,10 @@ namespace stingray
 		static const size_t InplaceCapacity = InplaceCapacity_;
 
 	private:
+		// members order is important for optimal access
 		size_t												_staticStorageSize;
-		array<StorageFor<value_type>, InplaceCapacity>		_staticStorage;
 		std::vector<value_type>								_dynamicStorage;
+		array<StorageFor<value_type>, InplaceCapacity>		_staticStorage;
 
 	public:
 		inplace_vector()
