@@ -23,6 +23,15 @@ namespace stingray
 		int DoCompare(const Lhs& lhs, const Rhs& rhs) const
 		{ return DoCompareRanges(ToRange(lhs), ToRange(rhs)); }
 
+		template < typename T >
+		int DoCompare(const T& lhs, const T& rhs) const
+		{
+			if (&lhs == &rhs)
+				return 0;
+
+			return DoCompareRanges(ToRange(lhs), ToRange(rhs));
+		}
+
 	private:
 		template < typename LhsRange, typename RhsRange >
 		int DoCompareRanges(LhsRange lhs, RhsRange rhs) const
