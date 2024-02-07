@@ -331,7 +331,7 @@ namespace stingray
 		template < typename CastTo, typename T > EnumerableOrEnumerator<CastTo> Cast(const EnumerableOrEnumerator<IEnumerable<T>>& src);
 
 		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const T& value);
-		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const T& value, const function<bool(const T&, const T&)>& equalPredicate);
+		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const function<bool(const T&>& predicate);
 
 		template <typename T> size_t Count(const EnumerableOrEnumerator<T> src);
 		template <typename T> size_t Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
@@ -443,17 +443,17 @@ namespace stingray
 		{ return make_shared_ptr<Detail::JoiningEnumerable<T>>(first, second); }
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EqualPredicateFunc), bool, Contains, MK_PARAM(const ValueType& value, const EqualPredicateFunc& equalPredicate), MK_PARAM(value, equalPredicate),
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename PredicateFunc, typename EnableIf<!IsConvertible<PredicateFunc, ItemType>::Value, int>::ValueT = 0), bool, Contains, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate),
 		{
 			for (; enumerator.Valid(); enumerator.Next())
-				if (FunctorInvoker::InvokeArgs(equalPredicate, enumerator.Get(), value))
+				if (FunctorInvoker::InvokeArgs(predicate, enumerator.Get()))
 					return true;
 			return false;
 		})
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EnableIf<IsConvertible<ValueType, ItemType>::Value, int>::ValueT = 0), bool, Contains, MK_PARAM(const ValueType& value), MK_PARAM(value),
-		{ return Contains(enumerator, value, std::equal_to<ItemType>()); })
+		{ return Contains(enumerator, Bind(std::equal_to<ItemType>(), value, _1)); })
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), size_t, Count, STINGRAYKIT_EMPTY(), STINGRAYKIT_EMPTY(),
