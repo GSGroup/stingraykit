@@ -245,6 +245,34 @@ TEST(RangeTest, Ranges)
 }
 
 
+TEST(RangeTest, Contains)
+{
+	int r[] = { 1, 3, 5 };
+
+	ASSERT_FALSE(Contains(ToRange(r), 0));
+	ASSERT_TRUE(Contains(ToRange(r), 1));
+	ASSERT_FALSE(Contains(ToRange(r), 2));
+	ASSERT_TRUE(Contains(ToRange(r), 3));
+	ASSERT_FALSE(Contains(ToRange(r), 4));
+	ASSERT_TRUE(Contains(ToRange(r), 5));
+	ASSERT_FALSE(Contains(ToRange(r), 6));
+}
+
+
+TEST(RangeTest, IndexOf)
+{
+	int r[] = { 1, 3, 5 };
+
+	ASSERT_EQ(IndexOf(ToRange(r), 0), null);
+	ASSERT_EQ(IndexOf(ToRange(r), 1), 0u);
+	ASSERT_EQ(IndexOf(ToRange(r), 2), null);
+	ASSERT_EQ(IndexOf(ToRange(r), 3), 1u);
+	ASSERT_EQ(IndexOf(ToRange(r), 4), null);
+	ASSERT_EQ(IndexOf(ToRange(r), 5), 2u);
+	ASSERT_EQ(IndexOf(ToRange(r), 6), null);
+}
+
+
 TEST(RangeTest, Cycle)
 {
 	int pattern[] = {1, -42, 5};
