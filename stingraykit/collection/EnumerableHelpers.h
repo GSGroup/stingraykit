@@ -338,7 +338,7 @@ namespace stingray
 
 		template <typename T> void ForEach(const EnumerableOrEnumerator<T> src, const function<void(const T&)>& func);
 
-		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const T& val);
+		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const T& value);
 		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
 		template <typename T> T ElementAt(const EnumerableOrEnumerator<T> src, size_t index);
@@ -493,8 +493,8 @@ namespace stingray
 			return null;
 		})
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EnableIf<IsConvertible<ValueType, ItemType>::Value, int>::ValueT = 0), optional<size_t>, IndexOf, MK_PARAM(const ValueType& val), MK_PARAM(val),
-		{ return IndexOf(enumerator, Bind(std::equal_to<ItemType>(), val, _1)); })
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EnableIf<IsConvertible<ValueType, ItemType>::Value, int>::ValueT = 0), optional<size_t>, IndexOf, MK_PARAM(const ValueType& value), MK_PARAM(value),
+		{ return IndexOf(enumerator, Bind(std::equal_to<ItemType>(), value, _1)); })
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, ElementAt, MK_PARAM(size_t index), MK_PARAM(index),
