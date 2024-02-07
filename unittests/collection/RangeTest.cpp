@@ -256,6 +256,11 @@ TEST(RangeTest, Contains)
 	ASSERT_FALSE(Contains(ToRange(r), 4));
 	ASSERT_TRUE(Contains(ToRange(r), 5));
 	ASSERT_FALSE(Contains(ToRange(r), 6));
+
+	ASSERT_FALSE(Contains(ToRange(r), Bind(std::less<int>(), _1, 1)));
+	ASSERT_TRUE(Contains(ToRange(r), Bind(std::greater<int>(), _1, 2)));
+	ASSERT_TRUE(Contains(ToRange(r), Bind(std::less<int>(), _1, 4)));
+	ASSERT_FALSE(Contains(ToRange(r), Bind(std::greater<int>(), _1, 5)));
 }
 
 
@@ -270,6 +275,11 @@ TEST(RangeTest, IndexOf)
 	ASSERT_EQ(IndexOf(ToRange(r), 4), null);
 	ASSERT_EQ(IndexOf(ToRange(r), 5), 2u);
 	ASSERT_EQ(IndexOf(ToRange(r), 6), null);
+
+	ASSERT_EQ(IndexOf(ToRange(r), Bind(std::less<int>(), _1, 1)), null);
+	ASSERT_EQ(IndexOf(ToRange(r), Bind(std::greater<int>(), _1, 2)), 1u);
+	ASSERT_EQ(IndexOf(ToRange(r), Bind(std::less<int>(), _1, 4)), 0u);
+	ASSERT_EQ(IndexOf(ToRange(r), Bind(std::greater<int>(), _1, 5)), null);
 }
 
 

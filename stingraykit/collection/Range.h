@@ -1211,7 +1211,7 @@ namespace stingray
 		}
 
 
-		template < typename Range_, class Value_ >
+		template < typename Range_, class Value_, typename EnableIf<IsConvertible<Value_, typename Decay<typename Range_::ValueType>::ValueT>::Value, int>::ValueT = 0 >
 		bool Contains(Range_ range, Value_ value)
 		{
 			for (; range.Valid(); range.Next())
@@ -1221,13 +1221,37 @@ namespace stingray
 		}
 
 
-		template < typename Range_, class Value_ >
+		template < typename Range_, class Predicate_, typename EnableIf<!IsConvertible<Predicate_, typename Decay<typename Range_::ValueType>::ValueT>::Value, int>::ValueT = 0 >
+		bool Contains(Range_ range, Predicate_ predicate)
+		{
+			for (; range.Valid(); range.Next())
+				if (FunctorInvoker::InvokeArgs(predicate, range.Get()))
+					return true;
+			return false;
+		}
+
+
+		template < typename Range_, class Value_, typename EnableIf<IsConvertible<Value_, typename Decay<typename Range_::ValueType>::ValueT>::Value, int>::ValueT = 0 >
 		optional<size_t> IndexOf(Range_ range, Value_ value)
 		{
 			size_t result = 0;
 			for (; range.Valid(); range.Next())
 			{
 				if (range.Get() == value)
+					return result;
+				++result;
+			}
+			return null;
+		}
+
+
+		template < typename Range_, class Predicate_, typename EnableIf<!IsConvertible<Predicate_, typename Decay<typename Range_::ValueType>::ValueT>::Value, int>::ValueT = 0 >
+		optional<size_t> IndexOf(Range_ range, Predicate_ predicate)
+		{
+			size_t result = 0;
+			for (; range.Valid(); range.Next())
+			{
+				if (FunctorInvoker::InvokeArgs(predicate, range.Get()))
 					return result;
 				++result;
 			}
