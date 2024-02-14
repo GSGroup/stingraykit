@@ -91,8 +91,8 @@ namespace stingray
 					return result;
 				}
 				T t_val = T();
-				size_t t_result = Read(str_val.c_str(), str_val.size(), t_val, 0);
-				if (t_result != str_val.size())
+				size_t t_result = Read(str, result, t_val, 0);
+				if (t_result != result)
 					return 0;
 				val = t_val;
 				return result;
