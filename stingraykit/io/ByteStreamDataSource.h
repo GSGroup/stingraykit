@@ -30,12 +30,11 @@ namespace stingray
 
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
-			const size_t read = ReadAll(*_stream, _buffer, token);
+			const size_t read = _stream->Read(_buffer, token);
 
 			if (read != 0)
 				ConsumeAll(consumer, ConstByteData(_buffer, 0, read), token);
-
-			if (token && read != _buffer.size())
+			else if (token)
 				consumer.EndOfData(token);
 		}
 
