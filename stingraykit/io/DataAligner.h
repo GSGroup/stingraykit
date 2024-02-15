@@ -32,6 +32,9 @@ namespace stingray
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{ _source->ReadToFunction(Bind(&DataAligner::Align, this, wrap_ref(consumer), _1, _2), Bind(&IDataConsumer::EndOfData, wrap_ref(consumer), _1), token); }
 
+		void Reset()
+		{ _buffer.clear(); }
+
 	private:
 		size_t Align(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 		{
