@@ -14,7 +14,7 @@
 namespace stingray
 {
 
-	class ByteStreamDataSource : public virtual IDataSource
+	class ByteStreamDataSource final : public virtual IDataSource
 	{
 		static const size_t	DefaultBufferSize = 128 * 1024;
 
@@ -28,7 +28,7 @@ namespace stingray
 			: _stream(STINGRAYKIT_REQUIRE_NOT_NULL(stream)), _buffer(bufferSize)
 		{ STINGRAYKIT_CHECK(bufferSize != 0, ArgumentException("bufferSize")); }
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
 			const size_t read = ReadAll(*_stream, _buffer, token);
 
