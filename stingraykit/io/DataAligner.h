@@ -14,7 +14,7 @@
 namespace stingray
 {
 
-	class DataAligner : public virtual IDataSource
+	class DataAligner final : public virtual IDataSource
 	{
 	private:
 		IDataSourcePtr	_source;
@@ -29,7 +29,7 @@ namespace stingray
 				_useBuffer(useBuffer)
 		{ STINGRAYKIT_CHECK(_alignment != 0, ArgumentException("alignment")); }
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{ _source->ReadToFunction(Bind(&DataAligner::Align, this, wrap_ref(consumer), _1, _2), Bind(&IDataConsumer::EndOfData, wrap_ref(consumer), _1), token); }
 
 	private:
@@ -62,6 +62,7 @@ namespace stingray
 			return offset;
 		}
 	};
+	STINGRAYKIT_DECLARE_PTR(DataAligner);
 
 }
 
