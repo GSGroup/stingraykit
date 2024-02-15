@@ -86,6 +86,7 @@ namespace stingray
 		{
 		public:
 			using const_iterator = StlEnumeratorAdapter<T>;
+			using value_type = T;
 
 		private:
 			shared_ptr<IEnumerator<T>>	_enumerator;
