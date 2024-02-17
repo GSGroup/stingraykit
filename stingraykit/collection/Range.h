@@ -1635,6 +1635,7 @@ namespace stingray
 		{
 		public:
 			using const_iterator = StlRangeAdapter<Range_>;
+			using value_type = typename Range_::ValueType;
 
 		private:
 			Range_		_range;
