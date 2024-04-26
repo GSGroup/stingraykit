@@ -35,12 +35,12 @@ namespace stingray
 		public:
 			Impl();
 
-			void Cancel();
-			void Reset();
-
 			bool Sleep(optional<TimeDuration> duration) const;
 
 			bool IsCancelled() const;
+
+			void Cancel();
+			void Reset();
 
 			bool TryRegisterCancellationHandler(ICancellationHandler& handler) const;
 			bool TryUnregisterCancellationHandler() const;
@@ -53,17 +53,17 @@ namespace stingray
 	public:
 		CancellationToken();
 
-		void Cancel();
-		void Reset();
-
-		Token GetCancellator();
-
 		bool Sleep(optional<TimeDuration> duration) const override;
 
 		bool IsCancelled() const override;
 		bool IsTimedOut() const override { return false; }
 
 		optional<TimeDuration> GetTimeout() const override { return null; }
+
+		void Cancel();
+		void Reset();
+
+		Token GetCancellator();
 
 	protected:
 		bool TryRegisterCancellationHandler(ICancellationHandler& handler) const override;

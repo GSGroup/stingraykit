@@ -20,6 +20,24 @@ namespace stingray
 	{ }
 
 
+	bool CancellationToken::Impl::Sleep(optional<TimeDuration> duration) const
+	{
+		MutexLock l(_mutex);
+		if (_cancelled)
+			return false;
+
+		if (duration)
+			return !_cond.TimedWait(_mutex, *duration);
+
+		_cond.Wait(_mutex);
+		return false;
+	}
+
+
+	bool CancellationToken::Impl::IsCancelled() const
+	{ return _cancelled.load(MemoryOrderRelaxed); }
+
+
 	void CancellationToken::Impl::Cancel()
 	{
 		ICancellationHandler* cancelHandler = null;
@@ -50,24 +68,6 @@ namespace stingray
 		_cancelled = false;
 		_cancelDone = false;
 	}
-
-
-	bool CancellationToken::Impl::Sleep(optional<TimeDuration> duration) const
-	{
-		MutexLock l(_mutex);
-		if (_cancelled)
-			return false;
-
-		if (duration)
-			return !_cond.TimedWait(_mutex, *duration);
-
-		_cond.Wait(_mutex);
-		return false;
-	}
-
-
-	bool CancellationToken::Impl::IsCancelled() const
-	{ return _cancelled.load(MemoryOrderRelaxed); }
 
 
 	bool CancellationToken::Impl::TryRegisterCancellationHandler(ICancellationHandler& handler) const
@@ -110,6 +110,14 @@ namespace stingray
 	{ }
 
 
+	bool CancellationToken::Sleep(optional<TimeDuration> duration) const
+	{ return _impl->Sleep(duration); }
+
+
+	bool CancellationToken::IsCancelled() const
+	{ return _impl->IsCancelled(); }
+
+
 	void CancellationToken::Cancel()
 	{ return _impl->Cancel(); }
 
@@ -120,14 +128,6 @@ namespace stingray
 
 	Token CancellationToken::GetCancellator()
 	{ return MakeFunctionToken(Bind(&Impl::Cancel, _impl)); }
-
-
-	bool CancellationToken::Sleep(optional<TimeDuration> duration) const
-	{ return _impl->Sleep(duration); }
-
-
-	bool CancellationToken::IsCancelled() const
-	{ return _impl->IsCancelled(); }
 
 
 	bool CancellationToken::TryRegisterCancellationHandler(ICancellationHandler& handler) const
