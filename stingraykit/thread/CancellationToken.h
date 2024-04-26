@@ -16,7 +16,7 @@
 namespace stingray
 {
 
-	class CancellationToken : public virtual ICancellationToken
+	class CancellationToken final : public virtual ICancellationToken
 	{
 		STINGRAYKIT_NONCOPYABLE(CancellationToken);
 
@@ -65,7 +65,7 @@ namespace stingray
 
 		Token GetCancellator();
 
-	protected:
+	private:
 		bool TryRegisterCancellationHandler(ICancellationHandler& handler) const override;
 		bool TryUnregisterCancellationHandler() const override;
 		bool UnregisterCancellationHandler() const override;
