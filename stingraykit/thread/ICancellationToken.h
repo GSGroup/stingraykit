@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/time/Time.h>
-#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -25,12 +24,8 @@ namespace stingray
 	};
 
 
-	class CancellationRegistratorBase;
-
-
 	struct ICancellationToken
 	{
-	private:
 		friend class CancellationRegistratorBase;
 
 	protected:

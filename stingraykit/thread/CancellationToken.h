@@ -8,16 +8,15 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/thread/atomic.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/ICancellationToken.h>
-#include <stingraykit/thread/Thread.h>
-#include <stingraykit/thread/atomic.h>
 #include <stingraykit/Token.h>
 
 namespace stingray
 {
 
-	class CancellationToken : public ICancellationToken
+	class CancellationToken : public virtual ICancellationToken
 	{
 		STINGRAYKIT_NONCOPYABLE(CancellationToken);
 
@@ -47,10 +46,9 @@ namespace stingray
 			bool TryUnregisterCancellationHandler() const;
 			bool UnregisterCancellationHandler() const;
 		};
-		typedef self_count_ptr<Impl>	ImplPtr;
 
 	private:
-		ImplPtr							_impl;
+		self_count_ptr<Impl>				_impl;
 
 	public:
 		CancellationToken();
@@ -60,17 +58,17 @@ namespace stingray
 
 		Token GetCancellator();
 
-		virtual bool Sleep(optional<TimeDuration> duration) const;
+		bool Sleep(optional<TimeDuration> duration) const override;
 
-		virtual bool IsCancelled() const;
-		virtual bool IsTimedOut() const { return false; }
+		bool IsCancelled() const override;
+		bool IsTimedOut() const override { return false; }
 
-		virtual optional<TimeDuration> GetTimeout() const { return null; }
+		optional<TimeDuration> GetTimeout() const override { return null; }
 
 	protected:
-		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const;
-		virtual bool TryUnregisterCancellationHandler() const;
-		virtual bool UnregisterCancellationHandler() const;
+		bool TryRegisterCancellationHandler(ICancellationHandler& handler) const override;
+		bool TryUnregisterCancellationHandler() const override;
+		bool UnregisterCancellationHandler() const override;
 	};
 
 }

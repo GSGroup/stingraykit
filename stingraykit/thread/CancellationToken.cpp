@@ -46,7 +46,7 @@ namespace stingray
 	void CancellationToken::Impl::Reset()
 	{
 		MutexLock l(_mutex);
-		STINGRAYKIT_CHECK(!_cancelHandler && (_cancelled == _cancelDone), LogicException("CancellationToken is in use!"));
+		STINGRAYKIT_CHECK(!_cancelHandler && _cancelled == _cancelDone, LogicException("CancellationToken is in use"));
 		_cancelled = false;
 		_cancelDone = false;
 	}
@@ -106,7 +106,7 @@ namespace stingray
 
 
 	CancellationToken::CancellationToken()
-		:	_impl(new Impl())
+		:	_impl(make_self_count_ptr<Impl>())
 	{ }
 
 
