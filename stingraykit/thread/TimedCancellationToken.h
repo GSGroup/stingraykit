@@ -19,32 +19,6 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(TimedCancellationToken);
 
 	private:
-		class ProxyCancellationRegistrator final : public CancellationRegistratorBase
-		{
-		private:
-			ICancellationHandler*	_handler;
-
-		public:
-			ProxyCancellationRegistrator(const ICancellationToken& token) : CancellationRegistratorBase(token) { }
-
-			bool TryRegisterCancellationHandler(ICancellationHandler& handler)
-			{
-				Register(handler);
-				_handler = &handler;
-				return !IsCancelled();
-			}
-
-			bool TryUnregisterCancellationHandler()
-			{ return TryUnregister(*_handler); }
-
-			bool UnregisterCancellationHandler()
-			{
-				Unregister(*_handler);
-				return true;
-			}
-		};
-
-	private:
 		const ICancellationToken&				_token;
 		RemainingTime							_remaining;
 
