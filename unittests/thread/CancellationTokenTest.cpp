@@ -31,7 +31,7 @@ public:
 		wt.Wait(_mutex, token);
 	}
 
-	struct CancellationHandler : public ICancellationHandler
+	struct CancellationHandler final : public virtual ICancellationHandler
 	{
 	private:
 		bool&	_flag;
@@ -40,10 +40,11 @@ public:
 		CancellationHandler(bool& flag) : _flag(flag)
 		{ }
 
-		virtual ~CancellationHandler()
+		~CancellationHandler() override
 		{ }
 
-		virtual void Cancel()	{ _flag = true; }
+		void Cancel() override
+		{ _flag = true; }
 	};
 
 	void ThreadFunc2(TimeDuration sleepDuration, const ICancellationToken& token)
@@ -104,7 +105,7 @@ TEST_F(CancellationTokenTest, DISABLED_Handler)
 class ConditionVariableCancellationTest : public testing::Test
 {
 protected:
-	class CustomCancellationToken : public CancellationToken
+	class CustomCancellationToken final : public CancellationToken
 	{
 	private:
 		mutable atomic<u32>		_sleepDuration;
@@ -112,14 +113,14 @@ protected:
 	public:
 		CustomCancellationToken() : _sleepDuration(0) { }
 
-	protected:
-		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const
+	private:
+		bool TryRegisterCancellationHandler(ICancellationHandler& handler) const override
 		{
 			_sleepDuration = 200;
 			return CancellationToken::TryRegisterCancellationHandler(handler);
 		}
 
-		virtual bool TryUnregisterCancellationHandler() const
+		bool TryUnregisterCancellationHandler() const override
 		{
 			Thread::Sleep(_sleepDuration);
 			_sleepDuration = 0;
@@ -127,7 +128,7 @@ protected:
 			return CancellationToken::TryUnregisterCancellationHandler();
 		}
 
-		virtual bool UnregisterCancellationHandler() const
+		bool UnregisterCancellationHandler() const override
 		{
 			_sleepDuration = 0;
 			return CancellationToken::UnregisterCancellationHandler();
