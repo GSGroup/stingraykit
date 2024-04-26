@@ -45,8 +45,8 @@ namespace stingray
 		{
 			MutexLock l(_sync);
 
-			if (_threadId && (*_threadId == ThreadEngine::GetCurrentThreadId()))
-				Logger::Error() << "Resetting token while it is locked in current thread!\nbacktrace: " << Backtrace();
+			if (_threadId && _threadId == ThreadEngine::GetCurrentThreadId())
+				Logger::Error() << "[TaskLifeToken] Resetting token locked in current thread\nbacktrace: " << Backtrace();
 
 			_alive = false;
 		}

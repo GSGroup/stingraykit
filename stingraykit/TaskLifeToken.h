@@ -24,9 +24,9 @@ namespace stingray
 		class TaskLifeTokenImpl : public self_counter<TaskLifeTokenImpl>
 		{
 		private:
-			Mutex				_sync;
-			bool				_alive;
-			optional<ThreadId>	_threadId;
+			Mutex									_sync;
+			bool									_alive;
+			optional<ThreadId>						_threadId;
 
 		public:
 			TaskLifeTokenImpl(bool alive = true)
@@ -53,7 +53,7 @@ namespace stingray
 		friend class TaskLifeHolder;
 
 	private:
-		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
+		Detail::TaskLifeTokenImplSelfCountPtr		_impl;
 
 	public:
 		FutureExecutionTester(NullPtrType) // always allows func execution
@@ -74,8 +74,8 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(LocalExecutionGuard);
 
 	private:
-		bool									_allow;
-		Detail::TaskLifeTokenImplSelfCountPtr	_impl;
+		bool										_allow;
+		Detail::TaskLifeTokenImplSelfCountPtr		_impl;
 
 	public:
 		LocalExecutionGuard(const FutureExecutionTester& tester);
@@ -92,7 +92,7 @@ namespace stingray
 		STINGRAYKIT_DEFAULTMOVABLE(TaskLifeToken);
 
 	private:
-		Detail::TaskLifeTokenImplSelfCountPtr _impl;
+		Detail::TaskLifeTokenImplSelfCountPtr		_impl;
 
 	public:
 		TaskLifeToken()
@@ -123,7 +123,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(TaskLifeHolder);
 
 	private:
-		Detail::TaskLifeTokenImplSelfCountPtr _impl;
+		Detail::TaskLifeTokenImplSelfCountPtr		_impl;
 
 	public:
 		TaskLifeHolder()
