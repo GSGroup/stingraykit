@@ -105,19 +105,38 @@ TEST_F(CancellationTokenTest, DISABLED_Handler)
 class ConditionVariableCancellationTest : public testing::Test
 {
 protected:
-	class CustomCancellationToken final : public CancellationToken
+	class CustomCancellationToken final : public virtual ICancellationToken
 	{
 	private:
-		mutable atomic<u32>		_sleepDuration;
+		CancellationToken						_token;
+		mutable atomic<u32>						_sleepDuration;
+		mutable ProxyCancellationRegistrator	_registrator;
 
 	public:
-		CustomCancellationToken() : _sleepDuration(0) { }
+		CustomCancellationToken()
+			: _sleepDuration(0), _registrator(_token)
+		{ }
+
+		bool Sleep(optional<TimeDuration> duration) const override
+		{ return _token.Sleep(duration); }
+
+		bool IsCancelled() const override
+		{ return _token.IsCancelled(); }
+
+		bool IsTimedOut() const override
+		{ return _token.IsTimedOut(); }
+
+		optional<TimeDuration> GetTimeout() const override
+		{ return _token.GetTimeout(); }
+
+		void Cancel()
+		{ _token.Cancel(); }
 
 	private:
 		bool TryRegisterCancellationHandler(ICancellationHandler& handler) const override
 		{
 			_sleepDuration = 200;
-			return CancellationToken::TryRegisterCancellationHandler(handler);
+			return _registrator.TryRegisterCancellationHandler(handler);
 		}
 
 		bool TryUnregisterCancellationHandler() const override
@@ -125,13 +144,13 @@ protected:
 			Thread::Sleep(_sleepDuration);
 			_sleepDuration = 0;
 
-			return CancellationToken::TryUnregisterCancellationHandler();
+			return _registrator.TryUnregisterCancellationHandler();
 		}
 
 		bool UnregisterCancellationHandler() const override
 		{
 			_sleepDuration = 0;
-			return CancellationToken::UnregisterCancellationHandler();
+			return _registrator.UnregisterCancellationHandler();
 		}
 	};
 
