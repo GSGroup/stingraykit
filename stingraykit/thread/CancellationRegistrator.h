@@ -27,8 +27,8 @@ namespace stingray
 		{ return !_registered; }
 
 	protected:
-		CancellationRegistratorBase(const ICancellationToken& token) :
-			_token(token), _registered(false)
+		CancellationRegistratorBase(const ICancellationToken& token)
+			: _token(token), _registered(false)
 		{ }
 
 		~CancellationRegistratorBase()
@@ -58,14 +58,14 @@ namespace stingray
 	};
 
 
-	class CancellationRegistrator : public CancellationRegistratorBase
+	class CancellationRegistrator final : public CancellationRegistratorBase
 	{
 	private:
-		ICancellationHandler& _handler;
+		ICancellationHandler&		_handler;
 
 	public:
-		CancellationRegistrator(ICancellationHandler& handler, const ICancellationToken& token) :
-			CancellationRegistratorBase(token), _handler(handler)
+		CancellationRegistrator(const ICancellationToken& token, ICancellationHandler& handler)
+			: CancellationRegistratorBase(token), _handler(handler)
 		{ Register(_handler); }
 
 		~CancellationRegistrator()

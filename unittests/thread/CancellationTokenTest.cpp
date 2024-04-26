@@ -54,7 +54,7 @@ public:
 		bool handlerCancelled = false;
 		{
 			CancellationHandler handler(wrap_ref(handlerCancelled));
-			CancellationRegistrator registrator(handler, token);
+			CancellationRegistrator registrator(token, handler);
 			cancelled = registrator.IsCancelled();
 
 			MutexLock l(_mutex);
