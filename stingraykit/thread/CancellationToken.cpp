@@ -20,6 +20,15 @@ namespace stingray
 	{ }
 
 
+	void CancellationToken::Impl::NotifyDestruction() const
+	{
+		if (!_cancelled.load(MemoryOrderRelaxed))
+			Logger::Error() << "[CancellationToken] Destroying uncancelled token\nbacktrace: " << Backtrace();
+		else if (!_cancelDone.load(MemoryOrderRelaxed))
+			Logger::Error() << "[CancellationToken] Destroying incompletely cancelled token\nbacktrace: " << Backtrace();
+	}
+
+
 	bool CancellationToken::Impl::Sleep(optional<TimeDuration> duration) const
 	{
 		MutexLock l(_mutex);
@@ -109,6 +118,10 @@ namespace stingray
 	CancellationToken::CancellationToken()
 		:	_impl(make_self_count_ptr<Impl>())
 	{ }
+
+
+	CancellationToken::~CancellationToken()
+	{ _impl->NotifyDestruction(); }
 
 
 	bool CancellationToken::Sleep(optional<TimeDuration> duration) const

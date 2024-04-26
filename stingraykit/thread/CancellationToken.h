@@ -29,11 +29,13 @@ namespace stingray
 			Mutex							_mutex;
 			ConditionVariable				_cond;
 			atomic<bool>					_cancelled;
-			bool							_cancelDone;
+			atomic<bool>					_cancelDone;
 			mutable ICancellationHandler*	_cancelHandler;
 
 		public:
 			Impl();
+
+			void NotifyDestruction() const;
 
 			bool Sleep(optional<TimeDuration> duration) const;
 
@@ -52,6 +54,7 @@ namespace stingray
 
 	public:
 		CancellationToken();
+		~CancellationToken() override;
 
 		bool Sleep(optional<TimeDuration> duration) const override;
 
