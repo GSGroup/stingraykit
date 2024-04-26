@@ -14,12 +14,12 @@
 namespace stingray
 {
 
-	class TimedCancellationToken : public ICancellationToken
+	class TimedCancellationToken final : public virtual ICancellationToken
 	{
 		STINGRAYKIT_NONCOPYABLE(TimedCancellationToken);
 
 	private:
-		class ProxyCancellationRegistrator : public CancellationRegistratorBase
+		class ProxyCancellationRegistrator final : public CancellationRegistratorBase
 		{
 		private:
 			ICancellationHandler*	_handler;
@@ -55,23 +55,21 @@ namespace stingray
 
 		TimedCancellationToken(const ICancellationToken& token, TimeDuration timeout);
 
-		virtual ~TimedCancellationToken() { }
+		bool Sleep(optional<TimeDuration> duration) const override;
 
-		virtual bool Sleep(optional<TimeDuration> duration) const;
+		bool IsCancelled() const override							{ return _token.IsCancelled(); }
+		bool IsTimedOut() const override							{ return _remaining.Expired(); }
 
-		virtual bool IsCancelled() const						{ return _token.IsCancelled(); }
-		virtual bool IsTimedOut() const							{ return _remaining.Expired(); }
+		optional<TimeDuration> GetTimeout() const override			{ return _remaining.Remaining(); }
 
-		virtual optional<TimeDuration> GetTimeout() const		{ return _remaining.Remaining(); }
-
-	protected:
-		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const
+	private:
+		bool TryRegisterCancellationHandler(ICancellationHandler& handler) const override
 		{ return !_remaining.Expired() && _registrator.TryRegisterCancellationHandler(handler); }
 
-		virtual bool TryUnregisterCancellationHandler() const
+		bool TryUnregisterCancellationHandler() const override
 		{ return _registrator.TryUnregisterCancellationHandler(); }
 
-		virtual bool UnregisterCancellationHandler() const
+		bool UnregisterCancellationHandler() const override
 		{ return _registrator.UnregisterCancellationHandler(); }
 	};
 
