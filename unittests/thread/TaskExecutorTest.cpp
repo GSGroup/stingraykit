@@ -7,7 +7,6 @@
 
 #include <stingraykit/function/bind.h>
 #include <stingraykit/log/Logger.h>
-#include <stingraykit/thread/atomic.h>
 #include <stingraykit/thread/ThreadTaskExecutor.h>
 
 #include <gtest/gtest.h>

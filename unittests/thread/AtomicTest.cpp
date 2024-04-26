@@ -8,7 +8,6 @@
 #include <stingraykit/function/bind.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/thread/atomic.h>
 #include <stingraykit/thread/atomic/AtomicFlag.h>
 
 #include <stdio.h>

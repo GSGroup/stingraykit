@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/thread/atomic.h>
 #include <stingraykit/thread/Thread.h>
 
 namespace stingray
@@ -25,13 +26,15 @@ namespace stingray
 		{
 		private:
 			Mutex									_sync;
-			bool									_alive;
+			atomic<bool>							_alive;
 			optional<ThreadId>						_threadId;
 
 		public:
 			TaskLifeTokenImpl(bool alive = true)
 				: _alive(alive)
 			{ }
+
+			void NotifyDestruction() const;
 
 			bool TryStartExecution();
 			void FinishExecution();
@@ -98,6 +101,8 @@ namespace stingray
 		TaskLifeToken()
 			: _impl(make_self_count_ptr<Detail::TaskLifeTokenImpl>())
 		{ }
+
+		~TaskLifeToken();
 
 		void Release();
 		TaskLifeToken& Reset();

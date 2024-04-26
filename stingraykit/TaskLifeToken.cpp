@@ -19,6 +19,13 @@ namespace stingray
 	namespace Detail
 	{
 
+		void TaskLifeTokenImpl::NotifyDestruction() const
+		{
+			if (_alive.load(MemoryOrderRelaxed))
+				Logger::Error() << "[TaskLifeToken] Destroying unreleased token\nbacktrace: " << Backtrace();
+		}
+
+
 		bool TaskLifeTokenImpl::TryStartExecution()
 		{
 			_sync.Lock();
@@ -69,6 +76,13 @@ namespace stingray
 	{
 		if (_impl)
 			_impl->FinishExecution();
+	}
+
+
+	TaskLifeToken::~TaskLifeToken()
+	{
+		if (_impl)
+			_impl->NotifyDestruction();
 	}
 
 
