@@ -13,20 +13,20 @@
 namespace stingray
 {
 
-	struct DummyCancellationToken : public ICancellationToken
+	class DummyCancellationToken final : public virtual ICancellationToken
 	{
 	public:
-		virtual bool Sleep(optional<TimeDuration> duration) const;
+		bool Sleep(optional<TimeDuration> duration) const override;
 
-		virtual bool IsCancelled() const					{ return false; }
-		virtual bool IsTimedOut() const 					{ return false; }
+		bool IsCancelled() const override						{ return false; }
+		bool IsTimedOut() const override						{ return false; }
 
-		virtual optional<TimeDuration> GetTimeout() const	{ return null; }
+		optional<TimeDuration> GetTimeout() const override		{ return null; }
 
-	protected:
-		virtual bool TryRegisterCancellationHandler(ICancellationHandler& handler) const	{ return true; }
-		virtual bool TryUnregisterCancellationHandler() const								{ return true; }
-		virtual bool UnregisterCancellationHandler() const									{ return true; }
+	private:
+		bool TryRegisterCancellationHandler(ICancellationHandler& handler) const override	{ return true; }
+		bool TryUnregisterCancellationHandler() const override								{ return true; }
+		bool UnregisterCancellationHandler() const override									{ return true; }
 	};
 
 }

@@ -9,13 +9,12 @@
 
 #include <stingraykit/thread/Thread.h>
 
-
 namespace stingray
 {
 
 	bool DummyCancellationToken::Sleep(optional<TimeDuration> duration) const
 	{
-		STINGRAYKIT_CHECK(duration, ArgumentException("duration", duration));
+		STINGRAYKIT_CHECK(duration, NullArgumentException("duration"));
 		Thread::Sleep(*duration);
 		return true;
 	}
