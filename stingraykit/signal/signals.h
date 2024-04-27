@@ -123,8 +123,8 @@ namespace stingray
 				TaskLifeToken		_token;
 
 			public:
-				Connection(const ImplPtr& impl, const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken)
-					: _impl(impl), _handler(func, invokeTester), _token(connectionToken)
+				Connection(const ImplPtr& impl, const function_storage& func, const FutureExecutionTester& invokeTester, TaskLifeToken&& connectionToken)
+					: _impl(impl), _handler(func, invokeTester), _token(std::move(connectionToken))
 				{ _impl->AddHandler(_handler); }
 
 				~Connection() override
@@ -138,13 +138,13 @@ namespace stingray
 			Handlers	_handlers;
 
 		public:
-			Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState) override final
+			Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, TaskLifeToken&& connectionToken, bool sendCurrentState) override final
 			{
 				LockType l(DoGetSync());
 				if (sendCurrentState)
 					DoSendCurrentState(func);
 
-				return MakeToken<Connection>(ImplPtr(self_count_ptr_from_this(), static_cast_tag()), func, invokeTester, connectionToken);
+				return MakeToken<Connection>(ImplPtr(self_count_ptr_from_this(), static_cast_tag()), func, invokeTester, std::move(connectionToken));
 			}
 
 			void SendCurrentState(const function_storage& slot) const override final
@@ -364,8 +364,10 @@ namespace stingray
 
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
 
-			const TaskLifeToken token(_impl->CreateSyncToken());
-			return _impl->Connect(function_storage(slot), token.GetExecutionTester(), token, sendCurrentState);
+			TaskLifeToken token(_impl->CreateSyncToken());
+			const FutureExecutionTester tester(token.GetExecutionTester());
+
+			return _impl->Connect(function_storage(slot), tester, std::move(token), sendCurrentState);
 		}
 
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const
@@ -374,8 +376,10 @@ namespace stingray
 
 			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
 
-			const TaskLifeToken token(_impl->CreateAsyncToken());
-			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, token.GetExecutionTester()))), null, token, sendCurrentState);
+			TaskLifeToken token(_impl->CreateAsyncToken());
+			const FutureExecutionTester tester(token.GetExecutionTester());
+
+			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, tester))), null, std::move(token), sendCurrentState);
 		}
 
 		signal_connector<Signature> connector() const
