@@ -19,10 +19,12 @@ namespace stingray
 
 	class ThreadlessTaskExecutor final : public virtual ITaskExecutor
 	{
-		typedef function<void (const std::exception&)>		ExceptionHandlerType;
+	public:
+		using ExceptionHandlerType = function<void (const std::exception&)>;
 
-		typedef std::pair<TaskType, FutureExecutionTester>	TaskPair;
-		typedef std::deque<TaskPair>						QueueType;
+	private:
+		using TaskPair = std::pair<TaskType, FutureExecutionTester>;
+		using QueueType = std::deque<TaskPair>;
 
 	public:
 		static const TimeDuration DefaultProfileTimeout;
@@ -42,7 +44,7 @@ namespace stingray
 	public:
 		explicit ThreadlessTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &ThreadlessTaskExecutor::DefaultExceptionHandler);
 
-		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
+		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
 		void ExecuteTasks(const ICancellationToken& token = DummyCancellationToken());
 		void ClearTasks();

@@ -15,9 +15,11 @@
 namespace stingray
 {
 
+	const TimeDuration ThreadlessTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+
+
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadlessTaskExecutor);
 
-	const TimeDuration ThreadlessTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 
 	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandlerType& exceptionHandler)
 		:	_name(name),
