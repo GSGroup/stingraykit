@@ -24,6 +24,9 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(Timer);
 
+	public:
+		using ExceptionHandler = function<void (const std::exception&)>;
+
 	private:
 		class CallbackInfo;
 		STINGRAYKIT_DECLARE_PTR(CallbackInfo);
@@ -32,8 +35,6 @@ namespace stingray
 		STINGRAYKIT_DECLARE_PTR(CallbackQueue);
 
 	public:
-		typedef function<void (const std::exception&)>	ExceptionHandler;
-
 		static const TimeDuration DefaultProfileTimeout;
 
 	private:
@@ -51,13 +52,13 @@ namespace stingray
 
 	public:
 		explicit Timer(const std::string& timerName, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
-		virtual ~Timer();
+		~Timer() override;
 
 		Token SetTimeout(const TimeDuration& timeout, const TaskType& task);
 		Token SetTimer(const TimeDuration& interval, const TaskType& task);
 		Token SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const TaskType& task);
 
-		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
+		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
@@ -75,7 +76,7 @@ namespace stingray
 	class ExecutionDeferrer
 	{
 	public:
-		typedef Timer::TaskType TaskType;
+		using TaskType = Timer::TaskType;
 
 	private:
 		Timer&			_timer;
@@ -115,7 +116,7 @@ namespace stingray
 	class ExecutionDeferrerWithTimer
 	{
 	public:
-		typedef ExecutionDeferrer::TaskType TaskType;
+		using TaskType = ExecutionDeferrer::TaskType;
 
 	private:
 		Timer					_timer;

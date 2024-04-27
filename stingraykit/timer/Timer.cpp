@@ -18,14 +18,14 @@ namespace stingray
 
 	class Timer::CallbackQueue
 	{
-		typedef std::multimap<TimeDuration, CallbackInfoPtr>	Container;
+		using Container = std::multimap<TimeDuration, CallbackInfoPtr>;
 
 	private:
 		Mutex			_mutex;
 		Container		_container;
 
 	public:
-		typedef Container::const_iterator iterator;
+		using iterator = Container::const_iterator;
 
 		Mutex& Sync()
 		{ return _mutex; }
@@ -47,8 +47,10 @@ namespace stingray
 	{
 		STINGRAYKIT_NONCOPYABLE(CallbackInfo);
 
+		friend class CallbackQueue;
+
 	private:
-		typedef CallbackQueue::iterator		QueueIterator;
+		using QueueIterator = CallbackQueue::iterator;
 
 	private:
 		optional<TaskType>			_task;
@@ -60,8 +62,6 @@ namespace stingray
 		optional<QueueIterator>		_iterator;
 
 	private:
-		friend class CallbackQueue;
-
 		void SetIterator(const optional<QueueIterator>& it)		{ _iterator = it; }
 		const optional<QueueIterator>& GetIterator() const		{ return _iterator; }
 		void SetErased()										{ _erased = true; }
@@ -97,12 +97,14 @@ namespace stingray
 		return _container.begin()->second;
 	}
 
+
 	void Timer::CallbackQueue::Push(const CallbackInfoPtr& ci)
 	{
 		MutexLock l(_mutex);
 		if (!ci->IsErased())
 			ci->SetIterator(iterator(_container.emplace(ci->GetTimeToTrigger(), ci)));
 	}
+
 
 	void Timer::CallbackQueue::Erase(const CallbackInfoPtr& ci)
 	{
@@ -115,6 +117,7 @@ namespace stingray
 		_container.erase(*ci->GetIterator());
 		ci->SetIterator(null);
 	}
+
 
 	Timer::CallbackInfoPtr Timer::CallbackQueue::Pop()
 	{
@@ -130,9 +133,11 @@ namespace stingray
 	}
 
 
+	const TimeDuration Timer::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+
+
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(Timer);
 
-	const TimeDuration Timer::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 
 	Timer::Timer(const std::string& timerName, optional<TimeDuration> profileTimeout, const ExceptionHandler& exceptionHandler)
 		:	_timerName(timerName),
