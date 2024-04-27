@@ -102,9 +102,6 @@ namespace stingray
 		void Release();
 		TaskLifeToken& Reset();
 
-		bool IsDummy() const
-		{ return !_impl; }
-
 		FutureExecutionTester GetExecutionTester() const
 		{ return FutureExecutionTester(_impl); }
 
