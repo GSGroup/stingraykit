@@ -31,19 +31,20 @@ namespace stingray
 		class ExceptionHandlerWrapper<void (Ts...), ExceptionHandlerFunc> : public function_info<void (Ts...)>
 		{
 		public:
-			typedef function_info<void (Ts...)>		BaseType;
+			using BaseType = function_info<void (Ts...)>;
 
-			typedef typename BaseType::ParamTypes	ParamTypes;
-			typedef typename BaseType::Signature	Signature;
+			using ParamTypes = typename BaseType::ParamTypes;
+			using Signature = typename BaseType::Signature;
 
-			typedef function<Signature>				FuncType;
+			using FuncType = function<Signature>;
 
 		private:
 			FuncType				_func;
 			ExceptionHandlerFunc	_exFunc;
 
 		public:
-			ExceptionHandlerWrapper(const FuncType& func, const ExceptionHandlerFunc& exFunc) : _func(func), _exFunc(exFunc)
+			ExceptionHandlerWrapper(const FuncType& func, const ExceptionHandlerFunc& exFunc)
+				: _func(func), _exFunc(exFunc)
 			{ }
 
 			void operator () (Ts... args) const
@@ -66,7 +67,7 @@ namespace stingray
 		template < bool IsThreadsafe >
 		class SignalImplBase : public ISignalConnector
 		{
-			typedef self_count_ptr<SignalImplBase>												ImplPtr;
+			using ImplPtr = self_count_ptr<SignalImplBase>;
 
 		protected:
 			class CancellableStorage : public IntrusiveListNode<CancellableStorage>
@@ -104,17 +105,17 @@ namespace stingray
 				{ _functionStorage.ToFunction<Signature_>()(args...); }
 			};
 
-			typedef typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT	FuncStorageType;
-			typedef IntrusiveList<FuncStorageType>												Handlers;
-			typedef inplace_vector<FuncStorageType, 16>											LocalHandlersCopy;
+			using FuncStorageType = typename If<IsThreadsafe, CancellableStorage, ThreadlessStorage>::ValueT;
+			using Handlers = IntrusiveList<FuncStorageType>;
+			using LocalHandlersCopy = inplace_vector<FuncStorageType, 16>;
 
-			typedef signal_policies::threading::DummyMutex										DummyMutex;
-			typedef signal_policies::threading::DummyLock										DummyLock;
-			typedef typename If<IsThreadsafe, const Mutex&, DummyMutex>::ValueT					MutexRefType;
-			typedef typename If<IsThreadsafe, MutexLock, DummyLock>::ValueT						LockType;
+			using DummyMutex = signal_policies::threading::DummyMutex;
+			using DummyLock = signal_policies::threading::DummyLock;
+			using MutexRefType = typename If<IsThreadsafe, const Mutex&, DummyMutex>::ValueT;
+			using LockType = typename If<IsThreadsafe, MutexLock, DummyLock>::ValueT;
 
 		private:
-			class Connection : public IToken
+			class Connection final : public IToken
 			{
 			private:
 				ImplPtr				_impl;
@@ -126,21 +127,21 @@ namespace stingray
 					: _impl(impl), _handler(func, invokeTester), _token(connectionToken)
 				{ _impl->AddHandler(_handler); }
 
-				virtual ~Connection()
+				~Connection() override
 				{
 					_impl->RemoveHandler(_handler);
 					_token.Release();
 				}
 			};
 
-		protected:
+		private:
 			Handlers	_handlers;
 
 		public:
-			virtual TaskLifeToken CreateSyncToken() const	{ return IsThreadsafe ? TaskLifeToken() : TaskLifeToken::CreateDummyTaskToken(); }
-			virtual TaskLifeToken CreateAsyncToken() const	{ return TaskLifeToken(); }
+			TaskLifeToken CreateSyncToken() const override final		{ return IsThreadsafe ? TaskLifeToken() : TaskLifeToken::CreateDummyTaskToken(); }
+			TaskLifeToken CreateAsyncToken() const override final		{ return TaskLifeToken(); }
 
-			virtual Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState)
+			Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState) override final
 			{
 				LockType l(DoGetSync());
 				if (sendCurrentState)
@@ -149,7 +150,7 @@ namespace stingray
 				return MakeToken<Connection>(ImplPtr(self_count_ptr_from_this(), static_cast_tag()), func, invokeTester, connectionToken);
 			}
 
-			virtual void SendCurrentState(const function_storage& slot) const
+			void SendCurrentState(const function_storage& slot) const override final
 			{
 				LockType l(DoGetSync());
 				DoSendCurrentState(slot);
@@ -172,7 +173,6 @@ namespace stingray
 			void CopyHandlersToLocal(LocalHandlersCopy& localCopy) const
 			{ std::copy(_handlers.begin(), _handlers.end(), std::back_inserter(localCopy)); }
 
-		protected:
 			virtual MutexRefType DoGetSync() const = 0;
 			virtual void DoSendCurrentState(const function_storage& slot) const = 0;
 		};
@@ -182,15 +182,19 @@ namespace stingray
 		class SignalImpl;
 
 		template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		class SignalImpl<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>
-			:	public ThreadingPolicy_, public ExceptionPolicy_, public PopulatorsPolicy_, public ConnectionPolicyControl_, public SignalImplBase<ThreadingPolicy_::IsThreadsafe>
+		class SignalImpl<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_> final
+			:	public ThreadingPolicy_,
+				public ExceptionPolicy_,
+				public PopulatorsPolicy_,
+				public ConnectionPolicyControl_,
+				public SignalImplBase<ThreadingPolicy_::IsThreadsafe>
 		{
-			typedef SignalImplBase<ThreadingPolicy_::IsThreadsafe>	base;
+			using base = SignalImplBase<ThreadingPolicy_::IsThreadsafe>;
 
-			typedef void Signature(Ts...);
+			using Signature = void (Ts...);
 
-			typedef function<void(const std::exception&)>			ExceptionHandlerFunc;
-			typedef function<void(const function<Signature>&)>		PopulatorFunc;
+			using ExceptionHandlerFunc = function<void(const std::exception&)>;
+			using PopulatorFunc = function<void(const function<Signature>&)>;
 
 		public:
 			SignalImpl() { }
@@ -251,13 +255,13 @@ namespace stingray
 					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature, Ts...>(args...));
 			}
 
-			virtual ConnectionPolicy GetConnectionPolicy() const { return this->DoGetConnectionPolicy(); }
+			ConnectionPolicy GetConnectionPolicy() const override { return this->DoGetConnectionPolicy(); }
 
 		private:
-			virtual typename base::MutexRefType DoGetSync() const
+			typename base::MutexRefType DoGetSync() const override
 			{ return this->GetSync(); }
 
-			virtual void DoSendCurrentState(const function_storage& slot) const
+			void DoSendCurrentState(const function_storage& slot) const override
 			{
 				const ExceptionHandlerWrapper<Signature, ExceptionHandlerFunc> wrappedSlot(slot.ToFunction<Signature>(), this->GetExceptionHandler());
 				WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), this->template SendCurrentStateImpl<Signature>(wrappedSlot));
@@ -282,12 +286,14 @@ namespace stingray
 	};
 
 
-	template < typename Signature_,
-		typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
-		typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
-		typename PopulatorsPolicy_ = signal_policies::populators::Configurable,
-		typename ConnectionPolicyControl_ = signal_policies::connection_policy_control::Checked,
-		typename CreationPolicy_ = signal_policies::creation::Default>
+	template <
+			typename Signature_,
+			typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
+			typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
+			typename PopulatorsPolicy_ = signal_policies::populators::Configurable,
+			typename ConnectionPolicyControl_ = signal_policies::connection_policy_control::Checked,
+			typename CreationPolicy_ = signal_policies::creation::Default
+	>
 	class signal;
 
 	template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ >
@@ -298,19 +304,19 @@ namespace stingray
 		friend class signal_locker;
 
 	public:
-		typedef void Signature(Ts...);
+		using Signature = void (Ts...);
 
-		typedef void											RetType;
-		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+		using RetType = void;
+		using ParamTypes = typename function_info<Signature>::ParamTypes;
 
 	private:
-		typedef Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>	Impl;
-		typedef self_count_ptr<Impl>																							ImplPtr;
+		using Impl = Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>;
+		using ImplPtr = self_count_ptr<Impl>;
 
-		typedef function<void (const std::exception&)>			ExceptionHandlerFunc;
-		typedef function<void (const function<Signature>&)>		PopulatorFunc;
+		using ExceptionHandlerFunc = function<void (const std::exception&)>;
+		using PopulatorFunc = function<void (const function<Signature>&)>;
 
-		typedef ThreadingPolicy_								ThreadingPolicy;
+		using ThreadingPolicy = ThreadingPolicy_;
 
 	public:
 		class Invoker : public function_info<Signature>
@@ -318,7 +324,8 @@ namespace stingray
 		private:
 			ImplPtr		_impl;
 		public:
-			Invoker(const ImplPtr& impl) : _impl(impl)
+			explicit Invoker(const ImplPtr& impl)
+				: _impl(impl)
 			{ }
 
 			void operator () (Ts... args) const
@@ -335,12 +342,12 @@ namespace stingray
 		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
 		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { }
 
-		signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { }
+		explicit signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { }
 		signal(const PopulatorFunc& sendCurrentState, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { }
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { }
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler, connectionPolicy)) { }
 
-		signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { }
+		explicit signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { }
 		signal(const ThreadingPolicy& threadingPolicy, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { }
 		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { }
 		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState, connectionPolicy)) { }
@@ -410,7 +417,7 @@ namespace stingray
 	 * template < typename T >
 	 * class MyCollection
 	 * {
-	 *     typedef std::vector<T>	VectorType;
+	 *     using VectorType = std::vector<T>;
 	 *
 	 * private:
 	 *     VectorType	_vector;
