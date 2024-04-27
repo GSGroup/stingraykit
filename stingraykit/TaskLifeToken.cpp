@@ -75,7 +75,10 @@ namespace stingray
 	void TaskLifeToken::Release()
 	{
 		if (_impl)
+		{
 			_impl->Kill();
+			_impl.reset();
+		}
 	}
 
 
@@ -87,7 +90,13 @@ namespace stingray
 
 
 	void TaskLifeHolder::Release()
-	{ _impl->Kill(); }
+	{
+		if (_impl)
+		{
+			_impl->Kill();
+			_impl.reset();
+		}
+	}
 
 
 	TaskLifeHolder& TaskLifeHolder::Reset()
