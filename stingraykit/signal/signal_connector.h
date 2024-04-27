@@ -53,7 +53,7 @@ namespace stingray
 
 	public:
 		signal_connector() { }
-		explicit signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl) { }
+		explicit signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(STINGRAYKIT_REQUIRE_NOT_NULL(impl)) { }
 
 		void SendCurrentState(const function<Signature_>& slot) const
 		{
