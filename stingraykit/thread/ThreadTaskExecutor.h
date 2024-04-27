@@ -28,17 +28,14 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ThreadTaskExecutor);
 
 	public:
-		typedef function<void (const std::exception&)>					ExceptionHandlerType;
+		using ExceptionHandlerType = function<void (const std::exception&)>;
 
 	private:
-		typedef std::pair<TaskType, FutureExecutionTester>				TaskPair;
-		typedef std::deque<TaskPair>									QueueType;
+		using TaskPair = std::pair<TaskType, FutureExecutionTester>;
+		using QueueType = std::deque<TaskPair>;
 
 	public:
 		static const TimeDuration DefaultProfileTimeout;
-
-	private:
-		static const size_t TaskCountLimit;
 
 	private:
 		static NamedLogger		s_logger;
@@ -56,7 +53,7 @@ namespace stingray
 	public:
 		explicit ThreadTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DefaultExceptionHandler);
 
-		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
+		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 

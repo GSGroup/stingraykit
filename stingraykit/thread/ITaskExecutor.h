@@ -21,7 +21,7 @@ namespace stingray
 
 	struct ITaskExecutor
 	{
-		typedef function<void ()> TaskType;
+		using TaskType = function<void ()>;
 
 		virtual ~ITaskExecutor() { }
 

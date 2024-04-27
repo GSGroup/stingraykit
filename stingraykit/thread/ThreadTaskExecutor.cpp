@@ -14,10 +14,19 @@
 namespace stingray
 {
 
-	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadTaskExecutor);
+	namespace
+	{
+
+		const size_t TaskCountLimit = 256 * 4;
+
+	}
+
 
 	const TimeDuration ThreadTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
-	const size_t ThreadTaskExecutor::TaskCountLimit = 256 * 4;
+
+
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadTaskExecutor);
+
 
 	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandlerType& exceptionHandler)
 		:	_name(name),
