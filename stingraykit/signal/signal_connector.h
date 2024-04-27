@@ -43,18 +43,17 @@ namespace stingray
 	class signal_connector
 	{
 	public:
-		typedef Signature_										Signature;
+		using Signature = Signature_;
 
-		typedef void											RetType;
-		typedef typename function_info<Signature>::ParamTypes	ParamTypes;
+		using RetType = void;
+		using ParamTypes = typename function_info<Signature>::ParamTypes;
 
 	private:
 		self_count_ptr<Detail::ISignalConnector>	_impl;
 
 	public:
 		signal_connector() { }
-
-		signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl) { }
+		explicit signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(impl) { }
 
 		void SendCurrentState(const function<Signature_>& slot) const
 		{
