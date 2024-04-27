@@ -64,7 +64,8 @@ namespace stingray
 	void CancellationToken::Impl::Reset()
 	{
 		MutexLock l(_mutex);
-		STINGRAYKIT_CHECK(!_cancelHandler && _cancelled == _cancelDone, LogicException("CancellationToken is in use"));
+		STINGRAYKIT_CHECK(!_cancelHandler, InvalidOperationException("CancellationToken is in use"));
+		STINGRAYKIT_CHECK(_cancelled == _cancelDone, InvalidOperationException("Simultaneous Cancel() and Reset()"));
 		_cancelled = false;
 		_cancelDone = false;
 	}
