@@ -54,11 +54,11 @@ namespace stingray
 		explicit Timer(const std::string& timerName, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 		~Timer() override;
 
+		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
+
 		Token SetTimeout(const TimeDuration& timeout, const TaskType& task);
 		Token SetTimer(const TimeDuration& interval, const TaskType& task);
 		Token SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const TaskType& task);
-
-		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 

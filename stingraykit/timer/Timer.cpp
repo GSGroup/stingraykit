@@ -61,12 +61,6 @@ namespace stingray
 		bool						_erased;
 		optional<QueueIterator>		_iterator;
 
-	private:
-		void SetIterator(const optional<QueueIterator>& it)		{ _iterator = it; }
-		const optional<QueueIterator>& GetIterator() const		{ return _iterator; }
-		void SetErased()										{ _erased = true; }
-		bool IsErased() const									{ return _erased; }
-
 	public:
 		CallbackInfo(const TaskType& task, const TimeDuration& timeToTrigger, optional<TimeDuration> period, const TaskLifeToken& token)
 			:	_task(task),
@@ -87,6 +81,12 @@ namespace stingray
 		bool IsPeriodic() const									{ return _period.is_initialized(); }
 		void Restart(const TimeDuration& currentTime)			{ _timeToTrigger = currentTime + *STINGRAYKIT_REQUIRE_INITIALIZED(_period); }
 		TimeDuration GetTimeToTrigger() const					{ return _timeToTrigger; }
+
+	private:
+		void SetIterator(const optional<QueueIterator>& it)		{ _iterator = it; }
+		const optional<QueueIterator>& GetIterator() const		{ return _iterator; }
+		void SetErased()										{ _erased = true; }
+		bool IsErased() const									{ return _erased; }
 	};
 
 
@@ -165,6 +165,16 @@ namespace stingray
 	}
 
 
+	void Timer::AddTask(const TaskType& task, const FutureExecutionTester& tester)
+	{
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
+
+		MutexLock l(_queue->Sync());
+		_queue->Push(ci);
+		_cond.Broadcast();
+	}
+
+
 	Token Timer::SetTimeout(const TimeDuration& timeout, const TaskType& task)
 	{
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
@@ -196,16 +206,6 @@ namespace stingray
 		}
 
 		return token;
-	}
-
-
-	void Timer::AddTask(const TaskType& task, const FutureExecutionTester& tester)
-	{
-		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
-
-		MutexLock l(_queue->Sync());
-		_queue->Push(ci);
-		_cond.Broadcast();
 	}
 
 
