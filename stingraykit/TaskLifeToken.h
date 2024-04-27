@@ -88,7 +88,7 @@ namespace stingray
 
 	class TaskLifeToken final
 	{
-		STINGRAYKIT_DEFAULTCOPYABLE(TaskLifeToken);
+		STINGRAYKIT_NONCOPYABLE(TaskLifeToken);
 		STINGRAYKIT_DEFAULTMOVABLE(TaskLifeToken);
 
 	private:
