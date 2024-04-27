@@ -138,9 +138,6 @@ namespace stingray
 			Handlers	_handlers;
 
 		public:
-			TaskLifeToken CreateSyncToken() const override final		{ return IsThreadsafe ? TaskLifeToken() : TaskLifeToken::CreateDummyTaskToken(); }
-			TaskLifeToken CreateAsyncToken() const override final		{ return TaskLifeToken(); }
-
 			Token Connect(const function_storage& func, const FutureExecutionTester& invokeTester, const TaskLifeToken& connectionToken, bool sendCurrentState) override final
 			{
 				LockType l(DoGetSync());
@@ -156,6 +153,16 @@ namespace stingray
 				DoSendCurrentState(slot);
 			}
 
+			TaskLifeToken CreateSyncToken() const override final		{ return IsThreadsafe ? TaskLifeToken() : TaskLifeToken::CreateDummyTaskToken(); }
+			TaskLifeToken CreateAsyncToken() const override final		{ return TaskLifeToken(); }
+
+		protected:
+			void CopyHandlersToLocal(LocalHandlersCopy& localCopy) const
+			{ std::copy(_handlers.begin(), _handlers.end(), std::back_inserter(localCopy)); }
+
+			virtual MutexRefType DoGetSync() const = 0;
+			virtual void DoSendCurrentState(const function_storage& slot) const = 0;
+
 		private:
 			void AddHandler(FuncStorageType& handler)
 			{
@@ -168,13 +175,6 @@ namespace stingray
 				LockType l(DoGetSync());
 				_handlers.erase(handler);
 			}
-
-		protected:
-			void CopyHandlersToLocal(LocalHandlersCopy& localCopy) const
-			{ std::copy(_handlers.begin(), _handlers.end(), std::back_inserter(localCopy)); }
-
-			virtual MutexRefType DoGetSync() const = 0;
-			virtual void DoSendCurrentState(const function_storage& slot) const = 0;
 		};
 
 
