@@ -62,11 +62,11 @@ namespace stingray
 		optional<QueueIterator>		_iterator;
 
 	public:
-		CallbackInfo(const TaskType& task, const TimeDuration& timeToTrigger, optional<TimeDuration> period, const TaskLifeToken& token)
+		CallbackInfo(const TaskType& task, const TimeDuration& timeToTrigger, optional<TimeDuration> period, TaskLifeToken&& token)
 			:	_task(task),
 				_timeToTrigger(timeToTrigger),
 				_period(period),
-				_token(token),
+				_token(std::move(token)),
 				_erased(false)
 		{ }
 
