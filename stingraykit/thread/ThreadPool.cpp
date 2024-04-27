@@ -36,7 +36,7 @@ namespace stingray
 		Thread					_worker;
 
 	public:
-		WorkerWrapper(const std::string& name, const optional<TimeDuration>& profileTimeout, const optional<TimeDuration>& idleTimeout, const ExceptionHandler& exceptionHandler, const CompletedHandler& completedHandler, const Task& task)
+		WorkerWrapper(const std::string& name, optional<TimeDuration> profileTimeout, optional<TimeDuration> idleTimeout, const ExceptionHandler& exceptionHandler, const CompletedHandler& completedHandler, const Task& task)
 			:	_name(name),
 				_profileTimeout(profileTimeout),
 				_idleTimeout(idleTimeout),
@@ -131,7 +131,7 @@ namespace stingray
 	};
 
 
-	ThreadPool::ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout, const optional<TimeDuration>& idleTimeout, const ExceptionHandler& exceptionHandler)
+	ThreadPool::ThreadPool(const std::string& name, size_t maxThreads, optional<TimeDuration> profileTimeout, optional<TimeDuration> idleTimeout, const ExceptionHandler& exceptionHandler)
 		:	_name(name),
 			_maxThreads(maxThreads),
 			_profileTimeout(profileTimeout),

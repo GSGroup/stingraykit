@@ -19,7 +19,7 @@ namespace stingray
 
 	const TimeDuration ThreadlessTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 
-	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandlerType& exceptionHandler)
+	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandlerType& exceptionHandler)
 		:	_name(name),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler)

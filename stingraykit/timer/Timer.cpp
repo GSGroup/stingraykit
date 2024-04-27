@@ -68,7 +68,7 @@ namespace stingray
 		bool IsErased() const									{ return _erased; }
 
 	public:
-		CallbackInfo(const TaskType& task, const TimeDuration& timeToTrigger, const optional<TimeDuration>& period, const TaskLifeToken& token)
+		CallbackInfo(const TaskType& task, const TimeDuration& timeToTrigger, optional<TimeDuration> period, const TaskLifeToken& token)
 			:	_task(task),
 				_timeToTrigger(timeToTrigger),
 				_period(period),
@@ -134,7 +134,7 @@ namespace stingray
 
 	const TimeDuration Timer::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 
-	Timer::Timer(const std::string& timerName, const optional<TimeDuration>& profileTimeout, const ExceptionHandler& exceptionHandler)
+	Timer::Timer(const std::string& timerName, optional<TimeDuration> profileTimeout, const ExceptionHandler& exceptionHandler)
 		:	_timerName(timerName),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),

@@ -19,7 +19,7 @@ namespace stingray
 	const TimeDuration ThreadTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 	const size_t ThreadTaskExecutor::TaskCountLimit = 256 * 4;
 
-	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, const optional<TimeDuration>& profileTimeout, const ExceptionHandlerType& exceptionHandler)
+	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandlerType& exceptionHandler)
 		:	_name(name),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),

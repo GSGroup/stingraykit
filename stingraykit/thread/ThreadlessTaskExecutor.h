@@ -40,7 +40,7 @@ namespace stingray
 		optional<std::string>	_activeExecutor;
 
 	public:
-		explicit ThreadlessTaskExecutor(const std::string& name, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &ThreadlessTaskExecutor::DefaultExceptionHandler);
+		explicit ThreadlessTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &ThreadlessTaskExecutor::DefaultExceptionHandler);
 
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null);
 

@@ -50,7 +50,7 @@ namespace stingray
 		unique_ptr<Thread>		_worker;
 
 	public:
-		ThreadPool(const std::string& name, size_t maxThreads, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const optional<TimeDuration>& idleTimeout = DefaultIdleTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
+		ThreadPool(const std::string& name, size_t maxThreads, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, optional<TimeDuration> idleTimeout = DefaultIdleTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 
 		bool CanQueue() const;
 

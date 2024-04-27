@@ -50,7 +50,7 @@ namespace stingray
 		ThreadPtr					_worker;
 
 	public:
-		explicit Timer(const std::string& timerName, const optional<TimeDuration>& profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
+		explicit Timer(const std::string& timerName, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 		virtual ~Timer();
 
 		Token SetTimeout(const TimeDuration& timeout, const TaskType& task);
