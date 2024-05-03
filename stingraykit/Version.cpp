@@ -9,7 +9,6 @@
 
 #include <stingraykit/string/StringParse.h>
 
-
 namespace stingray
 {
 
@@ -18,16 +17,17 @@ namespace stingray
 		StringBuilder builder;
 		builder % _major % '.' % _minor;
 		if (_build)
-			builder % '.' % *_build;
+			builder % '.' % _build;
 		return builder;
 	}
 
 
-	Version Version::FromString(const std::string& version)
+	Version Version::FromString(const std::string& str)
 	{
-		unsigned major, minor;
+		unsigned major;
+		unsigned minor;
 		optional<unsigned> build;
-		STINGRAYKIT_CHECK(StringParse(version, "%1%.%2%.%3%", major, minor, build) || StringParse(version, "%1%.%2%", major, minor), FormatException(version));
+		STINGRAYKIT_CHECK(StringParse(str, "%1%.%2%.%3%", major, minor, build) || StringParse(str, "%1%.%2%", major, minor), FormatException(str));
 		return Version(major, minor, build);
 	}
 

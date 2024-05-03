@@ -8,10 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/compare/MemberListComparer.h>
-#include <stingraykit/string/ToString.h>
-
+#include <stingraykit/optional.h>
 
 namespace stingray
 {
@@ -19,9 +17,9 @@ namespace stingray
 	class Version
 	{
 	private:
-		unsigned           _major;
-		unsigned           _minor;
-		optional<unsigned> _build;
+		unsigned					_major;
+		unsigned					_minor;
+		optional<unsigned>			_build;
 
 	public:
 		Version() : _major(), _minor(), _build() { }
@@ -38,10 +36,9 @@ namespace stingray
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Version);
 
 		std::string ToString() const;
-		static Version FromString(const std::string& version);
+		static Version FromString(const std::string& str);
 	};
 
 }
-
 
 #endif
