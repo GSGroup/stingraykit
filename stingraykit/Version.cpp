@@ -7,10 +7,15 @@
 
 #include <stingraykit/Version.h>
 
+#include <stingraykit/compare/MemberListComparer.h>
 #include <stingraykit/string/StringParse.h>
 
 namespace stingray
 {
+
+	bool Version::operator < (const Version& other) const
+	{ return CompareMembersLess(&Version::_major, &Version::_minor, &Version::_build)(*this, other); }
+
 
 	std::string Version::ToString() const
 	{

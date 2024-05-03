@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/compare/MemberListComparer.h>
 #include <stingraykit/optional.h>
 
 namespace stingray
@@ -31,8 +30,7 @@ namespace stingray
 		unsigned GetMinor() const { return _minor; }
 		optional<unsigned> GetBuild() const { return _build; }
 
-		bool operator < (const Version& other) const
-		{ return CompareMembersLess(&Version::_major, &Version::_minor, &Version::_build)(*this, other); }
+		bool operator < (const Version& other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Version);
 
 		std::string ToString() const;
