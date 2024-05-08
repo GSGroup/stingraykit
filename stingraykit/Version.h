@@ -29,18 +29,16 @@ namespace stingray
 			: _major(major), _minor(minor), _build(build)
 		{ }
 
-		static Version FromString(const std::string& version);
-
 		unsigned GetMajor() const { return _major; }
 		unsigned GetMinor() const { return _minor; }
 		optional<unsigned> GetBuild() const { return _build; }
 
-		std::string ToString() const;
-
 		bool operator < (const Version& other) const
 		{ return CompareMembersLess(&Version::_major, &Version::_minor, &Version::_build)(*this, other); }
-
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Version);
+
+		std::string ToString() const;
+		static Version FromString(const std::string& version);
 	};
 
 }
