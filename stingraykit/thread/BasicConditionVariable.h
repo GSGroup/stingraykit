@@ -62,7 +62,7 @@ namespace stingray
 			return _waiter.TimedWait(interval);
 		}
 
-		bool TimedWait(const MutexType& mutex, const Time& absTime) const
+		bool TimedWait(const MutexType& mutex, Time absTime) const
 		{
 			return TimedWait(mutex, absTime - Time::Now());
 		}

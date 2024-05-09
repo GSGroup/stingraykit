@@ -33,7 +33,7 @@ namespace posix {
 		void Wait() const;
 
 		bool TimedWait(TimeDuration interval) const;
-		bool TimedWait(const Time& absTime) const;
+		bool TimedWait(Time absTime) const;
 	};
 
 }}

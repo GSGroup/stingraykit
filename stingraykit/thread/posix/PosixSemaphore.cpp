@@ -43,7 +43,7 @@ namespace posix {
 			return result == 0;
 	}
 
-	bool PosixSemaphore::TimedWait(const Time& absTime) const
+	bool PosixSemaphore::TimedWait(Time absTime) const
 	{
 		timespec t = { };
 		posix::timespec_add(&t, TimeDuration::FromMilliseconds(absTime.GetMilliseconds()));

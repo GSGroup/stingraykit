@@ -22,7 +22,7 @@ namespace stingray
 	};
 
 
-	NtpTimestamp NtpTimestamp::FromTime(const Time& time)
+	NtpTimestamp NtpTimestamp::FromTime(Time time)
 	{
 		u32 integerPart = time.GetSeconds() +  DifferenceBetweenUnixNtpTime;
 		u32 fractionPart = time.GetSeconds() * ((u64)1 << 32);

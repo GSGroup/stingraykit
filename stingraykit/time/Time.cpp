@@ -364,7 +364,7 @@ namespace stingray
 	}
 
 
-	int Time::DaysTo(const Time& endTime) const
+	int Time::DaysTo(Time endTime) const
 	{ return DaysTo(endTime.BreakDown()); }
 
 
@@ -513,7 +513,7 @@ namespace stingray
 	}
 
 
-	std::string TimeUtility::ToIso8601(const Time& time)
+	std::string TimeUtility::ToIso8601(Time time)
 	{ return time.BreakDown(TimeKind::Utc).ToString("YYYY-MM-ddThh:mm:ss.lllZ"); }
 
 

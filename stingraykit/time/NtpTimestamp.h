@@ -28,7 +28,7 @@ namespace stingray
 		u64 GetTimestamp() const { return _timestamp; }
 
 		Time ToTime() const;
-		static NtpTimestamp FromTime(const Time& time);
+		static NtpTimestamp FromTime(Time time);
 	};
 
 }

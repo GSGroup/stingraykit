@@ -136,7 +136,7 @@ namespace stingray
 		u32 ToTimeT() const
 		{ return _milliseconds / 1000; }
 
-		TimeDuration operator - (const Time& other) const
+		TimeDuration operator - (Time other) const
 		{ return TimeDuration(_milliseconds - other._milliseconds); }
 
 		Time& operator -= (TimeDuration duration)
@@ -163,7 +163,7 @@ namespace stingray
 			return result += duration;
 		}
 
-		bool operator < (const Time& other) const
+		bool operator < (Time other) const
 		{ return _milliseconds < other._milliseconds; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Time);
 
@@ -188,7 +188,7 @@ namespace stingray
 		int GetMjd() const;
 		u32 GetBcdTime(TimeKind kind = TimeKind::Local) const;
 
-		int DaysTo(const Time& endTime) const;
+		int DaysTo(Time endTime) const;
 		int DaysTo(const BrokenDownTime& endTime) const;
 
 		void Serialize(ObjectOStream& ar) const;
@@ -214,7 +214,7 @@ namespace stingray
 		class FromIso8601Impl;
 
 	public:
-		static std::string ToIso8601(const Time& time);
+		static std::string ToIso8601(Time time);
 		static Time FromIso8601(const std::string& str);
 	};
 
