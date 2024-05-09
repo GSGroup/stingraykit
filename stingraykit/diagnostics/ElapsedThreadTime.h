@@ -22,7 +22,7 @@ namespace stingray
 		TimeDuration 	_systemTime;
 
 	public:
-		ThreadTime(const TimeDuration& realTime, const TimeDuration& userTime, const TimeDuration& systemTime)
+		ThreadTime(TimeDuration realTime, TimeDuration userTime, TimeDuration systemTime)
 			: _realTime(realTime), _userTime(userTime), _systemTime(systemTime)
 		{ }
 

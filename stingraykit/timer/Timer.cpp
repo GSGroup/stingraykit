@@ -62,7 +62,7 @@ namespace stingray
 		optional<QueueIterator>		_iterator;
 
 	public:
-		CallbackInfo(const TaskType& task, const TimeDuration& timeToTrigger, optional<TimeDuration> period, TaskLifeToken&& token)
+		CallbackInfo(const TaskType& task, TimeDuration timeToTrigger, optional<TimeDuration> period, TaskLifeToken&& token)
 			:	_task(task),
 				_timeToTrigger(timeToTrigger),
 				_period(period),
@@ -79,7 +79,7 @@ namespace stingray
 		}
 
 		bool IsPeriodic() const									{ return _period.is_initialized(); }
-		void Restart(const TimeDuration& currentTime)			{ _timeToTrigger = currentTime + *STINGRAYKIT_REQUIRE_INITIALIZED(_period); }
+		void Restart(TimeDuration currentTime)					{ _timeToTrigger = currentTime + *STINGRAYKIT_REQUIRE_INITIALIZED(_period); }
 		TimeDuration GetTimeToTrigger() const					{ return _timeToTrigger; }
 
 	private:
@@ -175,7 +175,7 @@ namespace stingray
 	}
 
 
-	Token Timer::SetTimeout(const TimeDuration& timeout, const TaskType& task)
+	Token Timer::SetTimeout(TimeDuration timeout, const TaskType& task)
 	{
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
 		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
@@ -190,11 +190,11 @@ namespace stingray
 	}
 
 
-	Token Timer::SetTimer(const TimeDuration& interval, const TaskType& task)
+	Token Timer::SetTimer(TimeDuration interval, const TaskType& task)
 	{ return SetTimer(interval, interval, task); }
 
 
-	Token Timer::SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const TaskType& task)
+	Token Timer::SetTimer(TimeDuration timeout, TimeDuration interval, const TaskType& task)
 	{
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
 		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));

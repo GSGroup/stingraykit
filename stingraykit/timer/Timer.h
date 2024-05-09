@@ -56,9 +56,9 @@ namespace stingray
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
-		Token SetTimeout(const TimeDuration& timeout, const TaskType& task);
-		Token SetTimer(const TimeDuration& interval, const TaskType& task);
-		Token SetTimer(const TimeDuration& timeout, const TimeDuration& interval, const TaskType& task);
+		Token SetTimeout(TimeDuration timeout, const TaskType& task);
+		Token SetTimer(TimeDuration interval, const TaskType& task);
+		Token SetTimer(TimeDuration timeout, TimeDuration interval, const TaskType& task);
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
