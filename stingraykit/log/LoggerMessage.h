@@ -33,9 +33,7 @@ namespace stingray
 		LoggerMessage(const LogLevel& logLevel, const std::string& message, bool highlight = false);
 		LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message, bool highlight = false);
 
-		bool HasLoggerName() const									{ return _loggerName.is_initialized(); }
-		std::string GetLoggerName() const;
-
+		const optional<std::string>& GetLoggerName() const			{ return _loggerName; }
 		LogLevel GetLogLevel() const								{ return _logLevel; }
 		Time GetTime() const										{ return _time; }
 		const std::string& GetThreadName() const					{ return _threadName; }

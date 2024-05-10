@@ -33,13 +33,6 @@ namespace stingray
 	{ }
 
 
-	std::string LoggerMessage::GetLoggerName() const
-	{
-		STINGRAYKIT_CHECK(HasLoggerName(), LogicException());
-		return *_loggerName;
-	}
-
-
 	std::string LoggerMessage::ToString() const
 	{
 		if (_loggerName)
