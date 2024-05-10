@@ -11,21 +11,25 @@
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/thread/Thread.h>
 
-
 namespace stingray
 {
 
-	LoggerMessage::LoggerMessage(const LogLevel& logLevel, const std::string& message, bool highlight) :
-		_logLevel(logLevel), _time(Time::Now()),
-		_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),
-		_message(message), _highlight(highlight)
+	LoggerMessage::LoggerMessage(const LogLevel& logLevel, const std::string& message, bool highlight)
+		:	_logLevel(logLevel),
+			_time(Time::Now()),
+			_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),
+			_message(message),
+			_highlight(highlight)
 	{ }
 
 
-	LoggerMessage::LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message, bool highlight) :
-		_loggerName(loggerName), _logLevel(logLevel), _time(Time::Now()),
-		_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),
-		_message(message), _highlight(highlight)
+	LoggerMessage::LoggerMessage(const std::string& loggerName, const LogLevel& logLevel, const std::string& message, bool highlight)
+		:	_loggerName(loggerName),
+			_logLevel(logLevel),
+			_time(Time::Now()),
+			_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),
+			_message(message),
+			_highlight(highlight)
 	{ }
 
 
