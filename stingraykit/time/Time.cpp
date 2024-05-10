@@ -8,8 +8,8 @@
 #include <stingraykit/time/Time.h>
 
 #include <stingraykit/serialization/Serialization.h>
-#include <stingraykit/string/StringFormat.h>
 #include <stingraykit/string/StringParse.h>
+#include <stingraykit/string/StringUtils.h>
 #include <stingraykit/time/TimeEngine.h>
 #include <stingraykit/math.h>
 
@@ -85,17 +85,17 @@ namespace stingray
 
 		if (hasHours)
 		{
-			ReplaceAll(result, "hh", StringFormat("%1$2%", hours));
+			ReplaceAll(result, "hh", RightJustify(stingray::ToString(hours), 2, '0'));
 			ReplaceAll(result, "h", stingray::ToString(hours));
 		}
 
-		ReplaceAll(result, "mm", StringFormat("%1$2%", minutes));
+		ReplaceAll(result, "mm", RightJustify(stingray::ToString(minutes), 2, '0'));
 		ReplaceAll(result, "m", stingray::ToString(minutes));
 
-		ReplaceAll(result, "ss", StringFormat("%1$2%", seconds));
+		ReplaceAll(result, "ss", RightJustify(stingray::ToString(seconds), 2, '0'));
 		ReplaceAll(result, "s", stingray::ToString(seconds));
 
-		ReplaceAll(result, "lll", StringFormat("%1$3%", milliseconds));
+		ReplaceAll(result, "lll", RightJustify(stingray::ToString(milliseconds), 3, '0'));
 
 		return result;
 	}
