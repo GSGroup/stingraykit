@@ -8,7 +8,6 @@
 #include <stingraykit/log/LoggerMessage.h>
 
 #include <stingraykit/compare/MemberListComparer.h>
-#include <stingraykit/string/StringFormat.h>
 #include <stingraykit/thread/Thread.h>
 
 namespace stingray
@@ -41,10 +40,14 @@ namespace stingray
 
 	std::string LoggerMessage::ToString() const
 	{
-		if (_loggerName)
-			return StringFormat("[%1%] [%2%] {%3%} [%4%] %5%", _time, _logLevel, _threadName, *_loggerName, _message);
+		StringBuilder sb;
+		sb % "[" % _time % "] [" % _logLevel % "] {" % _threadName % "} ";
 
-		return StringFormat("[%1%] [%2%] {%3%} %4%", _time, _logLevel, _threadName, _message);
+		if (_loggerName)
+			sb % "[" % _loggerName % "] ";
+
+		sb % _message;
+		return sb;
 	}
 
 
