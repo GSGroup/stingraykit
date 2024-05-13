@@ -122,9 +122,6 @@ namespace stingray
 	{
 		if (format.empty())
 		{
-#if 0
-			return ToString("dd/MM/YYYY hh:mm:ss.lll");
-#else
 			string_ostream stream;
 			stream << RightJustify(stingray::ToString(MonthDay), 2, '0') << '/';
 			stream << RightJustify(stingray::ToString(Month), 2, '0') << '/';
@@ -134,7 +131,6 @@ namespace stingray
 			stream << RightJustify(stingray::ToString(Seconds), 2, '0') << '.';
 			stream << RightJustify(stingray::ToString(Milliseconds), 3, '0');
 			return stream.str();
-#endif
 		}
 
 		string_ostream stream;
