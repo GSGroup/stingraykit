@@ -102,11 +102,11 @@ namespace stingray
 			return result;
 		}
 
-		std::string result = format;
+		StringBuilder result;
 		if (GetMilliseconds() < 0)
-			result.insert(0, "-");
+			result % '-';
 
-		const bool hasHours = result.find('h') != std::string::npos;
+		const bool hasHours = format.find('h') != std::string::npos;
 
 		const s64 absMs = Abs(GetMilliseconds());
 		const s64 hours = hasHours ? absMs / Hour().GetMilliseconds() : 0;
@@ -114,19 +114,56 @@ namespace stingray
 		const s64 seconds = absMs % Minute().GetMilliseconds() / Second().GetMilliseconds();
 		const s64 milliseconds = absMs % Second().GetMilliseconds();
 
-		if (hasHours)
+		for (size_t pos = 0; pos < format.size(); ++pos)
 		{
-			ReplaceAll(result, "hh", RightJustify(stingray::ToString(hours), 2, '0'));
-			ReplaceAll(result, "h", stingray::ToString(hours));
+			const char c = format[pos];
+
+			switch (c)
+			{
+			case 'h':
+				if (format.size() - pos > 1 && format[pos + 1] == 'h')
+				{
+					result % RightJustify(stingray::ToString(hours), 2, '0');
+					++pos;
+				}
+				else
+					result % hours;
+				break;
+
+			case 'm':
+				if (format.size() - pos > 1 && format[pos + 1] == 'm')
+				{
+					result % RightJustify(stingray::ToString(minutes), 2, '0');
+					++pos;
+				}
+				else
+					result % minutes;
+				break;
+
+			case 's':
+				if (format.size() - pos > 1 && format[pos + 1] == 's')
+				{
+					result % RightJustify(stingray::ToString(seconds), 2, '0');
+					++pos;
+				}
+				else
+					result % seconds;
+				break;
+
+			case 'l':
+				if (format.size() - pos > 2 && format[pos + 1] == 'l' && format[pos + 2] == 'l')
+				{
+					result % RightJustify(stingray::ToString(milliseconds), 3, '0');
+					pos += 2;
+					break;
+				}
+				// fall-through
+
+			default:
+				result % c;
+				break;
+			}
 		}
-
-		ReplaceAll(result, "mm", RightJustify(stingray::ToString(minutes), 2, '0'));
-		ReplaceAll(result, "m", stingray::ToString(minutes));
-
-		ReplaceAll(result, "ss", RightJustify(stingray::ToString(seconds), 2, '0'));
-		ReplaceAll(result, "s", stingray::ToString(seconds));
-
-		ReplaceAll(result, "lll", RightJustify(stingray::ToString(milliseconds), 3, '0'));
 
 		return result;
 	}
