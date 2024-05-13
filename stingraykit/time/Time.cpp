@@ -32,6 +32,8 @@ namespace stingray
 		const int SecondsPerDay				= HoursPerDay * SecondsPerHour;
 		const int DaysSinceMjd				= 40587;
 
+		const s64 MicrosecondsDivisors[] = { 1000000, 100000, 10000, 1000, 100, 10, 1 };
+
 		const s64 SecondsBetweenNtpAndUnixEpochs = 2208988800ll;
 
 		const u32 WindowsTicksPerSecond = 10000000;
@@ -103,16 +105,33 @@ namespace stingray
 		}
 
 		StringBuilder result;
-		if (GetMilliseconds() < 0)
+
+		bool hasHours = false;
+		size_t maxPrecision = 0;
+
+		for (size_t pos = 0; pos < format.size(); ++pos)
+		{
+			const char c = format[pos];
+
+			if (c == 'h')
+				hasHours = true;
+			else if (c == 'l')
+			{
+				const size_t lastPos = format.find_first_not_of('l', pos + 1);
+				const size_t precision = (lastPos == std::string::npos ? format.size() : lastPos) - pos;
+
+				maxPrecision = std::max(maxPrecision, precision);
+				pos += precision - 1;
+			}
+		}
+
+		if (GetMicroseconds() / ArrayGet(MicrosecondsDivisors, std::min(maxPrecision, ArraySize(MicrosecondsDivisors) - 1)) < 0)
 			result % '-';
 
-		const bool hasHours = format.find('h') != std::string::npos;
-
-		const s64 absMs = Abs(GetMilliseconds());
-		const s64 hours = hasHours ? absMs / Hour().GetMilliseconds() : 0;
-		const s64 minutes = (absMs - hours * Hour().GetMilliseconds()) / Minute().GetMilliseconds();
-		const s64 seconds = absMs % Minute().GetMilliseconds() / Second().GetMilliseconds();
-		const s64 milliseconds = absMs % Second().GetMilliseconds();
+		const s64 hours = hasHours ? Abs(_microseconds / Hour().GetMicroseconds()) : 0;
+		const s64 minutes = Abs(_microseconds < 0 ? _microseconds + hours * Hour().GetMicroseconds() : _microseconds - hours * Hour().GetMicroseconds()) / Minute().GetMicroseconds();
+		const s64 seconds = Abs(_microseconds % Minute().GetMicroseconds()) / Second().GetMicroseconds();
+		const s64 microseconds = Abs(_microseconds % Second().GetMicroseconds());
 
 		for (size_t pos = 0; pos < format.size(); ++pos)
 		{
@@ -151,13 +170,15 @@ namespace stingray
 				break;
 
 			case 'l':
-				if (format.size() - pos > 2 && format[pos + 1] == 'l' && format[pos + 2] == 'l')
-				{
-					result % RightJustify(stingray::ToString(milliseconds), 3, '0');
-					pos += 2;
-					break;
-				}
-				// fall-through
+			{
+				const size_t lastPos = format.find_first_not_of('l', pos + 1);
+				const size_t precision = (lastPos == std::string::npos ? format.size() : lastPos) - pos;
+				const size_t croppedPrecision = std::min(precision, ArraySize(MicrosecondsDivisors) - 1);
+
+				result % RightJustify(stingray::ToString(microseconds / ArrayGet(MicrosecondsDivisors, croppedPrecision)), croppedPrecision, '0');
+				pos += precision - 1;
+				break;
+			}
 
 			default:
 				result % c;
