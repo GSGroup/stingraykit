@@ -71,7 +71,27 @@ namespace stingray
 
 	std::string TimeDuration::ToString(const std::string& format) const
 	{
-		std::string result = format.empty() ? "hh:mm:ss.lll" : format;
+		if (format.empty())
+		{
+			StringBuilder result;
+			if (GetMilliseconds() < 0)
+				result % '-';
+
+			const s64 absMs = Absolute().GetMilliseconds();
+			const s64 hours = absMs / Hour().GetMilliseconds();
+			const s64 minutes = absMs % Hour().GetMilliseconds() / Minute().GetMilliseconds();
+			const s64 seconds = absMs % Minute().GetMilliseconds() / Second().GetMilliseconds();
+			const s64 milliseconds = absMs % Second().GetMilliseconds();
+
+			result % RightJustify(stingray::ToString(hours), 2, '0') % ':';
+			result % RightJustify(stingray::ToString(minutes), 2, '0') % ':';
+			result % RightJustify(stingray::ToString(seconds), 2, '0') % '.';
+			result % RightJustify(stingray::ToString(milliseconds), 3, '0');
+
+			return result;
+		}
+
+		std::string result = format;
 		if (GetMilliseconds() < 0)
 			result.insert(0, "-");
 
