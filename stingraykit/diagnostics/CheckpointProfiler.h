@@ -8,17 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
-#include <string>
-#include <utility>
-#include <vector>
-
 #include <stingraykit/log/LogLevel.h>
 #include <stingraykit/thread/Thread.h>
 #include <stingraykit/time/ElapsedTime.h>
-#include <stingraykit/time/Time.h>
-#include <stingraykit/optional.h>
-
 
 namespace stingray
 {
