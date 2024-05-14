@@ -7,6 +7,7 @@
 
 #include <stingraykit/signal/signals.h>
 #include <stingraykit/signal/ValueFromSignalObtainer.h>
+#include <stingraykit/string/ToString.h>
 
 #include <gtest/gtest.h>
 

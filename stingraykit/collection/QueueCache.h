@@ -12,6 +12,7 @@
 #include <stingraykit/collection/ICache.h>
 #include <stingraykit/compare/comparers.h>
 #include <stingraykit/signal/signals.h>
+#include <stingraykit/string/ToString.h>
 
 #include <map>
 

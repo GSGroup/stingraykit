@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/diagnostics/ExternalAPIGuard.h>
-#include <stingraykit/string/ToString.h>
 #include <stingraykit/time/Time.h>
 
 namespace stingray
@@ -48,8 +47,7 @@ namespace stingray
 		ThreadSchedulingPolicy GetPolicy() const	{ return _policy; }
 		int GetPriority() const						{ return _priority; }
 
-		std::string ToString() const
-		{ return StringBuilder() % "{ policy: " % _policy % ", priority: " % _priority % " }"; }
+		std::string ToString() const;
 
 		/**
 		 * WARNING @param veryHigh = true could make vendor drivers unstable.
@@ -174,8 +172,7 @@ namespace stingray
 		TimeDuration GetUserTime() const	{ return _uTime; }
 		TimeDuration GetSystemTime() const	{ return _sTime; }
 
-		std::string ToString() const
-		{ return StringBuilder() % "{ user: " % _uTime.GetMilliseconds() % " ms, system: " % _sTime.GetMilliseconds() % " ms }"; }
+		std::string ToString() const;
 	};
 
 
@@ -205,8 +202,7 @@ namespace stingray
 		ThreadCpuStats GetCpuStats() const			{ return _cpuStats; }
 		ThreadCpuStats GetChildrenCpuStats() const	{ return _childrenCpuStats; }
 
-		std::string ToString() const
-		{ return StringBuilder() % "{ tid: " % _threadId % ", parent: " % _parentId % ", name: " % _threadName % ", stats: " % _cpuStats % ", children: " % _childrenCpuStats % " }"; }
+		std::string ToString() const;
 	};
 	using ThreadStatsVector = std::vector<ThreadStats>;
 
@@ -232,8 +228,7 @@ namespace stingray
 		u64 GetIoWait() const	{ return _iowait; }
 		u64 GetIdle() const	{ return _idle; }
 
-		std::string ToString() const
-		{ return StringBuilder() % "{ user: " % _user % " ticks, system: " % _system % " ticks, iowait: " % _iowait % " ticks, idle: " % _idle % " }"; }
+		std::string ToString() const;
 	};
 
 	/** @} */
