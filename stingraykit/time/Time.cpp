@@ -299,11 +299,6 @@ namespace stingray
 	{ ar.Deserialize("offset", _minutesFromUtc); }
 
 
-	Time::Time(s64 milliseconds)
-		: _milliseconds(milliseconds)
-	{ }
-
-
 	Time Time::Now()
 	{ return Time(TimeEngine::GetMillisecondsSinceEpoch()); }
 

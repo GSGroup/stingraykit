@@ -130,49 +130,51 @@ namespace stingray
 		s64		_milliseconds;
 
 	public:
-		explicit Time(s64 milliseconds = 0);
+		constexpr explicit Time(s64 milliseconds = 0)
+			:	_milliseconds(milliseconds)
+		{ }
 
-		static Time FromTimeT(time_t t)
+		constexpr static Time FromTimeT(time_t t)
 		{ return Time((s64)t * 1000); }
 
-		u32 ToTimeT() const
+		constexpr u32 ToTimeT() const
 		{ return _milliseconds / 1000; }
 
-		TimeDuration operator - (Time other) const
+		constexpr TimeDuration operator - (Time other) const
 		{ return TimeDuration(_milliseconds - other._milliseconds); }
 
-		Time& operator -= (TimeDuration duration)
+		constexpr Time& operator -= (TimeDuration duration)
 		{
 			_milliseconds -= duration.GetMilliseconds();
 			return *this;
 		}
 
-		Time& operator += (TimeDuration duration)
+		constexpr Time& operator += (TimeDuration duration)
 		{
 			_milliseconds += duration.GetMilliseconds();
 			return *this;
 		}
 
-		Time operator - (TimeDuration duration) const
+		constexpr Time operator - (TimeDuration duration) const
 		{
 			Time result(*this);
 			return result -= duration;
 		}
 
-		Time operator + (TimeDuration duration) const
+		constexpr Time operator + (TimeDuration duration) const
 		{
 			Time result(*this);
 			return result += duration;
 		}
 
-		bool operator < (Time other) const
+		constexpr bool operator < (Time other) const
 		{ return _milliseconds < other._milliseconds; }
-		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Time);
+		STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_LESS(Time);
 
 		static Time Now();
 
-		s64 GetMilliseconds() const	{ return _milliseconds; }
-		s64 GetSeconds() const		{ return GetMilliseconds() / 1000; }
+		constexpr s64 GetMilliseconds() const		{ return _milliseconds; }
+		constexpr s64 GetSeconds() const			{ return GetMilliseconds() / 1000; }
 
 		BrokenDownTime BreakDown(TimeKind kind = TimeKind::Local) const;
 		static Time FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind = TimeKind::Local);
