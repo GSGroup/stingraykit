@@ -14,12 +14,11 @@
 namespace stingray
 {
 
-	const TimeDuration ThreadPool::DefaultIdleTimeout = TimeDuration::Minute();
-	const TimeDuration ThreadPool::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
-
-
 	class ThreadPool::WorkerWrapper
 	{
+	public:
+		using CompletedHandler = function<void ()>;
+
 	private:
 		std::string				_name;
 		optional<TimeDuration>	_profileTimeout;
@@ -131,6 +130,10 @@ namespace stingray
 	};
 
 
+	const TimeDuration ThreadPool::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+	const TimeDuration ThreadPool::DefaultIdleTimeout = TimeDuration::Minute();
+
+
 	ThreadPool::ThreadPool(const std::string& name, size_t maxThreads, optional<TimeDuration> profileTimeout, optional<TimeDuration> idleTimeout, const ExceptionHandler& exceptionHandler)
 		:	_name(name),
 			_maxThreads(maxThreads),
@@ -164,7 +167,7 @@ namespace stingray
 		if (!_task)
 		{
 			if (!_worker)
-				_worker.reset(new Thread(_name + "_0", Bind(&ThreadPool::ThreadFunc, this, _1)));
+				_worker = make_unique_ptr<Thread>(_name + "_0", Bind(&ThreadPool::ThreadFunc, this, _1));
 
 			_task = task;
 			_cond.Broadcast();
@@ -201,9 +204,9 @@ namespace stingray
 
 			switch (_completedCond.Wait(_mutex, token))
 			{
-			case ConditionWaitResult::Cancelled:	STINGRAYKIT_THROW(OperationCancelledException());
-			case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
-			default:								break;
+			case ConditionWaitResult::Broadcasted:		break;
+			case ConditionWaitResult::Cancelled:		STINGRAYKIT_THROW(OperationCancelledException());
+			case ConditionWaitResult::TimedOut:			STINGRAYKIT_THROW(TimeoutException());
 			}
 		}
 

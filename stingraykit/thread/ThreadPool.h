@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/thread/ConditionVariable.h>
-#include <stingraykit/unique_ptr.h>
 
 namespace stingray
 {
@@ -19,20 +18,18 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ThreadPool);
 
 	public:
-		typedef function<void (const ICancellationToken&)>	Task;
-		typedef function<void (const std::exception&)>		ExceptionHandler;
-
-	public:
-		static const TimeDuration DefaultIdleTimeout;
-		static const TimeDuration DefaultProfileTimeout;
+		using Task = function<void (const ICancellationToken&)>;
+		using ExceptionHandler = function<void (const std::exception&)>;
 
 	private:
-		typedef function<void ()>	CompletedHandler;
-
 		class WorkerWrapper;
 		STINGRAYKIT_DECLARE_PTR(WorkerWrapper);
 
-		typedef std::vector<WorkerWrapperPtr>	Workers;
+		using Workers = std::vector<WorkerWrapperPtr>;
+
+	public:
+		static const TimeDuration DefaultProfileTimeout;
+		static const TimeDuration DefaultIdleTimeout;
 
 	private:
 		std::string				_name;
