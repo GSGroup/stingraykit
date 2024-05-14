@@ -56,6 +56,10 @@ namespace stingray
 	}
 
 
+	TimeDuration TimeDuration::RoundToMilliseconds() const
+	{ return TimeDuration(GetMilliseconds() + (Abs(_microseconds % 1000) < 500 ? 0 : _microseconds < 0 ? -1 : 1)); }
+
+
 	void TimeDuration::Serialize(ObjectOStream& ar) const
 	{ ar.Serialize("us", _microseconds); }
 

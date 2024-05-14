@@ -60,19 +60,19 @@ TEST(TimeDurationTest, Round)
 	ASSERT_EQ(TimeDuration::FromMicroseconds(0).RoundToMilliseconds(), TimeDuration::FromMicroseconds(0));
 
 	ASSERT_EQ(TimeDuration::FromMicroseconds(1).RoundToMilliseconds(), TimeDuration::FromMicroseconds(0));
-//	ASSERT_EQ(TimeDuration::FromMicroseconds(-1).RoundToMilliseconds(), TimeDuration::FromMicroseconds(0));
+	ASSERT_EQ(TimeDuration::FromMicroseconds(-1).RoundToMilliseconds(), TimeDuration::FromMicroseconds(0));
 
 	ASSERT_EQ(TimeDuration::FromMicroseconds(499).RoundToMilliseconds(), TimeDuration::FromMicroseconds(0));
-//	ASSERT_EQ(TimeDuration::FromMicroseconds(-499).RoundToMilliseconds(), TimeDuration::FromMicroseconds(0));
+	ASSERT_EQ(TimeDuration::FromMicroseconds(-499).RoundToMilliseconds(), TimeDuration::FromMicroseconds(0));
 
 	ASSERT_EQ(TimeDuration::FromMicroseconds(500).RoundToMilliseconds(), TimeDuration::FromMicroseconds(1000));
-//	ASSERT_EQ(TimeDuration::FromMicroseconds(-500).RoundToMilliseconds(), TimeDuration::FromMicroseconds(-1000));
+	ASSERT_EQ(TimeDuration::FromMicroseconds(-500).RoundToMilliseconds(), TimeDuration::FromMicroseconds(-1000));
 
 	ASSERT_EQ(TimeDuration::FromMicroseconds(999).RoundToMilliseconds(), TimeDuration::FromMicroseconds(1000));
-//	ASSERT_EQ(TimeDuration::FromMicroseconds(-999).RoundToMilliseconds(), TimeDuration::FromMicroseconds(-1000));
+	ASSERT_EQ(TimeDuration::FromMicroseconds(-999).RoundToMilliseconds(), TimeDuration::FromMicroseconds(-1000));
 
 	ASSERT_EQ(TimeDuration::FromMicroseconds(1000).RoundToMilliseconds(), TimeDuration::FromMicroseconds(1000));
-//	ASSERT_EQ(TimeDuration::FromMicroseconds(-1000).RoundToMilliseconds(), TimeDuration::FromMicroseconds(-1000));
+	ASSERT_EQ(TimeDuration::FromMicroseconds(-1000).RoundToMilliseconds(), TimeDuration::FromMicroseconds(-1000));
 }
 
 

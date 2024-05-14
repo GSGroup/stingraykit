@@ -43,7 +43,7 @@ namespace stingray
 		s64 GetDays() const									{ return GetHours() / 24; }
 
 		TimeDuration Absolute() const;
-		TimeDuration RoundToMilliseconds() const			{ return TimeDuration(GetMilliseconds() + (_microseconds % 1000 >= 500 ? 1 : 0)); }
+		TimeDuration RoundToMilliseconds() const;
 
 		void Serialize(ObjectOStream& ar) const;
 		void Deserialize(ObjectIStream& ar);
