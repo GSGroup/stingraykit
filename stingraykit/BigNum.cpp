@@ -7,6 +7,8 @@
 
 #include <stingraykit/BigNum.h>
 
+#include <stingraykit/string/ToString.h>
+
 namespace stingray
 {
 
