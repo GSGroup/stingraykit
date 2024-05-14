@@ -13,10 +13,10 @@
 namespace stingray
 {
 
-	inline s8	Abs(s8 val)		{ return val >= 0 ? val : -val; }
-	inline s16	Abs(s16 val)	{ return val >= 0 ? val : -val; }
-	inline s32	Abs(s32 val)	{ return val >= 0 ? val : -val; }
-	inline s64	Abs(s64 val)	{ return val >= 0 ? val : -val; }
+	constexpr s8 Abs(s8 val) { return val >= 0 ? val : -val; }
+	constexpr s16 Abs(s16 val) { return val >= 0 ? val : -val; }
+	constexpr s32 Abs(s32 val) { return val >= 0 ? val : -val; }
+	constexpr s64 Abs(s64 val) { return val >= 0 ? val : -val; }
 
 	template < typename T > constexpr T AlignUp(T value, T boundary)
 	{
