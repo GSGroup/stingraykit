@@ -89,10 +89,8 @@ namespace stingray
 		CheckpointProfiler&	_profiler;
 		std::string			_message;
 	public:
-		CheckpointTracer(CheckpointProfiler& profiler, const std::string& message) : _profiler(profiler), _message(message)
-		{ _profiler.Checkpoint(StringBuilder() % "Entered " % _message); }
-		~CheckpointTracer()
-		{ _profiler.Checkpoint(StringBuilder() % "Left " % _message); }
+		CheckpointTracer(CheckpointProfiler& profiler, const std::string& message);
+		~CheckpointTracer();
 	};
 
 	/** @} */

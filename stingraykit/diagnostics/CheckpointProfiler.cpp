@@ -120,4 +120,13 @@ namespace stingray
 	void AutoCheckpointProfiler::Checkpoint(const std::string& checkpointName) const
 	{ _profilerHolder->_profiler.Checkpoint(checkpointName); }
 
+
+	CheckpointTracer::CheckpointTracer(CheckpointProfiler& profiler, const std::string& message)
+		: _profiler(profiler), _message(message)
+	{ _profiler.Checkpoint(StringBuilder() % "Entered " % _message); }
+
+
+	CheckpointTracer::~CheckpointTracer()
+	{ _profiler.Checkpoint(StringBuilder() % "Left " % _message); }
+
 }
