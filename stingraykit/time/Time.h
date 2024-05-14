@@ -28,19 +28,21 @@ namespace stingray
 		s64		_microseconds;
 
 	private:
-		TimeDuration(s64 microseconds, Dummy dummy) : _microseconds(microseconds)
+		constexpr TimeDuration(s64 microseconds, Dummy dummy)
+			:	_microseconds(microseconds)
 		{ }
 
 	public:
-		explicit TimeDuration(s64 milliseconds = 0) : _microseconds(1000 * milliseconds)
+		constexpr explicit TimeDuration(s64 milliseconds = 0)
+			:	_microseconds(1000 * milliseconds)
 		{ }
 
-		s64 GetMicroseconds() const							{ return _microseconds; }
-		s64 GetMilliseconds() const							{ return GetMicroseconds() / 1000; }
-		s64 GetSeconds() const								{ return GetMilliseconds() / 1000; }
-		s64 GetMinutes() const								{ return GetSeconds() / 60; }
-		s64 GetHours() const								{ return GetMinutes() / 60; }
-		s64 GetDays() const									{ return GetHours() / 24; }
+		constexpr s64 GetMicroseconds() const								{ return _microseconds; }
+		constexpr s64 GetMilliseconds() const								{ return GetMicroseconds() / 1000; }
+		constexpr s64 GetSeconds() const									{ return GetMilliseconds() / 1000; }
+		constexpr s64 GetMinutes() const									{ return GetSeconds() / 60; }
+		constexpr s64 GetHours() const										{ return GetMinutes() / 60; }
+		constexpr s64 GetDays() const										{ return GetHours() / 24; }
 
 		TimeDuration Absolute() const;
 		TimeDuration RoundToMilliseconds() const;
@@ -48,47 +50,47 @@ namespace stingray
 		void Serialize(ObjectOStream& ar) const;
 		void Deserialize(ObjectIStream& ar);
 
-		TimeDuration& operator += (TimeDuration other)			{ _microseconds += other._microseconds; return *this; }
-		TimeDuration operator + (TimeDuration other) const		{ TimeDuration result(*this); return result += other; }
+		constexpr TimeDuration& operator += (TimeDuration other)			{ _microseconds += other._microseconds; return *this; }
+		constexpr TimeDuration operator + (TimeDuration other) const		{ TimeDuration result(*this); return result += other; }
 
-		TimeDuration& operator -= (TimeDuration other)			{ _microseconds -= other._microseconds; return *this; }
-		TimeDuration operator - (TimeDuration other) const		{ TimeDuration result(*this); return result -= other; }
-		TimeDuration operator - () const						{ return TimeDuration(-_microseconds, Dummy()); }
+		constexpr TimeDuration& operator -= (TimeDuration other)			{ _microseconds -= other._microseconds; return *this; }
+		constexpr TimeDuration operator - (TimeDuration other) const		{ TimeDuration result(*this); return result -= other; }
+		constexpr TimeDuration operator - () const							{ return TimeDuration(-_microseconds, Dummy()); }
 
-		TimeDuration& operator *= (int multiplier)				{ _microseconds *= multiplier; return *this; }
-		TimeDuration operator * (int multiplier) const			{ TimeDuration result(*this); return result *= multiplier; }
+		constexpr TimeDuration& operator *= (int multiplier)				{ _microseconds *= multiplier; return *this; }
+		constexpr TimeDuration operator * (int multiplier) const			{ TimeDuration result(*this); return result *= multiplier; }
 
-		TimeDuration& operator /= (int divisor)					{ _microseconds /= divisor; return *this; }
-		TimeDuration operator / (int divisor) const				{ TimeDuration result(*this); return result /= divisor; }
+		constexpr TimeDuration& operator /= (int divisor)					{ _microseconds /= divisor; return *this; }
+		constexpr TimeDuration operator / (int divisor) const				{ TimeDuration result(*this); return result /= divisor; }
 
-		s64 operator / (TimeDuration divisor) const				{ return _microseconds / divisor._microseconds; }
+		constexpr s64 operator / (TimeDuration divisor) const				{ return _microseconds / divisor._microseconds; }
 
-		TimeDuration& operator %= (TimeDuration divisor)		{ _microseconds %= divisor._microseconds; return *this; }
-		TimeDuration operator % (TimeDuration divisor) const	{ TimeDuration result(*this); return result %= divisor; }
+		constexpr TimeDuration& operator %= (TimeDuration divisor)			{ _microseconds %= divisor._microseconds; return *this; }
+		constexpr TimeDuration operator % (TimeDuration divisor) const		{ TimeDuration result(*this); return result %= divisor; }
 
-		bool operator < (TimeDuration other) const				{ return _microseconds < other._microseconds; }
-		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
+		constexpr bool operator < (TimeDuration other) const				{ return _microseconds < other._microseconds; }
+		STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
 
 		std::string ToString(const std::string& format = std::string()) const;
 		static TimeDuration FromString(const std::string& str);
 
-		static TimeDuration FromMicroseconds(s64 microseconds)	{ return TimeDuration(microseconds, Dummy()); }
-		static TimeDuration FromMilliseconds(s64 milliseconds)	{ return TimeDuration(milliseconds); }
+		constexpr static TimeDuration FromMicroseconds(s64 microseconds)	{ return TimeDuration(microseconds, Dummy()); }
+		constexpr static TimeDuration FromMilliseconds(s64 milliseconds)	{ return TimeDuration(milliseconds); }
 
-		static TimeDuration Second()							{ return TimeDuration(1000); }
-		static TimeDuration Minute()							{ return Second() * 60; }
-		static TimeDuration Hour()								{ return Minute() * 60; }
-		static TimeDuration Day()								{ return Hour() * 24; }
+		constexpr static TimeDuration Second()								{ return TimeDuration(1000); }
+		constexpr static TimeDuration Minute()								{ return Second() * 60; }
+		constexpr static TimeDuration Hour()								{ return Minute() * 60; }
+		constexpr static TimeDuration Day()									{ return Hour() * 24; }
 
-		static TimeDuration FromSeconds(int seconds)			{ return Second() * seconds; }
-		static TimeDuration FromMinutes(int minutes)			{ return Minute() * minutes; }
-		static TimeDuration FromHours(int hours)				{ return Hour() * hours; }
-		static TimeDuration FromDays(int days)					{ return Day() * days; }
+		constexpr static TimeDuration FromSeconds(int seconds)				{ return Second() * seconds; }
+		constexpr static TimeDuration FromMinutes(int minutes)				{ return Minute() * minutes; }
+		constexpr static TimeDuration FromHours(int hours)					{ return Hour() * hours; }
+		constexpr static TimeDuration FromDays(int days)					{ return Day() * days; }
 
 		static TimeDuration FromBcdDuration(u32 bcdDuration);
 
-		static TimeDuration Min() { return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::min()); }
-		static TimeDuration Max() { return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::max()); }
+		constexpr static TimeDuration Min()									{ return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::min()); }
+		constexpr static TimeDuration Max()									{ return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::max()); }
 	};
 
 
