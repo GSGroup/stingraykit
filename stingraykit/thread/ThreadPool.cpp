@@ -149,8 +149,8 @@ namespace stingray
 		if (!_task || (_workers.size() + 1 < _maxThreads))
 			return true;
 
-		for (Workers::const_iterator it = _workers.begin(); it != _workers.end(); ++it)
-			if (!*it || (*it)->CanAddTask())
+		for (const auto& worker : _workers)
+			if (!worker || worker->CanAddTask())
 				return true;
 
 		return false;
@@ -241,9 +241,9 @@ namespace stingray
 				if (!_workers.empty() && _idleTimeout)
 				{
 					if (_cond.Wait(_mutex, TimedCancellationToken(token, *_idleTimeout)) == ConditionWaitResult::TimedOut)
-						for (Workers::iterator it = _workers.begin(); it != _workers.end(); ++it)
-							if (*it && (*it)->IsIdle())
-								it->reset();
+						for (auto& worker : _workers)
+							if (worker && worker->IsIdle())
+								worker.reset();
 
 					while (!_workers.empty() && !_workers.back())
 						_workers.pop_back();
