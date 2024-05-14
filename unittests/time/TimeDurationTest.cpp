@@ -51,7 +51,7 @@ TEST(TimeDurationTest, Absolute)
 	ASSERT_EQ((-TimeDuration::Second()).Absolute(), TimeDuration::Second());
 
 	ASSERT_EQ(TimeDuration::Max().Absolute(), TimeDuration::Max());
-//	ASSERT_ANY_THROW(TimeDuration::Min().Absolute());
+	ASSERT_ANY_THROW(TimeDuration::Min().Absolute());
 }
 
 

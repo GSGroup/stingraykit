@@ -42,7 +42,7 @@ namespace stingray
 		s64 GetHours() const								{ return GetMinutes() / 60; }
 		s64 GetDays() const									{ return GetHours() / 24; }
 
-		TimeDuration Absolute() const						{ return TimeDuration(_microseconds < 0 ? -_microseconds : _microseconds, Dummy()); }
+		TimeDuration Absolute() const;
 		TimeDuration RoundToMilliseconds() const			{ return TimeDuration(GetMilliseconds() + (_microseconds % 1000 >= 500 ? 1 : 0)); }
 
 		void Serialize(ObjectOStream& ar) const;

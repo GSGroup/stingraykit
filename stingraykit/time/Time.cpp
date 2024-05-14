@@ -49,6 +49,13 @@ namespace stingray
 	}
 
 
+	TimeDuration TimeDuration::Absolute() const
+	{
+		STINGRAYKIT_CHECK(_microseconds > std::numeric_limits<s64>::min(), IntegerOverflowException(std::numeric_limits<s64>::max(), 1));
+		return TimeDuration(Abs(_microseconds), Dummy());
+	}
+
+
 	void TimeDuration::Serialize(ObjectOStream& ar) const
 	{ ar.Serialize("us", _microseconds); }
 
