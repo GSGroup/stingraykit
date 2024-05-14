@@ -143,6 +143,10 @@ namespace stingray
 	{ STINGRAYKIT_CHECK(_maxThreads != 0, ArgumentException("maxThreads")); }
 
 
+	ThreadPool::~ThreadPool()
+	{ }
+
+
 	bool ThreadPool::CanQueue() const
 	{
 		MutexLock l(_mutex);
@@ -178,7 +182,7 @@ namespace stingray
 		{
 			if (!*it)
 			{
-				*it = make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (std::distance(_workers.begin(), it) + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), task);
+				*it = make_unique_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (std::distance(_workers.begin(), it) + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), task);
 				return true;
 			}
 			else if ((*it)->TryAddTask(task))
@@ -188,7 +192,7 @@ namespace stingray
 		if (_workers.size() + 1 >= _maxThreads)
 			return false;
 
-		_workers.push_back(make_shared_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), task));
+		_workers.push_back(make_unique_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), task));
 		return true;
 	}
 

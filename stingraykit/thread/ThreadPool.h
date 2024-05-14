@@ -23,9 +23,7 @@ namespace stingray
 
 	private:
 		class WorkerWrapper;
-		STINGRAYKIT_DECLARE_PTR(WorkerWrapper);
-
-		using Workers = std::vector<WorkerWrapperPtr>;
+		using Workers = std::vector<unique_ptr<WorkerWrapper>>;
 
 	public:
 		static const TimeDuration DefaultProfileTimeout;
@@ -48,6 +46,7 @@ namespace stingray
 
 	public:
 		ThreadPool(const std::string& name, size_t maxThreads, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, optional<TimeDuration> idleTimeout = DefaultIdleTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
+		~ThreadPool();
 
 		bool CanQueue() const;
 
