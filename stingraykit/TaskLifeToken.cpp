@@ -11,11 +11,6 @@
 namespace stingray
 {
 
-	/**
-	 * @addtogroup toolkit_functions
-	 * @{
-	 */
-
 	namespace Detail
 	{
 
@@ -119,7 +114,5 @@ namespace stingray
 		_impl = make_self_count_ptr<Detail::TaskLifeTokenImpl>();
 		return *this;
 	}
-
-	/** @} */
 
 }
