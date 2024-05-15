@@ -88,7 +88,7 @@ namespace stingray
 			if (GetMilliseconds() < 0)
 				result % '-';
 
-			const s64 absMs = Absolute().GetMilliseconds();
+			const s64 absMs = Abs(GetMilliseconds());
 			const s64 hours = absMs / Hour().GetMilliseconds();
 			const s64 minutes = absMs % Hour().GetMilliseconds() / Minute().GetMilliseconds();
 			const s64 seconds = absMs % Minute().GetMilliseconds() / Second().GetMilliseconds();
@@ -108,7 +108,7 @@ namespace stingray
 
 		const bool hasHours = result.find('h') != std::string::npos;
 
-		const s64 absMs = Absolute().GetMilliseconds();
+		const s64 absMs = Abs(GetMilliseconds());
 		const s64 hours = hasHours ? absMs / Hour().GetMilliseconds() : 0;
 		const s64 minutes = (absMs - hours * Hour().GetMilliseconds()) / Minute().GetMilliseconds();
 		const s64 seconds = absMs % Minute().GetMilliseconds() / Second().GetMilliseconds();

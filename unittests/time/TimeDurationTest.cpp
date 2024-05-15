@@ -81,8 +81,8 @@ TEST(TimeDurationTest, ToString)
 	ASSERT_EQ(TimeDuration::Max().ToString(), "2562047788:00:54.775");
 	ASSERT_EQ(TimeDuration::Max().ToString(), TimeDuration::Max().ToString("hh:mm:ss.lll"));
 
-//	ASSERT_EQ(TimeDuration::Min().ToString(), "-2562047788:00:54.775");
-//	ASSERT_EQ(TimeDuration::Min().ToString(), TimeDuration::Min().ToString("hh:mm:ss.lll"));
+	ASSERT_EQ(TimeDuration::Min().ToString(), "-2562047788:00:54.775");
+	ASSERT_EQ(TimeDuration::Min().ToString(), TimeDuration::Min().ToString("hh:mm:ss.lll"));
 
 	ASSERT_EQ(TimeDuration(1).ToString(), "00:00:00.001");
 	ASSERT_EQ(TimeDuration(1).ToString("lll"), "001");
