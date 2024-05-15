@@ -13,17 +13,6 @@
 #include <stingraykit/EnumToString.h>
 #include <stingraykit/MetaProgramming.h>
 
-namespace stingray
-{
-
-	struct IFactoryObject
-	{
-		virtual ~IFactoryObject() { }
-
-		virtual std::string GetClassName() const = 0;
-	};
-
-}
 
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(PRODUCTION_BUILD)
 #	define STINGRAYKIT_FUNCTION __PRETTY_FUNCTION__
