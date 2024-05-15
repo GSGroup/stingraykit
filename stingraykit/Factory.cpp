@@ -11,11 +11,12 @@
 namespace stingray
 {
 
-	FactoryContext::FactoryContext() { }
+	FactoryContext::FactoryContext()
+	{ }
 
 
 	FactoryContext::FactoryContext(const FactoryContextPtr& baseContext)
-		: _baseContext(baseContext)
+		: _baseContext(STINGRAYKIT_REQUIRE_NOT_NULL(baseContext))
 	{ }
 
 
@@ -34,12 +35,12 @@ namespace stingray
 		{
 			MutexLock l(_guard);
 
-			ClassNamesRegistry::const_iterator it = _classNames.find(info_);
+			const ClassNamesRegistry::const_iterator it = _classNames.find(info_);
 			if (it != _classNames.end())
 				return it->second;
 		}
 
-		STINGRAYKIT_CHECK(_baseContext, "Class '" + info_.GetClassName() + "' isn't registered!");
+		STINGRAYKIT_CHECK(_baseContext, StringBuilder() % "Class '" % info_.GetClassName() % "' isn't registered");
 		return _baseContext->GetClassName(info);
 	}
 
@@ -50,24 +51,24 @@ namespace stingray
 
 		MutexLock l(_guard);
 
-		STINGRAYKIT_CHECK(_objectCreators.find(name) == _objectCreators.end(), "Class '" + name + "' is already registered!");
+		STINGRAYKIT_CHECK(_objectCreators.find(name) == _objectCreators.end(), StringBuilder() % "Class '" % name % "' is already registered");
 
 		_objectCreators[name] = std::move(creator);
 		_classNames[info] = name;
 	}
 
 
-	FactoryContext::IFactoryObjectUniqPtr FactoryContext::Create(const std::string& name)
+	FactoryContext::IFactoryObjectUniqPtr FactoryContext::Create(const std::string& name) const
 	{
 		{
 			MutexLock l(_guard);
 
-			ObjectCreatorsRegistry::const_iterator it = _objectCreators.find(name);
+			const ObjectCreatorsRegistry::const_iterator it = _objectCreators.find(name);
 			if (it != _objectCreators.end())
 				return it->second->Create();
 		}
 
-		STINGRAYKIT_CHECK(_baseContext, "Class '" + name + "' isn't registered!");
+		STINGRAYKIT_CHECK(_baseContext, StringBuilder() % "Class '" % name % "' isn't registered");
 		return _baseContext->Create(name);
 	}
 

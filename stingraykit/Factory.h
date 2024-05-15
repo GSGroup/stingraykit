@@ -10,7 +10,6 @@
 
 #include <stingraykit/factory/IFactoryObject.h>
 #include <stingraykit/Singleton.h>
-#include <stingraykit/dynamic_caster.h>
 
 namespace stingray
 {
@@ -46,9 +45,10 @@ namespace stingray
 		STINGRAYKIT_DECLARE_UNIQ_PTR(IFactoryObjectCreator);
 
 		template < typename ClassType >
-		class FactoryObjectCreator : public virtual IFactoryObjectCreator
+		class FactoryObjectCreator final : public virtual IFactoryObjectCreator
 		{
-			virtual IFactoryObjectUniqPtr Create() const { return IFactoryObjectUniqPtr(new ClassType()); }
+			IFactoryObjectUniqPtr Create() const override
+			{ return IFactoryObjectUniqPtr(new ClassType()); }
 		};
 
 	private:
@@ -75,7 +75,7 @@ namespace stingray
 		{ Register(name, TypeInfo(typeid(ClassType)), make_unique_ptr<FactoryObjectCreator<ClassType>>()); }
 
 		template < typename ClassType >
-		unique_ptr<ClassType> Create(const std::string& name)
+		unique_ptr<ClassType> Create(const std::string& name) const
 		{
 			IFactoryObjectUniqPtr factoryObj(Create(name));
 			ClassType* object = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(STINGRAYKIT_REQUIRE_NOT_NULL(factoryObj.get()));
@@ -88,7 +88,7 @@ namespace stingray
 
 		void Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreatorUniqPtr&& creator);
 
-		IFactoryObjectUniqPtr Create(const std::string& name);
+		IFactoryObjectUniqPtr Create(const std::string& name) const;
 	};
 
 
@@ -109,19 +109,18 @@ namespace stingray
 				: _rootContext(make_shared_ptr<FactoryContext>())
 			{ }
 
-			FactoryContextPtr GetRootContext() const { return _rootContext; }
+			FactoryContextPtr GetRootContext() const
+			{ return _rootContext; }
+
 			FactoryContextPtr InheritRootContext() const
-			{
-				const FactoryContextPtr context(new FactoryContext(_rootContext));
-				return context;
-			}
+			{ return FactoryContextPtr(new FactoryContext(_rootContext)); }
 
 			template < typename ClassType >
 			void Register(const std::string& name)
 			{ _rootContext->Register<ClassType>(name);}
 
 			template < typename ClassType >
-			unique_ptr<ClassType> Create(const std::string& name)
+			unique_ptr<ClassType> Create(const std::string& name) const
 			{ return _rootContext->Create<ClassType>(name); }
 
 		private:
@@ -137,7 +136,8 @@ namespace stingray
 		STINGRAYKIT_SINGLETON(Factory);
 
 	private:
-		Factory() { Detail::Factory::Instance().RegisterTypes(); }
+		Factory()
+		{ Detail::Factory::Instance().RegisterTypes(); }
 
 	public:
 		template < typename ClassType >
