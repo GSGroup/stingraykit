@@ -85,7 +85,6 @@ set(stingraykit_SRC
 	stingraykit/CmdLine.cpp
 	stingraykit/Decimal.cpp
 	stingraykit/EnumToString.cpp
-	stingraykit/Factory.cpp
 	stingraykit/ProgressValue.cpp
 	stingraykit/Random.cpp
 	stingraykit/SystemException.cpp
@@ -106,6 +105,8 @@ set(stingraykit_SRC
 	stingraykit/diagnostics/AsyncProfiler.cpp
 	stingraykit/diagnostics/CheckpointProfiler.cpp
 	stingraykit/diagnostics/SystemProfiler.cpp
+
+	stingraykit/factory/Factory.cpp
 
 	stingraykit/function/bind.cpp
 	stingraykit/function/function_name_getter.cpp

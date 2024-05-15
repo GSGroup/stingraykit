@@ -18,13 +18,13 @@
 #include <stingraykit/collection/ITransactionalList.h>
 #include <stingraykit/core/NonPolymorphic.h>
 #include <stingraykit/diagnostics/PrivateIncludeGuard.h>
+#include <stingraykit/factory/Factory.h>
 #include <stingraykit/io/IOutputByteStream.h>
 #include <stingraykit/serialization/FloatString.h>
 #include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/serialization/SettingsValueException.h>
 #include <stingraykit/serialization/SettingsValueForward.h>
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/Factory.h>
 #include <stingraykit/variant.h>
 
 namespace stingray
