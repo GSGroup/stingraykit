@@ -139,6 +139,12 @@ namespace stingray
 
 			switch (c)
 			{
+			case '\\':
+				STINGRAYKIT_CHECK(format.size() - pos > 1, FormatException(format));
+				result % format[pos + 1];
+				++pos;
+				break;
+
 			case 'h':
 				if (format.size() - pos > 1 && format[pos + 1] == 'h')
 				{
