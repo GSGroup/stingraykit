@@ -217,7 +217,7 @@ namespace stingray
 	template < typename T >
 	struct StaticCaster
 	{
-		typedef T RetType;
+		using RetType = T;
 
 		template < typename U >
 		T operator () (U param) const
@@ -228,7 +228,7 @@ namespace stingray
 	template < typename T >
 	struct ImplicitCaster
 	{
-		typedef T RetType;
+		using RetType = T;
 
 		T operator () (T param) const
 		{ return param; }
@@ -268,7 +268,7 @@ namespace stingray
 	template < typename DestType >
 	struct InstanceOfPredicate
 	{
-		typedef bool RetType;
+		using RetType = bool;
 
 		template < typename Something > // There is also InstanceOf for shared_ptrs somewhere in shared_ptr.h
 		bool operator () (const Something& obj) const

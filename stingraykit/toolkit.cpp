@@ -7,8 +7,6 @@
 
 #include <stingraykit/toolkit.h>
 
-#include <stingraykit/function/bind.h>
-#include <stingraykit/log/Logger.h>
 #include <stingraykit/Holder.h>
 
 #if defined(__GNUC__) || defined(__clang__)
