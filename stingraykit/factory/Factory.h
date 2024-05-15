@@ -44,6 +44,7 @@ namespace stingray
 
 	class FactoryContext;
 	STINGRAYKIT_DECLARE_PTR(FactoryContext);
+	STINGRAYKIT_DECLARE_CONST_PTR(FactoryContext);
 
 
 	class FactoryContext
@@ -59,7 +60,7 @@ namespace stingray
 	private:
 		Mutex						_guard;
 
-		FactoryContextPtr			_baseContext;
+		FactoryContextConstPtr		_baseContext;
 
 		ObjectCreatorsRegistry		_objectCreators;
 		ClassNamesRegistry			_classNames;
@@ -83,7 +84,7 @@ namespace stingray
 		}
 
 	private:
-		FactoryContext(const FactoryContextPtr& baseContext);
+		FactoryContext(const FactoryContextConstPtr& baseContext);
 
 		void Register(const std::string& name, const TypeInfo& info, Detail::IFactoryObjectCreatorUniqPtr&& creator);
 
@@ -108,7 +109,7 @@ namespace stingray
 				: _rootContext(make_shared_ptr<FactoryContext>())
 			{ }
 
-			FactoryContextPtr GetRootContext() const
+			FactoryContextConstPtr GetRootContext() const
 			{ return _rootContext; }
 
 			FactoryContextPtr InheritRootContext() const
@@ -143,7 +144,7 @@ namespace stingray
 		unique_ptr<ClassType> Create(const std::string& name) const
 		{ return Detail::Factory::Instance().Create<ClassType>(name); }
 
-		FactoryContextPtr GetRootContext() const
+		FactoryContextConstPtr GetRootContext() const
 		{ return Detail::Factory::Instance().GetRootContext(); }
 
 		FactoryContextPtr InheritRootContext() const

@@ -190,14 +190,14 @@ namespace stingray
 		template < typename, typename, SerializationUtils::TypeTraits::Enum > friend struct SerializationUtils::TypeWriterImpl;
 
 		IObjectSerializator	*		_collection;
-		FactoryContextPtr			_context;
+		FactoryContextConstPtr		_context;
 		bool						_topLevelMode;
 
 	protected:
 		IOutputByteStreamPtr		_outputStream;
 
 	public:
-		ObjectOStream(const IOutputByteStreamPtr & outputStream, IObjectSerializator *collection, const FactoryContextPtr& context, bool topLevelMode):
+		ObjectOStream(const IOutputByteStreamPtr & outputStream, IObjectSerializator *collection, const FactoryContextConstPtr& context, bool topLevelMode):
 			_collection(collection), _context(context), _topLevelMode(topLevelMode), _outputStream(outputStream)
 		{ }
 		virtual ~ObjectOStream() { }
@@ -511,7 +511,7 @@ namespace stingray
 
 	private:
 		IObjectSerializator				*_collection;
-		FactoryContextPtr				_context;
+		FactoryContextConstPtr			_context;
 		bool							_topLevelMode;
 
 	private:
@@ -522,10 +522,10 @@ namespace stingray
 		virtual IObjectSerializator* GetCollection()	{ return _collection; }
 		virtual bool GetTopLevelMode()					{ return _topLevelMode; }
 
-		FactoryContextPtr GetContext() const			{ return _context; }
+		FactoryContextConstPtr GetContext() const		{ return _context; }
 
 	public:
-		ObjectIStream(SettingsValue* root, IObjectSerializator *collection, const FactoryContextPtr& context = null, bool topLevelMode = false):
+		ObjectIStream(SettingsValue* root, IObjectSerializator *collection, const FactoryContextConstPtr& context = null, bool topLevelMode = false):
 			_root(root), _collection(collection), _context(context), _topLevelMode(topLevelMode) { }
 
 		virtual ~ObjectIStream() {}
@@ -744,11 +744,11 @@ namespace stingray
 		{
 			typedef std::pair<K, V> value_type;
 
-			unsigned			_index;
-			value_type&			_value;
-			FactoryContextPtr	_context;
+			unsigned				_index;
+			value_type&				_value;
+			FactoryContextConstPtr	_context;
 
-			PairDeserializer(value_type &value, const FactoryContextPtr& context): _index(0), _value(value), _context(context) {}
+			PairDeserializer(value_type &value, const FactoryContextConstPtr& context): _index(0), _value(value), _context(context) {}
 
 			void Deserialize(IObjectSerializator *owner, SettingsValue &src)
 			{

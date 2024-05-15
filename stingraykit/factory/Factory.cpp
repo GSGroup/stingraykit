@@ -23,7 +23,7 @@ namespace stingray
 	{ }
 
 
-	FactoryContext::FactoryContext(const FactoryContextPtr& baseContext)
+	FactoryContext::FactoryContext(const FactoryContextConstPtr& baseContext)
 		: _baseContext(STINGRAYKIT_REQUIRE_NOT_NULL(baseContext))
 	{ }
 
