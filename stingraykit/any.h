@@ -10,7 +10,7 @@
 
 #include <stingraykit/serialization/ISerializable.h>
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/Factory.h>
+#include <stingraykit/factory/FactoryPublic.h>
 
 namespace stingray
 {

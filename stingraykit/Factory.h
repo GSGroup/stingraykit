@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/factory/IFactoryObject.h>
+#include <stingraykit/factory/FactoryPublic.h>
 #include <stingraykit/Singleton.h>
 
 namespace stingray
@@ -17,23 +17,6 @@ namespace stingray
 	namespace Detail
 	{
 
-		class Factory;
-
-	}
-
-
-	class Factory;
-
-
-	class FactoryContext;
-	STINGRAYKIT_DECLARE_PTR(FactoryContext);
-
-
-	class FactoryContext
-	{
-		STINGRAYKIT_NONCOPYABLE(FactoryContext);
-
-	public:
 		STINGRAYKIT_DECLARE_UNIQ_PTR(IFactoryObject);
 
 		struct IFactoryObjectCreator
@@ -51,8 +34,24 @@ namespace stingray
 			{ return IFactoryObjectUniqPtr(new ClassType()); }
 		};
 
+		class Factory;
+
+	}
+
+
+	class Factory;
+
+
+	class FactoryContext;
+	STINGRAYKIT_DECLARE_PTR(FactoryContext);
+
+
+	class FactoryContext
+	{
+		STINGRAYKIT_NONCOPYABLE(FactoryContext);
+
 	private:
-		using ObjectCreatorsRegistry = std::map<std::string, IFactoryObjectCreatorUniqPtr>;
+		using ObjectCreatorsRegistry = std::map<std::string, Detail::IFactoryObjectCreatorUniqPtr>;
 		using ClassNamesRegistry = std::map<TypeInfo, std::string>;
 
 		friend class Detail::Factory;
@@ -72,12 +71,12 @@ namespace stingray
 
 		template < typename ClassType >
 		void Register(const std::string& name)
-		{ Register(name, TypeInfo(typeid(ClassType)), make_unique_ptr<FactoryObjectCreator<ClassType>>()); }
+		{ Register(name, TypeInfo(typeid(ClassType)), make_unique_ptr<Detail::FactoryObjectCreator<ClassType>>()); }
 
 		template < typename ClassType >
 		unique_ptr<ClassType> Create(const std::string& name) const
 		{
-			IFactoryObjectUniqPtr factoryObj(Create(name));
+			Detail::IFactoryObjectUniqPtr factoryObj(Create(name));
 			ClassType* object = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(STINGRAYKIT_REQUIRE_NOT_NULL(factoryObj.get()));
 			factoryObj.release();
 			return unique_ptr<ClassType>(object);
@@ -86,9 +85,9 @@ namespace stingray
 	private:
 		FactoryContext(const FactoryContextPtr& baseContext);
 
-		void Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreatorUniqPtr&& creator);
+		void Register(const std::string& name, const TypeInfo& info, Detail::IFactoryObjectCreatorUniqPtr&& creator);
 
-		IFactoryObjectUniqPtr Create(const std::string& name) const;
+		Detail::IFactoryObjectUniqPtr Create(const std::string& name) const;
 	};
 
 
@@ -149,18 +148,9 @@ namespace stingray
 
 		FactoryContextPtr InheritRootContext() const
 		{ return Detail::Factory::Instance().InheritRootContext(); }
-
-		static std::string RemoveTypeSuffix(const std::string& type, const std::string& suffix);
-		static std::string RemoveTypePrefix(const std::string& type, const std::string& prefix);
 	};
 
 }
-
-
-#define STINGRAYKIT_REGISTER_CLASS(Class_) \
-		std::string GetClassName() const override \
-		{ return stingray::Factory::RemoveTypePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); } \
-		friend class stingray::FactoryContext::FactoryObjectCreator<Class_>
 
 
 #define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_) stingray::Detail::Factory::Instance().Register<Class_>(ClassName_)

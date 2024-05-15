@@ -11,6 +11,14 @@
 namespace stingray
 {
 
+	std::string FactoryUtils::RemoveTypePrefix(const std::string& type, const std::string& prefix)
+	{ return RemovePrefix(type, prefix); }
+
+
+	std::string FactoryUtils::RemoveTypeSuffix(const std::string& type, const std::string& suffix)
+	{ return RemoveSuffix(type, suffix); }
+
+
 	FactoryContext::FactoryContext()
 	{ }
 
@@ -18,14 +26,6 @@ namespace stingray
 	FactoryContext::FactoryContext(const FactoryContextPtr& baseContext)
 		: _baseContext(STINGRAYKIT_REQUIRE_NOT_NULL(baseContext))
 	{ }
-
-
-	std::string Factory::RemoveTypePrefix(const std::string& type, const std::string& prefix)
-	{ return RemovePrefix(type, prefix); }
-
-
-	std::string Factory::RemoveTypeSuffix(const std::string& type, const std::string& suffix)
-	{ return RemoveSuffix(type, suffix); }
 
 
 	std::string FactoryContext::GetClassName(const std::type_info& info) const
@@ -45,7 +45,7 @@ namespace stingray
 	}
 
 
-	void FactoryContext::Register(const std::string& name, const TypeInfo& info, IFactoryObjectCreatorUniqPtr&& creator)
+	void FactoryContext::Register(const std::string& name, const TypeInfo& info, Detail::IFactoryObjectCreatorUniqPtr&& creator)
 	{
 		Logger::Debug() << "Registering " << name;
 
@@ -58,7 +58,7 @@ namespace stingray
 	}
 
 
-	FactoryContext::IFactoryObjectUniqPtr FactoryContext::Create(const std::string& name) const
+	Detail::IFactoryObjectUniqPtr FactoryContext::Create(const std::string& name) const
 	{
 		{
 			MutexLock l(_guard);
