@@ -89,7 +89,6 @@ set(stingraykit_SRC
 	stingraykit/ProgressValue.cpp
 	stingraykit/Random.cpp
 	stingraykit/SystemException.cpp
-	stingraykit/TaskLifeToken.cpp
 	stingraykit/TypeInfo.cpp
 	stingraykit/UUID.cpp
 	stingraykit/Version.cpp
@@ -147,6 +146,7 @@ set(stingraykit_SRC
 
 	stingraykit/thread/CancellationToken.cpp
 	stingraykit/thread/DummyCancellationToken.cpp
+	stingraykit/thread/TaskLifeToken.cpp
 	stingraykit/thread/Thread.cpp
 	stingraykit/thread/ThreadlessTaskExecutor.cpp
 	stingraykit/thread/ThreadOperation.cpp

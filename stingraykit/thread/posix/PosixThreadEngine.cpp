@@ -28,6 +28,7 @@
 #include <stingraykit/thread/posix/PosixThreadStats.h>
 #include <stingraykit/thread/posix/SignalHandler.h>
 #include <stingraykit/thread/posix/ThreadLocal.h>
+#include <stingraykit/thread/TaskLifeToken.h>
 #include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/time/posix/utils.h>
 #include <stingraykit/unique_ptr.h>
@@ -37,7 +38,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
-#include <stingraykit/TaskLifeToken.h>
 #include <sys/prctl.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
