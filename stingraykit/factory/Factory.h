@@ -34,8 +34,6 @@ namespace stingray
 			{ return IFactoryObjectUniqPtr(new ClassType()); }
 		};
 
-		class Factory;
-
 	}
 
 
@@ -55,8 +53,6 @@ namespace stingray
 		using ObjectCreatorsRegistry = std::map<std::string, Detail::IFactoryObjectCreatorUniqPtr>;
 		using ClassNamesRegistry = std::map<TypeInfo, std::string>;
 
-		friend class Detail::Factory;
-
 	private:
 		Mutex						_guard;
 
@@ -67,6 +63,7 @@ namespace stingray
 
 	public:
 		FactoryContext();
+		explicit FactoryContext(const FactoryContextConstPtr& baseContext);
 
 		std::string GetClassName(const std::type_info& info) const;
 
@@ -84,8 +81,6 @@ namespace stingray
 		}
 
 	private:
-		FactoryContext(const FactoryContextConstPtr& baseContext);
-
 		void Register(const std::string& name, const TypeInfo& info, Detail::IFactoryObjectCreatorUniqPtr&& creator);
 
 		Detail::IFactoryObjectUniqPtr Create(const std::string& name) const;
@@ -111,9 +106,6 @@ namespace stingray
 
 			FactoryContextConstPtr GetRootContext() const
 			{ return _rootContext; }
-
-			FactoryContextPtr InheritRootContext() const
-			{ return FactoryContextPtr(new FactoryContext(_rootContext)); }
 
 			template < typename ClassType >
 			void Register(const std::string& name)
@@ -146,9 +138,6 @@ namespace stingray
 
 		FactoryContextConstPtr GetRootContext() const
 		{ return Detail::Factory::Instance().GetRootContext(); }
-
-		FactoryContextPtr InheritRootContext() const
-		{ return Detail::Factory::Instance().InheritRootContext(); }
 	};
 
 }
