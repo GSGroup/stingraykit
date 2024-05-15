@@ -158,8 +158,9 @@ namespace stingray
 
 
 #define STINGRAYKIT_REGISTER_CLASS(Class_) \
-	friend class stingray::FactoryContext::FactoryObjectCreator<Class_>; \
-	std::string GetClassName() const override { return stingray::Factory::RemoveTypePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); }
+		std::string GetClassName() const override \
+		{ return stingray::Factory::RemoveTypePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); } \
+		friend class stingray::FactoryContext::FactoryObjectCreator<Class_>
 
 
 #define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_) stingray::Detail::Factory::Instance().Register<Class_>(ClassName_)
