@@ -189,6 +189,13 @@ TEST(TimeDurationTest, ToString)
 	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59).ToString("h\\h m\\m s\\s"), "999h 59m 59s");
 	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59).ToString("m\\m s\\s"), "59m 59s");
 	ASSERT_ANY_THROW(TimeDuration().ToString("m\\m s\\"));
+
+	ASSERT_EQ(TimeDuration(-MillisecondsPerHour - MillisecondsPerMinute - MillisecondsPerSecond).ToString("ss\\s mm\\m hh\\h"), "01s 01m -01h");
+	ASSERT_EQ(TimeDuration(-MillisecondsPerHour - MillisecondsPerMinute - MillisecondsPerSecond).ToString("ss\\s mm\\m"), "01s -61m");
+	ASSERT_EQ(TimeDuration(-MillisecondsPerHour).ToString("hh h"), "-01 -1");
+	ASSERT_EQ(TimeDuration(-MillisecondsPerMinute).ToString("mm m"), "-01 -1");
+	ASSERT_EQ(TimeDuration(-MillisecondsPerSecond).ToString("ss s"), "-01 -1");
+	ASSERT_EQ(TimeDuration(-1).ToString("lll lll"), "-001 -001");
 }
 
 

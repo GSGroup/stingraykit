@@ -107,6 +107,8 @@ namespace stingray
 		StringBuilder result;
 
 		bool hasHours = false;
+		bool hasMinutes = false;
+		bool hasSeconds = false;
 		size_t maxPrecision = 0;
 
 		for (size_t pos = 0; pos < format.size(); ++pos)
@@ -115,6 +117,10 @@ namespace stingray
 
 			if (c == 'h')
 				hasHours = true;
+			else if (c == 'm')
+				hasMinutes = true;
+			else if (c == 's')
+				hasSeconds = true;
 			else if (c == 'l')
 			{
 				const size_t lastPos = format.find_first_not_of('l', pos + 1);
@@ -125,8 +131,7 @@ namespace stingray
 			}
 		}
 
-		if (GetMicroseconds() / ArrayGet(MicrosecondsDivisors, std::min(maxPrecision, ArraySize(MicrosecondsDivisors) - 1)) < 0)
-			result % '-';
+		const bool negative = GetMicroseconds() / ArrayGet(MicrosecondsDivisors, std::min(maxPrecision, ArraySize(MicrosecondsDivisors) - 1)) < 0;
 
 		const s64 hours = hasHours ? Abs(_microseconds / Hour().GetMicroseconds()) : 0;
 		const s64 minutes = Abs(_microseconds < 0 ? _microseconds + hours * Hour().GetMicroseconds() : _microseconds - hours * Hour().GetMicroseconds()) / Minute().GetMicroseconds();
@@ -146,6 +151,9 @@ namespace stingray
 				break;
 
 			case 'h':
+				if (negative)
+					result % '-';
+
 				if (format.size() - pos > 1 && format[pos + 1] == 'h')
 				{
 					result % RightJustify(stingray::ToString(hours), 2, '0');
@@ -156,6 +164,9 @@ namespace stingray
 				break;
 
 			case 'm':
+				if (!hasHours && negative)
+					result % '-';
+
 				if (format.size() - pos > 1 && format[pos + 1] == 'm')
 				{
 					result % RightJustify(stingray::ToString(minutes), 2, '0');
@@ -166,6 +177,9 @@ namespace stingray
 				break;
 
 			case 's':
+				if (!hasHours && !hasMinutes && negative)
+					result % '-';
+
 				if (format.size() - pos > 1 && format[pos + 1] == 's')
 				{
 					result % RightJustify(stingray::ToString(seconds), 2, '0');
@@ -177,6 +191,9 @@ namespace stingray
 
 			case 'l':
 			{
+				if (!hasHours && !hasMinutes && !hasSeconds && negative)
+					result % '-';
+
 				const size_t lastPos = format.find_first_not_of('l', pos + 1);
 				const size_t precision = (lastPos == std::string::npos ? format.size() : lastPos) - pos;
 				const size_t croppedPrecision = std::min(precision, ArraySize(MicrosecondsDivisors) - 1);
