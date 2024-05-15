@@ -37,9 +37,6 @@ namespace stingray
 	}
 
 
-	class Factory;
-
-
 	class FactoryContext;
 	STINGRAYKIT_DECLARE_PTR(FactoryContext);
 	STINGRAYKIT_DECLARE_CONST_PTR(FactoryContext);
@@ -87,63 +84,39 @@ namespace stingray
 	};
 
 
-	namespace Detail
-	{
-
-		class Factory : public Singleton<Factory>
-		{
-			STINGRAYKIT_SINGLETON(Factory);
-
-			friend class stingray::Factory;
-
-		private:
-			FactoryContextPtr		_rootContext;
-
-		public:
-			Factory()
-				: _rootContext(make_shared_ptr<FactoryContext>())
-			{ }
-
-			FactoryContextConstPtr GetRootContext() const
-			{ return _rootContext; }
-
-			template < typename ClassType >
-			void Register(const std::string& name)
-			{ _rootContext->Register<ClassType>(name);}
-
-			template < typename ClassType >
-			unique_ptr<ClassType> Create(const std::string& name) const
-			{ return _rootContext->Create<ClassType>(name); }
-
-		private:
-			// Defined in stingray/settings/_FactoryClasses.cpp
-			void RegisterTypes();
-		};
-
-	}
-
-
 	class Factory : public Singleton<Factory>
 	{
 		STINGRAYKIT_SINGLETON(Factory);
 
 	private:
+		FactoryContextPtr		_rootContext;
+
+	private:
 		Factory()
-		{ Detail::Factory::Instance().RegisterTypes(); }
+			: _rootContext(make_shared_ptr<FactoryContext>())
+		{ RegisterTypes(_rootContext); }
 
 	public:
+		FactoryContextConstPtr GetRootContext() const
+		{ return _rootContext; }
+
+		template < typename ClassType >
+		void Register(const std::string& name)
+		{ _rootContext->Register<ClassType>(name); }
+
 		template < typename ClassType >
 		unique_ptr<ClassType> Create(const std::string& name) const
-		{ return Detail::Factory::Instance().Create<ClassType>(name); }
+		{ return _rootContext->Create<ClassType>(name); }
 
-		FactoryContextConstPtr GetRootContext() const
-		{ return Detail::Factory::Instance().GetRootContext(); }
+	private:
+		// Defined in stingray/settings/_FactoryClasses.cpp
+		static void RegisterTypes(const FactoryContextPtr& rootContext);
 	};
 
 }
 
 
-#define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_) stingray::Detail::Factory::Instance().Register<Class_>(ClassName_)
+#define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_) stingray::Factory::Instance().Register<Class_>(ClassName_)
 
 #define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_0(Class_, ...) STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, #Class_)
 #define STINGRAYKIT_REGISTER_CLASS_EXPLICIT_1(Class_, ClassName_) STINGRAYKIT_REGISTER_CLASS_EXPLICIT_IMPL(Class_, ClassName_)
