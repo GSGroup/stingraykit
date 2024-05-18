@@ -226,10 +226,10 @@ namespace stingray
 	struct IsUniquePtr : FalseType { };
 
 	template < typename T >
-	struct IsUniquePtr<unique_ptr<T> > : TrueType { };
+	struct IsUniquePtr<unique_ptr<T>> : TrueType { };
 
 	template < typename T >
-	struct IsUniquePtr<const unique_ptr<T> > : TrueType { };
+	struct IsUniquePtr<const unique_ptr<T>> : TrueType { };
 
 }
 

@@ -292,7 +292,7 @@ namespace stingray
 				return;
 
 			try
-			{ _impl.Allocate<Detail::DefaultSharedPtrData<T> >(_rawPtr); }
+			{ _impl.Allocate<Detail::DefaultSharedPtrData<T>>(_rawPtr); }
 			catch (...)
 			{
 				CheckedDelete(_rawPtr);
@@ -306,7 +306,7 @@ namespace stingray
 		shared_ptr(T* rawPtr, Deleter&& deleter) : _rawPtr(rawPtr)
 		{
 			try
-			{ _impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter> >(_rawPtr, std::forward<Deleter>(deleter)); }
+			{ _impl.Allocate<Detail::DeleterSharedPtrData<T, Deleter>>(_rawPtr, std::forward<Deleter>(deleter)); }
 			catch (...)
 			{
 				deleter(_rawPtr);
@@ -323,7 +323,7 @@ namespace stingray
 			if (!_rawPtr)
 				return;
 
-			_impl.Allocate<Detail::DefaultSharedPtrData<T> >(_rawPtr);
+			_impl.Allocate<Detail::DefaultSharedPtrData<T>>(_rawPtr);
 			other.release();
 
 			LogAddRef(1);
@@ -643,21 +643,21 @@ namespace stingray
 	struct IsSharedPtr : FalseType { };
 
 	template < typename T >
-	struct IsSharedPtr<shared_ptr<T> > : TrueType { };
+	struct IsSharedPtr<shared_ptr<T>> : TrueType { };
 
 	template < typename T >
-	struct IsSharedPtr<const shared_ptr<T> > : TrueType { };
+	struct IsSharedPtr<const shared_ptr<T>> : TrueType { };
 
 
 	template < typename SharedPtrT >
 	struct GetSharedPtrParam;
 
 	template < typename T >
-	struct GetSharedPtrParam<shared_ptr<T> >
+	struct GetSharedPtrParam<shared_ptr<T>>
 	{ using ValueT = T; };
 
 	template < typename T >
-	struct GetSharedPtrParam<const shared_ptr<T> >
+	struct GetSharedPtrParam<const shared_ptr<T>>
 	{ using ValueT = T; };
 
 
@@ -665,11 +665,11 @@ namespace stingray
 	struct GetWeakPtrParam;
 
 	template < typename T >
-	struct GetWeakPtrParam<weak_ptr<T> >
+	struct GetWeakPtrParam<weak_ptr<T>>
 	{ using ValueT = T; };
 
 	template < typename T >
-	struct GetWeakPtrParam<const weak_ptr<T> >
+	struct GetWeakPtrParam<const weak_ptr<T>>
 	{ using ValueT = T; };
 
 
@@ -679,7 +679,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct ToPointer<shared_ptr<T> >
+	struct ToPointer<shared_ptr<T>>
 	{ using ValueT = T*; };
 
 	template < typename T >
@@ -709,7 +709,7 @@ namespace stingray
 	}
 
 	template < typename T >
-	struct ToPointer<weak_ptr<T> >
+	struct ToPointer<weak_ptr<T>>
 	{ using ValueT = Detail::WeakPtrToPointerProxy<T>; };
 
 	template < typename T >
@@ -755,7 +755,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct InstanceOfTester< shared_ptr<T> >
+	struct InstanceOfTester<shared_ptr<T>>
 	{
 		template < typename DestType >
 		static bool Test(const shared_ptr<const T>& ptr)
@@ -790,10 +790,10 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsNullable<shared_ptr<T> > : public TrueType { };
+	struct IsNullable<shared_ptr<T>> : public TrueType { };
 
 	template < typename T >
-	struct IsNullable<weak_ptr<T> > : public TrueType { };
+	struct IsNullable<weak_ptr<T>> : public TrueType { };
 
 }
 

@@ -60,7 +60,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct ToPointer<reference<T> >
+	struct ToPointer<reference<T>>
 	{ typedef T* ValueT; };
 
 	template < typename T >
