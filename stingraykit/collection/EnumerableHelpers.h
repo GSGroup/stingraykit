@@ -9,8 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/DiffEntry.h>
+#include <stingraykit/collection/EnumerableFromStlContainer.h>
 #include <stingraykit/collection/EnumerableWrapper.h>
-#include <stingraykit/collection/EnumeratorFromStlContainer.h>
 #include <stingraykit/collection/Transformers.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/RefStorage.h>
