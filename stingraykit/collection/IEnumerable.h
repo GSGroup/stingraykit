@@ -9,8 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/IEnumerator.h>
-#include <stingraykit/collection/RangeBase.h>
-#include <stingraykit/collection/ToRange.h>
 
 #define STINGRAYKIT_DECLARE_ENUMERABLE(ClassName) \
 		using ClassName##Enumerable = stingray::IEnumerable<ClassName>; \
@@ -63,84 +61,6 @@ namespace stingray
 			using ValueT = IEnumerator<typename T::ItemType>;
 
 			static shared_ptr<ValueT> Do(const shared_ptr<T>& src) { return STINGRAYKIT_REQUIRE_NOT_NULL(src)->GetEnumerator(); }
-		};
-
-
-		template < typename Enumerable_ >
-		class EnumerableToRange : public Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag>
-		{
-			STINGRAYKIT_NONASSIGNABLE(EnumerableToRange);
-
-		private:
-			using base = Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag>;
-			using Self = EnumerableToRange<Enumerable_>;
-
-			using EnumeratorPtr = shared_ptr<IEnumerator<typename Enumerable_::ItemType>>;
-
-		private:
-			const Enumerable_&				_enumerable;
-			EnumeratorPtr					_enumerator;
-			size_t							_index;
-
-		public:
-			EnumerableToRange(const Enumerable_& enumerable) : _enumerable(enumerable)
-			{ First(); }
-
-			EnumerableToRange(const EnumerableToRange& range) : _enumerable(range._enumerable)
-			{
-				First();
-				while (_index != range._index)
-					Next();
-			}
-
-			EnumerableToRange(EnumerableToRange&& range) = default;
-
-			bool Valid() const							{ return _enumerator->Valid(); }
-			typename base::ValueType Get() const		{ return _enumerator->Get(); }
-
-			bool Equals(const Self& other) const
-			{ return &_enumerable == &other._enumerable && _index == other._index; }
-
-			Self& First()
-			{
-				_enumerator = _enumerable.GetEnumerator();
-				_index = 0;
-				return *this;
-			}
-
-			Self& Next()
-			{
-				_enumerator->Next();
-				++_index;
-				return *this;
-			}
-
-			Self& Last()
-			{
-				First();
-				Self prev(*this);
-
-				while (Valid())
-				{
-					Next();
-					if (Valid())
-						prev.Next();
-				}
-
-				_enumerator = prev._enumerator;
-				_index = prev._index;
-				return *this;
-			}
-		};
-
-
-		template < typename Enumerable_ >
-		struct ToRangeImpl<Enumerable_, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
-		{
-			using ValueT = EnumerableToRange<Enumerable_>;
-
-			static ValueT Do(const Enumerable_& range)
-			{ return ValueT(range); }
 		};
 	}
 
