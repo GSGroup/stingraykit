@@ -7,8 +7,6 @@
 
 #include <stingraykit/string/TranslatedStringUtils.h>
 
-#include <stingraykit/collection/ToRange.h>
-
 #include <gtest/gtest.h>
 
 using namespace stingray;
