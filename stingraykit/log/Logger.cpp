@@ -7,6 +7,7 @@
 
 #include <stingraykit/log/Logger.h>
 
+#include <stingraykit/collection/Range.h>
 #include <stingraykit/log/SystemLogger.h>
 #include <stingraykit/string/StringFormat.h>
 #include <stingraykit/time/TimeEngine.h>

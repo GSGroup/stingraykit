@@ -23,4 +23,7 @@ TEST(StringFormatTest, Format)
 	ASSERT_ANY_THROW(StringFormat("Format %1% %abc% %3%", "a", "b", "c"));
 	ASSERT_ANY_THROW(StringFormat("Format %1% %1c% %3%", "a", "b", "c"));
 	ASSERT_EQ(StringFormat("Format %1$1% %2$2% %3$5%", 1, 2, 3), "Format 1 02 00003");
+	ASSERT_ANY_THROW(StringFormat("Format %$%", 1));
+	ASSERT_ANY_THROW(StringFormat("Format %1$%", 1));
+	ASSERT_ANY_THROW(StringFormat("Format %$1%", 1));
 }

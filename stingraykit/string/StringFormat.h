@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/string/StringUtils.h>
 #include <stingraykit/string/ToString.h>
 
 namespace stingray
@@ -42,33 +41,58 @@ namespace stingray
 
 
 	template < typename... Ts >
-	std::string StringFormat(const std::string& format, const Ts&... args)
+	std::string StringFormat(const string_view& format, const Ts&... args)
 	{
-		auto formatFragments = Split(format, "%");
-		STINGRAYKIT_CHECK((Count(formatFragments) % 2) == 1, "Format mismatch: no corresponding %");
+		string_ostream result;
 
-		string_ostream ss;
-
-		for (size_t idx = 0; formatFragments.Valid(); ++idx, formatFragments.Next())
+		for (size_t pos = 0; pos < format.size(); ++pos)
 		{
-			const StringRef fragment = *formatFragments;
+			const char c = format[pos];
 
-			if ((idx % 2) == 0)
-				ss << fragment.str();
-			else if (fragment.empty())
-				ss << "%";
-			else
+			switch (c)
 			{
-				const size_t pos = fragment.find('$');
-				const size_t index = FromString<size_t>(fragment.substr(0, pos));
-				STINGRAYKIT_CHECK(index > 0, "Parameters indices must start from 1");
-				const size_t width = (pos == std::string::npos) ? 0 : FromString<size_t>(fragment.substr(pos + 1));
+			case '%':
+			{
+				const size_t nextPercentPos = format.find('%', pos + 1);
+				STINGRAYKIT_CHECK(nextPercentPos != string_view::npos, FormatException(format.copy()));
 
-				Detail::ArgumentToString(ss, index - 1, width, args...);
+				const string_view argIndexStr = format.substr(pos + 1, nextPercentPos - pos - 1);
+				if (argIndexStr.empty())
+				{
+					result << '%';
+					++pos;
+					break;
+				}
+
+				const size_t widthPos = argIndexStr.find('$');
+
+				const string_view indexStr = argIndexStr.substr(0, widthPos);
+				STINGRAYKIT_CHECK(!indexStr.empty(), FormatException(format.copy()));
+
+				const size_t index = FromString<size_t>(indexStr);
+				STINGRAYKIT_CHECK(index > 0, FormatException(format.copy()));
+
+				size_t width = 0;
+				if (widthPos != std::string::npos)
+				{
+					const string_view widthStr = argIndexStr.substr(widthPos + 1);
+					STINGRAYKIT_CHECK(!widthStr.empty(), FormatException(format.copy()));
+
+					width = FromString<size_t>(widthStr);
+				}
+
+				Detail::ArgumentToString(result, index - 1, width, args...);
+				pos += argIndexStr.size() + 1;
+				break;
+			}
+
+			default:
+				result << c;
+				break;
 			}
 		}
 
-		return ss.str();
+		return result.str();
 	}
 
 }
