@@ -5,8 +5,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/Decimal.h>
+
 #include <stingraykit/string/StringUtils.h>
 
 #include <cmath>
@@ -59,8 +59,8 @@ namespace stingray
 
 		const u16 exponent = (u16)rawFractionalPart.size();
 		const s64 integralMantissa = integralPart * std::pow(BaseOfExponent, exponent);
-		const s64 fractionalMantissa = (integralPart >= 0) ? fractionalPart : -fractionalPart;
-		const int signFactor = (!fractions[0].empty() && fractions[0][0] == '-' && integralPart == 0) ? -1 : 1;
+		const s64 fractionalMantissa = integralPart >= 0 ? fractionalPart : -fractionalPart;
+		const int signFactor = !fractions[0].empty() && fractions[0][0] == '-' && integralPart == 0 ? -1 : 1;
 
 		_mantissa = (integralMantissa + fractionalMantissa) * signFactor;
 		_exponent = exponent;
@@ -71,8 +71,8 @@ namespace stingray
 	{
 		const std::string value = AddSignificantZeros(stingray::ToString(_mantissa), _exponent);
 
-		std::string integralPart =  ExtractPrefix(value, value.size() - _exponent);
-		std::string fractionalPart  = RemoveUnsignificantZeros(RemovePrefix(value, integralPart));
+		std::string integralPart = ExtractPrefix(value, value.size() - _exponent);
+		const std::string fractionalPart = RemoveUnsignificantZeros(RemovePrefix(value, integralPart));
 
 		if (integralPart.empty() || integralPart == "-")
 			integralPart.append("0");
