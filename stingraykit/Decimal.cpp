@@ -41,26 +41,24 @@ namespace stingray
 
 	Decimal::Decimal(const std::string& str)
 	{
-		std::vector<std::string> fractions;
-		Copy(Split(str, ".", 2), std::back_inserter(fractions));
-		STINGRAYKIT_CHECK_RANGE(fractions.size(), 1, 3);
-
-		const s64 integralPart = stingray::FromString<s64>(fractions[0]);
-
-		if (fractions.size() == 1)
+		const size_t pointPos = str.find('.');
+		if (pointPos == std::string::npos)
 		{
-			_mantissa = integralPart;
+			_mantissa = stingray::FromString<s64>(str);
 			_exponent = 0;
 			return;
 		}
 
-		const std::string rawFractionalPart = RemoveUnsignificantZeros(fractions[1]);
+		const std::string rawIntegralPart = str.substr(0, pointPos);
+		const s64 integralPart = stingray::FromString<s64>(rawIntegralPart);
+
+		const std::string rawFractionalPart = RemoveUnsignificantZeros(str.substr(pointPos + 1));
 		const s64 fractionalPart = stingray::FromString<s64>(rawFractionalPart);
 
 		const u16 exponent = (u16)rawFractionalPart.size();
 		const s64 integralMantissa = integralPart * std::pow(BaseOfExponent, exponent);
 		const s64 fractionalMantissa = integralPart >= 0 ? fractionalPart : -fractionalPart;
-		const int signFactor = !fractions[0].empty() && fractions[0][0] == '-' && integralPart == 0 ? -1 : 1;
+		const int signFactor = !rawIntegralPart.empty() && rawIntegralPart[0] == '-' && integralPart == 0 ? -1 : 1;
 
 		_mantissa = (integralMantissa + fractionalMantissa) * signFactor;
 		_exponent = exponent;
