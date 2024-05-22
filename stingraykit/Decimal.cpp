@@ -55,10 +55,10 @@ namespace stingray
 		const string_view rawFractionalPart = str.substr(pointPos + 1);
 		STINGRAYKIT_CHECK(!rawIntegralPart.empty() || !rawFractionalPart.empty(), ArgumentException("str", str));
 
-		const s64 integralPart = stingray::FromString<s64>(rawIntegralPart);
+		const s64 integralPart = rawIntegralPart.empty() ? 0 : stingray::FromString<s64>(rawIntegralPart);
 
 		const string_view croppedFractionalPart = RemoveUnsignificantZeros(rawFractionalPart);
-		const s64 fractionalPart = stingray::FromString<s64>(croppedFractionalPart);
+		const s64 fractionalPart = croppedFractionalPart.empty() ? 0 : stingray::FromString<s64>(croppedFractionalPart);
 
 		const u16 exponent = (u16)croppedFractionalPart.size();
 		const s64 integralMantissa = integralPart * std::pow(BaseOfExponent, exponent);
