@@ -125,7 +125,7 @@ TEST(ToStringTest, FromString)
 		ASSERT_EQ(FromString<int>(std::string("-1")), -1);
 		ASSERT_EQ(FromString<int>(std::string("-000")), 0);
 		ASSERT_EQ(FromString<int>(std::string("-0")), 0);
-		ASSERT_EQ(FromString<int>(std::string("")), 0);
+		ASSERT_ANY_THROW(FromString<int>(std::string("")));
 		ASSERT_EQ(FromString<int>(std::string("0")), 0);
 		ASSERT_EQ(FromString<int>(std::string("000")), 0);
 		ASSERT_EQ(FromString<int>(std::string("1")), 1);
@@ -142,7 +142,7 @@ TEST(ToStringTest, FromString)
 		ASSERT_ANY_THROW(FromString<unsigned>(std::string("-12")));
 		ASSERT_ANY_THROW(FromString<unsigned>(std::string("-1")));
 		ASSERT_ANY_THROW(FromString<unsigned>(std::string("-0")));
-		ASSERT_EQ(FromString<unsigned>(std::string("")), 0u);
+		ASSERT_ANY_THROW(FromString<unsigned>(std::string("")));
 		ASSERT_EQ(FromString<unsigned>(std::string("0")), 0u);
 		ASSERT_EQ(FromString<unsigned>(std::string("000")), 0u);
 		ASSERT_EQ(FromString<unsigned>(std::string("1")), 1u);

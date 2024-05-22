@@ -86,8 +86,7 @@ namespace stingray
 			static auto ParseIntegralType(const StringType& str)
 					-> decltype(SafeEvaluator<ObjectType>::Do(str, std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), false), typename RemoveReference<decltype(std::declval<ObjectType>())>::ValueT())
 			{
-				if (str.empty()) //old from string behaved this way.
-					return 0;
+				STINGRAYKIT_CHECK(!str.empty(), ArgumentException("str"));
 
 				ObjectType value = 0;
 				bool negative = false;
