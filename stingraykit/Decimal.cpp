@@ -19,12 +19,12 @@ namespace stingray
 
 		const u16 BaseOfExponent = 10;
 
-		std::string RemoveUnsignificantZeros(const std::string& source)
+		string_view RemoveUnsignificantZeros(const string_view& source)
 		{
-			std::string::const_reverse_iterator it = source.rbegin();
+			string_view::const_reverse_iterator it = source.rbegin();
 			while (it != source.rend() && *it == '0')
 				++it;
-			return std::string(source.begin(), source.begin() + (source.rend() - it));
+			return source.substr(0, std::distance(it, source.rend()));
 		}
 
 		std::string AddSignificantZeros(const std::string& source, u16 exponent)
@@ -39,20 +39,20 @@ namespace stingray
 
 	}
 
-	Decimal::Decimal(const std::string& str)
+	Decimal::Decimal(string_view str)
 	{
 		const size_t pointPos = str.find('.');
-		if (pointPos == std::string::npos)
+		if (pointPos == string_view::npos)
 		{
 			_mantissa = stingray::FromString<s64>(str);
 			_exponent = 0;
 			return;
 		}
 
-		const std::string rawIntegralPart = str.substr(0, pointPos);
+		const string_view rawIntegralPart = str.substr(0, pointPos);
 		const s64 integralPart = stingray::FromString<s64>(rawIntegralPart);
 
-		const std::string rawFractionalPart = RemoveUnsignificantZeros(str.substr(pointPos + 1));
+		const string_view rawFractionalPart = RemoveUnsignificantZeros(str.substr(pointPos + 1));
 		const s64 fractionalPart = stingray::FromString<s64>(rawFractionalPart);
 
 		const u16 exponent = (u16)rawFractionalPart.size();
@@ -70,7 +70,9 @@ namespace stingray
 		const std::string value = AddSignificantZeros(stingray::ToString(_mantissa), _exponent);
 
 		std::string integralPart = ExtractPrefix(value, value.size() - _exponent);
-		const std::string fractionalPart = RemoveUnsignificantZeros(RemovePrefix(value, integralPart));
+
+		const std::string rawFractionalPart = RemovePrefix(value, integralPart);
+		const string_view croppedFractionalPart = RemoveUnsignificantZeros(rawFractionalPart);
 
 		if (integralPart.empty() || integralPart == "-")
 			integralPart.append("0");
@@ -78,8 +80,8 @@ namespace stingray
 		StringBuilder builder;
 		builder % integralPart;
 
-		if (!fractionalPart.empty())
-			builder % "." % fractionalPart;
+		if (!croppedFractionalPart.empty())
+			builder % "." % croppedFractionalPart;
 		return builder;
 	}
 

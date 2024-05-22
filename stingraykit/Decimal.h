@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/string/string_view.h>
 #include <stingraykit/toolkit.h>
 
 namespace stingray
@@ -25,7 +26,7 @@ namespace stingray
 				_exponent(exponent)
 		{ }
 
-		explicit Decimal(const std::string& str);
+		explicit Decimal(string_view str);
 
 		s64 GetMantissa() const
 		{ return _mantissa; }
@@ -33,7 +34,7 @@ namespace stingray
 		u16 GetExponent() const
 		{ return _exponent; }
 
-		static Decimal FromString(const std::string& str)
+		static Decimal FromString(string_view str)
 		{ return Decimal(str); }
 
 		std::string ToString() const;
