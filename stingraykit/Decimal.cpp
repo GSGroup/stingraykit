@@ -41,6 +41,8 @@ namespace stingray
 
 	Decimal::Decimal(string_view str)
 	{
+		STINGRAYKIT_CHECK(!str.empty(), ArgumentException("str"));
+
 		const size_t pointPos = str.find('.');
 		if (pointPos == string_view::npos)
 		{
@@ -50,12 +52,15 @@ namespace stingray
 		}
 
 		const string_view rawIntegralPart = str.substr(0, pointPos);
+		const string_view rawFractionalPart = str.substr(pointPos + 1);
+		STINGRAYKIT_CHECK(!rawIntegralPart.empty() || !rawFractionalPart.empty(), ArgumentException("str", str));
+
 		const s64 integralPart = stingray::FromString<s64>(rawIntegralPart);
 
-		const string_view rawFractionalPart = RemoveUnsignificantZeros(str.substr(pointPos + 1));
-		const s64 fractionalPart = stingray::FromString<s64>(rawFractionalPart);
+		const string_view croppedFractionalPart = RemoveUnsignificantZeros(rawFractionalPart);
+		const s64 fractionalPart = stingray::FromString<s64>(croppedFractionalPart);
 
-		const u16 exponent = (u16)rawFractionalPart.size();
+		const u16 exponent = (u16)croppedFractionalPart.size();
 		const s64 integralMantissa = integralPart * std::pow(BaseOfExponent, exponent);
 		const s64 fractionalMantissa = integralPart >= 0 ? fractionalPart : -fractionalPart;
 		const int signFactor = !rawIntegralPart.empty() && rawIntegralPart[0] == '-' && integralPart == 0 ? -1 : 1;

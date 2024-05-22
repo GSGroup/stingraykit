@@ -50,6 +50,19 @@ TEST(DecimalTest, Multiplication)
 
 TEST(DecimalTest, FromString)
 {
+	EXPECT_ANY_THROW(Decimal::FromString(""));
+	EXPECT_ANY_THROW(Decimal::FromString("."));
+
+	EXPECT_EQ(Decimal::FromString(".0"), Decimal(0, 0));
+	EXPECT_EQ(Decimal::FromString(".1"), Decimal(1, 1));
+
+	EXPECT_EQ(Decimal::FromString("0."), Decimal(0, 0));
+	EXPECT_EQ(Decimal::FromString("1."), Decimal(1, 0));
+
+	EXPECT_EQ(Decimal::FromString("0.0"), Decimal(0, 0));
+	EXPECT_EQ(Decimal::FromString("1.0"), Decimal(1, 0));
+	EXPECT_EQ(Decimal::FromString("1.1"), Decimal(11, 1));
+
 	EXPECT_EQ(Decimal::FromString("0"), Decimal(0, 0));
 	EXPECT_EQ(Decimal::FromString("-0"), Decimal(0, 0));
 	EXPECT_EQ(Decimal::FromString("50"), Decimal(50, 0));
