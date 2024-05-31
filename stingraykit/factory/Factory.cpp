@@ -54,7 +54,11 @@ namespace stingray
 		STINGRAYKIT_CHECK(_objectCreators.find(name) == _objectCreators.end(), StringBuilder() % "Class '" % name % "' is already registered");
 		_objectCreators.emplace(name, std::move(creator));
 
-		_classNames[info] = name;
+		const ClassNamesRegistry::const_iterator it = _classNames.find(info);
+		if (it == _classNames.end())
+			_classNames.emplace(info, name);
+		else
+			Logger::Warning() << "Ignore name " << name << " for class '" << info.GetClassName() << "', already have name " << it->second;
 	}
 
 
