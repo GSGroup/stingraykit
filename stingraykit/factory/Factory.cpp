@@ -52,8 +52,8 @@ namespace stingray
 		MutexLock l(_guard);
 
 		STINGRAYKIT_CHECK(_objectCreators.find(name) == _objectCreators.end(), StringBuilder() % "Class '" % name % "' is already registered");
+		_objectCreators.emplace(name, std::move(creator));
 
-		_objectCreators[name] = std::move(creator);
 		_classNames[info] = name;
 	}
 
