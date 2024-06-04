@@ -79,7 +79,7 @@ namespace stingray
 
 		for (; precision < targetPrecision; ++precision)
 		{
-			STINGRAYKIT_CHECK(fraction <= MaxMultiplicand, IndexOutOfRangeException(StringBuilder() % RightJustify(ToString(fraction), precision, '0') % "0", std::numeric_limits<u64>::max()));
+			STINGRAYKIT_CHECK(fraction <= MaxMultiplicand, IndexOutOfRangeException((StringBuilder() % RightJustify(ToString(fraction), precision, '0') % "0").ToString(), std::numeric_limits<u64>::max()));
 			fraction *= Radix;
 		}
 
