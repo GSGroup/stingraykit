@@ -17,6 +17,8 @@ namespace stingray
 	template < typename CharType >
 	class basic_string_ostream
 	{
+		STINGRAYKIT_NONCOPYABLE(basic_string_ostream);
+
 	public:
 		using value_type = CharType;
 		using const_reference = const value_type;
@@ -33,6 +35,8 @@ namespace stingray
 		inplace_vector<value_type, InplaceCapacity>		_buf;
 
 	public:
+		basic_string_ostream() { }
+
 		bool empty() const { return _buf.empty(); }
 
 		void clear() { _buf.clear(); }
