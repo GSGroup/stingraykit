@@ -5,7 +5,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/Range.h>
+#include <stingraykit/compare/CollectionComparer.h>
 
 #include <unittests/RangeMatcher.h>
 
@@ -38,6 +38,20 @@ namespace
 		ThrowableTestObject(ThrowableTestObject&& other)
 			:	Action(other.Action)
 		{ STINGRAYKIT_CHECK(Action != ThrowOnMoving, Action); }
+
+		ThrowableTestObject& operator = (const ThrowableTestObject& other)
+		{
+			STINGRAYKIT_CHECK(other.Action != ThrowOnCopying, other.Action);
+			Action = other.Action;
+			return *this;
+		}
+
+		ThrowableTestObject& operator = (ThrowableTestObject&& other)
+		{
+			STINGRAYKIT_CHECK(other.Action != ThrowOnMoving, other.Action);
+			Action = std::move(other.Action);
+			return *this;
+		}
 
 		bool operator == (const ThrowableTestObject& other) const
 		{ return Action == other.Action; }
@@ -85,6 +99,123 @@ TEST(InplaceVectorTest, Empty)
 	ASSERT_EQ(testee.size(), 0);
 
 	ASSERT_EQ(testee.capacity(), 5);
+}
+
+
+TEST(InplaceVectorTest, Copy)
+{
+	using Vec = inplace_vector<std::string, 2>;
+
+	Vec vec;
+	vec.push_back(std::string(1000, '0'));
+	vec.push_back(std::string(1000, '1'));
+	vec.push_back(std::string(1000, '2'));
+	vec.push_back(std::string(1000, '3'));
+
+	Vec copy1(vec);
+	ASSERT_TRUE(CollectionEquals()(copy1, vec));
+
+	Vec copy2;
+	copy2 = vec;
+	ASSERT_TRUE(CollectionEquals()(copy2, vec));
+}
+
+
+TEST(InplaceVectorTest, CopyException)
+{
+	using Vec = inplace_vector<ThrowableTestObject, 2>;
+
+	{
+		Vec vec;
+		vec.emplace_back(std::string(1000, '0'));
+		vec.emplace_back(ThrowOnCopying);
+		vec.emplace_back(std::string(1000, '2'));
+		vec.emplace_back(std::string(1000, '3'));
+
+		ASSERT_ANY_THROW(Vec copy1(vec));
+		ASSERT_EQ(vec.size(), 4);
+
+		Vec copy2;
+		ASSERT_ANY_THROW(copy2 = vec);
+		ASSERT_EQ(vec.size(), 4);
+		ASSERT_TRUE(copy2.empty());
+	}
+
+	{
+		Vec vec;
+		vec.emplace_back(std::string(1000, '0'));
+		vec.emplace_back(std::string(1000, '1'));
+		vec.emplace_back(std::string(1000, '2'));
+		vec.emplace_back(ThrowOnCopying);
+
+		ASSERT_ANY_THROW(Vec copy1(vec));
+		ASSERT_EQ(vec.size(), 4);
+
+		Vec copy2;
+		ASSERT_ANY_THROW(copy2 = vec);
+		ASSERT_EQ(vec.size(), 4);
+		ASSERT_TRUE(copy2.empty());
+	}
+}
+
+
+TEST(InplaceVectorTest, Move)
+{
+	using Vec = inplace_vector<std::string, 2>;
+
+	Vec vec;
+	vec.push_back(std::string(1000, '0'));
+	vec.push_back(std::string(1000, '1'));
+	vec.push_back(std::string(1000, '2'));
+	vec.push_back(std::string(1000, '3'));
+
+	Vec move1(std::move(vec));
+	ASSERT_TRUE(vec.empty());
+	ASSERT_THAT(move1, ElementsAre(std::string(1000, '0'), std::string(1000, '1'), std::string(1000, '2'), std::string(1000, '3')));
+
+	Vec move2;
+	move2 = std::move(move1);
+	ASSERT_TRUE(move1.empty());
+	ASSERT_THAT(move2, ElementsAre(std::string(1000, '0'), std::string(1000, '1'), std::string(1000, '2'), std::string(1000, '3')));
+}
+
+
+TEST(InplaceVectorTest, MoveException)
+{
+	using Vec = inplace_vector<ThrowableTestObject, 2>;
+
+	{
+		Vec vec;
+		vec.emplace_back(std::string(1000, '0'));
+		vec.emplace_back(ThrowOnMoving);
+		vec.emplace_back(std::string(1000, '2'));
+		vec.emplace_back(std::string(1000, '3'));
+
+		ASSERT_ANY_THROW(Vec move1(std::move(vec)));
+		ASSERT_EQ(vec.size(), 4);
+
+		Vec move2;
+		ASSERT_ANY_THROW(move2 = std::move(vec));
+		ASSERT_EQ(vec.size(), 4);
+		ASSERT_TRUE(move2.empty());
+	}
+
+	{
+		Vec vec;
+		vec.emplace_back(std::string(1000, '0'));
+		vec.emplace_back(std::string(1000, '1'));
+		vec.emplace_back(std::string(1000, '2'));
+		vec.emplace_back(ThrowOnMoving);
+
+		Vec move1(std::move(vec));
+		ASSERT_TRUE(vec.empty());
+		ASSERT_EQ(move1.size(), 4);
+
+		Vec move2;
+		ASSERT_NO_THROW(move2 = std::move(move1));
+		ASSERT_TRUE(move1.empty());
+		ASSERT_EQ(move2.size(), 4);
+	}
 }
 
 

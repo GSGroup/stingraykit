@@ -98,8 +98,30 @@ namespace stingray
 			: _staticStorageSize(0), _staticStorage(uninitialized_array_tag())
 		{ }
 
+		inplace_vector(const inplace_vector& other)
+			: _staticStorageSize(0), _staticStorage(uninitialized_array_tag())
+		{ Copy(other); }
+
+		inplace_vector(inplace_vector&& other)
+			: _staticStorageSize(0), _staticStorage(uninitialized_array_tag())
+		{ Move(std::move(other)); }
+
 		~inplace_vector()
 		{ Dtor(); }
+
+		inplace_vector& operator = (const inplace_vector& other)
+		{
+			clear();
+			Copy(other);
+			return *this;
+		}
+
+		inplace_vector& operator = (inplace_vector&& other)
+		{
+			clear();
+			Move(std::move(other));
+			return *this;
+		}
 
 		template < typename InputIterator >
 		void assign(InputIterator first, InputIterator last)
@@ -206,6 +228,46 @@ namespace stingray
 		}
 
 	private:
+		void Copy(const inplace_vector& other)
+		{
+			try
+			{
+				while (_staticStorageSize < other._staticStorageSize)
+				{
+					_staticStorage[_staticStorageSize].Ctor(other._staticStorage[_staticStorageSize].Ref());
+					++_staticStorageSize;
+				}
+
+				_dynamicStorage = other._dynamicStorage;
+			}
+			catch (...)
+			{
+				Dtor();
+				throw;
+			}
+		}
+
+		void Move(inplace_vector&& other)
+		{
+			try
+			{
+				while (_staticStorageSize < other._staticStorageSize)
+				{
+					_staticStorage[_staticStorageSize].Ctor(std::move(other._staticStorage[_staticStorageSize].Ref()));
+					++_staticStorageSize;
+				}
+
+				other.Dtor();
+
+				_dynamicStorage = std::move(other._dynamicStorage);
+			}
+			catch (...)
+			{
+				Dtor();
+				throw;
+			}
+		}
+
 		void Dtor()
 		{
 			for (size_t index = 0; index < _staticStorageSize; ++index)
