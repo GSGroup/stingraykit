@@ -99,10 +99,7 @@ namespace stingray
 		{ }
 
 		~inplace_vector()
-		{
-			for (size_t index = 0; index < _staticStorageSize; ++index)
-				_staticStorage[index].Dtor();
-		}
+		{ Dtor(); }
 
 		template < typename InputIterator >
 		void assign(InputIterator first, InputIterator last)
@@ -171,9 +168,7 @@ namespace stingray
 		void clear()
 		{
 			_dynamicStorage.clear();
-			for (size_t index = 0; index < _staticStorageSize; ++index)
-				_staticStorage[index].Dtor();
-			_staticStorageSize = 0;
+			Dtor();
 		}
 
 		void push_back(const_reference value)
@@ -208,6 +203,14 @@ namespace stingray
 			}
 			else
 				_dynamicStorage.emplace_back(std::forward<Us>(args)...);
+		}
+
+	private:
+		void Dtor()
+		{
+			for (size_t index = 0; index < _staticStorageSize; ++index)
+				_staticStorage[index].Dtor();
+			_staticStorageSize = 0;
 		}
 	};
 
