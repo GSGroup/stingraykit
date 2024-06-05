@@ -187,6 +187,17 @@ namespace stingray
 				_dynamicStorage.push_back(value);
 		}
 
+		void push_back(value_type&& value)
+		{
+			if (_staticStorageSize < InplaceCapacity)
+			{
+				_staticStorage[_staticStorageSize].Ctor(std::move(value));
+				++_staticStorageSize;
+			}
+			else
+				_dynamicStorage.push_back(std::move(value));
+		}
+
 		template < typename... Us >
 		void emplace_back(Us&&... args)
 		{

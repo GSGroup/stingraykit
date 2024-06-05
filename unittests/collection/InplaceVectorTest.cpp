@@ -21,6 +21,7 @@ namespace
 
 	const std::string ThrowOnCreation = "ThrowOnCreation";
 	const std::string ThrowOnCopying = "ThrowOnCopying";
+	const std::string ThrowOnMoving = "ThrowOnMoving";
 
 	struct ThrowableTestObject
 	{
@@ -33,6 +34,10 @@ namespace
 		ThrowableTestObject(const ThrowableTestObject& other)
 			:	Action(other.Action)
 		{ STINGRAYKIT_CHECK(Action != ThrowOnCopying, Action); }
+
+		ThrowableTestObject(ThrowableTestObject&& other)
+			:	Action(other.Action)
+		{ STINGRAYKIT_CHECK(Action != ThrowOnMoving, Action); }
 
 		bool operator == (const ThrowableTestObject& other) const
 		{ return Action == other.Action; }
@@ -206,7 +211,13 @@ TEST(InplaceVectorTest, PushBackException)
 	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("0")));
 	ASSERT_EQ(testee.size(), 1);
 
-	ASSERT_ANY_THROW(testee.push_back(ThrowableTestObject(ThrowOnCopying)));
+	{
+		ThrowableTestObject throwable(ThrowOnCopying);
+		ASSERT_ANY_THROW(testee.push_back(throwable));
+		ASSERT_EQ(testee.size(), 1);
+	}
+
+	ASSERT_ANY_THROW(testee.push_back(ThrowableTestObject(ThrowOnMoving)));
 	ASSERT_EQ(testee.size(), 1);
 
 	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("1")));
@@ -215,7 +226,13 @@ TEST(InplaceVectorTest, PushBackException)
 	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("2")));
 	ASSERT_EQ(testee.size(), 3);
 
-	ASSERT_ANY_THROW(testee.push_back(ThrowableTestObject(ThrowOnCopying)));
+	{
+		ThrowableTestObject throwable(ThrowOnCopying);
+		ASSERT_ANY_THROW(testee.push_back(throwable));
+		ASSERT_EQ(testee.size(), 3);
+	}
+
+	ASSERT_ANY_THROW(testee.push_back(ThrowableTestObject(ThrowOnMoving)));
 	ASSERT_EQ(testee.size(), 3);
 
 	ASSERT_NO_THROW(testee.push_back(ThrowableTestObject("3")));
