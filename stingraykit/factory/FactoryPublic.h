@@ -33,7 +33,7 @@ namespace stingray
 
 #define STINGRAYKIT_REGISTER_CLASS(Class_) \
 		std::string GetClassName() const override \
-		{ return stingray::FactoryUtils::RemoveTypePrefix(TypeInfo(typeid(Class_)).GetName(), "stingray::"); } \
+		{ return stingray::FactoryUtils::RemoveTypePrefix(stingray::TypeInfo(typeid(Class_)).GetName(), "stingray::"); } \
 		friend class stingray::Detail::FactoryObjectCreator<Class_>
 
 #endif
