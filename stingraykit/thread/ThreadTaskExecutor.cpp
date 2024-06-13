@@ -39,7 +39,7 @@ namespace stingray
 	void ThreadTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
 	{
 		MutexLock l(_syncRoot);
-		_queue.push_back(std::make_pair(task, tester));
+		_queue.emplace_back(task, tester);
 		_condVar.Broadcast();
 
 		if (_queue.size() > TaskCountLimit && _queue.size() % (TaskCountLimit / 4) == 0)
