@@ -31,7 +31,7 @@ namespace stingray
 	void ThreadlessTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
 	{
 		MutexLock l(_syncRoot);
-		_queue.push_back(std::make_pair(task, tester));
+		_queue.emplace_back(task, tester);
 	}
 
 
