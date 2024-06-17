@@ -66,6 +66,7 @@ namespace stingray
 
 			buffer.RequireSize(buffer.size() * 2);
 		}
+		STINGRAYKIT_CHECK_CANCELLATION(token);
 
 		return ConstByteArray(buffer, 0, offset);
 	}
