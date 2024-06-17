@@ -43,6 +43,7 @@ namespace stingray
 	void CheckedWriteAll(StreamType&& stream, ConstByteData data, const ICancellationToken& token = DummyCancellationToken())
 	{
 		const size_t written = WriteAll(std::forward<StreamType>(stream), data, token);
+		STINGRAYKIT_CHECK_CANCELLATION(token);
 		STINGRAYKIT_CHECK(written == data.size(), InputOutputException(StringBuilder() % "Written only " % written % " of " % data.size()));
 	}
 
