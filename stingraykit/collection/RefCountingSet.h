@@ -60,7 +60,7 @@ namespace stingray
 			}
 
 			doAddFunc(key);
-			return keys_iterator(_impl.insert(std::make_pair(key, 1)).first);
+			return keys_iterator(_impl.emplace(key, 1).first);
 		}
 
 		template < typename DoRemoveFunc >
