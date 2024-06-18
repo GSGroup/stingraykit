@@ -27,8 +27,8 @@ namespace stingray
 			size_t	References;
 			Value_	Value;
 
-			ValueHolder(size_t references, const Value_& value)
-				:	References(references),
+			explicit ValueHolder(const Value_& value)
+				:	References(1),
 					Value(value)
 			{ }
 		};
@@ -62,7 +62,7 @@ namespace stingray
 			typename base::reference dereference() const
 			{
 				if (!_pair)
-					_pair.emplace(PairType(_implIt->first, _implIt->second.Value));
+					_pair.emplace(_implIt->first, _implIt->second.Value);
 				return *_pair;
 			}
 
@@ -116,7 +116,7 @@ namespace stingray
 				return it;
 			}
 
-			return _impl.insert(std::make_pair(key, ValueHolder(1, doAddFunc(key)))).first;
+			return _impl.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::make_tuple(doAddFunc(key))).first;
 		}
 
 		template < typename DoRemoveFunc >
