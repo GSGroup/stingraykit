@@ -28,19 +28,20 @@ namespace stingray
 			Value_	Value;
 
 			ValueHolder(size_t references, const Value_& value)
-				:	References(references), Value(value)
+				:	References(references),
+					Value(value)
 			{ }
 		};
 
-		typedef std::map<Key_, ValueHolder, Comparer_>		Impl;
+		using Impl = std::map<Key_, ValueHolder, Comparer_>;
 
 		template < bool Const >
 		struct Iterator : public iterator_base<Iterator<Const>, std::pair<const Key_&, typename If<Const, const Value_&, Value_&>::ValueT>, std::bidirectional_iterator_tag>
 		{
-			typedef std::pair<const Key_&, typename If<Const, const Value_&, Value_&>::ValueT>			PairType;
-			typedef iterator_base<Iterator, PairType, std::bidirectional_iterator_tag>					base;
+			using PairType = std::pair<const Key_&, typename If<Const, const Value_&, Value_&>::ValueT>;
+			using base = iterator_base<Iterator, PairType, std::bidirectional_iterator_tag>;
 
-			typedef typename If<Const, typename Impl::const_iterator, typename Impl::iterator>::ValueT	ImplIterator;
+			using ImplIterator = typename If<Const, typename Impl::const_iterator, typename Impl::iterator>::ValueT;
 
 		private:
 			ImplIterator				_implIt;
@@ -80,8 +81,8 @@ namespace stingray
 		};
 
 	public:
-		typedef Iterator<false>		iterator;
-		typedef Iterator<true>		const_iterator;
+		using iterator = Iterator<false>;
+		using const_iterator = Iterator<true>;
 
 	private:
 		Impl		_impl;
@@ -101,17 +102,17 @@ namespace stingray
 
 		size_t count(const Key_& key) const
 		{
-			typename Impl::const_iterator it = _impl.find(key);
+			const typename Impl::const_iterator it = _impl.find(key);
 			return it != _impl.end() ? it->second.References : 0;
 		}
 
 		template < typename DoAddFunc >
 		iterator add(const Key_& key, const DoAddFunc& doAddFunc)
 		{
-			typename Impl::iterator it = _impl.find(key);
+			const typename Impl::iterator it = _impl.find(key);
 			if (it != _impl.end())
 			{
-				++(it->second.References);
+				++it->second.References;
 				return it;
 			}
 
@@ -121,11 +122,11 @@ namespace stingray
 		template < typename DoRemoveFunc >
 		size_t erase(const Key_& key, const DoRemoveFunc& doRemoveFunc)
 		{
-			typename Impl::iterator implIt = _impl.find(key);
+			const typename Impl::iterator implIt = _impl.find(key);
 			if (implIt == _impl.end())
 				return 0;
 
-			if (--(implIt->second.References) > 0)
+			if (--implIt->second.References > 0)
 				return 1;
 
 			doRemoveFunc(implIt->first, implIt->second.Value);
@@ -136,8 +137,8 @@ namespace stingray
 		template < typename DoRemoveFunc >
 		void erase(iterator it, const DoRemoveFunc& doRemoveFunc)
 		{
-			typename Impl::iterator implIt = it.GetImpl();
-			if (--(implIt->second.References) > 0)
+			const typename Impl::iterator implIt = it.GetImpl();
+			if (--implIt->second.References > 0)
 				return;
 
 			doRemoveFunc(implIt->first, implIt->second.Value);
