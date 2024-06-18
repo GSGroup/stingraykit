@@ -21,11 +21,11 @@ namespace stingray
 	{
 		static_assert(comparers::IsRelationalComparer<Comparer_>::Value, "Expected Relational comparer");
 
-		typedef std::map<Key_, size_t, Comparer_> Impl;
+		using Impl = std::map<Key_, size_t, Comparer_>;
 
 	public:
-		typedef MapKeysIterator<typename Impl::const_iterator> const_iterator;
-		typedef MapKeysIterator<typename Impl::iterator> iterator;
+		using const_iterator = MapKeysIterator<typename Impl::const_iterator>;
+		using iterator = MapKeysIterator<typename Impl::iterator>;
 
 	private:
 		Impl		_impl;
@@ -45,14 +45,14 @@ namespace stingray
 
 		size_t count(const Key_& key) const
 		{
-			typename Impl::const_iterator it = _impl.find(key);
+			const typename Impl::const_iterator it = _impl.find(key);
 			return it != _impl.end() ? it->second : 0;
 		}
 
 		template < typename DoAddFunc >
 		iterator add(const Key_& key, const DoAddFunc& doAddFunc)
 		{
-			typename Impl::iterator it = _impl.find(key);
+			const typename Impl::iterator it = _impl.find(key);
 			if (it != _impl.end())
 			{
 				++it->second;
@@ -66,7 +66,7 @@ namespace stingray
 		template < typename DoRemoveFunc >
 		size_t erase(const Key_& key, const DoRemoveFunc& doRemoveFunc)
 		{
-			typename Impl::iterator it = _impl.find(key);
+			const typename Impl::iterator it = _impl.find(key);
 			if (it == _impl.end())
 				return 0;
 
@@ -81,7 +81,7 @@ namespace stingray
 		template < typename DoRemoveFunc >
 		void erase(iterator it, const DoRemoveFunc& doRemoveFunc)
 		{
-			typename Impl::iterator implIt = it.base();
+			const typename Impl::iterator implIt = it.base();
 			if (--implIt->second > 0)
 				return;
 
