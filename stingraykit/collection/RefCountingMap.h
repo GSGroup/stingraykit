@@ -27,9 +27,10 @@ namespace stingray
 			size_t	References;
 			Value_	Value;
 
-			explicit ValueHolder(const Value_& value)
+			template < typename DoAddFunc >
+			ValueHolder(const Key_& key, const DoAddFunc& doAddFunc)
 				:	References(1),
-					Value(value)
+					Value(doAddFunc(key))
 			{ }
 		};
 
@@ -116,7 +117,7 @@ namespace stingray
 				return it;
 			}
 
-			return _impl.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::make_tuple(doAddFunc(key))).first;
+			return _impl.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(key, doAddFunc)).first;
 		}
 
 		template < typename DoRemoveFunc >
