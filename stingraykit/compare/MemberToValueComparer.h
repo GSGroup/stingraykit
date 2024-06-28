@@ -96,7 +96,7 @@ namespace stingray
 		Comparer		_comparer;
 
 	public:
-		MemberExtractorComparer(MemberPointer ptr, Comparer comparer = Comparer())
+		explicit MemberExtractorComparer(MemberPointer ptr, Comparer comparer = Comparer())
 			: _ptr(ptr), _comparer(comparer)
 		{ }
 
@@ -118,9 +118,9 @@ namespace stingray
 	};
 
 
-	template <typename MemberPointer>
+	template < typename MemberPointer >
 	MemberExtractorComparer<MemberPointer, comparers::Less, AllowDereferencing> CompareMemberLess(MemberPointer ptr)
-	{ return MemberExtractorComparer<MemberPointer, comparers::Less, AllowDereferencing >(ptr); }
+	{ return MemberExtractorComparer<MemberPointer, comparers::Less, AllowDereferencing>(ptr); }
 
 
 	template < typename MemberPointer, typename ValueType, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
