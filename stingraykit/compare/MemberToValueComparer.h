@@ -122,6 +122,14 @@ namespace stingray
 	MemberExtractorComparer<MemberPointer, comparers::Less, AllowDereferencing> CompareMemberLess(MemberPointer ptr)
 	{ return MemberExtractorComparer<MemberPointer, comparers::Less, AllowDereferencing>(ptr); }
 
+	template < typename MemberPointer >
+	MemberExtractorComparer<MemberPointer, comparers::Greater, AllowDereferencing> CompareMemberGreater(MemberPointer ptr)
+	{ return MemberExtractorComparer<MemberPointer, comparers::Greater, AllowDereferencing>(ptr); }
+
+	template < typename MemberPointer >
+	MemberExtractorComparer<MemberPointer, comparers::Equals, AllowDereferencing> CompareMemberEquals(MemberPointer ptr)
+	{ return MemberExtractorComparer<MemberPointer, comparers::Equals, AllowDereferencing>(ptr); }
+
 
 	template < typename MemberPointer, typename ValueType, typename Comparer = comparers::Equals, typename DereferencingManager = AllowDereferencing >
 	struct MemberToValueComparer : public comparers::ComparerInfo<Comparer>
