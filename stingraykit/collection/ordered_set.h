@@ -356,7 +356,10 @@ namespace stingray
 
 	template < class K, class C, class A >
 	bool operator == (const ordered_set<K, C, A>& lhs, const ordered_set<K, C, A>& rhs)
-	{ return std::equal(lhs._ordered.begin(), lhs._ordered.end(), rhs._ordered.begin(), rhs._ordered.end(), typename ordered_set<K, C, A>::EqualCmp()); }
+	{
+		return lhs.size() == rhs.size()
+				&& std::equal(lhs._ordered.begin(), lhs._ordered.end(), rhs._ordered.begin(), rhs._ordered.end(), typename ordered_set<K, C, A>::EqualCmp());
+	}
 	STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < class K, class C, class A >), MK_PARAM(ordered_set<K, C, A>), MK_PARAM(ordered_set<K, C, A>));
 
 
