@@ -86,7 +86,7 @@ namespace stingray
 			void SetLogLevel(const std::string& loggerName, optional<LogLevel> logLevel)
 			{
 				MutexLock l(_mutex);
-				const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+				const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName);
 				for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 					it->second->SetLogLevel(logLevel);
 
@@ -106,7 +106,7 @@ namespace stingray
 			void EnableBacktrace(const std::string& loggerName, bool enable)
 			{
 				MutexLock l(_mutex);
-				const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+				const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName);
 				for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 					it->second->EnableBacktrace(enable);
 
@@ -119,7 +119,7 @@ namespace stingray
 			void EnableHighlight(const std::string& loggerName, bool enable)
 			{
 				MutexLock l(_mutex);
-				const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName.c_str());
+				const std::pair<ObjectsRegistry::iterator, ObjectsRegistry::iterator> range = _objects.equal_range(loggerName);
 				for (ObjectsRegistry::iterator it = range.first; it != range.second; ++it)
 					it->second->EnableHighlight(enable);
 
