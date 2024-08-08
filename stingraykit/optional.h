@@ -252,7 +252,14 @@ namespace stingray
 			}
 		}
 
+		template < typename U = T, typename EnableIf<
+				IsSame<U, T>::Value &&
+				IsAssignable<T&, const U&>::Value, bool>::ValueT = false >
 		DETAIL_OPTIONAL_COPY_ASSIGN(const optional&)
+
+		template < typename U = T, typename EnableIf<
+				IsSame<U, T>::Value &&
+				IsAssignable<T&, U>::Value, bool>::ValueT = false >
 		DETAIL_OPTIONAL_MOVE_ASSIGN(optional&&)
 
 		template < typename U, typename EnableIf<
