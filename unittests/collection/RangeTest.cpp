@@ -349,6 +349,44 @@ TEST(RangeTest, Split)
 }
 
 
+TEST(RangeTest, Flatten)
+{
+	const std::vector<std::vector<int>> v = { { 0 }, { 1, 2 }, { }, { 3, 4 } };
+	const std::vector<std::vector<int>> vEmpty;
+	const std::vector<std::vector<int>> vEmpty2 = { { } };
+	const std::vector<std::string> strings = { "ab", "", "cd" };
+
+	ASSERT_THAT(Range::Flatten(ToRange(v)), MatchRange(ElementsAre(0, 1, 2, 3, 4)));
+	ASSERT_THAT(Range::Flatten(ToRange(v)) | Reverse(), MatchRange(ElementsAre(4, 3, 2, 1, 0)));
+	ASSERT_THAT(Range::Flatten(ToRange(v) | Reverse()), MatchRange(ElementsAre(3, 4, 1, 2, 0)));
+
+	ASSERT_THAT(Range::Flatten(ToRange(v).Next()), MatchRange(ElementsAre(1, 2, 3, 4)));
+
+	ASSERT_THAT(Range::Flatten(ToRange(vEmpty)), MatchRange(IsEmpty()));
+	ASSERT_THAT(Range::Flatten(ToRange(vEmpty)) | Reverse(), MatchRange(IsEmpty()));
+
+	ASSERT_THAT(Range::Flatten(ToRange(vEmpty2)), MatchRange(IsEmpty()));
+	ASSERT_THAT(Range::Flatten(ToRange(vEmpty2)) | Reverse(), MatchRange(IsEmpty()));
+
+	ASSERT_THAT(Range::Flatten(Range::Split(std::vector<int>{ 0, 1, 2 }, 1)), MatchRange(ElementsAre(0, 1, 2)));
+
+	{
+		const auto range = Range::Flatten(ToRange(strings));
+		ASSERT_EQ(std::string(range.begin(), range.end()), "abcd");
+	}
+
+	{
+		const auto range = Range::Flatten(ToRange(strings)) | Reverse();
+		ASSERT_EQ(std::string(range.begin(), range.end()), "dcba");
+	}
+
+	{
+		const auto range = Range::Flatten(ToRange(strings) | Reverse());
+		ASSERT_EQ(std::string(range.begin(), range.end()), "cdab");
+	}
+}
+
+
 TEST(RangeTest, Polymorphic)
 {
 	std::vector<BasePtr> v;
