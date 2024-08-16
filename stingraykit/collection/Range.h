@@ -102,9 +102,9 @@ namespace stingray
 			using base = RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>;
 
 		private:
-			const It_		_begin;
-			It_				_it;
-			const It_		_end;
+			It_		_begin;
+			It_		_it;
+			It_		_end;
 
 		public:
 			IteratorRange(const It_& begin, const It_& it, const It_& end) : _begin(begin), _it(it), _end(end) { }
