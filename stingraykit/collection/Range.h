@@ -1426,6 +1426,16 @@ namespace stingray
 		template < typename T, typename Enabler >
 		struct ToRangeImpl
 		{
+			using IterType = typename T::const_iterator;
+			using ValueT = Range::IteratorRange<IterType>;
+
+			static ValueT Do(const T& collection)
+			{ return ValueT(std::begin(collection), std::begin(collection), std::end(collection)); }
+		};
+
+		template < typename T >
+		struct ToRangeImpl<T, typename EnableIf<decltype(std::declval<typename T::iterator>(), TrueType())::Value && !IsRange<T>::Value, void>::ValueT>
+		{
 			using IterType = typename If<IsConst<T>::Value, typename T::const_iterator, typename T::iterator>::ValueT;
 			using ValueT = Range::IteratorRange<IterType>;
 
