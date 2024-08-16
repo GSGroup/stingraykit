@@ -19,7 +19,7 @@ namespace stingray
 	 */
 
 	template < typename T >
-	class StlEnumeratorAdapter : public std::iterator<std::input_iterator_tag, T>
+	class StlEnumeratorAdapter : public std::iterator<std::input_iterator_tag, T, ptrdiff_t, const T*, T>
 	{
 	private:
 		shared_ptr<IEnumerator<T>>		_enumerator;
