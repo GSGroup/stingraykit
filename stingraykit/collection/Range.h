@@ -733,6 +733,129 @@ namespace stingray
 		};
 
 
+		template < typename Range_ >
+		struct RangeFlattenerHelper
+		{
+			using SubRangeType = typename Detail::ToRangeImpl<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT;
+			using ValueType = typename SubRangeType::ValueType;
+
+			template < typename LhsCategory, typename RhsCategory >
+			struct AccumulateFunc
+			{ using ValueT = typename If<IsInherited<LhsCategory, RhsCategory>::Value, RhsCategory, LhsCategory>::ValueT; };
+
+			using Category = typename AccumulateFunc<typename AccumulateFunc<typename Range_::Category, typename SubRangeType::Category>::ValueT, std::bidirectional_iterator_tag>::ValueT;
+		};
+
+
+		template < typename Range_ >
+		class RangeFlattener : public RangeBase<RangeFlattener<Range_>, typename RangeFlattenerHelper<Range_>::ValueType, typename RangeFlattenerHelper<Range_>::Category>
+		{
+			using Self = RangeFlattener<Range_>;
+			using base = RangeBase<RangeFlattener<Range_>, typename RangeFlattenerHelper<Range_>::ValueType, typename RangeFlattenerHelper<Range_>::Category>;
+
+			using SubRangeType = typename RangeFlattenerHelper<Range_>::SubRangeType;
+
+		private:
+			Range_					_range;
+			optional<SubRangeType>	_currentSubRange;
+
+		public:
+			explicit RangeFlattener(const Range_& range)
+				: _range(range)
+			{ _currentSubRange = FindNext(); }
+
+			bool Valid() const
+			{ return _currentSubRange.is_initialized(); }
+
+			typename base::ValueType Get() const
+			{
+				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
+				return _currentSubRange->Get();
+			}
+
+			bool Equals(const RangeFlattener& other) const
+			{ return _range == other._range && _currentSubRange == other._currentSubRange; }
+
+			Self& First()
+			{
+				_range.First();
+				_currentSubRange = FindNext();
+
+				return *this;
+			}
+
+			Self& Next()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
+
+				_currentSubRange->Next();
+				if (!_currentSubRange->Valid())
+				{
+					_range.Next();
+					_currentSubRange = FindNext();
+				}
+
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
+
+				if (_currentSubRange != SubRangeType(*_currentSubRange).First())
+					_currentSubRange->Prev();
+				else if (_range != Range_(_range).First())
+				{
+					_range.Prev();
+					_currentSubRange = FindPrev();
+				}
+				else
+					_currentSubRange.reset();
+
+				return *this;
+			}
+
+			Self& Last()
+			{
+				_range.Last();
+				_currentSubRange = FindPrev();
+
+				return *this;
+			}
+
+		private:
+			optional<SubRangeType> FindNext()
+			{
+				for (; _range.Valid(); _range.Next())
+				{
+					const auto subRange = ToRange(_range.Get());
+					if (subRange.Valid())
+						return subRange;
+				}
+
+				return null;
+			}
+
+			optional<SubRangeType> FindPrev()
+			{
+				if (!_range.Valid())
+					return null;
+
+				while (true)
+				{
+					const auto subRange = ToRange(_range.Get()).Last();
+					if (subRange.Valid())
+						return subRange;
+
+					if (_range == Range_(_range).First())
+						return null;
+
+					_range.Prev();
+				}
+			}
+		};
+
+
 		template < typename FuncType_, typename RangeTypes_ >
 		class RangeZipper : public Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag>
 		{
@@ -1397,6 +1520,11 @@ namespace stingray
 		template < typename It_ >
 		RangeSplitter<It_> Split(const It_& begin, const It_& end, size_t maxFragmentSize)
 		{ return RangeSplitter<It_>(begin, end, maxFragmentSize); }
+
+
+		template < typename Range_ >
+		RangeFlattener<Range_> Flatten(const Range_& range)
+		{ return RangeFlattener<Range_>(range); }
 
 
 		template < typename FuncType, typename... RangeTypes >
