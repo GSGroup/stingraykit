@@ -70,7 +70,7 @@ namespace stingray
 
 	template < typename SrcEnumerable >
 	StlEnumeratorAdapter<typename SrcEnumerable::ItemType> Wrap(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
-	{ return StlEnumeratorAdapter<typename SrcEnumerable::ItemType>(enumerable->GetEnumerator()); }
+	{ return StlEnumeratorAdapter<typename SrcEnumerable::ItemType>(STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)->GetEnumerator()); }
 
 
 	template < typename SrcEnumerable >
@@ -108,7 +108,7 @@ namespace stingray
 
 	template < typename SrcEnumerable >
 	Detail::RangeBasedForEnumeratorAdapter<typename SrcEnumerable::ItemType> IterableEnumerable(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
-	{ return Detail::RangeBasedForEnumeratorAdapter<typename SrcEnumerable::ItemType>(enumerable->GetEnumerator()); }
+	{ return Detail::RangeBasedForEnumeratorAdapter<typename SrcEnumerable::ItemType>(STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)->GetEnumerator()); }
 
 	/** @} */
 
