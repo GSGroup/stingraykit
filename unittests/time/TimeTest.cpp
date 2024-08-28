@@ -148,7 +148,7 @@ TEST(TimeTest, DISABLED_ToIso8601_Zeroes)
 {
 	const std::string sample = "0000-00-00T00:00:00Z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown();
+	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 0);
 	ASSERT_EQ(brokenDown.Month, 0);
 	ASSERT_EQ(brokenDown.MonthDay, 0);
@@ -163,7 +163,7 @@ TEST(TimeTest, ToIso8601_Common)
 {
 	const std::string sample = "2000-09-21T12:45:05Z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown();
+	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -178,7 +178,7 @@ TEST(TimeTest, ToIso8601_Lowercase)
 {
 	const std::string sample = "2000-09-21t12:45:05z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown();
+	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -193,7 +193,7 @@ TEST(TimeTest, ToIso8601_SecondFraction)
 {
 	const std::string sample = "2000-09-21T12:45:05.0Z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown();
+	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -208,7 +208,7 @@ TEST(TimeTest, Iso8601_SecondFractionDecade)
 {
 	const std::string sample = "2000-09-21T12:45:05.8Z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	BrokenDownTime brokenDown = testee.BreakDown();
+	BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -223,7 +223,7 @@ TEST(TimeTest, Iso8601_ZeroOffset)
 {
 	const std::string sample = "2000-09-21T12:45:05+00:00";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown();
+	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -238,7 +238,7 @@ TEST(TimeTest, ToIso8601_PositiveOffset)
 {
 	const std::string sample = "2000-09-21T12:45:05+13:53";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown();
+	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 20);
@@ -253,7 +253,7 @@ TEST(TimeTest, ToIso8601_NegativeOffset)
 {
 	const std::string sample = "2000-09-21T12:45:05-13:53";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown();
+	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 22);
@@ -268,7 +268,7 @@ TEST(TimeTest, ToIso8601_DateOnly)
 {
 	const std::string sample = "2000-09-21";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown();
+	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
