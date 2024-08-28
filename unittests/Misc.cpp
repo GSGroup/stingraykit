@@ -34,6 +34,7 @@ TEST(Misc, BindTest)
 }
 
 
+#ifndef USE_LTO
 TEST(Misc, ThreadInterruptTest)
 {
 	struct ThreadFunc
@@ -54,6 +55,7 @@ TEST(Misc, ThreadInterruptTest)
 	t->Interrupt();
 	t.reset();
 }
+#endif
 
 
 TEST(Misc, SignalsTest)

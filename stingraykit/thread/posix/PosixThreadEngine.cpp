@@ -477,6 +477,8 @@ namespace stingray
 		}
 
 
+		// TODO: mark deprecated and remove usage of pthread_cancel entirely
+		// usage of this method causes termination on builds with enabled LTO
 		virtual void Interrupt()
 		{
 			PTELogger.Warning() << "Interrupting thread " << _name << ", backtrace: " << Backtrace();
