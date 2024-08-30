@@ -50,9 +50,10 @@ namespace stingray
 		if (value < 0) \
 		{ \
 			push_back('-'); \
-			value = -value; \
+			InsertIntegral<unsigned VALUE_TYPE>(-static_cast<unsigned VALUE_TYPE>(value)); \
 		} \
-		InsertIntegral<unsigned VALUE_TYPE>(static_cast<unsigned VALUE_TYPE>(value)); \
+		else \
+			InsertIntegral<unsigned VALUE_TYPE>(value); \
 	} \
 	extern template void string_ostream::Insert(VALUE_TYPE)
 
