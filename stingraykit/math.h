@@ -18,11 +18,13 @@ namespace stingray
 	constexpr s32 Abs(s32 val) { return val >= 0 ? val : -val; }
 	constexpr s64 Abs(s64 val) { return val >= 0 ? val : -val; }
 
+
 	template < typename T > constexpr T AlignUp(T value, T boundary)
 	{
 		STINGRAYKIT_CHECK(boundary != 0, ArgumentException("boundary"));
 		return boundary * ((value + boundary - 1) / boundary);
 	}
+
 
 	template < typename T > constexpr T AlignDown(T value, T boundary)
 	{
@@ -30,13 +32,14 @@ namespace stingray
 		return boundary * (value / boundary);
 	}
 
-	constexpr size_t Gcd(size_t a, size_t b) { return b ? Gcd(b, a % b) : a; }
 
+	constexpr size_t Gcd(size_t a, size_t b) { return b ? Gcd(b, a % b) : a; }
 	constexpr size_t Lcm(size_t a, size_t b) { return a / Gcd(a, b) * b; }
 
-	template < typename T > constexpr T Max(T a, T b) { return std::max<T>(a, b); }
 
+	template < typename T > constexpr T Max(T a, T b) { return std::max<T>(a, b); }
 	template < typename T > constexpr T Min(T a, T b) { return std::min<T>(a, b); }
+
 
 	struct FractionInfo
 	{
@@ -46,7 +49,6 @@ namespace stingray
 	};
 
 	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned targetPrecision, unsigned radix = 10);
-
 	FractionInfo ParseDecimalFraction(const std::string& fractionStr, unsigned targetPrecision);
 
 }
