@@ -51,6 +51,41 @@ namespace stingray
 	FractionInfo CalculateFractionRemainder(u64 dividend, u64 divisor, unsigned targetPrecision, unsigned radix = 10);
 	FractionInfo ParseDecimalFraction(const std::string& fractionStr, unsigned targetPrecision);
 
+
+	template < u64 Number >
+	struct MakePowersOfNumberSequence
+	{
+		template < u64 CurrentPower, typename Enabler, u64... PowersOfNumber >
+		struct Impl;
+
+		template < u64 CurrentPower, u64... PowersOfNumber >
+		struct Impl<CurrentPower, typename EnableIf<CurrentPower <= std::numeric_limits<u64>::max() / Number, void>::ValueT, PowersOfNumber...>
+		{ using ValueT = typename Impl<CurrentPower * Number, void, PowersOfNumber..., CurrentPower>::ValueT; };
+
+		template < u64 CurrentPower, u64... PowersOfNumber >
+		struct Impl<CurrentPower, typename EnableIf<(CurrentPower > std::numeric_limits<u64>::max() / Number), void>::ValueT, PowersOfNumber...>
+		{ using ValueT = std::integer_sequence<u64, PowersOfNumber..., CurrentPower>; };
+
+		using ValueT = typename Impl<1, void>::ValueT;
+	};
+
+
+	namespace Detail
+	{
+
+		template < u64... PowersOfNumber >
+		bool IsPowerOfNumberImpl(std::integer_sequence<u64, PowersOfNumber...>, u64 testee)
+		{
+			static const u64 PowersOfNumberArray[] = { PowersOfNumber... };
+			return std::binary_search(std::begin(PowersOfNumberArray), std::end(PowersOfNumberArray), testee);
+		}
+
+	}
+
+	template < u64 Number >
+	bool IsPowerOfNumber(u64 testee)
+	{ return Detail::IsPowerOfNumberImpl(typename MakePowersOfNumberSequence<Number>::ValueT(), testee); }
+
 }
 
 #endif
