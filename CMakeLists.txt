@@ -138,6 +138,7 @@ set(stingraykit_SRC
 	stingraykit/signal/signal_policies.cpp
 
 	stingraykit/string/HumanReadableSize.cpp
+	stingraykit/string/RegexUtils.cpp
 	stingraykit/string/StringUtils.cpp
 	stingraykit/string/ToString.cpp
 	stingraykit/string/TranslatedString.cpp
