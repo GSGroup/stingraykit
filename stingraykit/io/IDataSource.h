@@ -101,6 +101,8 @@ namespace stingray
 
 	struct IDataBuffer : public virtual IDataMediator
 	{
+		using OnOverflowSignature = void (size_t);
+
 		virtual size_t GetDataSize() const = 0;
 		virtual size_t GetFreeSize() const = 0;
 		virtual size_t GetStorageSize() const = 0;
@@ -111,7 +113,7 @@ namespace stingray
 		virtual void SetException(const std::exception& ex, const ICancellationToken& token) = 0;
 		virtual void Clear() = 0;
 
-		virtual signal_connector<void (size_t)> OnOverflow() const = 0;
+		virtual signal_connector<OnOverflowSignature> OnOverflow() const = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(IDataBuffer);
 

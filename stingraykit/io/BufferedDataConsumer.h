@@ -18,16 +18,19 @@ namespace stingray
 
 	class BufferedDataConsumer : public virtual IDataConsumer
 	{
+	public:
+		using OnOverflowSignature = void (size_t);
+
 	private:
-		static NamedLogger			s_logger;
+		static NamedLogger				s_logger;
 
-		SharedCircularBufferPtr		_buffer;
+		SharedCircularBufferPtr			_buffer;
 
-		bool						_discardOnOverflow;
-		signal<void (size_t)>		_onOverflow;
+		bool							_discardOnOverflow;
+		signal<OnOverflowSignature>		_onOverflow;
 
-		const size_t				_inputPacketSize;
-		size_t						_requiredFreeSpace;
+		const size_t					_inputPacketSize;
+		size_t							_requiredFreeSpace;
 
 	public:
 		BufferedDataConsumer(const SharedCircularBufferPtr& buffer, bool discardOnOverflow, size_t inputPacketSize, size_t requiredFreeSpace = 0)
@@ -47,7 +50,7 @@ namespace stingray
 		void EndOfData(const ICancellationToken&) override
 		{ SharedCircularBuffer::BufferLock(*_buffer).SetEndOfData(); }
 
-		signal_connector<void (size_t)> OnOverflow() const
+		signal_connector<OnOverflowSignature> OnOverflow() const
 		{ return _onOverflow.connector(); }
 	};
 

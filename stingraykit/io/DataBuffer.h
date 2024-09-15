@@ -101,7 +101,7 @@ namespace stingray
 		void Clear() override
 		{ SharedCircularBuffer::BufferLock(*_buffer).Clear(); }
 
-		signal_connector<void(size_t)> OnOverflow() const override
+		signal_connector<OnOverflowSignature> OnOverflow() const override
 		{ return _consumer.OnOverflow(); }
 	};
 	STINGRAYKIT_DECLARE_PTR(DataBuffer);
