@@ -10,94 +10,10 @@
 
 #include <stingraykit/compare/MemberListComparer.h>
 #include <stingraykit/string/ToString.h>
+#include <stingraykit/Size.h>
 
 namespace stingray
 {
-
-	struct Size
-	{
-		int		Width;
-		int		Height;
-
-		Size() : Width(), Height() { }
-		Size(int width, int height) : Width(width), Height(height) { }
-
-		bool Valid() const										{ return Width > 0 && Height > 0; }
-
-		bool operator < (const Size& other) const
-		{ return CompareMembersLess(&Size::Width, &Size::Height)(*this, other); }
-		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Size);
-
-		Size operator + (const Size& other) const				{ return Size(Width + other.Width, Height + other.Height); }
-		Size operator - (const Size& other) const				{ return Size(Width - other.Width, Height - other.Height); }
-
-		Size& operator += (const Size& other)
-		{
-			Width += other.Width;
-			Height += other.Height;
-			return *this;
-		}
-
-		Size& operator -= (const Size& other)
-		{
-			Width -= other.Width;
-			Height -= other.Height;
-			return *this;
-		}
-
-		Size operator * (int k) const							{ return Size(Width * k, Height * k); }
-		Size operator / (int k) const							{ return Size(Width / k, Height / k); }
-		Size operator / (const Size& other) const				{ return Size(Width / other.Width, Height / other.Height); }
-
-		std::string ToString() const							{ return StringBuilder() % Width % "x" % Height; }
-
-		template < typename OStream >
-		void Serialize(OStream& ar) const
-		{
-			ar.Serialize("w", Width);
-			ar.Serialize("h", Height);
-		}
-
-		template < typename IStream >
-		void Deserialize(IStream& ar)
-		{
-			ar.Deserialize("w", Width);
-			ar.Deserialize("h", Height);
-		}
-	};
-
-
-	struct SizeScale
-	{
-		int		WidthScale;
-		int		HeightScale;
-
-		SizeScale() : WidthScale(), HeightScale() { }
-		SizeScale(int widthScale, int heightScale) : WidthScale(widthScale), HeightScale(heightScale) { }
-
-		bool Valid() const										{ return WidthScale > 0 && HeightScale > 0; }
-
-		bool operator < (const SizeScale& other) const
-		{ return CompareMembersLess(&SizeScale::WidthScale, &SizeScale::HeightScale)(*this, other); }
-		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(SizeScale);
-
-		std::string ToString() const							{ return StringBuilder() % WidthScale % ":" % HeightScale; }
-
-		template < typename OStream >
-		void Serialize(OStream& ar) const
-		{
-			ar.Serialize("ws", WidthScale);
-			ar.Serialize("hs", HeightScale);
-		}
-
-		template < typename IStream >
-		void Deserialize(IStream& ar)
-		{
-			ar.Deserialize("ws", WidthScale);
-			ar.Deserialize("hs", HeightScale);
-		}
-	};
-
 
 	template < typename ValueType >
 	struct BasicPosition

@@ -87,6 +87,7 @@ set(stingraykit_SRC
 	stingraykit/EnumToString.cpp
 	stingraykit/ProgressValue.cpp
 	stingraykit/Random.cpp
+	stingraykit/Size.cpp
 	stingraykit/SystemException.cpp
 	stingraykit/TypeInfo.cpp
 	stingraykit/UUID.cpp
