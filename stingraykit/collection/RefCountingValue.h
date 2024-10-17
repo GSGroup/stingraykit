@@ -29,9 +29,10 @@ namespace stingray
 		template < typename DoSetFunc >
 		Value_& set(const DoSetFunc& doSetFunc)
 		{
-			if (_refs++ == 0)
+			if (_refs == 0)
 				_value.emplace(doSetFunc());
 
+			_refs++;
 			return *_value;
 		}
 
