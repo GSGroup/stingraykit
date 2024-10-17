@@ -27,8 +27,10 @@ namespace stingray
 		template < typename DoSetFunc >
 		void set(const DoSetFunc& doSetFunc)
 		{
-			if (_refs++ == 0)
+			if (_refs == 0)
 				doSetFunc();
+
+			_refs++;
 		}
 
 		template < typename DoReleaseFunc >
