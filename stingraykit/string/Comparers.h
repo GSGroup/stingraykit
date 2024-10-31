@@ -43,6 +43,9 @@ namespace stingray
 
 	struct CaseInsensitiveEquals : public comparers::EqualsComparerInfo
 	{
+		bool operator () (const string_view& first, const string_view& second) const
+		{ return first.length() == second.length() && std::equal(first.begin(), first.end(), second.begin(), Detail::CaseInsensitiveCompare<comparers::Equals>()); }
+
 		bool operator () (const std::string& first, const std::string& second) const
 		{ return first.length() == second.length() && std::equal(first.begin(), first.end(), second.begin(), Detail::CaseInsensitiveCompare<comparers::Equals>()); }
 	};
