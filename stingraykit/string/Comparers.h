@@ -36,14 +36,14 @@ namespace stingray
 
 	struct CaseInsensitiveLess : public comparers::RelationalComparerInfo
 	{
-		bool operator()(const std::string& first, const std::string& second) const
+		bool operator () (const std::string& first, const std::string& second) const
 		{ return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), Detail::CaseInsensitiveCompare<comparers::Less>()); }
 	};
 
 
 	struct CaseInsensitiveEquals : public comparers::EqualsComparerInfo
 	{
-		bool operator()(const std::string& first, const std::string& second) const
+		bool operator () (const std::string& first, const std::string& second) const
 		{ return first.length() == second.length() && std::equal(first.begin(), first.end(), second.begin(), Detail::CaseInsensitiveCompare<comparers::Equals>()); }
 	};
 
