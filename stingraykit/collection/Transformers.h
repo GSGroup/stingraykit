@@ -100,6 +100,24 @@ namespace stingray
 
 
 	template < typename Arg_, typename Enabler = void >
+	struct CloneTransformerImpl;
+
+
+	struct CloneTransformer : public TransformerMarker
+	{
+		template < typename Arg_ >
+		struct Dispatcher
+		{
+			using Impl = CloneTransformerImpl<Arg_>;
+		};
+	};
+
+
+	inline CloneTransformer Clone()
+	{ return CloneTransformer(); }
+
+
+	template < typename Arg_, typename Enabler = void >
 	struct ReverseTransformerImpl;
 
 

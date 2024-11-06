@@ -9,14 +9,16 @@
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/StlEnumeratorAdapter.h>
+#include <stingraykit/function/functional.h>
 
 #include <unittests/EnumerableMatcher.h>
 
-#include <gtest/gtest.h>
+#include <gmock/gmock-more-matchers.h>
 
 using namespace stingray;
 
 using ::testing::ElementsAre;
+using ::testing::IsEmpty;
 
 namespace
 {
@@ -229,5 +231,39 @@ TEST(EnumerableTest, Polymorphic)
 		ASSERT_THAT(
 			en | OfType<Derived2Ptr>() | Transform(&Derived2::GetValue),
 			MatchEnumerable(ElementsAre(53, 1, 7)));
+	}
+}
+
+
+TEST(EnumerableTest, Clone)
+{
+	{
+		const auto en = EnumerableBuilder<int>().Get();
+		const auto cloned = en | Clone();
+
+		ASSERT_NE(en.get(), cloned.get());
+		ASSERT_EQ(en.use_count(), 1);
+		ASSERT_EQ(cloned.use_count(), 1);
+		ASSERT_THAT(cloned, MatchEnumerable(IsEmpty()));
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 0 % 1 % 2 % 3 % 4).Get();
+		const auto cloned = en | Clone();
+
+		ASSERT_NE(en.get(), cloned.get());
+		ASSERT_EQ(en.use_count(), 1);
+		ASSERT_EQ(cloned.use_count(), 1);
+		ASSERT_THAT(cloned, MatchEnumerable(ElementsAre(0, 1, 2, 3, 4)));
+	}
+
+	{
+		const auto en = (EnumerableBuilder<std::string>() % "0" % "" % "2" % "" % "4").Get();
+		const auto cloned = en | Filter(not_(&std::string::empty)) | Clone();
+
+		ASSERT_NE(en.get(), cloned.get());
+		ASSERT_EQ(en.use_count(), 1);
+		ASSERT_EQ(cloned.use_count(), 1);
+		ASSERT_THAT(cloned, MatchEnumerable(ElementsAre("0", "2", "4")));
 	}
 }

@@ -363,6 +363,8 @@ namespace stingray
 
 		template < typename TResult, typename T > shared_ptr<IEnumerable<TResult>> OfType(const EnumerableOrEnumerator<T>& src);
 
+		template < typename T > Enumerable<T> Clone(const EnumerableOrEnumerator<T> src);
+
 		template < typename T > EnumerableOrEnumerator<T> Reverse(const EnumerableOrEnumerator<T> src);
 
 		template < typename T > T Single(const EnumerableOrEnumerator<T> src);
@@ -702,6 +704,15 @@ namespace stingray
 		template < typename TResult, typename SrcEnumerable >
 		shared_ptr<IEnumerable<TResult>> OfType(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
 		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorOfType<TResult, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType>>>>(), Bind(&SrcEnumerable::GetEnumerator, STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)))); }
+
+
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), shared_ptr<IEnumerable<ItemType>>, Clone, STINGRAYKIT_EMPTY(), STINGRAYKIT_EMPTY(),
+		{
+			const shared_ptr<std::vector<ItemType>> result = make_shared_ptr<std::vector<ItemType>>();
+			for (; enumerator.Valid(); enumerator.Next())
+				result->push_back(enumerator.Get());
+			return EnumerableFromStlContainer(*result, result);
+		});
 
 
 		template < typename CollectionType >
@@ -1232,6 +1243,17 @@ namespace stingray
 
 		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const FilterTransformer<Predicate_>& action)
 		{ return Enumerable::Where(enumerable, action.GetPredicate()); }
+	};
+
+
+	template < typename Enumerable_ >
+	struct CloneTransformerImpl<shared_ptr<Enumerable_>, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
+	{
+		using ItemType = typename Enumerable_::ItemType;
+		using ValueT = shared_ptr<IEnumerable<ItemType>>;
+
+		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const CloneTransformer& action)
+		{ return Enumerable::Clone(enumerable); }
 	};
 
 
