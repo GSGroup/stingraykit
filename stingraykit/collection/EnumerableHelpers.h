@@ -319,53 +319,53 @@ namespace stingray
 
 #ifdef DOXYGEN_PREPROCESSOR
 
-		template <typename T> T Aggregate(const EnumerableOrEnumerator<T> src, const function<T (const T&, const T&)>& aggregateFunc);
-		template <typename T> T Aggregate(const EnumerableOrEnumerator<T> src, const T& initialValue, const function<T (const T&, const T&)>& aggregateFunc);
+		template < typename T > T Aggregate(const EnumerableOrEnumerator<T> src, const function<T (const T&, const T&)>& aggregateFunc);
+		template < typename T > T Aggregate(const EnumerableOrEnumerator<T> src, const T& initialValue, const function<T (const T&, const T&)>& aggregateFunc);
 
-		template <typename T> bool All(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template < typename T > bool All(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
-		template <typename T> bool Any(const EnumerableOrEnumerator<T> src);
-		template <typename T> bool Any(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template < typename T > bool Any(const EnumerableOrEnumerator<T> src);
+		template < typename T > bool Any(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
 		template < typename T > shared_ptr<IEnumerable<T>> Concat(const shared_ptr<IEnumerable<T>>& first, const shared_ptr<IEnumerable<T>>& second);
 
 		template < typename CastTo, typename T > EnumerableOrEnumerator<CastTo> Cast(const EnumerableOrEnumerator<IEnumerable<T>>& src);
 
-		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const T& value);
-		template <typename T> bool Contains(const EnumerableOrEnumerator<T> src, const function<bool(const T&>& predicate);
+		template < typename T > bool Contains(const EnumerableOrEnumerator<T> src, const T& value);
+		template < typename T > bool Contains(const EnumerableOrEnumerator<T> src, const function<bool(const T&>& predicate);
 
-		template <typename T> size_t Count(const EnumerableOrEnumerator<T> src);
-		template <typename T> size_t Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template < typename T > size_t Count(const EnumerableOrEnumerator<T> src);
+		template < typename T > size_t Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
-		template <typename T> void ForEach(const EnumerableOrEnumerator<T> src, const function<void(const T&)>& func);
+		template < typename T > void ForEach(const EnumerableOrEnumerator<T> src, const function<void(const T&)>& func);
 
-		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const T& value);
-		template <typename T> optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template < typename T > optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const T& value);
+		template < typename T > optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
 
-		template <typename T> T ElementAt(const EnumerableOrEnumerator<T> src, size_t index);
-		template <typename T> T ElementAtOrDefault(const EnumerableOrEnumerator<T> src, size_t index);
+		template < typename T > T ElementAt(const EnumerableOrEnumerator<T> src, size_t index);
+		template < typename T > T ElementAtOrDefault(const EnumerableOrEnumerator<T> src, size_t index);
 
 		template < typename T > EnumerableOrEnumerator<T> DefaultIfEmpty(const EnumerableOrEnumerator<T>& src, const T& value = T());
 
 		template < typename T > shared_ptr<IEnumerable<T>> Empty();
 
-		template <typename T> T First(const EnumerableOrEnumerator<T> src);
-		template <typename T> T First(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+		template < typename T > T First(const EnumerableOrEnumerator<T> src);
+		template < typename T > T First(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
-		template <typename T> T FirstOrDefault(const EnumerableOrEnumerator<T> src);
-		template <typename T> T FirstOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+		template < typename T > T FirstOrDefault(const EnumerableOrEnumerator<T> src);
+		template < typename T > T FirstOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
-		template <typename T> T Last(const EnumerableOrEnumerator<T> src);
-		template <typename T> T Last(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+		template < typename T > T Last(const EnumerableOrEnumerator<T> src);
+		template < typename T > T Last(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
-		template <typename T> T LastOrDefault(const EnumerableOrEnumerator<T> src);
-		template <typename T> T LastOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+		template < typename T > T LastOrDefault(const EnumerableOrEnumerator<T> src);
+		template < typename T > T LastOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
 		template < typename TResult, typename T > shared_ptr<IEnumerable<TResult>> OfType(const EnumerableOrEnumerator<T>& src);
 
-		template <typename T> T Reverse(const EnumerableOrEnumerator<T> src);
+		template < typename T > EnumerableOrEnumerator<T> Reverse(const EnumerableOrEnumerator<T> src);
 
-		template <typename T> T Single(const EnumerableOrEnumerator<T> src);
+		template < typename T > T Single(const EnumerableOrEnumerator<T> src);
 
 		template < typename T, typename FunctorType > EnumerableOrEnumerator<typename FunctorType::RetType> Transform(const EnumerableOrEnumerator<T>& src, const FunctorType& f);
 
