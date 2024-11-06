@@ -24,20 +24,20 @@ namespace stingray
 	};
 
 
-	template<typename T>
+	template < typename T >
 	struct IsTransformer : IsInherited<T, TransformerMarker> { };
 
 
-	template <typename Arg_, typename Enabler = void>
+	template < typename Arg_, typename Enabler = void >
 	struct FirstTransformerImpl;
 
 
 	struct FirstTransformer : public TransformerMarker
 	{
-		template<typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef FirstTransformerImpl<Arg_> Impl;
+			using Impl = FirstTransformerImpl<Arg_>;
 		};
 	};
 
@@ -46,16 +46,16 @@ namespace stingray
 	{ return FirstTransformer(); }
 
 
-	template<typename Arg_, typename Enabler = void>
+	template < typename Arg_, typename Enabler = void >
 	struct FirstOrDefaultTransformerImpl;
 
 
 	struct FirstOrDefaultTransformer : public TransformerMarker
 	{
-		template<typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef FirstOrDefaultTransformerImpl<Arg_> Impl;
+			using Impl = FirstOrDefaultTransformerImpl<Arg_>;
 		};
 	};
 
@@ -64,22 +64,22 @@ namespace stingray
 	{ return FirstOrDefaultTransformer(); }
 
 
-	template <typename Arg_, typename Transformer_>
+	template < typename Arg_, typename Transformer_ >
 	typename EnableIf<IsTransformer<Transformer_>::Value, typename Transformer_::template Dispatcher<Arg_>::Impl::ValueT>::ValueT operator | (const Arg_& arg, const Transformer_& action)
 	{ return Transformer_::template Dispatcher<Arg_>::Impl::Do(arg, action); }
 
 
-	template<typename Arg_, typename Predicate_, typename Enabler = void>
+	template < typename Arg_, typename Predicate_, typename Enabler = void >
 	struct FilterTransformerImpl;
 
 
-	template<typename Predicate_>
+	template < typename Predicate_ >
 	struct FilterTransformer : public TransformerMarker
 	{
-		template<typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef FilterTransformerImpl<Arg_, Predicate_> Impl;
+			using Impl = FilterTransformerImpl<Arg_, Predicate_>;
 		};
 
 	private:
@@ -94,21 +94,21 @@ namespace stingray
 	};
 
 
-	template<typename Predicate_>
+	template < typename Predicate_ >
 	FilterTransformer<Predicate_> Filter(const Predicate_& predicate)
 	{ return FilterTransformer<Predicate_>(predicate); }
 
 
-	template<typename Arg_, typename Enabler = void>
+	template < typename Arg_, typename Enabler = void >
 	struct ReverseTransformerImpl;
 
 
 	struct ReverseTransformer : public TransformerMarker
 	{
-		template<typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef ReverseTransformerImpl<Arg_> Impl;
+			using Impl = ReverseTransformerImpl<Arg_>;
 		};
 	};
 
@@ -117,17 +117,17 @@ namespace stingray
 	{ return ReverseTransformer(); }
 
 
-	template<typename Arg_, typename Functor_, typename Enabler = void>
+	template < typename Arg_, typename Functor_, typename Enabler = void >
 	struct TransformTransformerImpl;
 
 
-	template<typename Functor_>
+	template < typename Functor_ >
 	struct TransformTransformer : public TransformerMarker
 	{
-		template<typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef TransformTransformerImpl<Arg_, Functor_> Impl;
+			using Impl = TransformTransformerImpl<Arg_, Functor_>;
 		};
 
 	private:
@@ -142,61 +142,61 @@ namespace stingray
 	};
 
 
-	template<typename Functor_>
+	template < typename Functor_ >
 	TransformTransformer<Functor_> Transform(const Functor_& functor)
 	{ return TransformTransformer<Functor_>(functor); }
 
 
-	template<typename Arg_, typename Dst_, typename Enabler = void>
+	template < typename Arg_, typename Dst_, typename Enabler = void >
 	struct CastTransformerImpl;
 
 
-	template<typename Dst_>
+	template < typename Dst_ >
 	struct CastTransformer : public TransformerMarker
 	{
-		template<typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef CastTransformerImpl<Arg_, Dst_> Impl;
+			using Impl = CastTransformerImpl<Arg_, Dst_>;
 		};
 	};
 
 
-	template<typename Dst_>
+	template < typename Dst_ >
 	CastTransformer<Dst_> Cast()
 	{ return CastTransformer<Dst_>(); }
 
 
-	template<typename Arg_, typename Dst_, typename Enabler = void>
+	template < typename Arg_, typename Dst_, typename Enabler = void >
 	struct OfTypeTransformerImpl;
 
 
-	template<typename Dst_>
+	template < typename Dst_ >
 	struct OfTypeTransformer : public TransformerMarker
 	{
-		template<typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef OfTypeTransformerImpl<Arg_, Dst_> Impl;
+			using Impl = OfTypeTransformerImpl<Arg_, Dst_>;
 		};
 	};
 
 
-	template<typename Dst_>
+	template < typename Dst_ >
 	OfTypeTransformer<Dst_> OfType()
 	{ return OfTypeTransformer<Dst_>(); }
 
 
-	template<typename Arg_, typename Enabler = void>
+	template < typename Arg_, typename Enabler = void >
 	struct AnyTransformerImpl;
 
 
 	struct AnyTransformer : public TransformerMarker
 	{
-		template<typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef AnyTransformerImpl<Arg_> Impl;
+			using Impl = AnyTransformerImpl<Arg_>;
 		};
 	};
 
@@ -205,16 +205,16 @@ namespace stingray
 	{ return AnyTransformer(); }
 
 
-	template <typename Arg_, typename Enabler = void>
+	template < typename Arg_, typename Enabler = void >
 	struct CountTransformerImpl;
 
 
 	struct CountTransformer : public TransformerMarker
 	{
-		template <typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef CountTransformerImpl<Arg_> Impl;
+			using Impl = CountTransformerImpl<Arg_>;
 		};
 	};
 
@@ -223,16 +223,16 @@ namespace stingray
 	{ return CountTransformer(); }
 
 
-	template <typename Arg_, typename Enabler = void>
+	template < typename Arg_, typename Enabler = void >
 	struct DropTransformerImpl;
 
 
 	struct DropTransformer : public TransformerMarker
 	{
-		template <typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef DropTransformerImpl<Arg_> Impl;
+			using Impl = DropTransformerImpl<Arg_>;
 		};
 
 	private:
@@ -251,16 +251,16 @@ namespace stingray
 	{ return DropTransformer(count); }
 
 
-	template <typename Arg_, typename Enabler = void>
+	template < typename Arg_, typename Enabler = void >
 	struct TakeTransformerImpl;
 
 
 	struct TakeTransformer : public TransformerMarker
 	{
-		template <typename Arg_>
+		template < typename Arg_ >
 		struct Dispatcher
 		{
-			typedef TakeTransformerImpl<Arg_> Impl;
+			using Impl = TakeTransformerImpl<Arg_>;
 		};
 
 	private:
