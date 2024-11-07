@@ -708,8 +708,8 @@ namespace stingray
 		shared_ptr<IEnumerator<typename CollectionType::ItemType>> Reverse(const shared_ptr<CollectionType>& enumerator, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT dummy = 0)
 		{
 			const shared_ptr<std::vector<typename CollectionType::ItemType>> result = make_shared_ptr<std::vector<typename CollectionType::ItemType>>();
-			for (; enumerator.Valid(); enumerator.Next())
-				result->push_back(enumerator.Get());
+			for (; enumerator->Valid(); enumerator->Next())
+				result->push_back(enumerator->Get());
 			return EnumeratorFromStlIterators(result->rbegin(), result->rend(), result);
 		}
 
