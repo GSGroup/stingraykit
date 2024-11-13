@@ -168,6 +168,82 @@ TEST(EnumerableTest, ForEachLoop)
 }
 
 
+TEST(EnumerableTest, Aggregate)
+{
+	{
+		const auto en = EnumerableBuilder<int>().Get();
+
+		ASSERT_THROW(Enumerable::Aggregate(en, std::plus<int>()), InvalidOperationException);
+		ASSERT_EQ(Enumerable::Aggregate(en, 10, std::plus<int>()), 10);
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1).Get();
+
+		ASSERT_EQ(Enumerable::Aggregate(en, std::plus<int>()), 1);
+		ASSERT_EQ(Enumerable::Aggregate(en, 10, std::plus<int>()), 11);
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1 % 2).Get();
+
+		ASSERT_EQ(Enumerable::Aggregate(en, std::plus<int>()), 3);
+		ASSERT_EQ(Enumerable::Aggregate(en, 10, std::plus<int>()), 13);
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1 % 2 % 3 % 4 % 5).Get();
+
+		ASSERT_EQ(Enumerable::Aggregate(en, std::plus<int>()), 15);
+		ASSERT_EQ(Enumerable::Aggregate(en, 10, std::plus<int>()), 25);
+	}
+}
+
+
+TEST(EnumerableTest, Concat)
+{
+	{
+		const auto en1 = EnumerableBuilder<int>().Get();
+		const auto en2 = EnumerableBuilder<int>().Get();
+
+		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(IsEmpty()));
+		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(IsEmpty()));
+	}
+
+	{
+		const auto en1 = (EnumerableBuilder<int>() % 1).Get();
+		const auto en2 = EnumerableBuilder<int>().Get();
+
+		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(ElementsAre(1)));
+		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(ElementsAre(1)));
+	}
+
+	{
+		const auto en1 = (EnumerableBuilder<int>() % 1).Get();
+		const auto en2 = (EnumerableBuilder<int>() % 2).Get();
+
+		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(ElementsAre(1, 2)));
+		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(ElementsAre(2, 1)));
+	}
+
+	{
+		const auto en1 = EnumerableBuilder<int>().Get();
+		const auto en2 = (EnumerableBuilder<int>() % 1 % 2).Get();
+
+		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(ElementsAre(1, 2)));
+		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(ElementsAre(1, 2)));
+	}
+
+	{
+		const auto en1 = (EnumerableBuilder<int>() % 1 % 2).Get();
+		const auto en2 = (EnumerableBuilder<int>() % 3 % 4 % 5).Get();
+
+		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
+		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(ElementsAre(3, 4, 5, 1, 2)));
+	}
+}
+
+
 TEST(EnumerableTest, Contains)
 {
 	{
@@ -192,6 +268,161 @@ TEST(EnumerableTest, Contains)
 
 		ASSERT_TRUE(Enumerable::Contains(en, 2));
 		ASSERT_FALSE(Enumerable::Contains(en, 5));
+	}
+}
+
+
+TEST(EnumerableTest, ElementAt)
+{
+	{
+		const auto en = EnumerableBuilder<int>().Get();
+
+		ASSERT_THROW(Enumerable::ElementAt(en, 0), IndexOutOfRangeException);
+		ASSERT_THROW(Enumerable::ElementAt(en, 1), IndexOutOfRangeException);
+		ASSERT_THROW(Enumerable::ElementAt(en, 4), IndexOutOfRangeException);
+		ASSERT_THROW(Enumerable::ElementAt(en, 5), IndexOutOfRangeException);
+
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0), int());
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), int());
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), int());
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1).Get();
+
+		ASSERT_EQ(Enumerable::ElementAt(en, 0), 1);
+		ASSERT_THROW(Enumerable::ElementAt(en, 1), IndexOutOfRangeException);
+		ASSERT_THROW(Enumerable::ElementAt(en, 4), IndexOutOfRangeException);
+		ASSERT_THROW(Enumerable::ElementAt(en, 5), IndexOutOfRangeException);
+
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0), 1);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), int());
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), int());
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1 % 2 % 3 % 4 % 5).Get();
+
+		ASSERT_EQ(Enumerable::ElementAt(en, 0), 1);
+		ASSERT_EQ(Enumerable::ElementAt(en, 1), 2);
+		ASSERT_EQ(Enumerable::ElementAt(en, 2), 3);
+		ASSERT_EQ(Enumerable::ElementAt(en, 3), 4);
+		ASSERT_EQ(Enumerable::ElementAt(en, 4), 5);
+		ASSERT_THROW(Enumerable::ElementAt(en, 5), IndexOutOfRangeException);
+
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0), 1);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), 2);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 2), 3);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 3), 4);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), 5);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+	}
+}
+
+
+TEST(EnumerableTest, DefaultIfEmpty)
+{
+	{
+		const auto en = EnumerableBuilder<int>().Get();
+
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en), MatchEnumerable(ElementsAre(int())));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en, 12345), MatchEnumerable(ElementsAre(12345)));
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1).Get();
+
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en), MatchEnumerable(ElementsAre(1)));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en, 12345), MatchEnumerable(ElementsAre(1)));
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1 % 2 % 3 % 4 % 5).Get();
+
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en, 12345), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
+	}
+}
+
+
+TEST(EnumerableTest, First)
+{
+	{
+		const auto en = EnumerableBuilder<int>().Get();
+
+		ASSERT_THROW(Enumerable::First(en), InvalidOperationException);
+		ASSERT_THROW(en | First(), InvalidOperationException);
+
+		ASSERT_THROW(Enumerable::First(en, Bind(comparers::Greater(), _1, 1)), InvalidOperationException);
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en), int());
+		ASSERT_EQ(en | FirstOrDefault(), int());
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), int());
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1).Get();
+
+		ASSERT_EQ(Enumerable::First(en), 1);
+		ASSERT_EQ(en | First(), 1);
+
+		ASSERT_THROW(Enumerable::First(en, Bind(comparers::Greater(), _1, 1)), InvalidOperationException);
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en), 1);
+		ASSERT_EQ(en | FirstOrDefault(), 1);
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), int());
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1 % 2 % 3 % 4 % 5).Get();
+
+		ASSERT_EQ(Enumerable::First(en), 1);
+		ASSERT_EQ(en | First(), 1);
+
+		ASSERT_EQ(Enumerable::First(en, Bind(comparers::Greater(), _1, 1)), 2);
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en), 1);
+		ASSERT_EQ(en | FirstOrDefault(), 1);
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), 2);
+	}
+}
+
+
+TEST(EnumerableTest, Last)
+{
+	{
+		const auto en = EnumerableBuilder<int>().Get();
+
+		ASSERT_THROW(Enumerable::Last(en), InvalidOperationException);
+		ASSERT_THROW(Enumerable::Last(en, Bind(comparers::Less(), _1, 5)), InvalidOperationException);
+
+		ASSERT_EQ(Enumerable::LastOrDefault(en), int());
+		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5)), int());
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1).Get();
+
+		ASSERT_EQ(Enumerable::Last(en), 1);
+		ASSERT_EQ(Enumerable::Last(en, Bind(comparers::Less(), _1, 5)), 1);
+
+		ASSERT_EQ(Enumerable::LastOrDefault(en), 1);
+		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5)), 1);
+	}
+
+	{
+		const auto en = (EnumerableBuilder<int>() % 1 % 2 % 3 % 4 % 5).Get();
+
+		ASSERT_EQ(Enumerable::Last(en), 5);
+		ASSERT_EQ(Enumerable::Last(en, Bind(comparers::Less(), _1, 5)), 4);
+
+		ASSERT_EQ(Enumerable::LastOrDefault(en), 5);
+		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5)), 4);
 	}
 }
 

@@ -225,23 +225,46 @@ TEST(RangeTest, Ranges)
 
 	ASSERT_EQ(Range::Sum(ToRange(v)), 138);
 
-	ASSERT_EQ(Range::ElementAt(ToRange(v), 0), 1);
-	ASSERT_EQ(Range::ElementAt(ToRange(v), 5), 37);
-	ASSERT_EQ(Range::ElementAt(ToRange(v), 7), 53);
-	ASSERT_THROW(Range::ElementAt(ToRange(v), 10), IndexOutOfRangeException);
-
-	ASSERT_EQ(Range::ElementAtOrDefault(ToRange(v), 0), 1);
-	ASSERT_EQ(Range::ElementAtOrDefault(ToRange(v), 5), 37);
-	ASSERT_EQ(Range::ElementAtOrDefault(ToRange(v), 7), 53);
-	ASSERT_EQ(Range::ElementAtOrDefault(ToRange(v), 10), 0);
-
 	ASSERT_EQ(Range::MinElement(ToRange(v)), -42);
 	ASSERT_EQ(Range::MaxElement(ToRange(v)), 53);
-	ASSERT_EQ(Fold(ToRange(v), 0, std::plus<int>()), 138); // TODO: add FoldTransformer
-	ASSERT_EQ(Fold(ToRange(v), std::plus<int>()), 138);
+
 	ASSERT_TRUE(ToRange(v) | Filter(Bind(comparers::Equals(), 5, _1)) | Any());
 
 	ASSERT_EQ((ToRange(s) += 3).Get(), 5);
+}
+
+
+TEST(RangeTest, First)
+{
+	{
+		const std::vector<int> seq;
+
+		ASSERT_THROW(First(ToRange(seq)), InvalidOperationException);
+		ASSERT_THROW(ToRange(seq) | First(), InvalidOperationException);
+
+		ASSERT_EQ(FirstOrDefault(ToRange(seq)), int());
+		ASSERT_EQ(ToRange(seq) | FirstOrDefault(), int());
+	}
+
+	{
+		const int seq[] = { 1 };
+
+		ASSERT_EQ(First(ToRange(seq)), 1);
+		ASSERT_EQ(ToRange(seq) | First(), 1);
+
+		ASSERT_EQ(FirstOrDefault(ToRange(seq)), 1);
+		ASSERT_EQ(ToRange(seq) | FirstOrDefault(), 1);
+	}
+
+	{
+		const int seq[] = { 1, 2, 3, 4, 5 };
+
+		ASSERT_EQ(First(ToRange(seq)), 1);
+		ASSERT_EQ(ToRange(seq) | First(), 1);
+
+		ASSERT_EQ(FirstOrDefault(ToRange(seq)), 1);
+		ASSERT_EQ(ToRange(seq) | FirstOrDefault(), 1);
+	}
 }
 
 
@@ -280,6 +303,88 @@ TEST(RangeTest, IndexOf)
 	ASSERT_EQ(IndexOf(ToRange(r), Bind(std::greater<int>(), _1, 2)), 1u);
 	ASSERT_EQ(IndexOf(ToRange(r), Bind(std::less<int>(), _1, 4)), 0u);
 	ASSERT_EQ(IndexOf(ToRange(r), Bind(std::greater<int>(), _1, 5)), null);
+}
+
+
+TEST(RangeTest, ElementAt)
+{
+	{
+		const std::vector<int> seq;
+
+		ASSERT_THROW(ElementAt(ToRange(seq), 0), IndexOutOfRangeException);
+		ASSERT_THROW(ElementAt(ToRange(seq), 1), IndexOutOfRangeException);
+		ASSERT_THROW(ElementAt(ToRange(seq), 4), IndexOutOfRangeException);
+		ASSERT_THROW(ElementAt(ToRange(seq), 5), IndexOutOfRangeException);
+
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0), int());
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1), int());
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 4), int());
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), int());
+	}
+
+	{
+		const int seq[] = { 1 };
+
+		ASSERT_EQ(ElementAt(ToRange(seq), 0), 1);
+		ASSERT_THROW(ElementAt(ToRange(seq), 1), IndexOutOfRangeException);
+		ASSERT_THROW(ElementAt(ToRange(seq), 4), IndexOutOfRangeException);
+		ASSERT_THROW(ElementAt(ToRange(seq), 5), IndexOutOfRangeException);
+
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0), 1);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1), int());
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 4), int());
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), int());
+	}
+
+	{
+		const int seq[] = { 1, 2, 3, 4, 5 };
+
+		ASSERT_EQ(ElementAt(ToRange(seq), 0), 1);
+		ASSERT_EQ(ElementAt(ToRange(seq), 1), 2);
+		ASSERT_EQ(ElementAt(ToRange(seq), 2), 3);
+		ASSERT_EQ(ElementAt(ToRange(seq), 3), 4);
+		ASSERT_EQ(ElementAt(ToRange(seq), 4), 5);
+		ASSERT_THROW(ElementAt(ToRange(seq), 5), IndexOutOfRangeException);
+
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0), 1);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1), 2);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 2), 3);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 3), 4);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 4), 5);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), int());
+	}
+}
+
+
+TEST(RangeTest, Fold)
+{
+	{
+		const std::vector<int> seq;
+
+		ASSERT_EQ(Fold(ToRange(seq), std::plus<int>()), null);
+		ASSERT_EQ(Fold(ToRange(seq), 10, std::plus<int>()), 10);
+	}
+
+	{
+		const int seq[] = { 1 };
+
+		ASSERT_EQ(Fold(ToRange(seq), std::plus<int>()), 1);
+		ASSERT_EQ(Fold(ToRange(seq), 10, std::plus<int>()), 11);
+	}
+
+	{
+		const int seq[] = { 1, 2 };
+
+		ASSERT_EQ(Fold(ToRange(seq), std::plus<int>()), 3);
+		ASSERT_EQ(Fold(ToRange(seq), 10, std::plus<int>()), 13);
+	}
+
+	{
+		const int seq[] = { 1, 2, 3, 4, 5 };
+
+		ASSERT_EQ(Fold(ToRange(seq), std::plus<int>()), 15);
+		ASSERT_EQ(Fold(ToRange(seq), 10, std::plus<int>()), 25);
+	}
 }
 
 

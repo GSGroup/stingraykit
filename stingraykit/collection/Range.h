@@ -1241,7 +1241,7 @@ namespace stingray
 		template < typename Range_ >
 		typename Range_::ValueType First(const Range_& range)
 		{
-			STINGRAYKIT_CHECK(range.Valid(), "Range is not valid!");
+			STINGRAYKIT_CHECK(range.Valid(), InvalidOperationException());
 			return range.Get();
 		}
 
