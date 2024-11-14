@@ -520,7 +520,11 @@ namespace stingray
 
 
 		template < typename T >
-		shared_ptr<IEnumerable<T>> DefaultIfEmpty(const shared_ptr<IEnumerable<T>>& src, const T& defaultValue = T())
+		shared_ptr<IEnumerable<T>> DefaultIfEmpty(const shared_ptr<IEnumerable<T>>& src)
+		{ return Any(src) ? src : MakeOneItemEnumerable(T()); }
+
+		template < typename T >
+		shared_ptr<IEnumerable<T>> DefaultIfEmpty(const shared_ptr<IEnumerable<T>>& src, const T& defaultValue)
 		{ return Any(src) ? src : MakeOneItemEnumerable(defaultValue); }
 
 
