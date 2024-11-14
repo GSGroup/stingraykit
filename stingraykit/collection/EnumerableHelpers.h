@@ -327,7 +327,7 @@ namespace stingray
 		template < typename T > bool Any(const EnumerableOrEnumerator<T> src);
 		template < typename T > bool Any(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
-		template < typename T > shared_ptr<IEnumerable<T>> Concat(const shared_ptr<IEnumerable<T>>& first, const shared_ptr<IEnumerable<T>>& second);
+		template < typename T > EnumerableOrEnumerator<T> Concat(const EnumerableOrEnumerator<T>& first, const EnumerableOrEnumerator<T>& second);
 
 		template < typename CastTo, typename T > EnumerableOrEnumerator<CastTo> Cast(const EnumerableOrEnumerator<T>& src);
 
@@ -441,9 +441,14 @@ namespace stingray
 		})
 
 
-		template < typename T >
-		shared_ptr<IEnumerable<T>> Concat(const shared_ptr<IEnumerable<T>>& first, const shared_ptr<IEnumerable<T>>& second)
-		{ return make_shared_ptr<Detail::JoiningEnumerable<T>>(first, second); }
+		template < typename EnumeratorT, typename EnableIf<IsEnumerator<EnumeratorT>::Value, int>::ValueT = 0 >
+		shared_ptr<IEnumerator<typename EnumeratorT::ItemType>> Concat(const shared_ptr<EnumeratorT>& first, const shared_ptr<EnumeratorT>& second)
+		{ return make_shared_ptr<Detail::JoiningEnumerator<typename EnumeratorT::ItemType>>(first, second); }
+
+
+		template < typename EnumerableT, typename EnableIf<IsEnumerable<EnumerableT>::Value, int>::ValueT = 0 >
+		shared_ptr<IEnumerable<typename EnumerableT::ItemType>> Concat(const shared_ptr<EnumerableT>& first, const shared_ptr<EnumerableT>& second)
+		{ return make_shared_ptr<Detail::JoiningEnumerable<typename EnumerableT::ItemType>>(first, second); }
 
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename PredicateFunc, typename EnableIf<!IsConvertible<PredicateFunc, ItemType>::Value, int>::ValueT = 0), bool, Contains, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate),

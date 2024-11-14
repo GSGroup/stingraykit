@@ -207,7 +207,10 @@ TEST(EnumerableTest, Concat)
 		const auto en2 = EnumerableBuilder<int>().Get();
 
 		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(IsEmpty()));
+		ASSERT_THAT(Enumerable::Concat(en1->GetEnumerator(), en2->GetEnumerator()), MatchEnumerable(IsEmpty()));
+
 		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(IsEmpty()));
+		ASSERT_THAT(Enumerable::Concat(en2->GetEnumerator(), en1->GetEnumerator()), MatchEnumerable(IsEmpty()));
 	}
 
 	{
@@ -215,7 +218,10 @@ TEST(EnumerableTest, Concat)
 		const auto en2 = EnumerableBuilder<int>().Get();
 
 		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(ElementsAre(1)));
+		ASSERT_THAT(Enumerable::Concat(en1->GetEnumerator(), en2->GetEnumerator()), MatchEnumerable(ElementsAre(1)));
+
 		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(ElementsAre(1)));
+		ASSERT_THAT(Enumerable::Concat(en2->GetEnumerator(), en1->GetEnumerator()), MatchEnumerable(ElementsAre(1)));
 	}
 
 	{
@@ -223,7 +229,10 @@ TEST(EnumerableTest, Concat)
 		const auto en2 = (EnumerableBuilder<int>() % 2).Get();
 
 		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(ElementsAre(1, 2)));
+		ASSERT_THAT(Enumerable::Concat(en1->GetEnumerator(), en2->GetEnumerator()), MatchEnumerable(ElementsAre(1, 2)));
+
 		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(ElementsAre(2, 1)));
+		ASSERT_THAT(Enumerable::Concat(en2->GetEnumerator(), en1->GetEnumerator()), MatchEnumerable(ElementsAre(2, 1)));
 	}
 
 	{
@@ -231,7 +240,10 @@ TEST(EnumerableTest, Concat)
 		const auto en2 = (EnumerableBuilder<int>() % 1 % 2).Get();
 
 		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(ElementsAre(1, 2)));
+		ASSERT_THAT(Enumerable::Concat(en1->GetEnumerator(), en2->GetEnumerator()), MatchEnumerable(ElementsAre(1, 2)));
+
 		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(ElementsAre(1, 2)));
+		ASSERT_THAT(Enumerable::Concat(en2->GetEnumerator(), en1->GetEnumerator()), MatchEnumerable(ElementsAre(1, 2)));
 	}
 
 	{
@@ -239,7 +251,10 @@ TEST(EnumerableTest, Concat)
 		const auto en2 = (EnumerableBuilder<int>() % 3 % 4 % 5).Get();
 
 		ASSERT_THAT(Enumerable::Concat(en1, en2), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
+		ASSERT_THAT(Enumerable::Concat(en1->GetEnumerator(), en2->GetEnumerator()), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
+
 		ASSERT_THAT(Enumerable::Concat(en2, en1), MatchEnumerable(ElementsAre(3, 4, 5, 1, 2)));
+		ASSERT_THAT(Enumerable::Concat(en2->GetEnumerator(), en1->GetEnumerator()), MatchEnumerable(ElementsAre(3, 4, 5, 1, 2)));
 	}
 }
 
