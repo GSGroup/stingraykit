@@ -519,12 +519,20 @@ namespace stingray
 		})
 
 
-		template < typename T >
-		shared_ptr<IEnumerable<T>> DefaultIfEmpty(const shared_ptr<IEnumerable<T>>& src)
-		{ return Any(src) ? src : MakeOneItemEnumerable(T()); }
+		template < typename EnumeratorT, typename EnableIf<IsEnumerator<EnumeratorT>::Value, int>::ValueT = 0 >
+		shared_ptr<IEnumerator<typename EnumeratorT::ItemType>> DefaultIfEmpty(const shared_ptr<EnumeratorT>& src)
+		{ return Any(src) ? src : MakeOneItemEnumerator(typename EnumeratorT::ItemType()); }
 
-		template < typename T >
-		shared_ptr<IEnumerable<T>> DefaultIfEmpty(const shared_ptr<IEnumerable<T>>& src, const T& defaultValue)
+		template < typename EnumeratorT, typename EnableIf<IsEnumerator<EnumeratorT>::Value, int>::ValueT = 0 >
+		shared_ptr<IEnumerator<typename EnumeratorT::ItemType>> DefaultIfEmpty(const shared_ptr<EnumeratorT>& src, const typename EnumeratorT::ItemType& defaultValue)
+		{ return Any(src) ? src : MakeOneItemEnumerator(defaultValue); }
+
+		template < typename EnumerableT, typename EnableIf<IsEnumerable<EnumerableT>::Value, int>::ValueT = 0 >
+		shared_ptr<IEnumerable<typename EnumerableT::ItemType>> DefaultIfEmpty(const shared_ptr<EnumerableT>& src)
+		{ return Any(src) ? src : MakeOneItemEnumerable(typename EnumerableT::ItemType()); }
+
+		template < typename EnumerableT, typename EnableIf<IsEnumerable<EnumerableT>::Value, int>::ValueT = 0 >
+		shared_ptr<IEnumerable<typename EnumerableT::ItemType>> DefaultIfEmpty(const shared_ptr<EnumerableT>& src, const typename EnumerableT::ItemType& defaultValue)
 		{ return Any(src) ? src : MakeOneItemEnumerable(defaultValue); }
 
 

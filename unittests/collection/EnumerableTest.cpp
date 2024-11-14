@@ -328,21 +328,30 @@ TEST(EnumerableTest, DefaultIfEmpty)
 		const auto en = EnumerableBuilder<int>().Get();
 
 		ASSERT_THAT(Enumerable::DefaultIfEmpty(en), MatchEnumerable(ElementsAre(int())));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en->GetEnumerator()), MatchEnumerable(ElementsAre(int())));
+
 		ASSERT_THAT(Enumerable::DefaultIfEmpty(en, 12345), MatchEnumerable(ElementsAre(12345)));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en->GetEnumerator(), 12345), MatchEnumerable(ElementsAre(12345)));
 	}
 
 	{
 		const auto en = (EnumerableBuilder<int>() % 1).Get();
 
 		ASSERT_THAT(Enumerable::DefaultIfEmpty(en), MatchEnumerable(ElementsAre(1)));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en->GetEnumerator()), MatchEnumerable(ElementsAre(1)));
+
 		ASSERT_THAT(Enumerable::DefaultIfEmpty(en, 12345), MatchEnumerable(ElementsAre(1)));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en->GetEnumerator(), 12345), MatchEnumerable(ElementsAre(1)));
 	}
 
 	{
 		const auto en = (EnumerableBuilder<int>() % 1 % 2 % 3 % 4 % 5).Get();
 
 		ASSERT_THAT(Enumerable::DefaultIfEmpty(en), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en->GetEnumerator()), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
+
 		ASSERT_THAT(Enumerable::DefaultIfEmpty(en, 12345), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
+		ASSERT_THAT(Enumerable::DefaultIfEmpty(en->GetEnumerator(), 12345), MatchEnumerable(ElementsAre(1, 2, 3, 4, 5)));
 	}
 }
 
