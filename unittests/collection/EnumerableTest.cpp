@@ -173,7 +173,7 @@ TEST(EnumerableTest, Aggregate)
 	{
 		const auto en = EnumerableBuilder<int>().Get();
 
-		ASSERT_THROW(Enumerable::Aggregate(en, std::plus<int>()), InvalidOperationException);
+		ASSERT_EQ(Enumerable::Aggregate(en, std::plus<int>()), null);
 		ASSERT_EQ(Enumerable::Aggregate(en, 10, std::plus<int>()), 10);
 	}
 

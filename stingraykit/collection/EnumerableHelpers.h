@@ -314,12 +314,22 @@ namespace stingray
 	{ return make_shared_ptr<Detail::SimpleEnumerable<Functor_>>(functor); }
 
 
+	namespace Detail
+	{
+		template < typename ItemType >
+		struct NullableItemType
+		{
+			using ValueT = typename If<IsNullable<ItemType>::Value, ItemType, optional<ItemType>>::ValueT;
+		};
+	}
+
+
 	namespace Enumerable
 	{
 
 #ifdef DOXYGEN_PREPROCESSOR
 
-		template < typename T > T Aggregate(const EnumerableOrEnumerator<T> src, const function<T (const T&, const T&)>& aggregateFunc);
+		template < typename T > NullableT Aggregate(const EnumerableOrEnumerator<T> src, const function<T (const T&, const T&)>& aggregateFunc);
 		template < typename T > T Aggregate(const EnumerableOrEnumerator<T> src, const T& initialValue, const function<T (const T&, const T&)>& aggregateFunc);
 
 		template < typename T > bool All(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
@@ -400,13 +410,16 @@ namespace stingray
 		} \
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename AggregateFunc), ItemType, Aggregate, MK_PARAM(const AggregateFunc& aggregateFunc), MK_PARAM(aggregateFunc),
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename AggregateFunc), MK_PARAM(typename Detail::NullableItemType<ItemType>::ValueT), Aggregate, MK_PARAM(const AggregateFunc& aggregateFunc), MK_PARAM(aggregateFunc),
 		{
-			STINGRAYKIT_CHECK(enumerator.Valid(), InvalidOperationException());
-			ItemType result = enumerator.Get();
-			enumerator.Next();
+			typename Detail::NullableItemType<ItemType>::ValueT result;
 			for (; enumerator.Valid(); enumerator.Next())
-				result = FunctorInvoker::InvokeArgs(aggregateFunc, result, enumerator.Get());
+			{
+				if (result)
+					result = FunctorInvoker::InvokeArgs(aggregateFunc, *result, enumerator.Get());
+				else
+					result = enumerator.Get();
+			}
 			return result;
 		})
 
