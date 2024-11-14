@@ -301,6 +301,11 @@ TEST(EnumerableTest, ElementAt)
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), int());
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), int());
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0, 12345), 12345);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1, 12345), 12345);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4, 12345), 12345);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5, 12345), 12345);
 	}
 
 	{
@@ -315,6 +320,11 @@ TEST(EnumerableTest, ElementAt)
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), int());
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), int());
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0, 12345), 1);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1, 12345), 12345);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4, 12345), 12345);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5, 12345), 12345);
 	}
 
 	{
@@ -333,6 +343,13 @@ TEST(EnumerableTest, ElementAt)
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 3), 4);
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), 5);
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0, 12345), 1);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1, 12345), 2);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 2, 12345), 3);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 3, 12345), 4);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4, 12345), 5);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5, 12345), 12345);
 	}
 }
 
@@ -385,6 +402,9 @@ TEST(EnumerableTest, First)
 		ASSERT_EQ(en | FirstOrDefault(), int());
 
 		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), int());
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, 12345), 12345);
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1), 12345), 12345);
 	}
 
 	{
@@ -399,6 +419,9 @@ TEST(EnumerableTest, First)
 		ASSERT_EQ(en | FirstOrDefault(), 1);
 
 		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), int());
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, 12345), 1);
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1), 12345), 12345);
 	}
 
 	{
@@ -413,6 +436,9 @@ TEST(EnumerableTest, First)
 		ASSERT_EQ(en | FirstOrDefault(), 1);
 
 		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), 2);
+
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, 12345), 1);
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1), 12345), 2);
 	}
 }
 
@@ -427,6 +453,9 @@ TEST(EnumerableTest, Last)
 
 		ASSERT_EQ(Enumerable::LastOrDefault(en), int());
 		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5)), int());
+
+		ASSERT_EQ(Enumerable::LastOrDefault(en, 12345), 12345);
+		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5), 12345), 12345);
 	}
 
 	{
@@ -437,6 +466,9 @@ TEST(EnumerableTest, Last)
 
 		ASSERT_EQ(Enumerable::LastOrDefault(en), 1);
 		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5)), 1);
+
+		ASSERT_EQ(Enumerable::LastOrDefault(en, 12345), 1);
+		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5), 12345), 1);
 	}
 
 	{
@@ -447,6 +479,9 @@ TEST(EnumerableTest, Last)
 
 		ASSERT_EQ(Enumerable::LastOrDefault(en), 5);
 		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5)), 4);
+
+		ASSERT_EQ(Enumerable::LastOrDefault(en, 12345), 5);
+		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5), 12345), 4);
 	}
 }
 

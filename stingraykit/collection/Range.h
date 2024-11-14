@@ -1251,6 +1251,11 @@ namespace stingray
 		{ return range.Valid() ? range.Get() : typename Decay<typename Range_::ValueType>::ValueT(); }
 
 
+		template < typename Range_, class Value_, typename EnableIf<IsConvertible<Value_, typename Decay<typename Range_::ValueType>::ValueT>::Value, int>::ValueT = 0 >
+		typename Decay<typename Range_::ValueType>::ValueT FirstOrDefault(const Range_& range, Value_ value)
+		{ return range.Valid() ? range.Get() : value; }
+
+
 		template < typename SrcRange_, typename Predicate_ >
 		RangeFilter<SrcRange_, Predicate_> Filter(const SrcRange_& src, const Predicate_& predicate)
 		{ return RangeFilter<SrcRange_, Predicate_>(src, predicate); }
@@ -1441,6 +1446,17 @@ namespace stingray
 				if (index == current)
 					return range.Get();
 			return typename Decay<typename Range_::ValueType>::ValueT();
+		}
+
+
+		template < typename Range_, class Value_, typename EnableIf<IsConvertible<Value_, typename Decay<typename Range_::ValueType>::ValueT>::Value, int>::ValueT = 0 >
+		typename Decay<typename Range_::ValueType>::ValueT ElementAtOrDefault(Range_ range, size_t index, Value_ value)
+		{
+			size_t current = 0;
+			for (; range.Valid(); range.Next(), ++current)
+				if (index == current)
+					return range.Get();
+			return value;
 		}
 
 
