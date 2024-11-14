@@ -7,6 +7,7 @@
 
 #include <stingraykit/string/TranslatedString.h>
 
+#include <stingraykit/collection/KeyValueEnumerableHelpers.h>
 #include <stingraykit/collection/MapDictionary.h>
 #include <stingraykit/compare/CollectionComparer.h>
 #include <stingraykit/serialization/Serialization.h>
@@ -49,7 +50,7 @@ namespace stingray
 	optional<std::string> TranslatedString::TryGetTranslation(LangCode lang) const
 	{
 		if (lang == LangCode::Any)
-			return _dictionary->IsEmpty() ? null : make_optional_value(_dictionary->GetEnumerator()->Get().Value);
+			return Enumerable::FirstOrDefault(ValuesEnumerable(_dictionary));
 
 		std::string result;
 		return _dictionary->TryGet(lang, result) ? make_optional_value(result) : null;
