@@ -322,30 +322,30 @@ namespace stingray
 		template < typename T > T Aggregate(const EnumerableOrEnumerator<T> src, const function<T (const T&, const T&)>& aggregateFunc);
 		template < typename T > T Aggregate(const EnumerableOrEnumerator<T> src, const T& initialValue, const function<T (const T&, const T&)>& aggregateFunc);
 
-		template < typename T > bool All(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template < typename T > bool All(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
 		template < typename T > bool Any(const EnumerableOrEnumerator<T> src);
-		template < typename T > bool Any(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template < typename T > bool Any(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
 		template < typename T > shared_ptr<IEnumerable<T>> Concat(const shared_ptr<IEnumerable<T>>& first, const shared_ptr<IEnumerable<T>>& second);
 
-		template < typename CastTo, typename T > EnumerableOrEnumerator<CastTo> Cast(const EnumerableOrEnumerator<IEnumerable<T>>& src);
+		template < typename CastTo, typename T > EnumerableOrEnumerator<CastTo> Cast(const EnumerableOrEnumerator<T>& src);
 
 		template < typename T > bool Contains(const EnumerableOrEnumerator<T> src, const T& value);
-		template < typename T > bool Contains(const EnumerableOrEnumerator<T> src, const function<bool(const T&>& predicate);
+		template < typename T > bool Contains(const EnumerableOrEnumerator<T> src, const function<bool (const T&>& predicate);
 
 		template < typename T > size_t Count(const EnumerableOrEnumerator<T> src);
-		template < typename T > size_t Count(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template < typename T > size_t Count(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
-		template < typename T > void ForEach(const EnumerableOrEnumerator<T> src, const function<void(const T&)>& func);
+		template < typename T > void ForEach(const EnumerableOrEnumerator<T> src, const function<void (const T&)>& func);
 
 		template < typename T > optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const T& value);
-		template < typename T > optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const function<bool(const T&)>& predicate);
+		template < typename T > optional<size_t> IndexOf(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
 		template < typename T > T ElementAt(const EnumerableOrEnumerator<T> src, size_t index);
 		template < typename T > T ElementAtOrDefault(const EnumerableOrEnumerator<T> src, size_t index);
 
-		template < typename T > EnumerableOrEnumerator<T> DefaultIfEmpty(const EnumerableOrEnumerator<T>& src, const T& value = T());
+		template < typename T > EnumerableOrEnumerator<T> DefaultIfEmpty(const EnumerableOrEnumerator<T>& src, const T& defaultValue = T());
 
 		template < typename T > shared_ptr<IEnumerable<T>> Empty();
 
@@ -369,18 +369,18 @@ namespace stingray
 
 		template < typename T > T Single(const EnumerableOrEnumerator<T> src);
 
-		template < typename T, typename FunctorType > EnumerableOrEnumerator<typename FunctorType::RetType> Transform(const EnumerableOrEnumerator<T>& src, const FunctorType& f);
+		template < typename T, typename FunctorType > EnumerableOrEnumerator<typename FunctorType::RetType> Transform(const EnumerableOrEnumerator<T>& src, const FunctorType& functor);
 
-		template < typename T > EnumerableOrEnumerator<T> Where(const EnumerableOrEnumerator<T>& src, const function<bool(const T&)>& predicate);
+		template < typename T > EnumerableOrEnumerator<T> Where(const EnumerableOrEnumerator<T>& src, const function<bool (const T&)>& predicate);
 
 		template < typename T > EnumerableOrEnumerator<T> Skip(const EnumerableOrEnumerator<T>& src, size_t count);
 
 		template < typename T > EnumerableOrEnumerator<T> Take(const EnumerableOrEnumerator<T>& src, size_t count);
 
-		template < typename TResult, typename T > shared_ptr<IEnumerable<TResult>> Flatten(const EnumerableOrEnumerator<T>& enumerableOfEnumerables);
+		template < typename TResult, typename T > EnumerableOrEnumerator<TResult> Flatten(const EnumerableOrEnumerator<T>& enumerableOfEnumerables);
 
 		template < typename T > bool SequenceEqual(const EnumerableOrEnumerator<T>& first, const EnumerableOrEnumerator<T>& second);
-		template < typename T > bool SequenceEqual(const EnumerableOrEnumerator<T>& first, const EnumerableOrEnumerator<T>& second, const function<bool(const T&, const T&)>& comparer);
+		template < typename T > bool SequenceEqual(const EnumerableOrEnumerator<T>& first, const EnumerableOrEnumerator<T>& second, const function<bool (const T&, const T&)>& comparer);
 
 #else
 
@@ -520,8 +520,8 @@ namespace stingray
 
 
 		template < typename T >
-		shared_ptr<IEnumerable<T>> DefaultIfEmpty(const shared_ptr<IEnumerable<T>>& src, const T& value = T())
-		{ return Any(src) ? src : MakeOneItemEnumerable(value); }
+		shared_ptr<IEnumerable<T>> DefaultIfEmpty(const shared_ptr<IEnumerable<T>>& src, const T& defaultValue = T())
+		{ return Any(src) ? src : MakeOneItemEnumerable(defaultValue); }
 
 
 		template < typename T >
