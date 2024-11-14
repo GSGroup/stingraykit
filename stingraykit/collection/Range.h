@@ -1246,9 +1246,25 @@ namespace stingray
 		}
 
 
+		namespace Detail
+		{
+			template < typename Range_ >
+			struct RangeToNullableValue
+			{
+				using DecayedValueT = typename Decay<typename Range_::ValueType>::ValueT;
+
+				using ValueT = typename If<IsNullable<DecayedValueT>::Value, DecayedValueT, optional<DecayedValueT>>::ValueT;
+			};
+		}
+
+
 		template < typename Range_ >
-		typename Decay<typename Range_::ValueType>::ValueT FirstOrDefault(const Range_& range)
-		{ return range.Valid() ? range.Get() : typename Decay<typename Range_::ValueType>::ValueT(); }
+		typename Detail::RangeToNullableValue<Range_>::ValueT FirstOrDefault(const Range_& range)
+		{
+			if (range.Valid())
+				return range.Get();
+			return null;
+		}
 
 
 		template < typename Range_, class Value_, typename EnableIf<IsConvertible<Value_, typename Decay<typename Range_::ValueType>::ValueT>::Value, int>::ValueT = 0 >
@@ -1439,13 +1455,13 @@ namespace stingray
 
 
 		template < typename Range_ >
-		typename Decay<typename Range_::ValueType>::ValueT ElementAtOrDefault(Range_ range, size_t index)
+		typename Detail::RangeToNullableValue<Range_>::ValueT ElementAtOrDefault(Range_ range, size_t index)
 		{
 			size_t current = 0;
 			for (; range.Valid(); range.Next(), ++current)
 				if (index == current)
 					return range.Get();
-			return typename Decay<typename Range_::ValueType>::ValueT();
+			return null;
 		}
 
 
@@ -1645,7 +1661,7 @@ namespace stingray
 	template < typename Range_ >
 	struct FirstOrDefaultTransformerImpl<Range_, typename EnableIf<IsRange<Range_>::Value, void>::ValueT>
 	{
-		using ValueT = typename Decay<typename Range_::ValueType>::ValueT;
+		using ValueT = typename Range::Detail::RangeToNullableValue<Range_>::ValueT;
 
 		static ValueT Do(const Range_& range, const FirstOrDefaultTransformer& action)
 		{ return Range::FirstOrDefault(range); }

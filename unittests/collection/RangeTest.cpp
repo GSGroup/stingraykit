@@ -242,8 +242,8 @@ TEST(RangeTest, First)
 		ASSERT_THROW(First(ToRange(seq)), InvalidOperationException);
 		ASSERT_THROW(ToRange(seq) | First(), InvalidOperationException);
 
-		ASSERT_EQ(FirstOrDefault(ToRange(seq)), int());
-		ASSERT_EQ(ToRange(seq) | FirstOrDefault(), int());
+		ASSERT_EQ(FirstOrDefault(ToRange(seq)), null);
+		ASSERT_EQ(ToRange(seq) | FirstOrDefault(), null);
 
 		ASSERT_EQ(FirstOrDefault(ToRange(seq), 12345), 12345);
 	}
@@ -322,10 +322,10 @@ TEST(RangeTest, ElementAt)
 		ASSERT_THROW(ElementAt(ToRange(seq), 4), IndexOutOfRangeException);
 		ASSERT_THROW(ElementAt(ToRange(seq), 5), IndexOutOfRangeException);
 
-		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0), int());
-		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1), int());
-		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 4), int());
-		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), int());
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0), null);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1), null);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 4), null);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), null);
 
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0, 12345), 12345);
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1, 12345), 12345);
@@ -342,9 +342,9 @@ TEST(RangeTest, ElementAt)
 		ASSERT_THROW(ElementAt(ToRange(seq), 5), IndexOutOfRangeException);
 
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0), 1);
-		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1), int());
-		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 4), int());
-		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), int());
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1), null);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 4), null);
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), null);
 
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0, 12345), 1);
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1, 12345), 12345);
@@ -367,7 +367,7 @@ TEST(RangeTest, ElementAt)
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 2), 3);
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 3), 4);
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 4), 5);
-		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), int());
+		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 5), null);
 
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 0, 12345), 1);
 		ASSERT_EQ(ElementAtOrDefault(ToRange(seq), 1, 12345), 2);

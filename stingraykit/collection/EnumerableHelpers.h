@@ -354,7 +354,7 @@ namespace stingray
 
 		template < typename T > T ElementAt(const EnumerableOrEnumerator<T> src, size_t index);
 
-		template < typename T > T ElementAtOrDefault(const EnumerableOrEnumerator<T> src, size_t index);
+		template < typename T > NullableT ElementAtOrDefault(const EnumerableOrEnumerator<T> src, size_t index);
 		template < typename T > T ElementAtOrDefault(const EnumerableOrEnumerator<T> src, size_t index, const T& defaultValue);
 
 		template < typename T > EnumerableOrEnumerator<T> DefaultIfEmpty(const EnumerableOrEnumerator<T>& src, const T& defaultValue = T());
@@ -364,17 +364,17 @@ namespace stingray
 		template < typename T > T First(const EnumerableOrEnumerator<T> src);
 		template < typename T > T First(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
-		template < typename T > T FirstOrDefault(const EnumerableOrEnumerator<T> src);
+		template < typename T > NullableT FirstOrDefault(const EnumerableOrEnumerator<T> src);
 		template < typename T > T FirstOrDefault(const EnumerableOrEnumerator<T> src, const T& defaultValue);
-		template < typename T > T FirstOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+		template < typename T > NullableT FirstOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 		template < typename T > T FirstOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate, const T& defaultValue);
 
 		template < typename T > T Last(const EnumerableOrEnumerator<T> src);
 		template < typename T > T Last(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 
-		template < typename T > T LastOrDefault(const EnumerableOrEnumerator<T> src);
+		template < typename T > NullableT LastOrDefault(const EnumerableOrEnumerator<T> src);
 		template < typename T > T LastOrDefault(const EnumerableOrEnumerator<T> src, const T& defaultValue);
-		template < typename T > T LastOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
+		template < typename T > NullableT LastOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate);
 		template < typename T > T LastOrDefault(const EnumerableOrEnumerator<T> src, const function<bool (const T&)>& predicate, const T& defaultValue);
 
 		template < typename TResult, typename T > shared_ptr<IEnumerable<TResult>> OfType(const EnumerableOrEnumerator<T>& src);
@@ -534,13 +534,13 @@ namespace stingray
 		})
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, ElementAtOrDefault, MK_PARAM(size_t index), MK_PARAM(index),
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), MK_PARAM(typename Detail::NullableItemType<ItemType>::ValueT), ElementAtOrDefault, MK_PARAM(size_t index), MK_PARAM(index),
 		{
 			size_t current = 0;
 			for (; enumerator.Valid(); enumerator.Next(), ++current)
 				if (index == current)
 					return enumerator.Get();
-			return ItemType();
+			return null;
 		})
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, ElementAtOrDefault, MK_PARAM(size_t index, const ItemType& defaultValue), MK_PARAM(index, defaultValue),
@@ -590,13 +590,17 @@ namespace stingray
 		})
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, FirstOrDefault, STINGRAYKIT_EMPTY(), STINGRAYKIT_EMPTY(),
-		{ return enumerator.Valid() ? enumerator.Get() : ItemType(); })
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), MK_PARAM(typename Detail::NullableItemType<ItemType>::ValueT), FirstOrDefault, STINGRAYKIT_EMPTY(), STINGRAYKIT_EMPTY(),
+		{
+			if (enumerator.Valid())
+				return enumerator.Get();
+			return null;
+		})
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EnableIf<IsConvertible<ValueType, ItemType>::Value, int>::ValueT = 0), ItemType, FirstOrDefault, MK_PARAM(const ValueType& defaultValue), MK_PARAM(defaultValue),
 		{ return enumerator.Valid() ? enumerator.Get() : defaultValue; })
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename PredicateFunc, typename EnableIf<!IsConvertible<PredicateFunc, ItemType>::Value, int>::ValueT = 0), ItemType, FirstOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate),
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename PredicateFunc, typename EnableIf<!IsConvertible<PredicateFunc, ItemType>::Value, int>::ValueT = 0), MK_PARAM(typename Detail::NullableItemType<ItemType>::ValueT), FirstOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate),
 		{
 			for (; enumerator.Valid(); enumerator.Next())
 			{
@@ -604,7 +608,7 @@ namespace stingray
 				if (FunctorInvoker::InvokeArgs(predicate, result))
 					return result;
 			}
-			return ItemType();
+			return null;
 		})
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename PredicateFunc), ItemType, FirstOrDefault, MK_PARAM(const PredicateFunc& predicate, const ItemType& defaultValue), MK_PARAM(predicate, defaultValue),
@@ -642,12 +646,14 @@ namespace stingray
 		})
 
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), ItemType, LastOrDefault, STINGRAYKIT_EMPTY(), STINGRAYKIT_EMPTY(),
+		DETAIL_ENUMERABLE_HELPER_METHODS(STINGRAYKIT_EMPTY(), MK_PARAM(typename Detail::NullableItemType<ItemType>::ValueT), LastOrDefault, STINGRAYKIT_EMPTY(), STINGRAYKIT_EMPTY(),
 		{
 			optional<ItemType> result;
 			for (; enumerator.Valid(); enumerator.Next())
 				result = enumerator.Get();
-			return result ? *result : ItemType();
+			if (result)
+				return *result;
+			return null;
 		})
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename ValueType, typename EnableIf<IsConvertible<ValueType, ItemType>::Value, int>::ValueT = 0), ItemType, LastOrDefault, MK_PARAM(const ValueType& defaultValue), MK_PARAM(defaultValue),
@@ -658,7 +664,7 @@ namespace stingray
 			return result ? *result : defaultValue;
 		})
 
-		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename PredicateFunc, typename EnableIf<!IsConvertible<PredicateFunc, ItemType>::Value, int>::ValueT = 0), ItemType, LastOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate),
+		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename PredicateFunc, typename EnableIf<!IsConvertible<PredicateFunc, ItemType>::Value, int>::ValueT = 0), MK_PARAM(typename Detail::NullableItemType<ItemType>::ValueT), LastOrDefault, MK_PARAM(const PredicateFunc& predicate), MK_PARAM(predicate),
 		{
 			optional<ItemType> result;
 			for (; enumerator.Valid(); enumerator.Next())
@@ -667,7 +673,9 @@ namespace stingray
 				if (FunctorInvoker::InvokeArgs(predicate, value))
 					result = value;
 			}
-			return result ? *result : ItemType();
+			if (result)
+				return *result;
+			return null;
 		})
 
 		DETAIL_ENUMERABLE_HELPER_METHODS(MK_PARAM(typename PredicateFunc), ItemType, LastOrDefault, MK_PARAM(const PredicateFunc& predicate, const ItemType& defaultValue), MK_PARAM(predicate, defaultValue),
@@ -1308,7 +1316,7 @@ namespace stingray
 	template < typename Enumerable_ >
 	struct FirstOrDefaultTransformerImpl<shared_ptr<Enumerable_>, typename EnableIf<IsEnumerable<Enumerable_>::Value, void>::ValueT>
 	{
-		using ValueT = typename Enumerable_::ItemType;
+		using ValueT = typename Detail::NullableItemType<typename Enumerable_::ItemType>::ValueT;
 
 		static ValueT Do(const shared_ptr<Enumerable_>& enumerable, const FirstOrDefaultTransformer& action)
 		{ return Enumerable::FirstOrDefault(enumerable); }

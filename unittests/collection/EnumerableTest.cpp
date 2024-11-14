@@ -297,10 +297,10 @@ TEST(EnumerableTest, ElementAt)
 		ASSERT_THROW(Enumerable::ElementAt(en, 4), IndexOutOfRangeException);
 		ASSERT_THROW(Enumerable::ElementAt(en, 5), IndexOutOfRangeException);
 
-		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0), int());
-		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), int());
-		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), int());
-		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0), null);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), null);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), null);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), null);
 
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0, 12345), 12345);
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1, 12345), 12345);
@@ -317,9 +317,9 @@ TEST(EnumerableTest, ElementAt)
 		ASSERT_THROW(Enumerable::ElementAt(en, 5), IndexOutOfRangeException);
 
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0), 1);
-		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), int());
-		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), int());
-		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1), null);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), null);
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), null);
 
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0, 12345), 1);
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1, 12345), 12345);
@@ -342,7 +342,7 @@ TEST(EnumerableTest, ElementAt)
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 2), 3);
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 3), 4);
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 4), 5);
-		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), int());
+		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 5), null);
 
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 0, 12345), 1);
 		ASSERT_EQ(Enumerable::ElementAtOrDefault(en, 1, 12345), 2);
@@ -398,10 +398,10 @@ TEST(EnumerableTest, First)
 
 		ASSERT_THROW(Enumerable::First(en, Bind(comparers::Greater(), _1, 1)), InvalidOperationException);
 
-		ASSERT_EQ(Enumerable::FirstOrDefault(en), int());
-		ASSERT_EQ(en | FirstOrDefault(), int());
+		ASSERT_EQ(Enumerable::FirstOrDefault(en), null);
+		ASSERT_EQ(en | FirstOrDefault(), null);
 
-		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), int());
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), null);
 
 		ASSERT_EQ(Enumerable::FirstOrDefault(en, 12345), 12345);
 		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1), 12345), 12345);
@@ -418,7 +418,7 @@ TEST(EnumerableTest, First)
 		ASSERT_EQ(Enumerable::FirstOrDefault(en), 1);
 		ASSERT_EQ(en | FirstOrDefault(), 1);
 
-		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), int());
+		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1)), null);
 
 		ASSERT_EQ(Enumerable::FirstOrDefault(en, 12345), 1);
 		ASSERT_EQ(Enumerable::FirstOrDefault(en, Bind(comparers::Greater(), _1, 1), 12345), 12345);
@@ -451,8 +451,8 @@ TEST(EnumerableTest, Last)
 		ASSERT_THROW(Enumerable::Last(en), InvalidOperationException);
 		ASSERT_THROW(Enumerable::Last(en, Bind(comparers::Less(), _1, 5)), InvalidOperationException);
 
-		ASSERT_EQ(Enumerable::LastOrDefault(en), int());
-		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5)), int());
+		ASSERT_EQ(Enumerable::LastOrDefault(en), null);
+		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5)), null);
 
 		ASSERT_EQ(Enumerable::LastOrDefault(en, 12345), 12345);
 		ASSERT_EQ(Enumerable::LastOrDefault(en, Bind(comparers::Less(), _1, 5), 12345), 12345);
