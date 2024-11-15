@@ -5,7 +5,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/optional.h>
+#include <stingraykit/string/StringParse.h>
 
 #include <gtest/gtest.h>
 
@@ -94,6 +94,52 @@ namespace
 		operator std::string () &&
 		{ return std::move(Data); }
 	};
+
+	optional<int> TryIntFromConstLValueString(const std::string& str)
+	{
+		int result;
+		if (StringParse(str, "%1%", result))
+			return result;
+		return null;
+	}
+
+	optional<int> TryIntFromLValueString(std::string& str_)
+	{
+		const std::string str = std::move(str_);
+		return TryIntFromConstLValueString(str);
+	}
+
+	optional<int> TryIntFromRValueString(std::string&& str_)
+	{
+		const std::string str = std::move(str_);
+		return TryIntFromConstLValueString(str);
+	}
+
+	std::string AppendConstLValueString(const std::string& str)
+	{ return str + ToString(str.size() + 1); }
+
+	std::string AppendLValueString(std::string& str_)
+	{
+		const std::string str = std::move(str_);
+		return AppendConstLValueString(str);
+	}
+
+	std::string AppendRValueString(std::string&& str_)
+	{
+		const std::string str = std::move(str_);
+		return AppendConstLValueString(str);
+	}
+
+	template < bool Fallback >
+	optional<std::string> StringFallback()
+	{
+		if (Fallback)
+			return "1234";
+		return null;
+	}
+
+	optional<std::string> ThrowFallback()
+	{ STINGRAYKIT_THROW(InvalidOperationException()); }
 
 	struct Unswappable
 	{ };
@@ -870,6 +916,265 @@ TEST(OptionalTest, ConditionalDereference)
 		}
 
 		ASSERT_FALSE(opt);
+	}
+}
+
+
+TEST(OptionalTest, AndThen)
+{
+	{
+		const optional<std::string> opt1;
+		const optional<int> opt2 = opt1.and_then(&TryIntFromConstLValueString);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		optional<std::string> opt1;
+		const optional<int> opt2 = opt1.and_then(&TryIntFromLValueString);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		optional<std::string> opt1;
+		const optional<int> opt2 = std::move(opt1).and_then(&TryIntFromRValueString);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		const optional<std::string> opt1("abcd");
+		const optional<int> opt2 = opt1.and_then(&TryIntFromConstLValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_FALSE(opt1->empty());
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		optional<std::string> opt1("abcd");
+		const optional<int> opt2 = opt1.and_then(&TryIntFromLValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		optional<std::string> opt1("abcd");
+		const optional<int> opt2 = std::move(opt1).and_then(&TryIntFromRValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		const optional<std::string> opt1("1234");
+		const optional<int> opt2 = opt1.and_then(&TryIntFromConstLValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_FALSE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, 1234);
+	}
+
+	{
+		optional<std::string> opt1("1234");
+		const optional<int> opt2 = opt1.and_then(&TryIntFromLValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, 1234);
+	}
+
+	{
+		optional<std::string> opt1("1234");
+		const optional<int> opt2 = std::move(opt1).and_then(&TryIntFromRValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, 1234);
+	}
+}
+
+
+TEST(OptionalTest, Transform)
+{
+	{
+		const optional<std::string> opt1;
+		const optional<std::string> opt2 = opt1.transform(&AppendConstLValueString);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		optional<std::string> opt1;
+		const optional<std::string> opt2 = opt1.transform(&AppendLValueString);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		optional<std::string> opt1;
+		const optional<std::string> opt2 = std::move(opt1).transform(&AppendRValueString);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		const optional<std::string> opt1("1234");
+		const optional<std::string> opt2 = opt1.transform(&AppendConstLValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_EQ(opt1, "1234");
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "12345");
+	}
+
+	{
+		optional<std::string> opt1("1234");
+		const optional<std::string> opt2 = opt1.transform(&AppendLValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "12345");
+	}
+
+	{
+		optional<std::string> opt1("1234");
+		const optional<std::string> opt2 = std::move(opt1).transform(&AppendRValueString);
+
+		ASSERT_TRUE(opt1);
+		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "12345");
+	}
+}
+
+
+TEST(OptionalTest, OrElse)
+{
+	{
+		const optional<std::string> opt1;
+		const optional<std::string> opt2 = opt1.or_else(&StringFallback<false>);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		optional<std::string> opt1;
+		const optional<std::string> opt2 = std::move(opt1).or_else(&StringFallback<false>);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		const optional<std::string> opt1;
+		const optional<std::string> opt2 = opt1.or_else(&StringFallback<true>);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "1234");
+	}
+
+	{
+		optional<std::string> opt1;
+		const optional<std::string> opt2 = std::move(opt1).or_else(&StringFallback<true>);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "1234");
+	}
+
+	{
+		const optional<std::string> opt1("1234");
+		optional<std::string> opt2;
+		ASSERT_NO_THROW(opt2 = opt1.or_else(&ThrowFallback));
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "1234");
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "1234");
+	}
+
+	{
+		optional<std::string> opt1("1234");
+		optional<std::string> opt2;
+		ASSERT_NO_THROW(opt2 = std::move(opt1).or_else(&ThrowFallback));
+
+		ASSERT_TRUE(opt1);
+		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "1234");
+	}
+
+	{
+		const optional<std::string> opt1("1234");
+		optional<std::string> opt2;
+		ASSERT_NO_THROW(opt2 = opt1.or_else(&ThrowFallback));
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "1234");
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "1234");
+	}
+
+	{
+		optional<std::string> opt1("1234");
+		optional<std::string> opt2;
+		ASSERT_NO_THROW(opt2 = std::move(opt1).or_else(&ThrowFallback));
+
+		ASSERT_TRUE(opt1);
+		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "1234");
 	}
 }
 

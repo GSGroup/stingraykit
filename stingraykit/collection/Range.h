@@ -12,7 +12,6 @@
 #include <stingraykit/collection/ToRange.h>
 #include <stingraykit/collection/Transformers.h>
 #include <stingraykit/dynamic_caster.h>
-#include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/math.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/RefStorage.h>

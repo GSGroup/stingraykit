@@ -10,6 +10,7 @@
 
 #include <stingraykit/compare/comparers.h>
 #include <stingraykit/core/InPlaceType.h>
+#include <stingraykit/function/FunctorInvoker.h>
 #include <stingraykit/metaprogramming/ParamPassingType.h>
 
 namespace stingray
@@ -77,6 +78,10 @@ namespace stingray
 			else \
 				reset(); \
 		}
+
+
+	template < typename T >
+	struct IsOptional;
 
 
 	template < typename T >
@@ -198,6 +203,113 @@ namespace stingray
 		template < typename U >
 		T get_value_or(U&& value) &&
 		{ return is_initialized() ? std::move(_value.Ref()) : static_cast<T>(std::forward<U>(value)); }
+
+		template < typename Functor >
+		typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT and_then(Functor&& functor) const &
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(IsOptional<RetType>::Value, "Expected function that returns an optional<U>");
+
+			if (is_initialized())
+				return FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), get());
+			else
+				return RetType();
+		}
+
+		template < typename Functor >
+		typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT and_then(Functor&& functor) &
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(IsOptional<RetType>::Value, "Expected function that returns an optional<U>");
+
+			if (is_initialized())
+				return FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), get());
+			else
+				return RetType();
+		}
+
+		template < typename Functor >
+		typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT and_then(Functor&& functor) &&
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(IsOptional<RetType>::Value, "Expected function that returns an optional<U>");
+
+			if (is_initialized())
+				return FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), std::move(get()));
+			else
+				return RetType();
+		}
+
+		template < typename Functor >
+		optional<typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT> transform(Functor&& functor) const &
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(!IsOptional<RetType>::Value && !IsSame<RetType, InPlaceType>::Value && !IsSame<RetType, NullPtrType>::Value,
+					"Expected function that returns not an optional, InPlace or null");
+
+			if (is_initialized())
+				return optional<RetType>(FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), get()));
+			else
+				return optional<RetType>();
+		}
+
+		template < typename Functor >
+		optional<typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT> transform(Functor&& functor) &
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(!IsOptional<RetType>::Value && !IsSame<RetType, InPlaceType>::Value && !IsSame<RetType, NullPtrType>::Value,
+					"Expected function that returns not an optional, InPlace or null");
+
+			if (is_initialized())
+				return optional<RetType>(FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), get()));
+			else
+				return optional<RetType>();
+		}
+
+		template < typename Functor >
+		optional<typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT> transform(Functor&& functor) &&
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(!IsOptional<RetType>::Value && !IsSame<RetType, InPlaceType>::Value && !IsSame<RetType, NullPtrType>::Value,
+					"Expected function that returns not an optional, InPlace or null");
+
+			if (is_initialized())
+				return optional<RetType>(FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), std::move(get())));
+			else
+				return optional<RetType>();
+		}
+
+		template < typename U = T, typename Functor, typename EnableIf<IsCopyConstructible<U>::Value, bool>::ValueT = true >
+		optional or_else(Functor&& functor) const &
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(IsSame<RetType, optional>::Value, "Expected function that returns an optional<T>");
+
+			if (is_initialized())
+				return *this;
+			else
+				return FunctorInvoker::InvokeArgs(std::forward<Functor>(functor));
+		}
+
+		template < typename U = T, typename Functor, typename EnableIf<IsMoveConstructible<U>::Value, bool>::ValueT = true >
+		optional or_else(Functor&& functor) &&
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(IsSame<RetType, optional>::Value, "Expected function that returns an optional<T>");
+
+			if (is_initialized())
+				return std::move(*this);
+			else
+				return FunctorInvoker::InvokeArgs(std::forward<Functor>(functor));
+		}
 
 		int Compare(NullPtrType) const
 		{ return is_initialized() ? 1 : 0; }
