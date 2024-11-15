@@ -357,6 +357,9 @@ namespace stingray
 	template < typename T >
 	struct IsNullable : public FalseType { };
 
+	template < typename T >
+	struct IsNullable<T*> : public TrueType { };
+
 }
 
 
