@@ -174,17 +174,12 @@ namespace stingray
 				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = false >
 		optional& operator = (optional<U>&& other)		{ assign(std::move(other));	return *this; }
 
+		bool is_initialized() const						{ return _initialized; }
+		explicit operator bool () const					{ return is_initialized(); }
+
 		ConstParamType get() const &					{ CheckInitialized(); return _value.Ref(); }
 		ParamType get() &								{ CheckInitialized(); return _value.Ref(); }
 		MoveParamType get() &&							{ CheckInitialized(); return std::move(_value.Ref()); }
-
-		template < typename U >
-		T get_value_or(U&& value) const &
-		{ return is_initialized() ? _value.Ref() : static_cast<T>(std::forward<U>(value)); }
-
-		template < typename U >
-		T get_value_or(U&& value) &&
-		{ return is_initialized() ? std::move(_value.Ref()) : static_cast<T>(std::forward<U>(value)); }
 
 		ConstPtrParamType get_ptr() const				{ CheckInitialized(); return &_value.Ref(); }
 		PtrParamType get_ptr()							{ CheckInitialized(); return &_value.Ref(); }
@@ -196,17 +191,13 @@ namespace stingray
 		ParamType operator * () &						{ return get(); }
 		MoveParamType operator * () &&					{ return std::move(*this).get(); }
 
-		void reset()
-		{
-			if (_initialized)
-			{
-				_initialized = false;
-				_value.Dtor();
-			}
-		}
+		template < typename U >
+		T get_value_or(U&& value) const &
+		{ return is_initialized() ? _value.Ref() : static_cast<T>(std::forward<U>(value)); }
 
-		bool is_initialized() const						{ return _initialized; }
-		explicit operator bool () const					{ return is_initialized(); }
+		template < typename U >
+		T get_value_or(U&& value) &&
+		{ return is_initialized() ? std::move(_value.Ref()) : static_cast<T>(std::forward<U>(value)); }
 
 		int Compare(NullPtrType) const
 		{ return is_initialized() ? 1 : 0; }
@@ -235,6 +226,15 @@ namespace stingray
 			{
 				assign(std::move(other).get());
 				other.reset();
+			}
+		}
+
+		void reset()
+		{
+			if (_initialized)
+			{
+				_initialized = false;
+				_value.Dtor();
 			}
 		}
 
