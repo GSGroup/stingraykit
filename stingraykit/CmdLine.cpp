@@ -44,9 +44,7 @@ namespace stingray
 	{
 		MutexLock l(commands->GetSyncRoot());
 
-		const auto lastKey = Enumerable::FirstOrDefault(KeysEnumerable(commands->Reverse()));
-		const size_t key = lastKey ? *lastKey + 1 : 0;
-
+		const size_t key = Enumerable::FirstOrDefault(KeysEnumerable(commands->Reverse())).transform(Bind(std::plus<size_t>(), 1, _1)).get_value_or(0);
 		STINGRAYKIT_CHECK(commands->Add(key, handler), LogicException());
 
 		return MakeFunctionToken(Bind(&CmdLine::Unregister, commands, key));
