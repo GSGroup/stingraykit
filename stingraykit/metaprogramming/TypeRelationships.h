@@ -62,6 +62,14 @@ namespace stingray
 	template < typename To, typename From > struct IsAssignable : integral_constant<bool, decltype(Detail::TestIsAssignable<To, From>(0))::Value> { };
 
 
+	template < typename T > struct IsMoveConstructible : integral_constant<bool, IsConstructible<T, T>::Value && IsConvertible<T, T>::Value> { };
+	template < typename T > struct IsCopyConstructible : integral_constant<bool,
+			IsMoveConstructible<T>::Value &&
+			IsConstructible<T, T&>::Value && IsConstructible<T, const T&>::Value && IsConstructible<T, const T>::Value &&
+			IsConvertible<T&, T>::Value && IsConvertible<const T&, T>::Value && IsConvertible<const T, T>::Value>
+	{ };
+
+
 	template < template <typename> class Template, typename U > struct Is1ParamTemplate							: FalseType { };
 	template < template <typename> class Template, typename T > struct Is1ParamTemplate<Template, Template<T> >	: TrueType { };
 
