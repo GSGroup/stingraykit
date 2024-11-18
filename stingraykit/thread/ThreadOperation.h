@@ -42,6 +42,8 @@ namespace stingray
 
 	class ThreadOperationReporter
 	{
+		STINGRAYKIT_NONCOPYABLE(ThreadOperationReporter);
+
 	private:
 		static NamedLogger		s_logger;
 
@@ -65,6 +67,8 @@ namespace stingray
 
 	class ExclusiveThreadOperationChecker
 	{
+		STINGRAYKIT_NONCOPYABLE(ExclusiveThreadOperationChecker);
+
 	private:
 		static NamedLogger		s_logger;
 
