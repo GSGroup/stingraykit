@@ -12,8 +12,16 @@
 namespace stingray
 {
 
-	STINGRAYKIT_DECLARE_THREAD_LOCAL(int, RestrictedThreadOperations);
-	STINGRAYKIT_DEFINE_THREAD_LOCAL(int, RestrictedThreadOperations);
+	namespace
+	{
+
+		STINGRAYKIT_DECLARE_THREAD_LOCAL(int, RestrictedThreadOperations);
+		STINGRAYKIT_DEFINE_THREAD_LOCAL(int, RestrictedThreadOperations);
+
+		STINGRAYKIT_DECLARE_THREAD_LOCAL(int, ExclusiveThreadOperations);
+		STINGRAYKIT_DEFINE_THREAD_LOCAL(int, ExclusiveThreadOperations);
+
+	}
 
 
 	ThreadOperationConstrainer::ThreadOperationConstrainer(ThreadOperation restrictedOperations)
@@ -33,10 +41,6 @@ namespace stingray
 		if (op.val() & RestrictedThreadOperations::Get())
 			s_logger.Error() << op << " operations are prohibited in this thread!\nBacktrace: " << Backtrace();
 	}
-
-
-	STINGRAYKIT_DECLARE_THREAD_LOCAL(int, ExclusiveThreadOperations);
-	STINGRAYKIT_DEFINE_THREAD_LOCAL(int, ExclusiveThreadOperations);
 
 
 	ExclusiveThreadOperation::ExclusiveThreadOperation(ThreadOperation op)
