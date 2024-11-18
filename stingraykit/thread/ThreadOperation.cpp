@@ -35,10 +35,6 @@ namespace stingray
 	}
 
 
-	ThreadOperationReporter::~ThreadOperationReporter()
-	{ }
-
-
 	STINGRAYKIT_DECLARE_THREAD_LOCAL(int, ExclusiveThreadOperations);
 	STINGRAYKIT_DEFINE_THREAD_LOCAL(int, ExclusiveThreadOperations);
 
@@ -65,9 +61,5 @@ namespace stingray
 #endif
 		}
 	}
-
-
-	ExclusiveThreadOperationChecker::~ExclusiveThreadOperationChecker()
-	{ }
 
 }

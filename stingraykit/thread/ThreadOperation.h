@@ -47,7 +47,6 @@ namespace stingray
 
 	public:
 		ThreadOperationReporter(ThreadOperation op);
-		~ThreadOperationReporter();
 	};
 
 
@@ -71,7 +70,6 @@ namespace stingray
 
 	public:
 		ExclusiveThreadOperationChecker(ThreadOperation op);
-		~ExclusiveThreadOperationChecker();
 	};
 
 }
