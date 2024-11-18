@@ -8,17 +8,15 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/log/Logger.h>
-#include <stingraykit/toolkit.h>
-
 
 namespace stingray
 {
 
 	struct ThreadOperation
 	{
-		STINGRAYKIT_ENUM_VALUES(
+		STINGRAYKIT_ENUM_VALUES
+		(
 			Network = 1,
 			IO = 2,
 			UI = 4
@@ -28,12 +26,13 @@ namespace stingray
 	};
 	STINGRAYKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ThreadOperation);
 
+
 	class ThreadOperationConstrainer
 	{
 		STINGRAYKIT_NONCOPYABLE(ThreadOperationConstrainer);
 
 	private:
-		int	_oldValue;
+		int						_oldValue;
 
 	public:
 		ThreadOperationConstrainer(ThreadOperation restrictedOperations);
@@ -44,34 +43,36 @@ namespace stingray
 	class ThreadOperationReporter
 	{
 	private:
-		static NamedLogger	s_logger;
+		static NamedLogger		s_logger;
 
 	public:
 		ThreadOperationReporter(ThreadOperation op);
 		~ThreadOperationReporter();
 	};
 
+
 	class ExclusiveThreadOperation
 	{
 		STINGRAYKIT_NONCOPYABLE(ExclusiveThreadOperation);
 
 	private:
-		int _oldValue;
+		int						_oldValue;
 
 	public:
 		ExclusiveThreadOperation(ThreadOperation op);
 		~ExclusiveThreadOperation();
 	};
 
+
 	class ExclusiveThreadOperationChecker
 	{
-		static NamedLogger	s_logger;
+	private:
+		static NamedLogger		s_logger;
 
 	public:
 		ExclusiveThreadOperationChecker(ThreadOperation op);
 		~ExclusiveThreadOperationChecker();
 	};
-
 
 }
 

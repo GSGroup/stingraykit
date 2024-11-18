@@ -7,8 +7,6 @@
 
 #include <stingraykit/thread/ThreadOperation.h>
 
-#include <stingraykit/diagnostics/Backtrace.h>
-#include <stingraykit/thread/Thread.h>
 #include <stingraykit/thread/posix/ThreadLocal.h>
 
 namespace stingray
@@ -17,8 +15,9 @@ namespace stingray
 	STINGRAYKIT_DECLARE_THREAD_LOCAL(int, RestrictedThreadOperations);
 	STINGRAYKIT_DEFINE_THREAD_LOCAL(int, RestrictedThreadOperations);
 
-	ThreadOperationConstrainer::ThreadOperationConstrainer(ThreadOperation restrictedOperations) :
-		_oldValue(RestrictedThreadOperations::Get())
+
+	ThreadOperationConstrainer::ThreadOperationConstrainer(ThreadOperation restrictedOperations)
+		:	_oldValue(RestrictedThreadOperations::Get())
 	{ RestrictedThreadOperations::Get() = _oldValue | restrictedOperations.val(); }
 
 
@@ -28,11 +27,13 @@ namespace stingray
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadOperationReporter);
 
+
 	ThreadOperationReporter::ThreadOperationReporter(ThreadOperation op)
 	{
 		if (op.val() & RestrictedThreadOperations::Get())
 			s_logger.Error() << op << " operations are prohibited in this thread!\nBacktrace: " << Backtrace();
 	}
+
 
 	ThreadOperationReporter::~ThreadOperationReporter()
 	{ }
@@ -41,18 +42,18 @@ namespace stingray
 	STINGRAYKIT_DECLARE_THREAD_LOCAL(int, ExclusiveThreadOperations);
 	STINGRAYKIT_DEFINE_THREAD_LOCAL(int, ExclusiveThreadOperations);
 
-	ExclusiveThreadOperation::ExclusiveThreadOperation(ThreadOperation op):
-		_oldValue(ExclusiveThreadOperations::Get())
-	{
-		ExclusiveThreadOperations::Get() = _oldValue | op.val();
-	}
+
+	ExclusiveThreadOperation::ExclusiveThreadOperation(ThreadOperation op)
+		:	_oldValue(ExclusiveThreadOperations::Get())
+	{ ExclusiveThreadOperations::Get() = _oldValue | op.val(); }
+
 
 	ExclusiveThreadOperation::~ExclusiveThreadOperation()
-	{
-		ExclusiveThreadOperations::Get() = _oldValue;
-	}
+	{ ExclusiveThreadOperations::Get() = _oldValue; }
+
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ExclusiveThreadOperationChecker);
+
 
 	ExclusiveThreadOperationChecker::ExclusiveThreadOperationChecker(ThreadOperation op)
 	{
@@ -64,6 +65,7 @@ namespace stingray
 #endif
 		}
 	}
+
 
 	ExclusiveThreadOperationChecker::~ExclusiveThreadOperationChecker()
 	{ }
