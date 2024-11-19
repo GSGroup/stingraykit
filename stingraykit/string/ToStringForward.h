@@ -15,9 +15,18 @@ namespace stingray
 
 	namespace Detail
 	{
+		template < typename StringType >
+		struct TypeFromStringInterpreter;
+
 		template < typename T >
 		struct TypeToStringSerializer;
 	}
+
+
+	template < typename T, typename StringType >
+	auto FromString(const StringType& str)
+			-> typename RemoveReference<decltype(Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0))>::ValueT;
+
 
 	template < typename T >
 	auto ToString(string_ostream& result, const T& val)
