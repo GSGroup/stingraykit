@@ -132,6 +132,17 @@ namespace stingray
 	{ return Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0); }
 
 
+	template < typename T >
+	struct FromStringInterpreter
+	{
+		using RetType = T;
+
+		template < typename StringType >
+		T operator () (const StringType& str) const
+		{ return FromString<T>(str); }
+	};
+
+
 	STINGRAYKIT_DECLARE_METHOD_CHECK(ToString);
 
 

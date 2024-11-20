@@ -29,6 +29,10 @@ namespace stingray
 
 
 	template < typename T >
+	struct FromStringInterpreter;
+
+
+	template < typename T >
 	auto ToString(string_ostream& result, const T& val)
 			-> decltype(Detail::TypeToStringSerializer<T>::ToStringImpl(result, val, 0), void());
 
