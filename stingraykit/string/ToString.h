@@ -364,6 +364,11 @@ namespace stingray
 	}
 
 
+	template < typename T >
+	std::string ToStringPrinter::operator () (const T& val) const
+	{ return ToString(val); }
+
+
 	namespace Detail
 	{
 

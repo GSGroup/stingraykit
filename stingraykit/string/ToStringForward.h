@@ -41,6 +41,15 @@ namespace stingray
 	auto ToString(const T& val)
 			-> decltype(ToString(std::declval<string_ostream&>(), val), std::string());
 
+
+	struct ToStringPrinter
+	{
+		using RetType = std::string;
+
+		template < typename T >
+		std::string operator () (const T& val) const;
+	};
+
 }
 
 #endif
