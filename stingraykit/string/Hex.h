@@ -27,16 +27,19 @@ namespace stingray
 		for (size_t i = 0; i < n; ++i)
 		{
 			char c = str[i];
+
 			if (c >= '0' && c <= '9')
 				c -= '0';
 			else
 			{
 				c &= ~ 0x20;
+
 				if (c >= 'A' && c <= 'F')
 					c = c - 'A' + 10;
 				else
 					STINGRAYKIT_THROW(FormatException(std::string("invalid char '") + str[i] + "' in hex string"));
 			}
+
 			r |= c << ((n - i - 1) * 4);
 		}
 
@@ -76,6 +79,7 @@ namespace stingray
 		{
 			const size_t maxWidth = sizeof(T) * 2;
 			size_t start;
+
 			if (width > maxWidth)
 			{
 				for (size_t i = maxWidth; i < width; ++i)
@@ -90,8 +94,9 @@ namespace stingray
 			{
 				char c = (value >> ((maxWidth - i - 1) * 4)) & 0x0f;
 				seenNonZero = seenNonZero || c;
+
 				if (seenNonZero || i >= start || i == maxWidth - 1)
-					r << ((char)(c > 9 ? c + (capital? 'A' : 'a') - 10 : c + '0'));
+					r << ((char)(c > 9 ? c + (capital ? 'A' : 'a') - 10 : c + '0'));
 			}
 		}
 
@@ -99,6 +104,7 @@ namespace stingray
 		typename EnableIf<IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
 		{
 			ConstByteData data(value);
+
 			const size_t maxWidth = data.size() * sizeof(ConstByteData::value_type) * 2;
 			for (size_t i = maxWidth; i < width; ++i)
 				r << "0";
@@ -114,8 +120,10 @@ namespace stingray
 	std::string ToHex(T value, size_t width = 0, bool capital = false, bool add0xPrefix = false)
 	{
 		string_ostream result;
+
 		if (add0xPrefix)
 			result << "0x";
+
 		Detail::ToHexImpl(result, value, width, capital);
 		return result.str();
 	}
@@ -172,17 +180,21 @@ namespace stingray
 
 			std::string ToString() const
 			{
-				const u8 *src = data;
+				const u8* src = data;
+
 				string_ostream ss;
 				ss << "{ ";
+
 				size_t n = std::min(size, sizeLimit);
 				for (size_t i = 0; i < n; ++i)
 				{
 					ToHexImpl(ss, (unsigned)src[i], 2);
 					ss << " ";
 				}
+
 				if (n < size)
 					ss << "... ";
+
 				ss << "}";
 				return ss.str();
 			}
@@ -196,18 +208,21 @@ namespace stingray
 			size_t		width;
 
 		public:
-			HexDumpFormatter(const void *data, size_t size, size_t width = 16)
+			HexDumpFormatter(const void* data, size_t size, size_t width = 16)
 				: data(reinterpret_cast<const u8*>(data)), size(size), width(width)
 			{ }
 
 			std::string ToString() const
 			{
-				const u8 *src = data;
+				const u8* src = data;
+
 				string_ostream ss;
+
 				for (size_t offset = 0; offset < size; offset += width, src += width)
 				{
 					ToHexImpl(ss, offset, 8);
 					ss << ": ";
+
 					size_t n = size - offset;
 					if (n > width)
 						n = width;
@@ -218,16 +233,17 @@ namespace stingray
 						ToHexImpl(ss, (unsigned)src[i], 2);
 						ss << " ";
 					}
-					if (i < width) {
+
+					if (i < width)
 						ss << std::string((width - i) * 3, ' ');
-					}
+
 					for (size_t i = 0; i < n; ++i)
-					{
-						ss << ((src[i] >= 0x20 && src[i] < 0x7f)? (char)src[i]: '.');
-					}
+						ss << ((src[i] >= 0x20 && src[i] < 0x7f) ? (char)src[i] : '.');
+
 					if (offset + width < size)
 						ss << "\n";
 				}
+
 				return ss.str();
 			}
 		};
