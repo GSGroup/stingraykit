@@ -21,10 +21,10 @@ namespace stingray
 	template < typename T, typename StringType >
 	typename EnableIf<!IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
 	{
-		const size_t size = str.size();
+		const typename StringType::size_type size = str.size();
 		T result = T();
 
-		for (size_t index = 0; index < size; ++index)
+		for (typename StringType::size_type index = 0; index < size; ++index)
 		{
 			char ch = str[index];
 
@@ -52,8 +52,8 @@ namespace stingray
 	{
 		const ByteArray::CollectionTypePtr result = make_shared_ptr<ByteArray::CollectionType>();
 
-		const std::string::size_type size = str.size();
-		std::string::size_type index = 0;
+		const typename StringType::size_type size = str.size();
+		typename StringType::size_type index = 0;
 
 		const std::string prefix("0x");
 		if (size >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0)
@@ -79,13 +79,12 @@ namespace stingray
 		typename EnableIf<!IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& result, T value, size_t width = 0, bool capital = false)
 		{
 			const size_t maxWidth = sizeof(T) * 2;
-			size_t start;
+			size_t start = 0;
 
 			if (width > maxWidth)
 			{
 				for (size_t index = maxWidth; index < width; ++index)
 					result << "0";
-				start = 0;
 			}
 			else
 				start = maxWidth - width;
@@ -93,7 +92,7 @@ namespace stingray
 			bool seenNonZero = false;
 			for (size_t index = 0; index < maxWidth; ++index)
 			{
-				char ch = (value >> ((maxWidth - index - 1) * 4)) & 0x0f;
+				const char ch = (value >> ((maxWidth - index - 1) * 4)) & 0x0f;
 				seenNonZero = seenNonZero || ch;
 
 				if (seenNonZero || index >= start || index == maxWidth - 1)
@@ -104,7 +103,7 @@ namespace stingray
 		template < typename T >
 		typename EnableIf<IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& result, T value, size_t width = 0, bool capital = false)
 		{
-			ConstByteData data(value);
+			const ConstByteData data(value);
 
 			const size_t maxWidth = data.size() * sizeof(ConstByteData::value_type) * 2;
 			for (size_t index = maxWidth; index < width; ++index)
@@ -146,7 +145,7 @@ namespace stingray
 
 			std::string ToString() const
 			{
-				typedef typename IntType<sizeof(T) * 8, false>::ValueT CastTo;
+				using CastTo = typename IntType<sizeof(T) * 8, false>::ValueT;
 				static_assert(sizeof(CastTo) >= sizeof(T), "T is bigger than CastTo");
 				static_assert(sizeof(u64) >= sizeof(T), "T is bigger than u64");
 
@@ -186,7 +185,7 @@ namespace stingray
 				string_ostream result;
 				result << "{ ";
 
-				size_t size = std::min(_size, _sizeLimit);
+				const size_t size = std::min(_size, _sizeLimit);
 				for (size_t index = 0; index < size; ++index)
 				{
 					ToHexImpl(result, (unsigned)src[index], 2);
@@ -224,12 +223,10 @@ namespace stingray
 					ToHexImpl(result, offset, 8);
 					result << ": ";
 
-					size_t size = _size - offset;
-					if (size > _width)
-						size = _width;
+					const size_t size = std::min(_size - offset, _width);
+					size_t index = 0;
 
-					size_t index;
-					for (index = 0; index < size; ++index)
+					for (; index < size; ++index)
 					{
 						ToHexImpl(result, (unsigned)src[index], 2);
 						result << " ";
