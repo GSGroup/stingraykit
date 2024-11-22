@@ -34,10 +34,8 @@ namespace stingray
 			{
 				ch &= ~ 0x20;
 
-				if (ch >= 'A' && ch <= 'F')
-					ch = ch - 'A' + 10;
-				else
-					STINGRAYKIT_THROW(FormatException(std::string("invalid char '") + str[index] + "' in hex string"));
+				STINGRAYKIT_CHECK(ch >= 'A' && ch <= 'F', FormatException(str.copy()));
+				ch = ch - 'A' + 10;
 			}
 
 			result |= ch << ((size - index - 1) * 4);
@@ -59,14 +57,19 @@ namespace stingray
 		if (size >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0)
 			index += prefix.size();
 
-		if ((size - index) % 2 == 1)
+		try
 		{
-			result->push_back(FromHex<ByteArray::value_type>(str.substr(index, 1)));
-			++index;
-		}
+			if ((size - index) % 2 == 1)
+			{
+				result->push_back(FromHex<ByteArray::value_type>(str.substr(index, 1)));
+				++index;
+			}
 
-		for (; index < size; index += 2)
-			result->push_back(FromHex<ByteArray::value_type>(str.substr(index, 2)));
+			for (; index < size; index += 2)
+				result->push_back(FromHex<ByteArray::value_type>(str.substr(index, 2)));
+		}
+		catch (const FormatException&)
+		{ STINGRAYKIT_THROW(FormatException(str.copy())); }
 
 		return result;
 	}
