@@ -18,13 +18,13 @@ namespace stingray
 	 * @{
 	 */
 
-	template < typename T, typename StringType >
-	typename EnableIf<!IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
+	template < typename T >
+	typename EnableIf<!IsSame<T, ByteArray>::Value, T>::ValueT FromHex(string_view str)
 	{
-		const typename StringType::size_type size = str.size();
+		const string_view::size_type size = str.size();
 		T result = T();
 
-		for (typename StringType::size_type index = 0; index < size; ++index)
+		for (string_view::size_type index = 0; index < size; ++index)
 		{
 			char ch = str[index];
 
@@ -47,15 +47,15 @@ namespace stingray
 	}
 
 
-	template < typename T, typename StringType >
-	typename EnableIf<IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
+	template < typename T >
+	typename EnableIf<IsSame<T, ByteArray>::Value, T>::ValueT FromHex(string_view str)
 	{
 		const ByteArray::CollectionTypePtr result = make_shared_ptr<ByteArray::CollectionType>();
 
-		const typename StringType::size_type size = str.size();
-		typename StringType::size_type index = 0;
+		const string_view::size_type size = str.size();
+		string_view::size_type index = 0;
 
-		const std::string prefix("0x");
+		const string_view prefix("0x");
 		if (size >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0)
 			index += prefix.size();
 

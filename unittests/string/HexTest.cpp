@@ -142,142 +142,142 @@ TEST(HexTest, IntegerToHex)
 
 TEST(HexTest, IntegerFromHex)
 {
-	ASSERT_EQ(FromHex<int>(std::string("")), 0);
+	ASSERT_EQ(FromHex<int>(""), 0);
 
-	ASSERT_EQ(FromHex<int>(std::string("0")), 0);
-	ASSERT_EQ(FromHex<int>(std::string("1")), 1);
-	ASSERT_EQ(FromHex<int>(std::string("2")), 2);
-	ASSERT_EQ(FromHex<int>(std::string("3")), 3);
-	ASSERT_EQ(FromHex<int>(std::string("4")), 4);
-	ASSERT_EQ(FromHex<int>(std::string("5")), 5);
-	ASSERT_EQ(FromHex<int>(std::string("6")), 6);
-	ASSERT_EQ(FromHex<int>(std::string("7")), 7);
-	ASSERT_EQ(FromHex<int>(std::string("8")), 8);
-	ASSERT_EQ(FromHex<int>(std::string("9")), 9);
-	ASSERT_EQ(FromHex<int>(std::string("a")), 10);
-	ASSERT_EQ(FromHex<int>(std::string("b")), 11);
-	ASSERT_EQ(FromHex<int>(std::string("c")), 12);
-	ASSERT_EQ(FromHex<int>(std::string("d")), 13);
-	ASSERT_EQ(FromHex<int>(std::string("e")), 14);
-	ASSERT_EQ(FromHex<int>(std::string("f")), 15);
-	ASSERT_EQ(FromHex<int>(std::string("10")), 16);
+	ASSERT_EQ(FromHex<int>("0"), 0);
+	ASSERT_EQ(FromHex<int>("1"), 1);
+	ASSERT_EQ(FromHex<int>("2"), 2);
+	ASSERT_EQ(FromHex<int>("3"), 3);
+	ASSERT_EQ(FromHex<int>("4"), 4);
+	ASSERT_EQ(FromHex<int>("5"), 5);
+	ASSERT_EQ(FromHex<int>("6"), 6);
+	ASSERT_EQ(FromHex<int>("7"), 7);
+	ASSERT_EQ(FromHex<int>("8"), 8);
+	ASSERT_EQ(FromHex<int>("9"), 9);
+	ASSERT_EQ(FromHex<int>("a"), 10);
+	ASSERT_EQ(FromHex<int>("b"), 11);
+	ASSERT_EQ(FromHex<int>("c"), 12);
+	ASSERT_EQ(FromHex<int>("d"), 13);
+	ASSERT_EQ(FromHex<int>("e"), 14);
+	ASSERT_EQ(FromHex<int>("f"), 15);
+	ASSERT_EQ(FromHex<int>("10"), 16);
 
-	ASSERT_EQ(FromHex<int>(std::string("00")), 0);
-	ASSERT_EQ(FromHex<int>(std::string("01")), 1);
-	ASSERT_EQ(FromHex<int>(std::string("08")), 8);
-	ASSERT_EQ(FromHex<int>(std::string("09")), 9);
-	ASSERT_EQ(FromHex<int>(std::string("0a")), 10);
-	ASSERT_EQ(FromHex<int>(std::string("0f")), 15);
-	ASSERT_EQ(FromHex<int>(std::string("10")), 16);
+	ASSERT_EQ(FromHex<int>("00"), 0);
+	ASSERT_EQ(FromHex<int>("01"), 1);
+	ASSERT_EQ(FromHex<int>("08"), 8);
+	ASSERT_EQ(FromHex<int>("09"), 9);
+	ASSERT_EQ(FromHex<int>("0a"), 10);
+	ASSERT_EQ(FromHex<int>("0f"), 15);
+	ASSERT_EQ(FromHex<int>("10"), 16);
 
-	ASSERT_EQ(FromHex<int>(std::string("000")), 0);
-	ASSERT_EQ(FromHex<int>(std::string("001")), 1);
-	ASSERT_EQ(FromHex<int>(std::string("008")), 8);
-	ASSERT_EQ(FromHex<int>(std::string("009")), 9);
-	ASSERT_EQ(FromHex<int>(std::string("00a")), 10);
-	ASSERT_EQ(FromHex<int>(std::string("00f")), 15);
-	ASSERT_EQ(FromHex<int>(std::string("010")), 16);
+	ASSERT_EQ(FromHex<int>("000"), 0);
+	ASSERT_EQ(FromHex<int>("001"), 1);
+	ASSERT_EQ(FromHex<int>("008"), 8);
+	ASSERT_EQ(FromHex<int>("009"), 9);
+	ASSERT_EQ(FromHex<int>("00a"), 10);
+	ASSERT_EQ(FromHex<int>("00f"), 15);
+	ASSERT_EQ(FromHex<int>("010"), 16);
 
-	ASSERT_EQ(FromHex<int>(std::string("0000")), 0);
-	ASSERT_EQ(FromHex<int>(std::string("0001")), 1);
-	ASSERT_EQ(FromHex<int>(std::string("0008")), 8);
-	ASSERT_EQ(FromHex<int>(std::string("0009")), 9);
-	ASSERT_EQ(FromHex<int>(std::string("000a")), 10);
-	ASSERT_EQ(FromHex<int>(std::string("000f")), 15);
-	ASSERT_EQ(FromHex<int>(std::string("0010")), 16);
+	ASSERT_EQ(FromHex<int>("0000"), 0);
+	ASSERT_EQ(FromHex<int>("0001"), 1);
+	ASSERT_EQ(FromHex<int>("0008"), 8);
+	ASSERT_EQ(FromHex<int>("0009"), 9);
+	ASSERT_EQ(FromHex<int>("000a"), 10);
+	ASSERT_EQ(FromHex<int>("000f"), 15);
+	ASSERT_EQ(FromHex<int>("0010"), 16);
 
-	ASSERT_EQ(FromHex<int>(std::string("00000")), 0);
-	ASSERT_EQ(FromHex<int>(std::string("00001")), 1);
-	ASSERT_EQ(FromHex<int>(std::string("00008")), 8);
-	ASSERT_EQ(FromHex<int>(std::string("00009")), 9);
-	ASSERT_EQ(FromHex<int>(std::string("0000a")), 10);
-	ASSERT_EQ(FromHex<int>(std::string("0000f")), 15);
-	ASSERT_EQ(FromHex<int>(std::string("00010")), 16);
+	ASSERT_EQ(FromHex<int>("00000"), 0);
+	ASSERT_EQ(FromHex<int>("00001"), 1);
+	ASSERT_EQ(FromHex<int>("00008"), 8);
+	ASSERT_EQ(FromHex<int>("00009"), 9);
+	ASSERT_EQ(FromHex<int>("0000a"), 10);
+	ASSERT_EQ(FromHex<int>("0000f"), 15);
+	ASSERT_EQ(FromHex<int>("00010"), 16);
 
-	ASSERT_EQ(FromHex<int>(std::string("000000")), 0);
-	ASSERT_EQ(FromHex<int>(std::string("000001")), 1);
-	ASSERT_EQ(FromHex<int>(std::string("000008")), 8);
-	ASSERT_EQ(FromHex<int>(std::string("000009")), 9);
-	ASSERT_EQ(FromHex<int>(std::string("00000a")), 10);
-	ASSERT_EQ(FromHex<int>(std::string("00000f")), 15);
-	ASSERT_EQ(FromHex<int>(std::string("000010")), 16);
+	ASSERT_EQ(FromHex<int>("000000"), 0);
+	ASSERT_EQ(FromHex<int>("000001"), 1);
+	ASSERT_EQ(FromHex<int>("000008"), 8);
+	ASSERT_EQ(FromHex<int>("000009"), 9);
+	ASSERT_EQ(FromHex<int>("00000a"), 10);
+	ASSERT_EQ(FromHex<int>("00000f"), 15);
+	ASSERT_EQ(FromHex<int>("000010"), 16);
 
-	ASSERT_EQ(FromHex<int>(std::string("0000000")), 0);
-	ASSERT_EQ(FromHex<int>(std::string("0000001")), 1);
-	ASSERT_EQ(FromHex<int>(std::string("0000008")), 8);
-	ASSERT_EQ(FromHex<int>(std::string("0000009")), 9);
-	ASSERT_EQ(FromHex<int>(std::string("000000a")), 10);
-	ASSERT_EQ(FromHex<int>(std::string("000000f")), 15);
-	ASSERT_EQ(FromHex<int>(std::string("0000010")), 16);
+	ASSERT_EQ(FromHex<int>("0000000"), 0);
+	ASSERT_EQ(FromHex<int>("0000001"), 1);
+	ASSERT_EQ(FromHex<int>("0000008"), 8);
+	ASSERT_EQ(FromHex<int>("0000009"), 9);
+	ASSERT_EQ(FromHex<int>("000000a"), 10);
+	ASSERT_EQ(FromHex<int>("000000f"), 15);
+	ASSERT_EQ(FromHex<int>("0000010"), 16);
 
-	ASSERT_EQ(FromHex<int>(std::string("00000000")), 0);
-	ASSERT_EQ(FromHex<int>(std::string("00000001")), 1);
-	ASSERT_EQ(FromHex<int>(std::string("00000008")), 8);
-	ASSERT_EQ(FromHex<int>(std::string("00000009")), 9);
-	ASSERT_EQ(FromHex<int>(std::string("0000000a")), 10);
-	ASSERT_EQ(FromHex<int>(std::string("0000000f")), 15);
-	ASSERT_EQ(FromHex<int>(std::string("00000010")), 16);
+	ASSERT_EQ(FromHex<int>("00000000"), 0);
+	ASSERT_EQ(FromHex<int>("00000001"), 1);
+	ASSERT_EQ(FromHex<int>("00000008"), 8);
+	ASSERT_EQ(FromHex<int>("00000009"), 9);
+	ASSERT_EQ(FromHex<int>("0000000a"), 10);
+	ASSERT_EQ(FromHex<int>("0000000f"), 15);
+	ASSERT_EQ(FromHex<int>("00000010"), 16);
 
-	ASSERT_EQ(FromHex<u8>(std::string("12")), 0x12);
-	ASSERT_EQ(FromHex<u8>(std::string("0012")), 0x12);
-	ASSERT_EQ(FromHex<u8>(std::string("1234")), 0x34);
-	ASSERT_EQ(FromHex<u8>(std::string("00000012")), 0x12);
-	ASSERT_EQ(FromHex<u8>(std::string("12345678")), 0x78);
+	ASSERT_EQ(FromHex<u8>("12"), 0x12);
+	ASSERT_EQ(FromHex<u8>("0012"), 0x12);
+	ASSERT_EQ(FromHex<u8>("1234"), 0x34);
+	ASSERT_EQ(FromHex<u8>("00000012"), 0x12);
+	ASSERT_EQ(FromHex<u8>("12345678"), 0x78);
 
-	ASSERT_EQ(FromHex<u16>(std::string("1234")), 0x1234);
-	ASSERT_EQ(FromHex<u16>(std::string("00001234")), 0x1234);
-	ASSERT_EQ(FromHex<u16>(std::string("12345678")), 0x5678);
+	ASSERT_EQ(FromHex<u16>("1234"), 0x1234);
+	ASSERT_EQ(FromHex<u16>("00001234"), 0x1234);
+	ASSERT_EQ(FromHex<u16>("12345678"), 0x5678);
 
-	ASSERT_EQ(FromHex<u32>(std::string("12345678")), 0x12345678);
-	ASSERT_EQ(FromHex<u32>(std::string("0000000012345678")), 0x12345678);
+	ASSERT_EQ(FromHex<u32>("12345678"), 0x12345678);
+	ASSERT_EQ(FromHex<u32>("0000000012345678"), 0x12345678);
 #if 0
-	ASSERT_EQ(FromHex<u32>(std::string("12345678abcdef90")), 0xabcdef90);
+	ASSERT_EQ(FromHex<u32>("12345678abcdef90"), 0xabcdef90);
 #endif
 
 #if 0
-	ASSERT_EQ(FromHex<u64>(std::string("12345678abcdef90")), 0x12345678abcdef90);
-	ASSERT_EQ(FromHex<u64>(std::string("000000000000000012345678abcdef90")), 0x12345678abcdef90);
-	ASSERT_EQ(FromHex<u64>(std::string("12345678abcdef9090fedcba87654321")), 0x90fedcba87654321);
+	ASSERT_EQ(FromHex<u64>("12345678abcdef90"), 0x12345678abcdef90);
+	ASSERT_EQ(FromHex<u64>("000000000000000012345678abcdef90"), 0x12345678abcdef90);
+	ASSERT_EQ(FromHex<u64>("12345678abcdef9090fedcba87654321"), 0x90fedcba87654321);
 #endif
 
-	ASSERT_EQ(FromHex<u8>(std::string("ff")), std::numeric_limits<u8>::max());
-	ASSERT_EQ(FromHex<u16>(std::string("ffff")), std::numeric_limits<u16>::max());
-	ASSERT_EQ(FromHex<u32>(std::string("ffffffff")), std::numeric_limits<u32>::max());
-	ASSERT_EQ(FromHex<u64>(std::string("ffffffffffffffff")), std::numeric_limits<u64>::max());
+	ASSERT_EQ(FromHex<u8>("ff"), std::numeric_limits<u8>::max());
+	ASSERT_EQ(FromHex<u16>("ffff"), std::numeric_limits<u16>::max());
+	ASSERT_EQ(FromHex<u32>("ffffffff"), std::numeric_limits<u32>::max());
+	ASSERT_EQ(FromHex<u64>("ffffffffffffffff"), std::numeric_limits<u64>::max());
 
-	ASSERT_EQ(FromHex<u8>(std::string("a1")), 0xa1);
-	ASSERT_EQ(FromHex<u8>(std::string("A1")), 0xA1);
+	ASSERT_EQ(FromHex<u8>("a1"), 0xa1);
+	ASSERT_EQ(FromHex<u8>("A1"), 0xA1);
 
-	ASSERT_EQ(FromHex<u16>(std::string("a1b2")), 0xa1b2);
-	ASSERT_EQ(FromHex<u16>(std::string("A1B2")), 0xA1B2);
+	ASSERT_EQ(FromHex<u16>("a1b2"), 0xa1b2);
+	ASSERT_EQ(FromHex<u16>("A1B2"), 0xA1B2);
 
-	ASSERT_EQ(FromHex<u32>(std::string("a1b2c3d4")), 0xa1b2c3d4);
-	ASSERT_EQ(FromHex<u32>(std::string("A1B2C3D4")), 0xA1B2C3D4);
+	ASSERT_EQ(FromHex<u32>("a1b2c3d4"), 0xa1b2c3d4);
+	ASSERT_EQ(FromHex<u32>("A1B2C3D4"), 0xA1B2C3D4);
 
 #if 0
-	ASSERT_EQ(FromHex<u64>(std::string("a1b2c3d4e5f6a7b8")), 0xa1b2c3d4e5f6a7b8);
-	ASSERT_EQ(FromHex<u64>(std::string("A1B2C3D4E5F6A7B8")), 0xA1B2C3D4E5F6A7B8);
+	ASSERT_EQ(FromHex<u64>("a1b2c3d4e5f6a7b8"), 0xa1b2c3d4e5f6a7b8);
+	ASSERT_EQ(FromHex<u64>("A1B2C3D4E5F6A7B8"), 0xA1B2C3D4E5F6A7B8);
 #endif
 
-	ASSERT_THROW(FromHex<u8>(std::string("abyz")), FormatException);
-	ASSERT_THROW(FromHex<u8>(std::string("abcz")), FormatException);
-	ASSERT_THROW(FromHex<u8>(std::string("ABYZ")), FormatException);
-	ASSERT_THROW(FromHex<u8>(std::string("ABCZ")), FormatException);
+	ASSERT_THROW(FromHex<u8>("abyz"), FormatException);
+	ASSERT_THROW(FromHex<u8>("abcz"), FormatException);
+	ASSERT_THROW(FromHex<u8>("ABYZ"), FormatException);
+	ASSERT_THROW(FromHex<u8>("ABCZ"), FormatException);
 
-	ASSERT_THROW(FromHex<u16>(std::string("abcdwxyz")), FormatException);
-	ASSERT_THROW(FromHex<u16>(std::string("abcdexyz")), FormatException);
-	ASSERT_THROW(FromHex<u16>(std::string("ABCDWXYZ")), FormatException);
-	ASSERT_THROW(FromHex<u16>(std::string("ABCDEXYZ")), FormatException);
+	ASSERT_THROW(FromHex<u16>("abcdwxyz"), FormatException);
+	ASSERT_THROW(FromHex<u16>("abcdexyz"), FormatException);
+	ASSERT_THROW(FromHex<u16>("ABCDWXYZ"), FormatException);
+	ASSERT_THROW(FromHex<u16>("ABCDEXYZ"), FormatException);
 
-	ASSERT_THROW(FromHex<u32>(std::string("abcdef12stuvwxyz")), FormatException);
-	ASSERT_THROW(FromHex<u32>(std::string("abcdef123tuvwxyz")), FormatException);
-	ASSERT_THROW(FromHex<u32>(std::string("ABCDEF12STUVWXYZ")), FormatException);
-	ASSERT_THROW(FromHex<u32>(std::string("ABCDEF123TUVWXYZ")), FormatException);
+	ASSERT_THROW(FromHex<u32>("abcdef12stuvwxyz"), FormatException);
+	ASSERT_THROW(FromHex<u32>("abcdef123tuvwxyz"), FormatException);
+	ASSERT_THROW(FromHex<u32>("ABCDEF12STUVWXYZ"), FormatException);
+	ASSERT_THROW(FromHex<u32>("ABCDEF123TUVWXYZ"), FormatException);
 
-	ASSERT_THROW(FromHex<u64>(std::string("abcdef1234567890klmnopqrstuvwxyz")), FormatException);
-	ASSERT_THROW(FromHex<u64>(std::string("abcdef1234567890almnopqrstuvwxyz")), FormatException);
-	ASSERT_THROW(FromHex<u64>(std::string("ABCDEF1234567890LKMNOPQRSTUVWXYZ")), FormatException);
-	ASSERT_THROW(FromHex<u64>(std::string("ABCDEF1234567890AKMNOPQRSTUVWXYZ")), FormatException);
+	ASSERT_THROW(FromHex<u64>("abcdef1234567890klmnopqrstuvwxyz"), FormatException);
+	ASSERT_THROW(FromHex<u64>("abcdef1234567890almnopqrstuvwxyz"), FormatException);
+	ASSERT_THROW(FromHex<u64>("ABCDEF1234567890LKMNOPQRSTUVWXYZ"), FormatException);
+	ASSERT_THROW(FromHex<u64>("ABCDEF1234567890AKMNOPQRSTUVWXYZ"), FormatException);
 
 	for (char ch = 'H'; ch <= 'Z'; ++ch)
 		ASSERT_THROW(FromHex<int>(std::string(1, ch)), FormatException);
@@ -353,22 +353,22 @@ TEST(HexTest, ByteArrayToHex)
 
 TEST(HexTest, ByteArrayFromHex)
 {
-	ASSERT_THAT(FromHex<ByteArray>(std::string("")), IsEmpty());
+	ASSERT_THAT(FromHex<ByteArray>(""), IsEmpty());
 
-	ASSERT_THAT(FromHex<ByteArray>(std::string("1234567890abcdef")), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
-	ASSERT_THAT(FromHex<ByteArray>(std::string("0x1234567890abcdef")), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+	ASSERT_THAT(FromHex<ByteArray>("1234567890abcdef"), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+	ASSERT_THAT(FromHex<ByteArray>("0x1234567890abcdef"), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
 
-	ASSERT_THAT(FromHex<ByteArray>(std::string("1234567890ABCDEF")), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
-	ASSERT_THAT(FromHex<ByteArray>(std::string("0x1234567890ABCDEF")), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+	ASSERT_THAT(FromHex<ByteArray>("1234567890ABCDEF"), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+	ASSERT_THAT(FromHex<ByteArray>("0x1234567890ABCDEF"), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
 
-	ASSERT_THAT(FromHex<ByteArray>(std::string("1234567890aBcDeF")), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
-	ASSERT_THAT(FromHex<ByteArray>(std::string("0x1234567890aBcDeF")), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+	ASSERT_THAT(FromHex<ByteArray>("1234567890aBcDeF"), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+	ASSERT_THAT(FromHex<ByteArray>("0x1234567890aBcDeF"), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
 
-	ASSERT_THAT(FromHex<ByteArray>(std::string("1234567890AbCdEf")), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
-	ASSERT_THAT(FromHex<ByteArray>(std::string("0x1234567890AbCdEf")), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+	ASSERT_THAT(FromHex<ByteArray>("1234567890AbCdEf"), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
+	ASSERT_THAT(FromHex<ByteArray>("0x1234567890AbCdEf"), ElementsAre(0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef));
 
-	ASSERT_THAT(FromHex<ByteArray>(std::string("1234567890abcdef0")), ElementsAre(0x1, 0x23, 0x45, 0x67, 0x89, 0x0a, 0xbc, 0xde, 0xf0));
-	ASSERT_THAT(FromHex<ByteArray>(std::string("0x1234567890abcdef0")), ElementsAre(0x1, 0x23, 0x45, 0x67, 0x89, 0x0a, 0xbc, 0xde, 0xf0));
+	ASSERT_THAT(FromHex<ByteArray>("1234567890abcdef0"), ElementsAre(0x1, 0x23, 0x45, 0x67, 0x89, 0x0a, 0xbc, 0xde, 0xf0));
+	ASSERT_THAT(FromHex<ByteArray>("0x1234567890abcdef0"), ElementsAre(0x1, 0x23, 0x45, 0x67, 0x89, 0x0a, 0xbc, 0xde, 0xf0));
 
 	for (char ch = 'H'; ch <= 'Z'; ++ch)
 		ASSERT_THROW(FromHex<ByteArray>(std::string(1, ch)), FormatException);
