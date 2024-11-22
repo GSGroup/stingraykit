@@ -68,41 +68,45 @@ namespace stingray
 	}
 
 
-	template < typename T >
-	typename EnableIf<!IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
+	namespace Detail
 	{
-		const size_t maxWidth = sizeof(T) * 2;
-		size_t start;
-		if (width > maxWidth)
+
+		template < typename T >
+		typename EnableIf<!IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
 		{
+			const size_t maxWidth = sizeof(T) * 2;
+			size_t start;
+			if (width > maxWidth)
+			{
+				for (size_t i = maxWidth; i < width; ++i)
+					r << "0";
+				start = 0;
+			}
+			else
+				start = maxWidth - width;
+
+			bool seenNonZero = false;
+			for (size_t i = 0; i < maxWidth; ++i)
+			{
+				char c = (value >> ((maxWidth - i - 1) * 4)) & 0x0f;
+				seenNonZero = seenNonZero || c;
+				if (seenNonZero || i >= start || i == maxWidth - 1)
+					r << ((char)(c > 9 ? c + (capital? 'A' : 'a') - 10 : c + '0'));
+			}
+		}
+
+		template < typename T >
+		typename EnableIf<IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
+		{
+			ConstByteData data(value);
+			const size_t maxWidth = data.size() * sizeof(ConstByteData::value_type) * 2;
 			for (size_t i = maxWidth; i < width; ++i)
 				r << "0";
-			start = 0;
+
+			for (ConstByteData::const_iterator it = data.begin(); it != data.end(); ++it)
+				ToHexImpl(r, *it, sizeof(ConstByteData::value_type) * 2, capital);
 		}
-		else
-			start = maxWidth - width;
 
-		bool seenNonZero = false;
-		for (size_t i = 0; i < maxWidth; ++i)
-		{
-			char c = (value >> ((maxWidth - i - 1) * 4)) & 0x0f;
-			seenNonZero = seenNonZero || c;
-			if (seenNonZero || i >= start || i == maxWidth - 1)
-				r << ((char)(c > 9 ? c + (capital? 'A' : 'a') - 10 : c + '0'));
-		}
-	}
-
-
-	template < typename T >
-	typename EnableIf<IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
-	{
-		ConstByteData data(value);
-		const size_t maxWidth = data.size() * sizeof(ConstByteData::value_type) * 2;
-		for (size_t i = maxWidth; i < width; ++i)
-			r << "0";
-
-		for (ConstByteData::const_iterator it = data.begin(); it != data.end(); ++it)
-			ToHexImpl(r, *it, sizeof(ConstByteData::value_type) * 2, capital);
 	}
 
 
@@ -112,154 +116,163 @@ namespace stingray
 		string_ostream result;
 		if (add0xPrefix)
 			result << "0x";
-		ToHexImpl(result, value, width, capital);
+		Detail::ToHexImpl(result, value, width, capital);
 		return result.str();
 	}
 
 
-	template < typename T >
-	class HexFormatter
+	namespace Detail
 	{
-		const T&	_val;
-		size_t		_width;
 
-	public:
-		HexFormatter(const T& val, size_t width)
-			: _val(val), _width(width)
-		{ }
-
-		std::string ToString() const
+		template < typename T >
+		class HexFormatter
 		{
-			typedef typename IntType<sizeof(T) * 8, false>::ValueT CastTo;
-			static_assert(sizeof(CastTo) >= sizeof(T), "T is bigger than CastTo");
-			static_assert(sizeof(u64) >= sizeof(T), "T is bigger than u64");
+			const T&	_val;
+			size_t		_width;
 
-			string_ostream ss;
-			ToHexImpl(ss, (u64)(CastTo)_val, _width);
-			return ss.str();
-		}
-	};
+		public:
+			HexFormatter(const T& val, size_t width)
+				: _val(val), _width(width)
+			{ }
 
-
-	template < typename T >
-	HexFormatter<T> Hex(const T& val, size_t width = 0)
-	{ return HexFormatter<T>(val, width); }
-
-
-	class ShortHexDumpFormatter
-	{
-	private:
-		const u8*	data;
-		size_t		size;
-		size_t		sizeLimit;
-
-	public:
-		ShortHexDumpFormatter(const void* data, size_t size, size_t sizeLimit = 16)
-			: data(reinterpret_cast<const u8*>(data)), size(size), sizeLimit(sizeLimit)
-		{ }
-
-		std::string ToString() const
-		{
-			const u8 *src = data;
-			string_ostream ss;
-			ss << "{ ";
-			size_t n = std::min(size, sizeLimit);
-			for (size_t i = 0; i < n; ++i)
+			std::string ToString() const
 			{
-				ToHexImpl(ss, (unsigned)src[i], 2);
-				ss << " ";
+				typedef typename IntType<sizeof(T) * 8, false>::ValueT CastTo;
+				static_assert(sizeof(CastTo) >= sizeof(T), "T is bigger than CastTo");
+				static_assert(sizeof(u64) >= sizeof(T), "T is bigger than u64");
+
+				string_ostream ss;
+				ToHexImpl(ss, (u64)(CastTo)_val, _width);
+				return ss.str();
 			}
-			if (n < size)
-				ss << "... ";
-			ss << "}";
-			return ss.str();
-		}
-	};
+		};
+
+	}
 
 
-	class HexDumpFormatter
+	template < typename T >
+	Detail::HexFormatter<T> Hex(const T& val, size_t width = 0)
+	{ return Detail::HexFormatter<T>(val, width); }
+
+
+	namespace Detail
 	{
-	private:
-		const u8*	data;
-		size_t		size;
-		size_t		width;
 
-	public:
-		HexDumpFormatter(const void *data, size_t size, size_t width = 16)
-			: data(reinterpret_cast<const u8*>(data)), size(size), width(width)
-		{ }
-
-		std::string ToString() const
+		class ShortHexDumpFormatter
 		{
-			const u8 *src = data;
-			string_ostream ss;
-			for (size_t offset = 0; offset < size; offset += width, src += width)
-			{
-				ToHexImpl(ss, offset, 8);
-				ss << ": ";
-				size_t n = size - offset;
-				if (n > width)
-					n = width;
+		private:
+			const u8*	data;
+			size_t		size;
+			size_t		sizeLimit;
 
-				size_t i;
-				for (i = 0; i < n; ++i)
+		public:
+			ShortHexDumpFormatter(const void* data, size_t size, size_t sizeLimit = 16)
+				: data(reinterpret_cast<const u8*>(data)), size(size), sizeLimit(sizeLimit)
+			{ }
+
+			std::string ToString() const
+			{
+				const u8 *src = data;
+				string_ostream ss;
+				ss << "{ ";
+				size_t n = std::min(size, sizeLimit);
+				for (size_t i = 0; i < n; ++i)
 				{
 					ToHexImpl(ss, (unsigned)src[i], 2);
 					ss << " ";
 				}
-				if (i < width) {
-					ss << std::string((width - i) * 3, ' ');
-				}
-				for (size_t i = 0; i < n; ++i)
-				{
-					ss << ((src[i] >= 0x20 && src[i] < 0x7f)? (char)src[i]: '.');
-				}
-				if (offset + width < size)
-					ss << "\n";
+				if (n < size)
+					ss << "... ";
+				ss << "}";
+				return ss.str();
 			}
-			return ss.str();
-		}
-	};
+		};
+
+		class HexDumpFormatter
+		{
+		private:
+			const u8*	data;
+			size_t		size;
+			size_t		width;
+
+		public:
+			HexDumpFormatter(const void *data, size_t size, size_t width = 16)
+				: data(reinterpret_cast<const u8*>(data)), size(size), width(width)
+			{ }
+
+			std::string ToString() const
+			{
+				const u8 *src = data;
+				string_ostream ss;
+				for (size_t offset = 0; offset < size; offset += width, src += width)
+				{
+					ToHexImpl(ss, offset, 8);
+					ss << ": ";
+					size_t n = size - offset;
+					if (n > width)
+						n = width;
+
+					size_t i;
+					for (i = 0; i < n; ++i)
+					{
+						ToHexImpl(ss, (unsigned)src[i], 2);
+						ss << " ";
+					}
+					if (i < width) {
+						ss << std::string((width - i) * 3, ' ');
+					}
+					for (size_t i = 0; i < n; ++i)
+					{
+						ss << ((src[i] >= 0x20 && src[i] < 0x7f)? (char)src[i]: '.');
+					}
+					if (offset + width < size)
+						ss << "\n";
+				}
+				return ss.str();
+			}
+		};
+
+	}
 
 
-	inline HexDumpFormatter HexDump(const void* data, size_t size, size_t width = 16)
-	{ return HexDumpFormatter(data, size, width); }
+	inline Detail::HexDumpFormatter HexDump(const void* data, size_t size, size_t width = 16)
+	{ return Detail::HexDumpFormatter(data, size, width); }
 
 	template < typename T >
-	HexDumpFormatter HexDump(const std::vector<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
-	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
+	Detail::HexDumpFormatter HexDump(const std::vector<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
+	{ return Detail::HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
 	template < typename T, size_t N >
-	HexDumpFormatter HexDump(const array<T, N>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
-	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
+	Detail::HexDumpFormatter HexDump(const array<T, N>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
+	{ return Detail::HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
 	template < typename T >
-	HexDumpFormatter HexDump(const BasicByteData<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
-	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
+	Detail::HexDumpFormatter HexDump(const BasicByteData<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
+	{ return Detail::HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
 	template < typename T >
-	HexDumpFormatter HexDump(const BasicByteArray<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
-	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
+	Detail::HexDumpFormatter HexDump(const BasicByteArray<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
+	{ return Detail::HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
 
-	inline ShortHexDumpFormatter ShortHexDump(const void* data, size_t size, size_t sizeLimit = 16)
-	{ return ShortHexDumpFormatter(data, size, sizeLimit); }
+	inline Detail::ShortHexDumpFormatter ShortHexDump(const void* data, size_t size, size_t sizeLimit = 16)
+	{ return Detail::ShortHexDumpFormatter(data, size, sizeLimit); }
 
 	template < typename T >
-	ShortHexDumpFormatter ShortHexDump(const std::vector<T>& data, size_t sizeLimit = 16)
-	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
+	Detail::ShortHexDumpFormatter ShortHexDump(const std::vector<T>& data, size_t sizeLimit = 16)
+	{ return Detail::ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
 	template < typename T, size_t N >
-	ShortHexDumpFormatter ShortHexDump(const array<T, N>& data, size_t sizeLimit = 16)
-	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
+	Detail::ShortHexDumpFormatter ShortHexDump(const array<T, N>& data, size_t sizeLimit = 16)
+	{ return Detail::ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
 	template < typename T >
-	ShortHexDumpFormatter ShortHexDump(const BasicByteData<T>& data, size_t sizeLimit = 16)
-	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
+	Detail::ShortHexDumpFormatter ShortHexDump(const BasicByteData<T>& data, size_t sizeLimit = 16)
+	{ return Detail::ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
 	template < typename T >
-	ShortHexDumpFormatter ShortHexDump(const BasicByteArray<T>& data, size_t sizeLimit = 16)
-	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
+	Detail::ShortHexDumpFormatter ShortHexDump(const BasicByteArray<T>& data, size_t sizeLimit = 16)
+	{ return Detail::ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
 	/** @} */
 
