@@ -109,8 +109,8 @@ namespace stingray
 			for (size_t index = maxWidth; index < width; ++index)
 				result << "0";
 
-			for (ConstByteData::const_iterator it = data.begin(); it != data.end(); ++it)
-				ToHexImpl(result, *it, sizeof(ConstByteData::value_type) * 2, capital);
+			for (ConstByteData::value_type byte : data)
+				ToHexImpl(result, byte, sizeof(ConstByteData::value_type) * 2, capital);
 		}
 
 	}
