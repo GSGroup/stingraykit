@@ -138,7 +138,9 @@ namespace stingray
 		{ return (*_owner)[_begin + index]; }
 
 		std::string str() const	{ return str_substr(); }
-		operator std::string () const	{ return str(); }
+		string_view view() const { return empty() ? string_view() : string_view(_owner->data() + _begin, size()); }
+
+		operator std::string () const { return str(); }
 
 		bool operator != (const std::string& other) const { return str() != other; }
 		bool operator == (const std::string& other) const { return str() == other; }
