@@ -45,7 +45,7 @@ namespace stingray
 
 
 	template < typename T, typename StringType >
-	inline typename EnableIf<IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
+	typename EnableIf<IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
 	{
 		const std::string::size_type n = str.size();
 		const ByteArray::CollectionTypePtr r = make_shared_ptr<ByteArray::CollectionType>();
@@ -124,7 +124,7 @@ namespace stingray
 		size_t		_width;
 
 	public:
-		inline explicit HexFormatter(const T& val, size_t width)
+		HexFormatter(const T& val, size_t width)
 			: _val(val), _width(width)
 		{ }
 
@@ -142,7 +142,7 @@ namespace stingray
 
 
 	template < typename T >
-	inline HexFormatter<T> Hex(const T& val, size_t width = 0)
+	HexFormatter<T> Hex(const T& val, size_t width = 0)
 	{ return HexFormatter<T>(val, width); }
 
 
@@ -226,19 +226,19 @@ namespace stingray
 	{ return HexDumpFormatter(data, size, width); }
 
 	template < typename T >
-	inline HexDumpFormatter HexDump(const std::vector<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
+	HexDumpFormatter HexDump(const std::vector<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
 	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
 	template < typename T, size_t N >
-	inline HexDumpFormatter HexDump(const array<T, N>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
+	HexDumpFormatter HexDump(const array<T, N>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
 	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
 	template < typename T >
-	inline HexDumpFormatter HexDump(const BasicByteData<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
+	HexDumpFormatter HexDump(const BasicByteData<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
 	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
 	template < typename T >
-	inline HexDumpFormatter HexDump(const BasicByteArray<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
+	HexDumpFormatter HexDump(const BasicByteArray<T>& data, size_t size = std::numeric_limits<size_t>::max(), size_t width = 16)
 	{ return HexDumpFormatter(data.empty() ? NULL : &data[0], std::min(size, data.size()) * sizeof(T), width); }
 
 
@@ -246,19 +246,19 @@ namespace stingray
 	{ return ShortHexDumpFormatter(data, size, sizeLimit); }
 
 	template < typename T >
-	inline ShortHexDumpFormatter ShortHexDump(const std::vector<T>& data, size_t sizeLimit = 16)
+	ShortHexDumpFormatter ShortHexDump(const std::vector<T>& data, size_t sizeLimit = 16)
 	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
 	template < typename T, size_t N >
-	inline ShortHexDumpFormatter ShortHexDump(const array<T, N>& data, size_t sizeLimit = 16)
+	ShortHexDumpFormatter ShortHexDump(const array<T, N>& data, size_t sizeLimit = 16)
 	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
 	template < typename T >
-	inline ShortHexDumpFormatter ShortHexDump(const BasicByteData<T>& data, size_t sizeLimit = 16)
+	ShortHexDumpFormatter ShortHexDump(const BasicByteData<T>& data, size_t sizeLimit = 16)
 	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
 	template < typename T >
-	inline ShortHexDumpFormatter ShortHexDump(const BasicByteArray<T>& data, size_t sizeLimit = 16)
+	ShortHexDumpFormatter ShortHexDump(const BasicByteArray<T>& data, size_t sizeLimit = 16)
 	{ return ShortHexDumpFormatter(data.empty() ? NULL : &data[0], std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
 
 	/** @} */
