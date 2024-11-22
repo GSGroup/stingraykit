@@ -10,10 +10,6 @@
 
 #include <stingraykit/collection/ByteData.h>
 
-#include <limits>
-#include <string>
-#include <vector>
-
 namespace stingray
 {
 
