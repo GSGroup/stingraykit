@@ -21,53 +21,54 @@ namespace stingray
 	template < typename T, typename StringType >
 	typename EnableIf<!IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
 	{
-		const size_t n = str.size();
-		T r = T();
+		const size_t size = str.size();
+		T result = T();
 
-		for (size_t i = 0; i < n; ++i)
+		for (size_t index = 0; index < size; ++index)
 		{
-			char c = str[i];
+			char ch = str[index];
 
-			if (c >= '0' && c <= '9')
-				c -= '0';
+			if (ch >= '0' && ch <= '9')
+				ch -= '0';
 			else
 			{
-				c &= ~ 0x20;
+				ch &= ~ 0x20;
 
-				if (c >= 'A' && c <= 'F')
-					c = c - 'A' + 10;
+				if (ch >= 'A' && ch <= 'F')
+					ch = ch - 'A' + 10;
 				else
-					STINGRAYKIT_THROW(FormatException(std::string("invalid char '") + str[i] + "' in hex string"));
+					STINGRAYKIT_THROW(FormatException(std::string("invalid char '") + str[index] + "' in hex string"));
 			}
 
-			r |= c << ((n - i - 1) * 4);
+			result |= ch << ((size - index - 1) * 4);
 		}
 
-		return r;
+		return result;
 	}
 
 
 	template < typename T, typename StringType >
 	typename EnableIf<IsSame<T, ByteArray>::Value, T>::ValueT FromHex(const StringType& str)
 	{
-		const std::string::size_type n = str.size();
-		const ByteArray::CollectionTypePtr r = make_shared_ptr<ByteArray::CollectionType>();
-		std::string::size_type i = 0;
+		const ByteArray::CollectionTypePtr result = make_shared_ptr<ByteArray::CollectionType>();
+
+		const std::string::size_type size = str.size();
+		std::string::size_type index = 0;
 
 		const std::string prefix("0x");
-		if (n >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0)
-			i += prefix.size();
+		if (size >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0)
+			index += prefix.size();
 
-		if ((n - i) % 2 == 1)
+		if ((size - index) % 2 == 1)
 		{
-			r->push_back(FromHex<ByteArray::value_type>(str.substr(i, 1)));
-			++i;
+			result->push_back(FromHex<ByteArray::value_type>(str.substr(index, 1)));
+			++index;
 		}
 
-		for (; i < n; i += 2)
-			r->push_back(FromHex<ByteArray::value_type>(str.substr(i, 2)));
+		for (; index < size; index += 2)
+			result->push_back(FromHex<ByteArray::value_type>(str.substr(index, 2)));
 
-		return r;
+		return result;
 	}
 
 
@@ -75,42 +76,42 @@ namespace stingray
 	{
 
 		template < typename T >
-		typename EnableIf<!IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
+		typename EnableIf<!IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& result, T value, size_t width = 0, bool capital = false)
 		{
 			const size_t maxWidth = sizeof(T) * 2;
 			size_t start;
 
 			if (width > maxWidth)
 			{
-				for (size_t i = maxWidth; i < width; ++i)
-					r << "0";
+				for (size_t index = maxWidth; index < width; ++index)
+					result << "0";
 				start = 0;
 			}
 			else
 				start = maxWidth - width;
 
 			bool seenNonZero = false;
-			for (size_t i = 0; i < maxWidth; ++i)
+			for (size_t index = 0; index < maxWidth; ++index)
 			{
-				char c = (value >> ((maxWidth - i - 1) * 4)) & 0x0f;
-				seenNonZero = seenNonZero || c;
+				char ch = (value >> ((maxWidth - index - 1) * 4)) & 0x0f;
+				seenNonZero = seenNonZero || ch;
 
-				if (seenNonZero || i >= start || i == maxWidth - 1)
-					r << ((char)(c > 9 ? c + (capital ? 'A' : 'a') - 10 : c + '0'));
+				if (seenNonZero || index >= start || index == maxWidth - 1)
+					result << ((char)(ch > 9 ? ch + (capital ? 'A' : 'a') - 10 : ch + '0'));
 			}
 		}
 
 		template < typename T >
-		typename EnableIf<IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
+		typename EnableIf<IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& result, T value, size_t width = 0, bool capital = false)
 		{
 			ConstByteData data(value);
 
 			const size_t maxWidth = data.size() * sizeof(ConstByteData::value_type) * 2;
-			for (size_t i = maxWidth; i < width; ++i)
-				r << "0";
+			for (size_t index = maxWidth; index < width; ++index)
+				result << "0";
 
 			for (ConstByteData::const_iterator it = data.begin(); it != data.end(); ++it)
-				ToHexImpl(r, *it, sizeof(ConstByteData::value_type) * 2, capital);
+				ToHexImpl(result, *it, sizeof(ConstByteData::value_type) * 2, capital);
 		}
 
 	}
@@ -135,12 +136,12 @@ namespace stingray
 		template < typename T >
 		class HexFormatter
 		{
-			const T&	_val;
-			size_t		_width;
+			const T&			_value;
+			size_t				_width;
 
 		public:
-			HexFormatter(const T& val, size_t width)
-				: _val(val), _width(width)
+			HexFormatter(const T& value, size_t width)
+				: _value(value), _width(width)
 			{ }
 
 			std::string ToString() const
@@ -149,9 +150,9 @@ namespace stingray
 				static_assert(sizeof(CastTo) >= sizeof(T), "T is bigger than CastTo");
 				static_assert(sizeof(u64) >= sizeof(T), "T is bigger than u64");
 
-				string_ostream ss;
-				ToHexImpl(ss, (u64)(CastTo)_val, _width);
-				return ss.str();
+				string_ostream result;
+				ToHexImpl(result, (u64)(CastTo)_value, _width);
+				return result.str();
 			}
 		};
 
@@ -169,82 +170,82 @@ namespace stingray
 		class ShortHexDumpFormatter
 		{
 		private:
-			const u8*	data;
-			size_t		size;
-			size_t		sizeLimit;
+			const u8*			_data;
+			size_t				_size;
+			size_t				_sizeLimit;
 
 		public:
 			ShortHexDumpFormatter(const void* data, size_t size, size_t sizeLimit = 16)
-				: data(reinterpret_cast<const u8*>(data)), size(size), sizeLimit(sizeLimit)
+				: _data(reinterpret_cast<const u8*>(data)), _size(size), _sizeLimit(sizeLimit)
 			{ }
 
 			std::string ToString() const
 			{
-				const u8* src = data;
+				const u8* src = _data;
 
-				string_ostream ss;
-				ss << "{ ";
+				string_ostream result;
+				result << "{ ";
 
-				size_t n = std::min(size, sizeLimit);
-				for (size_t i = 0; i < n; ++i)
+				size_t size = std::min(_size, _sizeLimit);
+				for (size_t index = 0; index < size; ++index)
 				{
-					ToHexImpl(ss, (unsigned)src[i], 2);
-					ss << " ";
+					ToHexImpl(result, (unsigned)src[index], 2);
+					result << " ";
 				}
 
-				if (n < size)
-					ss << "... ";
+				if (size < _size)
+					result << "... ";
 
-				ss << "}";
-				return ss.str();
+				result << "}";
+				return result.str();
 			}
 		};
 
 		class HexDumpFormatter
 		{
 		private:
-			const u8*	data;
-			size_t		size;
-			size_t		width;
+			const u8*			_data;
+			size_t				_size;
+			size_t				_width;
 
 		public:
 			HexDumpFormatter(const void* data, size_t size, size_t width = 16)
-				: data(reinterpret_cast<const u8*>(data)), size(size), width(width)
+				: _data(reinterpret_cast<const u8*>(data)), _size(size), _width(width)
 			{ }
 
 			std::string ToString() const
 			{
-				const u8* src = data;
+				const u8* src = _data;
 
-				string_ostream ss;
+				string_ostream result;
 
-				for (size_t offset = 0; offset < size; offset += width, src += width)
+				for (size_t offset = 0; offset < _size; offset += _width, src += _width)
 				{
-					ToHexImpl(ss, offset, 8);
-					ss << ": ";
+					ToHexImpl(result, offset, 8);
+					result << ": ";
 
-					size_t n = size - offset;
-					if (n > width)
-						n = width;
+					size_t size = _size - offset;
+					if (size > _width)
+						size = _width;
 
-					size_t i;
-					for (i = 0; i < n; ++i)
+					size_t index;
+					for (index = 0; index < size; ++index)
 					{
-						ToHexImpl(ss, (unsigned)src[i], 2);
-						ss << " ";
+						ToHexImpl(result, (unsigned)src[index], 2);
+						result << " ";
 					}
 
-					if (i < width)
-						ss << std::string((width - i) * 3, ' ');
+					if (index < _width)
+						result << std::string((_width - index) * 3, ' ');
 
-					for (size_t i = 0; i < n; ++i)
-						ss << ((src[i] >= 0x20 && src[i] < 0x7f) ? (char)src[i] : '.');
+					for (size_t index2 = 0; index2 < size; ++index2)
+						result << ((src[index2] >= 0x20 && src[index2] < 0x7f) ? (char)src[index2] : '.');
 
-					if (offset + width < size)
-						ss << "\n";
+					if (offset + _width < _size)
+						result << "\n";
 				}
 
-				return ss.str();
+				return result.str();
 			}
 		};
 
