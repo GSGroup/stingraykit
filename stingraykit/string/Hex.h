@@ -71,7 +71,7 @@ namespace stingray
 	template < typename T >
 	typename EnableIf<!IsConvertible<T, ConstByteData>::Value, void>::ValueT ToHexImpl(string_ostream& r, T value, size_t width = 0, bool capital = false)
 	{
-		static const size_t maxWidth = sizeof(T) * 2;
+		const size_t maxWidth = sizeof(T) * 2;
 		size_t start;
 		if (width > maxWidth)
 		{
