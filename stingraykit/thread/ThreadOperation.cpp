@@ -24,13 +24,32 @@ namespace stingray
 	}
 
 
-	ThreadOperationConstrainer::ThreadOperationConstrainer(ThreadOperation restrictedOperations)
-		:	_oldValue(RestrictedThreadOperations::Get())
-	{ RestrictedThreadOperations::Get() = _oldValue | restrictedOperations.val(); }
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadOperationConstrainer);
+
+
+	ThreadOperationConstrainer::ThreadOperationConstrainer(ThreadOperation operations)
+		:	_operations(operations),
+			_threadId(ThreadEngine::GetCurrentThreadId()),
+			_oldValue(RestrictedThreadOperations::Get())
+	{ RestrictedThreadOperations::Get() = _oldValue | _operations.val(); }
 
 
 	ThreadOperationConstrainer::~ThreadOperationConstrainer()
-	{ RestrictedThreadOperations::Get() = _oldValue; }
+	{ STINGRAYKIT_TRY_NO_MESSAGE(Unconstrain()); }
+
+
+	void ThreadOperationConstrainer::Unconstrain()
+	{
+		if (_threadId == ThreadEngine::GetCurrentThreadId())
+			RestrictedThreadOperations::Get() = _oldValue;
+		else
+		{
+			s_logger.Error() << "Can't unconstrain " << _operations << " operations that was constrained in another thread\nBacktrace: " << Backtrace();
+#ifndef PRODUCTION_BUILD
+			STINGRAYKIT_FATAL("invalid unconstraining of operations");
+#endif
+		}
+	}
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadOperationReporter);
@@ -39,17 +58,36 @@ namespace stingray
 	ThreadOperationReporter::ThreadOperationReporter(ThreadOperation op)
 	{
 		if (op.val() & RestrictedThreadOperations::Get())
-			s_logger.Error() << op << " operations are prohibited in this thread!\nBacktrace: " << Backtrace();
+			s_logger.Error() << op << " operations are prohibited in this thread\nBacktrace: " << Backtrace();
 	}
 
 
-	ExclusiveThreadOperation::ExclusiveThreadOperation(ThreadOperation op)
-		:	_oldValue(ExclusiveThreadOperations::Get())
-	{ ExclusiveThreadOperations::Get() = _oldValue | op.val(); }
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(ExclusiveThreadOperation);
+
+
+	ExclusiveThreadOperation::ExclusiveThreadOperation(ThreadOperation operations)
+		:	_operations(operations),
+			_threadId(ThreadEngine::GetCurrentThreadId()),
+			_oldValue(ExclusiveThreadOperations::Get())
+	{ ExclusiveThreadOperations::Get() = _oldValue | _operations.val(); }
 
 
 	ExclusiveThreadOperation::~ExclusiveThreadOperation()
-	{ ExclusiveThreadOperations::Get() = _oldValue; }
+	{ STINGRAYKIT_TRY_NO_MESSAGE(Unexclusivize()); }
+
+
+	void ExclusiveThreadOperation::Unexclusivize()
+	{
+		if (_threadId == ThreadEngine::GetCurrentThreadId())
+			ExclusiveThreadOperations::Get() = _oldValue;
+		else
+		{
+			s_logger.Error() << "Can't unexclusivize " << _operations << " operations that was exclusivized in another thread\nBacktrace: " << Backtrace();
+#ifndef PRODUCTION_BUILD
+			STINGRAYKIT_FATAL("invalid unexclusivizing of operations");
+#endif
+		}
+	}
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(ExclusiveThreadOperationChecker);

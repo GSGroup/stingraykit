@@ -32,11 +32,18 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ThreadOperationConstrainer);
 
 	private:
+		static NamedLogger		s_logger;
+
+		ThreadOperation			_operations;
+		ThreadId				_threadId;
 		int						_oldValue;
 
 	public:
-		ThreadOperationConstrainer(ThreadOperation restrictedOperations);
+		ThreadOperationConstrainer(ThreadOperation operations);
 		~ThreadOperationConstrainer();
+
+	private:
+		void Unconstrain();
 	};
 
 
@@ -57,11 +64,18 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ExclusiveThreadOperation);
 
 	private:
+		static NamedLogger		s_logger;
+
+		ThreadOperation			_operations;
+		ThreadId				_threadId;
 		int						_oldValue;
 
 	public:
-		ExclusiveThreadOperation(ThreadOperation op);
+		ExclusiveThreadOperation(ThreadOperation operations);
 		~ExclusiveThreadOperation();
+
+	private:
+		void Unexclusivize();
 	};
 
 
