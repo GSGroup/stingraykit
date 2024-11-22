@@ -60,7 +60,7 @@ namespace stingray
 		if (!(op.val() & ExclusiveThreadOperations::Get()))
 		{
 			s_logger.Error() << op << " operations happened out of exclusive operation area: " << Backtrace();
-#ifndef PLATFORM_EMBEDDED
+#ifndef PRODUCTION_BUILD
 			STINGRAYKIT_FATAL("forbidden exclusive operation");
 #endif
 		}
