@@ -339,6 +339,103 @@ TEST(ToStringTest, FromString)
 namespace
 {
 
+	class OptionallyStringRepresentableType
+	{
+	private:
+		std::string			_value;
+
+	public:
+		static optional<OptionallyStringRepresentableType> TryFromString(const std::string& str)
+		{
+			if (!str.empty() && AllOf(ToRange(str), &IsValidChar))
+				return OptionallyStringRepresentableType(str);
+
+			return null;
+		}
+
+		bool operator == (const std::string& other) const
+		{ return _value == other; }
+
+	private:
+		explicit OptionallyStringRepresentableType(const std::string& value) : _value(value)
+		{ }
+
+		static bool IsValidChar(char ch)
+		{ return std::isupper(ch); }
+	};
+
+}
+
+
+TEST(ToStringTest, TryFromString)
+{
+	{
+		ASSERT_EQ(TryFromString<TestEnum>("Test"), TestEnum(TestEnum::Test));
+		ASSERT_EQ(TryFromString<TestEnum>("Enum_"), TestEnum(TestEnum::Enum_));
+		ASSERT_EQ(TryFromString<TestEnum>("Value"), TestEnum(TestEnum::Value));
+		ASSERT_EQ(TryFromString<TestEnum>(""), null);
+		ASSERT_EQ(TryFromString<TestEnum>("Unknown"), null);
+	}
+
+	{
+		ASSERT_EQ(TryFromString<OptionallyStringRepresentableType>("TEST"), "TEST");
+		ASSERT_EQ(TryFromString<OptionallyStringRepresentableType>("test"), null);
+		ASSERT_EQ(TryFromString<OptionallyStringRepresentableType>(""), null);
+	}
+
+	{
+		ASSERT_EQ(TryFromString<bool>(std::string("-1")), null);
+		ASSERT_EQ(TryFromString<bool>(std::string("0")), false);
+		ASSERT_EQ(TryFromString<bool>(std::string("1")), true);
+		ASSERT_EQ(TryFromString<bool>(std::string("2")), null);
+		ASSERT_EQ(TryFromString<bool>(std::string("3")), null);
+		ASSERT_EQ(TryFromString<bool>(std::string("9")), null);
+		ASSERT_EQ(TryFromString<bool>(std::string("10")), null);
+		ASSERT_EQ(TryFromString<bool>(std::string("11")), null);
+	}
+
+	{
+		ASSERT_EQ(TryFromString<int>(std::string("-1234567890")), -1234567890);
+		ASSERT_EQ(TryFromString<int>(std::string("-123")), -123);
+		ASSERT_EQ(TryFromString<int>(std::string("-00012")), -12);
+		ASSERT_EQ(TryFromString<int>(std::string("-12")), -12);
+		ASSERT_EQ(TryFromString<int>(std::string("-0001")), -1);
+		ASSERT_EQ(TryFromString<int>(std::string("-1")), -1);
+		ASSERT_EQ(TryFromString<int>(std::string("-000")), 0);
+		ASSERT_EQ(TryFromString<int>(std::string("-0")), 0);
+		ASSERT_EQ(TryFromString<int>(std::string("")), null);
+		ASSERT_EQ(TryFromString<int>(std::string("0")), 0);
+		ASSERT_EQ(TryFromString<int>(std::string("000")), 0);
+		ASSERT_EQ(TryFromString<int>(std::string("1")), 1);
+		ASSERT_EQ(TryFromString<int>(std::string("0001")), 1);
+		ASSERT_EQ(TryFromString<int>(std::string("12")), 12);
+		ASSERT_EQ(TryFromString<int>(std::string("00012")), 12);
+		ASSERT_EQ(TryFromString<int>(std::string("123")), 123);
+		ASSERT_EQ(TryFromString<int>(std::string("1234567890")), 1234567890);
+	}
+
+	{
+		ASSERT_EQ(TryFromString<unsigned>(std::string("-1234567890")), null);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("-123")), null);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("-12")), null);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("-1")), null);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("-0")), null);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("")), null);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("0")), 0u);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("000")), 0u);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("1")), 1u);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("0001")), 1u);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("12")), 12u);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("00012")), 12u);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("123")), 123u);
+		ASSERT_EQ(TryFromString<unsigned>(std::string("1234567890")), 1234567890u);
+	}
+}
+
+
+namespace
+{
+
 	class StringRepresentableType final
 	{
 	private:

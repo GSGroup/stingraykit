@@ -18,6 +18,9 @@ namespace stingray
 		template < typename StringType >
 		struct TypeFromStringInterpreter;
 
+		template < typename StringType >
+		struct TypeTryFromStringInterpreter;
+
 		template < typename T >
 		struct TypeToStringSerializer;
 	}
@@ -30,6 +33,15 @@ namespace stingray
 
 	template < typename T >
 	struct FromStringInterpreter;
+
+
+	template < typename T, typename StringType >
+	auto TryFromString(const StringType& str)
+		-> typename RemoveReference<decltype(Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0))>::ValueT;
+
+
+	template < typename T >
+	struct TryFromStringInterpreter;
 
 
 	template < typename T >

@@ -139,8 +139,52 @@ namespace stingray
 		using RetType = T;
 
 		template < typename StringType >
-		T operator () (const StringType& str) const
-		{ return FromString<T>(str); }
+		RetType operator () (const StringType& str) const
+		{ return FromString<RetType>(str); }
+	};
+
+
+	namespace Detail
+	{
+
+		template < typename StringType >
+		struct TypeTryFromStringInterpreter
+		{
+			template < typename ObjectType >
+			static auto TryFromStringImpl(const StringType& str, int)
+					-> typename RemoveReference<decltype(ObjectType::TryFromString(str))>::ValueT
+			{ return ObjectType::TryFromString(str); }
+
+			template < typename ObjectType >
+			static auto TryFromStringImpl(const StringType& str, long)
+					-> optional<typename RemoveReference<decltype(FromString<ObjectType>(str))>::ValueT>
+			{
+				try
+				{ return FromString<ObjectType>(str); }
+				catch (const std::exception&)
+				{ }
+
+				return null;
+			}
+		};
+
+	}
+
+
+	template < typename T, typename StringType >
+	auto TryFromString(const StringType& str)
+			-> typename RemoveReference<decltype(Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0))>::ValueT
+	{ return Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0); }
+
+
+	template < typename T >
+	struct TryFromStringInterpreter
+	{
+		using RetType = optional<T>;
+
+		template < typename StringType >
+		RetType operator () (const StringType& str) const
+		{ return TryFromString<T>(str); }
 	};
 
 
