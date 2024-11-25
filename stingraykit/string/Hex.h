@@ -23,8 +23,16 @@ namespace stingray
 	{
 		STINGRAYKIT_CHECK(!str.empty(), ArgumentException("str"));
 
+		const T MaxValueForShift = std::numeric_limits<T>::max() >> 4;
+
 		const string_view::size_type size = str.size();
 		T result = T();
+
+		for (string_view::size_type index = 0; index < size; ++index)
+		{
+			const char ch = str[index];
+			STINGRAYKIT_CHECK((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'), FormatException(str.copy()));
+		}
 
 		for (string_view::size_type index = 0; index < size; ++index)
 		{
@@ -35,13 +43,14 @@ namespace stingray
 			else
 			{
 				ch &= ~ 0x20;
-
-				STINGRAYKIT_CHECK(ch >= 'A' && ch <= 'F', FormatException(str.copy()));
 				ch = ch - 'A' + 10;
 			}
 
 			if (index > 0)
+			{
+				STINGRAYKIT_CHECK(result <= MaxValueForShift, IndexOutOfRangeException(str, "0", std::string(sizeof(T) * 2, 'f')));
 				result <<= 4;
+			}
 
 			result |= ch;
 		}

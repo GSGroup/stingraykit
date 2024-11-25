@@ -220,21 +220,21 @@ TEST(HexTest, IntegerFromHex)
 
 	ASSERT_EQ(FromHex<u8>("12"), 0x12);
 	ASSERT_EQ(FromHex<u8>("0012"), 0x12);
-	ASSERT_EQ(FromHex<u8>("1234"), 0x34);
+	ASSERT_THROW(FromHex<u8>("1234"), IndexOutOfRangeException);
 	ASSERT_EQ(FromHex<u8>("00000012"), 0x12);
-	ASSERT_EQ(FromHex<u8>("12345678"), 0x78);
+	ASSERT_THROW(FromHex<u8>("12345678"), IndexOutOfRangeException);
 
 	ASSERT_EQ(FromHex<u16>("1234"), 0x1234);
 	ASSERT_EQ(FromHex<u16>("00001234"), 0x1234);
-	ASSERT_EQ(FromHex<u16>("12345678"), 0x5678);
+	ASSERT_THROW(FromHex<u16>("12345678"), IndexOutOfRangeException);
 
 	ASSERT_EQ(FromHex<u32>("12345678"), 0x12345678);
 	ASSERT_EQ(FromHex<u32>("0000000012345678"), 0x12345678);
-	ASSERT_EQ(FromHex<u32>("12345678abcdef90"), 0xabcdef90);
+	ASSERT_THROW(FromHex<u32>("12345678abcdef90"), IndexOutOfRangeException);
 
 	ASSERT_EQ(FromHex<u64>("12345678abcdef90"), 0x12345678abcdef90);
 	ASSERT_EQ(FromHex<u64>("000000000000000012345678abcdef90"), 0x12345678abcdef90);
-	ASSERT_EQ(FromHex<u64>("12345678abcdef9090fedcba87654321"), 0x90fedcba87654321);
+	ASSERT_THROW(FromHex<u64>("12345678abcdef9090fedcba87654321"), IndexOutOfRangeException);
 
 	ASSERT_EQ(FromHex<u8>("ff"), std::numeric_limits<u8>::max());
 	ASSERT_EQ(FromHex<u16>("ffff"), std::numeric_limits<u16>::max());
