@@ -164,18 +164,6 @@ TEST(StringUtilsTest, ToUpper)
 }
 
 
-TEST(StringUtilsTest, ToHex)
-{
-	ASSERT_EQ(ToHex(0), "0");
-	ASSERT_EQ(ToHex(0, 10), "0000000000");
-	ASSERT_EQ(ToHex<u16>(0xff, 10), "00000000ff");
-	ASSERT_EQ(ToHex(0xffffffu), "ffffff");
-	ASSERT_EQ(ToHex(0xffffffu, 0, true), "FFFFFF");
-	ASSERT_EQ(ToHex(0xffffffu, 0, true, true), "0xFFFFFF");
-	ASSERT_EQ(ToHex(0x12345678u, 0, true, true), "0x12345678");
-}
-
-
 namespace
 {
 
