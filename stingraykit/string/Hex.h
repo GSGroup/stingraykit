@@ -21,6 +21,8 @@ namespace stingray
 	template < typename T >
 	typename EnableIf<!IsSame<T, ByteArray>::Value, T>::ValueT FromHex(string_view str)
 	{
+		STINGRAYKIT_CHECK(!str.empty(), ArgumentException("str"));
+
 		const string_view::size_type size = str.size();
 		T result = T();
 

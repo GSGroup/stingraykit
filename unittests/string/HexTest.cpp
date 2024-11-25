@@ -142,7 +142,7 @@ TEST(HexTest, IntegerToHex)
 
 TEST(HexTest, IntegerFromHex)
 {
-	ASSERT_EQ(FromHex<int>(""), 0);
+	ASSERT_THROW(FromHex<int>(""), ArgumentException);
 
 	ASSERT_EQ(FromHex<int>("0"), 0);
 	ASSERT_EQ(FromHex<int>("1"), 1);
