@@ -230,15 +230,11 @@ TEST(HexTest, IntegerFromHex)
 
 	ASSERT_EQ(FromHex<u32>("12345678"), 0x12345678);
 	ASSERT_EQ(FromHex<u32>("0000000012345678"), 0x12345678);
-#if 0
 	ASSERT_EQ(FromHex<u32>("12345678abcdef90"), 0xabcdef90);
-#endif
 
-#if 0
 	ASSERT_EQ(FromHex<u64>("12345678abcdef90"), 0x12345678abcdef90);
 	ASSERT_EQ(FromHex<u64>("000000000000000012345678abcdef90"), 0x12345678abcdef90);
 	ASSERT_EQ(FromHex<u64>("12345678abcdef9090fedcba87654321"), 0x90fedcba87654321);
-#endif
 
 	ASSERT_EQ(FromHex<u8>("ff"), std::numeric_limits<u8>::max());
 	ASSERT_EQ(FromHex<u16>("ffff"), std::numeric_limits<u16>::max());
@@ -254,10 +250,8 @@ TEST(HexTest, IntegerFromHex)
 	ASSERT_EQ(FromHex<u32>("a1b2c3d4"), 0xa1b2c3d4);
 	ASSERT_EQ(FromHex<u32>("A1B2C3D4"), 0xA1B2C3D4);
 
-#if 0
 	ASSERT_EQ(FromHex<u64>("a1b2c3d4e5f6a7b8"), 0xa1b2c3d4e5f6a7b8);
 	ASSERT_EQ(FromHex<u64>("A1B2C3D4E5F6A7B8"), 0xA1B2C3D4E5F6A7B8);
-#endif
 
 	ASSERT_THROW(FromHex<u8>("abyz"), FormatException);
 	ASSERT_THROW(FromHex<u8>("abcz"), FormatException);

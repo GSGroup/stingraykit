@@ -38,7 +38,10 @@ namespace stingray
 				ch = ch - 'A' + 10;
 			}
 
-			result |= ch << ((size - index - 1) * 4);
+			if (index > 0)
+				result <<= 4;
+
+			result |= ch;
 		}
 
 		return result;
