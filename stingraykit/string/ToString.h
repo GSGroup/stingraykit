@@ -99,7 +99,7 @@ namespace stingray
 				for (; index < str.size(); ++index)
 				{
 					const char ch = str[index];
-					STINGRAYKIT_CHECK(ch >= '0' && ch <= '9', ArgumentException("str", str));
+					STINGRAYKIT_CHECK(ch >= '0' && ch <= '9', FormatException(ToString(str)));
 
 					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<typename SafeEvaluator<ObjectType>::ValueType>(ch - '0'), negative);
 				}
