@@ -106,14 +106,14 @@ TEST(ToStringTest, FromString)
 	}
 
 	{
-		ASSERT_ANY_THROW(FromString<bool>(std::string("-1")));
+		ASSERT_THROW(FromString<bool>(std::string("-1")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<bool>(std::string("0")), false);
 		ASSERT_EQ(FromString<bool>(std::string("1")), true);
-		ASSERT_ANY_THROW(FromString<bool>(std::string("2")));
-		ASSERT_ANY_THROW(FromString<bool>(std::string("3")));
-		ASSERT_ANY_THROW(FromString<bool>(std::string("9")));
-		ASSERT_ANY_THROW(FromString<bool>(std::string("10")));
-		ASSERT_ANY_THROW(FromString<bool>(std::string("11")));
+		ASSERT_THROW(FromString<bool>(std::string("2")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<bool>(std::string("3")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<bool>(std::string("9")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<bool>(std::string("10")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<bool>(std::string("11")), IndexOutOfRangeException);
 	}
 
 	{
@@ -125,7 +125,7 @@ TEST(ToStringTest, FromString)
 		ASSERT_EQ(FromString<int>(std::string("-1")), -1);
 		ASSERT_EQ(FromString<int>(std::string("-000")), 0);
 		ASSERT_EQ(FromString<int>(std::string("-0")), 0);
-		ASSERT_ANY_THROW(FromString<int>(std::string("")));
+		ASSERT_THROW(FromString<int>(std::string("")), ArgumentException);
 		ASSERT_EQ(FromString<int>(std::string("0")), 0);
 		ASSERT_EQ(FromString<int>(std::string("000")), 0);
 		ASSERT_EQ(FromString<int>(std::string("1")), 1);
@@ -137,12 +137,12 @@ TEST(ToStringTest, FromString)
 	}
 
 	{
-		ASSERT_ANY_THROW(FromString<unsigned>(std::string("-1234567890")));
-		ASSERT_ANY_THROW(FromString<unsigned>(std::string("-123")));
-		ASSERT_ANY_THROW(FromString<unsigned>(std::string("-12")));
-		ASSERT_ANY_THROW(FromString<unsigned>(std::string("-1")));
-		ASSERT_ANY_THROW(FromString<unsigned>(std::string("-0")));
-		ASSERT_ANY_THROW(FromString<unsigned>(std::string("")));
+		ASSERT_THROW(FromString<unsigned>(std::string("-1234567890")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<unsigned>(std::string("-123")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<unsigned>(std::string("-12")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<unsigned>(std::string("-1")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<unsigned>(std::string("-0")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<unsigned>(std::string("")), ArgumentException);
 		ASSERT_EQ(FromString<unsigned>(std::string("0")), 0u);
 		ASSERT_EQ(FromString<unsigned>(std::string("000")), 0u);
 		ASSERT_EQ(FromString<unsigned>(std::string("1")), 1u);
@@ -154,27 +154,27 @@ TEST(ToStringTest, FromString)
 	}
 
 	{
-		ASSERT_ANY_THROW(FromString<u8>(std::string("-257")));
-		ASSERT_ANY_THROW(FromString<u8>(std::string("-256")));
-		ASSERT_ANY_THROW(FromString<u8>(std::string("-255")));
-		ASSERT_ANY_THROW(FromString<u8>(std::string("-129")));
-		ASSERT_ANY_THROW(FromString<u8>(std::string("-128")));
-		ASSERT_ANY_THROW(FromString<u8>(std::string("-127")));
-		ASSERT_ANY_THROW(FromString<u8>(std::string("-12")));
-		ASSERT_ANY_THROW(FromString<u8>(std::string("-1")));
+		ASSERT_THROW(FromString<u8>(std::string("-257")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("-256")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("-255")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("-129")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("-128")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("-127")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("-12")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("-1")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<u8>(std::string("0")), 0u);
 		ASSERT_EQ(FromString<u8>(std::string("1")), 1u);
 		ASSERT_EQ(FromString<u8>(std::string("12")), 12u);
 		ASSERT_EQ(FromString<u8>(std::string("123")), 123u);
 		ASSERT_EQ(FromString<u8>(std::string("254")), 254u);
 		ASSERT_EQ(FromString<u8>(std::string("255")), 255u);
-		ASSERT_ANY_THROW(FromString<u8>(std::string("256")));
-		ASSERT_ANY_THROW(FromString<u8>(std::string("257")));
+		ASSERT_THROW(FromString<u8>(std::string("256")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("257")), IndexOutOfRangeException);
 
-		ASSERT_ANY_THROW(FromString<s8>(std::string("-257")));
-		ASSERT_ANY_THROW(FromString<s8>(std::string("-256")));
-		ASSERT_ANY_THROW(FromString<s8>(std::string("-255")));
-		ASSERT_ANY_THROW(FromString<s8>(std::string("-129")));
+		ASSERT_THROW(FromString<s8>(std::string("-257")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s8>(std::string("-256")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s8>(std::string("-255")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s8>(std::string("-129")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<s8>(std::string("-128")), -128);
 		ASSERT_EQ(FromString<s8>(std::string("-127")), -127);
 		ASSERT_EQ(FromString<s8>(std::string("-12")), -12);
@@ -183,35 +183,35 @@ TEST(ToStringTest, FromString)
 		ASSERT_EQ(FromString<s8>(std::string("12")), 12);
 		ASSERT_EQ(FromString<s8>(std::string("126")), 126);
 		ASSERT_EQ(FromString<s8>(std::string("127")), 127);
-		ASSERT_ANY_THROW(FromString<s8>(std::string("128")));
-		ASSERT_ANY_THROW(FromString<s8>(std::string("129")));
-		ASSERT_ANY_THROW(FromString<s8>(std::string("255")));
-		ASSERT_ANY_THROW(FromString<s8>(std::string("256")));
-		ASSERT_ANY_THROW(FromString<s8>(std::string("257")));
+		ASSERT_THROW(FromString<s8>(std::string("128")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s8>(std::string("129")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s8>(std::string("255")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s8>(std::string("256")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s8>(std::string("257")), IndexOutOfRangeException);
 	}
 
 	{
-		ASSERT_ANY_THROW(FromString<u16>(std::string("-65537")));
-		ASSERT_ANY_THROW(FromString<u16>(std::string("-65536")));
-		ASSERT_ANY_THROW(FromString<u16>(std::string("-65535")));
-		ASSERT_ANY_THROW(FromString<u16>(std::string("-32769")));
-		ASSERT_ANY_THROW(FromString<u16>(std::string("-32768")));
-		ASSERT_ANY_THROW(FromString<u16>(std::string("-32767")));
-		ASSERT_ANY_THROW(FromString<u16>(std::string("-12")));
-		ASSERT_ANY_THROW(FromString<u16>(std::string("-1")));
+		ASSERT_THROW(FromString<u16>(std::string("-65537")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("-65536")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("-65535")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("-32769")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("-32768")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("-32767")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("-12")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("-1")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<u16>(std::string("0")), 0u);
 		ASSERT_EQ(FromString<u16>(std::string("1")), 1u);
 		ASSERT_EQ(FromString<u16>(std::string("12")), 12u);
 		ASSERT_EQ(FromString<u16>(std::string("123")), 123u);
 		ASSERT_EQ(FromString<u16>(std::string("65534")), 65534u);
 		ASSERT_EQ(FromString<u16>(std::string("65535")), 65535u);
-		ASSERT_ANY_THROW(FromString<u16>(std::string("65536")));
-		ASSERT_ANY_THROW(FromString<u16>(std::string("65537")));
+		ASSERT_THROW(FromString<u16>(std::string("65536")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("65537")), IndexOutOfRangeException);
 
-		ASSERT_ANY_THROW(FromString<s16>(std::string("-65537")));
-		ASSERT_ANY_THROW(FromString<s16>(std::string("-65536")));
-		ASSERT_ANY_THROW(FromString<s16>(std::string("-65535")));
-		ASSERT_ANY_THROW(FromString<s16>(std::string("-32769")));
+		ASSERT_THROW(FromString<s16>(std::string("-65537")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s16>(std::string("-65536")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s16>(std::string("-65535")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s16>(std::string("-32769")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<s16>(std::string("-32768")), -32768);
 		ASSERT_EQ(FromString<s16>(std::string("-32767")), -32767);
 		ASSERT_EQ(FromString<s16>(std::string("-123")), -123);
@@ -222,34 +222,34 @@ TEST(ToStringTest, FromString)
 		ASSERT_EQ(FromString<s16>(std::string("123")), 123);
 		ASSERT_EQ(FromString<s16>(std::string("32766")), 32766);
 		ASSERT_EQ(FromString<s16>(std::string("32767")), 32767);
-		ASSERT_ANY_THROW(FromString<s16>(std::string("32768")));
-		ASSERT_ANY_THROW(FromString<s16>(std::string("65535")));
-		ASSERT_ANY_THROW(FromString<s16>(std::string("65536")));
-		ASSERT_ANY_THROW(FromString<s16>(std::string("65537")));
+		ASSERT_THROW(FromString<s16>(std::string("32768")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s16>(std::string("65535")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s16>(std::string("65536")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s16>(std::string("65537")), IndexOutOfRangeException);
 	}
 
 	{
-		ASSERT_ANY_THROW(FromString<u32>(std::string("-4294967297")));
-		ASSERT_ANY_THROW(FromString<u32>(std::string("-4294967296")));
-		ASSERT_ANY_THROW(FromString<u32>(std::string("-4294967295")));
-		ASSERT_ANY_THROW(FromString<u32>(std::string("-2147483649")));
-		ASSERT_ANY_THROW(FromString<u32>(std::string("-2147483648")));
-		ASSERT_ANY_THROW(FromString<u32>(std::string("-2147483647")));
-		ASSERT_ANY_THROW(FromString<u32>(std::string("-12")));
-		ASSERT_ANY_THROW(FromString<u32>(std::string("-1")));
+		ASSERT_THROW(FromString<u32>(std::string("-4294967297")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("-4294967296")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("-4294967295")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("-2147483649")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("-2147483648")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("-2147483647")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("-12")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("-1")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<u32>(std::string("0")), 0u);
 		ASSERT_EQ(FromString<u32>(std::string("1")), 1u);
 		ASSERT_EQ(FromString<u32>(std::string("12")), 12u);
 		ASSERT_EQ(FromString<u32>(std::string("123")), 123u);
 		ASSERT_EQ(FromString<u32>(std::string("4294967294")), 4294967294u);
 		ASSERT_EQ(FromString<u32>(std::string("4294967295")), 4294967295u);
-		ASSERT_ANY_THROW(FromString<u32>(std::string("4294967296")));
-		ASSERT_ANY_THROW(FromString<u32>(std::string("4294967297")));
+		ASSERT_THROW(FromString<u32>(std::string("4294967296")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("4294967297")), IndexOutOfRangeException);
 
-		ASSERT_ANY_THROW(FromString<s32>(std::string("-4294967297")));
-		ASSERT_ANY_THROW(FromString<s32>(std::string("-4294967296")));
-		ASSERT_ANY_THROW(FromString<s32>(std::string("-4294967295")));
-		ASSERT_ANY_THROW(FromString<s32>(std::string("-2147483649")));
+		ASSERT_THROW(FromString<s32>(std::string("-4294967297")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s32>(std::string("-4294967296")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s32>(std::string("-4294967295")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s32>(std::string("-2147483649")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<s32>(std::string("-2147483648")), -2147483648);
 		ASSERT_EQ(FromString<s32>(std::string("-2147483647")), -2147483647);
 		ASSERT_EQ(FromString<s32>(std::string("-123")), -123);
@@ -260,34 +260,34 @@ TEST(ToStringTest, FromString)
 		ASSERT_EQ(FromString<s32>(std::string("123")), 123);
 		ASSERT_EQ(FromString<s32>(std::string("2147483646")), 2147483646);
 		ASSERT_EQ(FromString<s32>(std::string("2147483647")), 2147483647);
-		ASSERT_ANY_THROW(FromString<s32>(std::string("2147483648")));
-		ASSERT_ANY_THROW(FromString<s32>(std::string("4294967295")));
-		ASSERT_ANY_THROW(FromString<s32>(std::string("4294967296")));
-		ASSERT_ANY_THROW(FromString<s32>(std::string("4294967297")));
+		ASSERT_THROW(FromString<s32>(std::string("2147483648")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s32>(std::string("4294967295")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s32>(std::string("4294967296")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s32>(std::string("4294967297")), IndexOutOfRangeException);
 	}
 
 	{
-		ASSERT_ANY_THROW(FromString<u64>(std::string("-18446744073709551617")));
-		ASSERT_ANY_THROW(FromString<u64>(std::string("-18446744073709551616")));
-		ASSERT_ANY_THROW(FromString<u64>(std::string("-18446744073709551615")));
-		ASSERT_ANY_THROW(FromString<u64>(std::string("-9223372036854775809")));
-		ASSERT_ANY_THROW(FromString<u64>(std::string("-9223372036854775808")));
-		ASSERT_ANY_THROW(FromString<u64>(std::string("-9223372036854775807")));
-		ASSERT_ANY_THROW(FromString<u64>(std::string("-12")));
-		ASSERT_ANY_THROW(FromString<u64>(std::string("-1")));
+		ASSERT_THROW(FromString<u64>(std::string("-18446744073709551617")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("-18446744073709551616")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("-18446744073709551615")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("-9223372036854775809")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("-9223372036854775808")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("-9223372036854775807")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("-12")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("-1")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<u64>(std::string("0")), 0u);
 		ASSERT_EQ(FromString<u64>(std::string("1")), 1u);
 		ASSERT_EQ(FromString<u64>(std::string("12")), 12u);
 		ASSERT_EQ(FromString<u64>(std::string("123")), 123u);
 		ASSERT_EQ(FromString<u64>(std::string("18446744073709551614")), 18446744073709551614ull);
 		ASSERT_EQ(FromString<u64>(std::string("18446744073709551615")), 18446744073709551615ull);
-		ASSERT_ANY_THROW(FromString<u64>(std::string("18446744073709551616")));
-		ASSERT_ANY_THROW(FromString<u64>(std::string("18446744073709551617")));
+		ASSERT_THROW(FromString<u64>(std::string("18446744073709551616")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("18446744073709551617")), IndexOutOfRangeException);
 
-		ASSERT_ANY_THROW(FromString<s64>(std::string("-18446744073709551617")));
-		ASSERT_ANY_THROW(FromString<s64>(std::string("-18446744073709551616")));
-		ASSERT_ANY_THROW(FromString<s64>(std::string("-18446744073709551615")));
-		ASSERT_ANY_THROW(FromString<s64>(std::string("-9223372036854775809")));
+		ASSERT_THROW(FromString<s64>(std::string("-18446744073709551617")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s64>(std::string("-18446744073709551616")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s64>(std::string("-18446744073709551615")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s64>(std::string("-9223372036854775809")), IndexOutOfRangeException);
 		ASSERT_EQ(FromString<s64>(std::string("-9223372036854775808")), -9223372036854775807ll - 1);
 		ASSERT_EQ(FromString<s64>(std::string("-9223372036854775807")), -9223372036854775807ll);
 		ASSERT_EQ(FromString<s64>(std::string("-123")), -123);
@@ -298,10 +298,10 @@ TEST(ToStringTest, FromString)
 		ASSERT_EQ(FromString<s64>(std::string("123")), 123);
 		ASSERT_EQ(FromString<s64>(std::string("9223372036854775806")), 9223372036854775806ll);
 		ASSERT_EQ(FromString<s64>(std::string("9223372036854775807")), 9223372036854775807ll);
-		ASSERT_ANY_THROW(FromString<s64>(std::string("9223372036854775808")));
-		ASSERT_ANY_THROW(FromString<s64>(std::string("18446744073709551615")));
-		ASSERT_ANY_THROW(FromString<s64>(std::string("18446744073709551616")));
-		ASSERT_ANY_THROW(FromString<s64>(std::string("18446744073709551617")));
+		ASSERT_THROW(FromString<s64>(std::string("9223372036854775808")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s64>(std::string("18446744073709551615")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s64>(std::string("18446744073709551616")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<s64>(std::string("18446744073709551617")), IndexOutOfRangeException);
 	}
 }
 
