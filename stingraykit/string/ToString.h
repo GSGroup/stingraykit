@@ -98,10 +98,10 @@ namespace stingray
 
 				for (; index < str.size(); ++index)
 				{
-					const char c = str[index];
-					STINGRAYKIT_CHECK(c >= '0' && c <= '9', ArgumentException("str", str));
+					const char ch = str[index];
+					STINGRAYKIT_CHECK(ch >= '0' && ch <= '9', ArgumentException("str", str));
 
-					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<typename SafeEvaluator<ObjectType>::ValueType>(c - '0'), negative);
+					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<typename SafeEvaluator<ObjectType>::ValueType>(ch - '0'), negative);
 				}
 
 				return value;
