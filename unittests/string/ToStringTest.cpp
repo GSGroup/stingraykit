@@ -303,6 +303,36 @@ TEST(ToStringTest, FromString)
 		ASSERT_THROW(FromString<s64>(std::string("18446744073709551616")), IndexOutOfRangeException);
 		ASSERT_THROW(FromString<s64>(std::string("18446744073709551617")), IndexOutOfRangeException);
 	}
+
+	{
+		ASSERT_THROW(FromString<u8>(std::string("255a")), ArgumentException);
+		ASSERT_THROW(FromString<u8>(std::string("255z")), ArgumentException);
+		ASSERT_THROW(FromString<u8>(std::string("256a")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u8>(std::string("256z")), IndexOutOfRangeException);
+
+		ASSERT_THROW(FromString<u16>(std::string("65535a")), ArgumentException);
+		ASSERT_THROW(FromString<u16>(std::string("65535z")), ArgumentException);
+		ASSERT_THROW(FromString<u16>(std::string("65536a")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u16>(std::string("65536z")), IndexOutOfRangeException);
+
+		ASSERT_THROW(FromString<u32>(std::string("4294967295a")), ArgumentException);
+		ASSERT_THROW(FromString<u32>(std::string("4294967295z")), ArgumentException);
+		ASSERT_THROW(FromString<u32>(std::string("4294967296a")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u32>(std::string("4294967296z")), IndexOutOfRangeException);
+
+		ASSERT_THROW(FromString<u64>(std::string("18446744073709551615a")), ArgumentException);
+		ASSERT_THROW(FromString<u64>(std::string("18446744073709551615z")), ArgumentException);
+		ASSERT_THROW(FromString<u64>(std::string("18446744073709551616a")), IndexOutOfRangeException);
+		ASSERT_THROW(FromString<u64>(std::string("18446744073709551616z")), IndexOutOfRangeException);
+
+		for (unsigned char ch = 0x20; ch <= 0x7f; ++ch)
+		{
+			if ((ch >= '0' && ch <= '9') || ch == '-' || ch == '+')
+				continue;
+
+			ASSERT_THROW(FromString<int>(std::string(1, ch)), ArgumentException);
+		}
+	}
 }
 
 
