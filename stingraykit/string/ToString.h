@@ -96,13 +96,14 @@ namespace stingray
 				if (negative || str[0] == '+')
 					++index;
 
-				for (; index < str.size(); ++index)
+				for (size_t index2 = index; index2 < str.size(); ++index2)
 				{
-					const char ch = str[index];
+					const char ch = str[index2];
 					STINGRAYKIT_CHECK(ch >= '0' && ch <= '9', FormatException(ToString(str)));
-
-					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<typename SafeEvaluator<ObjectType>::ValueType>(ch - '0'), negative);
 				}
+
+				for (; index < str.size(); ++index)
+					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<typename SafeEvaluator<ObjectType>::ValueType>(str[index] - '0'), negative);
 
 				return value;
 			}
