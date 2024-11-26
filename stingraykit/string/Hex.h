@@ -90,11 +90,27 @@ namespace stingray
 
 
 	template < typename T >
+	T FromHex(const std::string& str)
+	{ return FromHex<T>(string_view(str)); }
+
+
+	template < typename T >
+	T FromHex(const char* str)
+	{ return FromHex<T>(string_view(str)); }
+
+
+	template < typename T >
 	struct FromHexInterpreter
 	{
 		using RetType = T;
 
+		T operator () (const std::string& str) const
+		{ return FromHex<T>(str); }
+
 		T operator () (string_view str) const
+		{ return FromHex<T>(str); }
+
+		T operator () (const char* str) const
 		{ return FromHex<T>(str); }
 	};
 
