@@ -89,6 +89,16 @@ namespace stingray
 	}
 
 
+	template < typename T >
+	struct FromHexInterpreter
+	{
+		using RetType = T;
+
+		T operator () (string_view str) const
+		{ return FromHex<T>(str); }
+	};
+
+
 	namespace Detail
 	{
 
