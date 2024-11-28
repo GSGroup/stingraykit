@@ -1157,10 +1157,10 @@ namespace stingray
 			bool	_valid;
 
 		public:
-			template < typename U = T, typename EnableIf<!IsSame<typename Decay<U>::ValueT, InPlaceType>::Value && IsConstructible<T, U>::Value, bool>::ValueT = true >
+			template < typename U = T, typename EnableIf<!IsSame<typename Decay<U>::ValueT, InPlaceType>::Value && IsConstructible<T, U>::Value, int>::ValueT = 0 >
 			explicit RangeSingle(U&& value) : _value(std::forward<U>(value)), _valid(true) { }
 
-			template < typename... Us, typename EnableIf<IsConstructible<T, Us...>::Value, bool>::ValueT = true >
+			template < typename... Us, typename EnableIf<IsConstructible<T, Us...>::Value, int>::ValueT = 0 >
 			explicit RangeSingle(InPlaceType, Us&&... args) : _value(std::forward<Us>(args)...), _valid(true) { }
 
 			bool Valid() const

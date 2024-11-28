@@ -264,7 +264,7 @@ namespace stingray
 				result << "]";
 			}
 
-			template < typename ItemPrinter, typename ObjectType, typename EnableIf<!IsSame<ObjectType, typename Decay<decltype(*std::declval<ObjectType>().begin())>::ValueT>::Value, bool>::ValueT = false >
+			template < typename ItemPrinter, typename ObjectType, typename EnableIf<!IsSame<ObjectType, typename Decay<decltype(*std::declval<ObjectType>().begin())>::ValueT>::Value, int>::ValueT = 0 >
 			static auto PrintStdCollection(string_ostream& result, const char* emptyPrefix, const char* prefix, const char* suffix, const ObjectType& items)
 					-> decltype(ItemPrinter::Do(result, *items.begin()), void())
 			{

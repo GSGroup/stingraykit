@@ -45,7 +45,7 @@ namespace stingray
 			{ return "{ CancellableFunction: " + get_function_name(_func) + " }"; }
 
 		private:
-			template < typename RetType_, typename... Ts, typename EnableIf<IsSame<RetType_, void>::Value, bool>::ValueT = false >
+			template < typename RetType_, typename... Ts, typename EnableIf<IsSame<RetType_, void>::Value, int>::ValueT = 0 >
 			RetType_ Do(Ts&&... args) const
 			{
 				LocalExecutionGuard guard(_tester);
@@ -53,7 +53,7 @@ namespace stingray
 					FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...);
 			}
 
-			template < typename RetType_, typename... Ts, typename EnableIf<!IsSame<RetType_, void>::Value, bool>::ValueT = false >
+			template < typename RetType_, typename... Ts, typename EnableIf<!IsSame<RetType_, void>::Value, int>::ValueT = 0 >
 			RetType_ Do(Ts&&... args) const
 			{
 				LocalExecutionGuard guard(_tester);

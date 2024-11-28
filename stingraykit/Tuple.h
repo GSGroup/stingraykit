@@ -97,17 +97,17 @@ namespace stingray
 		template < typename T0, typename... Ts, typename EnableIf<
 				!IsSame<typename Decay<T0>::ValueT, TupleConstructorTag>::Value &&
 				!IsSame<typename Decay<T0>::ValueT, Tuple<Types>>::Value &&
-				Detail::IsConstructibleTypes<Types, TypeList<T0, Ts...>>::Value, bool>::ValueT = false >
+				Detail::IsConstructibleTypes<Types, TypeList<T0, Ts...>>::Value, int>::ValueT = 0 >
 		Tuple(T0&& p0, Ts&&... args)
 			: _val(std::forward<T0>(p0)), _tail(std::forward<Ts>(args)...)
 		{ }
 
-		template < typename OtherTypeList_, typename EnableIf<!IsSame<Tuple<OtherTypeList_>, typename Decay<ValueType>::ValueT>::Value && !IsSame<OtherTypeList_, TypeListEndNode>::Value, bool>::ValueT = false >
+		template < typename OtherTypeList_, typename EnableIf<!IsSame<Tuple<OtherTypeList_>, typename Decay<ValueType>::ValueT>::Value && !IsSame<OtherTypeList_, TypeListEndNode>::Value, int>::ValueT = 0 >
 		Tuple(const Tuple<OtherTypeList_>& other)
 			: _val(other.GetHead()), _tail(other.GetTail())
 		{ }
 
-		template < typename OtherTypeList_, typename EnableIf<!IsSame<Tuple<OtherTypeList_>, typename Decay<ValueType>::ValueT>::Value && !IsSame<OtherTypeList_, TypeListEndNode>::Value, bool>::ValueT = false >
+		template < typename OtherTypeList_, typename EnableIf<!IsSame<Tuple<OtherTypeList_>, typename Decay<ValueType>::ValueT>::Value && !IsSame<OtherTypeList_, TypeListEndNode>::Value, int>::ValueT = 0 >
 		Tuple(Tuple<OtherTypeList_>&& other)
 			: _val(std::forward<typename OtherTypeList_::ValueT>(other.GetHead())), _tail(std::move(other.GetTail()))
 		{ }

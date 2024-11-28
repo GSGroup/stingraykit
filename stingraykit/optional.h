@@ -114,23 +114,23 @@ namespace stingray
 
 		template < typename U = T, typename EnableIf<
 				!IsSame<typename Decay<U>::ValueT, optional>::Value && !IsSame<typename Decay<U>::ValueT, InPlaceType>::Value &&
-				IsConstructible<T, U>::Value && IsConvertible<U, T>::Value, bool>::ValueT = true >
+				IsConstructible<T, U>::Value && IsConvertible<U, T>::Value, int>::ValueT = 0 >
 		optional(U&& value) : _value(), _initialized(true)
 		{ _value.Ctor(std::forward<U>(value)); }
 
 		template < typename U = T, typename EnableIf<
 				!IsSame<typename Decay<U>::ValueT, optional>::Value && !IsSame<typename Decay<U>::ValueT, InPlaceType>::Value &&
-				IsConstructible<T, U>::Value && !IsConvertible<U, T>::Value, bool>::ValueT = false >
+				IsConstructible<T, U>::Value && !IsConvertible<U, T>::Value, int>::ValueT = 0 >
 		explicit optional(U&& value) : _value(), _initialized(true)
 		{ _value.Ctor(std::forward<U>(value)); }
 
 		template < typename... Us,
-			   typename EnableIf<IsConstructible<T, Us...>::Value, bool>::ValueT = true >
+			   typename EnableIf<IsConstructible<T, Us...>::Value, int>::ValueT = 0 >
 		explicit optional(InPlaceType, Us&&... args) : _value(), _initialized(true)
 		{ _value.Ctor(std::forward<Us>(args)...); }
 
 		template < typename U, typename... Us,
-			   typename EnableIf<IsConstructible<T, std::initializer_list<U>&, Us...>::Value, bool>::ValueT = false >
+			   typename EnableIf<IsConstructible<T, std::initializer_list<U>&, Us...>::Value, int>::ValueT = 0 >
 		explicit optional(InPlaceType, std::initializer_list<U> il, Us&&... args) : _value(), _initialized(true)
 		{ _value.Ctor(il, std::forward<Us>(args)...); }
 
@@ -139,22 +139,22 @@ namespace stingray
 
 		template < typename U, typename EnableIf<
 				!Detail::IsConstructibleFromOptional<T, U>::Value &&
-				IsConstructible<T, const U&>::Value && IsConvertible<const U&, T>::Value, bool>::ValueT = true >
+				IsConstructible<T, const U&>::Value && IsConvertible<const U&, T>::Value, int>::ValueT = 0 >
 		DETAIL_OPTIONAL_COPY_CTOR(const optional<U>&)
 
 		template < typename U, typename EnableIf<
 				!Detail::IsConstructibleFromOptional<T, U>::Value &&
-				IsConstructible<T, const U&>::Value && !IsConvertible<const U&, T>::Value, bool>::ValueT = false >
+				IsConstructible<T, const U&>::Value && !IsConvertible<const U&, T>::Value, int>::ValueT = 0 >
 		explicit DETAIL_OPTIONAL_COPY_CTOR(const optional<U>&)
 
 		template < typename U, typename EnableIf<
 				!Detail::IsConstructibleFromOptional<T, U>::Value &&
-				IsConstructible<T, U>::Value && IsConvertible<U, T>::Value, bool>::ValueT = true >
+				IsConstructible<T, U>::Value && IsConvertible<U, T>::Value, int>::ValueT = 0 >
 		DETAIL_OPTIONAL_MOVE_CTOR(optional<U>&&)
 
 		template < typename U, typename EnableIf<
 				!Detail::IsConstructibleFromOptional<T, U>::Value &&
-				IsConstructible<T, U>::Value && !IsConvertible<U, T>::Value, bool>::ValueT = false >
+				IsConstructible<T, U>::Value && !IsConvertible<U, T>::Value, int>::ValueT = 0 >
 		explicit DETAIL_OPTIONAL_MOVE_CTOR(optional<U>&&)
 
 		~optional()										{ reset(); }
@@ -163,7 +163,7 @@ namespace stingray
 
 		template < typename U = T, typename EnableIf<
 				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
-				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = true >
+				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, int>::ValueT = 0 >
 		optional& operator = (U&& value)				{ assign(std::forward<U>(value)); return *this; }
 
 		optional& operator = (const optional& other)	{ assign(other);			return *this; }
@@ -171,12 +171,12 @@ namespace stingray
 
 		template < typename U, typename EnableIf<
 				!Detail::IsAssignableFromOptional<T, U>::Value &&
-				IsConstructible<T, const U&>::Value && IsAssignable<T&, const U&>::Value, bool>::ValueT = true >
+				IsConstructible<T, const U&>::Value && IsAssignable<T&, const U&>::Value, int>::ValueT = 0 >
 		optional& operator = (const optional<U>& other)	{ assign(other);			return *this; }
 
 		template < typename U, typename EnableIf<
 				!Detail::IsAssignableFromOptional<T, U>::Value &&
-				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = false >
+				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, int>::ValueT = 0 >
 		optional& operator = (optional<U>&& other)		{ assign(std::move(other));	return *this; }
 
 		bool is_initialized() const						{ return _initialized; }
@@ -285,7 +285,7 @@ namespace stingray
 				return optional<RetType>();
 		}
 
-		template < typename U = T, typename Functor, typename EnableIf<IsCopyConstructible<U>::Value, bool>::ValueT = true >
+		template < typename U = T, typename Functor, typename EnableIf<IsCopyConstructible<U>::Value, int>::ValueT = 0 >
 		optional or_else(Functor&& functor) const &
 		{
 			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
@@ -298,7 +298,7 @@ namespace stingray
 				return FunctorInvoker::InvokeArgs(std::forward<Functor>(functor));
 		}
 
-		template < typename U = T, typename Functor, typename EnableIf<IsMoveConstructible<U>::Value, bool>::ValueT = true >
+		template < typename U = T, typename Functor, typename EnableIf<IsMoveConstructible<U>::Value, int>::ValueT = 0 >
 		optional or_else(Functor&& functor) &&
 		{
 			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
@@ -352,7 +352,7 @@ namespace stingray
 
 		template < typename U = T, typename EnableIf<
 				!IsSame<typename Decay<U>::ValueT, optional>::Value &&
-				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = true >
+				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, int>::ValueT = 0 >
 		void assign(U&& value)
 		{
 			if (_initialized)
@@ -366,26 +366,26 @@ namespace stingray
 
 		template < typename U = T, typename EnableIf<
 				IsSame<U, T>::Value &&
-				IsAssignable<T&, const U&>::Value, bool>::ValueT = false >
+				IsAssignable<T&, const U&>::Value, int>::ValueT = 0 >
 		DETAIL_OPTIONAL_COPY_ASSIGN(const optional&)
 
 		template < typename U = T, typename EnableIf<
 				IsSame<U, T>::Value &&
-				IsAssignable<T&, U>::Value, bool>::ValueT = false >
+				IsAssignable<T&, U>::Value, int>::ValueT = 0 >
 		DETAIL_OPTIONAL_MOVE_ASSIGN(optional&&)
 
 		template < typename U, typename EnableIf<
 				!Detail::IsAssignableFromOptional<T, U>::Value &&
-				IsConstructible<T, const U&>::Value && IsAssignable<T&, const U&>::Value, bool>::ValueT = true >
+				IsConstructible<T, const U&>::Value && IsAssignable<T&, const U&>::Value, int>::ValueT = 0 >
 		DETAIL_OPTIONAL_COPY_ASSIGN(const optional<U>&)
 
 		template < typename U, typename EnableIf<
 				!Detail::IsAssignableFromOptional<T, U>::Value &&
-				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, bool>::ValueT = false >
+				IsConstructible<T, U>::Value && IsAssignable<T&, U>::Value, int>::ValueT = 0 >
 		DETAIL_OPTIONAL_MOVE_ASSIGN(optional<U>&&)
 
 		template < typename... Us,
-				typename EnableIf<IsConstructible<T, Us...>::Value, bool>::ValueT = true>
+				typename EnableIf<IsConstructible<T, Us...>::Value, int>::ValueT = 0 >
 		void emplace(Us&&... args)
 		{
 			reset();
@@ -394,7 +394,7 @@ namespace stingray
 		}
 
 		template < typename U, typename... Us,
-				typename EnableIf<IsConstructible<T, std::initializer_list<U>&, Us...>::Value, bool>::ValueT = true>
+				typename EnableIf<IsConstructible<T, std::initializer_list<U>&, Us...>::Value, int>::ValueT = 0 >
 		void emplace(std::initializer_list<U> il, Us&&... args)
 		{
 			reset();

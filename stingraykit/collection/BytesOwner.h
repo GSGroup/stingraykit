@@ -64,37 +64,37 @@ namespace stingray
 				_lifeAssurance(std::move(lifeAssurance))
 		{ }
 
-		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0 >
 		BasicBytesOwner(const BasicBytesOwner<U>& other)
 			:	_data(other._data),
 				_lifeAssurance(other._lifeAssurance)
 		{ }
 
-		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0 >
 		BasicBytesOwner(BasicBytesOwner<U>&& other)
 			:	_data(other._data),
 				_lifeAssurance(std::move(other._lifeAssurance))
 		{ }
 
-		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0 >
 		BasicBytesOwner(const BasicBytesOwner<U>& other, size_t offset)
 			:	_data(other._data, offset),
 				_lifeAssurance(other._lifeAssurance)
 		{ }
 
-		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0 >
 		BasicBytesOwner(BasicBytesOwner<U>&& other, size_t offset)
 			:	_data(other._data, offset),
 				_lifeAssurance(std::move(other._lifeAssurance))
 		{ }
 
-		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0 >
 		BasicBytesOwner(const BasicBytesOwner<U>& other, size_t offset, size_t size)
 			:	_data(other._data, offset, size),
 				_lifeAssurance(other._lifeAssurance)
 		{ }
 
-		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, bool>::ValueT = false >
+		template < typename U, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0 >
 		BasicBytesOwner(BasicBytesOwner<U>&& other, size_t offset, size_t size)
 			:	_data(other._data, offset, size),
 				_lifeAssurance(std::move(other._lifeAssurance))

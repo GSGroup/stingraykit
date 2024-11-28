@@ -21,7 +21,7 @@ using ::testing::Pair;
 namespace stingray
 {
 
-	template < typename Range_, typename EnableIf<IsRange<Range_>::Value, bool>::ValueT = false >
+	template < typename Range_, typename EnableIf<IsRange<Range_>::Value, int>::ValueT = 0 >
 	std::ostream& operator << (std::ostream& os, const Range_& val)
 	{ return os << ToString(val); }
 
