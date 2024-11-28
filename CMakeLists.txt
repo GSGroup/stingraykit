@@ -104,6 +104,7 @@ set(stingraykit_SRC
 
 	stingraykit/diagnostics/AbortWrap.cpp
 	stingraykit/diagnostics/AsyncProfiler.cpp
+	stingraykit/diagnostics/BacktraceUtility.cpp
 	stingraykit/diagnostics/CheckpointProfiler.cpp
 	stingraykit/diagnostics/SystemProfiler.cpp
 
