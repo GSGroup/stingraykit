@@ -217,19 +217,19 @@ namespace stingray
 	template < typename DictionaryType,
 			typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyDictionary>::Value &&
 					!IsInherited2ParamTemplate<DictionaryType, IReadonlyObservableDictionary>::Value &&
-					!IsInherited2ParamTemplate<DictionaryType, IReadonlyTransactionalDictionary>::Value, int>::ValueT dummy = 0 >
+					!IsInherited2ParamTemplate<DictionaryType, IReadonlyTransactionalDictionary>::Value, int>::ValueT = 0 >
 	shared_ptr<IReadonlySet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict)
 	{ return make_shared_ptr<DictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>>(dict); }
 
-	template < typename DictionaryType, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyObservableDictionary>::Value, int>::ValueT dummy = 0 >
+	template < typename DictionaryType, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyObservableDictionary>::Value, int>::ValueT = 0 >
 	shared_ptr<IReadonlyObservableSet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict)
 	{ return make_shared_ptr<ObservableDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType>>(dict); }
 
-	template < typename DictionaryType, typename EqualsCmp, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyTransactionalDictionary>::Value, int>::ValueT dummy = 0 >
+	template < typename DictionaryType, typename EqualsCmp, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyTransactionalDictionary>::Value, int>::ValueT = 0 >
 	shared_ptr<IReadonlyTransactionalSet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict, const EqualsCmp& equalsCmp)
 	{ return make_shared_ptr<TransactionalDictionaryKeysSet<typename DictionaryType::KeyType, typename DictionaryType::ValueType, EqualsCmp>>(dict, equalsCmp); }
 
-	template < typename DictionaryType, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyTransactionalDictionary>::Value, int>::ValueT dummy = 0 >
+	template < typename DictionaryType, typename EnableIf<IsInherited2ParamTemplate<DictionaryType, IReadonlyTransactionalDictionary>::Value, int>::ValueT = 0 >
 	shared_ptr<IReadonlyTransactionalSet<typename DictionaryType::KeyType>> GetDictionaryKeys(const shared_ptr<DictionaryType>& dict)
 	{ return GetDictionaryKeys(dict, comparers::Equals()); }
 

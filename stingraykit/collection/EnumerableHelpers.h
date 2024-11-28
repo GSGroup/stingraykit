@@ -731,12 +731,12 @@ namespace stingray
 
 
 		template < typename CastTo, typename SrcEnumerator >
-		shared_ptr<IEnumerator<CastTo>> Cast(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<CastTo>> Cast(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT = 0)
 		{ return make_shared_ptr<Detail::EnumeratorCaster<CastTo, shared_ptr<SrcEnumerator>>>(enumerator); }
 
 
 		template < typename CastTo, typename SrcEnumerable >
-		shared_ptr<IEnumerable<CastTo>> Cast(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<CastTo>> Cast(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT = 0)
 		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorCaster<CastTo, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType>>>>(), Bind(&SrcEnumerable::GetEnumerator, STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)))); }
 
 
@@ -785,12 +785,12 @@ namespace stingray
 
 
 		template < typename TResult, typename SrcEnumerator >
-		shared_ptr<IEnumerator<TResult>> OfType(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<TResult>> OfType(const shared_ptr<SrcEnumerator>& enumerator, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT = 0)
 		{ return make_shared_ptr<Detail::EnumeratorOfType<TResult, shared_ptr<SrcEnumerator>>>(enumerator); }
 
 
 		template < typename TResult, typename SrcEnumerable >
-		shared_ptr<IEnumerable<TResult>> OfType(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<TResult>> OfType(const shared_ptr<SrcEnumerable>& enumerable, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT = 0)
 		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorOfType<TResult, shared_ptr<IEnumerator<typename SrcEnumerable::ItemType>>>>(), Bind(&SrcEnumerable::GetEnumerator, STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)))); }
 
 
@@ -804,7 +804,7 @@ namespace stingray
 
 
 		template < typename CollectionType >
-		shared_ptr<IEnumerator<typename CollectionType::ItemType>> Reverse(const shared_ptr<CollectionType>& enumerator, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename CollectionType::ItemType>> Reverse(const shared_ptr<CollectionType>& enumerator, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT = 0)
 		{
 			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 
@@ -815,7 +815,7 @@ namespace stingray
 		}
 
 		template < typename CollectionType >
-		shared_ptr<IEnumerable<typename CollectionType::ItemType>> Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<IsEnumerable<CollectionType>::Value && !IsReversableEnumerable<CollectionType>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename CollectionType::ItemType>> Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<IsEnumerable<CollectionType>::Value && !IsReversableEnumerable<CollectionType>::Value, int>::ValueT = 0)
 		{
 			STINGRAYKIT_CHECK(enumerable, NullArgumentException("enumerable"));
 
@@ -826,7 +826,7 @@ namespace stingray
 		}
 
 		template < typename CollectionType >
-		shared_ptr<IEnumerable<typename CollectionType::ItemType>> Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<IsEnumerable<CollectionType>::Value && IsReversableEnumerable<CollectionType>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename CollectionType::ItemType>> Reverse(const shared_ptr<CollectionType>& enumerable, typename EnableIf<IsEnumerable<CollectionType>::Value && IsReversableEnumerable<CollectionType>::Value, int>::ValueT = 0)
 		{
 			STINGRAYKIT_CHECK(enumerable, NullArgumentException("enumerable"));
 			return enumerable->Reverse();
@@ -889,24 +889,24 @@ namespace stingray
 
 
 		template < typename SrcEnumerator, typename FunctorType >
-		shared_ptr<IEnumerator<typename function_info<FunctorType>::RetType>> Transform(const shared_ptr<SrcEnumerator>& enumerator, const FunctorType& functor, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename function_info<FunctorType>::RetType>> Transform(const shared_ptr<SrcEnumerator>& enumerator, const FunctorType& functor, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT = 0)
 		{ return make_shared_ptr<Detail::EnumeratorTransformer<typename SrcEnumerator::ItemType, FunctorType>>(enumerator, functor); }
 
 
 		template < typename SrcEnumerable, typename FunctorType >
-		shared_ptr<IEnumerable<typename function_info<FunctorType>::RetType>> Transform(const shared_ptr<SrcEnumerable>& enumerable, const FunctorType& functor, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename function_info<FunctorType>::RetType>> Transform(const shared_ptr<SrcEnumerable>& enumerable, const FunctorType& functor, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT = 0)
 		{ return make_shared_ptr<Detail::EnumerableTransformer<typename SrcEnumerable::ItemType, FunctorType>>(enumerable, functor); }
 
 
 		template < typename CollectionType, typename PredicateFunc >
-		shared_ptr<IEnumerator<typename CollectionType::ItemType>> Where(const shared_ptr<CollectionType>& enumerator, const PredicateFunc& predicate, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename CollectionType::ItemType>> Where(const shared_ptr<CollectionType>& enumerator, const PredicateFunc& predicate, typename EnableIf<IsEnumerator<CollectionType>::Value, int>::ValueT = 0)
 		{
 			using ItemType = typename CollectionType::ItemType;
 			return WrapEnumerator(enumerator, &stingray::implicit_cast<ItemType>, predicate);
 		}
 
 		template < typename CollectionType, typename PredicateFunc >
-		shared_ptr<IEnumerable<typename CollectionType::ItemType>> Where(const shared_ptr<CollectionType>& enumerable, const PredicateFunc& predicate, typename EnableIf<IsEnumerable<CollectionType>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename CollectionType::ItemType>> Where(const shared_ptr<CollectionType>& enumerable, const PredicateFunc& predicate, typename EnableIf<IsEnumerable<CollectionType>::Value, int>::ValueT = 0)
 		{
 			using ItemType = typename CollectionType::ItemType;
 			return WrapEnumerable(enumerable, &stingray::implicit_cast<ItemType>, predicate);
@@ -929,12 +929,12 @@ namespace stingray
 
 
 		template < typename SrcEnumerator >
-		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType>> Skip(const shared_ptr<SrcEnumerator>& enumerator, size_t count, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType>> Skip(const shared_ptr<SrcEnumerator>& enumerator, size_t count, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT = 0)
 		{ return Detail::SkipEnumerator(enumerator, count); }
 
 
 		template < typename SrcEnumerable >
-		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType>> Skip(const shared_ptr<SrcEnumerable>& enumerable, size_t count, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType>> Skip(const shared_ptr<SrcEnumerable>& enumerable, size_t count, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT = 0)
 		{ return MakeSimpleEnumerable(Bind(&Detail::SkipEnumerator<typename SrcEnumerable::ItemType>, Bind(&SrcEnumerable::GetEnumerator, STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)), count)); }
 
 
@@ -977,12 +977,12 @@ namespace stingray
 
 
 		template < typename SrcEnumerator >
-		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType>> Take(const shared_ptr<SrcEnumerator>& enumerator, size_t count, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType>> Take(const shared_ptr<SrcEnumerator>& enumerator, size_t count, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT = 0)
 		{ return make_shared_ptr<Detail::EnumeratorTaker<typename SrcEnumerator::ItemType>>(enumerator, count); }
 
 
 		template < typename SrcEnumerable >
-		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType>> Take(const shared_ptr<SrcEnumerable>& enumerable, size_t count, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType>> Take(const shared_ptr<SrcEnumerable>& enumerable, size_t count, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT = 0)
 		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorTaker<typename SrcEnumerable::ItemType>>(), Bind(&SrcEnumerable::GetEnumerator, STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)), count)); }
 
 
@@ -1045,12 +1045,12 @@ namespace stingray
 
 
 		template < typename SrcEnumerator >
-		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType::ValueType::ItemType>> Flatten(const shared_ptr<SrcEnumerator>& enumeratorOfEnumerators, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerator<typename SrcEnumerator::ItemType::ValueType::ItemType>> Flatten(const shared_ptr<SrcEnumerator>& enumeratorOfEnumerators, typename EnableIf<IsEnumerator<SrcEnumerator>::Value, int>::ValueT = 0)
 		{ return make_shared_ptr<Detail::EnumeratorFlattener<typename SrcEnumerator::ItemType>>(enumeratorOfEnumerators); }
 
 
 		template < typename SrcEnumerable >
-		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType::ValueType::ItemType>> Flatten(const shared_ptr<SrcEnumerable>& enumerableOfEnumerables, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT dummy = 0)
+		shared_ptr<IEnumerable<typename SrcEnumerable::ItemType::ValueType::ItemType>> Flatten(const shared_ptr<SrcEnumerable>& enumerableOfEnumerables, typename EnableIf<IsEnumerable<SrcEnumerable>::Value, int>::ValueT = 0)
 		{ return MakeSimpleEnumerable(Bind(MakeShared<Detail::EnumeratorFlattener<typename SrcEnumerable::ItemType>>(), Bind(&SrcEnumerable::GetEnumerator, STINGRAYKIT_REQUIRE_NOT_NULL(enumerableOfEnumerables)))); }
 
 
@@ -1178,12 +1178,12 @@ namespace stingray
 
 
 		template < typename First, typename Second, typename PredicateFunc >
-		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second, const PredicateFunc& equalPredicate, typename EnableIf<!IsEnumerator<First>::Value || !IsEnumerator<Second>::Value, int>::ValueT dummy = 0)
+		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second, const PredicateFunc& equalPredicate, typename EnableIf<!IsEnumerator<First>::Value || !IsEnumerator<Second>::Value, int>::ValueT = 0)
 		{ return SequenceEqual(ToEnumerator(first), ToEnumerator(second), equalPredicate); }
 
 
 		template < typename First, typename Second >
-		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second, typename EnableIf<!IsEnumerator<First>::Value || !IsEnumerator<Second>::Value, int>::ValueT dummy = 0)
+		bool SequenceEqual(const shared_ptr<First>& first, const shared_ptr<Second>& second, typename EnableIf<!IsEnumerator<First>::Value || !IsEnumerator<Second>::Value, int>::ValueT = 0)
 		{ return SequenceEqual(ToEnumerator(first), ToEnumerator(second)); }
 
 

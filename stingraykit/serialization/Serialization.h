@@ -297,7 +297,7 @@ namespace stingray
 		};
 
 		template<typename T>
-		ObjectOStream& serialize(const shared_ptr<T>& value, typename EnableIf<IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
+		ObjectOStream& serialize(const shared_ptr<T>& value, typename EnableIf<IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT = 0)
 		{
 			if (!value)
 			{
@@ -316,7 +316,7 @@ namespace stingray
 
 
 		template<typename T>
-		ObjectOStream& serialize(const shared_ptr<T>& value, typename EnableIf<!IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
+		ObjectOStream& serialize(const shared_ptr<T>& value, typename EnableIf<!IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT = 0)
 		{
 			if (!value)
 			{
@@ -697,7 +697,7 @@ namespace stingray
 		bool is_array() const;
 
 		template<typename T>
-		void deserialize(shared_ptr<T>& value, typename EnableIf<IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
+		void deserialize(shared_ptr<T>& value, typename EnableIf<IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT = 0)
 		{
 			value.reset();
 			if (is_null())
@@ -708,7 +708,7 @@ namespace stingray
 		}
 
 		template<typename T>
-		void deserialize(shared_ptr<T>& value, typename EnableIf<!IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT dummy = 0)
+		void deserialize(shared_ptr<T>& value, typename EnableIf<!IsInherited<T, NonPolymorphicMarker>::Value, int>::ValueT = 0)
 		{
 			value.reset();
 			if (is_null())
