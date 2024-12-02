@@ -15,7 +15,7 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename StringType >
+		template < typename T >
 		struct TypeFromStringInterpreter;
 
 		template < typename StringType >
@@ -26,18 +26,38 @@ namespace stingray
 	}
 
 
-	template < typename T, typename StringType >
-	auto FromString(const StringType& str)
-			-> decltype(Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0));
+	template < typename T >
+	auto FromString(const std::string& str)
+			-> decltype(Detail::TypeFromStringInterpreter<T>::template FromStringImpl<T>(str, 0));
+
+
+	template < typename T >
+	auto FromString(string_view str)
+			-> decltype(Detail::TypeFromStringInterpreter<T>::template FromStringViewImpl<T>(str, 0));
+
+
+	template < typename T >
+	auto FromString(const char* str)
+			-> decltype(Detail::TypeFromStringInterpreter<T>::template FromStringViewImpl<T>(string_view(str), 0));
 
 
 	template < typename T >
 	struct FromStringInterpreter;
 
 
-	template < typename T, typename StringType >
-	auto TryFromString(const StringType& str)
-			-> decltype(Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0));
+	template < typename T >
+	auto TryFromString(const std::string& str)
+			-> decltype(Detail::TypeTryFromStringInterpreter<T>::template TryFromStringImpl<T>(str, 0));
+
+
+	template < typename T >
+	auto TryFromString(string_view str)
+			-> decltype(Detail::TypeTryFromStringInterpreter<T>::template TryFromStringViewImpl<T>(str, 0));
+
+
+	template < typename T >
+	auto TryFromString(const char* str)
+			-> decltype(Detail::TypeTryFromStringInterpreter<T>::template TryFromStringViewImpl<T>(string_view(str), 0));
 
 
 	template < typename T >

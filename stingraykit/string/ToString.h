@@ -78,11 +78,11 @@ namespace stingray
 			}
 		};
 
-		template < typename StringType >
+		template < typename T >
 		struct TypeFromStringInterpreter
 		{
 		private:
-			template < typename ObjectType, typename EnableIf<!IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
+			template < typename ObjectType, typename StringType, typename EnableIf<!IsSame<ObjectType, std::string>::Value && !IsSame<ObjectType, string_view>::Value, int>::ValueT = 0 >
 			static auto ParseIntegralType(const StringType& str)
 					-> decltype(SafeEvaluator<ObjectType>::Do(str, std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), false), ObjectType())
 			{
@@ -110,29 +110,69 @@ namespace stingray
 				return static_cast<ObjectType>(value);
 			}
 
-			template < typename ObjectType, typename EnableIf<IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
-			static ObjectType ParseIntegralType(const StringType& str)
+			template < typename ObjectType, typename EnableIf<IsSame<ObjectType, std::string>::Value || IsSame<ObjectType, string_view>::Value, int>::ValueT = 0 >
+			static ObjectType ParseIntegralType(const std::string& str)
 			{ return str; }
+
+			template < typename ObjectType, typename EnableIf<IsSame<ObjectType, std::string>::Value, int>::ValueT = 0 >
+			static ObjectType ParseIntegralType(string_view str)
+			{ return str.copy(); }
+
+			template < typename ObjectType, typename EnableIf<IsSame<ObjectType, string_view>::Value, int>::ValueT = 0 >
+			static ObjectType ParseIntegralType(string_view str)
+			{ return str; }
+
+			template < typename ObjectType >
+			static auto FromStringViewImplImpl(string_view str, int)
+					-> decltype(ObjectType::FromString(str.copy()))
+			{ return ObjectType::FromString(str.copy()); }
+
+			template < typename ObjectType >
+			static auto FromStringViewImplImpl(string_view str, long)
+					-> decltype(ParseIntegralType<ObjectType>(str))
+			{ return ParseIntegralType<ObjectType>(str); }
 
 		public:
 			template < typename ObjectType >
-			static auto FromStringImpl(const StringType& str, int)
+			static auto FromStringImpl(const std::string& str, int)
 					-> decltype(ObjectType::FromString(str))
 			{ return ObjectType::FromString(str); }
 
 			template < typename ObjectType >
-			static auto FromStringImpl(const StringType& str, long)
+			static auto FromStringImpl(const std::string& str, long)
 					-> decltype(ParseIntegralType<ObjectType>(str))
 			{ return ParseIntegralType<ObjectType>(str); }
+
+			template < typename ObjectType >
+			static auto FromStringViewImpl(string_view str, int)
+					-> decltype(ObjectType::FromString(str))
+			{ return ObjectType::FromString(str); }
+
+			template < typename ObjectType >
+			static auto FromStringViewImpl(string_view str, long)
+					-> decltype(FromStringViewImplImpl<ObjectType>(str, 0))
+			{ return FromStringViewImplImpl<ObjectType>(str, 0); }
 		};
 
 	}
 
 
-	template < typename T, typename StringType >
-	auto FromString(const StringType& str)
-			-> decltype(Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0))
-	{ return Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0); }
+	template < typename T >
+	auto FromString(const std::string& str)
+			-> decltype(Detail::TypeFromStringInterpreter<T>::template FromStringImpl<T>(str, 0))
+	{ return Detail::TypeFromStringInterpreter<T>::template FromStringImpl<T>(str, 0); }
+
+
+	template < typename T >
+	auto FromString(string_view str)
+			-> decltype(Detail::TypeFromStringInterpreter<T>::template FromStringViewImpl<T>(str, 0))
+	{ return Detail::TypeFromStringInterpreter<T>::template FromStringViewImpl<T>(str, 0); }
+
+
+	template < typename T >
+	auto FromString(const char* str)
+			-> decltype(Detail::TypeFromStringInterpreter<T>::template FromStringViewImpl<T>(string_view(str), 0))
+	{ return Detail::TypeFromStringInterpreter<T>::template FromStringViewImpl<T>(string_view(str), 0); }
 
 
 	template < typename T >
@@ -140,8 +180,13 @@ namespace stingray
 	{
 		using RetType = T;
 
-		template < typename StringType >
-		RetType operator () (const StringType& str) const
+		RetType operator () (const std::string& str) const
+		{ return FromString<RetType>(str); }
+
+		RetType operator () (string_view str) const
+		{ return FromString<RetType>(str); }
+
+		RetType operator () (const char* str) const
 		{ return FromString<RetType>(str); }
 	};
 
@@ -149,16 +194,16 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename StringType >
+		template < typename T >
 		struct TypeTryFromStringInterpreter
 		{
 			template < typename ObjectType >
-			static auto TryFromStringImpl(const StringType& str, int)
-					-> decltype(ObjectType::TryFromString(str))
-			{ return ObjectType::TryFromString(str); }
+			static auto TryFromStringViewImplImpl(string_view str, int)
+					-> decltype(ObjectType::TryFromString(str.copy()))
+			{ return ObjectType::TryFromString(str.copy()); }
 
 			template < typename ObjectType >
-			static auto TryFromStringImpl(const StringType& str, long)
+			static auto TryFromStringViewImplImpl(string_view str, long)
 					-> optional<decltype(FromString<ObjectType>(str))>
 			{
 				try
@@ -168,15 +213,55 @@ namespace stingray
 
 				return null;
 			}
+
+		public:
+			template < typename ObjectType >
+			static auto TryFromStringImpl(const std::string& str, int)
+					-> decltype(ObjectType::TryFromString(str))
+			{ return ObjectType::TryFromString(str); }
+
+			template < typename ObjectType >
+			static auto TryFromStringImpl(const std::string& str, long)
+					-> optional<decltype(FromString<ObjectType>(str))>
+			{
+				try
+				{ return FromString<ObjectType>(str); }
+				catch (const std::exception&)
+				{ }
+
+				return null;
+			}
+
+			template < typename ObjectType >
+			static auto TryFromStringViewImpl(string_view str, int)
+					-> decltype(ObjectType::TryFromString(str))
+			{ return ObjectType::TryFromString(str); }
+
+			template < typename ObjectType >
+			static auto TryFromStringViewImpl(string_view str, long)
+					-> decltype(TryFromStringViewImplImpl<T>(str, 0))
+			{ return TryFromStringViewImplImpl<T>(str, 0); }
 		};
 
 	}
 
 
-	template < typename T, typename StringType >
-	auto TryFromString(const StringType& str)
-			-> decltype(Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0))
-	{ return Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0); }
+	template < typename T >
+	auto TryFromString(const std::string& str)
+			-> decltype(Detail::TypeTryFromStringInterpreter<T>::template TryFromStringImpl<T>(str, 0))
+	{ return Detail::TypeTryFromStringInterpreter<T>::template TryFromStringImpl<T>(str, 0); }
+
+
+	template < typename T >
+	auto TryFromString(string_view str)
+			-> decltype(Detail::TypeTryFromStringInterpreter<T>::template TryFromStringViewImpl<T>(str, 0))
+	{ return Detail::TypeTryFromStringInterpreter<T>::template TryFromStringViewImpl<T>(str, 0); }
+
+
+	template < typename T >
+	auto TryFromString(const char* str)
+			-> decltype(Detail::TypeTryFromStringInterpreter<T>::template TryFromStringViewImpl<T>(string_view(str), 0))
+	{ return Detail::TypeTryFromStringInterpreter<T>::template TryFromStringViewImpl<T>(string_view(str), 0); }
 
 
 	template < typename T >
@@ -184,8 +269,13 @@ namespace stingray
 	{
 		using RetType = optional<T>;
 
-		template < typename StringType >
-		RetType operator () (const StringType& str) const
+		RetType operator () (const std::string& str) const
+		{ return TryFromString<T>(str); }
+
+		RetType operator () (string_view str) const
+		{ return TryFromString<T>(str); }
+
+		RetType operator () (const char* str) const
 		{ return TryFromString<T>(str); }
 	};
 
