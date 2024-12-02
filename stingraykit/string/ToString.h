@@ -86,9 +86,11 @@ namespace stingray
 			static auto ParseIntegralType(const StringType& str)
 					-> decltype(SafeEvaluator<ObjectType>::Do(str, std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), false), typename RemoveReference<decltype(std::declval<ObjectType>())>::ValueT())
 			{
+				using ValueType = typename SafeEvaluator<ObjectType>::ValueType;
+
 				STINGRAYKIT_CHECK(!str.empty(), ArgumentException("str"));
 
-				ObjectType value = 0;
+				ValueType value = 0;
 				bool negative = false;
 
 				size_t index = 0;
@@ -103,9 +105,9 @@ namespace stingray
 				}
 
 				for (; index < str.size(); ++index)
-					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<typename SafeEvaluator<ObjectType>::ValueType>(str[index] - '0'), negative);
+					value = SafeEvaluator<ObjectType>::Do(str, value, static_cast<ValueType>(str[index] - '0'), negative);
 
-				return value;
+				return static_cast<ObjectType>(value);
 			}
 
 			template < typename ObjectType, typename EnableIf<IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
