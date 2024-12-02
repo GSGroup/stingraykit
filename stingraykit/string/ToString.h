@@ -84,7 +84,7 @@ namespace stingray
 		private:
 			template < typename ObjectType, typename EnableIf<!IsSame<ObjectType, StringType>::Value, int>::ValueT = 0 >
 			static auto ParseIntegralType(const StringType& str)
-					-> decltype(SafeEvaluator<ObjectType>::Do(str, std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), false), typename RemoveReference<decltype(std::declval<ObjectType>())>::ValueT())
+					-> decltype(SafeEvaluator<ObjectType>::Do(str, std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), std::declval<typename SafeEvaluator<ObjectType>::ValueType>(), false), ObjectType())
 			{
 				using ValueType = typename SafeEvaluator<ObjectType>::ValueType;
 
@@ -117,12 +117,12 @@ namespace stingray
 		public:
 			template < typename ObjectType >
 			static auto FromStringImpl(const StringType& str, int)
-					-> typename RemoveReference<decltype(ObjectType::FromString(str))>::ValueT
+					-> decltype(ObjectType::FromString(str))
 			{ return ObjectType::FromString(str); }
 
 			template < typename ObjectType >
 			static auto FromStringImpl(const StringType& str, long)
-					-> typename RemoveReference<decltype(ParseIntegralType<ObjectType>(str))>::ValueT
+					-> decltype(ParseIntegralType<ObjectType>(str))
 			{ return ParseIntegralType<ObjectType>(str); }
 		};
 
@@ -131,7 +131,7 @@ namespace stingray
 
 	template < typename T, typename StringType >
 	auto FromString(const StringType& str)
-			-> typename RemoveReference<decltype(Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0))>::ValueT
+			-> decltype(Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0))
 	{ return Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0); }
 
 
@@ -154,12 +154,12 @@ namespace stingray
 		{
 			template < typename ObjectType >
 			static auto TryFromStringImpl(const StringType& str, int)
-					-> typename RemoveReference<decltype(ObjectType::TryFromString(str))>::ValueT
+					-> decltype(ObjectType::TryFromString(str))
 			{ return ObjectType::TryFromString(str); }
 
 			template < typename ObjectType >
 			static auto TryFromStringImpl(const StringType& str, long)
-					-> optional<typename RemoveReference<decltype(FromString<ObjectType>(str))>::ValueT>
+					-> optional<decltype(FromString<ObjectType>(str))>
 			{
 				try
 				{ return FromString<ObjectType>(str); }
@@ -175,7 +175,7 @@ namespace stingray
 
 	template < typename T, typename StringType >
 	auto TryFromString(const StringType& str)
-			-> typename RemoveReference<decltype(Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0))>::ValueT
+			-> decltype(Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0))
 	{ return Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0); }
 
 

@@ -28,7 +28,7 @@ namespace stingray
 
 	template < typename T, typename StringType >
 	auto FromString(const StringType& str)
-			-> typename RemoveReference<decltype(Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0))>::ValueT;
+			-> decltype(Detail::TypeFromStringInterpreter<StringType>::template FromStringImpl<T>(str, 0));
 
 
 	template < typename T >
@@ -37,7 +37,7 @@ namespace stingray
 
 	template < typename T, typename StringType >
 	auto TryFromString(const StringType& str)
-		-> typename RemoveReference<decltype(Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0))>::ValueT;
+			-> decltype(Detail::TypeTryFromStringInterpreter<StringType>::template TryFromStringImpl<T>(str, 0));
 
 
 	template < typename T >
