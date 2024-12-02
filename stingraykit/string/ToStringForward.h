@@ -54,6 +54,10 @@ namespace stingray
 			-> decltype(ToString(std::declval<string_ostream&>(), val), std::string());
 
 
+	std::string ToString(const std::string& str);
+	std::string ToString(string_view str);
+
+
 	struct ToStringPrinter
 	{
 		using RetType = std::string;

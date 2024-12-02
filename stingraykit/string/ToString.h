@@ -411,6 +411,14 @@ namespace stingray
 	}
 
 
+	inline std::string ToString(const std::string& str)
+	{ return str; }
+
+
+	inline std::string ToString(string_view str)
+	{ return str.copy(); }
+
+
 	template < typename T >
 	std::string ToStringPrinter::operator () (const T& val) const
 	{ return ToString(val); }
