@@ -99,16 +99,16 @@ namespace stingray
 	}
 
 
-	inline bool StartsWith(const std::string& str, const std::string& prefix)
+	inline bool StartsWith(string_view str, string_view prefix)
 	{ return str.size() >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0; }
 
 
-	inline bool EndsWith(const std::string& str, const std::string& suffix)
+	inline bool EndsWith(string_view str, string_view suffix)
 	{ return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0; }
 
 
-	inline bool Contains(const std::string& str, const std::string& substr)
-	{ return str.find(substr) != std::string::npos; }
+	inline bool Contains(string_view str, string_view substr)
+	{ return str.find(substr) != string_view::npos; }
 
 
 	class StringRef
@@ -429,7 +429,7 @@ namespace stingray
 	}
 
 
-	std::string::size_type EditDistance(const std::string& s1, const std::string& s2);
+	string_view::size_type EditDistance(string_view s1, string_view s2);
 
 }
 
