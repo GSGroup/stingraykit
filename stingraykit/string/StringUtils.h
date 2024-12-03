@@ -40,10 +40,15 @@ namespace stingray
 	{ return ReplaceAll<char>(str, from, to); }
 
 
-	inline std::string& ReplaceAll(std::string& str, char from, char to)
+	inline std::string ReplaceAll(const std::string& str, char from, char to)
 	{
-		std::replace(str.begin(), str.end(), from, to);
-		return str;
+		const std::string::size_type index = str.find(from);
+		if (index == std::string::npos)
+			return str;
+
+		std::string result(str);
+		std::replace(std::next(result.begin(), index), result.end(), from, to);
+		return result;
 	}
 
 
