@@ -42,9 +42,7 @@ namespace stingray
 
 	inline std::string& ReplaceAll(std::string& str, char from, char to)
 	{
-		for (std::string::iterator it = str.begin(); it != str.end(); ++it)
-			if (*it == from)
-				*it = to;
+		std::replace(str.begin(), str.end(), from, to);
 		return str;
 	}
 
@@ -52,9 +50,9 @@ namespace stingray
 	inline std::string Filter(const std::string& str, const std::string& characters)
 	{
 		std::string result;
-		for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
-			if (characters.find(*it) == std::string::npos)
-				result.push_back(*it);
+		for (char ch : str)
+			if (characters.find(ch) == std::string::npos)
+				result.push_back(ch);
 		return result;
 	}
 
