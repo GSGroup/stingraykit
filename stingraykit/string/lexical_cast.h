@@ -16,15 +16,14 @@ namespace stingray
 	namespace Detail
 	{
 
-		template<typename To, typename From>
+		template < typename To, typename From >
 		struct LexicalCast
 		{
 			static To Do(const From& from)
 			{ return FromString<To>(ToString(from)); }
 		};
 
-
-		template< typename From>
+		template < typename From >
 		struct LexicalCast<std::string, From>
 		{
 			static std::string Do(const From& from)
@@ -35,12 +34,14 @@ namespace stingray
 
 
 	template < typename To, typename From >
-	typename EnableIf<!IsSame<To, From>::Value, To>::ValueT lexical_cast(const From & from)
+	typename EnableIf<!IsSame<To, From>::Value, To>::ValueT lexical_cast(const From& from)
 	{ return Detail::LexicalCast<To, From>::Do(from); }
 
-	template < typename To, typename From>
-	typename EnableIf<IsSame<To, From>::Value, From>::ValueT lexical_cast(const From & from)
+
+	template < typename To, typename From >
+	typename EnableIf<IsSame<To, From>::Value, From>::ValueT lexical_cast(const From& from)
 	{ return from; }
+
 
 	namespace Detail
 	{
@@ -49,15 +50,15 @@ namespace stingray
 		class LexicalCasterProxy
 		{
 		private:
-			From	_from;
+			From		_from;
 
 		public:
 			explicit LexicalCasterProxy(const From& from)
-				: _from(from)
+				:	_from(from)
 			{ }
 
 			template < typename To >
-			operator To() const
+			operator To () const
 			{ return lexical_cast<To>(_from); }
 		};
 
