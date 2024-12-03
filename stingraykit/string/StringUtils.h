@@ -18,25 +18,26 @@ namespace stingray
 {
 
 	template < typename CharType >
-	std::basic_string<CharType>& ReplaceAll(std::basic_string<CharType>& str,
-			const std::basic_string<CharType>& replaceSeq,
-			const std::basic_string<CharType>& replaceTo,
+	std::basic_string<CharType>& ReplaceAll(
+			std::basic_string<CharType>& str,
+			const std::basic_string<CharType>& from,
+			const std::basic_string<CharType>& to,
 			Dummy dummy = Dummy())
 	{
 		using StringType = std::basic_string<CharType>;
 
-		typename StringType::size_type index = str.find(replaceSeq);
+		typename StringType::size_type index = str.find(from);
 		while (index != StringType::npos)
 		{
-			str.replace(index, replaceSeq.size(), replaceTo);
-			index = str.find(replaceSeq, index + replaceTo.size());
+			str.replace(index, from.size(), to);
+			index = str.find(from, index + to.size());
 		}
 		return str;
 	}
 
 
-	inline std::string& ReplaceAll(std::string& str, const std::string& replaceSeq, const std::string& replaceTo)
-	{ return ReplaceAll<char>(str, replaceSeq, replaceTo); }
+	inline std::string& ReplaceAll(std::string& str, const std::string& from, const std::string& to)
+	{ return ReplaceAll<char>(str, from, to); }
 
 
 	inline std::string& ReplaceAll(std::string& str, char from, char to)
@@ -156,8 +157,8 @@ namespace stingray
 
 		struct DelimiterMatch
 		{
-			size_t Position;
-			size_t Size;
+			size_t				Position;
+			size_t				Size;
 
 			DelimiterMatch() : Position(std::string::npos), Size() { }
 			DelimiterMatch(size_t pos, size_t size): Position(pos), Size(size) { }
@@ -172,8 +173,7 @@ namespace stingray
 		const std::string&		_list;
 
 	public:
-		IsAnyOf(const std::string& list) : _list(list)
-		{ }
+		explicit IsAnyOf(const std::string& list) : _list(list) { }
 
 		template < typename StringLikeObject >
 		Detail::DelimiterMatch operator () (const StringLikeObject& string, size_t startPos)
@@ -183,13 +183,14 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		class StaticSplitDelimiter
 		{
 		private:
-			std::string		_delimiter;
+			std::string						_delimiter;
 
 		public:
-			StaticSplitDelimiter(const std::string& delimiter) : _delimiter(delimiter) { }
+			explicit StaticSplitDelimiter(const std::string& delimiter) : _delimiter(delimiter) { }
 
 			template < typename StringLikeObject >
 			Detail::DelimiterMatch operator () (const StringLikeObject& string, size_t startPos) const
@@ -200,8 +201,7 @@ namespace stingray
 		};
 
 		template < typename StringSearchType >
-		class SplitStringRange
-			:	public Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>
+		class SplitStringRange : public Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>
 		{
 			using Self = SplitStringRange<StringSearchType>;
 			using base = Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>;
@@ -250,15 +250,15 @@ namespace stingray
 				if (_startPos != std::string::npos)
 				{
 					_startPos += _next.Size;
-					_next = (_resultsLimit == NoLimit || ++_results < _resultsLimit) ? _search(_string, _startPos) : Detail::DelimiterMatch();
+					_next = _resultsLimit == NoLimit || ++_results < _resultsLimit ? _search(_string, _startPos) : Detail::DelimiterMatch();
 				}
 				return *this;
 			}
 		};
 
-
 		using StaticDelimiterSplitStringRange = SplitStringRange<StaticSplitDelimiter>;
 		using IsAnyOfSplitStringRange = SplitStringRange<IsAnyOf>;
+
 	}
 
 
@@ -374,10 +374,13 @@ namespace stingray
 				stream << sj.String;
 			return stream;
 		}
+
 	}
+
 
 	inline Detail::StringJustificator<std::string, true> LeftJustify(const std::string& str, size_t width, char filler = ' ')
 	{ return Detail::StringJustificator<std::string, true>(str, width, filler); }
+
 
 	inline Detail::StringJustificator<std::string, false> RightJustify(const std::string& str, size_t width, char filler = ' ')
 	{ return Detail::StringJustificator<std::string, false>(str, width, filler); }
@@ -385,6 +388,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename TupleType >
 		struct TupleFromStringsHelper
 		{
@@ -402,6 +406,7 @@ namespace stingray
 				}
 			};
 		};
+
 	}
 
 
