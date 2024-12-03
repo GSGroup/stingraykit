@@ -128,8 +128,8 @@ TEST(StringUtilsTest, Strip)
 
 TEST(StringUtilsTest, ReplaceAll)
 {
-	std::string str1 = "aabbccabc";
-	std::string str2 = str1, str3 = str1, str4 = str1;
+	const std::string str1 = "aabbccabc";
+	const std::string str2 = str1, str3 = str1, str4 = str1;
 
 	ASSERT_EQ(ReplaceAll(str2, "a", "1"), "11bbcc1bc");
 	ASSERT_EQ(ReplaceAll(str3, "a", ""), "bbccbc");

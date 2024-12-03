@@ -18,8 +18,8 @@ namespace stingray
 {
 
 	template < typename CharType >
-	std::basic_string<CharType>& ReplaceAll(
-			std::basic_string<CharType>& str,
+	std::basic_string<CharType> ReplaceAll(
+			const std::basic_string<CharType>& str,
 			const std::basic_string<CharType>& from,
 			const std::basic_string<CharType>& to,
 			Dummy dummy = Dummy())
@@ -27,16 +27,22 @@ namespace stingray
 		using StringType = std::basic_string<CharType>;
 
 		typename StringType::size_type index = str.find(from);
-		while (index != StringType::npos)
+		if (index == StringType::npos)
+			return str;
+
+		StringType result(str);
+		do
 		{
-			str.replace(index, from.size(), to);
-			index = str.find(from, index + to.size());
+			result.replace(index, from.size(), to);
+			index = result.find(from, index + to.size());
 		}
-		return str;
+		while (index != StringType::npos);
+
+		return result;
 	}
 
 
-	inline std::string& ReplaceAll(std::string& str, const std::string& from, const std::string& to)
+	inline std::string ReplaceAll(const std::string& str, const std::string& from, const std::string& to)
 	{ return ReplaceAll<char>(str, from, to); }
 
 

@@ -170,9 +170,9 @@ namespace stingray
 					if (str.substr(0, str_val.size()) == str_val)
 					{
 						std::string res(str.substr(str_val.size()));
-						ReplaceAll(res, " ", "\\ ");
-						ReplaceAll(res, "]", "\\]");
-						ReplaceAll(res, ",", "\\,");
+						res = ReplaceAll(res, " ", "\\ ");
+						res = ReplaceAll(res, "]", "\\]");
+						res = ReplaceAll(res, ",", "\\,");
 						results.insert(res + " ");
 					}
 				}
