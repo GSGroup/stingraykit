@@ -19,58 +19,59 @@ namespace stingray
 
 	template < typename CharType >
 	std::basic_string<CharType> ReplaceAll(
-			const std::basic_string<CharType>& str,
-			const std::basic_string<CharType>& from,
-			const std::basic_string<CharType>& to,
+			basic_string_view<CharType> str,
+			basic_string_view<CharType> from,
+			basic_string_view<CharType> to,
 			Dummy dummy = Dummy())
 	{
 		using StringType = std::basic_string<CharType>;
+		using StringViewType = basic_string_view<CharType>;
 
-		typename StringType::size_type index = str.find(from);
-		if (index == StringType::npos)
-			return str;
+		typename std::common_type<typename StringType::size_type, typename StringViewType::size_type>::type index = str.find(from);
+		if (index == StringViewType::npos)
+			return str.copy();
 
-		StringType result(str);
+		StringType result(str.copy());
 		do
 		{
-			result.replace(index, from.size(), to);
-			index = result.find(from, index + to.size());
+			result.replace(std::next(result.begin(), index), std::next(result.begin(), index + from.size()), to.begin(), to.end());
+			index = std::distance(result.begin(), std::search(std::next(result.begin(), index + to.size()), result.end(), from.begin(), from.end()));
 		}
-		while (index != StringType::npos);
+		while (index < result.size());
 
 		return result;
 	}
 
 
-	inline std::string ReplaceAll(const std::string& str, const std::string& from, const std::string& to)
+	inline std::string ReplaceAll(string_view str, string_view from, string_view to)
 	{ return ReplaceAll<char>(str, from, to); }
 
 
-	inline std::string ReplaceAll(const std::string& str, char from, char to)
+	inline std::string ReplaceAll(string_view str, char from, char to)
 	{
-		const std::string::size_type index = str.find(from);
-		if (index == std::string::npos)
-			return str;
+		const string_view::size_type index = str.find(from);
+		if (index == string_view::npos)
+			return str.copy();
 
-		std::string result(str);
+		std::string result(str.copy());
 		std::replace(std::next(result.begin(), index), result.end(), from, to);
 		return result;
 	}
 
 
-	inline std::string Filter(const std::string& str, const std::string& characters)
+	inline std::string Filter(string_view str, string_view characters)
 	{
 		std::string result;
 		for (char ch : str)
-			if (characters.find(ch) == std::string::npos)
+			if (characters.find(ch) == string_view::npos)
 				result.push_back(ch);
 		return result;
 	}
 
 
-	inline std::string Remove(const std::string& str, char ch = ' ')
+	inline std::string Remove(string_view str, char ch = ' ')
 	{
-		std::string result(str);
+		std::string result(str.copy());
 		result.erase(std::remove(result.begin(), result.end(), ch), result.end());
 		return result;
 	}
@@ -280,28 +281,36 @@ namespace stingray
 
 
 	template < typename Range, typename UnaryOperator >
-	std::string Join(const std::string& separator, const Range& range_, const UnaryOperator& op)
+	std::string Join(string_view separator, const Range& range_, const UnaryOperator& op)
 	{
 		Range range(range_);
-		StringJoiner sj(separator);
+		string_ostream result;
+
+		if (range.Valid())
+		{
+			result << FunctorInvoker::InvokeArgs(op, range.Get());
+			range.Next();
+		}
+
 		for (; range.Valid(); range.Next())
-			sj % FunctorInvoker::InvokeArgs(op, range.Get());
-		return sj;
+			result << separator << FunctorInvoker::InvokeArgs(op, range.Get());
+
+		return result.str();
 	}
 
 
 	template < typename Range >
-	inline std::string Join(const std::string& separator, const Range& range)
+	inline std::string Join(string_view separator, const Range& range)
 	{ return Join(separator, range, &lexical_cast<std::string, typename Range::ValueType>); }
 
 
 	template < typename InputIterator, typename UnaryOperator >
-	inline std::string Join(const std::string& separator, const InputIterator& first, const InputIterator& last, const UnaryOperator& op)
+	inline std::string Join(string_view separator, const InputIterator& first, const InputIterator& last, const UnaryOperator& op)
 	{ return Join(separator, ToRange(first, last), op); }
 
 
 	template < typename InputIterator >
-	inline std::string Join(const std::string& separator, const InputIterator& first, const InputIterator& last)
+	inline std::string Join(string_view separator, const InputIterator& first, const InputIterator& last)
 	{ return Join(separator, ToRange(first, last), &lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
 
 
@@ -324,7 +333,7 @@ namespace stingray
 
 
 	template < typename Transformer >
-	std::string Transform(const std::string& str, const Transformer& transformer)
+	std::string Transform(string_view str, const Transformer& transformer)
 	{
 		string_ostream result;
 		std::transform(str.begin(), str.end(), std::back_inserter(result), transformer);
@@ -332,20 +341,20 @@ namespace stingray
 	}
 
 
-	inline std::string ToLower(const std::string& str)
+	inline std::string ToLower(string_view str)
 	{ return Transform(str, &::tolower); }
 
 
-	inline std::string ToUpper(const std::string& str)
+	inline std::string ToUpper(string_view str)
 	{ return Transform(str, &::toupper); }
 
 
-	inline std::string Capitalize(const std::string& str)
-	{ return str.empty() ? str : std::string(str).replace(0, 1, 1, ::toupper(str[0])); }
+	inline std::string Capitalize(string_view str)
+	{ return str.empty() ? std::string() : str.copy().replace(0, 1, 1, ::toupper(str[0])); }
 
 
-	inline std::string Uncapitalize(const std::string& str)
-	{ return str.empty() ? str : std::string(str).replace(0, 1, 1, ::tolower(str[0])); }
+	inline std::string Uncapitalize(string_view str)
+	{ return str.empty() ? std::string() : str.copy().replace(0, 1, 1, ::tolower(str[0])); }
 
 
 	namespace Detail
