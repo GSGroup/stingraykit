@@ -139,7 +139,7 @@ TEST(StringUtilsTest, ReplaceAll)
 
 TEST(StringUtilsTest, Filter)
 {
-	std::string str = "1|2/3|4/5*6*";
+	const std::string str = "1|2/3|4/5*6*";
 
 	ASSERT_EQ(Filter(str, ":"), "1|2/3|4/5*6*");
 	ASSERT_EQ(Filter(str, "|"), "12/34/5*6*");
