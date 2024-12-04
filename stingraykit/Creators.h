@@ -15,26 +15,27 @@ namespace stingray
 {
 
 	template < typename InterfaceType, typename ClassType, typename... Ts >
-	class ConstructorCreator : public virtual ICreator<InterfaceType>
+	class ConstructorCreator final : public virtual ICreator<InterfaceType>
 	{
-		typedef TypeList<typename Decay<Ts>::ValueT...> ParamTypes;
+		using ParamTypes = TypeList<typename Decay<Ts>::ValueT...>;
 
 	private:
 		Tuple<ParamTypes>	_params;
 
 	public:
 		template < typename... Us >
-		ConstructorCreator(Us&&... args) : _params(std::forward<Us>(args)...)
+		explicit ConstructorCreator(Us&&... args)
+			:	_params(std::forward<Us>(args)...)
 		{ static_assert(sizeof...(Ts) == sizeof...(Us), "Invalid number of parameters"); }
 
-		virtual shared_ptr<InterfaceType> Create() const
+		shared_ptr<InterfaceType> Create() const override
 		{ return FunctorInvoker::Invoke(MakeShared<ClassType>(), _params); }
 	};
 
 
 	template < typename InterfaceType, typename ClassType, typename... Ts >
-	shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts... > > MakeConstructorCreator(Ts&&... args)
-	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...> >(std::forward<Ts>(args)...); }
+	shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts... >> MakeConstructorCreator(Ts&&... args)
+	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...>>(std::forward<Ts>(args)...); }
 
 
 	namespace Detail
@@ -53,26 +54,28 @@ namespace stingray
 
 
 	template < typename InterfaceType, typename ClassType >
-	class SingleInstanceCreator : public virtual ICreator<InterfaceType>, private Detail::SingleInstanceCreatorBase<ClassType>
+	class SingleInstanceCreator final : public virtual ICreator<InterfaceType>, private Detail::SingleInstanceCreatorBase<ClassType>
 	{
-		typedef Detail::SingleInstanceCreatorBase<ClassType> base;
+		using base = Detail::SingleInstanceCreatorBase<ClassType>;
 
 	public:
-		virtual shared_ptr<InterfaceType> Create() const
+		shared_ptr<InterfaceType> Create() const override
 		{ return base::GetInstance(); }
 	};
 
 
 	template < typename To, typename From >
-	class ConvertingCreator : public virtual ICreator<To>
+	class ConvertingCreator final : public virtual ICreator<To>
 	{
+	private:
 		shared_ptr<ICreator<From>>	_creator;
 
 	public:
-		ConvertingCreator(const shared_ptr<ICreator<From>>& creator) : _creator(STINGRAYKIT_REQUIRE_NOT_NULL(creator))
+		explicit ConvertingCreator(const shared_ptr<ICreator<From>>& creator)
+			:	_creator(STINGRAYKIT_REQUIRE_NOT_NULL(creator))
 		{ }
 
-		virtual shared_ptr<To> Create() const
+		shared_ptr<To> Create() const override
 		{ return _creator->Create(); }
 	};
 

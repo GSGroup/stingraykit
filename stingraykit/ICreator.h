@@ -11,7 +11,7 @@
 #include <stingraykit/shared_ptr.h>
 
 #define STINGRAYKIT_DECLARE_CREATOR(ClassName) \
-		typedef stingray::ICreator<ClassName>				ClassName##Creator; \
+		using ClassName##Creator = stingray::ICreator<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##Creator)
 
 namespace stingray
