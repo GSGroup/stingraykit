@@ -351,14 +351,14 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename StringType, bool Left >
+		template < bool Left >
 		struct StringJustificator
 		{
-			const StringType&	String;
+			string_view			String;
 			size_t				Width;
 			char				Filler;
 
-			StringJustificator(const StringType& str, size_t width, char ch) : String(str), Width(width), Filler(ch) { }
+			StringJustificator(string_view str, size_t width, char ch) : String(str), Width(width), Filler(ch) { }
 
 			operator std::string () const
 			{
@@ -369,7 +369,7 @@ namespace stingray
 		};
 
 		template < typename StringType, bool Left >
-		string_ostream& operator << (string_ostream& stream, const StringJustificator<StringType, Left>& sj)
+		string_ostream& operator << (string_ostream& stream, const StringJustificator<Left>& sj)
 		{
 			if (Left)
 				stream << sj.String;
@@ -387,12 +387,12 @@ namespace stingray
 	}
 
 
-	inline Detail::StringJustificator<std::string, true> LeftJustify(const std::string& str, size_t width, char filler = ' ')
-	{ return Detail::StringJustificator<std::string, true>(str, width, filler); }
+	inline Detail::StringJustificator<true> LeftJustify(string_view str, size_t width, char filler = ' ')
+	{ return Detail::StringJustificator<true>(str, width, filler); }
 
 
-	inline Detail::StringJustificator<std::string, false> RightJustify(const std::string& str, size_t width, char filler = ' ')
-	{ return Detail::StringJustificator<std::string, false>(str, width, filler); }
+	inline Detail::StringJustificator<false> RightJustify(string_view str, size_t width, char filler = ' ')
+	{ return Detail::StringJustificator<false>(str, width, filler); }
 
 
 	namespace Detail
