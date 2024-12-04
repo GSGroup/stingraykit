@@ -29,19 +29,20 @@ namespace stingray
 	class basic_string_view
 	{
 	public:
-		typedef Traits												traits_type;
-		typedef CharT												value_type;
-		typedef CharT*												pointer;
-		typedef const CharT*										const_pointer;
-		typedef CharT&												reference;
-		typedef const CharT&										const_reference;
-		typedef const CharT*										const_iterator;
-		typedef const_iterator										iterator;
-		typedef std::reverse_iterator<const_iterator>				const_reverse_iterator;
-		typedef const_reverse_iterator								reverse_iterator;
-		typedef size_t												size_type;
-		typedef ptrdiff_t											difference_type;
+		using traits_type = Traits;
+		using value_type = CharT;
+		using pointer = CharT*;
+		using const_pointer = const CharT*;
+		using reference = CharT&;
+		using const_reference = const CharT&;
+		using const_iterator = const CharT*;
+		using iterator = const_iterator;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+		using reverse_iterator = const_reverse_iterator;
+		using size_type = size_t;
+		using difference_type = ptrdiff_t;
 
+	public:
 		static const size_type npos = -1;
 
 	private:
@@ -59,11 +60,11 @@ namespace stingray
 		const_reverse_iterator rbegin() const			{ return reverse_iterator(end()); }
 		const_reverse_iterator rend() const				{ return reverse_iterator(begin()); }
 
-		const_reference at(size_type pos) const			{ Detail::StringViewCheckRange(pos, size()); return _data[pos]; }
-		const_reference operator[](size_type pos) const { return _data[pos]; }
-		const_reference front() const					{ return _data[0]; }
-		const_reference back() const					{ return _data[size() - 1]; }
-		const_pointer data() const						{ return _data; }
+		const_reference at(size_type pos) const				{ Detail::StringViewCheckRange(pos, size()); return _data[pos]; }
+		const_reference operator [] (size_type pos) const	{ return _data[pos]; }
+		const_reference front() const						{ return _data[0]; }
+		const_reference back() const						{ return _data[size() - 1]; }
+		const_pointer data() const							{ return _data; }
 
 		size_type size() const							{ return _size; }
 		size_type length() const						{ return size(); }
@@ -255,15 +256,13 @@ namespace stingray
 		size_type find_last_not_of(const CharT* s, size_type pos, size_type count) const	{ return find_last_not_of(basic_string_view(s, count), pos); }
 		size_type find_last_not_of(const CharT* s, size_type pos = npos) const				{ return find_last_not_of(basic_string_view(s), pos); }
 
-		bool operator == (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) == 0; }
-		bool operator != (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) != 0; }
-		bool operator <  (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) < 0; }
-		bool operator <= (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) <= 0; }
-		bool operator >  (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) > 0; }
-		bool operator >= (basic_string_view<CharT,Traits> rhs) const	{ return compare(rhs) >= 0; }
+		bool operator == (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) == 0; }
+		bool operator != (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) != 0; }
+		bool operator < (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) < 0; }
+		bool operator <= (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) <= 0; }
+		bool operator > (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) > 0; }
+		bool operator >= (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) >= 0; }
 	};
-
-
 
 
 	template < typename CharT, typename Traits >
@@ -271,7 +270,7 @@ namespace stingray
 	{ lhs.swap(rhs); }
 
 
-	typedef basic_string_view<char> string_view;
+	using string_view = basic_string_view<char>;
 
 }
 
