@@ -74,16 +74,15 @@ namespace stingray
 	{
 		const std::string value = AddSignificantZeros(stingray::ToString(_mantissa), _exponent);
 
-		std::string integralPart = ExtractPrefix(value, value.size() - _exponent);
+		const string_view integralPart = ExtractPrefix(value, value.size() - _exponent);
 
-		const std::string rawFractionalPart = RemovePrefix(value, integralPart);
+		const string_view rawFractionalPart = RemovePrefix(value, integralPart);
 		const string_view croppedFractionalPart = RemoveUnsignificantZeros(rawFractionalPart);
-
-		if (integralPart.empty() || integralPart == "-")
-			integralPart.append("0");
 
 		StringBuilder builder;
 		builder % integralPart;
+		if (integralPart.empty() || integralPart == "-")
+			builder % "0";
 
 		if (!croppedFractionalPart.empty())
 			builder % "." % croppedFractionalPart;

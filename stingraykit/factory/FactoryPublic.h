@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/factory/IFactoryObject.h>
+#include <stingraykit/string/string_view.h>
 
 namespace stingray
 {
@@ -24,8 +25,8 @@ namespace stingray
 
 	struct FactoryUtils
 	{
-		static std::string RemoveTypeSuffix(const std::string& type, const std::string& suffix);
-		static std::string RemoveTypePrefix(const std::string& type, const std::string& prefix);
+		static string_view RemoveTypeSuffix(string_view type, string_view suffix);
+		static string_view RemoveTypePrefix(string_view type, string_view prefix);
 	};
 
 }
@@ -33,7 +34,7 @@ namespace stingray
 
 #define STINGRAYKIT_REGISTER_CLASS(Class_) \
 		std::string GetClassName() const override \
-		{ return stingray::FactoryUtils::RemoveTypePrefix(stingray::TypeInfo(typeid(Class_)).GetName(), "stingray::"); } \
+		{ return stingray::FactoryUtils::RemoveTypePrefix(stingray::TypeInfo(typeid(Class_)).GetName(), "stingray::").copy(); } \
 		friend class stingray::Detail::FactoryObjectCreator<Class_>
 
 #endif

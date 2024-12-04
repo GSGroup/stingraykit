@@ -77,22 +77,22 @@ namespace stingray
 	}
 
 
-	inline std::string ExtractPrefix(const std::string& str, size_t prefixLength)
+	inline string_view ExtractPrefix(string_view str, size_t prefixLength)
 	{ return str.substr(0, prefixLength); }
 
 
-	inline std::string ExtractSuffix(const std::string& str, size_t suffixLength)
+	inline string_view ExtractSuffix(string_view str, size_t suffixLength)
 	{
 		const size_t length = std::min(str.length(), suffixLength);
 		return str.substr(str.length() - length, length);
 	}
 
 
-	inline std::string RemovePrefix(const std::string& str, const std::string& prefix)
+	inline string_view RemovePrefix(string_view str, string_view prefix)
 	{ return str.compare(0, prefix.length(), prefix) == 0 ? str.substr(prefix.length()) : str; }
 
 
-	inline std::string RemoveSuffix(const std::string& str, const std::string& suffix)
+	inline string_view RemoveSuffix(string_view str, string_view suffix)
 	{
 		if (str.length() < suffix.length())
 			return str;
@@ -314,21 +314,21 @@ namespace stingray
 	{ return Join(separator, ToRange(first, last), &lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
 
 
-	inline std::string RightStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
+	inline string_view RightStrip(string_view str, string_view chars = " \t\n\r\f\v")
 	{
 		const size_t pos = str.find_last_not_of(chars);
-		return pos == std::string::npos ? "" : str.substr(0, pos + 1);
+		return pos == string_view::npos ? string_view() : str.substr(0, pos + 1);
 	}
 
 
-	inline std::string LeftStrip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
+	inline string_view LeftStrip(string_view str, string_view chars = " \t\n\r\f\v")
 	{
 		const size_t pos = str.find_first_not_of(chars);
-		return pos == std::string::npos ? "" : str.substr(pos);
+		return pos == string_view::npos ? string_view() : str.substr(pos);
 	}
 
 
-	inline std::string Strip(const std::string& str, const std::string& chars = " \t\n\r\f\v")
+	inline string_view Strip(string_view str, string_view chars = " \t\n\r\f\v")
 	{ return LeftStrip(RightStrip(str, chars), chars); }
 
 

@@ -317,7 +317,7 @@ namespace stingray
 			return Time::Now();
 
 		if (StartsWith(str, "now+"))
-			return Time::Now() + TimeDuration::FromString(RemovePrefix(str.copy(), "now+"));
+			return Time::Now() + TimeDuration::FromString(RemovePrefix(str, "now+"));
 
 		s16 year = 0;
 		s16 month = 0;

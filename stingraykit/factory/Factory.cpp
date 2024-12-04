@@ -11,11 +11,11 @@
 namespace stingray
 {
 
-	std::string FactoryUtils::RemoveTypePrefix(const std::string& type, const std::string& prefix)
+	string_view FactoryUtils::RemoveTypePrefix(string_view type, string_view prefix)
 	{ return RemovePrefix(type, prefix); }
 
 
-	std::string FactoryUtils::RemoveTypeSuffix(const std::string& type, const std::string& suffix)
+	string_view FactoryUtils::RemoveTypeSuffix(string_view type, string_view suffix)
 	{ return RemoveSuffix(type, suffix); }
 
 

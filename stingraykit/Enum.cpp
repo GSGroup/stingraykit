@@ -73,7 +73,7 @@ namespace stingray
 
 			int EnumFromString(string_view str)
 			{
-				const std::string strippedStr = Strip(str.copy(), " \t\n\r");
+				const string_view strippedStr = Strip(str, " \t\n\r");
 				if (!strippedStr.empty() && strippedStr.front() >= '0' && strippedStr.front() <= '9')
 				{
 					try
