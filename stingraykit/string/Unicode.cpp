@@ -14,7 +14,6 @@
 #	include <unicode/unistr.h>
 #endif
 
-
 namespace stingray
 {
 
@@ -25,14 +24,13 @@ namespace stingray
 
 		struct CollationResultMapper : public BaseValueMapper<CollationResultMapper, UCollationResult, int>
 		{
-			typedef TypeList
-			<
-				Src::Value<UCOL_EQUAL>,		Dst::Value<0>,
-				Src::Value<UCOL_LESS>,		Dst::Value<-1>,
-				Src::Value<UCOL_GREATER>,	Dst::Value<1>
-			> MappingsList;
+			using MappingsList = TypeList<
+					Src::Value<UCOL_EQUAL>,		Dst::Value<0>,
+					Src::Value<UCOL_LESS>,		Dst::Value<-1>,
+					Src::Value<UCOL_GREATER>,	Dst::Value<1>
+			>;
 
-			typedef TypeList<Src::Fail, Dst::Fail> DefaultMapping;
+			using DefaultMapping = TypeList<Src::Fail, Dst::Fail>;
 		};
 
 		const icu::UnicodeString Rules = "&е < ё <<< Ё";
@@ -42,9 +40,9 @@ namespace stingray
 	UnicodeCollator::UnicodeCollator(bool caseSensitive)
 	{
 		UErrorCode success = U_ZERO_ERROR;
-		_collator.reset(new icu::RuleBasedCollator(Rules, success));
+		_collator = make_unique_ptr<icu::RuleBasedCollator>(Rules, success);
 		STINGRAYKIT_CHECK(success != U_FILE_ACCESS_ERROR, "file requested by ICU was not found, please install icudt53l.dat to /usr/share/icu");
-		STINGRAYKIT_CHECK(U_SUCCESS(success), "creating collator failed, error: " + ToString(success));
+		STINGRAYKIT_CHECK(U_SUCCESS(success), StringBuilder() % "Can't create collator, error: " % success);
 
 		_collator->setStrength(caseSensitive ? icu::Collator::TERTIARY : icu::Collator::SECONDARY);
 	}
@@ -58,7 +56,7 @@ namespace stingray
 	{
 		UErrorCode success = U_ZERO_ERROR;
 		const UCollationResult r = _collator->compareUTF8(str1, str2, success);
-		STINGRAYKIT_CHECK(U_SUCCESS(success), "compareUTF8 failed, error: " + ToString(success));
+		STINGRAYKIT_CHECK(U_SUCCESS(success), StringBuilder() % "compareUTF8() failed, error: " % success);
 
 		return CollationResultMapper::Map(r);
 	}
@@ -74,7 +72,7 @@ namespace stingray
 
 #else
 
-	UnicodeCollator::UnicodeCollator(bool caseSensitive): _caseSensitive(caseSensitive) { }
+	UnicodeCollator::UnicodeCollator(bool caseSensitive) : _caseSensitive(caseSensitive) { }
 
 
 	UnicodeCollator::~UnicodeCollator() { }

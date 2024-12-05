@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/compare/comparers.h>
-#include <stingraykit/unique_ptr.h>
 
 #ifdef HAVE_ICU_I18N
 #	include <unicode/tblcoll.h>
@@ -30,7 +29,7 @@ namespace stingray
 #endif
 
 	public:
-		UnicodeCollator(bool caseSensitive);
+		explicit UnicodeCollator(bool caseSensitive);
 		~UnicodeCollator();
 
 		int Compare(const std::string& str1, const std::string& str2) const;
@@ -42,13 +41,14 @@ namespace stingray
 
 
 	template < bool CaseSensitive >
-	class UnicodeCmp : public comparers::CmpComparerBase<UnicodeCmp<CaseSensitive> >
+	class UnicodeCmp : public comparers::CmpComparerBase<UnicodeCmp<CaseSensitive>>
 	{
 	private:
 		UnicodeCollatorPtr		_collator;
 
 	public:
-		UnicodeCmp() : _collator(make_shared_ptr<UnicodeCollator>(CaseSensitive))
+		UnicodeCmp()
+			:	_collator(make_shared_ptr<UnicodeCollator>(CaseSensitive))
 		{ }
 
 		int DoCompare(const std::string& str1, const std::string& str2) const
