@@ -135,11 +135,11 @@ namespace stingray
 
 			if (endMarkerPos - startMarkerPos > 1)
 			{
-				const std::string substr(format, startPos, startMarkerPos - startPos);
+				const std::string substr = format.substr(startPos, startMarkerPos - startPos);
 
 				try
 				{
-					const std::string indexStr = std::string(format, startMarkerPos + 1, endMarkerPos - startMarkerPos - 1);
+					const std::string indexStr = format.substr(startMarkerPos + 1, endMarkerPos - startMarkerPos - 1);
 					const size_t index = indexStr == "_" ? std::numeric_limits<size_t>::max() : FromString<size_t>(indexStr);
 
 					if (!substr.empty())
@@ -156,7 +156,7 @@ namespace stingray
 		while (currentPos < format.length());
 
 		if (startPos < format.length())
-			tokens.push_back(std::string(format, startPos));
+			tokens.push_back(format.substr(startPos));
 
 		size_t index = 0;
 		std::string::size_type currentStringPos = 0;
@@ -180,7 +180,7 @@ namespace stingray
 			if (index)
 			{
 				if (substrPos <= currentStringPos
-						|| !Detail::TryReadArgument(std::string(string, currentStringPos, substrPos - currentStringPos), index - 1, args...))
+						|| !Detail::TryReadArgument(string.substr(currentStringPos, substrPos - currentStringPos), index - 1, args...))
 					return false;
 
 				index = 0;
@@ -191,7 +191,7 @@ namespace stingray
 
 		return tokens.empty()
 				&& (index ?
-						Detail::TryReadArgument(std::string(string.begin() + currentStringPos, string.end()), index - 1, args...) :
+						Detail::TryReadArgument(string.substr(currentStringPos), index - 1, args...) :
 						currentStringPos >= string.length());
 	}
 
