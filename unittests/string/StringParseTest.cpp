@@ -59,7 +59,7 @@ namespace
 {
 	struct LogLevelConverter
 	{
-		static LogLevel Do(const std::string& str)
+		static LogLevel Do(string_view str)
 		{ return LogLevel::FromString(Capitalize(str)); }
 	};
 }

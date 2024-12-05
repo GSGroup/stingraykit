@@ -552,11 +552,14 @@ namespace stingray
 			if (multiplier == 0)
 				return null;
 
+			char format[] = "%1%-%2%-%3%T%4%:%5%:%6% %7%:%8%";
+			format[StrLen(format) - 8] = sign;
+
 			s16 offsetHours = 0;
 			s16 offsetMinutes = 0;
 			const bool success = StringParse(
 					str,
-					StringBuilder() % "%1%-%2%-%3%T%4%:%5%:%6%" % sign % "%7%:%8%",
+					format,
 					result.Year,
 					result.Month,
 					result.Day,
@@ -584,7 +587,7 @@ namespace stingray
 			return result;
 		}
 
-		static TimeDuration ParseSeconds(const std::string& secondsStr)
+		static TimeDuration ParseSeconds(string_view secondsStr)
 		{
 			u64 seconds = 0;
 			std::string fractionStr;

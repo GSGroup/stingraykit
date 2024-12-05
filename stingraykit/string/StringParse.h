@@ -32,7 +32,7 @@ namespace stingray
 
 			ParseProxy& operator * () { return *this; }
 
-			void Parse(const std::string& str)
+			void Parse(string_view str)
 			{ _value = _convert(str); }
 		};
 
@@ -40,7 +40,7 @@ namespace stingray
 		struct FromStringReader
 		{
 			template < typename T >
-			static auto Do(const std::string& str, T& value, int)
+			static auto Do(string_view str, T& value, int)
 					-> decltype(value = FromString<T>(str), bool())
 			{
 				try
@@ -51,7 +51,7 @@ namespace stingray
 				return true;
 			}
 
-			static bool Do(const std::string& string, char& value, int)
+			static bool Do(string_view string, char& value, int)
 			{
 				if (string.length() != 1)
 					return false;
@@ -61,15 +61,15 @@ namespace stingray
 			}
 
 			template < typename T >
-			static bool Do(const std::string& str, T& value, long)
+			static bool Do(string_view str, T& value, long)
 			{
-				std::istringstream stream(str);
+				std::istringstream stream(str.copy());
 				stream >> value;
 				return stream.eof();
 			}
 
 			template < typename T, typename ConvertFunc >
-			static bool Do(const std::string& str, ParseProxy<T, ConvertFunc>& adapter, long)
+			static bool Do(string_view str, ParseProxy<T, ConvertFunc>& adapter, long)
 			{
 				try
 				{ adapter.Parse(str); }
@@ -80,7 +80,7 @@ namespace stingray
 			}
 
 			template < typename T >
-			static bool Do(const std::string& string, optional<T>& value, long)
+			static bool Do(string_view string, optional<T>& value, long)
 			{
 				T val;
 				const bool result = Do(string, val, 0);
@@ -91,7 +91,7 @@ namespace stingray
 			}
 		};
 
-		inline bool TryReadArgument(const std::string& string, size_t index)
+		inline bool TryReadArgument(string_view string, size_t index)
 		{
 			if (index == std::numeric_limits<size_t>::max() - 1)
 				return true;
@@ -100,7 +100,7 @@ namespace stingray
 		}
 
 		template < typename T0, typename... Ts >
-		bool TryReadArgument(const std::string& string, size_t index, T0& p0, Ts&... args)
+		bool TryReadArgument(string_view string, size_t index, T0& p0, Ts&... args)
 		{
 			if (index == std::numeric_limits<size_t>::max() - 1)
 				return true;
@@ -115,28 +115,28 @@ namespace stingray
 
 
 	template < typename... Ts >
-	inline bool StringParse(const std::string& string, const std::string& format, Ts&... args)
+	inline bool StringParse(string_view string, string_view format, Ts&... args)
 	{
-		std::deque<variant<TypeList<std::string, size_t>>> tokens;
-		std::string::size_type startPos = 0;
-		std::string::size_type currentPos = 0;
+		std::deque<variant<TypeList<string_view, size_t>>> tokens;
+		string_view::size_type startPos = 0;
+		string_view::size_type currentPos = 0;
 
 		do
 		{
-			const std::string::size_type startMarkerPos = format.find_first_of('%', currentPos);
-			if (startMarkerPos == std::string::npos)
+			const string_view::size_type startMarkerPos = format.find_first_of('%', currentPos);
+			if (startMarkerPos == string_view::npos)
 				break;
 
-			const std::string::size_type endMarkerPos = format.find_first_of('%', startMarkerPos + 1);
-			if (endMarkerPos == std::string::npos)
+			const string_view::size_type endMarkerPos = format.find_first_of('%', startMarkerPos + 1);
+			if (endMarkerPos == string_view::npos)
 				return false;
 
 			currentPos = endMarkerPos + 1;
 
 			if (endMarkerPos - startMarkerPos > 1)
 			{
-				const std::string substr = format.substr(startPos, startMarkerPos - startPos);
-				const std::string indexStr = format.substr(startMarkerPos + 1, endMarkerPos - startMarkerPos - 1);
+				const string_view substr = format.substr(startPos, startMarkerPos - startPos);
+				const string_view indexStr = format.substr(startMarkerPos + 1, endMarkerPos - startMarkerPos - 1);
 
 				size_t index = 0;
 				if (indexStr == "_")
@@ -163,7 +163,7 @@ namespace stingray
 			tokens.push_back(format.substr(startPos));
 
 		size_t index = 0;
-		std::string::size_type currentStringPos = 0;
+		string_view::size_type currentStringPos = 0;
 
 		while (!tokens.empty() && currentStringPos < string.length())
 		{
@@ -174,11 +174,11 @@ namespace stingray
 				continue;
 			}
 
-			const std::string substr = variant_get<std::string>(tokens.front());
+			const string_view substr = tokens.front().get<string_view>();
 			tokens.pop_front();
 
-			const std::string::size_type substrPos = string.find(substr, currentStringPos);
-			if (substrPos == std::string::npos)
+			const string_view::size_type substrPos = string.find(substr, currentStringPos);
+			if (substrPos == string_view::npos)
 				return false;
 
 			if (index)
