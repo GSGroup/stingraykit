@@ -179,8 +179,8 @@ namespace stingray
 
 			if (index)
 			{
-				if (!(substrPos - currentStringPos > 0
-						&& Detail::TryReadArgument(std::string(string, currentStringPos, substrPos - currentStringPos), index - 1, args...)))
+				if (substrPos <= currentStringPos
+						|| !Detail::TryReadArgument(std::string(string, currentStringPos, substrPos - currentStringPos), index - 1, args...))
 					return false;
 
 				index = 0;
@@ -192,7 +192,7 @@ namespace stingray
 		return tokens.empty()
 				&& (index ?
 						Detail::TryReadArgument(std::string(string.begin() + currentStringPos, string.end()), index - 1, args...) :
-						!(currentStringPos < string.length()));
+						currentStringPos >= string.length());
 	}
 
 
