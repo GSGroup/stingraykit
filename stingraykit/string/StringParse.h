@@ -43,8 +43,11 @@ namespace stingray
 			static auto Do(const std::string& str, T& value, int)
 					-> decltype(value = FromString<T>(str), bool())
 			{
-				try { value = FromString<T>(str); }
-				catch (const std::exception&) { return false; }
+				try
+				{ value = FromString<T>(str); }
+				catch (const std::exception&)
+				{ return false; }
+
 				return true;
 			}
 
@@ -52,6 +55,7 @@ namespace stingray
 			{
 				if (string.length() != 1)
 					return false;
+
 				value = string[0];
 				return true;
 			}
@@ -60,14 +64,18 @@ namespace stingray
 			static bool Do(const std::string& str, T& value, long)
 			{
 				std::istringstream stream(str);
-				return (stream >> value).eof();
+				stream >> value;
+				return stream.eof();
 			}
 
 			template < typename T, typename ConvertFunc >
 			static bool Do(const std::string& str, ParseProxy<T, ConvertFunc>& adapter, long)
 			{
-				try { adapter.Parse(str); }
-				catch (const std::exception& ex) { return false; }
+				try
+				{ adapter.Parse(str); }
+				catch (const std::exception& ex)
+				{ return false; }
+
 				return true;
 			}
 
@@ -78,6 +86,7 @@ namespace stingray
 				const bool result = Do(string, val, 0);
 				if (result)
 					value = val;
+
 				return result;
 			}
 		};
@@ -108,13 +117,16 @@ namespace stingray
 	template < typename... Ts >
 	inline bool StringParse(const std::string& string, const std::string& format, Ts&... args)
 	{
-		std::deque<variant<TypeList<std::string, size_t>> > tokens;
-		std::string::size_type start_pos = 0, current_pos = 0;
+		std::deque<variant<TypeList<std::string, size_t>>> tokens;
+		std::string::size_type start_pos = 0;
+		std::string::size_type current_pos = 0;
+
 		do
 		{
 			std::string::size_type start_marker_pos = format.find_first_of('%', current_pos);
 			if (start_marker_pos == std::string::npos)
 				break;
+
 			std::string::size_type end_marker_pos = format.find_first_of('%', start_marker_pos + 1);
 			if (end_marker_pos == std::string::npos)
 				return false;
@@ -124,15 +136,20 @@ namespace stingray
 			if (end_marker_pos - start_marker_pos > 1)
 			{
 				std::string substr(format, start_pos, start_marker_pos - start_pos);
+
 				try
 				{
 					const std::string index_str = std::string(format, start_marker_pos + 1, end_marker_pos - start_marker_pos - 1);
-					size_t index = index_str == "_"? std::numeric_limits<size_t>::max() : FromString<size_t>(index_str);
+					size_t index = index_str == "_" ? std::numeric_limits<size_t>::max() : FromString<size_t>(index_str);
+
 					if (!substr.empty())
 						tokens.push_back(substr);
+
 					tokens.push_back(index);
 				}
-				catch (const std::exception& ex) { continue; }
+				catch (const std::exception& ex)
+				{ continue; }
+
 				start_pos = current_pos;
 			}
 		}
@@ -143,6 +160,7 @@ namespace stingray
 
 		size_t index = 0;
 		std::string::size_type current_string_pos = 0;
+
 		while (!tokens.empty() && current_string_pos < string.length())
 		{
 			if (tokens.front().contains<size_t>())
@@ -154,20 +172,27 @@ namespace stingray
 
 			std::string substr = variant_get<std::string>(tokens.front());
 			tokens.pop_front();
+
 			std::string::size_type substr_pos = string.find(substr, current_string_pos);
 			if (substr_pos == std::string::npos)
 				return false;
 
 			if (index)
 			{
-				if (!(substr_pos - current_string_pos > 0 && Detail::TryReadArgument(std::string(string, current_string_pos, substr_pos - current_string_pos), index - 1, args...)))
+				if (!(substr_pos - current_string_pos > 0
+						&& Detail::TryReadArgument(std::string(string, current_string_pos, substr_pos - current_string_pos), index - 1, args...)))
 					return false;
+
 				index = 0;
 			}
+
 			current_string_pos = substr_pos + substr.length();
 		}
 
-		return tokens.empty() && (index ? Detail::TryReadArgument(std::string(string.begin() + current_string_pos, string.end()), index - 1, args...) : !(current_string_pos < string.length()));
+		return tokens.empty()
+				&& (index ?
+						Detail::TryReadArgument(std::string(string.begin() + current_string_pos, string.end()), index - 1, args...) :
+						!(current_string_pos < string.length()));
 	}
 
 
