@@ -7,9 +7,8 @@
 
 #include <stingraykit/Enum.h>
 
+#include <stingraykit/collection/flat_map.h>
 #include <stingraykit/string/StringUtils.h>
-
-#include <map>
 
 namespace stingray
 {
@@ -26,8 +25,8 @@ namespace stingray
 
 		struct EnumToStringMapBase::Impl
 		{
-			using EnumToStrMap = std::map<int, std::string>;
-			using StrToEnumMap = std::map<std::string, int>;
+			using EnumToStrMap = flat_map<int, std::string>;
+			using StrToEnumMap = flat_map<std::string, int>;
 			using EnumValuesVec = std::vector<int>;
 
 		private:
