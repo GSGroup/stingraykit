@@ -57,16 +57,6 @@ namespace stingray
 #endif
 
 
-#define STINGRAYKIT_SIMPLE_ENUM_TO_STRING_BEGIN(EnumType) \
-	std::string ToString(EnumType value) { \
-		switch (value) { \
-		default: return std::string("Unknown enum value " + stingray::ToString(static_cast<int>(value)) + " of " #EnumType);
-
-#define STINGRAYKIT_SIMPLE_ENUM_VALUE(enumValue) case enumValue: return std::string(#enumValue)
-
-#define STINGRAYKIT_SIMPLE_ENUM_TO_STRING_END() }}
-
-
 #define STINGRAYKIT_ENUM_VALUES(...) \
 	private: \
 		static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
