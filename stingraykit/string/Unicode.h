@@ -32,12 +32,12 @@ namespace stingray
 		explicit UnicodeCollator(bool caseSensitive);
 		~UnicodeCollator();
 
-		int Compare(const std::string& str1, const std::string& str2) const;
+		int Compare(string_view str1, string_view str2) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(UnicodeCollator);
 
 
-	std::string Utf8ToLower(const std::string& str);
+	std::string Utf8ToLower(string_view str);
 
 
 	template < bool CaseSensitive >
@@ -51,7 +51,7 @@ namespace stingray
 			:	_collator(make_shared_ptr<UnicodeCollator>(CaseSensitive))
 		{ }
 
-		int DoCompare(const std::string& str1, const std::string& str2) const
+		int DoCompare(string_view str1, string_view str2) const
 		{ return _collator->Compare(str1, str2); }
 	};
 	STINGRAYKIT_DECLARE_TEMPLATE_COMPARERS(Unicode, bool CaseSensitive, CaseSensitive);

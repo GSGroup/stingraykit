@@ -52,19 +52,19 @@ namespace stingray
 	{ }
 
 
-	int UnicodeCollator::Compare(const std::string& str1, const std::string& str2) const
+	int UnicodeCollator::Compare(string_view str1, string_view str2) const
 	{
 		UErrorCode success = U_ZERO_ERROR;
-		const UCollationResult r = _collator->compareUTF8(str1, str2, success);
+		const UCollationResult r = _collator->compareUTF8(icu::StringPiece(str1.data(), str1.size()), icu::StringPiece(str2.data(), str2.size()), success);
 		STINGRAYKIT_CHECK(U_SUCCESS(success), StringBuilder() % "compareUTF8() failed, error: " % success);
 
 		return CollationResultMapper::Map(r);
 	}
 
 
-	std::string Utf8ToLower(const std::string& str)
+	std::string Utf8ToLower(string_view str)
 	{
-		const icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(str).toLower();
+		const icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(icu::StringPiece(str.data(), str.size())).toLower();
 		std::string r;
 		ustr.toUTF8String(r);
 		return r;
@@ -78,15 +78,15 @@ namespace stingray
 	UnicodeCollator::~UnicodeCollator() { }
 
 
-	int UnicodeCollator::Compare(const std::string& str1, const std::string& str2) const
+	int UnicodeCollator::Compare(string_view str1, string_view str2) const
 	{ return _caseSensitive ? str1.compare(str2) : Utf8ToLower(str1).compare(Utf8ToLower(str2)); }
 
 
-	std::string Utf8ToLower(const std::string& str)
+	std::string Utf8ToLower(string_view str)
 	{
 		std::string result;
 		result.reserve(str.size());
-		for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+		for (string_view::const_iterator it = str.begin(); it != str.end(); ++it)
 		{
 			if (*it >= 'A' && *it <= 'Z')
 				result.push_back(*it + 'a' - 'A');
