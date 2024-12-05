@@ -14,11 +14,11 @@
 namespace stingray
 {
 
-	inline size_t Utf8Strlen(const std::string& str)
-	{ return Count(Utf8IteratorRange<std::string>(str)); }
+	inline size_t Utf8Strlen(string_view str)
+	{ return Count(Utf8IteratorRange<string_view>(str)); }
 
 
-	inline bool Utf8Validate(const std::string& str)
+	inline bool Utf8Validate(string_view str)
 	{
 		try
 		{ Utf8Strlen(str); }
@@ -30,13 +30,13 @@ namespace stingray
 
 
 	template < bool IndexBySymbols >
-	std::string Utf8Substring(const std::string& str, size_t pos, size_t count = std::string::npos)
+	std::string Utf8Substring(string_view str, size_t pos, size_t count = string_view::npos)
 	{
-		Utf8IteratorRange<std::string> range(str);
+		Utf8IteratorRange<string_view> range(str);
 
 		size_t index = 0;
-		std::string::const_iterator start = range.GetIterator();
-		std::string::const_iterator end = range.GetIterator();
+		string_view::const_iterator start = range.GetIterator();
+		string_view::const_iterator end = range.GetIterator();
 
 		while ((IndexBySymbols ? index : (size_t)std::distance(start, end)) < pos)
 		{
@@ -45,7 +45,7 @@ namespace stingray
 			end = range.GetIterator();
 		}
 
-		if (count == std::string::npos)
+		if (count == string_view::npos)
 			return std::string(end, str.end());
 
 		index = 0;
