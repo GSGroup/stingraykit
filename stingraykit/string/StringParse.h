@@ -136,19 +136,23 @@ namespace stingray
 			if (endMarkerPos - startMarkerPos > 1)
 			{
 				const std::string substr = format.substr(startPos, startMarkerPos - startPos);
+				const std::string indexStr = format.substr(startMarkerPos + 1, endMarkerPos - startMarkerPos - 1);
 
-				try
+				size_t index = 0;
+				if (indexStr == "_")
+					index = std::numeric_limits<size_t>::max();
+				else
 				{
-					const std::string indexStr = format.substr(startMarkerPos + 1, endMarkerPos - startMarkerPos - 1);
-					const size_t index = indexStr == "_" ? std::numeric_limits<size_t>::max() : FromString<size_t>(indexStr);
-
-					if (!substr.empty())
-						tokens.push_back(substr);
-
-					tokens.push_back(index);
+					try
+					{ index = FromString<size_t>(indexStr); }
+					catch (const std::exception& ex)
+					{ continue; }
 				}
-				catch (const std::exception& ex)
-				{ continue; }
+
+				if (!substr.empty())
+					tokens.push_back(substr);
+
+				tokens.push_back(index);
 
 				startPos = currentPos;
 			}
