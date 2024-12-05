@@ -84,7 +84,7 @@ set(stingraykit_SRC
 	stingraykit/BigNum.cpp
 	stingraykit/CmdLine.cpp
 	stingraykit/Decimal.cpp
-	stingraykit/EnumToString.cpp
+	stingraykit/Enum.cpp
 	stingraykit/Exception.cpp
 	stingraykit/ProgressValue.cpp
 	stingraykit/Random.cpp

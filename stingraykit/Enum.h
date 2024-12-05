@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_ENUMTOSTRING_H
-#define STINGRAYKIT_ENUMTOSTRING_H
+#ifndef STINGRAYKIT_ENUM_H
+#define STINGRAYKIT_ENUM_H
 
 // Copyright (c) 2011 - 2024, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
