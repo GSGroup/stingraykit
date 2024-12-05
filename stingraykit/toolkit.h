@@ -233,17 +233,6 @@ namespace stingray
 	}
 
 
-	struct CollectionOp
-	{
-		STINGRAYKIT_ENUM_VALUES
-		(
-			Added,
-			Removed,
-			Updated
-		);
-		STINGRAYKIT_DECLARE_ENUM_CLASS(CollectionOp);
-	};
-
 	struct DebuggingHelper
 	{
 		static void BreakpointHere();

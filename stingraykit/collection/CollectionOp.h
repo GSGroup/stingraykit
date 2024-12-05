@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_COLLECTION_DIFFENTRY_H
-#define STINGRAYKIT_COLLECTION_DIFFENTRY_H
+#ifndef STINGRAYKIT_COLLECTION_COLLECTIONOP_H
+#define STINGRAYKIT_COLLECTION_COLLECTIONOP_H
 
 // Copyright (c) 2011 - 2024, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -8,39 +8,22 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/compare/MemberListComparer.h>
-#include <stingraykit/collection/CollectionOp.h>
-#include <stingraykit/string/ToString.h>
+#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
 
-	template < typename T >
-	struct DiffEntry
+	struct CollectionOp
 	{
-		using ItemType = T;
-
-		CollectionOp	Op;
-		ItemType		Item;
-
-		DiffEntry(CollectionOp op, const ItemType& item)
-			: Op(op), Item(item)
-		{ }
-
-		int Compare(const DiffEntry& other) const
-		{ return CompareMembersCmp(&DiffEntry::Op, &DiffEntry::Item)(*this, other); }
-
-		std::string ToString() const
-		{ return StringBuilder() % "{ " % Op % ": " % Item % " }"; }
+		STINGRAYKIT_ENUM_VALUES
+		(
+			Added,
+			Removed,
+			Updated
+		);
+		STINGRAYKIT_DECLARE_ENUM_CLASS(CollectionOp);
 	};
-
-
-	template < typename T >
-	DiffEntry<T> MakeDiffEntry(CollectionOp op, const T& item)
-	{ return DiffEntry<T>(op, item); }
-
 
 }
 
 #endif
-
