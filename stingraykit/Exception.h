@@ -10,7 +10,6 @@
 
 #include <stingraykit/diagnostics/Backtrace.h>
 #include <stingraykit/string/ToStringForward.h>
-#include <stingraykit/toolkit.h>
 
 #include <stdexcept>
 #include <typeinfo>

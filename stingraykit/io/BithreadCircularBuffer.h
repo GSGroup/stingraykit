@@ -11,7 +11,6 @@
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/collection/BytesOwner.h>
 #include <stingraykit/self_counter.h>
-#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
