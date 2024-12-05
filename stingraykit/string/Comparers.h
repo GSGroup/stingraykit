@@ -36,6 +36,9 @@ namespace stingray
 
 	struct CaseInsensitiveLess : public comparers::RelationalComparerInfo
 	{
+		bool operator () (string_view first, string_view second) const
+		{ return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), Detail::CaseInsensitiveCompare<comparers::Less>()); }
+
 		bool operator () (const std::string& first, const std::string& second) const
 		{ return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), Detail::CaseInsensitiveCompare<comparers::Less>()); }
 	};
