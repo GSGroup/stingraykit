@@ -10,9 +10,7 @@
 
 #include <stingraykit/PhoenixSingleton.h>
 #include <stingraykit/collection/iterator_base.h>
-#include <stingraykit/Types.h>
 
-#include <memory>
 #include <vector>
 #include <string>
 
@@ -94,50 +92,63 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		struct EnumValueHolder
 		{
 			static const s64 Uninitialized = ((s64)0x7FFFFFFF) << 32;
-			s64 Val;
+
+			s64					Val;
+
 			EnumValueHolder() : Val(Uninitialized) { }
 			EnumValueHolder(s32 val) : Val(val) { }
-			EnumValueHolder& operator = (s32 val) { Val = val; return *this; }
+
+			EnumValueHolder& operator = (s32 val)
+			{
+				Val = val;
+				return *this;
+			}
 		};
-		inline EnumValueHolder operator + (EnumValueHolder const &left, EnumValueHolder const &right) { return EnumValueHolder(left.Val + right.Val); }
-		inline EnumValueHolder operator - (EnumValueHolder const &left, EnumValueHolder const &right) { return EnumValueHolder(left.Val - right.Val); }
+
+		inline EnumValueHolder operator + (const EnumValueHolder& left, const EnumValueHolder& right)
+		{ return EnumValueHolder(left.Val + right.Val); }
+
+		inline EnumValueHolder operator - (const EnumValueHolder& left, const EnumValueHolder& right)
+		{ return EnumValueHolder(left.Val - right.Val); }
 
 		class EnumToStringMapBase
 		{
+			EnumToStringMapBase(const EnumToStringMapBase&);
+			EnumToStringMapBase& operator = (const EnumToStringMapBase&);
+
 		public:
 			typedef std::vector<int>	EnumValuesVec;
 
 		private:
 			struct Impl;
-			Impl*	_impl;
 
-			EnumToStringMapBase(const EnumToStringMapBase&);
-			EnumToStringMapBase& operator = (const EnumToStringMapBase&);
-
-		protected:
-			EnumToStringMapBase();
-			~EnumToStringMapBase();
+		private:
+			Impl*				_impl;
 
 		public:
 			const EnumValuesVec& DoGetEnumValues() const;
+
 			std::string DoEnumToString(int val);
 			int DoEnumFromString(const std::string& str);
 
 			void DoInit(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const char* str);
+
+		protected:
+			EnumToStringMapBase();
+			~EnumToStringMapBase();
 		};
 
-
 		template < typename EnumClassT >
-		class EnumToStringMapInstance : public EnumToStringMapBase, public PhoenixSingleton<EnumToStringMapInstance<EnumClassT> >
+		class EnumToStringMapInstance : public EnumToStringMapBase, public PhoenixSingleton<EnumToStringMapInstance<EnumClassT>>
 		{
 		public:
 			EnumToStringMapInstance()
 			{ EnumClassT::InitEnumToStringMap(*this); }
 		};
-
 
 		template < typename EnumClassT >
 		class EnumToStringMap
@@ -150,9 +161,6 @@ namespace stingray
 			static const EnumValuesVec& GetEnumValues()					{ return PhoenixType::Instance().DoGetEnumValues(); }
 			static std::string EnumToString(NativeEnum val)				{ return PhoenixType::Instance().DoEnumToString(static_cast<int>(val)); }
 			static NativeEnum EnumFromString(const std::string& str)	{ return (NativeEnum)PhoenixType::Instance().DoEnumFromString(str); }
-
-		private:
-			typedef Detail::EnumToStringMap<EnumClassT>	ThisT;
 		};
 
 		template < typename EnumClassT >
@@ -163,6 +171,8 @@ namespace stingray
 		{
 			typedef iterator_base<EnumIterator<EnumClassT>, EnumClassT, std::random_access_iterator_tag, std::ptrdiff_t, const EnumClassT*, const EnumClassT&> base;
 
+			friend struct EnumIteratorCreator<EnumClassT>;
+
 		public:
 			typedef typename base::difference_type		difference_type;
 			typedef	typename base::reference			reference;
@@ -171,32 +181,33 @@ namespace stingray
 		private:
 			typedef typename EnumClassT::Enum							NativeEnum;
 			typedef typename std::vector<int>::const_iterator			Wrapped;
-			friend struct EnumIteratorCreator<EnumClassT>;
 
 		private:
 			Wrapped				_wrapped;
-			EnumIterator(const Wrapped& wrapped) : _wrapped(wrapped) { }
 
 		public:
-			reference dereference() const {
-				return *reinterpret_cast<pointer>(&*_wrapped);
-			}
+			reference dereference() const									{ return *reinterpret_cast<pointer>(&*_wrapped); }
+
 			void increment()												{ ++_wrapped; }
 			void decrement()												{ --_wrapped; }
 			void advance(const difference_type& diff)						{ std::advance(_wrapped, diff); }
-			difference_type distance_to(const EnumIterator &other) const	{ return std::distance(_wrapped, other._wrapped); }
+
+			difference_type distance_to(const EnumIterator& other) const	{ return std::distance(_wrapped, other._wrapped); }
 			bool equal(const EnumIterator& other) const						{ return _wrapped == other._wrapped; }
+
+		private:
+			EnumIterator(const Wrapped& wrapped) : _wrapped(wrapped) { }
 		};
 
 		template < typename EnumClassT >
 		struct EnumIteratorCreator
 		{
-			static EnumIterator<EnumClassT> begin()	{ return EnumToStringMap<EnumClassT>::GetEnumValues().begin(); }
-			static EnumIterator<EnumClassT> end()	{ return EnumToStringMap<EnumClassT>::GetEnumValues().end(); }
+			static EnumIterator<EnumClassT> begin()		{ return EnumToStringMap<EnumClassT>::GetEnumValues().begin(); }
+			static EnumIterator<EnumClassT> end()		{ return EnumToStringMap<EnumClassT>::GetEnumValues().end(); }
 		};
+
 	}
 
 }
-
 
 #endif
