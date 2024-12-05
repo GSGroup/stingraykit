@@ -30,7 +30,7 @@ TEST(StringParseTest, Medley)
 	ASSERT_TRUE(StringParse("Go home, %username%, you're drunk", "Go home, %username%, you're %1%", s));
 	ASSERT_EQ(s, "drunk");
 
-	ASSERT_TRUE(!StringParse("not integer: Universe", "not integer: %1%", i));
+	ASSERT_FALSE(StringParse("not integer: Universe", "not integer: %1%", i));
 
 	ASSERT_ANY_THROW(StringParse("1 2", "%1% %2%", i));
 
