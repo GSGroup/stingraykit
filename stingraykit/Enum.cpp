@@ -7,10 +7,9 @@
 
 #include <stingraykit/Enum.h>
 
-#include <stingraykit/string/ToString.h>
+#include <stingraykit/string/StringUtils.h>
 
 #include <map>
-#include <sstream>
 
 namespace stingray
 {
@@ -75,28 +74,13 @@ namespace stingray
 
 			int EnumFromString(const std::string& str)
 			{
+				const std::string strippedStr = Strip(str, " \t\n\r");
+				if (!strippedStr.empty() && strippedStr.front() >= '0' && strippedStr.front() <= '9')
 				{
-					std::string::const_iterator strIt = str.begin();
-					while (strIt != str.end() && IsWhitespace(*strIt))
-						++strIt;
-
-					if (strIt != str.end() && *strIt >= '0' && *strIt <= '9')
-					{
-						std::stringstream s(str);
-
-						unsigned value;
-						s >> value;
-						STINGRAYKIT_CHECK(!s.fail(), FormatException(str));
-
-						while (!s.eof())
-						{
-							char c = 0;
-							s >> c;
-							STINGRAYKIT_CHECK(s.eof() || IsWhitespace(c), FormatException(str));
-						}
-
-						return value;
-					}
+					try
+					{ return FromString<unsigned>(strippedStr); }
+					catch (const std::exception& ex)
+					{ STINGRAYKIT_THROW(FormatException(str)); }
 				}
 
 				const StrToEnumMap::const_iterator it = _strToEnum.find(str);
