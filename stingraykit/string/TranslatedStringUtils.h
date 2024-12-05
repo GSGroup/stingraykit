@@ -84,7 +84,7 @@ namespace stingray
 
 
 	template < typename LangCodes, typename Range >
-	auto Join(const LangCodes& langs, const std::string& separator, const Range& range)
+	auto Join(const LangCodes& langs, string_view separator, const Range& range)
 			-> decltype(std::declval<LangCodes>().begin(), std::declval<LangCodes>().end(), TranslatedString())
 	{
 		bool empty = true;
