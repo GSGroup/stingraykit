@@ -7,7 +7,7 @@
 
 #include <stingraykit/Enum.h>
 
-#include <stingraykit/Exception.h>
+#include <stingraykit/string/ToString.h>
 
 #include <map>
 #include <sstream>
@@ -87,16 +87,13 @@ namespace stingray
 
 						unsigned value;
 						s >> value;
-
-						if (s.fail())
-							STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
+						STINGRAYKIT_CHECK(!s.fail(), FormatException(str));
 
 						while (!s.eof())
 						{
 							char c = 0;
 							s >> c;
-							if (!s.eof() && !IsWhitespace(c))
-								STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
+							STINGRAYKIT_CHECK(s.eof() || IsWhitespace(c), FormatException(str));
 						}
 
 						return value;
@@ -126,8 +123,7 @@ namespace stingray
 					if (!bitValue.empty())
 					{
 						const StrToEnumMap::const_iterator it = _strToEnum.find(bitValue);
-						if (it == _strToEnum.end())
-							STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
+						STINGRAYKIT_CHECK(it != _strToEnum.end(), KeyNotFoundException(str));
 
 						bitValue.clear();
 						result |= (s32)it->second;
@@ -137,9 +133,7 @@ namespace stingray
 						break;
 				}
 
-				if (!hasNonwhitespaceChars)
-					STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
-
+				STINGRAYKIT_CHECK(hasNonwhitespaceChars, FormatException(str));
 				return result;
 			}
 
@@ -178,8 +172,7 @@ namespace stingray
 					currentName.clear();
 				}
 
-				if (valueIt != _values.end())
-					STINGRAYKIT_THROW("Internal error in EnumToStringMap, enum values: \"" + str + "\"");
+				STINGRAYKIT_CHECK(valueIt == _values.end(), LogicException(StringBuilder() % "Invalid enum values: '" % str % "'"));
 			}
 		};
 
