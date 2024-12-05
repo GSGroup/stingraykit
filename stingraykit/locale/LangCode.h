@@ -9,7 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/string/string_view.h>
-#include <stingraykit/toolkit.h>
+#include <stingraykit/operators.h>
+#include <stingraykit/Types.h>
 
 namespace stingray
 {

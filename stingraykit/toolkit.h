@@ -10,6 +10,7 @@
 
 #include <stingraykit/EnumToString.h>
 #include <stingraykit/MetaProgramming.h>
+#include <stingraykit/operators.h>
 
 
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(PRODUCTION_BUILD)
@@ -129,94 +130,6 @@ namespace stingray
 		{ ClassName_ result(*this); return result |= r; } \
 		constexpr ClassName_ operator & (ClassName_::Enum r) \
 		{ ClassName_ result(*this); return result &= r; }
-
-
-#define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
-		DETAIL_GENERATE_COMPARISON_OPERATORS_FROM_LESS(, ClassName)
-
-#define STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_LESS(ClassName) \
-		DETAIL_GENERATE_COMPARISON_OPERATORS_FROM_LESS(constexpr, ClassName)
-
-#define DETAIL_GENERATE_COMPARISON_OPERATORS_FROM_LESS(ConstexprInlineDecl, ClassName) \
-		ConstexprInlineDecl bool operator > (const ClassName& other) const \
-		{ return other < *this; } \
-		ConstexprInlineDecl bool operator <= (const ClassName& other) const \
-		{ return !(other < *this); } \
-		ConstexprInlineDecl bool operator >= (const ClassName& other) const \
-		{ return !(*this < other); } \
-		ConstexprInlineDecl bool operator != (const ClassName& other) const \
-		{ return (other < *this) || (*this < other); } \
-		ConstexprInlineDecl bool operator == (const ClassName& other) const \
-		{ return !(other != *this); }
-
-
-#define STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(ClassName) \
-		DETAIL_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(, ClassName)
-
-#define STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_COMPARE(ClassName) \
-		DETAIL_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(constexpr, ClassName)
-
-#define DETAIL_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(ConstexprInlineDecl, ClassName) \
-		ConstexprInlineDecl bool operator < (const ClassName& other) const { return Compare(other) <  0; } \
-		ConstexprInlineDecl bool operator > (const ClassName& other) const { return Compare(other) >  0; } \
-		ConstexprInlineDecl bool operator <= (const ClassName& other) const { return Compare(other) <= 0; } \
-		ConstexprInlineDecl bool operator >= (const ClassName& other) const { return Compare(other) >= 0; } \
-		ConstexprInlineDecl bool operator == (const ClassName& other) const { return Compare(other) == 0; } \
-		ConstexprInlineDecl bool operator != (const ClassName& other) const { return Compare(other) != 0; }
-
-
-#define STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(ClassName) \
-		DETAIL_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(, ClassName)
-
-#define STINGRAYKIT_GENERATE_CONSTEXPR_EQUALITY_OPERATORS_FROM_EQUAL(ClassName) \
-		DETAIL_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(constexpr, ClassName)
-
-#define DETAIL_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(ConstexprInlineDecl, ClassName) \
-		ConstexprInlineDecl bool operator != (const ClassName& other) const \
-		{ return !(*this == other); }
-
-
-#define STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(ClassName) \
-		DETAIL_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(, ClassName)
-
-#define STINGRAYKIT_GENERATE_CONSTEXPR_RELATIONAL_OPERATORS_FROM_LESS(ClassName) \
-		DETAIL_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(constexpr, ClassName)
-
-#define DETAIL_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(ConstexprInlineDecl, ClassName) \
-		ConstexprInlineDecl bool operator > (const ClassName& other) const \
-		{ return other < *this; } \
-		ConstexprInlineDecl bool operator <= (const ClassName& other) const \
-		{ return !(other < *this); } \
-		ConstexprInlineDecl bool operator >= (const ClassName& other) const \
-		{ return !(*this < other); }
-
-
-#define STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
-		TemplateConstexprInlineDecl \
-		bool operator != (const LeftClassName& lhs, const RightClassName& rhs) \
-		{ return !(lhs == rhs); }
-
-#define STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
-		TemplateConstexprInlineDecl \
-		bool operator > (const LeftClassName& lhs, const RightClassName& rhs) \
-		{ return rhs < lhs; } \
-		TemplateConstexprInlineDecl \
-		bool operator <= (const LeftClassName& lhs, const RightClassName& rhs) \
-		{ return !(rhs < lhs); } \
-		TemplateConstexprInlineDecl \
-		bool operator >= (const LeftClassName& lhs, const RightClassName& rhs) \
-		{ return !(lhs < rhs); }
-
-#define STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, FirstClassName, SecondClassName) \
-		TemplateConstexprInlineDecl \
-		bool operator == (const SecondClassName& lhs, const FirstClassName& rhs) \
-		{ return rhs == lhs; } \
-		TemplateConstexprInlineDecl \
-		bool operator != (const FirstClassName& lhs, const SecondClassName& rhs) \
-		{ return !(lhs == rhs); } \
-		TemplateConstexprInlineDecl \
-		bool operator != (const SecondClassName& lhs, const FirstClassName& rhs) \
-		{ return !(rhs == lhs); }
 
 
 namespace stingray
