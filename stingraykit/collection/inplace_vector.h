@@ -12,6 +12,8 @@
 #include <stingraykit/collection/iterator_base.h>
 #include <stingraykit/aligned_storage.h>
 
+#include <vector>
+
 namespace stingray
 {
 

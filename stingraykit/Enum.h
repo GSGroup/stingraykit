@@ -16,6 +16,79 @@
 #include <vector>
 #include <string>
 
+#define STINGRAYKIT_ENUM_VALUES(...) \
+	private: \
+		static void InitEnumToStringMap(::stingray::Detail::EnumToStringMapBase& map) \
+		{ \
+			stingray::Detail::EnumValueHolder __VA_ARGS__; \
+			stingray::Detail::EnumValueHolder values[] = { __VA_ARGS__ }; \
+			map.DoInit(values, values + sizeof(values) / sizeof(values[0]), #__VA_ARGS__); \
+		} \
+	public: \
+		enum Enum { __VA_ARGS__ }
+
+#define STINGRAYKIT_DECLARE_ENUM_CLASS(ClassName) \
+		friend class stingray::Detail::EnumToStringMapInstance<ClassName>; \
+	public: \
+		using const_iterator = stingray::Detail::EnumIterator<ClassName>; \
+		ClassName() : _enumVal() \
+		{ \
+			const std::vector<int>& values = stingray::Detail::EnumToStringMap<ClassName>::GetEnumValues(); \
+			if (!values.empty()) \
+				_enumVal = static_cast<Enum>(values.front()); \
+		} \
+		constexpr ClassName(Enum enumVal) : _enumVal(enumVal) { } \
+		static const_iterator begin()						{ return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
+		static const_iterator end()							{ return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
+		std::string ToString() const						{ return stingray::Detail::EnumToStringMap<ClassName>::EnumToString(_enumVal); } \
+		static ClassName FromString(const std::string& str)	{ return stingray::Detail::EnumToStringMap<ClassName>::EnumFromString(str); } \
+		constexpr operator Enum () const { return _enumVal; } \
+		constexpr Enum val() const { return _enumVal; } \
+		constexpr bool operator == (Enum other) const { return _enumVal == other; } \
+		constexpr bool operator < (Enum other) const { return _enumVal < other; } \
+		constexpr bool operator > (Enum other) const { return _enumVal > other; } \
+		DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, ==) \
+		template < typename T > \
+		constexpr bool operator != (T other) const { return !(*this == other); } \
+		DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, <) \
+		DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, >) \
+		template < typename T > \
+		constexpr bool operator <= (T other) const { return !(*this > other); } \
+		template < typename T > \
+		constexpr bool operator >= (T other) const { return !(*this < other); } \
+	private: \
+		Enum _enumVal
+
+#define DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, OP) \
+		template < typename T > \
+		bool operator OP (T other) const \
+		{ \
+			static_assert(stingray::IsInherited<T, ClassName>::Value, "Invalid enum used"); \
+			return *this OP (Enum)other; \
+		}
+
+
+#define STINGRAYKIT_DECLARE_ENUM_CLASS_BIT_OPERATORS(ClassName_) \
+		constexpr ClassName_& operator |= (ClassName_& l, ClassName_::Enum r) \
+		{ return l = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(l) | static_cast<int>(r))); } \
+		constexpr ClassName_& operator &= (ClassName_& l, ClassName_::Enum r) \
+		{ return l = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(l) & static_cast<int>(r))); } \
+		constexpr ClassName_::Enum operator | (ClassName_::Enum l, ClassName_::Enum r) \
+		{ ClassName_ result(l); return result |= r; } \
+		constexpr ClassName_::Enum operator & (ClassName_::Enum l, ClassName_::Enum r) \
+		{ ClassName_ result(l); return result &= r; }
+
+#define STINGRAYKIT_DECLARE_ENUM_CLASS_MEMBER_BIT_OPERATORS(ClassName_) \
+	public: \
+		constexpr ClassName_& operator |= (ClassName_::Enum r) \
+		{ return *this = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(val()) | static_cast<int>(r))); } \
+		constexpr ClassName_& operator &= (ClassName_::Enum r) \
+		{ return *this = ClassName_(static_cast<ClassName_::Enum>(static_cast<int>(val()) & static_cast<int>(r))); } \
+		constexpr ClassName_ operator | (ClassName_::Enum r) \
+		{ ClassName_ result(*this); return result |= r; } \
+		constexpr ClassName_ operator & (ClassName_::Enum r) \
+		{ ClassName_ result(*this); return result &= r; }
+
 namespace stingray
 {
 

@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/core/Dummy.h>
+#include <stingraykit/core/NonCopyable.h>
 #include <stingraykit/metaprogramming/EnableIf.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
 #include <stingraykit/reference.h>

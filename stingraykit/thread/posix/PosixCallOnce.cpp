@@ -6,6 +6,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/thread/posix/PosixCallOnce.h>
+#include <stingraykit/thread/atomic/AtomicInt.h>
 
 #include <stingraykit/SystemException.h>
 

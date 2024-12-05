@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/ByteData.h>
 #include <stingraykit/string/string_view.h>
-#include <stingraykit/toolkit.h>
 
 namespace stingray
 {
