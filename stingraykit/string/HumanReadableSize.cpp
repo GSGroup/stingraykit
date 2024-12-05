@@ -6,6 +6,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/string/HumanReadableSize.h>
+#include <stingraykit/string/RegexUtils.h>
 #include <stingraykit/string/ToString.h>
 
 #include <regex>
@@ -49,17 +50,17 @@ namespace stingray
 	}
 
 
-	u64 FromHumanReadableSize(const std::string& str)
+	u64 FromHumanReadableSize(string_view str)
 	{
 		try
 		{ return FromString<u64>(str); }
 		catch (const std::exception&)
 		{ }
 
-		std::smatch match;
-		if (std::regex_match(str, match, FromHumanRegex))
+		svmatch match;
+		if (std::regex_match(str.begin(), str.end(), match, FromHumanRegex))
 		{
-			const u64 num = FromString<u64>(match.str(1));
+			const u64 num = FromString<u64>(svmatch_str(match, 1));
 			const char suffix = *match[2].first;
 
 			for (size_t i = 0; i < Suffixes.size(); ++i)
@@ -67,7 +68,7 @@ namespace stingray
 					return num * ((u64)1 << (10 * (i + 1)));
 		}
 
-		STINGRAYKIT_THROW(FormatException(str));
+		STINGRAYKIT_THROW(FormatException(str.copy()));
 	}
 
 }
