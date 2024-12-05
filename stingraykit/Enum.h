@@ -117,11 +117,10 @@ namespace stingray
 
 		class EnumToStringMapBase
 		{
-			EnumToStringMapBase(const EnumToStringMapBase&);
-			EnumToStringMapBase& operator = (const EnumToStringMapBase&);
+			STINGRAYKIT_NONCOPYABLE(EnumToStringMapBase);
 
 		public:
-			typedef std::vector<int>	EnumValuesVec;
+			using EnumValuesVec = std::vector<int>;
 
 		private:
 			struct Impl;
@@ -135,7 +134,7 @@ namespace stingray
 			std::string DoEnumToString(int val);
 			int DoEnumFromString(const std::string& str);
 
-			void DoInit(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const char* str);
+			void DoInit(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const char* str);
 
 		protected:
 			EnumToStringMapBase();
@@ -153,9 +152,9 @@ namespace stingray
 		template < typename EnumClassT >
 		class EnumToStringMap
 		{
-			typedef typename EnumClassT::Enum NativeEnum;
-			typedef EnumToStringMapInstance<EnumClassT> PhoenixType;
-			typedef EnumToStringMapBase::EnumValuesVec EnumValuesVec;
+			using NativeEnum = typename EnumClassT::Enum;
+			using PhoenixType = EnumToStringMapInstance<EnumClassT>;
+			using EnumValuesVec = EnumToStringMapBase::EnumValuesVec;
 
 		public:
 			static const EnumValuesVec& GetEnumValues()					{ return PhoenixType::Instance().DoGetEnumValues(); }
@@ -169,18 +168,18 @@ namespace stingray
 		template < typename EnumClassT >
 		class EnumIterator : public iterator_base<EnumIterator<EnumClassT>, EnumClassT, std::random_access_iterator_tag, std::ptrdiff_t, const EnumClassT*, const EnumClassT&>
 		{
-			typedef iterator_base<EnumIterator<EnumClassT>, EnumClassT, std::random_access_iterator_tag, std::ptrdiff_t, const EnumClassT*, const EnumClassT&> base;
+			using base = iterator_base<EnumIterator<EnumClassT>, EnumClassT, std::random_access_iterator_tag, std::ptrdiff_t, const EnumClassT*, const EnumClassT&>;
 
 			friend struct EnumIteratorCreator<EnumClassT>;
 
 		public:
-			typedef typename base::difference_type		difference_type;
-			typedef	typename base::reference			reference;
-			typedef	typename base::pointer				pointer;
+			using difference_type = typename base::difference_type;
+			using reference = typename base::reference;
+			using pointer = typename base::pointer;
 
 		private:
-			typedef typename EnumClassT::Enum							NativeEnum;
-			typedef typename std::vector<int>::const_iterator			Wrapped;
+			using NativeEnum = typename EnumClassT::Enum;
+			using Wrapped = typename std::vector<int>::const_iterator;
 
 		private:
 			Wrapped				_wrapped;

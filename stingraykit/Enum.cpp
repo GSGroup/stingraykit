@@ -27,9 +27,9 @@ namespace stingray
 
 		struct EnumToStringMapBase::Impl
 		{
-			typedef std::map<int, std::string>			EnumToStrMap;
-			typedef std::map<std::string, int>			StrToEnumMap;
-			typedef std::vector<int>					EnumValuesVec;
+			using EnumToStrMap = std::map<int, std::string>;
+			using StrToEnumMap = std::map<std::string, int>;
+			using EnumValuesVec = std::vector<int>;
 
 		private:
 			EnumToStrMap		_enumToStr;
@@ -143,12 +143,12 @@ namespace stingray
 				return result;
 			}
 
-			void Init(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const std::string& str)
+			void Init(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const std::string& str)
 			{
 				int cur_value = 0;
 				for (; valuesBegin != valuesEnd; ++valuesBegin, ++cur_value)
 				{
-					if (valuesBegin->Val != Detail::EnumValueHolder::Uninitialized)
+					if (valuesBegin->Val != EnumValueHolder::Uninitialized)
 						cur_value = valuesBegin->Val;
 
 					_values.push_back(cur_value);
@@ -173,8 +173,8 @@ namespace stingray
 					if (s_it != str.end())
 						++s_it; // ','
 
-					_enumToStr.insert(EnumToStrMap::value_type(*v_it, current_name));
-					_strToEnum.insert(StrToEnumMap::value_type(current_name, *v_it));
+					_enumToStr.emplace(*v_it, current_name);
+					_strToEnum.emplace(current_name, *v_it);
 					current_name.clear();
 				}
 
@@ -183,7 +183,7 @@ namespace stingray
 			}
 		};
 
-		void EnumToStringMapBase::DoInit(const Detail::EnumValueHolder* valuesBegin, const Detail::EnumValueHolder* valuesEnd, const char* str)
+		void EnumToStringMapBase::DoInit(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const char* str)
 		{ _impl->Init(valuesBegin, valuesEnd, str); }
 
 		const EnumToStringMapBase::EnumValuesVec& EnumToStringMapBase::DoGetEnumValues() const
