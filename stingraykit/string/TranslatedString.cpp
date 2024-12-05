@@ -15,18 +15,13 @@
 namespace stingray
 {
 
-	TranslatedString::TranslatedString(const DictionaryImplPtr& dictionary)
-		: _dictionary(STINGRAYKIT_REQUIRE_NOT_NULL(dictionary))
-	{ }
-
-
 	TranslatedString::TranslatedString()
-		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string> >())
+		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string>>())
 	{ }
 
 
 	TranslatedString::TranslatedString(LangCode lang, const std::string& str)
-		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string> >())
+		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string>>())
 	{ _dictionary->Set(lang, str); }
 
 
@@ -73,8 +68,13 @@ namespace stingray
 	{ return CollectionCmp()(_dictionary, other._dictionary); }
 
 
+	TranslatedString::TranslatedString(const DictionaryImplPtr& dictionary)
+		: _dictionary(STINGRAYKIT_REQUIRE_NOT_NULL(dictionary))
+	{ }
+
+
 	TranslatedString::Builder::Builder()
-		: _product(make_shared_ptr<MapDictionary<LangCode, std::string> >()), _dirty(true)
+		: _product(make_shared_ptr<MapDictionary<LangCode, std::string>>()), _dirty(true)
 	{ }
 
 
@@ -87,7 +87,7 @@ namespace stingray
 	{
 		if (!_dirty)
 		{
-			_product = make_shared_ptr<MapDictionary<LangCode, std::string> >(_product);
+			_product = make_shared_ptr<MapDictionary<LangCode, std::string>>(_product);
 			_dirty = true;
 		}
 

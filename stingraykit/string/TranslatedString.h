@@ -18,19 +18,17 @@ namespace stingray
 	struct TranslatedString
 	{
 	private:
-		typedef IDictionary<LangCode, std::string>	DictionaryImpl;
+		using DictionaryImpl = IDictionary<LangCode, std::string>;
 		STINGRAYKIT_DECLARE_PTR(DictionaryImpl);
 
 	public:
-		typedef IReadonlyDictionary<LangCode, std::string>	Dictionary;
+		using Dictionary = IReadonlyDictionary<LangCode, std::string>;
 		STINGRAYKIT_DECLARE_PTR(Dictionary);
 
 		class Builder;
 
 	private:
 		DictionaryImplPtr	_dictionary;
-
-		explicit TranslatedString(const DictionaryImplPtr& dictionary);
 
 	public:
 		TranslatedString();
@@ -67,6 +65,9 @@ namespace stingray
 
 		int Compare(const TranslatedString& other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(TranslatedString);
+
+	private:
+		explicit TranslatedString(const DictionaryImplPtr& dictionary);
 	};
 
 
