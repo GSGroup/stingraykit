@@ -563,7 +563,7 @@ namespace stingray
 	}
 
 
-	optional<Encoding> StringCodec::GetEncoding(const string_view& str, size_t& bomSize)
+	optional<Encoding> StringCodec::GetEncoding(string_view str, size_t& bomSize)
 	{
 		if (str.size() >= 4)
 		{

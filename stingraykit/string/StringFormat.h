@@ -41,7 +41,7 @@ namespace stingray
 
 
 	template < typename... Ts >
-	std::string StringFormat(const string_view& format, const Ts&... args)
+	std::string StringFormat(string_view format, const Ts&... args)
 	{
 		string_ostream result;
 

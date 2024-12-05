@@ -19,7 +19,7 @@ namespace stingray
 
 		const u16 BaseOfExponent = 10;
 
-		string_view RemoveUnsignificantZeros(const string_view& source)
+		string_view RemoveUnsignificantZeros(string_view source)
 		{
 			string_view::const_reverse_iterator it = source.rbegin();
 			while (it != source.rend() && *it == '0')

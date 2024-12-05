@@ -35,7 +35,7 @@ namespace stingray
 		static UnpackFunc GetUnpackFunc(const LocaleString& str, size_t& bomSize);
 		static UnpackFunc GetUnpackFunc(Encoding encoding);
 
-		static optional<Encoding> GetEncoding(const string_view& str, size_t& bomSize);
+		static optional<Encoding> GetEncoding(string_view str, size_t& bomSize);
 
 		static void PackUtf8(std::string& dst, u32 ucs, u32 invalidCharReplacement);
 
