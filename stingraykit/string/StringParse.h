@@ -118,29 +118,29 @@ namespace stingray
 	inline bool StringParse(const std::string& string, const std::string& format, Ts&... args)
 	{
 		std::deque<variant<TypeList<std::string, size_t>>> tokens;
-		std::string::size_type start_pos = 0;
-		std::string::size_type current_pos = 0;
+		std::string::size_type startPos = 0;
+		std::string::size_type currentPos = 0;
 
 		do
 		{
-			std::string::size_type start_marker_pos = format.find_first_of('%', current_pos);
-			if (start_marker_pos == std::string::npos)
+			const std::string::size_type startMarkerPos = format.find_first_of('%', currentPos);
+			if (startMarkerPos == std::string::npos)
 				break;
 
-			std::string::size_type end_marker_pos = format.find_first_of('%', start_marker_pos + 1);
-			if (end_marker_pos == std::string::npos)
+			const std::string::size_type endMarkerPos = format.find_first_of('%', startMarkerPos + 1);
+			if (endMarkerPos == std::string::npos)
 				return false;
 
-			current_pos = end_marker_pos + 1;
+			currentPos = endMarkerPos + 1;
 
-			if (end_marker_pos - start_marker_pos > 1)
+			if (endMarkerPos - startMarkerPos > 1)
 			{
-				std::string substr(format, start_pos, start_marker_pos - start_pos);
+				const std::string substr(format, startPos, startMarkerPos - startPos);
 
 				try
 				{
-					const std::string index_str = std::string(format, start_marker_pos + 1, end_marker_pos - start_marker_pos - 1);
-					size_t index = index_str == "_" ? std::numeric_limits<size_t>::max() : FromString<size_t>(index_str);
+					const std::string indexStr = std::string(format, startMarkerPos + 1, endMarkerPos - startMarkerPos - 1);
+					const size_t index = indexStr == "_" ? std::numeric_limits<size_t>::max() : FromString<size_t>(indexStr);
 
 					if (!substr.empty())
 						tokens.push_back(substr);
@@ -150,18 +150,18 @@ namespace stingray
 				catch (const std::exception& ex)
 				{ continue; }
 
-				start_pos = current_pos;
+				startPos = currentPos;
 			}
 		}
-		while (current_pos < format.length());
+		while (currentPos < format.length());
 
-		if (start_pos < format.length())
-			tokens.push_back(std::string(format, start_pos));
+		if (startPos < format.length())
+			tokens.push_back(std::string(format, startPos));
 
 		size_t index = 0;
-		std::string::size_type current_string_pos = 0;
+		std::string::size_type currentStringPos = 0;
 
-		while (!tokens.empty() && current_string_pos < string.length())
+		while (!tokens.empty() && currentStringPos < string.length())
 		{
 			if (tokens.front().contains<size_t>())
 			{
@@ -170,29 +170,29 @@ namespace stingray
 				continue;
 			}
 
-			std::string substr = variant_get<std::string>(tokens.front());
+			const std::string substr = variant_get<std::string>(tokens.front());
 			tokens.pop_front();
 
-			std::string::size_type substr_pos = string.find(substr, current_string_pos);
-			if (substr_pos == std::string::npos)
+			const std::string::size_type substrPos = string.find(substr, currentStringPos);
+			if (substrPos == std::string::npos)
 				return false;
 
 			if (index)
 			{
-				if (!(substr_pos - current_string_pos > 0
-						&& Detail::TryReadArgument(std::string(string, current_string_pos, substr_pos - current_string_pos), index - 1, args...)))
+				if (!(substrPos - currentStringPos > 0
+						&& Detail::TryReadArgument(std::string(string, currentStringPos, substrPos - currentStringPos), index - 1, args...)))
 					return false;
 
 				index = 0;
 			}
 
-			current_string_pos = substr_pos + substr.length();
+			currentStringPos = substrPos + substr.length();
 		}
 
 		return tokens.empty()
 				&& (index ?
-						Detail::TryReadArgument(std::string(string.begin() + current_string_pos, string.end()), index - 1, args...) :
-						!(current_string_pos < string.length()));
+						Detail::TryReadArgument(std::string(string.begin() + currentStringPos, string.end()), index - 1, args...) :
+						!(currentStringPos < string.length()));
 	}
 
 
