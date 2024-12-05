@@ -47,7 +47,7 @@ namespace stingray
 					return it->second;
 
 				s32 flaggedValue = 0;
-				std::string result;
+				string_ostream result;
 				for (const auto& valueToStr : _enumToStr)
 				{
 					if (((s32)valueToStr.first & value) != 0
@@ -56,8 +56,8 @@ namespace stingray
 					{
 						flaggedValue |= (s32)valueToStr.first;
 						if (!result.empty())
-							result += "|";
-						result += valueToStr.second;
+							result << "|";
+						result << valueToStr.second;
 					}
 
 					if (flaggedValue == value)
@@ -66,12 +66,11 @@ namespace stingray
 
 				if (flaggedValue != value)
 				{
-					string_ostream s;
-					s << (unsigned)value;
-					return s.str();
+					result.clear();
+					result << (unsigned)value;
 				}
 
-				return result;
+				return result.str();
 			}
 
 			int EnumFromString(const std::string& str)
@@ -106,7 +105,7 @@ namespace stingray
 
 				bool hasNonwhitespaceChars = false;
 				s32 result = 0;
-				std::string bitValue;
+				string_ostream bitValue;
 
 				for (std::string::const_iterator strIt = str.begin(); strIt != str.end(); ++strIt)
 				{
@@ -116,13 +115,13 @@ namespace stingray
 						hasNonwhitespaceChars = true;
 
 					for (; strIt != str.end() && !IsWhitespace(*strIt) && *strIt != '|'; ++strIt)
-						bitValue += *strIt;
+						bitValue << *strIt;
 
 					for (; strIt != str.end() && IsWhitespace(*strIt); ++strIt);
 
 					if (!bitValue.empty())
 					{
-						const StrToEnumMap::const_iterator it = _strToEnum.find(bitValue);
+						const StrToEnumMap::const_iterator it = _strToEnum.find(bitValue.str());
 						STINGRAYKIT_CHECK(it != _strToEnum.end(), KeyNotFoundException(str));
 
 						bitValue.clear();
@@ -148,7 +147,7 @@ namespace stingray
 					_values.push_back(currentValue);
 				}
 
-				std::string currentName;
+				string_ostream currentName;
 				std::string::const_iterator strIt = str.begin();
 				EnumValuesVec::const_iterator valueIt = _values.begin();
 
@@ -160,16 +159,18 @@ namespace stingray
 					for (; strIt != str.end() && IsWhitespace(*strIt); ++strIt);
 
 					for (; strIt != str.end() && !IsWhitespace(*strIt) && *strIt != ',' && *strIt != '='; ++strIt)
-						currentName += *strIt;
+						currentName << *strIt;
 
 					for (; strIt != str.end() && *strIt != ','; ++strIt);
 
 					if (strIt != str.end())
 						++strIt; // ','
 
-					_enumToStr.emplace(*valueIt, currentName);
-					_strToEnum.emplace(currentName, *valueIt);
+					const std::string name = currentName.str();
 					currentName.clear();
+
+					_enumToStr.emplace(*valueIt, name);
+					_strToEnum.emplace(name, *valueIt);
 				}
 
 				STINGRAYKIT_CHECK(valueIt == _values.end(), LogicException(StringBuilder() % "Invalid enum values: '" % str % "'"));
