@@ -37,37 +37,37 @@ namespace stingray
 			EnumValuesVec		_values;
 
 		public:
-			const EnumValuesVec& GetEnumValues()
+			const EnumValuesVec& GetEnumValues() const
 			{ return _values; }
 
-			std::string EnumToString(int val)
+			std::string EnumToString(int value)
 			{
-				EnumToStrMap::const_iterator it = _enumToStr.find(val);
+				const EnumToStrMap::const_iterator it = _enumToStr.find(value);
 				if (it != _enumToStr.end())
 					return it->second;
 
-				s32 flagged_val = 0;
+				s32 flaggedValue = 0;
 				std::string result;
 				for (EnumToStrMap::const_iterator it = _enumToStr.begin(); it != _enumToStr.end(); ++it)
 				{
-					if (((s32)it->first & val) != 0
-							&& ((s32)it->first & ~val) == 0
-							&& ((s32)it->first & ~flagged_val) != 0)
+					if (((s32)it->first & value) != 0
+							&& ((s32)it->first & ~value) == 0
+							&& ((s32)it->first & ~flaggedValue) != 0)
 					{
-						flagged_val |= (s32)it->first;
+						flaggedValue |= (s32)it->first;
 						if (!result.empty())
 							result += "|";
 						result += it->second;
 					}
 
-					if (flagged_val == val)
+					if (flaggedValue == value)
 						break;
 				}
 
-				if (flagged_val != val)
+				if (flaggedValue != value)
 				{
 					string_ostream s;
-					s << (unsigned)val;
+					s << (unsigned)value;
 					return s.str();
 				}
 
@@ -77,16 +77,16 @@ namespace stingray
 			int EnumFromString(const std::string& str)
 			{
 				{
-					std::string::const_iterator s_it = str.begin();
-					while (s_it != str.end() && IsWhitespace(*s_it))
-						++s_it;
+					std::string::const_iterator strIt = str.begin();
+					while (strIt != str.end() && IsWhitespace(*strIt))
+						++strIt;
 
-					if (s_it != str.end() && *s_it >= '0' && *s_it <= '9')
+					if (strIt != str.end() && *strIt >= '0' && *strIt <= '9')
 					{
 						std::stringstream s(str);
 
-						unsigned val;
-						s >> val;
+						unsigned value;
+						s >> value;
 
 						if (s.fail())
 							STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
@@ -99,45 +99,45 @@ namespace stingray
 								STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
 						}
 
-						return val;
+						return value;
 					}
 				}
 
-				StrToEnumMap::const_iterator it = _strToEnum.find(str);
+				const StrToEnumMap::const_iterator it = _strToEnum.find(str);
 				if (it != _strToEnum.end())
 					return it->second;
 
-				bool has_nonwhitespace_chars = false;
+				bool hasNonwhitespaceChars = false;
 				s32 result = 0;
-				std::string bit_val;
+				std::string bitValue;
 
-				for (std::string::const_iterator s_it = str.begin(); s_it != str.end(); ++s_it)
+				for (std::string::const_iterator strIt = str.begin(); strIt != str.end(); ++strIt)
 				{
-					for (; s_it != str.end() && IsWhitespace(*s_it); ++s_it);
+					for (; strIt != str.end() && IsWhitespace(*strIt); ++strIt);
 
-					if (s_it != str.end())
-						has_nonwhitespace_chars = true;
+					if (strIt != str.end())
+						hasNonwhitespaceChars = true;
 
-					for (; s_it != str.end() && !IsWhitespace(*s_it) && *s_it != '|'; ++s_it)
-						bit_val += *s_it;
+					for (; strIt != str.end() && !IsWhitespace(*strIt) && *strIt != '|'; ++strIt)
+						bitValue += *strIt;
 
-					for (; s_it != str.end() && IsWhitespace(*s_it); ++s_it);
+					for (; strIt != str.end() && IsWhitespace(*strIt); ++strIt);
 
-					if (!bit_val.empty())
+					if (!bitValue.empty())
 					{
-						it = _strToEnum.find(bit_val);
+						const StrToEnumMap::const_iterator it = _strToEnum.find(bitValue);
 						if (it == _strToEnum.end())
 							STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
 
-						bit_val.clear();
+						bitValue.clear();
 						result |= (s32)it->second;
 					}
 
-					if (s_it == str.end())
+					if (strIt == str.end())
 						break;
 				}
 
-				if (!has_nonwhitespace_chars)
+				if (!hasNonwhitespaceChars)
 					STINGRAYKIT_THROW("Cannot parse enum class value: '" + str + "'!");
 
 				return result;
@@ -145,54 +145,54 @@ namespace stingray
 
 			void Init(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const std::string& str)
 			{
-				int cur_value = 0;
-				for (; valuesBegin != valuesEnd; ++valuesBegin, ++cur_value)
+				int currentValue = 0;
+				for (; valuesBegin != valuesEnd; ++valuesBegin, ++currentValue)
 				{
-					if (valuesBegin->Val != EnumValueHolder::Uninitialized)
-						cur_value = valuesBegin->Val;
+					if (valuesBegin->Value != EnumValueHolder::Uninitialized)
+						currentValue = valuesBegin->Value;
 
-					_values.push_back(cur_value);
+					_values.push_back(currentValue);
 				}
 
-				std::string current_name;
-				std::string::const_iterator s_it = str.begin();
-				EnumValuesVec::const_iterator v_it = _values.begin();
+				std::string currentName;
+				std::string::const_iterator strIt = str.begin();
+				EnumValuesVec::const_iterator valueIt = _values.begin();
 
-				for (; v_it != _values.end(); ++v_it)
+				for (; valueIt != _values.end(); ++valueIt)
 				{
-					if (s_it == str.end())
+					if (strIt == str.end())
 						break;
 
-					for (; s_it != str.end() && IsWhitespace(*s_it); ++s_it);
+					for (; strIt != str.end() && IsWhitespace(*strIt); ++strIt);
 
-					for (; s_it != str.end() && !IsWhitespace(*s_it) && *s_it != ',' && *s_it != '='; ++s_it)
-						current_name += *s_it;
+					for (; strIt != str.end() && !IsWhitespace(*strIt) && *strIt != ',' && *strIt != '='; ++strIt)
+						currentName += *strIt;
 
-					for (; s_it != str.end() && *s_it != ','; ++s_it);
+					for (; strIt != str.end() && *strIt != ','; ++strIt);
 
-					if (s_it != str.end())
-						++s_it; // ','
+					if (strIt != str.end())
+						++strIt; // ','
 
-					_enumToStr.emplace(*v_it, current_name);
-					_strToEnum.emplace(current_name, *v_it);
-					current_name.clear();
+					_enumToStr.emplace(*valueIt, currentName);
+					_strToEnum.emplace(currentName, *valueIt);
+					currentName.clear();
 				}
 
-				if (v_it != _values.end())
+				if (valueIt != _values.end())
 					STINGRAYKIT_THROW("Internal error in EnumToStringMap, enum values: \"" + str + "\"");
 			}
 		};
 
-		void EnumToStringMapBase::DoInit(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const char* str)
+		void EnumToStringMapBase::Init(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const char* str)
 		{ _impl->Init(valuesBegin, valuesEnd, str); }
 
-		const EnumToStringMapBase::EnumValuesVec& EnumToStringMapBase::DoGetEnumValues() const
+		const EnumToStringMapBase::EnumValuesVec& EnumToStringMapBase::GetEnumValues() const
 		{ return _impl->GetEnumValues(); }
 
-		std::string EnumToStringMapBase::DoEnumToString(int val)
-		{ return _impl->EnumToString(val); }
+		std::string EnumToStringMapBase::EnumToString(int value)
+		{ return _impl->EnumToString(value); }
 
-		int EnumToStringMapBase::DoEnumFromString(const std::string& str)
+		int EnumToStringMapBase::EnumFromString(const std::string& str)
 		{ return _impl->EnumFromString(str); }
 
 		EnumToStringMapBase::EnumToStringMapBase()

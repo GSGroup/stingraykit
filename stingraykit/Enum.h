@@ -20,7 +20,7 @@
 		{ \
 			stingray::Detail::EnumValueHolder __VA_ARGS__; \
 			stingray::Detail::EnumValueHolder values[] = { __VA_ARGS__ }; \
-			map.DoInit(values, values + sizeof(values) / sizeof(values[0]), #__VA_ARGS__); \
+			map.Init(values, values + sizeof(values) / sizeof(values[0]), #__VA_ARGS__); \
 		} \
 	public: \
 		enum Enum { __VA_ARGS__ }
@@ -97,23 +97,23 @@ namespace stingray
 		{
 			static const s64 Uninitialized = ((s64)0x7FFFFFFF) << 32;
 
-			s64					Val;
+			s64					Value;
 
-			EnumValueHolder() : Val(Uninitialized) { }
-			EnumValueHolder(s32 val) : Val(val) { }
+			EnumValueHolder() : Value(Uninitialized) { }
+			EnumValueHolder(s32 value) : Value(value) { }
 
-			EnumValueHolder& operator = (s32 val)
+			EnumValueHolder& operator = (s32 value)
 			{
-				Val = val;
+				Value = value;
 				return *this;
 			}
 		};
 
 		inline EnumValueHolder operator + (const EnumValueHolder& left, const EnumValueHolder& right)
-		{ return EnumValueHolder(left.Val + right.Val); }
+		{ return EnumValueHolder(left.Value + right.Value); }
 
 		inline EnumValueHolder operator - (const EnumValueHolder& left, const EnumValueHolder& right)
-		{ return EnumValueHolder(left.Val - right.Val); }
+		{ return EnumValueHolder(left.Value - right.Value); }
 
 		class EnumToStringMapBase
 		{
@@ -129,12 +129,12 @@ namespace stingray
 			Impl*				_impl;
 
 		public:
-			const EnumValuesVec& DoGetEnumValues() const;
+			const EnumValuesVec& GetEnumValues() const;
 
-			std::string DoEnumToString(int val);
-			int DoEnumFromString(const std::string& str);
+			std::string EnumToString(int value);
+			int EnumFromString(const std::string& str);
 
-			void DoInit(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const char* str);
+			void Init(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const char* str);
 
 		protected:
 			EnumToStringMapBase();
@@ -157,9 +157,9 @@ namespace stingray
 			using EnumValuesVec = EnumToStringMapBase::EnumValuesVec;
 
 		public:
-			static const EnumValuesVec& GetEnumValues()					{ return PhoenixType::Instance().DoGetEnumValues(); }
-			static std::string EnumToString(NativeEnum val)				{ return PhoenixType::Instance().DoEnumToString(static_cast<int>(val)); }
-			static NativeEnum EnumFromString(const std::string& str)	{ return (NativeEnum)PhoenixType::Instance().DoEnumFromString(str); }
+			static const EnumValuesVec& GetEnumValues()					{ return PhoenixType::Instance().GetEnumValues(); }
+			static std::string EnumToString(NativeEnum value)			{ return PhoenixType::Instance().EnumToString(static_cast<int>(value)); }
+			static NativeEnum EnumFromString(const std::string& str)	{ return (NativeEnum)PhoenixType::Instance().EnumFromString(str); }
 		};
 
 		template < typename EnumClassT >
