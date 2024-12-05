@@ -48,16 +48,16 @@ namespace stingray
 
 				s32 flaggedValue = 0;
 				std::string result;
-				for (EnumToStrMap::const_iterator it = _enumToStr.begin(); it != _enumToStr.end(); ++it)
+				for (const auto& valueToStr : _enumToStr)
 				{
-					if (((s32)it->first & value) != 0
-							&& ((s32)it->first & ~value) == 0
-							&& ((s32)it->first & ~flaggedValue) != 0)
+					if (((s32)valueToStr.first & value) != 0
+							&& ((s32)valueToStr.first & ~value) == 0
+							&& ((s32)valueToStr.first & ~flaggedValue) != 0)
 					{
-						flaggedValue |= (s32)it->first;
+						flaggedValue |= (s32)valueToStr.first;
 						if (!result.empty())
 							result += "|";
-						result += it->second;
+						result += valueToStr.second;
 					}
 
 					if (flaggedValue == value)
