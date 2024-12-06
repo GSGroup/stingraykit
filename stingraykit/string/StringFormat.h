@@ -54,7 +54,7 @@ namespace stingray
 			case '%':
 			{
 				const size_t nextPercentPos = format.find('%', pos + 1);
-				STINGRAYKIT_CHECK(nextPercentPos != string_view::npos, FormatException(format.copy()));
+				STINGRAYKIT_CHECK(nextPercentPos != string_view::npos, FormatException(format));
 
 				const string_view argIndexStr = format.substr(pos + 1, nextPercentPos - pos - 1);
 				if (argIndexStr.empty())
@@ -67,16 +67,16 @@ namespace stingray
 				const size_t widthPos = argIndexStr.find('$');
 
 				const string_view indexStr = argIndexStr.substr(0, widthPos);
-				STINGRAYKIT_CHECK(!indexStr.empty(), FormatException(format.copy()));
+				STINGRAYKIT_CHECK(!indexStr.empty(), FormatException(format));
 
 				const size_t index = FromString<size_t>(indexStr);
-				STINGRAYKIT_CHECK(index > 0, FormatException(format.copy()));
+				STINGRAYKIT_CHECK(index > 0, FormatException(format));
 
 				size_t width = 0;
 				if (widthPos != std::string::npos)
 				{
 					const string_view widthStr = argIndexStr.substr(widthPos + 1);
-					STINGRAYKIT_CHECK(!widthStr.empty(), FormatException(format.copy()));
+					STINGRAYKIT_CHECK(!widthStr.empty(), FormatException(format));
 
 					width = FromString<size_t>(widthStr);
 				}

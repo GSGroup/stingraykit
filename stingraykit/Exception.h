@@ -20,6 +20,8 @@
 	{ \
 		ExceptionClass() : stingray::Exception(Message) { } \
 		explicit ExceptionClass(const std::string& message) : stingray::Exception(Message, message) { } \
+		explicit ExceptionClass(string_view message) : stingray::Exception(Message, message) { } \
+		explicit ExceptionClass(const char* message) : stingray::Exception(Message, message) { } \
 	}
 
 namespace stingray
@@ -29,9 +31,19 @@ namespace stingray
 	{
 	public:
 		explicit Exception(const std::string& message) : std::runtime_error(message) { }
+		explicit Exception(string_view message) : std::runtime_error(message.copy()) { }
+		explicit Exception(const char* message) : std::runtime_error(message) { }
 
 	protected:
-		Exception(const std::string& message, const std::string& additionalMessage) : std::runtime_error(message + ": " + additionalMessage) { }
+		Exception(string_view message, string_view additionalMessage) : Exception(BuildErrorMessage(message, additionalMessage)) { }
+
+	private:
+		static std::string BuildErrorMessage(string_view message, string_view additionalMessage)
+		{
+			string_ostream stream;
+			stream << message << ": " << additionalMessage;
+			return stream.str();
+		}
 	};
 
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented");
@@ -76,8 +88,11 @@ namespace stingray
 	{
 		LogicException() : std::logic_error("You're doing something wrong")
 		{ DebuggingHelper::BreakpointHere(); }
-
 		explicit LogicException(const std::string& message) : std::logic_error(message)
+		{ DebuggingHelper::BreakpointHere(); }
+		explicit LogicException(string_view message) : std::logic_error(message.copy())
+		{ DebuggingHelper::BreakpointHere(); }
+		explicit LogicException(const char* message) : std::logic_error(message)
 		{ DebuggingHelper::BreakpointHere(); }
 	};
 
@@ -85,13 +100,19 @@ namespace stingray
 	{
 		ArgumentException() : Exception("Invalid argument") { }
 		explicit ArgumentException(const std::string& argName) : Exception("Invalid argument", argName) { }
+		explicit ArgumentException(string_view argName) : Exception("Invalid argument", argName) { }
+		explicit ArgumentException(const char* argName) : Exception("Invalid argument", argName) { }
 
 		template < typename ArgumentType >
 		ArgumentException(const std::string& argName, const ArgumentType& argValue) : Exception(BuildErrorMessage(argName, argValue)) { }
+		template < typename ArgumentType >
+		ArgumentException(string_view argName, const ArgumentType& argValue) : Exception(BuildErrorMessage(argName, argValue)) { }
+		template < typename ArgumentType >
+		ArgumentException(const char* argName, const ArgumentType& argValue) : Exception(BuildErrorMessage(argName, argValue)) { }
 
 	private:
 		template < typename ArgumentType >
-		static std::string BuildErrorMessage(const std::string& argName, const ArgumentType& argValue)
+		static std::string BuildErrorMessage(string_view argName, const ArgumentType& argValue)
 		{
 			string_ostream stream;
 			stream << "Invalid argument '" << argName << "' value '";
@@ -105,6 +126,8 @@ namespace stingray
 	{
 		NullArgumentException() : Exception("Null argument") { }
 		explicit NullArgumentException(const std::string& argName) : Exception("Null argument", argName) { }
+		explicit NullArgumentException(string_view argName) : Exception("Null argument", argName) { }
+		explicit NullArgumentException(const char* argName) : Exception("Null argument", argName) { }
 	};
 
 	class IndexOutOfRangeException : public Exception
@@ -168,19 +191,33 @@ namespace stingray
 	struct FormatException : public Exception
 	{
 		FormatException() : Exception("Invalid format") { }
-		explicit FormatException(const std::string& expression) : Exception("Invalid format: '" + expression + "'") { }
+		explicit FormatException(const std::string& expression) : Exception(BuildErrorMessage(expression)) { }
+		explicit FormatException(string_view expression) : Exception(BuildErrorMessage(expression)) { }
+		explicit FormatException(const char* expression) : Exception(BuildErrorMessage(expression)) { }
+
+	private:
+		static std::string BuildErrorMessage(string_view expression)
+		{
+			string_ostream stream;
+			stream << "Invalid format: '" << expression << "'";
+			return stream.str();
+		}
 	};
 
 	struct MalformedDataException : public Exception
 	{
 		MalformedDataException() : Exception("Malformed data") { }
 		explicit MalformedDataException(const std::string& message) : Exception(message) { }
+		explicit MalformedDataException(string_view message) : Exception(message) { }
+		explicit MalformedDataException(const char* message) : Exception(message) { }
 	};
 
 	struct MalformedJsonException : public MalformedDataException
 	{
 		MalformedJsonException() : MalformedDataException("Malformed json") { }
 		explicit MalformedJsonException(const std::string& message) : MalformedDataException(message) { }
+		explicit MalformedJsonException(const string_view message) : MalformedDataException(message) { }
+		explicit MalformedJsonException(const char* message) : MalformedDataException(message) { }
 	};
 
 	struct NullPointerException : public Exception
@@ -188,6 +225,10 @@ namespace stingray
 		NullPointerException() : Exception("Accessing null pointer")
 		{ DebuggingHelper::BreakpointHere(); }
 		explicit NullPointerException(const std::string& expr) : Exception("Accessing null pointer", expr)
+		{ DebuggingHelper::BreakpointHere(); }
+		explicit NullPointerException(string_view expr) : Exception("Accessing null pointer", expr)
+		{ DebuggingHelper::BreakpointHere(); }
+		explicit NullPointerException(const char* expr) : Exception("Accessing null pointer", expr)
 		{ DebuggingHelper::BreakpointHere(); }
 	};
 
@@ -197,22 +238,28 @@ namespace stingray
 		{ DebuggingHelper::BreakpointHere(); }
 		explicit NotInitializedException(const std::string& expr) : Exception("Accessing not initialized object", expr)
 		{ DebuggingHelper::BreakpointHere(); }
+		explicit NotInitializedException(string_view expr) : Exception("Accessing not initialized object", expr)
+		{ DebuggingHelper::BreakpointHere(); }
+		explicit NotInitializedException(const char* expr) : Exception("Accessing not initialized object", expr)
+		{ DebuggingHelper::BreakpointHere(); }
 	};
 
 	struct InvalidCastException : public std::bad_cast
 	{
 	private:
-		std::string _message;
+		std::string			_message;
 
 	public:
 		InvalidCastException() : _message("Invalid cast") { }
 		InvalidCastException(const std::string& source, const std::string& target) : _message(BuildErrorMessage(source, target)) { }
+		InvalidCastException(string_view source, string_view target) : _message(BuildErrorMessage(source, target)) { }
+		InvalidCastException(const char* source, const char* target) : _message(BuildErrorMessage(source, target)) { }
 		~InvalidCastException() noexcept override { }
 
 		const char* what() const noexcept override { return _message.c_str(); }
 
 	private:
-		static std::string BuildErrorMessage(const std::string& source, const std::string& target)
+		static std::string BuildErrorMessage(string_view source, string_view target)
 		{
 			string_ostream stream;
 			stream << "Invalid cast from " << source << " to " << target;
@@ -224,9 +271,11 @@ namespace stingray
 	{
 		KeyNotFoundException() : Exception("Key not found") { }
 		explicit KeyNotFoundException(const std::string& keyStr) : Exception(BuildErrorMessage(keyStr)) { }
+		explicit KeyNotFoundException(string_view keyStr) : Exception(BuildErrorMessage(keyStr)) { }
+		explicit KeyNotFoundException(const char* keyStr) : Exception(BuildErrorMessage(keyStr)) { }
 
 	private:
-		static std::string BuildErrorMessage(const std::string& keyStr)
+		static std::string BuildErrorMessage(string_view keyStr)
 		{
 			string_ostream stream;
 			stream << "Key '" << keyStr << "' not found";
@@ -238,9 +287,11 @@ namespace stingray
 	{
 		FileNotFoundException() : Exception("File not found") { }
 		explicit FileNotFoundException(const std::string& path) : Exception(BuildErrorMessage(path)) { }
+		explicit FileNotFoundException(string_view path) : Exception(BuildErrorMessage(path)) { }
+		explicit FileNotFoundException(const char* path) : Exception(BuildErrorMessage(path)) { }
 
 	private:
-		static std::string BuildErrorMessage(const std::string& path)
+		static std::string BuildErrorMessage(string_view path)
 		{
 			string_ostream stream;
 			stream << "File '" << path << "' not found";
@@ -305,6 +356,9 @@ namespace stingray
 		}
 
 		inline ExceptionWrapper<Exception> MakeException(const std::string& message, ToolkitWhere where)
+		{ return MakeException(Exception(message), where); }
+
+		inline ExceptionWrapper<Exception> MakeException(string_view message, ToolkitWhere where)
 		{ return MakeException(Exception(message), where); }
 
 		inline ExceptionWrapper<Exception> MakeException(const char *message, ToolkitWhere where)

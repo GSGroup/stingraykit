@@ -63,7 +63,7 @@ namespace stingray
 
 	UUID UUID::FromString(string_view str)
 	{
-		STINGRAYKIT_CHECK(str.length() == Format.length(), FormatException(str.copy()));
+		STINGRAYKIT_CHECK(str.length() == Format.length(), FormatException(str));
 
 		UUID result;
 
@@ -77,7 +77,7 @@ namespace stingray
 				++fmtIt;
 			}
 			else
-				STINGRAYKIT_CHECK(*strIt == *fmtIt, FormatException(str.copy()));
+				STINGRAYKIT_CHECK(*strIt == *fmtIt, FormatException(str));
 		}
 
 		return result;

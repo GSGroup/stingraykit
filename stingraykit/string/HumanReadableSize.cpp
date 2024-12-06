@@ -68,7 +68,7 @@ namespace stingray
 					return num * ((u64)1 << (10 * (i + 1)));
 		}
 
-		STINGRAYKIT_THROW(FormatException(str.copy()));
+		STINGRAYKIT_THROW(FormatException(str));
 	}
 
 }

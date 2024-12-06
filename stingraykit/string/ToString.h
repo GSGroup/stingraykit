@@ -101,7 +101,7 @@ namespace stingray
 				for (size_t index2 = index; index2 < str.size(); ++index2)
 				{
 					const char ch = str[index2];
-					STINGRAYKIT_CHECK(ch >= '0' && ch <= '9', FormatException(ToString(str)));
+					STINGRAYKIT_CHECK(ch >= '0' && ch <= '9', FormatException(str));
 				}
 
 				for (; index < str.size(); ++index)

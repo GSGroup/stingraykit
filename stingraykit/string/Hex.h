@@ -31,7 +31,7 @@ namespace stingray
 		for (string_view::size_type index = 0; index < size; ++index)
 		{
 			const char ch = str[index];
-			STINGRAYKIT_CHECK((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'), FormatException(str.copy()));
+			STINGRAYKIT_CHECK((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'), FormatException(str));
 		}
 
 		for (string_view::size_type index = 0; index < size; ++index)
@@ -83,7 +83,7 @@ namespace stingray
 				result->push_back(FromHex<ByteArray::value_type>(str.substr(index, 2)));
 		}
 		catch (const FormatException&)
-		{ STINGRAYKIT_THROW(FormatException(str.copy())); }
+		{ STINGRAYKIT_THROW(FormatException(str)); }
 
 		return result;
 	}
