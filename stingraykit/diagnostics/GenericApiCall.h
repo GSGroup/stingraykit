@@ -10,7 +10,6 @@
 
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/exception.h>
 
 #define GENERIC_API_CALL(ReturnType, SuccessValue, ...) \
 	do \

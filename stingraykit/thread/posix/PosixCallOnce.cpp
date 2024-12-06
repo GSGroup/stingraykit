@@ -8,7 +8,6 @@
 #include <stingraykit/thread/posix/PosixCallOnce.h>
 
 #include <stingraykit/SystemException.h>
-#include <stingraykit/exception.h>
 
 namespace stingray {
 

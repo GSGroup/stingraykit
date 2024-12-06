@@ -11,7 +11,6 @@
 #include <stingraykit/collection/Range.h>
 #include <stingraykit/compression/ArithmeticCoder.h>
 #include <stingraykit/compression/ArithmeticDecoder.h>
-#include <stingraykit/exception.h>
 #include <stingraykit/function/functional.h>
 
 #include <algorithm>

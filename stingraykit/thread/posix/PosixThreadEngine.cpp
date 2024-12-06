@@ -13,25 +13,18 @@
 #include <stingraykit/Singleton.h>
 #include <stingraykit/SystemException.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
-#include <stingraykit/exception.h>
 #include <stingraykit/fatal.h>
-#include <stingraykit/function/bind.h>
 #include <stingraykit/log/Logger.h>
-#include <stingraykit/optional.h>
 #include <stingraykit/string/Hex.h>
 #include <stingraykit/string/StringUtils.h>
-#include <stingraykit/string/ToString.h>
-#include <stingraykit/string/string_stream.h>
 #include <stingraykit/thread/CancellationToken.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
-#include <stingraykit/thread/GenericMutexLock.h>
 #include <stingraykit/thread/posix/PosixThreadStats.h>
 #include <stingraykit/thread/posix/SignalHandler.h>
 #include <stingraykit/thread/posix/ThreadLocal.h>
 #include <stingraykit/thread/TaskLifeToken.h>
 #include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/time/posix/utils.h>
-#include <stingraykit/unique_ptr.h>
 
 #include <stdio.h>
 

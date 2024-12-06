@@ -10,7 +10,6 @@
 
 #include <stingraykit/collection/iterator_base.h>
 #include <stingraykit/assert.h>
-#include <stingraykit/exception.h>
 
 namespace stingray
 {
