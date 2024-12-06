@@ -8,10 +8,9 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/string/string_view.h>
 #include <stingraykit/operators.h>
 #include <stingraykit/Types.h>
-
-#include <string>
 
 namespace stingray
 {
@@ -56,7 +55,7 @@ namespace stingray
 		int Compare(const BrokenDownTime& other) const;
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(BrokenDownTime);
 
-		std::string ToString(const std::string& format = std::string()) const;
+		std::string ToString(string_view format = string_view()) const;
 	};
 
 	/** @} */

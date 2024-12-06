@@ -22,15 +22,15 @@ namespace stingray
 			const BrokenDownTime&	Bdt;
 			string_ostream&			Stream;
 			mutable size_t			LastPosition;
-			const std::string&		Format;
+			string_view				Format;
 
-			ReplaceContext(const BrokenDownTime& bdt, string_ostream& stream, const std::string& format)
+			ReplaceContext(const BrokenDownTime& bdt, string_ostream& stream, string_view format)
 				: Bdt(bdt), Stream(stream), LastPosition(0), Format(format)
 			{ }
 
-			void operator () (const std::string& pattern, size_t patternIndex, size_t offset) const
+			void operator () (string_view pattern, size_t patternIndex, size_t offset) const
 			{
-				Stream << string_view(Format.data() + LastPosition, offset - LastPosition);
+				Stream << Format.substr(LastPosition, offset - LastPosition);
 
 				switch (patternIndex)
 				{
@@ -71,7 +71,7 @@ namespace stingray
 		}
 
 		template < typename CallbackType >
-		void Search(const std::string& text, const CallbackType& callback) const
+		void Search(string_view text, const CallbackType& callback) const
 		{ _aho.Search(text, callback); }
 	};
 
@@ -118,7 +118,7 @@ namespace stingray
 	}
 
 
-	std::string BrokenDownTime::ToString(const std::string& format) const
+	std::string BrokenDownTime::ToString(string_view format) const
 	{
 		if (format.empty())
 		{
@@ -137,7 +137,7 @@ namespace stingray
 		ReplaceContext context(*this, stream, format);
 
 		s_formatMatcher.Search(format, context);
-		stream << string_view(format.data() + context.LastPosition, format.size() - context.LastPosition);
+		stream << format.substr(context.LastPosition);
 
 		return stream.str();
 	}
