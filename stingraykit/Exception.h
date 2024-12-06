@@ -19,7 +19,7 @@
 	struct ExceptionClass : public stingray::Exception \
 	{ \
 		ExceptionClass() : stingray::Exception(Message) { } \
-		explicit ExceptionClass(const std::string& message) : stingray::Exception(message + ": " + Message) { } \
+		explicit ExceptionClass(const std::string& message) : stingray::Exception(Message, message) { } \
 	}
 
 namespace stingray
@@ -29,6 +29,9 @@ namespace stingray
 	{
 	public:
 		explicit Exception(const std::string& message) : std::runtime_error(message) { }
+
+	protected:
+		Exception(const std::string& message, const std::string& additionalMessage) : std::runtime_error(message + ": " + additionalMessage) { }
 	};
 
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented");
@@ -81,7 +84,7 @@ namespace stingray
 	struct ArgumentException : public Exception
 	{
 		ArgumentException() : Exception("Invalid argument") { }
-		explicit ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
+		explicit ArgumentException(const std::string& argName) : Exception("Invalid argument", argName) { }
 
 		template < typename ArgumentType >
 		ArgumentException(const std::string& argName, const ArgumentType& argValue) : Exception(BuildErrorMessage(argName, argValue)) { }
@@ -101,7 +104,7 @@ namespace stingray
 	struct NullArgumentException : public Exception
 	{
 		NullArgumentException() : Exception("Null argument") { }
-		explicit NullArgumentException(const std::string& argName) : Exception("Null argument: " + argName) { }
+		explicit NullArgumentException(const std::string& argName) : Exception("Null argument", argName) { }
 	};
 
 	class IndexOutOfRangeException : public Exception
@@ -184,7 +187,7 @@ namespace stingray
 	{
 		NullPointerException() : Exception("Accessing null pointer")
 		{ DebuggingHelper::BreakpointHere(); }
-		explicit NullPointerException(const std::string& expr) : Exception("Accessing null pointer: " + expr)
+		explicit NullPointerException(const std::string& expr) : Exception("Accessing null pointer", expr)
 		{ DebuggingHelper::BreakpointHere(); }
 	};
 
@@ -192,7 +195,7 @@ namespace stingray
 	{
 		NotInitializedException() : Exception("Accessing not initialized object")
 		{ DebuggingHelper::BreakpointHere(); }
-		explicit NotInitializedException(const std::string& expr) : Exception("Accessing not initialized object: " + expr)
+		explicit NotInitializedException(const std::string& expr) : Exception("Accessing not initialized object", expr)
 		{ DebuggingHelper::BreakpointHere(); }
 	};
 
