@@ -31,19 +31,19 @@ namespace stingray
 		explicit Exception(const std::string& message) : std::runtime_error(message) { }
 	};
 
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotSupportedException, "The feature is not supported!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(DeviceBusyException, "Device is busy!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(ResourceUnavailableException, "Resource temporarily unavailable!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BrokenPromise, "Promise destroyed before value is set!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PromiseAlreadySatisfied, "Promise value have already been set!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(FutureAlreadyRetrieved, "Future have already been retrieved!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(CrcErrorException, "CRC mismatch!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(TimeoutException, "Timed out!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InvalidOperationException, "Invalid operation!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(OperationCancelledException, "Operation has been cancelled!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(SocketException, "Socket error!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(AccessDeniedException, "Access denied!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotImplementedException, "The feature is not implemented");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NotSupportedException, "The feature is not supported");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(DeviceBusyException, "Device is busy");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(ResourceUnavailableException, "Resource temporarily unavailable");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BrokenPromise, "Promise destroyed before value is set");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PromiseAlreadySatisfied, "Promise value have already been set");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(FutureAlreadyRetrieved, "Future have already been retrieved");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(CrcErrorException, "CRC mismatch");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(TimeoutException, "Timed out");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InvalidOperationException, "Invalid operation");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(OperationCancelledException, "Operation has been cancelled");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(SocketException, "Socket error");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(AccessDeniedException, "Access denied");
 
 
 #define STINGRAYKIT_CHECK(Condition, ExceptionObj) \
@@ -71,7 +71,7 @@ namespace stingray
 
 	struct LogicException : public std::logic_error
 	{
-		LogicException() : std::logic_error("You're doing something wrong!")
+		LogicException() : std::logic_error("You're doing something wrong")
 		{ DebuggingHelper::BreakpointHere(); }
 
 		explicit LogicException(const std::string& message) : std::logic_error(message)
@@ -80,7 +80,7 @@ namespace stingray
 
 	struct ArgumentException : public Exception
 	{
-		ArgumentException() : Exception("Invalid argument!") { }
+		ArgumentException() : Exception("Invalid argument") { }
 		explicit ArgumentException(const std::string& argName) : Exception("Invalid argument: " + argName) { }
 
 		template < typename ArgumentType >
@@ -100,14 +100,14 @@ namespace stingray
 
 	struct NullArgumentException : public Exception
 	{
-		NullArgumentException() : Exception("Null argument!") { }
+		NullArgumentException() : Exception("Null argument") { }
 		explicit NullArgumentException(const std::string& argName) : Exception("Null argument: " + argName) { }
 	};
 
 	class IndexOutOfRangeException : public Exception
 	{
 	public:
-		IndexOutOfRangeException() : Exception("Index out of range!") { }
+		IndexOutOfRangeException() : Exception("Index out of range") { }
 		template < typename IndexType, typename SizeType >
 		IndexOutOfRangeException(IndexType index, SizeType size) : Exception(BuildErrorMessage(index, size)) { }
 		template < typename IndexType, typename LeftBoundaryType, typename RightBoundaryType >
@@ -144,7 +144,7 @@ namespace stingray
 	class IntegerOverflowException : public Exception
 	{
 	public:
-		IntegerOverflowException() : Exception("Integer overflow!") { }
+		IntegerOverflowException() : Exception("Integer overflow") { }
 		template < typename IntegerType, typename IncrementType >
 		IntegerOverflowException(IntegerType value, IncrementType increment) : Exception(BuildErrorMessage(value, increment)) { }
 
@@ -164,25 +164,25 @@ namespace stingray
 
 	struct FormatException : public Exception
 	{
-		FormatException() : Exception("Invalid format!") { }
+		FormatException() : Exception("Invalid format") { }
 		explicit FormatException(const std::string& expression) : Exception("Invalid format: '" + expression + "'") { }
 	};
 
 	struct MalformedDataException : public Exception
 	{
-		MalformedDataException() : Exception("Malformed data!") { }
+		MalformedDataException() : Exception("Malformed data") { }
 		explicit MalformedDataException(const std::string& message) : Exception(message) { }
 	};
 
 	struct MalformedJsonException : public MalformedDataException
 	{
-		MalformedJsonException() : MalformedDataException("Malformed json!") { }
+		MalformedJsonException() : MalformedDataException("Malformed json") { }
 		explicit MalformedJsonException(const std::string& message) : MalformedDataException(message) { }
 	};
 
 	struct NullPointerException : public Exception
 	{
-		NullPointerException() : Exception("Accessing null pointer!")
+		NullPointerException() : Exception("Accessing null pointer")
 		{ DebuggingHelper::BreakpointHere(); }
 		explicit NullPointerException(const std::string& expr) : Exception("Accessing null pointer: " + expr)
 		{ DebuggingHelper::BreakpointHere(); }
@@ -190,7 +190,7 @@ namespace stingray
 
 	struct NotInitializedException : public Exception
 	{
-		NotInitializedException() : Exception("Accessing not initialized object!")
+		NotInitializedException() : Exception("Accessing not initialized object")
 		{ DebuggingHelper::BreakpointHere(); }
 		explicit NotInitializedException(const std::string& expr) : Exception("Accessing not initialized object: " + expr)
 		{ DebuggingHelper::BreakpointHere(); }
@@ -202,7 +202,7 @@ namespace stingray
 		std::string _message;
 
 	public:
-		InvalidCastException() : _message("Invalid cast!") { }
+		InvalidCastException() : _message("Invalid cast") { }
 		InvalidCastException(const std::string& source, const std::string& target) : _message(BuildErrorMessage(source, target)) { }
 		~InvalidCastException() noexcept override { }
 
@@ -219,33 +219,33 @@ namespace stingray
 
 	struct KeyNotFoundException : public Exception
 	{
-		KeyNotFoundException() : Exception("Key not found!") { }
+		KeyNotFoundException() : Exception("Key not found") { }
 		explicit KeyNotFoundException(const std::string& keyStr) : Exception(BuildErrorMessage(keyStr)) { }
 
 	private:
 		static std::string BuildErrorMessage(const std::string& keyStr)
 		{
 			string_ostream stream;
-			stream << "Key '" << keyStr << "' not found!";
+			stream << "Key '" << keyStr << "' not found";
 			return stream.str();
 		}
 	};
 
 	struct FileNotFoundException : public Exception
 	{
-		FileNotFoundException() : Exception("File not found!") { }
+		FileNotFoundException() : Exception("File not found") { }
 		explicit FileNotFoundException(const std::string& path) : Exception(BuildErrorMessage(path)) { }
 
 	private:
 		static std::string BuildErrorMessage(const std::string& path)
 		{
 			string_ostream stream;
-			stream << "File '" << path << "' not found!";
+			stream << "File '" << path << "' not found";
 			return stream.str();
 		}
 	};
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NoSpaceLeftException, "No space left on device!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InputOutputException, "Input/output error on storage!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(NoSpaceLeftException, "No space left on device");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(InputOutputException, "Input/output error on storage");
 
 
 	namespace Detail

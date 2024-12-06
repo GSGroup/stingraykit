@@ -21,8 +21,8 @@ namespace stingray
 	 * @{
 	 */
 
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BufferIsFullException, "Buffer is full!");
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BufferUnderrunException, "Can't pop such a data size - it's too big!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BufferIsFullException, "Buffer is full");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(BufferUnderrunException, "Can't pop such a data size - it's too big");
 
 	class CircularDataReserver
 	{

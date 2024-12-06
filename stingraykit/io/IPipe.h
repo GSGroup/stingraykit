@@ -14,7 +14,7 @@
 namespace stingray
 {
 
-	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PipeClosedException, "Pipe has been closed!");
+	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(PipeClosedException, "Pipe has been closed");
 
 
 	struct IPipe : public virtual IInputByteStream, public virtual IOutputByteStream
