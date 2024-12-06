@@ -10,9 +10,9 @@
 
 #include <stingraykit/PhoenixSingleton.h>
 #include <stingraykit/collection/iterator_base.h>
+#include <stingraykit/string/string_view.h>
 
 #include <vector>
-#include <string>
 
 #define STINGRAYKIT_ENUM_VALUES(...) \
 	private: \
@@ -36,10 +36,10 @@
 				_enumVal = static_cast<Enum>(values.front()); \
 		} \
 		constexpr ClassName(Enum enumVal) : _enumVal(enumVal) { } \
-		static const_iterator begin()						{ return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
-		static const_iterator end()							{ return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
-		std::string ToString() const						{ return stingray::Detail::EnumToStringMap<ClassName>::EnumToString(_enumVal); } \
-		static ClassName FromString(const std::string& str)	{ return stingray::Detail::EnumToStringMap<ClassName>::EnumFromString(str); } \
+		static const_iterator begin()								{ return stingray::Detail::EnumIteratorCreator<ClassName>::begin(); } \
+		static const_iterator end()									{ return stingray::Detail::EnumIteratorCreator<ClassName>::end(); } \
+		std::string ToString() const								{ return stingray::Detail::EnumToStringMap<ClassName>::EnumToString(_enumVal); } \
+		static ClassName FromString(stingray::string_view str)		{ return stingray::Detail::EnumToStringMap<ClassName>::EnumFromString(str); } \
 		constexpr operator Enum () const { return _enumVal; } \
 		constexpr Enum val() const { return _enumVal; } \
 		constexpr bool operator == (Enum other) const { return _enumVal == other; } \
@@ -132,7 +132,7 @@ namespace stingray
 			const EnumValuesVec& GetEnumValues() const;
 
 			std::string EnumToString(int value);
-			int EnumFromString(const std::string& str);
+			int EnumFromString(string_view str);
 
 			void Init(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const char* str);
 
@@ -159,7 +159,7 @@ namespace stingray
 		public:
 			static const EnumValuesVec& GetEnumValues()					{ return PhoenixType::Instance().GetEnumValues(); }
 			static std::string EnumToString(NativeEnum value)			{ return PhoenixType::Instance().EnumToString(static_cast<int>(value)); }
-			static NativeEnum EnumFromString(const std::string& str)	{ return (NativeEnum)PhoenixType::Instance().EnumFromString(str); }
+			static NativeEnum EnumFromString(string_view str)			{ return (NativeEnum)PhoenixType::Instance().EnumFromString(str); }
 		};
 
 		template < typename EnumClassT >

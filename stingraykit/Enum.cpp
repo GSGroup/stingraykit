@@ -26,7 +26,7 @@ namespace stingray
 		struct EnumToStringMapBase::Impl
 		{
 			using EnumToStrMap = flat_map<int, std::string>;
-			using StrToEnumMap = flat_map<std::string, int>;
+			using StrToEnumMap = flat_map<string_view, int>;
 			using EnumValuesVec = std::vector<int>;
 
 		private:
@@ -71,9 +71,9 @@ namespace stingray
 				return result.str();
 			}
 
-			int EnumFromString(const std::string& str)
+			int EnumFromString(string_view str)
 			{
-				const std::string strippedStr = Strip(str, " \t\n\r");
+				const std::string strippedStr = Strip(str.copy(), " \t\n\r");
 				if (!strippedStr.empty() && strippedStr.front() >= '0' && strippedStr.front() <= '9')
 				{
 					try
@@ -90,7 +90,7 @@ namespace stingray
 				s32 result = 0;
 				string_ostream bitValue;
 
-				for (std::string::const_iterator strIt = str.begin(); strIt != str.end(); ++strIt)
+				for (string_view::const_iterator strIt = str.begin(); strIt != str.end(); ++strIt)
 				{
 					for (; strIt != str.end() && IsWhitespace(*strIt); ++strIt);
 
@@ -119,7 +119,7 @@ namespace stingray
 				return result;
 			}
 
-			void Init(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, const std::string& str)
+			void Init(const EnumValueHolder* valuesBegin, const EnumValueHolder* valuesEnd, string_view str)
 			{
 				int currentValue = 0;
 				for (; valuesBegin != valuesEnd; ++valuesBegin, ++currentValue)
@@ -131,7 +131,7 @@ namespace stingray
 				}
 
 				string_ostream currentName;
-				std::string::const_iterator strIt = str.begin();
+				string_view::const_iterator strIt = str.begin();
 				EnumValuesVec::const_iterator valueIt = _values.begin();
 
 				for (; valueIt != _values.end(); ++valueIt)
@@ -149,14 +149,14 @@ namespace stingray
 					if (strIt != str.end())
 						++strIt; // ','
 
-					const std::string name = currentName.str();
+					_enumToStr.emplace(*valueIt, currentName.str());
 					currentName.clear();
-
-					_enumToStr.emplace(*valueIt, name);
-					_strToEnum.emplace(name, *valueIt);
 				}
 
 				STINGRAYKIT_CHECK(valueIt == _values.end(), LogicException(StringBuilder() % "Invalid enum values: '" % str % "'"));
+
+				for (const auto& valueToStr : _enumToStr)
+					_strToEnum.emplace(valueToStr.second, valueToStr.first);
 			}
 		};
 
@@ -169,7 +169,7 @@ namespace stingray
 		std::string EnumToStringMapBase::EnumToString(int value)
 		{ return _impl->EnumToString(value); }
 
-		int EnumToStringMapBase::EnumFromString(const std::string& str)
+		int EnumToStringMapBase::EnumFromString(string_view str)
 		{ return _impl->EnumFromString(str); }
 
 		EnumToStringMapBase::EnumToStringMapBase()
