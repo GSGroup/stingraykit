@@ -71,8 +71,8 @@ namespace stingray
 		constexpr bool operator < (TimeDuration other) const				{ return _microseconds < other._microseconds; }
 		STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
 
-		std::string ToString(const std::string& format = std::string()) const;
-		static TimeDuration FromString(const std::string& str);
+		std::string ToString(string_view format = string_view()) const;
+		static TimeDuration FromString(string_view str);
 
 		constexpr static TimeDuration FromMicroseconds(s64 microseconds)	{ return TimeDuration(microseconds, Dummy()); }
 		constexpr static TimeDuration FromMilliseconds(s64 milliseconds)	{ return TimeDuration(milliseconds); }
@@ -110,7 +110,7 @@ namespace stingray
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeZone);
 
 		std::string ToString() const;
-		static TimeZone FromString(const std::string& str);
+		static TimeZone FromString(string_view str);
 
 		void Serialize(ObjectOStream& ar) const;
 		void Deserialize(ObjectIStream& ar);
@@ -179,8 +179,8 @@ namespace stingray
 		BrokenDownTime BreakDown(TimeKind kind = TimeKind::Local) const;
 		static Time FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind = TimeKind::Local);
 
-		std::string ToString(const std::string& format = std::string(), TimeKind kind = TimeKind::Local) const;
-		static Time FromString(const std::string& str, TimeKind kind = TimeKind::Local);
+		std::string ToString(string_view format = string_view(), TimeKind kind = TimeKind::Local) const;
+		static Time FromString(string_view str, TimeKind kind = TimeKind::Local);
 
 		u64 ToNtpTimestamp() const;
 		static Time FromNtpTimestamp(u64 timestamp);
@@ -219,7 +219,7 @@ namespace stingray
 
 	public:
 		static std::string ToIso8601(Time time);
-		static Time FromIso8601(const std::string& str);
+		static Time FromIso8601(string_view str);
 	};
 
 
@@ -229,7 +229,7 @@ namespace stingray
 
 	public:
 		static std::string ToIso8601(TimeDuration timeDuration, const optional<Time>& base = null);
-		static TimeDuration FromIso8601(const std::string& str, Time base = Time());
+		static TimeDuration FromIso8601(string_view str, Time base = Time());
 	};
 
 	/** @} */

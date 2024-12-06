@@ -8,6 +8,7 @@
 #include <stingraykit/time/Time.h>
 
 #include <stingraykit/serialization/Serialization.h>
+#include <stingraykit/string/RegexUtils.h>
 #include <stingraykit/string/StringParse.h>
 #include <stingraykit/string/StringUtils.h>
 #include <stingraykit/time/TimeEngine.h>
@@ -80,7 +81,7 @@ namespace stingray
 	}
 
 
-	std::string TimeDuration::ToString(const std::string& format) const
+	std::string TimeDuration::ToString(string_view format) const
 	{
 		if (format.empty())
 		{
@@ -122,7 +123,7 @@ namespace stingray
 			else if (c == 'l')
 			{
 				const size_t lastPos = format.find_first_not_of('l', pos + 1);
-				const size_t precision = (lastPos == std::string::npos ? format.size() : lastPos) - pos;
+				const size_t precision = (lastPos == string_view::npos ? format.size() : lastPos) - pos;
 
 				maxPrecision = std::max(maxPrecision, precision);
 				pos += precision - 1;
@@ -193,7 +194,7 @@ namespace stingray
 					result % '-';
 
 				const size_t lastPos = format.find_first_not_of('l', pos + 1);
-				const size_t precision = (lastPos == std::string::npos ? format.size() : lastPos) - pos;
+				const size_t precision = (lastPos == string_view::npos ? format.size() : lastPos) - pos;
 				const size_t croppedPrecision = std::min(precision, ArraySize(MicrosecondsDivisors) - 1);
 
 				result % RightJustify(stingray::ToString(microseconds / ArrayGet(MicrosecondsDivisors, croppedPrecision)), croppedPrecision, '0');
@@ -211,7 +212,7 @@ namespace stingray
 	}
 
 
-	TimeDuration TimeDuration::FromString(const std::string& str)
+	TimeDuration TimeDuration::FromString(string_view str)
 	{
 		int value = 0;
 
@@ -249,12 +250,12 @@ namespace stingray
 
 	std::string TimeZone::ToString() const
 	{
-		const std::string sign = _minutesFromUtc > 0 ? "+" : _minutesFromUtc < 0 ? "-" : "";
+		const string_view sign = _minutesFromUtc > 0 ? "+" : _minutesFromUtc < 0 ? "-" : "";
 		return StringBuilder() % sign % (Abs(_minutesFromUtc) / MinutesPerHour) % ":" % (Abs(_minutesFromUtc) % MinutesPerHour);
 	}
 
 
-	TimeZone TimeZone::FromString(const std::string& str)
+	TimeZone TimeZone::FromString(string_view str)
 	{
 		STINGRAYKIT_CHECK(!str.empty(), FormatException(str));
 
@@ -263,7 +264,7 @@ namespace stingray
 
 		int hours = 0;
 		int minutes = 0;
-		if (delimiterPos != std::string::npos)
+		if (delimiterPos != string_view::npos)
 			STINGRAYKIT_CHECK(StringParse(sign ? str.substr(1) : str, "%1%:%2%", hours, minutes), FormatException(str));
 		else
 		{
@@ -306,17 +307,17 @@ namespace stingray
 	}
 
 
-	std::string Time::ToString(const std::string& format, TimeKind kind) const
+	std::string Time::ToString(string_view format, TimeKind kind) const
 	{ return BreakDown(kind).ToString(format); }
 
 
-	Time Time::FromString(const std::string& str, TimeKind kind)
+	Time Time::FromString(string_view str, TimeKind kind)
 	{
 		if (str == "now")
 			return Time::Now();
 
 		if (StartsWith(str, "now+"))
-			return Time::Now() + TimeDuration::FromString(RemovePrefix(str, "now+"));
+			return Time::Now() + TimeDuration::FromString(RemovePrefix(str.copy(), "now+"));
 
 		s16 year = 0;
 		s16 month = 0;
@@ -496,7 +497,7 @@ namespace stingray
 		};
 
 	public:
-		Time operator () (const std::string& str) const
+		Time operator () (string_view str) const
 		{
 			const std::string uppercase = ToUpper(str); // Rfc3339 5.6 NOTE
 
@@ -518,7 +519,7 @@ namespace stingray
 		}
 
 	private:
-		static optional<ParseResult> TryFromDateTime(const std::string& str)
+		static optional<ParseResult> TryFromDateTime(string_view str)
 		{
 			ParseResult result;
 			auto secondsProxy = MakeParseProxy(result.Seconds, &ParseSeconds);
@@ -530,7 +531,7 @@ namespace stingray
 			return result;
 		}
 
-		static optional<ParseResult> TryFromDateTimeWithOffset(const std::string& str)
+		static optional<ParseResult> TryFromDateTimeWithOffset(string_view str)
 		{
 			ParseResult result;
 
@@ -569,7 +570,7 @@ namespace stingray
 			return result;
 		}
 
-		static optional<ParseResult> TryFromDate(const std::string& str)
+		static optional<ParseResult> TryFromDate(string_view str)
 		{
 			ParseResult result;
 			if (!StringParse(str, "%1%-%2%-%3%", result.Year, result.Month, result.Day))
@@ -581,7 +582,7 @@ namespace stingray
 		static TimeDuration ParseSeconds(string_view secondsStr)
 		{
 			u64 seconds = 0;
-			std::string fractionStr;
+			string_view fractionStr;
 
 			STINGRAYKIT_CHECK(
 					StringParse(secondsStr, "%1%.%2%", seconds, fractionStr)
@@ -618,7 +619,7 @@ namespace stingray
 	{ return time.BreakDown(TimeKind::Utc).ToString("YYYY-MM-ddThh:mm:ss.lllZ"); }
 
 
-	Time TimeUtility::FromIso8601(const std::string& str)
+	Time TimeUtility::FromIso8601(string_view str)
 	{ return FromIso8601Impl()(str); }
 
 
@@ -663,38 +664,39 @@ namespace stingray
 		};
 
 	public:
-		TimeDuration operator () (const std::string& str, Time base) const
+		TimeDuration operator () (string_view str, Time base) const
 		{
 			const std::string uppercase = ToUpper(str);
+			const string_view uppercaseView = uppercase;
 
 			ParseResult result;
 
-			std::smatch match;
-			STINGRAYKIT_CHECK(std::regex_match(uppercase, match, FormatRegex), FormatException(str));
-			STINGRAYKIT_CHECK(TryFromDateTime(match.str(1), result) || TryFromWeek(match.str(1), result), FormatException(str));
+			svmatch match;
+			STINGRAYKIT_CHECK(std::regex_match(uppercaseView.begin(), uppercaseView.end(), match, FormatRegex), FormatException(str));
+			STINGRAYKIT_CHECK(TryFromDateTime(svmatch_str(match, 1), result) || TryFromWeek(svmatch_str(match, 1), result), FormatException(str));
 
 			return result.ToTimeDuration(base, TimeKind::Utc);
 		}
 
 	private:
-		static bool TryFromDateTime(const std::string& str, ParseResult& result)
+		static bool TryFromDateTime(string_view str, ParseResult& result)
 		{
-			std::smatch match;
-			if (std::regex_match(str, match, DateTimeRegex))
+			svmatch match;
+			if (std::regex_match(str.begin(), str.end(), match, DateTimeRegex))
 				return match[2].first != match[2].second
-						&& TryFromTime(match.str(2), result)
-						&& (match[1].first == match[1].second || TryFromDate(match.str(1), result));
+						&& TryFromTime(svmatch_str(match, 2), result)
+						&& (match[1].first == match[1].second || TryFromDate(svmatch_str(match, 1), result));
 			else
 				return TryFromDate(str, result);
 		}
 
-		static bool TryFromWeek(const std::string& str, ParseResult& result)
+		static bool TryFromWeek(string_view str, ParseResult& result)
 		{ return StringParse(str, "%1%W", result.Weeks); }
 
-		static bool TryFromTime(const std::string& str, ParseResult& result)
+		static bool TryFromTime(string_view str, ParseResult& result)
 		{
-			std::string toParse = str;
-			std::string remaining;
+			string_view toParse = str;
+			string_view remaining;
 
 			if (Contains(toParse, "H"))
 			{
@@ -705,7 +707,7 @@ namespace stingray
 					return false;
 
 				toParse = remaining;
-				remaining.clear();
+				remaining = string_view();
 			}
 
 			if (Contains(toParse, "M"))
@@ -717,16 +719,16 @@ namespace stingray
 					return false;
 
 				toParse = remaining;
-				remaining.clear();
+				remaining = string_view();
 			}
 
 			return StringParse(toParse, "%1%S", result.Seconds);
 		}
 
-		static bool TryFromDate(const std::string& str, ParseResult& result)
+		static bool TryFromDate(string_view str, ParseResult& result)
 		{
-			std::string toParse = str;
-			std::string remaining;
+			string_view toParse = str;
+			string_view remaining;
 
 			if (Contains(toParse, "Y"))
 			{
@@ -737,7 +739,7 @@ namespace stingray
 					return false;
 
 				toParse = remaining;
-				remaining.clear();
+				remaining = string_view();
 			}
 
 			if (Contains(toParse, "M"))
@@ -749,7 +751,7 @@ namespace stingray
 					return false;
 
 				toParse = remaining;
-				remaining.clear();
+				remaining = string_view();
 			}
 
 			return StringParse(toParse, "%1%D", result.Days);
@@ -858,7 +860,7 @@ namespace stingray
 	}
 
 
-	TimeDuration TimeDurationUtility::FromIso8601(const std::string& str, Time base)
+	TimeDuration TimeDurationUtility::FromIso8601(string_view str, Time base)
 	{ return FromIso8601Impl()(str, base); };
 
 }
