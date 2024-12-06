@@ -55,7 +55,7 @@ namespace stingray
 	}
 
 
-	LangCode::LangCode(const std::string& code)
+	LangCode::LangCode(string_view code)
 	{
 		STINGRAYKIT_CHECK(code.size() == 3, StringBuilder() % "Invalid language code: " % code);
 
@@ -86,11 +86,11 @@ namespace stingray
 	}
 
 
-	LangCode LangCode::From2Letter(const std::string& code)
+	LangCode LangCode::From2Letter(string_view code)
 	{
 		STINGRAYKIT_CHECK(code.size() >= 2, StringBuilder() % "Invalid language code: " % code);
 
-		std::string subcode(code, 0, 2);
+		std::string subcode = code.substr(0, 2).copy();
 		std::transform(subcode.begin(), subcode.end(), subcode.begin(), &DoToUpper);
 
 		if (subcode == "RU")
@@ -103,7 +103,7 @@ namespace stingray
 	}
 
 
-	LangCode LangCode::From3Letter(const std::string& code)
+	LangCode LangCode::From3Letter(string_view code)
 	{ return LangCode(code); }
 
 }

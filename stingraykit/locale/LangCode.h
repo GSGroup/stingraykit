@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/string/string_view.h>
 #include <stingraykit/toolkit.h>
 
 namespace stingray
@@ -34,7 +35,7 @@ namespace stingray
 		LangCode(AnyType) : _code(0) { }
 
 		explicit LangCode(u32 code);
-		explicit LangCode(const std::string& code);
+		explicit LangCode(string_view code);
 
 		bool operator < (const LangCode& other) const
 		{ return _code < other._code; }
@@ -43,11 +44,11 @@ namespace stingray
 		std::string ToString() const;
 		std::string To2LetterString() const;
 
-		static LangCode FromString(const std::string& code)
+		static LangCode FromString(string_view code)
 		{ return code.size() == 2 ? From2Letter(code) : From3Letter(code); }
 
-		static LangCode From2Letter(const std::string& code);
-		static LangCode From3Letter(const std::string& code);
+		static LangCode From2Letter(string_view code);
+		static LangCode From3Letter(string_view code);
 	};
 
 	/** @} */
