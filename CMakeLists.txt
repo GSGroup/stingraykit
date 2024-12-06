@@ -85,6 +85,7 @@ set(stingraykit_SRC
 	stingraykit/CmdLine.cpp
 	stingraykit/Decimal.cpp
 	stingraykit/EnumToString.cpp
+	stingraykit/Exception.cpp
 	stingraykit/ProgressValue.cpp
 	stingraykit/Random.cpp
 	stingraykit/Size.cpp
@@ -93,7 +94,6 @@ set(stingraykit_SRC
 	stingraykit/UUID.cpp
 	stingraykit/Version.cpp
 	stingraykit/any.cpp
-	stingraykit/exception.cpp
 	stingraykit/math.cpp
 	stingraykit/self_counter.cpp
 	stingraykit/shared_ptr.cpp

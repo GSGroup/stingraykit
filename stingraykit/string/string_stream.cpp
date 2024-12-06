@@ -7,7 +7,7 @@
 
 #include <stingraykit/string/string_stream.h>
 
-#include <stingraykit/exception.h>
+#include <stingraykit/Exception.h>
 
 #include <stdio.h>
 

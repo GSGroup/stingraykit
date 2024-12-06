@@ -7,7 +7,7 @@
 
 #include <stingraykit/string/string_view.h>
 
-#include <stingraykit/exception.h>
+#include <stingraykit/Exception.h>
 
 namespace stingray
 {

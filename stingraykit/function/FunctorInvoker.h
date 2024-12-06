@@ -9,8 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/function/function_info.h>
+#include <stingraykit/Exception.h>
 #include <stingraykit/Tuple.h>
-#include <stingraykit/exception.h>
 
 namespace stingray
 {

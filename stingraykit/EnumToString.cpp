@@ -10,7 +10,7 @@
 #include <map>
 #include <sstream>
 
-#include <stingraykit/exception.h>
+#include <stingraykit/Exception.h>
 
 namespace stingray
 {
