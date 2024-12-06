@@ -8,14 +8,25 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/string/string_view.h>
 #include <stingraykit/Types.h>
 
-#include <string>
+#include <regex>
 
 namespace stingray
 {
 
 	std::string GenerateNumericRangeRegex(u64 start, u64 end, bool match);
+
+
+	using svmatch = std::match_results<string_view::const_iterator>;
+
+
+	inline string_view svmatch_str(const svmatch& match, svmatch::size_type index = 0)
+	{
+		const auto& subMatch = match[index];
+		return subMatch.matched ? string_view(&*subMatch.first, std::distance(subMatch.first, subMatch.second)) : string_view();
+	}
 
 }
 
