@@ -34,7 +34,7 @@ namespace stingray
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(Version);
 
 		std::string ToString() const;
-		static Version FromString(const std::string& str);
+		static Version FromString(string_view str);
 	};
 
 }

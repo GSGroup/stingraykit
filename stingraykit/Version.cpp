@@ -27,7 +27,7 @@ namespace stingray
 	}
 
 
-	Version Version::FromString(const std::string& str)
+	Version Version::FromString(string_view str)
 	{
 		unsigned major;
 		unsigned minor;
