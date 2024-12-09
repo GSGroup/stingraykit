@@ -66,7 +66,7 @@ namespace stingray
 	}
 
 
-	FractionInfo ParseDecimalFraction(const std::string& fractionStr, unsigned targetPrecision)
+	FractionInfo ParseDecimalFraction(string_view fractionStr, unsigned targetPrecision)
 	{
 		constexpr unsigned Radix = 10;
 		constexpr u64 MaxMultiplicand = std::numeric_limits<u64>::max() / Radix;
