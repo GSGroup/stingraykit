@@ -199,6 +199,22 @@ TEST(TimeDurationTest, ToString)
 }
 
 
+TEST(TimeDurationTest, FromString)
+{
+	ASSERT_EQ(TimeDuration::FromString("0"), TimeDuration());
+	ASSERT_EQ(TimeDuration::FromString("12345"), TimeDuration(12345));
+
+	ASSERT_EQ(TimeDuration::FromString("12345s"), TimeDuration(12345000));
+	ASSERT_EQ(TimeDuration::FromString("12345S"), TimeDuration(12345000));
+
+	ASSERT_EQ(TimeDuration::FromString("12345m"), TimeDuration(740700000));
+	ASSERT_EQ(TimeDuration::FromString("12345M"), TimeDuration(740700000));
+
+	ASSERT_EQ(TimeDuration::FromString("12345h"), TimeDuration(44442000000));
+	ASSERT_EQ(TimeDuration::FromString("12345H"), TimeDuration(44442000000));
+}
+
+
 TEST(TimeDurationTest, FromIso8601)
 {
 	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3D"), TimeDuration::FromDays(3));
