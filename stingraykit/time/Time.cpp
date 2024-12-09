@@ -15,8 +15,6 @@
 
 #include <regex>
 
-#include <stdio.h>
-
 namespace stingray
 {
 
@@ -216,27 +214,18 @@ namespace stingray
 	TimeDuration TimeDuration::FromString(const std::string& str)
 	{
 		int value = 0;
-		char units = 0;
-		const int components = sscanf(str.c_str(), "%d%c", &value, &units);
-		STINGRAYKIT_CHECK(components > 0, FormatException(str));
 
-		if (components == 1)
-			return TimeDuration(value);
-
-		switch (units)
-		{
-		case 'H':
-		case 'h':
+		if (StringParse(str, "%1%h", value) || StringParse(str, "%1%H", value))
 			return FromHours(value);
-		case 'M':
-		case 'm':
-			return FromMinutes(value);
-		case 'S':
-		case 's':
-			return FromSeconds(value);
-		}
 
-		STINGRAYKIT_THROW(FormatException(str));
+		if (StringParse(str, "%1%m", value) || StringParse(str, "%1%M", value))
+			return FromMinutes(value);
+
+		if (StringParse(str, "%1%s", value) || StringParse(str, "%1%S", value))
+			return FromSeconds(value);
+
+		STINGRAYKIT_CHECK(StringParse(str, "%1%", value), FormatException(str));
+		return TimeDuration(value);
 	}
 
 
@@ -346,54 +335,56 @@ namespace stingray
 		bool haveUtcHours = false;
 		bool haveUtcMinutes = false;
 
-		int components = sscanf(str.c_str(), "%hd.%hd.%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
-		if (components >= 3)
-		{
+		if (StringParse(str, "%1%.%2%.%3% %4%:%5%:%6%", day, month, year, hour, minute, second))
+			haveDate = haveTime = haveSeconds = true;
+		else if (StringParse(str, "%1%.%2%.%3% %4%:%5%", day, month, year, hour, minute))
+			haveDate = haveTime = true;
+		else if (StringParse(str, "%1%.%2%.%3%", day, month, year))
 			haveDate = true;
-			if (components >= 5)
-				haveTime = true;
-			if (components >= 6)
-				haveSeconds = true;
-		}
-		else
+		else if (StringParse(str, "%1%/%2%/%3% %4%:%5%:%6%", day, month, year, hour, minute, second))
+			haveDate = haveTime = haveSeconds = true;
+		else if (StringParse(str, "%1%/%2%/%3% %4%:%5%", day, month, year, hour, minute))
+			haveDate = haveTime = true;
+		else if (StringParse(str, "%1%/%2%/%3%", day, month, year))
+			haveDate = true;
+		else if (StringParse(str, "%1%:%2%:%3%", hour, minute, second))
+			haveTime = haveSeconds = true;
+		else if (StringParse(str, "%1%:%2%", hour, minute))
+			haveTime = true;
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%+%7%:%8%", year, month, day, hour, minute, second, utcHour, utcMinute))
 		{
-			components = sscanf(str.c_str(), "%hd/%hd/%hd %hd:%hd:%hd", &day, &month, &year, &hour, &minute, &second);
-			if (components >= 3)
-			{
-				haveDate = true;
-				if (components >= 5)
-					haveTime = true;
-				if (components >= 6)
-					haveSeconds = true;
-			}
-			else
-			{
-				components = sscanf(str.c_str(), "%hd:%hd:%hd", &hour, &minute, &second);
-				if (components >= 2)
-				{
-					haveTime = true;
-					if (components >= 3)
-						haveSeconds = true;
-				}
-				else
-				{
-					components = sscanf(str.c_str(), "%hd-%hd-%hdT%hd:%hd:%hd%c%hd:%hd", &year, &month, &day, &hour, &minute, &second, &utcSign, &utcHour, &utcMinute);
-					STINGRAYKIT_CHECK(components >= 3, FormatException(str));
-
-					haveDate = true;
-					if (components >= 5)
-						haveTime = true;
-					if (components >= 6)
-						haveSeconds = true;
-					if (components >= 7)
-						haveUtcSign = true;
-					if (components >= 8)
-						haveUtcHours = true;
-					if (components >= 9)
-						haveUtcMinutes = true;
-				}
-			}
+			haveDate = haveTime = haveSeconds = haveUtcSign = haveUtcHours = haveUtcMinutes = true;
+			utcSign = '+';
 		}
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%+%7%", year, month, day, hour, minute, second, utcHour))
+		{
+			haveDate = haveTime = haveSeconds = haveUtcSign = haveUtcHours = true;
+			utcSign = '+';
+		}
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%-%7%:%8%", year, month, day, hour, minute, second, utcHour, utcMinute))
+		{
+			haveDate = haveTime = haveSeconds = haveUtcSign = haveUtcHours = haveUtcMinutes = true;
+			utcSign = '-';
+		}
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%-%7%", year, month, day, hour, minute, second, utcHour))
+		{
+			haveDate = haveTime = haveSeconds = haveUtcSign = haveUtcHours = true;
+			utcSign = '-';
+		}
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%Z", year, month, day, hour, minute, second))
+		{
+			haveDate = haveTime = haveSeconds = haveUtcSign = true;
+			utcSign = 'Z';
+		}
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%", year, month, day, hour, minute, second))
+			haveDate = haveTime = haveSeconds = true;
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%", year, month, day, hour, minute))
+			haveDate = haveTime = true;
+		else if (StringParse(str, "%1%-%2%-%3%", year, month, day))
+			haveDate = true;
+		else
+			STINGRAYKIT_THROW(FormatException(str));
+
 		STINGRAYKIT_CHECK(haveDate || haveTime, FormatException(str));
 		STINGRAYKIT_CHECK(haveTime || !haveSeconds, FormatException(str));
 
