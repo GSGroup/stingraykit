@@ -347,12 +347,9 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename BaseException >
-		typename EnableIf<IsInherited<BaseException, std::exception>::Value, ExceptionWrapper<BaseException> >::ValueT MakeException(const BaseException& ex, ToolkitWhere where)
-		{
-			static_assert(IsInherited<BaseException, std::exception>::Value, "Invalid exception type");
-			return ExceptionWrapper<BaseException>(ex, where);
-		}
+		template < typename BaseException, typename EnableIf<IsInherited<BaseException, std::exception>::Value, int>::ValueT = 0 >
+		ExceptionWrapper<BaseException> MakeException(const BaseException& ex, ToolkitWhere where)
+		{ return ExceptionWrapper<BaseException>(ex, where); }
 
 		inline ExceptionWrapper<Exception> MakeException(const std::string& message, ToolkitWhere where)
 		{ return MakeException(Exception(message), where); }
