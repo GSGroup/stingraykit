@@ -138,13 +138,17 @@ namespace stingray
 
 		reference at(size_t index)
 		{
-			Detail::ArrayCheckRange(index, size());
+			if (index >= size())
+				Detail::ArrayThrowIndexOutOfRange(index, size());
+
 			return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage[index - _staticStorageSize];
 		}
 
 		const_reference at(size_t index) const
 		{
-			Detail::ArrayCheckRange(index, size());
+			if (index >= size())
+				Detail::ArrayThrowIndexOutOfRange(index, size());
+
 			return index < _staticStorageSize ? _staticStorage[index].Ref() : _dynamicStorage[index - _staticStorageSize];
 		}
 

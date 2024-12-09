@@ -137,23 +137,27 @@ namespace stingray
 
 
 	template < size_t N >
-	size_t StrLen(const char (&)[N])
+	constexpr size_t StrLen(const char (&)[N])
 	{ return N - 1; }
 
 
 	template < typename T, size_t Size >
-	size_t ArraySize(const T (&) [Size]) { return Size; }
+	constexpr size_t ArraySize(const T (&) [Size])
+	{ return Size; }
 
 
 	namespace Detail
 	{
-		void ArrayCheckRange(size_t index, size_t size);
+		void ArrayThrowIndexOutOfRange(size_t index, size_t size);
 	}
 
+
 	template < typename T, size_t Size >
-	T& ArrayGet(T (&array) [Size], size_t index)
+	constexpr T& ArrayGet(T (&array) [Size], size_t index)
 	{
-		Detail::ArrayCheckRange(index, Size);
+		if (index >= Size)
+			Detail::ArrayThrowIndexOutOfRange(index, Size);
+
 		return array[index];
 	}
 

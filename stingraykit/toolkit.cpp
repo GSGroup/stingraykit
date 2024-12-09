@@ -22,8 +22,8 @@ namespace stingray
 
 	namespace Detail
 	{
-		void ArrayCheckRange(size_t pos, size_t size)
-		{ STINGRAYKIT_CHECK_RANGE(pos, size); }
+		void ArrayThrowIndexOutOfRange(size_t pos, size_t size)
+		{ STINGRAYKIT_THROW(IndexOutOfRangeException(pos, size)); }
 	}
 
 
