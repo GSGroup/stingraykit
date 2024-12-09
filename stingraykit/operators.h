@@ -69,30 +69,50 @@
 
 
 #define STINGRAYKIT_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
+		DETAIL_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(TemplateConstexprInlineDecl), MK_PARAM(const LeftClassName&), MK_PARAM(const RightClassName&))
+
+#define STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
+		DETAIL_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(TemplateConstexprInlineDecl), MK_PARAM(LeftClassName), MK_PARAM(RightClassName))
+
+#define DETAIL_GENERATE_NON_MEMBER_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
 		TemplateConstexprInlineDecl \
-		bool operator != (const LeftClassName& lhs, const RightClassName& rhs) \
+		bool operator != (LeftClassName lhs, RightClassName rhs) \
 		{ return !(lhs == rhs); }
 
+
 #define STINGRAYKIT_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
+		DETAIL_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(TemplateConstexprInlineDecl), MK_PARAM(const LeftClassName&), MK_PARAM(const RightClassName&))
+
+#define STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_RELATIONAL_OPERATORS_FROM_LESS(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
+		DETAIL_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(TemplateConstexprInlineDecl), MK_PARAM(LeftClassName), MK_PARAM(RightClassName))
+
+#define DETAIL_GENERATE_NON_MEMBER_RELATIONAL_OPERATORS_FROM_LESS(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
 		TemplateConstexprInlineDecl \
-		bool operator > (const LeftClassName& lhs, const RightClassName& rhs) \
+		bool operator > (LeftClassName lhs, RightClassName rhs) \
 		{ return rhs < lhs; } \
 		TemplateConstexprInlineDecl \
-		bool operator <= (const LeftClassName& lhs, const RightClassName& rhs) \
+		bool operator <= (LeftClassName lhs, RightClassName rhs) \
 		{ return !(rhs < lhs); } \
 		TemplateConstexprInlineDecl \
-		bool operator >= (const LeftClassName& lhs, const RightClassName& rhs) \
+		bool operator >= (LeftClassName lhs, RightClassName rhs) \
 		{ return !(lhs < rhs); }
 
-#define STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, FirstClassName, SecondClassName) \
+
+#define STINGRAYKIT_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
+		DETAIL_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(TemplateConstexprInlineDecl), MK_PARAM(const LeftClassName&), MK_PARAM(const RightClassName&))
+
+#define STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, LeftClassName, RightClassName) \
+		DETAIL_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(TemplateConstexprInlineDecl), MK_PARAM(LeftClassName), MK_PARAM(RightClassName))
+
+#define DETAIL_GENERATE_NON_MEMBER_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(TemplateConstexprInlineDecl, FirstClassName, SecondClassName) \
 		TemplateConstexprInlineDecl \
-		bool operator == (const SecondClassName& lhs, const FirstClassName& rhs) \
+		bool operator == (SecondClassName lhs, FirstClassName rhs) \
 		{ return rhs == lhs; } \
 		TemplateConstexprInlineDecl \
-		bool operator != (const FirstClassName& lhs, const SecondClassName& rhs) \
+		bool operator != (FirstClassName lhs, SecondClassName rhs) \
 		{ return !(lhs == rhs); } \
 		TemplateConstexprInlineDecl \
-		bool operator != (const SecondClassName& lhs, const FirstClassName& rhs) \
+		bool operator != (SecondClassName lhs, FirstClassName rhs) \
 		{ return !(rhs == lhs); }
 
 #endif
