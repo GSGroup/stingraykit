@@ -9,6 +9,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/core/NullPtrType.h>
+#include <stingraykit/preprocessor/MkParam.h>
+#include <stingraykit/operators.h>
 
 #include <limits>
 #include <string>
@@ -255,14 +257,51 @@ namespace stingray
 		size_type find_last_not_of(CharT c, size_type pos = npos) const						{ return find_last_not_of(basic_string_view(&c, 1), pos); }
 		size_type find_last_not_of(const CharT* s, size_type pos, size_type count) const	{ return find_last_not_of(basic_string_view(s, count), pos); }
 		size_type find_last_not_of(const CharT* s, size_type pos = npos) const				{ return find_last_not_of(basic_string_view(s), pos); }
-
-		bool operator == (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) == 0; }
-		bool operator != (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) != 0; }
-		bool operator < (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) < 0; }
-		bool operator <= (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) <= 0; }
-		bool operator > (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) > 0; }
-		bool operator >= (basic_string_view<CharT, Traits> rhs) const	{ return compare(rhs) >= 0; }
 	};
+
+
+	template < typename CharT, typename Traits >
+	bool operator == (basic_string_view<CharT, Traits> lhs, const CharT* rhs)
+	{ return lhs == basic_string_view<CharT, Traits>(rhs); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename CharT, typename Traits >), MK_PARAM(basic_string_view<CharT, Traits>), MK_PARAM(const CharT*));
+
+
+	template < typename CharT, typename Traits >
+	bool operator < (basic_string_view<CharT, Traits> lhs, const CharT* rhs)
+	{ return lhs < basic_string_view<CharT, Traits>(rhs); }
+	template < typename CharT, typename Traits >
+	bool operator < (const CharT* lhs, basic_string_view<CharT, Traits> rhs)
+	{ return basic_string_view<CharT, Traits>(lhs) < rhs; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename CharT, typename Traits >), MK_PARAM(basic_string_view<CharT, Traits>), MK_PARAM(const CharT*));
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename CharT, typename Traits >), MK_PARAM(const CharT*), MK_PARAM(basic_string_view<CharT, Traits>));
+
+
+	template < typename CharT, typename Traits >
+	bool operator == (basic_string_view<CharT, Traits> lhs, const std::string& rhs)
+	{ return lhs == basic_string_view<CharT, Traits>(rhs); }
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename CharT, typename Traits >), MK_PARAM(basic_string_view<CharT, Traits>), MK_PARAM(const std::string&));
+
+
+	template < typename CharT, typename Traits >
+	bool operator < (basic_string_view<CharT, Traits> lhs, const std::string& rhs)
+	{ return lhs < basic_string_view<CharT, Traits>(rhs); }
+	template < typename CharT, typename Traits >
+	bool operator < (const std::string& lhs, basic_string_view<CharT, Traits> rhs)
+	{ return basic_string_view<CharT, Traits>(lhs) < rhs; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename CharT, typename Traits >), MK_PARAM(basic_string_view<CharT, Traits>), MK_PARAM(const std::string&));
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename CharT, typename Traits >), MK_PARAM(const std::string&), MK_PARAM(basic_string_view<CharT, Traits>));
+
+
+	template < typename CharT, typename Traits >
+	bool operator == (basic_string_view<CharT, Traits> lhs, basic_string_view<CharT, Traits> rhs)
+	{ return lhs.compare(rhs) == 0; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_EQUALITY_OPERATORS_FROM_EQUAL(MK_PARAM(template < typename CharT, typename Traits >), MK_PARAM(basic_string_view<CharT, Traits>), MK_PARAM(basic_string_view<CharT, Traits>));
+
+
+	template < typename CharT, typename Traits >
+	bool operator < (basic_string_view<CharT, Traits> lhs, basic_string_view<CharT, Traits> rhs)
+	{ return lhs.compare(rhs) < 0; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_RELATIONAL_OPERATORS_FROM_LESS(MK_PARAM(template < typename CharT, typename Traits >), MK_PARAM(basic_string_view<CharT, Traits>), MK_PARAM(basic_string_view<CharT, Traits>));
 
 
 	template < typename CharT, typename Traits >
