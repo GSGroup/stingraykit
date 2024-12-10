@@ -255,7 +255,7 @@ namespace stingray
 
 			Self& Next()
 			{
-				STINGRAYKIT_CHECK(Valid(), "Invalid range advanced!");
+				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
 				_startPos = _next.Position;
 				if (_startPos != std::string::npos)
 				{
