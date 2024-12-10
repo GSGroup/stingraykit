@@ -106,16 +106,16 @@ namespace stingray
 			return StringBuilder() % (result / 1000) % "." % std::string(3 - fractionalPart.size(), '0') % fractionalPart;
 		}
 
-		static fixed_point FromString(const std::string& str)
+		static fixed_point FromString(string_view str)
 		{
 			STINGRAYKIT_CHECK(!str.empty(), ArgumentException("str"));
 
 			const size_t pointPos = str.find('.');
-			if (pointPos == std::string::npos)
+			if (pointPos == string_view::npos)
 				return stingray::FromString<ValueType>(str);
 
 			const fixed_point integralPart = stingray::FromString<ValueType>(str.substr(0, pointPos));
-			const std::string rawFractionalPart = str.substr(pointPos + 1);
+			const string_view rawFractionalPart = str.substr(pointPos + 1);
 
 			fixed_point fractionalPart = stingray::FromString<ValueType>(rawFractionalPart);
 			for (size_t i = 0; i < rawFractionalPart.size(); ++i)
