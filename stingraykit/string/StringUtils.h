@@ -232,7 +232,7 @@ namespace stingray
 		public:
 			SplitStringRange(const StringSearchType& search, const ValueType& string, size_t limit)
 				: _search(search), _string(string), _startPos(0), _results(0), _resultsLimit(limit)
-			{ _next = _search(_string, _startPos); }
+			{ First(); }
 
 			bool Valid() const
 			{ return _startPos != std::string::npos; }
@@ -250,6 +250,7 @@ namespace stingray
 			{
 				_startPos = 0;
 				_results = 0;
+				_next = _search(_string, _startPos);
 				return *this;
 			}
 

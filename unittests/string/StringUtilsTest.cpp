@@ -12,9 +12,12 @@
 
 #include <unittests/RangeMatcher.h>
 
+#include <gmock/gmock-more-matchers.h>
+
 using namespace stingray;
 
 using ::testing::ElementsAre;
+using ::testing::IsEmpty;
 
 TEST(StringUtilsTest, Contains_Substring_ReturnsTrue)
 {
@@ -82,6 +85,19 @@ TEST(StringUtilsTest, Split)
 	ASSERT_ANY_THROW(TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world", " ")));
 
 	ASSERT_ANY_THROW(TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world 22 33", " ")));
+
+	{
+		const std::string testeeStr = "aaa|bbb|ccc";
+		auto testee = Split(testeeStr, "|");
+		ASSERT_THAT(testee, MatchRange(ElementsAre("aaa", "bbb", "ccc")));
+
+		while (testee.Valid())
+			testee.Next();
+		ASSERT_THAT(testee, MatchRange(IsEmpty()));
+
+		testee.First();
+		ASSERT_THAT(testee, MatchRange(ElementsAre("aaa", "bbb", "ccc")));
+	}
 }
 
 
