@@ -187,12 +187,12 @@ namespace stingray
 				return npos;
 
 			if (pos == npos)
-				pos = size() - 1;
+				pos = size();
 
-			for (size_type i = 0; i <= pos; ++i)
+			for (size_type i = 0; i < pos; ++i)
 				for (const_iterator it = v.begin(); it != v.end(); ++it)
-					if (_data[pos - i] == *it)
-						return pos - i;
+					if (_data[pos - i - 1] == *it)
+						return pos - i - 1;
 
 			return npos;
 		}
@@ -234,21 +234,21 @@ namespace stingray
 				return npos;
 
 			if (pos == npos)
-				pos = size() - 1;
+				pos = size();
 
-			for (size_type i = 0; i <= pos; ++i)
+			for (size_type i = 0; i < pos; ++i)
 			{
 				bool contains = false;
 				for (const_iterator it = v.begin(); it != v.end(); ++it)
 				{
-					if (_data[pos - i] == *it)
+					if (_data[pos - i - 1] == *it)
 					{
 						contains = true;
 						break;
 					}
 				}
 				if (!contains)
-					return pos - i;
+					return pos - i - 1;
 			}
 
 			return npos;
