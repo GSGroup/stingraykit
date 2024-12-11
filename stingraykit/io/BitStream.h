@@ -173,7 +173,7 @@ namespace stingray
 		}
 
 		template < size_t LengthPrefixSize >
-		void WriteLengthPrefixedString(const std::string& str)
+		void WriteLengthPrefixedString(string_view str)
 		{
 			Write<LengthPrefixSize>(str.length());
 			WriteArray<8>(str.begin(), str.end());
@@ -207,7 +207,7 @@ namespace stingray
 			return result;
 		}
 
-		void WriteNullTerminatedString(const std::string& str)
+		void WriteNullTerminatedString(string_view str)
 		{
 			WriteArray<8>(str.begin(), str.end());
 			Write<8>('\0');
