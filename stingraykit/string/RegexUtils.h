@@ -28,6 +28,13 @@ namespace stingray
 		return subMatch.matched ? string_view(&*subMatch.first, std::distance(subMatch.first, subMatch.second)) : string_view();
 	}
 
+
+	inline string_view smatch_str(const std::smatch& match, std::smatch::size_type index = 0)
+	{
+		const auto& subMatch = match[index];
+		return subMatch.matched ? string_view(&*subMatch.first, std::distance(subMatch.first, subMatch.second)) : string_view();
+	}
+
 }
 
 #endif
