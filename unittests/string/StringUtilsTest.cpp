@@ -87,8 +87,7 @@ TEST(StringUtilsTest, Split)
 	ASSERT_ANY_THROW(TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world 22 33", " ")));
 
 	{
-		const std::string testeeStr = "aaa|bbb|ccc";
-		auto testee = Split(testeeStr, "|");
+		auto testee = Split("aaa|bbb|ccc", "|");
 		ASSERT_THAT(testee, MatchRange(ElementsAre("aaa", "bbb", "ccc")));
 
 		while (testee.Valid())

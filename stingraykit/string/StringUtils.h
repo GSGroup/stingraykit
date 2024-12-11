@@ -111,56 +111,6 @@ namespace stingray
 	{ return str.find(substr) != string_view::npos; }
 
 
-	class StringRef
-	{
-	public:
-		using  size_type = std::string::size_type;
-
-		static const size_type npos = std::string::npos;
-
-	private:
-		const std::string*		_owner;
-		std::string::size_type	_begin;
-		std::string::size_type	_end;
-
-	public:
-		StringRef(const std::string& owner, size_t begin = 0, size_t end = npos) : _owner(&owner), _begin(begin), _end(end != npos ? end : owner.size()) { }
-
-		bool empty() const		{ return _begin >= _end; }
-		size_type size() const	{ return _end >= _begin ? _end - _begin : 0; }
-
-		size_type find(const char c, size_type pos = 0) const
-		{
-			const size_type p = _owner->find(c, pos + _begin);
-			return p >= _end ? npos : p - _begin;
-		}
-
-		size_type find(const std::string& str, size_type pos = 0) const
-		{
-			const size_type p = _owner->find(str, pos + _begin);
-			return p >= _end ? npos : p - _begin;
-		}
-
-		StringRef substr(size_type pos = 0, size_type n = npos) const
-		{ return StringRef(*_owner, _begin + pos, n == npos ? _end : _begin + pos + n ); }
-
-		char operator [] (size_type index) const
-		{ return (*_owner)[_begin + index]; }
-
-		std::string str() const	{ return str_substr(); }
-		string_view view() const { return empty() ? string_view() : string_view(_owner->data() + _begin, size()); }
-
-		operator std::string () const { return str(); }
-
-		bool operator != (const std::string& other) const { return str() != other; }
-		bool operator == (const std::string& other) const { return str() == other; }
-
-	private:
-		std::string str_substr(size_type pos = 0, size_type n = npos) const
-		{ return pos < size() ? _owner->substr(_begin + pos, std::min(size() - pos, n)) : std::string(); }
-	};
-
-
 	namespace Detail
 	{
 
@@ -169,7 +119,7 @@ namespace stingray
 			size_t				Position;
 			size_t				Size;
 
-			DelimiterMatch() : Position(std::string::npos), Size() { }
+			DelimiterMatch() : Position(string_view::npos), Size() { }
 			DelimiterMatch(size_t pos, size_t size): Position(pos), Size(size) { }
 		};
 
@@ -179,13 +129,12 @@ namespace stingray
 	class IsAnyOf
 	{
 	private:
-		const std::string&		_list;
+		string_view				_list;
 
 	public:
-		explicit IsAnyOf(const std::string& list) : _list(list) { }
+		explicit IsAnyOf(string_view list) : _list(list) { }
 
-		template < typename StringLikeObject >
-		Detail::DelimiterMatch operator () (const StringLikeObject& string, size_t startPos)
+		Detail::DelimiterMatch operator () (string_view string, size_t startPos) const
 		{ return Detail::DelimiterMatch(string.find_first_of(_list, startPos), 1); }
 	};
 
@@ -196,13 +145,12 @@ namespace stingray
 		class StaticSplitDelimiter
 		{
 		private:
-			std::string						_delimiter;
+			string_view						_delimiter;
 
 		public:
-			explicit StaticSplitDelimiter(const std::string& delimiter) : _delimiter(delimiter) { }
+			explicit StaticSplitDelimiter(string_view delimiter) : _delimiter(delimiter) { }
 
-			template < typename StringLikeObject >
-			Detail::DelimiterMatch operator () (const StringLikeObject& string, size_t startPos) const
+			Detail::DelimiterMatch operator () (string_view string, size_t startPos) const
 			{ return Detail::DelimiterMatch(string.find(_delimiter, startPos), _delimiter.size()); }
 
 			size_t size() const
@@ -210,36 +158,35 @@ namespace stingray
 		};
 
 		template < typename StringSearchType >
-		class SplitStringRange : public Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>
+		class SplitStringRange : public Range::RangeBase<SplitStringRange<StringSearchType>, string_view, std::forward_iterator_tag>
 		{
-			using Self = SplitStringRange<StringSearchType>;
-			using base = Range::RangeBase<SplitStringRange<StringSearchType>, StringRef, std::forward_iterator_tag>;
+			using base = Range::RangeBase<SplitStringRange<StringSearchType>, string_view, std::forward_iterator_tag>;
+
+			using Self = SplitStringRange;
 
 		public:
-			using ValueType = std::string;
-
 			static const size_t				NoLimit = 0;
 
 		private:
 			StringSearchType				_search;
-			const ValueType&				_string;
+			string_view						_string;
 			size_t							_startPos;
 			DelimiterMatch					_next;
 			size_t							_results;
 			size_t							_resultsLimit;
 
 		public:
-			SplitStringRange(const StringSearchType& search, const ValueType& string, size_t limit)
+			SplitStringRange(const StringSearchType& search, string_view string, size_t limit)
 				: _search(search), _string(string), _startPos(0), _results(0), _resultsLimit(limit)
 			{ First(); }
 
 			bool Valid() const
-			{ return _startPos != std::string::npos; }
+			{ return _startPos != string_view::npos; }
 
 			typename base::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
-				return StringRef(_string, _startPos, _next.Position);
+				return _string.substr(_startPos, _next.Position == string_view::npos ? string_view::npos : _next.Position - _startPos);
 			}
 
 			bool Equals(const SplitStringRange& other) const
@@ -257,7 +204,7 @@ namespace stingray
 			{
 				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
 				_startPos = _next.Position;
-				if (_startPos != std::string::npos)
+				if (_startPos != string_view::npos)
 				{
 					_startPos += _next.Size;
 					_next = _resultsLimit == NoLimit || ++_results < _resultsLimit ? _search(_string, _startPos) : Detail::DelimiterMatch();
@@ -272,11 +219,11 @@ namespace stingray
 	}
 
 
-	inline Detail::StaticDelimiterSplitStringRange Split(const std::string& string, const std::string& delimiter, size_t limit = Detail::StaticDelimiterSplitStringRange::NoLimit)
+	inline Detail::StaticDelimiterSplitStringRange Split(string_view string, string_view delimiter, size_t limit = Detail::StaticDelimiterSplitStringRange::NoLimit)
 	{ return Detail::StaticDelimiterSplitStringRange(Detail::StaticSplitDelimiter(delimiter), string, limit); }
 
 
-	inline Detail::IsAnyOfSplitStringRange Split(const std::string& string, const IsAnyOf& search, size_t limit = Detail::IsAnyOfSplitStringRange::NoLimit)
+	inline Detail::IsAnyOfSplitStringRange Split(string_view string, const IsAnyOf& search, size_t limit = Detail::IsAnyOfSplitStringRange::NoLimit)
 	{ return Detail::IsAnyOfSplitStringRange(search, string, limit); }
 
 
