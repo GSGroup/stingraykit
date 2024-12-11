@@ -315,5 +315,5 @@ TEST(StringViewTest, OperationsFindOf)
 
 	EXPECT_EQ(string_view(sample).find_last_not_of("abc"), (string_view::size_type)sampleSize - 1);
 	EXPECT_EQ(string_view(sample).find_last_not_of("abt"), (string_view::size_type)sampleSize - 1);
-	EXPECT_EQ(string_view(sample).find_last_of("t"), (string_view::size_type)0);
+	EXPECT_EQ(string_view(sample).find_last_not_of("t"), (string_view::size_type)sampleSize - 1);
 }
