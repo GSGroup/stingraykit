@@ -335,12 +335,12 @@ TEST(StringViewTest, OperationsFindOf)
 	EXPECT_EQ(string_view(sample).find_first_not_of(string_view()), (string_view::size_type)0);
 
 	EXPECT_EQ(string_view().find_first_not_of("abc"), (string_view::size_type)string_view::npos);
-	EXPECT_EQ(string_view().find_first_not_of(string_view()), (string_view::size_type)0);
+	EXPECT_EQ(string_view().find_first_not_of(string_view()), (string_view::size_type)string_view::npos);
 
 	EXPECT_EQ(string_view(sample).find_last_not_of("abc"), (string_view::size_type)sampleSize - 1);
 	EXPECT_EQ(string_view(sample).find_last_not_of("abt"), (string_view::size_type)sampleSize - 1);
 	EXPECT_EQ(string_view(sample).find_last_not_of("t"), (string_view::size_type)sampleSize - 1);
-	EXPECT_EQ(string_view(sample).find_last_not_of(string_view()), (string_view::size_type)string_view::npos);
+	EXPECT_EQ(string_view(sample).find_last_not_of(string_view()), (string_view::size_type)sampleSize - 1);
 
 	EXPECT_EQ(string_view().find_last_not_of("abc"), (string_view::size_type)string_view::npos);
 	EXPECT_EQ(string_view().find_last_not_of(string_view()), (string_view::size_type)string_view::npos);

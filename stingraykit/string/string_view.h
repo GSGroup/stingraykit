@@ -204,7 +204,7 @@ namespace stingray
 		size_type find_first_not_of(basic_string_view v, size_type pos = 0) const
 		{
 			if (v.empty())
-				return 0;
+				return empty() ? npos : pos;
 
 			for (; pos < size(); ++pos)
 			{
@@ -231,7 +231,7 @@ namespace stingray
 		size_type find_last_not_of(basic_string_view v, size_type pos = npos) const
 		{
 			if (v.empty())
-				return npos;
+				return empty() ? npos : size() - 1;
 
 			if (pos == npos)
 				pos = size();
