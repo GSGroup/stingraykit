@@ -260,6 +260,9 @@ TEST(StringViewTest, OperationsFind)
 	EXPECT_EQ(string_view(sample).find(string_view()), (string_view::size_type)0);
 	EXPECT_EQ(string_view(sample).find(string_view(), 4), (string_view::size_type)4);
 
+	EXPECT_EQ(string_view().find(string_view()), (string_view::size_type)0);
+	EXPECT_EQ(string_view().find(string_view(), 4), (string_view::size_type)string_view::npos);
+
 	EXPECT_EQ(string_view(sample).find("two"), (string_view::size_type)0);
 	EXPECT_EQ(string_view(sample).find("girls"), (string_view::size_type)4);
 	EXPECT_EQ(string_view(sample).find("one"), (string_view::size_type)10);
@@ -267,6 +270,9 @@ TEST(StringViewTest, OperationsFind)
 
 	EXPECT_EQ(string_view(sample3).find("two"), (string_view::size_type)0);
 	EXPECT_EQ(string_view(sample3).find("two", 1), (string_view::size_type)10);
+
+	EXPECT_EQ(string_view().find("two"), (string_view::size_type)string_view::npos);
+	EXPECT_EQ(string_view().find("two", 1), (string_view::size_type)string_view::npos);
 
 	EXPECT_EQ(string_view(sample + 3).find("two"), (string_view::size_type)string_view::npos);
 	EXPECT_EQ(string_view(sample).find("two", 3), (string_view::size_type)string_view::npos);
@@ -283,6 +289,9 @@ TEST(StringViewTest, OperationsRfind)
 	EXPECT_EQ(string_view(sample).rfind(string_view()), (string_view::size_type)sampleSize);
 	EXPECT_EQ(string_view(sample).rfind(string_view(), 4), (string_view::size_type)4);
 
+	EXPECT_EQ(string_view().rfind(string_view()), (string_view::size_type)0);
+	EXPECT_EQ(string_view().rfind(string_view(), 4), (string_view::size_type)0);
+
 	EXPECT_EQ(string_view(sample).rfind("two"), (string_view::size_type)0);
 	EXPECT_EQ(string_view(sample).rfind("girls"), (string_view::size_type)4);
 	EXPECT_EQ(string_view(sample).rfind("one"), (string_view::size_type)10);
@@ -290,6 +299,9 @@ TEST(StringViewTest, OperationsRfind)
 
 	EXPECT_EQ(string_view(sample3).rfind("two"), (string_view::size_type)10);
 	EXPECT_EQ(string_view(sample3).rfind("two", 9), (string_view::size_type)0);
+
+	EXPECT_EQ(string_view().rfind("two"), (string_view::size_type)string_view::npos);
+	EXPECT_EQ(string_view().rfind("two", 9), (string_view::size_type)string_view::npos);
 
 	EXPECT_EQ(string_view(sample + 3).rfind("two"), (string_view::size_type)string_view::npos);
 	EXPECT_EQ(string_view(sample).rfind("two", 3), (string_view::size_type)0);
@@ -305,15 +317,35 @@ TEST(StringViewTest, OperationsFindOf)
 {
 	EXPECT_EQ(string_view(sample).find_first_of("abc"), (string_view::size_type)14);
 	EXPECT_EQ(string_view(sample).find_first_of("ab"), (string_view::size_type)string_view::npos);
+	EXPECT_EQ(string_view(sample).find_first_of(string_view()), (string_view::size_type)string_view::npos);
+
+	EXPECT_EQ(string_view().find_first_of("abc"), (string_view::size_type)string_view::npos);
+	EXPECT_EQ(string_view().find_first_of(string_view()), (string_view::size_type)string_view::npos);
 
 	EXPECT_EQ(string_view(sample).find_last_of("abc"), (string_view::size_type)14);
 	EXPECT_EQ(string_view(sample).find_last_of("ab"), (string_view::size_type)string_view::npos);
 	EXPECT_EQ(string_view(sample).find_last_of("t"), (string_view::size_type)0);
+	EXPECT_EQ(string_view(sample).find_last_of(string_view()), (string_view::size_type)string_view::npos);
+
+#if 0
+	EXPECT_EQ(string_view().find_last_of("abc"), (string_view::size_type)string_view::npos);
+#endif
+	EXPECT_EQ(string_view().find_last_of(string_view()), (string_view::size_type)string_view::npos);
 
 	EXPECT_EQ(string_view(sample).find_first_not_of("abc"), (string_view::size_type)0);
 	EXPECT_EQ(string_view(sample).find_first_not_of("abt"), (string_view::size_type)1);
+	EXPECT_EQ(string_view(sample).find_first_not_of(string_view()), (string_view::size_type)0);
+
+	EXPECT_EQ(string_view().find_first_not_of("abc"), (string_view::size_type)string_view::npos);
+	EXPECT_EQ(string_view().find_first_not_of(string_view()), (string_view::size_type)0);
 
 	EXPECT_EQ(string_view(sample).find_last_not_of("abc"), (string_view::size_type)sampleSize - 1);
 	EXPECT_EQ(string_view(sample).find_last_not_of("abt"), (string_view::size_type)sampleSize - 1);
 	EXPECT_EQ(string_view(sample).find_last_not_of("t"), (string_view::size_type)sampleSize - 1);
+	EXPECT_EQ(string_view(sample).find_last_not_of(string_view()), (string_view::size_type)string_view::npos);
+
+#if 0
+	EXPECT_EQ(string_view().find_last_not_of("abc"), (string_view::size_type)string_view::npos);
+#endif
+	EXPECT_EQ(string_view().find_last_not_of(string_view()), (string_view::size_type)string_view::npos);
 }
