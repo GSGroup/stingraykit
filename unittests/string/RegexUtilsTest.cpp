@@ -9,13 +9,8 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/string/RegexUtils.h>
 #include <stingraykit/string/StringUtils.h>
-#include <stingraykit/string/ToString.h>
 #include <stingraykit/thread/DummyCancellationToken.h>
 #include <stingraykit/thread/ThreadPool.h>
-
-#include <regex>
-
-#include <unistd.h>
 
 #include <gtest/gtest.h>
 
