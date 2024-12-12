@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/collection/Range.h>
 #include <stingraykit/string/lexical_cast.h>
 
 #include <algorithm>
@@ -307,12 +306,23 @@ namespace stingray
 
 	template < typename InputIterator, typename UnaryOperator >
 	inline std::string Join(string_view separator, const InputIterator& first, const InputIterator& last, const UnaryOperator& op)
-	{ return Join(separator, ToRange(first, last), op); }
+	{
+		string_ostream result;
+
+		for (auto it = first; it != last; ++it)
+		{
+			if (it != first)
+				result << separator;
+			result << FunctorInvoker::InvokeArgs(op, *it);
+		}
+
+		return result.str();
+	}
 
 
 	template < typename InputIterator >
 	inline std::string Join(string_view separator, const InputIterator& first, const InputIterator& last)
-	{ return Join(separator, ToRange(first, last), &lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
+	{ return Join(separator, first, last, &lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
 
 
 	inline string_view RightStrip(string_view str, string_view chars = " \t\n\r\f\v")
