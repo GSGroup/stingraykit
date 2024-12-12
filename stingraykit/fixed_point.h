@@ -15,10 +15,10 @@ namespace stingray
 {
 
 	template < int N, typename value_type_ = int >
-	struct fixed_point
+	class fixed_point
 	{
-		typedef value_type_ value_type;
-		typedef typename IntType<sizeof(value_type) * 16, IsSigned<value_type>::Value>::ValueT DoubleType;
+		using value_type = value_type_;
+		using DoubleType = typename IntType<sizeof(value_type) * 16, IsSigned<value_type>::Value>::ValueT;
 
 	private:
 		value_type			_value;
@@ -26,42 +26,42 @@ namespace stingray
 		fixed_point(value_type value, bool dummy) : _value(value) { }
 
 	public:
-		inline fixed_point(value_type value = 0) : _value(value << N) { }
+		fixed_point(value_type value = 0) : _value(value << N) { }
 
 		template < int OtherN, typename OtherVT >
-		inline fixed_point(fixed_point<OtherN, OtherVT> o)				{ assign(o); }
+		fixed_point(fixed_point<OtherN, OtherVT> o)						{ assign(o); }
 
-		inline fixed_point operator + (fixed_point o) const				{ fixed_point res(*this); return res += o; }
-		inline fixed_point operator - (fixed_point o) const				{ fixed_point res(*this); return res -= o; }
-		inline fixed_point operator * (fixed_point o) const				{ fixed_point res(*this); return res *= o; }
-		inline fixed_point operator / (fixed_point o) const				{ fixed_point res(*this); return res /= o; }
-		inline fixed_point operator - () const							{ return fixed_point(-_value, false); }
-
-		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
-		inline fixed_point operator * (T value) const					{ fixed_point res(*this); return res *= value; }
+		fixed_point operator + (fixed_point o) const					{ fixed_point res(*this); return res += o; }
+		fixed_point operator - (fixed_point o) const					{ fixed_point res(*this); return res -= o; }
+		fixed_point operator * (fixed_point o) const					{ fixed_point res(*this); return res *= o; }
+		fixed_point operator / (fixed_point o) const					{ fixed_point res(*this); return res /= o; }
+		fixed_point operator - () const									{ return fixed_point(-_value, false); }
 
 		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
-		inline fixed_point operator / (T value) const					{ fixed_point res(*this); return res /= value; }
+		fixed_point operator * (T value) const							{ fixed_point res(*this); return res *= value; }
 
-		inline fixed_point operator << (int shift) const				{ fixed_point res(*this); return res <<= shift; }
-		inline fixed_point operator >> (int shift) const				{ fixed_point res(*this); return res >>= shift; }
+		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
+		fixed_point operator / (T value) const							{ fixed_point res(*this); return res /= value; }
+
+		fixed_point operator << (int shift) const						{ fixed_point res(*this); return res <<= shift; }
+		fixed_point operator >> (int shift) const						{ fixed_point res(*this); return res >>= shift; }
 
 		template < int OtherN, typename OtherVT >
-		inline fixed_point& operator = (fixed_point<OtherN, OtherVT> o)	{ assign(o); return *this; }
+		fixed_point& operator = (fixed_point<OtherN, OtherVT> o)		{ assign(o); return *this; }
 
-		inline fixed_point& operator += (fixed_point o)					{ _value += o._value; return *this; }
-		inline fixed_point& operator -= (fixed_point o)					{ _value -= o._value; return *this; }
-		inline fixed_point& operator *= (fixed_point o)					{ _value = ((DoubleType)_value * o._value) >> N; return *this; }
-		inline fixed_point& operator /= (fixed_point o)					{ _value = ((DoubleType)_value << N) / o._value; return *this; }
-
-		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
-		inline fixed_point operator *= (T value)						{ _value *= value; return *this; }
+		fixed_point& operator += (fixed_point o)						{ _value += o._value; return *this; }
+		fixed_point& operator -= (fixed_point o)						{ _value -= o._value; return *this; }
+		fixed_point& operator *= (fixed_point o)						{ _value = ((DoubleType)_value * o._value) >> N; return *this; }
+		fixed_point& operator /= (fixed_point o)						{ _value = ((DoubleType)_value << N) / o._value; return *this; }
 
 		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
-		inline fixed_point& operator /= (T value)						{ _value /= value; return *this; }
+		fixed_point operator *= (T value)								{ _value *= value; return *this; }
 
-		inline fixed_point& operator <<= (int shift)					{ _value <<= shift; return *this; }
-		inline fixed_point& operator >>= (int shift)					{ _value >>= shift; return *this; }
+		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
+		fixed_point& operator /= (T value)								{ _value /= value; return *this; }
+
+		fixed_point& operator <<= (int shift)							{ _value <<= shift; return *this; }
+		fixed_point& operator >>= (int shift)							{ _value >>= shift; return *this; }
 
 		bool operator < (fixed_point o) const							{ return _value < o._value; }
 		bool operator <= (fixed_point o) const							{ return _value <= o._value; }
@@ -76,7 +76,7 @@ namespace stingray
 		template < int OtherN, typename OtherValueType >
 		void assign(fixed_point<OtherN, OtherValueType> other)
 		{
-			typedef typename If<(sizeof(value_type) > sizeof(OtherValueType)), value_type, OtherValueType>::ValueT BiggestType;
+			using BiggestType = typename If<(sizeof(value_type) > sizeof(OtherValueType)), value_type, OtherValueType>::ValueT;
 
 			if (N <= OtherN)
 				_value = (BiggestType)other.GetValue() >> (OtherN - N);
