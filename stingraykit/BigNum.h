@@ -28,10 +28,10 @@ namespace stingray
 	public:
 		BigUnsignedInteger() { }
 
-		explicit BigUnsignedInteger(const std::string& source, size_t base)
+		BigUnsignedInteger(string_view source, size_t base)
 		{ LoadFromString(source, base); }
 
-		BigUnsignedInteger(const std::string& source)
+		BigUnsignedInteger(string_view source)
 		{ LoadFromString(source); }
 
 		BigUnsignedInteger(const char* source)
@@ -200,8 +200,8 @@ namespace stingray
 			}
 		}
 
-		void LoadFromString(const std::string& source);
-		void LoadFromString(const std::string& source, size_t base);
+		void LoadFromString(string_view source);
+		void LoadFromString(string_view source, size_t base);
 
 		ByteArray Dump(size_t base) const;
 

@@ -55,7 +55,7 @@ namespace stingray
 	}
 
 
-	void BigUnsignedInteger::LoadFromString(const std::string& source)
+	void BigUnsignedInteger::LoadFromString(string_view source)
 	{
 		if (source.substr(0, 2) == "0x")
 			LoadFromString(source.substr(2), 16);
@@ -66,7 +66,7 @@ namespace stingray
 	}
 
 
-	void BigUnsignedInteger::LoadFromString(const std::string& source, size_t base_)
+	void BigUnsignedInteger::LoadFromString(string_view source, size_t base_)
 	{
 		_units.clear();
 
