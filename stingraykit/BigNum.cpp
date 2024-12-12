@@ -38,12 +38,12 @@ namespace stingray
 
 	std::string BigUnsignedInteger::ToString(size_t base) const
 	{
-		std::string result;
+		StringBuilder result;
 		ConstByteArray data = Dump(base);
 		for (ByteArray::const_iterator it = data.begin(); it != data.end(); ++it)
-			result.push_back(*it < 10 ? '0' + *it : 'A' + *it - 10);
+			result % (*it < 10 ? '0' + *it : 'A' + *it - 10);
 		if (result.empty())
-			result = "0";
+			return "0";
 		return result;
 	}
 
