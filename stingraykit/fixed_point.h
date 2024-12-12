@@ -62,11 +62,7 @@ namespace stingray
 		fixed_point& operator = (fixed_point<OtherN, OtherVT> other)	{ assign(other); return *this; }
 
 		bool operator < (fixed_point other) const						{ return _value < other._value; }
-		bool operator <= (fixed_point other) const						{ return _value <= other._value; }
-		bool operator > (fixed_point other) const						{ return _value > other._value; }
-		bool operator >= (fixed_point other) const						{ return _value >= other._value; }
-		bool operator == (fixed_point other) const						{ return _value == other._value; }
-		bool operator != (fixed_point other) const						{ return _value != other._value; }
+		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(fixed_point);
 
 		template < int OtherN, typename OtherValueType >
 		void assign(fixed_point<OtherN, OtherValueType> other)
