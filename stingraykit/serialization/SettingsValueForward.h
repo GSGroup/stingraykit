@@ -18,7 +18,7 @@ namespace stingray
 	class SettingsValue;
 	STINGRAYKIT_DECLARE_SELF_COUNT_PTR(SettingsValue);
 
-	using SettingsValueMap = std::map<std::string, SettingsValueSelfCountPtr>;
+	using SettingsValueMap = std::map<std::string, SettingsValueSelfCountPtr, std::less<>>;
 	using SettingsValueList = std::vector<SettingsValueSelfCountPtr>;
 
 }
