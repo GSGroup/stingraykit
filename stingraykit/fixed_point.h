@@ -103,7 +103,8 @@ namespace stingray
 		std::string ToString() const
 		{
 			const ValueType result = (*this * 1000).to_int();
-			return StringBuilder() % (result / 1000) % "." % (result % 1000);
+			const std::string fractionalPart = stingray::ToString(result % 1000);
+			return StringBuilder() % (result / 1000) % "." % std::string(3 - fractionalPart.size(), '0') % fractionalPart;
 		}
 
 		static fixed_point FromString(const std::string& str)
