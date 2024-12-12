@@ -23,45 +23,43 @@ namespace stingray
 	private:
 		value_type			_value;
 
-		fixed_point(value_type value, bool dummy) : _value(value) { }
-
 	public:
 		fixed_point(value_type value = 0) : _value(value << N) { }
 
 		template < int OtherN, typename OtherVT >
 		fixed_point(fixed_point<OtherN, OtherVT> o)						{ assign(o); }
 
+		fixed_point& operator += (fixed_point o)						{ _value += o._value; return *this; }
 		fixed_point operator + (fixed_point o) const					{ fixed_point res(*this); return res += o; }
+
+		fixed_point& operator -= (fixed_point o)						{ _value -= o._value; return *this; }
 		fixed_point operator - (fixed_point o) const					{ fixed_point res(*this); return res -= o; }
-		fixed_point operator * (fixed_point o) const					{ fixed_point res(*this); return res *= o; }
-		fixed_point operator / (fixed_point o) const					{ fixed_point res(*this); return res /= o; }
 		fixed_point operator - () const									{ return fixed_point(-_value, false); }
 
+		fixed_point& operator *= (fixed_point o)						{ _value = ((DoubleType)_value * o._value) >> N; return *this; }
+		fixed_point operator * (fixed_point o) const					{ fixed_point res(*this); return res *= o; }
+
+		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
+		fixed_point operator *= (T value)								{ _value *= value; return *this; }
 		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
 		fixed_point operator * (T value) const							{ fixed_point res(*this); return res *= value; }
 
+		fixed_point& operator /= (fixed_point o)						{ _value = ((DoubleType)_value << N) / o._value; return *this; }
+		fixed_point operator / (fixed_point o) const					{ fixed_point res(*this); return res /= o; }
+
+		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
+		fixed_point& operator /= (T value)								{ _value /= value; return *this; }
 		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
 		fixed_point operator / (T value) const							{ fixed_point res(*this); return res /= value; }
 
+		fixed_point& operator <<= (int shift)							{ _value <<= shift; return *this; }
 		fixed_point operator << (int shift) const						{ fixed_point res(*this); return res <<= shift; }
+
+		fixed_point& operator >>= (int shift)							{ _value >>= shift; return *this; }
 		fixed_point operator >> (int shift) const						{ fixed_point res(*this); return res >>= shift; }
 
 		template < int OtherN, typename OtherVT >
 		fixed_point& operator = (fixed_point<OtherN, OtherVT> o)		{ assign(o); return *this; }
-
-		fixed_point& operator += (fixed_point o)						{ _value += o._value; return *this; }
-		fixed_point& operator -= (fixed_point o)						{ _value -= o._value; return *this; }
-		fixed_point& operator *= (fixed_point o)						{ _value = ((DoubleType)_value * o._value) >> N; return *this; }
-		fixed_point& operator /= (fixed_point o)						{ _value = ((DoubleType)_value << N) / o._value; return *this; }
-
-		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
-		fixed_point operator *= (T value)								{ _value *= value; return *this; }
-
-		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
-		fixed_point& operator /= (T value)								{ _value /= value; return *this; }
-
-		fixed_point& operator <<= (int shift)							{ _value <<= shift; return *this; }
-		fixed_point& operator >>= (int shift)							{ _value >>= shift; return *this; }
 
 		bool operator < (fixed_point o) const							{ return _value < o._value; }
 		bool operator <= (fixed_point o) const							{ return _value <= o._value; }
@@ -69,9 +67,6 @@ namespace stingray
 		bool operator >= (fixed_point o) const							{ return _value >= o._value; }
 		bool operator == (fixed_point o) const							{ return _value == o._value; }
 		bool operator != (fixed_point o) const							{ return _value != o._value; }
-
-		value_type to_int() const										{ return _value >> N; }
-		value_type GetValue() const										{ return _value; }
 
 		template < int OtherN, typename OtherValueType >
 		void assign(fixed_point<OtherN, OtherValueType> other)
@@ -101,14 +96,16 @@ namespace stingray
 			return ret;
 		}
 
+		value_type to_int() const									{ return _value >> N; }
+
+		value_type GetValue() const									{ return _value; }
+		static fixed_point FromRawValue(value_type value)			{ return fixed_point(value, false); }
+
 		std::string ToString() const
 		{
 			value_type res = (*this * 1000).to_int();
 			return StringBuilder() % (res / 1000) % "." % (res % 1000);
 		}
-
-		static fixed_point FromRawValue(value_type value)
-		{ return fixed_point(value, false); }
 
 		static fixed_point FromString(const std::string& str)
 		{
@@ -130,6 +127,9 @@ namespace stingray
 				STINGRAYKIT_THROW(ArgumentException("str", str));
 			}
 		}
+
+	private:
+		fixed_point(value_type value, bool dummy) : _value(value) { }
 	};
 
 }
