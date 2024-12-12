@@ -14,64 +14,64 @@
 namespace stingray
 {
 
-	template < int N, typename value_type_ = int >
+	template < int N, typename ValueType_ = int >
 	class fixed_point
 	{
-		using value_type = value_type_;
-		using DoubleType = typename IntType<sizeof(value_type) * 16, IsSigned<value_type>::Value>::ValueT;
+		using ValueType = ValueType_;
+		using DoubleType = typename IntType<sizeof(ValueType) * 16, IsSigned<ValueType>::Value>::ValueT;
 
 	private:
-		value_type			_value;
+		ValueType			_value;
 
 	public:
-		fixed_point(value_type value = 0) : _value(value << N) { }
+		fixed_point(ValueType value = 0) : _value(value << N) { }
 
 		template < int OtherN, typename OtherVT >
-		fixed_point(fixed_point<OtherN, OtherVT> o)						{ assign(o); }
+		fixed_point(fixed_point<OtherN, OtherVT> other)					{ assign(other); }
 
-		fixed_point& operator += (fixed_point o)						{ _value += o._value; return *this; }
-		fixed_point operator + (fixed_point o) const					{ fixed_point res(*this); return res += o; }
+		fixed_point& operator += (fixed_point other)					{ _value += other._value; return *this; }
+		fixed_point operator + (fixed_point other) const				{ fixed_point result(*this); return result += other; }
 
-		fixed_point& operator -= (fixed_point o)						{ _value -= o._value; return *this; }
-		fixed_point operator - (fixed_point o) const					{ fixed_point res(*this); return res -= o; }
+		fixed_point& operator -= (fixed_point other)					{ _value -= other._value; return *this; }
+		fixed_point operator - (fixed_point other) const				{ fixed_point result(*this); return result -= other; }
 		fixed_point operator - () const									{ return fixed_point(-_value, false); }
 
-		fixed_point& operator *= (fixed_point o)						{ _value = ((DoubleType)_value * o._value) >> N; return *this; }
-		fixed_point operator * (fixed_point o) const					{ fixed_point res(*this); return res *= o; }
+		fixed_point& operator *= (fixed_point other)					{ _value = ((DoubleType)_value * other._value) >> N; return *this; }
+		fixed_point operator * (fixed_point other) const				{ fixed_point result(*this); return result *= other; }
 
 		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
 		fixed_point operator *= (T value)								{ _value *= value; return *this; }
 		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
-		fixed_point operator * (T value) const							{ fixed_point res(*this); return res *= value; }
+		fixed_point operator * (T value) const							{ fixed_point result(*this); return result *= value; }
 
-		fixed_point& operator /= (fixed_point o)						{ _value = ((DoubleType)_value << N) / o._value; return *this; }
-		fixed_point operator / (fixed_point o) const					{ fixed_point res(*this); return res /= o; }
+		fixed_point& operator /= (fixed_point other)					{ _value = ((DoubleType)_value << N) / other._value; return *this; }
+		fixed_point operator / (fixed_point other) const				{ fixed_point result(*this); return result /= other; }
 
 		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
 		fixed_point& operator /= (T value)								{ _value /= value; return *this; }
 		template < typename T, typename EnableIf<IsInt<T>::Value, int>::ValueT = 0 >
-		fixed_point operator / (T value) const							{ fixed_point res(*this); return res /= value; }
+		fixed_point operator / (T value) const							{ fixed_point result(*this); return result /= value; }
 
 		fixed_point& operator <<= (int shift)							{ _value <<= shift; return *this; }
-		fixed_point operator << (int shift) const						{ fixed_point res(*this); return res <<= shift; }
+		fixed_point operator << (int shift) const						{ fixed_point result(*this); return result <<= shift; }
 
 		fixed_point& operator >>= (int shift)							{ _value >>= shift; return *this; }
-		fixed_point operator >> (int shift) const						{ fixed_point res(*this); return res >>= shift; }
+		fixed_point operator >> (int shift) const						{ fixed_point result(*this); return result >>= shift; }
 
 		template < int OtherN, typename OtherVT >
-		fixed_point& operator = (fixed_point<OtherN, OtherVT> o)		{ assign(o); return *this; }
+		fixed_point& operator = (fixed_point<OtherN, OtherVT> other)	{ assign(other); return *this; }
 
-		bool operator < (fixed_point o) const							{ return _value < o._value; }
-		bool operator <= (fixed_point o) const							{ return _value <= o._value; }
-		bool operator > (fixed_point o) const							{ return _value > o._value; }
-		bool operator >= (fixed_point o) const							{ return _value >= o._value; }
-		bool operator == (fixed_point o) const							{ return _value == o._value; }
-		bool operator != (fixed_point o) const							{ return _value != o._value; }
+		bool operator < (fixed_point other) const						{ return _value < other._value; }
+		bool operator <= (fixed_point other) const						{ return _value <= other._value; }
+		bool operator > (fixed_point other) const						{ return _value > other._value; }
+		bool operator >= (fixed_point other) const						{ return _value >= other._value; }
+		bool operator == (fixed_point other) const						{ return _value == other._value; }
+		bool operator != (fixed_point other) const						{ return _value != other._value; }
 
 		template < int OtherN, typename OtherValueType >
 		void assign(fixed_point<OtherN, OtherValueType> other)
 		{
-			using BiggestType = typename If<(sizeof(value_type) > sizeof(OtherValueType)), value_type, OtherValueType>::ValueT;
+			using BiggestType = typename If<(sizeof(ValueType) > sizeof(OtherValueType)), ValueType, OtherValueType>::ValueT;
 
 			if (N <= OtherN)
 				_value = (BiggestType)other.GetValue() >> (OtherN - N);
@@ -79,49 +79,55 @@ namespace stingray
 				_value = (BiggestType)other.GetValue() << (N - OtherN);
 		}
 
-		static fixed_point sqrt(value_type value)
+		static fixed_point sqrt(ValueType value)
 		{
-			fixed_point ret(0);
-			DoubleType ret_sq = -((DoubleType)value << (N * 2)) - 1;
+			fixed_point result(0);
+			DoubleType resultSq = -((DoubleType)value << (N * 2)) - 1;
+
 			for (int s = 30; s >= 0; s -= 2)
 			{
-				ret._value += ret._value;
-				DoubleType b = ret_sq + ((2 * ret._value + 1) << s);
+				result._value += result._value;
+
+				const DoubleType b = resultSq + ((2 * result._value + 1) << s);
 				if (b < 0)
 				{
-					ret_sq = b;
-					++ret._value;
+					resultSq = b;
+					++result._value;
 				}
 			}
-			return ret;
+
+			return result;
 		}
 
-		value_type to_int() const									{ return _value >> N; }
+		ValueType to_int() const									{ return _value >> N; }
 
-		value_type GetValue() const									{ return _value; }
-		static fixed_point FromRawValue(value_type value)			{ return fixed_point(value, false); }
+		ValueType GetValue() const									{ return _value; }
+		static fixed_point FromRawValue(ValueType value)			{ return fixed_point(value, false); }
 
 		std::string ToString() const
 		{
-			value_type res = (*this * 1000).to_int();
-			return StringBuilder() % (res / 1000) % "." % (res % 1000);
+			const ValueType result = (*this * 1000).to_int();
+			return StringBuilder() % (result / 1000) % "." % (result % 1000);
 		}
 
 		static fixed_point FromString(const std::string& str)
 		{
 			std::vector<std::string> v;
 			Copy(Split(str, ".", 2), std::back_inserter(v));
+
 			switch (v.size())
 			{
 			case 1:
-				return stingray::FromString<value_type>(v[0]);
+				return stingray::FromString<ValueType>(v[0]);
 			case 2:
 			{
-				fixed_point integral_part = stingray::FromString<value_type>(v[0]);
-				fixed_point fractional_part = stingray::FromString<value_type>(v[1]);
+				const fixed_point integralPart = stingray::FromString<ValueType>(v[0]);
+
+				fixed_point fractionalPart = stingray::FromString<ValueType>(v[1]);
 				for (size_t i = 0; i < v[1].size(); ++i)
-					fractional_part /= 10;
-				return integral_part + fractional_part;
+					fractionalPart /= 10;
+
+				return integralPart + fractionalPart;
 			}
 			default:
 				STINGRAYKIT_THROW(ArgumentException("str", str));
@@ -129,7 +135,7 @@ namespace stingray
 		}
 
 	private:
-		fixed_point(value_type value, bool dummy) : _value(value) { }
+		fixed_point(ValueType value, bool dummy) : _value(value) { }
 	};
 
 }
