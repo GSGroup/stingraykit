@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/string/StringUtils.h>
 #include <stingraykit/string/ToString.h>
 
 namespace stingray
@@ -109,26 +108,20 @@ namespace stingray
 
 		static fixed_point FromString(const std::string& str)
 		{
-			std::vector<std::string> v;
-			Copy(Split(str, ".", 2), std::back_inserter(v));
+			STINGRAYKIT_CHECK(!str.empty(), ArgumentException("str"));
 
-			switch (v.size())
-			{
-			case 1:
-				return stingray::FromString<ValueType>(v[0]);
-			case 2:
-			{
-				const fixed_point integralPart = stingray::FromString<ValueType>(v[0]);
+			const size_t pointPos = str.find('.');
+			if (pointPos == std::string::npos)
+				return stingray::FromString<ValueType>(str);
 
-				fixed_point fractionalPart = stingray::FromString<ValueType>(v[1]);
-				for (size_t i = 0; i < v[1].size(); ++i)
-					fractionalPart /= 10;
+			const fixed_point integralPart = stingray::FromString<ValueType>(str.substr(0, pointPos));
+			const std::string rawFractionalPart = str.substr(pointPos + 1);
 
-				return integralPart + fractionalPart;
-			}
-			default:
-				STINGRAYKIT_THROW(ArgumentException("str", str));
-			}
+			fixed_point fractionalPart = stingray::FromString<ValueType>(rawFractionalPart);
+			for (size_t i = 0; i < rawFractionalPart.size(); ++i)
+				fractionalPart /= 10;
+
+			return integralPart + fractionalPart;
 		}
 
 	private:
