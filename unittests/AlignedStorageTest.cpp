@@ -6,9 +6,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/log/LogLevel.h>
-#include <stingraykit/aligned_storage.h>
 #include <stingraykit/shared_ptr.h>
-#include <stingraykit/unique_ptr.h>
 
 #include <gtest/gtest.h>
 

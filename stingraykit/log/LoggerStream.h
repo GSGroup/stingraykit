@@ -13,8 +13,6 @@
 #include <stingraykit/string/ToString.h>
 #include <stingraykit/time/ElapsedTime.h>
 
-#include <stingraykit/unique_ptr.h>
-
 #include <map>
 
 namespace stingray

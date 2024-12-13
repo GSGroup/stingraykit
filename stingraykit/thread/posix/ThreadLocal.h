@@ -11,7 +11,6 @@
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/SafeSingleton.h>
 #include <stingraykit/SystemException.h>
-#include <stingraykit/unique_ptr.h>
 
 #include <pthread.h>
 

@@ -10,7 +10,6 @@
 
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/call_once.h>
-#include <stingraykit/unique_ptr.h>
 
 #define STINGRAYKIT_SINGLETON(ClassName) \
 		friend void ::stingray::CheckedDelete<ClassName>(ClassName* t); \

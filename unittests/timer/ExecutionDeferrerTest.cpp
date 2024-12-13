@@ -7,7 +7,6 @@
 
 #include <stingraykit/function/bind.h>
 #include <stingraykit/timer/Timer.h>
-#include <stingraykit/unique_ptr.h>
 
 #include <gtest/gtest.h>
 
