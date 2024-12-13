@@ -27,6 +27,8 @@ namespace stingray
 
 		std::string ReadLine()
 		{
+			STINGRAYKIT_CHECK(!IsEndOfText(), InvalidOperationException("End of text"));
+
 			size_t newPos = _pos;
 			size_t delimeterSize = 0;
 
