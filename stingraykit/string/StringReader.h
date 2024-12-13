@@ -25,7 +25,7 @@ namespace stingray
 				_pos(0)
 		{ }
 
-		std::string ReadLine()
+		string_view ReadLine()
 		{
 			STINGRAYKIT_CHECK(!IsEndOfText(), InvalidOperationException("End of text"));
 
@@ -55,7 +55,7 @@ namespace stingray
 				++newPos;
 			}
 
-			const std::string result = _text.substr(_pos, newPos - _pos);
+			const string_view result = string_view(_text).substr(_pos, newPos - _pos);
 			_pos = newPos + delimeterSize;
 
 			return result;
