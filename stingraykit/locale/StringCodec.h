@@ -43,7 +43,7 @@ namespace stingray
 		static UnpackFunc GetCodePageUnpackFunc(unsigned codePage);
 
 		static std::string ToCodePage(const LocaleString& src, unsigned codePage);
-		static LocaleString FromCodePage(const std::string& src, unsigned codePage, u32 invalidCharReplacement = '?');
+		static LocaleString FromCodePage(string_view src, unsigned codePage, u32 invalidCharReplacement = '?');
 	};
 
 	/** @} */

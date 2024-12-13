@@ -649,15 +649,14 @@ namespace stingray
 	}
 
 
-	LocaleString StringCodec::FromCodePage(const std::string& src, unsigned codePage, u32 invalidCharReplacement)
+	LocaleString StringCodec::FromCodePage(string_view src, unsigned codePage, u32 invalidCharReplacement)
 	{
 		UnpackFunc unpack = GetCodePageUnpackFunc(codePage);
 
 		LocaleString r;
 		r.TextEncoding = Encoding::ISO_10646_utf8;
 
-		string_view srcView = src;
-		for (string_view::const_iterator it = srcView.begin(), end = srcView.end(); it != end; )
+		for (string_view::const_iterator it = src.begin(), end = src.end(); it != end; )
 		{
 			u32 ucs = unpack(it, end);
 			if (ucs == InvalidCharacter)
