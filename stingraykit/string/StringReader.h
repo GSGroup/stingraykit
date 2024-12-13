@@ -61,11 +61,11 @@ namespace stingray
 
 		std::string::value_type Peek()
 		{
-			STINGRAYKIT_CHECK(!IsEndOfString(), InvalidOperationException("EOF"));
+			STINGRAYKIT_CHECK(!IsEndOfText(), InvalidOperationException("End of text"));
 			return _text[_pos];
 		}
 
-		bool IsEndOfString() const { return _pos == _text.size(); }
+		bool IsEndOfText() const { return _pos == _text.size(); }
 	};
 
 }
