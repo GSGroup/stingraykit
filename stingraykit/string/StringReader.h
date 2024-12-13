@@ -16,11 +16,11 @@ namespace stingray
 	class StringReader
 	{
 	private:
-		std::string			_text;
+		string_view			_text;
 		size_t				_pos;
 
 	public:
-		StringReader(const std::string& text)
+		StringReader(string_view text)
 			:	_text(text),
 				_pos(0)
 		{ }
@@ -55,13 +55,13 @@ namespace stingray
 				++newPos;
 			}
 
-			const string_view result = string_view(_text).substr(_pos, newPos - _pos);
+			const string_view result = _text.substr(_pos, newPos - _pos);
 			_pos = newPos + delimeterSize;
 
 			return result;
 		}
 
-		std::string::value_type Peek()
+		string_view::value_type Peek()
 		{
 			STINGRAYKIT_CHECK(!IsEndOfText(), InvalidOperationException("End of text"));
 			return _text[_pos];
