@@ -33,6 +33,10 @@ namespace stingray
 	KeyNotFoundException CreateKeyNotFoundException(const KeyType& key)
 	{ return Detail::KeyExceptionCreator<KeyNotFoundException, KeyType>::Create(key); }
 
+	template < typename KeyType >
+	KeyAlreadyExistsException CreateKeyAlreadyExistsException(const KeyType& key)
+	{ return Detail::KeyExceptionCreator<KeyAlreadyExistsException, KeyType>::Create(key); }
+
 	/** @} */
 
 }

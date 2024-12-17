@@ -282,6 +282,22 @@ namespace stingray
 		}
 	};
 
+	struct KeyAlreadyExistsException : public Exception
+	{
+		KeyAlreadyExistsException() : Exception("Key already exists") { }
+		explicit KeyAlreadyExistsException(const std::string& keyStr) : Exception(BuildErrorMessage(keyStr)) { }
+		explicit KeyAlreadyExistsException(string_view keyStr) : Exception(BuildErrorMessage(keyStr)) { }
+		explicit KeyAlreadyExistsException(const char* keyStr) : Exception(BuildErrorMessage(keyStr)) { }
+
+	private:
+		static std::string BuildErrorMessage(string_view keyStr)
+		{
+			string_ostream stream;
+			stream << "Key '" << keyStr << "' already exists";
+			return stream.str();
+		}
+	};
+
 	struct FileNotFoundException : public Exception
 	{
 		FileNotFoundException() : Exception("File not found") { }
