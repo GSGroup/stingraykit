@@ -11,7 +11,7 @@
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/IDictionary.h>
-#include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
+#include <stingraykit/collection/KeyExceptionCreator.h>
 #include <stingraykit/function/function.h>
 
 namespace stingray

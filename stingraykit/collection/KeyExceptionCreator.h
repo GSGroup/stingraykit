@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_COLLECTION_KEYNOTFOUNDEXCEPTIONCREATOR_H
-#define STINGRAYKIT_COLLECTION_KEYNOTFOUNDEXCEPTIONCREATOR_H
+#ifndef STINGRAYKIT_COLLECTION_KEYEXCEPTIONCREATOR_H
+#define STINGRAYKIT_COLLECTION_KEYEXCEPTIONCREATOR_H
 
 // Copyright (c) 2011 - 2024, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,

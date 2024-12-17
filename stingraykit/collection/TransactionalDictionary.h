@@ -10,7 +10,7 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ITransactionalDictionary.h>
-#include <stingraykit/collection/KeyNotFoundExceptionCreator.h>
+#include <stingraykit/collection/KeyExceptionCreator.h>
 #include <stingraykit/collection/TransactionHelpers.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/signal/signals.h>
