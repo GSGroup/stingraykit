@@ -20,18 +20,18 @@ namespace stingray
 
 	namespace Detail
 	{
-		template < typename KeyType, bool StringRepresentable = IsStringRepresentable<KeyType>::Value >
-		struct KeyNotFoundExceptionCreator
-		{ static KeyNotFoundException Create(const KeyType& key) { return KeyNotFoundException(ToString(key)); } };
+		template < typename ExceptionType, typename KeyType, bool StringRepresentable = IsStringRepresentable<KeyType>::Value >
+		struct KeyExceptionCreator
+		{ static ExceptionType Create(const KeyType& key) { return ExceptionType(ToString(key)); } };
 
-		template < typename KeyType >
-		struct KeyNotFoundExceptionCreator<KeyType, false>
-		{ static KeyNotFoundException Create(const KeyType& key) { return KeyNotFoundException(); } };
+		template < typename ExceptionType, typename KeyType >
+		struct KeyExceptionCreator<ExceptionType, KeyType, false>
+		{ static ExceptionType Create(const KeyType& key) { return ExceptionType(); } };
 	}
 
 	template < typename KeyType >
 	KeyNotFoundException CreateKeyNotFoundException(const KeyType& key)
-	{ return Detail::KeyNotFoundExceptionCreator<KeyType>::Create(key); }
+	{ return Detail::KeyExceptionCreator<KeyNotFoundException, KeyType>::Create(key); }
 
 	/** @} */
 
