@@ -248,7 +248,7 @@ namespace stingray
 
 	template < typename Range >
 	inline std::string Join(string_view separator, const Range& range)
-	{ return Join(separator, range, &lexical_cast<std::string, typename Range::ValueType>); }
+	{ return Join(separator, range, ToStringPrinter()); }
 
 
 	template < typename InputIterator, typename UnaryOperator >
@@ -269,7 +269,7 @@ namespace stingray
 
 	template < typename InputIterator >
 	inline std::string Join(string_view separator, const InputIterator& first, const InputIterator& last)
-	{ return Join(separator, first, last, &lexical_cast<std::string, typename std::iterator_traits<InputIterator>::value_type>); }
+	{ return Join(separator, first, last, ToStringPrinter()); }
 
 
 	inline string_view RightStrip(string_view str, string_view chars = " \t\n\r\f\v")
