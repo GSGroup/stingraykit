@@ -22,8 +22,8 @@ namespace stingray
 	template < typename KeyType_, typename ValueType_ >
 	struct KeyValuePair
 	{
-		typedef KeyType_	KeyType;
-		typedef ValueType_	ValueType;
+		using KeyType = KeyType_;
+		using ValueType = ValueType_;
 
 		KeyType		Key;
 		ValueType	Value;
@@ -43,7 +43,8 @@ namespace stingray
 		int Compare(const KeyValuePair& other) const
 		{ return CompareMembersCmp(&KeyValuePair::Key, &KeyValuePair::Value)(*this, other); }
 
-		std::string ToString() const	{ return StringBuilder() % Key % " -> " % Value; }
+		std::string ToString() const
+		{ return StringBuilder() % Key % " -> " % Value; }
 	};
 
 	/** @} */
