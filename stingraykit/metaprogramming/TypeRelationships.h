@@ -50,6 +50,8 @@ namespace stingray
 	template < typename From, typename To > struct IsConvertible : integral_constant<bool, decltype(Detail::TestIsConvertible<From, To>(0))::Value> { };
 
 	template < typename To, typename... Args > struct IsConstructible : integral_constant<bool, decltype(Detail::TestIsConstructible<To, Args...>(0))::Value> { };
+	template < typename To > struct IsDefaultConstructible : IsConstructible<To> { };
+
 	template < typename To, typename From > struct IsAssignable : integral_constant<bool, decltype(Detail::TestIsAssignable<To, From>(0))::Value> { };
 
 
