@@ -20,6 +20,15 @@ using namespace stingray;
 using ::testing::ElementsAre;
 using ::testing::IsEmpty;
 
+namespace stingray
+{
+
+	template < typename KeyType_, typename ValueType_ >
+	bool operator == (const KeyValuePair<KeyType_, ValueType_>& lhs, const KeyValuePair<KeyType_, ValueType_>& rhs)
+	{ return lhs.Compare(rhs) == 0; }
+
+}
+
 namespace
 {
 
@@ -555,5 +564,225 @@ TEST(EnumerableTest, Clone)
 		ASSERT_EQ(en.use_count(), 1);
 		ASSERT_EQ(cloned.use_count(), 1);
 		ASSERT_THAT(cloned, MatchEnumerable(ElementsAre("0", "2", "4")));
+	}
+}
+
+
+
+TEST(EnumerableTest, FromStlContainer)
+{
+	{
+		using String = std::string;
+		STINGRAYKIT_DECLARE_ENUMERABLE(String);
+
+		using StringView = string_view;
+		STINGRAYKIT_DECLARE_ENUMERABLE(StringView);
+
+		const auto set = make_shared_ptr<std::set<String>>();
+		set->emplace("1");
+		set->emplace("2");
+		set->emplace("3");
+
+		{
+			const StringEnumeratorPtr en1 = EnumeratorFromStlContainer(*set);
+			ASSERT_THAT(en1, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumeratorPtr en2 = EnumeratorFromStlContainer(*set, set);
+			ASSERT_THAT(en2, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumeratorPtr en3 = EnumeratorFromStlContainer<String>(*set);
+			ASSERT_THAT(en3, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumeratorPtr en4 = EnumeratorFromStlContainer<String>(*set, set);
+			ASSERT_THAT(en4, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringViewEnumeratorPtr en5 = EnumeratorFromStlContainer<StringView>(*set);
+			ASSERT_THAT(en5, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringViewEnumeratorPtr en6 = EnumeratorFromStlContainer<StringView>(*set, set);
+			ASSERT_THAT(en6, MatchEnumerable(ElementsAre("1", "2", "3")));
+		}
+
+		{
+			const StringEnumeratorPtr en1 = EnumeratorFromStlIterators(set->begin(), set->end());
+			ASSERT_THAT(en1, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumeratorPtr en2 = EnumeratorFromStlIterators(set->begin(), set->end(), set);
+			ASSERT_THAT(en2, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumeratorPtr en3 = EnumeratorFromStlIterators<String>(set->begin(), set->end());
+			ASSERT_THAT(en3, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumeratorPtr en4 = EnumeratorFromStlIterators<String>(set->begin(), set->end(), set);
+			ASSERT_THAT(en4, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringViewEnumeratorPtr en5 = EnumeratorFromStlIterators<StringView>(set->begin(), set->end());
+			ASSERT_THAT(en5, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringViewEnumeratorPtr en6 = EnumeratorFromStlIterators<StringView>(set->begin(), set->end(), set);
+			ASSERT_THAT(en6, MatchEnumerable(ElementsAre("1", "2", "3")));
+		}
+
+		{
+			const StringEnumerablePtr en1 = EnumerableFromStlContainer(*set);
+			ASSERT_THAT(en1, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumerablePtr en2 = EnumerableFromStlContainer(*set, set);
+			ASSERT_THAT(en2, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumerablePtr en3 = EnumerableFromStlContainer<String>(*set);
+			ASSERT_THAT(en3, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumerablePtr en4 = EnumerableFromStlContainer<String>(*set, set);
+			ASSERT_THAT(en4, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringViewEnumerablePtr en5 = EnumerableFromStlContainer<StringView>(*set);
+			ASSERT_THAT(en5, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringViewEnumerablePtr en6 = EnumerableFromStlContainer<StringView>(*set, set);
+			ASSERT_THAT(en6, MatchEnumerable(ElementsAre("1", "2", "3")));
+		}
+
+		{
+			const StringEnumerablePtr en1 = EnumerableFromStlIterators(set->begin(), set->end());
+			ASSERT_THAT(en1, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumerablePtr en2 = EnumerableFromStlIterators(set->begin(), set->end(), set);
+			ASSERT_THAT(en2, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumerablePtr en3 = EnumerableFromStlIterators<String>(set->begin(), set->end());
+			ASSERT_THAT(en3, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringEnumerablePtr en4 = EnumerableFromStlIterators<String>(set->begin(), set->end(), set);
+			ASSERT_THAT(en4, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringViewEnumerablePtr en5 = EnumerableFromStlIterators<StringView>(set->begin(), set->end());
+			ASSERT_THAT(en5, MatchEnumerable(ElementsAre("1", "2", "3")));
+
+			const StringViewEnumerablePtr en6 = EnumerableFromStlIterators<StringView>(set->begin(), set->end(), set);
+			ASSERT_THAT(en6, MatchEnumerable(ElementsAre("1", "2", "3")));
+		}
+	}
+
+	{
+		using String = std::string;
+
+		using StringStdPair = std::pair<const String, String>;
+		STINGRAYKIT_DECLARE_ENUMERABLE(StringStdPair);
+
+		using StringPair = KeyValuePair<String, String>;
+		STINGRAYKIT_DECLARE_ENUMERABLE(StringPair);
+
+		using StringViewPair = KeyValuePair<string_view, string_view>;
+		STINGRAYKIT_DECLARE_ENUMERABLE(StringViewPair);
+
+		const auto map = make_shared_ptr<std::map<String, String>>();
+		map->emplace("1", "11");
+		map->emplace("2", "22");
+		map->emplace("3", "33");
+
+		{
+			const StringStdPairEnumeratorPtr en1 = EnumeratorFromStlContainer(*map);
+			ASSERT_THAT(en1, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumeratorPtr en2 = EnumeratorFromStlContainer(*map, map);
+			ASSERT_THAT(en2, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumeratorPtr en3 = EnumeratorFromStlContainer<StringStdPair>(*map);
+			ASSERT_THAT(en3, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumeratorPtr en4 = EnumeratorFromStlContainer<StringStdPair>(*map, map);
+			ASSERT_THAT(en4, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringPairEnumeratorPtr en5 = EnumeratorFromStlContainer<StringPair>(*map);
+			ASSERT_THAT(en5, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringPairEnumeratorPtr en6 = EnumeratorFromStlContainer<StringPair>(*map, map);
+			ASSERT_THAT(en6, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringViewPairEnumeratorPtr en7 = EnumeratorFromStlContainer<StringViewPair>(*map);
+			ASSERT_THAT(en7, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringViewPairEnumeratorPtr en8 = EnumeratorFromStlContainer<StringViewPair>(*map, map);
+			ASSERT_THAT(en8, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+		}
+
+		{
+			const StringStdPairEnumeratorPtr en1 = EnumeratorFromStlIterators(map->begin(), map->end());
+			ASSERT_THAT(en1, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumeratorPtr en2 = EnumeratorFromStlIterators(map->begin(), map->end(), map);
+			ASSERT_THAT(en2, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumeratorPtr en3 = EnumeratorFromStlIterators<StringStdPair>(map->begin(), map->end());
+			ASSERT_THAT(en3, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumeratorPtr en4 = EnumeratorFromStlIterators<StringStdPair>(map->begin(), map->end(), map);
+			ASSERT_THAT(en4, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringPairEnumeratorPtr en5 = EnumeratorFromStlIterators<StringPair>(map->begin(), map->end());
+			ASSERT_THAT(en5, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringPairEnumeratorPtr en6 = EnumeratorFromStlIterators<StringPair>(map->begin(), map->end(), map);
+			ASSERT_THAT(en6, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringViewPairEnumeratorPtr en7 = EnumeratorFromStlIterators<StringViewPair>(map->begin(), map->end());
+			ASSERT_THAT(en7, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringViewPairEnumeratorPtr en8 = EnumeratorFromStlIterators<StringViewPair>(map->begin(), map->end(), map);
+			ASSERT_THAT(en8, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+		}
+
+		{
+			const StringStdPairEnumerablePtr en1 = EnumerableFromStlContainer(*map);
+			ASSERT_THAT(en1, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumerablePtr en2 = EnumerableFromStlContainer(*map, map);
+			ASSERT_THAT(en2, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumerablePtr en3 = EnumerableFromStlContainer<StringStdPair>(*map);
+			ASSERT_THAT(en3, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumerablePtr en4 = EnumerableFromStlContainer<StringStdPair>(*map, map);
+			ASSERT_THAT(en4, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringPairEnumerablePtr en5 = EnumerableFromStlContainer<StringPair>(*map);
+			ASSERT_THAT(en5, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringPairEnumerablePtr en6 = EnumerableFromStlContainer<StringPair>(*map, map);
+			ASSERT_THAT(en6, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringViewPairEnumerablePtr en7 = EnumerableFromStlContainer<StringViewPair>(*map);
+			ASSERT_THAT(en7, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringViewPairEnumerablePtr en8 = EnumerableFromStlContainer<StringViewPair>(*map, map);
+			ASSERT_THAT(en8, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+		}
+
+		{
+			const StringStdPairEnumerablePtr en1 = EnumerableFromStlIterators(map->begin(), map->end());
+			ASSERT_THAT(en1, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumerablePtr en2 = EnumerableFromStlIterators(map->begin(), map->end(), map);
+			ASSERT_THAT(en2, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumerablePtr en3 = EnumerableFromStlIterators<StringStdPair>(map->begin(), map->end());
+			ASSERT_THAT(en3, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringStdPairEnumerablePtr en4 = EnumerableFromStlIterators<StringStdPair>(map->begin(), map->end(), map);
+			ASSERT_THAT(en4, MatchEnumerable(ElementsAre(std::make_pair("1", "11"), std::make_pair("2", "22"), std::make_pair("3", "33"))));
+
+			const StringPairEnumerablePtr en5 = EnumerableFromStlIterators<StringPair>(map->begin(), map->end());
+			ASSERT_THAT(en5, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringPairEnumerablePtr en6 = EnumerableFromStlIterators<StringPair>(map->begin(), map->end(), map);
+			ASSERT_THAT(en6, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringViewPairEnumerablePtr en7 = EnumerableFromStlIterators<StringViewPair>(map->begin(), map->end());
+			ASSERT_THAT(en7, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+
+			const StringViewPairEnumerablePtr en8 = EnumerableFromStlIterators<StringViewPair>(map->begin(), map->end(), map);
+			ASSERT_THAT(en8, MatchEnumerable(ElementsAre(MakeKeyValuePair("1", "11"), MakeKeyValuePair("2", "22"), MakeKeyValuePair("3", "33"))));
+		}
 	}
 }

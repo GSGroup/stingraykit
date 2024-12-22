@@ -70,9 +70,6 @@ namespace stingray
 
 		struct Utils
 		{
-			static shared_ptr<IEnumerator<PairType>> WrapEnumerator(const shared_ptr<IEnumerator<MapValueType>>& itemsEnumerator)
-			{ return stingray::WrapEnumerator(itemsEnumerator); }
-
 			static DiffEntryType MakeDiffEntry(CollectionOp op, const MapValueType& pair)
 			{ return stingray::MakeDiffEntry(op, pair); }
 
@@ -111,7 +108,7 @@ namespace stingray
 			{ }
 
 			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
-			{ return Utils::WrapEnumerator(EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder)); }
+			{ return EnumeratorFromStlIterators<PairType>(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
 		};
 
 		struct ForwardEnumerationDirection
@@ -534,7 +531,7 @@ namespace stingray
 		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 		{
 			MutexLock l(*_impl->Guard);
-			return Utils::WrapEnumerator(EnumeratorFromStlContainer(*_impl->Items, _impl->GetItemsHolder()));
+			return EnumeratorFromStlContainer<PairType>(*_impl->Items, _impl->GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerable<PairType>> Reverse() const override
@@ -569,7 +566,7 @@ namespace stingray
 			if (it == _impl->Items->end())
 				return MakeEmptyEnumerator();
 
-			return Utils::WrapEnumerator(EnumeratorFromStlIterators(it, _impl->Items->end(), _impl->GetItemsHolder()));
+			return EnumeratorFromStlIterators<PairType>(it, _impl->Items->end(), _impl->GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
@@ -580,7 +577,7 @@ namespace stingray
 			if (it == _impl->Items->end())
 				return MakeEmptyEnumerator();
 
-			return Utils::WrapEnumerator(EnumeratorFromStlIterators(typename MapType::const_reverse_iterator(++it), _impl->Items->crend(), _impl->GetItemsHolder()));
+			return EnumeratorFromStlIterators<PairType>(typename MapType::const_reverse_iterator(++it), _impl->Items->crend(), _impl->GetItemsHolder());
 		}
 
 		ValueType Get(const KeyType& key) const override

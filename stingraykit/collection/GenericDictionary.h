@@ -53,7 +53,7 @@ namespace stingray
 			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
 
 			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
-			{ return WrapMapEnumerator(EnumeratorFromStlIterators(_holder->Map->rbegin(), _holder->Map->rend(), _holder)); }
+			{ return EnumeratorFromStlIterators<PairType>(_holder->Map->rbegin(), _holder->Map->rend(), _holder); }
 		};
 
 	private:
@@ -84,7 +84,7 @@ namespace stingray
 		{ CopyMap(other._map); return *this; }
 
 		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
-		{ return WrapMapEnumerator(EnumeratorFromStlContainer(*_map, GetMapHolder())); }
+		{ return EnumeratorFromStlContainer<PairType>(*_map, GetMapHolder()); }
 
 		shared_ptr<IEnumerable<PairType>> Reverse() const override
 		{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
@@ -104,7 +104,7 @@ namespace stingray
 			if (it == _map->end())
 				return MakeEmptyEnumerator();
 
-			return WrapMapEnumerator(EnumeratorFromStlIterators(it, _map->end(), GetMapHolder()));
+			return EnumeratorFromStlIterators<PairType>(it, _map->end(), GetMapHolder());
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
@@ -113,7 +113,7 @@ namespace stingray
 			if (it == _map->end())
 				return MakeEmptyEnumerator();
 
-			return WrapMapEnumerator(EnumeratorFromStlIterators(typename MapType::const_reverse_iterator(++it), _map->crend(), GetMapHolder()));
+			return EnumeratorFromStlIterators<PairType>(typename MapType::const_reverse_iterator(++it), _map->crend(), GetMapHolder());
 		}
 
 		ValueType Get(const KeyType& key) const override
@@ -252,9 +252,6 @@ namespace stingray
 			CopyMap(_map);
 			return true;
 		}
-
-		static shared_ptr<IEnumerator<PairType>> WrapMapEnumerator(const shared_ptr<IEnumerator<typename MapType::value_type>>& mapEnumerator)
-		{ return WrapEnumerator(mapEnumerator); }
 	};
 
 	/** @} */
