@@ -18,13 +18,63 @@ namespace stingray
 	template < typename T >
 	struct DiffEntry
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(DiffEntry);
+		STINGRAYKIT_DEFAULTMOVABLE(DiffEntry);
+
+	public:
 		using ItemType = T;
 
+	public:
 		CollectionOp	Op;
 		ItemType		Item;
 
+	public:
+		template <
+				typename ItemType__ = ItemType,
+				typename EnableIf<IsConstructible<ItemType, const ItemType__&>::Value, int>::ValueT = 0
+		>
 		DiffEntry(CollectionOp op, const ItemType& item)
 			: Op(op), Item(item)
+		{ }
+
+		template <
+				typename ItemType__ = ItemType,
+				typename EnableIf<IsConstructible<ItemType, ItemType__>::Value, int>::ValueT = 0
+		>
+		DiffEntry(CollectionOp op, ItemType&& item)
+			: Op(op), Item(std::forward<ItemType__>(item))
+		{ }
+
+		template <
+				typename ItemType__,
+				typename EnableIf<IsConstructible<ItemType, const ItemType__&>::Value && IsConvertible<const ItemType__&, ItemType>::Value, int>::ValueT = 0
+		>
+		DiffEntry(const DiffEntry<ItemType__>& entry)
+			: Op(entry.Op), Item(entry.Item)
+		{ }
+
+		template <
+				typename ItemType__,
+				typename EnableIf<IsConstructible<ItemType, const ItemType__&>::Value && !IsConvertible<const ItemType__&, ItemType>::Value, int>::ValueT = 0
+		>
+		explicit DiffEntry(const DiffEntry<ItemType__>& entry)
+			: Op(entry.Op), Item(entry.Item)
+		{ }
+
+		template <
+				typename ItemType__,
+				typename EnableIf<IsConstructible<ItemType, ItemType__>::Value && IsConvertible<ItemType__, ItemType>::Value, int>::ValueT = 0
+		>
+		DiffEntry(DiffEntry<ItemType__>&& entry)
+			: Op(std::move(entry.Op)), Item(std::forward<ItemType__>(entry.Item))
+		{ }
+
+		template <
+				typename ItemType__,
+				typename EnableIf<IsConstructible<ItemType, ItemType__>::Value && !IsConvertible<ItemType__, ItemType>::Value, int>::ValueT = 0
+		>
+		explicit DiffEntry(DiffEntry<ItemType__>&& entry)
+			: Op(std::move(entry.Op)), Item(std::forward<ItemType__>(entry.Item))
 		{ }
 
 		int Compare(const DiffEntry& other) const
@@ -36,8 +86,8 @@ namespace stingray
 
 
 	template < typename T >
-	DiffEntry<T> MakeDiffEntry(CollectionOp op, const T& item)
-	{ return DiffEntry<T>(op, item); }
+	DiffEntry<typename Decay<T>::ValueT> MakeDiffEntry(CollectionOp op, T&& item)
+	{ return DiffEntry<typename Decay<T>::ValueT>(op, std::forward<T>(item)); }
 
 
 }

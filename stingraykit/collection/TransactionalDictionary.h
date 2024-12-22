@@ -74,7 +74,7 @@ namespace stingray
 			{ return stingray::WrapEnumerator(itemsEnumerator); }
 
 			static DiffEntryType MakeDiffEntry(CollectionOp op, const MapValueType& pair)
-			{ return stingray::MakeDiffEntry(op, PairType(pair)); }
+			{ return stingray::MakeDiffEntry(op, pair); }
 
 			static HolderPtr GetItemsHolder(const MapTypeConstPtr& items, HolderWeakPtr& itemsHolder_)
 			{
