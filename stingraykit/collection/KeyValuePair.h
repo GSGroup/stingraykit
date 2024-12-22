@@ -148,6 +148,11 @@ namespace stingray
 		{ return StringBuilder() % Key % " -> " % Value; }
 	};
 
+
+	template < typename KeyType_, typename ValueType_ >
+	KeyValuePair<typename Decay<KeyType_>::ValueT, typename Decay<ValueType_>::ValueT> MakeKeyValuePair(KeyType_&& key, ValueType_&& value)
+	{ return KeyValuePair<typename Decay<KeyType_>::ValueT, typename Decay<ValueType_>::ValueT>(std::forward<KeyType_>(key), std::forward<ValueType_>(value)); }
+
 	/** @} */
 
 }
