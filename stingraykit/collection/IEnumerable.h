@@ -46,11 +46,11 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsEnumerable : IsInherited1ParamTemplate<T, IEnumerable> { };
+	struct IsEnumerable : IsInheritedFromTemplate<T, IEnumerable> { };
 
 
 	template < typename T >
-	struct IsReversableEnumerable : IsInherited1ParamTemplate<T, IReversableEnumerable> { };
+	struct IsReversableEnumerable : IsInheritedFromTemplate<T, IReversableEnumerable> { };
 
 
 	namespace Detail

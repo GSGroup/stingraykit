@@ -32,7 +32,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsReadonlyObservableValue : IsInherited1ParamTemplate<T, IReadonlyObservableValue> { };
+	struct IsReadonlyObservableValue : IsInheritedFromTemplate<T, IReadonlyObservableValue> { };
 
 
 	template < typename ValueType_ >
@@ -52,7 +52,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsObservableValue : IsInherited1ParamTemplate<T, IObservableValue> { };
+	struct IsObservableValue : IsInheritedFromTemplate<T, IObservableValue> { };
 
 }
 

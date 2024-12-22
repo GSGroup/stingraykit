@@ -28,18 +28,11 @@ namespace stingray
 
 		template < typename Derived, typename Base > struct IsInheritedImpl : integral_constant<bool, decltype(TestIsInherited<Base>((const typename StaticAssertCompleteType<Derived>::ValueT*)0))::Value> { };
 
-
-		template < template <typename> class Base, typename T >	TrueType	TestIsInherited1ParamTemplate(const Base<T>*);
-		template < template <typename> class Base>				FalseType	TestIsInherited1ParamTemplate(...);
-
-
-		template < template <typename, typename> class Base, typename T1, typename T2 >	TrueType	TestIsInherited2ParamTemplate(const Base<T1, T2>*);
-		template < template <typename, typename> class Base >							FalseType	TestIsInherited2ParamTemplate(...);
-
+		template < template <typename...> class Base, typename... Ts >	TrueType	TestIsInheritedFromTemplate(const Base<Ts...>*);
+		template < template <typename...> class Base >					FalseType	TestIsInheritedFromTemplate(...);
 
 		template < typename From, typename To > auto		TestIsConvertible(int) -> decltype(std::declval<void (&) (To)>()(std::declval<From>()), TrueType());
 		template < typename From, typename To > FalseType	TestIsConvertible(...);
-
 
 		template < typename To, typename... Args > auto        TestIsConstructible(int) -> decltype(To(std::declval<Args>()...), TrueType());
 		template < typename To, typename... Args > FalseType	TestIsConstructible(...);
@@ -51,9 +44,7 @@ namespace stingray
 
 	template < typename Derived, typename Base > struct IsInherited : If<IsSame<Derived, Base>::Value, integral_constant<bool, true>, Detail::IsInheritedImpl<Derived, Base> >::ValueT { };
 
-
-	template < typename Derived, template <typename > class Base>			struct IsInherited1ParamTemplate : integral_constant<bool, decltype(Detail::TestIsInherited1ParamTemplate<Base>((const Derived*)0))::Value> { };
-	template < typename Derived, template <typename, typename > class Base>	struct IsInherited2ParamTemplate : integral_constant<bool, decltype(Detail::TestIsInherited2ParamTemplate<Base>((const Derived*)0))::Value> { };
+	template < typename Derived, template <typename...> class Base > struct IsInheritedFromTemplate : integral_constant<bool, decltype(Detail::TestIsInheritedFromTemplate<Base>((const Derived*)0))::Value> { };
 
 
 	template < typename From, typename To > struct IsConvertible : integral_constant<bool, decltype(Detail::TestIsConvertible<From, To>(0))::Value> { };

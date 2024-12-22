@@ -36,7 +36,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsEnumerator : IsInherited1ParamTemplate<T, IEnumerator> { };
+	struct IsEnumerator : IsInheritedFromTemplate<T, IEnumerator> { };
 
 
 	namespace Detail

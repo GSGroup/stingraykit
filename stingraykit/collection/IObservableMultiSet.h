@@ -36,7 +36,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsInheritedIReadonlyObservableMultiSet : public IsInherited1ParamTemplate<T, IReadonlyObservableMultiSet>
+	struct IsInheritedIReadonlyObservableMultiSet : public IsInheritedFromTemplate<T, IReadonlyObservableMultiSet>
 	{ };
 
 
@@ -48,7 +48,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsInheritedIObservableMultiSet : public IsInherited1ParamTemplate<T, IObservableMultiSet>
+	struct IsInheritedIObservableMultiSet : public IsInheritedFromTemplate<T, IObservableMultiSet>
 	{ };
 
 	/** @} */

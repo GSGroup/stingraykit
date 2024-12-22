@@ -67,7 +67,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsInheritedIReadonlyTransactionalList : public IsInherited1ParamTemplate<T, IReadonlyTransactionalList>
+	struct IsInheritedIReadonlyTransactionalList : public IsInheritedFromTemplate<T, IReadonlyTransactionalList>
 	{ };
 
 
@@ -82,7 +82,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsInheritedITransactionalList : public IsInherited1ParamTemplate<T, ITransactionalList>
+	struct IsInheritedITransactionalList : public IsInheritedFromTemplate<T, ITransactionalList>
 	{ };
 
 	/** @} */

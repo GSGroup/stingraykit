@@ -39,7 +39,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsInheritedIReadonlyObservableMultiDictionary : public IsInherited2ParamTemplate<T, IReadonlyObservableMultiDictionary>
+	struct IsInheritedIReadonlyObservableMultiDictionary : public IsInheritedFromTemplate<T, IReadonlyObservableMultiDictionary>
 	{ };
 
 
@@ -51,7 +51,7 @@ namespace stingray
 
 
 	template < typename T >
-	struct IsInheritedIObservableMultiDictionary : public IsInherited2ParamTemplate<T, IObservableMultiDictionary>
+	struct IsInheritedIObservableMultiDictionary : public IsInheritedFromTemplate<T, IObservableMultiDictionary>
 	{ };
 
 	/** @} */
