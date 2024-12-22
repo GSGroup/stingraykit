@@ -7,6 +7,7 @@
 
 #include <stingraykit/collection/ForEach.h>
 #include <stingraykit/collection/TransactionalSet.h>
+#include <stingraykit/function/functional.h>
 #include <stingraykit/signal/ValueFromSignalObtainer.h>
 
 #include <gtest/gtest.h>
@@ -328,8 +329,8 @@ TEST(TransactionalSetTest, Test2)
 
 	tr->Commit();
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, WrapEnumerable(seq1En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
-	ASSERT_TRUE(Enumerable::SequenceEqual(diff2, WrapEnumerable(seq3En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, WrapEnumerable(seq1En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff2, WrapEnumerable(seq3En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 	diff1.reset();
 	diff2.reset();
 
@@ -346,7 +347,7 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, seq3En));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), seq3Ren));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq3En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq3En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 
 	// 4
 
@@ -419,7 +420,7 @@ TEST(TransactionalSetTest, Test2)
 	const DiffEntry<int> seq8[] = {{CollectionOp::Removed, 1}, {CollectionOp::Added, 2}, {CollectionOp::Removed, 3}, {CollectionOp::Added, 4}, {CollectionOp::Removed, 5}};
 	const auto seq8En = EnumerableFromStlIterators(std::begin(seq8), std::end(seq8));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, WrapEnumerable(seq7En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, WrapEnumerable(seq7En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(diff2, seq8En, comparers::Equals()));
 	diff1.reset();
 	diff2.reset();
@@ -437,7 +438,7 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, seq7En));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), seq7Ren));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq7En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq7En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 
 	// 6
 
@@ -485,7 +486,7 @@ TEST(TransactionalSetTest, Test2)
 	trEn1 = tr->GetEnumerator();
 	tr->Commit();
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, WrapEnumerable(seq3En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(diff1, WrapEnumerable(seq3En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 	diff1.reset();
 
 	tr.reset();
@@ -501,7 +502,7 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, seq1En));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), seq1Ren));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq1En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq1En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 
 	// 8
 
@@ -611,7 +612,7 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, seq14En));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), seq14Ren));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq14En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq14En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 
 	// 13
 
@@ -654,7 +655,7 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, seq14En, comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), seq14Ren, comparers::Equals()));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq14En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq14En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 
 	// 15
 	// 16
@@ -706,7 +707,7 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, seq14En, comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), seq14Ren, comparers::Equals()));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq14En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq14En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 
 	// 21
 
@@ -746,7 +747,7 @@ TEST(TransactionalSetTest, Test2)
 	ASSERT_TRUE(Enumerable::SequenceEqual(s, seq21En, comparers::Equals()));
 	ASSERT_TRUE(Enumerable::SequenceEqual(s->Reverse(), seq21Ren, comparers::Equals()));
 
-	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq21En, Bind(&MakeDiffEntry<int>, CollectionOp::Added, _1)), comparers::Equals()));
+	ASSERT_TRUE(Enumerable::SequenceEqual(GetValueFromSignal(s->OnChanged()), WrapEnumerable(seq21En, Bind(MakeInstance<DiffEntry<int>>(), CollectionOp::Added, _1)), comparers::Equals()));
 
 	// 23
 }

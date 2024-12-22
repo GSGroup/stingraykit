@@ -60,6 +60,9 @@ namespace stingray
 
 		struct Utils
 		{
+			static DiffEntryType MakeDiffEntry(CollectionOp op, const ValueType& value)
+			{ return stingray::MakeDiffEntry(op, value); }
+
 			static HolderPtr GetItemsHolder(const SetTypeConstPtr& items, HolderWeakPtr& itemsHolder_)
 			{
 				HolderPtr itemsHolder = itemsHolder_.lock();
@@ -200,7 +203,7 @@ namespace stingray
 			void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 			{
 				if (!Items->empty())
-					slot(WrapEnumerable(EnumerableFromStlContainer(*Items, GetItemsHolder()), Bind(&MakeDiffEntry<ValueType>, CollectionOp::Added, _1)));
+					slot(WrapEnumerable(EnumerableFromStlContainer(*Items, GetItemsHolder()), Bind(&Utils::MakeDiffEntry, CollectionOp::Added, _1)));
 			}
 		};
 		STINGRAYKIT_DECLARE_PTR(ImplData);
