@@ -22,6 +22,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename IteratorType >
 		struct ValueTypeFromIteratorType
 		{ using ValueT = typename RemoveConst<typename std::iterator_traits<IteratorType>::value_type>::ValueT; };
@@ -33,39 +34,40 @@ namespace stingray
 		template < typename IteratorType >
 		struct EnumerableTypeFromIteratorType
 		{ using ValueT = IEnumerable<typename ValueTypeFromIteratorType<IteratorType>::ValueT>; };
+
+		template < typename IteratorType, typename ContainerLifeAssuranceType = int >
+		class IteratorsRangeEnumerator : public virtual Detail::EnumeratorTypeFromIteratorType<IteratorType>::ValueT
+		{
+			using ValueType = typename Detail::ValueTypeFromIteratorType<IteratorType>::ValueT;
+			using ContainerLifeAssurancePtr = shared_ptr<ContainerLifeAssuranceType>;
+
+		private:
+			IteratorType				_current;
+			IteratorType				_end;
+			ContainerLifeAssurancePtr	_lifeAssurance;
+
+		public:
+			IteratorsRangeEnumerator(const IteratorType& begin, const IteratorType& end, const ContainerLifeAssurancePtr& lifeAssurance = null)
+				: _current(begin), _end(end), _lifeAssurance(lifeAssurance)
+			{ }
+
+			bool Valid() const override
+			{ return _current != _end; }
+
+			ValueType Get() const override
+			{
+				STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
+				return *_current;
+			}
+
+			void Next() override
+			{
+				STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
+				++_current;
+			}
+		};
+
 	}
-
-	template < typename IteratorType, typename ContainerLifeAssuranceType = int >
-	class IteratorsRangeEnumerator : public virtual Detail::EnumeratorTypeFromIteratorType<IteratorType>::ValueT
-	{
-		using ValueType = typename Detail::ValueTypeFromIteratorType<IteratorType>::ValueT;
-		using ContainerLifeAssurancePtr = shared_ptr<ContainerLifeAssuranceType>;
-
-	private:
-		IteratorType				_current;
-		IteratorType				_end;
-		ContainerLifeAssurancePtr	_lifeAssurance;
-
-	public:
-		IteratorsRangeEnumerator(const IteratorType& begin, const IteratorType& end, const ContainerLifeAssurancePtr& lifeAssurance = null)
-			: _current(begin), _end(end), _lifeAssurance(lifeAssurance)
-		{ }
-
-		bool Valid() const override
-		{ return _current != _end; }
-
-		ValueType Get() const override
-		{
-			STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
-			return *_current;
-		}
-
-		void Next() override
-		{
-			STINGRAYKIT_CHECK(Valid(), "Enumerator is not valid!");
-			++_current;
-		}
-	};
 
 
 	template < typename ContainerType >
@@ -73,7 +75,7 @@ namespace stingray
 			EnumeratorFromStlContainer(const ContainerType& container)
 	{
 		using IteratorType = typename ContainerType::const_iterator;
-		return make_shared_ptr<IteratorsRangeEnumerator<IteratorType>>(container.begin(), container.end());
+		return make_shared_ptr<Detail::IteratorsRangeEnumerator<IteratorType>>(container.begin(), container.end());
 	}
 
 	template < typename ContainerType, typename ContainerLifeAssuranceType >
@@ -81,25 +83,25 @@ namespace stingray
 			EnumeratorFromStlContainer(const ContainerType& container, const shared_ptr<ContainerLifeAssuranceType>& lifeAssurance)
 	{
 		using IteratorType = typename ContainerType::const_iterator;
-		return make_shared_ptr<IteratorsRangeEnumerator<IteratorType, ContainerLifeAssuranceType>>(container.begin(), container.end(), lifeAssurance);
+		return make_shared_ptr<Detail::IteratorsRangeEnumerator<IteratorType, ContainerLifeAssuranceType>>(container.begin(), container.end(), lifeAssurance);
 	}
 
 
 	template < typename IteratorType >
 	shared_ptr<typename Detail::EnumeratorTypeFromIteratorType<IteratorType>::ValueT>
 			EnumeratorFromStlIterators(const IteratorType& begin, const IteratorType& end)
-	{ return make_shared_ptr<IteratorsRangeEnumerator<IteratorType>>(begin, end); }
+	{ return make_shared_ptr<Detail::IteratorsRangeEnumerator<IteratorType>>(begin, end); }
 
 	template < typename IteratorType, typename ContainerLifeAssuranceType >
 	shared_ptr<typename Detail::EnumeratorTypeFromIteratorType<IteratorType>::ValueT>
 			EnumeratorFromStlIterators(const IteratorType& begin, const IteratorType& end, const shared_ptr<ContainerLifeAssuranceType>& lifeAssurance)
-	{ return make_shared_ptr<IteratorsRangeEnumerator<IteratorType, ContainerLifeAssuranceType>>(begin, end, lifeAssurance); }
+	{ return make_shared_ptr<Detail::IteratorsRangeEnumerator<IteratorType, ContainerLifeAssuranceType>>(begin, end, lifeAssurance); }
 
 
 	namespace Detail
 	{
 
-		template < typename IteratorType, typename LifeAssuranceType = int>
+		template < typename IteratorType, typename LifeAssuranceType = int >
 		class StlIteratorsEnumerable : public virtual EnumerableTypeFromIteratorType<IteratorType>::ValueT
 		{
 			using ValueType = typename ValueTypeFromIteratorType<IteratorType>::ValueT;
@@ -120,6 +122,7 @@ namespace stingray
 
 	};
 
+
 	template < typename ContainerType >
 	shared_ptr<typename Detail::EnumerableTypeFromIteratorType<typename ContainerType::const_iterator>::ValueT>
 			EnumerableFromStlContainer(const ContainerType& container)
@@ -135,6 +138,7 @@ namespace stingray
 		using IteratorType = typename ContainerType::const_iterator;
 		return make_shared_ptr<Detail::StlIteratorsEnumerable<IteratorType, ContainerLifeAssuranceType>>(container.begin(), container.end(), lifeAssurance);
 	}
+
 
 	template < typename IteratorType >
 	shared_ptr<typename Detail::EnumerableTypeFromIteratorType<IteratorType>::ValueT>
