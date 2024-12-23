@@ -60,13 +60,6 @@ namespace stingray
 			IsConvertible<T&, T>::Value && IsConvertible<const T&, T>::Value && IsConvertible<const T, T>::Value>
 	{ };
 
-
-	template < template <typename> class Template, typename U > struct Is1ParamTemplate							: FalseType { };
-	template < template <typename> class Template, typename T > struct Is1ParamTemplate<Template, Template<T> >	: TrueType { };
-
-	template < template <typename, typename> class Template, typename U > struct Is2ParamTemplate											: FalseType { };
-	template < template <typename, typename> class Template, typename T, typename U > struct Is2ParamTemplate<Template, Template<T, U> >	: TrueType { };
-
 }
 
 #endif

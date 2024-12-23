@@ -130,7 +130,7 @@ namespace stingray
 		template < typename Something > // There is also InstanceOf for shared_ptrs somewhere in shared_ptr.h
 		bool operator () (const Something& obj) const
 		{
-			static_assert(!Is1ParamTemplate<shared_ptr, DestType>::Value, "This will actually test your instance for shared_ptr. This is probably not what you wanted");
+			static_assert(!IsInheritedFromTemplate<DestType, shared_ptr>::Value, "This will actually test your instance for shared_ptr. This is probably not what you wanted");
 			return InstanceOf<DestType>(obj);
 		}
 	};
