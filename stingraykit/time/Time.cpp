@@ -47,6 +47,30 @@ namespace stingray
 		int GetMaxDaysInYear(int year)
 		{ return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0) ? 366 : 365; }
 
+		TimeDuration ParseSeconds(string_view secondsStr)
+		{
+			u64 seconds = 0;
+			string_view fractionStr;
+
+			STINGRAYKIT_CHECK(
+					StringParse(secondsStr, "%1%.%2%", seconds, fractionStr)
+							|| StringParse(secondsStr, "%1%", seconds),
+					FormatException(secondsStr));
+
+			TimeDuration result = TimeDuration::FromSeconds(seconds);
+
+			if (!fractionStr.empty())
+			{
+				const FractionInfo fraction = ParseDecimalFraction(fractionStr, 6);
+
+				result += TimeDuration::FromMicroseconds(fraction.Fraction);
+				if (fraction.IsOverflow)
+					result += TimeDuration::Second();
+			}
+
+			return result;
+		}
+
 	}
 
 
@@ -324,7 +348,7 @@ namespace stingray
 		s16 day = 0;
 		s16 hour = 0;
 		s16 minute = 0;
-		s16 second = 0;
+		TimeDuration seconds;
 		char utcSign = 0;
 		s16 utcHour = 0;
 		s16 utcMinute = 0;
@@ -336,48 +360,50 @@ namespace stingray
 		bool haveUtcHours = false;
 		bool haveUtcMinutes = false;
 
-		if (StringParse(str, "%1%.%2%.%3% %4%:%5%:%6%", day, month, year, hour, minute, second))
+		auto secondsProxy = MakeParseProxy(seconds, &ParseSeconds);
+
+		if (StringParse(str, "%1%.%2%.%3% %4%:%5%:%6%", day, month, year, hour, minute, secondsProxy))
 			haveDate = haveTime = haveSeconds = true;
 		else if (StringParse(str, "%1%.%2%.%3% %4%:%5%", day, month, year, hour, minute))
 			haveDate = haveTime = true;
 		else if (StringParse(str, "%1%.%2%.%3%", day, month, year))
 			haveDate = true;
-		else if (StringParse(str, "%1%/%2%/%3% %4%:%5%:%6%", day, month, year, hour, minute, second))
+		else if (StringParse(str, "%1%/%2%/%3% %4%:%5%:%6%", day, month, year, hour, minute, secondsProxy))
 			haveDate = haveTime = haveSeconds = true;
 		else if (StringParse(str, "%1%/%2%/%3% %4%:%5%", day, month, year, hour, minute))
 			haveDate = haveTime = true;
 		else if (StringParse(str, "%1%/%2%/%3%", day, month, year))
 			haveDate = true;
-		else if (StringParse(str, "%1%:%2%:%3%", hour, minute, second))
+		else if (StringParse(str, "%1%:%2%:%3%", hour, minute, secondsProxy))
 			haveTime = haveSeconds = true;
 		else if (StringParse(str, "%1%:%2%", hour, minute))
 			haveTime = true;
-		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%+%7%:%8%", year, month, day, hour, minute, second, utcHour, utcMinute))
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%+%7%:%8%", year, month, day, hour, minute, secondsProxy, utcHour, utcMinute))
 		{
 			haveDate = haveTime = haveSeconds = haveUtcSign = haveUtcHours = haveUtcMinutes = true;
 			utcSign = '+';
 		}
-		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%+%7%", year, month, day, hour, minute, second, utcHour))
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%+%7%", year, month, day, hour, minute, secondsProxy, utcHour))
 		{
 			haveDate = haveTime = haveSeconds = haveUtcSign = haveUtcHours = true;
 			utcSign = '+';
 		}
-		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%-%7%:%8%", year, month, day, hour, minute, second, utcHour, utcMinute))
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%-%7%:%8%", year, month, day, hour, minute, secondsProxy, utcHour, utcMinute))
 		{
 			haveDate = haveTime = haveSeconds = haveUtcSign = haveUtcHours = haveUtcMinutes = true;
 			utcSign = '-';
 		}
-		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%-%7%", year, month, day, hour, minute, second, utcHour))
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%-%7%", year, month, day, hour, minute, secondsProxy, utcHour))
 		{
 			haveDate = haveTime = haveSeconds = haveUtcSign = haveUtcHours = true;
 			utcSign = '-';
 		}
-		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%Z", year, month, day, hour, minute, second))
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%Z", year, month, day, hour, minute, secondsProxy))
 		{
 			haveDate = haveTime = haveSeconds = haveUtcSign = true;
 			utcSign = 'Z';
 		}
-		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%", year, month, day, hour, minute, second))
+		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%:%6%", year, month, day, hour, minute, secondsProxy))
 			haveDate = haveTime = haveSeconds = true;
 		else if (StringParse(str, "%1%-%2%-%3%T%4%:%5%", year, month, day, hour, minute))
 			haveDate = haveTime = true;
@@ -398,25 +424,30 @@ namespace stingray
 		BrokenDownTime bdt;
 		if (haveDate)
 		{
-			bdt.MonthDay		= day;
-			bdt.Month			= month;
-			bdt.Year			= year > 100 ? year : year > 30 ? 1900 + year : 2000 + year;
+			bdt.MonthDay = day;
+			bdt.Month = month;
+			bdt.Year = year > 100 ? year : year > 30 ? 1900 + year : 2000 + year;
 		}
 		else
 		{
-			bdt					= Time::Now().BreakDown();
-			bdt.Seconds			= 0;
-			bdt.Milliseconds	= 0;
+			bdt = Time::Now().BreakDown();
+			bdt.Seconds = 0;
+			bdt.Milliseconds = 0;
 		}
 
 		if (haveTime)
 		{
-			bdt.Hours			= hour;
-			bdt.Minutes			= minute;
+			bdt.Hours = hour;
+			bdt.Minutes = minute;
 		}
 
 		if (haveSeconds)
-			bdt.Seconds			= second;
+		{
+			seconds = seconds.RoundToMilliseconds();
+
+			bdt.Seconds = seconds.GetSeconds();
+			bdt.Milliseconds = (seconds % TimeDuration::Second()).GetMilliseconds();
+		}
 
 		if (haveUtcSign)
 		{
@@ -575,30 +606,6 @@ namespace stingray
 			ParseResult result;
 			if (!StringParse(str, "%1%-%2%-%3%", result.Year, result.Month, result.Day))
 				return null;
-
-			return result;
-		}
-
-		static TimeDuration ParseSeconds(string_view secondsStr)
-		{
-			u64 seconds = 0;
-			string_view fractionStr;
-
-			STINGRAYKIT_CHECK(
-					StringParse(secondsStr, "%1%.%2%", seconds, fractionStr)
-							|| StringParse(secondsStr, "%1%", seconds),
-					FormatException(secondsStr));
-
-			TimeDuration result = TimeDuration::FromSeconds(seconds);
-
-			if (!fractionStr.empty())
-			{
-				const FractionInfo fraction = ParseDecimalFraction(fractionStr, 6);
-
-				result += TimeDuration::FromMicroseconds(fraction.Fraction);
-				if (fraction.IsOverflow)
-					result += TimeDuration::Second();
-			}
 
 			return result;
 		}
