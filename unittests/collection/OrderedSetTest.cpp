@@ -19,6 +19,7 @@ namespace
 	using Vector = std::vector<std::string>;
 	using Set = std::set<std::string>;
 	using OrderedSet = ordered_set<std::string>;
+	using TransparentOrderedSet = ordered_set<std::string, std::less<>>;
 
 }
 
@@ -98,6 +99,7 @@ TEST(OrderedSetTest, Construction)
 	}
 }
 
+
 TEST(OrderedSetTest, Assignment)
 {
 	{
@@ -121,6 +123,7 @@ TEST(OrderedSetTest, Assignment)
 		ASSERT_THAT(testee, ElementsAre("2", "4", "3", "1"));
 	}
 }
+
 
 TEST(OrderedSetTest, Insertion)
 {
@@ -299,6 +302,7 @@ TEST(OrderedSetTest, Insertion)
 	}
 }
 
+
 TEST(OrderedSetTest, Emplacing)
 {
 	{
@@ -390,6 +394,7 @@ TEST(OrderedSetTest, Emplacing)
 	}
 }
 
+
 TEST(OrderedSetTest, Lookup)
 {
 	const Vector unsorted{ "5", "4", "8", "9", "1", "6", "3", "2", "7", "0" };
@@ -434,6 +439,35 @@ TEST(OrderedSetTest, Lookup)
 		ASSERT_EQ(sample.count(*testeeIt), 1);
 }
 
+
+TEST(OrderedSetTest, TransparentLookup)
+{
+	const Vector unsorted{ "5", "4", "8", "9", "1", "6", "3", "2", "7", "0" };
+
+	const TransparentOrderedSet testee(unsorted.begin(), unsorted.end());
+	const Set sample(unsorted.begin(), unsorted.end());
+
+	ASSERT_TRUE(!std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+	for (Set::const_iterator sampleIt = sample.begin(); sampleIt != sample.end(); ++sampleIt)
+	{
+		TransparentOrderedSet::const_iterator testeeIt = testee.find(string_view(*sampleIt));
+		ASSERT_NE(testeeIt, testee.end());
+		ASSERT_TRUE(*testeeIt == *sampleIt);
+	}
+
+	for (Set::const_reverse_iterator sampleIt = sample.rbegin(); sampleIt != sample.rend(); ++sampleIt)
+	{
+		TransparentOrderedSet::const_iterator testeeIt = testee.find(string_view(*sampleIt));
+		ASSERT_NE(testeeIt, testee.end());
+		ASSERT_TRUE(*testeeIt == *sampleIt);
+	}
+
+	for (Set::const_iterator sampleIt = sample.begin(); sampleIt != sample.end(); ++sampleIt)
+		ASSERT_EQ(testee.count(string_view(*sampleIt)), 1);
+}
+
+
 TEST(OrderedSetTest, Swap)
 {
 	{
@@ -446,6 +480,7 @@ TEST(OrderedSetTest, Swap)
 		ASSERT_THAT(testee2, ElementsAre("5", "1", "4", "2", "3"));
 	}
 }
+
 
 TEST(OrderedSetTest, Removal)
 {
@@ -521,6 +556,7 @@ TEST(OrderedSetTest, Removal)
 		ASSERT_TRUE(testee.empty());
 	}
 }
+
 
 TEST(OrderedSetTest, Comparison)
 {

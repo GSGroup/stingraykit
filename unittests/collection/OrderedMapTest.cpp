@@ -21,6 +21,7 @@ namespace
 	using Vector = std::vector<std::pair<std::string, std::string>>;
 	using Map = std::map<std::string, std::string>;
 	using OrderedMap = ordered_map<std::string, std::string>;
+	using TransparentOrderedMap = ordered_map<std::string, std::string, std::less<>>;
 
 }
 
@@ -100,6 +101,7 @@ TEST(OrderedMapTest, Construction)
 	}
 }
 
+
 TEST(OrderedMapTest, Assignment)
 {
 	{
@@ -123,6 +125,7 @@ TEST(OrderedMapTest, Assignment)
 		ASSERT_THAT(testee, ElementsAre(std::make_pair("2", "22"), std::make_pair("4", "44"), std::make_pair("3", "33"), std::make_pair("1", "11")));
 	}
 }
+
 
 TEST(OrderedMapTest, Brackets)
 {
@@ -237,6 +240,7 @@ TEST(OrderedMapTest, Brackets)
 		ASSERT_THAT(testee, ElementsAre(std::make_pair("2", "22"), std::make_pair("4", "44"), std::make_pair("3", "333"), std::make_pair("1", "111")));
 	}
 }
+
 
 TEST(OrderedMapTest, Insertion)
 {
@@ -470,6 +474,7 @@ TEST(OrderedMapTest, Insertion)
 	}
 }
 
+
 TEST(OrderedMapTest, Emplacing)
 {
 	{
@@ -619,6 +624,7 @@ TEST(OrderedMapTest, Emplacing)
 	}
 }
 
+
 TEST(OrderedMapTest, Lookup)
 {
 	const Vector unsorted{ { "5", "55" }, { "4", "44" }, { "8", "88" }, { "9", "99" }, { "1", "11" }, { "6", "66" }, { "3", "33" }, { "2", "22" }, { "7", "77" }, { "0", "00" } };
@@ -730,6 +736,73 @@ TEST(OrderedMapTest, Lookup)
 	}
 }
 
+
+TEST(OrderedMapTest, TransparentLookup)
+{
+	const Vector unsorted{ { "5", "55" }, { "4", "44" }, { "8", "88" }, { "9", "99" }, { "1", "11" }, { "6", "66" }, { "3", "33" }, { "2", "22" }, { "7", "77" }, { "0", "00" } };
+
+	{
+		TransparentOrderedMap testee(unsorted.begin(), unsorted.end());
+		Map sample(unsorted.begin(), unsorted.end());
+
+		ASSERT_TRUE(!std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		for (Map::iterator sampleIt = sample.begin(); sampleIt != sample.end(); ++sampleIt)
+		{
+			TransparentOrderedMap::iterator testeeIt = testee.find(string_view(sampleIt->first));
+			ASSERT_NE(testeeIt, testee.end());
+			ASSERT_TRUE(*testeeIt == *sampleIt);
+		}
+
+		for (Map::reverse_iterator sampleIt = sample.rbegin(); sampleIt != sample.rend(); ++sampleIt)
+		{
+			TransparentOrderedMap::iterator testeeIt = testee.find(string_view(sampleIt->first));
+			ASSERT_NE(testeeIt, testee.end());
+			ASSERT_TRUE(*testeeIt == *sampleIt);
+		}
+
+		for (Map::iterator sampleIt = sample.begin(); sampleIt != sample.end(); ++sampleIt)
+		{
+			ASSERT_NO_THROW(EXPECT_EQ(testee.at(string_view(sampleIt->first)), sampleIt->second));
+			ASSERT_THROW(testee.at(string_view(sampleIt->second)), KeyNotFoundException);
+		}
+
+		for (Map::iterator sampleIt = sample.begin(); sampleIt != sample.end(); ++sampleIt)
+			ASSERT_EQ(testee.count(string_view(sampleIt->first)), 1);
+	}
+
+	{
+		const TransparentOrderedMap testee(unsorted.begin(), unsorted.end());
+		const Map sample(unsorted.begin(), unsorted.end());
+
+		ASSERT_TRUE(!std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+
+		for (Map::const_iterator sampleIt = sample.begin(); sampleIt != sample.end(); ++sampleIt)
+		{
+			TransparentOrderedMap::const_iterator testeeIt = testee.find(string_view(sampleIt->first));
+			ASSERT_NE(testeeIt, testee.end());
+			ASSERT_TRUE(*testeeIt == *sampleIt);
+		}
+
+		for (Map::const_reverse_iterator sampleIt = sample.rbegin(); sampleIt != sample.rend(); ++sampleIt)
+		{
+			TransparentOrderedMap::const_iterator testeeIt = testee.find(string_view(sampleIt->first));
+			ASSERT_NE(testeeIt, testee.end());
+			ASSERT_TRUE(*testeeIt == *sampleIt);
+		}
+
+		for (Map::const_iterator sampleIt = sample.begin(); sampleIt != sample.end(); ++sampleIt)
+		{
+			ASSERT_NO_THROW(EXPECT_EQ(testee.at(string_view(sampleIt->first)), sampleIt->second));
+			ASSERT_THROW(testee.at(string_view(sampleIt->second)), KeyNotFoundException);
+		}
+
+		for (Map::const_iterator sampleIt = sample.begin(); sampleIt != sample.end(); ++sampleIt)
+			ASSERT_EQ(testee.count(string_view(sampleIt->first)), 1);
+	}
+}
+
+
 TEST(OrderedMapTest, Swap)
 {
 	{
@@ -742,6 +815,7 @@ TEST(OrderedMapTest, Swap)
 		ASSERT_THAT(testee2, ElementsAre(std::make_pair("5", "55"), std::make_pair("1", "11"), std::make_pair("4", "44"), std::make_pair("2", "22"), std::make_pair("3", "33")));
 	}
 }
+
 
 TEST(OrderedMapTest, Removal)
 {
@@ -825,6 +899,7 @@ TEST(OrderedMapTest, Removal)
 		ASSERT_TRUE(testee.empty());
 	}
 }
+
 
 TEST(OrderedMapTest, Comparison)
 {

@@ -26,6 +26,14 @@ namespace stingray
 		using value_type = Key;
 
 	private:
+		template < typename Compare__, typename Enabler = void >
+		struct IsTransparent : public FalseType
+		{ };
+
+		template < typename Compare__ >
+		struct IsTransparent<Compare__, typename EnableIf<decltype(std::declval<typename Compare__::is_transparent*>(), TrueType())::Value, void>::ValueT> : public TrueType
+		{ };
+
 		struct ValueEntry;
 
 		using ValueEntryAllocator = typename std::allocator_traits<Allocator>::template rebind_alloc<ValueEntry>;
@@ -43,6 +51,14 @@ namespace stingray
 			bool operator () (ValueEntry* lhs, ValueEntry* rhs) const;
 			bool operator () (ValueEntry* lhs, const Key& rhs) const;
 			bool operator () (const Key& lhs, ValueEntry* rhs) const;
+
+			template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+			bool operator () (ValueEntry* lhs, const K& rhs) const
+			{ return Cmp(lhs->Value, rhs); }
+
+			template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+			bool operator () (const K& lhs, ValueEntry* rhs) const
+			{ return Cmp(lhs, rhs->Value); }
 		};
 
 		using OrderedAllocator = typename std::allocator_traits<Allocator>::template rebind_alloc<ValueEntryHolder>;
@@ -279,6 +295,10 @@ namespace stingray
 		size_type count(const Key& key) const
 		{ return find(key) == end() ? 0 : 1; }
 
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		size_type count(const K& key) const
+		{ return find(key) == end() ? 0 : 1; }
+
 		iterator find(const Key& key)
 		{
 			const SortedIterator result = _sorted.find(key);
@@ -286,6 +306,20 @@ namespace stingray
 		}
 
 		const_iterator find(const Key& key) const
+		{
+			const SortedConstIterator result = _sorted.find(key);
+			return result != _sorted.end() ? (*result)->OrderedIt : end();
+		}
+
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		iterator find(const K& key)
+		{
+			const SortedIterator result = _sorted.find(key);
+			return result != _sorted.end() ? (*result)->OrderedIt : end();
+		}
+
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		const_iterator find(const K& key) const
 		{
 			const SortedConstIterator result = _sorted.find(key);
 			return result != _sorted.end() ? (*result)->OrderedIt : end();
