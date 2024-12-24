@@ -19,6 +19,7 @@ namespace
 	using Vector = std::vector<std::pair<std::string, std::string>>;
 	using Map = std::map<std::string, std::string>;
 	using FlatMap = flat_map<std::string, std::string>;
+	using TransparentFlatMap = flat_map<std::string, std::string, std::less<>>;
 
 	Vector GetUnorderedVector()
 	{
@@ -345,6 +346,48 @@ TEST(FlatMapTest, Lookup)
 }
 
 
+TEST(FlatMapTest, TransparentLookup)
+{
+	Vector unordered = GetUnorderedVector();
+
+	TransparentFlatMap testee;
+	Map sample;
+
+	testee.reserve(unordered.size());
+	for (Vector::const_iterator it = unordered.begin(); it != unordered.end(); ++it)
+	{
+		testee.insert(*it);
+		sample.insert(*it);
+	}
+
+	EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.value_comp()));
+	EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end(), PairEquals()));
+
+	for (Map::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)
+	{
+		TransparentFlatMap::const_iterator testee_iter = testee.find(string_view(sample_iter->first));
+		ASSERT_NE(testee_iter, testee.end());
+		EXPECT_TRUE(PairEquals()(*testee_iter, *sample_iter));
+	}
+
+	for (Map::const_reverse_iterator sample_iter = sample.rbegin(); sample_iter != sample.rend(); ++sample_iter)
+	{
+		TransparentFlatMap::const_iterator testee_iter = testee.find(string_view(sample_iter->first));
+		ASSERT_NE(testee_iter, testee.end());
+		EXPECT_TRUE(PairEquals()(*testee_iter, *sample_iter));
+	}
+
+	for (Map::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)
+		ASSERT_NO_THROW(EXPECT_EQ(testee.at(string_view(sample_iter->first)), sample_iter->second));
+
+	for (Map::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)
+	{
+		ASSERT_TRUE(testee.count(string_view(sample_iter->first)));
+		EXPECT_EQ(testee[sample_iter->first], sample_iter->second);
+	}
+}
+
+
 TEST(FlatMapTest, BoundsLookup)
 {
 	const FlatMap testee = { { "1", "1" }, { "3", "3" }, { "5", "5" }, { "7", "7" } };
@@ -416,6 +459,82 @@ TEST(FlatMapTest, BoundsLookup)
 
 	{
 		const auto iterPair = testee.equal_range("8");
+		ASSERT_EQ(iterPair.first, iterPair.second);
+	}
+}
+
+
+TEST(FlatMapTest, TransparentBoundsLookup)
+{
+	const TransparentFlatMap testee = { { "1", "1" }, { "3", "3" }, { "5", "5" }, { "7", "7" } };
+
+	{
+		const TransparentFlatMap::const_iterator iter = testee.lower_bound(string_view("3"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "3");
+	}
+
+	{
+		const TransparentFlatMap::const_iterator iter = testee.lower_bound(string_view("4"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "5");
+	}
+
+	{
+		const TransparentFlatMap::const_iterator iter = testee.lower_bound(string_view("5"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "5");
+	}
+
+	{
+		const TransparentFlatMap::const_iterator iter = testee.lower_bound(string_view("8"));
+		ASSERT_EQ(iter, testee.end());
+	}
+
+	{
+		const TransparentFlatMap::const_iterator iter = testee.upper_bound(string_view("3"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "5");
+	}
+
+	{
+		const TransparentFlatMap::const_iterator iter = testee.upper_bound(string_view("4"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "5");
+	}
+
+	{
+		const TransparentFlatMap::const_iterator iter = testee.upper_bound(string_view("5"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "7");
+	}
+
+	{
+		const TransparentFlatMap::const_iterator iter = testee.upper_bound(string_view("8"));
+		ASSERT_EQ(iter, testee.end());
+	}
+
+	{
+		const auto iterPair = testee.equal_range(string_view("3"));
+		ASSERT_NE(iterPair.first, iterPair.second);
+		ASSERT_EQ(iterPair.first->first, "3");
+		ASSERT_EQ(iterPair.second->first, "5");
+	}
+
+	{
+		const auto iterPair = testee.equal_range(string_view("4"));
+		ASSERT_EQ(iterPair.first, iterPair.second);
+	}
+
+	{
+		const auto iterPair = testee.equal_range(string_view("5"));
+		ASSERT_NE(iterPair.first, iterPair.second);
+		ASSERT_EQ(iterPair.first->first, "5");
+		ASSERT_EQ(iterPair.second->first, "7");
+	}
+
+	{
+		const auto iterPair = testee.equal_range(string_view("8"));
 		ASSERT_EQ(iterPair.first, iterPair.second);
 	}
 }

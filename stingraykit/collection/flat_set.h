@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/core/NonCopyable.h>
+#include <stingraykit/metaprogramming/EnableIf.h>
 #include <stingraykit/metaprogramming/TypeRelationships.h>
 #include <stingraykit/Macro.h>
 #include <stingraykit/operators.h>
@@ -32,6 +33,14 @@ namespace stingray
 
 	private:
 		using Container = std::vector<value_type, Allocator>;
+
+		template < typename Compare__, typename Enabler = void >
+		struct IsTransparent : public FalseType
+		{ };
+
+		template < typename Compare__ >
+		struct IsTransparent<Compare__, typename EnableIf<decltype(std::declval<typename Compare__::is_transparent*>(), TrueType())::Value, void>::ValueT> : public TrueType
+		{ };
 
 	public:
 		using size_type = typename Container::size_type;
@@ -209,6 +218,10 @@ namespace stingray
 		size_type count(const Key& key) const
 		{ return find(key) == end() ? 0 : 1; }
 
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		size_type count(const K& key) const
+		{ return find(key) == end() ? 0 : 1; }
+
 		iterator find(const Key& key)
 		{
 			const iterator result(lower_bound(key));
@@ -225,14 +238,47 @@ namespace stingray
 			return result;
 		}
 
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		iterator find(const K& key)
+		{
+			const iterator result(lower_bound(key));
+			if (result != end() && _cmp(key, *result))
+				return end();
+			return result;
+		}
+
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		const_iterator find(const K& key) const
+		{
+			const const_iterator result(lower_bound(key));
+			if (result != end() && _cmp(key, *result))
+				return end();
+			return result;
+		}
+
 		std::pair<iterator, iterator> equal_range(const Key& key)						{ return std::equal_range(begin(), end(), key, _cmp); }
 		std::pair<const_iterator, const_iterator> equal_range(const Key& key) const		{ return std::equal_range(begin(), end(), key, _cmp); }
+
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		std::pair<iterator, iterator> equal_range(const K& key)							{ return std::equal_range(begin(), end(), key, _cmp); }
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		std::pair<const_iterator, const_iterator> equal_range(const K& key) const		{ return std::equal_range(begin(), end(), key, _cmp); }
 
 		iterator lower_bound(const Key& key)											{ return std::lower_bound(begin(), end(), key, _cmp); }
 		const_iterator lower_bound(const Key& key) const								{ return std::lower_bound(begin(), end(), key, _cmp); }
 
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		iterator lower_bound(const K& key)												{ return std::lower_bound(begin(), end(), key, _cmp); }
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		const_iterator lower_bound(const K& key) const									{ return std::lower_bound(begin(), end(), key, _cmp); }
+
 		iterator upper_bound(const Key& key)											{ return std::upper_bound(begin(), end(), key, _cmp); }
 		const_iterator upper_bound(const Key& key) const								{ return std::upper_bound(begin(), end(), key, _cmp); }
+
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		iterator upper_bound(const K& key)												{ return std::upper_bound(begin(), end(), key, _cmp); }
+		template < typename K, typename Compare__ = Compare, typename EnableIf<IsTransparent<Compare__>::Value, int>::ValueT = 0 >
+		const_iterator upper_bound(const K& key) const									{ return std::upper_bound(begin(), end(), key, _cmp); }
 
 		key_compare key_comp() const													{ return _cmp; }
 		value_compare value_comp() const												{ return _cmp; }

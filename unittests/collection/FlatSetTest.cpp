@@ -6,6 +6,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/flat_set.h>
+#include <stingraykit/string/string_view.h>
 
 #include <gmock/gmock-matchers.h>
 
@@ -19,6 +20,7 @@ namespace
 	using Vector = std::vector<std::string>;
 	using Set = std::set<std::string>;
 	using FlatSet = flat_set<std::string>;
+	using TransparentFlatSet = flat_set<std::string, std::less<>>;
 
 	Vector GetUnorderedVector()
 	{ return { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" }; }
@@ -271,6 +273,42 @@ TEST(FlatSetTest, Lookup)
 }
 
 
+TEST(FlatSetTest, TransparentLookup)
+{
+	Vector unordered = GetUnorderedVector();
+
+	TransparentFlatSet testee;
+	Set sample;
+
+	testee.reserve(unordered.size());
+	for (Vector::const_iterator it = unordered.begin(); it != unordered.end(); ++it)
+	{
+		testee.insert(*it);
+		sample.insert(*it);
+	}
+
+	EXPECT_TRUE(std::is_sorted(testee.begin(), testee.end(), testee.key_comp()));
+	EXPECT_TRUE(std::equal(sample.begin(), sample.end(), testee.begin(), testee.end()));
+
+	for (Set::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)
+	{
+		TransparentFlatSet::const_iterator testee_iter = testee.find(string_view(*sample_iter));
+		ASSERT_NE(testee_iter, testee.end());
+		EXPECT_TRUE(*testee_iter == *sample_iter);
+	}
+
+	for (Set::const_reverse_iterator sample_iter = sample.rbegin(); sample_iter != sample.rend(); ++sample_iter)
+	{
+		TransparentFlatSet::const_iterator testee_iter = testee.find(string_view(*sample_iter));
+		ASSERT_NE(testee_iter, testee.end());
+		EXPECT_TRUE(*testee_iter == *sample_iter);
+	}
+
+	for (Set::const_iterator sample_iter = sample.begin(); sample_iter != sample.end(); ++sample_iter)
+		ASSERT_TRUE(testee.count(string_view(*sample_iter)));
+}
+
+
 TEST(FlatSetTest, BoundsLookup)
 {
 	const FlatSet testee = { "1", "3", "5", "7" };
@@ -342,6 +380,82 @@ TEST(FlatSetTest, BoundsLookup)
 
 	{
 		const auto iterPair = testee.equal_range("8");
+		ASSERT_EQ(iterPair.first, iterPair.second);
+	}
+}
+
+
+TEST(FlatSetTest, TransparentBoundsLookup)
+{
+	const TransparentFlatSet testee = { "1", "3", "5", "7" };
+
+	{
+		const TransparentFlatSet::const_iterator iter = testee.lower_bound(string_view("3"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "3");
+	}
+
+	{
+		const TransparentFlatSet::const_iterator iter = testee.lower_bound(string_view("4"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "5");
+	}
+
+	{
+		const TransparentFlatSet::const_iterator iter = testee.lower_bound(string_view("5"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "5");
+	}
+
+	{
+		const TransparentFlatSet::const_iterator iter = testee.lower_bound(string_view("8"));
+		ASSERT_EQ(iter, testee.end());
+	}
+
+	{
+		const TransparentFlatSet::const_iterator iter = testee.upper_bound(string_view("3"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "5");
+	}
+
+	{
+		const TransparentFlatSet::const_iterator iter = testee.upper_bound(string_view("4"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "5");
+	}
+
+	{
+		const TransparentFlatSet::const_iterator iter = testee.upper_bound(string_view("5"));
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "7");
+	}
+
+	{
+		const TransparentFlatSet::const_iterator iter = testee.upper_bound(string_view("8"));
+		ASSERT_EQ(iter, testee.end());
+	}
+
+	{
+		const auto iterPair = testee.equal_range(string_view("3"));
+		ASSERT_NE(iterPair.first, iterPair.second);
+		ASSERT_EQ(*iterPair.first, "3");
+		ASSERT_EQ(*iterPair.second, "5");
+	}
+
+	{
+		const auto iterPair = testee.equal_range(string_view("4"));
+		ASSERT_EQ(iterPair.first, iterPair.second);
+	}
+
+	{
+		const auto iterPair = testee.equal_range(string_view("5"));
+		ASSERT_NE(iterPair.first, iterPair.second);
+		ASSERT_EQ(*iterPair.first, "5");
+		ASSERT_EQ(*iterPair.second, "7");
+	}
+
+	{
+		const auto iterPair = testee.equal_range(string_view("8"));
 		ASSERT_EQ(iterPair.first, iterPair.second);
 	}
 }
