@@ -94,6 +94,7 @@ TEST(FlatMapTest, Construction)
 	}
 }
 
+
 TEST(FlatMapTest, Assignment)
 {
 	{
@@ -120,6 +121,7 @@ TEST(FlatMapTest, Assignment)
 		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
 	}
 }
+
 
 TEST(FlatMapTest, Brackets)
 {
@@ -155,6 +157,7 @@ TEST(FlatMapTest, Brackets)
 		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "dup"), std::make_pair("one", "jaws"), std::make_pair("three", "dup"), std::make_pair("two", "bite")));
 	}
 }
+
 
 TEST(FlatMapTest, Insertion)
 {
@@ -247,6 +250,7 @@ TEST(FlatMapTest, Insertion)
 	}
 }
 
+
 TEST(FlatMapTest, Emplacing)
 {
 	{
@@ -277,6 +281,7 @@ TEST(FlatMapTest, Emplacing)
 		ASSERT_THAT(testee, ElementsAre(std::make_pair("four", "catch"), std::make_pair("one", "jaws"), std::make_pair("three", "claws"), std::make_pair("two", "bite")));
 	}
 }
+
 
 TEST(FlatMapTest, Lookup)
 {
@@ -338,6 +343,83 @@ TEST(FlatMapTest, Lookup)
 		EXPECT_EQ(sample[testee_iter->first], testee_iter->second);
 	}
 }
+
+
+TEST(FlatMapTest, BoundsLookup)
+{
+	const FlatMap testee = { { "1", "1" }, { "3", "3" }, { "5", "5" }, { "7", "7" } };
+
+	{
+		const FlatMap::const_iterator iter = testee.lower_bound("3");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "3");
+	}
+
+	{
+		const FlatMap::const_iterator iter = testee.lower_bound("4");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "5");
+	}
+
+	{
+		const FlatMap::const_iterator iter = testee.lower_bound("5");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "5");
+	}
+
+	{
+		const FlatMap::const_iterator iter = testee.lower_bound("8");
+		ASSERT_EQ(iter, testee.end());
+	}
+
+	{
+		const FlatMap::const_iterator iter = testee.upper_bound("3");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "5");
+	}
+
+	{
+		const FlatMap::const_iterator iter = testee.upper_bound("4");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "5");
+	}
+
+	{
+		const FlatMap::const_iterator iter = testee.upper_bound("5");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(iter->first, "7");
+	}
+
+	{
+		const FlatMap::const_iterator iter = testee.upper_bound("8");
+		ASSERT_EQ(iter, testee.end());
+	}
+
+	{
+		const auto iterPair = testee.equal_range("3");
+		ASSERT_NE(iterPair.first, iterPair.second);
+		ASSERT_EQ(iterPair.first->first, "3");
+		ASSERT_EQ(iterPair.second->first, "5");
+	}
+
+	{
+		const auto iterPair = testee.equal_range("4");
+		ASSERT_EQ(iterPair.first, iterPair.second);
+	}
+
+	{
+		const auto iterPair = testee.equal_range("5");
+		ASSERT_NE(iterPair.first, iterPair.second);
+		ASSERT_EQ(iterPair.first->first, "5");
+		ASSERT_EQ(iterPair.second->first, "7");
+	}
+
+	{
+		const auto iterPair = testee.equal_range("8");
+		ASSERT_EQ(iterPair.first, iterPair.second);
+	}
+}
+
 
 TEST(FlatMapTest, Removal)
 {

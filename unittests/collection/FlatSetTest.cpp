@@ -80,6 +80,7 @@ TEST(FlatSetTest, Construction)
 	}
 }
 
+
 TEST(FlatSetTest, Assignment)
 {
 	{
@@ -105,6 +106,7 @@ TEST(FlatSetTest, Assignment)
 		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
 	}
 }
+
 
 TEST(FlatSetTest, Insertion)
 {
@@ -185,6 +187,7 @@ TEST(FlatSetTest, Insertion)
 	}
 }
 
+
 TEST(FlatSetTest, Emplacing)
 {
 	{
@@ -215,6 +218,7 @@ TEST(FlatSetTest, Emplacing)
 		ASSERT_THAT(testee, ElementsAre("four", "one", "three", "two"));
 	}
 }
+
 
 TEST(FlatSetTest, Lookup)
 {
@@ -266,6 +270,83 @@ TEST(FlatSetTest, Lookup)
 		ASSERT_TRUE(sample.count(*testee_iter));
 }
 
+
+TEST(FlatSetTest, BoundsLookup)
+{
+	const FlatSet testee = { "1", "3", "5", "7" };
+
+	{
+		const FlatSet::const_iterator iter = testee.lower_bound("3");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "3");
+	}
+
+	{
+		const FlatSet::const_iterator iter = testee.lower_bound("4");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "5");
+	}
+
+	{
+		const FlatSet::const_iterator iter = testee.lower_bound("5");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "5");
+	}
+
+	{
+		const FlatSet::const_iterator iter = testee.lower_bound("8");
+		ASSERT_EQ(iter, testee.end());
+	}
+
+	{
+		const FlatSet::const_iterator iter = testee.upper_bound("3");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "5");
+	}
+
+	{
+		const FlatSet::const_iterator iter = testee.upper_bound("4");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "5");
+	}
+
+	{
+		const FlatSet::const_iterator iter = testee.upper_bound("5");
+		ASSERT_NE(iter, testee.end());
+		ASSERT_EQ(*iter, "7");
+	}
+
+	{
+		const FlatSet::const_iterator iter = testee.upper_bound("8");
+		ASSERT_EQ(iter, testee.end());
+	}
+
+	{
+		const auto iterPair = testee.equal_range("3");
+		ASSERT_NE(iterPair.first, iterPair.second);
+		ASSERT_EQ(*iterPair.first, "3");
+		ASSERT_EQ(*iterPair.second, "5");
+	}
+
+	{
+		const auto iterPair = testee.equal_range("4");
+		ASSERT_EQ(iterPair.first, iterPair.second);
+	}
+
+	{
+		const auto iterPair = testee.equal_range("5");
+		ASSERT_NE(iterPair.first, iterPair.second);
+		ASSERT_EQ(*iterPair.first, "5");
+		ASSERT_EQ(*iterPair.second, "7");
+	}
+
+	{
+		const auto iterPair = testee.equal_range("8");
+		ASSERT_EQ(iterPair.first, iterPair.second);
+	}
+}
+
+
 TEST(FlatSetTest, Removal)
 {
 	{
@@ -294,4 +375,3 @@ TEST(FlatSetTest, Removal)
 		ASSERT_TRUE(testee.count("Japaneses"));
 	}
 }
-
