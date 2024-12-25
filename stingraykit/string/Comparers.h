@@ -36,6 +36,8 @@ namespace stingray
 
 	struct CaseInsensitiveLess : public comparers::RelationalComparerInfo
 	{
+		using is_transparent = void;
+
 		bool operator () (string_view first, string_view second) const
 		{ return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), Detail::CaseInsensitiveCompare<comparers::Less>()); }
 
@@ -46,6 +48,8 @@ namespace stingray
 
 	struct CaseInsensitiveEquals : public comparers::EqualsComparerInfo
 	{
+		using is_transparent = void;
+
 		bool operator () (string_view first, string_view second) const
 		{ return first.length() == second.length() && std::equal(first.begin(), first.end(), second.begin(), Detail::CaseInsensitiveCompare<comparers::Equals>()); }
 
