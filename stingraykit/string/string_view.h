@@ -14,6 +14,7 @@
 
 #include <limits>
 #include <string>
+#include <tuple>
 
 #include <stddef.h>
 #include <string.h>
@@ -94,6 +95,9 @@ namespace stingray
 
 		std::basic_string<CharT, Traits> copy() const
 		{ return std::basic_string<CharT, Traits>(_data, size()); }
+
+		std::tuple<const char*, size_type> as_tuple() const
+		{ return std::make_tuple(_data, size()); }
 
 		basic_string_view substr(size_type pos = 0, size_type count = npos) const
 		{
