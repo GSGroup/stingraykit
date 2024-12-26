@@ -86,5 +86,6 @@ TEST(DecimalTest, ToString)
 	EXPECT_EQ(Decimal(33, 1).ToString(), "3.3");
 	EXPECT_EQ(Decimal(-4587, 3).ToString(), "-4.587");
 	EXPECT_EQ(Decimal(100, 3).ToString(), "0.1");
+	EXPECT_EQ(Decimal(-1, 3).ToString(), "-0.001");
 	EXPECT_EQ(Decimal(-51000, 4).ToString(), "-5.1");
 }

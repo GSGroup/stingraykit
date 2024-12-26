@@ -72,7 +72,8 @@ namespace stingray
 
 	std::string Decimal::ToString() const
 	{
-		const std::string value = AddSignificantZeros(stingray::ToString(_mantissa), _exponent);
+		const bool negative = _mantissa < 0;
+		const std::string value = AddSignificantZeros(stingray::ToString(negative ? -static_cast<u64>(_mantissa) : _mantissa), _exponent);
 
 		const string_view integralPart = ExtractPrefix(value, value.size() - _exponent);
 
@@ -80,8 +81,11 @@ namespace stingray
 		const string_view croppedFractionalPart = RemoveUnsignificantZeros(rawFractionalPart);
 
 		StringBuilder builder;
+		if (negative)
+			builder % "-";
+
 		builder % integralPart;
-		if (integralPart.empty() || integralPart == "-")
+		if (integralPart.empty())
 			builder % "0";
 
 		if (!croppedFractionalPart.empty())
