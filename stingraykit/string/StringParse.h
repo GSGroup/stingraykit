@@ -200,7 +200,7 @@ namespace stingray
 	}
 
 	template < typename... Ts, typename EnableIf<TypeListContains<TypeList<typename Decay<Ts>::ValueT...>, string_view>::Value, int>::ValueT = 0 >
-	bool StringParse(std::string&& string, string_view format, Ts&... args) = delete;
+	bool StringParse(const std::string&& string, string_view format, Ts&... args) = delete;
 
 
 	template < typename T, typename ConvertFunc >
