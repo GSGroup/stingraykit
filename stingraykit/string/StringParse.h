@@ -199,6 +199,9 @@ namespace stingray
 						currentStringPos >= string.length());
 	}
 
+	template < typename... Ts, typename EnableIf<TypeListContains<TypeList<typename Decay<Ts>::ValueT...>, string_view>::Value, int>::ValueT = 0 >
+	bool StringParse(std::string&& string, string_view format, Ts&... args) = delete;
+
 
 	template < typename T, typename ConvertFunc >
 	Detail::ParseProxy<T, ConvertFunc> MakeParseProxy(T& value, const ConvertFunc& convert)
