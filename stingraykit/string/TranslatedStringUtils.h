@@ -20,7 +20,7 @@ namespace stingray
 	namespace Detail
 	{
 
-		std::string GetTranslatedValue(LangCode code, const TranslatedString& arg)
+		inline std::string GetTranslatedValue(LangCode code, const TranslatedString& arg)
 		{ return arg.SelectTranslation(code); }
 
 		template < typename T >
