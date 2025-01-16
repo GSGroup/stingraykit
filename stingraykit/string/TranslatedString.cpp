@@ -8,7 +8,7 @@
 #include <stingraykit/string/TranslatedString.h>
 
 #include <stingraykit/collection/KeyValueEnumerableHelpers.h>
-#include <stingraykit/collection/MapDictionary.h>
+#include <stingraykit/collection/FlatMapDictionary.h>
 #include <stingraykit/compare/CollectionComparer.h>
 #include <stingraykit/serialization/Serialization.h>
 
@@ -16,12 +16,12 @@ namespace stingray
 {
 
 	TranslatedString::TranslatedString()
-		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string>>())
+		: _dictionary(make_shared_ptr<FlatMapDictionary<LangCode, std::string>>())
 	{ }
 
 
 	TranslatedString::TranslatedString(LangCode lang, const std::string& str)
-		: _dictionary(make_shared_ptr<MapDictionary<LangCode, std::string>>())
+		: _dictionary(make_shared_ptr<FlatMapDictionary<LangCode, std::string>>())
 	{ _dictionary->Set(lang, str); }
 
 
@@ -74,7 +74,7 @@ namespace stingray
 
 
 	TranslatedString::Builder::Builder()
-		: _product(make_shared_ptr<MapDictionary<LangCode, std::string>>()), _dirty(true)
+		: _product(make_shared_ptr<FlatMapDictionary<LangCode, std::string>>()), _dirty(true)
 	{ }
 
 
@@ -87,7 +87,7 @@ namespace stingray
 	{
 		if (!_dirty)
 		{
-			_product = make_shared_ptr<MapDictionary<LangCode, std::string>>(_product);
+			_product = make_shared_ptr<FlatMapDictionary<LangCode, std::string>>(_product);
 			_dirty = true;
 		}
 
