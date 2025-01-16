@@ -95,34 +95,66 @@ namespace
 		{ return std::move(Data); }
 	};
 
-	optional<int> TryIntFromConstLValueString(const std::string& str)
-	{ return TryFromString<int>(str); }
+	struct TryIntFromConstLValueString : function_info<optional<int>, UnspecifiedParamTypes>
+	{
+		optional<int> operator () (const std::string& str)
+		{ return TryFromString<int>(str); }
+
+		optional<int> operator () (const std::string&& str) = delete;
+	};
 
 	optional<int> TryIntFromLValueString(std::string& str_)
 	{
 		const std::string str = std::move(str_);
-		return TryIntFromConstLValueString(str);
+		return TryIntFromConstLValueString()(str);
 	}
+
+	struct TryIntFromConstRValueString : function_info<optional<int>, UnspecifiedParamTypes>
+	{
+		optional<int> operator () (const std::string& str) = delete;
+
+		optional<int> operator () (const std::string&& str_)
+		{
+			const std::string str = std::move(str_);
+			return TryIntFromConstLValueString()(str);
+		}
+	};
 
 	optional<int> TryIntFromRValueString(std::string&& str_)
 	{
 		const std::string str = std::move(str_);
-		return TryIntFromConstLValueString(str);
+		return TryIntFromConstLValueString()(str);
 	}
 
-	std::string AppendConstLValueString(const std::string& str)
-	{ return str + ToString(str.size() + 1); }
+	struct AppendConstLValueString : function_info<std::string, UnspecifiedParamTypes>
+	{
+		std::string operator () (const std::string& str)
+		{ return str + ToString(str.size() + 1); }
+
+		std::string operator () (const std::string&& str) = delete;
+	};
 
 	std::string AppendLValueString(std::string& str_)
 	{
 		const std::string str = std::move(str_);
-		return AppendConstLValueString(str);
+		return AppendConstLValueString()(str);
 	}
+
+	struct AppendConstRValueString : function_info<std::string, UnspecifiedParamTypes>
+	{
+		std::string operator () (const std::string& str) = delete;
+
+		std::string operator () (const std::string&& str_)
+		{
+			const std::string str = std::move(str_);
+			return AppendConstLValueString()(str);
+		}
+	};
 
 	std::string AppendRValueString(std::string&& str_)
 	{
 		const std::string str = std::move(str_);
-		return AppendConstLValueString(str);
+		return AppendConstLValueString()(str);
 	}
 
 	template < bool Fallback >
@@ -919,7 +951,7 @@ TEST(OptionalTest, AndThen)
 {
 	{
 		const optional<std::string> opt1;
-		const optional<int> opt2 = opt1.and_then(&TryIntFromConstLValueString);
+		const optional<int> opt2 = opt1.and_then(TryIntFromConstLValueString());
 
 		ASSERT_FALSE(opt1);
 
@@ -930,6 +962,16 @@ TEST(OptionalTest, AndThen)
 	{
 		optional<std::string> opt1;
 		const optional<int> opt2 = opt1.and_then(&TryIntFromLValueString);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		const optional<std::string> opt1;
+		const optional<int> opt2 = std::move(opt1).and_then(TryIntFromConstRValueString());
 
 		ASSERT_FALSE(opt1);
 
@@ -949,7 +991,7 @@ TEST(OptionalTest, AndThen)
 
 	{
 		const optional<std::string> opt1("abcd");
-		const optional<int> opt2 = opt1.and_then(&TryIntFromConstLValueString);
+		const optional<int> opt2 = opt1.and_then(TryIntFromConstLValueString());
 
 		ASSERT_TRUE(opt1);
 		ASSERT_FALSE(opt1->empty());
@@ -964,6 +1006,17 @@ TEST(OptionalTest, AndThen)
 
 		ASSERT_TRUE(opt1);
 		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		const optional<std::string> opt1("abcd");
+		const optional<int> opt2 = std::move(opt1).and_then(TryIntFromConstRValueString());
+
+		ASSERT_TRUE(opt1);
+		ASSERT_FALSE(opt1->empty());
 
 		ASSERT_FALSE(opt2);
 		ASSERT_EQ(opt2, null);
@@ -982,7 +1035,7 @@ TEST(OptionalTest, AndThen)
 
 	{
 		const optional<std::string> opt1("1234");
-		const optional<int> opt2 = opt1.and_then(&TryIntFromConstLValueString);
+		const optional<int> opt2 = opt1.and_then(TryIntFromConstLValueString());
 
 		ASSERT_TRUE(opt1);
 		ASSERT_FALSE(opt1->empty());
@@ -997,6 +1050,17 @@ TEST(OptionalTest, AndThen)
 
 		ASSERT_TRUE(opt1);
 		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, 1234);
+	}
+
+	{
+		const optional<std::string> opt1("1234");
+		const optional<int> opt2 = std::move(opt1).and_then(TryIntFromConstRValueString());
+
+		ASSERT_TRUE(opt1);
+		ASSERT_FALSE(opt1->empty());
 
 		ASSERT_TRUE(opt2);
 		ASSERT_EQ(opt2, 1234);
@@ -1019,7 +1083,7 @@ TEST(OptionalTest, Transform)
 {
 	{
 		const optional<std::string> opt1;
-		const optional<std::string> opt2 = opt1.transform(&AppendConstLValueString);
+		const optional<std::string> opt2 = opt1.transform(AppendConstLValueString());
 
 		ASSERT_FALSE(opt1);
 
@@ -1030,6 +1094,16 @@ TEST(OptionalTest, Transform)
 	{
 		optional<std::string> opt1;
 		const optional<std::string> opt2 = opt1.transform(&AppendLValueString);
+
+		ASSERT_FALSE(opt1);
+
+		ASSERT_FALSE(opt2);
+		ASSERT_EQ(opt2, null);
+	}
+
+	{
+		const optional<std::string> opt1;
+		const optional<std::string> opt2 = std::move(opt1).transform(AppendConstRValueString());
 
 		ASSERT_FALSE(opt1);
 
@@ -1049,7 +1123,7 @@ TEST(OptionalTest, Transform)
 
 	{
 		const optional<std::string> opt1("1234");
-		const optional<std::string> opt2 = opt1.transform(&AppendConstLValueString);
+		const optional<std::string> opt2 = opt1.transform(AppendConstLValueString());
 
 		ASSERT_TRUE(opt1);
 		ASSERT_EQ(opt1, "1234");
@@ -1064,6 +1138,17 @@ TEST(OptionalTest, Transform)
 
 		ASSERT_TRUE(opt1);
 		ASSERT_TRUE(opt1->empty());
+
+		ASSERT_TRUE(opt2);
+		ASSERT_EQ(opt2, "12345");
+	}
+
+	{
+		const optional<std::string> opt1("1234");
+		const optional<std::string> opt2 = std::move(opt1).transform(AppendConstRValueString());
+
+		ASSERT_TRUE(opt1);
+		ASSERT_FALSE(opt1->empty());
 
 		ASSERT_TRUE(opt2);
 		ASSERT_EQ(opt2, "12345");

@@ -102,6 +102,7 @@ namespace stingray
 		using ParamType = T&;
 		using ConstParamType = const T&;
 		using MoveParamType = T&&;
+		using ConstMoveParamType = const T&&;
 		using PtrParamType = T*;
 		using ConstPtrParamType = const T*;
 
@@ -183,6 +184,7 @@ namespace stingray
 		explicit operator bool () const					{ return is_initialized(); }
 
 		ConstParamType get() const &					{ CheckInitialized(); return _value.Ref(); }
+		ConstMoveParamType get() const &&				{ CheckInitialized(); return std::move(_value.Ref()); }
 		ParamType get() &								{ CheckInitialized(); return _value.Ref(); }
 		MoveParamType get() &&							{ CheckInitialized(); return std::move(_value.Ref()); }
 
@@ -193,6 +195,7 @@ namespace stingray
 		PtrParamType operator -> ()						{ return get_ptr(); }
 
 		ConstParamType operator * () const &			{ return get(); }
+		ConstMoveParamType operator * () const &&		{ return std::move(*this).get(); }
 		ParamType operator * () &						{ return get(); }
 		MoveParamType operator * () &&					{ return std::move(*this).get(); }
 
@@ -213,6 +216,19 @@ namespace stingray
 
 			if (is_initialized())
 				return FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), get());
+			else
+				return RetType();
+		}
+
+		template < typename Functor >
+		typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT and_then(Functor&& functor) const &&
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(IsOptional<RetType>::Value, "Expected function that returns an optional<U>");
+
+			if (is_initialized())
+				return FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), std::move(get()));
 			else
 				return RetType();
 		}
@@ -253,6 +269,20 @@ namespace stingray
 
 			if (is_initialized())
 				return optional<RetType>(FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), get()));
+			else
+				return optional<RetType>();
+		}
+
+		template < typename Functor >
+		optional<typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT> transform(Functor&& functor) const &&
+		{
+			using RetType = typename Decay<typename function_info<typename Decay<Functor>::ValueT>::RetType>::ValueT;
+
+			static_assert(!IsOptional<RetType>::Value && !IsSame<RetType, InPlaceType>::Value && !IsSame<RetType, NullPtrType>::Value,
+					"Expected function that returns not an optional, InPlace or null");
+
+			if (is_initialized())
+				return optional<RetType>(FunctorInvoker::InvokeArgs(std::forward<Functor>(functor), std::move(get())));
 			else
 				return optional<RetType>();
 		}
