@@ -29,6 +29,9 @@ namespace stingray
 			static const typename GetTypeListItem<typename Tuple_::Types, Index>::ValueT& Get(const Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
+			static const typename GetTypeListItem<typename Tuple_::Types, Index>::ValueT&& Get(const Tuple_&& tuple)
+			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(std::move(tuple).GetTail()); }
+
 			static typename GetTypeListItem<typename Tuple_::Types, Index>::ValueT& Get(Tuple_& tuple)
 			{ return TupleItemGetter<typename Tuple_::Tail, Index - 1>::Get(tuple.GetTail()); }
 
@@ -41,6 +44,9 @@ namespace stingray
 		{
 			static const typename Tuple_::ValueType& Get(const Tuple_& tuple)
 			{ return tuple.GetHead(); }
+
+			static const typename Tuple_::ValueType&& Get(const Tuple_&& tuple)
+			{ return std::move(tuple).GetHead(); }
 
 			static typename Tuple_::ValueType& Get(Tuple_& tuple)
 			{ return tuple.GetHead(); }
@@ -128,16 +134,22 @@ namespace stingray
 		{ return Tuple(TupleConstructorTag(), std::forward<TupleLikeObject>(tll)); }
 
 		const ValueType& GetHead() const & { return _val; }
+		const ValueType&& GetHead() const && { return std::forward<const ValueType>(_val); }
 		ValueType& GetHead() & { return _val; }
 		ValueType&& GetHead() && { return std::forward<ValueType>(_val); }
 
 		const Tail& GetTail() const & { return _tail; }
+		const Tail&& GetTail() const && { return std::move(_tail); }
 		Tail& GetTail() & { return _tail; }
 		Tail&& GetTail() && { return std::move(_tail); }
 
 		template < size_t Index >
 		const typename GetTypeListItem<Types, Index>::ValueT& Get() const &
 		{ return Detail::TupleItemGetter<Tuple, Index>::Get(*this); }
+
+		template < size_t Index >
+		const typename GetTypeListItem<Types, Index>::ValueT&& Get() const &&
+		{ return Detail::TupleItemGetter<Tuple, Index>::Get(std::move(*this)); }
 
 		template < size_t Index >
 		typename GetTypeListItem<Types, Index>::ValueT& Get() &
@@ -152,6 +164,10 @@ namespace stingray
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_>::Value>::Get(*this); }
 
 		template < typename Type_ >
+		const Type_&& Get(Dummy dummy = Dummy()) const &&
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_>::Value>::Get(std::move(*this)); }
+
+		template < typename Type_ >
 		Type_& Get(Dummy dummy = Dummy()) &
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_>::Value>::Get(*this); }
 
@@ -162,6 +178,10 @@ namespace stingray
 		template < typename Type_, size_t Index >
 		const Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) const &
 		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_, Index>::Value>::Get(*this); }
+
+		template < typename Type_, size_t Index >
+		const Type_&& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) const &&
+		{ return Detail::TupleItemGetter<Tuple, IndexOfTypeListItem<Types, Type_, Index>::Value>::Get(std::move(*this)); }
 
 		template < typename Type_, size_t Index >
 		Type_& Get(Dummy dummy = Dummy(), Dummy dummy2 = Dummy()) &
