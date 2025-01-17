@@ -10,7 +10,6 @@
 
 #include <stingraykit/compare/MemberToValueComparer.h>
 #include <stingraykit/compare/comparers.h>
-#include <stingraykit/Tuple.h>
 
 namespace stingray
 {

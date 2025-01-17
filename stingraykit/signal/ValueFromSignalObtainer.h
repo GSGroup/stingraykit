@@ -11,7 +11,6 @@
 #include <stingraykit/collection/CollectionBuilder.h>
 #include <stingraykit/collection/CollectionOp.h>
 #include <stingraykit/signal/signal_connector.h>
-#include <stingraykit/Tuple.h>
 
 namespace stingray
 {
