@@ -176,15 +176,14 @@ namespace stingray
 		};
 
 
-		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
+		template < typename Signature_, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_ >
 		class SignalImpl;
 
-		template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_ >
-		class SignalImpl<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_> final
+		template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_ >
+		class SignalImpl<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_> final
 			:	public ThreadingPolicy_,
 				public ExceptionPolicy_,
 				public PopulatorsPolicy_,
-				public ConnectionPolicyControl_,
 				public SignalImplBase<ThreadingPolicy_::IsThreadsafe>
 		{
 			using base = SignalImplBase<ThreadingPolicy_::IsThreadsafe>;
@@ -197,48 +196,24 @@ namespace stingray
 		public:
 			SignalImpl() { }
 
-			explicit SignalImpl(ConnectionPolicy connectionPolicy)
-				: ConnectionPolicyControl_(connectionPolicy)
-			{ }
-
 			SignalImpl(NullPtrType, const ExceptionHandlerFunc& exceptionHandler)
 				: ExceptionPolicy_(exceptionHandler)
-			{ }
-
-			SignalImpl(NullPtrType, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy)
-				: ExceptionPolicy_(exceptionHandler), ConnectionPolicyControl_(connectionPolicy)
 			{ }
 
 			SignalImpl(const PopulatorFunc& sendCurrentState)
 				: PopulatorsPolicy_(sendCurrentState)
 			{ }
 
-			SignalImpl(const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
-				: PopulatorsPolicy_(sendCurrentState), ConnectionPolicyControl_(connectionPolicy)
-			{ }
-
 			SignalImpl(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler)
 				: ExceptionPolicy_(exceptionHandler), PopulatorsPolicy_(sendCurrentState)
-			{ }
-
-			SignalImpl(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy)
-				: ExceptionPolicy_(exceptionHandler), PopulatorsPolicy_(sendCurrentState), ConnectionPolicyControl_(connectionPolicy)
 			{ }
 
 			SignalImpl(const ThreadingPolicy_& threadingPolicy)
 				: ThreadingPolicy_(threadingPolicy)
 			{ }
 
-			SignalImpl(const ThreadingPolicy_& threadingPolicy, ConnectionPolicy connectionPolicy)
-				: ThreadingPolicy_(threadingPolicy), ConnectionPolicyControl_(connectionPolicy)
-			{ }
-
 			SignalImpl(const ThreadingPolicy_& threadingPolicy, const PopulatorFunc& sendCurrentState)
 				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState)
-			{ }
-
-			SignalImpl(const ThreadingPolicy_& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy)
-				: ThreadingPolicy_(threadingPolicy), PopulatorsPolicy_(sendCurrentState), ConnectionPolicyControl_(connectionPolicy)
 			{ }
 
 			void InvokeAll(Ts... args) const
@@ -252,8 +227,6 @@ namespace stingray
 				for (typename base::LocalHandlersCopy::const_iterator it = localCopy.begin(); it != localCopy.end(); ++it)
 					WRAP_EXCEPTION_HANDLING(this->GetExceptionHandler(), it->template Invoke<Signature, Ts...>(args...));
 			}
-
-			ConnectionPolicy GetConnectionPolicy() const override { return this->DoGetConnectionPolicy(); }
 
 		private:
 			typename base::MutexRefType DoGetSync() const override
@@ -395,13 +368,13 @@ namespace stingray
 			typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
 			typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
 			typename PopulatorsPolicy_ = signal_policies::populators::Configurable,
-			typename ConnectionPolicyControl_ = signal_policies::connection_policy_control::Checked,
+			ConnectionPolicy::Enum ConnectionPolicy_ = ConnectionPolicy::Any,
 			typename CreationPolicy_ = signal_policies::creation::Default
 	>
 	class signal;
 
-	template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ >
-	class signal<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_, CreationPolicy_>
+	template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, ConnectionPolicy::Enum ConnectionPolicy_, typename CreationPolicy_ >
+	class signal<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicy_, CreationPolicy_>
 	{
 		STINGRAYKIT_NONCOPYABLE(signal);
 
@@ -414,7 +387,7 @@ namespace stingray
 		using ParamTypes = typename function_info<Signature>::ParamTypes;
 
 	private:
-		using Impl = Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>;
+		using Impl = Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_>;
 		using ImplPtr = self_count_ptr<Impl>;
 
 		using ExceptionHandlerFunc = function<void (const std::exception&)>;
@@ -455,17 +428,6 @@ namespace stingray
 		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { }
 
 		/**
-		 * @brief Constructs a signal with given connection policy
-		 * @param[in] connectionPolicy Connection policy
-		 * @par Example:
-		 * @code
-		 * signal<void(int)> some_signal(ConnectionPolicy::Any);
-		 * @endcode
-		 * */
-		signal(NullPtrType, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(connectionPolicy)) { }
-		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
-
-		/**
 		 * @brief Constructs a signal with no populator, given exception handler, and given connection policy
 		 * @param[in] sendCurrentState 'null' for the populator function
 		 * @param[in] exceptionHandler The exception handler
@@ -480,28 +442,9 @@ namespace stingray
 		 * signal<void(int)> some_signal(null, &MyExceptionHandler, ConnectionPolicy::Any);
 		 * @endcode
 		 * */
-		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { }
+		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
 
 		explicit signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { }
-
-		/**
-		 * @brief Constructs a signal with given populator, no exception handler, and given connection policy
-		 * @param[in] sendCurrentState The populator function
-		 * @param[in] exceptionHandler 'null' for the exception handler
-		 * @param[in] connectionPolicy Connection policy
-		 * @par Example:
-		 * @code
-		 * void PopulatorForTheSignal(const function<void(int)>& slot)
-		 * {
-		 *     slot(123); // The slot will receive the value of 123 when being connected to the signal
-		 * }
-		 * // ...
-		 * signal<void(int)> some_signal(&PopulatorForTheSignal, null, ConnectionPolicy::Any);
-		 * @endcode
-		 * */
-		signal(const PopulatorFunc& sendCurrentState, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { }
-
-		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { }
 
 		/**
 		 * @brief Constructs a signal with given populator, given exception handler, and given connection policy
@@ -522,12 +465,10 @@ namespace stingray
 		 * signal<void(int)> some_signal(&PopulatorForTheSignal, &MyExceptionHandler, ConnectionPolicy::Any);
 		 * @endcode
 		 * */
-		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler, connectionPolicy)) { }
+		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { }
 
 		explicit signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { }
-		signal(const ThreadingPolicy& threadingPolicy, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { }
 		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { }
-		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState, connectionPolicy)) { }
 
 		/**
 		 * @brief Invoke the populator for a given function
@@ -543,11 +484,10 @@ namespace stingray
 		 * @brief Synchronous connect method. Is prohibited if the signal uses ConnectionPolicy::AsyncOnly
 		 * @param[in] handler The signal handler function (slot)
 		 */
+		template < ConnectionPolicy::Enum ConnectionPolicy__ = ConnectionPolicy_, typename EnableIf<ConnectionPolicy__ == ConnectionPolicy_ && (ConnectionPolicy__ == ConnectionPolicy::Any || ConnectionPolicy__ == ConnectionPolicy::SyncOnly), int>::ValueT = 0 >
 		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const
 		{
 			CreationPolicy_::template LazyCreate(_impl);
-
-			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
 
 			TaskLifeToken token(_impl->CreateSyncToken());
 			const FutureExecutionTester tester(token.GetExecutionTester());
@@ -560,11 +500,10 @@ namespace stingray
 		 * @param[in] executor The ITaskExecutor object that will be used for the handler invokation
 		 * @param[in] handler The signal handler function (slot)
 		 */
+		template < ConnectionPolicy::Enum ConnectionPolicy__ = ConnectionPolicy_, typename EnableIf<ConnectionPolicy__ == ConnectionPolicy_ && (ConnectionPolicy__ == ConnectionPolicy::Any || ConnectionPolicy__ == ConnectionPolicy::AsyncOnly), int>::ValueT = 0 >
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const
 		{
 			CreationPolicy_::template LazyCreate(_impl);
-
-			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
 
 			TaskLifeToken token(_impl->CreateAsyncToken());
 			const FutureExecutionTester tester(token.GetExecutionTester());
@@ -576,10 +515,10 @@ namespace stingray
 		 * @brief A getter of an object that may be used to connect to the signal.
 		 * @returns A signal_connector object.
 		 */
-		signal_connector<Signature> connector() const
+		signal_connector<Signature, ConnectionPolicy_> connector() const
 		{
 			CreationPolicy_::template LazyCreate(_impl);
-			return signal_connector<Signature>(_impl);
+			return signal_connector<Signature, ConnectionPolicy_>(_impl);
 		}
 
 		/**
@@ -602,6 +541,26 @@ namespace stingray
 				_impl->InvokeAll(args...);
 		}
 	};
+
+
+	template <
+			typename Signature_,
+			typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
+			typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
+			typename PopulatorsPolicy_ = signal_policies::populators::Configurable,
+			typename CreationPolicy_ = signal_policies::creation::Default
+	>
+	using sync_signal = signal<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicy::SyncOnly, CreationPolicy_>;
+
+
+	template <
+			typename Signature_,
+			typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
+			typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
+			typename PopulatorsPolicy_ = signal_policies::populators::Configurable,
+			typename CreationPolicy_ = signal_policies::creation::Default
+	>
+	using async_signal = signal<Signature_, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicy::AsyncOnly, CreationPolicy_>;
 
 	/** @} */
 

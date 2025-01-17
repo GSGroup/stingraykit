@@ -32,16 +32,20 @@ namespace stingray
 
 			virtual TaskLifeToken CreateSyncToken() const = 0;
 			virtual TaskLifeToken CreateAsyncToken() const = 0;
-
-			virtual ConnectionPolicy GetConnectionPolicy() const = 0;
 		};
 
 	}
 
 
-	template < typename Signature_ >
+	template < typename Signature_, ConnectionPolicy::Enum ConnectionPolicy_ = ConnectionPolicy::Any >
 	class signal_connector
 	{
+		STINGRAYKIT_DEFAULTCOPYABLE(signal_connector);
+		STINGRAYKIT_DEFAULTMOVABLE(signal_connector);
+
+		template < typename S, ConnectionPolicy::Enum P >
+		friend class signal_connector;
+
 	public:
 		using Signature = Signature_;
 
@@ -55,18 +59,23 @@ namespace stingray
 		signal_connector() { }
 		explicit signal_connector(const self_count_ptr<Detail::ISignalConnector>& impl) : _impl(STINGRAYKIT_REQUIRE_NOT_NULL(impl)) { }
 
+		/// @brief Converts signal_connector<Signature_, ConnectionPolicy::Any> to sync_signal_connector or async_signal_connector
+		template < ConnectionPolicy::Enum ConnectionPolicy__, typename EnableIf<ConnectionPolicy__ != ConnectionPolicy_ && ConnectionPolicy__ == ConnectionPolicy::Any, int>::ValueT = 0 >
+		signal_connector(const signal_connector<Signature_, ConnectionPolicy__>& other) : _impl(other._impl) { }
+		template < ConnectionPolicy::Enum ConnectionPolicy__, typename EnableIf<ConnectionPolicy__ != ConnectionPolicy_ && ConnectionPolicy__ == ConnectionPolicy::Any, int>::ValueT = 0 >
+		signal_connector(signal_connector<Signature_, ConnectionPolicy__>&& other) : _impl(std::move(other._impl)) { }
+
 		void SendCurrentState(const function<Signature_>& slot) const
 		{
 			if (STINGRAYKIT_LIKELY(_impl.is_initialized()))
 				_impl->SendCurrentState(function_storage(slot));
 		}
 
+		template < ConnectionPolicy::Enum ConnectionPolicy__ = ConnectionPolicy_, typename EnableIf<ConnectionPolicy__ == ConnectionPolicy_ && (ConnectionPolicy__ == ConnectionPolicy::Any || ConnectionPolicy__ == ConnectionPolicy::SyncOnly), int>::ValueT = 0 >
 		Token connect(const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
 			if (STINGRAYKIT_UNLIKELY(!_impl))
 				return Token();
-
-			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
 
 			TaskLifeToken token(_impl->CreateSyncToken());
 			const FutureExecutionTester tester(token.GetExecutionTester());
@@ -74,12 +83,11 @@ namespace stingray
 			return _impl->Connect(function_storage(slot), tester, std::move(token), sendCurrentState);
 		}
 
+		template < ConnectionPolicy::Enum ConnectionPolicy__ = ConnectionPolicy_, typename EnableIf<ConnectionPolicy__ == ConnectionPolicy_ && (ConnectionPolicy__ == ConnectionPolicy::Any || ConnectionPolicy__ == ConnectionPolicy::AsyncOnly), int>::ValueT = 0 >
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
 			if (STINGRAYKIT_UNLIKELY(!_impl))
 				return Token();
-
-			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
 
 			TaskLifeToken token(_impl->CreateAsyncToken());
 			const FutureExecutionTester tester(token.GetExecutionTester());
@@ -89,14 +97,22 @@ namespace stingray
 	};
 
 
+	template < typename Signature_ >
+	using sync_signal_connector = signal_connector<Signature_, ConnectionPolicy::SyncOnly>;
+
+
+	template < typename Signature_ >
+	using async_signal_connector = signal_connector<Signature_, ConnectionPolicy::AsyncOnly>;
+
+
 	namespace Detail
 	{
 
 		struct DummySignalConnectorProxy
 		{
-			template < typename Signature_ >
-			operator signal_connector<Signature_> () const
-			{ return signal_connector<Signature_>(); }
+			template < typename Signature_, ConnectionPolicy::Enum ConnectionPolicy_ >
+			operator signal_connector<Signature_, ConnectionPolicy_> () const
+			{ return signal_connector<Signature_, ConnectionPolicy_>(); }
 		};
 
 	}

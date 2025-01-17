@@ -152,28 +152,6 @@ namespace stingray
 
 		}
 
-
-		namespace connection_policy_control
-		{
-
-			struct Null
-			{
-				ConnectionPolicy DoGetConnectionPolicy() const { return ConnectionPolicy::Any; }
-			};
-
-			struct Checked
-			{
-			private:
-				ConnectionPolicy	_val;
-
-			public:
-				explicit Checked(ConnectionPolicy val = ConnectionPolicy::Any) : _val(val) { }
-
-				ConnectionPolicy DoGetConnectionPolicy() const { return _val; }
-			};
-
-		};
-
 	}
 }
 
