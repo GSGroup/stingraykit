@@ -19,8 +19,6 @@ namespace stingray
 	 * @{
 	 */
 
-#ifndef DOXYGEN_PREPROCESSOR
-
 	namespace Detail
 	{
 
@@ -286,130 +284,6 @@ namespace stingray
 	};
 
 
-	template <
-			typename Signature_,
-			typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
-			typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
-			typename PopulatorsPolicy_ = signal_policies::populators::Configurable,
-			typename ConnectionPolicyControl_ = signal_policies::connection_policy_control::Checked,
-			typename CreationPolicy_ = signal_policies::creation::Default
-	>
-	class signal;
-
-	template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ >
-	class signal<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_, CreationPolicy_>
-	{
-		STINGRAYKIT_NONCOPYABLE(signal);
-
-		friend class signal_locker;
-
-	public:
-		using Signature = void (Ts...);
-
-		using RetType = void;
-		using ParamTypes = typename function_info<Signature>::ParamTypes;
-
-	private:
-		using Impl = Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>;
-		using ImplPtr = self_count_ptr<Impl>;
-
-		using ExceptionHandlerFunc = function<void (const std::exception&)>;
-		using PopulatorFunc = function<void (const function<Signature>&)>;
-
-		using ThreadingPolicy = ThreadingPolicy_;
-
-	public:
-		class Invoker : public function_info<Signature>
-		{
-		private:
-			ImplPtr		_impl;
-		public:
-			explicit Invoker(const ImplPtr& impl)
-				: _impl(impl)
-			{ }
-
-			void operator () (Ts... args) const
-			{ _impl->InvokeAll(args...); }
-		};
-
-	private:
-		mutable ImplPtr		_impl;
-
-	public:
-		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { }
-
-		signal(NullPtrType, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(connectionPolicy)) { }
-		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
-		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { }
-
-		explicit signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { }
-		signal(const PopulatorFunc& sendCurrentState, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { }
-		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { }
-		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler, connectionPolicy)) { }
-
-		explicit signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { }
-		signal(const ThreadingPolicy& threadingPolicy, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { }
-		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { }
-		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState, connectionPolicy)) { }
-
-		void SendCurrentState(const function<Signature>& slot) const
-		{
-			if (_impl)
-				_impl->SendCurrentState(function_storage(slot));
-		}
-
-		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const
-		{
-			CreationPolicy_::template LazyCreate(_impl);
-
-			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
-
-			TaskLifeToken token(_impl->CreateSyncToken());
-			const FutureExecutionTester tester(token.GetExecutionTester());
-
-			return _impl->Connect(function_storage(slot), tester, std::move(token), sendCurrentState);
-		}
-
-		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const
-		{
-			CreationPolicy_::template LazyCreate(_impl);
-
-			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
-
-			TaskLifeToken token(_impl->CreateAsyncToken());
-			const FutureExecutionTester tester(token.GetExecutionTester());
-
-			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, tester))), null, std::move(token), sendCurrentState);
-		}
-
-		signal_connector<Signature> connector() const
-		{
-			CreationPolicy_::template LazyCreate(_impl);
-			return signal_connector<Signature>(_impl);
-		}
-
-		Invoker invoker() const
-		{
-			CreationPolicy_::template LazyCreate(_impl);
-			return Invoker(_impl);
-		}
-
-		void operator () (Ts... args) const
-		{
-			if (_impl)
-				_impl->InvokeAll(args...);
-		}
-	};
-
-#else
-
-	struct ConnectionPolicy
-	{
-		STINGRAYKIT_ENUM_VALUES(SyncOnly, AsyncOnly, Any);
-		STINGRAYKIT_DECLARE_ENUM_CLASS(ConnectionPolicy);
-	};
-
-
 	/**
 	 * @brief Signal template
 	 * @tparam Signature			The signature of the signal
@@ -516,32 +390,80 @@ namespace stingray
 	 *
 	 * @endcode
 	 */
-	template < typename Signature, typename Strategy = threaded_signal_strategy, typename ExceptionHandler = default_exception_handler, template <typename> class SendCurrentState = default_send_current_state >
-	struct signal : public function_info<Signature>
+	template <
+			typename Signature_,
+			typename ThreadingPolicy_ = signal_policies::threading::Multithreaded,
+			typename ExceptionPolicy_ = signal_policies::exception_handling::Configurable,
+			typename PopulatorsPolicy_ = signal_policies::populators::Configurable,
+			typename ConnectionPolicyControl_ = signal_policies::connection_policy_control::Checked,
+			typename CreationPolicy_ = signal_policies::creation::Default
+	>
+	class signal;
+
+	template < typename... Ts, typename ThreadingPolicy_, typename ExceptionPolicy_, typename PopulatorsPolicy_, typename ConnectionPolicyControl_, typename CreationPolicy_ >
+	class signal<void (Ts...), ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_, CreationPolicy_>
 	{
+		STINGRAYKIT_NONCOPYABLE(signal);
+
+		friend class signal_locker;
+
+	public:
+		using Signature = void (Ts...);
+
+		using RetType = void;
+		using ParamTypes = typename function_info<Signature>::ParamTypes;
+
+	private:
+		using Impl = Detail::SignalImpl<Signature, ThreadingPolicy_, ExceptionPolicy_, PopulatorsPolicy_, ConnectionPolicyControl_>;
+		using ImplPtr = self_count_ptr<Impl>;
+
+		using ExceptionHandlerFunc = function<void (const std::exception&)>;
+		using PopulatorFunc = function<void (const function<Signature>&)>;
+
+		using ThreadingPolicy = ThreadingPolicy_;
+
+	public:
 		/**
 		 * @brief A copyable functor object that hold a reference to the signal. Be aware of possible lifetime problems!
 		 */
-		struct Invoker : public function_info<RetType, ParamTypes>
+		class Invoker : public function_info<Signature>
 		{
 		private:
-			const signal&	_signal;
+			ImplPtr		_impl;
 
 		public:
 			/**
 			 * @param[in] theSignal The referred signal
 			 */
-			Invoker(const signal& theSignal);
+			explicit Invoker(const ImplPtr& impl)
+				: _impl(impl)
+			{ }
 
 			/**
 			 * @brief Signal invokation method
 			 * @param[in] parameters The parameters that will be passed to the connected slots
 			 */
-			void operator () (Parameters... parameters) const;
+			void operator () (Ts... args) const
+			{ _impl->InvokeAll(args...); }
 		};
 
+	private:
+		mutable ImplPtr		_impl;
+
+	public:
 		/** @brief Constructs a signal with default exception handler, no populator, and 'Any' connection policy */
-		explicit signal();
+		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { }
+
+		/**
+		 * @brief Constructs a signal with given connection policy
+		 * @param[in] connectionPolicy Connection policy
+		 * @par Example:
+		 * @code
+		 * signal<void(int)> some_signal(ConnectionPolicy::Any);
+		 * @endcode
+		 * */
+		signal(NullPtrType, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(connectionPolicy)) { }
+		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
 
 		/**
 		 * @brief Constructs a signal with no populator, given exception handler, and given connection policy
@@ -558,9 +480,9 @@ namespace stingray
 		 * signal<void(int)> some_signal(null, &MyExceptionHandler, ConnectionPolicy::Any);
 		 * @endcode
 		 * */
-		explicit signal(NullPtrType sendCurrentState,
-						const ExceptionHandlerFunc& exceptionHandler,
-						ConnectionPolicy connectionPolicy = ConnectionPolicy::Any);
+		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler, connectionPolicy)) { }
+
+		explicit signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { }
 
 		/**
 		 * @brief Constructs a signal with given populator, no exception handler, and given connection policy
@@ -577,19 +499,9 @@ namespace stingray
 		 * signal<void(int)> some_signal(&PopulatorForTheSignal, null, ConnectionPolicy::Any);
 		 * @endcode
 		 * */
-		explicit signal(const SendCurrentStateFunc& sendCurrentState,
-						NullPtrType exceptionHandler,
-						ConnectionPolicy connectionPolicy = ConnectionPolicy::Any);
+		signal(const PopulatorFunc& sendCurrentState, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, connectionPolicy)) { }
 
-		/**
-		 * @brief Constructs a signal with given connection policy
-		 * @param[in] connectionPolicy Connection policy
-		 * @par Example:
-		 * @code
-		 * signal<void(int)> some_signal(ConnectionPolicy::Any);
-		 * @endcode
-		 * */
-		explicit signal(ConnectionPolicy connectionPolicy);
+		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { }
 
 		/**
 		 * @brief Constructs a signal with given populator, given exception handler, and given connection policy
@@ -610,51 +522,86 @@ namespace stingray
 		 * signal<void(int)> some_signal(&PopulatorForTheSignal, &MyExceptionHandler, ConnectionPolicy::Any);
 		 * @endcode
 		 * */
-		explicit signal(const SendCurrentStateFunc& sendCurrentState,
-						const ExceptionHandlerFunc& exceptionHandler = &stingray::Detail::DefaultSignalExceptionHandler,
-						ConnectionPolicy connectionPolicy = ConnectionPolicy::Any);
+		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler, connectionPolicy)) { }
 
-		/**
-		 * @brief Signal invokation method
-		 * @param[in] parameters The parameters that will be passed to the connected slots
-		 */
-		void operator () (Parameters... parameters) const;
-
-		/**
-		 * @brief A getter of a copyable object that may be used to construct a function object (the signal itself is not copyable).
-		 * @returns A copyable functor object.
-		 */
-		Invoker invoker() const;
-
-		/**
-		 * @brief A getter of an object that may be used to connect to the signal.
-		 * @returns A signal_connector object.
-		 */
-		signal_connector<Signature> connector() const;
+		explicit signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { }
+		signal(const ThreadingPolicy& threadingPolicy, NullPtrType, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, connectionPolicy)) { }
+		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { }
+		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState, ConnectionPolicy connectionPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState, connectionPolicy)) { }
 
 		/**
 		 * @brief Invoke the populator for a given function
 		 * @param[in] connectingSlot The function that will be invoked from the populator
 		 */
-		void SendCurrentState(const FuncType& connectingSlot) const;
+		void SendCurrentState(const function<Signature>& slot) const
+		{
+			if (_impl)
+				_impl->SendCurrentState(function_storage(slot));
+		}
+
+		/**
+		 * @brief Synchronous connect method. Is prohibited if the signal uses ConnectionPolicy::AsyncOnly
+		 * @param[in] handler The signal handler function (slot)
+		 */
+		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const
+		{
+			CreationPolicy_::template LazyCreate(_impl);
+
+			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::SyncOnly, "sync-connect to async-only signal");
+
+			TaskLifeToken token(_impl->CreateSyncToken());
+			const FutureExecutionTester tester(token.GetExecutionTester());
+
+			return _impl->Connect(function_storage(slot), tester, std::move(token), sendCurrentState);
+		}
 
 		/**
 		 * @brief Asynchronous connect method. Is prohibited if the signal uses ConnectionPolicy::SyncOnly
 		 * @param[in] executor The ITaskExecutor object that will be used for the handler invokation
 		 * @param[in] handler The signal handler function (slot)
 		 */
-		Token connect(const ITaskExecutorPtr& executor, const FuncType& handler) const;
+		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const
+		{
+			CreationPolicy_::template LazyCreate(_impl);
+
+			STINGRAYKIT_CHECK(_impl->GetConnectionPolicy() == ConnectionPolicy::Any || _impl->GetConnectionPolicy() == ConnectionPolicy::AsyncOnly, "async-connect to sync-only signal");
+
+			TaskLifeToken token(_impl->CreateAsyncToken());
+			const FutureExecutionTester tester(token.GetExecutionTester());
+
+			return _impl->Connect(function_storage(function<Signature>(MakeAsyncFunction(worker, slot, tester))), null, std::move(token), sendCurrentState);
+		}
 
 		/**
-		 * @brief Synchronous connect method. Is prohibited if the signal uses ConnectionPolicy::AsyncOnly
-		 * @param[in] handler The signal handler function (slot)
+		 * @brief A getter of an object that may be used to connect to the signal.
+		 * @returns A signal_connector object.
 		 */
-		Token connect(const FuncType& handler) const;
+		signal_connector<Signature> connector() const
+		{
+			CreationPolicy_::template LazyCreate(_impl);
+			return signal_connector<Signature>(_impl);
+		}
 
-		STINGRAYKIT_NONCOPYABLE(signal);
-	}
+		/**
+		 * @brief A getter of a copyable object that may be used to construct a function object (the signal itself is not copyable).
+		 * @returns A copyable functor object.
+		 */
+		Invoker invoker() const
+		{
+			CreationPolicy_::template LazyCreate(_impl);
+			return Invoker(_impl);
+		}
 
-#endif
+		/**
+		 * @brief Signal invokation method
+		 * @param[in] parameters The parameters that will be passed to the connected slots
+		 */
+		void operator () (Ts... args) const
+		{
+			if (_impl)
+				_impl->InvokeAll(args...);
+		}
+	};
 
 	/** @} */
 
