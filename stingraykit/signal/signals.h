@@ -260,31 +260,39 @@ namespace stingray
 	/**
 	 * @brief Signal template
 	 * @tparam Signature			The signature of the signal
-	 * @tparam Strategy				The threading strategy for the signal (threaded_signal_strategy, threadless_signal_strategy)
-	 * @tparam ExceptionHandler		The exception handling strategy for the signal (default_exception_handler, null_exception_handler)
-	 * @tparam SendCurrentState		The populator strategy for the signal (default_send_current_state, null_send_current_state)
+	 * @tparam ThreadingPolicy		The threading policy for the signal (Multithreaded, Threadless, ExternalMutexPointer, DummyMutex)
+	 * @tparam ExceptionPolicy		The exception handling policy for the signal (Configurable, Null)
+	 * @tparam PopulatorsPolicy		The populator policy for the signal (Configurable, Null)
+	 * @tparam ConnectionPolicy		The connection policy for the signal (Any, SyncOnly, AsyncOnly)
+	 * @tparam CreationPolicy		The creation policy for the signal (Default, Lazy)
 	 * @par Example:
 	 * @code
 	 * template < typename T >
 	 * class MyCollection
 	 * {
+	 * public:
+	 *     using OnChangedSignature = void (CollectionOp op, const T& item);
+	 *
+	 * private:
 	 *     using VectorType = std::vector<T>;
 	 *
 	 * private:
-	 *     VectorType	_vector;
+	 *     VectorType						_vector;
+	 *     signal<OnChangedSignature>		_onChanged;
 	 *
 	 * public:
 	 *     MyCollection()
-	 *         : OnChanged(Bind(&MyCollection::OnChangedPopulator, this, _1))
+	 *         : _onChanged(Bind(&MyCollection::OnChangedPopulator, this, _1))
 	 *     { }
 	 *
-	 *     signal<void(CollectionOp op, const T& item)>		OnChanged;
+	 *     signal_connector<OnChangedSignature> OnChanged() const
+	 *     { return _onChanged.connector(); }
 	 *
 	 *     void Add(const T& item)
 	 *     {
 	 *         signal_locker l(OnChanged); // Locking the signal mutex that guards the state
 	 *         _vector.push_back(item);
-	 *         OnChanged(CollectionOp::ItemAdded, item);
+	 *         _onChanged(CollectionOp::ItemAdded, item);
 	 *     }
 	 *
 	 *     void Remove(const T& item)
@@ -294,11 +302,11 @@ namespace stingray
 	 *         if (it == _vector.end())
 	 *             return;
 	 *         _vector.erase(it);
-	 *         OnChanged(CollectionOp::ItemRemoved, item);
+	 *         _onChanged(CollectionOp::ItemRemoved, item);
 	 *     }
 	 *
 	 * private:
-	 *     void OnChangedPopulator(const function<void(CollectionOp op, const T& item)>& slot) const
+	 *     void OnChangedPopulator(const function<OnChangedSignature>& slot) const
 	 *     {
 	 *         // The signal mutex that guards the state is already locked from the outside
 	 *         // Sending all the items to the slot that has just been connected
@@ -307,18 +315,13 @@ namespace stingray
 	 *     }
 	 * };
 	 *
-	 * // ...
-	 *
 	 * template < typename T >
 	 * void CollectionLogger(CollectionOp op, const T& item)
-	 * {
-	 *     std::cout << "op: " << op.ToString() << ", item: " << item << std::endl;
-	 * }
-	 *
+	 * { std::cout << "op: " << op.ToString() << ", item: " << item << std::endl; }
 	 *
 	 * void CollectionAccumulator(CollectionOp op, int item)
 	 * {
-	 *     statc int value = 0;
+	 *     static int value = 0;
 	 *     switch (op)
 	 *     {
 	 *     case CollectionOp::ItemAdded:
@@ -333,9 +336,7 @@ namespace stingray
 	 *     std::cout << "Accumulated value: " << value << std::endl;
 	 * }
 	 *
-	 * // ...
-	 *
-	 * ITaskExecutorPtr async_worker = ITaskExecutor::Create("asyncWorkerThread");
+	 * const ITaskExecutorPtr worker = ITaskExecutor::Create("worker");
 	 * MyCollection<int> c;
 	 * std::cout << "Connecting CollectionLogger" << std::endl;
 	 * c.OnChanged.connect(&CollectionLogger);
@@ -343,7 +344,7 @@ namespace stingray
 	 * c.Add(2);
 	 * c.Add(3);
 	 * std::cout << "Connecting CollectionAccumulator" << std::endl;
-	 * c.OnChanged.connect(async_worker, &CollectionAccumulator);
+	 * c.OnChanged.connect(worker, &CollectionAccumulator);
 	 * c.Add(4);
 	 * c.Add(5);
 	 *
@@ -397,7 +398,7 @@ namespace stingray
 
 	public:
 		/**
-		 * @brief A copyable functor object that hold a reference to the signal. Be aware of possible lifetime problems!
+		 * @brief A copyable functor object that owns reference to the impl of signal
 		 */
 		class Invoker : public function_info<Signature>
 		{
@@ -406,7 +407,7 @@ namespace stingray
 
 		public:
 			/**
-			 * @param[in] theSignal The referred signal
+			 * @param[in] impl The impl of signal
 			 */
 			explicit Invoker(const ImplPtr& impl)
 				: _impl(impl)
@@ -414,7 +415,7 @@ namespace stingray
 
 			/**
 			 * @brief Signal invokation method
-			 * @param[in] parameters The parameters that will be passed to the connected slots
+			 * @param[in] args The parameters that will be passed to the connected slots
 			 */
 			void operator () (Ts... args) const
 			{ _impl->InvokeAll(args...); }
@@ -424,55 +425,82 @@ namespace stingray
 		mutable ImplPtr		_impl;
 
 	public:
-		/** @brief Constructs a signal with default exception handler, no populator, and 'Any' connection policy */
+		/** @brief Constructs a signal with default exception handler and without populator */
 		signal() : _impl(CreationPolicy_::template CtorCreate<Impl>()) { }
 
 		/**
-		 * @brief Constructs a signal with no populator, given exception handler, and given connection policy
+		 * @brief Constructs a signal without populator and with given exception handler
 		 * @param[in] sendCurrentState 'null' for the populator function
 		 * @param[in] exceptionHandler The exception handler
-		 * @param[in] connectionPolicy Connection policy
 		 * @par Example:
 		 * @code
 		 * void MyExceptionHandler(const std::exception& ex)
-		 * {
-		 *     std::cerr << "An exception in signal handler: " << ex.what() << std::endl;
-		 * }
-		 * // ...
-		 * signal<void(int)> some_signal(null, &MyExceptionHandler, ConnectionPolicy::Any);
+		 * { std::cerr << "An exception in signal handler: " << ex.what() << std::endl; }
+		 *
+		 * signal<void (int)> some_signal(null, &MyExceptionHandler);
 		 * @endcode
-		 * */
+		 */
 		signal(NullPtrType, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(null, exceptionHandler)) { }
 
+		/**
+		 * @brief Constructs a signal with given populator and default exception handler
+		 * @param[in] sendCurrentState The populator function
+		 * @par Example:
+		 * @code
+		 * void PopulatorForTheSignal(const function<void(int)>& slot)
+		 * { slot(123); } // The slot will receive the value of 123 when being connected to the signal
+		 *
+		 * signal<void (int)> some_signal(&PopulatorForTheSignal);
+		 * @endcode
+		 */
 		explicit signal(const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(sendCurrentState)) { }
 
 		/**
-		 * @brief Constructs a signal with given populator, given exception handler, and given connection policy
+		 * @brief Constructs a signal with given populator and given exception handler
 		 * @param[in] sendCurrentState The populator function
 		 * @param[in] exceptionHandler The exception handler
-		 * @param[in] connectionPolicy Connection policy
 		 * @par Example:
 		 * @code
-		 * void MyExceptionHandler(const std::exception& ex)
-		 * {
-		 *     std::cerr << "An exception in signal handler: " << ex.what() << std::endl;
-		 * }
 		 * void PopulatorForTheSignal(const function<void(int)>& slot)
-		 * {
-		 *     slot(123); // The slot will receive the value of 123 when being connected to the signal
-		 * }
-		 * // ...
-		 * signal<void(int)> some_signal(&PopulatorForTheSignal, &MyExceptionHandler, ConnectionPolicy::Any);
+		 * { slot(123); } // The slot will receive the value of 123 when being connected to the signal
+		 *
+		 * void MyExceptionHandler(const std::exception& ex)
+		 * { std::cerr << "An exception in signal handler: " << ex.what() << std::endl; }
+		 *
+		 * signal<void (int)> some_signal(&PopulatorForTheSignal, &MyExceptionHandler);
 		 * @endcode
-		 * */
+		 */
 		signal(const PopulatorFunc& sendCurrentState, const ExceptionHandlerFunc& exceptionHandler) : _impl(make_self_count_ptr<Impl>(sendCurrentState, exceptionHandler)) { }
 
+		/**
+		 * @brief Constructs a signal with given threading policy and without populator
+		 * @param[in] threadingPolicy  The threading policy
+		 * @par Example:
+		 * @code
+		 * shared_ptr<Mutex> some_mutex;
+		 * signal<void (int)> some_signal(ExternalMutexPointer(some_mutex), &PopulatorForTheSignal);
+		 * @endcode
+		 */
 		explicit signal(const ThreadingPolicy& threadingPolicy) : _impl(make_self_count_ptr<Impl>(threadingPolicy)) { }
+
+		/**
+		 * @brief Constructs a signal with given threading policy and given populator
+		 * @param[in] threadingPolicy  The threading policy
+		 * @param[in] sendCurrentState The populator function
+		 * @par Example:
+		 * @code
+		 * void PopulatorForTheSignal(const function<void(int)>& slot)
+		 * { slot(123); } // The slot will receive the value of 123 when being connected to the signal
+		 *
+		 * shared_ptr<Mutex> some_mutex;
+		 * signal<void (int)> some_signal(ExternalMutexPointer(some_mutex), &PopulatorForTheSignal);
+		 * @endcode
+		 */
 		signal(const ThreadingPolicy& threadingPolicy, const PopulatorFunc& sendCurrentState) : _impl(make_self_count_ptr<Impl>(threadingPolicy, sendCurrentState)) { }
 
 		/**
 		 * @brief Invoke the populator for a given function
-		 * @param[in] connectingSlot The function that will be invoked from the populator
+		 * @param[in] slot The function that will be invoked from the populator
 		 */
 		void SendCurrentState(const function<Signature>& slot) const
 		{
@@ -481,8 +509,9 @@ namespace stingray
 		}
 
 		/**
-		 * @brief Synchronous connect method. Is prohibited if the signal uses ConnectionPolicy::AsyncOnly
-		 * @param[in] handler The signal handler function (slot)
+		 * @brief Synchronous connect method. Unavailable if the signal uses ConnectionPolicy::AsyncOnly
+		 * @param[in] slot The signal handler function
+		 * @returns A token object
 		 */
 		template < ConnectionPolicy::Enum ConnectionPolicy__ = ConnectionPolicy_, typename EnableIf<ConnectionPolicy__ == ConnectionPolicy_ && (ConnectionPolicy__ == ConnectionPolicy::Any || ConnectionPolicy__ == ConnectionPolicy::SyncOnly), int>::ValueT = 0 >
 		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const
@@ -496,9 +525,10 @@ namespace stingray
 		}
 
 		/**
-		 * @brief Asynchronous connect method. Is prohibited if the signal uses ConnectionPolicy::SyncOnly
+		 * @brief Asynchronous connect method. Unavailable if the signal uses ConnectionPolicy::SyncOnly
 		 * @param[in] executor The ITaskExecutor object that will be used for the handler invokation
-		 * @param[in] handler The signal handler function (slot)
+		 * @param[in] slot The signal handler function
+		 * @returns A token object
 		 */
 		template < ConnectionPolicy::Enum ConnectionPolicy__ = ConnectionPolicy_, typename EnableIf<ConnectionPolicy__ == ConnectionPolicy_ && (ConnectionPolicy__ == ConnectionPolicy::Any || ConnectionPolicy__ == ConnectionPolicy::AsyncOnly), int>::ValueT = 0 >
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const
@@ -512,8 +542,8 @@ namespace stingray
 		}
 
 		/**
-		 * @brief A getter of an object that may be used to connect to the signal.
-		 * @returns A signal_connector object.
+		 * @brief A getter of an object that may be used to connect to the signal
+		 * @returns A signal_connector object
 		 */
 		signal_connector<Signature, ConnectionPolicy_> connector() const
 		{
@@ -522,8 +552,8 @@ namespace stingray
 		}
 
 		/**
-		 * @brief A getter of a copyable object that may be used to construct a function object (the signal itself is not copyable).
-		 * @returns A copyable functor object.
+		 * @brief A getter of a copyable object that may be used to construct a function object (the signal itself is not copyable)
+		 * @returns A copyable functor object
 		 */
 		Invoker invoker() const
 		{
@@ -533,7 +563,7 @@ namespace stingray
 
 		/**
 		 * @brief Signal invokation method
-		 * @param[in] parameters The parameters that will be passed to the connected slots
+		 * @param[in] args The parameters that will be passed to the connected slots
 		 */
 		void operator () (Ts... args) const
 		{
