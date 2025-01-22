@@ -145,19 +145,12 @@ namespace stingray
 		};
 
 
-		/// @brief Since filtering items removes random-access property from range, we need to appropriately change category
-		template < typename Category_ >
-		struct RangeFilterCategoryHelper
-		{ using ValueT = Category_; };
-
-
-		template < >
-		struct RangeFilterCategoryHelper<std::random_access_iterator_tag>
-		{ using ValueT = std::bidirectional_iterator_tag; };
-
+		template < typename LhsCategory, typename RhsCategory >
+		struct GetGeneralCategoryHelper
+		{ using ValueT = typename If<IsInherited<LhsCategory, RhsCategory>::Value, RhsCategory, LhsCategory>::ValueT; };
 
 		template < typename Range_, typename Predicate_ >
-		class RangeFilter : public RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
+		class RangeFilter : public RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename GetGeneralCategoryHelper<typename Range_::Category, std::bidirectional_iterator_tag>::ValueT>
 		{
 			using Self = RangeFilter;
 
@@ -251,7 +244,7 @@ namespace stingray
 
 
 		template < typename Dst_, typename Range_ >
-		class RangeOfType : public RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
+		class RangeOfType : public RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename GetGeneralCategoryHelper<typename Range_::Category, std::bidirectional_iterator_tag>::ValueT>
 		{
 			using Self = RangeOfType;
 			using Storage = RefStorage<Dst_>;
@@ -615,7 +608,7 @@ namespace stingray
 
 		/// Doesn't support neither random-access nor equality check for now
 		template < typename Range_ >
-		class RangeCycler : public RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
+		class RangeCycler : public RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename GetGeneralCategoryHelper<typename Range_::Category, std::bidirectional_iterator_tag>::ValueT>
 		{
 			using Self = RangeCycler;
 
@@ -766,11 +759,7 @@ namespace stingray
 			using SubRangeType = typename Detail::ToRangeImpl<typename RemoveReference<typename Range_::ValueType>::ValueT>::ValueT;
 			using ValueType = typename SubRangeType::ValueType;
 
-			template < typename LhsCategory, typename RhsCategory >
-			struct AccumulateFunc
-			{ using ValueT = typename If<IsInherited<LhsCategory, RhsCategory>::Value, RhsCategory, LhsCategory>::ValueT; };
-
-			using Category = typename AccumulateFunc<typename AccumulateFunc<typename Range_::Category, typename SubRangeType::Category>::ValueT, std::bidirectional_iterator_tag>::ValueT;
+			using Category = typename GetGeneralCategoryHelper<typename GetGeneralCategoryHelper<typename Range_::Category, typename SubRangeType::Category>::ValueT, std::bidirectional_iterator_tag>::ValueT;
 		};
 
 
@@ -1028,11 +1017,7 @@ namespace stingray
 			struct ToCategory
 			{ using ValueT = typename RangeType::Category; };
 
-			template < typename LhsCategory, typename RhsCategory >
-			struct AccumulateFunc
-			{ using ValueT = typename If<IsInherited<LhsCategory, RhsCategory>::Value, RhsCategory, LhsCategory>::ValueT; };
-
-			using ValueT = typename TypeListAccumulate<typename TypeListTransform<RangeTypes, ToCategory>::ValueT, AccumulateFunc, std::bidirectional_iterator_tag>::ValueT;
+			using ValueT = typename TypeListAccumulate<typename TypeListTransform<RangeTypes, ToCategory>::ValueT, GetGeneralCategoryHelper, std::bidirectional_iterator_tag>::ValueT;
 		};
 
 
