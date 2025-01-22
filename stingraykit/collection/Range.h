@@ -96,7 +96,7 @@ namespace stingray
 		template < typename It_ >
 		class IteratorRange : public RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>
 		{
-			using Self = IteratorRange<It_>;
+			using Self = IteratorRange;
 
 		private:
 			It_		_begin;
@@ -156,7 +156,7 @@ namespace stingray
 		template < typename Range_, typename Predicate_ >
 		class RangeFilter : public RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
-			using Self = RangeFilter<Range_, Predicate_>;
+			using Self = RangeFilter;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -213,7 +213,7 @@ namespace stingray
 		template < typename Dst_, typename Range_ >
 		class RangeCaster : public RangeBase<RangeCaster<Dst_, Range_>, Dst_, typename Range_::Category>
 		{
-			using Self = RangeCaster<Dst_, Range_>;
+			using Self = RangeCaster;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -249,7 +249,7 @@ namespace stingray
 		template < typename Dst_, typename Range_ >
 		class RangeOfType : public RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
-			using Self = RangeOfType<Dst_, Range_>;
+			using Self = RangeOfType;
 			using Storage = RefStorage<Dst_>;
 
 		public:
@@ -315,7 +315,7 @@ namespace stingray
 		template < typename Range_ >
 		class RangeReverser : public RangeBase<RangeReverser<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
-			using Self = RangeReverser<Range_>;
+			using Self = RangeReverser;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -384,7 +384,7 @@ namespace stingray
 		template < typename Range_, typename Functor_ >
 		class RangeTransformer : public RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<typename Decay<typename function_info<Functor_>::RetType>::ValueT>::ValueT, typename Range_::Category>
 		{
-			using Self = RangeTransformer<Range_, Functor_>;
+			using Self = RangeTransformer;
 			using RawValueType = typename Decay<typename function_info<Functor_>::RetType>::ValueT;
 
 		public:
@@ -424,7 +424,7 @@ namespace stingray
 		template < typename Range_ >
 		class RangeDropper : public RangeBase<RangeDropper<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
-			using Self = RangeDropper<Range_>;
+			using Self = RangeDropper;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -503,7 +503,7 @@ namespace stingray
 		template < typename Range_ >
 		class RangeTaker : public RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
-			using Self = RangeTaker<Range_>;
+			using Self = RangeTaker;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -591,7 +591,7 @@ namespace stingray
 		template < typename Range_ >
 		class RangeCycler : public RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
-			using Self = RangeCycler<Range_>;
+			using Self = RangeCycler;
 
 		private:
 			Range_ _impl;
@@ -652,9 +652,9 @@ namespace stingray
 
 
 		template < typename It_ >
-		class RangeSplitter : public Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag>
+		class RangeSplitter : public RangeBase<RangeSplitter<It_>, IteratorRange<It_>, std::forward_iterator_tag>
 		{
-			using Self = RangeSplitter<It_>;
+			using Self = RangeSplitter;
 
 			using RawValueType = typename Decay<typename Self::ValueType>::ValueT;
 			using DiffType = typename std::iterator_traits<It_>::difference_type;
@@ -738,7 +738,7 @@ namespace stingray
 		template < typename Range_ >
 		class RangeFlattener : public RangeBase<RangeFlattener<Range_>, typename RangeFlattenerHelper<Range_>::ValueType, typename RangeFlattenerHelper<Range_>::Category>
 		{
-			using Self = RangeFlattener<Range_>;
+			using Self = RangeFlattener;
 
 			using SubRangeType = typename RangeFlattenerHelper<Range_>::SubRangeType;
 
@@ -844,9 +844,9 @@ namespace stingray
 
 
 		template < typename FuncType_, typename RangeTypes_ >
-		class RangeZipper : public Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag>
+		class RangeZipper : public RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag>
 		{
-			using Self = RangeZipper<FuncType_, RangeTypes_>;
+			using Self = RangeZipper;
 
 			using RawValueType = typename Decay<typename Self::ValueType>::ValueT;
 
@@ -982,9 +982,9 @@ namespace stingray
 
 
 		template < typename RangeTypes >
-		class RangeConcater : public Range::RangeBase<RangeConcater<RangeTypes>, typename RangeTypes::ValueT::ValueType, typename RangeConcaterCategoryHelper<RangeTypes>::ValueT>
+		class RangeConcater : public RangeBase<RangeConcater<RangeTypes>, typename RangeTypes::ValueT::ValueType, typename RangeConcaterCategoryHelper<RangeTypes>::ValueT>
 		{
-			using Self = RangeConcater<RangeTypes>;
+			using Self = RangeConcater;
 
 			using TupleType = Tuple<RangeTypes>;
 
@@ -1133,9 +1133,9 @@ namespace stingray
 
 
 		template < typename T >
-		class RangeSingle : public Range::RangeBase<RangeSingle<T>, const T&, std::random_access_iterator_tag>
+		class RangeSingle : public RangeBase<RangeSingle<T>, const T&, std::random_access_iterator_tag>
 		{
-			using Self = RangeSingle<T>;
+			using Self = RangeSingle;
 
 		private:
 			T		_value;

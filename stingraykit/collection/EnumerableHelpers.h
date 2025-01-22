@@ -1231,7 +1231,7 @@ namespace stingray
 			STINGRAYKIT_NONASSIGNABLE(EnumerableToRange);
 
 		private:
-			using Self = EnumerableToRange<Enumerable_>;
+			using Self = EnumerableToRange;
 
 			using EnumeratorPtr = shared_ptr<IEnumerator<typename Enumerable_::ItemType>>;
 

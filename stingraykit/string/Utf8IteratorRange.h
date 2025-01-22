@@ -20,7 +20,7 @@ namespace stingray
 	class Utf8IteratorRange : public Range::RangeBase<Utf8IteratorRange<ContainerType>, u32, std::bidirectional_iterator_tag>
 	{
 	private:
-		using Self = Utf8IteratorRange<ContainerType>;
+		using Self = Utf8IteratorRange;
 		using IteratorType = typename ContainerType::const_iterator;
 
 	private:
