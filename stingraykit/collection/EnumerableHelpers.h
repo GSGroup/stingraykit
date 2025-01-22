@@ -1289,6 +1289,15 @@ namespace stingray
 				_index = prev._index;
 				return *this;
 			}
+
+			Self& End()
+			{
+				Last();
+				if (Valid())
+					Next();
+
+				return *this;
+			}
 		};
 
 		template < typename Enumerable_ >

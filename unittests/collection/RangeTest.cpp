@@ -122,8 +122,8 @@ namespace
 
 		bool Equals(const Self& other) const	{ return false; }
 		Self& First()							{ return *this = Self(); }
-		Self& Last()							{ return Next(); }
 		Self& Next()                		    { STINGRAYKIT_THROW("Must not iterate"); }
+		Self& End()                				{ STINGRAYKIT_THROW("Must not iterate"); }
 	};
 
 

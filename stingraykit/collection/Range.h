@@ -127,6 +127,9 @@ namespace stingray
 			Self& Prev()
 			{ STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element"); --_it; return *this; }
 
+			Self& End()
+			{ _it = _end; return *this; }
+
 			size_t GetPosition() const
 			{ return std::distance(_begin, _it); }
 
@@ -177,6 +180,7 @@ namespace stingray
 			Self& Next()									{ _impl.Next(); FindNext(); return *this; }
 			Self& Last()									{ _impl.Last(); FindPrevOrInvalidate(); return *this; }
 			Self& Prev()									{ _impl.Prev(); FindPrev(); return *this; }
+			Self& End()										{ _impl.End(); return *this; }
 
 		private:
 			void FindNext()
@@ -199,8 +203,7 @@ namespace stingray
 				{
 					if (_impl == first)
 					{
-						_impl.Last();
-						_impl.Next();
+						_impl.End();
 						break;
 					}
 					else
@@ -232,6 +235,7 @@ namespace stingray
 			Self& Next()									{ _impl.Next(); _cache.reset(); return *this; }
 			Self& Last()									{ _impl.Last(); _cache.reset(); return *this; }
 			Self& Prev()									{ _impl.Prev(); _cache.reset(); return *this; }
+			Self& End()										{ _impl.End(); _cache.reset(); return *this; }
 
 			size_t GetPosition() const						{ return _impl.GetPosition(); }
 			size_t GetSize() const							{ return _impl.GetSize(); }
@@ -269,6 +273,7 @@ namespace stingray
 			Self& Next()									{ _impl.Next(); FindNext(); return *this; }
 			Self& Last()									{ _impl.Last(); FindPrevOrInvalidate(); return *this; }
 			Self& Prev()									{ _impl.Prev(); FindPrev(); return *this; }
+			Self& End()										{ _impl.End(); return *this; }
 
 		private:
 			void FindNext()
@@ -303,8 +308,7 @@ namespace stingray
 
 					if (_impl == first)
 					{
-						_impl.Last();
-						_impl.Next();
+						_impl.End();
 						break;
 					}
 				}
@@ -370,6 +374,13 @@ namespace stingray
 				return *this;
 			}
 
+			Self& End()
+			{
+				_impl.First();
+				_implBeforeBegin = true;
+				return *this;
+			}
+
 			size_t GetPosition() const
 			{ return static_cast<int>(_impl.GetSize()) - static_cast<int>(_impl.GetPosition()) - (_implBeforeBegin ? 0 : 1); }
 
@@ -407,6 +418,7 @@ namespace stingray
 			Self& Next()										{ _impl.Next(); _cache.reset(); return *this; }
 			Self& Last()										{ _impl.Last(); _cache.reset(); return *this; }
 			Self& Prev()										{ _impl.Prev(); _cache.reset(); return *this; }
+			Self& End()											{ _impl.End(); _cache.reset(); return *this; }
 
 			size_t GetPosition() const							{ return _impl.GetPosition(); }
 			size_t GetSize() const								{ return _impl.GetSize(); }
@@ -473,6 +485,12 @@ namespace stingray
 			{
 				STINGRAYKIT_CHECK(*_impl != _initial, "Prev() at first element");
 				_impl->Prev();
+				return *this;
+			}
+
+			Self& End()
+			{
+				_impl->End();
 				return *this;
 			}
 
@@ -571,6 +589,14 @@ namespace stingray
 				return *this;
 			}
 
+			Self& End()
+			{
+				while (Valid())
+					Next();
+
+				return *this;
+			}
+
 			size_t GetPosition() const
 			{ return _index; }
 
@@ -645,6 +671,12 @@ namespace stingray
 				return *this;
 			}
 
+			Self& End()
+			{
+				First();
+				return *this;
+			}
+
 		protected:
 			void CheckValid() const
 			{ STINGRAYKIT_CHECK(_impl.Valid(), LogicException("Something is terribly wrong with internal range!")); }
@@ -711,6 +743,13 @@ namespace stingray
 			{
 				STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
 				_it = std::next(_begin, AlignDown(std::distance(_begin, _it) - 1, _maxFragmentSize));
+				_value.reset();
+				return *this;
+			}
+
+			Self& End()
+			{
+				_it = _end;
 				_value.reset();
 				return *this;
 			}
@@ -807,6 +846,13 @@ namespace stingray
 				else
 					_currentSubRange.reset();
 
+				return *this;
+			}
+
+			Self& End()
+			{
+				_range.End();
+				_currentSubRange.reset();
 				return *this;
 			}
 
@@ -960,6 +1006,15 @@ namespace stingray
 			Self& Prev()
 			{
 				For<RangeCount, CallPrev>::Do(wrap_ref(_ranges));
+				_value.reset();
+				return *this;
+			}
+
+			Self& End()
+			{
+				while (Valid())
+					Next();
+
 				_value.reset();
 				return *this;
 			}
@@ -1129,6 +1184,12 @@ namespace stingray
 				apply_visitor(IterateVisitor<false>(*this), *_currentRange);
 				return *this;
 			}
+
+			Self& End()
+			{
+				_currentRange.reset();
+				return *this;
+			}
 		};
 
 
@@ -1183,6 +1244,12 @@ namespace stingray
 			{
 				STINGRAYKIT_CHECK(!Valid(), "Prev() at first element");
 				_valid = true;
+				return *this;
+			}
+
+			Self& End()
+			{
+				_valid = false;
 				return *this;
 			}
 

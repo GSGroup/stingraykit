@@ -167,6 +167,9 @@ namespace stingray
 
 			STINGRAYKIT_THROW(MalformedUtf8Exception());
 		}
+
+		Self& End()
+		{ _it = _end; return *this; }
 	};
 
 }
