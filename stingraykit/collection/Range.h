@@ -97,7 +97,6 @@ namespace stingray
 		class IteratorRange : public RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>
 		{
 			using Self = IteratorRange<It_>;
-			using base = RangeBase<IteratorRange<It_>, typename std::iterator_traits<It_>::reference, typename std::iterator_traits<It_>::iterator_category>;
 
 		private:
 			It_		_begin;
@@ -110,7 +109,7 @@ namespace stingray
 			bool Valid() const
 			{ return _it != _end; }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{ STINGRAYKIT_CHECK(Valid(), "Get() behind last element"); return *_it; }
 
 			bool Equals(const IteratorRange& other) const
@@ -157,7 +156,6 @@ namespace stingray
 		template < typename Range_, typename Predicate_ >
 		class RangeFilter : public RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
-			using base = RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>;
 			using Self = RangeFilter<Range_, Predicate_>;
 
 		public:
@@ -173,7 +171,7 @@ namespace stingray
 			{ FindNext(); }
 
 			bool Valid() const								{ return _impl.Valid(); }
-			typename base::ValueType Get() const			{ return _impl.Get(); }
+			typename Self::ValueType Get() const			{ return _impl.Get(); }
 			bool Equals(const RangeFilter& other) const		{ return _impl == other._impl; }
 			Self& First()									{ _impl.First(); FindNext(); return *this; }
 			Self& Next()									{ _impl.Next(); FindNext(); return *this; }
@@ -216,7 +214,6 @@ namespace stingray
 		class RangeCaster : public RangeBase<RangeCaster<Dst_, Range_>, Dst_, typename Range_::Category>
 		{
 			using Self = RangeCaster<Dst_, Range_>;
-			using base = RangeBase<RangeCaster<Dst_, Range_>, Dst_, typename Range_::Category>;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -229,7 +226,7 @@ namespace stingray
 			explicit RangeCaster(const Range_& impl) : _impl(impl) { }
 
 			bool Valid() const								{ return _impl.Valid(); }
-			typename base::ValueType Get() const			{ DoCast(); return *_cache; }
+			typename Self::ValueType Get() const			{ DoCast(); return *_cache; }
 			bool Equals(const RangeCaster& other) const		{ return _impl == other._impl; }
 			Self& First()									{ _impl.First(); _cache.reset(); return *this; }
 			Self& Next()									{ _impl.Next(); _cache.reset(); return *this; }
@@ -253,7 +250,6 @@ namespace stingray
 		class RangeOfType : public RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
 			using Self = RangeOfType<Dst_, Range_>;
-			using base = RangeBase<RangeOfType<Dst_, Range_>, Dst_, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>;
 			using Storage = RefStorage<Dst_>;
 
 		public:
@@ -267,7 +263,7 @@ namespace stingray
 			explicit RangeOfType(const Range_& impl) : _impl(impl) { FindNext(); }
 
 			bool Valid() const								{ return _impl.Valid(); }
-			typename base::ValueType Get() const			{ return Storage::Unwrap(_dst); }
+			typename Self::ValueType Get() const			{ return Storage::Unwrap(_dst); }
 			bool Equals(const RangeOfType& other) const		{ return _impl == other._impl; }
 			Self& First()									{ _impl.First(); FindNext(); return *this; }
 			Self& Next()									{ _impl.Next(); FindNext(); return *this; }
@@ -320,7 +316,6 @@ namespace stingray
 		class RangeReverser : public RangeBase<RangeReverser<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
 			using Self = RangeReverser<Range_>;
-			using base = RangeBase<RangeReverser<Range_>, typename Range_::ValueType, typename Range_::Category>;
 
 		public:
 			static const bool ReturnsTemporary = Range_::ReturnsTemporary;
@@ -337,7 +332,7 @@ namespace stingray
 			bool Valid() const
 			{ return !_implBeforeBegin && _impl.Valid(); }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{ STINGRAYKIT_CHECK(!_implBeforeBegin, "range at the end!"); return _impl.Get(); }
 
 			bool Equals(const RangeReverser& other) const
@@ -391,7 +386,6 @@ namespace stingray
 		{
 			using Self = RangeTransformer<Range_, Functor_>;
 			using RawValueType = typename Decay<typename function_info<Functor_>::RetType>::ValueT;
-			using base = RangeBase<RangeTransformer<Range_, Functor_>, typename AddConstLvalueReference<RawValueType>::ValueT, typename Range_::Category>;
 
 		public:
 			static const bool ReturnsTemporary = true;
@@ -407,7 +401,7 @@ namespace stingray
 			{ }
 
 			bool Valid() const									{ return _impl.Valid(); }
-			typename base::ValueType Get() const				{ DoTransform(); return *_cache; }
+			typename Self::ValueType Get() const				{ DoTransform(); return *_cache; }
 			bool Equals(const RangeTransformer& other) const	{ return _impl == other._impl; }
 			Self& First()										{ _impl.First(); _cache.reset(); return *this; }
 			Self& Next()										{ _impl.Next(); _cache.reset(); return *this; }
@@ -430,7 +424,6 @@ namespace stingray
 		template < typename Range_ >
 		class RangeDropper : public RangeBase<RangeDropper<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
-			using base = RangeBase<RangeDropper<Range_>, typename Range_::ValueType, typename Range_::Category>;
 			using Self = RangeDropper<Range_>;
 
 		public:
@@ -448,7 +441,7 @@ namespace stingray
 			bool Valid() const
 			{ return _impl->Valid(); }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{ return _impl->Get(); }
 
 			bool Equals(const RangeDropper& other) const
@@ -510,7 +503,6 @@ namespace stingray
 		template < typename Range_ >
 		class RangeTaker : public RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category>
 		{
-			using base = RangeBase<RangeTaker<Range_>, typename Range_::ValueType, typename Range_::Category>;
 			using Self = RangeTaker<Range_>;
 
 		public:
@@ -530,7 +522,7 @@ namespace stingray
 			bool Valid() const
 			{ return _impl->Valid() && _index < _count; }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
 				return _impl->Get();
@@ -600,7 +592,6 @@ namespace stingray
 		class RangeCycler : public RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>
 		{
 			using Self = RangeCycler<Range_>;
-			using base = RangeBase<RangeCycler<Range_>, typename Range_::ValueType, typename RangeFilterCategoryHelper<typename Range_::Category>::ValueT>;
 
 		private:
 			Range_ _impl;
@@ -613,7 +604,7 @@ namespace stingray
 			bool Valid() const
 			{ return true; }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{ return _impl.Get(); }
 
 			bool Equals(const RangeCycler& other) const
@@ -664,9 +655,8 @@ namespace stingray
 		class RangeSplitter : public Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag>
 		{
 			using Self = RangeSplitter<It_>;
-			using base = Range::RangeBase<RangeSplitter<It_>, Range::IteratorRange<It_>, std::forward_iterator_tag>;
 
-			using RawValueType = typename Decay<typename base::ValueType>::ValueT;
+			using RawValueType = typename Decay<typename Self::ValueType>::ValueT;
 			using DiffType = typename std::iterator_traits<It_>::difference_type;
 
 		private:
@@ -684,7 +674,7 @@ namespace stingray
 			bool Valid() const
 			{ return _it != _end; }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
 				if (!_value)
@@ -749,7 +739,6 @@ namespace stingray
 		class RangeFlattener : public RangeBase<RangeFlattener<Range_>, typename RangeFlattenerHelper<Range_>::ValueType, typename RangeFlattenerHelper<Range_>::Category>
 		{
 			using Self = RangeFlattener<Range_>;
-			using base = RangeBase<RangeFlattener<Range_>, typename RangeFlattenerHelper<Range_>::ValueType, typename RangeFlattenerHelper<Range_>::Category>;
 
 			using SubRangeType = typename RangeFlattenerHelper<Range_>::SubRangeType;
 
@@ -765,7 +754,7 @@ namespace stingray
 			bool Valid() const
 			{ return _currentSubRange.is_initialized(); }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
 				return _currentSubRange->Get();
@@ -858,9 +847,8 @@ namespace stingray
 		class RangeZipper : public Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag>
 		{
 			using Self = RangeZipper<FuncType_, RangeTypes_>;
-			using base = Range::RangeBase<RangeZipper<FuncType_, RangeTypes_>, typename function_info<FuncType_>::RetType, std::forward_iterator_tag>;
 
-			using RawValueType = typename Decay<typename base::ValueType>::ValueT;
+			using RawValueType = typename Decay<typename Self::ValueType>::ValueT;
 
 			static const size_t RangeCount = GetTypeListLength<RangeTypes_>::Value;
 
@@ -923,7 +911,7 @@ namespace stingray
 			bool Valid() const
 			{ return ForIf<RangeCount, CallValid>::Do(_ranges); }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{
 				if (!_value)
 				{
@@ -997,7 +985,6 @@ namespace stingray
 		class RangeConcater : public Range::RangeBase<RangeConcater<RangeTypes>, typename RangeTypes::ValueT::ValueType, typename RangeConcaterCategoryHelper<RangeTypes>::ValueT>
 		{
 			using Self = RangeConcater<RangeTypes>;
-			using base = Range::RangeBase<RangeConcater<RangeTypes>, typename RangeTypes::ValueT::ValueType, typename RangeConcaterCategoryHelper<RangeTypes>::ValueT>;
 
 			using TupleType = Tuple<RangeTypes>;
 
@@ -1058,10 +1045,10 @@ namespace stingray
 				{ return null; }
 			};
 
-			struct ValueVisitor : public static_visitor<typename base::ValueType>
+			struct ValueVisitor : public static_visitor<typename Self::ValueType>
 			{
 				template < typename IndexedRange >
-				typename base::ValueType operator () (const IndexedRange& range) const { return range.Value.Get(); }
+				typename Self::ValueType operator () (const IndexedRange& range) const { return range.Value.Get(); }
 			};
 
 			template < bool Forward >
@@ -1108,7 +1095,7 @@ namespace stingray
 			bool Valid() const
 			{ return _currentRange.is_initialized(); }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
 				return apply_visitor(ValueVisitor(), *_currentRange);
@@ -1149,7 +1136,6 @@ namespace stingray
 		class RangeSingle : public Range::RangeBase<RangeSingle<T>, const T&, std::random_access_iterator_tag>
 		{
 			using Self = RangeSingle<T>;
-			using base = Range::RangeBase<RangeSingle<T>, const T&, std::random_access_iterator_tag>;
 
 		private:
 			T		_value;
@@ -1165,7 +1151,7 @@ namespace stingray
 			bool Valid() const
 			{ return _valid; }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
 				return _value;

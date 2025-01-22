@@ -1231,7 +1231,6 @@ namespace stingray
 			STINGRAYKIT_NONASSIGNABLE(EnumerableToRange);
 
 		private:
-			using base = Range::RangeBase<EnumerableToRange<Enumerable_>, typename Enumerable_::ItemType, std::forward_iterator_tag>;
 			using Self = EnumerableToRange<Enumerable_>;
 
 			using EnumeratorPtr = shared_ptr<IEnumerator<typename Enumerable_::ItemType>>;
@@ -1255,7 +1254,7 @@ namespace stingray
 			EnumerableToRange(EnumerableToRange&& range) = default;
 
 			bool Valid() const							{ return _enumerator->Valid(); }
-			typename base::ValueType Get() const		{ return _enumerator->Get(); }
+			typename Self::ValueType Get() const		{ return _enumerator->Get(); }
 
 			bool Equals(const Self& other) const
 			{ return &_enumerable == &other._enumerable && _index == other._index; }

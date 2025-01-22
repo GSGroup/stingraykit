@@ -115,11 +115,10 @@ namespace
 
 	struct InvalidRange : public Range::RangeBase<InvalidRange, bool, std::forward_iterator_tag>
 	{
-		typedef RangeBase<InvalidRange, int, std::forward_iterator_tag> base;
 		typedef InvalidRange Self;
 
 		bool Valid() const             			{ return true; }
-		typename base::ValueType Get() const	{ return true; }
+		typename Self::ValueType Get() const	{ return true; }
 
 		bool Equals(const Self& other) const	{ return false; }
 		Self& First()							{ return *this = Self(); }

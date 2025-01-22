@@ -160,8 +160,6 @@ namespace stingray
 		template < typename StringSearchType >
 		class SplitStringRange : public Range::RangeBase<SplitStringRange<StringSearchType>, string_view, std::forward_iterator_tag>
 		{
-			using base = Range::RangeBase<SplitStringRange<StringSearchType>, string_view, std::forward_iterator_tag>;
-
 			using Self = SplitStringRange;
 
 		public:
@@ -183,7 +181,7 @@ namespace stingray
 			bool Valid() const
 			{ return _startPos != string_view::npos; }
 
-			typename base::ValueType Get() const
+			typename Self::ValueType Get() const
 			{
 				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
 				return _string.substr(_startPos, _next.Position == string_view::npos ? string_view::npos : _next.Position - _startPos);
