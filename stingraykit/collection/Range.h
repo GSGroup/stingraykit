@@ -1257,32 +1257,32 @@ namespace stingray
 
 
 		template < typename SrcRange_, typename Predicate_ >
-		RangeFilter<SrcRange_, Predicate_> Filter(const SrcRange_& src, const Predicate_& predicate)
+		auto Filter(const SrcRange_& src, const Predicate_& predicate)
 		{ return RangeFilter<SrcRange_, Predicate_>(src, predicate); }
 
 
 		template < typename Dst_, typename SrcRange_ >
-		RangeOfType<Dst_, SrcRange_> OfType(const SrcRange_& src)
+		auto OfType(const SrcRange_& src)
 		{ return RangeOfType<Dst_, SrcRange_>(src); }
 
 
 		template < typename SrcRange_ >
-		RangeReverser<SrcRange_> Reverse(const SrcRange_& src)
+		auto Reverse(const SrcRange_& src)
 		{ return RangeReverser<SrcRange_>(src); }
 
 
 		template < typename SrcRange_, typename Functor_ >
-		RangeTransformer<SrcRange_, Functor_> Transform(const SrcRange_& src, const Functor_& functor)
+		auto Transform(const SrcRange_& src, const Functor_& functor)
 		{ return RangeTransformer<SrcRange_, Functor_>(src, functor); }
 
 
 		template < typename Range_ >
-		RangeDropper<Range_> Drop(const Range_& range, size_t count)
+		auto Drop(const Range_& range, size_t count)
 		{ return RangeDropper<Range_>(range, count); }
 
 
 		template < typename Range_ >
-		RangeTaker<Range_> Take(const Range_& range, size_t count)
+		auto Take(const Range_& range, size_t count)
 		{ return RangeTaker<Range_>(range, count); }
 
 
@@ -1307,17 +1307,17 @@ namespace stingray
 
 
 		template < typename SrcRange_ >
-		RangeTransformer<SrcRange_, Detail::MapKeysFunctor<typename SrcRange_::ValueType> > MapKeys(const SrcRange_& src)
-		{ return RangeTransformer<SrcRange_, Detail::MapKeysFunctor<typename SrcRange_::ValueType> >(src, Detail::MapKeysFunctor<typename SrcRange_::ValueType>()); }
+		auto MapKeys(const SrcRange_& src)
+		{ return RangeTransformer<SrcRange_, Detail::MapKeysFunctor<typename SrcRange_::ValueType>>(src, Detail::MapKeysFunctor<typename SrcRange_::ValueType>()); }
 
 
 		template < typename SrcRange_ >
-		RangeTransformer<SrcRange_, Detail::MapValuesFunctor<typename SrcRange_::ValueType> > MapValues(const SrcRange_& src)
-		{ return RangeTransformer<SrcRange_, Detail::MapValuesFunctor<typename SrcRange_::ValueType> >(src, Detail::MapValuesFunctor<typename SrcRange_::ValueType>()); }
+		auto MapValues(const SrcRange_& src)
+		{ return RangeTransformer<SrcRange_, Detail::MapValuesFunctor<typename SrcRange_::ValueType>>(src, Detail::MapValuesFunctor<typename SrcRange_::ValueType>()); }
 
 
 		template < typename SrcRange_ >
-		RangeCycler<SrcRange_> Cycle(const SrcRange_& src)
+		auto Cycle(const SrcRange_& src)
 		{ return RangeCycler<SrcRange_>(src); }
 
 
@@ -1461,9 +1461,9 @@ namespace stingray
 
 
 		template < typename Range_ >
-		typename Decay<typename Range_::ValueType>::ValueT Sum(Range_ range)
+		auto Sum(Range_ range)
 		{
-			typename Decay<typename Range_::ValueType>::ValueT result = typename Decay<typename Range_::ValueType>::ValueT();
+			auto result = typename Decay<typename Range_::ValueType>::ValueT();
 			for (; range.Valid(); range.Next())
 				result += range.Get();
 			return result;
@@ -1471,7 +1471,7 @@ namespace stingray
 
 
 		template < typename Range_, class Comparer_ >
-		optional<typename Decay<typename Range_::ValueType>::ValueT> MinElement(Range_ range, Comparer_ comparer)
+		auto MinElement(Range_ range, Comparer_ comparer)
 		{
 			optional<typename Decay<typename Range_::ValueType>::ValueT> result;
 			for (; range.Valid(); range.Next())
@@ -1482,12 +1482,12 @@ namespace stingray
 
 
 		template < typename Range_ >
-		optional<typename Decay<typename Range_::ValueType>::ValueT> MinElement(Range_ range)
+		auto MinElement(Range_ range)
 		{ return MinElement(range, comparers::Less()); }
 
 
 		template < typename Range_, class Comparer_ >
-		optional<typename Decay<typename Range_::ValueType>::ValueT> MaxElement(Range_ range, Comparer_ comparer)
+		auto MaxElement(Range_ range, Comparer_ comparer)
 		{
 			optional<typename Decay<typename Range_::ValueType>::ValueT> result;
 			for (; range.Valid(); range.Next())
@@ -1498,12 +1498,12 @@ namespace stingray
 
 
 		template < typename Range_ >
-		optional<typename Decay<typename Range_::ValueType>::ValueT> MaxElement(Range_ range)
+		auto MaxElement(Range_ range)
 		{ return MaxElement(range, comparers::Less()); }
 
 
 		template < typename Range_, typename Functor_ >
-		optional<typename Decay<typename Range_::ValueType>::ValueT> Fold(Range_ range, const Functor_& functor)
+		auto Fold(Range_ range, const Functor_& functor)
 		{
 			optional<typename Decay<typename Range_::ValueType>::ValueT> result;
 			for (; range.Valid(); range.Next())
@@ -1529,36 +1529,36 @@ namespace stingray
 
 
 		template < typename Collection_ >
-		RangeSplitter<typename Collection_::const_iterator> Split(const Collection_& collection, size_t maxFragmentSize)
+		auto Split(const Collection_& collection, size_t maxFragmentSize)
 		{ return RangeSplitter<typename Collection_::const_iterator>(collection.begin(), collection.end(), maxFragmentSize); }
 
 
 		template < typename It_ >
-		RangeSplitter<It_> Split(const It_& begin, const It_& end, size_t maxFragmentSize)
+		auto Split(const It_& begin, const It_& end, size_t maxFragmentSize)
 		{ return RangeSplitter<It_>(begin, end, maxFragmentSize); }
 
 
 		template < typename Range_ >
-		RangeFlattener<Range_> Flatten(const Range_& range)
+		auto Flatten(const Range_& range)
 		{ return RangeFlattener<Range_>(range); }
 
 
 		template < typename FuncType, typename... RangeTypes >
-		RangeZipper<FuncType, TypeList<RangeTypes...>> Zip(const FuncType& func, const RangeTypes&... ranges)
+		auto Zip(const FuncType& func, const RangeTypes&... ranges)
 		{ return RangeZipper<FuncType, TypeList<RangeTypes...>>(func, MakeTuple(ranges...)); }
 
 
 		template < typename Range0, typename... RangeTypes >
-		RangeConcater<TypeList<Range0, RangeTypes...>> Concat(const Range0& range0, const RangeTypes&... ranges)
+		auto Concat(const Range0& range0, const RangeTypes&... ranges)
 		{ return RangeConcater<TypeList<Range0, RangeTypes...>>(MakeTuple(range0, ranges...)); }
 
 
 		template < typename T >
-		RangeSingle<typename Decay<T>::ValueT> Single(T&& value)
+		auto Single(T&& value)
 		{ return RangeSingle<typename Decay<T>::ValueT>(std::forward<T>(value)); }
 
 		template < typename T, typename... Us >
-		RangeSingle<T> Single(Us&&... args)
+		auto Single(Us&&... args)
 		{ return RangeSingle<T>(InPlace, std::forward<Us>(args)...); }
 
 	}
@@ -1628,7 +1628,7 @@ namespace stingray
 
 
 	template < typename It_ >
-	Range::IteratorRange<It_> ToRange(It_ begin, It_ end)
+	auto ToRange(It_ begin, It_ end)
 	{ return Range::IteratorRange<It_>(begin, begin, end); }
 
 
@@ -1805,7 +1805,7 @@ namespace stingray
 
 
 	template < typename Range_ >
-	Detail::RangeBasedForRangeAdapter<Range_> IterableRange(const Range_& range)
+	auto IterableRange(const Range_& range)
 	{ return Detail::RangeBasedForRangeAdapter<Range_>(range); }
 
 }
