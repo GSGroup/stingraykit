@@ -427,9 +427,6 @@ TEST(RangeTest, Zip)
 
 		int seq[] = { 5, 7, 9 };
 		CheckSequence(Range::Zip(std::plus<int>(), ToRange(r1), ToRange(r2)), std::begin(seq), std::end(seq), true);
-
-		int rseq[] = { 9, 7, 5 };
-		CheckSequence(Range::Zip(std::plus<int>(), ToRange(r1), ToRange(r2)) | Reverse(), std::begin(rseq), std::end(rseq), true);
 	}
 
 	{
@@ -438,9 +435,6 @@ TEST(RangeTest, Zip)
 
 		int seq[] = { 5, 7, 9 };
 		CheckSequence(Range::Zip(std::plus<int>(), ToRange(r1), ToRange(r2)), std::begin(seq), std::end(seq), true);
-
-		int rseq[] = { 9, 7, 5 };
-		CheckSequence(Range::Zip(std::plus<int>(), ToRange(r1), ToRange(r2)) | Reverse(), std::begin(rseq), std::end(rseq), true);
 	}
 
 	{
@@ -449,9 +443,6 @@ TEST(RangeTest, Zip)
 
 		int seq[] = { 5, 7, 7, 9, 9 };
 		CheckSequence(Range::Zip(std::plus<int>(), Cycle(ToRange(r1)), ToRange(r2)), std::begin(seq), std::end(seq), true);
-
-		int rseq[] = { 9, 9, 7, 7, 5 };
-		CheckSequence(Range::Zip(std::plus<int>(), Cycle(ToRange(r1)), ToRange(r2)) | Reverse(), std::begin(rseq), std::end(rseq), true);
 	}
 
 	{

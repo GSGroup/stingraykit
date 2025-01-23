@@ -909,10 +909,10 @@ namespace stingray
 			};
 
 			template < size_t Index_ >
-			struct CallPrev
+			struct CallEnd
 			{
 				static void Call(Tuple<RangeTypes_>& ranges)
-				{ ranges.template Get<Index_>().Prev(); }
+				{ ranges.template Get<Index_>().End(); }
 			};
 
 			class ValuesGetter
@@ -964,6 +964,10 @@ namespace stingray
 			Self& First()
 			{
 				For<RangeCount, CallFirst>::Do(wrap_ref(_ranges));
+
+				if (!Valid())
+					End();
+
 				_value.reset();
 				return *this;
 			}
@@ -971,39 +975,17 @@ namespace stingray
 			Self& Next()
 			{
 				For<RangeCount, CallNext>::Do(wrap_ref(_ranges));
-				_value.reset();
-				return *this;
-			}
 
-			Self& Last()
-			{
-				First();
-				bool empty = true;
-				while (Valid())
-				{
-					Next();
-					empty = false;
-				}
+				if (!Valid())
+					End();
 
-				if (!empty)
-					Prev();
-
-				_value.reset();
-				return *this;
-			}
-
-			Self& Prev()
-			{
-				For<RangeCount, CallPrev>::Do(wrap_ref(_ranges));
 				_value.reset();
 				return *this;
 			}
 
 			Self& End()
 			{
-				while (Valid())
-					Next();
-
+				For<RangeCount, CallEnd>::Do(wrap_ref(_ranges));
 				_value.reset();
 				return *this;
 			}
