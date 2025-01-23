@@ -722,6 +722,7 @@ namespace stingray
 		};
 
 
+		//FIXME: get rid of Prev and Last methods, make splitter work more efficient with lists
 		template < typename It_ >
 		class RangeSplitter : public RangeBase<RangeSplitter<It_>, IteratorRange<It_>, std::forward_iterator_tag>
 		{
