@@ -446,6 +446,13 @@ TEST(RangeTest, Zip)
 	}
 
 	{
+		int val;
+		int r[] = { 4, 5, 6, 7, 8 };
+
+		CheckSequence(Range::Zip(std::plus<int>(), ToRange(&val, &val), ToRange(r)), &val, &val, true);
+	}
+
+	{
 		int a[] = { 1, 2, 3 };
 		std::string b[] = { "a", "b", "c" };
 		bool c[] = { true, false, true };
