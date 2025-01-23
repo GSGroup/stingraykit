@@ -501,6 +501,15 @@ namespace stingray
 			}
 
 		private:
+			template < typename Category_ = typename Self::Category, typename EnableIf<IsInherited<Category_, std::random_access_iterator_tag>::Value, int>::ValueT = 0 >
+			static Range_ DoDrop(const Range_& impl_, size_t count)
+			{
+				Range_ impl(impl_);
+				impl.Move(std::min(count, impl.GetSize() - impl.GetPosition()));
+				return impl;
+			}
+
+			template < typename Category_ = typename Self::Category, typename EnableIf<!IsInherited<Category_, std::random_access_iterator_tag>::Value, int>::ValueT = 0 >
 			static Range_ DoDrop(const Range_& impl_, size_t count)
 			{
 				Range_ impl(impl_);

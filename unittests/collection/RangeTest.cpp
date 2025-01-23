@@ -198,6 +198,21 @@ TEST(RangeTest, Ranges)
 	}
 
 	{
+		int seq[] = { -42, 0, 1, 5, 37, 42, 53 };
+		CheckRange(ToRange(s) | Drop(0), std::begin(seq), std::end(seq));
+	}
+
+	{
+		int seq[] = { 37, 42, 53 };
+		CheckRange(ToRange(s) | Drop(4), std::begin(seq), std::end(seq));
+	}
+
+	{
+		int val;
+		CheckRange(ToRange(s) | Drop(8), &val, &val);
+	}
+
+	{
 		int val;
 		CheckRange(ToRange(v) | Take(0), &val, &val);
 	}
