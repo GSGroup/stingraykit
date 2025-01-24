@@ -1246,9 +1246,14 @@ namespace stingray
 
 			EnumerableToRange(const EnumerableToRange& range) : _enumerable(range._enumerable)
 			{
-				First();
-				while (_index != range._index)
-					Next();
+				if (range.Valid())
+				{
+					First();
+					while (_index != range._index)
+						Next();
+				}
+				else
+					End();
 			}
 
 			EnumerableToRange(EnumerableToRange&& range) = default;
@@ -1257,7 +1262,10 @@ namespace stingray
 			typename Self::ValueType Get() const		{ return _enumerator->Get(); }
 
 			bool Equals(const Self& other) const
-			{ return &_enumerable == &other._enumerable && _index == other._index; }
+			{
+				const bool valid = Valid();
+				return &_enumerable == &other._enumerable && valid == other.Valid() && (!valid || _index == other._index);
+			}
 
 			Self& First()
 			{
@@ -1273,29 +1281,10 @@ namespace stingray
 				return *this;
 			}
 
-			Self& Last()
-			{
-				First();
-				Self prev(*this);
-
-				while (Valid())
-				{
-					Next();
-					if (Valid())
-						prev.Next();
-				}
-
-				_enumerator = prev._enumerator;
-				_index = prev._index;
-				return *this;
-			}
-
 			Self& End()
 			{
-				Last();
-				if (Valid())
-					Next();
-
+				_enumerator = MakeEmptyEnumerator();
+				_index = std::numeric_limits<size_t>::max();
 				return *this;
 			}
 		};
