@@ -88,7 +88,7 @@ namespace stingray
 
 	LangCode LangCode::From2Letter(string_view code)
 	{
-		STINGRAYKIT_CHECK(code.size() >= 2, StringBuilder() % "Invalid language code: " % code);
+		STINGRAYKIT_CHECK(code.size() == 2, StringBuilder() % "Invalid language code: " % code);
 
 		std::string subcode = code.substr(0, 2).copy();
 		std::transform(subcode.begin(), subcode.end(), subcode.begin(), &DoToUpper);
