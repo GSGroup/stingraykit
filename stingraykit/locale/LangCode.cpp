@@ -44,8 +44,8 @@ namespace stingray
 
 	const LangCode::AnyType LangCode::Any = { };
 
-	LangCode LangCode::Eng() { return LangCode("eng"); }
-	LangCode LangCode::Rus() { return LangCode("rus"); }
+	LangCode LangCode::Eng() { return LangCode("ENG"); }
+	LangCode LangCode::Rus() { return LangCode("RUS"); }
 
 
 	LangCode::LangCode(u32 code) : _code(0)
@@ -94,10 +94,10 @@ namespace stingray
 		std::transform(subcode.begin(), subcode.end(), subcode.begin(), &DoToUpper);
 
 		if (subcode == "RU")
-			return LangCode("rus");
+			return LangCode("RUS");
 
 		if (subcode == "EN")
-			return LangCode("eng");
+			return LangCode("ENG");
 
 		return LangCode();
 	}
