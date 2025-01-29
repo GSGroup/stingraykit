@@ -38,6 +38,8 @@ namespace stingray
 		explicit LangCode(u32 code);
 		explicit LangCode(string_view code);
 
+		bool IsKnown() const;
+
 		bool operator < (const LangCode& other) const
 		{ return _code < other._code; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(LangCode);
