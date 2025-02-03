@@ -14,7 +14,6 @@
 #include <stingraykit/math.h>
 #include <stingraykit/optional.h>
 #include <stingraykit/RefStorage.h>
-#include <stingraykit/variant.h>
 
 namespace stingray
 {
@@ -1059,151 +1058,167 @@ namespace stingray
 
 			static const size_t RangeCount = GetTypeListLength<RangeTypes>::Value;
 
-			template < typename T, int Index_ >
-			struct IndexedType
+		private:
+			struct CallValid
 			{
-				using Type = T;
-
-				static const int Index = Index_;
-
-				Type Value;
-
-				IndexedType(const Type& val) : Value(val) { }
-
-				bool operator == (const IndexedType& other) const { return Value == other.Value; }
-			};
-
-			template < size_t Index >
-			struct Indexer
-			{ using ValueT = IndexedType<typename GetTypeListItem<RangeTypes, Index>::ValueT, Index>; };
-
-			using IndexedRangeTypes = typename GenerateTypeList<RangeCount, Indexer>::ValueT;
-			using VariantRanges = variant<IndexedRangeTypes>;
-
-			template < bool Forward >
-			class RangeGetter
-			{
-			private:
-				const TupleType&	_ranges;
-
-			public:
-				explicit RangeGetter(const TupleType& ranges) : _ranges(ranges) { }
-
 				template < size_t Index >
-				optional<VariantRanges> GetNext() const
-				{ return Get<Forward ? Index + 1 : (Index > 0) ? Index - 1 : RangeCount>(); }
+				static bool Do(const Self& self)
+				{ return self._ranges.template Get<Index>().Valid(); }
 
-				template < size_t Index = 0, typename EnableIf<Forward && Index < RangeCount, int>::ValueT = 0 >
-				optional<VariantRanges> Get() const
-				{
-					using IndexedRange = typename GetTypeListItem<IndexedRangeTypes, Index>::ValueT;
-					const auto& range = _ranges.template Get<Index>();
-					return range.Valid() ? IndexedRange(range) : GetNext<Index>();
-				}
-
-				template < size_t Index = RangeCount - 1, typename EnableIf<!Forward && Index < RangeCount, int>::ValueT = 0 >
-				optional<VariantRanges> Get() const
-				{
-					using IndexedRange = typename GetTypeListItem<IndexedRangeTypes, Index>::ValueT;
-					const auto range = typename IndexedRange::Type(_ranges.template Get<Index>()).Last();
-					return range.Valid() ? IndexedRange(range) : GetNext<Index>();
-				}
-
-				template < size_t Index = 0, typename EnableIf<Index >= RangeCount, int>::ValueT = 0 >
-				optional<VariantRanges> Get() const
-				{ return null; }
+				static bool DoElse(const Self& self)
+				{ return false; }
 			};
 
-			struct ValueVisitor : public static_visitor<typename Self::ValueType>
+			struct CallGet
 			{
-				template < typename IndexedRange >
-				typename Self::ValueType operator () (const IndexedRange& range) const { return range.Value.Get(); }
+				template < size_t Index >
+				static typename Self::ValueType Do(const Self& self)
+				{ return self._ranges.template Get<Index>().Get(); }
+
+				static typename Self::ValueType DoElse(const Self& self)
+				{ STINGRAYKIT_THROW(LogicException("Get() behind last element")); }
 			};
 
-			template < bool Forward >
-			class IterateVisitor : public static_visitor<>
+			struct CallFirst
 			{
-			private:
-				Self&	_inst;
+				template < size_t Index >
+				static void Do(Self& self)
+				{ self._ranges.template Get<Index>().First(); }
 
-			public:
-				explicit IterateVisitor(Self& inst) : _inst(inst) { }
+				static void DoElse(Self& self) { }
+			};
 
-				template < typename IndexedRange >
-				void operator () (IndexedRange& range) const
+			struct CallNext
+			{
+				template < size_t Index >
+				static void Do(Self& self)
 				{
-					if (!Next<Forward>(range))
-						_inst._currentRange = RangeGetter<Forward>(_inst._ranges).template GetNext<IndexedRange::Index>();
+					auto& range = self._ranges.template Get<Index>();
+					range.Next();
+
+					if (!range.Valid())
+					{
+						range.First();
+						self.template FindNextRange<Index + 1>();
+					}
 				}
 
-			private:
-				template < bool Forward_, typename IndexedRange, typename EnableIf<Forward_, int>::ValueT = 0 >
-				bool Next(IndexedRange& range) const
-				{ return range.Value.Next().Valid(); }
+				static void DoElse(Self& self)
+				{ STINGRAYKIT_THROW(LogicException("Next() behind last element")); }
+			};
 
-				template < bool Forward_, typename IndexedRange, typename EnableIf<!Forward_, int>::ValueT = 0 >
-				bool Next(IndexedRange& range) const
+			struct CallPrev
+			{
+				template < size_t Index >
+				static void Do(Self& self)
 				{
-					if (range.Value == typename IndexedRange::Type(range.Value).First())
-						return false;
+					auto& range = self._ranges.template Get<Index>();
+					auto copy = range;
 
-					range.Value.Prev();
-					return true;
+					if (range != copy.First())
+						range.Prev();
+					else
+						self.template FindPrevRange<Index>();
 				}
+
+				static void DoElse(Self& self)
+				{ self.template FindPrevRange<RangeCount>(); }
 			};
 
 		private:
 			TupleType				_ranges;
-			optional<VariantRanges>	_currentRange;
+			size_t					_index;
 
 		public:
 			explicit RangeConcater(const Tuple<RangeTypes>& ranges)
-				:	_ranges(ranges)
-			{ First(); }
+				: _ranges(ranges), _index(0)
+			{ FindNextRange(); }
 
 			bool Valid() const
-			{ return _currentRange.is_initialized(); }
+			{ return CallAction<CallValid>(*this); }
 
 			typename Self::ValueType Get() const
 			{
-				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
-				return apply_visitor(ValueVisitor(), *_currentRange);
+				STINGRAYKIT_CHECK(Valid(), "Get() behind last element");
+				return CallAction<CallGet>(*this);
 			}
 
 			bool Equals(const RangeConcater& other) const
-			{ return TupleEquals()(_ranges, other._ranges) && _currentRange == other._currentRange; }
+			{ return _index == other._index && TupleEquals()(_ranges, other._ranges); }
 
 			Self& First()
 			{
-				_currentRange = RangeGetter<true>(_ranges).Get();
+				CallAction<CallFirst>(*this);
+				FindNextRange();
 				return *this;
 			}
 
 			Self& Next()
 			{
-				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
-				apply_visitor(IterateVisitor<true>(*this), *_currentRange);
+				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
+				CallAction<CallNext>(*this);
 				return *this;
 			}
 
 			Self& Last()
 			{
-				_currentRange = RangeGetter<false>(_ranges).Get();
+				CallAction<CallFirst>(*this);
+				FindPrevRange<RangeCount>();
 				return *this;
 			}
 
 			Self& Prev()
 			{
-				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
-				apply_visitor(IterateVisitor<false>(*this), *_currentRange);
+				STINGRAYKIT_CHECK(!Equals(Self(_ranges).First()), "Range is not valid!");
+				CallAction<CallPrev>(*this);
 				return *this;
 			}
 
 			Self& End()
 			{
-				_currentRange.reset();
+				CallAction<CallFirst>(*this);
+				_index = RangeCount;
 				return *this;
 			}
+
+		private:
+			template < typename Action, typename Self_, size_t Index = 0, typename EnableIf<Index < RangeCount, int>::ValueT = 0 >
+			static decltype(auto) CallAction(Self_& self)
+			{ return self._index == Index ? Action::template Do<Index>(self) : CallAction<Action, Self_, Index + 1>(self); }
+
+			template < typename Action, typename Self_, size_t Index, typename EnableIf<Index >= RangeCount, int>::ValueT = 0 >
+			static decltype(auto) CallAction(Self_& self)
+			{ return Action::DoElse(self); }
+
+			template < size_t Index = 0, typename EnableIf<Index < RangeCount, int>::ValueT = 0 >
+			void FindNextRange()
+			{
+				if (_ranges.template Get<Index>().Valid())
+					_index = Index;
+				else
+					FindNextRange<Index + 1>();
+			}
+
+			template < size_t Index, typename EnableIf<Index >= RangeCount, int>::ValueT = 0 >
+			void FindNextRange()
+			{ _index = RangeCount; }
+
+			template < size_t Index, typename EnableIf<(Index > 0), int>::ValueT = 0 >
+			void FindPrevRange()
+			{
+				auto& range = _ranges.template Get<Index - 1>();
+				if (range.Valid())
+				{
+					_index = Index - 1;
+					range.Last();
+				}
+				else
+					FindPrevRange<Index - 1>();
+			}
+
+			template < size_t Index, typename EnableIf<Index == 0, int>::ValueT = 0 >
+			void FindPrevRange()
+			{ _index = RangeCount; }
 		};
 
 
