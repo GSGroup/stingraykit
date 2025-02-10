@@ -14,7 +14,7 @@
 namespace stingray
 {
 
-	class BandwidthReporter : public virtual IDataSource
+	class BandwidthReporter final : public virtual IDataSource
 	{
 		static const s64 ReportBandwidthTimeout = 10000;
 
@@ -37,7 +37,7 @@ namespace stingray
 				_timer(timerName)
 		{ _connection = _timer.SetTimer(TimeDuration(ReportBandwidthTimeout), Bind(&BandwidthReporter::Report, this)); }
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{ _source->ReadToFunction(Bind(&BandwidthReporter::DoPush, this, wrap_ref(consumer), _1, _2), Bind(&IDataConsumer::EndOfData, wrap_ref(consumer), _1), token); }
 
 	private:

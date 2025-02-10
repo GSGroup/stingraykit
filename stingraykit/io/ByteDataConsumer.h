@@ -13,7 +13,7 @@
 namespace stingray
 {
 
-	class ByteDataConsumer : public virtual IDataConsumer
+	class ByteDataConsumer final : public virtual IDataConsumer
 	{
 	private:
 		ByteData			_destination;

@@ -18,7 +18,7 @@ using namespace stingray;
 namespace
 {
 
-	class DataCounterConsumer : public virtual IDataConsumer
+	class DataCounterConsumer final : public virtual IDataConsumer
 	{
 	private:
 		size_t&		_processed;
@@ -49,7 +49,7 @@ namespace
 		finished = true;
 	}
 
-	class DataChecker : public virtual IDataConsumer
+	class DataChecker final : public virtual IDataConsumer
 	{
 	public:
 		size_t Process(ConstByteData data, const ICancellationToken& token) override

@@ -24,29 +24,29 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(IDataConsumer);
 
 
-	struct InterceptingDataConsumer : public virtual IDataConsumer
+	class InterceptingDataConsumer final : public virtual IDataConsumer
 	{
-		typedef function<void (ConstByteData, const ICancellationToken&)> ProcessFunctionType;
-		typedef function<void (const ICancellationToken&)> EodFunctionType;
+		using ProcessFunctionType = function<void (ConstByteData, const ICancellationToken&)>;
+		using EodFunctionType = function<void (const ICancellationToken&)>;
 
 	private:
-		IDataConsumer&			_consumer;
-		ProcessFunctionType		_processFunc;
-		EodFunctionType			_eodFunc;
+		IDataConsumer&					_consumer;
+		ProcessFunctionType				_processFunc;
+		EodFunctionType					_eodFunc;
 
 	public:
 		InterceptingDataConsumer(IDataConsumer& consumer, const ProcessFunctionType& processFunc, const EodFunctionType& eodFunc)
 			: _consumer(consumer), _processFunc(processFunc), _eodFunc(eodFunc)
 		{ }
 
-		virtual size_t Process(ConstByteData data, const ICancellationToken& token)
+		size_t Process(ConstByteData data, const ICancellationToken& token) override
 		{
 			const size_t size = _consumer.Process(data, token);
 			_processFunc(ConstByteData(data, 0, size), token);
 			return size;
 		}
 
-		virtual void EndOfData(const ICancellationToken& token)
+		void EndOfData(const ICancellationToken& token) override
 		{
 			_consumer.EndOfData(token);
 			_eodFunc(token);
@@ -55,18 +55,18 @@ namespace stingray
 
 
 	template < typename ProcessFunctorType, typename EodFunctorType >
-	struct FunctorDataConsumer : public virtual IDataConsumer
+	class FunctorDataConsumer final : public virtual IDataConsumer
 	{
 	private:
-		ProcessFunctorType		_processFunc;
-		EodFunctorType			_eodFunc;
+		ProcessFunctorType				_processFunc;
+		EodFunctorType					_eodFunc;
 
 	public:
 		FunctorDataConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
 		{ }
 
-		virtual size_t Process(ConstByteData data, const ICancellationToken& token)	{ return _processFunc(data, token); }
-		virtual void EndOfData(const ICancellationToken& token)						{ _eodFunc(token); }
+		size_t Process(ConstByteData data, const ICancellationToken& token) override	{ return _processFunc(data, token); }
+		void EndOfData(const ICancellationToken& token) override						{ _eodFunc(token); }
 	};
 
 
@@ -118,22 +118,22 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(IDataBuffer);
 
 
-	struct InterceptingDataSource : public virtual IDataSource
+	class InterceptingDataSource final : public virtual IDataSource
 	{
-		typedef function<void (ConstByteData, const ICancellationToken&)> ProcessFunctionType;
-		typedef function<void (const ICancellationToken&)> EodFunctionType;
+		using ProcessFunctionType = function<void (ConstByteData, const ICancellationToken&)>;
+		using EodFunctionType = function<void (const ICancellationToken&)>;
 
 	private:
-		IDataSourcePtr			_source;
-		ProcessFunctionType		_processFunc;
-		EodFunctionType			_eodFunc;
+		IDataSourcePtr					_source;
+		ProcessFunctionType				_processFunc;
+		EodFunctionType					_eodFunc;
 
 	public:
 		InterceptingDataSource(const IDataSourcePtr& source, const ProcessFunctionType& processFunc, const EodFunctionType& eodFunc)
 			: _source(STINGRAYKIT_REQUIRE_NOT_NULL(source)), _processFunc(processFunc), _eodFunc(eodFunc)
 		{ }
 
-		virtual void Read(IDataConsumer& c, const ICancellationToken& token)
+		void Read(IDataConsumer& c, const ICancellationToken& token) override
 		{ _source->ReadToFunction(Bind(&InterceptingDataSource::DoPush, this, wrap_ref(c), _1, _2), Bind(&InterceptingDataSource::EndOfData, this, wrap_ref(c), _1), token); }
 
 	private:
@@ -153,25 +153,24 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(InterceptingDataSource);
 
 
-	class ReactiveDataSource : public virtual IDataSource
+	class ReactiveDataSource final : public virtual IDataSource
 	{
-
-		class ReactiveDataConsumer : public virtual IDataConsumer
+		class Consumer final : public virtual IDataConsumer
 		{
 		private:
-			IDataConsumer&	_consumer;
-			atomic<bool>	_endOfData;
+			IDataConsumer&				_consumer;
+			atomic<bool>				_endOfData;
 
 		public:
-			explicit ReactiveDataConsumer(IDataConsumer& consumer)
+			explicit Consumer(IDataConsumer& consumer)
 				: _consumer(consumer), _endOfData(false)
 			{ }
 
 			bool IsEndOfData() const { return _endOfData; }
 
-			virtual size_t Process(ConstByteData data, const ICancellationToken& token) { return _consumer.Process(data, token); }
+			size_t Process(ConstByteData data, const ICancellationToken& token) override { return _consumer.Process(data, token); }
 
-			virtual void EndOfData(const ICancellationToken& token)
+			void EndOfData(const ICancellationToken& token) override
 			{
 				_endOfData = true;
 				_consumer.EndOfData(token);
@@ -179,16 +178,16 @@ namespace stingray
 		};
 
 	private:
-		IDataSourcePtr	_source;
+		IDataSourcePtr					_source;
 
 	public:
 		explicit ReactiveDataSource(const IDataSourcePtr& source)
 			: _source(source)
 		{ }
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
-			ReactiveDataConsumer reactiveConsumer(consumer);
+			Consumer reactiveConsumer(consumer);
 			while (token && !reactiveConsumer.IsEndOfData())
 				_source->Read(reactiveConsumer, token);
 		}
@@ -196,10 +195,10 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ReactiveDataSource);
 
 
-	class EmptyDataSource : public virtual IDataSource
+	class EmptyDataSource final : public virtual IDataSource
 	{
 	public:
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{ consumer.EndOfData(token); }
 	};
 	STINGRAYKIT_DECLARE_PTR(EmptyDataSource);
@@ -209,8 +208,8 @@ namespace stingray
 	class Packet
 	{
 	private:
-		ConstByteData	_data;
-		MetadataType	_metadata;
+		ConstByteData					_data;
+		MetadataType					_metadata;
 
 	public:
 		explicit Packet(ConstByteData data, const MetadataType& metadata = MetadataType())
@@ -234,18 +233,18 @@ namespace stingray
 
 
 	template < typename MetadataType, typename ProcessFunctorType, typename EodFunctorType >
-	struct FunctorPacketConsumer : public virtual IPacketConsumer<MetadataType>
+	class FunctorPacketConsumer final : public virtual IPacketConsumer<MetadataType>
 	{
 	private:
-		ProcessFunctorType		_processFunc;
-		EodFunctorType			_eodFunc;
+		ProcessFunctorType				_processFunc;
+		EodFunctorType					_eodFunc;
 
 	public:
 		FunctorPacketConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
 		{ }
 
-		virtual bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token)	{ return _processFunc(packet, token); }
-		virtual void EndOfData()																	{ _eodFunc(); }
+		bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) override	{ return _processFunc(packet, token); }
+		void EndOfData() override																	{ _eodFunc(); }
 	};
 
 
@@ -297,7 +296,7 @@ namespace stingray
 	class DataConsumeAll : public function_info<size_t (ConstByteData, const ICancellationToken&)>
 	{
 	private:
-		IDataConsumer& _consumer;
+		IDataConsumer&					_consumer;
 
 	public:
 		explicit DataConsumeAll(IDataConsumer& consumer) : _consumer(consumer) { }
@@ -308,10 +307,10 @@ namespace stingray
 
 
 	template < typename Metadata >
-	struct PacketConsumeAll : public function_info<bool (const Packet<Metadata>&, const ICancellationToken&)>
+	class PacketConsumeAll : public function_info<bool (const Packet<Metadata>&, const ICancellationToken&)>
 	{
 	private:
-		IPacketConsumer<Metadata>& _consumer;
+		IPacketConsumer<Metadata>&		_consumer;
 
 	public:
 		explicit PacketConsumeAll(IPacketConsumer<Metadata>& consumer) : _consumer(consumer) { }

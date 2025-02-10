@@ -15,7 +15,7 @@
 namespace stingray
 {
 
-	class TakingConsumer : public virtual IDataConsumer
+	class TakingConsumer final : public virtual IDataConsumer
 	{
 	private:
 		IDataConsumer&	_consumer;
@@ -52,7 +52,7 @@ namespace stingray
 	};
 
 
-	class DataTaker : public virtual IDataSource
+	class DataTaker final : public virtual IDataSource
 	{
 	private:
 		IDataSourcePtr	_source;
@@ -76,7 +76,7 @@ namespace stingray
 	};
 
 
-	class SkippingConsumer : public virtual IDataConsumer
+	class SkippingConsumer final : public virtual IDataConsumer
 	{
 	private:
 		IDataConsumer&	_consumer;
@@ -111,7 +111,7 @@ namespace stingray
 	};
 
 
-	class DataSkipper : public virtual IDataSource
+	class DataSkipper final : public virtual IDataSource
 	{
 	private:
 		IDataSourcePtr	_source;

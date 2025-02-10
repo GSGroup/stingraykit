@@ -13,19 +13,19 @@ namespace stingray
 	namespace
 	{
 
-		class DataStorage : public virtual IDataConsumer
+		class DataStorage final : public virtual IDataConsumer
 		{
 		private:
 			ByteArray	_data;
 
 		public:
-			virtual size_t Process(ConstByteData data, const ICancellationToken&)
+			size_t Process(ConstByteData data, const ICancellationToken&) override
 			{
 				_data.append(data.begin(), data.end());
 				return data.size();
 			}
 
-			virtual void EndOfData(const ICancellationToken&) { }
+			void EndOfData(const ICancellationToken&) override { }
 
 			ByteArray GetData() const { return _data; }
 		};

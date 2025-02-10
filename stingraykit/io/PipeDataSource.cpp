@@ -30,9 +30,7 @@ namespace stingray
 			STINGRAYKIT_CHECK(processed == read, NotImplementedException());
 		}
 		catch (const PipeClosedException&)
-		{
-			consumer.EndOfData(token);
-		}
+		{ consumer.EndOfData(token); }
 	}
 
 }

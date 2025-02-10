@@ -13,7 +13,7 @@
 namespace stingray
 {
 
-	class ConsumerDepacketer : public virtual IPacketConsumer<EmptyType>
+	class ConsumerDepacketer final : public virtual IPacketConsumer<EmptyType>
 	{
 	private:
 		IDataConsumerPtr	_lifeAssurance;
@@ -42,7 +42,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ConsumerDepacketer);
 
 
-	class ConsumerPacketer : public virtual IDataConsumer
+	class ConsumerPacketer final : public virtual IDataConsumer
 	{
 		using PacketConsumer = IPacketConsumer<EmptyType>;
 		STINGRAYKIT_DECLARE_PTR(PacketConsumer);
@@ -77,7 +77,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(ConsumerPacketer);
 
 
-	class DataPacketer : public virtual IPacketSource<EmptyType>
+	class DataPacketer final : public virtual IPacketSource<EmptyType>
 	{
 	private:
 		IDataSourcePtr			_lifeAssurance;
@@ -106,7 +106,7 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(DataPacketer);
 
 
-	class DataDepacketer : public virtual IDataSource
+	class DataDepacketer final : public virtual IDataSource
 	{
 		using PacketSource = IPacketSource<EmptyType>;
 		STINGRAYKIT_DECLARE_PTR(PacketSource);

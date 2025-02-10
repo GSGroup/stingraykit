@@ -13,7 +13,7 @@
 namespace stingray
 {
 
-	class ByteArrayDataSource : public virtual IDataSource
+	class ByteArrayDataSource final : public virtual IDataSource
 	{
 	private:
 		ConstByteArray	_data;
@@ -24,7 +24,7 @@ namespace stingray
 			: _data(data), _processed(0)
 		{ }
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{
 			if (_processed < _data.size())
 				_processed += consumer.Process(ConstByteData(_data, _processed), token);

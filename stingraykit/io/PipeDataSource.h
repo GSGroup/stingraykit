@@ -14,7 +14,7 @@
 namespace stingray
 {
 
-	class PipeDataSource : public virtual IDataSource
+	class PipeDataSource final : public virtual IDataSource
 	{
 		static const size_t DefaultBufferSize = 4096;
 
@@ -26,7 +26,7 @@ namespace stingray
 	public:
 		explicit PipeDataSource(const IPipePtr& pipe, size_t bufferSize = DefaultBufferSize);
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token);
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override;
 	};
 
 }

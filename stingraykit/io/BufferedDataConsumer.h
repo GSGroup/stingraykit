@@ -16,7 +16,7 @@
 namespace stingray
 {
 
-	class BufferedDataConsumer : public virtual IDataConsumer
+	class BufferedDataConsumer final : public virtual IDataConsumer
 	{
 	public:
 		using OnOverflowSignature = void (size_t);

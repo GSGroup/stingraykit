@@ -13,7 +13,7 @@
 namespace stingray
 {
 
-	class IntermediateDataBuffer : public virtual IDataSource
+	class IntermediateDataBuffer final : public virtual IDataSource
 	{
 	private:
 		IDataSourcePtr			_source;
@@ -28,7 +28,7 @@ namespace stingray
 				_worker(make_shared_ptr<Thread>(threadName, Bind(&IntermediateDataBuffer::ThreadFunc, this, _1)))
 		{ }
 
-		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token)
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
 		{ _buffer->Read(consumer, token); }
 
 	private:

@@ -15,7 +15,7 @@
 namespace stingray
 {
 
-	class BufferedDataSource : public virtual IDataSource
+	class BufferedDataSource final : public virtual IDataSource
 	{
 	private:
 		static NamedLogger		s_logger;
