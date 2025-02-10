@@ -7,6 +7,8 @@
 
 #include <stingraykit/io/DataSourceReader.h>
 
+#include <stingraykit/io/DataSources.h>
+
 namespace stingray
 {
 
