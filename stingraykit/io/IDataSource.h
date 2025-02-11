@@ -35,7 +35,9 @@ namespace stingray
 			EodFunctorType					_eodFunc;
 
 		public:
-			FunctorConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
+			template < typename ProcessFunctorType_, typename EodFunctorType_ >
+			FunctorConsumer(ProcessFunctorType_&& processFunc, EodFunctorType_&& eodFunc)
+				: _processFunc(std::forward<ProcessFunctorType_>(processFunc)), _eodFunc(std::forward<EodFunctorType_>(eodFunc))
 			{ }
 
 			size_t Process(ConstByteData data, const ICancellationToken& token) override	{ return _processFunc(data, token); }
@@ -48,13 +50,13 @@ namespace stingray
 		virtual void Read(IDataConsumer& consumer, const ICancellationToken& token) = 0;
 
 		template < typename ProcessFunctorType >
-		void ReadToFunction(const ProcessFunctorType& processFunc, const ICancellationToken& token)
-		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
+		void ReadToFunction(ProcessFunctorType&& processFunc, const ICancellationToken& token)
+		{ ReadToFunction(std::forward<ProcessFunctorType>(processFunc), &DefaultEndOfData, token); }
 
 		template < typename ProcessFunctorType, typename EndOfDataFunctorType >
-		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const ICancellationToken& token)
+		void ReadToFunction(ProcessFunctorType&& processFunc, EndOfDataFunctorType&& eodFunc, const ICancellationToken& token)
 		{
-			FunctorConsumer<ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
+			FunctorConsumer<typename Decay<ProcessFunctorType>::ValueT, typename Decay<EndOfDataFunctorType>::ValueT> consumer(std::forward<ProcessFunctorType>(processFunc), std::forward<EndOfDataFunctorType>(eodFunc));
 			Read(consumer, token);
 		}
 
@@ -129,7 +131,9 @@ namespace stingray
 			EodFunctorType					_eodFunc;
 
 		public:
-			FunctorConsumer(const ProcessFunctorType& processFunc, const EodFunctorType& eodFunc) : _processFunc(processFunc), _eodFunc(eodFunc)
+			template < typename ProcessFunctorType_, typename EodFunctorType_ >
+			FunctorConsumer(ProcessFunctorType_&& processFunc, EodFunctorType_&& eodFunc)
+				: _processFunc(std::forward<ProcessFunctorType_>(processFunc)), _eodFunc(std::forward<EodFunctorType_>(eodFunc))
 			{ }
 
 			bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) override	{ return _processFunc(packet, token); }
@@ -142,13 +146,13 @@ namespace stingray
 		virtual void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token) = 0;
 
 		template < typename ProcessFunctorType >
-		void ReadToFunction(const ProcessFunctorType& processFunc, const ICancellationToken& token)
-		{ ReadToFunction(processFunc, &DefaultEndOfData, token); }
+		void ReadToFunction(ProcessFunctorType&& processFunc, const ICancellationToken& token)
+		{ ReadToFunction(std::forward<ProcessFunctorType>(processFunc), &DefaultEndOfData, token); }
 
 		template < typename ProcessFunctorType, typename EndOfDataFunctorType >
-		void ReadToFunction(const ProcessFunctorType& processFunc, const EndOfDataFunctorType& eodFunc, const ICancellationToken& token)
+		void ReadToFunction(ProcessFunctorType&& processFunc, EndOfDataFunctorType&& eodFunc, const ICancellationToken& token)
 		{
-			FunctorConsumer<ProcessFunctorType, EndOfDataFunctorType> consumer(processFunc, eodFunc);
+			FunctorConsumer<typename Decay<ProcessFunctorType>::ValueT, typename Decay<EndOfDataFunctorType>::ValueT> consumer(std::forward<ProcessFunctorType>(processFunc), std::forward<EndOfDataFunctorType>(eodFunc));
 			Read(consumer, token);
 		}
 
