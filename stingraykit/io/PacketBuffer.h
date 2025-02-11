@@ -37,49 +37,43 @@ namespace stingray
 		static NamedLogger			s_logger;
 
 		const bool					_discardOnOverflow;
-		BithreadCircularBuffer		_buffer;
+
 		std::deque<PacketInfo>		_packetQueue;
-
-		Mutex						_bufferMutex;
 		size_t						_paddingSize;
-
-		ConditionVariable			_bufferEmpty;
-		ConditionVariable			_bufferFull;
-		bool						_eod;
-
+		SharedCircularBuffer		_buffer;
 		SharedWriteSynchronizer		_writeSync;
 
 	public:
 		PacketBuffer(bool discardOnOverflow, size_t bufferSize)
 			:	_discardOnOverflow(discardOnOverflow),
-				_buffer(bufferSize),
 				_paddingSize(0),
-				_eod(false)
+				_buffer(bufferSize)
 		{ STINGRAYKIT_CHECK(bufferSize > 0, ArgumentException("bufferSize")); }
 
 		void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token) override
 		{
-			MutexLock l(_bufferMutex);
+			SharedCircularBuffer::BufferLock bl(_buffer);
+			SharedCircularBuffer::ReadLock rl(bl);
 
 			if (_packetQueue.empty())
 			{
-				if (_eod)
+				if (bl.IsEndOfData())
 				{
 					consumer.EndOfData();
 					return;
 				}
 
-				_bufferEmpty.Wait(_bufferMutex, token);
+				rl.WaitEmpty(token);
 				return;
 			}
 
-			BithreadCircularBuffer::Reader reader = _buffer.Read();
+			BithreadCircularBuffer::Reader reader = rl.Read();
 			if (reader.size() == _paddingSize && reader.IsBufferEnd())
 			{
 				reader.Pop(_paddingSize);
 				_paddingSize = 0;
 
-				reader = _buffer.Read();
+				reader = rl.Read();
 			}
 
 			const PacketInfo& packet = _packetQueue.front();
@@ -87,7 +81,7 @@ namespace stingray
 
 			bool processed = false;
 			{
-				MutexUnlock ul(l);
+				SharedCircularBuffer::BufferUnlock ul(bl);
 				processed = consumer.Process(Packet<MetadataType>(ConstByteData(reader.GetData(), 0, packet.Size), packet.Metadata), token);
 			}
 
@@ -97,7 +91,7 @@ namespace stingray
 			reader.Pop(packet.Size);
 			_packetQueue.pop_front();
 
-			_bufferFull.Broadcast();
+			rl.BroadcastFull();
 		}
 
 		bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) override
@@ -106,27 +100,27 @@ namespace stingray
 			if (g.Wait(token) != ConditionWaitResult::Broadcasted)
 				return false;
 
-			MutexLock l(_bufferMutex);
+			SharedCircularBuffer::BufferLock bl(_buffer);
+			SharedCircularBuffer::WriteLock wl(bl);
 
-			STINGRAYKIT_CHECK(packet.GetSize() <= _buffer.GetTotalSize(), ArgumentException("packet.GetSize()", packet.GetSize()));
+			STINGRAYKIT_CHECK(packet.GetSize() <= bl.GetStorageSize(), ArgumentException("packet.GetSize()", packet.GetSize()));
+			STINGRAYKIT_CHECK(!bl.IsEndOfData(), InvalidOperationException("Already got EOD"));
 
-			BithreadCircularBuffer::Writer writer = _buffer.Write();
+			BithreadCircularBuffer::Writer writer = wl.Write();
 
 			const ConstByteData data(packet.GetData());
 			const size_t paddingSize = writer.size() < data.size() && writer.IsBufferEnd() ? writer.size() : 0;
 
-			if (_buffer.GetFreeSize() < paddingSize + data.size())
+			if (bl.GetFreeSize() < paddingSize + data.size())
 			{
 				if (_discardOnOverflow)
 				{
 					s_logger.Warning() << "Process: overflow " << data.size() << " bytes";
 					return true;
 				}
-				else
-				{
-					_bufferFull.Wait(_bufferMutex, token);
-					return false;
-				}
+
+				wl.WaitFull(token);
+				return false;
 			}
 
 			if (paddingSize)
@@ -134,42 +128,41 @@ namespace stingray
 				_paddingSize = paddingSize;
 				writer.Push(paddingSize);
 
-				writer = _buffer.Write();
+				writer = wl.Write();
 			}
 
 			{
-				MutexUnlock ul2(l2);
+				SharedCircularBuffer::BufferUnlock ul(bl);
 				::memcpy(writer.data(), data.data(), data.size());
 			}
 
 			_packetQueue.emplace_back(data.size(), packet.GetMetadata());
 			writer.Push(data.size());
 
-			_bufferEmpty.Broadcast();
+			wl.BroadcastEmpty();
 			return true;
 		}
 
 		void EndOfData() override
-		{
-			MutexLock l(_bufferMutex);
-			_eod = true;
-			_bufferEmpty.Broadcast();
-		}
+		{ SharedCircularBuffer::BufferLock(_buffer).SetEndOfData(); }
 
-		size_t GetDataSize()			{ MutexLock l(_bufferMutex); return _buffer.GetDataSize(); }
-		size_t GetFreeSize()			{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
-		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
+		size_t GetDataSize() const
+		{ return SharedCircularBuffer::BufferLock(_buffer).GetDataSize(); }
+
+		size_t GetFreeSize() const
+		{ return SharedCircularBuffer::BufferLock(_buffer).GetFreeSize(); }
+
+		size_t GetStorageSize() const
+		{ return SharedCircularBuffer::BufferLock(_buffer).GetStorageSize(); }
 
 		void Clear()
 		{
-			MutexLock l(_bufferMutex);
+			SharedCircularBuffer::BufferLock bl(_buffer);
 
-			_buffer.Clear();
 			_packetQueue.clear();
 			_paddingSize = 0;
-			_eod = false;
 
-			_bufferFull.Broadcast();
+			bl.Clear();
 		}
 	};
 
