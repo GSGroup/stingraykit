@@ -7,17 +7,12 @@
 
 #include <stingraykit/io/DataSourceReader.h>
 
-
 namespace stingray
 {
 
-	DataSourceReader::DataSourceReader(const IDataSourcePtr& source)
-		: _source(source)
-	{ }
-
-
-	ByteArray DataSourceReader::ReadToEnd(const ICancellationToken& token)
+	namespace
 	{
+
 		class DataStorage : public virtual IDataConsumer
 		{
 		private:
@@ -35,6 +30,16 @@ namespace stingray
 			ByteArray GetData() const { return _data; }
 		};
 
+	}
+
+
+	DataSourceReader::DataSourceReader(const IDataSourcePtr& source)
+		: _source(source)
+	{ }
+
+
+	ByteArray DataSourceReader::ReadToEnd(const ICancellationToken& token)
+	{
 		DataStorage storage;
 		ReactiveDataSource(_source).Read(storage, token);
 		return storage.GetData();
