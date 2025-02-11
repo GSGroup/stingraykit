@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/io/BithreadCircularBuffer.h>
+#include <stingraykit/io/SharedCircularBuffer.h>
 #include <stingraykit/io/IDataSource.h>
 #include <stingraykit/log/Logger.h>
 
@@ -41,12 +41,13 @@ namespace stingray
 		std::deque<PacketInfo>		_packetQueue;
 
 		Mutex						_bufferMutex;
-		Mutex						_writeMutex;
 		size_t						_paddingSize;
 
 		ConditionVariable			_bufferEmpty;
 		ConditionVariable			_bufferFull;
 		bool						_eod;
+
+		SharedWriteSynchronizer		_writeSync;
 
 	public:
 		PacketBuffer(bool discardOnOverflow, size_t bufferSize)
@@ -101,8 +102,11 @@ namespace stingray
 
 		bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) override
 		{
-			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
-			MutexLock l2(_bufferMutex);
+			SharedWriteSynchronizer::WriteGuard g(_writeSync);
+			if (g.Wait(token) != ConditionWaitResult::Broadcasted)
+				return false;
+
+			MutexLock l(_bufferMutex);
 
 			STINGRAYKIT_CHECK(packet.GetSize() <= _buffer.GetTotalSize(), ArgumentException("packet.GetSize()", packet.GetSize()));
 
