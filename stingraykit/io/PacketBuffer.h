@@ -101,10 +101,10 @@ namespace stingray
 
 		bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) override
 		{
-			STINGRAYKIT_CHECK(packet.GetSize() <= GetStorageSize(), ArgumentException("packet.GetSize()", packet.GetSize()));
-
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 			MutexLock l2(_bufferMutex);
+
+			STINGRAYKIT_CHECK(packet.GetSize() <= _buffer.GetTotalSize(), ArgumentException("packet.GetSize()", packet.GetSize()));
 
 			BithreadCircularBuffer::Writer writer = _buffer.Write();
 
