@@ -28,8 +28,8 @@ namespace stingray
 			size_t			Size;
 			MetadataType	Metadata;
 
-			PacketInfo(size_t size, const MetadataType& md)
-				: Size(size), Metadata(md)
+			PacketInfo(size_t size, const MetadataType& metadata)
+				: Size(size), Metadata(metadata)
 			{ }
 		};
 
@@ -49,9 +49,9 @@ namespace stingray
 		bool						_eod;
 
 	public:
-		PacketBuffer(bool discardOnOverflow, size_t size)
+		PacketBuffer(bool discardOnOverflow, size_t bufferSize)
 			:	_discardOnOverflow(discardOnOverflow),
-				_buffer(size),
+				_buffer(bufferSize),
 				_paddingSize(0),
 				_eod(false)
 		{ }
@@ -72,28 +72,28 @@ namespace stingray
 				return;
 			}
 
-			BithreadCircularBuffer::Reader r = _buffer.Read();
-			if (r.size() == _paddingSize && r.IsBufferEnd())
+			BithreadCircularBuffer::Reader reader = _buffer.Read();
+			if (reader.size() == _paddingSize && reader.IsBufferEnd())
 			{
-				r.Pop(_paddingSize);
+				reader.Pop(_paddingSize);
 				_paddingSize = 0;
 
-				r = _buffer.Read();
+				reader = _buffer.Read();
 			}
 
-			PacketInfo p = _packetQueue.front();
-			STINGRAYKIT_CHECK(p.Size <= r.size(), "Not enough data in packet buffer, need: " + ToString(p.Size) + ", got: " + ToString(r.size()));
+			const PacketInfo packet = _packetQueue.front();
+			STINGRAYKIT_CHECK(packet.Size <= reader.size(), "Not enough data in packet buffer, need: " + ToString(packet.Size) + ", got: " + ToString(reader.size()));
 
 			bool processed = false;
 			{
 				MutexUnlock ul(l);
-				processed = consumer.Process(Packet<MetadataType>(ConstByteData(r.GetData(), 0, p.Size), p.Metadata), token);
+				processed = consumer.Process(Packet<MetadataType>(ConstByteData(reader.GetData(), 0, packet.Size), packet.Metadata), token);
 			}
 
 			if (!processed)
 				return;
 
-			r.Pop(p.Size);
+			reader.Pop(packet.Size);
 			_packetQueue.pop_front();
 
 			_bufferFull.Broadcast();
@@ -101,16 +101,16 @@ namespace stingray
 
 		bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) override
 		{
-			ConstByteData data(packet.GetData());
+			const ConstByteData data(packet.GetData());
 			STINGRAYKIT_CHECK(data.size() <= GetStorageSize(), StringBuilder() % "Packet is too big! Buffer size: " % GetStorageSize() % " packet size:" % data.size());
 
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 			MutexLock l2(_bufferMutex);
 
-			BithreadCircularBuffer::Writer w = _buffer.Write();
-			size_t padding_size = w.size() < data.size() && w.IsBufferEnd() ? w.size() : 0;
+			BithreadCircularBuffer::Writer writer = _buffer.Write();
+			const size_t paddingSize = writer.size() < data.size() && writer.IsBufferEnd() ? writer.size() : 0;
 
-			if (_buffer.GetFreeSize() < padding_size + data.size())
+			if (_buffer.GetFreeSize() < paddingSize + data.size())
 			{
 				if (_discardOnOverflow)
 				{
@@ -124,21 +124,21 @@ namespace stingray
 				}
 			}
 
-			if (padding_size)
+			if (paddingSize)
 			{
-				_paddingSize = padding_size;
-				w.Push(padding_size);
+				_paddingSize = paddingSize;
+				writer.Push(paddingSize);
 
-				w = _buffer.Write();
+				writer = _buffer.Write();
 			}
 
 			{
 				MutexUnlock ul2(l2);
-				::memcpy(w.data(), data.data(), data.size());
+				::memcpy(writer.data(), data.data(), data.size());
 			}
 
 			_packetQueue.emplace_back(data.size(), packet.GetMetadata());
-			w.Push(data.size());
+			writer.Push(data.size());
 
 			_bufferEmpty.Broadcast();
 			return true;
@@ -161,11 +161,11 @@ namespace stingray
 
 			while (true)
 			{
-				BithreadCircularBuffer::Reader r = _buffer.Read();
-				if (r.size() == 0)
+				BithreadCircularBuffer::Reader reader = _buffer.Read();
+				if (reader.size() == 0)
 					break;
 
-				r.Pop(r.size());
+				reader.Pop(reader.size());
 			}
 
 			_packetQueue.clear();
