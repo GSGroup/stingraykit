@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-
 #include <stingraykit/io/BithreadCircularBuffer.h>
 #include <stingraykit/io/IDataSource.h>
 #include <stingraykit/log/Logger.h>
@@ -52,25 +51,43 @@ namespace stingray
 			_paddingSize(0), _eod(false)
 		{ }
 
-		size_t GetDataSize()			{ MutexLock l(_bufferMutex); return _buffer.GetDataSize(); }
-		size_t GetFreeSize()			{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
-		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
-
-		void Clear()
+		virtual void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token)
 		{
 			MutexLock l(_bufferMutex);
-			while (true)
+
+			if (_packetQueue.empty())
 			{
-				BithreadCircularBuffer::Reader r = _buffer.Read();
-				if (r.size() == 0)
-					break;
+				if (_eod)
+				{
+					consumer.EndOfData();
+					return;
+				}
 
-				r.Pop(r.size());
+				_bufferEmpty.Wait(_bufferMutex, token);
+				return;
 			}
-			_packetQueue.clear();
-			_paddingSize = 0;
-			_eod = false;
 
+			BithreadCircularBuffer::Reader r = _buffer.Read();
+			if (r.size() == _paddingSize && r.IsBufferEnd())
+			{
+				r.Pop(_paddingSize);
+				_paddingSize = 0;
+				r = _buffer.Read();
+			}
+
+			PacketInfo p = _packetQueue.front();
+			STINGRAYKIT_CHECK(p.Size <= r.size(), "Not enough data in packet buffer, need: " + ToString(p.Size) + ", got: " + ToString(r.size()));
+			bool processed = false;
+			{
+				MutexUnlock ul(l);
+				processed = consumer.Process(Packet<MetadataType>(ConstByteData(r.GetData(), 0, p.Size), p.Metadata), token);
+			}
+
+			if (!processed)
+				return;
+
+			r.Pop(p.Size);
+			_packetQueue.pop_front();
 			_bufferFull.Broadcast();
 		}
 
@@ -125,43 +142,25 @@ namespace stingray
 			_bufferEmpty.Broadcast();
 		}
 
-		virtual void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token)
+		size_t GetDataSize()			{ MutexLock l(_bufferMutex); return _buffer.GetDataSize(); }
+		size_t GetFreeSize()			{ MutexLock l(_bufferMutex); return _buffer.GetFreeSize(); }
+		size_t GetStorageSize() const	{ MutexLock l(_bufferMutex); return _buffer.GetTotalSize(); }
+
+		void Clear()
 		{
 			MutexLock l(_bufferMutex);
-
-			if (_packetQueue.empty())
+			while (true)
 			{
-				if (_eod)
-				{
-					consumer.EndOfData();
-					return;
-				}
+				BithreadCircularBuffer::Reader r = _buffer.Read();
+				if (r.size() == 0)
+					break;
 
-				_bufferEmpty.Wait(_bufferMutex, token);
-				return;
+				r.Pop(r.size());
 			}
+			_packetQueue.clear();
+			_paddingSize = 0;
+			_eod = false;
 
-			BithreadCircularBuffer::Reader r = _buffer.Read();
-			if (r.size() == _paddingSize && r.IsBufferEnd())
-			{
-				r.Pop(_paddingSize);
-				_paddingSize = 0;
-				r = _buffer.Read();
-			}
-
-			PacketInfo p = _packetQueue.front();
-			STINGRAYKIT_CHECK(p.Size <= r.size(), "Not enough data in packet buffer, need: " + ToString(p.Size) + ", got: " + ToString(r.size()));
-			bool processed = false;
-			{
-				MutexUnlock ul(l);
-				processed = consumer.Process(Packet<MetadataType>(ConstByteData(r.GetData(), 0, p.Size), p.Metadata), token);
-			}
-
-			if (!processed)
-				return;
-
-			r.Pop(p.Size);
-			_packetQueue.pop_front();
 			_bufferFull.Broadcast();
 		}
 	};
