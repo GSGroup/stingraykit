@@ -137,8 +137,7 @@ namespace stingray
 				::memcpy(w.data(), data.data(), data.size());
 			}
 
-			PacketInfo p(data.size(), packet.GetMetadata());
-			_packetQueue.push_back(p);
+			_packetQueue.emplace_back(data.size(), packet.GetMetadata());
 			w.Push(data.size());
 
 			_bufferEmpty.Broadcast();
