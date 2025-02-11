@@ -160,15 +160,7 @@ namespace stingray
 		{
 			MutexLock l(_bufferMutex);
 
-			while (true)
-			{
-				BithreadCircularBuffer::Reader reader = _buffer.Read();
-				if (reader.size() == 0)
-					break;
-
-				reader.Pop(reader.size());
-			}
-
+			_buffer.Clear();
 			_packetQueue.clear();
 			_paddingSize = 0;
 			_eod = false;
