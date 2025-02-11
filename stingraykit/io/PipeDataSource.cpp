@@ -11,8 +11,8 @@ namespace stingray
 {
 
 	PipeDataSource::PipeDataSource(const IPipePtr& pipe, size_t bufferSize)
-		: _pipe(pipe), _buffer(bufferSize)
-	{ }
+		: _pipe(STINGRAYKIT_REQUIRE_NOT_NULL(pipe)), _buffer(bufferSize)
+	{ STINGRAYKIT_CHECK(bufferSize > 0, ArgumentException("bufferSize")); }
 
 
 	void PipeDataSource::Read(IDataConsumer& consumer, const ICancellationToken& token)

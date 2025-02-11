@@ -182,7 +182,7 @@ namespace stingray
 
 	public:
 		explicit ReactiveDataSource(const IDataSourcePtr& source)
-			: _source(source)
+			: _source(STINGRAYKIT_REQUIRE_NOT_NULL(source))
 		{ }
 
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override

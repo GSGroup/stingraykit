@@ -34,7 +34,7 @@ namespace stingray
 
 
 	DataSourceReader::DataSourceReader(const IDataSourcePtr& source)
-		: _source(source)
+		: _source(STINGRAYKIT_REQUIRE_NOT_NULL(source))
 	{ }
 
 
