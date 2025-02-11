@@ -81,7 +81,7 @@ namespace stingray
 				reader = _buffer.Read();
 			}
 
-			const PacketInfo packet = _packetQueue.front();
+			const PacketInfo& packet = _packetQueue.front();
 			STINGRAYKIT_CHECK(packet.Size <= reader.size(), "Not enough data in packet buffer, need: " + ToString(packet.Size) + ", got: " + ToString(reader.size()));
 
 			bool processed = false;
