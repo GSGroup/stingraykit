@@ -54,7 +54,7 @@ namespace stingray
 				_buffer(bufferSize),
 				_paddingSize(0),
 				_eod(false)
-		{ }
+		{ STINGRAYKIT_CHECK(bufferSize > 0, ArgumentException("bufferSize")); }
 
 		void Read(IPacketConsumer<MetadataType>& consumer, const ICancellationToken& token) override
 		{
@@ -82,7 +82,7 @@ namespace stingray
 			}
 
 			const PacketInfo& packet = _packetQueue.front();
-			STINGRAYKIT_CHECK(packet.Size <= reader.size(), "Not enough data in packet buffer, need: " + ToString(packet.Size) + ", got: " + ToString(reader.size()));
+			STINGRAYKIT_CHECK(packet.Size <= reader.size(), LogicException(StringBuilder() % "Reader size " % reader.size() % " is lesser than packet size: " % packet.Size));
 
 			bool processed = false;
 			{
@@ -101,20 +101,21 @@ namespace stingray
 
 		bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) override
 		{
-			const ConstByteData data(packet.GetData());
-			STINGRAYKIT_CHECK(data.size() <= GetStorageSize(), StringBuilder() % "Packet is too big! Buffer size: " % GetStorageSize() % " packet size:" % data.size());
+			STINGRAYKIT_CHECK(packet.GetSize() <= GetStorageSize(), ArgumentException("packet.GetSize()", packet.GetSize()));
 
 			MutexLock l1(_writeMutex); // we need this mutex because write can be called simultaneously from several threads
 			MutexLock l2(_bufferMutex);
 
 			BithreadCircularBuffer::Writer writer = _buffer.Write();
+
+			const ConstByteData data(packet.GetData());
 			const size_t paddingSize = writer.size() < data.size() && writer.IsBufferEnd() ? writer.size() : 0;
 
 			if (_buffer.GetFreeSize() < paddingSize + data.size())
 			{
 				if (_discardOnOverflow)
 				{
-					Logger::Warning() << "Overflow: dropping " << data.size() << " bytes";
+					s_logger.Warning() << "Process: overflow " << data.size() << " bytes";
 					return true;
 				}
 				else
@@ -175,6 +176,9 @@ namespace stingray
 			_bufferFull.Broadcast();
 		}
 	};
+
+	template < typename MetadataType >
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(PacketBuffer<MetadataType>, "PacketBuffer");
 
 }
 
