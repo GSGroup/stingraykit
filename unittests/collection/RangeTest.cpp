@@ -233,6 +233,21 @@ TEST(RangeTest, Ranges)
 	}
 
 	{
+		int val;
+		CheckRange(ToRange(s) | Take(0), &val, &val);
+	}
+
+	{
+		int seq[] = { -42, 0, 1, 5 };
+		CheckRange(ToRange(s) | Take(4), std::begin(seq), std::end(seq));
+	}
+
+	{
+		int seq[] = { -42, 0, 1, 5, 37, 42, 53 };
+		CheckRange(ToRange(s) | Take(16), std::begin(seq), std::end(seq));
+	}
+
+	{
 		int seq[] = {-42, 0, 1, 5, 37, 42, 53};
 		CheckRange(ToRange(s), std::begin(seq), std::end(seq));
 	}

@@ -568,18 +568,7 @@ namespace stingray
 
 			Self& Last()
 			{
-				First();
-				Self prev(*this);
-
-				while (Valid())
-				{
-					Next();
-					if (Valid())
-						prev.Next();
-				}
-
-				_impl = std::move(prev._impl);
-				_index = prev._index;
+				DoLast();
 				return *this;
 			}
 
@@ -611,6 +600,35 @@ namespace stingray
 				_impl->Move(distance);
 				_index += distance;
 				return *this;
+			}
+
+		private:
+			template < typename Category_ = typename Self::Category, typename EnableIf<IsInherited<Category_, std::random_access_iterator_tag>::Value, int>::ValueT = 0 >
+			void DoLast()
+			{
+				const size_t size = GetSize();
+				if (size == 0)
+					return;
+
+				_impl->Move(size - GetPosition() - 1);
+				_index = size - 1;
+			}
+
+			template < typename Category_ = typename Self::Category, typename EnableIf<!IsInherited<Category_, std::random_access_iterator_tag>::Value, int>::ValueT = 0 >
+			void DoLast()
+			{
+				First();
+				Self prev(*this);
+
+				while (Valid())
+				{
+					Next();
+					if (Valid())
+						prev.Next();
+				}
+
+				_impl = std::move(prev._impl);
+				_index = prev._index;
 			}
 		};
 
