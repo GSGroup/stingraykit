@@ -531,7 +531,7 @@ namespace stingray
 		private:
 			const Range_		_initial;
 			optional<Range_>	_impl;
-			size_t				_index;
+			optional<size_t>	_index;
 			const size_t		_count;
 
 		public:
@@ -540,7 +540,7 @@ namespace stingray
 			{ }
 
 			bool Valid() const
-			{ return _impl->Valid() && _index < _count; }
+			{ return _impl->Valid() && _index && _index < _count; }
 
 			typename Self::ValueType Get() const
 			{
@@ -549,7 +549,10 @@ namespace stingray
 			}
 
 			bool Equals(const RangeTaker& other) const
-			{ return _initial == other._initial && _impl == other._impl && _index == other._index && _count == other._count; }
+			{
+				const bool valid = Valid();
+				return _initial == other._initial && _count == other._count && valid == other.Valid() && (!valid || (_index == other._index && _impl == other._impl));
+			}
 
 			Self& First()
 			{
@@ -562,7 +565,7 @@ namespace stingray
 			{
 				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
 				_impl->Next();
-				++_index;
+				++*_index;
 				return *this;
 			}
 
@@ -574,31 +577,46 @@ namespace stingray
 
 			Self& Prev()
 			{
-				STINGRAYKIT_CHECK(_index > 0, "Prev() at first element");
-				_impl->Prev();
-				--_index;
-				return *this;
-			}
+				STINGRAYKIT_CHECK(_index > 0 || (!_index && _impl != _initial), "Prev() at first element");
 
-			Self& End()
-			{
-				while (Valid())
-					Next();
+				if (!_index)
+					Last();
+				else
+				{
+					_impl->Prev();
+					--*_index;
+				}
 
 				return *this;
 			}
 
 			size_t GetPosition() const
-			{ return _index; }
+			{ return _index ? *_index : GetSize(); }
 
 			size_t GetSize() const
 			{ return std::min(_initial.GetSize() - _initial.GetPosition(), _count); }
 
 			Self& Move(int distance)
 			{
-				STINGRAYKIT_CHECK(GetPosition() + distance <= GetSize(), IndexOutOfRangeException(GetPosition() + distance, GetSize()));
-				_impl->Move(distance);
-				_index += distance;
+				const size_t size = GetSize();
+				const size_t position = GetPosition();
+				STINGRAYKIT_CHECK(position + distance <= size, IndexOutOfRangeException(position + distance, size));
+
+				if (position + distance == size)
+					End();
+				else
+				{
+					_impl->Move(distance - (position == size && size == _count ? _initial.GetSize() - _initial.GetPosition() - _count : 0));
+					_index = position + distance;
+				}
+
+				return *this;
+			}
+
+			Self& End()
+			{
+				_impl->End();
+				_index.reset();
 				return *this;
 			}
 
@@ -610,7 +628,8 @@ namespace stingray
 				if (size == 0)
 					return;
 
-				_impl->Move(size - GetPosition() - 1);
+				const size_t position = GetPosition();
+				_impl->Move(position < size ? size - position - 1 : size + _initial.GetPosition() - _impl->GetPosition() - 1);
 				_index = size - 1;
 			}
 
