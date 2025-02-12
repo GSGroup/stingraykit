@@ -550,7 +550,7 @@ namespace stingray
 						prev.Next();
 				}
 
-				_impl.emplace(*prev._impl);
+				_impl = std::move(prev._impl);
 				_index = prev._index;
 				return *this;
 			}
