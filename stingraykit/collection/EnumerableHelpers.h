@@ -724,7 +724,7 @@ namespace stingray
 				void DoCast() const
 				{
 					if (!_cache)
-						_cache = implicit_cast<Dst_>(STINGRAYKIT_CHECKED_DYNAMIC_CASTER(_srcEnumerator->Get()));
+						_cache = STINGRAYKIT_CHECKED_DYNAMIC_CASTER(_srcEnumerator->Get());
 				}
 			};
 		}
