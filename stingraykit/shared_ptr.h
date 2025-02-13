@@ -45,6 +45,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		struct ISharedPtrData : public TypeErasureBase
 		{
 			AtomicU32::Type			_strongReferences;
@@ -53,7 +54,6 @@ namespace stingray
 			ISharedPtrData() : _strongReferences(1), _weakReferences(1)
 			{ }
 		};
-
 
 		template < typename T >
 		class DefaultSharedPtrData : public ISharedPtrData
@@ -68,7 +68,6 @@ namespace stingray
 			void Dispose()
 			{ CheckedDelete(_ptr); }
 		};
-
 
 		template < typename T, typename Deleter >
 		class DeleterSharedPtrData : public ISharedPtrData
@@ -86,7 +85,6 @@ namespace stingray
 			void Dispose()
 			{ _deleter(_ptr); }
 		};
-
 
 		template < typename T >
 		class InplaceSharedPtrData : public ISharedPtrData
@@ -106,14 +104,12 @@ namespace stingray
 			{ return &_storage.Ref(); }
 		};
 
-
 		struct DisposeConcept : public function_info<void ()>
 		{
 			template < typename T >
 			static void Apply(T& t)
 			{ t.Dispose(); }
 		};
-
 
 		class SharedPtrImpl
 		{
@@ -224,10 +220,9 @@ namespace stingray
 			}
 		};
 
-
 		void DoLogAddRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal);
-		void DoLogReleaseRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal);
 
+		void DoLogReleaseRef(const char* className, u32 refs, const void* objPtrVal, const void* sharedPtrPtrVal);
 
 		template < typename T, bool DoTrace = shared_ptr_traits<T>::trace_ref_counts >
 		struct SharedPtrRefCounter
@@ -693,6 +688,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename T >
 		class WeakPtrToPointerProxy
 		{
@@ -706,6 +702,7 @@ namespace stingray
 
 			operator T* () const { return _sharedPtr.get(); }
 		};
+
 	}
 
 	template < typename T >
@@ -719,6 +716,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename SrcPtr_, typename DstPtr_ >
 		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<IsSharedPtr<SrcPtr_>::Value && IsSharedPtr<DstPtr_>::Value, void>::ValueT>
 		{
@@ -729,13 +727,11 @@ namespace stingray
 			}
 		};
 
-
 		template < typename Src_, typename Dst_ >
 		struct DynamicCastImpl<Src_, Dst_, typename EnableIf<IsSharedPtr<Src_>::Value != IsSharedPtr<Dst_>::Value, void>::ValueT>
 		{
 			// Explicitly prohibit casting if one of the types is a pointer and another one is not
 		};
-
 
 		template < typename Src_ >
 		class DynamicCasterImpl<Src_, typename EnableIf<IsSharedPtr<Src_>::Value, void>::ValueT>
@@ -751,6 +747,7 @@ namespace stingray
 			operator shared_ptr<Dst_> () const
 			{ return DynamicCast<shared_ptr<Dst_>, Src_>(_src); }
 		};
+
 	}
 
 
