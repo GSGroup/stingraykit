@@ -748,6 +748,23 @@ namespace stingray
 			{ return DynamicCast<shared_ptr<Dst_>, Src_>(_src); }
 		};
 
+		template < typename Src_ >
+		class CheckedDynamicCaster<Src_, typename EnableIf<IsSharedPtr<Src_>::Value, void>::ValueT>
+		{
+		private:
+			Src_					_src;
+			ToolkitWhere			_where;
+
+		public:
+			CheckedDynamicCaster(const Src_& src, ToolkitWhere where)
+				: _src(src), _where(where)
+			{ }
+
+			template < typename Dst_ >
+			operator shared_ptr<Dst_> () const
+			{ return CheckedDynamicCasterImpl<Src_>::template Do<shared_ptr<Dst_>>(_src, _where); }
+		};
+
 	}
 
 

@@ -135,6 +135,23 @@ namespace stingray
 	{
 
 		template < typename Src_ >
+		struct CheckedDynamicCasterImpl
+		{
+			template < typename Dst_ >
+			static Dst_ Do(const Src_& src, ToolkitWhere where)
+			{
+				if (!src)
+					return null;
+
+				Dst_ dst = DynamicCast<Dst_>(src);
+				if (dst)
+					return dst;
+
+				throw stingray::Detail::MakeException(InvalidCastException(TypeInfo(*src).GetName(), TypeInfo(typeid(Dst_)).GetName()), where);
+			}
+		};
+
+		template < typename Src_, typename Enabler = void >
 		class CheckedDynamicCaster
 		{
 		private:
@@ -148,16 +165,7 @@ namespace stingray
 
 			template < typename Dst_ >
 			operator Dst_ () const
-			{
-				if (!_src)
-					return null;
-
-				Dst_ dst = DynamicCast<Dst_>(_src);
-				if (dst)
-					return dst;
-
-				throw stingray::Detail::MakeException(InvalidCastException(TypeInfo(*_src).GetName(), TypeInfo(typeid(Dst_)).GetName()), _where);
-			}
+			{ return CheckedDynamicCasterImpl<Src_>::template Do<Dst_>(_src, _where); }
 		};
 
 		template < typename Src_ >
