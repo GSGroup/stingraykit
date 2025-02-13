@@ -16,129 +16,138 @@ namespace stingray
 
 	namespace Detail
 	{
-		template <typename Src_, typename Dst_, typename Enabler = void>
+
+		template < typename Src_, typename Dst_, typename Enabler = void >
 		struct PointersCaster
 		{
 			static Dst_* Do(Src_* src)
 			{
 				// Src_ and Dst_ types must be complete
-				(void)sizeof(Src_); (void)sizeof(Dst_);
+				(void)sizeof(Src_);
+				(void)sizeof(Dst_);
 				return dynamic_cast<Dst_*>(src);
 			}
 		};
 
-
-		template <typename Src_, typename Dst_>
+		template < typename Src_, typename Dst_ >
 		struct PointersCaster<Src_, Dst_, typename EnableIf<IsInherited<Src_, Dst_>::Value, void>::ValueT>
 		{
 			static Dst_* Do(Src_* src)
 			{ return src; }
 		};
 
-
-		template <typename Src_, typename Dst_, typename Enabler = void>
+		template < typename Src_, typename Dst_, typename Enabler = void >
 		struct DynamicCastImpl;
 
-
-		template <typename Src_, typename DstReference_>
+		template < typename Src_, typename DstReference_ >
 		struct DynamicCastImpl<Src_, DstReference_, typename EnableIf<IsReference<DstReference_>::Value, void>::ValueT>
 		{
 			static DstReference_ Do(Src_& src)
 			{
-				typedef typename RemoveReference<DstReference_>::ValueT Dst_;
+				using Dst_ = typename RemoveReference<DstReference_>::ValueT;
+
 				Dst_* dst = PointersCaster<Src_, Dst_>::Do(&src);
 				STINGRAYKIT_CHECK(dst, InvalidCastException(TypeInfo(src).GetName(), TypeInfo(typeid(Dst_)).GetName()));
+
 				return *dst;
 			}
 		};
 
-
-		template <typename SrcPtr_, typename DstPtr_>
+		template < typename SrcPtr_, typename DstPtr_ >
 		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<IsPointer<SrcPtr_>::Value && IsPointer<DstPtr_>::Value, void>::ValueT>
 		{
 			static DstPtr_ Do(SrcPtr_ src)
 			{ return PointersCaster<typename RemovePointer<SrcPtr_>::ValueT, typename RemovePointer<DstPtr_>::ValueT>::Do(src); }
 		};
 
-
-		template <typename Src_, typename Dst_>
+		template < typename Src_, typename Dst_ >
 		struct DynamicCastImpl<Src_, Dst_, typename EnableIf<IsPointer<Src_>::Value != IsPointer<Dst_>::Value, void>::ValueT>
 		{
 			// Explicitly prohibit casting if one of the types is a pointer and another one is not
 		};
+
 	}
 
 
-	template <typename Dst_, typename Src_>
+	template < typename Dst_, typename Src_ >
 	Dst_ DynamicCast(Src_& src)
 	{ return Detail::DynamicCastImpl<Src_, Dst_>::Do(src); }
 
 
-	template <typename Dst_, typename Src_>
+	template < typename Dst_, typename Src_ >
 	Dst_ DynamicCast(const Src_& src)
 	{ return Detail::DynamicCastImpl<const Src_, Dst_>::Do(src); }
 
 
 	namespace Detail
 	{
-		template <typename Src_, typename Enabler = void>
+
+		template < typename Src_, typename Enabler = void >
 		class DynamicCasterImpl
 		{
 		private:
-			Src_& _src;
+			Src_&					_src;
 
 		public:
-			explicit DynamicCasterImpl(Src_& src) : _src(src)
+			explicit DynamicCasterImpl(Src_& src)
+				: _src(src)
 			{ }
 
-			template <typename Dst_> operator Dst_& () const
+			template < typename Dst_ >
+			operator Dst_& () const
 			{ return DynamicCast<Dst_&, Src_>(_src); }
-			template <typename Dst_> operator const Dst_& () const
-			{ return DynamicCast<const Dst_ &, Src_>(_src); }
+
+			template < typename Dst_ >
+			operator const Dst_& () const
+			{ return DynamicCast<const Dst_&, Src_>(_src); }
 		};
 
-
-		template <typename SrcPtr_>
+		template < typename SrcPtr_ >
 		class DynamicCasterImpl<SrcPtr_, typename EnableIf<IsPointer<SrcPtr_>::Value, void>::ValueT>
 		{
 		private:
-			SrcPtr_ _src;
+			SrcPtr_					_src;
 
 		public:
-			explicit DynamicCasterImpl(SrcPtr_ src) : _src(src)
+			explicit DynamicCasterImpl(SrcPtr_ src)
+				: _src(src)
 			{ }
 
-			template <typename Dst_> operator Dst_* () const
+			template < typename Dst_ >
+			operator Dst_* () const
 			{ return DynamicCast<Dst_*, SrcPtr_>(_src); }
 		};
+
 	}
 
 
-	template <typename Src_>
+	template < typename Src_ >
 	Detail::DynamicCasterImpl<Src_> dynamic_caster(Src_& src)
 	{ return Detail::DynamicCasterImpl<Src_>(src); }
 
 
-	template <typename Src_>
+	template < typename Src_ >
 	Detail::DynamicCasterImpl<const Src_> dynamic_caster(const Src_& src)
 	{ return Detail::DynamicCasterImpl<const Src_>(src); }
 
 
 	namespace Detail
 	{
-		template <typename Src_>
+
+		template < typename Src_ >
 		class CheckedDynamicCaster
 		{
-			Src_         _src;
-			ToolkitWhere _where;
+		private:
+			Src_					_src;
+			ToolkitWhere			_where;
 
 		public:
-			CheckedDynamicCaster(const Src_& src, ToolkitWhere where) :
-				_src(src), _where(where)
+			CheckedDynamicCaster(const Src_& src, ToolkitWhere where)
+				: _src(src), _where(where)
 			{ }
 
-			template <typename Dst_>
-			operator Dst_() const
+			template < typename Dst_ >
+			operator Dst_ () const
 			{
 				if (!_src)
 					return null;
@@ -151,17 +160,15 @@ namespace stingray
 			}
 		};
 
-
-		template <typename Src_>
+		template < typename Src_ >
 		CheckedDynamicCaster<Src_> checked_dynamic_caster(const Src_& src, ToolkitWhere where)
 		{ return CheckedDynamicCaster<Src_>(src, where); }
+
 	}
 
 
 #define STINGRAYKIT_CHECKED_DYNAMIC_CASTER(Expr_) stingray::Detail::checked_dynamic_caster(Expr_, STINGRAYKIT_WHERE)
 
-
 }
-
 
 #endif
