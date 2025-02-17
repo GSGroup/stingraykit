@@ -453,6 +453,12 @@ namespace stingray
 				return *this;
 			}
 
+			Self& Next()
+			{
+				_impl->Next();
+				return *this;
+			}
+
 			Self& Last()
 			{
 				if (_initial.Valid())
@@ -460,12 +466,6 @@ namespace stingray
 				else
 					_impl.emplace(_initial);
 
-				return *this;
-			}
-
-			Self& Next()
-			{
-				_impl->Next();
 				return *this;
 			}
 
@@ -538,6 +538,14 @@ namespace stingray
 				return *this;
 			}
 
+			Self& Next()
+			{
+				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
+				_impl->Next();
+				++_index;
+				return *this;
+			}
+
 			Self& Last()
 			{
 				First();
@@ -552,14 +560,6 @@ namespace stingray
 
 				_impl = std::move(prev._impl);
 				_index = prev._index;
-				return *this;
-			}
-
-			Self& Next()
-			{
-				STINGRAYKIT_CHECK(Valid(), "Next() behind last element");
-				_impl->Next();
-				++_index;
 				return *this;
 			}
 
@@ -700,17 +700,17 @@ namespace stingray
 				return *this;
 			}
 
-			Self& Prev()
+			Self& Last()
 			{
-				STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
-				_it = std::next(_begin, AlignDown(std::distance(_begin, _it) - 1, _maxFragmentSize));
+				_it = std::next(_begin, AlignDown(std::distance(_begin, _end), _maxFragmentSize));
 				_value.reset();
 				return *this;
 			}
 
-			Self& Last()
+			Self& Prev()
 			{
-				_it = std::next(_begin, AlignDown(std::distance(_begin, _end), _maxFragmentSize));
+				STINGRAYKIT_CHECK(_it != _begin, "Prev() at first element");
+				_it = std::next(_begin, AlignDown(std::distance(_begin, _it) - 1, _maxFragmentSize));
 				_value.reset();
 				return *this;
 			}
@@ -785,6 +785,14 @@ namespace stingray
 				return *this;
 			}
 
+			Self& Last()
+			{
+				_range.Last();
+				_currentSubRange = FindPrev();
+
+				return *this;
+			}
+
 			Self& Prev()
 			{
 				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
@@ -798,14 +806,6 @@ namespace stingray
 				}
 				else
 					_currentSubRange.reset();
-
-				return *this;
-			}
-
-			Self& Last()
-			{
-				_range.Last();
-				_currentSubRange = FindPrev();
 
 				return *this;
 			}
@@ -940,13 +940,6 @@ namespace stingray
 				return *this;
 			}
 
-			Self& Prev()
-			{
-				For<RangeCount, CallPrev>::Do(wrap_ref(_ranges));
-				_value.reset();
-				return *this;
-			}
-
 			Self& Last()
 			{
 				First();
@@ -960,6 +953,13 @@ namespace stingray
 				if (!empty)
 					Prev();
 
+				_value.reset();
+				return *this;
+			}
+
+			Self& Prev()
+			{
+				For<RangeCount, CallPrev>::Do(wrap_ref(_ranges));
 				_value.reset();
 				return *this;
 			}
@@ -1117,16 +1117,16 @@ namespace stingray
 				return *this;
 			}
 
+			Self& Last()
+			{
+				_currentRange = RangeGetter<false>(_ranges).Get();
+				return *this;
+			}
+
 			Self& Prev()
 			{
 				STINGRAYKIT_CHECK(Valid(), "Range is not valid!");
 				apply_visitor(IterateVisitor<false>(*this), *_currentRange);
-				return *this;
-			}
-
-			Self& Last()
-			{
-				_currentRange = RangeGetter<false>(_ranges).Get();
 				return *this;
 			}
 		};
@@ -1173,15 +1173,15 @@ namespace stingray
 				return *this;
 			}
 
-			Self& Prev()
+			Self& Last()
 			{
-				STINGRAYKIT_CHECK(!Valid(), "Prev() at first element");
 				_valid = true;
 				return *this;
 			}
 
-			Self& Last()
+			Self& Prev()
 			{
+				STINGRAYKIT_CHECK(!Valid(), "Prev() at first element");
 				_valid = true;
 				return *this;
 			}
