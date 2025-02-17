@@ -35,6 +35,12 @@ namespace stingray
 		Utf8IteratorRange(const ContainerType& data, const IteratorType& it) : _begin(data.begin()), _end(data.end()), _it(it)
 		{ }
 
+		IteratorType GetIterator() const
+		{ return _it; }
+
+		bool Valid() const
+		{ return _it != _end; }
+
 		u32 Get() const
 		{
 			STINGRAYKIT_CHECK(_it != _end, "Get() behind last element");
@@ -75,25 +81,11 @@ namespace stingray
 			STINGRAYKIT_THROW(MalformedUtf8Exception());
 		}
 
-		IteratorType GetIterator() const
-		{ return _it; }
-
-		bool Valid() const
-		{ return _it != _end; }
-
 		bool Equals(const Self& other) const
 		{ return _begin == other._begin && _end == other._end && _it == other._it; }
 
 		Self& First()
 		{ _it = _begin; return *this; }
-
-		Self& Last()
-		{
-			_it = _end;
-			if (_it != _begin)
-				Prev();
-			return *this;
-		}
 
 		Self& Next()
 		{
@@ -132,6 +124,14 @@ namespace stingray
 				return *this;
 
 			STINGRAYKIT_THROW(MalformedUtf8Exception());
+		}
+
+		Self& Last()
+		{
+			_it = _end;
+			if (_it != _begin)
+				Prev();
+			return *this;
 		}
 
 		Self& Prev()
