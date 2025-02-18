@@ -19,9 +19,9 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ScopedHolder);
 
 	public:
-		typedef typename GetParamPassingType<ValueType>::ValueT ValuePassingType;
+		using ValuePassingType = typename GetParamPassingType<ValueType>::ValueT;
 
-		typedef function<void (ValuePassingType)> CleanupFuncType;
+		using CleanupFuncType = function<void (ValuePassingType)>;
 
 	private:
 		ValueType		_handle;
@@ -37,11 +37,24 @@ namespace stingray
 			: _handle(handle), _cleanupFunc(cleanupFunc), _valid(true)
 		{ }
 
-		~ScopedHolder()					{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
+		~ScopedHolder()
+		{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
 
-		bool Valid() const				{ return _valid; }
-		ValuePassingType Get() const	{ Check();					return _handle; }
-		ValueType Release()				{ Check(); _valid = false;	return _handle; }
+		bool Valid() const
+		{ return _valid; }
+
+		ValuePassingType Get() const
+		{
+			Check();
+			return _handle;
+		}
+
+		ValueType Release()
+		{
+			Check();
+			_valid = false;
+			return _handle;
+		}
 
 		void Clear()
 		{ Cleanup(); }
@@ -54,7 +67,9 @@ namespace stingray
 		}
 
 	private:
-		void Check() const { STINGRAYKIT_CHECK(_valid, LogicException("ScopedHolder is not valid!")); }
+		void Check() const
+		{ STINGRAYKIT_CHECK(_valid, LogicException("ScopedHolder is not valid!")); }
+
 		void Cleanup()
 		{
 			if (_valid)
@@ -64,13 +79,13 @@ namespace stingray
 	};
 
 
-	template <>
+	template < >
 	class ScopedHolder<void>
 	{
 		STINGRAYKIT_NONCOPYABLE(ScopedHolder);
 
 	public:
-		typedef function<void()>	CleanupFuncType;
+		using CleanupFuncType = function<void ()>;
 
 	private:
 		CleanupFuncType	_cleanupFunc;
@@ -81,7 +96,8 @@ namespace stingray
 			: _cleanupFunc(cleanupFunc), _valid(valid)
 		{ }
 
-		~ScopedHolder()			{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
+		~ScopedHolder()
+		{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
 
 		bool Valid() const		{ return _valid; }
 		void Clear()			{ Cleanup(); _valid = false; }
@@ -96,9 +112,10 @@ namespace stingray
 	template < typename NativeType >
 	class SharedHolder
 	{
-		typedef ScopedHolder<NativeType> Impl;
+		using Impl = ScopedHolder<NativeType>;
 		STINGRAYKIT_DECLARE_PTR(Impl);
-		typedef function<void(NativeType)>		CleanupFuncType;
+
+		using CleanupFuncType = function<void (NativeType)>;
 
 	private:
 		ImplPtr	_impl;
@@ -118,24 +135,20 @@ namespace stingray
 		~SharedHolder()
 		{ }
 
-		bool Valid() const		{ return _impl && _impl->Valid(); }
-
-		NativeType Get() const	{ return _impl->Get(); }
-
-		void Clear()
-		{ _impl->Clear(); }
-
-		void Set(NativeType handle)
-		{ _impl->Set(handle); }
+		bool Valid() const					{ return _impl && _impl->Valid(); }
+		ValueType Get() const				{ return _impl->Get(); }
+		void Clear()						{ _impl->Clear(); }
+		void Set(NativeType handle)			{ _impl->Set(handle); }
 	};
 
 
-	template <>
+	template < >
 	class SharedHolder<void>
 	{
-		typedef ScopedHolder<void> Impl;
+		using Impl = ScopedHolder<void>;
 		STINGRAYKIT_DECLARE_PTR(Impl);
-		typedef function<void()>		CleanupFuncType;
+
+		using CleanupFuncType = function<void ()>;
 
 	private:
 		ImplPtr	_impl;
