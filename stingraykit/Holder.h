@@ -37,8 +37,21 @@ namespace stingray
 			: _handle(handle), _cleanupFunc(cleanupFunc), _valid(true)
 		{ }
 
+		ScopedHolder(ScopedHolder&& other)
+			: _handle(std::move(other._handle)), _cleanupFunc(std::move(other._cleanupFunc)), _valid(other._valid)
+		{ other._valid = false; }
+
 		~ScopedHolder()
 		{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
+
+		ScopedHolder& operator = (ScopedHolder&& other)
+		{
+			ScopedHolder tmp(std::move(other));
+			std::swap(_handle, tmp._handle);
+			std::swap(_cleanupFunc, tmp._cleanupFunc);
+			std::swap(_valid, tmp._valid);
+			return *this;
+		}
 
 		bool Valid() const
 		{ return _valid; }
@@ -96,8 +109,20 @@ namespace stingray
 			: _cleanupFunc(cleanupFunc), _valid(valid)
 		{ }
 
+		ScopedHolder(ScopedHolder&& other)
+			: _cleanupFunc(std::move(other._cleanupFunc)), _valid(other._valid)
+		{ other._valid = false; }
+
 		~ScopedHolder()
 		{ STINGRAYKIT_TRY_NO_MESSAGE(Cleanup()); }
+
+		ScopedHolder& operator = (ScopedHolder&& other)
+		{
+			ScopedHolder tmp(std::move(other));
+			std::swap(_cleanupFunc, tmp._cleanupFunc);
+			std::swap(_valid, tmp._valid);
+			return *this;
+		}
 
 		bool Valid() const		{ return _valid; }
 		void Clear()			{ Cleanup(); _valid = false; }
