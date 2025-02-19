@@ -133,13 +133,15 @@ namespace stingray
 	};
 
 
-	template < typename NativeType >
+	template < typename ValueType >
 	class SharedHolder
 	{
-		using Impl = ScopedHolder<NativeType>;
+		using Impl = ScopedHolder<ValueType>;
 		STINGRAYKIT_DECLARE_PTR(Impl);
 
-		using CleanupFuncType = function<void (NativeType)>;
+		using ValuePassingType = typename GetParamPassingType<ValueType>::ValueT;
+
+		using CleanupFuncType = function<void (ValuePassingType)>;
 
 	private:
 		ImplPtr	_impl;
@@ -152,7 +154,7 @@ namespace stingray
 			: _impl(make_shared_ptr<Impl>(cleanupFunc))
 		{ }
 
-		SharedHolder(NativeType handle, const CleanupFuncType& cleanupFunc)
+		SharedHolder(ValuePassingType handle, const CleanupFuncType& cleanupFunc)
 			: _impl(make_shared_ptr<Impl>(handle, cleanupFunc))
 		{ }
 
@@ -160,9 +162,9 @@ namespace stingray
 		{ }
 
 		bool Valid() const					{ return _impl && _impl->Valid(); }
-		ValueType Get() const				{ return _impl->Get(); }
+		ValuePassingType Get() const		{ return _impl->Get(); }
 		void Clear()						{ _impl->Clear(); }
-		void Set(NativeType handle)			{ _impl->Set(handle); }
+		void Set(ValuePassingType handle)	{ _impl->Set(handle); }
 	};
 
 
