@@ -273,7 +273,7 @@ namespace stingray
 			{
 				for ( ; _impl.Valid(); _impl.Next())
 				{
-					_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_impl.Get()));
+					_dst = dynamic_caster(Storage::Wrap(_impl.Get()));
 					if (_dst)
 						return;
 				}
@@ -283,7 +283,7 @@ namespace stingray
 			{
 				for ( ; _impl.Valid(); _impl.Prev())
 				{
-					_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_impl.Get()));
+					_dst = dynamic_caster(Storage::Wrap(_impl.Get()));
 					if (_dst)
 						return;
 				}
@@ -295,7 +295,7 @@ namespace stingray
 
 				for ( ; _impl.Valid(); _impl.Prev())
 				{
-					_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_impl.Get()));
+					_dst = dynamic_caster(Storage::Wrap(_impl.Get()));
 					if (_dst)
 						break;
 

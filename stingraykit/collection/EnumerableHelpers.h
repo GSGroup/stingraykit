@@ -775,7 +775,7 @@ namespace stingray
 				{
 					for (; _srcEnumerator->Valid(); _srcEnumerator->Next())
 					{
-						_dst = DynamicCast<typename Storage::ValueType>(Storage::Wrap(_srcEnumerator->Get()));
+						_dst = dynamic_caster(Storage::Wrap(_srcEnumerator->Get()));
 						if (_dst)
 							break;
 					}
