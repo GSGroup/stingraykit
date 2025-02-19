@@ -81,7 +81,7 @@ namespace stingray
 
 	private:
 		void Check() const
-		{ STINGRAYKIT_CHECK(_valid, LogicException("ScopedHolder is not valid!")); }
+		{ STINGRAYKIT_CHECK(_valid, NotInitializedException()); }
 
 		void Cleanup()
 		{
@@ -129,7 +129,6 @@ namespace stingray
 		void Set()				{ Cleanup(); _valid = true; }
 
 	private:
-		void Check() const		{ STINGRAYKIT_CHECK(_valid, LogicException("ScopedHolder is not valid!")); }
 		void Cleanup() const	{ if (_valid) _cleanupFunc(); }
 	};
 
