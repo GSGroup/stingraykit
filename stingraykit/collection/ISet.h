@@ -13,6 +13,8 @@
 #define STINGRAYKIT_DECLARE_SET(ClassName) \
 		using ClassName##Set = stingray::ISet<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##Set); \
+		using ClassName##ReadonlySet = stingray::IReadonlySet<ClassName>; \
+		STINGRAYKIT_DECLARE_PTR(ClassName##ReadonlySet); \
 		STINGRAYKIT_DECLARE_COLLECTION(ClassName)
 
 namespace stingray

@@ -14,6 +14,8 @@
 #define STINGRAYKIT_DECLARE_LIST(ClassName) \
 		using ClassName##List = stingray::IList<ClassName>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##List); \
+		using ClassName##ReadonlyList = stingray::IReadonlyList<ClassName>; \
+		STINGRAYKIT_DECLARE_PTR(ClassName##ReadonlyList); \
 		STINGRAYKIT_DECLARE_COLLECTION(ClassName)
 
 namespace stingray
