@@ -63,9 +63,6 @@ namespace stingray
 			:	_items(make_shared_ptr<SetType>())
 		{ }
 
-		SortedMultiSet(const SortedMultiSet& other)
-		{ CopyItems(other._items); }
-
 		explicit SortedMultiSet(const shared_ptr<IEnumerable<T>>& enumerable)
 			:	SortedMultiSet(STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)->GetEnumerator())
 		{ }
@@ -76,9 +73,6 @@ namespace stingray
 			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 			Enumerable::ForEach(enumerator, Bind(&SortedMultiSet::Add, this, _1));
 		}
-
-		SortedMultiSet& operator = (const SortedMultiSet& other)
-		{ CopyItems(other._items); return *this; }
 
 		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }

@@ -61,9 +61,6 @@ namespace stingray
 			:	_items(make_shared_ptr<SetType>())
 		{ }
 
-		GenericSet(const GenericSet& other)
-		{ CopyItems(other._items); }
-
 		explicit GenericSet(const shared_ptr<IEnumerable<ValueType>>& enumerable)
 			:	GenericSet(STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)->GetEnumerator())
 		{ }
@@ -74,9 +71,6 @@ namespace stingray
 			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 			Enumerable::ForEach(enumerator, Bind(&GenericSet::Add, this, _1));
 		}
-
-		GenericSet& operator = (const GenericSet& other)
-		{ CopyItems(other._items); return *this; }
 
 		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }

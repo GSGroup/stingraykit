@@ -65,9 +65,6 @@ namespace stingray
 			:	_map(make_shared_ptr<MapType>())
 		{ }
 
-		GenericDictionary(const GenericDictionary& other)
-		{ CopyMap(other._map); }
-
 		explicit GenericDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
 			:	GenericDictionary(STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)->GetEnumerator())
 		{ }
@@ -79,9 +76,6 @@ namespace stingray
 			FOR_EACH(const PairType pair IN enumerator)
 				Set(pair.Key, pair.Value);
 		}
-
-		GenericDictionary& operator = (const GenericDictionary& other)
-		{ CopyMap(other._map); return *this; }
 
 		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 		{ return EnumeratorFromStlContainer<PairType>(*_map, GetMapHolder()); }

@@ -72,12 +72,6 @@ namespace stingray
 			Enumerable::ForEach(enumerator, Bind(&GenericList::Add, this, _1));
 		}
 
-		GenericList(const GenericList& other)
-		{ CopyItems(other._items); }
-
-		GenericList& operator = (const GenericList& other)
-		{ CopyItems(other._items); return *this; }
-
 		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
 		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
 

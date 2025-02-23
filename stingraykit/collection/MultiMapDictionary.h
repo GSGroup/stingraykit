@@ -72,9 +72,6 @@ namespace stingray
 			:	_map(make_shared_ptr<MapType>())
 		{ }
 
-		MultiMapDictionary(const MultiMapDictionary& other)
-		{ CopyMap(other._map); }
-
 		explicit MultiMapDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
 			:	MultiMapDictionary(STINGRAYKIT_REQUIRE_NOT_NULL(enumerable)->GetEnumerator())
 		{ }
@@ -86,9 +83,6 @@ namespace stingray
 			FOR_EACH(const PairType pair IN enumerator)
 				Add(pair.Key, pair.Value);
 		}
-
-		MultiMapDictionary& operator = (const MultiMapDictionary& other)
-		{ CopyMap(other._map); return *this; }
 
 		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
 		{ return EnumeratorFromStlContainer<PairType>(*_map, GetMapHolder()); }

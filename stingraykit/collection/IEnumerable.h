@@ -26,8 +26,12 @@ namespace stingray
 	template < typename T >
 	struct IEnumerable
 	{
+		STINGRAYKIT_NONCOPYABLE(IEnumerable);
+
+	public:
 		using ItemType = T;
 
+		IEnumerable() { }
 		virtual ~IEnumerable() { }
 
 		virtual shared_ptr<IEnumerator<ItemType>> GetEnumerator() const = 0;

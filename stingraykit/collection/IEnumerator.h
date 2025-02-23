@@ -25,8 +25,12 @@ namespace stingray
 	template < typename T >
 	struct IEnumerator
 	{
+		STINGRAYKIT_NONCOPYABLE(IEnumerator);
+
+	public:
 		using ItemType = T;
 
+		IEnumerator() { }
 		virtual ~IEnumerator() { }
 
 		virtual bool Valid() const = 0;
