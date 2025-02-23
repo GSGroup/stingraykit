@@ -225,15 +225,15 @@ namespace stingray
 				const size_t size = CmdArgReader::Read(input.c_str(), input.size(), value, 0);
 
 				bool got_exact_match = false;
-				const std::vector<std::string> variants = { "on", "off", "true", "false" };
-				for(std::vector<std::string>::const_iterator it = variants.begin(); it != variants.end(); ++it)
+				const std::string variants[] = { "on", "off", "true", "false" };
+				for(const std::string& var : variants)
 				{
-					if (value.size() > (*it).length())
+					if (value.size() > var.length())
 						continue;
-					if (value == (*it))
+					if (value == var)
 						got_exact_match = true;
-					if ((*it).substr(0, value.size()) == value)
-						results.insert((*it).substr(value.size()) + " ");
+					if (var.substr(0, value.size()) == value)
+						results.insert(var.substr(value.size()) + " ");
 				}
 				input.erase(0, size);
 				bool ret = got_exact_match && (results.size() == 1 || !input.empty());
