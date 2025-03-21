@@ -649,7 +649,11 @@ namespace stingray
 		operator std::string () const { return ToString(); }
 
 		std::string ToString() const
-		{ return (_builder.empty() ? _prefix : _builder.ToString()) + _suffix; }
+		{
+			std::string result = _builder.empty() ? _prefix : _builder;
+			result.append(_suffix);
+			return result;
+		}
 
 	private:
 		template < typename T >
