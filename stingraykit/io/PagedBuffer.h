@@ -60,7 +60,7 @@ namespace stingray
 
 		u64 GetStorageSize() const;
 
-		void Push(const ConstByteData& data, const ICancellationToken& token);
+		void Push(ConstByteData data, const ICancellationToken& token);
 		void Pop(u64 size);
 
 		void Seek(u64 offset);

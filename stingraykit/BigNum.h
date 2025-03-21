@@ -37,7 +37,7 @@ namespace stingray
 		BigUnsignedInteger(const char* source)
 		{ LoadFromString(source); }
 
-		explicit BigUnsignedInteger(const ConstByteData& source)
+		explicit BigUnsignedInteger(ConstByteData source)
 		{ LoadFromData(source.begin(), source.end()); }
 
 		template <typename T>

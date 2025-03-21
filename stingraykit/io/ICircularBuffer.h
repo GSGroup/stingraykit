@@ -56,7 +56,7 @@ namespace stingray
 		virtual size_t GetFreeSize() const = 0;
 		virtual size_t GetStorageSize() const = 0;
 		virtual CircularDataReserverPtr Pop(size_t size = std::numeric_limits<size_t>::max()) = 0;
-		virtual void Push(const ConstByteData &data) = 0;
+		virtual void Push(ConstByteData data) = 0;
 		virtual bool CanPush(size_t size) = 0;
 		virtual void Clear() = 0;
 	};

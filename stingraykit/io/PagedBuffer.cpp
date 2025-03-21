@@ -121,7 +121,7 @@ namespace stingray
 	}
 
 
-	void PagedBuffer::Push(const ConstByteData& data, const ICancellationToken& token)
+	void PagedBuffer::Push(ConstByteData data, const ICancellationToken& token)
 	{
 		WriteGuard g(*this);
 

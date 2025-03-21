@@ -20,7 +20,7 @@ using namespace stingray;
 namespace
 {
 
-	void BufferOverflow(MemoryCircularBuffer<false> &buffer, const ConstByteData& data)
+	void BufferOverflow(MemoryCircularBuffer<false> &buffer, ConstByteData data)
 	{
 		const size_t SizeBefore = buffer.GetSize();
 		try

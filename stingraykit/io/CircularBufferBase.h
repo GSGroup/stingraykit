@@ -45,7 +45,7 @@ namespace stingray
 		Mutex				_mutex;
 		bool 				_loggingEnabled;
 
-		ConstByteData CheckDataSize(const ConstByteData& data)
+		ConstByteData CheckDataSize(ConstByteData data)
 		{
 			const size_t totalCapacity = GetFreeSize();
 			if (data.size() > totalCapacity)
@@ -64,7 +64,7 @@ namespace stingray
 			return data;
 		}
 
-		void DoPush(const ConstByteData& data)
+		void DoPush(ConstByteData data)
 		{
 			WriteToStorage(_writeOffset, data.begin(), data.end());
 			_writeOffset += data.size();
@@ -176,7 +176,7 @@ namespace stingray
 			return make_shared_ptr<CircularDataReserver>(ReadStorage(_readOffset, _lockedDataSize), Bind(&CircularBufferBase::ReleaseData, this, _1));
 		}
 
-		void Push(const ConstByteData& data)
+		void Push(ConstByteData data)
 		{
 			MutexLock l(_mutex);
 			if (_loggingEnabled)

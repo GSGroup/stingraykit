@@ -437,12 +437,12 @@ namespace stingray
 		reverse_iterator rend() const
 		{ return reverse_iterator(begin()); }
 
-		bool operator == (const BasicByteData& other) const
+		bool operator == (BasicByteData other) const
 		{ return size() == other.size() && std::equal(data(), data() + size(), other.data()); }
 
 		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(BasicByteData);
 
-		bool operator < (const BasicByteData& other) const
+		bool operator < (BasicByteData other) const
 		{ return std::lexicographical_compare(data(), data() + size(), other.data(), other.data() + other.size()); }
 
 		STINGRAYKIT_GENERATE_RELATIONAL_OPERATORS_FROM_LESS(BasicByteData);
