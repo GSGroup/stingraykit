@@ -75,7 +75,7 @@ namespace stingray
 		Token connect(const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
 			if (STINGRAYKIT_UNLIKELY(!_impl))
-				return Token();
+				return null;
 
 			TaskLifeToken token(_impl->CreateSyncToken());
 			const FutureExecutionTester tester(token.GetExecutionTester());
@@ -87,7 +87,7 @@ namespace stingray
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature_>& slot, bool sendCurrentState = true) const
 		{
 			if (STINGRAYKIT_UNLIKELY(!_impl))
-				return Token();
+				return null;
 
 			TaskLifeToken token(_impl->CreateAsyncToken());
 			const FutureExecutionTester tester(token.GetExecutionTester());
