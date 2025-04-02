@@ -29,7 +29,7 @@ namespace stingray
 	public:
 		template < typename SignalSignature >
 		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& connector)
-		{ _connection = connector.connect(Bind(&promise<ParamType>::set_value, wrap_ref(_promise), _1)); }
+		{ _connection = connector.connect(WrapSetValue(_promise)); }
 
 		shared_future<ParamType> GetFuture()
 		{
@@ -37,28 +37,14 @@ namespace stingray
 				_future = _promise.get_future().share();
 			return _future;
 		}
-	};
 
-
-	template < >
-	class SignalToFutureWrapper<void>
-	{
 	private:
-		promise<void>				_promise;
-		shared_future<void>			_future;
-		Token						_connection;
+		template < typename ParamType__ >
+		static auto WrapSetValue(promise<ParamType__>& promise_)
+		{ return Bind(&promise<ParamType__>::set_value, wrap_ref(promise_), _1); }
 
-	public:
-		template < typename SignalSignature >
-		explicit SignalToFutureWrapper(const signal_connector<SignalSignature>& connector)
-		{ _connection = connector.connect(Bind(&promise<void>::set_value, wrap_ref(_promise))); }
-
-		shared_future<void> GetFuture()
-		{
-			if(!_future.valid())
-				_future = _promise.get_future().share();
-			return _future;
-		}
+		static auto WrapSetValue(promise<void>& promise_)
+		{ return Bind(&promise<void>::set_value, wrap_ref(promise_)); }
 	};
 
 	/** @} */
