@@ -265,6 +265,7 @@ namespace stingray
 		ImplPtr			_impl;
 
 	public:
+		future() { }
 		~future() { }
 
 		bool valid() const				{ return _impl.is_initialized(); }
