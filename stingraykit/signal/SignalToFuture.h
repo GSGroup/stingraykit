@@ -41,10 +41,14 @@ namespace stingray
 	private:
 		template < typename ParamType__ >
 		static auto WrapSetValue(promise<ParamType__>& promise_)
-		{ return Bind(&promise<ParamType__>::set_value, wrap_ref(promise_), _1); }
+		{ return Bind(&SetValueProxy<ParamType__>, wrap_ref(promise_), _1); }
 
 		static auto WrapSetValue(promise<void>& promise_)
 		{ return Bind(&promise<void>::set_value, wrap_ref(promise_)); }
+
+		template < typename ParamType__ >
+		static void SetValueProxy(promise<ParamType__>& promise_, typename If<IsReference<ParamType__>::Value, ParamType__, const ParamType__&>::ValueT value)
+		{ promise_.set_value(value); }
 	};
 
 	/** @} */
