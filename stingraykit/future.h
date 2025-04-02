@@ -55,6 +55,8 @@ namespace stingray
 
 		private:
 			typedef T* StoredT;
+
+		private:
 			StoredT			_value;
 
 		public:
@@ -95,6 +97,7 @@ namespace stingray
 		template < >
 		class future_result<void>
 		{
+		private:
 			bool			_value;
 			ExceptionPtr	_exception;
 
@@ -121,6 +124,7 @@ namespace stingray
 		protected:
 			typedef future_result<T> ResultType;
 
+		protected:
 			Mutex					_mutex;
 			ConditionVariable		_condition;
 			ResultType				_result;
@@ -190,7 +194,7 @@ namespace stingray
 		{
 			typedef future_impl_base<void> Base;
 
-			public:
+		public:
 			void set_value()
 			{
 				MutexLock l(this->_mutex);
@@ -218,8 +222,9 @@ namespace stingray
 	template < typename ResultType >
 	class shared_future
 	{
+		typedef shared_ptr<Detail::future_impl<ResultType>> ImplPtr;
+
 	private:
-		typedef shared_ptr<Detail::future_impl<ResultType> > ImplPtr;
 		ImplPtr			_impl;
 
 	public:
@@ -254,6 +259,8 @@ namespace stingray
 	private:
 		typedef Detail::future_impl<ResultType> ImplType;
 		STINGRAYKIT_DECLARE_PTR(ImplType);
+
+	private:
 		shared_ptr<ImplType>			_impl;
 
 	public:
@@ -300,6 +307,7 @@ namespace stingray
 	private:
 		typedef Detail::future_impl<ResultType>	FutureImplType;
 
+	private:
 		shared_ptr<FutureImplType>	_futureImpl;
 		bool						_futureRetrieved;
 
@@ -333,6 +341,7 @@ namespace stingray
 		typedef void							ResultType;
 		typedef Detail::future_impl<ResultType>	FutureImplType;
 
+	private:
 		shared_ptr<FutureImplType>	_futureImpl;
 		bool						_futureRetrieved;
 
