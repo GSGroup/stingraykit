@@ -320,7 +320,10 @@ namespace stingray
 		{ _futureImpl->set_exception(MakeExceptionPtr(BrokenPromise())); }
 
 		void swap(promise& other)
-		{ _futureImpl.swap(other._futureImpl); }
+		{
+			_futureImpl.swap(other._futureImpl);
+			std::swap(_futureRetrieved, other._futureRetrieved);
+		}
 
 		future<ResultType> get_future()
 		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
@@ -354,7 +357,10 @@ namespace stingray
 		{ _futureImpl->set_exception(MakeExceptionPtr(BrokenPromise())); }
 
 		void swap(promise& other)
-		{ _futureImpl.swap(other._futureImpl); }
+		{
+			_futureImpl.swap(other._futureImpl);
+			std::swap(_futureRetrieved, other._futureRetrieved);
+		}
 
 		future<ResultType> get_future()
 		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
