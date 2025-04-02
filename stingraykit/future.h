@@ -245,7 +245,7 @@ namespace stingray
 		{ check_valid(); return _impl->wait(token); }
 
 	private:
-		shared_future(const ImplPtr& impl) : _impl(impl) { }
+		explicit shared_future(const ImplPtr& impl) : _impl(impl) { }
 		friend shared_future<ResultType> future<ResultType>::share();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the shared_future!")); }
 	};
@@ -290,7 +290,7 @@ namespace stingray
 		{ check_valid(); return _impl->wait(token); }
 
 	private:
-		future(const ImplTypePtr& impl) : _impl(impl) { }
+		explicit future(const ImplTypePtr& impl) : _impl(impl) { }
 		friend future<ResultType> promise<ResultType>::get_future();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the future!")); }
 	};
