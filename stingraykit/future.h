@@ -32,32 +32,38 @@ namespace stingray
 
 	namespace Detail
 	{
-		template<typename T>
+
+		template < typename T >
 		struct future_value_holder
 		{
 			typedef const T& ConstructValueT;
+
 		private:
-			T _value;
+			T			_value;
+
 		public:
-			future_value_holder(ConstructValueT value) : _value(value) {}
-			operator T() { return _value; }
+			future_value_holder(ConstructValueT value) : _value(value) { }
+			operator T () { return _value; }
 		};
 
-		template<typename T>
+
+		template < typename T >
 		struct future_value_holder<T&>
 		{
 			typedef T ValueT;
 			typedef T& ConstructValueT;
+
 		private:
 			typedef T* StoredT;
-			StoredT _value;
+			StoredT			_value;
+
 		public:
-			future_value_holder(ValueT& value) : _value(&value) {}
-			operator ValueT&() { return *_value; }
+			future_value_holder(ValueT& value) : _value(&value) { }
+			operator ValueT& () { return *_value; }
 		};
 
 
-		template<typename T>
+		template < typename T >
 		class future_result
 		{
 		public:
@@ -86,7 +92,7 @@ namespace stingray
 		};
 
 
-		template<>
+		template < >
 		class future_result<void>
 		{
 			bool			_value;
@@ -109,7 +115,7 @@ namespace stingray
 		};
 
 
-		template<typename T>
+		template < typename T >
 		class future_impl_base
 		{
 		protected:
@@ -163,10 +169,11 @@ namespace stingray
 		};
 
 
-		template<typename T>
+		template < typename T >
 		class future_impl : public future_impl_base<T>
 		{
 			typedef future_impl_base<T> Base;
+
 		public:
 			void set_value(typename future_value_holder<T>::ConstructValueT value)
 			{
@@ -178,11 +185,12 @@ namespace stingray
 		};
 
 
-		template<>
+		template < >
 		class future_impl<void> : public future_impl_base<void>
 		{
 			typedef future_impl_base<void> Base;
-		public:
+
+			public:
 			void set_value()
 			{
 				MutexLock l(this->_mutex);
@@ -191,29 +199,34 @@ namespace stingray
 				this->notify_ready();
 			}
 		};
+
 	}
 
-	template<typename ResultType>
+
+	template < typename ResultType >
 	class future;
 
-	template<typename ResultType>
+
+	template < typename ResultType >
 	class shared_future;
 
-	template<typename ResultType>
+
+	template < typename ResultType >
 	class promise;
 
-	template<typename ResultType>
+
+	template < typename ResultType >
 	class shared_future
 	{
 	private:
 		typedef shared_ptr<Detail::future_impl<ResultType> > ImplPtr;
-		ImplPtr _impl;
+		ImplPtr			_impl;
 
 	public:
-		shared_future() {}
-		~shared_future() {}
-		shared_future(const shared_future &other) : _impl(other._impl) {}
-		shared_future& operator=(const shared_future &other) { _impl = other._impl; return *this; }
+		shared_future() { }
+		~shared_future() { }
+		shared_future(const shared_future &other) : _impl(other._impl) { }
+		shared_future& operator= (const shared_future &other) { _impl = other._impl; return *this; }
 		void swap(shared_future& other)	{ _impl.swap(other._impl); }
 
 		bool valid() const				{ return _impl.is_initialized(); }
@@ -227,12 +240,13 @@ namespace stingray
 		{ check_valid(); return _impl->wait(token); }
 
 	private:
-		shared_future(const ImplPtr& impl) : _impl(impl) {}
+		shared_future(const ImplPtr& impl) : _impl(impl) { }
 		friend shared_future<ResultType> future<ResultType>::share();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the shared_future!")); }
 	};
 
-	template<typename ResultType>
+
+	template < typename ResultType >
 	class future
 	{
 		STINGRAYKIT_NONASSIGNABLE(future);
@@ -240,10 +254,10 @@ namespace stingray
 	private:
 		typedef Detail::future_impl<ResultType> ImplType;
 		STINGRAYKIT_DECLARE_PTR(ImplType);
-		shared_ptr<ImplType> _impl;
+		shared_ptr<ImplType>			_impl;
 
 	public:
-		~future()	{}
+		~future() { }
 
 		bool valid() const				{ return _impl.is_initialized(); }
 		bool is_ready() const			{ check_valid(); return _impl->is_ready(); }
@@ -269,12 +283,13 @@ namespace stingray
 		{ check_valid(); return _impl->wait(token); }
 
 	private:
-		future(const ImplTypePtr& impl) : _impl(impl) {}
+		future(const ImplTypePtr& impl) : _impl(impl) { }
 		friend future<ResultType> promise<ResultType>::get_future();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the future!")); }
 	};
 
-	template<typename ResultType>
+
+	template < typename ResultType >
 	class promise
 	{
 		STINGRAYKIT_NONCOPYABLE(promise);
@@ -289,9 +304,8 @@ namespace stingray
 		bool						_futureRetrieved;
 
 	public:
-
 		promise() : _futureImpl(make_shared_ptr<FutureImplType>()), _futureRetrieved(false)
-		{}
+		{ }
 
 		~promise()
 		{ _futureImpl->set_exception(MakeExceptionPtr(BrokenPromise())); }
@@ -309,7 +323,8 @@ namespace stingray
 		{ _futureImpl->set_exception(ex); }
 	};
 
-	template<>
+
+	template < >
 	class promise<void>
 	{
 		STINGRAYKIT_NONCOPYABLE(promise);
@@ -323,7 +338,7 @@ namespace stingray
 
 	public:
 		promise() : _futureImpl(make_shared_ptr<FutureImplType>()), _futureRetrieved(false)
-		{}
+		{ }
 
 		~promise()
 		{ _futureImpl->set_exception(MakeExceptionPtr(BrokenPromise())); }
@@ -339,7 +354,6 @@ namespace stingray
 
 		void set_exception(ExceptionPtr ex)
 		{ _futureImpl->set_exception(ex); }
-
 	};
 
 	/** @} */
