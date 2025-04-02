@@ -283,9 +283,9 @@ namespace stingray
 		ResultType get()
 		{
 			check_valid();
-			ImplPtr impl(_impl);
-			_impl.reset();
-			return impl->get();
+			ImplPtr tmp;
+			tmp.swap(_impl);
+			return tmp->get();
 		}
 
 		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const
