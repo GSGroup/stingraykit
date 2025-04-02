@@ -230,8 +230,8 @@ namespace stingray
 	public:
 		shared_future() { }
 		~shared_future() { }
-		shared_future(const shared_future &other) : _impl(other._impl) { }
-		shared_future& operator= (const shared_future &other) { _impl = other._impl; return *this; }
+		shared_future(const shared_future& other) : _impl(other._impl) { }
+		shared_future& operator= (const shared_future& other) { _impl = other._impl; return *this; }
 		void swap(shared_future& other)	{ _impl.swap(other._impl); }
 
 		bool valid() const				{ return _impl.is_initialized(); }
