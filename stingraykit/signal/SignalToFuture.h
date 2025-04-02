@@ -33,7 +33,7 @@ namespace stingray
 
 		shared_future<ParamType> GetFuture()
 		{
-			if(!_future.valid())
+			if (!_future.valid())
 				_future = _promise.get_future().share();
 			return _future;
 		}
