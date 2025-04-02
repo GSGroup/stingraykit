@@ -248,7 +248,7 @@ namespace stingray
 	private:
 		explicit shared_future(const ImplPtr& impl) : _impl(impl) { }
 		friend shared_future<ResultType> future<ResultType>::share();
-		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the shared_future!")); }
+		void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
 	};
 
 
@@ -293,7 +293,7 @@ namespace stingray
 	private:
 		explicit future(const ImplPtr& impl) : _impl(impl) { }
 		friend future<ResultType> promise<ResultType>::get_future();
-		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the future!")); }
+		void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
 	};
 
 
