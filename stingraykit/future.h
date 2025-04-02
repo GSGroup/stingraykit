@@ -36,7 +36,7 @@ namespace stingray
 		template < typename T >
 		struct future_value_holder
 		{
-			typedef const T& ConstructValueT;
+			using ConstructValueT = const T&;
 
 		private:
 			T			_value;
@@ -50,11 +50,11 @@ namespace stingray
 		template < typename T >
 		struct future_value_holder<T&>
 		{
-			typedef T ValueT;
-			typedef T& ConstructValueT;
+			using ValueT = T;
+			using ConstructValueT = T&;
 
 		private:
-			typedef T* StoredT;
+			using StoredT = T*;
 
 		private:
 			StoredT			_value;
@@ -69,8 +69,8 @@ namespace stingray
 		class future_result
 		{
 		public:
-			typedef future_value_holder<T> WrappedResultType;
-			typedef optional<WrappedResultType> OptionalValue;
+			using WrappedResultType = future_value_holder<T>;
+			using OptionalValue = optional<WrappedResultType>;
 
 		private:
 			OptionalValue	_value;
@@ -122,7 +122,7 @@ namespace stingray
 		class future_impl_base
 		{
 		protected:
-			typedef future_result<T> ResultType;
+			using ResultType = future_result<T>;
 
 		protected:
 			Mutex					_mutex;
@@ -176,7 +176,7 @@ namespace stingray
 		template < typename T >
 		class future_impl : public future_impl_base<T>
 		{
-			typedef future_impl_base<T> Base;
+			using Base = future_impl_base<T>;
 
 		public:
 			void set_value(typename future_value_holder<T>::ConstructValueT value)
@@ -192,7 +192,7 @@ namespace stingray
 		template < >
 		class future_impl<void> : public future_impl_base<void>
 		{
-			typedef future_impl_base<void> Base;
+			using Base = future_impl_base<void>;
 
 		public:
 			void set_value()
@@ -222,7 +222,7 @@ namespace stingray
 	template < typename ResultType >
 	class shared_future
 	{
-		typedef shared_ptr<Detail::future_impl<ResultType>> ImplPtr;
+		using ImplPtr = shared_ptr<Detail::future_impl<ResultType>>;
 
 	private:
 		ImplPtr			_impl;
@@ -257,7 +257,7 @@ namespace stingray
 		STINGRAYKIT_NONASSIGNABLE(future);
 
 	private:
-		typedef Detail::future_impl<ResultType> ImplType;
+		using ImplType = Detail::future_impl<ResultType>;
 		STINGRAYKIT_DECLARE_PTR(ImplType);
 
 	private:
@@ -302,10 +302,10 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(promise);
 
 	public:
-		typedef typename Detail::future_value_holder<ResultType>::ConstructValueT SetType;
+		using SetType = typename Detail::future_value_holder<ResultType>::ConstructValueT;
 
 	private:
-		typedef Detail::future_impl<ResultType>	FutureImplType;
+		using FutureImplType = Detail::future_impl<ResultType>;
 
 	private:
 		shared_ptr<FutureImplType>	_futureImpl;
@@ -338,8 +338,8 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(promise);
 
 	private:
-		typedef void							ResultType;
-		typedef Detail::future_impl<ResultType>	FutureImplType;
+		using ResultType = void;
+		using FutureImplType = Detail::future_impl<ResultType>;
 
 	private:
 		shared_ptr<FutureImplType>	_futureImpl;
