@@ -222,7 +222,8 @@ namespace stingray
 	template < typename ResultType >
 	class shared_future
 	{
-		using ImplPtr = shared_ptr<Detail::future_impl<ResultType>>;
+		using Impl = Detail::future_impl<ResultType>;
+		STINGRAYKIT_DECLARE_PTR(Impl);
 
 	private:
 		ImplPtr			_impl;
@@ -257,11 +258,11 @@ namespace stingray
 		STINGRAYKIT_NONASSIGNABLE(future);
 
 	private:
-		using ImplType = Detail::future_impl<ResultType>;
-		STINGRAYKIT_DECLARE_PTR(ImplType);
+		using Impl = Detail::future_impl<ResultType>;
+		STINGRAYKIT_DECLARE_PTR(Impl);
 
 	private:
-		shared_ptr<ImplType>			_impl;
+		ImplPtr			_impl;
 
 	public:
 		~future() { }
@@ -273,7 +274,7 @@ namespace stingray
 
 		shared_future<ResultType> share()
 		{
-			shared_ptr<ImplType> ptr(_impl);
+			ImplPtr ptr(_impl);
 			_impl.reset();
 			return shared_future<ResultType>(ptr);
 		}
@@ -281,7 +282,7 @@ namespace stingray
 		ResultType get()
 		{
 			check_valid();
-			shared_ptr<ImplType> impl(_impl);
+			ImplPtr impl(_impl);
 			_impl.reset();
 			return impl->get();
 		}
@@ -290,7 +291,7 @@ namespace stingray
 		{ check_valid(); return _impl->wait(token); }
 
 	private:
-		explicit future(const ImplTypePtr& impl) : _impl(impl) { }
+		explicit future(const ImplPtr& impl) : _impl(impl) { }
 		friend future<ResultType> promise<ResultType>::get_future();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), std::runtime_error("No async result is assigned to the future!")); }
 	};
