@@ -325,8 +325,6 @@ namespace stingray
 				switch (entry.Op)
 				{
 				case CollectionOp::Added:
-					Set(entry.Item.Key, entry.Item.Value);
-					break;
 				case CollectionOp::Updated:
 					Set(entry.Item.Key, entry.Item.Value);
 					break;

@@ -463,9 +463,9 @@ namespace stingray
 			{
 				switch (entry.Op)
 				{
-				case CollectionOp::Added:		Set(entry.Item.Key, entry.Item.Value); break;
-				case CollectionOp::Removed:		Remove(entry.Item.Key); break;
+				case CollectionOp::Added:
 				case CollectionOp::Updated:		Set(entry.Item.Key, entry.Item.Value); break;
+				case CollectionOp::Removed:		Remove(entry.Item.Key); break;
 				}
 			}
 
