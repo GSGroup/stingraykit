@@ -30,7 +30,7 @@ namespace stingray
 
 	public:
 		explicit ScopedHolder(const CleanupFuncType& cleanupFunc)
-			: _cleanupFunc(cleanupFunc), _valid(false)
+			: _handle(), _cleanupFunc(cleanupFunc), _valid(false)
 		{ }
 
 		ScopedHolder(ValuePassingType handle, const CleanupFuncType& cleanupFunc)
