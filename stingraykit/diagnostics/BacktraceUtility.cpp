@@ -23,7 +23,7 @@ namespace stingray
 	namespace
 	{
 
-		const std::regex DynamicLibraryInfoRegex(R"(([0-9a-f]{8})-([0-9a-f]{8})\sr\-xp\s[0-9a-f]{8}\s[0-9a-f]{2}:[0-9a-f]{2}\s[\d]{8}\s+\/.*?([^\/]+\.so.*?))");
+		const std::regex DynamicLibraryInfoRegex(R"(([0-9a-f]{8})-([0-9a-f]{8})\sr\-xp\s[0-9a-f]{8}\s[0-9a-f]{2}:[0-9a-f]{2}\s[\d]{1,8}\s+\/.*?([^\/]+\.so.*?))");
 
 		std::string ReadFileToString(const std::string& name)
 		{
