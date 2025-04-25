@@ -10,19 +10,19 @@
 
 #include <stingraykit/shared_ptr.h>
 
-#define STINGRAYKIT_DECLARE_CREATOR(ClassName) \
-		using ClassName##Creator = stingray::ICreator<ClassName>; \
+#define STINGRAYKIT_DECLARE_CREATOR(ClassName, ...) \
+		using ClassName##Creator = stingray::ICreator<ClassName, ##__VA_ARGS__>; \
 		STINGRAYKIT_DECLARE_PTR(ClassName##Creator)
 
 namespace stingray
 {
 
-	template < typename T >
+	template < typename T, typename... Args >
 	struct ICreator
 	{
 		virtual ~ICreator() { }
 
-		virtual shared_ptr<T> Create() const = 0;
+		virtual shared_ptr<T> Create(const Args&... args) const = 0;
 	};
 
 }
