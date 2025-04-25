@@ -16,9 +16,9 @@ using namespace stingray;
 
 TEST(StringParseTest, Medley)
 {
-	char c;
-	int i;
-	double d;
+	char c = 0;
+	int i = 0;
+	double d = 0;
 	std::string s;
 
 	ASSERT_TRUE(StringParse("character: z, integer: 100500, double: 3.14, string: Universe", "character: %1%, integer: %2%, double: %3%, string: %4%", c, i, d, s));
@@ -46,7 +46,7 @@ TEST(StringParseTest, Medley)
 	ASSERT_EQ(value, "text/plain; application/json");
 
 	std::string filename;
-	int part_no;
+	int part_no = 0;
 	ASSERT_FALSE(StringParse("video.avi.part", "%1%.part%2%", filename, part_no));
 	ASSERT_FALSE(StringParse("video.avi.part1.dat", "%1%.part%2%", filename, part_no));
 	ASSERT_TRUE(StringParse("video.avi.part1", "%1%.part%2%", filename, part_no));
@@ -113,16 +113,16 @@ TEST(StringParseTest, Optional)
 
 TEST(StringParseTest, Integers)
 {
-	int x;
+	int x = 0;
 	ASSERT_FALSE(StringParse("asd", "%1%", x));
 
-	u8 u1;
+	u8 u1 = 0;
 	EXPECT_TRUE(StringParse("255", "%1%", u1));
 	EXPECT_EQ(u1, 255);
 	EXPECT_FALSE(StringParse("256", "%1%", u1));
 	EXPECT_FALSE(StringParse("-1", "%1%", u1));
 
-	s8 s1;
+	s8 s1 = 0;
 	EXPECT_TRUE(StringParse("127", "%1%", s1));
 	EXPECT_EQ(s1, 127);
 	EXPECT_TRUE(StringParse("-128", "%1%", s1));
@@ -130,13 +130,13 @@ TEST(StringParseTest, Integers)
 	EXPECT_FALSE(StringParse("128", "%1%", s1));
 	EXPECT_FALSE(StringParse("-129", "%1%", s1));
 
-	u16 u2;
+	u16 u2 = 0;
 	EXPECT_TRUE(StringParse("65535", "%1%", u2));
 	EXPECT_EQ(u2, 65535);
 	EXPECT_FALSE(StringParse("65536", "%1%", u2));
 	EXPECT_FALSE(StringParse("-1", "%1%", u2));
 
-	s16 s2;
+	s16 s2 = 0;
 	EXPECT_TRUE(StringParse("32767", "%1%", s2));
 	EXPECT_EQ(s2, 32767);
 	EXPECT_TRUE(StringParse("-32768", "%1%", s2));
@@ -144,13 +144,13 @@ TEST(StringParseTest, Integers)
 	EXPECT_FALSE(StringParse("32768", "%1%", s2));
 	EXPECT_FALSE(StringParse("-32769", "%1%", s2));
 
-	u32 u3;
+	u32 u3 = 0;
 	EXPECT_TRUE(StringParse("4294967295", "%1%", u3));
 	EXPECT_EQ(u3, 4294967295ull);
 	EXPECT_FALSE(StringParse("4294967296", "%1%", u3));
 	EXPECT_FALSE(StringParse("-1", "%1%", u3));
 
-	s32 s3;
+	s32 s3 = 0;
 	EXPECT_TRUE(StringParse("2147483647", "%1%", s3));
 	EXPECT_EQ(s3, 2147483647);
 	EXPECT_TRUE(StringParse("-2147483648", "%1%", s3));

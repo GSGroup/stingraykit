@@ -29,8 +29,8 @@ namespace stingray
 
 	Version Version::FromString(string_view str)
 	{
-		unsigned major;
-		unsigned minor;
+		unsigned major = 0;
+		unsigned minor = 0;
 		optional<unsigned> build;
 		STINGRAYKIT_CHECK(StringParse(str, "%1%.%2%.%3%", major, minor, build) || StringParse(str, "%1%.%2%", major, minor), FormatException(str));
 		return Version(major, minor, build);
