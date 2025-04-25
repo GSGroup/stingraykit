@@ -181,6 +181,61 @@ namespace stingray
 	auto MakeConvertingCreator(shared_ptr<ICreator<From>>&& creator)
 	{ return Detail::ConvertingCreatorProxy<From>(std::move(creator)); }
 
+
+	template < typename InterfaceType, typename Functor, typename... Args >
+	class FunctorCreator final : public virtual ICreator<InterfaceType, Args...>
+	{
+	private:
+		Functor		_functor;
+
+	public:
+		explicit FunctorCreator(const Functor& functor)
+			:	_functor(functor)
+		{ }
+
+		explicit FunctorCreator(Functor&& functor)
+			:	_functor(std::move(functor))
+		{ }
+
+		shared_ptr<InterfaceType> Create(const Args&... args) const override
+		{ return _functor(args...); }
+	};
+
+
+	namespace Detail
+	{
+
+		template < typename Functor >
+		class FunctorCreatorProxy
+		{
+		private:
+			Functor	_functor;
+
+		public:
+			explicit FunctorCreatorProxy(const Functor& functor)
+				:	_functor(functor)
+			{ }
+
+			explicit FunctorCreatorProxy(Functor&& functor)
+				:	_functor(std::move(functor))
+			{ }
+
+			template < typename InterfaceType, typename... Args >
+			operator shared_ptr<ICreator<InterfaceType, Args...>> () const &
+			{ return make_shared_ptr<FunctorCreator<InterfaceType, Functor, Args...>>(_functor); }
+
+			template < typename InterfaceType, typename... Args >
+			operator shared_ptr<ICreator<InterfaceType, Args...>> () &&
+			{ return make_shared_ptr<FunctorCreator<InterfaceType, Functor, Args...>>(std::move(_functor)); }
+		};
+
+	}
+
+
+	template < typename Functor >
+	auto MakeFunctorCreator(Functor&& functor)
+	{ return Detail::FunctorCreatorProxy<typename Decay<Functor>::ValueT>(std::forward<Functor>(functor)); }
+
 }
 
 #endif
