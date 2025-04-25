@@ -34,7 +34,7 @@ namespace stingray
 
 
 	template < typename InterfaceType, typename ClassType, typename... Ts >
-	shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts... >> MakeConstructorCreator(Ts&&... args)
+	shared_ptr<ICreator<InterfaceType>> MakeConstructorCreator(Ts&&... args)
 	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...>>(std::forward<Ts>(args)...); }
 
 
