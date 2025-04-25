@@ -24,8 +24,8 @@ namespace stingray
 
 	public:
 		template < typename... Us >
-		explicit ConstructorCreator(Us&&... args)
-			:	_params(std::forward<Us>(args)...)
+		explicit ConstructorCreator(Us&&... params)
+			:	_params(std::forward<Us>(params)...)
 		{ static_assert(sizeof...(Ts) == sizeof...(Us), "Invalid number of parameters"); }
 
 		shared_ptr<InterfaceType> Create() const override
@@ -34,8 +34,8 @@ namespace stingray
 
 
 	template < typename InterfaceType, typename ClassType, typename... Ts >
-	shared_ptr<ICreator<InterfaceType>> MakeConstructorCreator(Ts&&... args)
-	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...>>(std::forward<Ts>(args)...); }
+	shared_ptr<ICreator<InterfaceType>> MakeConstructorCreator(Ts&&... params)
+	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...>>(std::forward<Ts>(params)...); }
 
 
 	namespace Detail
