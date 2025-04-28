@@ -404,7 +404,13 @@ CHECK_C_SOURCE_COMPILES("#include <time.h>
 	int main(int argc, char *argv[]) { clockid_t x; return 0; }" HAVE_CLOCKID_T)
 
 if (STINGRAY_USE_BACKTRACE)
+	set(STINGRAY_AVAILABLE_BACKTRACES "")
+
 	find_package(libunwind)
+
+	if (LIBUNWIND_FOUND)
+		list(APPEND STINGRAY_AVAILABLE_BACKTRACES "libunwind")
+	endif (LIBUNWIND_FOUND)
 
 	if (PLATFORM_GCC)
 		CHECK_C_SOURCE_COMPILES("#include <unwind.h>
@@ -412,21 +418,34 @@ if (STINGRAY_USE_BACKTRACE)
 			int main() { _Unwind_Backtrace(&UnwindFunc, (void*)0); return 0; }" HAVE_GCC_UNWIND)
 	endif (PLATFORM_GCC)
 
+	if (HAVE_GCC_UNWIND)
+		list(APPEND STINGRAY_AVAILABLE_BACKTRACES "gcc")
+	endif (HAVE_GCC_UNWIND)
+
 	check_function_exists("backtrace" HAVE_BACKTRACE)
 
-	if (LIBUNWIND_FOUND)
+	if (HAVE_BACKTRACE)
+		list(APPEND STINGRAY_AVAILABLE_BACKTRACES "posix")
+	endif (HAVE_BACKTRACE)
+
+	list(LENGTH STINGRAY_AVAILABLE_BACKTRACES _AVAILABLE_BACKTRACES_LENGTH)
+	if (_AVAILABLE_BACKTRACES_LENGTH GREATER 0)
+		list(GET STINGRAY_AVAILABLE_BACKTRACES 0 _CHOSEN_BACKTRACE)
+	endif (_AVAILABLE_BACKTRACES_LENGTH GREATER 0)
+
+	if (_CHOSEN_BACKTRACE STREQUAL "libunwind")
 		set(COMMON_FLAGS "${COMMON_FLAGS} -fno-omit-frame-pointer -funwind-tables")
 		list(APPEND STINGRAYKIT_INCLUDE_DIRECTORIES ${libunwind_INCLUDE_DIR})
 		list(APPEND STINGRAYKIT_LIBS ${libunwind_LIBRARIES})
 		list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_LIBUNWIND_BACKTRACE=1)
 		list(APPEND stingraykit_SRC stingraykit/diagnostics/LibunwindBacktrace.cpp)
-	elseif (HAVE_GCC_UNWIND)
+	elseif (_CHOSEN_BACKTRACE STREQUAL "gcc")
 		message(STATUS "Using GCC backtrace")
 		list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_GCC_BACKTRACE=1)
 		list(APPEND stingraykit_SRC
 			stingraykit/diagnostics/gcc/Backtrace.cpp
 		)
-	elseif (HAVE_BACKTRACE)
+	elseif (_CHOSEN_BACKTRACE STREQUAL "posix")
 		list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BACKTRACE=1)
 		list(APPEND stingraykit_SRC
 			stingraykit/thread/posix/Backtrace.cpp
@@ -438,7 +457,7 @@ if (STINGRAY_USE_BACKTRACE)
 			endif (HAVE_BFD_H)
 			list(APPEND STINGRAYKIT_LIBS bfd)
 		endif (STINGRAY_USE_BFD_BACKTRACE)
-	endif (LIBUNWIND_FOUND)
+	endif (_CHOSEN_BACKTRACE STREQUAL "libunwind")
 endif (STINGRAY_USE_BACKTRACE)
 
 CHECK_C_SOURCE_COMPILES("#include <pthread.h>
