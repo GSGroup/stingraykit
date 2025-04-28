@@ -433,16 +433,15 @@ if (STINGRAY_USE_BACKTRACE)
 				list(APPEND stingraykit_SRC
 					stingraykit/thread/posix/Backtrace.cpp
 				)
+				if (STINGRAY_USE_BFD_BACKTRACE)
+					check_include_file(bfd.h HAVE_BFD_H)
+					if (HAVE_BFD_H)
+						list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BFD_BACKTRACE=1)
+					endif (HAVE_BFD_H)
+					list(APPEND STINGRAYKIT_LIBS bfd)
+				endif (STINGRAY_USE_BFD_BACKTRACE)
 			endif (HAVE_BACKTRACE)
 		endif (NOT DEFINED HAVE_GCC_UNWIND)
-
-		if (STINGRAY_USE_BFD_BACKTRACE)
-			check_include_file(bfd.h HAVE_BFD_H)
-			if (HAVE_BFD_H)
-				list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BFD_BACKTRACE=1)
-			endif (HAVE_BFD_H)
-			list(APPEND STINGRAYKIT_LIBS bfd)
-		endif (STINGRAY_USE_BFD_BACKTRACE)
 	endif()
 endif (STINGRAY_USE_BACKTRACE)
 
