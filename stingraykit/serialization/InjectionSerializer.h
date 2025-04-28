@@ -63,7 +63,7 @@ namespace stingray
 
 	public:
 		explicit InjectionSerializer(unique_ptr<ObjectIStream>&& stream)
-			:	_stream(std::move(STINGRAYKIT_REQUIRE_NOT_NULL(stream)))
+			:	_stream(STINGRAYKIT_REQUIRE_NOT_NULL(std::move(stream)))
 		{ }
 
 		explicit InjectionSerializer(const SettingsValueSelfCountPtr& value)

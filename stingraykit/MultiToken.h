@@ -65,7 +65,7 @@ namespace stingray
 		{ STINGRAYKIT_REQUIRE_NOT_NULL(_token)->Add(std::move(token)); return *this; }
 
 		operator Token ()
-		{ return MakeObjectToken(std::move(STINGRAYKIT_REQUIRE_NOT_NULL(_token))); }
+		{ return MakeObjectToken(STINGRAYKIT_REQUIRE_NOT_NULL(std::move(_token))); }
 	};
 
 

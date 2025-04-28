@@ -149,7 +149,7 @@ namespace stingray
 		{ }
 
 		BasicByteArray(CollectionTypePtr&& data)
-			: _data(std::move(STINGRAYKIT_REQUIRE_NOT_NULL(data))), _offset(0), _sizeLimit(NoSizeLimit)
+			: _data(STINGRAYKIT_REQUIRE_NOT_NULL(std::move(data))), _offset(0), _sizeLimit(NoSizeLimit)
 		{ }
 
 		explicit BasicByteArray(size_t size)
