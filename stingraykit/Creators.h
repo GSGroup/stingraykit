@@ -26,7 +26,7 @@ namespace stingray
 		template < typename... Us >
 		explicit ConstructorCreator(Us&&... params)
 			:	_params(std::forward<Us>(params)...)
-		{ static_assert(sizeof...(Ts) == sizeof...(Us), "Invalid number of parameters"); }
+		{ }
 
 		shared_ptr<InterfaceType> Create() const override
 		{ return FunctorInvoker::Invoke(MakeShared<ClassType>(), _params); }
