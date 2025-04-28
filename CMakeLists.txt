@@ -405,44 +405,40 @@ CHECK_C_SOURCE_COMPILES("#include <time.h>
 
 if (STINGRAY_USE_BACKTRACE)
 	find_package(libunwind)
+
+	if (PLATFORM_GCC)
+		CHECK_C_SOURCE_COMPILES("#include <unwind.h>
+			_Unwind_Reason_Code UnwindFunc(struct _Unwind_Context *ctx, void *bt) { return _URC_NO_REASON; }
+			int main() { _Unwind_Backtrace(&UnwindFunc, (void*)0); return 0; }" HAVE_GCC_UNWIND)
+	endif (PLATFORM_GCC)
+
+	check_function_exists("backtrace" HAVE_BACKTRACE)
+
 	if (LIBUNWIND_FOUND)
 		set(COMMON_FLAGS "${COMMON_FLAGS} -fno-omit-frame-pointer -funwind-tables")
 		list(APPEND STINGRAYKIT_INCLUDE_DIRECTORIES ${libunwind_INCLUDE_DIR})
 		list(APPEND STINGRAYKIT_LIBS ${libunwind_LIBRARIES})
 		list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_LIBUNWIND_BACKTRACE=1)
 		list(APPEND stingraykit_SRC stingraykit/diagnostics/LibunwindBacktrace.cpp)
-	else()
-		if (PLATFORM_GCC)
-			CHECK_C_SOURCE_COMPILES("#include <unwind.h>
-				_Unwind_Reason_Code UnwindFunc(struct _Unwind_Context *ctx, void *bt) { return _URC_NO_REASON; }
-				int main() { _Unwind_Backtrace(&UnwindFunc, (void*)0); return 0; }" HAVE_GCC_UNWIND)
-			if (HAVE_GCC_UNWIND)
-				message(STATUS "Using GCC backtrace")
-				list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_GCC_BACKTRACE=1)
-				list(APPEND stingraykit_SRC
-					stingraykit/diagnostics/gcc/Backtrace.cpp
-				)
-			endif (HAVE_GCC_UNWIND)
-		endif (PLATFORM_GCC)
-
-		if (NOT DEFINED HAVE_GCC_UNWIND)
-			check_function_exists("backtrace" HAVE_BACKTRACE)
-
-			if (HAVE_BACKTRACE)
-				list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BACKTRACE=1)
-				list(APPEND stingraykit_SRC
-					stingraykit/thread/posix/Backtrace.cpp
-				)
-				if (STINGRAY_USE_BFD_BACKTRACE)
-					check_include_file(bfd.h HAVE_BFD_H)
-					if (HAVE_BFD_H)
-						list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BFD_BACKTRACE=1)
-					endif (HAVE_BFD_H)
-					list(APPEND STINGRAYKIT_LIBS bfd)
-				endif (STINGRAY_USE_BFD_BACKTRACE)
-			endif (HAVE_BACKTRACE)
-		endif (NOT DEFINED HAVE_GCC_UNWIND)
-	endif()
+	elseif (HAVE_GCC_UNWIND)
+		message(STATUS "Using GCC backtrace")
+		list(APPEND STINGRAYKIT_DEFINITIONS -DUSE_GCC_BACKTRACE=1)
+		list(APPEND stingraykit_SRC
+			stingraykit/diagnostics/gcc/Backtrace.cpp
+		)
+	elseif (HAVE_BACKTRACE)
+		list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BACKTRACE=1)
+		list(APPEND stingraykit_SRC
+			stingraykit/thread/posix/Backtrace.cpp
+		)
+		if (STINGRAY_USE_BFD_BACKTRACE)
+			check_include_file(bfd.h HAVE_BFD_H)
+			if (HAVE_BFD_H)
+				list(APPEND STINGRAYKIT_DEFINITIONS -DHAVE_BFD_BACKTRACE=1)
+			endif (HAVE_BFD_H)
+			list(APPEND STINGRAYKIT_LIBS bfd)
+		endif (STINGRAY_USE_BFD_BACKTRACE)
+	endif (LIBUNWIND_FOUND)
 endif (STINGRAY_USE_BACKTRACE)
 
 CHECK_C_SOURCE_COMPILES("#include <pthread.h>
