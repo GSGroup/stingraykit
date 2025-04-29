@@ -67,11 +67,6 @@ namespace stingray
 	}
 
 
-	template < typename InterfaceType, typename ClassType, typename... Ts >
-	auto MakeConstructorCreator(Ts&&... params)
-	{ return Detail::ConstructorCreatorProxy<ClassType, Ts...>(std::forward<Ts>(params)...); }
-
-
 	template < typename ClassType, typename... Ts >
 	auto MakeConstructorCreator(Ts&&... params)
 	{ return Detail::ConstructorCreatorProxy<ClassType, Ts...>(std::forward<Ts>(params)...); }
