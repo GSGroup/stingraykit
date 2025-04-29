@@ -45,7 +45,7 @@ namespace stingray
 	{
 		string_ostream result;
 
-		for (size_t pos = 0; pos < format.size(); ++pos)
+		for (string_view::size_type pos = 0; pos < format.size(); ++pos)
 		{
 			const char c = format[pos];
 
@@ -53,7 +53,7 @@ namespace stingray
 			{
 			case '%':
 			{
-				const size_t nextPercentPos = format.find('%', pos + 1);
+				const string_view::size_type nextPercentPos = format.find('%', pos + 1);
 				STINGRAYKIT_CHECK(nextPercentPos != string_view::npos, FormatException(format));
 
 				const string_view argIndexStr = format.substr(pos + 1, nextPercentPos - pos - 1);
@@ -64,7 +64,7 @@ namespace stingray
 					break;
 				}
 
-				const size_t widthPos = argIndexStr.find('$');
+				const string_view::size_type widthPos = argIndexStr.find('$');
 
 				const string_view indexStr = argIndexStr.substr(0, widthPos);
 				STINGRAYKIT_CHECK(!indexStr.empty(), FormatException(format));
@@ -73,7 +73,7 @@ namespace stingray
 				STINGRAYKIT_CHECK(index > 0, FormatException(format));
 
 				size_t width = 0;
-				if (widthPos != std::string::npos)
+				if (widthPos != string_view::npos)
 				{
 					const string_view widthStr = argIndexStr.substr(widthPos + 1);
 					STINGRAYKIT_CHECK(!widthStr.empty(), FormatException(format));
