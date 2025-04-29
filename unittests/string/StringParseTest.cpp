@@ -91,12 +91,12 @@ TEST(StringParseTest, Optional)
 	optional<int> optI = 0;
 	optional<int> optIn = null;
 	ASSERT_TRUE(StringParse("honor my 1st rule and 2nd rule", "honor my %1%st rule and %2%nd rule", optI, optIn));
-	ASSERT_EQ(*optI, 1);
-	ASSERT_EQ(*optIn, 2);
+	ASSERT_EQ(optI, 1);
+	ASSERT_EQ(optIn, 2);
 
 	optional<LogLevel> optLoglevel;
 	ASSERT_TRUE(StringParse("Log level is Debug", "Log level is %1%", optLoglevel));
-	ASSERT_EQ(*optLoglevel, LogLevel::Debug);
+	ASSERT_EQ(optLoglevel, LogLevel::Debug);
 
 	optional<char> optc;
 	optional<u8> optu;
@@ -104,10 +104,11 @@ TEST(StringParseTest, Optional)
 	optional<std::string> opts;
 
 	ASSERT_TRUE(StringParse("char: z, u8: 15, double: 3.14, string: Universe", "char: %1%, u8: %2%, double: %3%, string: %4%", optc, optu, optd, opts));
-	ASSERT_EQ(*optc, 'z');
-	ASSERT_EQ(*optu, 15);
+	ASSERT_EQ(optc, 'z');
+	ASSERT_EQ(optu, 15u);
+	ASSERT_TRUE(optd);
 	ASSERT_DOUBLE_EQ(*optd, 3.14);
-	ASSERT_EQ(*opts, "Universe");
+	ASSERT_EQ(opts, "Universe");
 }
 
 
