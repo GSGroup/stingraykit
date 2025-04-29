@@ -84,14 +84,46 @@ namespace stingray
 	};
 
 
-	template < typename To, typename From >
-	shared_ptr<ICreator<To>> MakeConvertingCreator(const shared_ptr<ICreator<From>>& creator)
-	{ return make_shared_ptr<ConvertingCreator<To, From>>(creator); }
+	namespace Detail
+	{
+
+		template < typename From >
+		class ConvertingCreatorProxy
+		{
+			using ICreatorPtr = shared_ptr<ICreator<From>>;
+
+		private:
+			ICreatorPtr		_creator;
+
+		public:
+			explicit ConvertingCreatorProxy(const ICreatorPtr& creator)
+				:	_creator(creator)
+			{ }
+
+			explicit ConvertingCreatorProxy(ICreatorPtr&& creator)
+				:	_creator(std::move(creator))
+			{ }
+
+			template < typename To >
+			operator shared_ptr<ICreator<To>> () const &
+			{ return make_shared_ptr<ConvertingCreator<To, From>>(_creator); }
+
+			template < typename To >
+			operator shared_ptr<ICreator<To>> () &&
+			{ return make_shared_ptr<ConvertingCreator<To, From>>(std::move(_creator)); }
+		};
+
+	}
 
 
-	template < typename To, typename From >
-	shared_ptr<ICreator<To>> MakeConvertingCreator(shared_ptr<ICreator<From>>&& creator)
-	{ return make_shared_ptr<ConvertingCreator<To, From>>(std::move(creator)); }
+	template < typename From >
+	auto MakeConvertingCreator(const shared_ptr<ICreator<From>>& creator)
+	{ return Detail::ConvertingCreatorProxy<From>(creator); }
+
+
+	template < typename From >
+	auto MakeConvertingCreator(shared_ptr<ICreator<From>>&& creator)
+	{ return Detail::ConvertingCreatorProxy<From>(std::move(creator)); }
 
 }
 
