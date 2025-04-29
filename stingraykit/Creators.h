@@ -75,6 +75,10 @@ namespace stingray
 			:	_creator(STINGRAYKIT_REQUIRE_NOT_NULL(creator))
 		{ }
 
+		explicit ConvertingCreator(shared_ptr<ICreator<From>>&& creator)
+			:	_creator(STINGRAYKIT_REQUIRE_NOT_NULL(std::move(creator)))
+		{ }
+
 		shared_ptr<To> Create() const override
 		{ return _creator->Create(); }
 	};
@@ -83,6 +87,11 @@ namespace stingray
 	template < typename To, typename From >
 	shared_ptr<ICreator<To>> MakeConvertingCreator(const shared_ptr<ICreator<From>>& creator)
 	{ return make_shared_ptr<ConvertingCreator<To, From>>(creator); }
+
+
+	template < typename To, typename From >
+	shared_ptr<ICreator<To>> MakeConvertingCreator(shared_ptr<ICreator<From>>&& creator)
+	{ return make_shared_ptr<ConvertingCreator<To, From>>(std::move(creator)); }
 
 }
 
