@@ -40,6 +40,7 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template <typename ClassType >
 		class SingleInstanceCreatorBase
 		{
@@ -50,6 +51,7 @@ namespace stingray
 				return instance;
 			}
 		};
+
 	}
 
 
@@ -62,6 +64,26 @@ namespace stingray
 		shared_ptr<InterfaceType> Create() const override
 		{ return base::GetInstance(); }
 	};
+
+
+	namespace Detail
+	{
+
+		template < typename ClassType >
+		class SingleInstanceCreatorProxy
+		{
+		public:
+			template < typename InterfaceType >
+			operator shared_ptr<ICreator<InterfaceType>> () const
+			{ return make_shared_ptr<SingleInstanceCreator<InterfaceType, ClassType>>(); }
+		};
+
+	}
+
+
+	template < typename ClassType, typename... Ts >
+	auto MakeSingleInstanceCreator(Ts&&... params)
+	{ return Detail::SingleInstanceCreatorProxy<ClassType>(std::forward<Ts>(params)...); }
 
 
 	template < typename To, typename From >
