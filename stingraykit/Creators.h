@@ -18,14 +18,18 @@ namespace stingray
 	class ConstructorCreator final : public virtual ICreator<InterfaceType>
 	{
 		using ParamTypes = TypeList<typename Decay<Ts>::ValueT...>;
+		using Params = Tuple<ParamTypes>;
 
 	private:
-		Tuple<ParamTypes>	_params;
+		Params	_params;
 
 	public:
-		template < typename... Us >
-		explicit ConstructorCreator(Us&&... params)
-			:	_params(std::forward<Us>(params)...)
+		explicit ConstructorCreator(const Params& params)
+			:	_params(params)
+		{ }
+
+		explicit ConstructorCreator(Params&& params)
+			:	_params(std::move(params))
 		{ }
 
 		shared_ptr<InterfaceType> Create() const override
@@ -33,9 +37,44 @@ namespace stingray
 	};
 
 
+	namespace Detail
+	{
+
+		template < typename ClassType, typename... Ts >
+		class ConstructorCreatorProxy
+		{
+			using ParamTypes = TypeList<typename Decay<Ts>::ValueT...>;
+			using Params = Tuple<ParamTypes>;
+
+		private:
+			Params	_params;
+
+		public:
+			template < typename... Us >
+			explicit ConstructorCreatorProxy(Us&&... params)
+				:	_params(std::forward<Us>(params)...)
+			{ }
+
+			template < typename InterfaceType >
+			operator shared_ptr<ICreator<InterfaceType>> () const &
+			{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...>>(_params); }
+
+			template < typename InterfaceType >
+			operator shared_ptr<ICreator<InterfaceType>> () &&
+			{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...>>(std::move(_params)); }
+		};
+
+	}
+
+
 	template < typename InterfaceType, typename ClassType, typename... Ts >
-	shared_ptr<ICreator<InterfaceType>> MakeConstructorCreator(Ts&&... params)
-	{ return make_shared_ptr<ConstructorCreator<InterfaceType, ClassType, Ts...>>(std::forward<Ts>(params)...); }
+	auto MakeConstructorCreator(Ts&&... params)
+	{ return Detail::ConstructorCreatorProxy<ClassType, Ts...>(std::forward<Ts>(params)...); }
+
+
+	template < typename ClassType, typename... Ts >
+	auto MakeConstructorCreator(Ts&&... params)
+	{ return Detail::ConstructorCreatorProxy<ClassType, Ts...>(std::forward<Ts>(params)...); }
 
 
 	namespace Detail
