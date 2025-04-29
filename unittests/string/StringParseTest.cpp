@@ -95,6 +95,8 @@ TEST(StringParseTest, Optional)
 	ASSERT_EQ(optIn, 2);
 
 	optional<LogLevel> optLoglevel;
+	ASSERT_FALSE(StringParse("Log level is unknown", "Log level is %1%", optLoglevel));
+	ASSERT_FALSE(optLoglevel);
 	ASSERT_TRUE(StringParse("Log level is Debug", "Log level is %1%", optLoglevel));
 	ASSERT_EQ(optLoglevel, LogLevel::Debug);
 
