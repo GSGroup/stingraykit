@@ -85,7 +85,7 @@ namespace stingray
 				T val;
 				const bool result = Do(string, val, 0);
 				if (result)
-					value = val;
+					value = std::move(val);
 
 				return result;
 			}
