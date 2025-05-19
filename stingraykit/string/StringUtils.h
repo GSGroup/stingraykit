@@ -209,6 +209,12 @@ namespace stingray
 				}
 				return *this;
 			}
+
+			Self& End()
+			{
+				_startPos = string_view::npos;
+				return *this;
+			}
 		};
 
 		using StaticDelimiterSplitStringRange = SplitStringRange<StaticSplitDelimiter>;

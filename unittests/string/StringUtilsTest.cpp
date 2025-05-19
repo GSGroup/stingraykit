@@ -19,6 +19,14 @@ using namespace stingray;
 using ::testing::ElementsAre;
 using ::testing::IsEmpty;
 
+namespace
+{
+
+	std::string ConcatViews(string_view lhs, string_view rhs)
+	{ return StringBuilder() % lhs % rhs; }
+
+}
+
 TEST(StringUtilsTest, Contains_Substring_ReturnsTrue)
 {
 	ASSERT_TRUE(Contains("Lorem Ipsum", "Lorem"));
@@ -97,6 +105,9 @@ TEST(StringUtilsTest, Split)
 		testee.First();
 		ASSERT_THAT(testee, MatchRange(ElementsAre("aaa", "bbb", "ccc")));
 	}
+
+	ASSERT_THAT(Zip(&ConcatViews, Split("a/b/c", "/"), Split("x,y,z", ",")), MatchRange(ElementsAre("ax", "by", "cz")));
+	ASSERT_THAT(Zip(&ConcatViews, Split("a/b/c", "/").End(), Split("x,y,z", ",").End()), MatchRange(IsEmpty()));
 }
 
 
