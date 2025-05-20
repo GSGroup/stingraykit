@@ -330,11 +330,11 @@ namespace stingray
 		shared_ptr(NullPtrType) : _rawPtr()
 		{ }
 
-		shared_ptr(const shared_ptr<T>& other)
+		shared_ptr(const shared_ptr& other)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
 
-		shared_ptr(shared_ptr<T>&& other)
+		shared_ptr(shared_ptr&& other)
 			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
 		{ other._rawPtr = null; }
 
@@ -433,7 +433,7 @@ namespace stingray
 
 		void reset(T* ptr = 0)
 		{
-			shared_ptr<T> tmp(ptr);
+			shared_ptr tmp(ptr);
 			swap(tmp);
 
 			// Uncomment this for tracing shared_ptrs
@@ -441,7 +441,7 @@ namespace stingray
 			//new(this) shared_ptr(ptr);
 		}
 
-		void swap(shared_ptr<T>& other)
+		void swap(shared_ptr& other)
 		{
 			std::swap(_rawPtr, other._rawPtr);
 			std::swap(_impl, other._impl);
@@ -593,7 +593,7 @@ namespace stingray
 		{
 			const u32 sc = _impl.TryAddStrongReference();
 			if (sc == 0)
-				return shared_ptr<T>();
+				return null;
 
 			if (_rawPtr)
 				Detail::SharedPtrRefCounter<T>::LogAddRef(sc, _rawPtr, this);
@@ -603,11 +603,11 @@ namespace stingray
 
 		void reset()
 		{
-			weak_ptr<T> tmp;
+			weak_ptr tmp;
 			swap(tmp);
 		}
 
-		void swap(weak_ptr<T>& other)
+		void swap(weak_ptr& other)
 		{
 			std::swap(_rawPtr, other._rawPtr);
 			std::swap(_impl, other._impl);
