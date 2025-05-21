@@ -38,7 +38,7 @@ endif (DEFINED STINGRAY_INSTALL_PREFIX)
 message(STATUS "Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 
 if (NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Debug)
+	set(CMAKE_BUILD_TYPE MinSizeRel)
 endif (NOT CMAKE_BUILD_TYPE)
 
 message(STATUS "Build configuration: ${CMAKE_BUILD_TYPE}")
