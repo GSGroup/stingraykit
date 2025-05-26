@@ -27,7 +27,7 @@ namespace stingray
 			if (bl.IsEndOfData())
 			{
 				if (r.size() != 0)
-					s_logger.Warning() << "Dropping " << r.size() << " bytes from DataBuffer - end of data!";
+					s_logger.Warning() << "Ending data size: " << r.size() << " is lesser than output packet size: " << _outputPacketSize;
 
 				consumer.EndOfData(token);
 				return;
