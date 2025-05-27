@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/function/bind.h>
+#include <stingraykit/io/ByteStreamHelpers.h>
 #include <stingraykit/io/IPipe.h>
 #include <stingraykit/ScopeExit.h>
 #include <stingraykit/thread/ConditionVariable.h>

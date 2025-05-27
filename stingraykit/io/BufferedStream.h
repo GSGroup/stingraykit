@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/io/IByteStream.h>
+#include <stingraykit/string/ToString.h>
 #include <stingraykit/math.h>
 
 #include <string.h>
