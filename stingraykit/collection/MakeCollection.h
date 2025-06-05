@@ -50,6 +50,10 @@ namespace stingray
 	std::vector<typename Decay<T0>::ValueT> make_vector(T0&& p0, Ts&&... args)
 	{ return { std::forward<T0>(p0), std::forward<Ts>(args)... }; }
 
+	template < typename ValueType, typename T0, typename... Ts >
+	std::vector<ValueType> make_vector(T0&& p0, Ts&&... args)
+	{ return { std::forward<T0>(p0), std::forward<Ts>(args)... }; }
+
 	/** @} */
 
 }
