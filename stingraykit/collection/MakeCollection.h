@@ -11,6 +11,7 @@
 #include <stingraykit/metaprogramming/EnableIf.h>
 #include <stingraykit/metaprogramming/TypeTraits.h>
 
+#include <set>
 #include <vector>
 
 namespace stingray
@@ -24,10 +25,14 @@ namespace stingray
 	namespace Detail
 	{
 
-		struct EmptyVectorProxy
+		struct EmptyCollectionProxy
 		{
 			template < typename T >
 			operator std::vector<T> () const
+			{ return { }; }
+
+			template < typename T >
+			operator std::set<T> () const
 			{ return { }; }
 		};
 
@@ -43,8 +48,8 @@ namespace stingray
 	}
 
 
-	inline Detail::EmptyVectorProxy make_vector()
-	{ return Detail::EmptyVectorProxy(); }
+	inline Detail::EmptyCollectionProxy make_vector()
+	{ return Detail::EmptyCollectionProxy(); }
 
 	template < typename T0, typename... Ts, typename EnableIf<Detail::IsSameTypes<T0, Ts...>::Value, int>::ValueT = 0 >
 	std::vector<typename Decay<T0>::ValueT> make_vector(T0&& p0, Ts&&... args)
@@ -52,6 +57,18 @@ namespace stingray
 
 	template < typename ValueType, typename T0, typename... Ts >
 	std::vector<ValueType> make_vector(T0&& p0, Ts&&... args)
+	{ return { std::forward<T0>(p0), std::forward<Ts>(args)... }; }
+
+
+	inline Detail::EmptyCollectionProxy make_set()
+	{ return Detail::EmptyCollectionProxy(); }
+
+	template < typename T0, typename... Ts, typename EnableIf<Detail::IsSameTypes<T0, Ts...>::Value, int>::ValueT = 0 >
+	std::set<typename Decay<T0>::ValueT> make_set(T0&& p0, Ts&&... args)
+	{ return { std::forward<T0>(p0), std::forward<Ts>(args)... }; }
+
+	template < typename ValueType, typename T0, typename... Ts >
+	std::set<ValueType> make_set(T0&& p0, Ts&&... args)
 	{ return { std::forward<T0>(p0), std::forward<Ts>(args)... }; }
 
 	/** @} */
