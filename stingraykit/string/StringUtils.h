@@ -87,6 +87,20 @@ namespace stingray
 	}
 
 
+	inline string_view ExtractCommonPrefix(string_view str1, string_view str2)
+	{
+		const auto mismatchResult = std::mismatch(str1.begin(), str1.end(), str2.begin(), str2.end());
+		return str1.substr(0, std::distance(str1.begin(), mismatchResult.first));
+	}
+
+
+	inline string_view ExtractCommonSuffix(string_view str1, string_view str2)
+	{
+		const auto mismatchResult = std::mismatch(str1.rbegin(), str1.rend(), str2.rbegin(), str2.rend());
+		return str1.substr(str1.size() - std::distance(str1.rbegin(), mismatchResult.first));
+	}
+
+
 	inline string_view RemovePrefix(string_view str, string_view prefix)
 	{ return str.compare(0, prefix.length(), prefix) == 0 ? str.substr(prefix.length()) : str; }
 
