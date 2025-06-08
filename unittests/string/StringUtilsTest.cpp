@@ -67,6 +67,56 @@ TEST(StringUtilsTest, EndsWith)
 }
 
 
+TEST(StringUtilsTest, ExtractPrefix)
+{
+	ASSERT_EQ(ExtractPrefix("", 10), "");
+	ASSERT_EQ(ExtractPrefix("abcde", 10), "abcde");
+	ASSERT_EQ(ExtractPrefix("abcde", 5), "abcde");
+	ASSERT_EQ(ExtractPrefix("abcde", 4), "abcd");
+	ASSERT_EQ(ExtractPrefix("abcde", 3), "abc");
+	ASSERT_EQ(ExtractPrefix("abcde", 1), "a");
+	ASSERT_EQ(ExtractPrefix("abcde", 0), "");
+}
+
+
+TEST(StringUtilsTest, ExtractSuffix)
+{
+	ASSERT_EQ(ExtractSuffix("", 10), "");
+	ASSERT_EQ(ExtractSuffix("abcde", 10), "abcde");
+	ASSERT_EQ(ExtractSuffix("abcde", 5), "abcde");
+	ASSERT_EQ(ExtractSuffix("abcde", 4), "bcde");
+	ASSERT_EQ(ExtractSuffix("abcde", 3), "cde");
+	ASSERT_EQ(ExtractSuffix("abcde", 1), "e");
+	ASSERT_EQ(ExtractSuffix("abcde", 0), "");
+}
+
+
+TEST(StringUtilsTest, RemovePrefix)
+{
+	ASSERT_EQ(RemovePrefix("", ""), "");
+	ASSERT_EQ(RemovePrefix("abcde", "abcde"), "");
+	ASSERT_EQ(RemovePrefix("abcde", "abcd"), "e");
+	ASSERT_EQ(RemovePrefix("abcde", "abc"), "de");
+	ASSERT_EQ(RemovePrefix("abcde", "a"), "bcde");
+	ASSERT_EQ(RemovePrefix("abcde", ""), "abcde");
+	ASSERT_EQ(RemovePrefix("abcde", "abcdf"), "abcde");
+	ASSERT_EQ(RemovePrefix("abcde", "edcba"), "abcde");
+}
+
+
+TEST(StringUtilsTest, RemoveSuffix)
+{
+	ASSERT_EQ(RemoveSuffix("", ""), "");
+	ASSERT_EQ(RemoveSuffix("abcde", "abcde"), "");
+	ASSERT_EQ(RemoveSuffix("abcde", "bcde"), "a");
+	ASSERT_EQ(RemoveSuffix("abcde", "cde"), "ab");
+	ASSERT_EQ(RemoveSuffix("abcde", "e"), "abcd");
+	ASSERT_EQ(RemoveSuffix("abcde", ""), "abcde");
+	ASSERT_EQ(RemoveSuffix("abcde", "zbcde"), "abcde");
+	ASSERT_EQ(RemoveSuffix("abcde", "edcba"), "abcde");
+}
+
+
 TEST(StringUtilsTest, Split)
 {
 	ASSERT_THAT(Split("/a//b/", "/"), MatchRange(ElementsAre("", "a", "", "b", "")));
