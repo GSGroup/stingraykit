@@ -75,6 +75,90 @@ TEST(StringUtilsTest, EndsWith)
 }
 
 
+TEST(StringUtilsTest, ExtractPrefix)
+{
+	ASSERT_EQ(ExtractPrefix("", 10), "");
+	ASSERT_EQ(ExtractPrefix("abcde", 10), "abcde");
+	ASSERT_EQ(ExtractPrefix("abcde", 5), "abcde");
+	ASSERT_EQ(ExtractPrefix("abcde", 4), "abcd");
+	ASSERT_EQ(ExtractPrefix("abcde", 3), "abc");
+	ASSERT_EQ(ExtractPrefix("abcde", 1), "a");
+	ASSERT_EQ(ExtractPrefix("abcde", 0), "");
+}
+
+
+TEST(StringUtilsTest, ExtractSuffix)
+{
+	ASSERT_EQ(ExtractSuffix("", 10), "");
+	ASSERT_EQ(ExtractSuffix("abcde", 10), "abcde");
+	ASSERT_EQ(ExtractSuffix("abcde", 5), "abcde");
+	ASSERT_EQ(ExtractSuffix("abcde", 4), "bcde");
+	ASSERT_EQ(ExtractSuffix("abcde", 3), "cde");
+	ASSERT_EQ(ExtractSuffix("abcde", 1), "e");
+	ASSERT_EQ(ExtractSuffix("abcde", 0), "");
+}
+
+
+TEST(StringUtilsTest, ExtractCommonPrefix)
+{
+	ASSERT_EQ(ExtractCommonPrefix("", ""), "");
+	ASSERT_EQ(ExtractCommonPrefix("abcde", "abcde"), "abcde");
+	ASSERT_EQ(ExtractCommonPrefix("abcde", "abcdf"), "abcd");
+	ASSERT_EQ(ExtractCommonPrefix("abcde", "abcfg"), "abc");
+	ASSERT_EQ(ExtractCommonPrefix("abcde", "afghi"), "a");
+	ASSERT_EQ(ExtractCommonPrefix("abcde", "fghij"), "");
+	ASSERT_EQ(ExtractCommonPrefix("abcde", "abcd"), "abcd");
+	ASSERT_EQ(ExtractCommonPrefix("abcd", "abcde"), "abcd");
+	ASSERT_EQ(ExtractCommonPrefix("abcde", "abf"), "ab");
+	ASSERT_EQ(ExtractCommonPrefix("abf", "abcde"), "ab");
+	ASSERT_EQ(ExtractCommonPrefix("abcde", "af"), "a");
+	ASSERT_EQ(ExtractCommonPrefix("af", "abcde"), "a");
+}
+
+
+TEST(StringUtilsTest, ExtractCommonSuffix)
+{
+	ASSERT_EQ(ExtractCommonSuffix("", ""), "");
+	ASSERT_EQ(ExtractCommonSuffix("abcde", "abcde"), "abcde");
+	ASSERT_EQ(ExtractCommonSuffix("abcde", "zbcde"), "bcde");
+	ASSERT_EQ(ExtractCommonSuffix("abcde", "yzcde"), "cde");
+	ASSERT_EQ(ExtractCommonSuffix("abcde", "wxyze"), "e");
+	ASSERT_EQ(ExtractCommonSuffix("abcde", "vwxyz"), "");
+	ASSERT_EQ(ExtractCommonSuffix("abcde", "bcde"), "bcde");
+	ASSERT_EQ(ExtractCommonSuffix("bcde", "abcde"), "bcde");
+	ASSERT_EQ(ExtractCommonSuffix("abcde", "zde"), "de");
+	ASSERT_EQ(ExtractCommonSuffix("zde", "abcde"), "de");
+	ASSERT_EQ(ExtractCommonSuffix("abcde", "ze"), "e");
+	ASSERT_EQ(ExtractCommonSuffix("ze", "abcde"), "e");
+}
+
+
+TEST(StringUtilsTest, RemovePrefix)
+{
+	ASSERT_EQ(RemovePrefix("", ""), "");
+	ASSERT_EQ(RemovePrefix("abcde", "abcde"), "");
+	ASSERT_EQ(RemovePrefix("abcde", "abcd"), "e");
+	ASSERT_EQ(RemovePrefix("abcde", "abc"), "de");
+	ASSERT_EQ(RemovePrefix("abcde", "a"), "bcde");
+	ASSERT_EQ(RemovePrefix("abcde", ""), "abcde");
+	ASSERT_EQ(RemovePrefix("abcde", "abcdf"), "abcde");
+	ASSERT_EQ(RemovePrefix("abcde", "edcba"), "abcde");
+}
+
+
+TEST(StringUtilsTest, RemoveSuffix)
+{
+	ASSERT_EQ(RemoveSuffix("", ""), "");
+	ASSERT_EQ(RemoveSuffix("abcde", "abcde"), "");
+	ASSERT_EQ(RemoveSuffix("abcde", "bcde"), "a");
+	ASSERT_EQ(RemoveSuffix("abcde", "cde"), "ab");
+	ASSERT_EQ(RemoveSuffix("abcde", "e"), "abcd");
+	ASSERT_EQ(RemoveSuffix("abcde", ""), "abcde");
+	ASSERT_EQ(RemoveSuffix("abcde", "zbcde"), "abcde");
+	ASSERT_EQ(RemoveSuffix("abcde", "edcba"), "abcde");
+}
+
+
 TEST(StringUtilsTest, Split)
 {
 	ASSERT_THAT(Split("/a//b/", "/"), MatchRange(ElementsAre("", "a", "", "b", "")));
