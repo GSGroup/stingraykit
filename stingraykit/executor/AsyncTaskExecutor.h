@@ -62,7 +62,6 @@ namespace stingray
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const TaskPair& task) const;
 	};
-	STINGRAYKIT_DECLARE_PTR(AsyncTaskExecutor);
 
 	/** @} */
 
