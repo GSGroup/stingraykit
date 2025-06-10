@@ -16,7 +16,7 @@ namespace stingray
 	namespace
 	{
 
-		const size_t TaskCountLimit = 256 * 4;
+		const size_t TaskQueueSizeWarningThreshold = 256 * 4;
 
 	}
 
@@ -41,8 +41,8 @@ namespace stingray
 		_queue.emplace_back(task, tester);
 		_condVar.Broadcast();
 
-		if (_queue.size() > TaskCountLimit && _queue.size() % (TaskCountLimit / 4) == 0)
-			s_logger.Error() << "Task queue size limit is exceeded for executor '" << _name << "': " << _queue.size();
+		if (_queue.size() > TaskQueueSizeWarningThreshold && _queue.size() % (TaskQueueSizeWarningThreshold / 4) == 0)
+			s_logger.Error() << "[" << _name << "] Too many tasks in the queue: " << _queue.size();
 	}
 
 
