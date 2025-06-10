@@ -109,6 +109,7 @@ set(stingraykit_SRC
 	stingraykit/diagnostics/CheckpointProfiler.cpp
 	stingraykit/diagnostics/SystemProfiler.cpp
 
+	stingraykit/executor/ExecutionDeferrer.cpp
 	stingraykit/executor/TaskLifeToken.cpp
 	stingraykit/executor/ThreadlessTaskExecutor.cpp
 	stingraykit/executor/ThreadPool.cpp
