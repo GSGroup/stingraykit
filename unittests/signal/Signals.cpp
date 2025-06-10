@@ -25,7 +25,7 @@ public:
 
 	void Reset()
 	{
-		Worker->ExecuteTasks();
+		Worker->ExecuteTasks(DummyCancellationToken());
 		Counter = 0;
 	}
 
@@ -75,7 +75,7 @@ TEST_F(SignalsTest, SignalByValue)
 	SignalValue(Dummy(this));
 	//TS_TRACE("SIGNALLED\n");
 	ASSERT_GE(Counter, 1);
-	Worker->ExecuteTasks();
+	Worker->ExecuteTasks(DummyCancellationToken());
 	ASSERT_EQ(Counter, 0);
 }
 
@@ -89,7 +89,7 @@ TEST_F(SignalsTest, SignalByRef)
 	ASSERT_EQ(Counter, 0);
 	SignalRef(Dummy(this));
 	ASSERT_GE(Counter, 1);
-	Worker->ExecuteTasks();
+	Worker->ExecuteTasks(DummyCancellationToken());
 	ASSERT_EQ(Counter, 0);
 }
 
