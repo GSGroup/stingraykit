@@ -18,7 +18,7 @@ using namespace stingray;
 
 class SignalsTest : public testing::Test, public FireRange {
 protected:
-	DeferredTaskExecutorPtr Worker;
+	IDeferredTaskExecutorPtr Worker;
 
 public:
 	SignalsTest() : Worker(new DeferredTaskExecutor("signalsTest", DeferredTaskExecutor::DefaultProfileTimeout, &FireRange::HandleException)) { }
