@@ -55,7 +55,6 @@ namespace stingray
 
 		void ExecuteTask(const TaskPair& task) const;
 	};
-	STINGRAYKIT_DECLARE_PTR(DeferredTaskExecutor);
 
 }
 
