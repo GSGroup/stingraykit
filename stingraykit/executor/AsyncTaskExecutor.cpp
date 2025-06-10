@@ -9,7 +9,6 @@
 
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/bind.h>
-#include <stingraykit/function/function_name_getter.h>
 
 namespace stingray
 {
