@@ -222,7 +222,7 @@ namespace stingray
 
 
 	void ThreadPool::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Thread pool task exception: " << ex; }
+	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
 	std::string ThreadPool::GetProfilerMessage(const Task& task) const

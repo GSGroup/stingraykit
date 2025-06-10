@@ -47,7 +47,7 @@ namespace stingray
 
 
 	void AsyncTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Executor task exception: " << ex; }
+	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
 	std::string AsyncTaskExecutor::GetProfilerMessage(const TaskType& task) const

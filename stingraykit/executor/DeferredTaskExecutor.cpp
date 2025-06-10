@@ -78,7 +78,7 @@ namespace stingray
 
 
 	void DeferredTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Executor task exception: " << ex; }
+	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
 	std::string DeferredTaskExecutor::GetProfilerMessage(const TaskType& task) const

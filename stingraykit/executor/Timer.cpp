@@ -220,7 +220,7 @@ namespace stingray
 
 
 	void Timer::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Timer task exception: " << ex; }
+	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
 	std::string Timer::GetProfilerMessage(const TaskType& task) const
