@@ -134,6 +134,9 @@ namespace stingray
 	const TimeDuration ThreadPool::DefaultIdleTimeout = TimeDuration::Minute();
 
 
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadPool);
+
+
 	ThreadPool::ThreadPool(const std::string& name, size_t maxThreads, optional<TimeDuration> profileTimeout, optional<TimeDuration> idleTimeout, const ExceptionHandler& exceptionHandler)
 		:	_name(name),
 			_maxThreads(maxThreads),
@@ -219,7 +222,7 @@ namespace stingray
 
 
 	void ThreadPool::DefaultExceptionHandler(const std::exception& ex)
-	{ Logger::Error() << "Thread pool task exception: " << ex; }
+	{ s_logger.Error() << "Thread pool task exception: " << ex; }
 
 
 	std::string ThreadPool::GetProfilerMessage(const Task& task) const
