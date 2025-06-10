@@ -96,7 +96,7 @@ TEST_F(SignalsTest, SignalByRef)
 
 TEST_F(SignalsTest, ThreadedSignalByRef)
 {
-	AsyncTaskExecutorPtr worker(new AsyncTaskExecutor("signals-test-thread", AsyncTaskExecutor::DefaultProfileTimeout, &FireRange::HandleException));
+	ITaskExecutorPtr worker(new AsyncTaskExecutor("signals-test-thread", AsyncTaskExecutor::DefaultProfileTimeout, &FireRange::HandleException));
 	stingray::signal<void (const Dummy&)> SignalRef;
 	Token connection = SignalRef.connect(worker, Bind(&SignalsTest::Slot, this, _1));
 
