@@ -49,9 +49,6 @@ namespace stingray
 		// custom timeout version - doesn't change "default" timeout value stored in deferrer - passed timeout value corresponds to the very deferring
 		void Defer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval = null);
 
-		void DeferNoTimeout(const TaskType& task)									{ Defer(task); }
-		void DeferWithTimeout(const TaskType& task, TimeDuration timeout)			{ Defer(task, timeout); }
-
 	private:
 		void DoDefer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval);
 	};
@@ -76,9 +73,6 @@ namespace stingray
 
 		void Defer(const TaskType& task)											{ _impl->Defer(task); }
 		void Defer(const TaskType& task, TimeDuration timeout)						{ _impl->Defer(task, timeout); }
-
-		void DeferNoTimeout(const TaskType& task)									{ Defer(task); }
-		void DeferWithTimeout(const TaskType& task, TimeDuration timeout)			{ Defer(task, timeout); }
 	};
 	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
 
