@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_THREAD_THREADLESSTASKEXECUTOR_H
-#define STINGRAYKIT_THREAD_THREADLESSTASKEXECUTOR_H
+#ifndef STINGRAYKIT_EXECUTOR_THREADLESSTASKEXECUTOR_H
+#define STINGRAYKIT_EXECUTOR_THREADLESSTASKEXECUTOR_H
 
 // Copyright (c) 2011 - 2025, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
