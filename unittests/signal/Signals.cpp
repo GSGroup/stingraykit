@@ -7,9 +7,9 @@
 
 #include <unittests/Dummy.h>
 
+#include <stingraykit/executor/ThreadTaskExecutor.h>
 #include <stingraykit/signal/signals.h>
 #include <stingraykit/thread/ThreadlessTaskExecutor.h>
-#include <stingraykit/thread/ThreadTaskExecutor.h>
 #include <stingraykit/thread/Thread.h>
 
 #include <gtest/gtest.h>
