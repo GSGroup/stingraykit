@@ -145,7 +145,7 @@ namespace stingray
 			_exceptionHandler(exceptionHandler),
 			_queue(make_shared_ptr<CallbackQueue>()),
 			_worker(make_shared_ptr<Thread>(timerName, Bind(&Timer::ThreadFunc, this, _1)))
-	{ }
+	{ STINGRAYKIT_CHECK(!_profileTimeout || _profileTimeout >= TimeDuration(), ArgumentException("profileTimeout", _profileTimeout)); }
 
 
 	Timer::~Timer()
@@ -177,6 +177,8 @@ namespace stingray
 
 	Token Timer::SetTimeout(TimeDuration timeout, const TaskType& task)
 	{
+		STINGRAYKIT_CHECK(timeout >= TimeDuration(), ArgumentException("timeout", timeout));
+
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
 		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
 
@@ -196,6 +198,9 @@ namespace stingray
 
 	Token Timer::SetTimer(TimeDuration timeout, TimeDuration interval, const TaskType& task)
 	{
+		STINGRAYKIT_CHECK(timeout >= TimeDuration(), ArgumentException("timeout", timeout));
+		STINGRAYKIT_CHECK(interval >= TimeDuration(), ArgumentException("interval", interval));
+
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
 		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
 

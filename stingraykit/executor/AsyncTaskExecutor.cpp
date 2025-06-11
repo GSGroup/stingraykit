@@ -32,7 +32,7 @@ namespace stingray
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
 			_worker(name, Bind(&AsyncTaskExecutor::ThreadFunc, this, _1))
-	{ }
+	{ STINGRAYKIT_CHECK(!_profileTimeout || _profileTimeout >= TimeDuration(), ArgumentException("profileTimeout", _profileTimeout)); }
 
 
 	void AsyncTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)

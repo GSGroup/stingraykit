@@ -143,7 +143,11 @@ namespace stingray
 			_profileTimeout(profileTimeout),
 			_idleTimeout(idleTimeout),
 			_exceptionHandler(exceptionHandler)
-	{ STINGRAYKIT_CHECK(_maxThreads != 0, ArgumentException("maxThreads")); }
+	{
+		STINGRAYKIT_CHECK(_maxThreads != 0, ArgumentException("maxThreads"));
+		STINGRAYKIT_CHECK(!_profileTimeout || _profileTimeout >= TimeDuration(), ArgumentException("profileTimeout", _profileTimeout));
+		STINGRAYKIT_CHECK(!_idleTimeout || _idleTimeout >= TimeDuration(), ArgumentException("idleTimeout", _idleTimeout));
+	}
 
 
 	ThreadPool::~ThreadPool()

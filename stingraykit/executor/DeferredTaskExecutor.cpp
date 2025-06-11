@@ -26,7 +26,7 @@ namespace stingray
 		:	_name(name),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler)
-	{ }
+	{ STINGRAYKIT_CHECK(!_profileTimeout || _profileTimeout >= TimeDuration(), ArgumentException("profileTimeout", _profileTimeout)); }
 
 
 	void DeferredTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
