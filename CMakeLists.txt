@@ -113,6 +113,7 @@ set(stingraykit_SRC
 	stingraykit/executor/ThreadlessTaskExecutor.cpp
 	stingraykit/executor/ThreadPool.cpp
 	stingraykit/executor/ThreadTaskExecutor.cpp
+	stingraykit/executor/Timer.cpp
 
 	stingraykit/factory/Factory.cpp
 
@@ -166,8 +167,6 @@ set(stingraykit_SRC
 	stingraykit/time/ElapsedTime.cpp
 	stingraykit/time/NtpTimestamp.cpp
 	stingraykit/time/Time.cpp
-
-	stingraykit/timer/Timer.cpp
 )
 
 

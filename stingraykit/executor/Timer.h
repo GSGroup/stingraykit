@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_TIMER_TIMER_H
-#define STINGRAYKIT_TIMER_TIMER_H
+#ifndef STINGRAYKIT_EXECUTOR_TIMER_H
+#define STINGRAYKIT_EXECUTOR_TIMER_H
 
 // Copyright (c) 2011 - 2025, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -16,7 +16,7 @@ namespace stingray
 {
 
 	/**
-	 * @addtogroup toolkit_timer
+	 * @addtogroup toolkit_executor
 	 * @{
 	 */
 
