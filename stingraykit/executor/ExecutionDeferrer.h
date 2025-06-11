@@ -62,17 +62,21 @@ namespace stingray
 
 	private:
 		Timer					_timer;
-		ExecutionDeferrerPtr	_impl;
+		ExecutionDeferrer		_impl;
 
 	public:
 		explicit ExecutionDeferrerWithTimer(const std::string& timerName, TimeDuration timeout = TimeDuration())
-			: _timer(timerName)
-		{ _impl = make_shared_ptr<ExecutionDeferrer>(_timer, timeout); }
+			: _timer(timerName), _impl(_timer, timeout)
+		{ }
 
-		void Cancel()																{ _impl->Cancel(); }
+		void Cancel()
+		{ _impl.Cancel(); }
 
-		void Defer(const TaskType& task)											{ _impl->Defer(task); }
-		void Defer(const TaskType& task, TimeDuration timeout)						{ _impl->Defer(task, timeout); }
+		void Defer(const TaskType& task)
+		{ _impl.Defer(task); }
+
+		void Defer(const TaskType& task, TimeDuration timeout)
+		{ _impl.Defer(task, timeout); }
 	};
 	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
 
