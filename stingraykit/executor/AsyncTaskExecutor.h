@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_EXECUTOR_THREADTASKEXECUTOR_H
-#define STINGRAYKIT_EXECUTOR_THREADTASKEXECUTOR_H
+#ifndef STINGRAYKIT_EXECUTOR_ASYNCTASKEXECUTOR_H
+#define STINGRAYKIT_EXECUTOR_ASYNCTASKEXECUTOR_H
 
 // Copyright (c) 2011 - 2025, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -22,9 +22,9 @@ namespace stingray
 	 * @{
 	 */
 
-	class ThreadTaskExecutor final : public virtual ITaskExecutor
+	class AsyncTaskExecutor final : public virtual ITaskExecutor
 	{
-		STINGRAYKIT_NONCOPYABLE(ThreadTaskExecutor);
+		STINGRAYKIT_NONCOPYABLE(AsyncTaskExecutor);
 
 	public:
 		using ExceptionHandlerType = function<void (const std::exception&)>;
@@ -50,7 +50,7 @@ namespace stingray
 		Thread					_worker;
 
 	public:
-		explicit ThreadTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DefaultExceptionHandler);
+		explicit AsyncTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DefaultExceptionHandler);
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
@@ -62,7 +62,7 @@ namespace stingray
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const TaskPair& task) const;
 	};
-	STINGRAYKIT_DECLARE_PTR(ThreadTaskExecutor);
+	STINGRAYKIT_DECLARE_PTR(AsyncTaskExecutor);
 
 	/** @} */
 

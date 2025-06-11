@@ -5,7 +5,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/executor/ThreadTaskExecutor.h>
+#include <stingraykit/executor/AsyncTaskExecutor.h>
 
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/bind.h>
@@ -22,21 +22,21 @@ namespace stingray
 	}
 
 
-	const TimeDuration ThreadTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+	const TimeDuration AsyncTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 
 
-	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadTaskExecutor);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncTaskExecutor);
 
 
-	ThreadTaskExecutor::ThreadTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandlerType& exceptionHandler)
+	AsyncTaskExecutor::AsyncTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandlerType& exceptionHandler)
 		:	_name(name),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
-			_worker(name, Bind(&ThreadTaskExecutor::ThreadFunc, this, _1))
+			_worker(name, Bind(&AsyncTaskExecutor::ThreadFunc, this, _1))
 	{ }
 
 
-	void ThreadTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
+	void AsyncTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
 	{
 		MutexLock l(_syncRoot);
 		_queue.emplace_back(task, tester);
@@ -47,15 +47,15 @@ namespace stingray
 	}
 
 
-	void ThreadTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
+	void AsyncTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
 	{ s_logger.Error() << "Executor task exception: " << ex; }
 
 
-	std::string ThreadTaskExecutor::GetProfilerMessage(const TaskType& task) const
-	{ return StringBuilder() % get_function_name(task) % " in ThreadTaskExecutor '" % _name % "'"; }
+	std::string AsyncTaskExecutor::GetProfilerMessage(const TaskType& task) const
+	{ return StringBuilder() % get_function_name(task) % " in AsyncTaskExecutor '" % _name % "'"; }
 
 
-	void ThreadTaskExecutor::ThreadFunc(const ICancellationToken& token)
+	void AsyncTaskExecutor::ThreadFunc(const ICancellationToken& token)
 	{
 		MutexLock l(_syncRoot);
 
@@ -78,7 +78,7 @@ namespace stingray
 	}
 
 
-	void ThreadTaskExecutor::ExecuteTask(const TaskPair& task) const
+	void AsyncTaskExecutor::ExecuteTask(const TaskPair& task) const
 	{
 		try
 		{
@@ -88,7 +88,7 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&ThreadTaskExecutor::GetProfilerMessage, this, wrap_const_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&AsyncTaskExecutor::GetProfilerMessage, this, wrap_const_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				task.first();
 			}
 			else

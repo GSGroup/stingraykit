@@ -5,7 +5,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/executor/ThreadTaskExecutor.h>
+#include <stingraykit/executor/AsyncTaskExecutor.h>
 #include <stingraykit/function/bind.h>
 #include <stingraykit/log/Logger.h>
 
@@ -34,7 +34,7 @@ TEST(TaskExecutorTest, DISABLED_SeparatedScheduleAndExecuting)
 {
 	try
 	{
-		ITaskExecutorPtr executor = make_shared_ptr<ThreadTaskExecutor>("executorTest");
+		ITaskExecutorPtr executor = make_shared_ptr<AsyncTaskExecutor>("executorTest");
 		const u32 N = 10000;
 
 		atomic<u32> counter(0);

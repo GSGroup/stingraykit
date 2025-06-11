@@ -109,11 +109,11 @@ set(stingraykit_SRC
 	stingraykit/diagnostics/CheckpointProfiler.cpp
 	stingraykit/diagnostics/SystemProfiler.cpp
 
+	stingraykit/executor/AsyncTaskExecutor.cpp
 	stingraykit/executor/ExecutionDeferrer.cpp
 	stingraykit/executor/TaskLifeToken.cpp
 	stingraykit/executor/ThreadlessTaskExecutor.cpp
 	stingraykit/executor/ThreadPool.cpp
-	stingraykit/executor/ThreadTaskExecutor.cpp
 	stingraykit/executor/Timer.cpp
 
 	stingraykit/factory/Factory.cpp
