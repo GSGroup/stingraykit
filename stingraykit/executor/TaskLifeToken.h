@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_THREAD_TASKLIFETOKEN_H
-#define STINGRAYKIT_THREAD_TASKLIFETOKEN_H
+#ifndef STINGRAYKIT_EXECUTOR_TASKLIFETOKEN_H
+#define STINGRAYKIT_EXECUTOR_TASKLIFETOKEN_H
 
 // Copyright (c) 2011 - 2025, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -15,7 +15,7 @@ namespace stingray
 {
 
 	/**
-	 * @addtogroup toolkit_functions
+	 * @addtogroup toolkit_executor
 	 * @{
 	 */
 

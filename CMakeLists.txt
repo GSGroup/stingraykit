@@ -109,6 +109,8 @@ set(stingraykit_SRC
 	stingraykit/diagnostics/CheckpointProfiler.cpp
 	stingraykit/diagnostics/SystemProfiler.cpp
 
+	stingraykit/executor/TaskLifeToken.cpp
+
 	stingraykit/factory/Factory.cpp
 
 	stingraykit/function/bind.cpp
@@ -153,7 +155,6 @@ set(stingraykit_SRC
 	stingraykit/thread/DummyCancellationToken.cpp
 	stingraykit/thread/IThreadEngine.cpp
 	stingraykit/thread/JoiningCancellationToken.cpp
-	stingraykit/thread/TaskLifeToken.cpp
 	stingraykit/thread/Thread.cpp
 	stingraykit/thread/ThreadlessTaskExecutor.cpp
 	stingraykit/thread/ThreadOperation.cpp

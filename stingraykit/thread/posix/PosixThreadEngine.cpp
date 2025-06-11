@@ -13,6 +13,7 @@
 #include <stingraykit/Singleton.h>
 #include <stingraykit/SystemException.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
+#include <stingraykit/executor/TaskLifeToken.h>
 #include <stingraykit/fatal.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/string/Hex.h>
@@ -22,7 +23,6 @@
 #include <stingraykit/thread/posix/PosixThreadStats.h>
 #include <stingraykit/thread/posix/SignalHandler.h>
 #include <stingraykit/thread/posix/ThreadLocal.h>
-#include <stingraykit/thread/TaskLifeToken.h>
 #include <stingraykit/thread/TimedCancellationToken.h>
 #include <stingraykit/time/posix/utils.h>
 
