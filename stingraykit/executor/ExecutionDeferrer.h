@@ -24,22 +24,20 @@ namespace stingray
 		using TaskType = Timer::TaskType;
 
 	private:
-		Timer&			_timer;
-		TimeDuration	_timeout;
+		Timer&						_timer;
+		optional<TimeDuration>		_timeout;
 
-		Mutex			_mutex;
-		bool			_cancellationActive;
+		Mutex						_mutex;
+		bool						_cancellationActive;
 
-		Mutex			_connectionMutex;
-		Token			_connection;
+		Mutex						_connectionMutex;
+		Token						_connection;
 
-		Mutex 			_doDeferConnectionMutex;
-		Token			_doDeferConnection;
+		Mutex						_doDeferConnectionMutex;
+		Token						_doDeferConnection;
 
 	public:
-		explicit ExecutionDeferrer(Timer& timer, TimeDuration timeout = TimeDuration())
-			: _timer(timer), _timeout(timeout), _cancellationActive(false)
-		{ }
+		explicit ExecutionDeferrer(Timer& timer, optional<TimeDuration> timeout = null);
 
 		void Cancel();
 
@@ -65,7 +63,7 @@ namespace stingray
 		ExecutionDeferrer		_impl;
 
 	public:
-		explicit ExecutionDeferrerWithTimer(const std::string& timerName, TimeDuration timeout = TimeDuration())
+		explicit ExecutionDeferrerWithTimer(const std::string& timerName, optional<TimeDuration> timeout = null)
 			: _timer(timerName), _impl(_timer, timeout)
 		{ }
 

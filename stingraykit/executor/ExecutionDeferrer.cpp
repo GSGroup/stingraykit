@@ -12,6 +12,11 @@
 namespace stingray
 {
 
+	ExecutionDeferrer::ExecutionDeferrer(Timer& timer, optional<TimeDuration> timeout)
+		: _timer(timer), _timeout(timeout), _cancellationActive(false)
+	{ STINGRAYKIT_CHECK(!_timeout || _timeout >= TimeDuration(), ArgumentException("timeout", _timeout)); }
+
+
 	void ExecutionDeferrer::Cancel()
 	{
 		{
@@ -37,7 +42,7 @@ namespace stingray
 
 	void ExecutionDeferrer::Defer(const TaskType& task)
 	{
-		STINGRAYKIT_CHECK(_timeout != TimeDuration(), "Invalid timeout");
+		STINGRAYKIT_CHECK(_timeout, InvalidOperationException());
 		Defer(task, _timeout);
 	}
 
