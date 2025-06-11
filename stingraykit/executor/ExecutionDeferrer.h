@@ -70,7 +70,6 @@ namespace stingray
 		void Defer(const TaskType& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null)
 		{ _impl.Defer(task, overrideTimeout, interval); }
 	};
-	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
 
 	/** @} */
 
