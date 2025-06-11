@@ -47,7 +47,6 @@ namespace stingray
 	private:
 		void DoDefer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval);
 	};
-	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrer);
 
 
 	class ExecutionDeferrerWithTimer
