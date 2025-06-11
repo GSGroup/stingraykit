@@ -6,7 +6,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/function/bind.h>
-#include <stingraykit/thread/ThreadPool.h>
+#include <stingraykit/executor/ThreadPool.h>
 
 #include <gtest/gtest.h>
 

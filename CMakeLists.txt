@@ -111,6 +111,7 @@ set(stingraykit_SRC
 
 	stingraykit/executor/TaskLifeToken.cpp
 	stingraykit/executor/ThreadlessTaskExecutor.cpp
+	stingraykit/executor/ThreadPool.cpp
 	stingraykit/executor/ThreadTaskExecutor.cpp
 
 	stingraykit/factory/Factory.cpp
@@ -159,7 +160,6 @@ set(stingraykit_SRC
 	stingraykit/thread/JoiningCancellationToken.cpp
 	stingraykit/thread/Thread.cpp
 	stingraykit/thread/ThreadOperation.cpp
-	stingraykit/thread/ThreadPool.cpp
 	stingraykit/thread/TimedCancellationToken.cpp
 
 	stingraykit/time/BrokenDownTime.cpp
