@@ -5,7 +5,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/executor/ThreadlessTaskExecutor.h>
+#include <stingraykit/executor/DeferredTaskExecutor.h>
 
 #include <stingraykit/diagnostics/AsyncProfiler.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
@@ -15,27 +15,27 @@
 namespace stingray
 {
 
-	const TimeDuration ThreadlessTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
+	const TimeDuration DeferredTaskExecutor::DefaultProfileTimeout = TimeDuration::FromSeconds(10);
 
 
-	STINGRAYKIT_DEFINE_NAMED_LOGGER(ThreadlessTaskExecutor);
+	STINGRAYKIT_DEFINE_NAMED_LOGGER(DeferredTaskExecutor);
 
 
-	ThreadlessTaskExecutor::ThreadlessTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandlerType& exceptionHandler)
+	DeferredTaskExecutor::DeferredTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandlerType& exceptionHandler)
 		:	_name(name),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler)
 	{ }
 
 
-	void ThreadlessTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
+	void DeferredTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
 	{
 		MutexLock l(_syncRoot);
 		_queue.emplace_back(task, tester);
 	}
 
 
-	void ThreadlessTaskExecutor::ExecuteTasks(const ICancellationToken& token)
+	void DeferredTaskExecutor::ExecuteTasks(const ICancellationToken& token)
 	{
 		MutexLock l(_syncRoot);
 
@@ -63,7 +63,7 @@ namespace stingray
 	}
 
 
-	void ThreadlessTaskExecutor::ClearTasks()
+	void DeferredTaskExecutor::ClearTasks()
 	{
 		MutexLock l(_syncRoot);
 
@@ -74,15 +74,15 @@ namespace stingray
 	}
 
 
-	void ThreadlessTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
+	void DeferredTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
 	{ s_logger.Error() << "Executor task exception: " << ex; }
 
 
-	std::string ThreadlessTaskExecutor::GetProfilerMessage(const TaskType& task) const
-	{ return StringBuilder() % get_function_name(task) % " in ThreadlessTaskExecutor '" % _name % "'"; }
+	std::string DeferredTaskExecutor::GetProfilerMessage(const TaskType& task) const
+	{ return StringBuilder() % get_function_name(task) % " in DeferredTaskExecutor '" % _name % "'"; }
 
 
-	void ThreadlessTaskExecutor::ExecuteTask(const TaskPair& task) const
+	void DeferredTaskExecutor::ExecuteTask(const TaskPair& task) const
 	{
 		try
 		{
@@ -92,7 +92,7 @@ namespace stingray
 
 			if (_profileTimeout)
 			{
-				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&ThreadlessTaskExecutor::GetProfilerMessage, this, wrap_const_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
+				AsyncProfiler::Session profiler_session(ExecutorsProfiler::Instance().GetProfiler(), Bind(&DeferredTaskExecutor::GetProfilerMessage, this, wrap_const_ref(task.first)), *_profileTimeout, AsyncProfiler::NameGetterTag());
 				task.first();
 			}
 			else

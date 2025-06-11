@@ -1,5 +1,5 @@
-#ifndef STINGRAYKIT_EXECUTOR_THREADLESSTASKEXECUTOR_H
-#define STINGRAYKIT_EXECUTOR_THREADLESSTASKEXECUTOR_H
+#ifndef STINGRAYKIT_EXECUTOR_DEFERREDTASKEXECUTOR_H
+#define STINGRAYKIT_EXECUTOR_DEFERREDTASKEXECUTOR_H
 
 // Copyright (c) 2011 - 2025, GS Group, https://github.com/GSGroup
 // Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
@@ -17,7 +17,7 @@
 namespace stingray
 {
 
-	class ThreadlessTaskExecutor final : public virtual ITaskExecutor
+	class DeferredTaskExecutor final : public virtual ITaskExecutor
 	{
 	public:
 		using ExceptionHandlerType = function<void (const std::exception&)>;
@@ -42,7 +42,7 @@ namespace stingray
 		optional<std::string>	_activeExecutor;
 
 	public:
-		explicit ThreadlessTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &ThreadlessTaskExecutor::DefaultExceptionHandler);
+		explicit DeferredTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DeferredTaskExecutor::DefaultExceptionHandler);
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
@@ -56,7 +56,7 @@ namespace stingray
 
 		void ExecuteTask(const TaskPair& task) const;
 	};
-	STINGRAYKIT_DECLARE_PTR(ThreadlessTaskExecutor);
+	STINGRAYKIT_DECLARE_PTR(DeferredTaskExecutor);
 
 }
 

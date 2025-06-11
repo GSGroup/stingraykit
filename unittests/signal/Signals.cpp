@@ -8,7 +8,7 @@
 #include <unittests/Dummy.h>
 
 #include <stingraykit/executor/AsyncTaskExecutor.h>
-#include <stingraykit/executor/ThreadlessTaskExecutor.h>
+#include <stingraykit/executor/DeferredTaskExecutor.h>
 #include <stingraykit/signal/signals.h>
 #include <stingraykit/thread/Thread.h>
 
@@ -18,10 +18,10 @@ using namespace stingray;
 
 class SignalsTest : public testing::Test, public FireRange {
 protected:
-	ThreadlessTaskExecutorPtr Worker;
+	DeferredTaskExecutorPtr Worker;
 
 public:
-	SignalsTest() : Worker(new ThreadlessTaskExecutor("signalsTest", ThreadlessTaskExecutor::DefaultProfileTimeout, &FireRange::HandleException)) { }
+	SignalsTest() : Worker(new DeferredTaskExecutor("signalsTest", DeferredTaskExecutor::DefaultProfileTimeout, &FireRange::HandleException)) { }
 
 	void Reset()
 	{
