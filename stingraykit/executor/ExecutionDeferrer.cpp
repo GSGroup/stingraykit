@@ -40,17 +40,15 @@ namespace stingray
 	}
 
 
-	void ExecutionDeferrer::Defer(const TaskType& task)
+	void ExecutionDeferrer::Defer(const TaskType& task, optional<TimeDuration> overrideTimeout, optional<TimeDuration> interval)
 	{
-		STINGRAYKIT_CHECK(_timeout, InvalidOperationException());
-		Defer(task, _timeout);
-	}
+		if (overrideTimeout)
+			STINGRAYKIT_CHECK(overrideTimeout >= TimeDuration(), ArgumentException("overrideTimeout", overrideTimeout));
+		else
+			STINGRAYKIT_CHECK(_timeout, InvalidOperationException());
 
-
-	void ExecutionDeferrer::Defer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval)
-	{
 		MutexLock l(_doDeferConnectionMutex);
-		_doDeferConnection = _timer.SetTimeout(TimeDuration(), Bind(&ExecutionDeferrer::DoDefer, this, task, timeout, interval));
+		_doDeferConnection = _timer.SetTimeout(TimeDuration(), Bind(&ExecutionDeferrer::DoDefer, this, task, overrideTimeout ? *overrideTimeout : *_timeout, interval));
 	}
 
 

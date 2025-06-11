@@ -42,10 +42,7 @@ namespace stingray
 		void Cancel();
 
 		// we shouldn't call Defer from deferred function!
-		void Defer(const TaskType& task);
-
-		// custom timeout version - doesn't change "default" timeout value stored in deferrer - passed timeout value corresponds to the very deferring
-		void Defer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval = null);
+		void Defer(const TaskType& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null);
 
 	private:
 		void DoDefer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval);
@@ -70,11 +67,8 @@ namespace stingray
 		void Cancel()
 		{ _impl.Cancel(); }
 
-		void Defer(const TaskType& task)
-		{ _impl.Defer(task); }
-
-		void Defer(const TaskType& task, TimeDuration timeout)
-		{ _impl.Defer(task, timeout); }
+		void Defer(const TaskType& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null)
+		{ _impl.Defer(task, overrideTimeout, interval); }
 	};
 	STINGRAYKIT_DECLARE_PTR(ExecutionDeferrerWithTimer);
 
