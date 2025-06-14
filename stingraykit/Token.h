@@ -288,11 +288,11 @@ namespace stingray
 
 
 	template < typename Key, typename Compare = comparers::Less >
-	class TokenMap
+	class SynchronizedTokenMap
 	{
 		static_assert(comparers::IsRelationalComparer<Compare>::Value, "Expected Relational comparer");
 
-		STINGRAYKIT_NONCOPYABLE(TokenMap);
+		STINGRAYKIT_NONCOPYABLE(SynchronizedTokenMap);
 
 	private:
 		using Tokens = std::multimap<Key, Token, Compare>;
@@ -333,7 +333,7 @@ namespace stingray
 		Tokens		_tokens;
 
 	public:
-		TokenMap()
+		SynchronizedTokenMap()
 		{ }
 
 		bool contains(const Key& key) const
