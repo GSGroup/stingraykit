@@ -15,8 +15,9 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename T >
-		struct ObjectToken : public virtual IToken
+		struct ObjectToken final : public virtual IToken
 		{
 		private:
 			T	_object;
@@ -28,6 +29,7 @@ namespace stingray
 			ObjectToken(T&& object) : _object(std::move(object))
 			{ }
 		};
+
 	}
 
 

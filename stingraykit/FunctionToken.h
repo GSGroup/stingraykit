@@ -16,8 +16,9 @@ namespace stingray
 
 	namespace Detail
 	{
+
 		template < typename FuncType >
-		class FunctionToken : public virtual IToken
+		class FunctionToken final : public virtual IToken
 		{
 		private:
 			FuncType	_cleanupFunc;
@@ -29,9 +30,10 @@ namespace stingray
 			FunctionToken(FuncType&& cleanupFunc) : _cleanupFunc(std::move(cleanupFunc))
 			{ }
 
-			virtual ~FunctionToken()
+			~FunctionToken() override
 			{ STINGRAYKIT_TRY_NO_MESSAGE(FunctorInvoker::InvokeArgs(_cleanupFunc)); }
 		};
+
 	}
 
 

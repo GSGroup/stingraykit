@@ -58,7 +58,7 @@ namespace stingray
 
 	template < typename T, typename... Us >
 	Token MakeToken(Us&&... args)
-	{ return self_count_ptr<IToken>(new T(std::forward<Us>(args)...)); }
+	{ return make_self_count_ptr<T>(std::forward<Us>(args)...); }
 
 
 	template < >
@@ -174,7 +174,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ThreadlessTokenPool);
 
 	private:
-		typedef std::vector<Token> Tokens;
+		using Tokens = std::vector<Token>;
 
 	private:
 		Tokens	_tokens;
@@ -200,7 +200,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(TokenPool);
 
 	private:
-		typedef std::vector<Token> Tokens;
+		using Tokens = std::vector<Token>;
 
 	private:
 		Mutex		_mutex;
@@ -235,7 +235,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(ThreadlessTokenMap);
 
 	private:
-		typedef std::multimap<Key, Token, Compare> Tokens;
+		using Tokens = std::multimap<Key, Token, Compare>;
 
 		class BracketsOperatorProxy
 		{
@@ -291,7 +291,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(TokenMap);
 
 	private:
-		typedef std::multimap<Key, Token, Compare> Tokens;
+		using Tokens = std::multimap<Key, Token, Compare>;
 
 		class BracketsOperatorProxy
 		{
@@ -346,7 +346,7 @@ namespace stingray
 			std::vector<Token> tokens;
 
 			MutexLock l(_mutex);
-			const std::pair<typename Tokens::iterator, typename Tokens::iterator> range = _tokens.equal_range(key);
+			const auto range = _tokens.equal_range(key);
 			tokens.assign(values_iterator(range.first), values_iterator(range.second));
 			_tokens.erase(range.first, range.second);
 		}
