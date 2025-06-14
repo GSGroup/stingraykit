@@ -195,9 +195,9 @@ namespace stingray
 	};
 
 
-	class TokenPool
+	class SynchronizedTokenPool
 	{
-		STINGRAYKIT_NONCOPYABLE(TokenPool);
+		STINGRAYKIT_NONCOPYABLE(SynchronizedTokenPool);
 
 	private:
 		using Tokens = std::vector<Token>;
@@ -207,15 +207,19 @@ namespace stingray
 		Tokens		_tokens;
 
 	public:
-		TokenPool()									{ }
+		SynchronizedTokenPool()
+		{ }
 
 		bool Empty() const							{ MutexLock l(_mutex); return _tokens.empty(); }
 
 		void Add(const Token& token)				{ MutexLock l(_mutex); _tokens.push_back(token); }
 		void Add(Token&& token)						{ MutexLock l(_mutex); _tokens.push_back(std::move(token)); }
 
-		TokenPool& operator += (const Token& token)	{ Add(token); return *this; }
-		TokenPool& operator += (Token&& token)		{ Add(std::move(token)); return *this; }
+		SynchronizedTokenPool& operator += (const Token& token)
+		{ Add(token); return *this; }
+
+		SynchronizedTokenPool& operator += (Token&& token)
+		{ Add(std::move(token)); return *this; }
 
 		void Release()
 		{
