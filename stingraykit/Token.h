@@ -37,12 +37,12 @@ namespace stingray
 		Token(NullPtrType)
 		{ }
 
-		template < typename T >
+		template < typename T, typename EnableIf<IsConvertible<T*, IToken*>::Value, int>::ValueT = 0 >
 		Token(const self_count_ptr<T>& token)
 			: _token(token)
 		{ }
 
-		template < typename T >
+		template < typename T, typename EnableIf<IsConvertible<T*, IToken*>::Value, int>::ValueT = 0 >
 		Token(self_count_ptr<T>&& token)
 			: _token(std::move(token))
 		{ }
@@ -56,7 +56,7 @@ namespace stingray
 	};
 
 
-	template < typename T, typename... Us >
+	template < typename T, typename... Us, typename EnableIf<IsConvertible<T*, IToken*>::Value, int>::ValueT = 0 >
 	Token MakeToken(Us&&... args)
 	{ return make_self_count_ptr<T>(std::forward<Us>(args)...); }
 
