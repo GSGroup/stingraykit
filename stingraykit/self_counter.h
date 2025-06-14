@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/core/Dummy.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
 #include <stingraykit/Exception.h>
 #include <stingraykit/TypeInfo.h>
@@ -65,7 +64,7 @@ namespace stingray
 		{ std::swap(_rawPtr, other._rawPtr); }
 
 		template < typename U >
-		self_count_ptr(const self_count_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
+		self_count_ptr(const self_count_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0)
 			: _rawPtr(other._rawPtr)
 		{
 			if (_rawPtr)
@@ -73,7 +72,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		self_count_ptr(self_count_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
+		self_count_ptr(self_count_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0)
 			: _rawPtr(other._rawPtr)
 		{ other._rawPtr = 0; }
 

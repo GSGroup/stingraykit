@@ -295,7 +295,7 @@ namespace stingray
 		{ AssignVal(DefaultType()); }
 
 		template < typename T >
-		variant(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
+		variant(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, int>::ValueT = 0)
 		{ AssignVal(std::forward<T>(val)); }
 
 		variant(const variant& other)
@@ -320,7 +320,7 @@ namespace stingray
 		}
 
 		template < typename T >
-		void assign(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
+		void assign(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, int>::ValueT = 0)
 		{
 			base::Destruct();
 			AssignVal(std::forward<T>(val));
@@ -377,7 +377,7 @@ namespace stingray
 
 	private:
 		template < typename T >
-		void AssignVal(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
+		void AssignVal(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, int>::ValueT = 0)
 		{
 			STINGRAYKIT_ASSURE_NOTHROW("Copy-ctor of never-empty variant item threw an exception: ", this->_storage.template Ctor<typename Decay<T>::ValueT>(std::forward<T>(val)));
 			this->_type = IndexOfTypeListItem<TypeList, typename Decay<T>::ValueT>::Value;
@@ -431,7 +431,7 @@ namespace stingray
 		{ AssignDefault(); }
 
 		template < typename T >
-		variant(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
+		variant(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, int>::ValueT = 0)
 		{ AssignVal(std::forward<T>(val)); }
 
 		variant(const variant& other)
@@ -456,7 +456,7 @@ namespace stingray
 		}
 
 		template < typename T >
-		void assign(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
+		void assign(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, int>::ValueT = 0)
 		{
 			base::Destruct();
 			AssignVal(std::forward<T>(val));
@@ -518,7 +518,7 @@ namespace stingray
 
 	private:
 		template < typename T >
-		void AssignVal(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0)
+		void AssignVal(T&& val, typename EnableIf<TypeListContains<TypeList, typename Decay<T>::ValueT>::Value, int>::ValueT = 0)
 		{
 			try
 			{

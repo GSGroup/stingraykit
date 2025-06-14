@@ -8,7 +8,6 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/core/Dummy.h>
 #include <stingraykit/CheckedDelete.h>
 #include <stingraykit/Exception.h>
 #include <stingraykit/TypeInfo.h>
@@ -45,7 +44,7 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		unique_ptr(unique_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0) : _rawPtr(other.release())
+		unique_ptr(unique_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0) : _rawPtr(other.release())
 		{ }
 
 		~unique_ptr()
@@ -125,7 +124,7 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		unique_ptr(unique_ptr<U[]>&& other, typename EnableIf<IsConvertible<U(*)[], T(*)[]>::Value, Dummy>::ValueT* = 0) : _rawPtr(other.release())
+		unique_ptr(unique_ptr<U[]>&& other, typename EnableIf<IsConvertible<U(*)[], T(*)[]>::Value, int>::ValueT = 0) : _rawPtr(other.release())
 		{ }
 
 		~unique_ptr()

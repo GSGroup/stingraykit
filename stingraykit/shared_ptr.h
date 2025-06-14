@@ -8,10 +8,11 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/TypeErasure.h>
 #include <stingraykit/aligned_storage.h>
+#include <stingraykit/core/Dummy.h>
 #include <stingraykit/dynamic_caster.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
+#include <stingraykit/TypeErasure.h>
 #include <stingraykit/unique_ptr.h>
 
 namespace stingray
@@ -312,7 +313,7 @@ namespace stingray
 		}
 
 		template < typename U >
-		shared_ptr(unique_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
+		shared_ptr(unique_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0)
 			: _rawPtr(other.get())
 		{
 			if (!_rawPtr)
@@ -339,12 +340,12 @@ namespace stingray
 		{ other._rawPtr = null; }
 
 		template < typename U >
-		shared_ptr(const shared_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
+		shared_ptr(const shared_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ LogAddRef(_impl.AddStrongReference()); }
 
 		template < typename U >
-		shared_ptr(shared_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
+		shared_ptr(shared_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0)
 			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
 		{ other._rawPtr = null; }
 
@@ -526,7 +527,7 @@ namespace stingray
 		{ }
 
 		template < typename U >
-		weak_ptr(const shared_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
+		weak_ptr(const shared_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
 
@@ -539,12 +540,12 @@ namespace stingray
 		{ other._rawPtr = null; }
 
 		template < typename U >
-		weak_ptr(const weak_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
+		weak_ptr(const weak_ptr<U>& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0)
 			: _rawPtr(other._rawPtr), _impl(other._impl)
 		{ _impl.AddWeakReference(); }
 
 		template < typename U >
-		weak_ptr(weak_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, Dummy>::ValueT* = 0)
+		weak_ptr(weak_ptr<U>&& other, typename EnableIf<IsConvertible<U*, T*>::Value, int>::ValueT = 0)
 			: _rawPtr(other._rawPtr), _impl(std::move(other._impl))
 		{ other._rawPtr = null; }
 

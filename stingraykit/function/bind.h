@@ -195,11 +195,11 @@ namespace stingray
 
 		private:
 			template < typename BoundType_, typename BinderParamsTuple_ >
-			static ParamType DoGet(const Tuple<BoundParams>& boundParams, BinderParamsTuple_&& binderParams, typename EnableIf<!IsBinder<BoundType_>::Value, Dummy>::ValueT* = 0)
+			static ParamType DoGet(const Tuple<BoundParams>& boundParams, BinderParamsTuple_&& binderParams, typename EnableIf<!IsBinder<BoundType_>::Value, int>::ValueT = 0)
 			{ return boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(); }
 
 			template < typename BoundType_, typename BinderParamsTuple_ >
-			static ParamType DoGet(const Tuple<BoundParams>& boundParams, BinderParamsTuple_&& binderParams, typename EnableIf<IsBinder<BoundType_>::Value, Dummy>::ValueT* = 0)
+			static ParamType DoGet(const Tuple<BoundParams>& boundParams, BinderParamsTuple_&& binderParams, typename EnableIf<IsBinder<BoundType_>::Value, int>::ValueT = 0)
 			{ return FunctorInvoker::Invoke(boundParams.template Get<GetTypeListItem<typename BoundParamNumbersGetter<AllParameters>::ValueT, Index>::ValueT::Value>(), std::forward<BinderParamsTuple_>(binderParams)); }
 		};
 

@@ -279,7 +279,7 @@ namespace stingray
 		{ Move(std::move(other)); }
 
 		template < typename T >
-		any(T&& val, typename EnableIf<!IsSame<any, typename Decay<T>::ValueT>::Value, Dummy>::ValueT* = 0) : _type(Type::Empty)
+		any(T&& val, typename EnableIf<!IsSame<any, typename Decay<T>::ValueT>::Value, int>::ValueT = 0) : _type(Type::Empty)
 		{ Init<T>(std::forward<T>(val)); }
 
 		~any()
