@@ -124,21 +124,21 @@ namespace stingray
 	};
 
 
-	class TokenHolder
+	class SynchronizedTokenHolder
 	{
 	private:
 		Mutex		_mutex;
 		Token		_token;
 
 	public:
-		TokenHolder()
+		SynchronizedTokenHolder()
 		{ }
 
-		TokenHolder(const Token& token)
+		SynchronizedTokenHolder(const Token& token)
 			: _token(token)
 		{ }
 
-		TokenHolder(Token&& token)
+		SynchronizedTokenHolder(Token&& token)
 			: _token(std::move(token))
 		{ }
 
@@ -161,10 +161,10 @@ namespace stingray
 		void Reset()
 		{ Set(null); }
 
-		TokenHolder& operator = (const Token& token)
+		SynchronizedTokenHolder& operator = (const Token& token)
 		{ Set(token); return *this; }
 
-		TokenHolder& operator = (Token&& token)
+		SynchronizedTokenHolder& operator = (Token&& token)
 		{ Set(std::move(token)); return *this; }
 	};
 
