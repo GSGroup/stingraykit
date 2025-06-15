@@ -50,7 +50,7 @@ TEST(TimerTest, SameTimeScheduleOrder)
 {
 	try
 	{
-		TimerPtr timer(new Timer("timerTest"));
+		ITimerPtr timer = make_shared_ptr<Timer>("timerTest");
 		const u32 N = 10000;
 
 		bool invalid_order = false;
@@ -78,7 +78,7 @@ TEST(TimerTest, SeparatedScheduleAndExecuting)
 {
 	try
 	{
-		TimerPtr timer(new Timer("timerTest"));
+		ITimerPtr timer = make_shared_ptr<Timer>("timerTest");
 		const u32 N = 10000;
 
 		bool invalid_order = false;

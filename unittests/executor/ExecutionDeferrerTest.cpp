@@ -6,6 +6,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/executor/ExecutionDeferrer.h>
+#include <stingraykit/executor/Timer.h>
 #include <stingraykit/function/bind.h>
 
 #include <gtest/gtest.h>
@@ -21,7 +22,7 @@ protected:
 		ExecutionDeferrer	_deferrer;
 
 	public:
-		DeferrerHolder(Timer& timer, size_t timeout, const function<void ()>& func)
+		DeferrerHolder(ITimer& timer, size_t timeout, const function<void ()>& func)
 			: _deferrer(timer, TimeDuration(timeout))
 		{ _deferrer.Defer(func); }
 

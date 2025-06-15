@@ -7,6 +7,8 @@
 
 #include <stingraykit/BandwidthReporter.h>
 
+#include <stingraykit/executor/Timer.h>
+
 namespace stingray
 {
 
@@ -22,8 +24,8 @@ namespace stingray
 		:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
 			_dataTotal(0),
 			_dataSinceLastReport(0),
-			_timer(timerName)
-	{ _connection = _timer.SetTimer(ReportBandwidthTimeout, Bind(&BandwidthReporter::Report, this)); }
+			_timer(make_shared_ptr<Timer>(timerName))
+	{ _connection = _timer->SetTimer(ReportBandwidthTimeout, Bind(&BandwidthReporter::Report, this)); }
 
 
 	void BandwidthReporter::Read(IDataConsumer& consumer, const ICancellationToken& token)

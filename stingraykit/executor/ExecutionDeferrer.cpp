@@ -7,12 +7,13 @@
 
 #include <stingraykit/executor/ExecutionDeferrer.h>
 
+#include <stingraykit/executor/Timer.h>
 #include <stingraykit/function/bind.h>
 
 namespace stingray
 {
 
-	ExecutionDeferrer::ExecutionDeferrer(Timer& timer, optional<TimeDuration> timeout)
+	ExecutionDeferrer::ExecutionDeferrer(ITimer& timer, optional<TimeDuration> timeout)
 		: _timer(timer), _timeout(timeout), _deferExecutionTester(null)
 	{
 		STINGRAYKIT_CHECK(!_timeout || _timeout >= TimeDuration(), ArgumentException("timeout", _timeout));
@@ -51,5 +52,10 @@ namespace stingray
 		else
 			_deferredTaskToken = _timer.SetTimeout(timeout, task);
 	}
+
+
+	ExecutionDeferrerWithTimer::ExecutionDeferrerWithTimer(const std::string& timerName, optional<TimeDuration> timeout)
+		: _timer(make_shared_ptr<Timer>(timerName)), _impl(*_timer, timeout)
+	{ }
 
 }

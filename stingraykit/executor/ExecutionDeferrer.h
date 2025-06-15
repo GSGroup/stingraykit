@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/executor/Timer.h>
+#include <stingraykit/executor/ITimer.h>
 
 namespace stingray
 {
@@ -21,10 +21,10 @@ namespace stingray
 	class ExecutionDeferrer
 	{
 	public:
-		using TaskType = Timer::TaskType;
+		using TaskType = ITimer::TaskType;
 
 	private:
-		Timer&						_timer;
+		ITimer&						_timer;
 		optional<TimeDuration>		_timeout;
 
 		Mutex						_cancelMutex;
@@ -36,7 +36,7 @@ namespace stingray
 		TaskLifeHolder				_deferTaskLifeHolder;
 
 	public:
-		explicit ExecutionDeferrer(Timer& timer, optional<TimeDuration> timeout = null);
+		explicit ExecutionDeferrer(ITimer& timer, optional<TimeDuration> timeout = null);
 
 		/// @brief WARNING: don't call Cancel() from deferred function
 		void Cancel();
@@ -57,13 +57,11 @@ namespace stingray
 		using TaskType = ExecutionDeferrer::TaskType;
 
 	private:
-		Timer					_timer;
+		ITimerPtr				_timer;
 		ExecutionDeferrer		_impl;
 
 	public:
-		explicit ExecutionDeferrerWithTimer(const std::string& timerName, optional<TimeDuration> timeout = null)
-			: _timer(timerName), _impl(_timer, timeout)
-		{ }
+		explicit ExecutionDeferrerWithTimer(const std::string& timerName, optional<TimeDuration> timeout = null);
 
 		void Cancel()
 		{ _impl.Cancel(); }
