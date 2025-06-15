@@ -169,9 +169,9 @@ namespace stingray
 	};
 
 
-	class ThreadlessTokenPool
+	class TokenPool
 	{
-		STINGRAYKIT_NONCOPYABLE(ThreadlessTokenPool);
+		STINGRAYKIT_NONCOPYABLE(TokenPool);
 
 	private:
 		using Tokens = std::vector<Token>;
@@ -180,7 +180,7 @@ namespace stingray
 		Tokens	_tokens;
 
 	public:
-		ThreadlessTokenPool()
+		TokenPool()
 		{ }
 
 		bool Empty() const										{ return _tokens.empty(); }
@@ -188,8 +188,8 @@ namespace stingray
 		void Add(const Token& token)							{ _tokens.push_back(token); }
 		void Add(Token&& token)									{ _tokens.push_back(std::move(token)); }
 
-		ThreadlessTokenPool& operator += (const Token& token)	{ Add(token); return *this; }
-		ThreadlessTokenPool& operator += (Token&& token)		{ Add(std::move(token)); return *this; }
+		TokenPool& operator += (const Token& token)				{ Add(token); return *this; }
+		TokenPool& operator += (Token&& token)					{ Add(std::move(token)); return *this; }
 
 		void Release()											{ Tokens().swap(_tokens); }
 	};

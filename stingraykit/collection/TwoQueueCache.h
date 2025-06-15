@@ -33,7 +33,7 @@ namespace stingray
 
 		signal<OnEvictedSignature>		_onEvicted;
 
-		ThreadlessTokenPool				_connections;
+		TokenPool						_connections;
 
 	public:
 		TwoQueueCache(size_t inQueueCapacity, size_t outQueueCapacity, size_t hotCacheCapacity)
