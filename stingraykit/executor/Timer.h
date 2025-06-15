@@ -8,7 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/executor/ITaskExecutor.h>
+#include <stingraykit/executor/ITimer.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/ConditionVariable.h>
 
@@ -20,7 +20,7 @@ namespace stingray
 	 * @{
 	 */
 
-	class Timer final : public virtual ITaskExecutor
+	class Timer final : public virtual ITimer
 	{
 		STINGRAYKIT_NONCOPYABLE(Timer);
 
@@ -56,9 +56,9 @@ namespace stingray
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
-		Token SetTimeout(TimeDuration timeout, const TaskType& task);
-		Token SetTimer(TimeDuration interval, const TaskType& task);
-		Token SetTimer(TimeDuration timeout, TimeDuration interval, const TaskType& task);
+		Token SetTimeout(TimeDuration timeout, const TaskType& task) override;
+		Token SetTimer(TimeDuration interval, const TaskType& task) override;
+		Token SetTimer(TimeDuration timeout, TimeDuration interval, const TaskType& task) override;
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
