@@ -16,8 +16,6 @@ namespace stingray
 
 	class BandwidthReporter final : public virtual IDataSource
 	{
-		static const s64 ReportBandwidthTimeout = 10000;
-
 	private:
 		IDataSourcePtr			_source;
 
@@ -30,40 +28,15 @@ namespace stingray
 		Token					_connection;
 
 	public:
-		BandwidthReporter(const IDataSourcePtr& source, const std::string& timerName)
-			:	_source(STINGRAYKIT_REQUIRE_NOT_NULL(source)),
-				_dataTotal(0),
-				_dataSinceLastReport(0),
-				_timer(timerName)
-		{ _connection = _timer.SetTimer(TimeDuration(ReportBandwidthTimeout), Bind(&BandwidthReporter::Report, this)); }
+		BandwidthReporter(const IDataSourcePtr& source, const std::string& timerName);
 
-		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
-		{ _source->ReadToFunction(Bind(&BandwidthReporter::DoPush, this, wrap_ref(consumer), _1, _2), Bind(&IDataConsumer::EndOfData, wrap_ref(consumer), _1), token); }
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override;
 
 	private:
-		void Report()
-		{
-			MutexLock l(_mutex);
-			const u64 speedInKbytes = (_dataSinceLastReport * 1000 / _timeSinceLastReport.ElapsedMilliseconds()) / 1024;
-			Logger::Info() << "Data: " << _dataSinceLastReport << " total: " << _dataTotal << " avg speed: " << speedInKbytes << " KB/s";
+		void Report();
 
-			_dataSinceLastReport = 0;
-			_timeSinceLastReport.Restart();
-		}
-
-		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
-		{
-			size_t size = consumer.Process(data, token);
-			BytesProcessed(size);
-			return size;
-		}
-
-		void BytesProcessed(size_t bytesCount)
-		{
-			MutexLock l(_mutex);
-			_dataSinceLastReport += bytesCount;
-			_dataTotal += bytesCount;
-		}
+		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token);
+		void BytesProcessed(size_t bytesCount);
 	};
 
 }
