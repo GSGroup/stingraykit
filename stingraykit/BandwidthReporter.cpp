@@ -13,7 +13,7 @@ namespace stingray
 	namespace
 	{
 
-		const s64 ReportBandwidthTimeout = 10000;
+		const TimeDuration ReportBandwidthTimeout = TimeDuration::FromSeconds(10);
 
 	}
 
@@ -23,7 +23,7 @@ namespace stingray
 			_dataTotal(0),
 			_dataSinceLastReport(0),
 			_timer(timerName)
-	{ _connection = _timer.SetTimer(TimeDuration(ReportBandwidthTimeout), Bind(&BandwidthReporter::Report, this)); }
+	{ _connection = _timer.SetTimer(ReportBandwidthTimeout, Bind(&BandwidthReporter::Report, this)); }
 
 
 	void BandwidthReporter::Read(IDataConsumer& consumer, const ICancellationToken& token)
@@ -45,7 +45,7 @@ namespace stingray
 
 	size_t BandwidthReporter::DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 	{
-		size_t size = consumer.Process(data, token);
+		const size_t size = consumer.Process(data, token);
 		BytesProcessed(size);
 		return size;
 	}
