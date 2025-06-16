@@ -40,7 +40,7 @@ namespace stingray
 	private:
 		static NamedLogger			s_logger;
 
-		std::string					_timerName;
+		std::string					_name;
 		optional<TimeDuration>		_profileTimeout;
 		ExceptionHandler			_exceptionHandler;
 
@@ -51,7 +51,7 @@ namespace stingray
 		ThreadPtr					_worker;
 
 	public:
-		explicit Timer(const std::string& timerName, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
+		explicit Timer(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 		~Timer() override;
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;

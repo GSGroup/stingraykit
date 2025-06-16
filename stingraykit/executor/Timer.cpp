@@ -139,12 +139,12 @@ namespace stingray
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(Timer);
 
 
-	Timer::Timer(const std::string& timerName, optional<TimeDuration> profileTimeout, const ExceptionHandler& exceptionHandler)
-		:	_timerName(timerName),
+	Timer::Timer(const std::string& name, optional<TimeDuration> profileTimeout, const ExceptionHandler& exceptionHandler)
+		:	_name(name),
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
 			_queue(make_shared_ptr<CallbackQueue>()),
-			_worker(make_shared_ptr<Thread>(timerName, Bind(&Timer::ThreadFunc, this, _1)))
+			_worker(make_shared_ptr<Thread>(name, Bind(&Timer::ThreadFunc, this, _1)))
 	{ STINGRAYKIT_CHECK(!_profileTimeout || _profileTimeout >= TimeDuration(), ArgumentException("profileTimeout", _profileTimeout)); }
 
 
@@ -154,7 +154,7 @@ namespace stingray
 
 		MutexLock l(_queue->Sync());
 		if (!_queue->IsEmpty())
-			s_logger.Warning() << "killing timer " << _timerName << " which still has some functions to execute";
+			s_logger.Warning() << "killing timer " << _name << " which still has some functions to execute";
 
 		while(!_queue->IsEmpty())
 		{
@@ -229,7 +229,7 @@ namespace stingray
 
 
 	std::string Timer::GetProfilerMessage(const TaskType& task) const
-	{ return StringBuilder() % get_function_name(task) % " in Timer '" % _timerName % "'"; }
+	{ return StringBuilder() % get_function_name(task) % " in Timer '" % _name % "'"; }
 
 
 	void Timer::ThreadFunc(const ICancellationToken& token)
