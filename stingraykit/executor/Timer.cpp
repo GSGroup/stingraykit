@@ -182,11 +182,9 @@ namespace stingray
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
 		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
 
-		{
-			MutexLock l(_queue->Sync());
-			_queue->Push(ci);
-			_cond.Broadcast();
-		}
+		MutexLock l(_queue->Sync());
+		_queue->Push(ci);
+		_cond.Broadcast();
 
 		return token;
 	}
@@ -204,11 +202,9 @@ namespace stingray
 		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
 		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
 
-		{
-			MutexLock l(_queue->Sync());
-			_queue->Push(ci);
-			_cond.Broadcast();
-		}
+		MutexLock l(_queue->Sync());
+		_queue->Push(ci);
+		_cond.Broadcast();
 
 		return token;
 	}
