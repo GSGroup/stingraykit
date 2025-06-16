@@ -93,7 +93,7 @@ namespace stingray
 	Timer::CallbackInfoPtr Timer::CallbackQueue::Top() const
 	{
 		MutexLock l(_mutex);
-		STINGRAYKIT_CHECK(!_container.empty(), "Empty queue");
+		STINGRAYKIT_CHECK(!_container.empty(), InvalidOperationException());
 		return _container.begin()->second;
 	}
 
@@ -122,7 +122,7 @@ namespace stingray
 	Timer::CallbackInfoPtr Timer::CallbackQueue::Pop()
 	{
 		MutexLock l(_mutex);
-		STINGRAYKIT_CHECK(!_container.empty(), "Empty queue");
+		STINGRAYKIT_CHECK(!_container.empty(), InvalidOperationException());
 
 		const CallbackInfoPtr ci = _container.begin()->second;
 
