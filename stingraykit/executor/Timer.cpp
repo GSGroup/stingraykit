@@ -102,7 +102,7 @@ namespace stingray
 	{
 		MutexLock l(_mutex);
 		if (!ci->IsErased())
-			ci->SetIterator(iterator(_container.emplace(ci->GetTimeToTrigger(), ci)));
+			ci->SetIterator(_container.emplace(ci->GetTimeToTrigger(), ci));
 	}
 
 
