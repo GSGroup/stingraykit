@@ -49,7 +49,7 @@ namespace stingray
 		ConditionVariable			_cond;
 
 		Token						_destructionWarningToken;
-		ThreadPtr					_worker;
+		Thread						_worker;
 
 	public:
 		explicit Timer(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);

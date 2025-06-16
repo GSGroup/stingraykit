@@ -145,7 +145,7 @@ namespace stingray
 			_exceptionHandler(exceptionHandler),
 			_queue(make_shared_ptr<CallbackQueue>()),
 			_destructionWarningToken(MakeFunctionToken(Bind(&Timer::ReportDestructionWarning, this))),
-			_worker(make_shared_ptr<Thread>(name, Bind(&Timer::ThreadFunc, this, _1)))
+			_worker(name, Bind(&Timer::ThreadFunc, this, _1))
 	{ STINGRAYKIT_CHECK(!_profileTimeout || _profileTimeout >= TimeDuration(), ArgumentException("profileTimeout", _profileTimeout)); }
 
 
