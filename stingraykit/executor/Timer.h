@@ -48,11 +48,11 @@ namespace stingray
 		CallbackQueuePtr			_queue;
 		ConditionVariable			_cond;
 
+		Token						_destructionWarningToken;
 		ThreadPtr					_worker;
 
 	public:
 		explicit Timer(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
-		~Timer() override;
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
 
@@ -63,6 +63,8 @@ namespace stingray
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
+		void ReportDestructionWarning() const;
+
 		static void RemoveTask(const CallbackQueuePtr& queue, const CallbackInfoPtr& ci);
 
 		std::string GetProfilerMessage(const TaskType& task) const;

@@ -144,17 +144,9 @@ namespace stingray
 			_profileTimeout(profileTimeout),
 			_exceptionHandler(exceptionHandler),
 			_queue(make_shared_ptr<CallbackQueue>()),
+			_destructionWarningToken(MakeFunctionToken(Bind(&Timer::ReportDestructionWarning, this))),
 			_worker(make_shared_ptr<Thread>(name, Bind(&Timer::ThreadFunc, this, _1)))
 	{ STINGRAYKIT_CHECK(!_profileTimeout || _profileTimeout >= TimeDuration(), ArgumentException("profileTimeout", _profileTimeout)); }
-
-
-	Timer::~Timer()
-	{
-		_worker.reset();
-
-		if (!_queue->IsEmpty())
-			s_logger.Warning() << "killing timer " << _name << " which still has some functions to execute";
-	}
 
 
 	void Timer::AddTask(const TaskType& task, const FutureExecutionTester& tester)
@@ -199,6 +191,13 @@ namespace stingray
 		_cond.Broadcast();
 
 		return token;
+	}
+
+
+	void Timer::ReportDestructionWarning() const
+	{
+		if (!_queue->IsEmpty())
+			s_logger.Warning() << "killing timer " << _name << " which still has some functions to execute";
 	}
 
 
