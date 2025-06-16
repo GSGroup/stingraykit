@@ -30,11 +30,11 @@ namespace stingray
 		Mutex& Sync()
 		{ return _mutex; }
 
+		size_t GetSize() const
+		{ MutexLock l(_mutex); return _container.size(); }
+
 		bool IsEmpty() const
-		{
-			MutexLock l(_mutex);
-			return _container.empty();
-		}
+		{ MutexLock l(_mutex); return _container.empty(); }
 
 		CallbackInfoPtr Top() const;
 		void Push(const CallbackInfoPtr& ci);
@@ -196,8 +196,8 @@ namespace stingray
 
 	void Timer::ReportDestructionWarning() const
 	{
-		if (!_queue->IsEmpty())
-			s_logger.Warning() << "killing timer " << _name << " which still has some functions to execute";
+		if (const size_t queueSize = _queue->GetSize())
+			s_logger.Error() << "[" << _name << "] Destroying with " << queueSize << " alive timeout/timer task(s) still in the queue\nBacktrace: " << Backtrace();
 	}
 
 
