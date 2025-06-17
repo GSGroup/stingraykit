@@ -39,9 +39,10 @@ namespace stingray
 	public:
 		explicit ExecutionDeferrer(Timer& timer, optional<TimeDuration> timeout = null);
 
+		/// @brief WARNING: don't call Cancel() from deferred function
 		void Cancel();
 
-		// we shouldn't call Defer from deferred function!
+		/// @brief WARNING: don't call Defer() from deferred function
 		void Defer(const TaskType& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null);
 
 	private:
