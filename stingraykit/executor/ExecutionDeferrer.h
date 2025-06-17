@@ -27,9 +27,6 @@ namespace stingray
 		Timer&						_timer;
 		optional<TimeDuration>		_timeout;
 
-		Mutex						_mutex;
-		bool						_cancellationActive;
-
 		Mutex						_connectionMutex;
 		Token						_connection;
 

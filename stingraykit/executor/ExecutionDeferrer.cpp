@@ -13,30 +13,19 @@ namespace stingray
 {
 
 	ExecutionDeferrer::ExecutionDeferrer(Timer& timer, optional<TimeDuration> timeout)
-		: _timer(timer), _timeout(timeout), _cancellationActive(false)
+		: _timer(timer), _timeout(timeout)
 	{ STINGRAYKIT_CHECK(!_timeout || _timeout >= TimeDuration(), ArgumentException("timeout", _timeout)); }
 
 
 	void ExecutionDeferrer::Cancel()
 	{
 		{
-			MutexLock l(_mutex);
-			if (_cancellationActive)
-				return;
-			_cancellationActive = true;
-		}
-
-		{
 			MutexLock l(_doDeferConnectionMutex);
 			_doDeferConnection.Reset();
 		}
-		{
-			MutexLock l(_connectionMutex);
-			_connection.Reset();
-		}
 
-		MutexLock l(_mutex);
-		_cancellationActive = false;
+		MutexLock l(_connectionMutex);
+		_connection.Reset();
 	}
 
 
