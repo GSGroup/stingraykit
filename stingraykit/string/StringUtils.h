@@ -416,6 +416,21 @@ namespace stingray
 	}
 
 
+	template < typename TupleType, typename SourceRange_ >
+	bool TryTupleFromStrings(const TupleType& tuple, const SourceRange_& inputRange_)
+	{
+		SourceRange_ inputRange(inputRange_);
+
+		bool result = false;
+		try
+		{ result = ForIf<TupleType::Size, Detail::TupleFromStringsHelper<TupleType>::template Functor>::Do(tuple, &inputRange); }
+		catch (const std::exception&)
+		{ }
+
+		return result && !inputRange.Valid();
+	}
+
+
 	string_view::size_type EditDistance(string_view s1, string_view s2);
 
 }

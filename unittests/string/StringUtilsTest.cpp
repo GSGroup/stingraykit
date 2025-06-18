@@ -174,9 +174,16 @@ TEST(StringUtilsTest, Split)
 	ASSERT_EQ(b, "world");
 	ASSERT_EQ(c, 22);
 
+	ASSERT_TRUE(TryTupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world 22", " ")));
+	ASSERT_EQ(a, "hello");
+	ASSERT_EQ(b, "world");
+	ASSERT_EQ(c, 22);
+
 	ASSERT_ANY_THROW(TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world", " ")));
+	ASSERT_FALSE(TryTupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world", " ")));
 
 	ASSERT_ANY_THROW(TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world 22 33", " ")));
+	ASSERT_FALSE(TryTupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world 22 33", " ")));
 
 	{
 		auto testee = Split("aaa|bbb|ccc", "|");
