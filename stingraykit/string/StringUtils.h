@@ -392,11 +392,14 @@ namespace stingray
 				using Type = typename GetTypeListItem<typename TupleType::Types, Index>::ValueT;
 
 				template < typename Range_ >
-				static void Call(const TupleType& tuple, Range_* range)
+				static bool Call(const TupleType& tuple, Range_* range)
 				{
-					STINGRAYKIT_CHECK(range->Valid(), "not enough data to fill output range");
+					if (!range->Valid())
+						return false;
+
 					tuple.template Get<Index>() = lexical_cast<typename RemoveReference<Type>::ValueT>(range->Get());
 					range->Next();
+					return true;
 				}
 			};
 		};
@@ -408,8 +411,8 @@ namespace stingray
 	void TupleFromStrings(const TupleType& tuple, const SourceRange_& inputRange_)
 	{
 		SourceRange_ inputRange(inputRange_);
-		stingray::For<TupleType::Size, Detail::TupleFromStringsHelper<TupleType>::template Functor>::Do(tuple, &inputRange);
-		STINGRAYKIT_CHECK(!inputRange.Valid(), "incompletely parsed input range");
+		const bool result = ForIf<TupleType::Size, Detail::TupleFromStringsHelper<TupleType>::template Functor>::Do(tuple, &inputRange);
+		STINGRAYKIT_CHECK(result && !inputRange.Valid(), "Inappropriate range size");
 	}
 
 
