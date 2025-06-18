@@ -405,12 +405,11 @@ namespace stingray
 
 
 	template < typename TupleType, typename SourceRange_ >
-	SourceRange_ TupleFromStrings(const TupleType& tuple, const SourceRange_& inputRange_)
+	void TupleFromStrings(const TupleType& tuple, const SourceRange_& inputRange_)
 	{
 		SourceRange_ inputRange(inputRange_);
 		stingray::For<TupleType::Size, Detail::TupleFromStringsHelper<TupleType>::template Functor>::Do(tuple, &inputRange);
 		STINGRAYKIT_CHECK(!inputRange.Valid(), "incompletely parsed input range");
-		return inputRange;
 	}
 
 
