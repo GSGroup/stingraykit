@@ -13,19 +13,23 @@ namespace stingray
 {
 
 	ExecutionDeferrer::ExecutionDeferrer(Timer& timer, optional<TimeDuration> timeout)
-		: _timer(timer), _timeout(timeout)
-	{ STINGRAYKIT_CHECK(!_timeout || _timeout >= TimeDuration(), ArgumentException("timeout", _timeout)); }
+		: _timer(timer), _timeout(timeout), _deferExecutionTester(null)
+	{
+		STINGRAYKIT_CHECK(!_timeout || _timeout >= TimeDuration(), ArgumentException("timeout", _timeout));
+
+		_deferExecutionTester = _deferTaskLifeHolder.GetExecutionTester();
+	}
 
 
 	void ExecutionDeferrer::Cancel()
 	{
-		{
-			MutexLock l(_doDeferConnectionMutex);
-			_doDeferConnection.Reset();
-		}
+		MutexLock l(_cancelMutex);
 
-		MutexLock l(_connectionMutex);
-		_connection.Reset();
+		_deferTaskLifeHolder.Reset();
+		_deferredTaskToken.Reset();
+
+		MutexLock l2(_deferExecutionTesterMutex);
+		_deferExecutionTester = _deferTaskLifeHolder.GetExecutionTester();
 	}
 
 
@@ -36,18 +40,16 @@ namespace stingray
 		else
 			STINGRAYKIT_CHECK(_timeout, InvalidOperationException());
 
-		MutexLock l(_doDeferConnectionMutex);
-		_doDeferConnection = _timer.SetTimeout(TimeDuration(), Bind(&ExecutionDeferrer::DoDefer, this, task, overrideTimeout ? *overrideTimeout : *_timeout, interval));
+		_timer.AddTask(Bind(&ExecutionDeferrer::DoDefer, this, task, overrideTimeout ? *overrideTimeout : *_timeout, interval), GetDeferExecutionTester());
 	}
 
 
 	void ExecutionDeferrer::DoDefer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval)
 	{
-		MutexLock l(_connectionMutex);
 		if (interval)
-			_connection = _timer.SetTimer(timeout, *interval, task);
+			_deferredTaskToken = _timer.SetTimer(timeout, *interval, task);
 		else
-			_connection = _timer.SetTimeout(timeout, task);
+			_deferredTaskToken = _timer.SetTimeout(timeout, task);
 	}
 
 }

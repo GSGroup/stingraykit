@@ -27,11 +27,13 @@ namespace stingray
 		Timer&						_timer;
 		optional<TimeDuration>		_timeout;
 
-		Mutex						_connectionMutex;
-		Token						_connection;
+		Mutex						_cancelMutex;
 
-		Mutex						_doDeferConnectionMutex;
-		Token						_doDeferConnection;
+		Mutex						_deferExecutionTesterMutex;
+		FutureExecutionTester		_deferExecutionTester;
+
+		Token						_deferredTaskToken;
+		TaskLifeHolder				_deferTaskLifeHolder;
 
 	public:
 		explicit ExecutionDeferrer(Timer& timer, optional<TimeDuration> timeout = null);
@@ -39,10 +41,12 @@ namespace stingray
 		/// @brief WARNING: don't call Cancel() from deferred function
 		void Cancel();
 
-		/// @brief WARNING: don't call Defer() from deferred function
 		void Defer(const TaskType& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null);
 
 	private:
+		FutureExecutionTester GetDeferExecutionTester() const
+		{ MutexLock l(_deferExecutionTesterMutex); return _deferExecutionTester; }
+
 		void DoDefer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval);
 	};
 
