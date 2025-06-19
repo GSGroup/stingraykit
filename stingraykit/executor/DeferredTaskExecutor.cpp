@@ -10,6 +10,7 @@
 #include <stingraykit/diagnostics/AsyncProfiler.h>
 #include <stingraykit/diagnostics/ExecutorsProfiler.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/thread/ThreadNameAppender.h>
 #include <stingraykit/ScopeExit.h>
 
 namespace stingray
@@ -47,6 +48,8 @@ namespace stingray
 
 		const ScopeExitInvoker sei(Bind(&optional<std::string>::reset, wrap_ref(_activeExecutor)));
 		_activeExecutor = Thread::GetCurrentThreadName();
+
+		ThreadNameAppender tna(_name);
 
 		while (!_queue.empty() && token)
 		{
