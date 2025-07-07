@@ -335,6 +335,9 @@ namespace stingray
 			CmpToLess(const CmpComparer_& comparer) : _comparer(comparer)
 			{ }
 
+			CmpToLess(CmpComparer_&& comparer) : _comparer(std::move(comparer))
+			{ }
+
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return _comparer(lhs, rhs) < 0; }
@@ -354,6 +357,9 @@ namespace stingray
 			{ }
 
 			CmpToGreater(const CmpComparer_& comparer) : _comparer(comparer)
+			{ }
+
+			CmpToGreater(CmpComparer_&& comparer) : _comparer(std::move(comparer))
 			{ }
 
 			template < typename Lhs, typename Rhs >
@@ -377,6 +383,9 @@ namespace stingray
 			CmpToEquals(const CmpComparer_& comparer) : _comparer(comparer)
 			{ }
 
+			CmpToEquals(CmpComparer_&& comparer) : _comparer(std::move(comparer))
+			{ }
+
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return _comparer(lhs, rhs) == 0; }
@@ -398,6 +407,9 @@ namespace stingray
 			LessToEquals(const LessComparer_& comparer) : _lessComparer(comparer)
 			{ }
 
+			LessToEquals(LessComparer_&& comparer) : _lessComparer(std::move(comparer))
+			{ }
+
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return !_lessComparer(lhs, rhs) && !_lessComparer(rhs, lhs); }
@@ -417,6 +429,9 @@ namespace stingray
 			{ }
 
 			LessToCmp(const LessComparer_& comparer) : _lessComparer(comparer)
+			{ }
+
+			LessToCmp(LessComparer_&& comparer) : _lessComparer(std::move(comparer))
 			{ }
 
 			template < typename Lhs, typename Rhs >
@@ -468,7 +483,9 @@ namespace stingray
 		CompareFunc		_compareFunc;
 
 	public:
-		explicit TupleCmp(const CompareFunc& compareFunc = CompareFunc()) : _compareFunc(compareFunc) { }
+		TupleCmp() { }
+		explicit TupleCmp(const CompareFunc& compareFunc) : _compareFunc(compareFunc) { }
+		explicit TupleCmp(CompareFunc&& compareFunc) : _compareFunc(std::move(compareFunc)) { }
 
 		int operator () (const Tuple<TypeList<>>&, const Tuple<TypeList<>>&) const
 		{ return 0; }
