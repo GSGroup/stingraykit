@@ -8,6 +8,7 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/core/InPlaceType.h>
 #include <stingraykit/function/function_info.h>
 #include <stingraykit/shared_ptr.h>
 #include <stingraykit/Tuple.h>
@@ -338,6 +339,13 @@ namespace stingray
 			CmpToLess(CmpComparer_&& comparer) : _comparer(std::move(comparer))
 			{ }
 
+			template <
+					typename... Ts,
+					typename EnableIf<IsConstructible<CmpComparer_, Ts...>::Value, int>::ValueT = 0
+			>
+			explicit CmpToLess(InPlaceType, Ts&&... args) : _comparer(std::forward<Ts>(args)...)
+			{ }
+
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return _comparer(lhs, rhs) < 0; }
@@ -360,6 +368,13 @@ namespace stingray
 			{ }
 
 			CmpToGreater(CmpComparer_&& comparer) : _comparer(std::move(comparer))
+			{ }
+
+			template <
+					typename... Ts,
+					typename EnableIf<IsConstructible<CmpComparer_, Ts...>::Value, int>::ValueT = 0
+			>
+			explicit CmpToGreater(InPlaceType, Ts&&... args) : _comparer(std::forward<Ts>(args)...)
 			{ }
 
 			template < typename Lhs, typename Rhs >
@@ -386,6 +401,13 @@ namespace stingray
 			CmpToEquals(CmpComparer_&& comparer) : _comparer(std::move(comparer))
 			{ }
 
+			template <
+					typename... Ts,
+					typename EnableIf<IsConstructible<CmpComparer_, Ts...>::Value, int>::ValueT = 0
+			>
+			explicit CmpToEquals(InPlaceType, Ts&&... args) : _comparer(std::forward<Ts>(args)...)
+			{ }
+
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return _comparer(lhs, rhs) == 0; }
@@ -410,6 +432,13 @@ namespace stingray
 			LessToEquals(LessComparer_&& comparer) : _lessComparer(std::move(comparer))
 			{ }
 
+			template <
+					typename... Ts,
+					typename EnableIf<IsConstructible<LessComparer_, Ts...>::Value, int>::ValueT = 0
+			>
+			explicit LessToEquals(InPlaceType, Ts&&... args) : _lessComparer(std::forward<Ts>(args)...)
+			{ }
+
 			template < typename Lhs, typename Rhs >
 			bool operator () (const Lhs& lhs, const Rhs& rhs) const
 			{ return !_lessComparer(lhs, rhs) && !_lessComparer(rhs, lhs); }
@@ -432,6 +461,13 @@ namespace stingray
 			{ }
 
 			LessToCmp(LessComparer_&& comparer) : _lessComparer(std::move(comparer))
+			{ }
+
+			template <
+					typename... Ts,
+					typename EnableIf<IsConstructible<LessComparer_, Ts...>::Value, int>::ValueT = 0
+			>
+			explicit LessToCmp(InPlaceType, Ts&&... args) : _lessComparer(std::forward<Ts>(args)...)
 			{ }
 
 			template < typename Lhs, typename Rhs >
