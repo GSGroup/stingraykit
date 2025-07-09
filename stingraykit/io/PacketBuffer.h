@@ -19,9 +19,7 @@ namespace stingray
 {
 
 	template < typename MetadataType >
-	class PacketBuffer final
-		:	public virtual IPacketConsumer<MetadataType>,
-			public virtual IPacketSource<MetadataType>
+	class PacketBuffer final : public virtual IPacketBuffer<MetadataType>
 	{
 		struct PacketInfo
 		{
@@ -146,16 +144,16 @@ namespace stingray
 		void EndOfData() override
 		{ SharedCircularBuffer::BufferLock(_buffer).SetEndOfData(); }
 
-		size_t GetDataSize() const
+		size_t GetDataSize() const override
 		{ return SharedCircularBuffer::ConstBufferLock(_buffer).GetDataSize(); }
 
-		size_t GetFreeSize() const
+		size_t GetFreeSize() const override
 		{ return SharedCircularBuffer::ConstBufferLock(_buffer).GetFreeSize(); }
 
-		size_t GetStorageSize() const
+		size_t GetStorageSize() const override
 		{ return SharedCircularBuffer::ConstBufferLock(_buffer).GetStorageSize(); }
 
-		void Clear()
+		void Clear() override
 		{
 			SharedCircularBuffer::BufferLock bl(_buffer);
 

@@ -162,6 +162,22 @@ namespace stingray
 	};
 
 
+	template < typename MetadataType >
+	struct IPacketMediator : public virtual IPacketConsumer<MetadataType>, public virtual IPacketSource<MetadataType>
+	{ };
+
+
+	template < typename MetadataType >
+	struct IPacketBuffer : public virtual IPacketMediator<MetadataType>
+	{
+		virtual size_t GetDataSize() const = 0;
+		virtual size_t GetFreeSize() const = 0;
+		virtual size_t GetStorageSize() const = 0;
+
+		virtual void Clear() = 0;
+	};
+
+
 	inline size_t ConsumeAll(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 	{
 		size_t offset = 0;
