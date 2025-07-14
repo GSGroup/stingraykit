@@ -40,7 +40,7 @@ namespace stingray
 				_requiredFreeSpace(requiredFreeSpace)
 		{
 			STINGRAYKIT_CHECK(inputPacketSize != 0, ArgumentException("inputPacketSize", inputPacketSize));
-			const size_t totalSize = SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize();
+			const size_t totalSize = SharedCircularBuffer::ConstBufferLock(*_buffer).GetStorageSize();
 			STINGRAYKIT_CHECK(totalSize % inputPacketSize == 0, "Buffer size is not a multiple of input packet size!");
 			STINGRAYKIT_CHECK(totalSize >= requiredFreeSpace, "Buffer size less then required free space!");
 		}

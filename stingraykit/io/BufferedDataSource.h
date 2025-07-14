@@ -29,7 +29,7 @@ namespace stingray
 				_outputPacketSize(outputPacketSize)
 		{
 			STINGRAYKIT_CHECK(outputPacketSize != 0, ArgumentException("outputPacketSize", outputPacketSize));
-			STINGRAYKIT_CHECK(SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
+			STINGRAYKIT_CHECK(SharedCircularBuffer::ConstBufferLock(*_buffer).GetStorageSize() % outputPacketSize == 0, "Buffer size is not a multiple of output packet size!");
 		}
 
 		void Read(IDataConsumer& consumer, const ICancellationToken& token) override;

@@ -18,6 +18,7 @@ namespace stingray
 	class SharedCircularBuffer
 	{
 	public:
+		class ConstBufferLock;
 		class BufferLock;
 		class BufferUnlock;
 		class ReadLock;
@@ -53,18 +54,16 @@ namespace stingray
 	STINGRAYKIT_DECLARE_PTR(SharedCircularBuffer);
 
 
-	class SharedCircularBuffer::BufferLock
+	class SharedCircularBuffer::ConstBufferLock
 	{
 		friend class SharedCircularBuffer::BufferUnlock;
-		friend class SharedCircularBuffer::ReadLock;
-		friend class SharedCircularBuffer::WriteLock;
 
 	private:
-		SharedCircularBuffer&	_parent;
-		MutexLock				_lock;
+		const SharedCircularBuffer&		_parent;
+		MutexLock						_lock;
 
 	public:
-		BufferLock(SharedCircularBuffer& parent) : _parent(parent), _lock(parent._bufferMutex) { }
+		ConstBufferLock(const SharedCircularBuffer& parent) : _parent(parent), _lock(parent._bufferMutex) { }
 
 		size_t GetDataSize() const		{ return _parent._buffer.GetDataSize(); }
 		size_t GetFreeSize() const		{ return _parent._buffer.GetFreeSize(); }
@@ -73,6 +72,19 @@ namespace stingray
 		bool IsEndOfData() const				{ return _parent._eod; }
 		bool HasException() const				{ return _parent._exception.is_initialized(); }
 		void RethrowExceptionIfAny() const		{ if (_parent._exception) RethrowException(_parent._exception); }
+	};
+
+
+	class SharedCircularBuffer::BufferLock : public ConstBufferLock
+	{
+		friend class SharedCircularBuffer::ReadLock;
+		friend class SharedCircularBuffer::WriteLock;
+
+	private:
+		SharedCircularBuffer&	_parent;
+
+	public:
+		BufferLock(SharedCircularBuffer& parent) : ConstBufferLock(parent), _parent(parent) { }
 
 		void SetEndOfData()
 		{
@@ -110,7 +122,7 @@ namespace stingray
 		MutexUnlock			_unlock;
 
 	public:
-		BufferUnlock(BufferLock& lock) : _unlock(lock._lock) { }
+		BufferUnlock(ConstBufferLock& lock) : _unlock(lock._lock) { }
 	};
 
 

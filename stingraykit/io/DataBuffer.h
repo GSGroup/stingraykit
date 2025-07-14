@@ -67,17 +67,17 @@ namespace stingray
 		{ _consumer.EndOfData(token); }
 
 		size_t GetDataSize() const override
-		{ return SharedCircularBuffer::BufferLock(*_buffer).GetDataSize(); }
+		{ return SharedCircularBuffer::ConstBufferLock(*_buffer).GetDataSize(); }
 
 		size_t GetFreeSize() const override
-		{ return SharedCircularBuffer::BufferLock(*_buffer).GetFreeSize(); }
+		{ return SharedCircularBuffer::ConstBufferLock(*_buffer).GetFreeSize(); }
 
 		size_t GetStorageSize() const override
-		{ return SharedCircularBuffer::BufferLock(*_buffer).GetStorageSize(); }
+		{ return SharedCircularBuffer::ConstBufferLock(*_buffer).GetStorageSize(); }
 
 		bool HasEndOfDataOrException() const override
 		{
-			SharedCircularBuffer::BufferLock bl(*_buffer);
+			SharedCircularBuffer::ConstBufferLock bl(*_buffer);
 			return bl.IsEndOfData() || bl.HasException();
 		}
 

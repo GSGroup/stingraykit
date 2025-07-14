@@ -147,13 +147,13 @@ namespace stingray
 		{ SharedCircularBuffer::BufferLock(_buffer).SetEndOfData(); }
 
 		size_t GetDataSize() const
-		{ return SharedCircularBuffer::BufferLock(_buffer).GetDataSize(); }
+		{ return SharedCircularBuffer::ConstBufferLock(_buffer).GetDataSize(); }
 
 		size_t GetFreeSize() const
-		{ return SharedCircularBuffer::BufferLock(_buffer).GetFreeSize(); }
+		{ return SharedCircularBuffer::ConstBufferLock(_buffer).GetFreeSize(); }
 
 		size_t GetStorageSize() const
-		{ return SharedCircularBuffer::BufferLock(_buffer).GetStorageSize(); }
+		{ return SharedCircularBuffer::ConstBufferLock(_buffer).GetStorageSize(); }
 
 		void Clear()
 		{
