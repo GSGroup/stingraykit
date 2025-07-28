@@ -516,7 +516,7 @@ namespace stingray
 		template < ConnectionPolicy::Enum ConnectionPolicy__ = ConnectionPolicy_, typename EnableIf<ConnectionPolicy__ == ConnectionPolicy_ && (ConnectionPolicy__ == ConnectionPolicy::Any || ConnectionPolicy__ == ConnectionPolicy::SyncOnly), int>::ValueT = 0 >
 		Token connect(const function<Signature>& slot, bool sendCurrentState = true) const
 		{
-			CreationPolicy_::template LazyCreate(_impl);
+			CreationPolicy_::template LazyCreate<>(_impl);
 
 			TaskLifeToken token(_impl->CreateSyncToken());
 			const FutureExecutionTester tester(token.GetExecutionTester());
@@ -533,7 +533,7 @@ namespace stingray
 		template < ConnectionPolicy::Enum ConnectionPolicy__ = ConnectionPolicy_, typename EnableIf<ConnectionPolicy__ == ConnectionPolicy_ && (ConnectionPolicy__ == ConnectionPolicy::Any || ConnectionPolicy__ == ConnectionPolicy::AsyncOnly), int>::ValueT = 0 >
 		Token connect(const ITaskExecutorPtr& worker, const function<Signature>& slot, bool sendCurrentState = true) const
 		{
-			CreationPolicy_::template LazyCreate(_impl);
+			CreationPolicy_::template LazyCreate<>(_impl);
 
 			TaskLifeToken token(_impl->CreateAsyncToken());
 			const FutureExecutionTester tester(token.GetExecutionTester());
@@ -547,7 +547,7 @@ namespace stingray
 		 */
 		signal_connector<Signature, ConnectionPolicy_> connector() const
 		{
-			CreationPolicy_::template LazyCreate(_impl);
+			CreationPolicy_::template LazyCreate<>(_impl);
 			return signal_connector<Signature, ConnectionPolicy_>(_impl);
 		}
 
@@ -557,7 +557,7 @@ namespace stingray
 		 */
 		Invoker invoker() const
 		{
-			CreationPolicy_::template LazyCreate(_impl);
+			CreationPolicy_::template LazyCreate<>(_impl);
 			return Invoker(_impl);
 		}
 
