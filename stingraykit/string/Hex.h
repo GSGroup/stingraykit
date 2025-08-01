@@ -317,19 +317,19 @@ namespace stingray
 
 	template < typename T >
 	Detail::ShortHexDumpFormatter ShortHexDump(const std::vector<T>& data, size_t sizeLimit = 16)
-	{ return Detail::ShortHexDumpFormatter(data.data(), std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
+	{ return Detail::ShortHexDumpFormatter(data.data(), data.size() * sizeof(T), sizeLimit); }
 
 	template < typename T, size_t N >
 	Detail::ShortHexDumpFormatter ShortHexDump(const array<T, N>& data, size_t sizeLimit = 16)
-	{ return Detail::ShortHexDumpFormatter(data.data(), std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
+	{ return Detail::ShortHexDumpFormatter(data.data(), data.size() * sizeof(T), sizeLimit); }
 
 	template < typename T >
 	Detail::ShortHexDumpFormatter ShortHexDump(const BasicByteData<T>& data, size_t sizeLimit = 16)
-	{ return Detail::ShortHexDumpFormatter(data.data(), std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
+	{ return Detail::ShortHexDumpFormatter(data.data(), data.size() * sizeof(T), sizeLimit); }
 
 	template < typename T >
 	Detail::ShortHexDumpFormatter ShortHexDump(const BasicByteArray<T>& data, size_t sizeLimit = 16)
-	{ return Detail::ShortHexDumpFormatter(data.data(), std::min(sizeLimit, data.size() * sizeof(T)), sizeLimit); }
+	{ return Detail::ShortHexDumpFormatter(data.data(), data.size() * sizeof(T), sizeLimit); }
 
 	/** @} */
 
