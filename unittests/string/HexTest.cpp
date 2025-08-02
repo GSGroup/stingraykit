@@ -292,25 +292,50 @@ TEST(HexTest, ByteArrayToHex)
 			0xed, 0xcb, 0xa0, 0x98, 0x76, 0x54, 0x32, 0x1f
 	};
 
-	ASSERT_EQ(ShortHexDump(EmptyData, sizeof(EmptyData)).ToString(), "{ }");
-	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData), sizeof(SampleData) / 4).ToString(), "{ 12 34 56 78 90 ab cd ef ... }");
-	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData)).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de ... }");
-	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData), sizeof(SampleData) * 3 / 4).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 ... }");
-	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData), sizeof(SampleData)).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 ed cb a0 98 76 54 32 1f }");
-	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData), sizeof(SampleData) * 2).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 ed cb a0 98 76 54 32 1f }");
+	const ConstByteData EmptyByteData(EmptyData, sizeof(EmptyData));
+	const ConstByteData SampleByteData(SampleData);
 
+	ASSERT_EQ(ShortHexDump(EmptyData, sizeof(EmptyData)).ToString(), "{ }");
+	ASSERT_EQ(ShortHexDump(EmptyByteData).ToString(), "{ }");
+
+	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData), sizeof(SampleData) / 4).ToString(), "{ 12 34 56 78 90 ab cd ef ... }");
+	ASSERT_EQ(ShortHexDump(SampleByteData, SampleByteData.size() / 4).ToString(), "{ 12 34 56 78 90 ab cd ef }");
+
+	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData)).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de ... }");
+	ASSERT_EQ(ShortHexDump(SampleByteData).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de }");
+
+	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData), sizeof(SampleData) * 3 / 4).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 ... }");
+	ASSERT_EQ(ShortHexDump(SampleByteData, SampleByteData.size() * 3 / 4).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 }");
+
+	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData), sizeof(SampleData)).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 ed cb a0 98 76 54 32 1f }");
+	ASSERT_EQ(ShortHexDump(SampleByteData, SampleByteData.size()).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 ed cb a0 98 76 54 32 1f }");
+
+	ASSERT_EQ(ShortHexDump(SampleData, sizeof(SampleData), sizeof(SampleData) * 2).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 ed cb a0 98 76 54 32 1f }");
+	ASSERT_EQ(ShortHexDump(SampleByteData, SampleByteData.size() * 2).ToString(), "{ 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de fe dc ba 09 87 65 43 21 ed cb a0 98 76 54 32 1f }");
+
+	ASSERT_EQ(HexDump(EmptyData, sizeof(EmptyData)).ToString(), "");
 	ASSERT_EQ(HexDump(EmptyData, sizeof(EmptyData)).ToString(), "");
 
 	ASSERT_EQ(
 			HexDump(SampleData, sizeof(SampleData) / 4).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef                         .4Vx....");
+	ASSERT_EQ(
+			HexDump(SampleByteData, SampleByteData.size() / 4).ToString(),
+			"00000000: 12 34 56 78 90 ab cd ef                         .4Vx....");
 
 	ASSERT_EQ(
 			HexDump(SampleData, sizeof(SampleData) / 2).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....");
+	ASSERT_EQ(
+			HexDump(SampleByteData, SampleByteData.size() / 2).ToString(),
+			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....");
 
 	ASSERT_EQ(
 			HexDump(SampleData, sizeof(SampleData) * 3 / 4).ToString(),
+			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....\n"
+			"00000010: fe dc ba 09 87 65 43 21                         .....eC!");
+	ASSERT_EQ(
+			HexDump(SampleByteData, SampleByteData.size() * 3 / 4).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21                         .....eC!");
 
@@ -318,13 +343,24 @@ TEST(HexTest, ByteArrayToHex)
 			HexDump(SampleData, sizeof(SampleData)).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21 ed cb a0 98 76 54 32 1f .....eC!....vT2.");
+	ASSERT_EQ(
+			HexDump(SampleByteData).ToString(),
+			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....\n"
+			"00000010: fe dc ba 09 87 65 43 21 ed cb a0 98 76 54 32 1f .....eC!....vT2.");
 
 	ASSERT_EQ(
 			HexDump(SampleData, sizeof(SampleData) / 4, 8).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....");
+	ASSERT_EQ(
+			HexDump(SampleByteData, SampleByteData.size() / 4, 8).ToString(),
+			"00000000: 12 34 56 78 90 ab cd ef .4Vx....");
 
 	ASSERT_EQ(
 			HexDump(SampleData, sizeof(SampleData) / 2, 8).ToString(),
+			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
+			"00000008: f1 23 45 67 89 0a bc de .#Eg....");
+	ASSERT_EQ(
+			HexDump(SampleByteData, SampleByteData.size() / 2, 8).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
 			"00000008: f1 23 45 67 89 0a bc de .#Eg....");
 
@@ -333,9 +369,20 @@ TEST(HexTest, ByteArrayToHex)
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
 			"00000008: f1 23 45 67 89 0a bc de .#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21 .....eC!");
+	ASSERT_EQ(
+			HexDump(SampleByteData, SampleByteData.size() * 3 / 4, 8).ToString(),
+			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
+			"00000008: f1 23 45 67 89 0a bc de .#Eg....\n"
+			"00000010: fe dc ba 09 87 65 43 21 .....eC!");
 
 	ASSERT_EQ(
 			HexDump(SampleData, sizeof(SampleData), 8).ToString(),
+			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
+			"00000008: f1 23 45 67 89 0a bc de .#Eg....\n"
+			"00000010: fe dc ba 09 87 65 43 21 .....eC!\n"
+			"00000018: ed cb a0 98 76 54 32 1f ....vT2.");
+	ASSERT_EQ(
+			HexDump(SampleByteData, SampleByteData.size(), 8).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
 			"00000008: f1 23 45 67 89 0a bc de .#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21 .....eC!\n"
