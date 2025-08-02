@@ -320,14 +320,14 @@ TEST(HexTest, ByteArrayToHex)
 			HexDump(SampleData, sizeof(SampleData) / 4).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef                         .4Vx....");
 	ASSERT_EQ(
-			HexDump(SampleByteData, SampleByteData.size() / 4).ToString(),
+			HexDump(ConstByteData(SampleByteData, 0, SampleByteData.size() / 4)).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef                         .4Vx....");
 
 	ASSERT_EQ(
 			HexDump(SampleData, sizeof(SampleData) / 2).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....");
 	ASSERT_EQ(
-			HexDump(SampleByteData, SampleByteData.size() / 2).ToString(),
+			HexDump(ConstByteData(SampleByteData, 0, SampleByteData.size() / 2)).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....");
 
 	ASSERT_EQ(
@@ -335,7 +335,7 @@ TEST(HexTest, ByteArrayToHex)
 			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21                         .....eC!");
 	ASSERT_EQ(
-			HexDump(SampleByteData, SampleByteData.size() * 3 / 4).ToString(),
+			HexDump(ConstByteData(SampleByteData, 0, SampleByteData.size() * 3 / 4)).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef f1 23 45 67 89 0a bc de .4Vx.....#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21                         .....eC!");
 
@@ -352,7 +352,7 @@ TEST(HexTest, ByteArrayToHex)
 			HexDump(SampleData, sizeof(SampleData) / 4, 8).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....");
 	ASSERT_EQ(
-			HexDump(SampleByteData, SampleByteData.size() / 4, 8).ToString(),
+			HexDump(ConstByteData(SampleByteData, 0, SampleByteData.size() / 4), 8).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....");
 
 	ASSERT_EQ(
@@ -360,7 +360,7 @@ TEST(HexTest, ByteArrayToHex)
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
 			"00000008: f1 23 45 67 89 0a bc de .#Eg....");
 	ASSERT_EQ(
-			HexDump(SampleByteData, SampleByteData.size() / 2, 8).ToString(),
+			HexDump(ConstByteData(SampleByteData, 0, SampleByteData.size() / 2), 8).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
 			"00000008: f1 23 45 67 89 0a bc de .#Eg....");
 
@@ -370,7 +370,7 @@ TEST(HexTest, ByteArrayToHex)
 			"00000008: f1 23 45 67 89 0a bc de .#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21 .....eC!");
 	ASSERT_EQ(
-			HexDump(SampleByteData, SampleByteData.size() * 3 / 4, 8).ToString(),
+			HexDump(ConstByteData(SampleByteData, 0, SampleByteData.size() * 3 / 4), 8).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
 			"00000008: f1 23 45 67 89 0a bc de .#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21 .....eC!");
@@ -382,7 +382,7 @@ TEST(HexTest, ByteArrayToHex)
 			"00000010: fe dc ba 09 87 65 43 21 .....eC!\n"
 			"00000018: ed cb a0 98 76 54 32 1f ....vT2.");
 	ASSERT_EQ(
-			HexDump(SampleByteData, SampleByteData.size(), 8).ToString(),
+			HexDump(SampleByteData, 8).ToString(),
 			"00000000: 12 34 56 78 90 ab cd ef .4Vx....\n"
 			"00000008: f1 23 45 67 89 0a bc de .#Eg....\n"
 			"00000010: fe dc ba 09 87 65 43 21 .....eC!\n"
