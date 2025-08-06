@@ -19,7 +19,7 @@ namespace stingray
 	 */
 
 	template < typename T >
-	typename EnableIf<!IsSame<T, ByteArray>::Value, T>::ValueT FromHex(string_view str)
+	typename EnableIf<!IsSame<T, ConstByteArray>::Value && !IsSame<T, ByteArray>::Value, T>::ValueT FromHex(string_view str)
 	{
 		STINGRAYKIT_CHECK(!str.empty(), ArgumentException("str"));
 
@@ -60,7 +60,7 @@ namespace stingray
 
 
 	template < typename T >
-	typename EnableIf<IsSame<T, ByteArray>::Value, T>::ValueT FromHex(string_view str)
+	typename EnableIf<IsSame<T, ConstByteArray>::Value || IsSame<T, ByteArray>::Value, T>::ValueT FromHex(string_view str)
 	{
 		const ByteArray::CollectionTypePtr result = make_shared_ptr<ByteArray::CollectionType>();
 
@@ -85,7 +85,7 @@ namespace stingray
 		catch (const FormatException&)
 		{ STINGRAYKIT_THROW(FormatException(str)); }
 
-		return result;
+		return T(result);
 	}
 
 
