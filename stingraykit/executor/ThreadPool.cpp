@@ -178,7 +178,7 @@ namespace stingray
 		if (!_task)
 		{
 			if (!_worker)
-				_worker = make_unique_ptr<Thread>(_name + "_0", Bind(&ThreadPool::ThreadFunc, this, _1));
+				_worker.emplace(_name + "_0", Bind(&ThreadPool::ThreadFunc, this, _1));
 
 			_task = task;
 			_cond.Broadcast();

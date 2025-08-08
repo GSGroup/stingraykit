@@ -45,7 +45,7 @@ namespace stingray
 		ConditionVariable		_completedCond;
 
 		Workers					_workers;
-		unique_ptr<Thread>		_worker;
+		optional<Thread>		_worker;
 
 	public:
 		ThreadPool(const std::string& name, size_t maxThreads, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, optional<TimeDuration> idleTimeout = DefaultIdleTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
