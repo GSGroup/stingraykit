@@ -166,9 +166,6 @@ namespace stingray
 
 			Detail::DelimiterMatch operator () (string_view string, size_t startPos) const
 			{ return Detail::DelimiterMatch(string.find(_delimiter, startPos), _delimiter.size()); }
-
-			size_t size() const
-			{ return _delimiter.size(); }
 		};
 
 		template < typename StringSearchType >
