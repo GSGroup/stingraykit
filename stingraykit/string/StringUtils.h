@@ -231,7 +231,6 @@ namespace stingray
 		};
 
 		using StaticDelimiterSplitStringRange = SplitStringRange<StaticSplitDelimiter>;
-		using IsAnyOfSplitStringRange = SplitStringRange<IsAnyOf>;
 
 	}
 
@@ -239,9 +238,15 @@ namespace stingray
 	inline Detail::StaticDelimiterSplitStringRange Split(string_view string, string_view delimiter, size_t limit = Detail::StaticDelimiterSplitStringRange::NoLimit)
 	{ return Detail::StaticDelimiterSplitStringRange(Detail::StaticSplitDelimiter(delimiter), string, limit); }
 
+	inline Detail::StaticDelimiterSplitStringRange Split(string_view string, const std::string& delimiter, size_t limit = Detail::StaticDelimiterSplitStringRange::NoLimit)
+	{ return Split(string, string_view(delimiter), limit); }
 
-	inline Detail::IsAnyOfSplitStringRange Split(string_view string, const IsAnyOf& search, size_t limit = Detail::IsAnyOfSplitStringRange::NoLimit)
-	{ return Detail::IsAnyOfSplitStringRange(search, string, limit); }
+	inline Detail::StaticDelimiterSplitStringRange Split(string_view string, const char* delimiter, size_t limit = Detail::StaticDelimiterSplitStringRange::NoLimit)
+	{ return Split(string, string_view(delimiter), limit); }
+
+	template < typename StringSearchType >
+	Detail::SplitStringRange<StringSearchType> Split(string_view string, const StringSearchType& search, size_t limit = Detail::SplitStringRange<StringSearchType>::NoLimit)
+	{ return Detail::SplitStringRange<StringSearchType>(search, string, limit); }
 
 
 	template < typename Range, typename UnaryOperator >
