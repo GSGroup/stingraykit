@@ -153,6 +153,24 @@ namespace stingray
 	};
 
 
+	class SplitDelimiterWithIgnore
+	{
+	private:
+		string_view						_delimiter;
+		string_view						_ignoreBegin;
+		string_view						_ignoreEnd;
+
+	public:
+		SplitDelimiterWithIgnore(string_view delimiter, string_view ignore)
+			: SplitDelimiterWithIgnore(delimiter, ignore, ignore)
+		{ }
+
+		SplitDelimiterWithIgnore(string_view delimiter, string_view ignoreBegin, string_view ignoreEnd);
+
+		Detail::DelimiterMatch operator () (string_view string, size_t startPos) const;
+	};
+
+
 	namespace Detail
 	{
 

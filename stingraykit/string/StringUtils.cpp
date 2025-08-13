@@ -10,6 +10,41 @@
 namespace stingray
 {
 
+	SplitDelimiterWithIgnore::SplitDelimiterWithIgnore(string_view delimiter, string_view ignoreBegin, string_view ignoreEnd)
+		:	_delimiter(delimiter),
+			_ignoreBegin(ignoreBegin),
+			_ignoreEnd(ignoreEnd)
+	{
+		STINGRAYKIT_CHECK(!_delimiter.empty(), ArgumentException("delimiter"));
+		STINGRAYKIT_CHECK(!_ignoreBegin.empty(), ArgumentException("ignoreBegin"));
+		STINGRAYKIT_CHECK(!_ignoreEnd.empty(), ArgumentException("ignoreEnd"));
+	}
+
+
+	Detail::DelimiterMatch SplitDelimiterWithIgnore::operator () (string_view string, size_t startPos) const
+	{
+		bool ignore = false;
+		for (size_t pos = startPos; pos < string.size();)
+		{
+			const string_view ignorePattern = ignore ? _ignoreEnd : _ignoreBegin;
+
+			if (string.compare(pos, ignorePattern.size(), ignorePattern) == 0)
+			{
+				ignore = !ignore;
+				pos += ignorePattern.size();
+				continue;
+			}
+
+			if (!ignore && string.compare(pos, _delimiter.size(), _delimiter) == 0)
+				return Detail::DelimiterMatch(pos, _delimiter.size());
+
+			++pos;
+		}
+
+		return Detail::DelimiterMatch();
+	}
+
+
 	string_view::size_type EditDistance(string_view s1, string_view s2)
 	{
 		if (s1 == s2)

@@ -167,6 +167,24 @@ TEST(StringUtilsTest, Split)
 	ASSERT_THAT(Split("a,b.c;d", IsAnyOf(",.;"), 5), MatchRange(ElementsAre("a", "b", "c", "d")));
 	ASSERT_THAT(Split("", "/"), MatchRange(ElementsAre("")));
 
+	ASSERT_THAT(Split("a,b#c,d#e,f", SplitDelimiterWithIgnore(",", "#")), MatchRange(ElementsAre("a", "b#c,d#e", "f")));
+	ASSERT_THAT(Split("ab,cd#e,f#gh,ij", SplitDelimiterWithIgnore(",", "#")), MatchRange(ElementsAre("ab", "cd#e,f#gh", "ij")));
+	ASSERT_THAT(Split("ab,cd#,#ef,gh", SplitDelimiterWithIgnore(",", "#")), MatchRange(ElementsAre("ab", "cd#,#ef", "gh")));
+	ASSERT_THAT(Split("ab,#c,d#,ef", SplitDelimiterWithIgnore(",", "#")), MatchRange(ElementsAre("ab", "#c,d#", "ef")));
+	ASSERT_THAT(Split(",ab#c,d#ef,ghi", SplitDelimiterWithIgnore(",", "#")), MatchRange(ElementsAre("", "ab#c,d#ef", "ghi")));
+	ASSERT_THAT(Split("a,bc#d,e#fg,hij", SplitDelimiterWithIgnore(",", "#")), MatchRange(ElementsAre("a", "bc#d,e#fg", "hij")));
+	ASSERT_THAT(Split("abc,de#f,g#hi,j", SplitDelimiterWithIgnore(",", "#")), MatchRange(ElementsAre("abc", "de#f,g#hi", "j")));
+	ASSERT_THAT(Split("abc,de#f,g#hi,", SplitDelimiterWithIgnore(",", "#")), MatchRange(ElementsAre("abc", "de#f,g#hi", "")));
+
+	ASSERT_THAT(Split("a||b/*c||d**/e||f", SplitDelimiterWithIgnore("||", "/*", "**/")), MatchRange(ElementsAre("a", "b/*c||d**/e", "f")));
+	ASSERT_THAT(Split("ab||cd/*e||f**/gh||ij", SplitDelimiterWithIgnore("||", "/*", "**/")), MatchRange(ElementsAre("ab", "cd/*e||f**/gh", "ij")));
+	ASSERT_THAT(Split("ab||cd/*||**/ef||gh", SplitDelimiterWithIgnore("||", "/*", "**/")), MatchRange(ElementsAre("ab", "cd/*||**/ef", "gh")));
+	ASSERT_THAT(Split("ab||/*c||d**/||ef", SplitDelimiterWithIgnore("||", "/*", "**/")), MatchRange(ElementsAre("ab", "/*c||d**/", "ef")));
+	ASSERT_THAT(Split("||ab/*c||d**/ef||ghi", SplitDelimiterWithIgnore("||", "/*", "**/")), MatchRange(ElementsAre("", "ab/*c||d**/ef", "ghi")));
+	ASSERT_THAT(Split("a||bc/*d||e**/fg||hij", SplitDelimiterWithIgnore("||", "/*", "**/")), MatchRange(ElementsAre("a", "bc/*d||e**/fg", "hij")));
+	ASSERT_THAT(Split("abc||de/*f||g**/hi||j", SplitDelimiterWithIgnore("||", "/*", "**/")), MatchRange(ElementsAre("abc", "de/*f||g**/hi", "j")));
+	ASSERT_THAT(Split("abc||de/*f||g**/hi||", SplitDelimiterWithIgnore("||", "/*", "**/")), MatchRange(ElementsAre("abc", "de/*f||g**/hi", "")));
+
 	std::string a, b;
 	int c;
 	TupleFromStrings(ForwardAsTuple(a, b, c), Split("hello world 22", " "));
