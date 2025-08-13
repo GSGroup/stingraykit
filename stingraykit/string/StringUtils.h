@@ -162,7 +162,9 @@ namespace stingray
 			string_view						_delimiter;
 
 		public:
-			explicit StaticSplitDelimiter(string_view delimiter) : _delimiter(delimiter) { }
+			explicit StaticSplitDelimiter(string_view delimiter)
+				:	_delimiter(delimiter)
+			{ STINGRAYKIT_CHECK(!_delimiter.empty(), ArgumentException("delimiter")); }
 
 			Detail::DelimiterMatch operator () (string_view string, size_t startPos) const
 			{ return Detail::DelimiterMatch(string.find(_delimiter, startPos), _delimiter.size()); }
