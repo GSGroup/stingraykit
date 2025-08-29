@@ -78,7 +78,8 @@ namespace stingray
 
 #define STINGRAYKIT_WRAP_EXCEPTIONS(Message, ...) \
 		do { \
-			try { __VA_ARGS__; } \
+			try \
+			{ __VA_ARGS__; } \
 			catch (const std::exception& ex) \
 			{ STINGRAYKIT_RETHROW_WITH_MESSAGE(Message, ex); } \
 		} while (false)

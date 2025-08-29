@@ -33,10 +33,12 @@ namespace stingray
 #define STINGRAYKIT_TRY(ErrorMessage_, ...) \
 		do { \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-			try { __VA_ARGS__; } \
+			try \
+			{ __VA_ARGS__; } \
 			catch (const std::exception& ex) \
 			{ \
-				try { STINGRAYKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << ex; } \
+				try \
+				{ STINGRAYKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << ex; } \
 				catch (const std::exception& ex) \
 				{ STINGRAYKIT_STATIC_LOGGER.Warning() << "Can't print error message:\n" << STINGRAYKIT_WHERE << "\n" << ex; } \
 			} \
@@ -46,10 +48,12 @@ namespace stingray
 #define STINGRAYKIT_TRY_EX(LogLevel_, ErrorMessage_, ...) \
 		do { \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-			try { __VA_ARGS__; } \
+			try \
+			{ __VA_ARGS__; } \
 			catch (const std::exception& ex) \
 			{ \
-				try { STINGRAYKIT_STATIC_LOGGER.LogLevel_() << (ErrorMessage_) << ":\n" << ex; } \
+				try \
+				{ STINGRAYKIT_STATIC_LOGGER.LogLevel_() << (ErrorMessage_) << ":\n" << ex; } \
 				catch (const std::exception& ex) \
 				{ STINGRAYKIT_STATIC_LOGGER.LogLevel_() << "Can't print error message:\n" << STINGRAYKIT_WHERE << "\n" << ex; } \
 			} \
@@ -62,8 +66,10 @@ namespace stingray
 #define STINGRAYKIT_LOG_EXCEPTIONS(ErrorMessage_, ...) \
 		do { \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-			try { __VA_ARGS__; } \
-			catch (const std::exception& ex) { STINGRAYKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << ex; throw; } \
+			try \
+			{ __VA_ARGS__; } \
+			catch (const std::exception& ex) \
+			{ STINGRAYKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << ex; throw; } \
 		} while (0)
 
 
