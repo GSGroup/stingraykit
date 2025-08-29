@@ -46,6 +46,8 @@ namespace stingray
 
 
 #define STINGRAYKIT_TRY(ErrorMessage_, ...) STINGRAYKIT_TRY_EX(Warning, ErrorMessage_, __VA_ARGS__)
+
+#define STINGRAYKIT_TRY_NO_MESSAGE_EX(LogLevel_, ...) STINGRAYKIT_TRY_EX(LogLevel_, #__VA_ARGS__, __VA_ARGS__)
 #define STINGRAYKIT_TRY_NO_MESSAGE(...) STINGRAYKIT_TRY(#__VA_ARGS__, __VA_ARGS__)
 
 
