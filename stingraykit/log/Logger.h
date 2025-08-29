@@ -30,21 +30,6 @@ namespace stingray
 #define STINGRAYKIT_DEFINE_NAMED_LOGGER(...) STINGRAYKIT_CAT(DETAIL_DEFINE_NAMED_LOGGER_, STINGRAYKIT_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
 
-#define STINGRAYKIT_TRY(ErrorMessage_, ...) \
-		do { \
-			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-			try \
-			{ __VA_ARGS__; } \
-			catch (const std::exception& ex) \
-			{ \
-				try \
-				{ STINGRAYKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << ex; } \
-				catch (const std::exception& ex) \
-				{ STINGRAYKIT_STATIC_LOGGER.Warning() << "Can't print error message:\n" << STINGRAYKIT_WHERE << "\n" << ex; } \
-			} \
-		} while (0)
-
-
 #define STINGRAYKIT_TRY_EX(LogLevel_, ErrorMessage_, ...) \
 		do { \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
@@ -60,6 +45,7 @@ namespace stingray
 		} while (0)
 
 
+#define STINGRAYKIT_TRY(ErrorMessage_, ...) STINGRAYKIT_TRY_EX(Warning, ErrorMessage_, __VA_ARGS__)
 #define STINGRAYKIT_TRY_NO_MESSAGE(...) STINGRAYKIT_TRY(#__VA_ARGS__, __VA_ARGS__)
 
 
