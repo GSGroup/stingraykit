@@ -30,34 +30,48 @@ namespace stingray
 #define STINGRAYKIT_DEFINE_NAMED_LOGGER(...) STINGRAYKIT_CAT(DETAIL_DEFINE_NAMED_LOGGER_, STINGRAYKIT_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
 
-#define STINGRAYKIT_TRY_EX(LogLevel_, ErrorMessage_, ...) \
+#define STINGRAYKIT_TRY_EX_TO_LOGGER(Logger_, LogLevel_, ErrorMessage_, ...) \
 		do { \
-			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
 			try \
 			{ __VA_ARGS__; } \
 			catch (const std::exception& ex) \
 			{ \
 				try \
-				{ STINGRAYKIT_STATIC_LOGGER.Stream(stingray::LogLevel::LogLevel_) << (ErrorMessage_) << ":\n" << ex; } \
+				{ Logger_.Stream(stingray::LogLevel::LogLevel_) << (ErrorMessage_) << ":\n" << ex; } \
 				catch (const std::exception& ex) \
-				{ STINGRAYKIT_STATIC_LOGGER.Stream(stingray::LogLevel::LogLevel_) << "Can't print error message:\n" << STINGRAYKIT_WHERE << "\n" << ex; } \
+				{ Logger_.Stream(stingray::LogLevel::LogLevel_) << "Can't print error message:\n" << STINGRAYKIT_WHERE << "\n" << ex; } \
 			} \
 		} while (0)
 
+#define STINGRAYKIT_TRY_EX(LogLevel_, ErrorMessage_, ...) \
+		do { \
+			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
+			STINGRAYKIT_TRY_EX_TO_LOGGER(STINGRAYKIT_STATIC_LOGGER, LogLevel_, ErrorMessage_, __VA_ARGS__); \
+		} while (0)
 
+
+#define STINGRAYKIT_TRY_TO_LOGGER(Logger_, ErrorMessage_, ...) STINGRAYKIT_TRY_EX_TO_LOGGER(Logger_, Warning, ErrorMessage_, __VA_ARGS__)
 #define STINGRAYKIT_TRY(ErrorMessage_, ...) STINGRAYKIT_TRY_EX(Warning, ErrorMessage_, __VA_ARGS__)
 
+#define STINGRAYKIT_TRY_NO_MESSAGE_EX_TO_LOGGER(Logger_, LogLevel_, ...) STINGRAYKIT_TRY_EX_TO_LOGGER(Logger_, LogLevel_, #__VA_ARGS__, __VA_ARGS__)
 #define STINGRAYKIT_TRY_NO_MESSAGE_EX(LogLevel_, ...) STINGRAYKIT_TRY_EX(LogLevel_, #__VA_ARGS__, __VA_ARGS__)
+
+#define STINGRAYKIT_TRY_NO_MESSAGE_TO_LOGGER(Logger_, ...) STINGRAYKIT_TRY_TO_LOGGER(Logger_, #__VA_ARGS__, __VA_ARGS__)
 #define STINGRAYKIT_TRY_NO_MESSAGE(...) STINGRAYKIT_TRY(#__VA_ARGS__, __VA_ARGS__)
 
+
+#define STINGRAYKIT_LOG_EXCEPTIONS_TO_LOGGER(Logger_, ErrorMessage_, ...) \
+		do { \
+			try \
+			{ __VA_ARGS__; } \
+			catch (const std::exception& ex) \
+			{ Logger_.Warning() << (ErrorMessage_) << ":\n" << ex; throw; } \
+		} while (0)
 
 #define STINGRAYKIT_LOG_EXCEPTIONS(ErrorMessage_, ...) \
 		do { \
 			DETAIL_DECLARE_STATIC_LOGGER_ACCESSOR; \
-			try \
-			{ __VA_ARGS__; } \
-			catch (const std::exception& ex) \
-			{ STINGRAYKIT_STATIC_LOGGER.Warning() << (ErrorMessage_) << ":\n" << ex; throw; } \
+			STINGRAYKIT_LOG_EXCEPTIONS_TO_LOGGER(STINGRAYKIT_STATIC_LOGGER, ErrorMessage_, __VA_ARGS__); \
 		} while (0)
 
 
