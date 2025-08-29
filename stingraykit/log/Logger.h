@@ -53,9 +53,9 @@ namespace stingray
 			catch (const std::exception& ex) \
 			{ \
 				try \
-				{ STINGRAYKIT_STATIC_LOGGER.LogLevel_() << (ErrorMessage_) << ":\n" << ex; } \
+				{ STINGRAYKIT_STATIC_LOGGER.Stream(stingray::LogLevel::LogLevel_) << (ErrorMessage_) << ":\n" << ex; } \
 				catch (const std::exception& ex) \
-				{ STINGRAYKIT_STATIC_LOGGER.LogLevel_() << "Can't print error message:\n" << STINGRAYKIT_WHERE << "\n" << ex; } \
+				{ STINGRAYKIT_STATIC_LOGGER.Stream(stingray::LogLevel::LogLevel_) << "Can't print error message:\n" << STINGRAYKIT_WHERE << "\n" << ex; } \
 			} \
 		} while (0)
 
