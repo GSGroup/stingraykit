@@ -11,6 +11,14 @@
 namespace stingray
 {
 
+	namespace
+	{
+
+		const NamedLogger FactoryLogger("Factory");
+
+	}
+
+
 	string_view FactoryUtils::RemoveTypePrefix(string_view type, string_view prefix)
 	{ return RemovePrefix(type, prefix); }
 
@@ -47,7 +55,7 @@ namespace stingray
 
 	void FactoryContext::Register(const std::string& name, const TypeInfo& info, Detail::IFactoryObjectCreatorUniqPtr&& creator)
 	{
-		Logger::Debug() << "Registering " << name;
+		FactoryLogger.Debug() << "Registering " << name;
 
 		MutexLock l(_guard);
 
@@ -58,7 +66,7 @@ namespace stingray
 		if (it == _classNames.end())
 			_classNames.emplace(info, name);
 		else
-			Logger::Warning() << "Ignore name " << name << " for class '" << info.GetClassName() << "', already have name " << it->second;
+			FactoryLogger.Warning() << "Ignore name " << name << " for class '" << info.GetClassName() << "', already have name " << it->second;
 	}
 
 
