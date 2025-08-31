@@ -15,22 +15,29 @@ namespace stingray
 
 	class RethrownException : public std::exception
 	{
-		std::string _what;
+	private:
+		std::string			_what;
 
 	public:
 		explicit RethrownException(const std::exception& ex) noexcept : _what(diagnostic_information(ex)) { }
-		virtual ~RethrownException() noexcept { }
+		~RethrownException() noexcept override { }
 
-		virtual const char* what() const noexcept { return _what.c_str(); }
+		const char* what() const noexcept override { return _what.c_str(); }
 	};
 
-	typedef shared_ptr<RethrownException> ExceptionPtr;
+
+	using ExceptionPtr = shared_ptr<RethrownException>;
+
 
 	inline ExceptionPtr MakeExceptionPtr(const std::exception& ex)
 	{ return make_shared_ptr<RethrownException>(ex); }
 
+
 	inline void RethrowException(const ExceptionPtr& ex)
-	{ if (ex) STINGRAYKIT_THROW(*ex); }
+	{
+		if (ex)
+			STINGRAYKIT_THROW(*ex);
+	}
 
 }
 
