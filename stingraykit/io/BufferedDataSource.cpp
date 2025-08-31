@@ -23,7 +23,7 @@ namespace stingray
 		const size_t packetizedSize = r.size() / _outputPacketSize * _outputPacketSize;
 		if (packetizedSize == 0)
 		{
-			bl.RethrowExceptionIfAny();
+			bl.RethrowExceptionIfAny(STINGRAYKIT_WHERE);
 			if (bl.IsEndOfData())
 			{
 				if (r.size() != 0)

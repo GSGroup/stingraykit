@@ -87,7 +87,7 @@ namespace stingray
 			T get()
 			{
 				if (_exception)
-					RethrowException(_exception);
+					STINGRAYKIT_RETHROW_EXCEPTION(_exception);
 				STINGRAYKIT_CHECK(_value, OperationCancelledException());
 				return *_value;
 			}
@@ -112,7 +112,7 @@ namespace stingray
 			void get()
 			{
 				if (_exception)
-					RethrowException(_exception);
+					STINGRAYKIT_RETHROW_EXCEPTION(_exception);
 				STINGRAYKIT_CHECK(_value, OperationCancelledException());
 			}
 		};

@@ -10,6 +10,8 @@
 
 #include <stingraykit/shared_ptr.h>
 
+#define STINGRAYKIT_RETHROW_EXCEPTION(ExceptionPtr_) ::stingray::RethrowException(ExceptionPtr_, STINGRAYKIT_WHERE)
+
 namespace stingray
 {
 
@@ -33,10 +35,10 @@ namespace stingray
 	{ return make_shared_ptr<RethrownException>(ex); }
 
 
-	inline void RethrowException(const ExceptionPtr& ex)
+	inline void RethrowException(const ExceptionPtr& ex, ToolkitWhere where)
 	{
 		if (ex)
-			STINGRAYKIT_THROW(*ex);
+			throw Detail::MakeException(*ex, where);
 	}
 
 }
