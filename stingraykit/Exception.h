@@ -71,7 +71,7 @@ namespace stingray
 		do { \
 			stingray::string_ostream stream; \
 			stingray::ToString(stream, Message); \
-			stream << ": "; \
+			stream << ":\n"; \
 			stingray::diagnostic_information(stream, ExceptionObj); \
 			throw stingray::Exception(stream.str()); \
 		} while (false)
