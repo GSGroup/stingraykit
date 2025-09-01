@@ -166,11 +166,48 @@ namespace stingray
 
 		LoggerStream Stream(LogLevel logLevel) const;
 
-		LoggerStream Trace()	const { return Stream(LogLevel::Trace); }
-		LoggerStream Debug()	const { return Stream(LogLevel::Debug); }
-		LoggerStream Info()		const { return Stream(LogLevel::Info); }
-		LoggerStream Warning()	const { return Stream(LogLevel::Warning); }
-		LoggerStream Error()	const { return Stream(LogLevel::Error); }
+		LoggerStream Trace() const		{ return Stream(LogLevel::Trace); }
+		LoggerStream Debug() const		{ return Stream(LogLevel::Debug); }
+		LoggerStream Info() const		{ return Stream(LogLevel::Info); }
+		LoggerStream Warning() const	{ return Stream(LogLevel::Warning); }
+		LoggerStream Error() const		{ return Stream(LogLevel::Error); }
+	};
+
+
+	class PrefixedNamedLogger
+	{
+		STINGRAYKIT_NONCOPYABLE(PrefixedNamedLogger);
+
+	public:
+		using PrefixGetter = function<std::string ()>;
+
+	private:
+		const NamedLogger&				_logger;
+		std::string						_prefix;
+		optional<PrefixGetter>			_prefixGetter;
+
+	public:
+		PrefixedNamedLogger(const NamedLogger& logger, const std::string& prefix)
+			: _logger(logger), _prefix(prefix)
+		{ }
+
+		PrefixedNamedLogger(const NamedLogger& logger, const PrefixGetter& prefixGetter)
+			: _logger(logger), _prefixGetter(prefixGetter)
+		{ }
+
+		const std::string& GetName() const { return _logger.GetName(); }
+
+		LogLevel GetLogLevel() const { return _logger.GetLogLevel(); }
+
+		std::string GetPrefix() const;
+
+		LoggerStream Stream(LogLevel logLevel) const;
+
+		LoggerStream Trace() const		{ return Stream(LogLevel::Trace); }
+		LoggerStream Debug() const		{ return Stream(LogLevel::Debug); }
+		LoggerStream Info() const		{ return Stream(LogLevel::Info); }
+		LoggerStream Warning() const	{ return Stream(LogLevel::Warning); }
+		LoggerStream Error() const		{ return Stream(LogLevel::Error); }
 	};
 
 

@@ -332,6 +332,40 @@ namespace stingray
 	{ return LoggerStream(&_params, GetLogLevel(), logLevel, &_duplicatingLogsFilter, &Logger::DoLog); }
 
 
+	std::string PrefixedNamedLogger::GetPrefix() const
+	{
+		if (_prefixGetter)
+		{
+			const std::string prefix = (*_prefixGetter)();
+
+			if (!prefix.empty())
+				return StringBuilder() % "[" % prefix % "] ";
+		}
+		else if (!_prefix.empty())
+			return StringBuilder() % "[" % _prefix % "] ";
+
+		return "";
+	}
+
+
+	LoggerStream PrefixedNamedLogger::Stream(LogLevel logLevel) const
+	{
+		LoggerStream stream(_logger.Stream(logLevel));
+
+		if (_prefixGetter)
+		{
+			const std::string prefix = (*_prefixGetter)();
+
+			if (!prefix.empty())
+				stream << "[" << prefix << "] ";
+		}
+		else if (!_prefix.empty())
+			stream << "[" << _prefix << "] ";
+
+		return stream;
+	}
+
+
 	/////////////////////////////////////////////////////////////////
 
 	namespace
