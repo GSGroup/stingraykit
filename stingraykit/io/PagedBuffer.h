@@ -37,7 +37,8 @@ namespace stingray
 	private:
 		static NamedLogger			s_logger;
 
-		const std::string			_name;
+		PrefixedNamedLogger			_logger;
+
 		const u64					_pageSize;
 		const size_t				_chunkSize;
 
@@ -69,8 +70,6 @@ namespace stingray
 		PagedBuffer(const std::string& name, u64 pageSize, size_t chunkSize);
 
 		virtual IPagePtr CreatePage(size_t chunkSize) = 0;
-
-		LoggerStream Log(LogLevel logLevel) const;
 	};
 
 }

@@ -88,7 +88,7 @@ namespace stingray
 		const IPagePtr page = _pages[pageIndex];
 		const u64 offset = _currentOffset % _pageSize;
 
-		Log(LogLevel::Trace) << "Read: current offset: " << _currentOffset << " --> page: " << pageIndex << "/" << _pages.size() << ", offset: " << offset;
+		_logger.Trace() << "Read: current offset: " << _currentOffset << " --> page: " << pageIndex << "/" << _pages.size() << ", offset: " << offset;
 
 		const u64 currentOffset = _currentOffset;
 		size_t processed = 0;
@@ -100,12 +100,12 @@ namespace stingray
 			STINGRAYKIT_CHECK_CANCELLATION(token);
 		}
 
-		Log(LogLevel::Trace) << "Read: processed size: " << processed << " (" << (processed / _chunkSize) << " chunk(s))";
+		_logger.Trace() << "Read: processed size: " << processed << " (" << (processed / _chunkSize) << " chunk(s))";
 
 		const size_t remainder = processed % _chunkSize;
 		if (remainder != 0)
 		{
-			Log(LogLevel::Error) << "Read: processed size " << processed << " is not a multiple of chunk size " << _chunkSize;
+			_logger.Error() << "Read: processed size " << processed << " is not a multiple of chunk size " << _chunkSize;
 			processed -= remainder;
 		}
 
@@ -132,7 +132,7 @@ namespace stingray
 		case ConditionWaitResult::TimedOut:		STINGRAYKIT_THROW(TimeoutException());
 		}
 
-		Log(LogLevel::Debug) << "Push(" << data.size() << ")";
+		_logger.Debug() << "Push(" << data.size() << ")";
 
 		MutexLock l(_mutex);
 
@@ -146,7 +146,7 @@ namespace stingray
 			const size_t toWrite = std::min(_tailSize, (u64)data.size());
 			const u64 newTailSize = _tailSize - toWrite;
 
-			Log(LogLevel::Debug) << "Push: writing " << toWrite << " bytes, tail size: " << _tailSize << " --> " << newTailSize;
+			_logger.Debug() << "Push: writing " << toWrite << " bytes, tail size: " << _tailSize << " --> " << newTailSize;
 
 			{
 				MutexUnlock ul(l);
@@ -182,7 +182,7 @@ namespace stingray
 
 		if (!newPages.empty())
 		{
-			Log(LogLevel::Debug) << "Push: written " << newPages.size() << " new page(s) (previous total: " << _pages.size() << "), tail size: " << _tailSize << " --> " << newTailSize;
+			_logger.Debug() << "Push: written " << newPages.size() << " new page(s) (previous total: " << _pages.size() << "), tail size: " << _tailSize << " --> " << newTailSize;
 
 			_pages.insert(_pages.end(), newPages.begin(), newPages.end());
 			_tailSize = newTailSize;
@@ -212,7 +212,7 @@ namespace stingray
 		}
 
 		{
-			LoggerStream logStream(Log(_currentOffset == newCurrentOffset ? LogLevel::Debug : LogLevel::Warning));
+			LoggerStream logStream(_logger.Stream(_currentOffset == newCurrentOffset ? LogLevel::Debug : LogLevel::Warning));
 			logStream << "Pop: size: " << size << ", start/current offset: " << _startOffset << "/" << _currentOffset << " --> " << newStartOffset << "/" << newCurrentOffset;
 
 			const size_t toDrop = std::distance(_pages.begin(), newBeginIt);
@@ -236,14 +236,14 @@ namespace stingray
 
 		const u64 newCurrentOffset = _startOffset + offset;
 
-		Log(LogLevel::Debug) << "Seek: offset: " << offset << ", start offset: " << _startOffset << " --> current offset: " << newCurrentOffset;
+		_logger.Debug() << "Seek: offset: " << offset << ", start offset: " << _startOffset << " --> current offset: " << newCurrentOffset;
 
 		_currentOffset = newCurrentOffset;
 	}
 
 
 	PagedBuffer::PagedBuffer(const std::string& name, u64 pageSize, size_t chunkSize)
-		:	_name(name),
+		:	_logger(s_logger, name),
 			_pageSize(pageSize),
 			_chunkSize(chunkSize),
 			_startOffset(0),
@@ -256,14 +256,6 @@ namespace stingray
 		STINGRAYKIT_CHECK(pageSize > 0, ArgumentException("pageSize"));
 		STINGRAYKIT_CHECK(chunkSize > 0, ArgumentException("chunkSize"));
 		STINGRAYKIT_CHECK(pageSize % chunkSize == 0, ArgumentException("(pageSize, chunkSize)", MakeTuple(pageSize, chunkSize)));
-	}
-
-
-	LoggerStream PagedBuffer::Log(LogLevel logLevel) const
-	{
-		LoggerStream stream(s_logger.Stream(logLevel));
-		stream << "[" << _name << "] ";
-		return stream;
 	}
 
 }
