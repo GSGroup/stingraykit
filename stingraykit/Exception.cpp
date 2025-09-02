@@ -10,16 +10,20 @@
 namespace stingray
 {
 
-	namespace Detail
+	void diagnostic_information(string_ostream& result, const std::exception& ex)
 	{
+		const Detail::IToolkitException* toolkitEx = dynamic_cast<const Detail::IToolkitException*>(&ex);
+		const std::string& exName = Demangle(typeid(ex).name());
 
-		void AppendExtendedDiagnostics(string_ostream& result, const Detail::IToolkitException& tkit_ex)
+		result << exName << "\n" << ex.what();
+
+		if (toolkitEx)
 		{
-			result << "\n  in function '" << tkit_ex.GetFunctionName() << "'"
-					<< "\n  in file '" << tkit_ex.GetFilename() << "' at line " << tkit_ex.GetLine()
-					<< "\n" << tkit_ex.GetBacktrace();
+			result
+					<< "\n  in function '" << toolkitEx->GetFunctionName() << "'"
+					<< "\n  in file '" << toolkitEx->GetFilename() << "' at line " << toolkitEx->GetLine()
+					<< "\n" << toolkitEx->GetBacktrace();
 		}
-
 	}
 
 }

@@ -435,16 +435,7 @@ namespace stingray
 #define STINGRAYKIT_REQUIRE_INITIALIZED(Expr_) stingray::Detail::RequireInitialized(Expr_, #Expr_, STINGRAYKIT_WHERE)
 
 
-	inline void diagnostic_information(string_ostream& result, const std::exception& ex)
-	{
-		const Detail::IToolkitException* tkit_ex = dynamic_cast<const Detail::IToolkitException*>(&ex);
-		const std::string& exName = Demangle(typeid(ex).name());
-
-		result << exName << "\n" << ex.what();
-
-		if (tkit_ex)
-			Detail::AppendExtendedDiagnostics(result, *tkit_ex);
-	}
+	void diagnostic_information(string_ostream& result, const std::exception& ex);
 
 	inline std::string diagnostic_information(const std::exception& ex)
 	{
