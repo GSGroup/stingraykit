@@ -181,22 +181,32 @@ namespace stingray
 		using PrefixGetter = function<std::string ()>;
 
 	private:
-		const NamedLogger&				_logger;
+		const NamedLogger*				_logger;
+		const PrefixedNamedLogger*		_parent;
+
 		std::string						_prefix;
 		optional<PrefixGetter>			_prefixGetter;
 
 	public:
 		PrefixedNamedLogger(const NamedLogger& logger, const std::string& prefix)
-			: _logger(logger), _prefix(prefix)
+			: _logger(&logger), _parent(), _prefix(prefix)
 		{ }
 
 		PrefixedNamedLogger(const NamedLogger& logger, const PrefixGetter& prefixGetter)
-			: _logger(logger), _prefixGetter(prefixGetter)
+			: _logger(&logger), _parent(), _prefixGetter(prefixGetter)
 		{ }
 
-		const std::string& GetName() const { return _logger.GetName(); }
+		PrefixedNamedLogger(const PrefixedNamedLogger& parent, const std::string& prefix)
+			: _logger(), _parent(&parent), _prefix(prefix)
+		{ }
 
-		LogLevel GetLogLevel() const { return _logger.GetLogLevel(); }
+		PrefixedNamedLogger(const PrefixedNamedLogger& parent, const PrefixGetter& prefixGetter)
+			: _logger(), _parent(&parent), _prefixGetter(prefixGetter)
+		{ }
+
+		const std::string& GetName() const { return _logger ? _logger->GetName() : _parent->GetName(); }
+
+		LogLevel GetLogLevel() const { return _logger ? _logger->GetLogLevel() : _parent->GetLogLevel(); }
 
 		std::string GetPrefix() const;
 
