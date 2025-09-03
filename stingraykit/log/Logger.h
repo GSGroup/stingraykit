@@ -207,6 +207,9 @@ namespace stingray
 		LoggerStream Info() const		{ return Stream(LogLevel::Info); }
 		LoggerStream Warning() const	{ return Stream(LogLevel::Warning); }
 		LoggerStream Error() const		{ return Stream(LogLevel::Error); }
+
+	private:
+		std::string DoGetPrefix() const;
 	};
 
 

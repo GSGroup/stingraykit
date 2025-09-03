@@ -333,6 +333,18 @@ namespace stingray
 
 
 	std::string PrefixedNamedLogger::GetPrefix() const
+	{ return DoGetPrefix(); }
+
+
+	LoggerStream PrefixedNamedLogger::Stream(LogLevel logLevel) const
+	{
+		LoggerStream stream(_logger.Stream(logLevel));
+		stream << lazy(Bind(&PrefixedNamedLogger::DoGetPrefix, this));
+		return stream;
+	}
+
+
+	std::string PrefixedNamedLogger::DoGetPrefix() const
 	{
 		if (_prefixGetter)
 		{
@@ -345,24 +357,6 @@ namespace stingray
 			return StringBuilder() % "[" % _prefix % "] ";
 
 		return "";
-	}
-
-
-	LoggerStream PrefixedNamedLogger::Stream(LogLevel logLevel) const
-	{
-		LoggerStream stream(_logger.Stream(logLevel));
-
-		if (_prefixGetter)
-		{
-			const std::string prefix = (*_prefixGetter)();
-
-			if (!prefix.empty())
-				stream << "[" << prefix << "] ";
-		}
-		else if (!_prefix.empty())
-			stream << "[" << _prefix << "] ";
-
-		return stream;
 	}
 
 
