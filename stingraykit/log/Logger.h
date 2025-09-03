@@ -10,7 +10,6 @@
 
 #include <stingraykit/log/ILoggerSink.h>
 #include <stingraykit/log/LoggerStream.h>
-#include <stingraykit/time/ElapsedTime.h>
 #include <stingraykit/Token.h>
 
 #include <set>
