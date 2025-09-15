@@ -138,9 +138,10 @@ namespace stingray
 	void AsyncProfiler::RemoveSession(SessionImpl& session)
 	{
 		MutexLock l(_mutex);
-		if (&*_sessions.begin() == &session)
-			_condition.Broadcast();
+		const bool broadcast = &*_sessions.begin() == &session;
 		_sessions.erase(session);
+		if (broadcast)
+			_condition.Broadcast();
 	}
 
 }
