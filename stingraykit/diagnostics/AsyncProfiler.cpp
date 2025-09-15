@@ -30,7 +30,7 @@ namespace stingray
 	{ }
 
 
-	AsyncProfiler::SessionImpl::SessionImpl(const optional<NameGetterFunc>& nameGetter)
+	AsyncProfiler::SessionImpl::SessionImpl(const NameGetterFunc& nameGetter)
 		:	_name(null),
 			_nameGetter(nameGetter),
 			_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),

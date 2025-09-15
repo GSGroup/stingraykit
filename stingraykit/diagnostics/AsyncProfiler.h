@@ -61,7 +61,7 @@ namespace stingray
 
 		public:
 			explicit SessionImpl(const char* name);
-			explicit SessionImpl(const optional<NameGetterFunc>& nameGetter);
+			explicit SessionImpl(const NameGetterFunc& nameGetter);
 
 			std::string GetName()
 			{
