@@ -29,6 +29,7 @@ namespace stingray
 			_startTime(GetMonotonic())
 	{ }
 
+
 	AsyncProfiler::SessionImpl::SessionImpl(const optional<NameGetterFunc>& nameGetter)
 		:	_name(null),
 			_nameGetter(nameGetter),
@@ -38,6 +39,7 @@ namespace stingray
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler::Session);
+
 
 	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const char* name, TimeDuration threshold)
 		:	_asyncProfiler(asyncProfiler),
@@ -74,11 +76,12 @@ namespace stingray
 				s_logger.Warning() << _impl.GetName() << " took " << duration;
 		}
 		catch (const std::exception& ex)
-		{ s_logger.Error() << "Can't report total execution time: " << ex; }
+		{ s_logger.Error() << "Can't report total execution time:\n" << ex; }
 	}
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler);
+
 
 	AsyncProfiler::AsyncProfiler(const std::string& threadName)
 		:	_timeout(TimeDuration::FromSeconds(30)),
@@ -111,13 +114,13 @@ namespace stingray
 			_sessions.push_back(top);
 
 			// copy all necessary data before releasing mutex
-			const std::string name(top.GetName());
-			const std::string tname(top.GetThreadName());
+			const std::string name = top.GetName();
+			const std::string threadName = top.GetThreadName();
 			const TimeDuration startTime = top.GetStartTime();
-			const std::string backtrace(top.GetBacktrace());
+			const std::string backtrace = top.GetBacktrace();
 
 			MutexUnlock ul(l);
-			s_logger.Error() << "Task " << name << " in thread " << tname << " is being executed for more than " << (timeNow - startTime) << " invoked from: " << backtrace;
+			s_logger.Error() << "Task " << name << " in thread " << threadName << " is being executed for more than " << (timeNow - startTime) << " invoked from: " << backtrace;
 		}
 	}
 

@@ -12,7 +12,6 @@
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/ConditionVariable.h>
 #include <stingraykit/thread/Thread.h>
-#include <stingraykit/time/ElapsedTime.h>
 
 namespace stingray
 {
@@ -27,25 +26,26 @@ namespace stingray
 
 	class AsyncProfiler
 	{
+	public:
+		using NameGetterFunc = function<std::string ()>;
+
 	private:
 		class MessageHolder
 		{
 		private:
-			std::string _messageHolder;
-			const char* _message;
+			std::string					_messageHolder;
+			const char*					_message;
 
 		public:
-			MessageHolder(const char* message) : _message(message)
+			explicit MessageHolder(const char* message) : _message(message)
 			{ }
 
-			MessageHolder(const std::string& message) : _messageHolder(message)
+			explicit MessageHolder(const std::string& message) : _messageHolder(message)
 			{ _message = _messageHolder.c_str(); }
 
 			const char* Get() const
 			{ return _message; }
 		};
-
-		typedef function<std::string()>	NameGetterFunc;
 
 		class SessionImpl : public IntrusiveListNode<SessionImpl>
 		{
@@ -60,13 +60,13 @@ namespace stingray
 			TimeDuration				_timeoutTime;
 
 		public:
-			SessionImpl(const char* name);
-			SessionImpl(const optional<NameGetterFunc>& nameGetter);
+			explicit SessionImpl(const char* name);
+			explicit SessionImpl(const optional<NameGetterFunc>& nameGetter);
 
 			std::string GetName()
 			{
 				if (!_name)
-					return _nameGetter.get()();
+					return (*_nameGetter)();
 				return _name;
 			}
 
@@ -92,12 +92,12 @@ namespace stingray
 		class Session
 		{
 		private:
-			static NamedLogger	s_logger;
+			static NamedLogger			s_logger;
 
-			AsyncProfilerPtr	_asyncProfiler;
-			MessageHolder		_nameHolder;
-			TimeDuration		_threshold;
-			SessionImpl			_impl;
+			AsyncProfilerPtr			_asyncProfiler;
+			MessageHolder				_nameHolder;
+			TimeDuration				_threshold;
+			SessionImpl					_impl;
 
 		public:
 			Session(const AsyncProfilerPtr& profiler, const char* name, TimeDuration threshold);
@@ -107,19 +107,19 @@ namespace stingray
 		};
 
 	private:
-		typedef IntrusiveList<SessionImpl> Sessions;
+		using Sessions = IntrusiveList<SessionImpl>;
 
 	private:
-		static NamedLogger s_logger;
+		static NamedLogger				s_logger;
 
-		const TimeDuration	_timeout;
-		Mutex				_mutex;
-		ConditionVariable	_condition;
-		Sessions			_sessions;
-		IThreadPtr			_thread;
+		const TimeDuration				_timeout;
+		Mutex							_mutex;
+		ConditionVariable				_condition;
+		Sessions						_sessions;
+		IThreadPtr						_thread;
 
 	public:
-		AsyncProfiler(const std::string& threadName);
+		explicit AsyncProfiler(const std::string& threadName);
 
 	private:
 		void ThreadFunc(const ICancellationToken& token);
@@ -130,10 +130,10 @@ namespace stingray
 
 
 #define STINGRAYKIT_PROFILE_CALL(Profiler_, Milliseconds_, Call_) \
-	do { \
-		AsyncProfiler::Session detail_session(Profiler_, #Call_, Milliseconds_); \
-		Call_; \
-	} while (false)
+		do { \
+			AsyncProfiler::Session detail_session(Profiler_, #Call_, Milliseconds_); \
+			Call_; \
+		} while (false)
 
 	/** @} */
 
