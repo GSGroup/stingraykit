@@ -23,7 +23,7 @@ namespace stingray
 	}
 
 
-	AsyncProfiler::SessionImpl::SessionImpl(const char* name)
+	AsyncProfiler::SessionImpl::SessionImpl(string_view name)
 		:	_name(name),
 			_threadName(Thread::GetCurrentThreadName()),
 			_startTime(GetMonotonic())
@@ -34,8 +34,7 @@ namespace stingray
 
 
 	AsyncProfiler::SessionImpl::SessionImpl(const NameGetterFunc& nameGetter)
-		:	_name(null),
-			_nameGetter(nameGetter),
+		:	_nameGetter(nameGetter),
 			_threadName(Thread::GetCurrentThreadName()),
 			_startTime(GetMonotonic())
 	{
@@ -65,7 +64,6 @@ namespace stingray
 
 	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const NameGetterFunc& nameGetter, TimeDuration threshold)
 		:	_asyncProfiler(asyncProfiler),
-			_nameHolder(null),
 			_threshold(threshold),
 			_impl(nameGetter)
 	{ _asyncProfiler->AddSession(_impl); }

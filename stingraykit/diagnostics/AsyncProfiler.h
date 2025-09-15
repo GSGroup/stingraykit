@@ -34,16 +34,21 @@ namespace stingray
 		{
 		private:
 			std::string					_messageHolder;
-			const char*					_message;
+			string_view					_message;
 
 		public:
-			explicit MessageHolder(const char* message) : _message(message)
+			MessageHolder()
 			{ }
 
-			explicit MessageHolder(const std::string& message) : _messageHolder(message)
-			{ _message = _messageHolder.c_str(); }
+			explicit MessageHolder(const char* message)
+				: _message(message)
+			{ }
 
-			const char* Get() const
+			explicit MessageHolder(const std::string& message)
+				: _messageHolder(message), _message(_messageHolder)
+			{ }
+
+			string_view Get() const
 			{ return _message; }
 		};
 
@@ -52,7 +57,7 @@ namespace stingray
 			STINGRAYKIT_NONCOPYABLE(SessionImpl);
 
 		private:
-			const char*					_name;
+			string_view					_name;
 			optional<NameGetterFunc>	_nameGetter;
 			Backtrace					_backtrace;
 			std::string					_threadName;
@@ -60,15 +65,11 @@ namespace stingray
 			TimeDuration				_timeoutTime;
 
 		public:
-			explicit SessionImpl(const char* name);
+			explicit SessionImpl(string_view name);
 			explicit SessionImpl(const NameGetterFunc& nameGetter);
 
 			std::string GetName()
-			{
-				if (!_name)
-					return (*_nameGetter)();
-				return _name;
-			}
+			{ return _nameGetter ? (*_nameGetter)() : _name.copy(); }
 
 			std::string GetThreadName() const
 			{ return _threadName; }
