@@ -25,17 +25,23 @@ namespace stingray
 
 	AsyncProfiler::SessionImpl::SessionImpl(const char* name)
 		:	_name(name),
-			_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),
+			_threadName(Thread::GetCurrentThreadName()),
 			_startTime(GetMonotonic())
-	{ }
+	{
+		if (_threadName.empty())
+			_threadName = "__undefined__";
+	}
 
 
 	AsyncProfiler::SessionImpl::SessionImpl(const NameGetterFunc& nameGetter)
 		:	_name(null),
 			_nameGetter(nameGetter),
-			_threadName(Thread::GetCurrentThreadName().empty() ? "__undefined__" : Thread::GetCurrentThreadName()),
+			_threadName(Thread::GetCurrentThreadName()),
 			_startTime(GetMonotonic())
-	{ }
+	{
+		if (_threadName.empty())
+			_threadName = "__undefined__";
+	}
 
 
 	STINGRAYKIT_DEFINE_NAMED_LOGGER(AsyncProfiler::Session);
