@@ -87,8 +87,6 @@ namespace stingray
 		};
 
 	public:
-		struct NameGetterTag { };
-
 		class Session
 		{
 		private:
@@ -102,7 +100,7 @@ namespace stingray
 		public:
 			Session(const AsyncProfilerPtr& profiler, const char* name, TimeDuration threshold);
 			Session(const AsyncProfilerPtr& profiler, const std::string& name, TimeDuration threshold);
-			Session(const AsyncProfilerPtr& profiler, const NameGetterFunc& nameGetter, TimeDuration threshold, const NameGetterTag&);
+			Session(const AsyncProfilerPtr& profiler, const NameGetterFunc& nameGetter, TimeDuration threshold);
 			~Session();
 		};
 

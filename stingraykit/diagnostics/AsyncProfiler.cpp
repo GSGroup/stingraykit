@@ -57,7 +57,7 @@ namespace stingray
 	{ _asyncProfiler->AddSession(_impl); }
 
 
-	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const NameGetterFunc& nameGetter, TimeDuration threshold, const NameGetterTag&)
+	AsyncProfiler::Session::Session(const AsyncProfilerPtr& asyncProfiler, const NameGetterFunc& nameGetter, TimeDuration threshold)
 		:	_asyncProfiler(asyncProfiler),
 			_nameHolder(null),
 			_threshold(threshold),

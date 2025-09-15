@@ -246,7 +246,7 @@ namespace stingray
 				while (_impl->HasTransaction)
 				{
 					if (!profilerSession)
-						profilerSession.emplace(ExecutorsProfiler::Instance().GetProfiler(), &Utils::GetProfilerMessage, TimeDuration::Second(), AsyncProfiler::NameGetterTag());
+						profilerSession.emplace(ExecutorsProfiler::Instance().GetProfiler(), &Utils::GetProfilerMessage, TimeDuration::Second());
 
 					switch (_impl->TransactionCompleted.Wait(*_impl->Guard, token))
 					{
