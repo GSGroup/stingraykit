@@ -30,9 +30,7 @@ namespace stingray {
 
 	public:
 		T GetStart() const		{ return _start; }
-		void SetStart(T value)	{ _start = value; }
 		T GetEnd() const		{ return _end; }
-		void SetEnd(T value)	{ _end = value; }
 
 		bool Contains(T t) const		{ return !IsEmpty() && _start <= t && t <= _end; }
 		bool ContainsStrict(T t) const	{ return _start < t && t < _end; }
