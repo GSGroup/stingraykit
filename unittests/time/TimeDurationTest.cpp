@@ -239,15 +239,15 @@ TEST(TimeDurationTest, FromIso8601)
 
 TEST(TimeDurationTest, FromIso8601_Zero)
 {
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT0S"), TimeDuration(0));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT0M"), TimeDuration(0));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT0H"), TimeDuration(0));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT0S"), TimeDuration());
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT0M"), TimeDuration());
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT0H"), TimeDuration());
 
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P0D"), TimeDuration(0));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P0M"), TimeDuration(0));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P0Y"), TimeDuration(0));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P0D"), TimeDuration());
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P0M"), TimeDuration());
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P0Y"), TimeDuration());
 
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P0DT0S"), TimeDuration(0));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P0DT0S"), TimeDuration());
 }
 
 
@@ -452,7 +452,7 @@ TEST(TimeDurationTest, ToIso8601_BaseTime_LeapYear)
 
 TEST(TimeDurationTest, ToIso8601_Zero)
 {
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration(0)), "PT0S");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration()), "PT0S");
 }
 
 

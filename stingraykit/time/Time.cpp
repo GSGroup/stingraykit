@@ -523,7 +523,7 @@ namespace stingray
 			TimeDuration		Offset;
 
 			ParseResult()
-				: Year(0), Month(0), Day(0), Hours(0), Minutes(0), Seconds(0), Offset()
+				: Year(0), Month(0), Day(0), Hours(0), Minutes(0)
 			{ }
 		};
 
