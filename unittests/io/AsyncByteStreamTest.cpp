@@ -79,7 +79,7 @@ namespace
 
 TEST(AsyncByteStreamTest, PushVODStyleWriting)
 {
-	static const s64 StreamDelayMs = 3;
+	static const TimeDuration StreamDelay = TimeDuration::FromMilliseconds(3);
 
 	static const size_t AsyncPageSize = 231;
 
@@ -92,7 +92,7 @@ TEST(AsyncByteStreamTest, PushVODStyleWriting)
 
 	ByteArray srcData(GenerateRandomArray(SrcSize));
 	ByteArray dstData(srcData.size());
-	ISyncableByteStreamPtr asyncStream = make_shared_ptr<AsyncByteStream>("TestStream", make_shared_ptr<DelayedMemoryByteStream<ByteArray> >(dstData, TimeDuration(StreamDelayMs)), AsyncByteStream::Config().PageSize(AsyncPageSize).SubStreamsHint(SubStreams + 1));
+	ISyncableByteStreamPtr asyncStream = make_shared_ptr<AsyncByteStream>("TestStream", make_shared_ptr<DelayedMemoryByteStream<ByteArray> >(dstData, StreamDelay), AsyncByteStream::Config().PageSize(AsyncPageSize).SubStreamsHint(SubStreams + 1));
 
 	Logger::Info() << "Writing...";
 	for (size_t stage = 0; stage < 2; stage++)
@@ -117,12 +117,12 @@ TEST(AsyncByteStreamTest, PushVODStyleWriting)
 			for (size_t idx = 0; idx < SubStreams; idx++)
 			{
 				const size_t offset = (idx * SubStreamSize) + subOffset;
-				WriteWholeBlockToOffset(asyncStream, (s64)offset, ConstByteData(srcData, offset, std::min(AsyncPageSize, EndOffset - subOffset)), TimeDuration(StreamDelayMs) * (SubStreams + 1));
+				WriteWholeBlockToOffset(asyncStream, (s64)offset, ConstByteData(srcData, offset, std::min(AsyncPageSize, EndOffset - subOffset)), StreamDelay * (SubStreams + 1));
 			}
 
 			const size_t tailOffset = ((SubStreams * SubStreamSize) + subOffset);
 			if (tailOffset < SrcSize)
-				WriteWholeBlockToOffset(asyncStream, (s64)tailOffset, ConstByteData(srcData, tailOffset, std::min(AsyncPageSize, std::min(TailStreamSize, EndOffset) - subOffset)), TimeDuration(StreamDelayMs) * (SubStreams + 1));
+				WriteWholeBlockToOffset(asyncStream, (s64)tailOffset, ConstByteData(srcData, tailOffset, std::min(AsyncPageSize, std::min(TailStreamSize, EndOffset) - subOffset)), StreamDelay * (SubStreams + 1));
 		}
 	}
 
@@ -136,7 +136,7 @@ TEST(AsyncByteStreamTest, PushVODStyleWriting)
 
 TEST(AsyncByteStreamTest, OverlappedWriting)
 {
-	static const s64 StreamDelayMs = 3;
+	static const TimeDuration StreamDelay = TimeDuration::FromMilliseconds(3);
 
 	static const size_t AsyncPageSize = 587;
 	static const size_t WritePageSize = 921;
@@ -148,7 +148,7 @@ TEST(AsyncByteStreamTest, OverlappedWriting)
 	ByteArray srcData(GenerateRandomArray(SrcSize));
 	ByteArray garbageData(GenerateRandomArray(srcData.size()));
 	ByteArray dstData(srcData.size());
-	ISyncableByteStreamPtr asyncStream = make_shared_ptr<AsyncByteStream>("TestStream", make_shared_ptr<DelayedMemoryByteStream<ByteArray> >(dstData, TimeDuration(StreamDelayMs)), AsyncByteStream::Config().PageSize(AsyncPageSize));
+	ISyncableByteStreamPtr asyncStream = make_shared_ptr<AsyncByteStream>("TestStream", make_shared_ptr<DelayedMemoryByteStream<ByteArray> >(dstData, StreamDelay), AsyncByteStream::Config().PageSize(AsyncPageSize));
 
 	Logger::Info() << "Writing...";
 	for (size_t offset = 0; offset < SrcSize; offset += WritePageSize)
@@ -156,10 +156,10 @@ TEST(AsyncByteStreamTest, OverlappedWriting)
 		if ((offset != 0) && (((offset / WritePageSize) % GarbagingRate) == 0) && ((offset + GarbagingOffset) < SrcSize))
 		{
 			const size_t garbagingOffset = offset + GarbagingOffset;
-			WriteWholeBlockToOffset(asyncStream, (s64)garbagingOffset, ConstByteData(garbageData, garbagingOffset, std::min(GarbagePageSize, SrcSize - garbagingOffset)), TimeDuration(StreamDelayMs));
+			WriteWholeBlockToOffset(asyncStream, (s64)garbagingOffset, ConstByteData(garbageData, garbagingOffset, std::min(GarbagePageSize, SrcSize - garbagingOffset)), StreamDelay);
 		}
 
-		WriteWholeBlockToOffset(asyncStream, (s64)offset, ConstByteData(srcData, offset, std::min(WritePageSize, SrcSize - offset)), TimeDuration(StreamDelayMs));
+		WriteWholeBlockToOffset(asyncStream, (s64)offset, ConstByteData(srcData, offset, std::min(WritePageSize, SrcSize - offset)), StreamDelay);
 	}
 
 	Logger::Info() << "Writing done. Syncing...";

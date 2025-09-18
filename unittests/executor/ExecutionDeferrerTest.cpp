@@ -22,8 +22,8 @@ protected:
 		ExecutionDeferrer	_deferrer;
 
 	public:
-		DeferrerHolder(ITimer& timer, size_t timeout, const function<void ()>& func)
-			: _deferrer(timer, TimeDuration(timeout))
+		DeferrerHolder(ITimer& timer, TimeDuration timeout, const function<void ()>& func)
+			: _deferrer(timer, timeout)
 		{ _deferrer.Defer(func); }
 
 		~DeferrerHolder()
@@ -54,8 +54,8 @@ protected:
 
 TEST_F(ExecutionDeferrerTest, Cancel)
 {
-	const size_t Timeout		= 500;
-	const size_t ObjectsCount	= 1000;
+	const TimeDuration Timeout = TimeDuration::FromMilliseconds(500);
+	const size_t ObjectsCount = 1000;
 
 	Timer timer("deferrerTestTimer");
 	Counter counter;
@@ -66,21 +66,21 @@ TEST_F(ExecutionDeferrerTest, Cancel)
 		tmp.reset();
 	}
 
-	Thread::Sleep(2 * Timeout);
+	Thread::Sleep(Timeout * 2);
 	ASSERT_EQ(counter.GetValue(), 0u);
 }
 
 
 TEST_F(ExecutionDeferrerTest, Defer)
 {
-	const size_t EvenTimeout 	= 0;
-	const size_t OddTimeout		= 200;
-	const size_t TestCount		= 10000;
+	const TimeDuration EvenTimeout;
+	const TimeDuration OddTimeout = TimeDuration::FromMilliseconds(200);
+	const size_t TestCount = 10000;
 
 	ExecutionDeferrerWithTimer deferrer("deferrerTestTimer");
 	for (size_t i = 0; i < TestCount; ++i)
 	{
-		const size_t timeout = i % 2? OddTimeout : EvenTimeout;
-		deferrer.Defer(&ExecutionDeferrerTest::DoNothing, TimeDuration(timeout));
+		const TimeDuration timeout = i % 2 ? OddTimeout : EvenTimeout;
+		deferrer.Defer(&ExecutionDeferrerTest::DoNothing, timeout);
 	}
 }
