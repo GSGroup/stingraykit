@@ -36,11 +36,6 @@ namespace stingray {
 		bool ContainsStrict(T t) const	{ return _start < t && t < _end; }
 
 		bool IsEmpty() const			{ return _start == _end; }
-		static DerivedT CreateEmpty()
-		{
-			T t = T();
-			return DerivedT(t, t);
-		}
 
 		bool IsIntersecting(const DerivedT& other) const
 		{
@@ -52,11 +47,11 @@ namespace stingray {
 		DerivedT Intersect(const DerivedT& other) const
 		{
 			if (IsEmpty() || other.IsEmpty())
-				return CreateEmpty();
+				return DerivedT();
 			T start = std::max(_start, other._start);
 			T end = std::min(_end, other._end);
 			if (start >= end)
-				return CreateEmpty();
+				return DerivedT();
 			return DerivedT(start, end);
 		}
 
