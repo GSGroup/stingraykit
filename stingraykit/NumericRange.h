@@ -12,28 +12,30 @@
 
 namespace stingray {
 
-	template<typename DerivedT, typename T>
+	template < typename DerivedT, typename T >
 	class NumericRange
 	{
 	public:
 		typedef T ValueT;
 
 	private:
-		T _start, _end;
+		T			_start;
+		T			_end;
 
 	public:
-		T GetStart() const		{ return _start; }
-		T GetEnd() const		{ return _end; }
+		T GetStart() const						{ return _start; }
+		T GetEnd() const						{ return _end; }
 
-		bool Contains(T t) const		{ return !IsEmpty() && _start <= t && t <= _end; }
-		bool ContainsStrict(T t) const	{ return _start < t && t < _end; }
+		bool Contains(T t) const				{ return !IsEmpty() && _start <= t && t <= _end; }
+		bool ContainsStrict(T t) const			{ return _start < t && t < _end; }
 
-		bool IsEmpty() const			{ return _start == _end; }
+		bool IsEmpty() const					{ return _start == _end; }
 
 		bool IsIntersecting(const DerivedT& other) const
 		{
 			if (IsEmpty() || other.IsEmpty())
 				return false;
+
 			return _start < other._end && other._start < _end;
 		}
 
@@ -41,10 +43,12 @@ namespace stingray {
 		{
 			if (IsEmpty() || other.IsEmpty())
 				return DerivedT();
+
 			T start = std::max(_start, other._start);
 			T end = std::min(_end, other._end);
 			if (start >= end)
 				return DerivedT();
+
 			return DerivedT(start, end);
 		}
 
@@ -52,31 +56,35 @@ namespace stingray {
 		{
 			if (IsEmpty())
 				return other;
+
 			if (other.IsEmpty())
 				return *static_cast<const DerivedT*>(this);
+
 			T start = std::min(_start, other._start);
 			T end = std::max(_end, other._end);
 			return DerivedT(start, end);
 		}
 
-		T Clamp(T t) const { return std::max(_start, std::min(t, _end)); }
+		T Clamp(T t) const
+		{ return std::max(_start, std::min(t, _end)); }
 
 		std::string ToString() const
-		{
-			return StringBuilder() % "["  % _start % " - " % _end  % "]";
-		}
+		{ return StringBuilder() % "["  % _start % " - " % _end  % "]"; }
 
-		bool operator== (const DerivedT& rhs) const	{ return _start == rhs._start && _end == rhs._end; }
-		bool operator!= (const DerivedT& rhs) const	{ return !(*this == rhs); }
+		bool operator == (const DerivedT& rhs) const
+		{ return _start == rhs._start && _end == rhs._end; }
 
-		template<typename OStream>
+		bool operator != (const DerivedT& rhs) const
+		{ return !(*this == rhs); }
+
+		template < typename OStream >
 		void Serialize(OStream& ar) const
 		{
 			ar.Serialize("start", _start);
 			ar.Serialize("end", _end);
 		}
 
-		template<typename IStream>
+		template < typename IStream >
 		void Deserialize(IStream& ar)
 		{
 			ar.Deserialize("start", _start);
@@ -91,16 +99,17 @@ namespace stingray {
 		{ STINGRAYKIT_CHECK(start <= end, ArgumentException("Start is greater than end " + ToString())); }
 	};
 
-	template< typename T >
+
+	template < typename T >
 	struct SimpleNumericRange : public NumericRange<SimpleNumericRange<T>, T>
 	{
 		typedef NumericRange<SimpleNumericRange<T>, T> base;
 
 		SimpleNumericRange()
-		{}
+		{ }
 
 		SimpleNumericRange(T start, T end) : base(start, end)
-		{}
+		{ }
 
 		T Distance() const { return base::GetEnd() - base::GetStart(); }
 	};
