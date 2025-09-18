@@ -94,7 +94,7 @@ namespace stingray {
 		{ }
 
 		NumericRange(T start, T end) : _start(start), _end(end)
-		{ STINGRAYKIT_CHECK(start <= end, ArgumentException("Start is greater than end " + ToString())); }
+		{ STINGRAYKIT_CHECK(_start <= _end, ArgumentException("(start, end)", MakeTuple(_start, _end))); }
 	};
 
 
