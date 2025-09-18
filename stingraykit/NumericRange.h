@@ -16,7 +16,7 @@ namespace stingray {
 	class NumericRange
 	{
 	public:
-		typedef T ValueT;
+		using ValueT = T;
 
 	private:
 		T			_start;
@@ -101,10 +101,11 @@ namespace stingray {
 
 
 	template < typename T >
-	struct SimpleNumericRange : public NumericRange<SimpleNumericRange<T>, T>
+	class SimpleNumericRange : public NumericRange<SimpleNumericRange<T>, T>
 	{
-		typedef NumericRange<SimpleNumericRange<T>, T> base;
+		using base = NumericRange<SimpleNumericRange<T>, T>;
 
+	public:
 		SimpleNumericRange()
 		{ }
 
