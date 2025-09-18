@@ -416,13 +416,13 @@ TEST(TimeDurationTest, ToIso8601_BaseTime)
 											 TimeDuration::FromMinutes(3) +
 											 TimeDuration::FromSeconds(3), Time(365 * MillisecondsPerDay)), "P3Y3M3DT3H3M3S");
 
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(0)), "P28D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time()), "P28D");
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(1 * MillisecondsPerDay)), "P28D");
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(2 * MillisecondsPerDay)), "P28D");
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(3 * MillisecondsPerDay)), "P28D");
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(4 * MillisecondsPerDay)), "P28D");
 
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(0)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time()), "P1M");
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(1 * MillisecondsPerDay)), "P1M");
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(2 * MillisecondsPerDay)), "P1M");
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(3 * MillisecondsPerDay)), "P1M");
