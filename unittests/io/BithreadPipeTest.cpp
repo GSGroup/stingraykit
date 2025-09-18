@@ -94,7 +94,7 @@ namespace
 		future<size_t> future = promise.get_future();
 
 		ThreadPtr worker = make_shared_ptr<Thread>(threadName, Bind(func, make_shared_ptr<BithreadPipe>(), wrap_ref(promise), _1));
-		Thread::Sleep(TimeDuration(100));
+		Thread::Sleep(TimeDuration::FromMilliseconds(100));
 		worker.reset();
 
 		ASSERT_TRUE(future.is_ready());
@@ -113,9 +113,9 @@ namespace
 		promise<size_t> promise;
 		future<size_t> future = promise.get_future();
 
-		Thread worker(threadName, Bind(func, make_shared_ptr<BithreadPipe>(), wrap_ref(promise), _1), TimeDuration(100));
+		Thread worker(threadName, Bind(func, make_shared_ptr<BithreadPipe>(), wrap_ref(promise), _1), TimeDuration::FromMilliseconds(100));
 
-		ASSERT_TRUE(future.wait(TimedCancellationToken(TimeDuration(200))) == future_status::ready);
+		ASSERT_TRUE(future.wait(TimedCancellationToken(TimeDuration::FromMilliseconds(200))) == future_status::ready);
 		ASSERT_FALSE(future.has_value());
 		ASSERT_TRUE(future.has_exception());
 
@@ -179,14 +179,14 @@ TEST(BithreadPipeConcurrent, WriteCancelledReadStuck)
 
 	IPipePtr pipe = make_shared_ptr<BithreadPipe>();
 
-	Thread writer("writer", Bind(&DoWrite, wrap_const_ref(pipe), wrap_ref(writerPromise), _1), TimeDuration(100));
+	Thread writer("writer", Bind(&DoWrite, wrap_const_ref(pipe), wrap_ref(writerPromise), _1), TimeDuration::FromMilliseconds(100));
 
-	ASSERT_TRUE(writerFuture.wait(TimedCancellationToken(TimeDuration(200))) == future_status::ready);
+	ASSERT_TRUE(writerFuture.wait(TimedCancellationToken(TimeDuration::FromMilliseconds(200))) == future_status::ready);
 	ASSERT_FALSE(writerFuture.has_value());
 	ASSERT_TRUE(writerFuture.has_exception());
 
 	bool gotTimeoutException = false;
-	try { u8 singleByte; pipe->Read(ByteData(&singleByte, 1), TimedCancellationToken(TimeDuration(100))); }
+	try { u8 singleByte; pipe->Read(ByteData(&singleByte, 1), TimedCancellationToken(TimeDuration::FromMilliseconds(100))); }
 	catch (const TimeoutException&) { gotTimeoutException = true; }
 	catch (const std::exception& ex) { Logger::Warning() << ex; }
 	ASSERT_TRUE(gotTimeoutException);

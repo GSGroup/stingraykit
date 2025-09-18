@@ -125,7 +125,7 @@ TEST(TimerTest, ScheduledFunctionDeath)
 		const int ConnectionsCount = 100;
 		std::vector<Token> connections;
 		for (int j = 0; j < ConnectionsCount; ++j)
-			connections.push_back(timer.SetTimeout(TimeDuration(i), Bind(&NopFunc, param)));
+			connections.push_back(timer.SetTimeout(TimeDuration::FromMilliseconds(i), Bind(&NopFunc, param)));
 
 		for (int j = 0; j < ConnectionsCount; ++j)
 		{

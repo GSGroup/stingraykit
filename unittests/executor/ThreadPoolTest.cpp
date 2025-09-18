@@ -17,7 +17,7 @@ namespace
 
 	void SleepAndPush(u32 sleepMs, std::vector<u8>& vec, u8 num, const ICancellationToken& token)
 	{
-		token.Sleep(TimeDuration(sleepMs));
+		token.Sleep(TimeDuration::FromMilliseconds(sleepMs));
 		if (token)
 			vec.push_back(num);
 	}

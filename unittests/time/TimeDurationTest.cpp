@@ -24,19 +24,19 @@ namespace
 
 TEST(TimeDurationTest, ToMeasurmentUnit)
 {
-	ASSERT_EQ(TimeDuration::Second(), TimeDuration(1000));
-	ASSERT_EQ(TimeDuration::Minute(), TimeDuration(60 * 1000));
-	ASSERT_EQ(TimeDuration::Hour(), TimeDuration(60 * 60 * 1000));
-	ASSERT_EQ(TimeDuration::Day(), TimeDuration(24 * 60 * 60 * 1000));
+	ASSERT_EQ(TimeDuration::Second(), TimeDuration::FromMilliseconds(1000));
+	ASSERT_EQ(TimeDuration::Minute(), TimeDuration::FromMilliseconds(60 * 1000));
+	ASSERT_EQ(TimeDuration::Hour(), TimeDuration::FromMilliseconds(60 * 60 * 1000));
+	ASSERT_EQ(TimeDuration::Day(), TimeDuration::FromMilliseconds(24 * 60 * 60 * 1000));
 }
 
 
 TEST(TimeDurationTest, FromMeasurmentUnit)
 {
-	ASSERT_EQ(TimeDuration::FromSeconds(3), TimeDuration(3 * 1000));
-	ASSERT_EQ(TimeDuration::FromMinutes(3), TimeDuration(3 * 60 * 1000));
-	ASSERT_EQ(TimeDuration::FromHours(3), TimeDuration(3 * 60 * 60 * 1000));
-	ASSERT_EQ(TimeDuration::FromDays(3), TimeDuration(3 * 24 * 60 * 60 * 1000));
+	ASSERT_EQ(TimeDuration::FromSeconds(3), TimeDuration::FromMilliseconds(3 * 1000));
+	ASSERT_EQ(TimeDuration::FromMinutes(3), TimeDuration::FromMilliseconds(3 * 60 * 1000));
+	ASSERT_EQ(TimeDuration::FromHours(3), TimeDuration::FromMilliseconds(3 * 60 * 60 * 1000));
+	ASSERT_EQ(TimeDuration::FromDays(3), TimeDuration::FromMilliseconds(3 * 24 * 60 * 60 * 1000));
 }
 
 
@@ -44,8 +44,8 @@ TEST(TimeDurationTest, Absolute)
 {
 	ASSERT_EQ(TimeDuration().Absolute(), TimeDuration());
 
-	ASSERT_EQ(TimeDuration(1).Absolute(), TimeDuration(1));
-	ASSERT_EQ(TimeDuration(-1).Absolute(), TimeDuration(1));
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).Absolute(), TimeDuration::FromMilliseconds(1));
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).Absolute(), TimeDuration::FromMilliseconds(1));
 
 	ASSERT_EQ(TimeDuration::Second().Absolute(), TimeDuration::Second());
 	ASSERT_EQ((-TimeDuration::Second()).Absolute(), TimeDuration::Second());
@@ -86,39 +86,39 @@ TEST(TimeDurationTest, ToString)
 	ASSERT_EQ(TimeDuration::Min().ToString(), TimeDuration::Min().ToString("hh:mm:ss.lll"));
 	ASSERT_EQ(TimeDuration::Min().ToString("hh:mm:ss.llllll"), "-2562047788:00:54.775808");
 
-	ASSERT_EQ(TimeDuration(1).ToString(), "00:00:00.001");
-	ASSERT_EQ(TimeDuration(1).ToString("l"), "0");
-	ASSERT_EQ(TimeDuration(1).ToString("ll"), "00");
-	ASSERT_EQ(TimeDuration(1).ToString("lll"), "001");
-	ASSERT_EQ(TimeDuration(1).ToString("llll"), "0010");
-	ASSERT_EQ(TimeDuration(1).ToString("lllll"), "00100");
-	ASSERT_EQ(TimeDuration(1).ToString("llllll"), "001000");
-	ASSERT_EQ(TimeDuration(1).ToString("lllllll"), "001000");
-	ASSERT_EQ(TimeDuration(999).ToString(), "00:00:00.999");
-	ASSERT_EQ(TimeDuration(999).ToString("l"), "9");
-	ASSERT_EQ(TimeDuration(999).ToString("ll"), "99");
-	ASSERT_EQ(TimeDuration(999).ToString("lll"), "999");
-	ASSERT_EQ(TimeDuration(999).ToString("llll"), "9990");
-	ASSERT_EQ(TimeDuration(999).ToString("lllll"), "99900");
-	ASSERT_EQ(TimeDuration(999).ToString("llllll"), "999000");
-	ASSERT_EQ(TimeDuration(999).ToString("lllllll"), "999000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).ToString(), "00:00:00.001");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).ToString("l"), "0");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).ToString("ll"), "00");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).ToString("lll"), "001");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).ToString("llll"), "0010");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).ToString("lllll"), "00100");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).ToString("llllll"), "001000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(1).ToString("lllllll"), "001000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(999).ToString(), "00:00:00.999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(999).ToString("l"), "9");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(999).ToString("ll"), "99");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(999).ToString("lll"), "999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(999).ToString("llll"), "9990");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(999).ToString("lllll"), "99900");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(999).ToString("llllll"), "999000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(999).ToString("lllllll"), "999000");
 
-	ASSERT_EQ(TimeDuration(-1).ToString(), "-00:00:00.001");
-	ASSERT_EQ(TimeDuration(-1).ToString("l"), "0");
-	ASSERT_EQ(TimeDuration(-1).ToString("ll"), "00");
-	ASSERT_EQ(TimeDuration(-1).ToString("lll"), "-001");
-	ASSERT_EQ(TimeDuration(-1).ToString("llll"), "-0010");
-	ASSERT_EQ(TimeDuration(-1).ToString("lllll"), "-00100");
-	ASSERT_EQ(TimeDuration(-1).ToString("llllll"), "-001000");
-	ASSERT_EQ(TimeDuration(-1).ToString("lllllll"), "-001000");
-	ASSERT_EQ(TimeDuration(-999).ToString(), "-00:00:00.999");
-	ASSERT_EQ(TimeDuration(-999).ToString("l"), "-9");
-	ASSERT_EQ(TimeDuration(-999).ToString("ll"), "-99");
-	ASSERT_EQ(TimeDuration(-999).ToString("lll"), "-999");
-	ASSERT_EQ(TimeDuration(-999).ToString("llll"), "-9990");
-	ASSERT_EQ(TimeDuration(-999).ToString("lllll"), "-99900");
-	ASSERT_EQ(TimeDuration(-999).ToString("llllll"), "-999000");
-	ASSERT_EQ(TimeDuration(-999).ToString("lllllll"), "-999000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString(), "-00:00:00.001");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString("l"), "0");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString("ll"), "00");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString("lll"), "-001");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString("llll"), "-0010");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString("lllll"), "-00100");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString("llllll"), "-001000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString("lllllll"), "-001000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-999).ToString(), "-00:00:00.999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-999).ToString("l"), "-9");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-999).ToString("ll"), "-99");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-999).ToString("lll"), "-999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-999).ToString("llll"), "-9990");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-999).ToString("lllll"), "-99900");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-999).ToString("llllll"), "-999000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-999).ToString("lllllll"), "-999000");
 
 	ASSERT_EQ(TimeDuration::FromMicroseconds(1).ToString(), "00:00:00.000");
 	ASSERT_EQ(TimeDuration::FromMicroseconds(1).ToString("l"), "0");
@@ -154,64 +154,64 @@ TEST(TimeDurationTest, ToString)
 	ASSERT_EQ(TimeDuration::FromMicroseconds(-999999).ToString("llllll"), "-999999");
 	ASSERT_EQ(TimeDuration::FromMicroseconds(-999999).ToString("lllllll"), "-999999");
 
-	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString(), "00:00:01.000");
-	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString("ss"), "01");
-	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString("s"), "1");
-	ASSERT_EQ(TimeDuration(MillisecondsPerSecond).ToString("sss"), "011");
-	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString(), "00:00:59.000");
-	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString("ss"), "59");
-	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString("s"), "59");
-	ASSERT_EQ(TimeDuration(MillisecondsPerSecond * 59).ToString("sss"), "5959");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerSecond).ToString(), "00:00:01.000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerSecond).ToString("ss"), "01");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerSecond).ToString("s"), "1");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerSecond).ToString("sss"), "011");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerSecond * 59).ToString(), "00:00:59.000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerSecond * 59).ToString("ss"), "59");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerSecond * 59).ToString("s"), "59");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerSecond * 59).ToString("sss"), "5959");
 
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString(), "00:01:00.000");
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString("mm"), "01");
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString("m"), "1");
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute).ToString("mmm"), "011");
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString(), "00:59:00.000");
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString("mm"), "59");
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString("m"), "59");
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59).ToString("mmm"), "5959");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute).ToString(), "00:01:00.000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute).ToString("mm"), "01");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute).ToString("m"), "1");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute).ToString("mmm"), "011");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute * 59).ToString(), "00:59:00.000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute * 59).ToString("mm"), "59");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute * 59).ToString("m"), "59");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute * 59).ToString("mmm"), "5959");
 
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString(), "01:00:00.000");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString("hh"), "01");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString("h"), "1");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour).ToString("hhh"), "011");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString(), "999:00:00.000");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString("hh"), "999");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString("h"), "999");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999).ToString("hhh"), "999999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour).ToString(), "01:00:00.000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour).ToString("hh"), "01");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour).ToString("h"), "1");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour).ToString("hhh"), "011");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour * 999).ToString(), "999:00:00.000");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour * 999).ToString("hh"), "999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour * 999).ToString("h"), "999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour * 999).ToString("hhh"), "999999");
 
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour + MillisecondsPerMinute + MillisecondsPerSecond + 1).ToString(), "01:01:01.001");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour + MillisecondsPerMinute + MillisecondsPerSecond + 1).ToString("h:m:s.lll"), "1:1:1.001");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59 + 999).ToString(), "999:59:59.999");
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59 + 999).ToString("h:m:s.lll"), "999:59:59.999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour + MillisecondsPerMinute + MillisecondsPerSecond + 1).ToString(), "01:01:01.001");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour + MillisecondsPerMinute + MillisecondsPerSecond + 1).ToString("h:m:s.lll"), "1:1:1.001");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59 + 999).ToString(), "999:59:59.999");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59 + 999).ToString("h:m:s.lll"), "999:59:59.999");
 
-	ASSERT_EQ(TimeDuration(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59).ToString("h\\h m\\m s\\s"), "999h 59m 59s");
-	ASSERT_EQ(TimeDuration(MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59).ToString("m\\m s\\s"), "59m 59s");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerHour * 999 + MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59).ToString("h\\h m\\m s\\s"), "999h 59m 59s");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(MillisecondsPerMinute * 59 + MillisecondsPerSecond * 59).ToString("m\\m s\\s"), "59m 59s");
 	ASSERT_ANY_THROW(TimeDuration().ToString("m\\m s\\"));
 
-	ASSERT_EQ(TimeDuration(-MillisecondsPerHour - MillisecondsPerMinute - MillisecondsPerSecond).ToString("ss\\s mm\\m hh\\h"), "01s 01m -01h");
-	ASSERT_EQ(TimeDuration(-MillisecondsPerHour - MillisecondsPerMinute - MillisecondsPerSecond).ToString("ss\\s mm\\m"), "01s -61m");
-	ASSERT_EQ(TimeDuration(-MillisecondsPerHour).ToString("hh h"), "-01 -1");
-	ASSERT_EQ(TimeDuration(-MillisecondsPerMinute).ToString("mm m"), "-01 -1");
-	ASSERT_EQ(TimeDuration(-MillisecondsPerSecond).ToString("ss s"), "-01 -1");
-	ASSERT_EQ(TimeDuration(-1).ToString("lll lll"), "-001 -001");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-MillisecondsPerHour - MillisecondsPerMinute - MillisecondsPerSecond).ToString("ss\\s mm\\m hh\\h"), "01s 01m -01h");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-MillisecondsPerHour - MillisecondsPerMinute - MillisecondsPerSecond).ToString("ss\\s mm\\m"), "01s -61m");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-MillisecondsPerHour).ToString("hh h"), "-01 -1");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-MillisecondsPerMinute).ToString("mm m"), "-01 -1");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-MillisecondsPerSecond).ToString("ss s"), "-01 -1");
+	ASSERT_EQ(TimeDuration::FromMilliseconds(-1).ToString("lll lll"), "-001 -001");
 }
 
 
 TEST(TimeDurationTest, FromString)
 {
 	ASSERT_EQ(TimeDuration::FromString("0"), TimeDuration());
-	ASSERT_EQ(TimeDuration::FromString("12345"), TimeDuration(12345));
+	ASSERT_EQ(TimeDuration::FromString("12345"), TimeDuration::FromMilliseconds(12345));
 
-	ASSERT_EQ(TimeDuration::FromString("12345s"), TimeDuration(12345000));
-	ASSERT_EQ(TimeDuration::FromString("12345S"), TimeDuration(12345000));
+	ASSERT_EQ(TimeDuration::FromString("12345s"), TimeDuration::FromMilliseconds(12345000));
+	ASSERT_EQ(TimeDuration::FromString("12345S"), TimeDuration::FromMilliseconds(12345000));
 
-	ASSERT_EQ(TimeDuration::FromString("12345m"), TimeDuration(740700000));
-	ASSERT_EQ(TimeDuration::FromString("12345M"), TimeDuration(740700000));
+	ASSERT_EQ(TimeDuration::FromString("12345m"), TimeDuration::FromMilliseconds(740700000));
+	ASSERT_EQ(TimeDuration::FromString("12345M"), TimeDuration::FromMilliseconds(740700000));
 
-	ASSERT_EQ(TimeDuration::FromString("12345h"), TimeDuration(44442000000));
-	ASSERT_EQ(TimeDuration::FromString("12345H"), TimeDuration(44442000000));
+	ASSERT_EQ(TimeDuration::FromString("12345h"), TimeDuration::FromMilliseconds(44442000000));
+	ASSERT_EQ(TimeDuration::FromString("12345H"), TimeDuration::FromMilliseconds(44442000000));
 }
 
 
@@ -458,5 +458,5 @@ TEST(TimeDurationTest, ToIso8601_Zero)
 
 TEST(TimeDurationTest, ToIso8601_Negative)
 {
-	ASSERT_ANY_THROW(TimeDurationUtility::ToIso8601(TimeDuration(-1)));
+	ASSERT_ANY_THROW(TimeDurationUtility::ToIso8601(TimeDuration::FromMilliseconds(-1)));
 }

@@ -83,8 +83,8 @@ TEST_F(CancellationTokenTest, DISABLED_Handler)
 	{
 		_cancelDone = false;
 
-		TimeDuration sleepDuration(i);
-		TimeDuration otherThreadSleepDuration(Count - i);
+		TimeDuration sleepDuration = TimeDuration::FromMilliseconds(i);
+		TimeDuration otherThreadSleepDuration = TimeDuration::FromMilliseconds(Count - i);
 		CancellationToken token;
 		ThreadPtr thread = make_shared_ptr<Thread>("cancellationTokenTest", Bind(&CancellationTokenTest::ThreadFunc2, this, otherThreadSleepDuration, wrap_const_ref(token)));
 

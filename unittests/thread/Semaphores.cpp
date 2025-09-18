@@ -94,7 +94,7 @@ TEST(SemaphoresTest, DISABLED_TimedWait)
 	for (size_t i = 0; i < sizeof(intervals) / sizeof(intervals[0]); ++i)
 	{
 		ElapsedTime elapsed;
-		bool success = sem.TimedWait(TimeDuration(intervals[i]));
+		bool success = sem.TimedWait(TimeDuration::FromMilliseconds(intervals[i]));
 		ASSERT_TRUE(!success);
 		if (success)
 			continue;
