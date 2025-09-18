@@ -73,9 +73,7 @@ namespace stingray {
 
 		bool operator == (const DerivedT& rhs) const
 		{ return _start == rhs._start && _end == rhs._end; }
-
-		bool operator != (const DerivedT& rhs) const
-		{ return !(*this == rhs); }
+		STINGRAYKIT_GENERATE_EQUALITY_OPERATORS_FROM_EQUAL(DerivedT);
 
 		template < typename OStream >
 		void Serialize(OStream& ar) const
