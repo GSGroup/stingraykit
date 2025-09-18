@@ -82,7 +82,7 @@ namespace stingray
 
 
 	TimeDuration TimeDuration::RoundToMilliseconds() const
-	{ return TimeDuration(GetMilliseconds() + (Abs(_microseconds % 1000) < 500 ? 0 : _microseconds < 0 ? -1 : 1)); }
+	{ return TimeDuration::FromMilliseconds(GetMilliseconds() + (Abs(_microseconds % 1000) < 500 ? 0 : _microseconds < 0 ? -1 : 1)); }
 
 
 	void TimeDuration::Serialize(ObjectOStream& ar) const
@@ -250,13 +250,13 @@ namespace stingray
 			return FromSeconds(value);
 
 		STINGRAYKIT_CHECK(StringParse(str, "%1%", value), FormatException(str));
-		return TimeDuration(value);
+		return TimeDuration::FromMilliseconds(value);
 	}
 
 
 	TimeDuration TimeDuration::FromBcdDuration(u32 bcdDuration)
 	{
-		return TimeDuration(s64(1000)
+		return TimeDuration::FromMilliseconds(s64(1000)
 				* (SecondsPerHour * BcdValue((bcdDuration >> 16) & 0xff)
 						+ SecondsPerMinute * BcdValue((bcdDuration >> 8) & 0xff)
 						+ BcdValue(bcdDuration & 0xff)));

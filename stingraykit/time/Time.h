@@ -70,9 +70,9 @@ namespace stingray
 		static TimeDuration FromString(string_view str);
 
 		constexpr static TimeDuration FromMicroseconds(s64 microseconds)	{ return TimeDuration(microseconds, Dummy()); }
-		constexpr static TimeDuration FromMilliseconds(s64 milliseconds)	{ return TimeDuration(milliseconds); }
+		constexpr static TimeDuration FromMilliseconds(s64 milliseconds)	{ return TimeDuration::FromMicroseconds(milliseconds * 1000); }
 
-		constexpr static TimeDuration Second()								{ return TimeDuration(1000); }
+		constexpr static TimeDuration Second()								{ return TimeDuration::FromMilliseconds(1000); }
 		constexpr static TimeDuration Minute()								{ return Second() * 60; }
 		constexpr static TimeDuration Hour()								{ return Minute() * 60; }
 		constexpr static TimeDuration Day()									{ return Hour() * 24; }
@@ -141,7 +141,7 @@ namespace stingray
 		{ return _milliseconds / 1000; }
 
 		constexpr TimeDuration operator - (Time other) const
-		{ return TimeDuration(_milliseconds - other._milliseconds); }
+		{ return TimeDuration::FromMilliseconds(_milliseconds - other._milliseconds); }
 
 		constexpr Time& operator -= (TimeDuration duration)
 		{
