@@ -26,8 +26,8 @@ namespace stingray {
 		T GetStart() const						{ return _start; }
 		T GetEnd() const						{ return _end; }
 
-		bool Contains(T t) const				{ return !IsEmpty() && _start <= t && t <= _end; }
-		bool ContainsStrict(T t) const			{ return _start < t && t < _end; }
+		bool Contains(T value) const			{ return !IsEmpty() && _start <= value && value <= _end; }
+		bool ContainsStrict(T value) const		{ return _start < value && value < _end; }
 
 		bool IsEmpty() const					{ return _start == _end; }
 
@@ -44,8 +44,8 @@ namespace stingray {
 			if (IsEmpty() || other.IsEmpty())
 				return DerivedT();
 
-			T start = std::max(_start, other._start);
-			T end = std::min(_end, other._end);
+			const T start = std::max(_start, other._start);
+			const T end = std::min(_end, other._end);
 			if (start >= end)
 				return DerivedT();
 
@@ -60,13 +60,13 @@ namespace stingray {
 			if (other.IsEmpty())
 				return *static_cast<const DerivedT*>(this);
 
-			T start = std::min(_start, other._start);
-			T end = std::max(_end, other._end);
+			const T start = std::min(_start, other._start);
+			const T end = std::max(_end, other._end);
 			return DerivedT(start, end);
 		}
 
-		T Clamp(T t) const
-		{ return std::max(_start, std::min(t, _end)); }
+		T Clamp(T value) const
+		{ return std::max(_start, std::min(value, _end)); }
 
 		std::string ToString() const
 		{ return StringBuilder() % "["  % _start % " - " % _end  % "]"; }
