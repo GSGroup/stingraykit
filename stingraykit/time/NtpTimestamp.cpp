@@ -18,7 +18,7 @@ namespace stingray
 		u32 fractionPart = _timestamp - integerPart;
 		u64 milliSeconds = fractionPart / ((u64)1 << 32);
 
-		return Time(seconds * 1000 + milliSeconds);
+		return Time::FromMilliseconds(seconds * 1000 + milliSeconds);
 	};
 
 
