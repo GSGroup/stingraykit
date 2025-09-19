@@ -21,13 +21,6 @@ namespace stingray {
 	private:
 		T _start, _end;
 
-	protected:
-		NumericRange() : _start(), _end()
-		{ }
-
-		NumericRange(T start, T end) : _start(start), _end(end)
-		{ STINGRAYKIT_CHECK(start <= end, ArgumentException("Start is greater than end " + ToString())); }
-
 	public:
 		T GetStart() const		{ return _start; }
 		T GetEnd() const		{ return _end; }
@@ -89,6 +82,13 @@ namespace stingray {
 			ar.Deserialize("start", _start);
 			ar.Deserialize("end", _end);
 		}
+
+	protected:
+		NumericRange() : _start(), _end()
+		{ }
+
+		NumericRange(T start, T end) : _start(start), _end(end)
+		{ STINGRAYKIT_CHECK(start <= end, ArgumentException("Start is greater than end " + ToString())); }
 	};
 
 	template< typename T >
