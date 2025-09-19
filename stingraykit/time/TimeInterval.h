@@ -21,7 +21,7 @@ namespace stingray
 		typedef NumericRange<TimeInterval, Time> base;
 
 	public:
-		TimeInterval() : base(Time(0), Time(0))
+		TimeInterval()
 		{ }
 
 		TimeInterval(Time start, Time end) : base(start, end)
