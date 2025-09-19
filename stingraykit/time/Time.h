@@ -179,6 +179,9 @@ namespace stingray
 
 		static Time Now();
 
+		constexpr static Time FromMilliseconds(s64 milliseconds)	{ return Time(milliseconds); }
+		constexpr static Time FromSeconds(s64 seconds)				{ return FromMilliseconds(seconds * 1000); }
+
 		constexpr static Time FromTimeT(time_t t)
 		{ return Time((s64)t * 1000); }
 
