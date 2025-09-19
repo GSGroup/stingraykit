@@ -27,11 +27,6 @@ namespace stingray
 	private:
 		s64		_microseconds;
 
-	private:
-		constexpr TimeDuration(s64 microseconds, Dummy dummy)
-			:	_microseconds(microseconds)
-		{ }
-
 	public:
 		constexpr explicit TimeDuration(s64 milliseconds = 0)
 			:	_microseconds(1000 * milliseconds)
@@ -91,6 +86,11 @@ namespace stingray
 
 		constexpr static TimeDuration Min()									{ return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::min()); }
 		constexpr static TimeDuration Max()									{ return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::max()); }
+
+	private:
+		constexpr TimeDuration(s64 microseconds, Dummy dummy)
+			:	_microseconds(microseconds)
+		{ }
 	};
 
 
