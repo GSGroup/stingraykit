@@ -99,9 +99,6 @@ namespace stingray {
 		SimpleNumericRange()
 		{}
 
-		SimpleNumericRange(const base &b) : base(b)
-		{}
-
 		SimpleNumericRange(T start, T end) : base(start, end)
 		{}
 
