@@ -268,8 +268,12 @@ namespace stingray
 	{ STINGRAYKIT_CHECK(minutes >= -12 * MinutesPerHour && minutes <= 14 * MinutesPerHour, ArgumentException("minutes", minutes)); }
 
 
-	TimeZone TimeZone::Current()
-	{ return TimeZone(TimeEngine::GetMinutesFromUtc()); }
+	void TimeZone::Serialize(ObjectOStream& ar) const
+	{ ar.Serialize("offset", _minutesFromUtc); }
+
+
+	void TimeZone::Deserialize(ObjectIStream& ar)
+	{ ar.Deserialize("offset", _minutesFromUtc); }
 
 
 	std::string TimeZone::ToString() const
@@ -305,30 +309,24 @@ namespace stingray
 	}
 
 
-	void TimeZone::Serialize(ObjectOStream& ar) const
-	{ ar.Serialize("offset", _minutesFromUtc); }
+	TimeZone TimeZone::Current()
+	{ return TimeZone(TimeEngine::GetMinutesFromUtc()); }
 
 
-	void TimeZone::Deserialize(ObjectIStream& ar)
-	{ ar.Deserialize("offset", _minutesFromUtc); }
+	int Time::DaysTo(Time endTime) const
+	{ return DaysTo(endTime.BreakDown()); }
 
 
-	Time Time::Now()
-	{ return Time(TimeEngine::GetMillisecondsSinceEpoch()); }
+	int Time::DaysTo(const BrokenDownTime& endTime) const
+	{ return (FromBrokenDownTime(endTime.GetDayStart()) - FromBrokenDownTime(BreakDown().GetDayStart())) / TimeDuration::Day(); }
 
 
-	BrokenDownTime Time::BreakDown(TimeKind kind) const
-	{
-		const s64 offset = kind == TimeKind::Utc ? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
-		return TimeEngine::BrokenDownFromMilliseconds(_milliseconds + offset);
-	}
+	void Time::Serialize(ObjectOStream& ar) const
+	{ ar.Serialize("ms", _milliseconds); }
 
 
-	Time Time::FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind)
-	{
-		const s64 offset = kind == TimeKind::Utc ? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
-		return Time(TimeEngine::MillisecondsFromBrokenDown(bdt) - offset);
-	}
+	void Time::Deserialize(ObjectIStream& ar)
+	{ ar.Deserialize("ms", _milliseconds); }
 
 
 	std::string Time::ToString(string_view format, TimeKind kind) const
@@ -467,6 +465,24 @@ namespace stingray
 	}
 
 
+	Time Time::Now()
+	{ return Time(TimeEngine::GetMillisecondsSinceEpoch()); }
+
+
+	BrokenDownTime Time::BreakDown(TimeKind kind) const
+	{
+		const s64 offset = kind == TimeKind::Utc ? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
+		return TimeEngine::BrokenDownFromMilliseconds(_milliseconds + offset);
+	}
+
+
+	Time Time::FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind)
+	{
+		const s64 offset = kind == TimeKind::Utc ? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
+		return Time(TimeEngine::MillisecondsFromBrokenDown(bdt) - offset);
+	}
+
+
 	u64 Time::ToNtpTimestamp() const
 	{ return GetMilliseconds() / 1000 + SecondsBetweenNtpAndUnixEpochs; }
 
@@ -477,10 +493,6 @@ namespace stingray
 
 	Time Time::FromWindowsFileTime(u64 windowsTicks)
 	{ return Time((windowsTicks / WindowsTicksPerSecond - SecondsBetweenWindowsAndUnixEpochs) * 1000 + windowsTicks % WindowsTicksPerSecond); }
-
-
-	Time Time::MjdToEpoch(int mjd, u32 bcdDuration)
-	{ return Time(s64(mjd - DaysSinceMjd) * SecondsPerDay * 1000) + TimeDuration::FromBcdDuration(bcdDuration); }
 
 
 	int Time::GetMjd() const
@@ -494,20 +506,8 @@ namespace stingray
 	}
 
 
-	int Time::DaysTo(Time endTime) const
-	{ return DaysTo(endTime.BreakDown()); }
-
-
-	int Time::DaysTo(const BrokenDownTime& endTime) const
-	{ return (FromBrokenDownTime(endTime.GetDayStart()) - FromBrokenDownTime(BreakDown().GetDayStart())) / TimeDuration::Day(); }
-
-
-	void Time::Serialize(ObjectOStream& ar) const
-	{ ar.Serialize("ms", _milliseconds); }
-
-
-	void Time::Deserialize(ObjectIStream& ar)
-	{ ar.Deserialize("ms", _milliseconds); }
+	Time Time::MjdToEpoch(int mjd, u32 bcdDuration)
+	{ return Time(s64(mjd - DaysSinceMjd) * SecondsPerDay * 1000) + TimeDuration::FromBcdDuration(bcdDuration); }
 
 
 	class TimeUtility::FromIso8601Impl

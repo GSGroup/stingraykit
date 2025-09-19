@@ -42,9 +42,6 @@ namespace stingray
 		TimeDuration Absolute() const;
 		TimeDuration RoundToMilliseconds() const;
 
-		void Serialize(ObjectOStream& ar) const;
-		void Deserialize(ObjectIStream& ar);
-
 		constexpr TimeDuration& operator += (TimeDuration other)			{ _microseconds += other._microseconds; return *this; }
 		constexpr TimeDuration operator + (TimeDuration other) const		{ TimeDuration result(*this); return result += other; }
 
@@ -65,6 +62,9 @@ namespace stingray
 
 		constexpr bool operator < (TimeDuration other) const				{ return _microseconds < other._microseconds; }
 		STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_LESS(TimeDuration);
+
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
 		std::string ToString(string_view format = string_view()) const;
 		static TimeDuration FromString(string_view str);
@@ -104,16 +104,16 @@ namespace stingray
 
 		s16 GetMinutesFromUtc() const { return _minutesFromUtc; }
 
-		static TimeZone Current();
-
 		bool operator < (const TimeZone& other) const { return _minutesFromUtc < other._minutesFromUtc; }
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_LESS(TimeZone);
+
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
 		std::string ToString() const;
 		static TimeZone FromString(string_view str);
 
-		void Serialize(ObjectOStream& ar) const;
-		void Deserialize(ObjectIStream& ar);
+		static TimeZone Current();
 	};
 
 
@@ -134,11 +134,8 @@ namespace stingray
 			:	_milliseconds(milliseconds)
 		{ }
 
-		constexpr static Time FromTimeT(time_t t)
-		{ return Time((s64)t * 1000); }
-
-		constexpr u32 ToTimeT() const
-		{ return _milliseconds / 1000; }
+		constexpr s64 GetMilliseconds() const		{ return _milliseconds; }
+		constexpr s64 GetSeconds() const			{ return GetMilliseconds() / 1000; }
 
 		constexpr TimeDuration operator - (Time other) const
 		{ return TimeDuration::FromMilliseconds(_milliseconds - other._milliseconds); }
@@ -171,32 +168,34 @@ namespace stingray
 		{ return _milliseconds < other._milliseconds; }
 		STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_LESS(Time);
 
-		static Time Now();
+		int DaysTo(Time endTime) const;
+		int DaysTo(const BrokenDownTime& endTime) const;
 
-		constexpr s64 GetMilliseconds() const		{ return _milliseconds; }
-		constexpr s64 GetSeconds() const			{ return GetMilliseconds() / 1000; }
-
-		BrokenDownTime BreakDown(TimeKind kind = TimeKind::Local) const;
-		static Time FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind = TimeKind::Local);
+		void Serialize(ObjectOStream& ar) const;
+		void Deserialize(ObjectIStream& ar);
 
 		std::string ToString(string_view format = string_view(), TimeKind kind = TimeKind::Local) const;
 		static Time FromString(string_view str, TimeKind kind = TimeKind::Local);
+
+		static Time Now();
+
+		constexpr static Time FromTimeT(time_t t)
+		{ return Time((s64)t * 1000); }
+
+		constexpr u32 ToTimeT() const
+		{ return _milliseconds / 1000; }
+
+		BrokenDownTime BreakDown(TimeKind kind = TimeKind::Local) const;
+		static Time FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind = TimeKind::Local);
 
 		u64 ToNtpTimestamp() const;
 		static Time FromNtpTimestamp(u64 timestamp);
 
 		static Time FromWindowsFileTime(u64 windowsTicks);
 
-		static Time MjdToEpoch(int mjd, u32 bcdDuration = 0);
-
 		int GetMjd() const;
 		u32 GetBcdTime(TimeKind kind = TimeKind::Local) const;
-
-		int DaysTo(Time endTime) const;
-		int DaysTo(const BrokenDownTime& endTime) const;
-
-		void Serialize(ObjectOStream& ar) const;
-		void Deserialize(ObjectIStream& ar);
+		static Time MjdToEpoch(int mjd, u32 bcdDuration = 0);
 	};
 
 
