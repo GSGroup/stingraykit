@@ -130,8 +130,8 @@ namespace stingray
 		s64		_milliseconds;
 
 	public:
-		constexpr explicit Time(s64 milliseconds = 0)
-			:	_milliseconds(milliseconds)
+		constexpr explicit Time()
+			:	_milliseconds(0)
 		{ }
 
 		constexpr s64 GetMilliseconds() const		{ return _milliseconds; }
@@ -199,6 +199,11 @@ namespace stingray
 		int ToMjdTime() const;
 		u32 ToBcdTime(TimeKind kind = TimeKind::Local) const;
 		static Time FromMjdTime(int mjd, u32 bcdDuration = 0);
+
+	private:
+		constexpr explicit Time(s64 milliseconds)
+			:	_milliseconds(milliseconds)
+		{ }
 	};
 
 
