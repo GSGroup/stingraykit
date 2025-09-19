@@ -185,7 +185,7 @@ namespace stingray
 		constexpr u32 ToTimeT() const
 		{ return _milliseconds / 1000; }
 
-		BrokenDownTime BreakDown(TimeKind kind = TimeKind::Local) const;
+		BrokenDownTime ToBrokenDownTime(TimeKind kind = TimeKind::Local) const;
 		static Time FromBrokenDownTime(const BrokenDownTime& bdt, TimeKind kind = TimeKind::Local);
 
 		u64 ToNtpTimestamp() const;
@@ -193,9 +193,9 @@ namespace stingray
 
 		static Time FromWindowsFileTime(u64 windowsTicks);
 
-		int GetMjd() const;
-		u32 GetBcdTime(TimeKind kind = TimeKind::Local) const;
-		static Time MjdToEpoch(int mjd, u32 bcdDuration = 0);
+		int ToMjdTime() const;
+		u32 ToBcdTime(TimeKind kind = TimeKind::Local) const;
+		static Time FromMjdTime(int mjd, u32 bcdDuration = 0);
 	};
 
 

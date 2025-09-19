@@ -314,11 +314,11 @@ namespace stingray
 
 
 	int Time::DaysTo(Time endTime) const
-	{ return DaysTo(endTime.BreakDown()); }
+	{ return DaysTo(endTime.ToBrokenDownTime()); }
 
 
 	int Time::DaysTo(const BrokenDownTime& endTime) const
-	{ return (FromBrokenDownTime(endTime.GetDayStart()) - FromBrokenDownTime(BreakDown().GetDayStart())) / TimeDuration::Day(); }
+	{ return (FromBrokenDownTime(endTime.GetDayStart()) - FromBrokenDownTime(ToBrokenDownTime().GetDayStart())) / TimeDuration::Day(); }
 
 
 	void Time::Serialize(ObjectOStream& ar) const
@@ -330,7 +330,7 @@ namespace stingray
 
 
 	std::string Time::ToString(string_view format, TimeKind kind) const
-	{ return BreakDown(kind).ToString(format); }
+	{ return ToBrokenDownTime(kind).ToString(format); }
 
 
 	Time Time::FromString(string_view str, TimeKind kind)
@@ -428,7 +428,7 @@ namespace stingray
 		}
 		else
 		{
-			bdt = Now().BreakDown();
+			bdt = Now().ToBrokenDownTime();
 			bdt.Seconds = 0;
 			bdt.Milliseconds = 0;
 		}
@@ -469,7 +469,7 @@ namespace stingray
 	{ return Time(TimeEngine::GetMillisecondsSinceEpoch()); }
 
 
-	BrokenDownTime Time::BreakDown(TimeKind kind) const
+	BrokenDownTime Time::ToBrokenDownTime(TimeKind kind) const
 	{
 		const s64 offset = kind == TimeKind::Utc ? 0 : MillisecondsPerMinute * TimeEngine::GetMinutesFromUtc();
 		return TimeEngine::BrokenDownFromMilliseconds(_milliseconds + offset);
@@ -495,18 +495,18 @@ namespace stingray
 	{ return Time((windowsTicks / WindowsTicksPerSecond - SecondsBetweenWindowsAndUnixEpochs) * 1000 + windowsTicks % WindowsTicksPerSecond); }
 
 
-	int Time::GetMjd() const
+	int Time::ToMjdTime() const
 	{ return DaysSinceMjd + _milliseconds / (1000 * SecondsPerDay); }
 
 
-	u32 Time::GetBcdTime(TimeKind kind) const
+	u32 Time::ToBcdTime(TimeKind kind) const
 	{
-		const BrokenDownTime bdt(BreakDown(kind));
+		const BrokenDownTime bdt(ToBrokenDownTime(kind));
 		return (BcdEncode(bdt.Hours) << 16) + (BcdEncode(bdt.Minutes) << 8) + BcdEncode(bdt.Seconds);
 	}
 
 
-	Time Time::MjdToEpoch(int mjd, u32 bcdDuration)
+	Time Time::FromMjdTime(int mjd, u32 bcdDuration)
 	{ return Time(s64(mjd - DaysSinceMjd) * SecondsPerDay * 1000) + TimeDuration::FromBcdDuration(bcdDuration); }
 
 
@@ -623,7 +623,7 @@ namespace stingray
 
 
 	std::string TimeUtility::ToIso8601(Time time)
-	{ return time.BreakDown(TimeKind::Utc).ToString("YYYY-MM-ddThh:mm:ss.lllZ"); }
+	{ return time.ToBrokenDownTime(TimeKind::Utc).ToString("YYYY-MM-ddThh:mm:ss.lllZ"); }
 
 
 	Time TimeUtility::FromIso8601(string_view str)
@@ -654,7 +654,7 @@ namespace stingray
 				if (Years == 0 && Months == 0)
 					return TimeDuration::FromDays(Weeks * DaysPerWeek + Days) + TimeDuration::FromHours(Hours) + TimeDuration::FromMinutes(Minutes) + TimeDuration::FromSeconds(Seconds);
 
-				const BrokenDownTime bdt = base.BreakDown(kind);
+				const BrokenDownTime bdt = base.ToBrokenDownTime(kind);
 				return Time::FromBrokenDownTime(
 						BrokenDownTime(
 								bdt.Milliseconds,
@@ -798,7 +798,7 @@ namespace stingray
 			Minutes	= duration.GetMinutes() % MinutesPerHour;
 			Seconds	= duration.GetSeconds() % SecondsPerMinute;
 
-			BrokenDownTime bdt = base->BreakDown(TimeKind::Utc);
+			BrokenDownTime bdt = base->ToBrokenDownTime(TimeKind::Utc);
 			int size = 0;
 
 			if (bdt.Month > 2 || (bdt.Month == 2 && bdt.MonthDay == 29))

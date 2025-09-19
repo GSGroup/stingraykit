@@ -19,13 +19,13 @@ TEST(TimeTest, BrokenDownTime)
 {
 	Time now = Time::Now();
 	{
-		BrokenDownTime bdt = now.BreakDown(TimeKind::Local);
+		BrokenDownTime bdt = now.ToBrokenDownTime(TimeKind::Local);
 		Time reconstructed = Time::FromBrokenDownTime(bdt, TimeKind::Local);
 		ASSERT_EQ(now, reconstructed);
 	}
 
 	{
-		BrokenDownTime bdt = now.BreakDown(TimeKind::Utc);
+		BrokenDownTime bdt = now.ToBrokenDownTime(TimeKind::Utc);
 		Time reconstructed = Time::FromBrokenDownTime(bdt, TimeKind::Utc);
 		ASSERT_EQ(now, reconstructed);
 	}
@@ -64,10 +64,10 @@ TEST(TimeTest, TimeZone_FromString)
 TEST(TimeTest, FromString)
 {
 	const Time now = Time::Now();
-	const BrokenDownTime nowBdt = now.BreakDown(TimeKind::Utc);
+	const BrokenDownTime nowBdt = now.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(Time::FromString(now.ToString("", TimeKind::Utc), TimeKind::Utc), now);
 
-	ASSERT_THAT(Time::FromString("25.12.24 21:32:43.789987", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("25.12.24 21:32:43.789987", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 790),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -76,7 +76,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("25.12.24 21:32:43.789", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("25.12.24 21:32:43.789", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 789),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -85,7 +85,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("25.12.24 21:32:43", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("25.12.24 21:32:43", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -94,7 +94,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("25.12.24 21:32", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("25.12.24 21:32", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 0),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -103,53 +103,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("25.12.24", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
-			Field(&BrokenDownTime::Milliseconds, 0),
-			Field(&BrokenDownTime::Seconds, 0),
-			Field(&BrokenDownTime::Minutes, 0),
-			Field(&BrokenDownTime::Hours, 0),
-			Field(&BrokenDownTime::WeekDay, 3),
-			Field(&BrokenDownTime::MonthDay, 25),
-			Field(&BrokenDownTime::YearDay, 359),
-			Field(&BrokenDownTime::Year, 2024)));
-
-	ASSERT_THAT(Time::FromString("25/12/24 21:32:43.789987", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
-			Field(&BrokenDownTime::Milliseconds, 790),
-			Field(&BrokenDownTime::Seconds, 43),
-			Field(&BrokenDownTime::Minutes, 32),
-			Field(&BrokenDownTime::Hours, 21),
-			Field(&BrokenDownTime::WeekDay, 3),
-			Field(&BrokenDownTime::MonthDay, 25),
-			Field(&BrokenDownTime::YearDay, 359),
-			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("25/12/24 21:32:43.789", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
-			Field(&BrokenDownTime::Milliseconds, 789),
-			Field(&BrokenDownTime::Seconds, 43),
-			Field(&BrokenDownTime::Minutes, 32),
-			Field(&BrokenDownTime::Hours, 21),
-			Field(&BrokenDownTime::WeekDay, 3),
-			Field(&BrokenDownTime::MonthDay, 25),
-			Field(&BrokenDownTime::YearDay, 359),
-			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("25/12/24 21:32:43", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
-			Field(&BrokenDownTime::Milliseconds, 0),
-			Field(&BrokenDownTime::Seconds, 43),
-			Field(&BrokenDownTime::Minutes, 32),
-			Field(&BrokenDownTime::Hours, 21),
-			Field(&BrokenDownTime::WeekDay, 3),
-			Field(&BrokenDownTime::MonthDay, 25),
-			Field(&BrokenDownTime::YearDay, 359),
-			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("25/12/24 21:32", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
-			Field(&BrokenDownTime::Milliseconds, 0),
-			Field(&BrokenDownTime::Seconds, 0),
-			Field(&BrokenDownTime::Minutes, 32),
-			Field(&BrokenDownTime::Hours, 21),
-			Field(&BrokenDownTime::WeekDay, 3),
-			Field(&BrokenDownTime::MonthDay, 25),
-			Field(&BrokenDownTime::YearDay, 359),
-			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("25/12/24", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("25.12.24", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 0),
 			Field(&BrokenDownTime::Minutes, 0),
@@ -159,7 +113,53 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
 
-	ASSERT_THAT(Time::FromString("21:32:43.789987", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("25/12/24 21:32:43.789987", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
+			Field(&BrokenDownTime::Milliseconds, 790),
+			Field(&BrokenDownTime::Seconds, 43),
+			Field(&BrokenDownTime::Minutes, 32),
+			Field(&BrokenDownTime::Hours, 21),
+			Field(&BrokenDownTime::WeekDay, 3),
+			Field(&BrokenDownTime::MonthDay, 25),
+			Field(&BrokenDownTime::YearDay, 359),
+			Field(&BrokenDownTime::Year, 2024)));
+	ASSERT_THAT(Time::FromString("25/12/24 21:32:43.789", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
+			Field(&BrokenDownTime::Milliseconds, 789),
+			Field(&BrokenDownTime::Seconds, 43),
+			Field(&BrokenDownTime::Minutes, 32),
+			Field(&BrokenDownTime::Hours, 21),
+			Field(&BrokenDownTime::WeekDay, 3),
+			Field(&BrokenDownTime::MonthDay, 25),
+			Field(&BrokenDownTime::YearDay, 359),
+			Field(&BrokenDownTime::Year, 2024)));
+	ASSERT_THAT(Time::FromString("25/12/24 21:32:43", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
+			Field(&BrokenDownTime::Milliseconds, 0),
+			Field(&BrokenDownTime::Seconds, 43),
+			Field(&BrokenDownTime::Minutes, 32),
+			Field(&BrokenDownTime::Hours, 21),
+			Field(&BrokenDownTime::WeekDay, 3),
+			Field(&BrokenDownTime::MonthDay, 25),
+			Field(&BrokenDownTime::YearDay, 359),
+			Field(&BrokenDownTime::Year, 2024)));
+	ASSERT_THAT(Time::FromString("25/12/24 21:32", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
+			Field(&BrokenDownTime::Milliseconds, 0),
+			Field(&BrokenDownTime::Seconds, 0),
+			Field(&BrokenDownTime::Minutes, 32),
+			Field(&BrokenDownTime::Hours, 21),
+			Field(&BrokenDownTime::WeekDay, 3),
+			Field(&BrokenDownTime::MonthDay, 25),
+			Field(&BrokenDownTime::YearDay, 359),
+			Field(&BrokenDownTime::Year, 2024)));
+	ASSERT_THAT(Time::FromString("25/12/24", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
+			Field(&BrokenDownTime::Milliseconds, 0),
+			Field(&BrokenDownTime::Seconds, 0),
+			Field(&BrokenDownTime::Minutes, 0),
+			Field(&BrokenDownTime::Hours, 0),
+			Field(&BrokenDownTime::WeekDay, 3),
+			Field(&BrokenDownTime::MonthDay, 25),
+			Field(&BrokenDownTime::YearDay, 359),
+			Field(&BrokenDownTime::Year, 2024)));
+
+	ASSERT_THAT(Time::FromString("21:32:43.789987", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 790),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -168,7 +168,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, nowBdt.MonthDay),
 			Field(&BrokenDownTime::YearDay, nowBdt.YearDay),
 			Field(&BrokenDownTime::Year, nowBdt.Year)));
-	ASSERT_THAT(Time::FromString("21:32:43.789", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("21:32:43.789", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 789),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -177,7 +177,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, nowBdt.MonthDay),
 			Field(&BrokenDownTime::YearDay, nowBdt.YearDay),
 			Field(&BrokenDownTime::Year, nowBdt.Year)));
-	ASSERT_THAT(Time::FromString("21:32:43", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("21:32:43", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -186,7 +186,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, nowBdt.MonthDay),
 			Field(&BrokenDownTime::YearDay, nowBdt.YearDay),
 			Field(&BrokenDownTime::Year, nowBdt.Year)));
-	ASSERT_THAT(Time::FromString("21:32", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("21:32", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 0),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -196,7 +196,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::YearDay, nowBdt.YearDay),
 			Field(&BrokenDownTime::Year, nowBdt.Year)));
 
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789987+12:23", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789987+12:23", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 790),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 9),
@@ -205,7 +205,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789+12:23", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789+12:23", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 789),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 9),
@@ -214,7 +214,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43+12:23", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43+12:23", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 9),
@@ -223,7 +223,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43+12", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43+12", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -233,7 +233,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
 
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789987-01:12", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789987-01:12", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 790),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 44),
@@ -242,7 +242,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789-01:12", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789-01:12", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 789),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 44),
@@ -251,7 +251,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43-01:12", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43-01:12", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 44),
@@ -260,7 +260,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43-01", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43-01", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -275,7 +275,7 @@ TEST(TimeTest, FromString)
 	ASSERT_THROW(Time::FromString("24-12-25T21:32:43Z12:34", TimeKind::Utc), FormatException);
 	ASSERT_THROW(Time::FromString("24-12-25T21:32:43Z12", TimeKind::Utc), FormatException);
 
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789987Z", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789987Z", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 790),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -284,7 +284,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789Z", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789Z", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 789),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -293,7 +293,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43Z", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43Z", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -303,7 +303,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
 
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789987", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789987", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 790),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -312,7 +312,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43.789", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 789),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -321,7 +321,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32:43", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32:43", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 43),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -330,7 +330,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25T21:32", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25T21:32", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 0),
 			Field(&BrokenDownTime::Minutes, 32),
@@ -339,7 +339,7 @@ TEST(TimeTest, FromString)
 			Field(&BrokenDownTime::MonthDay, 25),
 			Field(&BrokenDownTime::YearDay, 359),
 			Field(&BrokenDownTime::Year, 2024)));
-	ASSERT_THAT(Time::FromString("24-12-25", TimeKind::Utc).BreakDown(TimeKind::Utc), AllOf(
+	ASSERT_THAT(Time::FromString("24-12-25", TimeKind::Utc).ToBrokenDownTime(TimeKind::Utc), AllOf(
 			Field(&BrokenDownTime::Milliseconds, 0),
 			Field(&BrokenDownTime::Seconds, 0),
 			Field(&BrokenDownTime::Minutes, 0),
@@ -362,7 +362,7 @@ TEST(TimeTest, FromWindowsFileTime)
 		const auto time = Time::FromWindowsFileTime(864003654321);
 		ASSERT_EQ(time.GetMilliseconds(), -11644383545679);
 
-		const auto bdt = time.BreakDown(TimeKind::Utc);
+		const auto bdt = time.ToBrokenDownTime(TimeKind::Utc);
 
 		ASSERT_EQ(bdt.Year,			1601);
 		ASSERT_EQ(bdt.Month,		1);
@@ -379,7 +379,7 @@ TEST(TimeTest, MjdDate)
 {
 #if 0
 		{
-			BrokenDownTime bdt = Time::MjdToEpoch(0).BreakDown(TimeKind::Utc);
+			BrokenDownTime bdt = Time::FromMjdTime(0).ToBrokenDownTime(TimeKind::Utc);
 			ASSERT_EQ(bdt.Year			, 1858);
 			ASSERT_EQ(bdt.Month			, 11);
 			ASSERT_EQ(bdt.MonthDay		, 17);
@@ -390,7 +390,7 @@ TEST(TimeTest, MjdDate)
 		}
 #endif
 		{
-			BrokenDownTime bdt = Time::MjdToEpoch(57023).BreakDown(TimeKind::Utc); //2015-01-01
+			BrokenDownTime bdt = Time::FromMjdTime(57023).ToBrokenDownTime(TimeKind::Utc); //2015-01-01
 			ASSERT_EQ(bdt.Year			, 2015);
 			ASSERT_EQ(bdt.Month			, 1);
 			ASSERT_EQ(bdt.MonthDay		, 1);
@@ -400,7 +400,7 @@ TEST(TimeTest, MjdDate)
 			ASSERT_EQ(bdt.Milliseconds	, 0);
 		}
 		{
-			BrokenDownTime bdt = Time::MjdToEpoch(60676).BreakDown(TimeKind::Utc); //2025-01-01
+			BrokenDownTime bdt = Time::FromMjdTime(60676).ToBrokenDownTime(TimeKind::Utc); //2025-01-01
 			ASSERT_EQ(bdt.Year			, 2025);
 			ASSERT_EQ(bdt.Month			, 1);
 			ASSERT_EQ(bdt.MonthDay		, 1);
@@ -415,7 +415,7 @@ TEST(TimeTest, MjdDate)
 TEST(TimeTest, EpochDate)
 {
 	{
-		BrokenDownTime bdt = Time::FromTimeT(1735689600).BreakDown(TimeKind::Utc); //2025-01-01
+		BrokenDownTime bdt = Time::FromTimeT(1735689600).ToBrokenDownTime(TimeKind::Utc); //2025-01-01
 		ASSERT_EQ(bdt.Year			, 2025);
 		ASSERT_EQ(bdt.Month			, 1);
 		ASSERT_EQ(bdt.MonthDay		, 1);
@@ -425,7 +425,7 @@ TEST(TimeTest, EpochDate)
 		ASSERT_EQ(bdt.Milliseconds	, 0);
 	}
 	{
-		BrokenDownTime bdt = Time::FromTimeT(1420070400).BreakDown(TimeKind::Utc); //2015-01-01
+		BrokenDownTime bdt = Time::FromTimeT(1420070400).ToBrokenDownTime(TimeKind::Utc); //2015-01-01
 		ASSERT_EQ(bdt.Year			, 2015);
 		ASSERT_EQ(bdt.Month			, 1);
 		ASSERT_EQ(bdt.MonthDay		, 1);
@@ -441,7 +441,7 @@ TEST(TimeTest, DISABLED_ToIso8601_Zeroes)
 {
 	const std::string sample = "0000-00-00T00:00:00Z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	const BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 0);
 	ASSERT_EQ(brokenDown.Month, 0);
 	ASSERT_EQ(brokenDown.MonthDay, 0);
@@ -456,7 +456,7 @@ TEST(TimeTest, ToIso8601_Common)
 {
 	const std::string sample = "2000-09-21T12:45:05Z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	const BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -471,7 +471,7 @@ TEST(TimeTest, ToIso8601_Lowercase)
 {
 	const std::string sample = "2000-09-21t12:45:05z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	const BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -486,7 +486,7 @@ TEST(TimeTest, ToIso8601_SecondFraction)
 {
 	const std::string sample = "2000-09-21T12:45:05.0Z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	const BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -501,7 +501,7 @@ TEST(TimeTest, Iso8601_SecondFractionDecade)
 {
 	const std::string sample = "2000-09-21T12:45:05.8Z";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -516,7 +516,7 @@ TEST(TimeTest, Iso8601_ZeroOffset)
 {
 	const std::string sample = "2000-09-21T12:45:05+00:00";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	const BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
@@ -531,7 +531,7 @@ TEST(TimeTest, ToIso8601_PositiveOffset)
 {
 	const std::string sample = "2000-09-21T12:45:05+13:53";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	const BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 20);
@@ -546,7 +546,7 @@ TEST(TimeTest, ToIso8601_NegativeOffset)
 {
 	const std::string sample = "2000-09-21T12:45:05-13:53";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	const BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 22);
@@ -561,7 +561,7 @@ TEST(TimeTest, ToIso8601_DateOnly)
 {
 	const std::string sample = "2000-09-21";
 	const Time testee = TimeUtility::FromIso8601(sample);
-	const BrokenDownTime brokenDown = testee.BreakDown(TimeKind::Utc);
+	const BrokenDownTime brokenDown = testee.ToBrokenDownTime(TimeKind::Utc);
 	ASSERT_EQ(brokenDown.Year, 2000);
 	ASSERT_EQ(brokenDown.Month, 9);
 	ASSERT_EQ(brokenDown.MonthDay, 21);
