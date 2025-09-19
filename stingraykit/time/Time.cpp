@@ -82,7 +82,7 @@ namespace stingray
 
 
 	TimeDuration TimeDuration::RoundToMilliseconds() const
-	{ return TimeDuration::FromMilliseconds(GetMilliseconds() + (Abs(_microseconds % 1000) < 500 ? 0 : _microseconds < 0 ? -1 : 1)); }
+	{ return FromMilliseconds(GetMilliseconds() + (Abs(_microseconds % 1000) < 500 ? 0 : _microseconds < 0 ? -1 : 1)); }
 
 
 	void TimeDuration::Serialize(ObjectOStream& ar) const
@@ -250,13 +250,13 @@ namespace stingray
 			return FromSeconds(value);
 
 		STINGRAYKIT_CHECK(StringParse(str, "%1%", value), FormatException(str));
-		return TimeDuration::FromMilliseconds(value);
+		return FromMilliseconds(value);
 	}
 
 
 	TimeDuration TimeDuration::FromBcdDuration(u32 bcdDuration)
 	{
-		return TimeDuration::FromMilliseconds(s64(1000)
+		return FromMilliseconds(s64(1000)
 				* (SecondsPerHour * BcdValue((bcdDuration >> 16) & 0xff)
 						+ SecondsPerMinute * BcdValue((bcdDuration >> 8) & 0xff)
 						+ BcdValue(bcdDuration & 0xff)));
@@ -338,10 +338,10 @@ namespace stingray
 	Time Time::FromString(string_view str, TimeKind kind)
 	{
 		if (str == "now")
-			return Time::Now();
+			return Now();
 
 		if (StartsWith(str, "now+"))
-			return Time::Now() + TimeDuration::FromString(RemovePrefix(str, "now+"));
+			return Now() + TimeDuration::FromString(RemovePrefix(str, "now+"));
 
 		s16 year = 0;
 		s16 month = 0;
@@ -430,7 +430,7 @@ namespace stingray
 		}
 		else
 		{
-			bdt = Time::Now().BreakDown();
+			bdt = Now().BreakDown();
 			bdt.Seconds = 0;
 			bdt.Milliseconds = 0;
 		}
@@ -499,7 +499,7 @@ namespace stingray
 
 
 	int Time::DaysTo(const BrokenDownTime& endTime) const
-	{ return (Time::FromBrokenDownTime(endTime.GetDayStart()) - Time::FromBrokenDownTime(BreakDown().GetDayStart())) / TimeDuration::Day(); }
+	{ return (FromBrokenDownTime(endTime.GetDayStart()) - FromBrokenDownTime(BreakDown().GetDayStart())) / TimeDuration::Day(); }
 
 
 	void Time::Serialize(ObjectOStream& ar) const

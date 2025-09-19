@@ -70,9 +70,9 @@ namespace stingray
 		static TimeDuration FromString(string_view str);
 
 		constexpr static TimeDuration FromMicroseconds(s64 microseconds)	{ return TimeDuration(microseconds, Dummy()); }
-		constexpr static TimeDuration FromMilliseconds(s64 milliseconds)	{ return TimeDuration::FromMicroseconds(milliseconds * 1000); }
+		constexpr static TimeDuration FromMilliseconds(s64 milliseconds)	{ return FromMicroseconds(milliseconds * 1000); }
 
-		constexpr static TimeDuration Second()								{ return TimeDuration::FromMilliseconds(1000); }
+		constexpr static TimeDuration Second()								{ return FromMilliseconds(1000); }
 		constexpr static TimeDuration Minute()								{ return Second() * 60; }
 		constexpr static TimeDuration Hour()								{ return Minute() * 60; }
 		constexpr static TimeDuration Day()									{ return Hour() * 24; }
@@ -84,8 +84,8 @@ namespace stingray
 
 		static TimeDuration FromBcdDuration(u32 bcdDuration);
 
-		constexpr static TimeDuration Min()									{ return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::min()); }
-		constexpr static TimeDuration Max()									{ return TimeDuration::FromMicroseconds(std::numeric_limits<s64>::max()); }
+		constexpr static TimeDuration Min()									{ return FromMicroseconds(std::numeric_limits<s64>::min()); }
+		constexpr static TimeDuration Max()									{ return FromMicroseconds(std::numeric_limits<s64>::max()); }
 
 	private:
 		constexpr TimeDuration(s64 microseconds, Dummy dummy)
