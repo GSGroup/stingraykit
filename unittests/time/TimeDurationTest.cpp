@@ -284,26 +284,26 @@ TEST(TimeDurationTest, FromIso8601_LowerCase)
 
 TEST(TimeDurationTest, FromIso8601_BaseTime)
 {
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3D", Time(365 * MillisecondsPerDay)), TimeDuration::FromDays(3));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3M", Time(365 * MillisecondsPerDay)), TimeDuration::FromDays(31 + 28 + 31));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3M", Time(2 * 365 * MillisecondsPerDay)), TimeDuration::FromDays(31 + 29 + 31));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3Y", Time((3 * 365 + 1) * MillisecondsPerDay)).ToString(), TimeDuration::FromDays(3 * 365).ToString());
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3D", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromDays(3));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3M", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromDays(31 + 28 + 31));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3M", Time::FromMilliseconds(2 * 365 * MillisecondsPerDay)), TimeDuration::FromDays(31 + 29 + 31));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3Y", Time::FromMilliseconds((3 * 365 + 1) * MillisecondsPerDay)).ToString(), TimeDuration::FromDays(3 * 365).ToString());
 
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3S", Time(365 * MillisecondsPerDay)), TimeDuration::FromSeconds(3));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3M", Time(365 * MillisecondsPerDay)), TimeDuration::FromMinutes(3));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3H", Time(365 * MillisecondsPerDay)), TimeDuration::FromHours(3));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3S", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromSeconds(3));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3M", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromMinutes(3));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3H", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromHours(3));
 
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3W", Time(365 * MillisecondsPerDay)), TimeDuration::FromDays(3 * DaysPerWeek));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P3W", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromDays(3 * DaysPerWeek));
 
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3M3S", Time(365 * MillisecondsPerDay)), TimeDuration::FromMinutes(3) + TimeDuration::FromSeconds(3));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3H3M3S", Time(365 * MillisecondsPerDay)), TimeDuration::FromHours(3) + TimeDuration::FromMinutes(3) + TimeDuration::FromSeconds(3));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3M3S", Time(365 * MillisecondsPerDay)), TimeDuration::FromMinutes(3) + TimeDuration::FromSeconds(3));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3M3S", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromMinutes(3) + TimeDuration::FromSeconds(3));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3H3M3S", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromHours(3) + TimeDuration::FromMinutes(3) + TimeDuration::FromSeconds(3));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("PT3M3S", Time::FromMilliseconds(365 * MillisecondsPerDay)), TimeDuration::FromMinutes(3) + TimeDuration::FromSeconds(3));
 
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P1YT50M", Time(50 * MillisecondsPerMinute)), TimeDuration::FromDays(365) + TimeDuration::FromMinutes(50));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P1YT15H", Time(15 * MillisecondsPerHour)), TimeDuration::FromDays(365) + TimeDuration::FromHours(15));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P1YT50M", Time::FromMilliseconds(50 * MillisecondsPerMinute)), TimeDuration::FromDays(365) + TimeDuration::FromMinutes(50));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P1YT15H", Time::FromMilliseconds(15 * MillisecondsPerHour)), TimeDuration::FromDays(365) + TimeDuration::FromHours(15));
 
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P1YT50S", Time(50 * MillisecondsPerSecond)), TimeDuration::FromDays(365) + TimeDuration::FromSeconds(50));
-	ASSERT_EQ(TimeDurationUtility::FromIso8601("P1YT50S", Time(2 * 365 * MillisecondsPerDay + 50 * MillisecondsPerSecond)), TimeDuration::FromSeconds(50) + TimeDuration::FromDays(366));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P1YT50S", Time::FromMilliseconds(50 * MillisecondsPerSecond)), TimeDuration::FromDays(365) + TimeDuration::FromSeconds(50));
+	ASSERT_EQ(TimeDurationUtility::FromIso8601("P1YT50S", Time::FromMilliseconds(2 * 365 * MillisecondsPerDay + 50 * MillisecondsPerSecond)), TimeDuration::FromSeconds(50) + TimeDuration::FromDays(366));
 }
 
 
@@ -400,53 +400,53 @@ TEST(TimeDurationTest, ToIso8601)
 
 TEST(TimeDurationTest, ToIso8601_BaseTime)
 {
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromSeconds(3), Time(365 * MillisecondsPerDay)), "PT3S");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromMinutes(3), Time(365 * MillisecondsPerDay)), "PT3M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromHours(3), Time(365 * MillisecondsPerDay)), "PT3H");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromSeconds(3), Time::FromMilliseconds(365 * MillisecondsPerDay)), "PT3S");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromMinutes(3), Time::FromMilliseconds(365 * MillisecondsPerDay)), "PT3M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromHours(3), Time::FromMilliseconds(365 * MillisecondsPerDay)), "PT3H");
 
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(3), Time(365 * MillisecondsPerDay)), "P3D");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31 + 29), Time(2 * 365 * MillisecondsPerDay)), "P2M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(3 * 365), Time(3 * 365 * MillisecondsPerDay)), "P3Y");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(3), Time::FromMilliseconds(365 * MillisecondsPerDay)), "P3D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31 + 29), Time::FromMilliseconds(2 * 365 * MillisecondsPerDay)), "P2M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(3 * 365), Time::FromMilliseconds(3 * 365 * MillisecondsPerDay)), "P3Y");
 
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(3 * 365 + 1) + TimeDuration::FromHours(3), Time(2 * 365 * MillisecondsPerDay)), "P3YT3H");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(3 * 365 + 1) + TimeDuration::FromHours(3), Time::FromMilliseconds(2 * 365 * MillisecondsPerDay)), "P3YT3H");
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(3 * 365 + 1) +
 											 TimeDuration::FromDays(31 + 28 + 31) +
 											 TimeDuration::FromDays(3) +
 											 TimeDuration::FromHours(3) +
 											 TimeDuration::FromMinutes(3) +
-											 TimeDuration::FromSeconds(3), Time(365 * MillisecondsPerDay)), "P3Y3M3DT3H3M3S");
+											 TimeDuration::FromSeconds(3), Time::FromMilliseconds(365 * MillisecondsPerDay)), "P3Y3M3DT3H3M3S");
 
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time()), "P28D");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(1 * MillisecondsPerDay)), "P28D");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(2 * MillisecondsPerDay)), "P28D");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(3 * MillisecondsPerDay)), "P28D");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(4 * MillisecondsPerDay)), "P28D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds(1 * MillisecondsPerDay)), "P28D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds(2 * MillisecondsPerDay)), "P28D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds(3 * MillisecondsPerDay)), "P28D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds(4 * MillisecondsPerDay)), "P28D");
 
 	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time()), "P1M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(1 * MillisecondsPerDay)), "P1M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(2 * MillisecondsPerDay)), "P1M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(3 * MillisecondsPerDay)), "P1M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(4 * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time::FromMilliseconds(1 * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time::FromMilliseconds(2 * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time::FromMilliseconds(3 * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time::FromMilliseconds(4 * MillisecondsPerDay)), "P1M");
 
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time(31 * MillisecondsPerDay)), "P1M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time((31 + 1) * MillisecondsPerDay)), "P1M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time((31 + 2) * MillisecondsPerDay)), "P1M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time((31 + 3) * MillisecondsPerDay)), "P1M");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time((31 + 4) * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds(31 * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds((31 + 1) * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds((31 + 2) * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds((31 + 3) * MillisecondsPerDay)), "P1M");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(28), Time::FromMilliseconds((31 + 4) * MillisecondsPerDay)), "P1M");
 
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time(31 * MillisecondsPerDay)), "P1M3D");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time((2 * 365 + 31) * MillisecondsPerDay)), "P1M2D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time::FromMilliseconds(31 * MillisecondsPerDay)), "P1M3D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(31), Time::FromMilliseconds((2 * 365 + 31) * MillisecondsPerDay)), "P1M2D");
 
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromSeconds(50), Time(50 * MillisecondsPerSecond)), "PT50S");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromSeconds(50), Time::FromMilliseconds(50 * MillisecondsPerSecond)), "PT50S");
 }
 
 
 TEST(TimeDurationTest, ToIso8601_BaseTime_LeapYear)
 {
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(365), Time((2 * 365 + 31 + 28) * MillisecondsPerDay)), "P1Y");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(366), Time((1 * 365 + 31 + 28) * MillisecondsPerDay)), "P1Y");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(365), Time((1 * 365 + 31 + 27) * MillisecondsPerDay)), "P1Y");
-	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(365), Time((2 * 365 + 31 + 27) * MillisecondsPerDay)), "P11M30D");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(365), Time::FromMilliseconds((2 * 365 + 31 + 28) * MillisecondsPerDay)), "P1Y");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(366), Time::FromMilliseconds((1 * 365 + 31 + 28) * MillisecondsPerDay)), "P1Y");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(365), Time::FromMilliseconds((1 * 365 + 31 + 27) * MillisecondsPerDay)), "P1Y");
+	ASSERT_EQ(TimeDurationUtility::ToIso8601(TimeDuration::FromDays(365), Time::FromMilliseconds((2 * 365 + 31 + 27) * MillisecondsPerDay)), "P11M30D");
 }
 
 
