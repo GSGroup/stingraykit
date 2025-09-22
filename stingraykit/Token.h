@@ -270,7 +270,7 @@ namespace stingray
 		TokenMap()
 		{ }
 
-		bool contains(const Key& key) const
+		bool Contains(const Key& key) const
 		{ return _tokens.find(key) != _tokens.end(); }
 
 		BracketsOperatorProxy operator [] (const Key& key)
