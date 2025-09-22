@@ -345,7 +345,7 @@ namespace stingray
 		BracketsOperatorProxy operator [] (Key&& key)
 		{ return BracketsOperatorProxy(_mutex, _tokens, std::move(key)); }
 
-		void release(const Key& key)
+		void Release(const Key& key)
 		{
 			std::vector<Token> tokens;
 
