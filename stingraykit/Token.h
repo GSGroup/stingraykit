@@ -282,7 +282,7 @@ namespace stingray
 		void Release(const Key& key)
 		{ _tokens.erase(key); }
 
-		void release_all()
+		void ReleaseAll()
 		{ _tokens.clear(); }
 	};
 
