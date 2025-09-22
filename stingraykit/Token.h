@@ -355,7 +355,7 @@ namespace stingray
 			_tokens.erase(range.first, range.second);
 		}
 
-		void release_all()
+		void ReleaseAll()
 		{
 			Tokens tokens;
 
