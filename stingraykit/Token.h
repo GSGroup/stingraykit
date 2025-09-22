@@ -336,7 +336,7 @@ namespace stingray
 		SynchronizedTokenMap()
 		{ }
 
-		bool contains(const Key& key) const
+		bool Contains(const Key& key) const
 		{ MutexLock l(_mutex); return _tokens.find(key) != _tokens.end(); }
 
 		BracketsOperatorProxy operator [] (const Key& key)
