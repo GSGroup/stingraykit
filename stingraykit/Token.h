@@ -279,7 +279,7 @@ namespace stingray
 		BracketsOperatorProxy operator [] (Key&& key)
 		{ return BracketsOperatorProxy(_tokens, std::move(key)); }
 
-		void release(const Key& key)
+		void Release(const Key& key)
 		{ _tokens.erase(key); }
 
 		void release_all()
