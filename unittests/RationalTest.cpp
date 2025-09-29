@@ -364,3 +364,68 @@ TEST(RationalTest, RelationalOps)
 		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r4, v4);
 	}
 }
+
+
+TEST(RationalTest, ToString)
+{
+	ASSERT_EQ(Rational().ToString(), "0");
+	ASSERT_EQ(Rational(313).ToString(), "313");
+	ASSERT_EQ(Rational(313, 1).ToString(), "313");
+	ASSERT_EQ(Rational(626, 2).ToString(), "313");
+	ASSERT_EQ(Rational(313, 131).ToString(), "313/131");
+	ASSERT_EQ(Rational(-313, 131).ToString(), "-313/131");
+	ASSERT_EQ(Rational(313, -131).ToString(), "-313/131");
+	ASSERT_EQ(Rational(-313, -131).ToString(), "313/131");
+	ASSERT_EQ(Rational(1025, 15).ToString(), "205/3");
+}
+
+
+TEST(RationalTest, FromString)
+{
+	ASSERT_ANY_THROW(Rational::FromString(""));
+	ASSERT_ANY_THROW(Rational::FromString("."));
+	ASSERT_ANY_THROW(Rational::FromString("1.2."));
+	ASSERT_ANY_THROW(Rational::FromString("0.abcd"));
+	ASSERT_ANY_THROW(Rational::FromString("0.-"));
+	ASSERT_ANY_THROW(Rational::FromString("0. 0"));
+	ASSERT_ANY_THROW(Rational::FromString("0 .0"));
+	ASSERT_ANY_THROW(Rational::FromString("0/"));
+	ASSERT_ANY_THROW(Rational::FromString("/313"));
+
+	ASSERT_EQ(Rational::FromString("0/1"), Rational(0, 1));
+	ASSERT_ANY_THROW(Rational::FromString("1/0"));
+	ASSERT_ANY_THROW(Rational::FromString("0/0"));
+
+	ASSERT_EQ(Rational::FromString("10/21"), Rational(10, 21));
+	ASSERT_EQ(Rational::FromString("-10/21"), Rational(-10, 21));
+	ASSERT_EQ(Rational::FromString("10/-21"), Rational(10, -21));
+	ASSERT_EQ(Rational::FromString("-10/-21"), Rational(-10, -21));
+
+	ASSERT_EQ(Rational::FromString("0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("0."), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString(".0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("0.0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("0.1"), Rational(1, 10));
+	ASSERT_EQ(Rational::FromString(".1"), Rational(1, 10));
+	ASSERT_EQ(Rational::FromString("0.375"), Rational(3, 8));
+
+	ASSERT_EQ(Rational::FromString("-0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("-0."), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("-.0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("-0.0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("-0.1"), Rational(-1, 10));
+	ASSERT_EQ(Rational::FromString("-.1"), Rational(-1, 10));
+	ASSERT_EQ(Rational::FromString("-0.375"), Rational(-375, 1000));
+
+	ASSERT_EQ(Rational::FromString("10"), Rational(10, 1));
+	ASSERT_EQ(Rational::FromString("10."), Rational(10, 1));
+	ASSERT_EQ(Rational::FromString("10.0"), Rational(10, 1));
+	ASSERT_EQ(Rational::FromString("10.1"), Rational(101, 10));
+	ASSERT_EQ(Rational::FromString("10.375"), Rational(10375, 1000));
+
+	ASSERT_EQ(Rational::FromString("-10"), Rational(-10, 1));
+	ASSERT_EQ(Rational::FromString("-10."), Rational(-10, 1));
+	ASSERT_EQ(Rational::FromString("-10.0"), Rational(-10, 1));
+	ASSERT_EQ(Rational::FromString("-10.1"), Rational(-101, 10));
+	ASSERT_EQ(Rational::FromString("-10.375"), Rational(-10375, 1000));
+}

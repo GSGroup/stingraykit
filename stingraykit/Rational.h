@@ -66,6 +66,9 @@ namespace stingray
 		}
 		STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_LESS(Rational);
 
+		std::string ToString() const;
+		static Rational FromString(string_view str);
+
 	private:
 		constexpr static bool ComparePositiveFractionsLess(ValueType ad, ValueType aq, ValueType ar, ValueType cd, ValueType cq, ValueType cr)
 		{
