@@ -10,12 +10,20 @@
 
 namespace stingray
 {
+
 	struct Rational
 	{
-		int Num, Denum;
-		Rational(int Num = 0, int Denum = 1): Num(Num), Denum(Denum) {}
+		using ValueType = int;
+
+		ValueType			Num;
+		ValueType			Denum;
+
+		constexpr explicit Rational(ValueType num = 0, ValueType denum = 1)
+			:	Num(num),
+				Denum(denum)
+		{ }
 	};
+
 }
 
 #endif	/* RATIONAL_H */
-
