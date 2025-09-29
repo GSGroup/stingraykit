@@ -11,17 +11,23 @@
 namespace stingray
 {
 
-	struct Rational
+	class Rational
 	{
+	public:
 		using ValueType = int;
 
-		ValueType			Num;
-		ValueType			Denum;
+	private:
+		ValueType			_num;
+		ValueType			_denum;
 
+	public:
 		constexpr explicit Rational(ValueType num = 0, ValueType denum = 1)
-			:	Num(num),
-				Denum(denum)
+			:	_num(num),
+				_denum(denum)
 		{ }
+
+		constexpr ValueType Num() const			{ return _num; }
+		constexpr ValueType Denum() const		{ return _denum; }
 	};
 
 }
