@@ -43,7 +43,51 @@ namespace stingray
 
 		constexpr ValueType Num() const			{ return _num; }
 		constexpr ValueType Denum() const		{ return _denum; }
+
+		constexpr bool operator < (const Rational& other) const
+		{
+			ValueType aq = _num / _denum;
+			ValueType ar = _num % _denum;
+			while (ar < 0)
+			{
+				--aq;
+				ar += _denum;
+			}
+
+			ValueType cq = other._num / other._denum;
+			ValueType cr = other._num % other._denum;
+			while (cr < 0)
+			{
+				--cq;
+				cr += other._denum;
+			}
+
+			return ComparePositiveFractionsLess(_denum, aq, ar, other._denum, cq, cr);
+		}
+		STINGRAYKIT_GENERATE_CONSTEXPR_COMPARISON_OPERATORS_FROM_LESS(Rational);
+
+	private:
+		constexpr static bool ComparePositiveFractionsLess(ValueType ad, ValueType aq, ValueType ar, ValueType cd, ValueType cq, ValueType cr)
+		{
+			if (aq != cq)
+				return aq < cq;
+
+			if (ar == 0 || cr == 0)
+				return ar < cr;
+
+			return ComparePositiveFractionsLess(cr, cd / cr, cd % cr, ar, ad / ar, ad % ar);
+		}
 	};
+
+
+	constexpr bool operator == (const Rational& lhs, Rational::ValueType rhs)	{ return lhs.Denum() == 1 && lhs.Num() == rhs; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_COMMUTATIVE_EQUALITY_OPERATORS_FROM_EQUAL(constexpr, const Rational&, Rational::ValueType);
+
+
+	constexpr bool operator < (const Rational& lhs, Rational::ValueType rhs)	{ return lhs < Rational(rhs); }
+	constexpr bool operator < (Rational::ValueType lhs, const Rational& rhs)	{ return Rational(lhs) < rhs; }
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_RELATIONAL_OPERATORS_FROM_LESS(constexpr, const Rational&, Rational::ValueType);
+	STINGRAYKIT_GENERATE_NON_MEMBER_BY_VALUE_RELATIONAL_OPERATORS_FROM_LESS(constexpr, Rational::ValueType, const Rational&);
 
 }
 
