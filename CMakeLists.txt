@@ -89,6 +89,7 @@ set(stingraykit_SRC
 	stingraykit/Exception.cpp
 	stingraykit/ProgressValue.cpp
 	stingraykit/Random.cpp
+	stingraykit/Rational.cpp
 	stingraykit/Size.cpp
 	stingraykit/SystemException.cpp
 	stingraykit/TypeInfo.cpp

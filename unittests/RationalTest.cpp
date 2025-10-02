@@ -1,0 +1,431 @@
+// Copyright (c) 2011 - 2025, GS Group, https://github.com/GSGroup
+// Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
+// provided that the above copyright notice and this permission notice appear in all copies.
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+// WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+#include <stingraykit/Rational.h>
+
+#include <gtest/gtest.h>
+
+using namespace stingray;
+
+#define CHECK_RATIONAL_NUM_DENUM_VALUES(Rational, NumValue, DenumValue) \
+		do { \
+			ASSERT_EQ(Rational.Num(), NumValue); \
+			ASSERT_EQ(Rational.Denum(), DenumValue); \
+		} while (false)
+
+TEST(RationalTest, Ctor)
+{
+	{
+		Rational value;
+		CHECK_RATIONAL_NUM_DENUM_VALUES(value, 0, 1);
+	}
+
+	{
+		Rational value(313);
+		CHECK_RATIONAL_NUM_DENUM_VALUES(value, 313, 1);
+	}
+
+	{
+		Rational value(5, 17);
+		CHECK_RATIONAL_NUM_DENUM_VALUES(value, 5, 17);
+	}
+
+	{
+		Rational value(30, 153);
+		CHECK_RATIONAL_NUM_DENUM_VALUES(value, 10, 51);
+	}
+
+	{
+		Rational value(-30, 153);
+		CHECK_RATIONAL_NUM_DENUM_VALUES(value, -10, 51);
+	}
+
+	{
+		Rational value(30, -153);
+		CHECK_RATIONAL_NUM_DENUM_VALUES(value, -10, 51);
+	}
+
+	{
+		Rational value(-30, -153);
+		CHECK_RATIONAL_NUM_DENUM_VALUES(value, 10, 51);
+	}
+
+	ASSERT_THROW(Rational(313, 0), ArgumentException);
+}
+
+
+#define CHECK_RATIONAL_EQUALITY_TRUE(EqualityOp, Lhs, Rhs) \
+		do { \
+			ASSERT_TRUE(Lhs EqualityOp Rhs); \
+			ASSERT_TRUE(Rhs EqualityOp Lhs); \
+		} while (false)
+
+#define CHECK_RATIONAL_EQUALITY_FALSE(EqualityOp, Lhs, Rhs) \
+		do { \
+			ASSERT_FALSE(Lhs EqualityOp Rhs); \
+			ASSERT_FALSE(Rhs EqualityOp Lhs); \
+		} while (false)
+
+TEST(RationalTest, EqualityOps)
+{
+	const Rational::ValueType v1 = -100;
+
+	const Rational r1(-200, 3);
+	const Rational r1_(-200, 3);
+
+	const Rational::ValueType v2 = -40;
+	const Rational r2(v2);
+	const Rational r2_(v2);
+
+	const Rational::ValueType v3 = 40;
+	const Rational r3(v3);
+	const Rational r3_(v3);
+
+	const Rational r4(200, 3);
+	const Rational r4_(200, 3);
+
+	const Rational::ValueType v4 = 100;
+
+	{
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r1, v1);
+		CHECK_RATIONAL_EQUALITY_TRUE(==, r1, r1_);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r1, v2);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r1, r2);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r1, v3);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r1, r3);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r1, r4);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r1, v4);
+
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r2, v1);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r2, r1);
+		CHECK_RATIONAL_EQUALITY_TRUE(==, r2, v2);
+		CHECK_RATIONAL_EQUALITY_TRUE(==, r2, r2_);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r2, v3);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r2, r3);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r2, r4);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r2, v4);
+
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r3, v1);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r3, r1);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r3, v2);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r3, r2);
+		CHECK_RATIONAL_EQUALITY_TRUE(==, r3, v3);
+		CHECK_RATIONAL_EQUALITY_TRUE(==, r3, r3_);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r3, r4);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r3, v4);
+
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r4, v1);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r4, r1);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r4, v2);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r4, r2);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r4, v3);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r4, r3_);
+		CHECK_RATIONAL_EQUALITY_TRUE(==, r4, r4_);
+		CHECK_RATIONAL_EQUALITY_FALSE(==, r4, v4);
+	}
+
+	{
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r1, v1);
+		CHECK_RATIONAL_EQUALITY_FALSE(!=, r1, r1_);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r1, v2);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r1, r2);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r1, v3);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r1, r3);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r1, r4);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r1, v4);
+
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r2, v1);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r2, r1);
+		CHECK_RATIONAL_EQUALITY_FALSE(!=, r2, v2);
+		CHECK_RATIONAL_EQUALITY_FALSE(!=, r2, r2_);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r2, v3);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r2, r3);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r2, r4);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r2, v4);
+
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r3, v1);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r3, r1);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r3, v2);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r3, r2);
+		CHECK_RATIONAL_EQUALITY_FALSE(!=, r3, v3);
+		CHECK_RATIONAL_EQUALITY_FALSE(!=, r3, r3_);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r3, r4);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r3, v4);
+
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r4, v1);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r4, r1);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r4, v2);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r4, r2);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r4, v3);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r4, r3);
+		CHECK_RATIONAL_EQUALITY_FALSE(!=, r4, r4_);
+		CHECK_RATIONAL_EQUALITY_TRUE(!=, r4, v4);
+	}
+}
+
+
+#define CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(RelationalOp, OppositeOp, Lhs, Rhs) \
+		do { \
+			ASSERT_TRUE(Lhs RelationalOp Rhs); \
+			ASSERT_TRUE(Rhs OppositeOp Lhs); \
+		} while (false)
+
+#define CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(RelationalOp, OppositeOp, Lhs, Rhs) \
+		do { \
+			ASSERT_FALSE(Lhs RelationalOp Rhs); \
+			ASSERT_FALSE(Rhs OppositeOp Lhs); \
+		} while (false)
+
+#define CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(RelationalOp, OppositeOp, Lhs, Rhs) \
+		do { \
+			ASSERT_TRUE(Lhs RelationalOp Rhs); \
+			ASSERT_FALSE(Rhs OppositeOp Lhs); \
+		} while (false)
+
+#define CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(RelationalOp, OppositeOp, Lhs, Rhs) \
+		do { \
+			ASSERT_FALSE(Lhs RelationalOp Rhs); \
+			ASSERT_TRUE(Rhs OppositeOp Lhs); \
+		} while (false)
+
+TEST(RationalTest, RelationalOps)
+{
+	const Rational::ValueType v1 = -100;
+
+	const Rational r1(-200, 3);
+	const Rational r1_(-200, 3);
+
+	const Rational::ValueType v2 = -40;
+	const Rational r2(v2);
+	const Rational r2_(v2);
+
+	const Rational::ValueType v3 = 40;
+	const Rational r3(v3);
+	const Rational r3_(v3);
+
+	const Rational r4(200, 3);
+	const Rational r4_(200, 3);
+
+	const Rational::ValueType v4 = 100;
+
+	{
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r1, v1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(<, >=, r1, r1_);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r1, v2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r1, r2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r1, v3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r1, r3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r1, r4);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r1, v4);
+
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r2, v1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r2, r1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(<, >=, r2, v2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(<, >=, r2, r2_);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r2, v3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r2, r3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r2, r4);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r2, v4);
+
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r3, v1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r3, r1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r3, v2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r3, r2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(<, >=, r3, v3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(<, >=, r3, r3_);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r3, r4);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r3, v4);
+
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r4, v1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r4, r1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r4, v2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r4, r2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r4, v3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<, >=, r4, r3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(<, >=, r4, r4_);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<, >=, r4, v4);
+	}
+
+	{
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r1, v1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(>, <=, r1, r1_);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r1, v2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r1, r2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r1, v3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r1, r3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r1, r4);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r1, v4);
+
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r2, v1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r2, r1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(>, <=, r2, v2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(>, <=, r2, r2_);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r2, v3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r2, r3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r2, r4);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r2, v4);
+
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r3, v1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r3, r1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r3, v2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r3, r2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(>, <=, r3, v3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(>, <=, r3, r3_);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r3, r4);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r3, v4);
+
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r4, v1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r4, r1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r4, v2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r4, r2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r4, v3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>, <=, r4, r3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_TRUE(>, <=, r4, r4_);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>, <=, r4, v4);
+	}
+
+	{
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r1, v1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(<=, >, r1, r1_);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r1, v2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r1, r2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r1, v3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r1, r3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r1, r4);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r1, v4);
+
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r2, v1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r2, r1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(<=, >, r2, v2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(<=, >, r2, r2_);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r2, v3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r2, r3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r2, r4);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r2, v4);
+
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r3, v1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r3, r1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r3, v2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r3, r2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(<=, >, r3, v3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(<=, >, r3, r3_);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r3, r4);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r3, v4);
+
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r4, v1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r4, r1);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r4, v2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r4, r2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r4, v3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(<=, >, r4, r3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(<=, >, r4, r4_);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(<=, >, r4, v4);
+	}
+
+	{
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r1, v1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(>=, <, r1, r1_);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r1, v2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r1, r2);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r1, v3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r1, r3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r1, r4);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r1, v4);
+
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r2, v1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r2, r1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(>=, <, r2, v2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(>=, <, r2, r2_);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r2, v3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r2, r3);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r2, r4);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r2, v4);
+
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r3, v1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r3, r1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r3, v2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r3, r2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(>=, <, r3, v3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(>=, <, r3, r3_);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r3, r4);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r3, v4);
+
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r4, v1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r4, r1);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r4, v2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r4, r2);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r4, v3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_TRUE(>=, <, r4, r3);
+		CHECK_RATIONAL_RELATIONAL_TRUE_FALSE(>=, <, r4, r4_);
+		CHECK_RATIONAL_RELATIONAL_FALSE_FALSE(>=, <, r4, v4);
+	}
+}
+
+
+TEST(RationalTest, ToString)
+{
+	ASSERT_EQ(Rational().ToString(), "0");
+	ASSERT_EQ(Rational(313).ToString(), "313");
+	ASSERT_EQ(Rational(313, 1).ToString(), "313");
+	ASSERT_EQ(Rational(626, 2).ToString(), "313");
+	ASSERT_EQ(Rational(313, 131).ToString(), "313/131");
+	ASSERT_EQ(Rational(-313, 131).ToString(), "-313/131");
+	ASSERT_EQ(Rational(313, -131).ToString(), "-313/131");
+	ASSERT_EQ(Rational(-313, -131).ToString(), "313/131");
+	ASSERT_EQ(Rational(1025, 15).ToString(), "205/3");
+}
+
+
+TEST(RationalTest, FromString)
+{
+	ASSERT_ANY_THROW(Rational::FromString(""));
+	ASSERT_ANY_THROW(Rational::FromString("."));
+	ASSERT_ANY_THROW(Rational::FromString("1.2."));
+	ASSERT_ANY_THROW(Rational::FromString("0.abcd"));
+	ASSERT_ANY_THROW(Rational::FromString("0.-"));
+	ASSERT_ANY_THROW(Rational::FromString("0. 0"));
+	ASSERT_ANY_THROW(Rational::FromString("0 .0"));
+	ASSERT_ANY_THROW(Rational::FromString("0/"));
+	ASSERT_ANY_THROW(Rational::FromString("/313"));
+
+	ASSERT_EQ(Rational::FromString("0/1"), Rational(0, 1));
+	ASSERT_ANY_THROW(Rational::FromString("1/0"));
+	ASSERT_ANY_THROW(Rational::FromString("0/0"));
+
+	ASSERT_EQ(Rational::FromString("10/21"), Rational(10, 21));
+	ASSERT_EQ(Rational::FromString("-10/21"), Rational(-10, 21));
+	ASSERT_EQ(Rational::FromString("10/-21"), Rational(10, -21));
+	ASSERT_EQ(Rational::FromString("-10/-21"), Rational(-10, -21));
+
+	ASSERT_EQ(Rational::FromString("0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("0."), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString(".0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("0.0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("0.1"), Rational(1, 10));
+	ASSERT_EQ(Rational::FromString(".1"), Rational(1, 10));
+	ASSERT_EQ(Rational::FromString("0.375"), Rational(3, 8));
+
+	ASSERT_EQ(Rational::FromString("-0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("-0."), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("-.0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("-0.0"), Rational(0, 1));
+	ASSERT_EQ(Rational::FromString("-0.1"), Rational(-1, 10));
+	ASSERT_EQ(Rational::FromString("-.1"), Rational(-1, 10));
+	ASSERT_EQ(Rational::FromString("-0.375"), Rational(-375, 1000));
+
+	ASSERT_EQ(Rational::FromString("10"), Rational(10, 1));
+	ASSERT_EQ(Rational::FromString("10."), Rational(10, 1));
+	ASSERT_EQ(Rational::FromString("10.0"), Rational(10, 1));
+	ASSERT_EQ(Rational::FromString("10.1"), Rational(101, 10));
+	ASSERT_EQ(Rational::FromString("10.375"), Rational(10375, 1000));
+
+	ASSERT_EQ(Rational::FromString("-10"), Rational(-10, 1));
+	ASSERT_EQ(Rational::FromString("-10."), Rational(-10, 1));
+	ASSERT_EQ(Rational::FromString("-10.0"), Rational(-10, 1));
+	ASSERT_EQ(Rational::FromString("-10.1"), Rational(-101, 10));
+	ASSERT_EQ(Rational::FromString("-10.375"), Rational(-10375, 1000));
+}
