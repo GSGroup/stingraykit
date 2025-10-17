@@ -73,9 +73,6 @@ namespace stingray
 		}
 
 	private:
-		std::string GetProfilerMessage(const Task& task) const
-		{ return StringBuilder() % get_function_name(task) % " in ThreadPool '" % _name % "'"; }
-
 		void ThreadFunc(const ICancellationToken& token)
 		{
 			MutexLock l(_mutex);
@@ -127,6 +124,9 @@ namespace stingray
 			catch (const std::exception& ex)
 			{ _exceptionHandler(ex); }
 		}
+
+		std::string GetProfilerMessage(const Task& task) const
+		{ return StringBuilder() % get_function_name(task) % " in ThreadPool '" % _name % "'"; }
 	};
 
 
@@ -229,10 +229,6 @@ namespace stingray
 	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
-	std::string ThreadPool::GetProfilerMessage(const Task& task) const
-	{ return StringBuilder() % get_function_name(task) % " in ThreadPool '" % _name % "'"; }
-
-
 	void ThreadPool::TaskCompletedHandler()
 	{
 		MutexLock l(_mutex);
@@ -290,5 +286,9 @@ namespace stingray
 		catch (const std::exception& ex)
 		{ _exceptionHandler(ex); }
 	}
+
+
+	std::string ThreadPool::GetProfilerMessage(const Task& task) const
+	{ return StringBuilder() % get_function_name(task) % " in ThreadPool '" % _name % "'"; }
 
 }

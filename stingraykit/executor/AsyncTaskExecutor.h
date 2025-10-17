@@ -57,10 +57,10 @@ namespace stingray
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
-		std::string GetProfilerMessage(const TaskType& task) const;
-
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const TaskPair& task) const;
+
+		std::string GetProfilerMessage(const TaskType& task) const;
 	};
 
 	/** @} */

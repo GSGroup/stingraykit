@@ -194,6 +194,10 @@ namespace stingray
 	}
 
 
+	void Timer::DefaultExceptionHandler(const std::exception& ex)
+	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
+
+
 	void Timer::ReportDestructionWarning() const
 	{
 		if (const size_t queueSize = _queue->GetSize())
@@ -209,14 +213,6 @@ namespace stingray
 		}
 		ci->Release();
 	}
-
-
-	void Timer::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
-
-
-	std::string Timer::GetProfilerMessage(const TaskType& task) const
-	{ return StringBuilder() % get_function_name(task) % " in Timer '" % _name % "'"; }
 
 
 	void Timer::ThreadFunc(const ICancellationToken& token)
@@ -296,5 +292,9 @@ namespace stingray
 		catch (const std::exception& ex)
 		{ _exceptionHandler(ex); }
 	}
+
+
+	std::string Timer::GetProfilerMessage(const TaskType& task) const
+	{ return StringBuilder() % get_function_name(task) % " in Timer '" % _name % "'"; }
 
 }

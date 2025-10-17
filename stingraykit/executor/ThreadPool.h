@@ -60,12 +60,12 @@ namespace stingray
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
-		std::string GetProfilerMessage(const Task& task) const;
-
 		void TaskCompletedHandler();
 
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const ICancellationToken& token, const Task& task) const;
+
+		std::string GetProfilerMessage(const Task& task) const;
 	};
 	STINGRAYKIT_DECLARE_PTR(ThreadPool);
 

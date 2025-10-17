@@ -67,10 +67,10 @@ namespace stingray
 
 		static void RemoveTask(const CallbackQueuePtr& queue, const CallbackInfoPtr& ci);
 
-		std::string GetProfilerMessage(const TaskType& task) const;
-
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const CallbackInfoPtr& ci) const;
+
+		std::string GetProfilerMessage(const TaskType& task) const;
 	};
 
 	/** @} */

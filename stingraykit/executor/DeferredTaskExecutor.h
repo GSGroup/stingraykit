@@ -51,9 +51,9 @@ namespace stingray
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
-		std::string GetProfilerMessage(const TaskType& task) const;
-
 		void ExecuteTask(const TaskPair& task) const;
+
+		std::string GetProfilerMessage(const TaskType& task) const;
 	};
 
 }

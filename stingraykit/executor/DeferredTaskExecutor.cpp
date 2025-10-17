@@ -81,10 +81,6 @@ namespace stingray
 	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
-	std::string DeferredTaskExecutor::GetProfilerMessage(const TaskType& task) const
-	{ return StringBuilder() % get_function_name(task) % " in DeferredTaskExecutor '" % _name % "'"; }
-
-
 	void DeferredTaskExecutor::ExecuteTask(const TaskPair& task) const
 	{
 		try
@@ -104,5 +100,9 @@ namespace stingray
 		catch (const std::exception& ex)
 		{ _exceptionHandler(ex); }
 	}
+
+
+	std::string DeferredTaskExecutor::GetProfilerMessage(const TaskType& task) const
+	{ return StringBuilder() % get_function_name(task) % " in DeferredTaskExecutor '" % _name % "'"; }
 
 }

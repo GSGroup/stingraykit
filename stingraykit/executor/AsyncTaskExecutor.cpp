@@ -50,10 +50,6 @@ namespace stingray
 	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
-	std::string AsyncTaskExecutor::GetProfilerMessage(const TaskType& task) const
-	{ return StringBuilder() % get_function_name(task) % " in AsyncTaskExecutor '" % _name % "'"; }
-
-
 	void AsyncTaskExecutor::ThreadFunc(const ICancellationToken& token)
 	{
 		MutexLock l(_syncRoot);
@@ -96,5 +92,9 @@ namespace stingray
 		catch (const std::exception& ex)
 		{ _exceptionHandler(ex); }
 	}
+
+
+	std::string AsyncTaskExecutor::GetProfilerMessage(const TaskType& task) const
+	{ return StringBuilder() % get_function_name(task) % " in AsyncTaskExecutor '" % _name % "'"; }
 
 }
