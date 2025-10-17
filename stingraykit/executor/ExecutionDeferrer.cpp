@@ -35,13 +35,22 @@ namespace stingray
 
 
 	void ExecutionDeferrer::Defer(const TaskType& task, optional<TimeDuration> overrideTimeout, optional<TimeDuration> interval)
+	{ DeferImpl(task, overrideTimeout, interval); }
+
+
+	void ExecutionDeferrer::Defer(TaskType&& task, optional<TimeDuration> overrideTimeout, optional<TimeDuration> interval)
+	{ DeferImpl(std::move(task), overrideTimeout, interval); }
+
+
+	template < typename TaskType_ >
+	void ExecutionDeferrer::DeferImpl(TaskType_&& task, optional<TimeDuration> overrideTimeout, optional<TimeDuration> interval)
 	{
 		if (overrideTimeout)
 			STINGRAYKIT_CHECK(overrideTimeout >= TimeDuration(), ArgumentException("overrideTimeout", overrideTimeout));
 		else
 			STINGRAYKIT_CHECK(_timeout, InvalidOperationException());
 
-		_timer.AddTask(Bind(&ExecutionDeferrer::DoDefer, this, task, overrideTimeout ? *overrideTimeout : *_timeout, interval), GetDeferExecutionTester());
+		_timer.AddTask(Bind(&ExecutionDeferrer::DoDefer, this, std::forward<TaskType_>(task), overrideTimeout ? *overrideTimeout : *_timeout, interval), GetDeferExecutionTester());
 	}
 
 

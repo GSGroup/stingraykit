@@ -8,6 +8,7 @@
 #include <stingraykit/executor/ExecutionDeferrer.h>
 #include <stingraykit/executor/Timer.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/function/functional.h>
 
 #include <gtest/gtest.h>
 
@@ -22,9 +23,9 @@ protected:
 		ExecutionDeferrer	_deferrer;
 
 	public:
-		DeferrerHolder(ITimer& timer, TimeDuration timeout, const function<void ()>& func)
+		DeferrerHolder(ITimer& timer, TimeDuration timeout, ExecutionDeferrer::TaskType&& func)
 			: _deferrer(timer, timeout)
-		{ _deferrer.Defer(func); }
+		{ _deferrer.Defer(std::move(func)); }
 
 		~DeferrerHolder()
 		{ _deferrer.Cancel(); }
@@ -82,5 +83,33 @@ TEST_F(ExecutionDeferrerTest, Defer)
 	{
 		const TimeDuration timeout = i % 2 ? OddTimeout : EvenTimeout;
 		deferrer.Defer(&ExecutionDeferrerTest::DoNothing, timeout);
+	}
+}
+
+TEST_F(ExecutionDeferrerTest, TaskMoving)
+{
+	{
+		Timer timer("deferrerTestTimer");
+		ExecutionDeferrer deferrer(timer, TimeDuration::Hour());
+
+		ITaskExecutor::TaskType task = NopFunctor();
+
+		deferrer.Defer(task);
+		ASSERT_NO_THROW(task());
+
+		deferrer.Defer(std::move(task));
+		ASSERT_ANY_THROW(task());
+	}
+
+	{
+		ExecutionDeferrerWithTimer deferrer("deferrerTestTimer", TimeDuration::Hour());
+
+		ITaskExecutor::TaskType task = NopFunctor();
+
+		deferrer.Defer(task);
+		ASSERT_NO_THROW(task());
+
+		deferrer.Defer(std::move(task));
+		ASSERT_ANY_THROW(task());
 	}
 }

@@ -42,10 +42,14 @@ namespace stingray
 		void Cancel();
 
 		void Defer(const TaskType& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null);
+		void Defer(TaskType&& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null);
 
 	private:
 		FutureExecutionTester GetDeferExecutionTester() const
 		{ MutexLock l(_deferExecutionTesterMutex); return _deferExecutionTester; }
+
+		template < typename TaskType_ >
+		void DeferImpl(TaskType_&& task, optional<TimeDuration> overrideTimeout, optional<TimeDuration> interval);
 
 		void DoDefer(const TaskType& task, TimeDuration timeout, optional<TimeDuration> interval);
 	};
@@ -68,6 +72,9 @@ namespace stingray
 
 		void Defer(const TaskType& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null)
 		{ _impl.Defer(task, overrideTimeout, interval); }
+
+		void Defer(TaskType&& task, optional<TimeDuration> overrideTimeout = null, optional<TimeDuration> interval = null)
+		{ _impl.Defer(std::move(task), overrideTimeout, interval); }
 	};
 
 	/** @} */
