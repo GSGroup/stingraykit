@@ -167,38 +167,27 @@ namespace stingray
 
 
 	Token Timer::SetTimeout(TimeDuration timeout, const TaskType& task)
-	{
-		STINGRAYKIT_CHECK(timeout >= TimeDuration(), ArgumentException("timeout", timeout));
+	{ return DoSetTimeout(timeout, task); }
 
-		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, null, TaskLifeToken());
-		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
 
-		MutexLock l(_queue->Sync());
-		_queue->Push(ci);
-		_cond.Broadcast();
-
-		return token;
-	}
+	Token Timer::SetTimeout(TimeDuration timeout, TaskType&& task)
+	{ return DoSetTimeout(timeout, std::move(task)); }
 
 
 	Token Timer::SetTimer(TimeDuration interval, const TaskType& task)
-	{ return SetTimer(interval, interval, task); }
+	{ return DoSetTimer(interval, interval, task); }
+
+
+	Token Timer::SetTimer(TimeDuration interval, TaskType&& task)
+	{ return DoSetTimer(interval, interval, std::move(task)); }
 
 
 	Token Timer::SetTimer(TimeDuration timeout, TimeDuration interval, const TaskType& task)
-	{
-		STINGRAYKIT_CHECK(timeout >= TimeDuration(), ArgumentException("timeout", timeout));
-		STINGRAYKIT_CHECK(interval >= TimeDuration(), ArgumentException("interval", interval));
+	{ return DoSetTimer(timeout, interval, task); }
 
-		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(task, _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
-		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
 
-		MutexLock l(_queue->Sync());
-		_queue->Push(ci);
-		_cond.Broadcast();
-
-		return token;
-	}
+	Token Timer::SetTimer(TimeDuration timeout, TimeDuration interval, TaskType&& task)
+	{ return DoSetTimer(timeout, interval, std::move(task)); }
 
 
 	void Timer::DefaultExceptionHandler(const std::exception& ex)
@@ -220,6 +209,39 @@ namespace stingray
 		MutexLock l(_queue->Sync());
 		_queue->Push(ci);
 		_cond.Broadcast();
+	}
+
+
+	template < typename TaskType_ >
+	Token Timer::DoSetTimeout(TimeDuration timeout, TaskType_&& task)
+	{
+		STINGRAYKIT_CHECK(timeout >= TimeDuration(), ArgumentException("timeout", timeout));
+
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(std::forward<TaskType_>(task), _monotonic.Elapsed() + timeout, null, TaskLifeToken());
+		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
+
+		MutexLock l(_queue->Sync());
+		_queue->Push(ci);
+		_cond.Broadcast();
+
+		return token;
+	}
+
+
+	template < typename TaskType_ >
+	Token Timer::DoSetTimer(TimeDuration timeout, TimeDuration interval, TaskType_&& task)
+	{
+		STINGRAYKIT_CHECK(timeout >= TimeDuration(), ArgumentException("timeout", timeout));
+		STINGRAYKIT_CHECK(interval >= TimeDuration(), ArgumentException("interval", interval));
+
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(std::forward<TaskType_>(task), _monotonic.Elapsed() + timeout, interval, TaskLifeToken());
+		const Token token = MakeFunctionToken(Bind(&Timer::RemoveTask, _queue, ci));
+
+		MutexLock l(_queue->Sync());
+		_queue->Push(ci);
+		_cond.Broadcast();
+
+		return token;
 	}
 
 

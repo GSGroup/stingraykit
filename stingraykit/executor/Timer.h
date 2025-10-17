@@ -61,8 +61,13 @@ namespace stingray
 		void AddTask(TaskType&& task, FutureExecutionTester&& tester) override;
 
 		Token SetTimeout(TimeDuration timeout, const TaskType& task) override;
+		Token SetTimeout(TimeDuration timeout, TaskType&& task) override;
+
 		Token SetTimer(TimeDuration interval, const TaskType& task) override;
+		Token SetTimer(TimeDuration interval, TaskType&& task) override;
+
 		Token SetTimer(TimeDuration timeout, TimeDuration interval, const TaskType& task) override;
+		Token SetTimer(TimeDuration timeout, TimeDuration interval, TaskType&& task) override;
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
@@ -71,6 +76,12 @@ namespace stingray
 
 		template < typename TaskType_, typename FutureExecutionTester_ >
 		void DoAddTask(TaskType_&& task, FutureExecutionTester_&& tester);
+
+		template < typename TaskType_ >
+		Token DoSetTimeout(TimeDuration timeout, TaskType_&& task);
+
+		template < typename TaskType_ >
+		Token DoSetTimer(TimeDuration timeout, TimeDuration interval, TaskType_&& task);
 
 		static void RemoveTask(const CallbackQueuePtr& queue, const CallbackInfoPtr& ci);
 

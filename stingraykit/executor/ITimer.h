@@ -24,8 +24,13 @@ namespace stingray
 		~ITimer() override { }
 
 		virtual Token SetTimeout(TimeDuration timeout, const TaskType& task) = 0;
+		virtual Token SetTimeout(TimeDuration timeout, TaskType&& task) = 0;
+
 		virtual Token SetTimer(TimeDuration interval, const TaskType& task) = 0;
+		virtual Token SetTimer(TimeDuration interval, TaskType&& task) = 0;
+
 		virtual Token SetTimer(TimeDuration timeout, TimeDuration interval, const TaskType& task) = 0;
+		virtual Token SetTimer(TimeDuration timeout, TimeDuration interval, TaskType&& task) = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(ITimer);
 

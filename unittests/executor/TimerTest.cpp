@@ -193,4 +193,34 @@ TEST(TimerTest, TaskMoving)
 		ASSERT_ANY_THROW(task());
 		ASSERT_TRUE(tester.IsDummy());
 	}
+
+	{
+		ITimer::TaskType task = NopFunctor();
+
+		const Token token1 = timer->SetTimeout(TimeDuration::Hour(), task);
+		ASSERT_NO_THROW(task());
+
+		const Token token2 = timer->SetTimeout(TimeDuration::Hour(), std::move(task));
+		ASSERT_ANY_THROW(task());
+	}
+
+	{
+		ITimer::TaskType task = NopFunctor();
+
+		const Token token1 = timer->SetTimer(TimeDuration::Hour(), task);
+		ASSERT_NO_THROW(task());
+
+		const Token token2 = timer->SetTimer(TimeDuration::Hour(), std::move(task));
+		ASSERT_ANY_THROW(task());
+	}
+
+	{
+		ITimer::TaskType task = NopFunctor();
+
+		const Token token1 = timer->SetTimer(TimeDuration::Hour(), TimeDuration::Hour(), task);
+		ASSERT_NO_THROW(task());
+
+		const Token token2 = timer->SetTimer(TimeDuration::Hour(), TimeDuration::Hour(), std::move(task));
+		ASSERT_ANY_THROW(task());
+	}
 }
