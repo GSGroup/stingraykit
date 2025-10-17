@@ -35,13 +35,14 @@ namespace stingray
 		Thread					_worker;
 
 	public:
-		WorkerWrapper(const std::string& name, optional<TimeDuration> profileTimeout, optional<TimeDuration> idleTimeout, const ExceptionHandler& exceptionHandler, const CompletedHandler& completedHandler, const Task& task)
+		template < typename Task_ >
+		WorkerWrapper(const std::string& name, optional<TimeDuration> profileTimeout, optional<TimeDuration> idleTimeout, const ExceptionHandler& exceptionHandler, const CompletedHandler& completedHandler, Task_&& task)
 			:	_name(name),
 				_profileTimeout(profileTimeout),
 				_idleTimeout(idleTimeout),
 				_exceptionHandler(exceptionHandler),
 				_completedHandler(completedHandler),
-				_task(task),
+				_task(std::forward<Task_>(task)),
 				_completed(false),
 				_idle(false),
 				_worker(_name, Bind(&WorkerWrapper::ThreadFunc, this, _1))
@@ -59,13 +60,14 @@ namespace stingray
 			return !_task;
 		}
 
-		bool TryAddTask(const Task& task)
+		template < typename Task_ >
+		bool TryAddTask(Task_&& task)
 		{
 			MutexLock l(_mutex);
 			if (_task)
 				return false;
 
-			_task = task;
+			_task = std::forward<Task_>(task);
 			_completed = false;
 			_idle = false;
 			_cond.Broadcast();
@@ -172,7 +174,32 @@ namespace stingray
 	{ STINGRAYKIT_CHECK(TryQueue(task), "Thread limit exceeded"); }
 
 
+	void ThreadPool::Queue(Task&& task)
+	{ STINGRAYKIT_CHECK(TryQueue(std::move(task)), "Thread limit exceeded"); }
+
+
 	bool ThreadPool::TryQueue(const Task& task)
+	{ return DoTryQueue(task); }
+
+
+	bool ThreadPool::TryQueue(Task&& task)
+	{ return DoTryQueue(std::move(task)); }
+
+
+	void ThreadPool::WaitQueue(const Task& task, const ICancellationToken& token)
+	{ DoWaitQueue(task, token); }
+
+
+	void ThreadPool::WaitQueue(Task&& task, const ICancellationToken& token)
+	{ DoWaitQueue(std::move(task), token); }
+
+
+	void ThreadPool::DefaultExceptionHandler(const std::exception& ex)
+	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
+
+
+	template < typename Task_ >
+	bool ThreadPool::DoTryQueue(Task_&& task)
 	{
 		MutexLock l(_mutex);
 		if (!_task)
@@ -180,7 +207,7 @@ namespace stingray
 			if (!_worker)
 				_worker.emplace(_name + "_0", Bind(&ThreadPool::ThreadFunc, this, _1));
 
-			_task = task;
+			_task = std::forward<Task_>(task);
 			_cond.Broadcast();
 			return true;
 		}
@@ -189,28 +216,29 @@ namespace stingray
 		{
 			if (!*it)
 			{
-				*it = make_unique_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (std::distance(_workers.begin(), it) + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), task);
+				*it = make_unique_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (std::distance(_workers.begin(), it) + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), std::forward<Task_>(task));
 				return true;
 			}
-			else if ((*it)->TryAddTask(task))
+			else if ((*it)->TryAddTask(std::forward<Task_>(task)))
 				return true;
 		}
 
 		if (_workers.size() + 1 >= _maxThreads)
 			return false;
 
-		_workers.push_back(make_unique_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), task));
+		_workers.push_back(make_unique_ptr<WorkerWrapper>(StringBuilder() % _name % "_" % (_workers.size() + 1), _profileTimeout, _idleTimeout, _exceptionHandler, Bind(&ThreadPool::TaskCompletedHandler, this), std::forward<Task_>(task)));
 		return true;
 	}
 
 
-	void ThreadPool::WaitQueue(const Task& task, const ICancellationToken& token)
+	template < typename Task_ >
+	void ThreadPool::DoWaitQueue(Task_&& task, const ICancellationToken& token)
 	{
 		MutexLock l(_mutex);
 
 		while (token)
 		{
-			if (TryQueue(task))
+			if (TryQueue(std::forward<Task_>(task)))
 				return;
 
 			switch (_completedCond.Wait(_mutex, token))
@@ -223,10 +251,6 @@ namespace stingray
 
 		STINGRAYKIT_THROW(OperationCancelledException());
 	}
-
-
-	void ThreadPool::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
 	void ThreadPool::TaskCompletedHandler()

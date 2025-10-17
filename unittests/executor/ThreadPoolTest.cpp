@@ -5,8 +5,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/function/bind.h>
 #include <stingraykit/executor/ThreadPool.h>
+#include <stingraykit/function/bind.h>
+#include <stingraykit/function/functional.h>
+#include <stingraykit/thread/DummyCancellationToken.h>
 
 #include <gtest/gtest.h>
 
@@ -52,4 +54,39 @@ TEST(ThreadPoolTest, DISABLED_Destruction)
 		Thread::Sleep(1500);
 	}
 	ASSERT_TRUE(results.size() == ArraySize(check) && std::equal(check, check + sizeof(check), results.begin()));
+}
+
+TEST(ThreadPoolTest, TaskMoving)
+{
+	const ThreadPoolPtr pool = make_shared_ptr<ThreadPool>("testPool", 10);
+
+	{
+		ThreadPool::Task task = NopFunctor();
+
+		pool->Queue(task);
+		ASSERT_NO_THROW(task(DummyCancellationToken()));
+
+		pool->Queue(std::move(task));
+		ASSERT_ANY_THROW(task(DummyCancellationToken()));
+	}
+
+	{
+		ThreadPool::Task task = NopFunctor();
+
+		ASSERT_TRUE(pool->TryQueue(task));
+		ASSERT_NO_THROW(task(DummyCancellationToken()));
+
+		ASSERT_TRUE(pool->TryQueue(std::move(task)));
+		ASSERT_ANY_THROW(task(DummyCancellationToken()));
+	}
+
+	{
+		ThreadPool::Task task = NopFunctor();
+
+		pool->WaitQueue(task, DummyCancellationToken());
+		ASSERT_NO_THROW(task(DummyCancellationToken()));
+
+		pool->WaitQueue(std::move(task), DummyCancellationToken());
+		ASSERT_ANY_THROW(task(DummyCancellationToken()));
+	}
 }

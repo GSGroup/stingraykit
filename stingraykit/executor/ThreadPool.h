@@ -54,12 +54,23 @@ namespace stingray
 		bool CanQueue() const;
 
 		void Queue(const Task& task);
+		void Queue(Task&& task);
+
 		bool TryQueue(const Task& task);
+		bool TryQueue(Task&& task);
+
 		void WaitQueue(const Task& task, const ICancellationToken& token);
+		void WaitQueue(Task&& task, const ICancellationToken& token);
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
+		template < typename Task_ >
+		bool DoTryQueue(Task_&& task);
+
+		template < typename Task_ >
+		void DoWaitQueue(Task_&& task, const ICancellationToken& token);
+
 		void TaskCompletedHandler();
 
 		void ThreadFunc(const ICancellationToken& token);
