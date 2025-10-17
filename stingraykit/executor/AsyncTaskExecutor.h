@@ -53,10 +53,17 @@ namespace stingray
 		explicit AsyncTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DefaultExceptionHandler);
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
+		void AddTask(const TaskType& task, FutureExecutionTester&& tester) override;
+
+		void AddTask(TaskType&& task, const FutureExecutionTester& tester = null) override;
+		void AddTask(TaskType&& task, FutureExecutionTester&& tester) override;
 
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
+		template < typename TaskType_, typename FutureExecutionTester_ >
+		void DoAddTask(TaskType_&& task, FutureExecutionTester_&& tester);
+
 		void ThreadFunc(const ICancellationToken& token);
 		void ExecuteTask(const TaskPair& task) const;
 

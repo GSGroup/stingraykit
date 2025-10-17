@@ -6,7 +6,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/executor/AsyncTaskExecutor.h>
+#include <stingraykit/executor/DeferredTaskExecutor.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/function/functional.h>
 #include <stingraykit/log/Logger.h>
 
 #include <gtest/gtest.h>
@@ -66,4 +68,114 @@ TEST(TaskExecutorTest, DISABLED_SeparatedScheduleAndExecuting)
 	catch (const std::exception& ex)
 	{ Logger::Error() << STINGRAYKIT_WHERE << ": " << ex; }
 	Logger::Info() << "TestSeparatedScheduleAndExecuting completed";
+}
+
+
+TEST(TaskExecutorTest, TaskMoving)
+{
+	{
+		const ITaskExecutorPtr executor = make_shared_ptr<AsyncTaskExecutor>("executorTest");
+
+		{
+			ITaskExecutor::TaskType task = NopFunctor();
+
+			executor->AddTask(task);
+			ASSERT_NO_THROW(task());
+
+			executor->AddTask(std::move(task));
+			ASSERT_ANY_THROW(task());
+		}
+
+		{
+			ITaskExecutor::TaskType task = NopFunctor();
+			FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+			executor->AddTask(task, tester);
+			ASSERT_NO_THROW(task());
+			ASSERT_FALSE(tester.IsDummy());
+
+			executor->AddTask(std::move(task), tester);
+			ASSERT_ANY_THROW(task());
+			ASSERT_FALSE(tester.IsDummy());
+		}
+
+		{
+			ITaskExecutor::TaskType task = NopFunctor();
+			FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+			executor->AddTask(task, tester);
+			ASSERT_NO_THROW(task());
+			ASSERT_FALSE(tester.IsDummy());
+
+			executor->AddTask(task, std::move(tester));
+			ASSERT_NO_THROW(task());
+			ASSERT_TRUE(tester.IsDummy());
+		}
+
+		{
+			ITaskExecutor::TaskType task = NopFunctor();
+			FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+			executor->AddTask(task, tester);
+			ASSERT_NO_THROW(task());
+			ASSERT_FALSE(tester.IsDummy());
+
+			executor->AddTask(std::move(task), std::move(tester));
+			ASSERT_ANY_THROW(task());
+			ASSERT_TRUE(tester.IsDummy());
+		}
+	}
+
+	{
+		const ITaskExecutorPtr executor = make_shared_ptr<DeferredTaskExecutor>("executorTest");
+
+		{
+			ITaskExecutor::TaskType task = NopFunctor();
+
+			executor->AddTask(task);
+			ASSERT_NO_THROW(task());
+
+			executor->AddTask(std::move(task));
+			ASSERT_ANY_THROW(task());
+		}
+
+		{
+			ITaskExecutor::TaskType task = NopFunctor();
+			FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+			executor->AddTask(task, tester);
+			ASSERT_NO_THROW(task());
+			ASSERT_FALSE(tester.IsDummy());
+
+			executor->AddTask(std::move(task), tester);
+			ASSERT_ANY_THROW(task());
+			ASSERT_FALSE(tester.IsDummy());
+		}
+
+		{
+			ITaskExecutor::TaskType task = NopFunctor();
+			FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+			executor->AddTask(task, tester);
+			ASSERT_NO_THROW(task());
+			ASSERT_FALSE(tester.IsDummy());
+
+			executor->AddTask(task, std::move(tester));
+			ASSERT_NO_THROW(task());
+			ASSERT_TRUE(tester.IsDummy());
+		}
+
+		{
+			ITaskExecutor::TaskType task = NopFunctor();
+			FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+			executor->AddTask(task, tester);
+			ASSERT_NO_THROW(task());
+			ASSERT_FALSE(tester.IsDummy());
+
+			executor->AddTask(std::move(task), std::move(tester));
+			ASSERT_ANY_THROW(task());
+			ASSERT_TRUE(tester.IsDummy());
+		}
+	}
 }

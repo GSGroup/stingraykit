@@ -26,6 +26,10 @@ namespace stingray
 		virtual ~ITaskExecutor() { }
 
 		virtual void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) = 0;
+		virtual void AddTask(const TaskType& task, FutureExecutionTester&& tester) = 0;
+
+		virtual void AddTask(TaskType&& task, const FutureExecutionTester& tester = null) = 0;
+		virtual void AddTask(TaskType&& task, FutureExecutionTester&& tester) = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(ITaskExecutor);
 

@@ -44,6 +44,10 @@ namespace stingray
 		explicit DeferredTaskExecutor(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandlerType& exceptionHandler = &DeferredTaskExecutor::DefaultExceptionHandler);
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
+		void AddTask(const TaskType& task, FutureExecutionTester&& tester) override;
+
+		void AddTask(TaskType&& task, const FutureExecutionTester& tester = null) override;
+		void AddTask(TaskType&& task, FutureExecutionTester&& tester) override;
 
 		void ExecuteTasks(const ICancellationToken& token) override;
 		void ClearTasks() override;
@@ -51,6 +55,9 @@ namespace stingray
 		static void DefaultExceptionHandler(const std::exception& ex);
 
 	private:
+		template < typename TaskType_, typename FutureExecutionTester_ >
+		void DoAddTask(TaskType_&& task, FutureExecutionTester_&& tester);
+
 		void ExecuteTask(const TaskPair& task) const;
 
 		std::string GetProfilerMessage(const TaskType& task) const;

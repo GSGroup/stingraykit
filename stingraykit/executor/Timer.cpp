@@ -62,8 +62,9 @@ namespace stingray
 		optional<QueueIterator>		_iterator;
 
 	public:
-		CallbackInfo(const TaskType& task, TimeDuration timeToTrigger, optional<TimeDuration> period, TaskLifeToken&& token)
-			:	_task(task),
+		template < typename TaskType_ >
+		CallbackInfo(TaskType_&& task, TimeDuration timeToTrigger, optional<TimeDuration> period, TaskLifeToken&& token)
+			:	_task(std::forward<TaskType_>(task)),
 				_timeToTrigger(timeToTrigger),
 				_period(period),
 				_token(std::move(token)),
@@ -150,13 +151,19 @@ namespace stingray
 
 
 	void Timer::AddTask(const TaskType& task, const FutureExecutionTester& tester)
-	{
-		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(MakeCancellableFunction(task, tester), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
+	{ DoAddTask(task, tester); }
 
-		MutexLock l(_queue->Sync());
-		_queue->Push(ci);
-		_cond.Broadcast();
-	}
+
+	void Timer::AddTask(const TaskType& task, FutureExecutionTester&& tester)
+	{ DoAddTask(task, std::move(tester)); }
+
+
+	void Timer::AddTask(TaskType&& task, const FutureExecutionTester& tester)
+	{ DoAddTask(std::move(task), tester); }
+
+
+	void Timer::AddTask(TaskType&& task, FutureExecutionTester&& tester)
+	{ DoAddTask(std::move(task), std::move(tester)); }
 
 
 	Token Timer::SetTimeout(TimeDuration timeout, const TaskType& task)
@@ -202,6 +209,17 @@ namespace stingray
 	{
 		if (const size_t queueSize = _queue->GetSize())
 			s_logger.Error() << "[" << _name << "] Destroying with " << queueSize << " alive timeout/timer task(s) still in the queue\nBacktrace: " << Backtrace();
+	}
+
+
+	template < typename TaskType_, typename FutureExecutionTester_ >
+	void Timer::DoAddTask(TaskType_&& task, FutureExecutionTester_&& tester)
+	{
+		const CallbackInfoPtr ci = make_shared_ptr<CallbackInfo>(MakeCancellableFunction(std::forward<TaskType_>(task), std::forward<FutureExecutionTester_>(tester)), _monotonic.Elapsed(), null, TaskLifeToken::CreateDummyTaskToken());
+
+		MutexLock l(_queue->Sync());
+		_queue->Push(ci);
+		_cond.Broadcast();
 	}
 
 

@@ -7,6 +7,7 @@
 
 #include <stingraykit/executor/Timer.h>
 #include <stingraykit/function/bind.h>
+#include <stingraykit/function/functional.h>
 #include <stingraykit/log/Logger.h>
 #include <stingraykit/thread/Thread.h>
 
@@ -137,4 +138,59 @@ TEST(TimerTest, ScheduledFunctionDeath)
 		ASSERT_EQ(param.unique(), true);
 	}
 	Logger::Info() << "TestScheduledFunctionDeath completed";
+}
+
+
+TEST(TimerTest, TaskMoving)
+{
+	const ITimerPtr timer = make_shared_ptr<Timer>("timerTest");
+
+	{
+		ITimer::TaskType task = NopFunctor();
+
+		timer->AddTask(task);
+		ASSERT_NO_THROW(task());
+
+		timer->AddTask(std::move(task));
+		ASSERT_ANY_THROW(task());
+	}
+
+	{
+		ITimer::TaskType task = NopFunctor();
+		FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+		timer->AddTask(task, tester);
+		ASSERT_NO_THROW(task());
+		ASSERT_FALSE(tester.IsDummy());
+
+		timer->AddTask(std::move(task), tester);
+		ASSERT_ANY_THROW(task());
+		ASSERT_FALSE(tester.IsDummy());
+	}
+
+	{
+		ITimer::TaskType task = NopFunctor();
+		FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+		timer->AddTask(task, tester);
+		ASSERT_NO_THROW(task());
+		ASSERT_FALSE(tester.IsDummy());
+
+		timer->AddTask(task, std::move(tester));
+		ASSERT_NO_THROW(task());
+		ASSERT_TRUE(tester.IsDummy());
+	}
+
+	{
+		ITimer::TaskType task = NopFunctor();
+		FutureExecutionTester tester = TaskLifeToken().GetExecutionTester();
+
+		timer->AddTask(task, tester);
+		ASSERT_NO_THROW(task());
+		ASSERT_FALSE(tester.IsDummy());
+
+		timer->AddTask(std::move(task), std::move(tester));
+		ASSERT_ANY_THROW(task());
+		ASSERT_TRUE(tester.IsDummy());
+	}
 }

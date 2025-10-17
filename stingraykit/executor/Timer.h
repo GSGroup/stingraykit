@@ -55,6 +55,10 @@ namespace stingray
 		explicit Timer(const std::string& name, optional<TimeDuration> profileTimeout = DefaultProfileTimeout, const ExceptionHandler& exceptionHandler = &DefaultExceptionHandler);
 
 		void AddTask(const TaskType& task, const FutureExecutionTester& tester = null) override;
+		void AddTask(const TaskType& task, FutureExecutionTester&& tester) override;
+
+		void AddTask(TaskType&& task, const FutureExecutionTester& tester = null) override;
+		void AddTask(TaskType&& task, FutureExecutionTester&& tester) override;
 
 		Token SetTimeout(TimeDuration timeout, const TaskType& task) override;
 		Token SetTimer(TimeDuration interval, const TaskType& task) override;
@@ -64,6 +68,9 @@ namespace stingray
 
 	private:
 		void ReportDestructionWarning() const;
+
+		template < typename TaskType_, typename FutureExecutionTester_ >
+		void DoAddTask(TaskType_&& task, FutureExecutionTester_&& tester);
 
 		static void RemoveTask(const CallbackQueuePtr& queue, const CallbackInfoPtr& ci);
 

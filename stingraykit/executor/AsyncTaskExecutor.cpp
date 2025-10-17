@@ -36,18 +36,35 @@ namespace stingray
 
 
 	void AsyncTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
+	{ DoAddTask(task, tester); }
+
+
+	void AsyncTaskExecutor::AddTask(const TaskType& task, FutureExecutionTester&& tester)
+	{ DoAddTask(task, std::move(tester)); }
+
+
+	void AsyncTaskExecutor::AddTask(TaskType&& task, const FutureExecutionTester& tester)
+	{ DoAddTask(std::move(task), tester); }
+
+
+	void AsyncTaskExecutor::AddTask(TaskType&& task, FutureExecutionTester&& tester)
+	{ DoAddTask(std::move(task), std::move(tester)); }
+
+
+	void AsyncTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
+	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
+
+
+	template < typename TaskType_, typename FutureExecutionTester_ >
+	void AsyncTaskExecutor::DoAddTask(TaskType_&& task, FutureExecutionTester_&& tester)
 	{
 		MutexLock l(_syncRoot);
-		_queue.emplace_back(task, tester);
+		_queue.emplace_back(std::forward<TaskType_>(task), std::forward<FutureExecutionTester_>(tester));
 		_condVar.Broadcast();
 
 		if (_queue.size() > TaskQueueSizeWarningThreshold && _queue.size() % (TaskQueueSizeWarningThreshold / 4) == 0)
 			s_logger.Error() << "[" << _name << "] Too many tasks in the queue: " << _queue.size();
 	}
-
-
-	void AsyncTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
-	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
 
 
 	void AsyncTaskExecutor::ThreadFunc(const ICancellationToken& token)

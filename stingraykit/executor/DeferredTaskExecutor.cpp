@@ -30,10 +30,19 @@ namespace stingray
 
 
 	void DeferredTaskExecutor::AddTask(const TaskType& task, const FutureExecutionTester& tester)
-	{
-		MutexLock l(_syncRoot);
-		_queue.emplace_back(task, tester);
-	}
+	{ DoAddTask(task, tester); }
+
+
+	void DeferredTaskExecutor::AddTask(const TaskType& task, FutureExecutionTester&& tester)
+	{ DoAddTask(task, std::move(tester)); }
+
+
+	void DeferredTaskExecutor::AddTask(TaskType&& task, const FutureExecutionTester& tester)
+	{ DoAddTask(std::move(task), tester); }
+
+
+	void DeferredTaskExecutor::AddTask(TaskType&& task, FutureExecutionTester&& tester)
+	{ DoAddTask(std::move(task), std::move(tester)); }
 
 
 	void DeferredTaskExecutor::ExecuteTasks(const ICancellationToken& token)
@@ -79,6 +88,14 @@ namespace stingray
 
 	void DeferredTaskExecutor::DefaultExceptionHandler(const std::exception& ex)
 	{ s_logger.Error() << "Uncaught exception:\n" << ex; }
+
+
+	template < typename TaskType_, typename FutureExecutionTester_ >
+	void DeferredTaskExecutor::DoAddTask(TaskType_&& task, FutureExecutionTester_&& tester)
+	{
+		MutexLock l(_syncRoot);
+		_queue.emplace_back(std::forward<TaskType_>(task), std::forward<FutureExecutionTester_>(tester));
+	}
 
 
 	void DeferredTaskExecutor::ExecuteTask(const TaskPair& task) const
