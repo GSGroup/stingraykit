@@ -125,7 +125,7 @@ namespace stingray
 	{
 		STINGRAYKIT_CHECK(code.size() == 2, StringBuilder() % "Invalid language code: " % code);
 
-		std::string subcode = code.substr(0, 2).copy();
+		std::string subcode = code.copy();
 		std::transform(subcode.begin(), subcode.end(), subcode.begin(), &DoToUpper);
 
 		if (subcode == "RU")
