@@ -8,9 +8,8 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/dynamic_caster.h>
 #include <stingraykit/thread/atomic/AtomicInt.h>
-#include <stingraykit/Exception.h>
-#include <stingraykit/TypeInfo.h>
 
 #define STINGRAYKIT_DECLARE_SELF_COUNT_PTR(ClassName) \
 		using ClassName##SelfCountPtr = stingray::self_count_ptr<ClassName>
@@ -32,6 +31,9 @@ namespace stingray
 
 
 	struct static_cast_tag
+	{ };
+
+	struct dynamic_cast_tag
 	{ };
 
 
@@ -92,6 +94,14 @@ namespace stingray
 		self_count_ptr(self_count_ptr<U>&& other, static_cast_tag)
 			: _rawPtr(static_cast<T*>(other._rawPtr))
 		{ other._rawPtr = 0; }
+
+		template < typename U >
+		self_count_ptr(const self_count_ptr<U>& other, dynamic_cast_tag)
+			: _rawPtr(Detail::PointersCaster<U, T>::Do(other._rawPtr))
+		{
+			if (_rawPtr)
+				_rawPtr->add_ref();
+		}
 
 		~self_count_ptr()
 		{
@@ -259,6 +269,57 @@ namespace stingray
 	template < typename T >
 	T* to_pointer(self_count_ptr<T>& ptr)
 	{ return ptr.get(); }
+
+
+	namespace Detail
+	{
+
+		template < typename SrcPtr_, typename DstPtr_ >
+		struct DynamicCastImpl<SrcPtr_, DstPtr_, typename EnableIf<IsSelfCountPtr<SrcPtr_>::Value && IsSelfCountPtr<DstPtr_>::Value, void>::ValueT>
+		{
+			static DstPtr_ Do(const SrcPtr_& src)
+			{ return DstPtr_(src, dynamic_cast_tag()); }
+		};
+
+		template < typename Src_, typename Dst_ >
+		struct DynamicCastImpl<Src_, Dst_, typename EnableIf<IsSelfCountPtr<Src_>::Value != IsSelfCountPtr<Dst_>::Value, void>::ValueT>
+		{
+			// Explicitly prohibit casting if one of the types is a pointer and another one is not
+		};
+
+		template < typename Src_ >
+		class DynamicCasterImpl<Src_, typename EnableIf<IsSelfCountPtr<Src_>::Value, void>::ValueT>
+		{
+		private:
+			Src_					_src;
+
+		public:
+			explicit DynamicCasterImpl(const Src_& src) : _src(src)
+			{ }
+
+			template < typename Dst_ >
+			operator self_count_ptr<Dst_> () const
+			{ return DynamicCast<self_count_ptr<Dst_>, Src_>(_src); }
+		};
+
+		template < typename Src_ >
+		class CheckedDynamicCaster<Src_, typename EnableIf<IsSelfCountPtr<Src_>::Value, void>::ValueT>
+		{
+		private:
+			Src_					_src;
+			ToolkitWhere			_where;
+
+		public:
+			CheckedDynamicCaster(const Src_& src, ToolkitWhere where)
+				: _src(src), _where(where)
+			{ }
+
+			template < typename Dst_ >
+			operator self_count_ptr<Dst_> () const
+			{ return CheckedDynamicCasterImpl<Src_>::template Do<self_count_ptr<Dst_>>(_src, _where); }
+		};
+
+	}
 
 
 	template < typename T >
