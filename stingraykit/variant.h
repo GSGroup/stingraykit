@@ -18,7 +18,12 @@
 			try \
 			{ __VA_ARGS__; } \
 			catch (const std::exception& ex) \
-			{ STINGRAYKIT_FATAL(StringBuilder() % ErrorMessage_ % ":\n" % ex); } \
+			{ \
+				stingray::string_ostream stream; \
+				stream << ErrorMessage_ << ":\n"; \
+				diagnostic_information(stream, ex); \
+				STINGRAYKIT_FATAL(stream.str()); \
+			} \
 		} while (0)
 
 
@@ -36,10 +41,18 @@ namespace stingray
 		std::string		_message;
 
 	public:
-		bad_variant_get(const std::string& to, const std::string& from) : _message(StringBuilder() % "Bad 'variant' get (" % to % " type requested, variant type is " % from % ")!") { }
+		bad_variant_get(const std::string& to, const std::string& from) : _message(BuildErrorMessage(to, from)) { }
 		~bad_variant_get() noexcept override { }
 
 		const char* what() const noexcept override { return _message.c_str(); }
+
+	private:
+		static std::string BuildErrorMessage(const std::string& to, const std::string& from)
+		{
+			string_ostream stream;
+			stream << "Bad 'variant' get (" << to << " type requested, variant type is " << from << ")";
+			return stream.str();
+		}
 	};
 
 
@@ -80,7 +93,11 @@ namespace stingray
 
 			template < size_t Index = 0, typename EnableIf<Index >= GetTypeListLength<typename Variant::Types>::Value, int>::ValueT = 0 >
 			static typename Visitor::RetType Apply(const Visitor& visitor, Variant& var)
-			{ STINGRAYKIT_FATAL(StringBuilder() % "Unknown type index: " % var.which()); }
+			{
+				string_ostream stream;
+				stream << "Unknown type index: " << var.which();
+				STINGRAYKIT_FATAL(stream.str());
+			}
 		};
 
 		template < typename TypeList_ >
