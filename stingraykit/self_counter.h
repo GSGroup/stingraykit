@@ -261,6 +261,15 @@ namespace stingray
 	{ return ptr.get(); }
 
 
+	template < typename T >
+	struct InstanceOfTester<self_count_ptr<T>>
+	{
+		template < typename DestType >
+		static bool Test(const self_count_ptr<const T>& ptr)
+		{ return dynamic_cast<const DestType*>(ptr.get()); }
+	};
+
+
 	template < typename T, typename... Us >
 	self_count_ptr<T> make_self_count_ptr(Us&&... args)
 	{ return self_count_ptr<T>(new T(std::forward<Us>(args)...)); }
