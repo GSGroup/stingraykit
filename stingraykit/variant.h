@@ -34,11 +34,12 @@ namespace stingray
 	{
 	private:
 		std::string		_message;
+
 	public:
 		bad_variant_get(const std::string& to, const std::string& from) : _message(StringBuilder() % "Bad 'variant' get (" % to % " type requested, variant type is " % from % ")!") { }
-		virtual ~bad_variant_get() noexcept { }
+		~bad_variant_get() noexcept override { }
 
-		virtual const char* what() const noexcept { return _message.c_str(); }
+		const char* what() const noexcept override { return _message.c_str(); }
 	};
 
 
@@ -83,16 +84,18 @@ namespace stingray
 		};
 
 		template < typename TypeList_ >
-		struct VariantBase
+		class VariantBase
 		{
+		public:
 			using Types = TypeList_;
 
 		protected:
 			using MyType = VariantBase<Types>;
 			using Storage = MultiStorageFor<Types>;
 
-			size_t	_type;
-			Storage _storage;
+		protected:
+			size_t		_type;
+			Storage		_storage;
 
 		public:
 			size_t which() const
