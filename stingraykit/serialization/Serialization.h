@@ -25,7 +25,6 @@
 #include <stingraykit/serialization/SettingsValueException.h>
 #include <stingraykit/serialization/SettingsValueForward.h>
 #include <stingraykit/string/ToString.h>
-#include <stingraykit/variant.h>
 
 namespace stingray
 {

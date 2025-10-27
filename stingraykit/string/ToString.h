@@ -12,6 +12,7 @@
 #include <stingraykit/collection/RangeBase.h>
 #include <stingraykit/string/ToStringForward.h>
 #include <stingraykit/optional.h>
+#include <stingraykit/variant.h>
 
 #include <algorithm>
 #include <ctype.h>
@@ -338,6 +339,18 @@ namespace stingray
 				}
 			};
 
+			class VariantVisitor : public static_visitor<void>
+			{
+			private:
+				string_ostream&			_result;
+
+			public:
+				explicit VariantVisitor(string_ostream& result) : _result(result) { }
+
+				template < typename U >
+				void operator () (const U& val) const { ToString(_result, val); }
+			};
+
 			template < typename Range >
 			static void PrintRange(string_ostream& result, Range& range)
 			{
@@ -480,6 +493,11 @@ namespace stingray
 				For<GetTypeListLength<Types>::Value, TuplePrinter>::Do(&result, &tuple);
 				result << ")";
 			}
+
+			template < typename Types >
+			static auto ToStringImpl(string_ostream& result, const variant<Types>& var, long)
+					-> decltype(TestTypeListToString<Types>(result, std::make_index_sequence<GetTypeListLength<Types>::Value>()), void())
+			{ var.ApplyVisitor(VariantVisitor(result)); }
 		};
 
 	}

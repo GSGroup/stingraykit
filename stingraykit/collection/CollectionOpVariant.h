@@ -9,7 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/CollectionOp.h>
-#include <stingraykit/variant.h>
+#include <stingraykit/string/ToString.h>
 
 namespace stingray
 {
@@ -112,7 +112,7 @@ namespace stingray
 		static CollectionOpVariant CreateRemoved(const ItemType& value)									{ return Removed(value); }
 		static CollectionOpVariant CreateModified(const ItemType& oldValue, const ItemType& newValue)	{ return Modified(oldValue, newValue); }
 
-		std::string ToString() const												{ return GetVariant().ToString(); }
+		std::string ToString() const												{ return stingray::ToString(GetVariant()); }
 
 		template <typename ArchiveType_> void Serialize(ArchiveType_& ar) const		{ ar.Serialize("data", _data); }
 		template <typename ArchiveType_> void Deserialize(ArchiveType_& ar)			{ ar.Deserialize("data", _data); }

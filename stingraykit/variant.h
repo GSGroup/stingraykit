@@ -8,10 +8,11 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+#include <stingraykit/Exception.h>
+#include <stingraykit/fatal.h>
 #include <stingraykit/MultiStorageFor.h>
-#include <stingraykit/string/ToString.h>
+#include <stingraykit/function/function_info.h>
 
-#include <typeinfo>
 
 #define STINGRAYKIT_ASSURE_NOTHROW(ErrorMessage_, ...) \
 		do { \
@@ -284,29 +285,11 @@ namespace stingray
 			};
 		};
 
-		template < typename TypeList_, bool StringableTypeList = TypeListAllOf<TypeList_, IsStringRepresentable>::Value >
-		struct StringRepresentableVariant : public VariantBase<TypeList_>
-		{
-		private:
-			struct ToStringVisitor : static_visitor<std::string>
-			{
-				template < typename T >
-				std::string operator () (const T& val) const { return stingray::ToString(val); }
-			};
-
-		public:
-			std::string ToString() const
-			{ return this->ApplyVisitor(ToStringVisitor()); }
-		};
-
-		template < typename TypeList_ >
-		struct StringRepresentableVariant<TypeList_, false> : public VariantBase<TypeList_>
-		{ };
 	}
 
 
 	template < typename TypeList, bool CanBeEmpty = TypeListContains<TypeList, EmptyType>::Value >
-	class variant : public Detail::StringRepresentableVariant<TypeList>
+	class variant : public Detail::VariantBase<TypeList>
 	{
 		using base = Detail::VariantBase<TypeList>;
 		using MyType = variant<TypeList, CanBeEmpty>;
@@ -442,7 +425,7 @@ namespace stingray
 
 
 	template < typename TypeList >
-	class variant<TypeList, true> : public Detail::StringRepresentableVariant<TypeList>
+	class variant<TypeList, true> : public Detail::VariantBase<TypeList>
 	{
 		using base = Detail::VariantBase<TypeList>;
 		using MyType = variant<TypeList, true>;

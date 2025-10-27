@@ -527,6 +527,9 @@ namespace
 	{ };
 	STINGRAYKIT_DECLARE_PTR(NotStringRepresentableType);
 
+	using StringRepresentableVariant = variant<TypeList<int, std::string, StringRepresentableType>>;
+	using NotStringRepresentableVariant = variant<TypeList<int, std::string, NotStringRepresentableType>>;
+
 	struct TestException final : public std::runtime_error
 	{
 		explicit TestException(const std::string& message) : std::runtime_error(message)
@@ -592,6 +595,9 @@ TEST(ToStringTest, IsFromStringInterpretable)
 	ASSERT_FALSE(IsFromStringInterpretable<decltype(MakeTuple(0, ""))>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<decltype(MakeTuple(0, StringRepresentableType("1")))>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<decltype(MakeTuple(0, NotStringRepresentableType()))>::Value);
+
+	ASSERT_FALSE(IsFromStringInterpretable<StringRepresentableVariant>::Value);
+	ASSERT_FALSE(IsFromStringInterpretable<NotStringRepresentableVariant>::Value);
 }
 
 
@@ -725,6 +731,9 @@ TEST(ToStringTest, IsStringRepresentable)
 	ASSERT_TRUE(IsStringRepresentable<decltype(MakeTuple(0, ""))>::Value);
 	ASSERT_TRUE(IsStringRepresentable<decltype(MakeTuple(0, StringRepresentableType("1")))>::Value);
 	ASSERT_FALSE(IsStringRepresentable<decltype(MakeTuple(0, NotStringRepresentableType()))>::Value);
+
+	ASSERT_TRUE(IsStringRepresentable<StringRepresentableVariant>::Value);
+	ASSERT_FALSE(IsStringRepresentable<NotStringRepresentableVariant>::Value);
 }
 
 
@@ -1071,6 +1080,13 @@ TEST(ToStringTest, ToString)
 		ASSERT_EQ(ToString(MakeTuple(1, "abc")), "(1, abc)");
 		ASSERT_EQ(ToString(MakeTuple(0, "", 0.0)), "(0, , 0)");
 		ASSERT_EQ(ToString(MakeTuple(1, "abc", 1.2)), "(1, abc, 1.2)");
+
+		ASSERT_EQ(ToString(StringRepresentableVariant(0)), "0");
+		ASSERT_EQ(ToString(StringRepresentableVariant(12)), "12");
+		ASSERT_EQ(ToString(StringRepresentableVariant(std::string("0"))), "0");
+		ASSERT_EQ(ToString(StringRepresentableVariant(std::string("12"))), "12");
+		ASSERT_EQ(ToString(StringRepresentableVariant(StringRepresentableType("0"))), "StringRepresentableType { 0 }");
+		ASSERT_EQ(ToString(StringRepresentableVariant(StringRepresentableType("12"))), "StringRepresentableType { 12 }");
 	}
 }
 
