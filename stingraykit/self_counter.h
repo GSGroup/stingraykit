@@ -15,6 +15,9 @@
 #define STINGRAYKIT_DECLARE_SELF_COUNT_PTR(ClassName) \
 		using ClassName##SelfCountPtr = stingray::self_count_ptr<ClassName>
 
+#define STINGRAYKIT_DECLARE_CONST_SELF_COUNT_PTR(ClassName) \
+		using ClassName##ConstSelfCountPtr = stingray::self_count_ptr<const ClassName>
+
 namespace stingray
 {
 
