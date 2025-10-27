@@ -12,7 +12,8 @@
 #include <stingraykit/Exception.h>
 #include <stingraykit/TypeInfo.h>
 
-#define STINGRAYKIT_DECLARE_SELF_COUNT_PTR(type) typedef stingray::self_count_ptr< type > type##SelfCountPtr;
+#define STINGRAYKIT_DECLARE_SELF_COUNT_PTR(ClassName) \
+		using ClassName##SelfCountPtr = stingray::self_count_ptr<ClassName>
 
 namespace stingray
 {
