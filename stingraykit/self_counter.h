@@ -237,6 +237,16 @@ namespace stingray
 	};
 
 
+	template < typename SelfCountPtrT >
+	struct IsSelfCountPtr : FalseType { };
+
+	template < typename T >
+	struct IsSelfCountPtr<self_count_ptr<T>> : TrueType { };
+
+	template < typename T >
+	struct IsSelfCountPtr<const self_count_ptr<T>> : TrueType { };
+
+
 	template < typename T >
 	struct ToPointer<self_count_ptr<T>>
 	{ using ValueT = T*; };
