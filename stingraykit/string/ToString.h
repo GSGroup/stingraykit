@@ -12,6 +12,7 @@
 #include <stingraykit/collection/RangeBase.h>
 #include <stingraykit/string/ToStringForward.h>
 #include <stingraykit/optional.h>
+#include <stingraykit/self_counter.h>
 #include <stingraykit/variant.h>
 
 #include <algorithm>
@@ -430,7 +431,7 @@ namespace stingray
 			}
 
 			template < typename ObjectType >
-			static auto SpecialToString(string_ostream& result, const ObjectType& object, typename EnableIf<IsSharedPtr<ObjectType>::Value || IsOptional<ObjectType>::Value, int>::ValueT)
+			static auto SpecialToString(string_ostream& result, const ObjectType& object, typename EnableIf<IsSharedPtr<ObjectType>::Value || IsSelfCountPtr<ObjectType>::Value || IsOptional<ObjectType>::Value, int>::ValueT)
 					-> decltype(ToString(result, *object), void())
 			{
 				if (object)

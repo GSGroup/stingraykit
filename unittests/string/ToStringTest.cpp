@@ -92,6 +92,19 @@ namespace
 		operator Enum () const { return _value; }
 	};
 
+	template < typename T >
+	class TestSelfCounter final : public self_counter<TestSelfCounter<T>>
+	{
+	private:
+		T		_value;
+
+	public:
+		explicit TestSelfCounter(const T& value) : _value(value) { }
+
+		std::string ToString() const
+		{ return stingray::ToString(_value); }
+	};
+
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(FromStringInvokedException, "FromString(std::string) invoked");
 	STINGRAYKIT_DECLARE_SIMPLE_EXCEPTION(FromStringViewInvokedException, "FromString(string_view) invoked");
 
@@ -583,9 +596,11 @@ TEST(ToStringTest, IsFromStringInterpretable)
 
 	ASSERT_TRUE(IsFromStringInterpretable<std::string>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<shared_ptr<std::string>>::Value);
+	ASSERT_FALSE(IsFromStringInterpretable<self_count_ptr<TestSelfCounter<std::string>>>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<optional<std::string>>::Value);
 
 	ASSERT_FALSE(IsFromStringInterpretable<shared_ptr<int>>::Value);
+	ASSERT_FALSE(IsFromStringInterpretable<self_count_ptr<TestSelfCounter<int>>>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<optional<int>>::Value);
 
 	ASSERT_TRUE(IsFromStringInterpretable<TestEnum>::Value);
@@ -722,6 +737,7 @@ TEST(ToStringTest, IsStringRepresentable)
 	ASSERT_TRUE(IsStringRepresentable<NullPtrType>::Value);
 
 	ASSERT_TRUE(IsStringRepresentable<shared_ptr<int>>::Value);
+	ASSERT_TRUE(IsStringRepresentable<self_count_ptr<TestSelfCounter<int>>>::Value);
 	ASSERT_TRUE(IsStringRepresentable<optional<int>>::Value);
 
 	ASSERT_TRUE(IsStringRepresentable<TestEnum>::Value);
@@ -1045,6 +1061,10 @@ TEST(ToStringTest, ToString)
 		ASSERT_EQ(ToString(shared_ptr<int>()), "null");
 		ASSERT_EQ(ToString(make_shared_ptr<int>(0)), "0");
 		ASSERT_EQ(ToString(make_shared_ptr<int>(1)), "1");
+
+		ASSERT_EQ(ToString(self_count_ptr<TestSelfCounter<int>>()), "null");
+		ASSERT_EQ(ToString(make_self_count_ptr<TestSelfCounter<int>>(0)), "0");
+		ASSERT_EQ(ToString(make_self_count_ptr<TestSelfCounter<int>>(1)), "1");
 
 		ASSERT_EQ(ToString(optional<int>()), "null");
 		ASSERT_EQ(ToString(make_optional_value(0)), "0");
