@@ -110,7 +110,7 @@ namespace stingray
 			{ static_cast<MyType*>(self)->_func.~RawFunctorType(); }
 
 			static std::string GetName(const IInvokableBase* self)
-			{ return get_function_name(static_cast<const MyType*>(self)->_func); }
+			{ return get_function_name(static_cast<const MyType*>(self)->_func).ToString(); }
 		};
 
 	}

@@ -42,7 +42,7 @@ namespace stingray
 			{ return this->template Do<RetType>(std::forward<Ts>(args)...); }
 
 			std::string get_name() const
-			{ return "{ CancellableFunction: " + get_function_name(_func) + " }"; }
+			{ return "{ CancellableFunction: " + get_function_name(_func).ToString() + " }"; }
 
 		private:
 			template < typename RetType_, typename... Ts, typename EnableIf<IsSame<RetType_, void>::Value, int>::ValueT = 0 >
@@ -57,7 +57,7 @@ namespace stingray
 			RetType_ Do(Ts&&... args) const
 			{
 				LocalExecutionGuard guard(_tester);
-				STINGRAYKIT_CHECK(guard, "Function " + get_function_name(_func) + " was cancelled");
+				STINGRAYKIT_CHECK(guard, "Function " + get_function_name(_func).ToString() + " was cancelled");
 
 				return FunctorInvoker::InvokeArgs(_func, std::forward<Ts>(args)...);
 			}

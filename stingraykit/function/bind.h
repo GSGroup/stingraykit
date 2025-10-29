@@ -288,7 +288,7 @@ namespace stingray
 			RetType operator () (Us&&... params) const
 			{ return FunctorInvoker::Invoke(_func, RealParameters<Us...>(_boundParams, std::forward<Us>(params)...)); }
 
-			std::string get_name() const { return "{ binder: " + get_function_name(_func) + " }"; }
+			std::string get_name() const { return "{ binder: " + get_function_name(_func).ToString() + " }"; }
 		};
 
 	}

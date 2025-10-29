@@ -25,36 +25,51 @@ namespace stingray
 	{
 		std::string FuncPtrToString(intptr_t* ptrptr, size_t n);
 
-		struct function_name_getter
+		template < typename Func_ >
+		class FunctionNameGetter
 		{
-			template < typename Func_ >
-			static std::string DoFallback(const Func_& func, typename EnableIf<function_type<Func_>::Type == FunctionType::RawFunctionPtr, int>::ValueT)
-			{ return "{ function: " + Detail::FuncPtrToString((intptr_t*)(&func), sizeof(func) / sizeof(intptr_t)) + " }"; }
-
-			template < typename Func_ >
-			static std::string DoFallback(const Func_& func, typename EnableIf<function_type<Func_>::Type == FunctionType::MethodPtr, int>::ValueT)
-			{ return "{ method: " + Detail::FuncPtrToString((intptr_t*)(&func), sizeof(func) / sizeof(intptr_t)) + " }"; }
-
-			template < typename Func_ >
-			static std::string DoFallback(const Func_& func, long)
-			{ return "{ functor: " + TypeInfo(func).GetName() + " }"; }
+		private:
+			const Func_&			_func;
 
 		public:
-			template < typename Func_ >
-			static auto Do(const Func_& func, int)
+			explicit FunctionNameGetter(const Func_& func)
+				:	_func(func)
+			{ }
+
+			std::string ToString() const
+			{ return Do(_func, 0); }
+
+		private:
+			template < typename Func__ >
+			static std::string DoFallback(const Func__& func, typename EnableIf<function_type<Func__>::Type == FunctionType::RawFunctionPtr, int>::ValueT)
+			{ return "{ function: " + Detail::FuncPtrToString((intptr_t*)(&func), sizeof(func) / sizeof(intptr_t)) + " }"; }
+
+			template < typename Func__ >
+			static std::string DoFallback(const Func__& func, typename EnableIf<function_type<Func__>::Type == FunctionType::MethodPtr, int>::ValueT)
+			{ return "{ method: " + Detail::FuncPtrToString((intptr_t*)(&func), sizeof(func) / sizeof(intptr_t)) + " }"; }
+
+			template < typename Func__ >
+			static std::string DoFallback(const Func__& func, long)
+			{ return "{ functor: " + TypeInfo(func).GetName() + " }"; }
+
+			template < typename Func__ >
+			static auto Do(const Func__& func, int)
 					-> decltype(func.get_name(), std::string())
 			{ return func.get_name(); }
 
-			template < typename Func_ >
-			static auto Do(const Func_& func, long)
+			template < typename Func__ >
+			static auto Do(const Func__& func, long)
 			{ return DoFallback(func, 0); }
 		};
 	}
 
 
 	template < typename Func_ >
-	std::string get_function_name(const Func_& func)
-	{ return Detail::function_name_getter::Do(func, 0); }
+	Detail::FunctionNameGetter<Func_> get_function_name(const Func_& func)
+	{ return Detail::FunctionNameGetter<Func_>(func); }
+
+	template < typename Func_ >
+	Detail::FunctionNameGetter<Func_> get_function_name(const Func_&& func) = delete;
 
 #endif
 

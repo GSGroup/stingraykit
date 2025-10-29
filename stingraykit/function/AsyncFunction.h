@@ -79,7 +79,7 @@ namespace stingray
 			{ return DoAddTask<RawRetType>(Bind(_func, args...)); }
 
 			std::string get_name() const
-			{ return "{ AsyncFunction: " + get_function_name(_func) + " }"; }
+			{ return "{ AsyncFunction: " + get_function_name(_func).ToString() + " }"; }
 
 		private:
 			template < typename RetType_, typename BoundFunctor_ >
