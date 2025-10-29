@@ -431,7 +431,7 @@ namespace stingray
 			}
 
 			template < typename ObjectType >
-			static auto SpecialToString(string_ostream& result, const ObjectType& object, typename EnableIf<IsSharedPtr<ObjectType>::Value || IsSelfCountPtr<ObjectType>::Value || IsOptional<ObjectType>::Value, int>::ValueT)
+			static auto SpecialToString(string_ostream& result, const ObjectType& object, typename EnableIf<IsSharedPtr<ObjectType>::Value || IsSelfCountPtr<ObjectType>::Value || IsUniquePtr<ObjectType>::Value || IsOptional<ObjectType>::Value, int>::ValueT)
 					-> decltype(ToString(result, *object), void())
 			{
 				if (object)

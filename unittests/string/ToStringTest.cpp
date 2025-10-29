@@ -597,10 +597,12 @@ TEST(ToStringTest, IsFromStringInterpretable)
 	ASSERT_TRUE(IsFromStringInterpretable<std::string>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<shared_ptr<std::string>>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<self_count_ptr<TestSelfCounter<std::string>>>::Value);
+	ASSERT_FALSE(IsFromStringInterpretable<unique_ptr<std::string>>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<optional<std::string>>::Value);
 
 	ASSERT_FALSE(IsFromStringInterpretable<shared_ptr<int>>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<self_count_ptr<TestSelfCounter<int>>>::Value);
+	ASSERT_FALSE(IsFromStringInterpretable<unique_ptr<int>>::Value);
 	ASSERT_FALSE(IsFromStringInterpretable<optional<int>>::Value);
 
 	ASSERT_TRUE(IsFromStringInterpretable<TestEnum>::Value);
@@ -738,6 +740,7 @@ TEST(ToStringTest, IsStringRepresentable)
 
 	ASSERT_TRUE(IsStringRepresentable<shared_ptr<int>>::Value);
 	ASSERT_TRUE(IsStringRepresentable<self_count_ptr<TestSelfCounter<int>>>::Value);
+	ASSERT_TRUE(IsStringRepresentable<unique_ptr<int>>::Value);
 	ASSERT_TRUE(IsStringRepresentable<optional<int>>::Value);
 
 	ASSERT_TRUE(IsStringRepresentable<TestEnum>::Value);
@@ -1065,6 +1068,10 @@ TEST(ToStringTest, ToString)
 		ASSERT_EQ(ToString(self_count_ptr<TestSelfCounter<int>>()), "null");
 		ASSERT_EQ(ToString(make_self_count_ptr<TestSelfCounter<int>>(0)), "0");
 		ASSERT_EQ(ToString(make_self_count_ptr<TestSelfCounter<int>>(1)), "1");
+
+		ASSERT_EQ(ToString(unique_ptr<int>()), "null");
+		ASSERT_EQ(ToString(make_unique_ptr<int>(0)), "0");
+		ASSERT_EQ(ToString(make_unique_ptr<int>(1)), "1");
 
 		ASSERT_EQ(ToString(optional<int>()), "null");
 		ASSERT_EQ(ToString(make_optional_value(0)), "0");
