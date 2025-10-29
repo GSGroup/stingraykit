@@ -717,7 +717,6 @@ TEST(ToStringTest, IsStringRepresentable)
 
 	ASSERT_TRUE(IsStringRepresentable<shared_ptr<int>>::Value);
 	ASSERT_TRUE(IsStringRepresentable<optional<int>>::Value);
-	ASSERT_TRUE(IsStringRepresentable<optional<int>>::Value);
 
 	ASSERT_TRUE(IsStringRepresentable<TestEnum>::Value);
 	ASSERT_TRUE(IsStringRepresentable<TestException>::Value);
