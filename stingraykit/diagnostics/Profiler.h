@@ -96,7 +96,7 @@ namespace stingray
 				if (ms > _thresholdMs)
 				{
 					if (_where)
-						_logger.Stream(_logLevel) << ms << " milliseconds - " << *_where << ": " << _message.Get();
+						_logger.Stream(_logLevel) << ms << " milliseconds - " << _where << ": " << _message.Get();
 					else
 						_logger.Stream(_logLevel) << ms << " milliseconds - " << _message.Get();
 				}
