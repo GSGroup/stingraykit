@@ -83,6 +83,8 @@ namespace
 	{
 		virtual ~Base()
 		{ }
+
+		virtual int GetValue() const = 0;
 	};
 	STINGRAYKIT_DECLARE_PTR(Base);
 
@@ -93,6 +95,9 @@ namespace
 
 		Derived1(int value) : _value(value)
 		{ }
+
+		int GetValue() const override
+		{ return _value; }
 
 		int GetValue1() const
 		{ return _value; }
@@ -106,6 +111,9 @@ namespace
 
 		Derived2(int value) : _value(value)
 		{ }
+
+		int GetValue() const override
+		{ return _value; }
 
 		int GetValue2() const
 		{ return _value; }
@@ -659,7 +667,12 @@ TEST(RangeTest, Concat)
 {
 	const std::vector<int> v1{ 0, 1, 2 };
 	const std::vector<int> v2{ 3, 4 };
+	const std::vector<unsigned> v3{ 3, 4 };
 	const std::vector<int> vEmpty;
+
+	const std::vector<Derived1Ptr> v4 = { make_shared_ptr<Derived1>(1), make_shared_ptr<Derived1>(2), make_shared_ptr<Derived1>(3), make_shared_ptr<Derived1>(4) };
+	const std::vector<Derived2Ptr> v5 = { make_shared_ptr<Derived2>(5), make_shared_ptr<Derived2>(6), make_shared_ptr<Derived2>(7), make_shared_ptr<Derived2>(8) };
+	const std::vector<BasePtr> v6 = { make_shared_ptr<Derived1>(9), make_shared_ptr<Derived2>(10), make_shared_ptr<Derived1>(11), make_shared_ptr<Derived2>(12) };
 
 	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2)), MatchRange(ElementsAre(0, 1, 2, 3, 4)));
 	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2)) | Reverse(), MatchRange(ElementsAre(4, 3, 2, 1, 0)));
@@ -681,6 +694,18 @@ TEST(RangeTest, Concat)
 
 	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2) | Filter(Bind(std::less<int>(), 3, _1))), MatchRange(ElementsAre(0, 1, 2, 4)));
 	ASSERT_THAT(Concat(ToRange(v1), ToRange(v2) | Filter(Bind(std::less<int>(), 3, _1))) | Reverse(), MatchRange(ElementsAre(4, 2, 1, 0)));
+
+	ASSERT_TRUE((IsSame<const int, decltype(Concat(ToRange(v1), ToRange(v3)))::ValueType>::Value));
+	ASSERT_THAT(Concat(ToRange(v1), ToRange(v3)), MatchRange(ElementsAre(0, 1, 2, 3, 4)));
+
+	ASSERT_TRUE((IsSame<const unsigned, decltype(Concat(ToRange(v3), ToRange(v1)))::ValueType>::Value));
+	ASSERT_THAT(Concat(ToRange(v3), ToRange(v1)), MatchRange(ElementsAre(3, 4, 0, 1, 2)));
+
+	ASSERT_TRUE((IsSame<const BasePtr, decltype(Concat(ToRange(v4), ToRange(v5), ToRange(v6)))::ValueType>::Value));
+	ASSERT_THAT(Concat(ToRange(v4), ToRange(v5), ToRange(v6)) | Transform(&Base::GetValue), MatchRange(ElementsAre(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)));
+
+	ASSERT_THAT(Concat(ToRange(v4), ToRange(v6) | OfType<Derived1Ptr>()) | Transform(&Derived1::GetValue1), MatchRange(ElementsAre(1, 2, 3, 4, 9, 11)));
+	ASSERT_THAT(Concat(ToRange(v5), ToRange(v6) | OfType<Derived2Ptr>()) | Transform(&Derived2::GetValue2), MatchRange(ElementsAre(5, 6, 7, 8, 10, 12)));
 }
 
 

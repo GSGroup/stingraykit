@@ -144,9 +144,26 @@ namespace stingray
 		};
 
 
+		template < typename LhsValueType, typename RhsValueType >
+		struct GetGeneralValueTypeHelper
+		{
+			using DereferencedLhsValueType = typename RemoveReference<LhsValueType>::ValueT;
+			using DereferencedRhsValueType = typename RemoveReference<RhsValueType>::ValueT;
+
+			static const bool DropReference = IsReference<LhsValueType>::Value != IsReference<RhsValueType>::Value
+					|| !IsSame<DereferencedLhsValueType, DereferencedRhsValueType>::Value;
+
+			using LhsValueT = typename If<DropReference, DereferencedLhsValueType, LhsValueType>::ValueT;
+			using RhsValueT = typename If<DropReference, DereferencedRhsValueType, RhsValueType>::ValueT;
+
+			using ValueT = typename If<IsConvertible<LhsValueT, RhsValueT>::Value, RhsValueT, LhsValueT>::ValueT;
+		};
+
+
 		template < typename LhsCategory, typename RhsCategory >
 		struct GetGeneralCategoryHelper
 		{ using ValueT = typename If<IsInherited<LhsCategory, RhsCategory>::Value, RhsCategory, LhsCategory>::ValueT; };
+
 
 		template < typename Range_, typename Predicate_ >
 		class RangeFilter : public RangeBase<RangeFilter<Range_, Predicate_>, typename Range_::ValueType, typename GetGeneralCategoryHelper<typename Range_::Category, std::bidirectional_iterator_tag>::ValueT>
@@ -1039,6 +1056,17 @@ namespace stingray
 
 
 		template < typename RangeTypes >
+		struct RangeConcaterValueTypeHelper
+		{
+			template < typename RangeType >
+			struct ToValueType
+			{ using ValueT = typename RangeType::ValueType; };
+
+			using ValueT = typename TypeListAccumulate<typename TypeListTransform<RangeTypes, ToValueType>::ValueT, GetGeneralValueTypeHelper, typename RangeTypes::ValueT::ValueType>::ValueT;
+		};
+
+
+		template < typename RangeTypes >
 		struct RangeConcaterCategoryHelper
 		{
 			template < typename RangeType >
@@ -1050,7 +1078,7 @@ namespace stingray
 
 
 		template < typename RangeTypes >
-		class RangeConcater : public RangeBase<RangeConcater<RangeTypes>, typename RangeTypes::ValueT::ValueType, typename RangeConcaterCategoryHelper<RangeTypes>::ValueT>
+		class RangeConcater : public RangeBase<RangeConcater<RangeTypes>, typename RangeConcaterValueTypeHelper<RangeTypes>::ValueT, typename RangeConcaterCategoryHelper<RangeTypes>::ValueT>
 		{
 			using Self = RangeConcater;
 
