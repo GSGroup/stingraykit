@@ -169,6 +169,23 @@ namespace stingray
 			return bl.IsEndOfData() || bl.HasException();
 		}
 
+		optional<MetadataType> WaitForPacket(const ICancellationToken& token) override
+		{
+			SharedCircularBuffer::BufferLock bl(_buffer);
+			SharedCircularBuffer::ReadLock rl(bl);
+
+			while (!bl.IsEndOfData() && !bl.HasException())
+			{
+				if (!_packetQueue.empty())
+					return _packetQueue.front().Metadata;
+
+				if (rl.WaitEmpty(token) != ConditionWaitResult::Broadcasted)
+					break;
+			}
+
+			return null;
+		}
+
 		void SetException(const std::exception& ex, const ICancellationToken& token) override
 		{ SharedCircularBuffer::BufferLock(_buffer).SetException(ex, token); }
 
