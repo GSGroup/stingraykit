@@ -61,6 +61,7 @@ namespace stingray
 
 			if (_packetQueue.empty())
 			{
+				bl.RethrowExceptionIfAny(STINGRAYKIT_WHERE);
 				if (bl.IsEndOfData())
 				{
 					consumer.EndOfData();
@@ -109,6 +110,7 @@ namespace stingray
 
 			STINGRAYKIT_CHECK(packet.GetSize() <= bl.GetStorageSize(), ArgumentException("packet.GetSize()", packet.GetSize()));
 			STINGRAYKIT_CHECK(!bl.IsEndOfData(), InvalidOperationException("Already got EOD"));
+			STINGRAYKIT_CHECK(!bl.HasException(), InvalidOperationException("Already got exception"));
 
 			BithreadCircularBuffer::Writer writer = wl.Write();
 
@@ -160,6 +162,15 @@ namespace stingray
 
 		size_t GetStorageSize() const override
 		{ return SharedCircularBuffer::ConstBufferLock(_buffer).GetStorageSize(); }
+
+		bool HasEndOfDataOrException() const override
+		{
+			SharedCircularBuffer::ConstBufferLock bl(_buffer);
+			return bl.IsEndOfData() || bl.HasException();
+		}
+
+		void SetException(const std::exception& ex, const ICancellationToken& token) override
+		{ SharedCircularBuffer::BufferLock(_buffer).SetException(ex, token); }
 
 		void Clear() override
 		{
