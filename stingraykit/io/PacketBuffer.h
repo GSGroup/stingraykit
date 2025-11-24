@@ -8,9 +8,10 @@
 // IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#include <stingraykit/io/SharedCircularBuffer.h>
 #include <stingraykit/io/IDataSource.h>
+#include <stingraykit/io/SharedCircularBuffer.h>
 #include <stingraykit/log/Logger.h>
+#include <stingraykit/signal/signals.h>
 
 #include <deque>
 #include <string.h>
@@ -21,6 +22,10 @@ namespace stingray
 	template < typename MetadataType >
 	class PacketBuffer final : public virtual IPacketBuffer<MetadataType>
 	{
+	public:
+		using OnOverflowSignature = typename IPacketBuffer<MetadataType>::OnOverflowSignature;
+
+	private:
 		struct PacketInfo
 		{
 			size_t			Size;
@@ -32,14 +37,15 @@ namespace stingray
 		};
 
 	private:
-		static NamedLogger			s_logger;
+		static NamedLogger					s_logger;
 
-		const bool					_discardOnOverflow;
+		const bool							_discardOnOverflow;
+		signal<OnOverflowSignature>			_onOverflow;
 
-		std::deque<PacketInfo>		_packetQueue;
-		size_t						_paddingSize;
-		SharedCircularBuffer		_buffer;
-		SharedWriteSynchronizer		_writeSync;
+		std::deque<PacketInfo>				_packetQueue;
+		size_t								_paddingSize;
+		SharedCircularBuffer				_buffer;
+		SharedWriteSynchronizer				_writeSync;
 
 	public:
 		PacketBuffer(bool discardOnOverflow, size_t bufferSize)
@@ -114,6 +120,8 @@ namespace stingray
 				if (_discardOnOverflow)
 				{
 					s_logger.Warning() << "Process: overflow " << data.size() << " bytes";
+
+					_onOverflow(data.size());
 					return true;
 				}
 
@@ -162,6 +170,9 @@ namespace stingray
 
 			bl.Clear();
 		}
+
+		signal_connector<OnOverflowSignature> OnOverflow() const override
+		{ return _onOverflow.connector(); }
 	};
 
 	template < typename MetadataType >

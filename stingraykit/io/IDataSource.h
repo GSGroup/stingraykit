@@ -170,11 +170,15 @@ namespace stingray
 	template < typename MetadataType >
 	struct IPacketBuffer : public virtual IPacketMediator<MetadataType>
 	{
+		using OnOverflowSignature = void (size_t);
+
 		virtual size_t GetDataSize() const = 0;
 		virtual size_t GetFreeSize() const = 0;
 		virtual size_t GetStorageSize() const = 0;
 
 		virtual void Clear() = 0;
+
+		virtual signal_connector<OnOverflowSignature> OnOverflow() const = 0;
 	};
 
 
