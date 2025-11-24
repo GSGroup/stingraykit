@@ -83,8 +83,6 @@ namespace stingray
 
 			static iterator CreateIterator(T* ptr, T* begin, T* end)
 			{ return iterator(ptr, begin, end); }
-			static const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
-			{ return const_iterator(ptr, begin, end); }
 		};
 #else
 		template < typename T >
@@ -95,8 +93,6 @@ namespace stingray
 
 			static iterator CreateIterator(T* ptr, T* begin, T* end)
 			{ (void)begin; (void)end; return iterator(ptr); }
-			static const_iterator CreateConstIterator(const T* ptr, const T* begin, const T* end)
-			{ (void)begin; (void)end; return const_iterator(ptr); }
 		};
 #endif
 	}
@@ -258,41 +254,23 @@ namespace stingray
 		void clear()
 		{ _data->clear(); }
 
-		iterator begin()
+		iterator begin() const
 		{
 			T* data = this->data();
 			return Detail::ByteDataIteratorSelector<T>::CreateIterator(data, data, data + size());
 		}
 
-		iterator end()
+		iterator end() const
 		{
 			T* data = this->data();
 			return Detail::ByteDataIteratorSelector<T>::CreateIterator(data + size(), data, data + size());
 		}
 
-		const_iterator begin() const
-		{
-			const T* data = this->data();
-			return Detail::ByteDataIteratorSelector<T>::CreateConstIterator(data, data, data + size());
-		}
-
-		const_iterator end() const
-		{
-			const T* data = this->data();
-			return Detail::ByteDataIteratorSelector<T>::CreateConstIterator(data + size(), data, data + size());
-		}
-
-		reverse_iterator rbegin()
+		reverse_iterator rbegin() const
 		{ return reverse_iterator(end()); }
 
-		reverse_iterator rend()
+		reverse_iterator rend() const
 		{ return reverse_iterator(begin()); }
-
-		const_reverse_iterator rbegin() const
-		{ return const_reverse_iterator(end()); }
-
-		const_reverse_iterator rend() const
-		{ return const_reverse_iterator(begin()); }
 
 		T* data() const
 		{ return empty() ? NULL : &(*_data)[_offset]; }
