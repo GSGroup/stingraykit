@@ -130,6 +130,87 @@ namespace stingray
 	};
 	STINGRAYKIT_DECLARE_PTR(EmptyDataSource);
 
+
+	template < typename MetadataType >
+	class InterceptingPacketConsumer final : public virtual IPacketConsumer<MetadataType>
+	{
+	public:
+		using ProcessFunctionType = function<void (const Packet<MetadataType>&, const ICancellationToken&)>;
+		using EodFunctionType = function<void ()>;
+
+	private:
+		using PacketConsumer = IPacketConsumer<MetadataType>;
+
+	private:
+		PacketConsumer&					_consumer;
+		ProcessFunctionType				_processFunc;
+		EodFunctionType					_eodFunc;
+
+	public:
+		InterceptingPacketConsumer(PacketConsumer& consumer, const ProcessFunctionType& processFunc, const EodFunctionType& eodFunc)
+			: _consumer(consumer), _processFunc(processFunc), _eodFunc(eodFunc)
+		{ }
+
+		bool Process(const Packet<MetadataType>& packet, const ICancellationToken& token) override
+		{
+			if (!_consumer.Process(packet, token))
+				return false;
+
+			_processFunc(packet, token);
+			return true;
+		}
+
+		void EndOfData() override
+		{
+			_consumer.EndOfData();
+			_eodFunc();
+		}
+	};
+
+
+	template < typename MetadataType >
+	class InterceptingPacketSource final : public virtual IPacketSource<MetadataType>
+	{
+	public:
+		using ProcessFunctionType = function<void (const Packet<MetadataType>& packet, const ICancellationToken&)>;
+		using EodFunctionType = function<void ()>;
+
+	private:
+		using PacketConsumer = IPacketConsumer<MetadataType>;
+
+		using PacketSource = IPacketSource<MetadataType>;
+		STINGRAYKIT_DECLARE_PTR(PacketSource);
+
+	private:
+		PacketSourcePtr					_source;
+		ProcessFunctionType				_processFunc;
+		EodFunctionType					_eodFunc;
+
+	public:
+		InterceptingPacketSource(const PacketSourcePtr& source, const ProcessFunctionType& processFunc, const EodFunctionType& eodFunc)
+			: _source(STINGRAYKIT_REQUIRE_NOT_NULL(source)), _processFunc(processFunc), _eodFunc(eodFunc)
+		{ }
+
+		void Read(PacketConsumer& consumer, const ICancellationToken& token) override
+		{ _source->ReadToFunction(Bind(&InterceptingPacketSource::Process, this, wrap_ref(consumer), _1, _2), Bind(&InterceptingPacketSource::EndOfData, this, wrap_ref(consumer)), token); }
+
+	private:
+		bool Process(PacketConsumer& consumer, const Packet<MetadataType>& packet, const ICancellationToken& token)
+		{
+			if (!consumer.Process(packet, token))
+				return false;
+
+			_processFunc(packet, token);
+			return true;
+		}
+
+		void EndOfData(PacketConsumer& consumer)
+		{
+			consumer.EndOfData();
+			_eodFunc();
+		}
+	};
+
 }
 
 #endif
