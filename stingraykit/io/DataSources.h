@@ -15,6 +15,7 @@ namespace stingray
 
 	class InterceptingDataConsumer final : public virtual IDataConsumer
 	{
+	public:
 		using ProcessFunctionType = function<void (ConstByteData, const ICancellationToken&)>;
 		using EodFunctionType = function<void (const ICancellationToken&)>;
 
@@ -45,6 +46,7 @@ namespace stingray
 
 	class InterceptingDataSource final : public virtual IDataSource
 	{
+	public:
 		using ProcessFunctionType = function<void (ConstByteData, const ICancellationToken&)>;
 		using EodFunctionType = function<void (const ICancellationToken&)>;
 
@@ -58,11 +60,11 @@ namespace stingray
 			: _source(STINGRAYKIT_REQUIRE_NOT_NULL(source)), _processFunc(processFunc), _eodFunc(eodFunc)
 		{ }
 
-		void Read(IDataConsumer& c, const ICancellationToken& token) override
-		{ _source->ReadToFunction(Bind(&InterceptingDataSource::DoPush, this, wrap_ref(c), _1, _2), Bind(&InterceptingDataSource::EndOfData, this, wrap_ref(c), _1), token); }
+		void Read(IDataConsumer& consumer, const ICancellationToken& token) override
+		{ _source->ReadToFunction(Bind(&InterceptingDataSource::Process, this, wrap_ref(consumer), _1, _2), Bind(&InterceptingDataSource::EndOfData, this, wrap_ref(consumer), _1), token); }
 
 	private:
-		size_t DoPush(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
+		size_t Process(IDataConsumer& consumer, ConstByteData data, const ICancellationToken& token)
 		{
 			const size_t size = consumer.Process(data, token);
 			_processFunc(ConstByteData(data, 0, size), token);
