@@ -407,7 +407,7 @@ namespace stingray
 
 
 	ActionLogger::ActionLogger(LogLevel logLevel, const std::string& action)
-		: _namedLogger(NULL), _logLevel(logLevel), _action(action)
+		: _namedLogger(NULL), _prefixedLogger(NULL), _logLevel(logLevel), _action(action)
 	{ Logger::Stream(logLevel) << _action << "..."; }
 
 
@@ -417,15 +417,25 @@ namespace stingray
 
 
 	ActionLogger::ActionLogger(const NamedLogger& namedLogger, LogLevel logLevel, const std::string& action)
-		: _namedLogger(&namedLogger), _logLevel(logLevel), _action(action)
+		: _namedLogger(&namedLogger), _prefixedLogger(NULL), _logLevel(logLevel), _action(action)
 	{ _namedLogger->Stream(logLevel) << _action << "..."; }
+
+
+	ActionLogger::ActionLogger(const PrefixedNamedLogger& prefixedLogger, const std::string& action)
+		: ActionLogger(prefixedLogger, LogLevel::Info, action)
+	{ }
+
+
+	ActionLogger::ActionLogger(const PrefixedNamedLogger& prefixedLogger, LogLevel logLevel, const std::string& action)
+		: _namedLogger(NULL), _prefixedLogger(&prefixedLogger), _logLevel(logLevel), _action(action)
+	{ _prefixedLogger->Stream(logLevel) << _action << "..."; }
 
 
 	ActionLogger::~ActionLogger()
 	{
 		try
 		{
-			(_namedLogger ? _namedLogger->Stream(_logLevel) : Logger::Stream(_logLevel))
+			(_prefixedLogger ? _prefixedLogger->Stream(_logLevel) : _namedLogger ? _namedLogger->Stream(_logLevel) : Logger::Stream(_logLevel))
 					<< _action << " completed" << (std::uncaught_exception() ? " with exception" : "") << " in " << ElapsedMillisecondsToString(_elapsedTime) << " ms";
 		}
 		catch (const std::exception&)

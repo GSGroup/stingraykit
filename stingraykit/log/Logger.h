@@ -259,16 +259,19 @@ namespace stingray
 	class ActionLogger
 	{
 	private:
-		const NamedLogger*		_namedLogger;
-		LogLevel				_logLevel;
-		std::string				_action;
-		ElapsedTime				_elapsedTime;
+		const NamedLogger*					_namedLogger;
+		const PrefixedNamedLogger*			_prefixedLogger;
+		LogLevel							_logLevel;
+		std::string							_action;
+		ElapsedTime							_elapsedTime;
 
 	public:
 		ActionLogger(const std::string& action);
 		ActionLogger(LogLevel logLevel, const std::string& action);
 		ActionLogger(const NamedLogger& namedLogger, const std::string& action);
 		ActionLogger(const NamedLogger& namedLogger, LogLevel logLevel, const std::string& action);
+		ActionLogger(const PrefixedNamedLogger& prefixedLogger, const std::string& action);
+		ActionLogger(const PrefixedNamedLogger& prefixedLogger, LogLevel logLevel, const std::string& action);
 		~ActionLogger();
 	};
 
