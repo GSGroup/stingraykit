@@ -18,6 +18,11 @@ using testing::Pair;
 namespace
 {
 
+	struct Base { virtual ~Base() { } };
+	struct Derived1 : public Base { };
+	struct Derived2 : public Base { };
+	using VariantWithPolymorphicTypes = variant<TypeList<Base, Derived1, Derived2>>;
+
 	struct Visitor : static_visitor<std::pair<std::string, std::string>>
 	{
 		template < typename T1, typename T2 >
@@ -96,6 +101,49 @@ TEST(VariantTest, Variant)
 	v_empty.emplace<int>(42);
 	ASSERT_TRUE(v_empty.get_ptr<int>());
 	ASSERT_EQ(v_empty.get<int>(), 42);
+}
+
+
+TEST(VariantTest, GetPolymorphic)
+{
+	{
+		VariantWithPolymorphicTypes v;
+		v.emplace<Base>();
+
+		ASSERT_NO_THROW(v.get<Base>());
+		ASSERT_ANY_THROW(v.get<Derived1>());
+		ASSERT_ANY_THROW(v.get<Derived2>());
+
+		ASSERT_TRUE(v.get_ptr<Base>());
+		ASSERT_FALSE(v.get_ptr<Derived1>());
+		ASSERT_FALSE(v.get_ptr<Derived2>());
+	}
+
+	{
+		VariantWithPolymorphicTypes v;
+		v.emplace<Derived1>();
+
+		ASSERT_ANY_THROW(v.get<Base>());
+		ASSERT_NO_THROW(v.get<Derived1>());
+		ASSERT_ANY_THROW(v.get<Derived2>());
+
+		ASSERT_FALSE(v.get_ptr<Base>());
+		ASSERT_TRUE(v.get_ptr<Derived1>());
+		ASSERT_FALSE(v.get_ptr<Derived2>());
+	}
+
+	{
+		VariantWithPolymorphicTypes v;
+		v.emplace<Derived2>();
+
+		ASSERT_ANY_THROW(v.get<Base>());
+		ASSERT_ANY_THROW(v.get<Derived1>());
+		ASSERT_NO_THROW(v.get<Derived2>());
+
+		ASSERT_FALSE(v.get_ptr<Base>());
+		ASSERT_FALSE(v.get_ptr<Derived1>());
+		ASSERT_TRUE(v.get_ptr<Derived2>());
+	}
 }
 
 

@@ -65,21 +65,6 @@ namespace stingray
 	namespace Detail
 	{
 
-		template < typename Base >
-		struct InheritanceTester
-		{
-			template < typename Derived >
-			struct Predicate : IsInherited<Derived, Base> { };
-		};
-
-		template < typename TypeList, typename Type >
-		struct TypeListFilterInheritedTypes
-		{
-			using ValueT = typename TypeListCopyIf<TypeList, InheritanceTester<Type>::template Predicate>::ValueT;
-
-			static const bool IsEmpty = GetTypeListLength<ValueT>::Value == 0;
-		};
-
 		template < typename Visitor, typename Variant >
 		struct VariantFunctorApplier
 		{
@@ -153,21 +138,21 @@ namespace stingray
 			template < typename T >
 			T* get_ptr()
 			{
-				CheckCanContainInheritedType<T>();
+				CheckCanContain<T>();
 				return GetPtr<T>();
 			}
 
 			template < typename T >
 			const T* get_ptr() const
 			{
-				CheckCanContainInheritedType<T>();
+				CheckCanContain<T>();
 				return GetPtr<T>();
 			}
 
 			template < typename T >
 			T& get()
 			{
-				CheckCanContainInheritedType<T>();
+				CheckCanContain<T>();
 				T* value = GetPtr<T>();
 				if (!value)
 					ThrowBadVariantGet<T>();
@@ -177,7 +162,7 @@ namespace stingray
 			template < typename T >
 			const T& get() const
 			{
-				CheckCanContainInheritedType<T>();
+				CheckCanContain<T>();
 				const T* value = GetPtr<T>();
 				if (!value)
 					ThrowBadVariantGet<T>();
@@ -187,7 +172,7 @@ namespace stingray
 			template < typename T >
 			bool contains() const
 			{
-				CheckCanContainInheritedType<T>();
+				CheckCanContain<T>();
 				return GetPtr<T>();
 			}
 
@@ -226,11 +211,11 @@ namespace stingray
 			struct GetPointerVisitor : static_visitor<DesiredType*>
 			{
 				template < typename Type >
-				typename EnableIf<IsInherited<Type, DesiredType>::Value, DesiredType*>::ValueT operator()(Type& value)
+				typename EnableIf<IsSame<Type, DesiredType>::Value, DesiredType*>::ValueT operator () (Type& value)
 				{ return &value; }
 
 				template < typename Type >
-				typename EnableIf<!IsInherited<Type, DesiredType>::Value, DesiredType*>::ValueT operator()(Type& value)
+				typename EnableIf<!IsSame<Type, DesiredType>::Value, DesiredType*>::ValueT operator () (Type& value)
 				{ return NULL; }
 			};
 
@@ -255,20 +240,13 @@ namespace stingray
 			{ static_assert(TypeListContains<Types, T>::Value, "Invalid type for variant"); }
 
 			template < typename T >
-			void CheckCanContainInheritedType() const
-			{
-				typedef typename Detail::TypeListFilterInheritedTypes<Types, T> InheritedTypes;
-				static_assert(!InheritedTypes::IsEmpty, "Invalid type for variant");
-			}
-
-			template < typename T >
 			void ThrowBadVariantGet() const
 			{ STINGRAYKIT_THROW(bad_variant_get(Demangle(typeid(T).name()), Demangle(type().name()))); }
 
 			struct GetTypeInfoVisitor : static_visitor<const std::type_info*>
 			{
 				template < typename T >
-				const std::type_info* operator()(const T& val) const { return &typeid(T); }
+				const std::type_info* operator () (const T& val) const { return &typeid(T); }
 			};
 
 			template < typename VariantType, template <typename> class ComparerType >
@@ -593,7 +571,7 @@ namespace stingray
 
 	template < typename T, typename TypeList >
 	const T& variant_get(const variant<TypeList>& var)
-	{ return var.template get<const T>(); }
+	{ return var.template get<T>(); }
 
 
 	template < typename Visitor, typename TypeList >
