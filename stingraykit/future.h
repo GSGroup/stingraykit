@@ -232,6 +232,41 @@ namespace stingray
 
 
 	template < typename ResultType >
+	class promise : public Detail::promise_base<ResultType>
+	{
+		STINGRAYKIT_NONCOPYABLE(promise);
+
+	public:
+		using SetType = typename Detail::shared_state_result<ResultType>::ConstructValueT;
+
+	private:
+		using Base = Detail::promise_base<ResultType>;
+
+	public:
+		promise() { }
+
+		void set_value(SetType result)
+		{ Base::_state->set_value(result); }
+	};
+
+
+	template < >
+	class promise<void> : public Detail::promise_base<void>
+	{
+		STINGRAYKIT_NONCOPYABLE(promise);
+
+	private:
+		using Base = Detail::promise_base<void>;
+
+	public:
+		promise() { }
+
+		void set_value()
+		{ Base::_state->set_value(); }
+	};
+
+
+	template < typename ResultType >
 	class shared_future
 	{
 		using SharedStateType = Detail::shared_state<ResultType>;
@@ -307,41 +342,6 @@ namespace stingray
 		explicit future(const SharedStateTypePtr& state) : _state(state) { }
 		friend future<ResultType> Detail::promise_base<ResultType>::get_future();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
-	};
-
-
-	template < typename ResultType >
-	class promise : public Detail::promise_base<ResultType>
-	{
-		STINGRAYKIT_NONCOPYABLE(promise);
-
-	public:
-		using SetType = typename Detail::shared_state_result<ResultType>::ConstructValueT;
-
-	private:
-		using Base = Detail::promise_base<ResultType>;
-
-	public:
-		promise() { }
-
-		void set_value(SetType result)
-		{ Base::_state->set_value(result); }
-	};
-
-
-	template < >
-	class promise<void> : public Detail::promise_base<void>
-	{
-		STINGRAYKIT_NONCOPYABLE(promise);
-
-	private:
-		using Base = Detail::promise_base<void>;
-
-	public:
-		promise() { }
-
-		void set_value()
-		{ Base::_state->set_value(); }
 	};
 
 	/** @} */
