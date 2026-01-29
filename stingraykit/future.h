@@ -332,22 +332,6 @@ namespace stingray
 
 
 	template < typename ResultType >
-	class shared_future : public Detail::future_base<ResultType>
-	{
-		using Base = Detail::future_base<ResultType>;
-
-	public:
-		shared_future() { }
-
-		ResultType get() const			{ Base::check_valid(); return Base::_state->get(); }
-
-	private:
-		explicit shared_future(const typename Base::SharedStateTypePtr& state) : Base(state) { }
-		friend shared_future<ResultType> future<ResultType>::share();
-	};
-
-
-	template < typename ResultType >
 	class future : public Detail::future_base<ResultType>
 	{
 		STINGRAYKIT_NONASSIGNABLE(future);
@@ -376,6 +360,22 @@ namespace stingray
 	private:
 		explicit future(const typename Base::SharedStateTypePtr& state) : Base(state) { }
 		friend future<ResultType> Detail::promise_base<ResultType>::get_future();
+	};
+
+
+	template < typename ResultType >
+	class shared_future : public Detail::future_base<ResultType>
+	{
+		using Base = Detail::future_base<ResultType>;
+
+	public:
+		shared_future() { }
+
+		ResultType get() const			{ Base::check_valid(); return Base::_state->get(); }
+
+	private:
+		explicit shared_future(const typename Base::SharedStateTypePtr& state) : Base(state) { }
+		friend shared_future<ResultType> future<ResultType>::share();
 	};
 
 	/** @} */
