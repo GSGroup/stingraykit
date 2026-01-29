@@ -334,7 +334,8 @@ namespace stingray
 	template < typename ResultType >
 	class future : public Detail::future_base<ResultType>
 	{
-		STINGRAYKIT_NONASSIGNABLE(future);
+		STINGRAYKIT_NONCOPYABLE(future);
+		STINGRAYKIT_DEFAULTMOVABLE(future);
 
 	private:
 		using Base = Detail::future_base<ResultType>;
