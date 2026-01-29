@@ -296,82 +296,86 @@ namespace stingray
 	};
 
 
-	template < typename ResultType >
-	class shared_future
+	namespace Detail
 	{
-		using SharedStateType = Detail::shared_state<ResultType>;
-		STINGRAYKIT_DECLARE_PTR(SharedStateType);
 
-	private:
-		SharedStateTypePtr			_state;
+		template < typename ResultType >
+		class future_base
+		{
+		protected:
+			using SharedStateType = Detail::shared_state<ResultType>;
+			STINGRAYKIT_DECLARE_PTR(SharedStateType);
+
+		protected:
+			SharedStateTypePtr			_state;
+
+		public:
+			void swap(future_base& other)	{ _state.swap(other._state); }
+
+			bool valid() const				{ return _state.is_initialized(); }
+			bool is_ready() const			{ check_valid(); return _state->is_ready(); }
+			bool has_exception() const		{ check_valid(); return _state->has_exception(); }
+			bool has_value() const			{ check_valid(); return _state->has_value(); }
+
+			future_status wait(const ICancellationToken& token = DummyCancellationToken()) const
+			{ check_valid(); return _state->wait(token); }
+
+		protected:
+			future_base() { }
+
+			explicit future_base(const SharedStateTypePtr& state) : _state(state) { }
+
+			void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
+		};
+
+	}
+
+
+	template < typename ResultType >
+	class shared_future : public Detail::future_base<ResultType>
+	{
+		using Base = Detail::future_base<ResultType>;
 
 	public:
 		shared_future() { }
-		~shared_future() { }
-		shared_future(const shared_future& other) : _state(other._state) { }
-		shared_future& operator= (const shared_future& other) { _state = other._state; return *this; }
-		void swap(shared_future& other)	{ _state.swap(other._state); }
 
-		bool valid() const				{ return _state.is_initialized(); }
-		bool is_ready() const			{ check_valid(); return _state->is_ready(); }
-		bool has_exception() const		{ check_valid(); return _state->has_exception(); }
-		bool has_value() const			{ check_valid(); return _state->has_value(); }
-
-		ResultType get() const			{ check_valid(); return _state->get(); }
-
-		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const
-		{ check_valid(); return _state->wait(token); }
+		ResultType get() const			{ Base::check_valid(); return Base::_state->get(); }
 
 	private:
-		explicit shared_future(const SharedStateTypePtr& state) : _state(state) { }
+		explicit shared_future(const typename Base::SharedStateTypePtr& state) : Base(state) { }
 		friend shared_future<ResultType> future<ResultType>::share();
-		void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
 	};
 
 
 	template < typename ResultType >
-	class future
+	class future : public Detail::future_base<ResultType>
 	{
 		STINGRAYKIT_NONASSIGNABLE(future);
 
 	private:
-		using SharedStateType = Detail::shared_state<ResultType>;
-		STINGRAYKIT_DECLARE_PTR(SharedStateType);
-
-	private:
-		SharedStateTypePtr			_state;
+		using Base = Detail::future_base<ResultType>;
 
 	public:
 		future() { }
-		~future() { }
-
-		bool valid() const				{ return _state.is_initialized(); }
-		bool is_ready() const			{ check_valid(); return _state->is_ready(); }
-		bool has_exception() const		{ check_valid(); return _state->has_exception(); }
-		bool has_value() const			{ check_valid(); return _state->has_value(); }
 
 		shared_future<ResultType> share()
 		{
-			SharedStateTypePtr state(_state);
-			_state.reset();
+			typename Base::SharedStateTypePtr state(Base::_state);
+			Base::_state.reset();
 			return shared_future<ResultType>(state);
 		}
 
 		ResultType get()
 		{
-			check_valid();
-			SharedStateTypePtr tmp;
-			tmp.swap(_state);
+			Base::check_valid();
+			typename Base::SharedStateTypePtr tmp;
+			tmp.swap(Base::_state);
 			return tmp->get();
 		}
 
-		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const
-		{ check_valid(); return _state->wait(token); }
-
 	private:
-		explicit future(const SharedStateTypePtr& state) : _state(state) { }
+		explicit future(const typename Base::SharedStateTypePtr& state) : Base(state) { }
 		friend future<ResultType> Detail::promise_base<ResultType>::get_future();
-		void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
 	};
 
 	/** @} */
