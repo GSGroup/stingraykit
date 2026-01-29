@@ -150,11 +150,17 @@ namespace stingray
 				notify_ready();
 			}
 
-			void set_exception(ExceptionPtr ex)
+			void set_exception(ExceptionPtr ex, bool ignoreIfReady = false)
 			{
 				MutexLock l(_mutex);
+
 				if (is_ready())
-					return;
+				{
+					if (ignoreIfReady)
+						return;
+
+					STINGRAYKIT_THROW(PromiseAlreadySatisfied());
+				}
 
 				_exception = ex;
 				notify_ready();
@@ -205,7 +211,7 @@ namespace stingray
 				try
 				{
 					if (_state)
-						_state->set_exception(MakeExceptionPtr(BrokenPromise()));
+						_state->set_exception(MakeExceptionPtr(BrokenPromise()), true);
 				}
 				catch (...)
 				{ }
