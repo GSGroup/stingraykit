@@ -50,7 +50,7 @@ namespace stingray
 			void set(T&& value)
 			{ _value.emplace(std::move(value)); }
 
-			T get()
+			T& get()
 			{ return *STINGRAYKIT_REQUIRE_INITIALIZED(_value); }
 		};
 
@@ -125,7 +125,7 @@ namespace stingray
 				return future_status::ready;
 			}
 
-			T get()
+			decltype(auto) get()
 			{
 				MutexLock l(_mutex);
 
@@ -350,7 +350,7 @@ namespace stingray
 			Base::check_valid();
 			typename Base::SharedStateTypePtr tmp;
 			tmp.swap(Base::_state);
-			return tmp->get();
+			return std::move(tmp->get());
 		}
 
 	private:
@@ -425,7 +425,7 @@ namespace stingray
 
 		shared_future(future<ResultType>&& future) : Base(std::move(future)) { }
 
-		ResultType get() const			{ Base::check_valid(); return Base::_state->get(); }
+		const ResultType& get() const			{ Base::check_valid(); return Base::_state->get(); }
 	};
 
 
