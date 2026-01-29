@@ -36,9 +36,6 @@ namespace stingray
 		template < typename T >
 		class shared_state_result
 		{
-		public:
-			using ConstructValueT = const T&;
-
 		private:
 			optional<T>		_value;
 
@@ -61,9 +58,6 @@ namespace stingray
 		template < typename T >
 		class shared_state_result<T&>
 		{
-		public:
-			using ConstructValueT = T&;
-
 		private:
 			T*				_value;
 
@@ -254,16 +248,33 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(promise);
 		STINGRAYKIT_DEFAULTMOVABLE(promise);
 
-	public:
-		using SetType = typename Detail::shared_state_result<ResultType>::ConstructValueT;
-
 	private:
 		using Base = Detail::promise_base<ResultType>;
 
 	public:
 		promise() { }
 
-		void set_value(SetType result)
+		void set_value(const ResultType& result)
+		{ Base::check_valid(); Base::_state->set_value(result); }
+
+		void set_value(ResultType&& result)
+		{ Base::check_valid(); Base::_state->set_value(std::move(result)); }
+	};
+
+
+	template < typename ResultType >
+	class promise<ResultType&> : public Detail::promise_base<ResultType&>
+	{
+		STINGRAYKIT_NONCOPYABLE(promise);
+		STINGRAYKIT_DEFAULTMOVABLE(promise);
+
+	private:
+		using Base = Detail::promise_base<ResultType&>;
+
+	public:
+		promise() { }
+
+		void set_value(ResultType& result)
 		{ Base::check_valid(); Base::_state->set_value(result); }
 	};
 
