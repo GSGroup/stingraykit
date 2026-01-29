@@ -74,20 +74,15 @@ namespace stingray
 
 		private:
 			OptionalValue	_value;
-			ExceptionPtr	_exception;
 
 		public:
 			future_result() { }
 			future_result(const T& value) : _value(value) { }
-			future_result(const ExceptionPtr& exception) : _exception(exception) { }
 
-			bool has_exception() const	{ return _exception.is_initialized(); }
-			bool has_value() const		{ return _value.is_initialized(); }
+			explicit operator bool () const { return _value.is_initialized(); }
 
 			T get()
 			{
-				if (_exception)
-					STINGRAYKIT_RETHROW_EXCEPTION(_exception);
 				STINGRAYKIT_CHECK(_value, OperationCancelledException());
 				return *_value;
 			}
@@ -99,22 +94,15 @@ namespace stingray
 		{
 		private:
 			bool			_value;
-			ExceptionPtr	_exception;
 
 		public:
 			future_result() : _value(false) { }
 			future_result(bool value) : _value(value) { }
-			future_result(const ExceptionPtr& exception) : _value(false), _exception(exception) { }
 
-			bool has_exception() const	{ return _exception.is_initialized(); }
-			bool has_value() const		{ return _value; }
+			explicit operator bool () const { return _value; }
 
 			void get()
-			{
-				if (_exception)
-					STINGRAYKIT_RETHROW_EXCEPTION(_exception);
-				STINGRAYKIT_CHECK(_value, OperationCancelledException());
-			}
+			{ STINGRAYKIT_CHECK(_value, OperationCancelledException()); }
 		};
 
 
@@ -127,12 +115,14 @@ namespace stingray
 		protected:
 			Mutex					_mutex;
 			ConditionVariable		_condition;
+
 			ResultType				_result;
+			ExceptionPtr			_exception;
 
 		public:
-			bool is_ready() const						{ MutexLock l(_mutex); return _result.has_value() || _result.has_exception(); }
-			bool has_exception() const					{ MutexLock l(_mutex); return _result.has_exception(); }
-			bool has_value() const						{ MutexLock l(_mutex); return _result.has_value(); }
+			bool is_ready() const						{ MutexLock l(_mutex); return _result || _exception; }
+			bool has_exception() const					{ MutexLock l(_mutex); return _exception.is_initialized(); }
+			bool has_value() const						{ MutexLock l(_mutex); return static_cast<bool>(_result); }
 
 			future_status wait(const ICancellationToken& token)
 			{ MutexLock l(_mutex); return do_wait(token); }
@@ -141,6 +131,10 @@ namespace stingray
 			{
 				MutexLock l(_mutex);
 				do_wait(DummyCancellationToken());
+
+				if (_exception)
+					STINGRAYKIT_RETHROW_EXCEPTION(_exception);
+
 				return _result.get();
 			}
 
@@ -150,7 +144,7 @@ namespace stingray
 				if (is_ready())
 					return;
 
-				_result = ResultType(ex);
+				_exception = ex;
 				notify_ready();
 			}
 
@@ -160,7 +154,7 @@ namespace stingray
 
 			future_status do_wait(const ICancellationToken& token)
 			{
-				while (!_result.has_value() && !_result.has_exception())
+				while (!_result && !_exception)
 					switch (_condition.Wait(_mutex, token))
 					{
 					case ConditionWaitResult::Broadcasted:	continue;
