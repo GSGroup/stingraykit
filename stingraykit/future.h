@@ -97,12 +97,11 @@ namespace stingray
 
 
 		template < typename T >
-		class future_impl_base
+		class future_impl
 		{
-		protected:
 			using ResultType = future_result<T>;
 
-		protected:
+		private:
 			Mutex					_mutex;
 			ConditionVariable		_condition;
 
@@ -128,6 +127,15 @@ namespace stingray
 				return _result.get();
 			}
 
+			template < typename U = bool >
+			void set_value(U&& value = true)
+			{
+				MutexLock l(_mutex);
+				STINGRAYKIT_CHECK(!is_ready(), PromiseAlreadySatisfied());
+				_result = ResultType(std::forward<U>(value));
+				notify_ready();
+			}
+
 			void set_exception(ExceptionPtr ex)
 			{
 				MutexLock l(_mutex);
@@ -138,7 +146,7 @@ namespace stingray
 				notify_ready();
 			}
 
-		protected:
+		private:
 			void notify_ready()
 			{ _condition.Broadcast(); }
 
@@ -153,38 +161,6 @@ namespace stingray
 					}
 
 				return future_status::ready;
-			}
-		};
-
-
-		template < typename T >
-		class future_impl : public future_impl_base<T>
-		{
-			using Base = future_impl_base<T>;
-
-		public:
-			void set_value(typename future_result<T>::ConstructValueT value)
-			{
-				MutexLock l(this->_mutex);
-				STINGRAYKIT_CHECK(!this->is_ready(), PromiseAlreadySatisfied());
-				this->_result = typename Base::ResultType(value);
-				this->notify_ready();
-			}
-		};
-
-
-		template < >
-		class future_impl<void> : public future_impl_base<void>
-		{
-			using Base = future_impl_base<void>;
-
-		public:
-			void set_value()
-			{
-				MutexLock l(this->_mutex);
-				STINGRAYKIT_CHECK(!this->is_ready(), PromiseAlreadySatisfied());
-				this->_result = Base::ResultType(true);
-				this->notify_ready();
 			}
 		};
 
