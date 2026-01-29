@@ -44,9 +44,14 @@ namespace stingray
 
 		public:
 			future_result() { }
-			future_result(const T& value) : _value(value) { }
 
 			explicit operator bool () const { return _value.is_initialized(); }
+
+			void set(const T& value)
+			{ _value = value; }
+
+			void set(T&& value)
+			{ _value = std::move(value); }
 
 			T get()
 			{ return *STINGRAYKIT_REQUIRE_INITIALIZED(_value); }
@@ -64,9 +69,11 @@ namespace stingray
 
 		public:
 			future_result() : _value() { }
-			future_result(T& value) : _value(&value) { }
 
 			explicit operator bool () const { return _value; }
+
+			void set(T& value)
+			{ _value = &value; }
 
 			T& get()
 			{ return *STINGRAYKIT_REQUIRE_NOT_NULL(_value); }
@@ -81,9 +88,11 @@ namespace stingray
 
 		public:
 			future_result() : _value(false) { }
-			future_result(bool value) : _value(value) { }
 
 			explicit operator bool () const { return _value; }
+
+			void set()
+			{ _value = true; }
 
 			void get()
 			{ }
@@ -138,12 +147,12 @@ namespace stingray
 				}
 			}
 
-			template < typename U = bool >
-			void set_value(U&& value = true)
+			template < typename... Us >
+			void set_value(Us&&... args)
 			{
 				MutexLock l(_mutex);
 				STINGRAYKIT_CHECK(!is_ready(), PromiseAlreadySatisfied());
-				_result = ResultType(std::forward<U>(value));
+				_result.set(std::forward<Us>(args)...);
 				notify_ready();
 			}
 
