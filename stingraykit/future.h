@@ -34,7 +34,7 @@ namespace stingray
 	{
 
 		template < typename T >
-		class future_result
+		class shared_state_result
 		{
 		public:
 			using ConstructValueT = const T&;
@@ -43,7 +43,7 @@ namespace stingray
 			optional<T>		_value;
 
 		public:
-			future_result() { }
+			shared_state_result() { }
 
 			explicit operator bool () const { return _value.is_initialized(); }
 
@@ -59,7 +59,7 @@ namespace stingray
 
 
 		template < typename T >
-		class future_result<T&>
+		class shared_state_result<T&>
 		{
 		public:
 			using ConstructValueT = T&;
@@ -68,7 +68,7 @@ namespace stingray
 			T*				_value;
 
 		public:
-			future_result() : _value() { }
+			shared_state_result() : _value() { }
 
 			explicit operator bool () const { return _value; }
 
@@ -81,13 +81,13 @@ namespace stingray
 
 
 		template < >
-		class future_result<void>
+		class shared_state_result<void>
 		{
 		private:
 			bool			_value;
 
 		public:
-			future_result() : _value(false) { }
+			shared_state_result() : _value(false) { }
 
 			explicit operator bool () const { return _value; }
 
@@ -100,9 +100,9 @@ namespace stingray
 
 
 		template < typename T >
-		class future_impl
+		class shared_state
 		{
-			using ResultType = future_result<T>;
+			using ResultType = shared_state_result<T>;
 
 		private:
 			Mutex					_mutex;
@@ -189,31 +189,31 @@ namespace stingray
 	template < typename ResultType >
 	class shared_future
 	{
-		using Impl = Detail::future_impl<ResultType>;
-		STINGRAYKIT_DECLARE_PTR(Impl);
+		using SharedStateType = Detail::shared_state<ResultType>;
+		STINGRAYKIT_DECLARE_PTR(SharedStateType);
 
 	private:
-		ImplPtr			_impl;
+		SharedStateTypePtr			_state;
 
 	public:
 		shared_future() { }
 		~shared_future() { }
-		shared_future(const shared_future& other) : _impl(other._impl) { }
-		shared_future& operator= (const shared_future& other) { _impl = other._impl; return *this; }
-		void swap(shared_future& other)	{ _impl.swap(other._impl); }
+		shared_future(const shared_future& other) : _state(other._state) { }
+		shared_future& operator= (const shared_future& other) { _state = other._state; return *this; }
+		void swap(shared_future& other)	{ _state.swap(other._state); }
 
-		bool valid() const				{ return _impl.is_initialized(); }
-		bool is_ready() const			{ check_valid(); return _impl->is_ready(); }
-		bool has_exception() const		{ check_valid(); return _impl->has_exception(); }
-		bool has_value() const			{ check_valid(); return _impl->has_value(); }
+		bool valid() const				{ return _state.is_initialized(); }
+		bool is_ready() const			{ check_valid(); return _state->is_ready(); }
+		bool has_exception() const		{ check_valid(); return _state->has_exception(); }
+		bool has_value() const			{ check_valid(); return _state->has_value(); }
 
-		ResultType get() const			{ check_valid(); return _impl->get(); }
+		ResultType get() const			{ check_valid(); return _state->get(); }
 
 		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const
-		{ check_valid(); return _impl->wait(token); }
+		{ check_valid(); return _state->wait(token); }
 
 	private:
-		explicit shared_future(const ImplPtr& impl) : _impl(impl) { }
+		explicit shared_future(const SharedStateTypePtr& state) : _state(state) { }
 		friend shared_future<ResultType> future<ResultType>::share();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
 	};
@@ -225,41 +225,41 @@ namespace stingray
 		STINGRAYKIT_NONASSIGNABLE(future);
 
 	private:
-		using Impl = Detail::future_impl<ResultType>;
-		STINGRAYKIT_DECLARE_PTR(Impl);
+		using SharedStateType = Detail::shared_state<ResultType>;
+		STINGRAYKIT_DECLARE_PTR(SharedStateType);
 
 	private:
-		ImplPtr			_impl;
+		SharedStateTypePtr			_state;
 
 	public:
 		future() { }
 		~future() { }
 
-		bool valid() const				{ return _impl.is_initialized(); }
-		bool is_ready() const			{ check_valid(); return _impl->is_ready(); }
-		bool has_exception() const		{ check_valid(); return _impl->has_exception(); }
-		bool has_value() const			{ check_valid(); return _impl->has_value(); }
+		bool valid() const				{ return _state.is_initialized(); }
+		bool is_ready() const			{ check_valid(); return _state->is_ready(); }
+		bool has_exception() const		{ check_valid(); return _state->has_exception(); }
+		bool has_value() const			{ check_valid(); return _state->has_value(); }
 
 		shared_future<ResultType> share()
 		{
-			ImplPtr ptr(_impl);
-			_impl.reset();
-			return shared_future<ResultType>(ptr);
+			SharedStateTypePtr state(_state);
+			_state.reset();
+			return shared_future<ResultType>(state);
 		}
 
 		ResultType get()
 		{
 			check_valid();
-			ImplPtr tmp;
-			tmp.swap(_impl);
+			SharedStateTypePtr tmp;
+			tmp.swap(_state);
 			return tmp->get();
 		}
 
 		future_status wait(const ICancellationToken& token = DummyCancellationToken()) const
-		{ check_valid(); return _impl->wait(token); }
+		{ check_valid(); return _state->wait(token); }
 
 	private:
-		explicit future(const ImplPtr& impl) : _impl(impl) { }
+		explicit future(const SharedStateTypePtr& state) : _state(state) { }
 		friend future<ResultType> promise<ResultType>::get_future();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
 	};
@@ -271,36 +271,36 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(promise);
 
 	public:
-		using SetType = typename Detail::future_result<ResultType>::ConstructValueT;
+		using SetType = typename Detail::shared_state_result<ResultType>::ConstructValueT;
 
 	private:
-		using FutureImplType = Detail::future_impl<ResultType>;
+		using SharedStateType = Detail::shared_state<ResultType>;
 
 	private:
-		shared_ptr<FutureImplType>	_futureImpl;
+		shared_ptr<SharedStateType>	_state;
 		bool						_futureRetrieved;
 
 	public:
-		promise() : _futureImpl(make_shared_ptr<FutureImplType>()), _futureRetrieved(false)
+		promise() : _state(make_shared_ptr<SharedStateType>()), _futureRetrieved(false)
 		{ }
 
 		~promise()
-		{ _futureImpl->set_exception(MakeExceptionPtr(BrokenPromise())); }
+		{ _state->set_exception(MakeExceptionPtr(BrokenPromise())); }
 
 		void swap(promise& other)
 		{
-			_futureImpl.swap(other._futureImpl);
+			_state.swap(other._state);
 			std::swap(_futureRetrieved, other._futureRetrieved);
 		}
 
 		future<ResultType> get_future()
-		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_state); }
 
 		void set_value(SetType result)
-		{ _futureImpl->set_value(result); }
+		{ _state->set_value(result); }
 
 		void set_exception(ExceptionPtr ex)
-		{ _futureImpl->set_exception(ex); }
+		{ _state->set_exception(ex); }
 	};
 
 
@@ -311,33 +311,33 @@ namespace stingray
 
 	private:
 		using ResultType = void;
-		using FutureImplType = Detail::future_impl<ResultType>;
+		using SharedStateType = Detail::shared_state<ResultType>;
 
 	private:
-		shared_ptr<FutureImplType>	_futureImpl;
+		shared_ptr<SharedStateType>	_state;
 		bool						_futureRetrieved;
 
 	public:
-		promise() : _futureImpl(make_shared_ptr<FutureImplType>()), _futureRetrieved(false)
+		promise() : _state(make_shared_ptr<SharedStateType>()), _futureRetrieved(false)
 		{ }
 
 		~promise()
-		{ _futureImpl->set_exception(MakeExceptionPtr(BrokenPromise())); }
+		{ _state->set_exception(MakeExceptionPtr(BrokenPromise())); }
 
 		void swap(promise& other)
 		{
-			_futureImpl.swap(other._futureImpl);
+			_state.swap(other._state);
 			std::swap(_futureRetrieved, other._futureRetrieved);
 		}
 
 		future<ResultType> get_future()
-		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_futureImpl); }
+		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_state); }
 
 		void set_value()
-		{ _futureImpl->set_value(); }
+		{ _state->set_value(); }
 
 		void set_exception(ExceptionPtr ex)
-		{ _futureImpl->set_exception(ex); }
+		{ _state->set_exception(ex); }
 	};
 
 	/** @} */
