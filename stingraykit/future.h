@@ -204,7 +204,12 @@ namespace stingray
 			{ }
 
 			~promise_base()
-			{ _state->set_exception(MakeExceptionPtr(BrokenPromise())); }
+			{
+				try
+				{ _state->set_exception(MakeExceptionPtr(BrokenPromise())); }
+				catch (...)
+				{ }
+			}
 
 			void swap(promise_base& other)
 			{
