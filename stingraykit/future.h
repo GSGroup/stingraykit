@@ -344,11 +344,7 @@ namespace stingray
 		future() { }
 
 		shared_future<ResultType> share()
-		{
-			typename Base::SharedStateTypePtr state(Base::_state);
-			Base::_state.reset();
-			return shared_future<ResultType>(state);
-		}
+		{ return shared_future<ResultType>(std::move(*this)); }
 
 		ResultType get()
 		{
@@ -372,11 +368,9 @@ namespace stingray
 	public:
 		shared_future() { }
 
-		ResultType get() const			{ Base::check_valid(); return Base::_state->get(); }
+		shared_future(future<ResultType>&& future) : Base(std::move(future)) { }
 
-	private:
-		explicit shared_future(const typename Base::SharedStateTypePtr& state) : Base(state) { }
-		friend shared_future<ResultType> future<ResultType>::share();
+		ResultType get() const			{ Base::check_valid(); return Base::_state->get(); }
 	};
 
 	/** @} */
