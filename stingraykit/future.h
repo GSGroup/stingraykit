@@ -48,10 +48,10 @@ namespace stingray
 			explicit operator bool () const { return _value.is_initialized(); }
 
 			void set(const T& value)
-			{ _value = value; }
+			{ _value.emplace(value); }
 
 			void set(T&& value)
-			{ _value = std::move(value); }
+			{ _value.emplace(std::move(value)); }
 
 			T get()
 			{ return *STINGRAYKIT_REQUIRE_INITIALIZED(_value); }
