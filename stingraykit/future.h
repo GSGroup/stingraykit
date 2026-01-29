@@ -206,7 +206,10 @@ namespace stingray
 			~promise_base()
 			{
 				try
-				{ _state->set_exception(MakeExceptionPtr(BrokenPromise())); }
+				{
+					if (_state)
+						_state->set_exception(MakeExceptionPtr(BrokenPromise()));
+				}
 				catch (...)
 				{ }
 			}
@@ -219,13 +222,17 @@ namespace stingray
 
 			future<ResultType> get_future()
 			{
+				check_valid();
 				STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved());
 				_futureRetrieved = true;
 				return future<ResultType>(_state);
 			}
 
 			void set_exception(ExceptionPtr ex)
-			{ _state->set_exception(ex); }
+			{ check_valid(); _state->set_exception(ex); }
+
+		protected:
+			void check_valid() const { STINGRAYKIT_CHECK(_state, InvalidFuturePromiseState()); }
 		};
 
 	}
@@ -246,7 +253,7 @@ namespace stingray
 		promise() { }
 
 		void set_value(SetType result)
-		{ Base::_state->set_value(result); }
+		{ Base::check_valid(); Base::_state->set_value(result); }
 	};
 
 
@@ -262,7 +269,7 @@ namespace stingray
 		promise() { }
 
 		void set_value()
-		{ Base::_state->set_value(); }
+		{ Base::check_valid(); Base::_state->set_value(); }
 	};
 
 
