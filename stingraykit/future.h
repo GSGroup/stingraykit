@@ -343,8 +343,7 @@ namespace stingray
 	public:
 		future() { }
 
-		shared_future<ResultType> share()
-		{ return shared_future<ResultType>(std::move(*this)); }
+		shared_future<ResultType> share();
 
 		ResultType get()
 		{
@@ -361,6 +360,62 @@ namespace stingray
 
 
 	template < typename ResultType >
+	class future<ResultType&> : public Detail::future_base<ResultType&>
+	{
+		STINGRAYKIT_NONCOPYABLE(future);
+		STINGRAYKIT_DEFAULTMOVABLE(future);
+
+	private:
+		using Base = Detail::future_base<ResultType&>;
+
+	public:
+		future() { }
+
+		shared_future<ResultType&> share();
+
+		ResultType& get()
+		{
+			Base::check_valid();
+			typename Base::SharedStateTypePtr tmp;
+			tmp.swap(Base::_state);
+			return tmp->get();
+		}
+
+	private:
+		explicit future(const typename Base::SharedStateTypePtr& state) : Base(state) { }
+		friend future<ResultType&> Detail::promise_base<ResultType&>::get_future();
+	};
+
+
+	template < >
+	class future<void> : public Detail::future_base<void>
+	{
+		STINGRAYKIT_NONCOPYABLE(future);
+		STINGRAYKIT_DEFAULTMOVABLE(future);
+
+	private:
+		using Base = Detail::future_base<void>;
+
+	public:
+		future() { }
+
+		shared_future<void> share();
+
+		void get()
+		{
+			Base::check_valid();
+			typename Base::SharedStateTypePtr tmp;
+			tmp.swap(Base::_state);
+			tmp->get();
+		}
+
+	private:
+		explicit future(const typename Base::SharedStateTypePtr& state) : Base(state) { }
+		friend future<void> Detail::promise_base<void>::get_future();
+	};
+
+
+	template < typename ResultType >
 	class shared_future : public Detail::future_base<ResultType>
 	{
 		using Base = Detail::future_base<ResultType>;
@@ -372,6 +427,20 @@ namespace stingray
 
 		ResultType get() const			{ Base::check_valid(); return Base::_state->get(); }
 	};
+
+
+	template < typename ResultType >
+	shared_future<ResultType> future<ResultType>::share()
+	{ return shared_future<ResultType>(std::move(*this)); }
+
+
+	template < typename ResultType >
+	shared_future<ResultType&> future<ResultType&>::share()
+	{ return shared_future<ResultType&>(std::move(*this)); }
+
+
+	inline shared_future<void> future<void>::share()
+	{ return shared_future<void>(std::move(*this)); }
 
 	/** @} */
 
