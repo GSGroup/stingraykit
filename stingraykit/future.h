@@ -430,6 +430,34 @@ namespace stingray
 
 
 	template < typename ResultType >
+	class shared_future<ResultType&> : public Detail::future_base<ResultType&>
+	{
+		using Base = Detail::future_base<ResultType&>;
+
+	public:
+		shared_future() { }
+
+		shared_future(future<ResultType&>&& future) : Base(std::move(future)) { }
+
+		ResultType& get() const			{ Base::check_valid(); return Base::_state->get(); }
+	};
+
+
+	template < >
+	class shared_future<void> : public Detail::future_base<void>
+	{
+		using Base = Detail::future_base<void>;
+
+	public:
+		shared_future() { }
+
+		shared_future(future<void>&& future) : Base(std::move(future)) { }
+
+		void get() const			{ Base::check_valid(); return Base::_state->get(); }
+	};
+
+
+	template < typename ResultType >
 	shared_future<ResultType> future<ResultType>::share()
 	{ return shared_future<ResultType>(std::move(*this)); }
 
