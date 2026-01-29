@@ -34,46 +34,13 @@ namespace stingray
 	{
 
 		template < typename T >
-		struct future_value_holder
-		{
-			using ConstructValueT = const T&;
-
-		private:
-			T			_value;
-
-		public:
-			future_value_holder(ConstructValueT value) : _value(value) { }
-			operator T () { return _value; }
-		};
-
-
-		template < typename T >
-		struct future_value_holder<T&>
-		{
-			using ValueT = T;
-			using ConstructValueT = T&;
-
-		private:
-			using StoredT = T*;
-
-		private:
-			StoredT			_value;
-
-		public:
-			future_value_holder(ValueT& value) : _value(&value) { }
-			operator ValueT& () { return *_value; }
-		};
-
-
-		template < typename T >
 		class future_result
 		{
 		public:
-			using WrappedResultType = future_value_holder<T>;
-			using OptionalValue = optional<WrappedResultType>;
+			using ConstructValueT = const T&;
 
 		private:
-			OptionalValue	_value;
+			optional<T>		_value;
 
 		public:
 			future_result() { }
@@ -82,6 +49,29 @@ namespace stingray
 			explicit operator bool () const { return _value.is_initialized(); }
 
 			T get()
+			{
+				STINGRAYKIT_CHECK(_value, OperationCancelledException());
+				return *_value;
+			}
+		};
+
+
+		template < typename T >
+		class future_result<T&>
+		{
+		public:
+			using ConstructValueT = T&;
+
+		private:
+			T*				_value;
+
+		public:
+			future_result() : _value() { }
+			future_result(T& value) : _value(&value) { }
+
+			explicit operator bool () const { return _value; }
+
+			T& get()
 			{
 				STINGRAYKIT_CHECK(_value, OperationCancelledException());
 				return *_value;
@@ -173,7 +163,7 @@ namespace stingray
 			using Base = future_impl_base<T>;
 
 		public:
-			void set_value(typename future_value_holder<T>::ConstructValueT value)
+			void set_value(typename future_result<T>::ConstructValueT value)
 			{
 				MutexLock l(this->_mutex);
 				STINGRAYKIT_CHECK(!this->is_ready(), PromiseAlreadySatisfied());
@@ -298,7 +288,7 @@ namespace stingray
 		STINGRAYKIT_NONCOPYABLE(promise);
 
 	public:
-		using SetType = typename Detail::future_value_holder<ResultType>::ConstructValueT;
+		using SetType = typename Detail::future_result<ResultType>::ConstructValueT;
 
 	private:
 		using FutureImplType = Detail::future_impl<ResultType>;
