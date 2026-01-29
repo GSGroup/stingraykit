@@ -203,6 +203,9 @@ namespace stingray
 			promise_base() : _state(make_shared_ptr<SharedStateType>()), _futureRetrieved(false)
 			{ }
 
+			promise_base(promise_base&& other) : _state(std::move(other._state)), _futureRetrieved(other._futureRetrieved)
+			{ other._futureRetrieved = false; }
+
 			~promise_base()
 			{
 				try
@@ -212,6 +215,13 @@ namespace stingray
 				}
 				catch (...)
 				{ }
+			}
+
+			promise_base& operator = (promise_base&& other)
+			{
+				promise_base tmp(std::move(other));
+				swap(tmp);
+				return *this;
 			}
 
 			void swap(promise_base& other)
@@ -242,6 +252,7 @@ namespace stingray
 	class promise : public Detail::promise_base<ResultType>
 	{
 		STINGRAYKIT_NONCOPYABLE(promise);
+		STINGRAYKIT_DEFAULTMOVABLE(promise);
 
 	public:
 		using SetType = typename Detail::shared_state_result<ResultType>::ConstructValueT;
@@ -261,6 +272,7 @@ namespace stingray
 	class promise<void> : public Detail::promise_base<void>
 	{
 		STINGRAYKIT_NONCOPYABLE(promise);
+		STINGRAYKIT_DEFAULTMOVABLE(promise);
 
 	private:
 		using Base = Detail::promise_base<void>;
