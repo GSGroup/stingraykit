@@ -182,8 +182,48 @@ namespace stingray
 	class shared_future;
 
 
-	template < typename ResultType >
-	class promise;
+	namespace Detail
+	{
+
+		template < typename ResultType >
+		class promise_base
+		{
+			STINGRAYKIT_NONCOPYABLE(promise_base);
+
+		protected:
+			using SharedStateType = Detail::shared_state<ResultType>;
+
+		protected:
+			shared_ptr<SharedStateType>	_state;
+
+		private:
+			bool						_futureRetrieved;
+
+		public:
+			promise_base() : _state(make_shared_ptr<SharedStateType>()), _futureRetrieved(false)
+			{ }
+
+			~promise_base()
+			{ _state->set_exception(MakeExceptionPtr(BrokenPromise())); }
+
+			void swap(promise_base& other)
+			{
+				_state.swap(other._state);
+				std::swap(_futureRetrieved, other._futureRetrieved);
+			}
+
+			future<ResultType> get_future()
+			{
+				STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved());
+				_futureRetrieved = true;
+				return future<ResultType>(_state);
+			}
+
+			void set_exception(ExceptionPtr ex)
+			{ _state->set_exception(ex); }
+		};
+
+	}
 
 
 	template < typename ResultType >
@@ -260,13 +300,13 @@ namespace stingray
 
 	private:
 		explicit future(const SharedStateTypePtr& state) : _state(state) { }
-		friend future<ResultType> promise<ResultType>::get_future();
+		friend future<ResultType> Detail::promise_base<ResultType>::get_future();
 		void check_valid() const { STINGRAYKIT_CHECK(valid(), InvalidFuturePromiseState()); }
 	};
 
 
 	template < typename ResultType >
-	class promise
+	class promise : public Detail::promise_base<ResultType>
 	{
 		STINGRAYKIT_NONCOPYABLE(promise);
 
@@ -274,70 +314,29 @@ namespace stingray
 		using SetType = typename Detail::shared_state_result<ResultType>::ConstructValueT;
 
 	private:
-		using SharedStateType = Detail::shared_state<ResultType>;
-
-	private:
-		shared_ptr<SharedStateType>	_state;
-		bool						_futureRetrieved;
+		using Base = Detail::promise_base<ResultType>;
 
 	public:
-		promise() : _state(make_shared_ptr<SharedStateType>()), _futureRetrieved(false)
-		{ }
-
-		~promise()
-		{ _state->set_exception(MakeExceptionPtr(BrokenPromise())); }
-
-		void swap(promise& other)
-		{
-			_state.swap(other._state);
-			std::swap(_futureRetrieved, other._futureRetrieved);
-		}
-
-		future<ResultType> get_future()
-		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_state); }
+		promise() { }
 
 		void set_value(SetType result)
-		{ _state->set_value(result); }
-
-		void set_exception(ExceptionPtr ex)
-		{ _state->set_exception(ex); }
+		{ Base::_state->set_value(result); }
 	};
 
 
 	template < >
-	class promise<void>
+	class promise<void> : public Detail::promise_base<void>
 	{
 		STINGRAYKIT_NONCOPYABLE(promise);
 
 	private:
-		using ResultType = void;
-		using SharedStateType = Detail::shared_state<ResultType>;
-
-	private:
-		shared_ptr<SharedStateType>	_state;
-		bool						_futureRetrieved;
+		using Base = Detail::promise_base<void>;
 
 	public:
-		promise() : _state(make_shared_ptr<SharedStateType>()), _futureRetrieved(false)
-		{ }
-
-		~promise()
-		{ _state->set_exception(MakeExceptionPtr(BrokenPromise())); }
-
-		void swap(promise& other)
-		{
-			_state.swap(other._state);
-			std::swap(_futureRetrieved, other._futureRetrieved);
-		}
-
-		future<ResultType> get_future()
-		{ STINGRAYKIT_CHECK(!_futureRetrieved, FutureAlreadyRetrieved()); _futureRetrieved = true; return future<ResultType>(_state); }
+		promise() { }
 
 		void set_value()
-		{ _state->set_value(); }
-
-		void set_exception(ExceptionPtr ex)
-		{ _state->set_exception(ex); }
+		{ Base::_state->set_value(); }
 	};
 
 	/** @} */
