@@ -49,10 +49,7 @@ namespace stingray
 			explicit operator bool () const { return _value.is_initialized(); }
 
 			T get()
-			{
-				STINGRAYKIT_CHECK(_value, OperationCancelledException());
-				return *_value;
-			}
+			{ return *STINGRAYKIT_REQUIRE_INITIALIZED(_value); }
 		};
 
 
@@ -72,10 +69,7 @@ namespace stingray
 			explicit operator bool () const { return _value; }
 
 			T& get()
-			{
-				STINGRAYKIT_CHECK(_value, OperationCancelledException());
-				return *_value;
-			}
+			{ return *STINGRAYKIT_REQUIRE_NOT_NULL(_value); }
 		};
 
 
@@ -92,7 +86,7 @@ namespace stingray
 			explicit operator bool () const { return _value; }
 
 			void get()
-			{ STINGRAYKIT_CHECK(_value, OperationCancelledException()); }
+			{ }
 		};
 
 
@@ -114,17 +108,34 @@ namespace stingray
 			bool has_value() const						{ MutexLock l(_mutex); return static_cast<bool>(_result); }
 
 			future_status wait(const ICancellationToken& token)
-			{ MutexLock l(_mutex); return do_wait(token); }
+			{
+				MutexLock l(_mutex);
+
+				while (!_result && !_exception)
+					switch (_condition.Wait(_mutex, token))
+					{
+					case ConditionWaitResult::Broadcasted:	continue;
+					case ConditionWaitResult::Cancelled:	return future_status::cancelled;
+					case ConditionWaitResult::TimedOut:		return future_status::timeout;
+					}
+
+				return future_status::ready;
+			}
 
 			T get()
 			{
 				MutexLock l(_mutex);
-				do_wait(DummyCancellationToken());
 
-				if (_exception)
-					STINGRAYKIT_RETHROW_EXCEPTION(_exception);
+				while (true)
+				{
+					if (_exception)
+						STINGRAYKIT_RETHROW_EXCEPTION(_exception);
 
-				return _result.get();
+					if (_result)
+						return _result.get();
+
+					_condition.Wait(_mutex);
+				}
 			}
 
 			template < typename U = bool >
@@ -149,19 +160,6 @@ namespace stingray
 		private:
 			void notify_ready()
 			{ _condition.Broadcast(); }
-
-			future_status do_wait(const ICancellationToken& token)
-			{
-				while (!_result && !_exception)
-					switch (_condition.Wait(_mutex, token))
-					{
-					case ConditionWaitResult::Broadcasted:	continue;
-					case ConditionWaitResult::Cancelled:	return future_status::cancelled;
-					case ConditionWaitResult::TimedOut:		return future_status::timeout;
-					}
-
-				return future_status::ready;
-			}
 		};
 
 	}
