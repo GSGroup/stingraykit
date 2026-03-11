@@ -270,6 +270,9 @@ namespace stingray
 		TokenMap()
 		{ }
 
+		bool Empty() const
+		{ return _tokens.empty(); }
+
 		bool Contains(const Key& key) const
 		{ return _tokens.find(key) != _tokens.end(); }
 
@@ -335,6 +338,9 @@ namespace stingray
 	public:
 		SynchronizedTokenMap()
 		{ }
+
+		bool Empty() const
+		{ return _tokens.empty(); }
 
 		bool Contains(const Key& key) const
 		{ MutexLock l(_mutex); return _tokens.find(key) != _tokens.end(); }
