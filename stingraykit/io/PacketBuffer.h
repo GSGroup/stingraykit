@@ -185,7 +185,7 @@ namespace stingray
 					break;
 			}
 
-			return null;
+			return _packetQueue.empty() ? null : make_optional_value(_packetQueue.front().Metadata);
 		}
 
 		void SetException(const std::exception& ex, const ICancellationToken& token) override
