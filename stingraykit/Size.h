@@ -46,6 +46,8 @@ namespace stingray
 		}
 
 		Size operator * (int k) const							{ return Size(Width * k, Height * k); }
+		Size operator * (const Size& other) const				{ return Size(Width * other.Width, Height * other.Height); }
+
 		Size operator / (int k) const							{ return Size(Width / k, Height / k); }
 		Size operator / (const Size& other) const				{ return Size(Width / other.Width, Height / other.Height); }
 
