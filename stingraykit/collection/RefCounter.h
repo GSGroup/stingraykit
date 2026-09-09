@@ -19,7 +19,7 @@ namespace stingray
 		size_t		_refs;
 
 	public:
-		RefCounter() : _refs() { }
+		RefCounter(size_t refs = 0) : _refs(refs) { }
 
 		size_t count() const
 		{ return _refs; }
