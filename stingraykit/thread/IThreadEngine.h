@@ -169,6 +169,9 @@ namespace stingray
 			return result -= other;
 		}
 
+		bool IsEmpty() const
+		{ return _uTime == TimeDuration() && _sTime == TimeDuration(); }
+
 		TimeDuration GetUserTime() const	{ return _uTime; }
 		TimeDuration GetSystemTime() const	{ return _sTime; }
 
