@@ -58,7 +58,7 @@ namespace stingray
 		ValueType		Y2;
 
 		BasicRect() : X1(0), Y1(0), X2(0), Y2(0) { }
-		BasicRect(Size size) : X1(0), Y1(0), X2(size.Width), Y2(size.Height) { }
+		explicit BasicRect(Size size) : X1(0), Y1(0), X2(size.Width), Y2(size.Height) { }
 		BasicRect(ValueType w, ValueType h) : X1(0), Y1(0), X2(w), Y2(h) { }
 		BasicRect(ValueType x1, ValueType y1, ValueType x2, ValueType y2) : X1(x1), Y1(y1), X2(x2), Y2(y2) { }
 
