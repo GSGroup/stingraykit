@@ -59,7 +59,7 @@
 
 #define DETAIL_ENUM_CLASS_DEFINE_OPERATOR(ClassName, OP) \
 		template < typename T > \
-		bool operator OP (T other) const \
+		constexpr bool operator OP (T other) const \
 		{ \
 			static_assert(stingray::IsInherited<T, ClassName>::Value, "Invalid enum used"); \
 			return *this OP (Enum)other; \
