@@ -19,18 +19,38 @@ namespace stingray
 	constexpr s64 Abs(s64 val) { return val >= 0 ? val : -val; }
 
 
-	template < typename T > constexpr T AlignUp(T value, T boundary)
+	template < typename T >
+	constexpr T AlignUp(T value, T boundary)
 	{
 		STINGRAYKIT_CHECK(boundary != 0, ArgumentException("boundary"));
 		return boundary * ((value + boundary - 1) / boundary);
 	}
 
 
-	template < typename T > constexpr T AlignDown(T value, T boundary)
+	template < typename T >
+	constexpr T AlignDown(T value, T boundary)
 	{
 		STINGRAYKIT_CHECK(boundary != 0, ArgumentException("boundary"));
 		return boundary * (value / boundary);
 	}
+
+
+	template < typename T >
+	constexpr T LogarithmicAlignUp(T value, T base)
+	{
+		STINGRAYKIT_CHECK(base > 1, ArgumentException("base"));
+
+		T result = base;
+		while (value > result)
+			result *= base;
+
+		return result;
+	}
+
+
+	template < typename T >
+	constexpr T LogarithmicAlignDown(T value, T base)
+	{ return LogarithmicAlignUp(value, base) / base; }
 
 
 	constexpr size_t Gcd(size_t a, size_t b) { return b ? Gcd(b, a % b) : a; }

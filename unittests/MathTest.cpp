@@ -14,6 +14,17 @@ using ::testing::Field;
 
 using namespace stingray;
 
+
+TEST(MathTest, LogarithmicAlign)
+{
+	ASSERT_EQ(LogarithmicAlignUp(1280, 10), 10000);
+	ASSERT_EQ(LogarithmicAlignUp(720, 10), 1000);
+
+	ASSERT_EQ(LogarithmicAlignDown(1280, 10), 1000);
+	ASSERT_EQ(LogarithmicAlignDown(720, 10), 100);
+}
+
+
 #define CHECK_REMAINDER(Dividend, Divisor, TargetPrecision, ResultRemainder, ResultPrecision, ResultIsOverflow) \
 		ASSERT_THAT(CalculateFractionRemainder(Dividend, Divisor, TargetPrecision), \
 				AllOf( \
