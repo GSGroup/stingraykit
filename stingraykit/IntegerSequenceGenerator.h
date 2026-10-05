@@ -27,6 +27,8 @@ namespace stingray
 		{ }
 
 		IntegerType Next() { return _sequence++; }
+
+		IntegerType Peek() const { return _sequence; }
 	};
 
 }
