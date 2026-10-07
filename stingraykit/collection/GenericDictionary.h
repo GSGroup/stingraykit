@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ForEach.h>
+#include <stingraykit/collection/GenericCollection.h>
 #include <stingraykit/collection/IDictionary.h>
 #include <stingraykit/collection/KeyExceptionCreator.h>
 #include <stingraykit/function/function.h>
@@ -23,7 +24,9 @@ namespace stingray
 	 */
 
 	template < typename MapType_ >
-	class GenericDictionary : public virtual IDictionary<typename MapType_::key_type, typename MapType_::mapped_type>
+	class GenericDictionary
+		:	public virtual IDictionary<typename MapType_::key_type, typename MapType_::mapped_type>,
+			public GenericCollection<MapType_, KeyValuePair<typename MapType_::key_type, typename MapType_::mapped_type>>
 	{
 		static_assert(comparers::IsRelationalComparer<typename MapType_::key_compare>::Value, "Expected Relational comparer");
 
@@ -33,36 +36,11 @@ namespace stingray
 
 		using PairType = KeyValuePair<KeyType, ValueType>;
 		using MapType = MapType_;
-		STINGRAYKIT_DECLARE_PTR(MapType);
 
-	private:
-		struct Holder
-		{
-			const MapTypePtr		Items;
-
-			explicit Holder(const MapTypePtr& items) : Items(items) { }
-		};
-		STINGRAYKIT_DECLARE_PTR(Holder);
-
-		class ReverseEnumerable : public virtual IEnumerable<PairType>
-		{
-		private:
-			const HolderPtr			_holder;
-
-		public:
-			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
-
-			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
-			{ return EnumeratorFromStlIterators<PairType>(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
-		};
-
-	private:
-		MapTypePtr				_items;
-		mutable HolderWeakPtr	_itemsHolder;
+		using BaseType = GenericCollection<MapType, PairType>;
 
 	public:
 		GenericDictionary()
-			:	_items(make_shared_ptr<MapType>())
 		{ }
 
 		explicit GenericDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
@@ -70,57 +48,44 @@ namespace stingray
 		{ }
 
 		explicit GenericDictionary(const shared_ptr<IEnumerator<PairType>>& enumerator)
-			:	_items(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 			FOR_EACH(const PairType pair IN enumerator)
 				Set(pair.Key, pair.Value);
 		}
 
-		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
-		{ return EnumeratorFromStlContainer<PairType>(*_items, GetItemsHolder()); }
-
-		shared_ptr<IEnumerable<PairType>> Reverse() const override
-		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
-
-		size_t GetCount() const override
-		{ return _items->size(); }
-
-		bool IsEmpty() const override
-		{ return _items->empty(); }
-
 		bool ContainsKey(const KeyType& key) const override
-		{ return _items->find(key) != _items->end(); }
+		{ return BaseType::_items->find(key) != BaseType::_items->end(); }
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
-			const auto it = _items->find(key);
-			if (it == _items->end())
+			const auto it = BaseType::_items->find(key);
+			if (it == BaseType::_items->end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(it, _items->end(), GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(it, BaseType::_items->end(), BaseType::GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
-			auto it = _items->find(key);
-			if (it == _items->end())
+			auto it = BaseType::_items->find(key);
+			if (it == BaseType::_items->end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(typename MapType::const_reverse_iterator(++it), _items->crend(), GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(typename MapType::const_reverse_iterator(++it), BaseType::_items->crend(), BaseType::GetItemsHolder());
 		}
 
 		ValueType Get(const KeyType& key) const override
 		{
-			const auto it = _items->find(key);
-			STINGRAYKIT_CHECK(it != _items->end(), CreateKeyNotFoundException(key));
+			const auto it = BaseType::_items->find(key);
+			STINGRAYKIT_CHECK(it != BaseType::_items->end(), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
 		bool TryGet(const KeyType& key, ValueType& outValue) const override
 		{
-			const auto it = _items->find(key);
-			if (it != _items->end())
+			const auto it = BaseType::_items->find(key);
+			if (it != BaseType::_items->end())
 			{
 				outValue = it->second;
 				return true;
@@ -137,27 +102,27 @@ namespace stingray
 
 		bool Remove(const KeyType& key) override
 		{
-			const auto it = _items->find(key);
-			if (it == _items->end())
+			const auto it = BaseType::_items->find(key);
+			if (it == BaseType::_items->end())
 				return false;
 
-			if (CopyOnWrite())
-				_items->erase(key);
+			if (BaseType::CopyOnWrite())
+				BaseType::_items->erase(key);
 			else
-				_items->erase(it);
+				BaseType::_items->erase(it);
 
 			return true;
 		}
 
 		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 		{
-			CopyOnWrite();
+			BaseType::CopyOnWrite();
 			size_t ret = 0;
-			for (auto it = _items->begin(); it != _items->end(); )
+			for (auto it = BaseType::_items->begin(); it != BaseType::_items->end(); )
 			{
 				if (pred(it->first, it->second))
 				{
-					it = _items->erase(it);
+					it = BaseType::_items->erase(it);
 					++ret;
 				}
 				else
@@ -167,28 +132,20 @@ namespace stingray
 		}
 
 		void Clear() override
-		{
-			if (_itemsHolder.expired())
-				_items->clear();
-			else
-			{
-				_items = make_shared_ptr<MapType>();
-				_itemsHolder.reset();
-			}
-		}
+		{ BaseType::DoClear(); }
 
 	private:
 		template < typename MapType__ >
 		auto DoAdd(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), bool())
 		{
-			const auto it = _items->lower_bound(key);
-			if (it != _items->end() && !typename MapType__::key_compare()(key, it->first))
+			const auto it = BaseType::_items->lower_bound(key);
+			if (it != BaseType::_items->end() && !typename MapType__::key_compare()(key, it->first))
 				return false;
 
-			if (CopyOnWrite())
-				_items->emplace(key, value);
+			if (BaseType::CopyOnWrite())
+				BaseType::_items->emplace(key, value);
 			else
-				_items->emplace_hint(it, key, value);
+				BaseType::_items->emplace_hint(it, key, value);
 
 			return true;
 		}
@@ -196,55 +153,30 @@ namespace stingray
 		template < typename MapType__ >
 		bool DoAdd(const KeyType& key, const ValueType& value, long)
 		{
-			CopyOnWrite();
-			return _items->emplace(key, value).second;
+			BaseType::CopyOnWrite();
+			return BaseType::_items->emplace(key, value).second;
 		}
 
 		template < typename MapType__ >
 		auto DoSet(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), void())
 		{
-			CopyOnWrite();
-			const auto it = _items->lower_bound(key);
-			if (it != _items->end() && !typename MapType__::key_compare()(key, it->first))
+			BaseType::CopyOnWrite();
+			const auto it = BaseType::_items->lower_bound(key);
+			if (it != BaseType::_items->end() && !typename MapType__::key_compare()(key, it->first))
 				it->second = value;
 			else
-				_items->emplace_hint(it, key, value);
+				BaseType::_items->emplace_hint(it, key, value);
 		}
 
 		template < typename MapType__ >
 		void DoSet(const KeyType& key, const ValueType& value, long)
 		{
-			CopyOnWrite();
-			const auto it = _items->find(key);
-			if (it != _items->end())
+			BaseType::CopyOnWrite();
+			const auto it = BaseType::_items->find(key);
+			if (it != BaseType::_items->end())
 				it->second = value;
 			else
-				_items->emplace(key, value);
-		}
-
-		void CopyItems(const MapTypePtr& items)
-		{
-			_items = make_shared_ptr<MapType>(*items);
-			_itemsHolder.reset();
-		}
-
-		HolderPtr GetItemsHolder() const
-		{
-			HolderPtr itemsHolder = _itemsHolder.lock();
-
-			if (!itemsHolder)
-				_itemsHolder = (itemsHolder = make_shared_ptr<Holder>(_items));
-
-			return itemsHolder;
-		}
-
-		bool CopyOnWrite()
-		{
-			if (_itemsHolder.expired())
-				return false;
-
-			CopyItems(_items);
-			return true;
+				BaseType::_items->emplace(key, value);
 		}
 	};
 
