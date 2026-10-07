@@ -10,6 +10,7 @@
 
 #include <stingraykit/collection/EnumerableHelpers.h>
 #include <stingraykit/collection/ForEach.h>
+#include <stingraykit/collection/GenericCollection.h>
 #include <stingraykit/collection/IMultiDictionary.h>
 #include <stingraykit/collection/KeyExceptionCreator.h>
 #include <stingraykit/collection/iterators.h>
@@ -27,7 +28,9 @@ namespace stingray
 	 */
 
 	template < typename KeyType_, typename ValueType_, typename KeyCompareType_ = comparers::Less, typename ValueCompareType_ = comparers::Equals >
-	class MultiMapDictionary : public virtual IMultiDictionary<KeyType_, ValueType_>
+	class MultiMapDictionary
+		:	public virtual IMultiDictionary<KeyType_, ValueType_>,
+			public GenericCollection<std::multimap<KeyType_, ValueType_, KeyCompareType_>, KeyValuePair<KeyType_, ValueType_>>
 	{
 		static_assert(comparers::IsRelationalComparer<KeyCompareType_>::Value, "Expected Relational comparer");
 		static_assert(comparers::IsEqualsComparer<ValueCompareType_>::Value, "Expected Equals comparer");
@@ -40,36 +43,11 @@ namespace stingray
 
 		using PairType = KeyValuePair<KeyType, ValueType>;
 		using MapType = std::multimap<KeyType, ValueType, KeyCompareType>;
-		STINGRAYKIT_DECLARE_PTR(MapType);
 
-	private:
-		struct Holder
-		{
-			const MapTypePtr		Map;
-
-			explicit Holder(const MapTypePtr& map) : Map(map) { }
-		};
-		STINGRAYKIT_DECLARE_PTR(Holder);
-
-		class ReverseEnumerable : public virtual IEnumerable<PairType>
-		{
-		private:
-			const HolderPtr			_holder;
-
-		public:
-			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
-
-			shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
-			{ return EnumeratorFromStlIterators<PairType>(_holder->Map->rbegin(), _holder->Map->rend(), _holder); }
-		};
-
-	private:
-		MapTypePtr				_map;
-		mutable HolderWeakPtr	_mapHolder;
+		using BaseType = GenericCollection<MapType, PairType>;
 
 	public:
 		MultiMapDictionary()
-			:	_map(make_shared_ptr<MapType>())
 		{ }
 
 		explicit MultiMapDictionary(const shared_ptr<IEnumerable<PairType>>& enumerable)
@@ -77,62 +55,49 @@ namespace stingray
 		{ }
 
 		explicit MultiMapDictionary(const shared_ptr<IEnumerator<PairType>>& enumerator)
-			:	_map(make_shared_ptr<MapType>())
 		{
 			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 			FOR_EACH(const PairType pair IN enumerator)
 				Add(pair.Key, pair.Value);
 		}
 
-		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
-		{ return EnumeratorFromStlContainer<PairType>(*_map, GetMapHolder()); }
-
-		shared_ptr<IEnumerable<PairType>> Reverse() const override
-		{ return make_shared_ptr<ReverseEnumerable>(GetMapHolder()); }
-
-		size_t GetCount() const override
-		{ return _map->size(); }
-
-		bool IsEmpty() const override
-		{ return _map->empty(); }
-
 		bool ContainsKey(const KeyType& key) const override
-		{ return _map->find(key) != _map->end(); }
+		{ return BaseType::_items->find(key) != BaseType::_items->end(); }
 
 		size_t CountKey(const KeyType& key) const override
-		{ return _map->count(key); }
+		{ return BaseType::_items->count(key); }
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
-			const auto it = _map->lower_bound(key);
-			if (it == _map->end() || KeyCompareType()(key, it->first))
+			const auto it = BaseType::_items->lower_bound(key);
+			if (it == BaseType::_items->end() || KeyCompareType()(key, it->first))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(it, _map->end(), GetMapHolder());
+			return EnumeratorFromStlIterators<PairType>(it, BaseType::_items->end(), BaseType::GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
 			using cri = typename MapType::const_reverse_iterator;
 
-			const auto it = _map->upper_bound(key);
-			if (it == _map->end() || KeyCompareType()(cri(it)->first, key))
+			const auto it = BaseType::_items->upper_bound(key);
+			if (it == BaseType::_items->end() || KeyCompareType()(cri(it)->first, key))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(cri(it), _map->crend(), GetMapHolder());
+			return EnumeratorFromStlIterators<PairType>(cri(it), BaseType::_items->crend(), BaseType::GetItemsHolder());
 		}
 
 		ValueType GetFirst(const KeyType& key) const override
 		{
-			const auto it = _map->lower_bound(key);
-			STINGRAYKIT_CHECK(it != _map->end() && !KeyCompareType()(key, it->first), CreateKeyNotFoundException(key));
+			const auto it = BaseType::_items->lower_bound(key);
+			STINGRAYKIT_CHECK(it != BaseType::_items->end() && !KeyCompareType()(key, it->first), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
 		bool TryGetFirst(const KeyType& key, ValueType& outValue) const override
 		{
-			const auto it = _map->lower_bound(key);
-			if (it == _map->end() || KeyCompareType()(key, it->first))
+			const auto it = BaseType::_items->lower_bound(key);
+			if (it == BaseType::_items->end() || KeyCompareType()(key, it->first))
 				return false;
 
 			outValue = it->second;
@@ -141,22 +106,22 @@ namespace stingray
 
 		shared_ptr<IEnumerator<ValueType>> GetAll(const KeyType& key) const override
 		{
-			const auto range = _map->equal_range(key);
+			const auto range = BaseType::_items->equal_range(key);
 			if (range.first == range.second)
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(values_iterator(range.first), values_iterator(range.second), GetMapHolder());
+			return EnumeratorFromStlIterators(values_iterator(range.first), values_iterator(range.second), BaseType::GetItemsHolder());
 		}
 
 		void Add(const KeyType& key, const ValueType& value) override
 		{
-			CopyOnWrite();
-			_map->emplace(key, value);
+			BaseType::CopyOnWrite();
+			BaseType::_items->emplace(key, value);
 		}
 
 		bool RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
 		{
-			const auto range = _map->equal_range(key);
+			const auto range = BaseType::_items->equal_range(key);
 
 			size_t offset = 0;
 			for (auto it = range.first; it != range.second; ++it, ++offset)
@@ -164,10 +129,10 @@ namespace stingray
 				if (value && !ValueCompareType()(*value, it->second))
 					continue;
 
-				if (CopyOnWrite())
-					_map->erase(std::next(_map->lower_bound(key), offset));
+				if (BaseType::CopyOnWrite())
+					BaseType::_items->erase(std::next(BaseType::_items->lower_bound(key), offset));
 				else
-					_map->erase(it);
+					BaseType::_items->erase(it);
 
 				return true;
 			}
@@ -177,17 +142,17 @@ namespace stingray
 
 		size_t RemoveAll(const KeyType& key) override
 		{
-			const auto range = _map->equal_range(key);
+			const auto range = BaseType::_items->equal_range(key);
 			if (range.first == range.second)
 				return 0;
 
-			if (CopyOnWrite())
-				return _map->erase(key);
+			if (BaseType::CopyOnWrite())
+				return BaseType::_items->erase(key);
 
 			size_t ret = 0;
 			for (auto it = range.first; it != range.second; )
 			{
-				it = _map->erase(it);
+				it = BaseType::_items->erase(it);
 				++ret;
 			}
 
@@ -196,13 +161,13 @@ namespace stingray
 
 		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 		{
-			CopyOnWrite();
+			BaseType::CopyOnWrite();
 			size_t ret = 0;
-			for (auto it = _map->begin(); it != _map->end(); )
+			for (auto it = BaseType::_items->begin(); it != BaseType::_items->end(); )
 			{
 				if (pred(it->first, it->second))
 				{
-					it = _map->erase(it);
+					it = BaseType::_items->erase(it);
 					++ret;
 				}
 				else
@@ -212,41 +177,7 @@ namespace stingray
 		}
 
 		void Clear() override
-		{
-			if (_mapHolder.expired())
-				_map->clear();
-			else
-			{
-				_map = make_shared_ptr<MapType>();
-				_mapHolder.reset();
-			}
-		}
-
-	private:
-		void CopyMap(const MapTypePtr& map)
-		{
-			_map = make_shared_ptr<MapType>(*map);
-			_mapHolder.reset();
-		}
-
-		HolderPtr GetMapHolder() const
-		{
-			HolderPtr mapHolder = _mapHolder.lock();
-
-			if (!mapHolder)
-				_mapHolder = (mapHolder = make_shared_ptr<Holder>(_map));
-
-			return mapHolder;
-		}
-
-		bool CopyOnWrite()
-		{
-			if (_mapHolder.expired())
-				return false;
-
-			CopyMap(_map);
-			return true;
-		}
+		{ BaseType::DoClear(); }
 	};
 
 	/** @} */

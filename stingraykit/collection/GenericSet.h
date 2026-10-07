@@ -9,6 +9,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/EnumerableHelpers.h>
+#include <stingraykit/collection/GenericCollection.h>
 #include <stingraykit/collection/ISet.h>
 #include <stingraykit/function/function.h>
 
@@ -21,7 +22,9 @@ namespace stingray
 	 */
 
 	template < typename SetType_ >
-	class GenericSet : public virtual ISet<typename SetType_::value_type>
+	class GenericSet
+		:	public virtual ISet<typename SetType_::value_type>,
+			public GenericCollection<SetType_>
 	{
 		static_assert(comparers::IsRelationalComparer<typename SetType_::value_compare>::Value, "Expected Relational comparer");
 
@@ -30,35 +33,11 @@ namespace stingray
 
 	private:
 		using SetType = SetType_;
-		STINGRAYKIT_DECLARE_PTR(SetType);
 
-		struct Holder
-		{
-			const SetTypePtr		Items;
-
-			explicit Holder(const SetTypePtr& items) : Items(items) { }
-		};
-		STINGRAYKIT_DECLARE_PTR(Holder);
-
-		class ReverseEnumerable : public virtual IEnumerable<ValueType>
-		{
-		private:
-			const HolderPtr			_holder;
-
-		public:
-			explicit ReverseEnumerable(const HolderPtr& holder) : _holder(holder) { }
-
-			shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
-			{ return EnumeratorFromStlIterators(_holder->Items->rbegin(), _holder->Items->rend(), _holder); }
-		};
-
-	private:
-		SetTypePtr				_items;
-		mutable HolderWeakPtr	_itemsHolder;
+		using BaseType = GenericCollection<SetType>;
 
 	public:
 		GenericSet()
-			:	_items(make_shared_ptr<SetType>())
 		{ }
 
 		explicit GenericSet(const shared_ptr<IEnumerable<ValueType>>& enumerable)
@@ -66,43 +45,30 @@ namespace stingray
 		{ }
 
 		explicit GenericSet(const shared_ptr<IEnumerator<ValueType>>& enumerator)
-			:	_items(make_shared_ptr<SetType>())
 		{
 			STINGRAYKIT_CHECK(enumerator, NullArgumentException("enumerator"));
 			Enumerable::ForEach(enumerator, Bind(&GenericSet::Add, this, _1));
 		}
 
-		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
-		{ return EnumeratorFromStlContainer(*_items, GetItemsHolder()); }
-
-		shared_ptr<IEnumerable<ValueType>> Reverse() const override
-		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
-
-		size_t GetCount() const override
-		{ return _items->size(); }
-
-		bool IsEmpty() const override
-		{ return _items->empty(); }
-
 		bool Contains(const ValueType& value) const override
-		{ return _items->find(value) != _items->end(); }
+		{ return BaseType::_items->find(value) != BaseType::_items->end(); }
 
 		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
-			const auto it = _items->find(value);
-			if (it == _items->end())
+			const auto it = BaseType::_items->find(value);
+			if (it == BaseType::_items->end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(it, _items->end(), GetItemsHolder());
+			return EnumeratorFromStlIterators(it, BaseType::_items->end(), BaseType::GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
-			auto it = _items->find(value);
-			if (it == _items->end())
+			auto it = BaseType::_items->find(value);
+			if (it == BaseType::_items->end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), _items->crend(), GetItemsHolder());
+			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), BaseType::_items->crend(), BaseType::GetItemsHolder());
 		}
 
 		bool Add(const ValueType& value) override
@@ -110,27 +76,27 @@ namespace stingray
 
 		bool Remove(const ValueType& value) override
 		{
-			const auto it = _items->find(value);
-			if (it == _items->end())
+			const auto it = BaseType::_items->find(value);
+			if (it == BaseType::_items->end())
 				return false;
 
-			if (CopyOnWrite())
-				_items->erase(value);
+			if (BaseType::CopyOnWrite())
+				BaseType::_items->erase(value);
 			else
-				_items->erase(it);
+				BaseType::_items->erase(it);
 
 			return true;
 		}
 
 		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
 		{
-			CopyOnWrite();
+			BaseType::CopyOnWrite();
 			size_t ret = 0;
-			for (auto it = _items->begin(); it != _items->end(); )
+			for (auto it = BaseType::_items->begin(); it != BaseType::_items->end(); )
 			{
 				if (pred(*it))
 				{
-					it = _items->erase(it);
+					it = BaseType::_items->erase(it);
 					++ret;
 				}
 				else
@@ -140,28 +106,20 @@ namespace stingray
 		}
 
 		void Clear() override
-		{
-			if (_itemsHolder.expired())
-				_items->clear();
-			else
-			{
-				_items = make_shared_ptr<SetType>();
-				_itemsHolder.reset();
-			}
-		}
+		{ BaseType::DoClear(); }
 
 	private:
 		template < typename SetType__ >
 		auto DoAdd(const ValueType& value, int) -> decltype(std::declval<SetType__>().lower_bound(value), bool())
 		{
-			const auto it = _items->lower_bound(value);
-			if (it != _items->end() && !typename SetType__::value_compare()(value, *it))
+			const auto it = BaseType::_items->lower_bound(value);
+			if (it != BaseType::_items->end() && !typename SetType__::value_compare()(value, *it))
 				return false;
 
-			if (CopyOnWrite())
-				_items->insert(value);
+			if (BaseType::CopyOnWrite())
+				BaseType::_items->insert(value);
 			else
-				_items->insert(it, value);
+				BaseType::_items->insert(it, value);
 
 			return true;
 		}
@@ -169,33 +127,8 @@ namespace stingray
 		template < typename SetType__ >
 		bool DoAdd(const ValueType& value, long)
 		{
-			CopyOnWrite();
-			return _items->insert(value).second;
-		}
-
-		void CopyItems(const SetTypePtr& items)
-		{
-			_items = make_shared_ptr<SetType>(*items);
-			_itemsHolder.reset();
-		}
-
-		HolderPtr GetItemsHolder() const
-		{
-			HolderPtr itemsHolder = _itemsHolder.lock();
-
-			if (!itemsHolder)
-				_itemsHolder = (itemsHolder = make_shared_ptr<Holder>(_items));
-
-			return itemsHolder;
-		}
-
-		bool CopyOnWrite()
-		{
-			if (_itemsHolder.expired())
-				return false;
-
-			CopyItems(_items);
-			return true;
+			BaseType::CopyOnWrite();
+			return BaseType::_items->insert(value).second;
 		}
 	};
 
