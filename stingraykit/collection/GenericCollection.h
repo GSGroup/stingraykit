@@ -56,6 +56,7 @@ namespace stingray
 
 	private:
 		mutable HolderWeakPtr			_itemsHolder;
+		mutable AtomicFlag::Type		_itemsHolderLock = 0;
 
 	public:
 		GenericCollection()
@@ -77,28 +78,26 @@ namespace stingray
 	protected:
 		void DoClear()
 		{
-			if (_itemsHolder.expired())
+			if (IsItemsHolderExpired())
 				_items->clear();
 			else
 			{
 				_items = make_shared_ptr<CollectionType>();
-				_itemsHolder.reset();
+				ResetItemsHolder();
 			}
 		}
 
 		HolderPtr GetItemsHolder() const
 		{
-			HolderPtr itemsHolder = _itemsHolder.lock();
+			if (const HolderPtr itemsHolder = TryGetItemsHolder())
+				return itemsHolder;
 
-			if (!itemsHolder)
-				_itemsHolder = (itemsHolder = make_shared_ptr<Holder>(_items));
-
-			return itemsHolder;
+			return TrySetItemsHolder(make_shared_ptr<Holder>(_items));
 		}
 
 		bool CopyOnWrite()
 		{
-			if (_itemsHolder.expired())
+			if (IsItemsHolderExpired())
 				return false;
 
 			CopyItems(_items);
@@ -109,7 +108,40 @@ namespace stingray
 		void CopyItems(const CollectionTypePtr& items)
 		{
 			_items = make_shared_ptr<CollectionType>(*items);
-			_itemsHolder.reset();
+			ResetItemsHolder();
+		}
+
+		bool IsItemsHolderExpired() const
+		{
+			Spinlock l(_itemsHolderLock);
+			return _itemsHolder.expired();
+		}
+
+		HolderPtr TryGetItemsHolder() const
+		{
+			Spinlock l(_itemsHolderLock);
+			return _itemsHolder.lock();
+		}
+
+		HolderPtr TrySetItemsHolder(const HolderPtr& holder) const
+		{
+			HolderPtr anotherHolder;
+
+			Spinlock l(_itemsHolderLock);
+			anotherHolder = _itemsHolder.lock();
+			if (anotherHolder)
+				return anotherHolder;
+
+			_itemsHolder = holder;
+			return holder;
+		}
+
+		void ResetItemsHolder()
+		{
+			HolderWeakPtr itemsHolder;
+
+			Spinlock l(_itemsHolderLock);
+			itemsHolder.swap(_itemsHolder);
 		}
 	};
 
