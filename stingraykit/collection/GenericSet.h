@@ -22,9 +22,7 @@ namespace stingray
 	 */
 
 	template < typename SetType_ >
-	class GenericSet
-		:	public virtual ISet<typename SetType_::value_type>,
-			public GenericCollection<SetType_>
+	class GenericSet : public virtual ISet<typename SetType_::value_type>
 	{
 		static_assert(comparers::IsRelationalComparer<typename SetType_::value_compare>::Value, "Expected Relational comparer");
 
@@ -34,7 +32,10 @@ namespace stingray
 	private:
 		using SetType = SetType_;
 
-		using BaseType = GenericCollection<SetType>;
+		using ImplType = GenericCollection<SetType>;
+
+	private:
+		ImplType			_impl;
 
 	public:
 		GenericSet()
@@ -50,25 +51,37 @@ namespace stingray
 			Enumerable::ForEach(enumerator, Bind(&GenericSet::Add, this, _1));
 		}
 
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
+		{ return _impl.GetEnumerator(); }
+
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
+		{ return _impl.Reverse(); }
+
+		size_t GetCount() const override
+		{ return _impl.GetCount(); }
+
+		bool IsEmpty() const override
+		{ return _impl.IsEmpty(); }
+
 		bool Contains(const ValueType& value) const override
-		{ return BaseType::_items->find(value) != BaseType::_items->end(); }
+		{ return _impl.GetItems().find(value) != _impl.GetItems().end(); }
 
 		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
-			const auto it = BaseType::_items->find(value);
-			if (it == BaseType::_items->end())
+			const auto it = _impl.GetItems().find(value);
+			if (it == _impl.GetItems().end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(it, BaseType::_items->end(), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators(it, _impl.GetItems().end(), _impl.GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
-			auto it = BaseType::_items->find(value);
-			if (it == BaseType::_items->end())
+			auto it = _impl.GetItems().find(value);
+			if (it == _impl.GetItems().end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), BaseType::_items->crend(), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), _impl.GetItems().crend(), _impl.GetItemsHolder());
 		}
 
 		bool Add(const ValueType& value) override
@@ -76,27 +89,27 @@ namespace stingray
 
 		bool Remove(const ValueType& value) override
 		{
-			const auto it = BaseType::_items->find(value);
-			if (it == BaseType::_items->end())
+			const auto it = _impl.GetItems().find(value);
+			if (it == _impl.GetItems().end())
 				return false;
 
-			if (BaseType::CopyOnWrite())
-				BaseType::_items->erase(value);
+			if (_impl.CopyOnWrite())
+				_impl.GetItems().erase(value);
 			else
-				BaseType::_items->erase(it);
+				_impl.GetItems().erase(it);
 
 			return true;
 		}
 
 		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
 		{
-			BaseType::CopyOnWrite();
+			_impl.CopyOnWrite();
 			size_t ret = 0;
-			for (auto it = BaseType::_items->begin(); it != BaseType::_items->end(); )
+			for (auto it = _impl.GetItems().begin(); it != _impl.GetItems().end(); )
 			{
 				if (pred(*it))
 				{
-					it = BaseType::_items->erase(it);
+					it = _impl.GetItems().erase(it);
 					++ret;
 				}
 				else
@@ -106,20 +119,20 @@ namespace stingray
 		}
 
 		void Clear() override
-		{ BaseType::DoClear(); }
+		{ _impl.Clear(); }
 
 	private:
 		template < typename SetType__ >
 		auto DoAdd(const ValueType& value, int) -> decltype(std::declval<SetType__>().lower_bound(value), bool())
 		{
-			const auto it = BaseType::_items->lower_bound(value);
-			if (it != BaseType::_items->end() && !typename SetType__::value_compare()(value, *it))
+			const auto it = _impl.GetItems().lower_bound(value);
+			if (it != _impl.GetItems().end() && !typename SetType__::value_compare()(value, *it))
 				return false;
 
-			if (BaseType::CopyOnWrite())
-				BaseType::_items->insert(value);
+			if (_impl.CopyOnWrite())
+				_impl.GetItems().insert(value);
 			else
-				BaseType::_items->insert(it, value);
+				_impl.GetItems().insert(it, value);
 
 			return true;
 		}
@@ -127,8 +140,8 @@ namespace stingray
 		template < typename SetType__ >
 		bool DoAdd(const ValueType& value, long)
 		{
-			BaseType::CopyOnWrite();
-			return BaseType::_items->insert(value).second;
+			_impl.CopyOnWrite();
+			return _impl.GetItems().insert(value).second;
 		}
 	};
 

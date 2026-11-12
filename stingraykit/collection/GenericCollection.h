@@ -9,7 +9,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stingraykit/collection/EnumerableFromStlContainer.h>
-#include <stingraykit/collection/ICollection.h>
 
 namespace stingray
 {
@@ -21,8 +20,6 @@ namespace stingray
 
 	template < typename CollectionType_, typename ItemType_ = typename CollectionType_::value_type >
 	class GenericCollection
-		:	public virtual ICollection<ItemType_>,
-			public virtual IReversableEnumerable<ItemType_>
 	{
 	public:
 		using ItemType = ItemType_;
@@ -63,20 +60,25 @@ namespace stingray
 			:	_items(make_shared_ptr<CollectionType>())
 		{ }
 
-		shared_ptr<IEnumerator<ItemType>> GetEnumerator() const override final
+		const CollectionType& GetItems() const
+		{ return *_items; }
+
+		CollectionType& GetItems()
+		{ return *_items; }
+
+		shared_ptr<IEnumerator<ItemType>> GetEnumerator() const
 		{ return EnumeratorFromStlContainer<ItemType>(*_items, GetItemsHolder()); }
 
-		shared_ptr<IEnumerable<ItemType>> Reverse() const override final
+		shared_ptr<IEnumerable<ItemType>> Reverse() const
 		{ return make_shared_ptr<ReverseEnumerable>(GetItemsHolder()); }
 
-		size_t GetCount() const override final
+		size_t GetCount() const
 		{ return _items->size(); }
 
-		bool IsEmpty() const override final
+		bool IsEmpty() const
 		{ return _items->empty(); }
 
-	protected:
-		void DoClear()
+		void Clear()
 		{
 			if (IsItemsHolderExpired())
 				_items->clear();

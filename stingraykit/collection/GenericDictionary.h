@@ -24,9 +24,7 @@ namespace stingray
 	 */
 
 	template < typename MapType_ >
-	class GenericDictionary
-		:	public virtual IDictionary<typename MapType_::key_type, typename MapType_::mapped_type>,
-			public GenericCollection<MapType_, KeyValuePair<typename MapType_::key_type, typename MapType_::mapped_type>>
+	class GenericDictionary : public virtual IDictionary<typename MapType_::key_type, typename MapType_::mapped_type>
 	{
 		static_assert(comparers::IsRelationalComparer<typename MapType_::key_compare>::Value, "Expected Relational comparer");
 
@@ -37,7 +35,10 @@ namespace stingray
 		using PairType = KeyValuePair<KeyType, ValueType>;
 		using MapType = MapType_;
 
-		using BaseType = GenericCollection<MapType, PairType>;
+		using ImplType = GenericCollection<MapType, PairType>;
+
+	private:
+		ImplType			_impl;
 
 	public:
 		GenericDictionary()
@@ -54,38 +55,50 @@ namespace stingray
 				Set(pair.Key, pair.Value);
 		}
 
+		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
+		{ return _impl.GetEnumerator(); }
+
+		shared_ptr<IEnumerable<PairType>> Reverse() const override
+		{ return _impl.Reverse(); }
+
+		size_t GetCount() const override
+		{ return _impl.GetCount(); }
+
+		bool IsEmpty() const override
+		{ return _impl.IsEmpty(); }
+
 		bool ContainsKey(const KeyType& key) const override
-		{ return BaseType::_items->find(key) != BaseType::_items->end(); }
+		{ return _impl.GetItems().find(key) != _impl.GetItems().end(); }
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
-			const auto it = BaseType::_items->find(key);
-			if (it == BaseType::_items->end())
+			const auto it = _impl.GetItems().find(key);
+			if (it == _impl.GetItems().end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(it, BaseType::_items->end(), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(it, _impl.GetItems().end(), _impl.GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
-			auto it = BaseType::_items->find(key);
-			if (it == BaseType::_items->end())
+			auto it = _impl.GetItems().find(key);
+			if (it == _impl.GetItems().end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(typename MapType::const_reverse_iterator(++it), BaseType::_items->crend(), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(typename MapType::const_reverse_iterator(++it), _impl.GetItems().crend(), _impl.GetItemsHolder());
 		}
 
 		ValueType Get(const KeyType& key) const override
 		{
-			const auto it = BaseType::_items->find(key);
-			STINGRAYKIT_CHECK(it != BaseType::_items->end(), CreateKeyNotFoundException(key));
+			const auto it = _impl.GetItems().find(key);
+			STINGRAYKIT_CHECK(it != _impl.GetItems().end(), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
 		bool TryGet(const KeyType& key, ValueType& outValue) const override
 		{
-			const auto it = BaseType::_items->find(key);
-			if (it == BaseType::_items->end())
+			const auto it = _impl.GetItems().find(key);
+			if (it == _impl.GetItems().end())
 				return false;
 
 			outValue = it->second;
@@ -100,27 +113,27 @@ namespace stingray
 
 		bool Remove(const KeyType& key) override
 		{
-			const auto it = BaseType::_items->find(key);
-			if (it == BaseType::_items->end())
+			const auto it = _impl.GetItems().find(key);
+			if (it == _impl.GetItems().end())
 				return false;
 
-			if (BaseType::CopyOnWrite())
-				BaseType::_items->erase(key);
+			if (_impl.CopyOnWrite())
+				_impl.GetItems().erase(key);
 			else
-				BaseType::_items->erase(it);
+				_impl.GetItems().erase(it);
 
 			return true;
 		}
 
 		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 		{
-			BaseType::CopyOnWrite();
+			_impl.CopyOnWrite();
 			size_t ret = 0;
-			for (auto it = BaseType::_items->begin(); it != BaseType::_items->end(); )
+			for (auto it = _impl.GetItems().begin(); it != _impl.GetItems().end(); )
 			{
 				if (pred(it->first, it->second))
 				{
-					it = BaseType::_items->erase(it);
+					it = _impl.GetItems().erase(it);
 					++ret;
 				}
 				else
@@ -130,20 +143,20 @@ namespace stingray
 		}
 
 		void Clear() override
-		{ BaseType::DoClear(); }
+		{ _impl.Clear(); }
 
 	private:
 		template < typename MapType__ >
 		auto DoAdd(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), bool())
 		{
-			const auto it = BaseType::_items->lower_bound(key);
-			if (it != BaseType::_items->end() && !typename MapType__::key_compare()(key, it->first))
+			const auto it = _impl.GetItems().lower_bound(key);
+			if (it != _impl.GetItems().end() && !typename MapType__::key_compare()(key, it->first))
 				return false;
 
-			if (BaseType::CopyOnWrite())
-				BaseType::_items->emplace(key, value);
+			if (_impl.CopyOnWrite())
+				_impl.GetItems().emplace(key, value);
 			else
-				BaseType::_items->emplace_hint(it, key, value);
+				_impl.GetItems().emplace_hint(it, key, value);
 
 			return true;
 		}
@@ -151,30 +164,30 @@ namespace stingray
 		template < typename MapType__ >
 		bool DoAdd(const KeyType& key, const ValueType& value, long)
 		{
-			BaseType::CopyOnWrite();
-			return BaseType::_items->emplace(key, value).second;
+			_impl.CopyOnWrite();
+			return _impl.GetItems().emplace(key, value).second;
 		}
 
 		template < typename MapType__ >
 		auto DoSet(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), void())
 		{
-			BaseType::CopyOnWrite();
-			const auto it = BaseType::_items->lower_bound(key);
-			if (it != BaseType::_items->end() && !typename MapType__::key_compare()(key, it->first))
+			_impl.CopyOnWrite();
+			const auto it = _impl.GetItems().lower_bound(key);
+			if (it != _impl.GetItems().end() && !typename MapType__::key_compare()(key, it->first))
 				it->second = value;
 			else
-				BaseType::_items->emplace_hint(it, key, value);
+				_impl.GetItems().emplace_hint(it, key, value);
 		}
 
 		template < typename MapType__ >
 		void DoSet(const KeyType& key, const ValueType& value, long)
 		{
-			BaseType::CopyOnWrite();
-			const auto it = BaseType::_items->find(key);
-			if (it != BaseType::_items->end())
+			_impl.CopyOnWrite();
+			const auto it = _impl.GetItems().find(key);
+			if (it != _impl.GetItems().end())
 				it->second = value;
 			else
-				BaseType::_items->emplace(key, value);
+				_impl.GetItems().emplace(key, value);
 		}
 	};
 

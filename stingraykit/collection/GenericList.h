@@ -24,9 +24,7 @@ namespace stingray
 	 */
 
 	template < typename VectorType_ >
-	class GenericList
-		:	public virtual IList<typename VectorType_::value_type>,
-			public GenericCollection<VectorType_>
+	class GenericList : public virtual IList<typename VectorType_::value_type>
 	{
 	public:
 		using ValueType = typename VectorType_::value_type;
@@ -34,7 +32,10 @@ namespace stingray
 	private:
 		using VectorType = VectorType_;
 
-		using BaseType = GenericCollection<VectorType>;
+		using ImplType = GenericCollection<VectorType>;
+
+	private:
+		ImplType			_impl;
 
 	public:
 		GenericList()
@@ -50,81 +51,93 @@ namespace stingray
 			Enumerable::ForEach(enumerator, Bind(&GenericList::Add, this, _1));
 		}
 
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
+		{ return _impl.GetEnumerator(); }
+
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
+		{ return _impl.Reverse(); }
+
+		size_t GetCount() const override
+		{ return _impl.GetCount(); }
+
+		bool IsEmpty() const override
+		{ return _impl.IsEmpty(); }
+
 		bool Contains(const ValueType& value) const override
-		{ return std::find(BaseType::_items->begin(), BaseType::_items->end(), value) != BaseType::_items->end(); }
+		{ return std::find(_impl.GetItems().begin(), _impl.GetItems().end(), value) != _impl.GetItems().end(); }
 
 		optional<size_t> IndexOf(const ValueType& value) const override
 		{
-			const auto it = std::find(BaseType::_items->begin(), BaseType::_items->end(), value);
-			return it == BaseType::_items->end() ? null : make_optional_value(std::distance(BaseType::_items->begin(), it));
+			const auto it = std::find(_impl.GetItems().begin(), _impl.GetItems().end(), value);
+			return it == _impl.GetItems().end() ? null : make_optional_value(std::distance(_impl.GetItems().begin(), it));
 		}
 
 		ValueType Get(size_t index) const override
 		{
-			STINGRAYKIT_CHECK(index < BaseType::_items->size(), IndexOutOfRangeException(index, BaseType::_items->size()));
-			return (*BaseType::_items)[index];
+			STINGRAYKIT_CHECK(index < _impl.GetItems().size(), IndexOutOfRangeException(index, _impl.GetItems().size()));
+			return _impl.GetItems()[index];
 		}
 
 		bool TryGet(size_t index, ValueType& value) const override
 		{
-			if (index >= BaseType::_items->size())
+			if (index >= _impl.GetItems().size())
 				return false;
 
-			value = (*BaseType::_items)[index];
+			value = _impl.GetItems()[index];
 			return true;
 		}
 
 		void Add(const ValueType& value) override
 		{
-			BaseType::CopyOnWrite();
-			BaseType::_items->push_back(value);
+			_impl.CopyOnWrite();
+			_impl.GetItems().push_back(value);
 		}
 
 		void Set(size_t index, const ValueType& value) override
 		{
-			STINGRAYKIT_CHECK(index < BaseType::_items->size(), IndexOutOfRangeException(index, BaseType::_items->size()));
-			BaseType::CopyOnWrite();
-			(*BaseType::_items)[index] = value;
+			STINGRAYKIT_CHECK(index < _impl.GetItems().size(), IndexOutOfRangeException(index, _impl.GetItems().size()));
+			_impl.CopyOnWrite();
+			_impl.GetItems()[index] = value;
 		}
 
 		void Insert(size_t index, const ValueType& value) override
 		{
-			STINGRAYKIT_CHECK(index <= BaseType::_items->size(), IndexOutOfRangeException(index, BaseType::_items->size()));
-			BaseType::CopyOnWrite();
-			BaseType::_items->insert(std::next(BaseType::_items->begin(), index), value);
+			STINGRAYKIT_CHECK(index <= _impl.GetItems().size(), IndexOutOfRangeException(index, _impl.GetItems().size()));
+			_impl.CopyOnWrite();
+			_impl.GetItems().insert(std::next(_impl.GetItems().begin(), index), value);
 		}
 
 		void RemoveAt(size_t index) override
 		{
-			STINGRAYKIT_CHECK(index < BaseType::_items->size(), IndexOutOfRangeException(index, BaseType::_items->size()));
-			BaseType::CopyOnWrite();
-			BaseType::_items->erase(std::next(BaseType::_items->begin(), index));
+			STINGRAYKIT_CHECK(index < _impl.GetItems().size(), IndexOutOfRangeException(index, _impl.GetItems().size()));
+			_impl.CopyOnWrite();
+			_impl.GetItems().erase(std::next(_impl.GetItems().begin(), index));
 		}
 
 		bool Remove(const ValueType& value) override
 		{
-			const auto it = std::find(BaseType::_items->begin(), BaseType::_items->end(), value);
-			if (it == BaseType::_items->end())
+			const auto it = std::find(_impl.GetItems().begin(), _impl.GetItems().end(), value);
+			if (it == _impl.GetItems().end())
 				return false;
 
-			const size_t index = std::distance(BaseType::_items->begin(), it);
+			const size_t index = std::distance(_impl.GetItems().begin(), it);
 
-			BaseType::CopyOnWrite();
-			BaseType::_items->erase(std::next(BaseType::_items->begin(), index));
+			_impl.CopyOnWrite();
+			_impl.GetItems().erase(std::next(_impl.GetItems().begin(), index));
 			return true;
 		}
 
 		size_t RemoveAll(const function<bool (const ValueType&)>& pred) override
 		{
-			BaseType::CopyOnWrite();
-			const auto it = std::remove_if(BaseType::_items->begin(), BaseType::_items->end(), pred);
-			const size_t ret = std::distance(it, BaseType::_items->end());
-			BaseType::_items->erase(it, BaseType::_items->end());
+			_impl.CopyOnWrite();
+			const auto it = std::remove_if(_impl.GetItems().begin(), _impl.GetItems().end(), pred);
+			const size_t ret = std::distance(it, _impl.GetItems().end());
+			_impl.GetItems().erase(it, _impl.GetItems().end());
 			return ret;
 		}
 
 		void Clear() override
-		{ BaseType::DoClear(); }
+		{ _impl.Clear(); }
 	};
 
 	/** @} */

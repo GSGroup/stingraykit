@@ -24,9 +24,7 @@ namespace stingray
 	 */
 
 	template < typename T , typename CompareType_ = comparers::Less >
-	class SortedMultiSet
-		:	public virtual IMultiSet<T>,
-			public GenericCollection<std::multiset<T, CompareType_>>
+	class SortedMultiSet : public virtual IMultiSet<T>
 	{
 		static_assert(comparers::IsRelationalComparer<CompareType_>::Value, "Expected Relational comparer");
 
@@ -36,7 +34,10 @@ namespace stingray
 	private:
 		using SetType = std::multiset<ValueType, CompareType_>;
 
-		using BaseType = GenericCollection<SetType>;
+		using ImplType = GenericCollection<SetType>;
+
+	private:
+		ImplType			_impl;
 
 	public:
 		SortedMultiSet()
@@ -52,65 +53,77 @@ namespace stingray
 			Enumerable::ForEach(enumerator, Bind(&SortedMultiSet::Add, this, _1));
 		}
 
+		shared_ptr<IEnumerator<ValueType>> GetEnumerator() const override
+		{ return _impl.GetEnumerator(); }
+
+		shared_ptr<IEnumerable<ValueType>> Reverse() const override
+		{ return _impl.Reverse(); }
+
+		size_t GetCount() const override
+		{ return _impl.GetCount(); }
+
+		bool IsEmpty() const override
+		{ return _impl.IsEmpty(); }
+
 		bool Contains(const ValueType& value) const override
-		{ return BaseType::_items->find(value) != BaseType::_items->end(); }
+		{ return _impl.GetItems().find(value) != _impl.GetItems().end(); }
 
 		size_t Count(const ValueType& value) const override
-		{ return BaseType::_items->count(value); }
+		{ return _impl.GetItems().count(value); }
 
 		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
-			const auto it = BaseType::_items->lower_bound(value);
-			if (it == BaseType::_items->end() || CompareType_()(value, *it))
+			const auto it = _impl.GetItems().lower_bound(value);
+			if (it == _impl.GetItems().end() || CompareType_()(value, *it))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(it, BaseType::_items->end(), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators(it, _impl.GetItems().end(), _impl.GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
 			using cri = typename SetType::const_reverse_iterator;
 
-			const auto it = BaseType::_items->upper_bound(value);
-			if (it == BaseType::_items->end() || CompareType_()(*cri(it), value))
+			const auto it = _impl.GetItems().upper_bound(value);
+			if (it == _impl.GetItems().end() || CompareType_()(*cri(it), value))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(cri(it), BaseType::_items->crend(), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators(cri(it), _impl.GetItems().crend(), _impl.GetItemsHolder());
 		}
 
 		void Add(const ValueType& value) override
 		{
-			BaseType::CopyOnWrite();
-			BaseType::_items->insert(value);
+			_impl.CopyOnWrite();
+			_impl.GetItems().insert(value);
 		}
 
 		bool RemoveFirst(const ValueType& value) override
 		{
-			const auto it = BaseType::_items->lower_bound(value);
-			if (it == BaseType::_items->end() || CompareType_()(value, *it))
+			const auto it = _impl.GetItems().lower_bound(value);
+			if (it == _impl.GetItems().end() || CompareType_()(value, *it))
 				return false;
 
-			if (BaseType::CopyOnWrite())
-				BaseType::_items->erase(BaseType::_items->lower_bound(value));
+			if (_impl.CopyOnWrite())
+				_impl.GetItems().erase(_impl.GetItems().lower_bound(value));
 			else
-				BaseType::_items->erase(it);
+				_impl.GetItems().erase(it);
 
 			return true;
 		}
 
 		size_t RemoveAll(const ValueType& value) override
 		{
-			const auto range = BaseType::_items->equal_range(value);
+			const auto range = _impl.GetItems().equal_range(value);
 			if (range.first == range.second)
 				return 0;
 
-			if (BaseType::CopyOnWrite())
-				return BaseType::_items->erase(value);
+			if (_impl.CopyOnWrite())
+				return _impl.GetItems().erase(value);
 
 			size_t ret = 0;
 			for (auto it = range.first; it != range.second; )
 			{
-				it = BaseType::_items->erase(it);
+				it = _impl.GetItems().erase(it);
 				++ret;
 			}
 
@@ -119,13 +132,13 @@ namespace stingray
 
 		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
 		{
-			BaseType::CopyOnWrite();
+			_impl.CopyOnWrite();
 			size_t ret = 0;
-			for (auto it = BaseType::_items->begin(); it != BaseType::_items->end(); )
+			for (auto it = _impl.GetItems().begin(); it != _impl.GetItems().end(); )
 			{
 				if (pred(*it))
 				{
-					it = BaseType::_items->erase(it);
+					it = _impl.GetItems().erase(it);
 					++ret;
 				}
 				else
@@ -135,7 +148,7 @@ namespace stingray
 		}
 
 		void Clear() override
-		{ BaseType::DoClear(); }
+		{ _impl.Clear(); }
 	};
 
 	/** @} */

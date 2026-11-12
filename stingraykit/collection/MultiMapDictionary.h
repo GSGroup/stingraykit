@@ -28,9 +28,7 @@ namespace stingray
 	 */
 
 	template < typename KeyType_, typename ValueType_, typename KeyCompareType_ = comparers::Less, typename ValueCompareType_ = comparers::Equals >
-	class MultiMapDictionary
-		:	public virtual IMultiDictionary<KeyType_, ValueType_>,
-			public GenericCollection<std::multimap<KeyType_, ValueType_, KeyCompareType_>, KeyValuePair<KeyType_, ValueType_>>
+	class MultiMapDictionary : public virtual IMultiDictionary<KeyType_, ValueType_>
 	{
 		static_assert(comparers::IsRelationalComparer<KeyCompareType_>::Value, "Expected Relational comparer");
 		static_assert(comparers::IsEqualsComparer<ValueCompareType_>::Value, "Expected Equals comparer");
@@ -44,7 +42,10 @@ namespace stingray
 		using PairType = KeyValuePair<KeyType, ValueType>;
 		using MapType = std::multimap<KeyType, ValueType, KeyCompareType>;
 
-		using BaseType = GenericCollection<MapType, PairType>;
+		using ImplType = GenericCollection<MapType, PairType>;
+
+	private:
+		ImplType			_impl;
 
 	public:
 		MultiMapDictionary()
@@ -61,43 +62,55 @@ namespace stingray
 				Add(pair.Key, pair.Value);
 		}
 
+		shared_ptr<IEnumerator<PairType>> GetEnumerator() const override
+		{ return _impl.GetEnumerator(); }
+
+		shared_ptr<IEnumerable<PairType>> Reverse() const override
+		{ return _impl.Reverse(); }
+
+		size_t GetCount() const override
+		{ return _impl.GetCount(); }
+
+		bool IsEmpty() const override
+		{ return _impl.IsEmpty(); }
+
 		bool ContainsKey(const KeyType& key) const override
-		{ return BaseType::_items->find(key) != BaseType::_items->end(); }
+		{ return _impl.GetItems().find(key) != _impl.GetItems().end(); }
 
 		size_t CountKey(const KeyType& key) const override
-		{ return BaseType::_items->count(key); }
+		{ return _impl.GetItems().count(key); }
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
-			const auto it = BaseType::_items->lower_bound(key);
-			if (it == BaseType::_items->end() || KeyCompareType()(key, it->first))
+			const auto it = _impl.GetItems().lower_bound(key);
+			if (it == _impl.GetItems().end() || KeyCompareType()(key, it->first))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(it, BaseType::_items->end(), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(it, _impl.GetItems().end(), _impl.GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
 			using cri = typename MapType::const_reverse_iterator;
 
-			const auto it = BaseType::_items->upper_bound(key);
-			if (it == BaseType::_items->end() || KeyCompareType()(cri(it)->first, key))
+			const auto it = _impl.GetItems().upper_bound(key);
+			if (it == _impl.GetItems().end() || KeyCompareType()(cri(it)->first, key))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(cri(it), BaseType::_items->crend(), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(cri(it), _impl.GetItems().crend(), _impl.GetItemsHolder());
 		}
 
 		ValueType GetFirst(const KeyType& key) const override
 		{
-			const auto it = BaseType::_items->lower_bound(key);
-			STINGRAYKIT_CHECK(it != BaseType::_items->end() && !KeyCompareType()(key, it->first), CreateKeyNotFoundException(key));
+			const auto it = _impl.GetItems().lower_bound(key);
+			STINGRAYKIT_CHECK(it != _impl.GetItems().end() && !KeyCompareType()(key, it->first), CreateKeyNotFoundException(key));
 			return it->second;
 		}
 
 		bool TryGetFirst(const KeyType& key, ValueType& outValue) const override
 		{
-			const auto it = BaseType::_items->lower_bound(key);
-			if (it == BaseType::_items->end() || KeyCompareType()(key, it->first))
+			const auto it = _impl.GetItems().lower_bound(key);
+			if (it == _impl.GetItems().end() || KeyCompareType()(key, it->first))
 				return false;
 
 			outValue = it->second;
@@ -106,22 +119,22 @@ namespace stingray
 
 		shared_ptr<IEnumerator<ValueType>> GetAll(const KeyType& key) const override
 		{
-			const auto range = BaseType::_items->equal_range(key);
+			const auto range = _impl.GetItems().equal_range(key);
 			if (range.first == range.second)
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(values_iterator(range.first), values_iterator(range.second), BaseType::GetItemsHolder());
+			return EnumeratorFromStlIterators(values_iterator(range.first), values_iterator(range.second), _impl.GetItemsHolder());
 		}
 
 		void Add(const KeyType& key, const ValueType& value) override
 		{
-			BaseType::CopyOnWrite();
-			BaseType::_items->emplace(key, value);
+			_impl.CopyOnWrite();
+			_impl.GetItems().emplace(key, value);
 		}
 
 		bool RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
 		{
-			const auto range = BaseType::_items->equal_range(key);
+			const auto range = _impl.GetItems().equal_range(key);
 
 			size_t offset = 0;
 			for (auto it = range.first; it != range.second; ++it, ++offset)
@@ -129,10 +142,10 @@ namespace stingray
 				if (value && !ValueCompareType()(*value, it->second))
 					continue;
 
-				if (BaseType::CopyOnWrite())
-					BaseType::_items->erase(std::next(BaseType::_items->lower_bound(key), offset));
+				if (_impl.CopyOnWrite())
+					_impl.GetItems().erase(std::next(_impl.GetItems().lower_bound(key), offset));
 				else
-					BaseType::_items->erase(it);
+					_impl.GetItems().erase(it);
 
 				return true;
 			}
@@ -142,17 +155,17 @@ namespace stingray
 
 		size_t RemoveAll(const KeyType& key) override
 		{
-			const auto range = BaseType::_items->equal_range(key);
+			const auto range = _impl.GetItems().equal_range(key);
 			if (range.first == range.second)
 				return 0;
 
-			if (BaseType::CopyOnWrite())
-				return BaseType::_items->erase(key);
+			if (_impl.CopyOnWrite())
+				return _impl.GetItems().erase(key);
 
 			size_t ret = 0;
 			for (auto it = range.first; it != range.second; )
 			{
-				it = BaseType::_items->erase(it);
+				it = _impl.GetItems().erase(it);
 				++ret;
 			}
 
@@ -161,13 +174,13 @@ namespace stingray
 
 		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 		{
-			BaseType::CopyOnWrite();
+			_impl.CopyOnWrite();
 			size_t ret = 0;
-			for (auto it = BaseType::_items->begin(); it != BaseType::_items->end(); )
+			for (auto it = _impl.GetItems().begin(); it != _impl.GetItems().end(); )
 			{
 				if (pred(it->first, it->second))
 				{
-					it = BaseType::_items->erase(it);
+					it = _impl.GetItems().erase(it);
 					++ret;
 				}
 				else
@@ -177,7 +190,7 @@ namespace stingray
 		}
 
 		void Clear() override
-		{ BaseType::DoClear(); }
+		{ _impl.Clear(); }
 	};
 
 	/** @} */
