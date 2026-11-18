@@ -67,7 +67,7 @@ namespace stingray
 		STINGRAYKIT_GENERATE_COMPARISON_OPERATORS_FROM_COMPARE(TranslatedString);
 
 	private:
-		explicit TranslatedString(const DictionaryImplPtr& dictionary);
+		explicit TranslatedString(DictionaryImplPtr&& dictionary);
 	};
 
 

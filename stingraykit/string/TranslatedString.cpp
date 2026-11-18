@@ -68,8 +68,8 @@ namespace stingray
 	{ return CollectionCmp()(_dictionary, other._dictionary); }
 
 
-	TranslatedString::TranslatedString(const DictionaryImplPtr& dictionary)
-		: _dictionary(STINGRAYKIT_REQUIRE_NOT_NULL(dictionary))
+	TranslatedString::TranslatedString(DictionaryImplPtr&& dictionary)
+		: _dictionary(STINGRAYKIT_REQUIRE_NOT_NULL(std::move(dictionary)))
 	{ }
 
 
@@ -97,10 +97,6 @@ namespace stingray
 
 
 	TranslatedString TranslatedString::Builder::Get()
-	{
-		DictionaryImplPtr result;
-		result.swap(_product);
-		return TranslatedString(result);
-	}
+	{ return TranslatedString(std::move(_product)); }
 
 }
