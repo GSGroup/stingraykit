@@ -68,37 +68,49 @@ namespace stingray
 		{ return _impl.IsEmpty(); }
 
 		bool ContainsKey(const KeyType& key) const override
-		{ return _impl.GetItems().find(key) != _impl.GetItems().end(); }
+		{
+			const MapType& items = _impl.GetItems();
+			return items.find(key) != items.end();
+		}
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
-			const auto it = _impl.GetItems().find(key);
-			if (it == _impl.GetItems().end())
+			const MapType& items = _impl.GetItems();
+
+			const auto it = items.find(key);
+			if (it == items.end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(it, _impl.GetItems().end(), _impl.GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(it, items.end(), _impl.GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
-			auto it = _impl.GetItems().find(key);
-			if (it == _impl.GetItems().end())
+			const MapType& items = _impl.GetItems();
+
+			auto it = items.find(key);
+			if (it == items.end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(typename MapType::const_reverse_iterator(++it), _impl.GetItems().crend(), _impl.GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(typename MapType::const_reverse_iterator(++it), items.crend(), _impl.GetItemsHolder());
 		}
 
 		ValueType Get(const KeyType& key) const override
 		{
-			const auto it = _impl.GetItems().find(key);
-			STINGRAYKIT_CHECK(it != _impl.GetItems().end(), CreateKeyNotFoundException(key));
+			const MapType& items = _impl.GetItems();
+
+			const auto it = items.find(key);
+			STINGRAYKIT_CHECK(it != items.end(), CreateKeyNotFoundException(key));
+
 			return it->second;
 		}
 
 		bool TryGet(const KeyType& key, ValueType& outValue) const override
 		{
-			const auto it = _impl.GetItems().find(key);
-			if (it == _impl.GetItems().end())
+			const MapType& items = _impl.GetItems();
+
+			const auto it = items.find(key);
+			if (it == items.end())
 				return false;
 
 			outValue = it->second;
@@ -113,14 +125,16 @@ namespace stingray
 
 		bool Remove(const KeyType& key) override
 		{
-			const auto it = _impl.GetItems().find(key);
-			if (it == _impl.GetItems().end())
+			MapType& items = _impl.GetItems();
+
+			const auto it = items.find(key);
+			if (it == items.end())
 				return false;
 
 			if (_impl.CopyOnWrite())
 				_impl.GetItems().erase(key);
 			else
-				_impl.GetItems().erase(it);
+				items.erase(it);
 
 			return true;
 		}
@@ -128,17 +142,21 @@ namespace stingray
 		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 		{
 			_impl.CopyOnWrite();
+
+			MapType& items = _impl.GetItems();
+
 			size_t ret = 0;
-			for (auto it = _impl.GetItems().begin(); it != _impl.GetItems().end(); )
+			for (auto it = items.begin(); it != items.end(); )
 			{
 				if (pred(it->first, it->second))
 				{
-					it = _impl.GetItems().erase(it);
+					it = items.erase(it);
 					++ret;
 				}
 				else
 					++it;
 			}
+
 			return ret;
 		}
 
@@ -149,14 +167,16 @@ namespace stingray
 		template < typename MapType__ >
 		auto DoAdd(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), bool())
 		{
-			const auto it = _impl.GetItems().lower_bound(key);
-			if (it != _impl.GetItems().end() && !typename MapType__::key_compare()(key, it->first))
+			MapType& items = _impl.GetItems();
+
+			const auto it = items.lower_bound(key);
+			if (it != items.end() && !typename MapType__::key_compare()(key, it->first))
 				return false;
 
 			if (_impl.CopyOnWrite())
 				_impl.GetItems().emplace(key, value);
 			else
-				_impl.GetItems().emplace_hint(it, key, value);
+				items.emplace_hint(it, key, value);
 
 			return true;
 		}
@@ -172,22 +192,28 @@ namespace stingray
 		auto DoSet(const KeyType& key, const ValueType& value, int) -> decltype(std::declval<MapType__>().lower_bound(key), void())
 		{
 			_impl.CopyOnWrite();
-			const auto it = _impl.GetItems().lower_bound(key);
-			if (it != _impl.GetItems().end() && !typename MapType__::key_compare()(key, it->first))
+
+			MapType& items = _impl.GetItems();
+
+			const auto it = items.lower_bound(key);
+			if (it != items.end() && !typename MapType__::key_compare()(key, it->first))
 				it->second = value;
 			else
-				_impl.GetItems().emplace_hint(it, key, value);
+				items.emplace_hint(it, key, value);
 		}
 
 		template < typename MapType__ >
 		void DoSet(const KeyType& key, const ValueType& value, long)
 		{
 			_impl.CopyOnWrite();
-			const auto it = _impl.GetItems().find(key);
-			if (it != _impl.GetItems().end())
+
+			MapType& items = _impl.GetItems();
+
+			const auto it = items.find(key);
+			if (it != items.end())
 				it->second = value;
 			else
-				_impl.GetItems().emplace(key, value);
+				items.emplace(key, value);
 		}
 	};
 
