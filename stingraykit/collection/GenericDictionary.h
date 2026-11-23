@@ -85,13 +85,11 @@ namespace stingray
 		bool TryGet(const KeyType& key, ValueType& outValue) const override
 		{
 			const auto it = BaseType::_items->find(key);
-			if (it != BaseType::_items->end())
-			{
-				outValue = it->second;
-				return true;
-			}
-			else
+			if (it == BaseType::_items->end())
 				return false;
+
+			outValue = it->second;
+			return true;
 		}
 
 		bool Add(const KeyType& key, const ValueType& value) override
