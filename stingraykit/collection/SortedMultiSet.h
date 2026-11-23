@@ -66,29 +66,36 @@ namespace stingray
 		{ return _impl.IsEmpty(); }
 
 		bool Contains(const ValueType& value) const override
-		{ return _impl.GetItems().find(value) != _impl.GetItems().end(); }
+		{
+			const SetType& items = _impl.GetItems();
+			return items.find(value) != items.end();
+		}
 
 		size_t Count(const ValueType& value) const override
 		{ return _impl.GetItems().count(value); }
 
 		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
-			const auto it = _impl.GetItems().lower_bound(value);
-			if (it == _impl.GetItems().end() || CompareType_()(value, *it))
+			const SetType& items = _impl.GetItems();
+
+			const auto it = items.lower_bound(value);
+			if (it == items.end() || CompareType_()(value, *it))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(it, _impl.GetItems().end(), _impl.GetItemsHolder());
+			return EnumeratorFromStlIterators(it, items.end(), _impl.GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
 			using cri = typename SetType::const_reverse_iterator;
 
-			const auto it = _impl.GetItems().upper_bound(value);
-			if (it == _impl.GetItems().end() || CompareType_()(*cri(it), value))
+			const SetType& items = _impl.GetItems();
+
+			const auto it = items.upper_bound(value);
+			if (it == items.end() || CompareType_()(*cri(it), value))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(cri(it), _impl.GetItems().crend(), _impl.GetItemsHolder());
+			return EnumeratorFromStlIterators(cri(it), items.crend(), _impl.GetItemsHolder());
 		}
 
 		void Add(const ValueType& value) override
@@ -99,21 +106,28 @@ namespace stingray
 
 		bool RemoveFirst(const ValueType& value) override
 		{
-			const auto it = _impl.GetItems().lower_bound(value);
-			if (it == _impl.GetItems().end() || CompareType_()(value, *it))
+			SetType& items = _impl.GetItems();
+
+			const auto it = items.lower_bound(value);
+			if (it == items.end() || CompareType_()(value, *it))
 				return false;
 
 			if (_impl.CopyOnWrite())
-				_impl.GetItems().erase(_impl.GetItems().lower_bound(value));
+			{
+				SetType& newItems = _impl.GetItems();
+				newItems.erase(newItems.lower_bound(value));
+			}
 			else
-				_impl.GetItems().erase(it);
+				items.erase(it);
 
 			return true;
 		}
 
 		size_t RemoveAll(const ValueType& value) override
 		{
-			const auto range = _impl.GetItems().equal_range(value);
+			SetType& items = _impl.GetItems();
+
+			const auto range = items.equal_range(value);
 			if (range.first == range.second)
 				return 0;
 
@@ -123,7 +137,7 @@ namespace stingray
 			size_t ret = 0;
 			for (auto it = range.first; it != range.second; )
 			{
-				it = _impl.GetItems().erase(it);
+				it = items.erase(it);
 				++ret;
 			}
 
@@ -133,17 +147,21 @@ namespace stingray
 		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
 		{
 			_impl.CopyOnWrite();
+
+			SetType& items = _impl.GetItems();
+
 			size_t ret = 0;
-			for (auto it = _impl.GetItems().begin(); it != _impl.GetItems().end(); )
+			for (auto it = items.begin(); it != items.end(); )
 			{
 				if (pred(*it))
 				{
-					it = _impl.GetItems().erase(it);
+					it = items.erase(it);
 					++ret;
 				}
 				else
 					++it;
 			}
+
 			return ret;
 		}
 
