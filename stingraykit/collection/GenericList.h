@@ -64,26 +64,35 @@ namespace stingray
 		{ return _impl.IsEmpty(); }
 
 		bool Contains(const ValueType& value) const override
-		{ return std::find(_impl.GetItems().begin(), _impl.GetItems().end(), value) != _impl.GetItems().end(); }
+		{
+			const VectorType& items = _impl.GetItems();
+			return std::find(items.begin(), items.end(), value) != items.end();
+		}
 
 		optional<size_t> IndexOf(const ValueType& value) const override
 		{
-			const auto it = std::find(_impl.GetItems().begin(), _impl.GetItems().end(), value);
-			return it == _impl.GetItems().end() ? null : make_optional_value(std::distance(_impl.GetItems().begin(), it));
+			const VectorType& items = _impl.GetItems();
+
+			const auto it = std::find(items.begin(), items.end(), value);
+			return it == items.end() ? null : make_optional_value(std::distance(items.begin(), it));
 		}
 
 		ValueType Get(size_t index) const override
 		{
-			STINGRAYKIT_CHECK(index < _impl.GetItems().size(), IndexOutOfRangeException(index, _impl.GetItems().size()));
-			return _impl.GetItems()[index];
+			const VectorType& items = _impl.GetItems();
+
+			STINGRAYKIT_CHECK(index < items.size(), IndexOutOfRangeException(index, items.size()));
+			return items[index];
 		}
 
 		bool TryGet(size_t index, ValueType& value) const override
 		{
-			if (index >= _impl.GetItems().size())
+			const VectorType& items = _impl.GetItems();
+
+			if (index >= items.size())
 				return false;
 
-			value = _impl.GetItems()[index];
+			value = items[index];
 			return true;
 		}
 
@@ -95,44 +104,61 @@ namespace stingray
 
 		void Set(size_t index, const ValueType& value) override
 		{
-			STINGRAYKIT_CHECK(index < _impl.GetItems().size(), IndexOutOfRangeException(index, _impl.GetItems().size()));
+			const VectorType& items = _impl.GetItems();
+			STINGRAYKIT_CHECK(index < items.size(), IndexOutOfRangeException(index, items.size()));
+
 			_impl.CopyOnWrite();
 			_impl.GetItems()[index] = value;
 		}
 
 		void Insert(size_t index, const ValueType& value) override
 		{
-			STINGRAYKIT_CHECK(index <= _impl.GetItems().size(), IndexOutOfRangeException(index, _impl.GetItems().size()));
+			const VectorType& items = _impl.GetItems();
+			STINGRAYKIT_CHECK(index <= items.size(), IndexOutOfRangeException(index, items.size()));
+
 			_impl.CopyOnWrite();
-			_impl.GetItems().insert(std::next(_impl.GetItems().begin(), index), value);
+
+			VectorType& newItems = _impl.GetItems();
+			newItems.insert(std::next(newItems.begin(), index), value);
 		}
 
 		void RemoveAt(size_t index) override
 		{
-			STINGRAYKIT_CHECK(index < _impl.GetItems().size(), IndexOutOfRangeException(index, _impl.GetItems().size()));
+			const VectorType& items = _impl.GetItems();
+			STINGRAYKIT_CHECK(index < items.size(), IndexOutOfRangeException(index, items.size()));
+
 			_impl.CopyOnWrite();
-			_impl.GetItems().erase(std::next(_impl.GetItems().begin(), index));
+
+			VectorType& newItems = _impl.GetItems();
+			newItems.erase(std::next(newItems.begin(), index));
 		}
 
 		bool Remove(const ValueType& value) override
 		{
-			const auto it = std::find(_impl.GetItems().begin(), _impl.GetItems().end(), value);
-			if (it == _impl.GetItems().end())
+			const VectorType& items = _impl.GetItems();
+			const auto it = std::find(items.begin(), items.end(), value);
+			if (it == items.end())
 				return false;
 
-			const size_t index = std::distance(_impl.GetItems().begin(), it);
+			const size_t index = std::distance(items.begin(), it);
 
 			_impl.CopyOnWrite();
-			_impl.GetItems().erase(std::next(_impl.GetItems().begin(), index));
+
+			VectorType& newItems = _impl.GetItems();
+			newItems.erase(std::next(newItems.begin(), index));
 			return true;
 		}
 
 		size_t RemoveAll(const function<bool (const ValueType&)>& pred) override
 		{
 			_impl.CopyOnWrite();
-			const auto it = std::remove_if(_impl.GetItems().begin(), _impl.GetItems().end(), pred);
-			const size_t ret = std::distance(it, _impl.GetItems().end());
-			_impl.GetItems().erase(it, _impl.GetItems().end());
+
+			VectorType& items = _impl.GetItems();
+
+			const auto it = std::remove_if(items.begin(), items.end(), pred);
+			const size_t ret = std::distance(it, items.end());
+
+			items.erase(it, items.end());
 			return ret;
 		}
 
