@@ -75,42 +75,54 @@ namespace stingray
 		{ return _impl.IsEmpty(); }
 
 		bool ContainsKey(const KeyType& key) const override
-		{ return _impl.GetItems().find(key) != _impl.GetItems().end(); }
+		{
+			const MapType& items = _impl.GetItems();
+			return items.find(key) != items.end();
+		}
 
 		size_t CountKey(const KeyType& key) const override
 		{ return _impl.GetItems().count(key); }
 
 		shared_ptr<IEnumerator<PairType>> Find(const KeyType& key) const override
 		{
-			const auto it = _impl.GetItems().lower_bound(key);
-			if (it == _impl.GetItems().end() || KeyCompareType()(key, it->first))
+			const MapType& items = _impl.GetItems();
+
+			const auto it = items.lower_bound(key);
+			if (it == items.end() || KeyCompareType()(key, it->first))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(it, _impl.GetItems().end(), _impl.GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(it, items.end(), _impl.GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<PairType>> ReverseFind(const KeyType& key) const override
 		{
 			using cri = typename MapType::const_reverse_iterator;
 
-			const auto it = _impl.GetItems().upper_bound(key);
-			if (it == _impl.GetItems().end() || KeyCompareType()(cri(it)->first, key))
+			const MapType& items = _impl.GetItems();
+
+			const auto it = items.upper_bound(key);
+			if (it == items.end() || KeyCompareType()(cri(it)->first, key))
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators<PairType>(cri(it), _impl.GetItems().crend(), _impl.GetItemsHolder());
+			return EnumeratorFromStlIterators<PairType>(cri(it), items.crend(), _impl.GetItemsHolder());
 		}
 
 		ValueType GetFirst(const KeyType& key) const override
 		{
-			const auto it = _impl.GetItems().lower_bound(key);
-			STINGRAYKIT_CHECK(it != _impl.GetItems().end() && !KeyCompareType()(key, it->first), CreateKeyNotFoundException(key));
+			const MapType& items = _impl.GetItems();
+
+			const auto it = items.lower_bound(key);
+			STINGRAYKIT_CHECK(it != items.end() && !KeyCompareType()(key, it->first), CreateKeyNotFoundException(key));
+
 			return it->second;
 		}
 
 		bool TryGetFirst(const KeyType& key, ValueType& outValue) const override
 		{
-			const auto it = _impl.GetItems().lower_bound(key);
-			if (it == _impl.GetItems().end() || KeyCompareType()(key, it->first))
+			const MapType& items = _impl.GetItems();
+
+			const auto it = items.lower_bound(key);
+			if (it == items.end() || KeyCompareType()(key, it->first))
 				return false;
 
 			outValue = it->second;
@@ -134,7 +146,9 @@ namespace stingray
 
 		bool RemoveFirst(const KeyType& key, const optional<ValueType>& value = null) override
 		{
-			const auto range = _impl.GetItems().equal_range(key);
+			MapType& items = _impl.GetItems();
+
+			const auto range = items.equal_range(key);
 
 			size_t offset = 0;
 			for (auto it = range.first; it != range.second; ++it, ++offset)
@@ -145,7 +159,7 @@ namespace stingray
 				if (_impl.CopyOnWrite())
 					_impl.GetItems().erase(std::next(_impl.GetItems().lower_bound(key), offset));
 				else
-					_impl.GetItems().erase(it);
+					items.erase(it);
 
 				return true;
 			}
@@ -155,7 +169,9 @@ namespace stingray
 
 		size_t RemoveAll(const KeyType& key) override
 		{
-			const auto range = _impl.GetItems().equal_range(key);
+			MapType& items = _impl.GetItems();
+
+			const auto range = items.equal_range(key);
 			if (range.first == range.second)
 				return 0;
 
@@ -165,7 +181,7 @@ namespace stingray
 			size_t ret = 0;
 			for (auto it = range.first; it != range.second; )
 			{
-				it = _impl.GetItems().erase(it);
+				it = items.erase(it);
 				++ret;
 			}
 
@@ -175,17 +191,21 @@ namespace stingray
 		size_t RemoveWhere(const function<bool (const KeyType&, const ValueType&)>& pred) override
 		{
 			_impl.CopyOnWrite();
+
+			MapType& items = _impl.GetItems();
+
 			size_t ret = 0;
-			for (auto it = _impl.GetItems().begin(); it != _impl.GetItems().end(); )
+			for (auto it = items.begin(); it != items.end(); )
 			{
 				if (pred(it->first, it->second))
 				{
-					it = _impl.GetItems().erase(it);
+					it = items.erase(it);
 					++ret;
 				}
 				else
 					++it;
 			}
+
 			return ret;
 		}
 
