@@ -64,24 +64,31 @@ namespace stingray
 		{ return _impl.IsEmpty(); }
 
 		bool Contains(const ValueType& value) const override
-		{ return _impl.GetItems().find(value) != _impl.GetItems().end(); }
+		{
+			const SetType& items = _impl.GetItems();
+			return items.find(value) != items.end();
+		}
 
 		shared_ptr<IEnumerator<ValueType>> Find(const ValueType& value) const override
 		{
-			const auto it = _impl.GetItems().find(value);
-			if (it == _impl.GetItems().end())
+			const SetType& items = _impl.GetItems();
+
+			const auto it = items.find(value);
+			if (it == items.end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(it, _impl.GetItems().end(), _impl.GetItemsHolder());
+			return EnumeratorFromStlIterators(it, items.end(), _impl.GetItemsHolder());
 		}
 
 		shared_ptr<IEnumerator<ValueType>> ReverseFind(const ValueType& value) const override
 		{
-			auto it = _impl.GetItems().find(value);
-			if (it == _impl.GetItems().end())
+			const SetType& items = _impl.GetItems();
+
+			auto it = items.find(value);
+			if (it == items.end())
 				return MakeEmptyEnumerator();
 
-			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), _impl.GetItems().crend(), _impl.GetItemsHolder());
+			return EnumeratorFromStlIterators(typename SetType::const_reverse_iterator(++it), items.crend(), _impl.GetItemsHolder());
 		}
 
 		bool Add(const ValueType& value) override
@@ -89,14 +96,16 @@ namespace stingray
 
 		bool Remove(const ValueType& value) override
 		{
-			const auto it = _impl.GetItems().find(value);
-			if (it == _impl.GetItems().end())
+			SetType& items = _impl.GetItems();
+
+			const auto it = items.find(value);
+			if (it == items.end())
 				return false;
 
 			if (_impl.CopyOnWrite())
 				_impl.GetItems().erase(value);
 			else
-				_impl.GetItems().erase(it);
+				items.erase(it);
 
 			return true;
 		}
@@ -104,12 +113,15 @@ namespace stingray
 		size_t RemoveWhere(const function<bool (const ValueType&)>& pred) override
 		{
 			_impl.CopyOnWrite();
+
+			SetType& items = _impl.GetItems();
+
 			size_t ret = 0;
-			for (auto it = _impl.GetItems().begin(); it != _impl.GetItems().end(); )
+			for (auto it = items.begin(); it != items.end(); )
 			{
 				if (pred(*it))
 				{
-					it = _impl.GetItems().erase(it);
+					it = items.erase(it);
 					++ret;
 				}
 				else
@@ -125,14 +137,16 @@ namespace stingray
 		template < typename SetType__ >
 		auto DoAdd(const ValueType& value, int) -> decltype(std::declval<SetType__>().lower_bound(value), bool())
 		{
-			const auto it = _impl.GetItems().lower_bound(value);
-			if (it != _impl.GetItems().end() && !typename SetType__::value_compare()(value, *it))
+			SetType& items = _impl.GetItems();
+
+			const auto it = items.lower_bound(value);
+			if (it != items.end() && !typename SetType__::value_compare()(value, *it))
 				return false;
 
 			if (_impl.CopyOnWrite())
 				_impl.GetItems().insert(value);
 			else
-				_impl.GetItems().insert(it, value);
+				items.insert(it, value);
 
 			return true;
 		}
